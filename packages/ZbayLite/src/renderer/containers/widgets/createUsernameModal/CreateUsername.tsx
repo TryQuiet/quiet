@@ -34,7 +34,8 @@ const CreateUsernameModal = () => {
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const loadingCommunityModal = useModal(ModalName.loadingPanel)
-  const unregisteredCommunitiesWithoutUserIdentity = useSelector(identity.selectors.unregisteredCommunitiesWithoutUserIdentity)
+  const initializedCommunities = useSelector(identity.selectors.unregisteredCommunitiesWithoutUserIdentity)
+  const isInitializedCommunity = initializedCommunities.length
 
   const [isCreateUserNameStarted, setisCreateUserNameStarted] = useState('undecided')
   const [isRetryingRegistration, setIsRetryingRegistration] = useState(false)
@@ -42,40 +43,33 @@ const CreateUsernameModal = () => {
   const isConnected = useSelector(socketSelectors.isConnected)
 
   const unregisteredCommunities = useSelector(identity.selectors.unregisteredCommunities)
+  const isUnregisteredCommunity = unregisteredCommunities.length
   const isOwner = useSelector(communities.selectors.isOwner)
 
   useEffect(() => {
-    if (isConnected && unregisteredCommunitiesWithoutUserIdentity.length && isCreateUserNameStarted === 'undecided') {
+    if (isConnected && isInitializedCommunity && isCreateUserNameStarted === 'undecided') {
       let communityAction: CommunityAction
-      if (isOwner) {
-        communityAction = CommunityAction.Create
-      } else {
-        communityAction = CommunityAction.Join
-      }
+      isOwner ? communityAction = CommunityAction.Create : communityAction = CommunityAction.Join
       setIsRetryingRegistration(true)
       createUsernameModal.handleOpen({
         communityAction: communityAction,
-        communityData: unregisteredCommunitiesWithoutUserIdentity[0].registrarUrl
+        communityData: initializedCommunities[0].registrarUrl
       })
     }
-  }, [unregisteredCommunitiesWithoutUserIdentity, isConnected, isCreateUserNameStarted])
+  }, [initializedCommunities, isConnected, isCreateUserNameStarted])
 
   useEffect(() => {
     let communityMessage: LoadingMessages
 
-    if (unregisteredCommunities.length && !loadingCommunityModal.open) {
-      if (isOwner) {
-        communityMessage = LoadingMessages.CreateCommunity
-      } else {
-        communityMessage = LoadingMessages.JoinCommunity
-      }
+    if (isUnregisteredCommunity && !loadingCommunityModal.open) {
+      isOwner ? communityMessage = LoadingMessages.CreateCommunity : communityMessage = LoadingMessages.JoinCommunity
       loadingCommunityModal.handleOpen({
         message: communityMessage
       })
     }
   }, [unregisteredCommunities])
   useEffect(() => {
-    if (certificate && allCommunitiesInitialized && !unregisteredCommunitiesWithoutUserIdentity.length &&
+    if (certificate && allCommunitiesInitialized && !isInitializedCommunity &&
       ((createUsernameModal.communityAction === CommunityAction.Join && channels.length) ||
         (createUsernameModal.communityAction === CommunityAction.Create && invitationUrl))) {
       loadingCommunityModal.handleClose()
@@ -83,7 +77,7 @@ const CreateUsernameModal = () => {
       joinCommunityModal.handleClose()
       createCommunityModal.handleClose()
     }
-  }, [channels.length, invitationUrl, certificate, allCommunitiesInitialized, unregisteredCommunitiesWithoutUserIdentity, unregisteredCommunities])
+  }, [channels.length, invitationUrl, certificate, allCommunitiesInitialized, initializedCommunities, unregisteredCommunities])
 
   useEffect(() => {
     if (id?.hiddenService && !certificate) {
@@ -98,11 +92,11 @@ const CreateUsernameModal = () => {
     let action
     /* Launch/create community */
     if (isRetryingRegistration) {
-      dispatch(communities.actions.removeUnregisteredCommunity(unregisteredCommunitiesWithoutUserIdentity[0]))
+      dispatch(communities.actions.removeUnregisteredCommunity(initializedCommunities[0]))
       action =
         createUsernameModal.communityAction === CommunityAction.Create
-          ? communities.actions.createNewCommunity(unregisteredCommunitiesWithoutUserIdentity[0].name)
-          : communities.actions.joinCommunity(unregisteredCommunitiesWithoutUserIdentity[0].registrarUrl)
+          ? communities.actions.createNewCommunity(initializedCommunities[0].name)
+          : communities.actions.joinCommunity(initializedCommunities[0].registrarUrl)
     } else {
       action =
         createUsernameModal.communityAction === CommunityAction.Create
