@@ -45,7 +45,13 @@ export const getFactory = async (store: Store) => {
         await factory.create('CommunityChannels', { id: payload.id })
         await factory.create('PublicChannel', {
           communityId: payload.id,
-          channel: { name: 'general', owner: 'alice' }
+          channel: {
+            name: 'general',
+            description: 'Welcome to channel #general',
+            timestamp: DateTime.utc().toSeconds(),
+            owner: 'alice',
+            address: 'general'
+          }
         })
         return payload
       }
@@ -146,13 +152,13 @@ export const getFactory = async (store: Store) => {
     {
       identity: factory.assoc('Identity'),
       message: {
-        id: factory.sequence('SignedMessage.id', (n) => n),
+        id: factory.sequence('SignedMessage.id', (n) => `${n}`),
         type: MessageType.Basic,
         message: factory.sequence(
           'SignedMessage.message',
           (n) => `message_${n}`
         ),
-        createdAt: DateTime.utc().toSeconds(),
+        createdAt: DateTime.utc().valueOf(),
         channelId: 'general',
         signature: '',
         pubKey: ''

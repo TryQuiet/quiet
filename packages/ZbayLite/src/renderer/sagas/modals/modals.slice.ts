@@ -12,7 +12,6 @@ export class ModalsInitialState {
   [ModalName.createChannel] = { open: false };
   [ModalName.accountSettingsModal] = { open: false };
   [ModalName.openexternallink] = { open: false };
-  [ModalName.seedModal] = { open: false };
   [ModalName.criticalError] = { open: false };
   [ModalName.createUsernameModal]: {
     open: boolean

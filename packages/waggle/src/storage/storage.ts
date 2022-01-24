@@ -20,6 +20,8 @@ import {
 } from '../common/types'
 import { createPaths } from '../common/utils'
 import { Config } from '../constants'
+import AccessControllers from 'orbit-db-access-controllers'
+import { MessagesAccessController } from './MessagesAccessController'
 import logger from '../logger'
 import IOProxy from '../socket/IOProxy'
 import validate from '../validation/validators'
@@ -72,7 +74,11 @@ export class Storage {
     }
     this.ipfs = await this.initIPFS(libp2p, peerID)
 
-    this.orbitdb = await OrbitDB.createInstance(this.ipfs, { directory: this.orbitDbDir })
+    AccessControllers.addAccessController({ AccessController: MessagesAccessController })
+
+    // @ts-expect-error
+    this.orbitdb = await OrbitDB.createInstance(this.ipfs, { directory: this.orbitDbDir, AccessControllers: AccessControllers })
+
     log('1/6')
     await this.createDbForChannels()
     log('2/6')
@@ -314,6 +320,7 @@ export class Storage {
 
     const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(`channels.${data.address}`, {
       accessController: {
+        type: 'messagesaccess',
         write: ['*']
       }
     })
@@ -359,7 +366,11 @@ export class Storage {
       return
     }
     const db = this.publicChannelsRepos.get(message.channelId).db
-    await db.add(message)
+    try {
+      await db.add(message)
+    } catch (e) {
+      log.error('STORAGE: Could not append message (entry not allowed to write to the log)')
+    }
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {

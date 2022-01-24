@@ -78,6 +78,7 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.NEW_COMMUNITY, (payload: ResponseCreateCommunityPayload) => {
       log('created COMMUNITY')
+      emit(identityActions.saveOwnerCertToDb())
       emit(publicChannelsActions.createGeneralChannel({ communityId: payload.id }))
     })
     socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {
@@ -85,7 +86,6 @@ export function subscribe(socket: Socket) {
       log(payload)
       emit(communitiesActions.responseRegistrar(payload))
       emit(connectionActions.addInitializedRegistrar(payload.id))
-      emit(identityActions.saveOwnerCertToDb())
     })
     socket.on(SocketActionTypes.NETWORK, (payload: any) => {
       log('created NETWORK')
