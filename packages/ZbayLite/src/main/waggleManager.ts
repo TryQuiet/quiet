@@ -48,7 +48,7 @@ export const runWaggle = async (
     io: dataServer.io,
     options: {
       env: {
-        appDataPath: `${appDataPath}/Zbay`,
+        appDataPath: `${appDataPath}/Quiet`,
         resourcesPath
       },
       spawnTor: true,
