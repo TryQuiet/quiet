@@ -45,8 +45,6 @@ setEngine(
 
 let mainWindow: BrowserWindow | null
 
-console.log('main process')
-
 const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
   return window instanceof BrowserWindow
 }
