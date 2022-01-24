@@ -16,8 +16,11 @@ import {
   communities,
   publicChannels,
   getFactory,
-  SocketActionTypes
+  SocketActionTypes,
+  ChannelMessage
 } from '@zbayapp/nectar'
+
+import { keyFromCertificate, parseCertificate } from '@zbayapp/identity'
 
 describe('Channel', () => {
   let socket: MockedSocket
@@ -121,14 +124,14 @@ describe('Channel', () => {
     jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
       if (action === SocketActionTypes.ASK_FOR_MESSAGES) {
         const data = (input as socketEventData<
-        [
-          {
-            peerId: string
-            channelAddress: string
-            ids: string[]
-            communityId: string
-          }
-        ]
+          [
+            {
+              peerId: string
+              channelAddress: string
+              ids: string[]
+              communityId: string
+            }
+          ]
         >)[0]
         if (data.ids.length > 1) {
           fail('Requested too many massages')
@@ -184,6 +187,76 @@ describe('Channel', () => {
           peerId: alice.peerId.id,
           channelAddress: 'general',
           ids: [aliceMessage.message.id, johnMessage.message.id],
+          communityId: community.id
+        }
+      ])
+    }
+  })
+
+  it('filters out suspicious messages', async () => {
+    const { store, runSaga } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    const community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, zbayNickname: 'alice' })
+
+    const john = await factory.create<
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, zbayNickname: 'john' })
+
+    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
+
+    const authenticMessage: ChannelMessage = {
+      ...(
+        await factory.build<typeof publicChannels.actions.test_message>('Message', {
+          identity: alice
+        })
+      ).payload.message,
+      id: Math.random().toString(36).substr(2.9)
+    }
+
+    const spoofedMessage: ChannelMessage = {
+      ...(
+        await factory.build<typeof publicChannels.actions.test_message>('Message', {
+          identity: alice
+        })
+      ).payload.message,
+      id: Math.random().toString(36).substr(2.9),
+      pubKey: johnPublicKey
+    }
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    await act(async () => {
+      await runSaga(mockIncomingMessages).toPromise()
+    })
+
+    // Verified message is shown
+    const persistedMessage = await screen.findByText(authenticMessage.message)
+    expect(persistedMessage).toBeVisible()
+
+    // Spoofed message doesn't exist
+    expect(screen.queryByText(spoofedMessage.message)).toBeNull()
+
+    function* mockIncomingMessages(): Generator {
+      yield* apply(socket.socketClient, socket.socketClient.emit, [
+        SocketActionTypes.INCOMING_MESSAGES,
+        {
+          messages: [authenticMessage, spoofedMessage],
           communityId: community.id
         }
       ])
