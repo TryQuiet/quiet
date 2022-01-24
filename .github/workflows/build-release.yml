@@ -139,7 +139,7 @@ jobs:
 
       - name: "Pull tor binary"
         shell: bash
-        run: cd monorepo/packages/ZbayLite && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/win32/tor.exe --output ./tor/tor.exe
+        run: cd packages/ZbayLite && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/win32/tor.exe --create-dirs -o ./tor/tor.exe
 
       - name: "Verify Sentry setup"
         shell: bash
