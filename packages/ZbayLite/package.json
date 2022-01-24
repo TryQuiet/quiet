@@ -1,16 +1,16 @@
 {
-  "name": "zbay",
-  "productName": "Zbay",
+  "name": "quiet",
+  "productName": "Quiet",
   "author": {
     "name": "Zbay LLC",
-    "email": "rumblefish@rumblefish.pl"
+    "email": "h@zbay.llc"
   },
   "license": "ISC",
   "build": {
     "afterSign": "scripts/notarize.js",
     "afterAllArtifactBuild": "scripts/setEnvs.js",
-    "productName": "Zbay",
-    "appId": "Zbay",
+    "productName": "Quiet",
+    "appId": "Quiet",
     "protocols": {
       "name": "electron-deep-linking",
       "schemes": [
@@ -64,7 +64,7 @@
       "tlgManager/**/*"
     ]
   },
-  "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
+  "homepage": "https://github.com/ZbayApp",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
   "version": "5.0.0",
   "description": "Decentralized team chat",
@@ -89,8 +89,7 @@
     "build:main": "tsc -p tsconfig.build.json",
     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
     "prestart": "npm run build:main",
-    "start": "cross-env ZBAY_IS_TESTNET=0 DEBUG='waggle:*,zbay:*,nectar:*' npm run start:renderer",
-    "start-testnet": "ZBAY_IS_TESTNET=1 npm run start:renderer",
+    "start": "cross-env DEBUG='waggle:*,zbay:*,nectar:*' npm run start:renderer",
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:renderer": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
     "storybook": "start-storybook -p 6006",

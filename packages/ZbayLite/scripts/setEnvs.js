@@ -19,7 +19,7 @@ exports.default = async function (context) {
   childProcess.execSync(`${context.artifactPaths[0]} --appimage-extract`)
   childProcess.execSync(`mv ./squashfs-root ${context.outDir}/squashfs-root`)
   const data = fs.readFileSync(`${context.outDir}/squashfs-root/AppRun`, 'utf8').split('\n')
-  const index = data.findIndex(text => text === 'BIN="$APPDIR/zbay"')
+  const index = data.findIndex(text => text === 'BIN="$APPDIR/quiet"')
   if (index !== -1) {
     data[index - 1] = 'export LD_PRELOAD="${APPDIR}/usr/lib/libssl.so"'
     fs.writeFileSync(`${context.outDir}/squashfs-root/AppRun`, data.join('\n'), 'utf8')
@@ -28,7 +28,7 @@ exports.default = async function (context) {
   fs.unlinkSync(`${context.artifactPaths[0]}`)
   const appName = context.artifactPaths[0].split('/').pop()
   if (appName) {
-    childProcess.execSync(`mv ./Zbay-x86_64.AppImage ${context.outDir}/${appName}`)
+    childProcess.execSync(`mv ./Quiet-x86_64.AppImage ${context.outDir}/${appName}`)
   } else throw new Error('no file name')
   console.log('env added')
   return `${context.outDir}/${appName}`
