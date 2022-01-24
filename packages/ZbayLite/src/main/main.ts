@@ -43,8 +43,6 @@ setEngine(
   })
 )
 
-console.log('main process')
-
 let mainWindow: BrowserWindow | null
 
 const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
