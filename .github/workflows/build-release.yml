@@ -13,7 +13,7 @@ jobs:
     needs: run-e2e-tests
     runs-on: ubuntu-18.04
     if: |
-      startsWith(github.ref, 'refs/tags/zbay')
+      startsWith(github.ref, 'refs/tags/quiet')
 
     env:
       REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
@@ -34,7 +34,7 @@ jobs:
         run: echo $REACT_APP_ENABLE_SENTRY
 
       - name: "Build on Linux"
-        run: lerna run build:prod --scope zbay
+        run: lerna run build:prod --scope quiet
 
       - name: "Set electron-builder props"
         if: |
@@ -79,13 +79,13 @@ jobs:
         run:  npm i -g electron-builder@22.10.5
 
       - name: "Pull tor binary"
-        run: cd packages/ZbayLite && export SOURCE_PATH=darwin && lerna run pullBinaries --scope zbay
+        run: cd packages/ZbayLite && export SOURCE_PATH=darwin && lerna run pullBinaries --scope quiet
 
       - name: "Verify Sentry setup"
         run: echo $REACT_APP_ENABLE_SENTRY
 
       - name: "Build on MacOS"
-        run: lerna run build:prod --scope zbay
+        run: lerna run build:prod --scope quiet
 
       - name: "Remove crud files"
         run: xattr -cr .
@@ -112,7 +112,7 @@ jobs:
     needs: run-e2e-tests
     runs-on: windows-latest
     if: |
-      startsWith(github.ref, 'refs/tags/zbay')
+      startsWith(github.ref, 'refs/tags/quiet')
 
     env:
       REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
@@ -147,7 +147,7 @@ jobs:
 
       - name: "Build on Windows"
         shell: bash
-        run: lerna run build:prod --scope zbay
+        run: lerna run build:prod --scope quiet
 
       - name: "Set electron-builder props"
         shell: bash
