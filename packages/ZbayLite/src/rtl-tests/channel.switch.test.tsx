@@ -40,7 +40,7 @@ describe('Switch channels', () => {
 
     const generalChannelMessage = await factory.create<
     ReturnType<typeof publicChannels.actions.test_message>['payload']
-    >('Message', { identity: alice })
+    >('Message', { identity: alice, verifyAutomatically: true })
 
     await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
       'PublicChannel',
