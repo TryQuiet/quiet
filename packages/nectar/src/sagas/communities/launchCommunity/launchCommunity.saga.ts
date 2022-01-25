@@ -14,12 +14,10 @@ export function* initCommunities(): Generator {
   const userName = yield* select(identitySelectors.currentIdentity)
 
   for (const community of unregisteredCommunities) {
-    console.log('sieema', userName)
     yield* put(identityActions.registerUsername(userName.zbayNickname))
   }
 
   for (const community of joinedCommunities) {
-    console.log('siema 2', userName)
     yield* put(communitiesActions.launchCommunity(community.id))
   }
 }

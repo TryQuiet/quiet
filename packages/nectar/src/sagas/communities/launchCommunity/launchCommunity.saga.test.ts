@@ -18,7 +18,7 @@ import { initCommunities, launchCommunitySaga } from './launchCommunity.saga'
 import { setupCrypto } from '@zbayapp/identity'
 
 describe('launchCommunity', () => {
-  test('launch all remembered communities', async () => {
+  test.only('launch all remembered communities', async () => {
     setupCrypto()
     const store = prepareStore().store
     const factory = await getFactory(store)
@@ -44,17 +44,10 @@ describe('launchCommunity', () => {
     ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community3.id, zbayNickname: 'alice3' })
 
+    const reducer = combineReducers({ Communities: communitiesReducer, Identity: identityReducer })
     await expectSaga(initCommunities)
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer
-        }),
-        {
-          [StoreKeys.Communities]: store.getState().Communities,
-          [StoreKeys.Identity]: store.getState().Identity
-        }
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
       .put(communitiesActions.launchCommunity(community1.id))
       .put(communitiesActions.launchCommunity(community2.id))
       .put(communitiesActions.launchCommunity(community3.id))
