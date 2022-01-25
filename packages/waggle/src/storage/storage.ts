@@ -180,8 +180,8 @@ export class Storage {
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
       this.io.loadPublicChannels({
-      // @ts-expect-error
         communityId: this.communityId,
+        // @ts-expect-error
         channels: this.channels.all
       })
     })
