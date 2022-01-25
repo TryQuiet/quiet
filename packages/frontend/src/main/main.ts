@@ -51,6 +51,8 @@ const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow 
 
 const gotTheLock = app.requestSingleInstanceLock()
 
+console.log('log')
+
 const extensionsFolderPath = `${app.getPath('userData')}/extensions`
 
 const applyDevTools = async () => {
