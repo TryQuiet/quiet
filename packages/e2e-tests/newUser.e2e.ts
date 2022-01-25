@@ -1,7 +1,7 @@
 import { fixture, test, Selector } from 'testcafe'
 
 fixture`Electron test`
-  .page('../ZbayLite/dist/main/index.html#/')
+  .page('../frontend/dist/main/index.html#/')
 
 const longTimeout = 100000
 
