@@ -16,7 +16,7 @@ import {
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { LoadingMessages } from '../renderer/containers/widgets/loadingPanel/loadingMessages'
-import { identity, communities, getFactory } from '@zbayapp/nectar'
+import { identity, communities, getFactory } from '@quiet/nectar'
 
 describe('Restart app works correctly', () => {
   let socket: MockedSocket

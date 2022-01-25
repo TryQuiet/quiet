@@ -9,7 +9,7 @@ import {
   keyFromCertificate,
   parseCertificate,
   sign
-} from '@zbayapp/identity'
+} from '@quiet/identity'
 import { config } from '../../sagas/users/const/certFieldTypes'
 import { PeerId } from '../../sagas/identity/identity.types'
 import { arrayBufferToString } from 'pvutils'

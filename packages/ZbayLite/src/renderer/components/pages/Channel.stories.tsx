@@ -4,7 +4,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../storybook/decorators'
 
 import ChannelComponent, { ChannelComponentProps } from './Channel'
-import { DisplayableMessage } from '@zbayapp/nectar'
+import { DisplayableMessage } from '@quiet/nectar'
 
 const Template: ComponentStory<typeof ChannelComponent> = args => {
   const [messages, _setMessages] = useState<{

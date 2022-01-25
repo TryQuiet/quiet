@@ -1,5 +1,5 @@
 import React from 'react'
-import { getFactory, Community, communities } from '@zbayapp/nectar'
+import { getFactory, Community, communities } from '@quiet/nectar'
 
 import { IdentityPanel } from './IdentityPanel'
 import { prepareStore } from '../../../testUtils/prepareStore'

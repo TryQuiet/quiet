@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect'
-import { publicChannels } from '@zbayapp/nectar'
+import { publicChannels } from '@quiet/nectar'
 import directMessagesSelectors from './directMessages'
 import waggleSelectors from './waggle'
 

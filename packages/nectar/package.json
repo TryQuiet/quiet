@@ -1,5 +1,5 @@
 {
-  "name": "@zbayapp/nectar",
+  "name": "@quiet/nectar",
   "version": "3.0.0-alpha.0",
   "description": "",
   "main": "lib/index.js",
@@ -46,7 +46,7 @@
     "@types/redux-saga": "^0.10.5",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
-    "@zbayapp/identity": "^5.0.0-alpha.0",
+    "@quiet/identity": "^5.0.0-alpha.0",
     "babel-jest": "^27.0.6",
     "cross-env": "^7.0.3",
     "eslint": "^7.32.0",

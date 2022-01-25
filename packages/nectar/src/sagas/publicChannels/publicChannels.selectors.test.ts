@@ -1,4 +1,4 @@
-import { setupCrypto } from '@zbayapp/identity'
+import { setupCrypto } from '@quiet/identity'
 import { Store } from '../store.types'
 import { getFactory, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, identity, messages, publicChannels } from '@zbayapp/nectar'
+import { communities, identity, messages, publicChannels } from '@quiet/nectar'
 
 import ChannelComponent from '../../components/pages/Channel'
 

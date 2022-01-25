@@ -1,7 +1,7 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 import Grid from '@material-ui/core/Grid'
-import { publicChannels, PublicChannel } from '@zbayapp/nectar'
+import { publicChannels, PublicChannel } from '@quiet/nectar'
 
 import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'
 import SidebarHeader from '../../../components/ui/Sidebar/SidebarHeader'

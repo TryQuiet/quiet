@@ -1,5 +1,5 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { createRootCA, RootCA } from '@zbayapp/identity'
+import { createRootCA, RootCA } from '@quiet/identity'
 import Table from 'cli-table'
 import path from 'path'
 import { CryptoEngine, setEngine, Time } from 'pkijs'

@@ -6,7 +6,7 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../hooks'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
 import { CreateUsernameModalProps } from '../createUsernameModal/CreateUsername'
-import { communities } from '@zbayapp/nectar'
+import { communities } from '@quiet/nectar'
 
 const CreateCommunity = () => {
   const isConnected = useSelector(socketSelectors.isConnected)

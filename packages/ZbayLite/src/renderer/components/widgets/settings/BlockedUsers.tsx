@@ -8,7 +8,7 @@ import UserListItem from '../channelSettings/UserListItem'
 
 import { Contact } from '../../../store/handlers/contacts'
 
-import { User } from '@zbayapp/nectar'
+import { User } from '@quiet/nectar'
 
 const useStyles = makeStyles(() => ({
   title: {},

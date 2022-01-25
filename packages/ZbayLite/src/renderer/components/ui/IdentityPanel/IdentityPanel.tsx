@@ -5,7 +5,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { Button } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
-import { Community } from '@zbayapp/nectar'
+import { Community } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
   root: {

@@ -1,5 +1,5 @@
 import { Grid, makeStyles, Typography } from '@material-ui/core'
-import { DisplayableMessage } from '@zbayapp/nectar'
+import { DisplayableMessage } from '@quiet/nectar'
 import React from 'react'
 
 const useStyles = makeStyles(() => ({

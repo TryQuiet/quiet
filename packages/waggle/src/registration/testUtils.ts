@@ -1,4 +1,4 @@
-import { PermsData } from '@zbayapp/nectar'
+import { PermsData } from '@quiet/nectar'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import fetch, { Response } from 'node-fetch'
 import PeerId from 'peer-id'

@@ -12,7 +12,7 @@ import CreateUsernameModal from '../createUsernameModal/CreateUsername'
 import JoinCommunity from '../joinCommunity/joinCommunity'
 import CreateCommunity from './createCommunity'
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
-import { identity, communities, StoreKeys as NectarStoreKeys } from '@zbayapp/nectar'
+import { identity, communities, StoreKeys as NectarStoreKeys } from '@quiet/nectar'
 
 describe('Create community', () => {
   it('users switches from create to join', async () => {

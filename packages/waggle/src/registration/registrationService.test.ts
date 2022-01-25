@@ -1,4 +1,4 @@
-import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, verifyUserCert } from '@zbayapp/identity'
+import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, verifyUserCert } from '@quiet/identity'
 import { Time } from 'pkijs'
 import { DirResult } from 'tmp'
 import { CertificateRegistration } from '.'

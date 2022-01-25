@@ -7,7 +7,7 @@ import { persistReducer } from 'redux-persist'
 import { StoreType } from './handlers/types'
 import { StoreKeys } from './store.keys'
 
-import nectarReducers, { storeKeys as NectarStoreKeys } from '@zbayapp/nectar'
+import nectarReducers, { storeKeys as NectarStoreKeys } from '@quiet/nectar'
 
 import { socketReducer } from '../sagas/socket/socket.slice'
 import { modalsReducer } from '../sagas/modals/modals.slice'

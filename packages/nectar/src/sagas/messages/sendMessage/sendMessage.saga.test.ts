@@ -4,7 +4,7 @@ import {
   loadPrivateKey,
   parseCertificate,
   sign
-} from '@zbayapp/identity'
+} from '@quiet/identity'
 import { KeyObject } from 'crypto'
 import { arrayBufferToString } from 'pvutils'
 import { expectSaga } from 'redux-saga-test-plan'

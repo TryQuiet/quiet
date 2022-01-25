@@ -10,7 +10,7 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Sidebar from '../renderer/components/widgets/sidebar/Sidebar'
 import Channel from '../renderer/containers/pages/Channel'
 
-import { getFactory, identity, publicChannels, communities } from '@zbayapp/nectar'
+import { getFactory, identity, publicChannels, communities } from '@quiet/nectar'
 
 import { DateTime } from 'luxon'
 

@@ -2,7 +2,7 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 
 import IdentityPanelComponent from '../../components/ui/IdentityPanel/IdentityPanel'
-import { communities } from '@zbayapp/nectar'
+import { communities } from '@quiet/nectar'
 import { useModal } from '../hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 

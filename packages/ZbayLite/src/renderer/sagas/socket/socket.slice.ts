@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { StoreKeys } from '@zbayapp/nectar'
+import { StoreKeys } from '@quiet/nectar'
 
 export class SocketState {
   public isConnected: boolean = false

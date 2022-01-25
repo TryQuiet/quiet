@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { publicChannels, PublicChannel } from '@zbayapp/nectar'
+import { publicChannels, PublicChannel } from '@quiet/nectar'
 import JoinChannelModalComponent from '../../../components/widgets/channels/JoinChannelModal'
 import channelHandlers from '../../../store/handlers/channel'
 import { ModalName } from '../../../sagas/modals/modals.types'

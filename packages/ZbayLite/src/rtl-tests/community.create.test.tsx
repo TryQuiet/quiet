@@ -20,7 +20,7 @@ import {
   LaunchRegistrarPayload,
   RegisterOwnerCertificatePayload,
   SocketActionTypes
-} from '@zbayapp/nectar'
+} from '@quiet/nectar'
 import Channel from '../renderer/containers/pages/Channel'
 import LoadingPanel from '../renderer/containers/widgets/loadingPanel/loadingPanel'
 import { LoadingMessages } from '../renderer/containers/widgets/loadingPanel/loadingMessages'

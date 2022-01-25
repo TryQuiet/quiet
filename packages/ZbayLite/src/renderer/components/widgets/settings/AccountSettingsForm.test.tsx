@@ -3,7 +3,7 @@ import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
 import { AccountSettingsForm } from './AccountSettingsForm'
-import { Identity } from '@zbayapp/nectar'
+import { Identity } from '@quiet/nectar'
 
 describe('AccountSettingsForm', () => {
   it('renders component', () => {

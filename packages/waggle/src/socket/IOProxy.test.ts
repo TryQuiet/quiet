@@ -15,7 +15,7 @@ import {
   LaunchRegistrarPayload,
   RegisterUserCertificatePayload,
   SocketActionTypes
-} from '@zbayapp/nectar'
+} from '@quiet/nectar'
 import IOProxy from './IOProxy'
 
 describe('IO proxy', () => {

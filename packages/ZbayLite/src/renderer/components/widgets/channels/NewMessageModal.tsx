@@ -10,7 +10,7 @@ import { TextField as FormikTextField } from '../../ui/TextField/TextField'
 import Modal from '../../ui/Modal/Modal'
 import { AutocompleteField } from '../../ui/Autocomplete/Autocomplete'
 
-import { User } from '@zbayapp/nectar'
+import { User } from '@quiet/nectar'
 
 import { Dictionary } from '@reduxjs/toolkit'
 

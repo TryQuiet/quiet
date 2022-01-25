@@ -1,5 +1,5 @@
 import EventStore from 'orbit-db-eventstore'
-import { ChannelMessage, PublicChannel } from '@zbayapp/nectar'
+import { ChannelMessage, PublicChannel } from '@quiet/nectar'
 
 export interface IRepo {
   db: EventStore<ChannelMessage>

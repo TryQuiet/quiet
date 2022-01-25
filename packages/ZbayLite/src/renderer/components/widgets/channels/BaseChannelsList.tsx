@@ -1,5 +1,5 @@
 import React from 'react'
-import { PublicChannel } from '@zbayapp/nectar'
+import { PublicChannel } from '@quiet/nectar'
 
 import List from '@material-ui/core/List'
 

@@ -24,7 +24,7 @@ import {
   Identity,
   Community,
   createUserCertificateTestHelper
-} from '@zbayapp/nectar'
+} from '@quiet/nectar'
 import Channel from '../renderer/containers/pages/Channel'
 
 describe('User', () => {

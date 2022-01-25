@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { identity, publicChannels } from '@zbayapp/nectar'
+import { identity, publicChannels } from '@quiet/nectar'
 import ChannelInputComponent from '../../../components/widgets/channels/ChannelInput'
 
 export const useDirectMessageInputActions = () => {

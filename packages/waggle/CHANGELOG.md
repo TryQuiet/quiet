@@ -318,7 +318,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 - Tor binaries for 3 platforms (linux, macos, win). Use proper binary depending on current platform.
 - Run tests on linux and macos (CI)
-- @zbayapp/identity lib
+- @quiet/identity lib
 - Verify certificate before saving it to database
 - Return all certificates on db.load
 - Validators for storage

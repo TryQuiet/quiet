@@ -6,7 +6,7 @@ import List from '@material-ui/core/List'
 import MessagesDivider from '../MessagesDivider'
 import BasicMessageComponent from './BasicMessage'
 
-import { DisplayableMessage } from '@zbayapp/nectar'
+import { DisplayableMessage } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
   scroll: {

@@ -1,5 +1,5 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { createRootCA, RootCA } from '@zbayapp/identity'
+import { createRootCA, RootCA } from '@quiet/identity'
 import getPort from 'get-port'
 import waitForExpect from 'wait-for-expect'
 import path from 'path'

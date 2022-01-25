@@ -4,7 +4,7 @@ import { createMinConnectionManager, createTmpDir, tmpZbayDirPath, TorMock } fro
 import PeerId from 'peer-id'
 import { getPorts } from '../common/utils'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
-import { Certificates } from '@zbayapp/nectar'
+import { Certificates } from '@quiet/nectar'
 jest.setTimeout(100_000)
 
 describe('Community manager', () => {

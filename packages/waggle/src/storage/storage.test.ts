@@ -11,7 +11,7 @@ import {
   createUserCert,
   keyFromCertificate,
   parseCertificate
-} from '@zbayapp/identity'
+} from '@quiet/identity'
 import {
   communities,
   Community,
@@ -23,7 +23,7 @@ import {
   Identity,
   ChannelMessage,
   PublicChannel
-} from '@zbayapp/nectar'
+} from '@quiet/nectar'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 
 jest.setTimeout(30_000)

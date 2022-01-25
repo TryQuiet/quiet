@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { communities } from '@zbayapp/nectar'
+import { communities } from '@quiet/nectar'
 import { CommunityAction } from '../../../components/widgets/performCommunityAction/community.keys'
 import PerformCommunityActionComponent from '../../../components/widgets/performCommunityAction/PerformCommunityActionComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'

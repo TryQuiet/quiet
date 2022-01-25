@@ -11,7 +11,7 @@ import silencedBlack from '../../../static/images/silencedBlack.svg'
 import Tooltip from '../../ui/Tooltip/Tooltip'
 import { ChannelMenuActionProps } from './ChannelMenuAction'
 
-import { PublicChannel } from '@zbayapp/nectar'
+import { PublicChannel } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
   root: {

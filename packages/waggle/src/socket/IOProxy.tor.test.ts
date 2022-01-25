@@ -4,7 +4,7 @@ import {
   InitCommunityPayload,
   LaunchRegistrarPayload,
   PeerId
-} from '@zbayapp/nectar'
+} from '@quiet/nectar'
 import { createMinConnectionManager, createTmpDir, tmpZbayDirPath } from '../common/testUtils'
 import { getPorts } from '../common/utils'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'

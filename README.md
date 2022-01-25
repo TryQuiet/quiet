@@ -54,8 +54,8 @@ lerna run <script> --stream --scope <package-name>
 ```
 
 Available package names are:
-- @zbayapp/identity
-- @zbayapp/nectar
+- @quiet/identity
+- @quiet/nectar
 - e2e-tests
 - integration-tests
 - waggle

@@ -1,6 +1,6 @@
 
 // import { createSelector } from 'reselect'
-// import { extractPubKeyString } from '@zbayapp/identity'
+// import { extractPubKeyString } from '@quiet/identity'
 
 // import { Store } from '../reducers'
 // import { StoreKeys } from '../store.keys'

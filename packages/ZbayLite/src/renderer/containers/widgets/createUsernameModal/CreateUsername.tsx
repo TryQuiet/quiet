@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { communities, errors, identity, publicChannels, socketActionTypes, connection } from '@zbayapp/nectar'
+import { communities, errors, identity, publicChannels, socketActionTypes, connection } from '@quiet/nectar'
 import CreateUsernameModalComponent from '../../../components/widgets/createUsername/CreateUsernameModal'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../hooks'

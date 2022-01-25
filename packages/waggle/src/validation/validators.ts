@@ -1,6 +1,6 @@
 import _ from 'validator'
 import joi from 'joi'
-import { ChannelMessage, PublicChannel } from '@zbayapp/nectar'
+import { ChannelMessage, PublicChannel } from '@quiet/nectar'
 
 const messageSchema = joi.object({
   id: joi.string().required(),

@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect'
 // import identitySelectors from './identity'
 // import usersSelectors from './users'
-import { publicChannels } from '@zbayapp/nectar'
+import { publicChannels } from '@quiet/nectar'
 // import publicChannelsSelectors from './publicChannels'
 // import { mergeIntoOne, displayableMessageLimit } from './channel'
 // import { MessageType } from '../../../shared/static.types'
@@ -10,7 +10,7 @@ import { publicChannels } from '@zbayapp/nectar'
 import { Contact } from '../handlers/contacts'
 import { Store } from '../reducers'
 // import certificatesSelector from '../certificates/certificates.selector'
-// import { CertFieldsTypes, extractPubKeyString, getCertFieldValue, loadCertificate } from '@zbayapp/identity'
+// import { CertFieldsTypes, extractPubKeyString, getCertFieldValue, loadCertificate } from '@quiet/identity'
 // import channelSelector from '../selectors/channel'
 
 const contacts = (s: Store) => s.contacts

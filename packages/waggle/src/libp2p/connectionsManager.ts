@@ -15,7 +15,7 @@ import * as os from 'os'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { ConnectionsManagerOptions } from '../common/types'
-import { Certificates, SocketActionTypes } from '@zbayapp/nectar'
+import { Certificates, SocketActionTypes } from '@quiet/nectar'
 import {
   createLibp2pAddress,
   createLibp2pListenAddress,

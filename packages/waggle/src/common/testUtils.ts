@@ -9,7 +9,7 @@ import { ConnectionsManagerOptions } from '../common/types'
 import { Config } from '../constants'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
-import { PermsData } from '@zbayapp/nectar'
+import { PermsData } from '@quiet/nectar'
 import WebsocketsOverTor from '../libp2p/websocketOverTor'
 import { Tor } from '../torManager'
 import {

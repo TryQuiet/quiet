@@ -3,7 +3,7 @@ import React, { Fragment } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
 import WelcomeMessage from './WelcomeMessage'
-import { DisplayableMessage } from '@zbayapp/nectar'
+import { DisplayableMessage } from '@quiet/nectar'
 
 const useStyles = makeStyles((theme) => ({
   nickname: {

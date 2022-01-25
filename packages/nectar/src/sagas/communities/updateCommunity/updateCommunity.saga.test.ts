@@ -1,6 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { setupCrypto } from '@zbayapp/identity'
+import { setupCrypto } from '@quiet/identity'
 import { StoreKeys } from '../../store.keys'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'

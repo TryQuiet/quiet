@@ -1,5 +1,5 @@
 {
-  "name": "@zbayapp/identity",
+  "name": "@quiet/identity",
   "version": "5.0.0-alpha.0",
   "description": "Zbay tools for creating certificates and signing messages",
   "main": "lib/index.js",

@@ -1,5 +1,5 @@
 import waitForExpect from 'wait-for-expect'
-import { publicChannels } from '@zbayapp/nectar'
+import { publicChannels } from '@quiet/nectar'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp, sleep } from '../utils'
 import logger from '../logger'

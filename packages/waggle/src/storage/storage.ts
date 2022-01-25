@@ -4,8 +4,8 @@ import {
   getCertFieldValue,
   parseCertificate,
   verifyUserCert
-} from '@zbayapp/identity'
-import { ChannelMessage, PublicChannel, SaveCertificatePayload } from '@zbayapp/nectar'
+} from '@quiet/identity'
+import { ChannelMessage, PublicChannel, SaveCertificatePayload } from '@quiet/nectar'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
 import OrbitDB from 'orbit-db'

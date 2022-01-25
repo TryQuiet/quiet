@@ -13,7 +13,7 @@ import {
   getFactory,
   SocketActionTypes,
   SubscribeToTopicPayload
-} from '@zbayapp/nectar'
+} from '@quiet/nectar'
 import Channel from '../renderer/containers/pages/Channel'
 
 describe('General channel', () => {

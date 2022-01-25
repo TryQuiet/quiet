@@ -7,7 +7,7 @@ import {
   publicChannels,
   connection,
   StoreKeys as NectarStoreKeys
-} from '@zbayapp/nectar'
+} from '@quiet/nectar'
 import { StoreKeys } from '../store/store.keys'
 import { combineReducers, createStore, applyMiddleware } from 'redux'
 import createSagaMiddleware from 'redux-saga'

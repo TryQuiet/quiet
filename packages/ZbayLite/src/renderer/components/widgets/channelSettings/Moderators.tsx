@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 
 import UserListItem from './UserListItem'
-import { User } from '@zbayapp/nectar'
+import { User } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
   title: {},

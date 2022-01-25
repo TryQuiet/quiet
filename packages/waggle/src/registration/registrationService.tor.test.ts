@@ -1,4 +1,4 @@
-import { configCrypto, createRootCA, createUserCsr, RootCA, verifyUserCert } from '@zbayapp/identity'
+import { configCrypto, createRootCA, createUserCsr, RootCA, verifyUserCert } from '@quiet/identity'
 import getPort from 'get-port'
 import { Time } from 'pkijs'
 import { DirResult } from 'tmp'

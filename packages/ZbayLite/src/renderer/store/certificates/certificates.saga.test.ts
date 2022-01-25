@@ -7,7 +7,7 @@ test('mock, because we keep those for the next iteration', async () => {
 // import { combineReducers } from 'redux'
 // import { certificatesActions, certificatesReducer, CertificatesState } from './certificates.reducer'
 // import { createOwnCertificate } from './certificates.saga'
-// import { createUserCsr } from '@zbayapp/identity'
+// import { createUserCsr } from '@quiet/identity'
 // import { StoreKeys } from '../store.keys'
 // import electronStore from '../../../shared/electronStore'
 // import { Store } from '../reducers'

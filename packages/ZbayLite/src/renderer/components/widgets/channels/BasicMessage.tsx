@@ -13,7 +13,7 @@ import Jdenticon from 'react-jdenticon'
 
 // import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
 
-import { DisplayableMessage } from '@zbayapp/nectar'
+import { DisplayableMessage } from '@quiet/nectar'
 import { NestedMessageContent } from './NestedMessageContent'
 
 const useStyles = makeStyles((theme: Theme) => ({

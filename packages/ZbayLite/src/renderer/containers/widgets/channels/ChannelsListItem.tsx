@@ -1,6 +1,6 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { communities, PublicChannel, publicChannels } from '@zbayapp/nectar'
+import { communities, PublicChannel, publicChannels } from '@quiet/nectar'
 import ChannelsListItemComponent from '../../../components/widgets/channels/ChannelsListItem'
 
 interface ChannelsListItemContainerProps {

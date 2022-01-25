@@ -1,5 +1,5 @@
 import SocketIO from 'socket.io'
-import { SocketActionTypes } from '@zbayapp/nectar'
+import { SocketActionTypes } from '@quiet/nectar'
 
 class ErrorPayload {
   type: string

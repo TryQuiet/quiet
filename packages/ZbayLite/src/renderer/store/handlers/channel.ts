@@ -13,7 +13,7 @@ import electronStore from '../../../shared/electronStore'
 
 import { ActionsType, PayloadType } from './types'
 // import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.reducer'xs
-import { publicChannels } from '@zbayapp/nectar'
+import { publicChannels } from '@quiet/nectar'
 
 // TODO: to remove, but must be replaced in all the tests
 export const ChannelState = {

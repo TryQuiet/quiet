@@ -11,7 +11,7 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 
 import Channel from '../renderer/containers/pages/Channel'
 
-import { identity, communities, publicChannels, getFactory, SocketActionTypes } from '@zbayapp/nectar'
+import { identity, communities, publicChannels, getFactory, SocketActionTypes } from '@quiet/nectar'
 
 describe('Channel', () => {
   let socket: MockedSocket

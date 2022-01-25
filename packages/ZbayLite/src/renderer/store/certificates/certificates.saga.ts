@@ -1,7 +1,7 @@
 // import { call, apply, all, takeEvery, put, select } from 'typed-redux-saga'
 // import { PayloadAction } from '@reduxjs/toolkit'
 // import { certificatesActions } from './certificates.reducer'
-// import { createUserCsr, configCrypto, CertFieldsTypes, parseCertificate, getCertFieldValue } from '@zbayapp/identity'
+// import { createUserCsr, configCrypto, CertFieldsTypes, parseCertificate, getCertFieldValue } from '@quiet/identity'
 // import electronStore from '../../../shared/electronStore'
 // import { actions } from '../handlers/directMessages'
 // import { actions as identityActions } from '../handlers/identity'

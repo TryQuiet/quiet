@@ -1,4 +1,4 @@
-import { ChannelMessage, PublicChannel } from '@zbayapp/nectar'
+import { ChannelMessage, PublicChannel } from '@quiet/nectar'
 import { isUser, isMessage, isConversation, isDirectMessage, isChannel } from './validators'
 
 describe('Validators - Users', () => {

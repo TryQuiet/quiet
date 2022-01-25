@@ -47,7 +47,6 @@ const mockFetch: typeof fetch = async () => await Promise.resolve({} as Response
 global.fetch = mockFetch
 
 registerRequireContextHook()
-process.env.ZBAY_IS_TESTNET = '1'
 Enzyme.configure({ adapter: new Adapter() })
 
 jest.resetAllMocks()

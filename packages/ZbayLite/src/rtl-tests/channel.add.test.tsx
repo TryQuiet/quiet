@@ -21,7 +21,7 @@ import {
   publicChannels,
   SocketActionTypes,
   SubscribeToTopicPayload
-} from '@zbayapp/nectar'
+} from '@quiet/nectar'
 
 import { ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'

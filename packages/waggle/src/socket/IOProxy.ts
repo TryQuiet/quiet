@@ -21,7 +21,7 @@ import {
   GetPublicChannelsResponse,
   OnMessagePostedResponse,
   SendCertificatesResponse
-} from '@zbayapp/nectar'
+} from '@quiet/nectar'
 import { emitServerError, emitValidationError } from './errors'
 import logger from '../logger'
 

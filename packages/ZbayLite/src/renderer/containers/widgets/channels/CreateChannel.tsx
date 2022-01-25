@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import CreateChannelComponent from '../../../components/widgets/channels/CreateChannel/CreateChannel'
-import { communities, identity, PublicChannel, publicChannels } from '@zbayapp/nectar'
+import { communities, identity, PublicChannel, publicChannels } from '@quiet/nectar'
 import { DateTime } from 'luxon'
 import { useModal } from '../../hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'

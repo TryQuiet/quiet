@@ -2,7 +2,7 @@
 import { soundTypeToAudio } from '../shared/sounds'
 import electronStore from '../shared/electronStore'
 import history from '../shared/history'
-import { DisplayableMessage } from '@zbayapp/nectar'
+import { DisplayableMessage } from '@quiet/nectar'
 
 export const createNotification = async ({
   title,
