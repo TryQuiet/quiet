@@ -29,11 +29,11 @@ describe('publicChannelsSelectors', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-      ReturnType<typeof identityActions.addNewIdentity>['payload']
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community.id, zbayNickname: 'alice' })
 
     const john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
