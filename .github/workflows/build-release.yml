@@ -58,6 +58,7 @@ jobs:
 
     env:
       REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
     steps:
       - uses: actions/checkout@v2
@@ -113,6 +114,7 @@ jobs:
 
     env:
       REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
     steps:
       - uses: actions/checkout@v2
