@@ -31,12 +31,11 @@ export enum SocketActionTypes {
   GET_PRIVATE_CONVERSATIONS = 'getPrivateConversations',
   GET_PUBLIC_CHANNELS = 'getPublicChannels',
   // I
+  INCOMING_MESSAGES = 'incomingMessages',
   INITIALIZE_CONVERSATION = 'initializeConversation',
   // L
   LAUNCH_COMMUNITY = 'launchCommunity',
   LAUNCH_REGISTRAR = 'launchRegistrar',
-  // M
-  MESSAGE = 'message',
   // N
   NETWORK = 'network',
   NEW_COMMUNITY = 'newCommunity',
@@ -47,7 +46,6 @@ export enum SocketActionTypes {
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
   REGISTRAR = 'registrar',
-  RESPONSE_ASK_FOR_MESSAGES = 'responseFetchAllMessages',
   RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
   RESPONSE_FETCH_ALL_MESSAGES = 'responseFetchAllMessages',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',

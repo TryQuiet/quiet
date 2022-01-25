@@ -39,8 +39,8 @@ describe('Switch channels', () => {
     >('Identity', { id: community.id, zbayNickname: 'alice' })
 
     const generalChannelMessage = await factory.create<
-    ReturnType<typeof publicChannels.actions.signMessage>['payload']
-    >('SignedMessage', { identity: alice })
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
+    >('Message', { identity: alice, verifyAutomatically: true })
 
     await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
       'PublicChannel',

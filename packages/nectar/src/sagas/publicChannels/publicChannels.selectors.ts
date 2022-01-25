@@ -12,6 +12,7 @@ import { MessageType } from '../messages/messages.types'
 import { CommunityChannels } from './publicChannels.slice'
 import { DisplayableMessage } from '../..'
 import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
+import { messagesVerificationStatus } from '../messages/messages.selectors'
 
 const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
   state[StoreKeys.PublicChannels]
@@ -26,7 +27,7 @@ export const publicChannelsByCommunity = (id: string) =>
     return publicChannelsAdapter.getSelectors().selectAll(community.channels)
   })
 
-const currentCommunityChannelsState = createSelector(
+export const currentCommunityChannelsState = createSelector(
   selectEntities,
   currentCommunityId,
   (publicChannels, currentCommunity) => {
@@ -69,11 +70,23 @@ export const currentChannelMessages = createSelector(
   }
 )
 
-const validCurrentChannelMessages = createSelector(
+export const validCurrentChannelMessages = createSelector(
   currentChannelMessages,
   certificatesMapping,
-  (messages, certificates) => {
-    return messages.filter(message => message.pubKey in certificates)
+  messagesVerificationStatus,
+  (messages, certificates, verification) => {
+    const filtered = messages.filter(message => message.pubKey in certificates)
+    return filtered.filter(message => {
+      const status = verification[message.signature]
+      if (
+        status &&
+        status.publicKey === message.pubKey &&
+        status.signature === message.signature &&
+        status.verified
+      ) {
+        return message
+      }
+    })
   }
 )
 
