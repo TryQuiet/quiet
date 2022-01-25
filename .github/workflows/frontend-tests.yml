@@ -3,7 +3,7 @@ name: Frontend tests
 on:
   pull_request:
     paths:
-      - packages/ZbayLite/**
+      - packages/frontend/**
 
 jobs:
   zbay-tests:

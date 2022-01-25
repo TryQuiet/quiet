@@ -28,7 +28,7 @@ jobs:
         run:  npm i -g electron-builder@22.10.5
 
       - name: "Pull tor binary"
-        run: cd packages/ZbayLite && export SOURCE_PATH=linux && npm run pullBinaries --scope quiet && npm run pullLibs
+        run: cd packages/frontend && export SOURCE_PATH=linux && npm run pullBinaries --scope quiet && npm run pullLibs
 
       - name: "Verify Sentry setup"
         run: echo $REACT_APP_ENABLE_SENTRY
@@ -48,7 +48,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           ARCH: x86_64
-        run: cd packages/ZbayLite && electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
+        run: cd packages/frontend && electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
 
   build-macos:
     needs: run-e2e-tests
@@ -79,7 +79,7 @@ jobs:
         run:  npm i -g electron-builder@22.10.5
 
       - name: "Pull tor binary"
-        run: cd packages/ZbayLite && export SOURCE_PATH=darwin && lerna run pullBinaries --scope quiet
+        run: cd packages/frontend && export SOURCE_PATH=darwin && lerna run pullBinaries --scope quiet
 
       - name: "Verify Sentry setup"
         run: echo $REACT_APP_ENABLE_SENTRY
@@ -106,7 +106,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
-        run: cd packages/ZbayLite && electron-builder -p always --mac ${{ env.ELECTRON_BUILDER_PROPS }}
+        run: cd packages/frontend && electron-builder -p always --mac ${{ env.ELECTRON_BUILDER_PROPS }}
 
   build-windows:
     needs: run-e2e-tests
@@ -122,7 +122,7 @@ jobs:
 
       - name: "Fetch jsign"
         shell: bash
-        run: cd packages/ZbayLite && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
+        run: cd packages/frontend && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
 
       - name: "Add Windows certificate"
         id: write_file
@@ -139,7 +139,7 @@ jobs:
 
       - name: "Pull tor binary"
         shell: bash
-        run: cd packages/ZbayLite && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/win32/tor.exe --create-dirs -o ./tor/tor.exe
+        run: cd packages/frontend && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/win32/tor.exe --create-dirs -o ./tor/tor.exe
 
       - name: "Verify Sentry setup"
         shell: bash
@@ -166,4 +166,4 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
-        run: cd packages/ZbayLite && electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
+        run: cd packages/frontend && electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
