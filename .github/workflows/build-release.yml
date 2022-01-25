@@ -40,7 +40,11 @@ jobs:
         if: |
           ${{ github.event.action == 'prereleased' }}
         run: |
-          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=release.zbay.lite.test" >> $GITHUB_ENV
+          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=test.quiet" >> $GITHUB_ENV
+        if: |
+          ${{ github.event.action == 'released' }}
+        run: |
+          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=quiet" >> $GITHUB_ENV
 
       - name: "Release"
         env:
@@ -94,7 +98,11 @@ jobs:
         if: |
           ${{ github.event.action == 'prereleased' }}
         run: |
-          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=release.zbay.lite.test" >> $GITHUB_ENV
+          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=test.quiet" >> $GITHUB_ENV
+        if: |
+          ${{ github.event.action == 'released' }}
+        run: |
+          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=quiet" >> $GITHUB_ENV
 
       - name: "Release"
         env:
@@ -154,7 +162,11 @@ jobs:
         if: |
           ${{ github.event.action == 'prereleased' }}
         run: |
-          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=release.zbay.lite.test" >> $GITHUB_ENV
+          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=test.quiet" >> $GITHUB_ENV
+        if: |
+          ${{ github.event.action == 'released' }}
+        run: |
+          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=quiet" >> $GITHUB_ENV
 
       - name: "Release"
         shell: bash
