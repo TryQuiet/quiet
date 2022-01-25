@@ -455,7 +455,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     <div className={classes.picker}>
                       <Picker
                         /* eslint-disable */
-                        onEmojiClick={(e, emoji) => {
+                        onEmojiClick={(_e, emoji) => {
                           setHtmlMessage(htmlMessage => htmlMessage + emoji.emoji)
                           setMessage(message + emoji.emoji)
                           setOpenEmoji(false)
