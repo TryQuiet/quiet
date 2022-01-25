@@ -1,6 +1,6 @@
 {
   "name": "integration-tests",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -46,7 +46,7 @@
     "@peculiar/webcrypto": "1.2.2",
     "@quiet/identity": "^0.1.0-alpha.0",
     "@quiet/nectar": "^0.1.0-alpha.0",
-    "@quiet/waggle": "^0.1.0-alpha.1",
+    "@quiet/waggle": "^0.1.0-alpha.2",
     "@reduxjs/toolkit": "^1.6.1",
     "debug": "^4.3.2",
     "get-port": "^5.1.1",
