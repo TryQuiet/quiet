@@ -8,6 +8,10 @@ const identitySlice: CreatedSelectors[StoreKeys.Identity] = (
   state: StoreState
 ) => state[StoreKeys.Identity]
 
+export const selectIdentities = createSelector(
+  identitySlice,
+  (reducerState) => identityAdapter.getSelectors().selectEntities(reducerState.identities)
+)
 export const selectById = (id: string) =>
   createSelector(identitySlice, (reducerState) =>
     identityAdapter.getSelectors().selectById(reducerState.identities, id)
@@ -29,39 +33,30 @@ export const currentIdentity = createSelector(
 
 export const joinedCommunities = createSelector(
   allCommunities,
-  identitySlice,
-  (allCommunities, reducerState) => {
+  selectIdentities,
+  (allCommunities, identities) => {
     return allCommunities.filter((community) => {
-      const identityFromCommunity = identityAdapter
-        .getSelectors()
-        .selectById(reducerState.identities, community.id)
-      return identityFromCommunity?.userCertificate
+      return identities[community.id]?.userCertificate
     })
   }
 )
 
 export const unregisteredCommunities = createSelector(
   allCommunities,
-  identitySlice,
-  (allCommunities, reducerState) => {
+  selectIdentities,
+  (allCommunities, identities) => {
     return allCommunities.filter((community) => {
-      const identityFromCommunity = identityAdapter
-        .getSelectors()
-        .selectById(reducerState.identities, community.id)
-      return !identityFromCommunity?.userCertificate && identityFromCommunity
+      return !identities[community.id]?.userCertificate && identities[community.id]
     })
   }
 )
 
 export const unregisteredCommunitiesWithoutUserIdentity = createSelector(
   allCommunities,
-  identitySlice,
-  (allCommunities, reducerState) => {
+  selectIdentities,
+  (allCommunities, identities) => {
     return allCommunities.filter((community) => {
-      const identityFromCommunity = identityAdapter
-        .getSelectors()
-        .selectById(reducerState.identities, community.id)
-      return !identityFromCommunity
+      return !identities[community.id]
     })
   }
 )
