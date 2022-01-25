@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`notifications reducer handles action enqueueSnackbar 1`] = `
+Array [
+  Object {
+    "message": "This is a sample message",
+    "options": Object {
+      "persistent": true,
+    },
+  },
+]
+`;
+
+exports[`notifications reducer handles action removeSnackbar 1`] = `Array []`;

@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Imported channel data selector 1`] = `
+Array [
+  Object {
+    "key": "test-key",
+    "message": "Test message",
+    "options": Object {
+      "persist": true,
+    },
+  },
+]
+`;

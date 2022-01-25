@@ -1,0 +1,32 @@
+{
+  "plugins": [
+    ["@babel/plugin-proposal-class-properties", { "loose": true }],
+    "@babel/plugin-proposal-optional-chaining"
+  ],
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+
+        "targets": {
+          "chrome": "74",
+          "node": "10"
+        },
+        "useBuiltIns": "usage",
+        "modules": false,
+        "loose": true,
+        "shippedProposals": true
+      }
+    ],
+    "@babel/preset-react"
+  ],
+  "env": {
+    "test": {
+      "plugins": [
+        "@babel/plugin-transform-modules-commonjs",
+        "require-context-hook",
+        "@babel/plugin-proposal-class-properties"
+      ]
+    }
+  }
+}

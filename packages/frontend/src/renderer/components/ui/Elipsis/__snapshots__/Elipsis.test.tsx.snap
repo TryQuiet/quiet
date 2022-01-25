@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Elipsis renders with placement bottom 1`] = `
+<body>
+  <div>
+    <span>
+      <span
+        class="MuiTypography-root makeStyles-content-48 MuiTypography-caption"
+      >
+        this ...
+      </span>
+    </span>
+  </div>
+</body>
+`;
+
+exports[`Elipsis renders with placement bottom-end 1`] = `
+<body>
+  <div>
+    <span>
+      <span
+        class="MuiTypography-root makeStyles-content-95 MuiTypography-caption"
+      >
+        this ...
+      </span>
+    </span>
+  </div>
+</body>
+`;
+
+exports[`Elipsis renders with placement bottom-start 1`] = `
+<body>
+  <div>
+    <span>
+      <span
+        class="MuiTypography-root makeStyles-content-1 MuiTypography-caption"
+      >
+        this ...
+      </span>
+    </span>
+  </div>
+</body>
+`;

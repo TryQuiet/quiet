@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NotificationsCenter blockedUsers selector 1`] = `
+Array [
+  4,
+  4,
+]
+`;
+
+exports[`NotificationsCenter channel by id selector 1`] = `1`;
+
+exports[`NotificationsCenter channels selector 1`] = `
+Object {
+  "key1": 1,
+  "key2": 2,
+}
+`;
+
+exports[`NotificationsCenter contact by address selector 1`] = `1`;
+
+exports[`NotificationsCenter contacts selector 1`] = `
+Object {
+  "key1": 1,
+  "key2": 2,
+  "muted1": 4,
+  "muted2": 4,
+}
+`;
+
+exports[`NotificationsCenter user filterType selector 1`] = `1`;
+
+exports[`NotificationsCenter user selector 1`] = `
+Object {
+  "filterType": 1,
+  "key1": 1,
+  "key2": 2,
+  "sound": 1,
+}
+`;
+
+exports[`NotificationsCenter user sound selector 1`] = `1`;

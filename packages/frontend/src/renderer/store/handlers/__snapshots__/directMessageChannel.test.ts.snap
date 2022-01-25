@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`directMessageChannel reducer handles actions - setTargetRecipientAddress 1`] = `
+Object {
+  "targetRecipientAddress": "target-user-address",
+  Symbol(immer-draftable): true,
+}
+`;
+
+exports[`directMessageChannel reducer handles actions - setTargetRecipientUsername 1`] = `
+Object {
+  "targetRecipientUsername": "target-user-username",
+  Symbol(immer-draftable): true,
+}
+`;
