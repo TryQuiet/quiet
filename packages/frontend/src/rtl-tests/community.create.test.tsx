@@ -25,6 +25,8 @@ import Channel from '../renderer/containers/pages/Channel'
 import LoadingPanel from '../renderer/containers/widgets/loadingPanel/loadingPanel'
 import { LoadingMessages } from '../renderer/containers/widgets/loadingPanel/loadingMessages'
 
+jest.setTimeout(20_000)
+
 const payload = (id: string): Partial<Identity> => ({
   id: id,
   hiddenService: {

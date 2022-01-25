@@ -13,6 +13,8 @@ import Channel from '../renderer/containers/pages/Channel'
 
 import { identity, communities, publicChannels, getFactory, SocketActionTypes } from '@quiet/nectar'
 
+jest.setTimeout(20_000)
+
 describe('Channel', () => {
   let socket: MockedSocket
 

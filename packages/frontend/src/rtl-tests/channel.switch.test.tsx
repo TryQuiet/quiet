@@ -14,6 +14,8 @@ import { getFactory, identity, publicChannels, communities } from '@quiet/nectar
 
 import { DateTime } from 'luxon'
 
+jest.setTimeout(20_000)
+
 describe('Switch channels', () => {
   let socket: MockedSocket
 

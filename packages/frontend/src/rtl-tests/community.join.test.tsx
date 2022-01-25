@@ -27,6 +27,8 @@ import {
 } from '@quiet/nectar'
 import Channel from '../renderer/containers/pages/Channel'
 
+jest.setTimeout(20_000)
+
 describe('User', () => {
   let socket: MockedSocket
 

@@ -18,6 +18,8 @@ import { ioMock } from '../shared/setupTests'
 import { LoadingMessages } from '../renderer/containers/widgets/loadingPanel/loadingMessages'
 import { identity, communities, getFactory } from '@quiet/nectar'
 
+jest.setTimeout(20_000)
+
 describe('Restart app works correctly', () => {
   let socket: MockedSocket
 

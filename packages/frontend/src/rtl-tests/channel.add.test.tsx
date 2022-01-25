@@ -26,6 +26,8 @@ import {
 import { ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 
+jest.setTimeout(20_000)
+
 describe('Add new channel', () => {
   let socket: MockedSocket
 
