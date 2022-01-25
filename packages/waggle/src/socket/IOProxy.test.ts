@@ -17,7 +17,7 @@ import {
   SocketActionTypes
 } from '@zbayapp/nectar'
 import IOProxy from './IOProxy'
-import { ErrorCodes, ErrorMessages } from './errors'
+import { ErrorCodes, ErrorMessages } from '@zbayapp/nectar'
 
 describe('IO proxy', () => {
   let manager: ConnectionsManager

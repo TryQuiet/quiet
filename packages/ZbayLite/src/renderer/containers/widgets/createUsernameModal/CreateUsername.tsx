@@ -6,7 +6,7 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../hooks'
 import { CommunityAction } from '../../../components/widgets/performCommunityAction/community.keys'
 import { LoadingMessages } from '../loadingPanel/loadingMessages'
-import { ErrorCodes } from 'waggle'
+import { ErrorCodes } from '@zbayapp/nectar'
 
 export interface CreateUsernameModalProps {
   communityAction: CommunityAction

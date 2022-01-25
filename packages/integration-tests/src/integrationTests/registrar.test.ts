@@ -4,7 +4,7 @@ import { assertReceivedCertificate, assertReceivedRegistrationError } from './as
 import { createApp, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { ErrorPayload, SocketActionTypes } from '@zbayapp/nectar'
-import { ErrorCodes, ErrorMessages } from 'waggle'
+import { ErrorCodes, ErrorMessages } from '@zbayapp/nectar'
 
 jest.setTimeout(120_000)
 const crypto = new Crypto()

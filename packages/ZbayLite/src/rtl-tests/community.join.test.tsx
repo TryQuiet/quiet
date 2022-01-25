@@ -26,7 +26,7 @@ import {
   createUserCertificateTestHelper
 } from '@zbayapp/nectar'
 import Channel from '../renderer/containers/pages/Channel'
-import { ErrorCodes, ErrorMessages } from 'waggle'
+import { ErrorCodes, ErrorMessages } from '@zbayapp/nectar'
 
 describe('User', () => {
   let socket: MockedSocket

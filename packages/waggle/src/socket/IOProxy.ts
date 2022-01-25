@@ -22,7 +22,8 @@ import {
   OnMessagePostedResponse,
   SendCertificatesResponse
 } from '@zbayapp/nectar'
-import { emitServerError, emitValidationError, ErrorMessages } from './errors'
+import { emitServerError, emitValidationError } from './errors'
+import { ErrorMessages } from '@zbayapp/nectar'
 import logger from '../logger'
 
 const log = logger('io')
