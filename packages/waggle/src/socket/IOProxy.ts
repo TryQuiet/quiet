@@ -7,6 +7,7 @@ import { Storage } from '../storage'
 import {
   AskForMessagesPayload,
   ChannelMessage,
+  IncomingMessages,
   InitCommunityPayload,
   LaunchRegistrarPayload,
   RegisterOwnerCertificatePayload,
@@ -19,7 +20,6 @@ import {
   CreatedChannelResponse,
   FetchAllMessagesResponse,
   GetPublicChannelsResponse,
-  OnMessagePostedResponse,
   SendCertificatesResponse
   , ErrorMessages
 } from '@zbayapp/nectar'
@@ -137,9 +137,9 @@ export default class IOProxy {
     this.io.emit(SocketActionTypes.RESPONSE_FETCH_ALL_MESSAGES, payload)
   }
 
-  public loadMessage = (payload: OnMessagePostedResponse) => {
+  public loadMessages = (payload: IncomingMessages) => {
     log('Emitting message')
-    this.io.emit(SocketActionTypes.MESSAGE, payload)
+    this.io.emit(SocketActionTypes.INCOMING_MESSAGES, payload)
   }
 
   public sendMessagesIds = (payload: ChannelMessagesIdsResponse) => {

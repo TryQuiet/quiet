@@ -9,3 +9,14 @@ export interface SendMessagePayload {
   peerId: string
   message: ChannelMessage
 }
+
+export interface PublicKeyMappingPayload {
+  publicKey: string
+  cryptoKey: CryptoKey
+}
+
+export interface MessageVerificationStatus {
+  publicKey: string
+  signature: string
+  verified: boolean
+}

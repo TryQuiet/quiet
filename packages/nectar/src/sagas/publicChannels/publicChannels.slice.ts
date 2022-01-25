@@ -16,13 +16,13 @@ import {
   SetChannelLoadingSlicePayload,
   ChannelMessagesIdsResponse,
   SubscribeToTopicPayload,
-  OnMessagePostedResponse,
-  AskForMessagesResponse,
-  AskForMessagesPayload
+  AskForMessagesPayload,
+  IncomingMessages
 } from './publicChannels.types'
 import { MessageType } from '../messages/messages.types'
 import { Identity } from '../identity/identity.types'
 import logger from '../../utils/logger'
+
 const log = logger('publicChannels')
 
 export class PublicChannelsState {
@@ -134,37 +134,27 @@ export const publicChannelsSlice = createSlice({
     },
     askForMessages: (state, _action: PayloadAction<AskForMessagesPayload>) =>
       state,
-    responseAskForMessages: (
+    incomingMessages: (
       state,
-      action: PayloadAction<AskForMessagesResponse>
+      action: PayloadAction<IncomingMessages>
     ) => {
-      const { communityId, messages } = action.payload
+      const { messages, communityId } = action.payload
       channelMessagesAdapter.upsertMany(
         state.channels.entities[communityId].channelMessages,
         messages
       )
     },
-    onMessagePosted: (
-      state,
-      action: PayloadAction<OnMessagePostedResponse>
-    ) => {
-      const { message, communityId } = action.payload
-      channelMessagesAdapter.addOne(
-        state.channels.entities[communityId].channelMessages,
-        message
-      )
-    },
     // Utility action for testing purposes
-    signMessage: (
+    test_message: (
       state,
       action: PayloadAction<{
         identity: Identity
         message: ChannelMessage
+        verifyAutomatically: boolean
       }>
     ) => {
       const { identity, message } = action.payload
       channelMessagesAdapter.addOne(
-        // Identity should be the same as community id
         state.channels.entities[identity.id].channelMessages,
         message
       )

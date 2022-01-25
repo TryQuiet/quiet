@@ -22,11 +22,10 @@ import {
   publicChannelsActions
 } from '../../publicChannels/publicChannels.slice'
 import {
-  AskForMessagesResponse,
   ChannelMessagesIdsResponse,
   CreatedChannelResponse,
   GetPublicChannelsResponse,
-  OnMessagePostedResponse
+  IncomingMessages
 } from '../../publicChannels/publicChannels.types'
 import { usersActions } from '../../users/users.slice'
 import { SendCertificatesResponse } from '../../users/users.types'
@@ -38,8 +37,7 @@ export function subscribe(socket: Socket) {
   return eventChannel<
   | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
   | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
-  | ReturnType<typeof publicChannelsActions.responseAskForMessages>
-  | ReturnType<typeof publicChannelsActions.onMessagePosted>
+  | ReturnType<typeof publicChannelsActions.incomingMessages>
   | ReturnType<typeof usersActions.responseSendCertificates>
   | ReturnType<typeof communitiesActions.responseCreateCommunity>
   | ReturnType<typeof errorsActions.addError>
@@ -67,11 +65,8 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
       emit(publicChannelsActions.responseSendMessagesIds(payload))
     })
-    socket.on(SocketActionTypes.RESPONSE_ASK_FOR_MESSAGES, (payload: AskForMessagesResponse) => {
-      emit(publicChannelsActions.responseAskForMessages(payload))
-    })
-    socket.on(SocketActionTypes.MESSAGE, (payload: OnMessagePostedResponse) => {
-      emit(publicChannelsActions.onMessagePosted(payload))
+    socket.on(SocketActionTypes.INCOMING_MESSAGES, (payload: IncomingMessages) => {
+      emit(publicChannelsActions.incomingMessages(payload))
     })
     socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
       emit(usersActions.responseSendCertificates(payload))
