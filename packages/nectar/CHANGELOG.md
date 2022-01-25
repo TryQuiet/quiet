@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.2.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/nectar@3.1.0-alpha.0...@quiet/nectar@3.2.0-alpha.0) (2022-01-25)
+
+**Note:** Version bump only for package @quiet/nectar
+
+
+
+
+
 # 3.1.0-alpha.0 (2022-01-25)
 
 **Note:** Version bump only for package @quiet/nectar
