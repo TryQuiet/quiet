@@ -25,5 +25,8 @@ export enum ErrorMessages {
   COMMUNITY_LAUNCH_FAILED = 'Could not launch community',
 
   // Network
-  NETWORK_SETUP_FAILED = 'Creating network failed'
+  NETWORK_SETUP_FAILED = 'Creating network failed',
+  NOT_CONNECTED = "You're not connected with other peers."
 }
+
+export const GENERAL_ERRORS = 'general'

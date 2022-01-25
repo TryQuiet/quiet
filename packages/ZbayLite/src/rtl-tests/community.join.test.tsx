@@ -9,6 +9,7 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import JoinCommunity from '../renderer/containers/widgets/joinCommunity/joinCommunity'
 import CreateUsernameModal from '../renderer/containers/widgets/createUsernameModal/CreateUsername'
+import LoadingPanel from '../renderer/containers/widgets/loadingPanel/loadingPanel'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { JoinCommunityDictionary } from '../renderer/components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
 import MockedSocket from 'socket.io-mock'
@@ -27,6 +28,7 @@ import {
 } from '@zbayapp/nectar'
 import Channel from '../renderer/containers/pages/Channel'
 import { ErrorCodes, ErrorMessages } from '@zbayapp/nectar'
+
 
 describe('User', () => {
   let socket: MockedSocket
@@ -212,6 +214,7 @@ describe('User', () => {
 
     renderComponent(
       <>
+        <LoadingPanel />
         <JoinCommunity />
         <CreateUsernameModal />
         <Channel />
@@ -250,10 +253,11 @@ describe('User', () => {
           const data = input as socketEventData<[RegisterUserCertificatePayload]>
           const payload = data[0]
           expect(payload.id).toEqual(community.id)
-          return socket.socketClient.emit(SocketActionTypes.ERROR, {
-            type: ErrorCodes.VALIDATION,
+          socket.socketClient.emit(SocketActionTypes.ERROR, {
+            type: SocketActionTypes.REGISTRAR,
             message: ErrorMessages.USERNAME_TAKEN,
-            communityId: community.id
+            communityId: community.id,
+            code: ErrorCodes.VALIDATION
           })
         }
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
@@ -305,16 +309,34 @@ describe('User', () => {
     // Enter username and hit button
     const createUsernameInput = screen.getByPlaceholderText('Enter a username')
     const createUsernameButton = screen.getByText('Register')
-    userEvent.type(createUsernameInput, 'alice')
+    userEvent.type(createUsernameInput, 'bob')
     userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
     await act(async () => {})
 
-    // Check if join/username modals are gone
-    expect(joinCommunityTitle).not.toBeVisible()
+    // Check if 'username taken' error message is visible
     expect(createUsernameTitle).toBeVisible()
+    const usernameTakenErrorMessage = await screen.findByText(ErrorMessages.USERNAME_TAKEN)
+    expect(usernameTakenErrorMessage).toBeVisible()
 
-    // TODO: Check error message
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Modals/openModal",
+        "Modals/openModal",
+        "Communities/joinCommunity",
+        "Communities/addNewCommunity",
+        "PublicChannels/addPublicChannelsList",
+        "Communities/setCurrentCommunity",
+        "Communities/responseCreateCommunity",
+        "Identity/addNewIdentity",
+        "Identity/registerUsername",
+        "Identity/updateUsername",
+        "Identity/createUserCsr",
+        "Identity/storeUserCsr",
+        "Errors/addError",
+        "Modals/closeModal",
+      ]
+    `)
   })
 })

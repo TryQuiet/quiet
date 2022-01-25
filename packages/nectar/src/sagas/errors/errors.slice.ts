@@ -9,8 +9,6 @@ import { StoreKeys } from '../store.keys'
 import { errorsAdapter } from './errors.adapter'
 import { ErrorPayload } from './errors.types'
 
-export const GENERAL_ERRORS = 'general'
-
 type ErrorsState = Dictionary<EntityState<ErrorPayload>>
 const initialState: ErrorsState = {}
 

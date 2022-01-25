@@ -11,8 +11,10 @@ import {
   IdentityState
 } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
+import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { StoreKeys } from '../../store.keys'
 import { errorsActions } from '../errors.slice'
+import { ErrorCodes, ErrorMessages } from '../errors.types'
 import { handleErrorsSaga } from './handleErrors.saga'
 
 describe('handle errors', () => {
@@ -41,10 +43,10 @@ describe('handle errors', () => {
     await expectSaga(
       handleErrorsSaga,
       errorsActions.addError({
-        type: 'registrar',
-        message: 'Registering username failed.',
+        type: SocketActionTypes.REGISTRAR,
+        message: ErrorMessages.REGISTRATION_FAILED,
         communityId: 'id',
-        code: 500
+        code: ErrorCodes.SERVER_ERROR
       })
     )
       .withReducer(

@@ -1,10 +1,8 @@
 import SocketIO from 'socket.io'
-import { ErrorCodes, ErrorPayload, ErrorPayloadData } from '@zbayapp/nectar'
-
-
+import { ErrorCodes, ErrorPayload, ErrorPayloadData, SocketActionTypes } from '@zbayapp/nectar'
 
 export const emitError = (io: SocketIO.Server, payload: ErrorPayload) => {
-  io.emit('error', payload)
+  io.emit(SocketActionTypes.ERROR, payload)
 }
 
 export const emitValidationError = (io: SocketIO.Server, payload: ErrorPayloadData) => {
