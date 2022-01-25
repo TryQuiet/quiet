@@ -46,7 +46,7 @@ describe('handle errors', () => {
       errorsActions.addError({
         type: SocketActionTypes.REGISTRAR,
         message: ErrorMessages.REGISTRATION_FAILED,
-        communityId: 'id',
+        communityId: community.id,
         code: ErrorCodes.SERVER_ERROR
       })
     )
