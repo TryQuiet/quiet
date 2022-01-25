@@ -66,7 +66,7 @@
   },
   "homepage": "https://github.com/ZbayApp",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Decentralized team chat",
   "main": "dist/main/main.js",
   "scripts": {
@@ -105,7 +105,7 @@
     "@peculiar/webcrypto": "1.2.2",
     "@quiet/identity": "^0.1.0-alpha.0",
     "@quiet/nectar": "^0.1.0-alpha.0",
-    "@quiet/waggle": "^0.1.0-alpha.0",
+    "@quiet/waggle": "^0.1.0-alpha.1",
     "@redux-saga/types": "^1.1.0",
     "@reduxjs/toolkit": "^1.6.2",
     "@sentry/react": "^6.14.0",
