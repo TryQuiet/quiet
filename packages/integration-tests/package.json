@@ -44,9 +44,9 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "1.2.2",
-    "@quiet/identity": "^5.1.0-alpha.0",
-    "@quiet/nectar": "^3.2.0-alpha.0",
-    "@quiet/waggle": "^6.4.0-alpha.0",
+    "@quiet/identity": "*",
+    "@quiet/nectar": "*",
+    "@quiet/waggle": "*",
     "@reduxjs/toolkit": "^1.6.1",
     "debug": "^4.3.2",
     "get-port": "^5.1.1",

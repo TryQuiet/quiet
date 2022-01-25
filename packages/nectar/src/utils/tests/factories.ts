@@ -10,7 +10,7 @@ import {
 } from './helpers'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
-import { keyObjectFromString, verifySignature } from '@zbayapp/identity'
+import { keyObjectFromString, verifySignature } from '@quiet/identity'
 import { MessageType } from '../../sagas/messages/messages.types'
 import { DateTime } from 'luxon'
 

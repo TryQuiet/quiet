@@ -15,7 +15,7 @@ import {
 } from '../communities.slice'
 import { InitCommunityPayload } from '../communities.types'
 import { initCommunities, launchCommunitySaga } from './launchCommunity.saga'
-import { setupCrypto } from '@zbayapp/identity'
+import { setupCrypto } from '@quiet/identity'
 
 describe('launchCommunity', () => {
   test.only('launch all remembered communities', async () => {

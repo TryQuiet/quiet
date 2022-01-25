@@ -39,7 +39,7 @@
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-typescript": "^7.15.0",
     "@peculiar/webcrypto": "*",
-    "@quiet/identity": "^5.1.0-alpha.0",
+    "@quiet/identity": "*",
     "@types/factory-girl": "^5.0.8",
     "@types/jest": "^26.0.24",
     "@types/luxon": "^2.0.0",
