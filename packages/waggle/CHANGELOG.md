@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 6.2.0-alpha.0 (2022-01-25)
+
+**Note:** Version bump only for package @quiet/waggle
+
+
+
+
+
 # [6.1.0-alpha.0](https://github.com/ZbayApp/waggle/compare/waggle@6.0.0-alpha.0...waggle@6.1.0-alpha.0) (2022-01-24)
 
 **Note:** Version bump only for package waggle

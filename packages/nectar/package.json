@@ -1,6 +1,6 @@
 {
   "name": "@quiet/nectar",
-  "version": "3.0.0-alpha.0",
+  "version": "3.1.0-alpha.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -39,6 +39,7 @@
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-typescript": "^7.15.0",
     "@peculiar/webcrypto": "*",
+    "@quiet/identity": "^5.1.0-alpha.0",
     "@types/factory-girl": "^5.0.8",
     "@types/jest": "^26.0.24",
     "@types/luxon": "^2.0.0",
@@ -46,7 +47,6 @@
     "@types/redux-saga": "^0.10.5",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
-    "@quiet/identity": "^5.0.0-alpha.0",
     "babel-jest": "^27.0.6",
     "cross-env": "^7.0.3",
     "eslint": "^7.32.0",
