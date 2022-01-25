@@ -23,7 +23,6 @@ function* verifyMessage(message: ChannelMessage, crypto: SubtleCrypto): Generato
   const signature = stringToArrayBuffer(message.signature)
 
   const publicKeysMapping = yield* select(messagesSelectors.publicKeysMapping)
-  console.log(publicKeysMapping)
 
   let cryptoKey = publicKeysMapping[message.pubKey]
   if (!cryptoKey) {
