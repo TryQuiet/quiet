@@ -1,4 +1,4 @@
-import waggle, { DataServer, ConnectionsManager } from 'waggle'
+import waggle, { DataServer, ConnectionsManager } from '@quiet/waggle'
 import { BrowserWindow } from 'electron'
 import electronStore from '../shared/electronStore'
 import getPort from 'get-port'

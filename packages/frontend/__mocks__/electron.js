@@ -1,6 +1,6 @@
 export const remote = {
   app: {
-    getPath: jest.fn(() => '/app/Zbay')
+    getPath: jest.fn(() => '/app/Quiet')
   },
   getGlobal: jest.fn(() => ({
     env: {}

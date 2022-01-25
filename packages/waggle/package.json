@@ -1,5 +1,5 @@
 {
-	"name": "waggle",
+	"name": "@quiet/waggle",
 	"version": "6.1.0-alpha.0",
 	"description": "tlg-manager",
 	"types": "lib/index.d.ts",

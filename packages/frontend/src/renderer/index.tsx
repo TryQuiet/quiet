@@ -26,8 +26,8 @@ if (process.env.REACT_APP_ENABLE_SENTRY === 'true') {
   })
 }
 
-const log = Object.assign(debug('zbay:renderer'), {
-  error: debug('zbay:renderer:err')
+const log = Object.assign(debug('frontend:renderer'), {
+  error: debug('frontend:renderer:err')
 })
 
 if (window) {

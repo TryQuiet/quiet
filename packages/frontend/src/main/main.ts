@@ -6,14 +6,14 @@ import debug from 'debug'
 import path from 'path'
 import url from 'url'
 import config from './config'
-import { DataServer, ConnectionsManager } from 'waggle'
+import { DataServer, ConnectionsManager } from '@quiet/waggle'
 import { waggleVersion, runWaggle } from './waggleManager'
 
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 
-const log = Object.assign(debug('zbay:main'), {
-  error: debug('zbay:main:err')
+const log = Object.assign(debug('frontend:main'), {
+  error: debug('frontend:main:err')
 })
 
 electronStore.set('appDataPath', app.getPath('appData'))

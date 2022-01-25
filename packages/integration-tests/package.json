@@ -47,6 +47,7 @@
     "@reduxjs/toolkit": "^1.6.1",
     "@quiet/identity": "^5.0.0-alpha.0",
     "@quiet/nectar": "^3.0.0-alpha.0",
+    "@quiet/waggle": "^6.1.0-alpha.0",
     "debug": "^4.3.2",
     "get-port": "^5.1.1",
     "libp2p-websockets": "*",
@@ -57,7 +58,6 @@
     "redux-thunk": "^2.4.0",
     "socket.io-client": "^4.1.3",
     "typed-redux-saga": "^1.3.1",
-    "waggle": "^6.1.0-alpha.0",
     "wait-for-expect": "^3.0.2"
   },
   "jest": {
