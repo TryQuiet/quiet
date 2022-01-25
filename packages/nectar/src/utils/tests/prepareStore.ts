@@ -10,7 +10,7 @@ import { messagesReducer } from '../../sagas/messages/messages.slice'
 import { publicChannelsReducer } from '../../sagas/publicChannels/publicChannels.slice'
 import { usersReducer } from '../../sagas/users/users.slice'
 
-const reducers = {
+export const reducers = {
   [StoreKeys.Communities]: communitiesReducer,
   [StoreKeys.Identity]: identityReducer,
   [StoreKeys.Users]: usersReducer,

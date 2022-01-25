@@ -3,13 +3,8 @@ import { Store } from '../store.types'
 import { getFactory, Identity, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import {
-  currentChannel,
-  currentChannelMessages,
   currentChannelMessagesCount,
   currentChannelMessagesMergedBySender,
-  currentCommunityChannelsState,
-  publicChannelsByCommunity,
-  publicChannelsMessages,
   slicedCurrentChannelMessages,
   sortedCurrentChannelMessages,
   validCurrentChannelMessages
