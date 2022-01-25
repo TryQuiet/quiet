@@ -1,8 +1,13 @@
 import EventStore from 'orbit-db-eventstore'
 import { ChannelMessage, PublicChannel } from '@quiet/nectar'
 
-export interface IRepo {
+export interface PublicChannelsRepo {
   db: EventStore<ChannelMessage>
+  eventsAttached: boolean
+}
+
+export interface DirectMessagesRepo {
+  db: EventStore<string>
   eventsAttached: boolean
 }
 

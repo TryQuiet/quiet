@@ -6,10 +6,18 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
 import { InitCommunityPayload } from '../communities.types'
+import { identityActions } from '../../identity/identity.slice'
 
 export function* initCommunities(): Generator {
-  const communities = yield* select(communitiesSelectors.allCommunities)
-  for (const community of communities) {
+  const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
+  const unregisteredCommunities = yield* select(identitySelectors.unregisteredCommunities)
+  const userName = yield* select(identitySelectors.currentIdentity)
+
+  for (const community of unregisteredCommunities) {
+    yield* put(identityActions.registerUsername(userName.zbayNickname))
+  }
+
+  for (const community of joinedCommunities) {
     yield* put(communitiesActions.launchCommunity(community.id))
   }
 }

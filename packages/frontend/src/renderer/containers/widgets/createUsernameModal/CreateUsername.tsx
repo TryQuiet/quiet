@@ -6,6 +6,7 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../hooks'
 import { CommunityAction } from '../../../components/widgets/performCommunityAction/community.keys'
 import { LoadingMessages } from '../loadingPanel/loadingMessages'
+import { socketSelectors } from '../../../sagas/socket/socket.selectors'
 
 export interface CreateUsernameModalProps {
   communityAction: CommunityAction
@@ -33,9 +34,42 @@ const CreateUsernameModal = () => {
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const loadingCommunityModal = useModal(ModalName.loadingPanel)
+  const initializedCommunities = useSelector(identity.selectors.unregisteredCommunitiesWithoutUserIdentity)
+  const isInitializedCommunity = initializedCommunities.length
+
+  const [isCreateUserNameStarted, setIsCreateUserNameStarted] = useState(false)
+  const [isRetryingRegistration, setIsRetryingRegistration] = useState(false)
+
+  const isConnected = useSelector(socketSelectors.isConnected)
+
+  const unregisteredCommunities = useSelector(identity.selectors.unregisteredCommunities)
+  const isUnregisteredCommunity = unregisteredCommunities.length
+  const isOwner = useSelector(communities.selectors.isOwner)
 
   useEffect(() => {
-    if (certificate && allCommunitiesInitialized &&
+    if (isConnected && isInitializedCommunity && !isCreateUserNameStarted) {
+      let communityAction: CommunityAction
+      isOwner ? communityAction = CommunityAction.Create : communityAction = CommunityAction.Join
+      setIsRetryingRegistration(true)
+      createUsernameModal.handleOpen({
+        communityAction: communityAction,
+        communityData: initializedCommunities[0].registrarUrl
+      })
+    }
+  }, [initializedCommunities, isConnected, isCreateUserNameStarted])
+
+  useEffect(() => {
+    let communityMessage: LoadingMessages
+
+    if (isUnregisteredCommunity && !loadingCommunityModal.open) {
+      isOwner ? communityMessage = LoadingMessages.CreateCommunity : communityMessage = LoadingMessages.JoinCommunity
+      loadingCommunityModal.handleOpen({
+        message: communityMessage
+      })
+    }
+  }, [unregisteredCommunities])
+  useEffect(() => {
+    if (certificate && allCommunitiesInitialized && !isInitializedCommunity &&
       ((createUsernameModal.communityAction === CommunityAction.Join && channels.length) ||
         (createUsernameModal.communityAction === CommunityAction.Create && invitationUrl))) {
       loadingCommunityModal.handleClose()
@@ -43,7 +77,7 @@ const CreateUsernameModal = () => {
       joinCommunityModal.handleClose()
       createCommunityModal.handleClose()
     }
-  }, [channels.length, invitationUrl, certificate, allCommunitiesInitialized])
+  }, [channels.length, invitationUrl, certificate, allCommunitiesInitialized, initializedCommunities, unregisteredCommunities])
 
   useEffect(() => {
     if (id?.hiddenService && !certificate) {
@@ -52,14 +86,23 @@ const CreateUsernameModal = () => {
   }, [id?.hiddenService])
 
   const handleAction = (payload: { nickname: string }) => {
+    setIsCreateUserNameStarted(true)
     setUsername(payload.nickname)
     const value = createUsernameModal.communityData
-    const action =
-      createUsernameModal.communityAction === CommunityAction.Create
-        ? communities.actions.createNewCommunity(value)
-        : communities.actions.joinCommunity(value)
+    let action
     /* Launch/create community */
-
+    if (isRetryingRegistration) {
+      dispatch(communities.actions.removeUnregisteredCommunity(initializedCommunities[0]))
+      action =
+        createUsernameModal.communityAction === CommunityAction.Create
+          ? communities.actions.createNewCommunity(initializedCommunities[0].name)
+          : communities.actions.joinCommunity(initializedCommunities[0].registrarUrl)
+    } else {
+      action =
+        createUsernameModal.communityAction === CommunityAction.Create
+          ? communities.actions.createNewCommunity(value)
+          : communities.actions.joinCommunity(value)
+    }
     const message = createUsernameModal.communityAction === CommunityAction.Create
       ? LoadingMessages.CreateCommunity
       : LoadingMessages.JoinCommunity

@@ -59,8 +59,8 @@ beforeAll(async () => {
   )
 
   message = (
-    await factory.create<ReturnType<typeof publicChannels.actions.signMessage>['payload']>(
-      'SignedMessage',
+    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+      'Message',
       {
         identity: alice
       }
@@ -243,8 +243,8 @@ describe('Message', () => {
     >('Identity', { id: community.id, zbayNickname: 'john' })
 
     const aliceMessage = await factory.create<
-    ReturnType<typeof publicChannels.actions.signMessage>['payload']
-    >('SignedMessage', {
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
+    >('Message', {
       identity: alice
     })
 
