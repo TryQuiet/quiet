@@ -427,7 +427,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   onPaste={(e) => {
                     e.preventDefault()
                     var text = e.clipboardData.getData('text/plain')
-                    setHtmlMessage(text)
+                    document.execCommand('insertHTML', false, text)
                   }}
                 />
               </Grid>
