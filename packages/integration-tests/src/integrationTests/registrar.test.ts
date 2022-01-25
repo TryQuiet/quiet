@@ -3,8 +3,7 @@ import { createCommunity, getCommunityOwnerData, registerUsername, sendRegistrat
 import { assertReceivedCertificate, assertReceivedRegistrationError } from './assertions'
 import { createApp, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { ErrorPayload, SocketActionTypes } from '@zbayapp/nectar'
-import { ErrorCodes, ErrorMessages } from '@zbayapp/nectar'
+import { ErrorPayload, SocketActionTypes, ErrorCodes, ErrorMessages } from '@zbayapp/nectar'
 
 jest.setTimeout(120_000)
 const crypto = new Crypto()

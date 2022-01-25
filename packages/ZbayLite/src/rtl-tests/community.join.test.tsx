@@ -25,10 +25,9 @@ import {
   Identity,
   Community,
   createUserCertificateTestHelper
+  , ErrorCodes, ErrorMessages
 } from '@zbayapp/nectar'
 import Channel from '../renderer/containers/pages/Channel'
-import { ErrorCodes, ErrorMessages } from '@zbayapp/nectar'
-
 
 describe('User', () => {
   let socket: MockedSocket

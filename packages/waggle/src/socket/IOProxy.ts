@@ -21,9 +21,10 @@ import {
   GetPublicChannelsResponse,
   OnMessagePostedResponse,
   SendCertificatesResponse
+  , ErrorMessages
 } from '@zbayapp/nectar'
 import { emitServerError, emitValidationError } from './errors'
-import { ErrorMessages } from '@zbayapp/nectar'
+
 import logger from '../logger'
 
 const log = logger('io')
