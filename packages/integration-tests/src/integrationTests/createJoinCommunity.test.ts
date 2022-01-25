@@ -1,12 +1,10 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { assertConnectedToPeers, assertReceivedCertificates } from './assertions'
-import {
-  createCommunity,
-  joinCommunity,
-  getCommunityOwnerData
-} from './appActions'
-import { createApp, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
+import { createApp, sleep } from '../utils'
+import {
+  createCommunity, getCommunityOwnerData, joinCommunity
+} from './appActions'
+import { assertConnectedToPeers, assertReceivedCertificates } from './assertions'
 
 jest.setTimeout(600_000)
 const crypto = new Crypto()

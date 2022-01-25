@@ -21,8 +21,10 @@ import {
   FetchAllMessagesResponse,
   GetPublicChannelsResponse,
   SendCertificatesResponse
+  , ErrorMessages
 } from '@zbayapp/nectar'
 import { emitServerError, emitValidationError } from './errors'
+
 import logger from '../logger'
 
 const log = logger('io')
@@ -201,7 +203,7 @@ export default class IOProxy {
     } catch (e) {
       emitServerError(this.io, {
         type: SocketActionTypes.REGISTRAR,
-        message: 'Connecting to registrar failed',
+        message: ErrorMessages.REGISTRAR_CONNECTION_FAILED,
         communityId: payload.id
       })
       return
@@ -213,14 +215,14 @@ export default class IOProxy {
       case 403:
         emitValidationError(this.io, {
           type: SocketActionTypes.REGISTRAR,
-          message: 'Username already taken.',
+          message: ErrorMessages.USERNAME_TAKEN,
           communityId: payload.id
         })
         return
       case 400:
         emitValidationError(this.io, {
           type: SocketActionTypes.REGISTRAR,
-          message: 'Username is not valid',
+          message: ErrorMessages.INVALID_USERNAME,
           communityId: payload.id
         })
         return
@@ -230,7 +232,7 @@ export default class IOProxy {
         )
         emitServerError(this.io, {
           type: SocketActionTypes.REGISTRAR,
-          message: 'Registering username failed.',
+          message: ErrorMessages.REGISTRATION_FAILED,
           communityId: payload.id
         })
         return
@@ -253,7 +255,7 @@ export default class IOProxy {
       log.error(`Creating network for community ${communityId} failed`, e)
       emitServerError(this.io, {
         type: SocketActionTypes.NETWORK,
-        message: 'Creating network failed',
+        message: ErrorMessages.NETWORK_SETUP_FAILED,
         communityId
       })
       return
@@ -275,7 +277,7 @@ export default class IOProxy {
       log(`Couldn't launch community for peer ${payload.peerId.id}.`, e)
       emitServerError(this.io, {
         type: SocketActionTypes.COMMUNITY,
-        message: 'Could not launch community',
+        message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
         communityId: payload.id
       })
       return
@@ -297,8 +299,8 @@ export default class IOProxy {
     )
     if (!registrar) {
       emitServerError(this.io, {
-        type: 'registrar',
-        message: 'Could not launch registrar',
+        type: SocketActionTypes.REGISTRAR,
+        message: ErrorMessages.REGISTRAR_LAUNCH_FAILED,
         communityId: payload.id
       })
     } else {

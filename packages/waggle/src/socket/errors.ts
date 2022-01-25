@@ -1,24 +1,14 @@
 import SocketIO from 'socket.io'
-import { SocketActionTypes } from '@zbayapp/nectar'
+import { ErrorCodes, ErrorPayload, ErrorPayloadData, SocketActionTypes } from '@zbayapp/nectar'
 
-class ErrorPayload {
-  type: string
-  message: string
-  communityId?: string
-}
-
-export class Error extends ErrorPayload {
-  code: number
-}
-
-export const emitError = (io: SocketIO.Server, payload: Error) => {
+export const emitError = (io: SocketIO.Server, payload: ErrorPayload) => {
   io.emit(SocketActionTypes.ERROR, payload)
 }
 
-export const emitValidationError = (io: SocketIO.Server, payload: ErrorPayload) => {
-  emitError(io, { ...payload, code: 403 })
+export const emitValidationError = (io: SocketIO.Server, payload: ErrorPayloadData) => {
+  emitError(io, { ...payload, code: ErrorCodes.VALIDATION })
 }
 
-export const emitServerError = (io: SocketIO.Server, payload: ErrorPayload) => {
-  emitError(io, { ...payload, code: 500 })
+export const emitServerError = (io: SocketIO.Server, payload: ErrorPayloadData) => {
+  emitError(io, { ...payload, code: ErrorCodes.SERVER_ERROR })
 }

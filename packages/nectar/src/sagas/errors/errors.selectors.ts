@@ -3,7 +3,7 @@ import { currentCommunityId } from '../communities/communities.selectors'
 import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { errorsAdapter } from './errors.adapter'
-import { GENERAL_ERRORS } from './errors.slice'
+import { GENERAL_ERRORS } from './errors.types'
 
 const errorSlice: CreatedSelectors[StoreKeys.Errors] = (state: StoreState) =>
   state[StoreKeys.Errors]

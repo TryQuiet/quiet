@@ -8,6 +8,8 @@ import {
 } from '../../communities/communities.slice'
 import { errorsAdapter } from '../../errors/errors.adapter'
 import { errorsReducer } from '../../errors/errors.slice'
+import { ErrorCodes, ErrorMessages } from '../../errors/errors.types'
+import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { StoreKeys } from '../../store.keys'
 import { config } from '../../users/const/certFieldTypes'
 import { identityAdapter } from '../identity.adapter'
@@ -59,9 +61,9 @@ describe('registerUsernameSaga', () => {
 
   const connectionError = {
     communityId: 'id',
-    type: 'registrar',
-    code: 403,
-    message: "You're not connected with other peers."
+    type: SocketActionTypes.REGISTRAR,
+    code: ErrorCodes.VALIDATION,
+    message: ErrorMessages.NOT_CONNECTED
   }
 
   const username = 'username'

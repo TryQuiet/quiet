@@ -7,15 +7,7 @@ import {
 
 import { StoreKeys } from '../store.keys'
 import { errorsAdapter } from './errors.adapter'
-
-export const GENERAL_ERRORS = 'general'
-
-export interface ErrorPayload {
-  communityId: string
-  type: string
-  code: number
-  message: string
-}
+import { ErrorPayload } from './errors.types'
 
 type ErrorsState = Dictionary<EntityState<ErrorPayload>>
 const initialState: ErrorsState = {}
