@@ -2,7 +2,7 @@ import { StoreKeys } from '../store.keys'
 import { createSelector } from '@reduxjs/toolkit'
 import { identityAdapter } from './identity.adapter'
 import { CreatedSelectors, StoreState } from '../store.types'
-import { allCommunities, communitiesSelectors, _allCommunities } from '../communities/communities.selectors';
+import { allCommunities, communitiesSelectors, _allCommunities } from '../communities/communities.selectors'
 
 const identitySlice: CreatedSelectors[StoreKeys.Identity] = (
   state: StoreState
@@ -35,10 +35,10 @@ export const joinedCommunities = createSelector(
       const identityFromCommunity = identityAdapter
         .getSelectors()
         .selectById(reducerState.identities, community.id)
-      return identityFromCommunity && identityFromCommunity.userCertificate
+      return identityFromCommunity?.userCertificate
     })
   }
-);
+)
 
 export const unregisteredCommunities = createSelector(
   allCommunities,
@@ -51,7 +51,7 @@ export const unregisteredCommunities = createSelector(
       return !identityFromCommunity?.userCertificate && identityFromCommunity
     })
   }
-);
+)
 
 export const unregisteredCommunitiesWithoutUserIdentity = createSelector(
   allCommunities,
@@ -64,8 +64,7 @@ export const unregisteredCommunitiesWithoutUserIdentity = createSelector(
       return !identityFromCommunity
     })
   }
-);
-
+)
 
 export const identitySelectors = {
   selectById,

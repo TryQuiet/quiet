@@ -12,7 +12,7 @@ import JoinCommunity from './joinCommunity'
 import CreateCommunity from '../createCommunity/createCommunity'
 import { JoinCommunityDictionary, CreateCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
 import CreateUsernameModal from '../createUsernameModal/CreateUsername'
-import { communities, communitiesAdapter, Community, StoreKeys as NectarStoreKeys } from '@zbayapp/nectar'
+import { communities, getFactory, StoreKeys as NectarStoreKeys } from '@zbayapp/nectar'
 
 describe('join community', () => {
   it('users switches from join to create', async () => {
@@ -92,19 +92,6 @@ describe('join community', () => {
   })
 
   it('user rejoins to remembered community', async () => {
-    const community1: Community = {
-      name: '',
-      id: 'communityAlpha',
-      registrarUrl: 'registrarUrl',
-      CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-      rootCa: '',
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0
-    }
-
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
@@ -115,13 +102,15 @@ describe('join community', () => {
         [ModalName.joinCommunityModal]: { open: true }
       },
       [NectarStoreKeys.Communities]: {
-        ...new communities.State(),
-        currentCommunity: 'communityAlpha',
-        communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
-          community1
-        ])
+        ...new communities.State()
       }
     })
+
+    const factory = await getFactory(store)
+
+    await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
 
     renderComponent(
       <>

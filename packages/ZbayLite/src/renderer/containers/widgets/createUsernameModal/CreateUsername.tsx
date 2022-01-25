@@ -37,7 +37,7 @@ const CreateUsernameModal = () => {
   const initializedCommunities = useSelector(identity.selectors.unregisteredCommunitiesWithoutUserIdentity)
   const isInitializedCommunity = initializedCommunities.length
 
-  const [isCreateUserNameStarted, setisCreateUserNameStarted] = useState('undecided')
+  const [isCreateUserNameStarted, setIsCreateUserNameStarted] = useState(false)
   const [isRetryingRegistration, setIsRetryingRegistration] = useState(false)
 
   const isConnected = useSelector(socketSelectors.isConnected)
@@ -47,7 +47,7 @@ const CreateUsernameModal = () => {
   const isOwner = useSelector(communities.selectors.isOwner)
 
   useEffect(() => {
-    if (isConnected && isInitializedCommunity && isCreateUserNameStarted === 'undecided') {
+    if (isConnected && isInitializedCommunity && !isCreateUserNameStarted) {
       let communityAction: CommunityAction
       isOwner ? communityAction = CommunityAction.Create : communityAction = CommunityAction.Join
       setIsRetryingRegistration(true)
@@ -86,7 +86,7 @@ const CreateUsernameModal = () => {
   }, [id?.hiddenService])
 
   const handleAction = (payload: { nickname: string }) => {
-    setisCreateUserNameStarted('actionStarted')
+    setIsCreateUserNameStarted(true)
     setUsername(payload.nickname)
     const value = createUsernameModal.communityData
     let action

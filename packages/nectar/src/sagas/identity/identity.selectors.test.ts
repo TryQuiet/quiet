@@ -1,18 +1,18 @@
-import { combineReducers, createStore, Store } from '@reduxjs/toolkit';
-import { StoreKeys } from '../store.keys';
-import { communitiesAdapter } from './../communities/communities.adapter';
+import { combineReducers, createStore, Store } from '@reduxjs/toolkit'
+import { StoreKeys } from '../store.keys'
+import { communitiesAdapter } from './../communities/communities.adapter'
 import {
   communitiesReducer,
   CommunitiesState,
-  Community,
-} from './../communities/communities.slice';
-import { identityAdapter } from './identity.adapter';
-import { identitySelectors } from './identity.selectors';
-import { identityReducer, IdentityState } from './identity.slice';
-import { Identity } from './identity.types';
+  Community
+} from './../communities/communities.slice'
+import { identityAdapter } from './identity.adapter'
+import { identitySelectors } from './identity.selectors'
+import { identityReducer, IdentityState } from './identity.slice'
+import { Identity } from './identity.types'
 
 describe('communitiesSelectors will recive correct data', () => {
-  let store: Store;
+  let store: Store
   const communityAlpha: Community = {
     name: 'alpha',
     id: 'communityAlpha',
@@ -23,8 +23,8 @@ describe('communitiesSelectors will recive correct data', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0,
-  };
+    port: 0
+  }
   const communityBeta: Community = {
     name: 'beta',
     id: 'communityBeta',
@@ -35,8 +35,8 @@ describe('communitiesSelectors will recive correct data', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0,
-  };
+    port: 0
+  }
 
   const communityDelta: Community = {
     name: 'beta',
@@ -48,74 +48,74 @@ describe('communitiesSelectors will recive correct data', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0,
-  };
+    port: 0
+  }
 
   const identityAlpha: Identity = {
     id: 'communityAlpha',
     zbayNickname: 'nickname',
     hiddenService: {
       onionAddress: '',
-      privateKey: '',
+      privateKey: ''
     },
     dmKeys: {
       publicKey: '',
-      privateKey: '',
+      privateKey: ''
     },
     peerId: {
       id: '',
       pubKey: '',
-      privKey: '',
+      privKey: ''
     },
     userCsr: null,
-    userCertificate: 'userCert',
-  };
+    userCertificate: 'userCert'
+  }
 
   const identityBeta: Identity = {
     id: 'communityBeta',
     zbayNickname: 'nickname',
     hiddenService: {
       onionAddress: '',
-      privateKey: '',
+      privateKey: ''
     },
     dmKeys: {
       publicKey: '',
-      privateKey: '',
+      privateKey: ''
     },
     peerId: {
       id: '',
       pubKey: '',
-      privKey: '',
+      privKey: ''
     },
     userCsr: null,
-    userCertificate: 'userCert',
-  };
+    userCertificate: 'userCert'
+  }
 
   const identityDelta: Identity = {
     id: 'communityDelta',
     zbayNickname: 'nickname',
     hiddenService: {
       onionAddress: '',
-      privateKey: '',
+      privateKey: ''
     },
     dmKeys: {
       publicKey: '',
-      privateKey: '',
+      privateKey: ''
     },
     peerId: {
       id: '',
       pubKey: '',
-      privKey: '',
+      privKey: ''
     },
     userCsr: null,
-    userCertificate: null,
-  };
+    userCertificate: null
+  }
 
   beforeEach(() => {
     store = createStore(
       combineReducers({
         [StoreKeys.Communities]: communitiesReducer,
-        [StoreKeys.Identity]: identityReducer,
+        [StoreKeys.Identity]: identityReducer
       }),
       {
         [StoreKeys.Communities]: {
@@ -124,21 +124,21 @@ describe('communitiesSelectors will recive correct data', () => {
           communities: communitiesAdapter.setAll(
             communitiesAdapter.getInitialState(),
             [communityAlpha, communityBeta, communityDelta]
-          ),
+          )
         },
         [StoreKeys.Identity]: {
           ...new IdentityState(),
           identities: identityAdapter.setAll(
             identityAdapter.getInitialState(),
             [identityBeta, identityDelta]
-          ),
-        },
+          )
+        }
       }
-    );
-  });
+    )
+  })
 
   it('select current id', () => {
-    const currentIdentity = identitySelectors.currentIdentity(store.getState());
+    const currentIdentity = identitySelectors.currentIdentity(store.getState())
 
     expect(currentIdentity).toMatchInlineSnapshot(`
       Object {
@@ -160,18 +160,18 @@ describe('communitiesSelectors will recive correct data', () => {
         "userCsr": null,
         "zbayNickname": "nickname",
       }
-    `);
-  });
+    `)
+  })
 
   it('select joined communities with user identity with certificate', () => {
     const joinedCommunities = identitySelectors.joinedCommunities(
       store.getState()
-    );
+    )
     const idOfJoinedCommunities = joinedCommunities.map(
       (community) => community.id
-    );
+    )
 
-    expect(idOfJoinedCommunities).toEqual(['communityBeta']);
+    expect(idOfJoinedCommunities).toEqual(['communityBeta'])
     expect(joinedCommunities).toMatchInlineSnapshot(`
 Array [
   Object {
@@ -190,18 +190,18 @@ Array [
     "rootCa": "",
   },
 ]
-`);
-  });
+`)
+  })
 
   it('select unregistered communities with user identity without certificate', () => {
     const unregisteredCommunities = identitySelectors.unregisteredCommunities(
       store.getState()
-    );
+    )
     const idOfJoinedCommunities = unregisteredCommunities.map(
       (community) => community.id
-    );
+    )
 
-    expect(idOfJoinedCommunities).toEqual(['communityDelta']);
+    expect(idOfJoinedCommunities).toEqual(['communityDelta'])
     expect(unregisteredCommunities).toMatchInlineSnapshot(`
 Array [
   Object {
@@ -220,18 +220,18 @@ Array [
     "rootCa": "",
   },
 ]
-`);
-  });
+`)
+  })
 
   it('select communities without user identity', () => {
     const unregisteredCommunities = identitySelectors.unregisteredCommunitiesWithoutUserIdentity(
       store.getState()
-    );
+    )
     const idOfJoinedCommunities = unregisteredCommunities.map(
       (community) => community.id
-    );
+    )
 
-    expect(idOfJoinedCommunities).toEqual(['communityAlpha']);
+    expect(idOfJoinedCommunities).toEqual(['communityAlpha'])
     expect(unregisteredCommunities).toMatchInlineSnapshot(`
       Array [
         Object {
@@ -250,6 +250,6 @@ Array [
           "rootCa": "",
         },
       ]
-    `);
-  });
-});
+    `)
+  })
+})

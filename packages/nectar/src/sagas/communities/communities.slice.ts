@@ -11,7 +11,7 @@ export class CommunitiesState {
   public currentCommunity: string = ''
 
   public communities: EntityState<Community> =
-    communitiesAdapter.getInitialState()
+  communitiesAdapter.getInitialState()
 }
 
 export interface Community {
@@ -82,7 +82,7 @@ export const communitiesSlice = createSlice({
     launchRegistrar: (state, _action: PayloadAction<string>) => state,
     removeUnregisteredCommunity: (state, action: PayloadAction<Partial<Community>>) => {
       communitiesAdapter.removeOne(state.communities, action.payload.id)
-    },
+    }
   }
 })
 

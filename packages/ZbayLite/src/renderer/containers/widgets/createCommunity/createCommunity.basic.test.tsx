@@ -7,12 +7,12 @@ import { prepareStore } from '../../../testUtils/prepareStore'
 import { StoreKeys } from '../../../store/store.keys'
 import { SocketState } from '../../../sagas/socket/socket.slice'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { ModalsInitialState } from '../../../sagas/modals/modals.slice'
+import { modalsActions, ModalsInitialState } from '../../../sagas/modals/modals.slice'
 import CreateUsernameModal from '../createUsernameModal/CreateUsername'
 import JoinCommunity from '../joinCommunity/joinCommunity'
 import CreateCommunity from './createCommunity'
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
-import { identity, communities, StoreKeys as NectarStoreKeys, Community, communitiesAdapter } from '@zbayapp/nectar'
+import { identity, communities, StoreKeys as NectarStoreKeys, getFactory } from '@zbayapp/nectar'
 
 describe('Create community', () => {
   it('users switches from create to join', async () => {
@@ -98,36 +98,24 @@ describe('Create community', () => {
   })
 
   it('user tries to create again a remembered community', async () => {
-    const community1: Community = {
-      name: '',
-      id: 'communityAlpha',
-      registrarUrl: 'registrarUrl',
-      CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-      rootCa: '',
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0
-    }
-
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
         isConnected: true
       },
       [StoreKeys.Modals]: {
-        ...new ModalsInitialState(),
-        [ModalName.joinCommunityModal]: { open: true }
+        ...new ModalsInitialState()
       },
       [NectarStoreKeys.Communities]: {
-        ...new communities.State(),
-        currentCommunity: 'communityAlpha',
-        communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
-          community1
-        ])
+        ...new communities.State()
       }
     })
+
+    const factory = await getFactory(store)
+
+    await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
 
     renderComponent(
       <>
@@ -136,7 +124,7 @@ describe('Create community', () => {
       </>,
       store
     )
-
+    store.dispatch(modalsActions.openModal({ name: ModalName.createCommunityModal }))
     const createUsernameTitle = screen.getByText('Register a username')
     expect(createUsernameTitle).toBeVisible()
   })

@@ -7,10 +7,10 @@ import { ActionsType, PayloadType } from './types'
 // import { directMessagesActions } from '../../sagas/directMessages/directMessages.reducer'
 
 import { constants } from '../../cryptography/cryptography'
-import debug from 'debug'
-const _log = Object.assign(debug('zbay:dm'), {
-  error: debug('zbay:dm:err')
-})
+// import debug from 'debug'
+// const _log = Object.assign(debug('zbay:dm'), {
+//   error: debug('zbay:dm:err')
+// })
 
 export interface IUser {
   nickname: string
