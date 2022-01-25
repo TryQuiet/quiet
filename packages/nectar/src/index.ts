@@ -76,6 +76,8 @@ export * from './sagas/communities/communities.types'
 
 export * from './sagas/messages/messages.types'
 
+export * from './sagas/errors/errors.types'
+
 export const app = {
   actions: appActions
 }

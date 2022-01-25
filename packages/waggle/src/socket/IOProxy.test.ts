@@ -14,7 +14,9 @@ import {
   InitCommunityPayload,
   LaunchRegistrarPayload,
   RegisterUserCertificatePayload,
-  SocketActionTypes
+  SocketActionTypes,
+  ErrorCodes,
+  ErrorMessages
 } from '@quiet/nectar'
 import IOProxy from './IOProxy'
 
@@ -157,16 +159,16 @@ describe('IO proxy', () => {
     expect(observedIO).toBeCalledTimes(1)
     expect(observedIO).toBeCalledWith(SocketActionTypes.ERROR, {
       type: SocketActionTypes.REGISTRAR,
-      message: 'Connecting to registrar failed',
+      message: ErrorMessages.REGISTRAR_CONNECTION_FAILED,
       communityId: 'someCommunityId',
       code: 500
     })
   })
 
   it.each([
-    ['Username already taken.', 403, 403],
-    ['Username is not valid', 403, 400],
-    ['Registering username failed.', 500, 500]
+    [ErrorMessages.USERNAME_TAKEN, ErrorCodes.VALIDATION, 403],
+    [ErrorMessages.INVALID_USERNAME, ErrorCodes.VALIDATION, 400],
+    [ErrorMessages.REGISTRATION_FAILED, ErrorCodes.SERVER_ERROR, 500]
   ])(
     'emits error "%s" with code %s if registrar returns %s',
     async (socketMessage: string, socketStatusCode: number, registrarStatusCode: number) => {

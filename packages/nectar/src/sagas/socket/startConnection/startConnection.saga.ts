@@ -12,7 +12,8 @@ import {
   ResponseRegistrarPayload
 } from '../../communities/communities.types'
 import { errorsMasterSaga } from '../../errors/errors.master.saga'
-import { ErrorPayload, errorsActions } from '../../errors/errors.slice'
+import { errorsActions } from '../../errors/errors.slice'
+import { ErrorPayload } from '../../errors/errors.types'
 import { identityMasterSaga } from '../../identity/identity.master.saga'
 import { identityActions } from '../../identity/identity.slice'
 import { messagesMasterSaga } from '../../messages/messages.master.saga'

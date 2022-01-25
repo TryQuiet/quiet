@@ -5,6 +5,8 @@ import { identityActions } from '../identity.slice'
 import { errorsActions } from '../../errors/errors.slice'
 import { config } from '../../users/const/certFieldTypes'
 import logger from '../../../utils/logger'
+import { SocketActionTypes } from '../../socket/const/actionTypes'
+import { ErrorCodes, ErrorMessages } from '../../errors/errors.types'
 const log = logger('identity')
 
 export function* registerUsernameSaga(
@@ -21,9 +23,9 @@ export function* registerUsernameSaga(
     yield* put(
       errorsActions.addError({
         communityId: identity.id,
-        type: 'registrar', // TODO: what type of error?
-        code: 403,
-        message: "You're not connected with other peers."
+        type: SocketActionTypes.REGISTRAR,
+        code: ErrorCodes.VALIDATION,
+        message: ErrorMessages.NOT_CONNECTED
       })
     )
     return

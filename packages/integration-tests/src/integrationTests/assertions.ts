@@ -1,8 +1,8 @@
+import { ErrorPayload, publicChannels, SocketActionTypes } from '@quiet/nectar'
 import waitForExpect from 'wait-for-expect'
-import { publicChannels } from '@quiet/nectar'
+import logger from '../logger'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp, sleep } from '../utils'
-import logger from '../logger'
 
 const log = logger()
 
@@ -132,11 +132,16 @@ export const assertInitializedExistingCommunitiesAndRegistrars = async (
   })
 }
 
-export const assertReceivedRegistrationError = async (store: Store) => {
+export const assertReceivedRegistrationError = async (store: Store, error?: ErrorPayload) => {
   const communityId = store.getState().Communities.communities.ids[0]
   await waitForExpect(() => {
-    expect(store.getState().Errors[communityId]?.ids[0]).toEqual('registrar')
+    expect(store.getState().Errors[communityId]?.ids[0]).toEqual(SocketActionTypes.REGISTRAR)
   }, 20_000)
+  if (error) {
+    await waitForExpect(() => {
+      expect(store.getState().Errors[communityId].entities[SocketActionTypes.REGISTRAR]).toStrictEqual(error)
+    }, 20_000)
+  }
 }
 
 export const assertReceivedCertificate = async (store: Store) => {

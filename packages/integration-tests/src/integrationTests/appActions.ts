@@ -25,6 +25,13 @@ interface JoinCommunity {
   store: Store
 }
 
+interface Register {
+  registrarAddress: string
+  userName: string
+  registrarPort: number
+  store: Store
+}
+
 interface SendRegistrationRequest {
   registrarAddress: string
   userName: string
@@ -95,13 +102,10 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
   }, timeout)
 }
 
-export async function joinCommunity(payload: JoinCommunity) {
+export async function registerUsername(payload: Register) {
   const {
     registrarAddress,
     userName,
-    ownerPeerId,
-    ownerRootCA,
-    expectedPeersCount,
     registrarPort,
     store
   } = payload
@@ -138,16 +142,31 @@ export async function joinCommunity(payload: JoinCommunity) {
     ).toHaveLength(46)
   }, timeout)
 
+  store.dispatch(identity.actions.registerUsername(userName))
+}
+
+export async function joinCommunity(payload: JoinCommunity) {
+  const {
+    ownerPeerId,
+    ownerRootCA,
+    expectedPeersCount,
+    store
+  } = payload
+
+  const timeout = 120_000
+
+  await registerUsername(payload)
+
+  const communityId = store.getState().Communities.communities.ids[0]
   const userPeerId =
     store.getState().Identity.identities.entities[communityId].peerId.id
-
-  store.dispatch(identity.actions.registerUsername(userName))
 
   await waitForExpect(() => {
     expect(
       store.getState().Identity.identities.entities[communityId].userCertificate
     ).toBeTruthy()
   }, timeout)
+
   await waitForExpect(() => {
     expect(
       store.getState().Communities.communities.entities[communityId].rootCa
@@ -191,61 +210,6 @@ export async function sendMessage(
     message,
     publicKey
   }
-}
-
-export async function tryToJoinOfflineRegistrar(store) {
-  const timeout = 120_000
-  const userName = 'userName'
-
-  store.dispatch(
-    communities.actions.joinCommunity(
-      'yjnblkcrvqexxmntrs7hscywgebrizvz2jx4g4m5wq4x7uzi5syv5cid'
-    )
-  )
-
-  await waitForExpect(() => {
-    expect(store.getState().Identity.identities.ids).toHaveLength(1)
-  }, timeout)
-  await waitForExpect(() => {
-    expect(store.getState().Communities.communities.ids).toHaveLength(1)
-  }, timeout)
-
-  const communityId = store.getState().Communities.communities.ids[0]
-
-  await waitForExpect(() => {
-    expect(
-      store.getState().Identity.identities.entities[communityId].hiddenService
-        .onionAddress
-    ).toHaveLength(62)
-  }, timeout)
-  await waitForExpect(() => {
-    expect(
-      store.getState().Identity.identities.entities[communityId].peerId.id
-    ).toHaveLength(46)
-  }, timeout)
-
-  store.dispatch(identity.actions.registerUsername(userName))
-
-  await waitForExpect(() => {
-    expect(
-      store.getState().Errors[communityId].entities.registrar.type
-    ).toEqual('registrar')
-  }, timeout)
-  await waitForExpect(() => {
-    expect(
-      store.getState().Errors[communityId].entities.registrar.message
-    ).toEqual('Registering username failed.')
-  }, timeout)
-  await waitForExpect(() => {
-    expect(
-      store.getState().Errors[communityId].entities.registrar.communityId
-    ).toEqual(communityId)
-  }, timeout)
-  await waitForExpect(() => {
-    expect(
-      store.getState().Errors[communityId].entities.registrar.code
-    ).toEqual(500)
-  }, timeout)
 }
 
 export const getCommunityOwnerData = (ownerStore: Store) => {
