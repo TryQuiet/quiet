@@ -47,7 +47,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Zbay',
+      title: 'Quiet',
       template: 'src/renderer/index.html'
     }),
     new webpack.EnvironmentPlugin({

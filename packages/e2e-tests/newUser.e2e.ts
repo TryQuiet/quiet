@@ -7,7 +7,7 @@ const longTimeout = 100000
 
 test('User can create new community, register and send few messages to general channel', async t => {
   // User opens app for the first time, sees spinner, waits for spinner to disappear
-  await t.expect(Selector('span').withText('Starting Zbay').exists).notOk(`"Starting Zbay" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
+  await t.expect(Selector('span').withText('Starting Quiet').exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
   // User sees "join community" page and switches to "create community" view by clicking on the link
   const joinCommunityTitle = await Selector('h3').withText('Join community')()
