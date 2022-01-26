@@ -7,7 +7,7 @@ on:
 
 jobs:
   run-e2e-tests:
-    uses: ./.github/workflows/e2e-tests-reusable.yml@ff1fbf8d1853f23ba97c2c00116ef2312ae8977f
+    uses: ./.github/workflows/e2e-tests-reusable.yml
 
   build-linux:
     needs: run-e2e-tests
