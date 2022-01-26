@@ -278,17 +278,10 @@ export class Storage {
 
       db.events.on('write', (_address, entry) => {
         log(`Writing to public channel db ${channel.address}`)
-        this.io.loadMessages({
-          messages: [entry.payload.value],
-          communityId: this.communityId
-        })
       })
+
       db.events.on('replicate.progress', (address, _hash, entry, progress, total) => {
         log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
-        this.io.loadMessages({
-          messages: [entry.payload.value],
-          communityId: this.communityId
-        })
       })
 
       db.events.on('ready', () => {
@@ -303,6 +296,7 @@ export class Storage {
       repo.eventsAttached = true
 
       const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
+
       this.io.sendMessagesIds({
         ids,
         channelAddress: channel.address,
@@ -320,7 +314,10 @@ export class Storage {
     const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(`channels.${data.address}`, {
       accessController: {
         type: 'messagesaccess',
-        write: ['*']
+        write: ['*'],
+        // @ts-expect-error
+        io: this.io,
+        communityId: this.communityId
       }
     })
 
