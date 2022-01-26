@@ -29,7 +29,7 @@ jobs:
         run:  npm i -g electron-builder@22.10.5
 
       - name: "Pull tor binary"
-        run: cd packages/frontend && export SOURCE_PATH=linux && npm run pullBinaries --scope quiet && npm run pullLibs
+        run: cd packages/frontend && export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs
 
       - name: "Verify Sentry setup"
         run: echo $REACT_APP_ENABLE_SENTRY
@@ -80,7 +80,7 @@ jobs:
         run:  npm i -g electron-builder@22.10.5
 
       - name: "Pull tor binary"
-        run: cd packages/frontend && export SOURCE_PATH=darwin && lerna run pullBinaries --scope quiet
+        run: cd packages/frontend && export SOURCE_PATH=darwin && npm run copyBinaries
 
       - name: "Verify Sentry setup"
         run: echo $REACT_APP_ENABLE_SENTRY
@@ -138,7 +138,7 @@ jobs:
 
       - name: "Pull tor binary"
         shell: bash
-        run: cd packages/frontend && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/win32/tor.exe --create-dirs -o ./tor/tor.exe
+        run: cd packages/frontend && export SOURCE_PATH=win32 && npm run copyBinaries
 
       - name: "Verify Sentry setup"
         shell: bash
