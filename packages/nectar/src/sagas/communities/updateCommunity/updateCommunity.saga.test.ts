@@ -53,7 +53,7 @@ describe('updateCommunitySaga', () => {
             entities: {
               1: {
                 ...community,
-                name: 'quietcommunity',
+                name: 'Zbay CA',
                 rootCa:
                   'MIIBTTCB8wIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMB4XDTEwMTIyODEwMTAxMFoXDTMwMTIyODEwMTAxMFowEjEQMA4GA1UEAxMHWmJheSBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABBXmkE9W4NHQWUgmaH6j7TLSzOgyNIr8VshAeAMAg36IGvhtxhXNMUMYUApE7K9cifbxn6RVkSird97B7IFMefKjPzA9MA8GA1UdEwQIMAYBAf8CAQMwCwYDVR0PBAQDAgCGMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAKBggqhkjOPQQDAgNJADBGAiEAgY783/mGO15DK319VK/2wiAvq10oce4YdWdx2XUrKFoCIQDOh7r8ZlyLoNAT6FiNM/oBCaR3FrKmg7Nz4+ZbtvZMiw=='
               }

@@ -1,11 +1,7 @@
 import { combineReducers, createStore, Store } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { communitiesAdapter } from './../communities/communities.adapter'
-import {
-  communitiesReducer,
-  CommunitiesState,
-  Community
-} from './../communities/communities.slice'
+import { communitiesReducer, CommunitiesState, Community } from './../communities/communities.slice'
 import { identityAdapter } from './identity.adapter'
 import { identitySelectors } from './identity.selectors'
 import { identityReducer, IdentityState } from './identity.slice'
@@ -121,17 +117,18 @@ describe('communitiesSelectors will recive correct data', () => {
         [StoreKeys.Communities]: {
           ...new CommunitiesState(),
           currentCommunity: 'communityBeta',
-          communities: communitiesAdapter.setAll(
-            communitiesAdapter.getInitialState(),
-            [communityAlpha, communityBeta, communityDelta]
-          )
+          communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
+            communityAlpha,
+            communityBeta,
+            communityDelta
+          ])
         },
         [StoreKeys.Identity]: {
           ...new IdentityState(),
-          identities: identityAdapter.setAll(
-            identityAdapter.getInitialState(),
-            [identityBeta, identityDelta]
-          )
+          identities: identityAdapter.setAll(identityAdapter.getInitialState(), [
+            identityBeta,
+            identityDelta
+          ])
         }
       }
     )
@@ -151,6 +148,7 @@ describe('communitiesSelectors will recive correct data', () => {
           "privateKey": "",
         },
         "id": "communityBeta",
+        "nickname": "nickname",
         "peerId": Object {
           "id": "",
           "privKey": "",
@@ -158,78 +156,67 @@ describe('communitiesSelectors will recive correct data', () => {
         },
         "userCertificate": "userCert",
         "userCsr": null,
-        "nickname": "nickname",
       }
     `)
   })
 
   it('select joined communities with user identity with certificate', () => {
-    const joinedCommunities = identitySelectors.joinedCommunities(
-      store.getState()
-    )
-    const idOfJoinedCommunities = joinedCommunities.map(
-      (community) => community.id
-    )
+    const joinedCommunities = identitySelectors.joinedCommunities(store.getState())
+    const idOfJoinedCommunities = joinedCommunities.map(community => community.id)
 
     expect(idOfJoinedCommunities).toEqual(['communityBeta'])
     expect(joinedCommunities).toMatchInlineSnapshot(`
-Array [
-  Object {
-    "CA": Object {
-      "rootCertString": "certString",
-      "rootKeyString": "keyString",
-    },
-    "id": "communityBeta",
-    "name": "beta",
-    "onionAddress": "",
-    "peerList": Array [],
-    "port": 0,
-    "privateKey": "",
-    "registrar": null,
-    "registrarUrl": "",
-    "rootCa": "",
-  },
-]
-`)
+      Array [
+        Object {
+          "CA": Object {
+            "rootCertString": "certString",
+            "rootKeyString": "keyString",
+          },
+          "id": "communityBeta",
+          "name": "beta",
+          "onionAddress": "",
+          "peerList": Array [],
+          "port": 0,
+          "privateKey": "",
+          "registrar": null,
+          "registrarUrl": "",
+          "rootCa": "",
+        },
+      ]
+    `)
   })
 
   it('select unregistered communities with user identity without certificate', () => {
-    const unregisteredCommunities = identitySelectors.unregisteredCommunities(
-      store.getState()
-    )
-    const idOfJoinedCommunities = unregisteredCommunities.map(
-      (community) => community.id
-    )
+    const unregisteredCommunities = identitySelectors.unregisteredCommunities(store.getState())
+    const idOfJoinedCommunities = unregisteredCommunities.map(community => community.id)
 
     expect(idOfJoinedCommunities).toEqual(['communityDelta'])
     expect(unregisteredCommunities).toMatchInlineSnapshot(`
-Array [
-  Object {
-    "CA": Object {
-      "rootCertString": "certString",
-      "rootKeyString": "keyString",
-    },
-    "id": "communityDelta",
-    "name": "beta",
-    "onionAddress": "",
-    "peerList": Array [],
-    "port": 0,
-    "privateKey": "",
-    "registrar": null,
-    "registrarUrl": "",
-    "rootCa": "",
-  },
-]
-`)
+      Array [
+        Object {
+          "CA": Object {
+            "rootCertString": "certString",
+            "rootKeyString": "keyString",
+          },
+          "id": "communityDelta",
+          "name": "beta",
+          "onionAddress": "",
+          "peerList": Array [],
+          "port": 0,
+          "privateKey": "",
+          "registrar": null,
+          "registrarUrl": "",
+          "rootCa": "",
+        },
+      ]
+    `)
   })
 
   it('select communities without user identity', () => {
     const unregisteredCommunities = identitySelectors.unregisteredCommunitiesWithoutUserIdentity(
       store.getState()
     )
-    const idOfJoinedCommunities = unregisteredCommunities.map(
-      (community) => community.id
-    )
+    const idOfJoinedCommunities = unregisteredCommunities.map(community => community.id)
 
     expect(idOfJoinedCommunities).toEqual(['communityAlpha'])
     expect(unregisteredCommunities).toMatchInlineSnapshot(`
