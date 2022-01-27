@@ -12,7 +12,9 @@ import JoinCommunity from './joinCommunity'
 import CreateCommunity from '../createCommunity/createCommunity'
 import { JoinCommunityDictionary, CreateCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
 import CreateUsernameModal from '../createUsernameModal/CreateUsername'
-import { communities, getFactory, StoreKeys as NectarStoreKeys } from '@zbayapp/nectar'
+import LoadingPanelModal from '../loadingPanel/loadingPanel'
+import { identity, communities, getFactory, Identity, identityAdapter, StoreKeys as NectarStoreKeys } from '@zbayapp/nectar'
+import { LoadingMessages } from '../loadingPanel/loadingMessages'
 
 describe('join community', () => {
   it('users switches from join to create', async () => {
@@ -91,7 +93,7 @@ describe('join community', () => {
     expect(joinCommunityTitle).toBeVisible()
   })
 
-  it('user rejoins to remembered community', async () => {
+  it('user rejoins to remembered community without user data', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
@@ -109,7 +111,7 @@ describe('join community', () => {
     const factory = await getFactory(store)
 
     await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     renderComponent(
@@ -122,5 +124,82 @@ describe('join community', () => {
 
     const createUsernameTitle = screen.getByText('Register a username')
     expect(createUsernameTitle).toBeVisible()
+  })
+
+  it('user rejoins to remembered community with certificate', async () => {
+    const factoryStore = (await prepareStore()).store
+    const factory = await getFactory(factoryStore)
+
+    const community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const identityAlpha: Identity = {
+      id: community.id,
+      zbayNickname: 'nickname',
+      hiddenService: {
+        onionAddress: '',
+        privateKey: ''
+      },
+      dmKeys: {
+        publicKey: '',
+        privateKey: ''
+      },
+      peerId: {
+        id: '',
+        pubKey: '',
+        privKey: ''
+      },
+      userCsr: null,
+      userCertificate: ''
+    }
+
+    const { store } = await prepareStore({
+      [StoreKeys.Socket]: {
+        ...new SocketState(),
+        isConnected: true
+      },
+      [StoreKeys.Modals]: {
+        ...new ModalsInitialState(),
+        [ModalName.joinCommunityModal]: { open: true }
+      },
+      [NectarStoreKeys.Communities]: factoryStore.getState().Communities,
+      [NectarStoreKeys.Identity]: {
+        ...new identity.State(),
+        identities: identityAdapter.setAll(
+          identityAdapter.getInitialState(),
+          [identityAlpha]
+        )
+      }
+    })
+
+    const result1 = renderComponent(
+      <>
+        <JoinCommunity />
+        <CreateUsernameModal />
+        <LoadingPanelModal />
+      </>,
+      store
+    )
+
+    const switchLink1 = result1.queryByText(LoadingMessages.CreateCommunity)
+    expect(switchLink1).not.toBeNull()
+
+    store.dispatch(identity.actions.storeUserCertificate({
+      userCertificate: 'userCert',
+      communityId: community.id
+    }))
+
+    const result2 = renderComponent(
+      <>
+        <JoinCommunity />
+        <CreateUsernameModal />
+        <LoadingPanelModal />
+      </>,
+      store
+    )
+
+    const switchLink2 = result2.queryByText(LoadingMessages.CreateCommunity)
+    expect(switchLink2).toBeNull()
   })
 })

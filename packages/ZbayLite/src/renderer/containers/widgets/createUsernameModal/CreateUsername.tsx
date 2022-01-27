@@ -69,6 +69,9 @@ const CreateUsernameModal = () => {
     }
   }, [unregisteredCommunities])
   useEffect(() => {
+    if (!createUsernameModal.communityAction) {
+      isOwner ? createUsernameModal.communityAction = CommunityAction.Create : createUsernameModal.communityAction = CommunityAction.Join
+    }
     if (certificate && allCommunitiesInitialized && !isInitializedCommunity &&
       ((createUsernameModal.communityAction === CommunityAction.Join && channels.length) ||
         (createUsernameModal.communityAction === CommunityAction.Create && invitationUrl))) {
