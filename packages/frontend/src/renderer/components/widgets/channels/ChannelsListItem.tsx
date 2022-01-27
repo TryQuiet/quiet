@@ -80,18 +80,6 @@ export const ChannelsListItem: React.FC<ChannelsListItemComponentProps> = ({
         primary={
           <Grid container alignItems='center'>
             <Grid item>
-              {/* {directMessages && (
-                <Icon
-                  className={channel?.connected ? classes.connectedIcon : classes.notConnectedIcon}
-                  src={
-                    isFromZbay
-                      ? (channel?.connected ? onlineIcon : offlineIcon)
-                      : avatarAnonMask
-                  }
-                />
-              )} */}
-            </Grid>
-            <Grid item>
               <Typography
                 variant='body2'
                 className={classNames(classes.title, {

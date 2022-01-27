@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     height: 60,
     width: 102,
     fontSize: 16,
-    backgroundColor: theme.palette.colors.zbayBlue
+    backgroundColor: theme.palette.colors.quietBlue
   },
   title: {
     marginBottom: 24

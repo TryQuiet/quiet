@@ -57,7 +57,7 @@ export const WelcomeMessage: React.FC<IWelcomeMessageProps> = ({
   timestamp
 }) => {
   const classes = useStyles({})
-  const username = 'Zbay'
+  const username = 'Quiet'
   return (
     <ListItem
       className={classNames({

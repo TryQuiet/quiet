@@ -2,7 +2,7 @@ import {
   createMinConnectionManager,
   createTmpDir,
   ResponseMock,
-  tmpZbayDirPath,
+  tmpQuietDirPath,
   TorMock
 } from '../common/testUtils'
 import { getPorts } from '../common/utils'
@@ -29,7 +29,7 @@ describe('IO proxy', () => {
     const appDataPath = createTmpDir()
     const ports = await getPorts()
     manager = createMinConnectionManager({
-      env: { appDataPath: tmpZbayDirPath(appDataPath.name) },
+      env: { appDataPath: tmpQuietDirPath(appDataPath.name) },
       torControlPort: ports.controlPort
     })
     const torInitMock = jest.fn(async () => {

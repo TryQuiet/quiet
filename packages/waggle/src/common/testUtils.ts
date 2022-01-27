@@ -37,12 +37,12 @@ export const testBootstrapMultiaddrs = [
   createLibp2pAddress('abcd.onion', 1111, 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4', 'wss')
 ]
 
-export const spawnTorProcess = async (zbayDirPath: string, ports?: Ports): Promise<Tor> => {
+export const spawnTorProcess = async (quietDirPath: string, ports?: Ports): Promise<Tor> => {
   const _ports = ports || (await getPorts())
   const torPath = torBinForPlatform()
   const libPath = torDirForPlatform()
   const tor = new Tor({
-    appDataPath: zbayDirPath,
+    appDataPath: quietDirPath,
     torPath: torPath,
     controlPort: _ports.controlPort,
     socksPort: _ports.socksPort,
@@ -50,7 +50,7 @@ export const spawnTorProcess = async (zbayDirPath: string, ports?: Ports): Promi
     options: {
       env: {
         LD_LIBRARY_PATH: libPath,
-        HOME: zbayDirPath
+        HOME: quietDirPath
       },
       detached: true
     }
@@ -94,11 +94,11 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
 }
 
 export const createTmpDir = (): tmp.DirResult => {
-  return tmp.dirSync({ mode: 0o750, prefix: 'zbayTestTmp_', unsafeCleanup: true })
+  return tmp.dirSync({ mode: 0o750, prefix: 'quietTestTmp_', unsafeCleanup: true })
 }
 
-export const tmpZbayDirPath = (name: string): string => {
-  return path.join(name, Config.ZBAY_DIR)
+export const tmpQuietDirPath = (name: string): string => {
+  return path.join(name, Config.QUIET_DIR)
 }
 
 export class TorMock {

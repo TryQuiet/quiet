@@ -10,8 +10,8 @@
     "lint": "eslint --ext .ts . --fix",
     "lint-ci": "eslint --ext .ts .",
     "prettier": "prettier",
-    "start:e2e": "npm run build:e2e && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,zbay*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:../frontend\" \"./**/*.e2e.ts\"",
-    "start:e2eWin": "npm run build:e2e && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,zbay*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:../frontend\" \"./**/*.e2e.ts\""
+    "start:e2e": "npm run build:e2e && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:../frontend\" \"./**/*.e2e.ts\"",
+    "start:e2eWin": "npm run build:e2e && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:../frontend\" \"./**/*.e2e.ts\""
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.7.1",

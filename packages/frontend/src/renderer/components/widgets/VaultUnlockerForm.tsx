@@ -117,7 +117,7 @@ export const VaultUnlockerForm: React.FC<VaultUnlockerFormProps> = ({
               })}
               variant='body1'
               gutterBottom>
-              {!isNewUser ? 'Welcome Back' : 'Welcome to Zbay!'}
+              {!isNewUser ? 'Welcome Back' : 'Welcome to Quiet!'}
             </Typography>
           </Grid>
           <Grid container item justify='center'>

@@ -51,7 +51,6 @@ module.exports = {
       template: 'src/renderer/index.html'
     }),
     new webpack.EnvironmentPlugin({
-      ZBAY_IS_TESTNET: 0,
       REACT_APP_ENABLE_SENTRY: process.env.REACT_APP_ENABLE_SENTRY
     })
   ],

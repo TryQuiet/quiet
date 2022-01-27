@@ -40,9 +40,6 @@ describe('BaseChannelsList', () => {
                   >
                     <div
                       class="MuiGrid-root MuiGrid-item"
-                    />
-                    <div
-                      class="MuiGrid-root MuiGrid-item"
                     >
                       <p
                         class="MuiTypography-root makeStyles-title-8 MuiTypography-body2"

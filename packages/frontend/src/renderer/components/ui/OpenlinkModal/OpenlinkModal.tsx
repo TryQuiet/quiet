@@ -48,10 +48,10 @@ const useStyles = makeStyles(theme => ({
   buttonBack: {
     width: 147,
     height: 60,
-    backgroundColor: theme.palette.colors.zbayBlue,
+    backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
     '&:hover': {
-      backgroundColor: theme.palette.colors.zbayBlue
+      backgroundColor: theme.palette.colors.quietBlue
     }
   },
   buttons: {
@@ -108,9 +108,9 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
               <Grid item container direction='column'>
                 <Grid item>
                   <Typography variant='body2'>
-                    Opening link posted in Zbay reveals data about you to your goverment, your
+                    Opening link posted in Quiet reveals data about you to your goverment, your
                     Internet provider, the site you are visiting and, potentially, to whoever posted
-                    the link. Only open links from people you trust. If you are using Zbay to
+                    the link. Only open links from people you trust. If you are using Quiet to
                     protect your anonymity, never open links.
                   </Typography>
                 </Grid>
@@ -131,7 +131,7 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                         {'Automatically load images from '}
                         <span className={classes.bold}>{uri.hostname}</span>
                         {
-                          "- I trust them with my data and I'm not using Zbay for anonymity protection. "
+                          "- I trust them with my data and I'm not using Quiet for anonymity protection. "
                         }
                       </Grid>
                     </Grid>
@@ -174,7 +174,7 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                     />
                   </Grid>
                   <Grid item xs className={classes.checkboxLabel}>
-                    {'Never warn me about outbound links on Zbay.'}
+                    {'Never warn me about outbound links on Quiet.'}
                   </Grid>
                 </Grid>
                 <Grid item container spacing={2} alignItems='center' className={classes.buttons}>

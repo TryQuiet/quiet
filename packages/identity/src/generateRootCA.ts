@@ -28,7 +28,7 @@ export const createRootCA = async (
   notAfterDate: Time,
   rootCAcommonName?: string
 ): Promise<RootCA> => {
-  const commonName = rootCAcommonName || 'Zbay CA'
+  const commonName = rootCAcommonName || 'quietcommunity'
   const rootCA = await generateRootCA({
     commonName,
     ...config,

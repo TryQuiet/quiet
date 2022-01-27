@@ -49,7 +49,7 @@ export const ChannelRegisteredMessage: React.FC<ChannelRegisteredMessageProps> =
               <span className={classes.link} onClick={onChannelClick}>
                 #{message.nickname}
               </span>{' '}
-              on zbay!
+              on quiet!
             </span>
           </Fragment>
         }

@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
       }
     },
     '& .MuiIconButton-colorSecondary': {
-      color: theme.palette.colors.zbayBlue
+      color: theme.palette.colors.quietBlue
     },
     '& .MuiTypography-body1': {
       fontSize: '14px',
@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
     height: 60,
     width: 180,
     fontSize: 16,
-    backgroundColor: theme.palette.colors.zbayBlue
+    backgroundColor: theme.palette.colors.quietBlue
   },
   captionDiv: {
     marginTop: 16
@@ -196,7 +196,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
             )}
             <Grid item className={classes.captionDiv}>
               <Typography variant='caption' className={classes.captions}>
-                You can choose how to be alerted or turn off all Zbay
+                You can choose how to be alerted or turn off all Quiet
                 notifications in your{' '}
                 <span
                   className={classes.link}

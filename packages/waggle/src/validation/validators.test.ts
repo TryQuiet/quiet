@@ -103,8 +103,8 @@ describe('Validators - Messages', () => {
 describe('Validators - Channels', () => {
   test('message is valid', () => {
     const channel = {
-      name: 'zbay',
-      description: 'zbay',
+      name: 'quiet',
+      description: 'quiet',
       owner: 'szakalakakaaakaka',
       timestamp: 12341234,
       address: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
@@ -113,8 +113,8 @@ describe('Validators - Channels', () => {
   })
   test('message is lacking required proprty', () => {
     const channel = {
-      name: 'zbay',
-      description: 'zbay',
+      name: 'quiet',
+      description: 'quiet',
       owner: 'szakalakakaaakaka',
       address: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
     }
@@ -122,8 +122,8 @@ describe('Validators - Channels', () => {
   })
   test('message proprty has wrong format', () => {
     const channel = {
-      name: 'zbay',
-      description: 'zbay',
+      name: 'quiet',
+      description: 'quiet',
       owner: 'szakalakakaaakaka',
       timestamp: 'asfasdf',
       address: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'

@@ -31,10 +31,10 @@ const useStyles = makeStyles(theme => ({
   button: {
     marginTop: 24,
     width: 165,
-    backgroundColor: theme.palette.colors.zbayBlue,
+    backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
     '&:hover': {
-      backgroundColor: theme.palette.colors.zbayBlue
+      backgroundColor: theme.palette.colors.quietBlue
     }
   },
   title: {
@@ -127,7 +127,7 @@ export const NewMessageModal: React.FC<NewMessageModalProps> = ({
                       variant='outlined'
                       multiline
                       rowsMax={7}
-                      placeholder={'Enter Zcash address or Zbay username'}
+                      placeholder={'Enter Quiet username'}
                       margin='normal'
                       fullWidth
                     />

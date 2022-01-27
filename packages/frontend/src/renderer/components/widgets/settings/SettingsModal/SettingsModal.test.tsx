@@ -342,7 +342,7 @@ describe('SettingsModal', () => {
                                           class="MuiGrid-root MuiGrid-item"
                                         >
                                           <span>
-                                            You won’t receive notificaitons from Zbay.
+                                            You won’t receive notificaitons from Quiet.
                                           </span>
                                         </div>
                                       </div>

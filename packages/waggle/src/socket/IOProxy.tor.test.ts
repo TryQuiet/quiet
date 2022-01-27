@@ -5,7 +5,7 @@ import {
   LaunchRegistrarPayload,
   PeerId
 } from '@quiet/nectar'
-import { createMinConnectionManager, createTmpDir, tmpZbayDirPath } from '../common/testUtils'
+import { createMinConnectionManager, createTmpDir, tmpQuietDirPath } from '../common/testUtils'
 import { getPorts } from '../common/utils'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
 import { CertificateRegistration } from '../registration'
@@ -56,7 +56,7 @@ test('IO proxy closes all services (using tor)', async () => {
   const appDataPath = createTmpDir()
   const ports = await getPorts()
   const manager = createMinConnectionManager({
-    env: { appDataPath: tmpZbayDirPath(appDataPath.name) },
+    env: { appDataPath: tmpQuietDirPath(appDataPath.name) },
     torControlPort: ports.controlPort
   })
 

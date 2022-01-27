@@ -3,7 +3,7 @@ import path from 'path'
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { Config } from '../constants'
-import { createLibp2p, createTmpDir, tmpZbayDirPath, rootPermsData, createMinConnectionManager } from '../common/testUtils'
+import { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createMinConnectionManager } from '../common/testUtils'
 import { Storage } from './storage'
 import * as utils from '../common/utils'
 import { FactoryGirl } from 'factory-girl'
@@ -71,7 +71,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   jest.clearAllMocks()
   tmpDir = createTmpDir()
-  tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
+  tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
   tmpOrbitDbDir = path.join(tmpAppDataPath, Config.ORBIT_DB_DIR)
   tmpIpfsPath = path.join(tmpAppDataPath, Config.IPFS_REPO_PATH)
   const { controlPort } = await utils.getPorts()

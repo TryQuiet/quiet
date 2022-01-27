@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(2)
   },
   info: {
-    color: theme.palette.colors.zbayBlue
+    color: theme.palette.colors.quietBlue
   },
   infoDiv: {
     textAlign: 'center',

@@ -274,7 +274,7 @@ export const reducer = handleActions<ContactsStore, PayloadType<ContactActions>>
       { payload: { key, username, contactAddress, offerId = null } }: ContactActions['addContact']
     ) =>
       produce(state, draft => {
-        if (key === 'zbay') return
+        if (key === 'quiet') return
         draft[key] = {
           lastSeen: null,
           messages: [],
@@ -294,7 +294,7 @@ export const reducer = handleActions<ContactsStore, PayloadType<ContactActions>>
       }: ContactActions['addDirectContact']
     ) =>
       produce(state, draft => {
-        if (username === 'zbay') return
+        if (username === 'quiet') return
         draft[username] = {
           lastSeen: null,
           messages: [],

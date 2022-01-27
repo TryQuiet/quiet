@@ -42,7 +42,7 @@ setEngine(
 )
 
 export class Storage {
-  public zbayDir: string
+  public quietDir: string
   public io: IOProxy
   public peerId: PeerId
   protected ipfs: IPFS.IPFS
@@ -57,16 +57,16 @@ export class Storage {
   public ipfsRepoPath: string
   private readonly communityId: string
 
-  constructor(zbayDir: string, ioProxy: IOProxy, communityId: string, options?: Partial<StorageOptions>) {
-    this.zbayDir = zbayDir
+  constructor(quietDir: string, ioProxy: IOProxy, communityId: string, options?: Partial<StorageOptions>) {
+    this.quietDir = quietDir
     this.io = ioProxy
     this.communityId = communityId
     this.options = {
       ...new StorageOptions(),
       ...options
     }
-    this.orbitDbDir = path.join(this.zbayDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
-    this.ipfsRepoPath = path.join(this.zbayDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
+    this.orbitDbDir = path.join(this.quietDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
+    this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
   }
 
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {

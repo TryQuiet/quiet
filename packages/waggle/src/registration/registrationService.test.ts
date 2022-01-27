@@ -2,7 +2,7 @@ import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, veri
 import { Time } from 'pkijs'
 import { DirResult } from 'tmp'
 import { CertificateRegistration } from '.'
-import { createTmpDir, rootPermsData, tmpZbayDirPath, TorMock } from '../common/testUtils'
+import { createTmpDir, rootPermsData, tmpQuietDirPath, TorMock } from '../common/testUtils'
 import { getPorts, Ports } from '../common/utils'
 import { Storage } from '../storage'
 import { getStorage, registerUser, setupRegistrar } from './testUtils'
@@ -18,7 +18,7 @@ describe('Registration service', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
     tmpDir = createTmpDir()
-    tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
+    tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
     registrationService = null
     certRoot = await createRootCA(new Time({ type: 1, value: new Date() }), new Time({ type: 1, value: new Date(2030, 1, 1) }), 'testRootCA')
     ports = await getPorts()

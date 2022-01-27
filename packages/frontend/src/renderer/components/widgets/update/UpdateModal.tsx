@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   button: {
     height: 55,
     fontSize: '0.9rem',
-    backgroundColor: theme.palette.colors.zbayBlue
+    backgroundColor: theme.palette.colors.quietBlue
   },
   updateIcon: {
     width: 102,

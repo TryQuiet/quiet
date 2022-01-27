@@ -43,7 +43,7 @@ describe('WelcomeMessage', () => {
                       <p
                         class="MuiTypography-root-129 makeStyles-username-3 MuiTypography-body1-131 MuiTypography-colorTextPrimary-154"
                       >
-                        Zbay
+                        Quiet
                       </p>
                     </div>
                     <div

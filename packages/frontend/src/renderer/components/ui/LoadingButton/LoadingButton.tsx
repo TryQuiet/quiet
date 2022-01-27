@@ -10,10 +10,10 @@ const useStyles = makeStyles(theme => ({
   button: {
     maxWidth: 286,
     height: 60,
-    backgroundColor: theme.palette.colors.zbayBlue,
+    backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
     '&:hover': {
-      backgroundColor: theme.palette.colors.zbayBlue
+      backgroundColor: theme.palette.colors.quietBlue
     },
     '&:disabled': {
       opacity: 0.7
@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
   },
   inProgress: {
     '&:disabled': {
-      backgroundColor: theme.palette.colors.zbayBlue,
+      backgroundColor: theme.palette.colors.quietBlue,
       opacity: 1
     }
   },

@@ -1,5 +1,5 @@
 import Node from '../node'
-import { ZBAY_DIR_PATH } from '../constants'
+import { QUIET_DIR_PATH } from '../constants'
 import WebsocketsOverTor from '../libp2p/websocketOverTor'
 import Websockets from 'libp2p-websockets'
 import { DataServer } from '../socket/DataServer'
@@ -41,7 +41,7 @@ export class LocalNode extends Node {
     torControlPort = 9051,
     httpTunnelPort = 9052,
     hiddenServicePort = 7788,
-    torAppDataPath = ZBAY_DIR_PATH,
+    torAppDataPath = QUIET_DIR_PATH,
     hiddenServiceSecret?: string,
     storageOptions?: TestStorageOptions,
     appDataPath?: string,

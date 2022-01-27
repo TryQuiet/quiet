@@ -1,8 +1,8 @@
 import crypto from 'crypto'
 import { IConversation } from '../store/handlers/directMessages'
 import debug from 'debug'
-const log = Object.assign(debug('zbay:crypto'), {
-  error: debug('zbay:crypto:err')
+const log = Object.assign(debug('quiet:crypto'), {
+  error: debug('quiet:crypto:err')
 })
 
 export const constants = {

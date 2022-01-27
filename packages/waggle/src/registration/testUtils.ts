@@ -44,11 +44,11 @@ export async function setupRegistrar(tor: Tor, storage: Storage, permsData: Perm
   return certRegister
 }
 
-export const getStorage = async (zbayDir: string) => {
+export const getStorage = async (quietDir: string) => {
   const peerId = await PeerId.create()
-  const connectionsManager = createMinConnectionManager({ env: { appDataPath: zbayDir }, torControlPort: 12345 })
+  const connectionsManager = createMinConnectionManager({ env: { appDataPath: quietDir }, torControlPort: 12345 })
   const storage = new Storage(
-    zbayDir,
+    quietDir,
     connectionsManager.ioProxy,
     'communityid',
     {

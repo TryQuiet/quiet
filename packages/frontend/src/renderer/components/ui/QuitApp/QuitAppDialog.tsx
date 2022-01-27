@@ -45,7 +45,7 @@ export const QuitAppDialog: React.FC<QuitAppDialogProps> = ({ handleClose, handl
     <Dialog onClose={handleClose} open={open}>
       <DialogContent className={classes.dialogContent}>
         <Typography className={classes.info} variant='body2'>
-          Do you want to quit Zbay?
+          Do you want to quit Quiet?
         </Typography>
       </DialogContent>
       <DialogActions className={classes.dialogActions}>

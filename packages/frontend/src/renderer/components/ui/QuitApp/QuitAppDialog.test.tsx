@@ -46,7 +46,7 @@ describe('QuitAppDialog', () => {
                 <p
                   class="MuiTypography-root makeStyles-info-2 MuiTypography-body2"
                 >
-                  Do you want to quit Zbay?
+                  Do you want to quit Quiet?
                 </p>
               </div>
               <div

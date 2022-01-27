@@ -32,7 +32,7 @@ const ChannelInputInfoMessage: React.FC<ChannelInputInfoMessageProps> = ({ showI
           <Typography variant='caption' className={classes.info}>
             {inputState === 0
               ? 'Loading messages and connecting. This may take a few minutes...'
-              : 'This user needs to update Zbay to receive direct messages.'}
+              : 'This user needs to update Quiet to receive direct messages.'}
           </Typography>
         )}
       </Grid>

@@ -27,10 +27,10 @@ const useStyles = makeStyles(theme => ({
   },
   button: {
     width: 165,
-    backgroundColor: theme.palette.colors.zbayBlue,
+    backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
     '&:hover': {
-      backgroundColor: theme.palette.colors.zbayBlue
+      backgroundColor: theme.palette.colors.quietBlue
     },
     textTransform: 'none',
     height: 48,

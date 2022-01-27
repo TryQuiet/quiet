@@ -1,6 +1,6 @@
-# Zbay
+# Quiet
 
-Zbay is an experimental app for Windows, Mac, and GNU/Linux that builds a decentralized community chat (like Slack or Discord) using [Tor](https://www.torproject.org/), [IPFS](https://ipfs.io/), [OrbitDB](https://github.com/orbitdb/orbit-db), and [Zcash](https://z.cash/).
+Quiet is an experimental app for Windows, Mac, and GNU/Linux that builds a decentralized community chat (like Slack or Discord) using [Tor](https://www.torproject.org/), [IPFS](https://ipfs.io/), [OrbitDB](https://github.com/orbitdb/orbit-db), and [Zcash](https://z.cash/).
 
 For more on the values behind the project, read [this essay](https://zbay.app/#why).
 
@@ -20,11 +20,11 @@ Next, copy the Tor binary for your platform to a file called `tor` in the `tor` 
 
 `cp /Applications/Tor\ Browser.app/Contents/MacOS/Tor/tor.real ./tor/tor`
 
-Then use `npm run start` to start Zbay. That's it!
+Then use `npm run start` to start Quiet. That's it!
 
 ## Building an installer
 
-Zbay supports most popular operating systems. If you want to build a version for these platforms use one of our scripts:
+Quiet supports most popular operating systems. If you want to build a version for these platforms use one of our scripts:
 
 macOS ```npm run dist```
 
@@ -36,7 +36,7 @@ The built installers can then be found in the `dist` folder.
 
 ##### Removing data
 
-To remove all your data from a machine, be sure to delete the Zbay and Zcash folders. Here's where to find them:
+To remove all your data from a machine, be sure to delete the Quiet and Zcash folders. Here's where to find them:
 
 On Linux ```~/.config/```
 
@@ -46,10 +46,10 @@ On Windows ```%HOMEPATH%\\AppData\\Roaming\\```
 
 ##### Backing up and restoring data
 
-To make a backup, simply copy both the `Zbay` and `Zcash` folders from the location above to somewhere safe. 
+To make a backup, simply copy both the `Quiet` folder from the location above to somewhere safe. 
 
-To restore a backup, move your backed-up `Zbay` and `Zcash` folders to the location above. 
+To restore a backup, move your backed-up `Quiet` folder to the location above. 
 
 ## Contact
 
-Questions? Find us in the #zbay channel, in Zbay, or email [h@zbay.llc](mailto:h@zbay.llc).
+Email [h@zbay.llc](mailto:h@zbay.llc).

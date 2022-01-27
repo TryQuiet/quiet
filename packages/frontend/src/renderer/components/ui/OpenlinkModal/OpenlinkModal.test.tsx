@@ -132,7 +132,7 @@ describe('OpenlinkModal', () => {
                             <p
                               class="MuiTypography-root MuiTypography-body2"
                             >
-                              Opening link posted in Zbay reveals data about you to your goverment, your Internet provider, the site you are visiting and, potentially, to whoever posted the link. Only open links from people you trust. If you are using Zbay to protect your anonymity, never open links.
+                              Opening link posted in Quiet reveals data about you to your goverment, your Internet provider, the site you are visiting and, potentially, to whoever posted the link. Only open links from people you trust. If you are using Quiet to protect your anonymity, never open links.
                             </p>
                           </div>
                         </div>
@@ -185,7 +185,7 @@ describe('OpenlinkModal', () => {
                               >
                                 www.zbay.app
                               </span>
-                              - I trust them with my data and I'm not using Zbay for anonymity protection. 
+                              - I trust them with my data and I'm not using Quiet for anonymity protection. 
                             </div>
                           </div>
                           <div
@@ -276,7 +276,7 @@ describe('OpenlinkModal', () => {
                             <div
                               class="MuiGrid-root makeStyles-checkboxLabel-6 MuiGrid-item MuiGrid-grid-xs-true"
                             >
-                              Never warn me about outbound links on Zbay.
+                              Never warn me about outbound links on Quiet.
                             </div>
                           </div>
                           <div

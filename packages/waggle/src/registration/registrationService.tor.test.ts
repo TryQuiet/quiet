@@ -3,7 +3,7 @@ import getPort from 'get-port'
 import { Time } from 'pkijs'
 import { DirResult } from 'tmp'
 import { CertificateRegistration } from '.'
-import { createTmpDir, spawnTorProcess, tmpZbayDirPath } from '../common/testUtils'
+import { createTmpDir, spawnTorProcess, tmpQuietDirPath } from '../common/testUtils'
 import { getPorts, Ports } from '../common/utils'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
@@ -27,7 +27,7 @@ describe('Registration service (using tor)', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
     tmpDir = createTmpDir()
-    tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
+    tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
     tor = null
     registrationService = null
     certRoot = await createRootCA(new Time({ type: 1, value: new Date() }), new Time({ type: 1, value: new Date(2030, 1, 1) }), 'testRootCA')

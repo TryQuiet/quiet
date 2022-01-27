@@ -20,10 +20,10 @@ const useStyles = makeStyles(theme => ({
     width: 480,
     height: 60,
     color: theme.palette.colors.white,
-    backgroundColor: theme.palette.colors.zbayBlue,
+    backgroundColor: theme.palette.colors.quietBlue,
     '&:hover': {
       opacity: 0.7,
-      backgroundColor: theme.palette.colors.zbayBlue
+      backgroundColor: theme.palette.colors.quietBlue
     }
   },
   bold: {

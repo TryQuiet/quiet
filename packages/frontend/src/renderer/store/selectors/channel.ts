@@ -7,8 +7,8 @@ import { Store } from '../reducers'
 import { Channel } from '../handlers/channel'
 
 import debug from 'debug'
-const log = Object.assign(debug('zbay:channel'), {
-  error: debug('zbay:channel:err')
+const log = Object.assign(debug('quiet:channel'), {
+  error: debug('quiet:channel:err')
 })
 
 const channel = (s: Store) => s.channel

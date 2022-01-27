@@ -33,10 +33,10 @@ const useStyles = makeStyles(theme => ({
     width: 151,
     height: 60,
     fontSize: 16,
-    backgroundColor: theme.palette.colors.zbayBlue,
+    backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
     '&:hover': {
-      backgroundColor: theme.palette.colors.zbayBlue
+      backgroundColor: theme.palette.colors.quietBlue
     }
   },
   title: {

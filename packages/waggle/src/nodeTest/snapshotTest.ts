@@ -9,8 +9,8 @@ import { StorageTestSnapshot } from '../storage/testUtils/storageSnapshot'
 const tmpDir = createTmpDir()
 const torDir1 = path.join(tmpDir.name, 'tor1')
 const torDir2 = path.join(tmpDir.name, 'tor2')
-const tmpAppDataPath1 = path.join(tmpDir.name, '.zbayTmp1')
-const tmpAppDataPath2 = path.join(tmpDir.name, '.zbayTmp2')
+const tmpAppDataPath1 = path.join(tmpDir.name, '.quietTmp1')
+const tmpAppDataPath2 = path.join(tmpDir.name, '.quietTmp2')
 
 const runTest = async () => {
   const rootCa = await createRootCA(

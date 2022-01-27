@@ -300,7 +300,7 @@ describe('ChannelSettingsModal', () => {
                               <span
                                 class="MuiTypography-root makeStyles-captions-248 MuiTypography-caption"
                               >
-                                You can choose how to be alerted or turn off all Zbay notifications in your
+                                You can choose how to be alerted or turn off all Quiet notifications in your
                                  
                                 <span
                                   class="makeStyles-link-249"

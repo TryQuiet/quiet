@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
       display: 'block'
     },
     '& .MuiIconButton-colorSecondary': {
-      color: theme.palette.colors.zbayBlue
+      color: theme.palette.colors.quietBlue
     },
     '& .MuiTypography-body1': {
       fontSize: '14px',
@@ -180,7 +180,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
                 </Grid>
                 <Grid item>
                   <span>
-                    You won’t receive notificaitons from Zbay.
+                    You won’t receive notificaitons from Quiet.
                   </span>
                 </Grid>
               </Grid>

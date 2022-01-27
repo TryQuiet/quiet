@@ -60,7 +60,7 @@ describe('ChannelRegisteredMessage', async () => {
                       <p
                         class="MuiTypography-root makeStyles-username-5 MuiTypography-body1 MuiTypography-colorTextPrimary"
                       >
-                        Zbay
+                        Quiet
                       </p>
                     </div>
                     <div
@@ -97,7 +97,7 @@ describe('ChannelRegisteredMessage', async () => {
                       string
                     </span>
                      
-                    on zbay!
+                    on quiet!
                   </span>
                 </p>
               </div>
