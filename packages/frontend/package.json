@@ -8,6 +8,7 @@
   "license": "ISC",
   "build": {
     "afterSign": "scripts/notarize.js",
+    "afterAllArtifactBuild": "scripts/setEnvs.js",
     "productName": "Quiet",
     "appId": "Quiet",
     "protocols": {
