@@ -38,7 +38,7 @@ describe('Switch channels', () => {
 
     const alice = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, zbayNickname: 'alice' })
+    >('Identity', { id: community.id, nickname: 'alice' })
 
     const generalChannelMessage = await factory.create<
     ReturnType<typeof publicChannels.actions.test_message>['payload']
@@ -52,7 +52,7 @@ describe('Switch channels', () => {
           name: 'memes',
           description: 'Welcome to #memes',
           timestamp: DateTime.utc().valueOf(),
-          owner: alice.zbayNickname,
+          owner: alice.nickname,
           address: 'memes'
         }
       }

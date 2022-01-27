@@ -177,7 +177,7 @@ export const Component = Template.bind({})
 const args: ChannelComponentProps = {
   user: {
     id: 'id',
-    zbayNickname: 'chad',
+    nickname: 'chad',
     hiddenService: {
       onionAddress: 'onionAddress',
       privateKey: 'privateKey'

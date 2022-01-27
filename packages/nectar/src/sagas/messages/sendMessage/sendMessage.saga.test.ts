@@ -58,7 +58,7 @@ describe('sendMessageSaga', () => {
     hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: 'id', pubKey: 'pubKey', privKey: 'privKey' },
-    zbayNickname: '',
+    nickname: '',
     userCsr: undefined,
     userCertificate: ''
   }

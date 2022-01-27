@@ -28,21 +28,21 @@ describe('launchCommunity', () => {
     >('Community')
     await factory.create<
     ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', { id: community1.id, zbayNickname: 'alice1' })
+    >('Identity', { id: community1.id, nickname: 'alice1' })
 
     const community2 = await factory.create<
     ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
     await factory.create<
     ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', { id: community2.id, zbayNickname: 'alice2' })
+    >('Identity', { id: community2.id, nickname: 'alice2' })
 
     const community3 = await factory.create<
     ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
     await factory.create<
     ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', { id: community3.id, zbayNickname: 'alice3' })
+    >('Identity', { id: community3.id, nickname: 'alice3' })
 
     const reducer = combineReducers({ Communities: communitiesReducer, Identity: identityReducer })
     await expectSaga(initCommunities)
@@ -92,7 +92,7 @@ describe('launchCommunity', () => {
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-      zbayNickname: '',
+      nickname: '',
       userCsr: userCsr,
       userCertificate: 'userCert'
     }
@@ -168,7 +168,7 @@ describe('launchCommunity', () => {
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-      zbayNickname: '',
+      nickname: '',
       userCsr: userCsr,
       userCertificate: 'userCert'
     }
@@ -244,7 +244,7 @@ describe('launchCommunity', () => {
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-      zbayNickname: '',
+      nickname: '',
       userCsr: userCsr,
       userCertificate: 'userCert'
     }
@@ -297,7 +297,7 @@ describe('launchCommunity', () => {
 
     const identityAlpha: Identity = {
       id: community1.id,
-      zbayNickname: 'nickname',
+      nickname: 'nickname',
       hiddenService: {
         onionAddress: '',
         privateKey: ''
@@ -317,7 +317,7 @@ describe('launchCommunity', () => {
 
     const identityBeta: Identity = {
       id: community2.id,
-      zbayNickname: 'nickname',
+      nickname: 'nickname',
       hiddenService: {
         onionAddress: '',
         privateKey: ''
@@ -352,7 +352,7 @@ describe('launchCommunity', () => {
           }
         }
       )
-      .put(identityActions.registerUsername(identityAlpha.zbayNickname))
+      .put(identityActions.registerUsername(identityAlpha.nickname))
       .put(communitiesActions.launchCommunity(community2.id))
       .run()
   })

@@ -46,7 +46,7 @@ describe('Add new channel', () => {
 
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
       'Identity',
-      { zbayNickname: 'alice' }
+      { nickname: 'alice' }
     )
 
     renderComponent(
@@ -79,7 +79,7 @@ describe('Add new channel', () => {
 
     const alice = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { zbayNickname: 'alice' })
+    >('Identity', { nickname: 'alice' })
 
     jest
       .spyOn(socket, 'emit')
@@ -122,7 +122,7 @@ describe('Add new channel', () => {
     function* testCreateChannelSaga(): Generator {
       const createChannelAction = yield* take(publicChannels.actions.createChannel)
       expect(createChannelAction.payload.channel.name).toEqual('my-super-channel')
-      expect(createChannelAction.payload.channel.owner).toEqual(alice.zbayNickname)
+      expect(createChannelAction.payload.channel.owner).toEqual(alice.nickname)
       const addChannelAction = yield* take(publicChannels.actions.addChannel)
       expect(addChannelAction.payload.channel).toEqual(createChannelAction.payload.channel)
     }

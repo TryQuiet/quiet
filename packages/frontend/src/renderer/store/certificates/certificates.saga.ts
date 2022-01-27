@@ -94,7 +94,7 @@
 //   const dmPublicKey = yield* select(directMessagesSelectors.publicKey)
 
 //   const userData = {
-//     zbayNickname: action.payload,
+//     nickname: action.payload,
 //     commonName: hiddenServices.libp2pHiddenService.onionAddress,
 //     peerId: peerIdAddress,
 //     dmPublicKey: dmPublicKey,

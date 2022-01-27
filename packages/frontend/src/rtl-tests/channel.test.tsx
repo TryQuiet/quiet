@@ -63,7 +63,7 @@ describe('Channel', () => {
 
     const alice = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { zbayNickname: 'alice' })
+    >('Identity', { nickname: 'alice' })
 
     renderComponent(
       <>
@@ -75,7 +75,7 @@ describe('Channel', () => {
     const channelName = screen.getByText('#general')
     expect(channelName).toBeVisible()
 
-    const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.zbayNickname}`)
+    const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
     expect(messageInput).toBeVisible()
   })
 
@@ -93,7 +93,7 @@ describe('Channel', () => {
 
     const alice = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, zbayNickname: 'alice' })
+    >('Identity', { id: community.id, nickname: 'alice' })
 
     const aliceMessage = await factory.create<
     ReturnType<typeof publicChannels.actions.test_message>['payload']
@@ -106,7 +106,7 @@ describe('Channel', () => {
     const john = (
       await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
         id: community.id,
-        zbayNickname: 'john'
+        nickname: 'john'
       })
     ).payload
 
@@ -209,11 +209,11 @@ describe('Channel', () => {
 
     const alice = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, zbayNickname: 'alice' })
+    >('Identity', { id: community.id, nickname: 'alice' })
 
     const john = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, zbayNickname: 'john' })
+    >('Identity', { id: community.id, nickname: 'john' })
 
     const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
 

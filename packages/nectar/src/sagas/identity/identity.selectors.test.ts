@@ -53,7 +53,7 @@ describe('communitiesSelectors will recive correct data', () => {
 
   const identityAlpha: Identity = {
     id: 'communityAlpha',
-    zbayNickname: 'nickname',
+    nickname: 'nickname',
     hiddenService: {
       onionAddress: '',
       privateKey: ''
@@ -73,7 +73,7 @@ describe('communitiesSelectors will recive correct data', () => {
 
   const identityBeta: Identity = {
     id: 'communityBeta',
-    zbayNickname: 'nickname',
+    nickname: 'nickname',
     hiddenService: {
       onionAddress: '',
       privateKey: ''
@@ -93,7 +93,7 @@ describe('communitiesSelectors will recive correct data', () => {
 
   const identityDelta: Identity = {
     id: 'communityDelta',
-    zbayNickname: 'nickname',
+    nickname: 'nickname',
     hiddenService: {
       onionAddress: '',
       privateKey: ''
@@ -158,7 +158,7 @@ describe('communitiesSelectors will recive correct data', () => {
         },
         "userCertificate": "userCert",
         "userCsr": null,
-        "zbayNickname": "nickname",
+        "nickname": "nickname",
       }
     `)
   })

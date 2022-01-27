@@ -12,7 +12,7 @@ export function* createGeneralChannelSaga(
   const channel = {
     name: 'general',
     description: 'Welcome to #general',
-    owner: identity.zbayNickname,
+    owner: identity.nickname,
     address: 'general',
     timestamp: DateTime.utc().valueOf()
   }

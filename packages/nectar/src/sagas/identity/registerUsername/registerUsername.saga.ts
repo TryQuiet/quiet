@@ -39,7 +39,7 @@ export function* registerUsernameSaga(
   )
 
   const payload = {
-    zbayNickname: action.payload,
+    nickname: action.payload,
     commonName: commonName,
     peerId,
     dmPublicKey,

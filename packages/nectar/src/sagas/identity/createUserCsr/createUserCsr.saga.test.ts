@@ -44,7 +44,7 @@ describe('createUserCsrSaga', () => {
     }
     const identity: Identity = {
       id: 'id',
-      zbayNickname: '',
+      nickname: '',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
@@ -53,7 +53,7 @@ describe('createUserCsrSaga', () => {
     }
     const identityWithCsr: Identity = {
       id: 'id',
-      zbayNickname: '',
+      nickname: '',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
@@ -61,7 +61,7 @@ describe('createUserCsrSaga', () => {
       userCertificate: null
     }
     const createUserCsrPayload: CreateUserCsrPayload = {
-      zbayNickname: '',
+      nickname: '',
       commonName: '',
       peerId: '',
       dmPublicKey: '',

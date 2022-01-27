@@ -42,7 +42,7 @@ export const ChannelInput = () => {
       channelAddress={currentChannelAddress}
       channelName={currentChannel?.name}
       // TODO https://github.com/ZbayApp/ZbayLite/issues/443
-      inputPlaceholder={`#${currentChannel?.name} as @${user?.zbayNickname}`}
+      inputPlaceholder={`#${currentChannel?.name} as @${user?.nickname}`}
       onChange={value => {
         resetDebounce()
         onChange(value)

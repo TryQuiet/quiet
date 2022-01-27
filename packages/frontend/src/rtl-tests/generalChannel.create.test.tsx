@@ -44,7 +44,7 @@ describe('General channel', () => {
 
     await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { zbayNickname: 'alice' })
+    >('Identity', { nickname: 'alice' })
 
     jest
       .spyOn(socket, 'emit')

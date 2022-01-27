@@ -75,7 +75,7 @@ describe('User', () => {
           alice = (
             await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
               id: community.id,
-              zbayNickname: 'alice'
+              nickname: 'alice'
             })
           ).payload
 
@@ -93,7 +93,7 @@ describe('User', () => {
           expect(payload.id).toEqual(community.id)
           const certificate = await createUserCertificateTestHelper(
             {
-              zbayNickname: alice.zbayNickname,
+              nickname: alice.nickname,
               commonName: alice.hiddenService.onionAddress,
               peerId: alice.peerId.id
             },
@@ -239,7 +239,7 @@ describe('User', () => {
           alice = (
             await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
               id: community.id,
-              zbayNickname: 'alice'
+              nickname: 'alice'
             })
           ).payload
 

@@ -21,7 +21,7 @@ describe('registerCertificateSaga', () => {
   test('request certificate registration when user is community owner', async () => {
     const identity: Identity = {
       id: 'id',
-      zbayNickname: 'bartekDev',
+      nickname: 'bartekDev',
       hiddenService: {
         onionAddress: 'onionAddress.onion',
         privateKey: 'privateKey'

@@ -19,7 +19,7 @@ describe('AccountSettingsForm', () => {
         publicKey: '',
         privateKey: ''
       },
-      zbayNickname: '',
+      nickname: '',
       userCsr: undefined,
       userCertificate: ''
     }

@@ -59,4 +59,4 @@ Available package names are:
 - e2e-tests
 - integration-tests
 - waggle
-- zbay
+- frontend

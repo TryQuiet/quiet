@@ -22,7 +22,7 @@ describe('connectionReducer', () => {
 
     alice = await factory.create<
     ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', { zbayNickname: 'alice' })
+    >('Identity', { nickname: 'alice' })
   })
 
   it('add initialized communities should add correctly data into the store', () => {
@@ -52,7 +52,7 @@ describe('connectionReducer', () => {
 
   it('user data mapping by peerId', () => {
     const aliceCertData = {
-      username: alice.zbayNickname,
+      username: alice.nickname,
       onionAddress: alice.hiddenService.onionAddress,
       peerId: alice.peerId.id,
       dmPublicKey: ''

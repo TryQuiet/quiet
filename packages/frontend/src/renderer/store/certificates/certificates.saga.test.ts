@@ -62,7 +62,7 @@ test('mock, because we keep those for the next iteration', async () => {
 //           matchers.call(createUserCsr, {
 //             commonName: 'onionAddress',
 //             peerId: 'peerId',
-//             zbayNickname: 'name',
+//             nickname: 'name',
 //             dmPublicKey: 'publicKey',
 //             signAlg: 'ECDSA',
 //             hashAlg: 'sha-256'

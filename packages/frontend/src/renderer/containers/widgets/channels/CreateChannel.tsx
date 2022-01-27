@@ -34,7 +34,7 @@ export const CreateChannel = () => {
     const channel: PublicChannel = {
       name: name,
       description: `Welcome to #${name}`,
-      owner: user.zbayNickname,
+      owner: user.nickname,
       address: name,
       timestamp: DateTime.utc().valueOf()
     }

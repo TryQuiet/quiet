@@ -42,12 +42,12 @@ describe('publicChannelsSelectors', () => {
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
-      { id: community.id, zbayNickname: 'alice' }
+      { id: community.id, nickname: 'alice' }
     )
 
     john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
-      { id: community.id, zbayNickname: 'john' }
+      { id: community.id, nickname: 'john' }
     )
 
     /* Messages ids are being used only for veryfing proper order...

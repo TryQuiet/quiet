@@ -94,7 +94,7 @@ export const AccountSettingsForm: React.FC<AccountSettingsFormProps> = ({
       <Grid container justify='center'>
         <Grid container xs item className={classes.createUsernameContainer}>
           <Grid item xs={12}>
-            <Typography variant='h4'>@{user ? user.zbayNickname : ''}</Typography>
+            <Typography variant='h4'>@{user ? user.nickname : ''}</Typography>
           </Grid>
         </Grid>
       </Grid>

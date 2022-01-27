@@ -29,7 +29,7 @@ export const identitySlice = createSlice({
       identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,
         changes: {
-          zbayNickname: action.payload.nickname
+          nickname: action.payload.nickname
         }
       })
     },

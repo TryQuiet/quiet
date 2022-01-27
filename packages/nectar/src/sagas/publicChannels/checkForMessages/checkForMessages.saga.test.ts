@@ -72,7 +72,7 @@ describe('checkForMessagesSaga', () => {
     },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    zbayNickname: '',
+    nickname: '',
     userCsr: undefined,
     userCertificate: ''
   }

@@ -55,7 +55,7 @@ beforeAll(async () => {
 
   alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
     'Identity',
-    { id: community.id, zbayNickname: 'alice' }
+    { id: community.id, nickname: 'alice' }
   )
 
   message = (
@@ -240,7 +240,7 @@ describe('Message', () => {
   it('is not saved to db if did not pass signature verification', async () => {
     const john = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, zbayNickname: 'john' })
+    >('Identity', { id: community.id, nickname: 'john' })
 
     const aliceMessage = await factory.create<
     ReturnType<typeof publicChannels.actions.test_message>['payload']
