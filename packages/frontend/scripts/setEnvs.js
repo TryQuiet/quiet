@@ -5,6 +5,7 @@ const streamPipeline = util.promisify(require('stream').pipeline)
 const childProcess = require('child_process')
 
 exports.default = async function (context) {
+  return
   const platform = Array.from(context.platformToTargets.keys())[0].name
   if (platform !== 'linux') {
     console.log('skipping changing build envs')
