@@ -287,8 +287,12 @@ app.on('ready', async () => {
         if (!isBrowserWindow(mainWindow)) {
           throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
         }
-        await checkForUpdate(mainWindow)
-      }, 15 * 60000)
+        try {
+          await checkForUpdate(mainWindow)
+        } catch (err) {
+          log(err, 'checkUpdateError')
+        }
+      }, 5000)
     }
   })
 
