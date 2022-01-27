@@ -1,122 +1,90 @@
-import { combineReducers } from '@reduxjs/toolkit'
+import { setupCrypto } from '@quiet/identity'
+import { Store } from '../../store.types'
+import { getFactory, Identity, MessageType, publicChannels } from '../../..'
+import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { publicChannelsActions } from './../publicChannels.slice'
+import { communitiesActions, Community } from '../../communities/communities.slice'
+import { identityActions } from '../../identity/identity.slice'
+import { FactoryGirl } from 'factory-girl'
+import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
-import { StoreKeys } from '../../store.keys'
-import {
-  publicChannelsActions,
-  publicChannelsReducer,
-  CommunityChannels,
-  PublicChannelsState
-} from '../publicChannels.slice'
 import { checkForMessagesSaga } from './checkForMessages.saga'
-import {
-  channelMessagesAdapter,
-  communityChannelsAdapter,
-  publicChannelsAdapter
-} from '../publicChannels.adapter'
-import {
-  communitiesReducer,
-  CommunitiesState,
-  Community
-} from '../../communities/communities.slice'
-import {
-  identityReducer,
-  IdentityState
-} from '../../identity/identity.slice'
-import { identityAdapter } from '../../identity/identity.adapter'
-import { communitiesAdapter } from '../../communities/communities.adapter'
-import { Identity } from '../../identity/identity.types'
+import { PublicChannel } from '../publicChannels.types'
+import { DateTime } from 'luxon'
 
 describe('checkForMessagesSaga', () => {
-  const community: Community = {
-    name: '',
-    id: 'id',
-    CA: null,
-    rootCa: '',
-    peerList: [],
-    registrarUrl: 'registrarUrl',
-    registrar: null,
-    onionAddress: '',
-    privateKey: '',
-    port: 0
-  }
+  let store: Store
+  let factory: FactoryGirl
 
-  const messages = [
-    {
-      id: '1',
-      type: 0,
-      message: 'message',
-      createdAt: 0,
-      channelId: '',
-      signature: '',
-      pubKey: ''
-    }
-  ]
+  let community: Community
+  let alice: Identity
+  let channel: PublicChannel
 
-  const communityChannels: CommunityChannels = {
-    id: 'id',
-    currentChannel:
-      'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00',
-    channels: publicChannelsAdapter.getInitialState(),
-    channelMessages: channelMessagesAdapter.setAll(
-      channelMessagesAdapter.getInitialState(),
-      messages
-    ),
-    channelLoadingSlice: 0
-  }
+  beforeAll(async () => {
+    setupCrypto()
 
-  const identity: Identity = {
-    id: 'id',
-    hiddenService: {
-      onionAddress: 'onionAddress.onion',
-      privateKey: 'privateKey'
-    },
-    dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
-    peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    nickname: '',
-    userCsr: undefined,
-    userCertificate: ''
-  }
+    // Set date display format
+    process.env.LC_ALL = 'en_US.UTF-8'
 
-  test.skip('ask for missing messages', async () => {
+    store = prepareStore().store
+
+    factory = await getFactory(store)
+
+    community = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+
+    channel = publicChannels.selectors.publicChannels(store.getState())[0]
+
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+      'Identity',
+      { id: community.id, nickname: 'alice' }
+    )
+  })
+
+  test('ask for missing messages', async () => {
+    const types = [MessageType.Basic, MessageType.Empty, MessageType.Empty]
+
+    const shuffled = types
+      .map(value => ({ value, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ value }) => value)
+
+    const messages = await Promise.all(
+      shuffled.map(async type => {
+        return await factory.create<
+        ReturnType<typeof publicChannels.actions.test_message>['payload']
+        >('Message', {
+          identity: alice,
+          message: {
+            id: Math.random().toString(36).substr(2.9),
+            type: type,
+            message: 'message',
+            createdAt: DateTime.utc().valueOf(),
+            channelId: 'general',
+            signature: '',
+            pubKey: ''
+          },
+          verifyAutomatically: true
+        })
+      })
+    )
+
+    const empties = messages.filter(item => item.message.type === MessageType.Empty)
+    const ids = empties.map(item => {
+      return item.message.id
+    })
+
+    const reducer = combineReducers(reducers)
     await expectSaga(checkForMessagesSaga)
-      .withReducer(
-        combineReducers({
-          [StoreKeys.PublicChannels]: publicChannelsReducer,
-          [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer
-        }),
-        {
-          [StoreKeys.PublicChannels]: {
-            ...new PublicChannelsState(),
-            channels: communityChannelsAdapter.setAll(
-              communityChannelsAdapter.getInitialState(),
-              [communityChannels]
-            )
-          },
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-            currentCommunity: 'id',
-            communities: communitiesAdapter.setAll(
-              communitiesAdapter.getInitialState(),
-              [community]
-            )
-          },
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(
-              identityAdapter.getInitialState(),
-              [identity]
-            )
-          }
-        }
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
       .put(
         publicChannelsActions.askForMessages({
-          peerId: 'peerId',
-          communityId: 'id',
-          channelAddress:
-            'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00',
-          ids: ['2', '3']
+          peerId: alice.peerId.id,
+          communityId: community.id,
+          channelAddress: channel.address,
+          ids: ids
         })
       )
       .run()
