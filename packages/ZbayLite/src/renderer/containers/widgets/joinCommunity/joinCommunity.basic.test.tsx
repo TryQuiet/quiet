@@ -111,7 +111,7 @@ describe('join community', () => {
     const factory = await getFactory(store)
 
     await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     renderComponent(
@@ -131,7 +131,7 @@ describe('join community', () => {
     const factory = await getFactory(factoryStore)
 
     const community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const identityAlpha: Identity = {
