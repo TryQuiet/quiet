@@ -10,7 +10,7 @@ jobs:
     uses: ./.github/workflows/e2e-tests-reusable.yml
 
   build-linux:
-    needs: run-e2e-tests
+    # needs: run-e2e-tests
     runs-on: ubuntu-18.04
     if: |
       startsWith(github.ref, 'refs/tags/quiet')
@@ -50,116 +50,116 @@ jobs:
           ARCH: x86_64
         run: cd packages/frontend && electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
 
-  build-macos:
-    needs: run-e2e-tests
-    runs-on: macos-latest
-    if: |
-      startsWith(github.ref, 'refs/tags/quiet')
+  # build-macos:
+  #   needs: run-e2e-tests
+  #   runs-on: macos-latest
+  #   if: |
+  #     startsWith(github.ref, 'refs/tags/quiet')
 
-    env:
-      REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
+  #   env:
+  #     REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
+  #     S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
-    steps:
-      - uses: actions/checkout@v2
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - uses: actions-rs/components-nightly@v1
-        with:
-          component: clippy
+  #     - uses: actions-rs/components-nightly@v1
+  #       with:
+  #         component: clippy
 
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly-2020-08-28
-          components: clippy
-          override: true
+  #     - uses: actions-rs/toolchain@v1
+  #       with:
+  #         toolchain: nightly-2020-08-28
+  #         components: clippy
+  #         override: true
 
-      - name: Setup environment
-        uses: ./.github/actions/setup-env
+  #     - name: Setup environment
+  #       uses: ./.github/actions/setup-env
 
-      - name: Install electron-builder globally
-        run:  npm i -g electron-builder@22.10.5
+  #     - name: Install electron-builder globally
+  #       run:  npm i -g electron-builder@22.10.5
 
-      - name: "Pull tor binary"
-        run: cd packages/frontend && export SOURCE_PATH=darwin && npm run copyBinaries
+  #     - name: "Pull tor binary"
+  #       run: cd packages/frontend && export SOURCE_PATH=darwin && npm run copyBinaries
 
-      - name: "Verify Sentry setup"
-        run: echo $REACT_APP_ENABLE_SENTRY
+  #     - name: "Verify Sentry setup"
+  #       run: echo $REACT_APP_ENABLE_SENTRY
 
-      - name: "Build on MacOS"
-        run: lerna run build:prod --scope quiet
+  #     - name: "Build on MacOS"
+  #       run: lerna run build:prod --scope quiet
 
-      - name: "Remove crud files"
-        run: xattr -cr .
+  #     - name: "Remove crud files"
+  #       run: xattr -cr .
 
-      - name: "Set electron-builder props"
-        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
+  #     - name: "Set electron-builder props"
+  #       run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
 
-      - name: "Release"
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
-          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
-          APPLEID: ${{ secrets.APPLE_ID }}
-          APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          USE_HARD_LINKS: false
-        run: cd packages/frontend && electron-builder -p always --mac ${{ env.ELECTRON_BUILDER_PROPS }}
+  #     - name: "Release"
+  #       env:
+  #         GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  #         CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+  #         CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+  #         APPLEID: ${{ secrets.APPLE_ID }}
+  #         APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}
+  #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         USE_HARD_LINKS: false
+  #       run: cd packages/frontend && electron-builder -p always --mac ${{ env.ELECTRON_BUILDER_PROPS }}
 
-  build-windows:
-    needs: run-e2e-tests
-    runs-on: windows-latest
-    if: |
-      startsWith(github.ref, 'refs/tags/quiet')
+  # build-windows:
+  #   needs: run-e2e-tests
+  #   runs-on: windows-latest
+  #   if: |
+  #     startsWith(github.ref, 'refs/tags/quiet')
 
-    env:
-      REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
+  #   env:
+  #     REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
+  #     S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
-    steps:
-      - uses: actions/checkout@v2
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: "Fetch jsign"
-        shell: bash
-        run: cd packages/frontend && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
+  #     - name: "Fetch jsign"
+  #       shell: bash
+  #       run: cd packages/frontend && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
 
-      - name: "Add Windows certificate"
-        id: write_file
-        uses: timheuer/base64-to-file@v1.0.3
-        with:
-          fileName: 'win-certificate.pfx'
-          encodedString: ${{ secrets.WIN_CSC_LINK }}
+  #     - name: "Add Windows certificate"
+  #       id: write_file
+  #       uses: timheuer/base64-to-file@v1.0.3
+  #       with:
+  #         fileName: 'win-certificate.pfx'
+  #         encodedString: ${{ secrets.WIN_CSC_LINK }}
 
-      - name: Setup environment
-        uses: ./.github/actions/setup-env
+  #     - name: Setup environment
+  #       uses: ./.github/actions/setup-env
 
-      - name: Install electron-builder globally
-        run:  npm i -g electron-builder@22.10.5
+  #     - name: Install electron-builder globally
+  #       run:  npm i -g electron-builder@22.10.5
 
-      - name: "Pull tor binary"
-        shell: bash
-        run: cd packages/frontend && export SOURCE_PATH=win32 && npm run copyBinariesWin
+  #     - name: "Pull tor binary"
+  #       shell: bash
+  #       run: cd packages/frontend && export SOURCE_PATH=win32 && npm run copyBinariesWin
 
-      - name: "Verify Sentry setup"
-        shell: bash
-        run: echo $REACT_APP_ENABLE_SENTRY
+  #     - name: "Verify Sentry setup"
+  #       shell: bash
+  #       run: echo $REACT_APP_ENABLE_SENTRY
 
-      - name: "Build on Windows"
-        shell: bash
-        run: lerna run build:prod --scope quiet
+  #     - name: "Build on Windows"
+  #       shell: bash
+  #       run: lerna run build:prod --scope quiet
 
-      - name: "Set electron-builder props"
-        shell: bash
-        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
+  #     - name: "Set electron-builder props"
+  #       shell: bash
+  #       run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
 
-      - name: "Release"
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
-          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
-          WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          USE_HARD_LINKS: false
-        run: cd packages/frontend && electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
+  #     - name: "Release"
+  #       shell: bash
+  #       env:
+  #         GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  #         CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
+  #         WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+  #         WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
+  #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         USE_HARD_LINKS: false
+  #       run: cd packages/frontend && electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
