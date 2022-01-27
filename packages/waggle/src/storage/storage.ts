@@ -181,6 +181,7 @@ export class Storage {
       await this.channels.load({ fetchEntryTimeout: 2000 })
       this.io.loadPublicChannels({
         communityId: this.communityId,
+        // @ts-expect-error
         channels: this.channels.all
       })
     })
