@@ -68,6 +68,7 @@ export default class IOProxy {
       payload.channelAddress,
       payload.ids
     )
+    log('loading messages', messages)
     this.loadAllMessages({
       messages: messages.filteredMessages,
       channelAddress: messages.channelAddress,
@@ -147,7 +148,7 @@ export default class IOProxy {
       return
     }
     log(`Sending ${payload.ids.length} messages ids`)
-    this.io.emit(SocketActionTypes.SEND_IDS, payload)
+    this.io.emit(SocketActionTypes.SEND_MESSAGES_IDS, payload)
   }
 
   public createdChannel = (payload: CreatedChannelResponse) => {
