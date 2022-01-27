@@ -70,7 +70,6 @@ export const connections = (io, ioProxy: IOProxy) => {
       }
     )
     socket.on(SocketActionTypes.ASK_FOR_MESSAGES, async (payload: AskForMessagesPayload) => {
-      log('Received ASK_FOR_MESSAGES event', payload.ids, payload.communityId, payload.channelAddress)
       await ioProxy.askForMessages(payload)
     })
     socket.on(

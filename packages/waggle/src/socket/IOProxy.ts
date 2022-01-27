@@ -68,7 +68,6 @@ export default class IOProxy {
       payload.channelAddress,
       payload.ids
     )
-    log('loading messages', messages)
     this.loadAllMessages({
       messages: messages.filteredMessages,
       channelAddress: messages.channelAddress,
