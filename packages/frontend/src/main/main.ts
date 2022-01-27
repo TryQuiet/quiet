@@ -254,30 +254,7 @@ export const checkForUpdate = async (win: BrowserWindow) => {
 let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } | null = null
 
 app.on('ready', async () => {
-  // const template = [
-  //   {
-  //     label: 'Zbay',
-  //     submenu: [
-  //       { role: 'undo' },
-  //       { role: 'redo' },
-  //       { type: 'separator' },
-  //       { role: 'cut' },
-  //       { role: 'copy' },
-  //       { role: 'paste' },
-  //       { role: 'pasteandmatchstyle' },
-  //       { role: 'delete' },
-  //       { role: 'selectall' },
-  //       { type: 'separator' },
-  //       { role: 'quit' }
-  //     ]
-  //   }
-  // ]
-
-  // app.on(`browser-window-created`, (e, window) => {
-  //   mainWindow.setMenu(null)
-  // })
   if (process.platform === 'darwin') {
-    // const menu = Menu.buildFromTemplate(template)
     Menu.setApplicationMenu(null)
   } else {
     Menu.setApplicationMenu(null)
@@ -328,7 +305,7 @@ app.on('ready', async () => {
   })
 })
 
-app.setAsDefaultProtocolClient('zbay')
+app.setAsDefaultProtocolClient('quiet')
 
 app.on('before-quit', async e => {
   e.preventDefault()
