@@ -9,7 +9,6 @@
   "build": {
     "afterSign": "scripts/notarize.js",
     "afterAllArtifactBuild": "scripts/setEnvs.js",
-    "afterPackContext": "scripts/setEnvs.js",
     "productName": "Quiet",
     "appId": "Quiet",
     "protocols": {
