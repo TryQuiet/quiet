@@ -18,6 +18,8 @@ jobs:
     env:
       REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
+      LD_PRELOAD: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
+      # LD_PRELOAD2: {{$APPDIR/usr/lib/libssl.so}}
 
     steps:
       - uses: actions/checkout@v2
@@ -36,6 +38,12 @@ jobs:
 
       - name: "Verify bucket setup"
         run: echo $S3_BUCKET
+
+      - name: "Verify ldpreload"
+        run: echo $LD_PRELOAD
+
+      # - name: "Verify ldprelaod2"
+        # run: echo $LD_PRELOAD2
 
       - name: "Build on Linux"
         run: lerna run build:prod --scope quiet
