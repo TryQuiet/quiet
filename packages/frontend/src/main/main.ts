@@ -255,7 +255,6 @@ export const checkForUpdate = async (win: BrowserWindow) => {
 let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } | null = null
 console.log('LD_PRELOAD', process.env.LD_PRELOAD)
 console.log('LD_PRELOAD', process.env.LD_PRELOAD)
-console.log('LD_PRELOAD', process.env.LD_PRELOAD)
 // console.log('', process.env.)
 
 app.on('ready', async () => {

@@ -35,5 +35,7 @@ exports.default = async function (context) {
     childProcess.execSync(`mv ./Quiet-x86_64.AppImage ${context.outDir}/${appName}`)
   } else throw new Error('no file name')
   console.log('env added')
+  console.log(context.outDir)
+  console.log(`${context.outDir}/${appName}`)
   return `${context.outDir}/${appName}`
 }
