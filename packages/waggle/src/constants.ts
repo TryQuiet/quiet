@@ -2,10 +2,10 @@ import path from 'path'
 import os from 'os'
 
 export enum Config {
-  ZBAY_DIR = '.zbay',
+  QUIET_DIR = '.quiet',
   PEER_ID_FILENAME = 'peerIdKey',
   ORBIT_DB_DIR = 'OrbitDB',
-  IPFS_REPO_PATH = 'ZbayChannels'
+  IPFS_REPO_PATH = 'QuietChannels'
 }
 
-export const ZBAY_DIR_PATH = path.join(os.homedir(), Config.ZBAY_DIR)
+export const QUIET_DIR_PATH = path.join(os.homedir(), Config.QUIET_DIR)

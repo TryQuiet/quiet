@@ -1,7 +1,7 @@
 /* eslint import/first: 0 */
 import { Tor } from './torManager'
 import { torBinForPlatform, torDirForPlatform } from '../common/utils'
-import { createTmpDir, spawnTorProcess, tmpZbayDirPath } from '../common/testUtils'
+import { createTmpDir, spawnTorProcess, tmpQuietDirPath } from '../common/testUtils'
 import getPort from 'get-port'
 import { DirResult } from 'tmp'
 
@@ -13,7 +13,7 @@ let tmpAppDataPath: string
 beforeEach(() => {
   jest.clearAllMocks()
   tmpDir = createTmpDir()
-  tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
+  tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
 })
 
 afterEach(async () => {

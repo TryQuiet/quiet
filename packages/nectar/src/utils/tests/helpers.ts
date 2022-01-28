@@ -9,7 +9,7 @@ import {
   keyFromCertificate,
   parseCertificate,
   sign
-} from '@zbayapp/identity'
+} from '@quiet/identity'
 import { config } from '../../sagas/users/const/certFieldTypes'
 import { PeerId } from '../../sagas/identity/identity.types'
 import { arrayBufferToString } from 'pvutils'
@@ -28,7 +28,7 @@ export const createRootCertificateTestHelper = async (commonName): Promise<RootC
 
 export const createUserCertificateTestHelper = async (
   user: {
-    zbayNickname: string
+    nickname: string
     commonName: string
     peerId: string
   },
@@ -38,7 +38,7 @@ export const createUserCertificateTestHelper = async (
   userCsr: UserCsr
 }> => {
   const userCsr = await createUserCsr({
-    zbayNickname: user.zbayNickname,
+    nickname: user.nickname,
     commonName: user.commonName,
     peerId: user.peerId,
     dmPublicKey: '',

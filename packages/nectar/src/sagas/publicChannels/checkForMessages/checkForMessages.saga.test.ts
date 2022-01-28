@@ -1,4 +1,4 @@
-import { setupCrypto } from '@zbayapp/identity'
+import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
 import { getFactory, Identity, MessageType, publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
@@ -38,7 +38,7 @@ describe('checkForMessagesSaga', () => {
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
-      { id: community.id, zbayNickname: 'alice' }
+      { id: community.id, nickname: 'alice' }
     )
   })
 

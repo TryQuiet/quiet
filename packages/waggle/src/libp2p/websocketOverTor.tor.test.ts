@@ -4,7 +4,7 @@ import { Tor } from '../torManager/index'
 import os from 'os'
 import * as utils from '../common/utils'
 import HttpsProxyAgent from 'https-proxy-agent'
-import { createTmpDir, tmpZbayDirPath } from '../common/testUtils'
+import { createTmpDir, tmpQuietDirPath } from '../common/testUtils'
 import { createCertificatesTestHelper } from './tests/client-server'
 import { createLibp2pAddress } from '../common/utils'
 import getPort from 'get-port'
@@ -42,7 +42,7 @@ describe('websocketOverTor', () => {
     port1 = 443
     port2 = 443
     tmpDir = createTmpDir()
-    tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
+    tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
     const port1Arr = await getPort()
     const port2Arr = await getPort()
     port1Target = port1Arr

@@ -1,5 +1,5 @@
-import { createUserCert, UserCert, loadCSR, CertFieldsTypes, getReqFieldValue } from '@zbayapp/identity'
-import { SaveCertificatePayload, PermsData } from '@zbayapp/nectar'
+import { createUserCert, UserCert, loadCSR, CertFieldsTypes, getReqFieldValue } from '@quiet/identity'
+import { SaveCertificatePayload, PermsData } from '@quiet/nectar'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import express, { Request, Response } from 'express'
 import getPort from 'get-port'

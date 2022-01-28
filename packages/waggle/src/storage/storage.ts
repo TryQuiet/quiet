@@ -4,8 +4,8 @@ import {
   getCertFieldValue,
   parseCertificate,
   verifyUserCert
-} from '@zbayapp/identity'
-import { ChannelMessage, PublicChannel, SaveCertificatePayload } from '@zbayapp/nectar'
+} from '@quiet/identity'
+import { ChannelMessage, PublicChannel, SaveCertificatePayload } from '@quiet/nectar'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
 import OrbitDB from 'orbit-db'
@@ -42,7 +42,7 @@ setEngine(
 )
 
 export class Storage {
-  public zbayDir: string
+  public quietDir: string
   public io: IOProxy
   public peerId: PeerId
   protected ipfs: IPFS.IPFS
@@ -57,16 +57,16 @@ export class Storage {
   public ipfsRepoPath: string
   private readonly communityId: string
 
-  constructor(zbayDir: string, ioProxy: IOProxy, communityId: string, options?: Partial<StorageOptions>) {
-    this.zbayDir = zbayDir
+  constructor(quietDir: string, ioProxy: IOProxy, communityId: string, options?: Partial<StorageOptions>) {
+    this.quietDir = quietDir
     this.io = ioProxy
     this.communityId = communityId
     this.options = {
       ...new StorageOptions(),
       ...options
     }
-    this.orbitDbDir = path.join(this.zbayDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
-    this.ipfsRepoPath = path.join(this.zbayDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
+    this.orbitDbDir = path.join(this.quietDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
+    this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
   }
 
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
@@ -181,7 +181,7 @@ export class Storage {
       await this.channels.load({ fetchEntryTimeout: 2000 })
       this.io.loadPublicChannels({
         communityId: this.communityId,
-        // @ts-expect-error KeyValueStore doesn't have 'all' declared properly
+        // @ts-expect-error
         channels: this.channels.all
       })
     })

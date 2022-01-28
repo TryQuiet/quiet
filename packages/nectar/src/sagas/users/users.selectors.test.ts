@@ -11,7 +11,7 @@ import { usersReducer, UsersState } from '../users/users.slice'
 
 import { communitiesAdapter } from '../communities/communities.adapter'
 import { certificatesAdapter } from '../users/users.adapter'
-import { keyFromCertificate, parseCertificate } from '@zbayapp/identity'
+import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { usersSelectors } from './users.selectors'
 
 describe('users selectors', () => {

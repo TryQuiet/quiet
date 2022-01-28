@@ -33,7 +33,7 @@ export interface DmKeys {
 
 export interface Identity {
   id: string
-  zbayNickname: string
+  nickname: string
   hiddenService: HiddenService
   dmKeys: DmKeys
   peerId: PeerId
@@ -42,7 +42,7 @@ export interface Identity {
 }
 
 export interface CreateUserCsrPayload {
-  zbayNickname: string
+  nickname: string
   commonName: string
   peerId: string
   dmPublicKey: string

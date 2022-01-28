@@ -8,5 +8,5 @@ For running end to end tests we use testcafe (https://testcafe.io/) along with i
 
 ## Notes
 
-App data (e.g store) is kept under .config/Electron and .config/Zbay (linux). 
-Currently both dev and test version uses the same data directory (Zbay) so you may want to delete it manually before running tests.
+App data (e.g store) is kept under .config/Electron and .config/Quiet (linux). 
+Currently both dev and test version uses the same data directory (Quiet) so you may want to delete it manually before running tests.

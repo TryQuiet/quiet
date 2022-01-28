@@ -1,5 +1,5 @@
 import { call, select, put } from 'typed-redux-saga'
-import { createUserCsr } from '@zbayapp/identity'
+import { createUserCsr } from '@quiet/identity'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { identityActions } from '../identity.slice'
 import { UserCsr } from '../identity.types'

@@ -1,6 +1,6 @@
 import express from 'express'
 import { Tor } from '../torManager'
-import { ZBAY_DIR_PATH } from '../constants'
+import { QUIET_DIR_PATH } from '../constants'
 import * as path from 'path'
 import * as os from 'os'
 import fs from 'fs'
@@ -36,11 +36,11 @@ export class Tracker {
   private async initTor() {
     const torPath = `${process.cwd()}/tor/tor`
     const pathDevLib = path.join.apply(null, [process.cwd(), 'tor'])
-    if (!fs.existsSync(ZBAY_DIR_PATH)) {
-      fs.mkdirSync(ZBAY_DIR_PATH)
+    if (!fs.existsSync(QUIET_DIR_PATH)) {
+      fs.mkdirSync(QUIET_DIR_PATH)
     }
     const tor = new Tor({
-      appDataPath: ZBAY_DIR_PATH,
+      appDataPath: QUIET_DIR_PATH,
       socksPort: this._socksPort,
       torPath,
       controlPort: this._controlPort,

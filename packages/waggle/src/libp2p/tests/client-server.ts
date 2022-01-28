@@ -1,9 +1,9 @@
-import { configCrypto, createRootCA, RootCA, createUserCert, createUserCsr } from '@zbayapp/identity'
+import { configCrypto, createRootCA, RootCA, createUserCert, createUserCsr } from '@quiet/identity'
 import { Time } from 'pkijs'
 
 export const createUsersCerts = async (onion: string, rootCert: RootCA): Promise<{ userCert: string; userKey: string }> => {
   const userData = {
-    zbayNickname: 'dev99damian1',
+    nickname: 'dev99damian1',
     commonName: onion,
     peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLert',
     dmPublicKey: 'dmPublicKey1',

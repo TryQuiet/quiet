@@ -20,7 +20,7 @@ export function* responseCreateCommunitySaga(
       hiddenService: hiddenService,
       peerId: peerId,
       dmKeys: dmKeys,
-      zbayNickname: '',
+      nickname: '',
       userCsr: null,
       userCertificate: null
     })
