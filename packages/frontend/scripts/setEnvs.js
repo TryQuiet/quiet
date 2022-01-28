@@ -67,8 +67,8 @@ exports.default = async function (context) {
   // const ymlData = fs.readFileSync(`${context.outDir}/alpha-linux.yml`, 'utf8').split('\n')
   console.log(`${context.outDir}/${appName}`)
   const checksu = await checksum(`${context.outDir}/${appName}`)
-  childProcess.execSync(`cd ${context.outDir}`)
-  childProcess.execSync(`ls`)
+  childProcess.execSync(`cd ${context.outDir}`, {stdio: 'inherit'})
+  childProcess.execSync(`ls`, {stdio: 'inherit'})
   console.log('checksum', checksu)
   return `${context.outDir}/${appName}`
 }
