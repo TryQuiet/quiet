@@ -43,6 +43,7 @@ setEngine(
   })
 )
 
+
 let mainWindow: BrowserWindow | null
 
 const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
@@ -77,35 +78,36 @@ const applyDevTools = async () => {
     extensionsData.map(async extension => {
       await installer.default(extension.name)
     })
-  )
-  await Promise.all(
-    extensionsData.map(async extension => {
-      await session.defaultSession.loadExtension(extension.path, { allowFileAccess: true })
-    })
-  )
-}
-
-if (!gotTheLock) {
-  app.quit()
-} else {
-  app.on('second-instance', _commandLine => {
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.focus()
+    )
+    await Promise.all(
+      extensionsData.map(async extension => {
+        await session.defaultSession.loadExtension(extension.path, { allowFileAccess: true })
+      })
+      )
     }
-    // const url = new URL(commandLine[process.platform === 'win32' ? 3 : 1])
-    // if (url.searchParams.has('invitation')) {
-    //   mainWindow.webContents.send('newInvitation', {
-    //     invitation: url.searchParams.get('invitation')
-    //   })
-    // }
-    // if (url.searchParams.has('importchannel')) {
-    //   mainWindow.webContents.send('newChannel', {
-    //     channelParams: url.searchParams.get('importchannel')
-    //   })
+
+    if (!gotTheLock) {
+      app.quit()
+    } else {
+      app.on('second-instance', _commandLine => {
+        if (mainWindow) {
+          if (mainWindow.isMinimized()) mainWindow.restore()
+          mainWindow.focus()
+        }
+        // const url = new URL(commandLine[process.platform === 'win32' ? 3 : 1])
+        // if (url.searchParams.has('invitation')) {
+          //   mainWindow.webContents.send('newInvitation', {
+            //     invitation: url.searchParams.get('invitation')
+            //   })
+            // }
+            // if (url.searchParams.has('importchannel')) {
+              //   mainWindow.webContents.send('newChannel', {
+                //     channelParams: url.searchParams.get('importchannel')
+                //   })
     // }
   })
 }
+console.log('LD_PRELOAD', process.env.LD_PRELOAD)
 
 app.on('open-url', (event, url) => {
   event.preventDefault()
@@ -221,6 +223,7 @@ export const checkForUpdate = async (win: BrowserWindow) => {
       log('checking for updates...')
     })
     autoUpdater.on('error', error => {
+      log('autoUpdater ERROR')
       log(error)
     })
     autoUpdater.on('update-not-available', () => {
@@ -250,6 +253,7 @@ export const checkForUpdate = async (win: BrowserWindow) => {
 }
 
 let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } | null = null
+console.log('LD_PRELOAD', process.env.LD_PRELOAD)
 
 app.on('ready', async () => {
   if (process.platform === 'darwin') {
@@ -257,6 +261,7 @@ app.on('ready', async () => {
   } else {
     Menu.setApplicationMenu(null)
   }
+  console.log('LD_PRELOAD', process.env.LD_PRELOAD)
 
   await applyDevTools()
 
