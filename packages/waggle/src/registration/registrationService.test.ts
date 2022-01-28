@@ -1,8 +1,8 @@
-import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, verifyUserCert } from '@zbayapp/identity'
+import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, verifyUserCert } from '@quiet/identity'
 import { Time } from 'pkijs'
 import { DirResult } from 'tmp'
 import { CertificateRegistration } from '.'
-import { createTmpDir, rootPermsData, tmpZbayDirPath, TorMock } from '../common/testUtils'
+import { createTmpDir, rootPermsData, tmpQuietDirPath, TorMock } from '../common/testUtils'
 import { getPorts, Ports } from '../common/utils'
 import { Storage } from '../storage'
 import { getStorage, registerUser, setupRegistrar } from './testUtils'
@@ -18,7 +18,7 @@ describe('Registration service', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
     tmpDir = createTmpDir()
-    tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
+    tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
     registrationService = null
     certRoot = await createRootCA(new Time({ type: 1, value: new Date() }), new Time({ type: 1, value: new Date(2030, 1, 1) }), 'testRootCA')
     ports = await getPorts()
@@ -32,7 +32,7 @@ describe('Registration service', () => {
 
   it('generates and saves certificate for a new user', async () => {
     const user = await createUserCsr({
-      zbayNickname: 'userName',
+      nickname: 'userName',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
       peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
       dmPublicKey: 'testdmPublicKey',
@@ -59,7 +59,7 @@ describe('Registration service', () => {
 
   it('returns 403 if username already exists', async () => {
     const user = await createUserCsr({
-      zbayNickname: 'userName',
+      nickname: 'userName',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
       peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
       dmPublicKey: 'testdmPublicKey1',
@@ -67,7 +67,7 @@ describe('Registration service', () => {
       hashAlg: configCrypto.hashAlg
     })
     const userNew = await createUserCsr({
-      zbayNickname: 'username',
+      nickname: 'username',
       commonName: 'abcd.onion',
       peerId: 'QmS9vJkgbea9EgzHvVPqhj1u4tH7YKq7eteDN7gnG5zUmc',
       dmPublicKey: 'testdmPublicKey2',
@@ -139,7 +139,7 @@ describe('Registration service', () => {
 
   it('registers owner certificate', async () => {
     const csr = await createUserCsr({
-      zbayNickname: 'userName',
+      nickname: 'userName',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
       peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
       dmPublicKey: 'testdmPublicKey',

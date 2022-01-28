@@ -1,7 +1,7 @@
 import { Tor } from './torManager'
 import { DataServer } from './socket/DataServer'
 import { ConnectionsManager } from './libp2p/connectionsManager'
-import { ZBAY_DIR_PATH } from './constants'
+import { QUIET_DIR_PATH } from './constants'
 import * as os from 'os'
 import fs from 'fs'
 import PeerId from 'peer-id'
@@ -9,7 +9,7 @@ import { getPorts, torBinForPlatform, torDirForPlatform } from './common/utils'
 import { rootPermsData } from './common/testUtils'
 import CommunitiesManager from './communities/manager'
 import { ConnectionsManagerOptions } from './common/types'
-import { Certificates } from '@zbayapp/nectar'
+import { Certificates } from '@quiet/nectar'
 
 export default class Node {
   tor: Tor
@@ -26,7 +26,7 @@ export default class Node {
   hiddenServicePort: number
   certificates: Certificates
 
-  constructor(torPath?: string, pathDevLib?: string, peerIdFileName?: string, port = 7788, socksProxyPort = 9050, httpTunnelPort = 9052, torControlPort = 9051, hiddenServicePort = 7788, torAppDataPath = ZBAY_DIR_PATH, hiddenServiceSecret?: string, certificates?: Certificates) {
+  constructor(torPath?: string, pathDevLib?: string, peerIdFileName?: string, port = 7788, socksProxyPort = 9050, httpTunnelPort = 9052, torControlPort = 9051, hiddenServicePort = 7788, torAppDataPath = QUIET_DIR_PATH, hiddenServiceSecret?: string, certificates?: Certificates) {
     this.torPath = torPath || torBinForPlatform()
     this.torAppDataPath = torAppDataPath
     this.pathDevLib = pathDevLib || torDirForPlatform()

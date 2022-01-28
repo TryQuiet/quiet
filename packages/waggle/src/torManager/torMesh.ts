@@ -8,7 +8,7 @@ import { getPorts } from '../common/utils'
 import {
   createTmpDir,
   spawnTorProcess,
-  tmpZbayDirPath
+  tmpQuietDirPath
 } from '../common/testUtils'
 
 import logger from '../logger'
@@ -25,7 +25,7 @@ const spawnMesh = async () => {
     const tmpDir = createTmpDir()
     console.log(tmpDir)
     log(`spawning tor number ${i}`)
-    const tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
+    const tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
 
     const ports = await getPorts()
 

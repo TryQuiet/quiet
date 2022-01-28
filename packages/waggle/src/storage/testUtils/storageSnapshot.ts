@@ -40,12 +40,12 @@ export class StorageTestSnapshot extends Storage {
   protected msgReplCount: number
 
   constructor(
-    zbayDir: string,
+    quietDir: string,
     io: any,
     communityId: string,
     options?: Partial<StorageTestSnapshotOptions>
   ) {
-    super(zbayDir, io, communityId, options)
+    super(quietDir, io, communityId, options)
     this.options = {
       ...new StorageTestSnapshotOptions(),
       ...options

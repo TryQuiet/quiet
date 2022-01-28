@@ -30,7 +30,7 @@ describe('registerUsernameSaga', () => {
     },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    zbayNickname: '',
+    nickname: '',
     userCsr: undefined,
     userCertificate: ''
   }
@@ -42,7 +42,7 @@ describe('registerUsernameSaga', () => {
     },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: '', pubKey: 'pubKey', privKey: 'privKey' },
-    zbayNickname: '',
+    nickname: '',
     userCsr: undefined,
     userCertificate: ''
   }
@@ -101,7 +101,7 @@ describe('registerUsernameSaga', () => {
       )
       .put(
         identityActions.createUserCsr({
-          zbayNickname: username,
+          nickname: username,
           commonName: 'onionAddress.onion',
           peerId: 'peerId',
           dmPublicKey: 'publicKey',

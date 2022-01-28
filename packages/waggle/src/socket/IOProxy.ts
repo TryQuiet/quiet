@@ -20,9 +20,9 @@ import {
   CreatedChannelResponse,
   FetchAllMessagesResponse,
   GetPublicChannelsResponse,
-  SendCertificatesResponse
-  , ErrorMessages
-} from '@zbayapp/nectar'
+  SendCertificatesResponse,
+  ErrorMessages
+} from '@quiet/nectar'
 import { emitServerError, emitValidationError } from './errors'
 
 import logger from '../logger'

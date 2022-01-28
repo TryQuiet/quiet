@@ -1,0 +1,30 @@
+name: Frontend tests
+
+on:
+  pull_request:
+    paths:
+      - packages/frontend/**
+
+jobs:
+  frontend-tests:
+    timeout-minutes: 25
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, macos-latest, windows-latest]
+
+    steps:
+      - name: "Print OS"
+        run: echo ${{ matrix.os }}
+
+      - uses: actions/checkout@v2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+
+      - name: "Unit tests"
+        run: lerna run test --scope quiet --stream
+
+      - name: "frontend-nectar bracket tests"
+        run: lerna run rtl-test --scope quiet --stream 

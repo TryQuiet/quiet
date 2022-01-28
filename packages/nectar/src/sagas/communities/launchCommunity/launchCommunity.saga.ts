@@ -14,7 +14,7 @@ export function* initCommunities(): Generator {
   const userName = yield* select(identitySelectors.currentIdentity)
 
   for (const community of unregisteredCommunities) {
-    yield* put(identityActions.registerUsername(userName.zbayNickname))
+    yield* put(identityActions.registerUsername(userName.nickname))
   }
 
   for (const community of joinedCommunities) {

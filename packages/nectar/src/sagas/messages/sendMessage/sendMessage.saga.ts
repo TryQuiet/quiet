@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io-client'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { keyFromCertificate, parseCertificate, sign, loadPrivateKey } from '@zbayapp/identity'
+import { keyFromCertificate, parseCertificate, sign, loadPrivateKey } from '@quiet/identity'
 import { call, select, apply } from 'typed-redux-saga'
 import { arrayBufferToString } from 'pvutils'
 import { config } from '../../users/const/certFieldTypes'

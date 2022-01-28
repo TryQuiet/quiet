@@ -1,9 +1,9 @@
-import { configCrypto, createRootCA, createUserCsr, RootCA, verifyUserCert } from '@zbayapp/identity'
+import { configCrypto, createRootCA, createUserCsr, RootCA, verifyUserCert } from '@quiet/identity'
 import getPort from 'get-port'
 import { Time } from 'pkijs'
 import { DirResult } from 'tmp'
 import { CertificateRegistration } from '.'
-import { createTmpDir, spawnTorProcess, tmpZbayDirPath } from '../common/testUtils'
+import { createTmpDir, spawnTorProcess, tmpQuietDirPath } from '../common/testUtils'
 import { getPorts, Ports } from '../common/utils'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
@@ -27,7 +27,7 @@ describe('Registration service (using tor)', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
     tmpDir = createTmpDir()
-    tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
+    tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
     tor = null
     registrationService = null
     certRoot = await createRootCA(new Time({ type: 1, value: new Date() }), new Time({ type: 1, value: new Date(2030, 1, 1) }), 'testRootCA')
@@ -43,7 +43,7 @@ describe('Registration service (using tor)', () => {
 
   it('generates and saves certificate for a new user', async () => {
     const user = await createUserCsr({
-      zbayNickname: 'userName',
+      nickname: 'userName',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
       peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
       dmPublicKey: 'testdmPublicKey',

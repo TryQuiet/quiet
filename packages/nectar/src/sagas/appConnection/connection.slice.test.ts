@@ -6,7 +6,7 @@ import { connectionActions } from './connection.slice'
 import { identityActions } from '../identity/identity.slice'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { getFactory } from '../../utils/tests/factories'
-import { setupCrypto } from '@zbayapp/identity'
+import { setupCrypto } from '@quiet/identity'
 import { Identity } from '../identity/identity.types'
 
 describe('connectionReducer', () => {
@@ -22,7 +22,7 @@ describe('connectionReducer', () => {
 
     alice = await factory.create<
     ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', { zbayNickname: 'alice' })
+    >('Identity', { nickname: 'alice' })
   })
 
   it('add initialized communities should add correctly data into the store', () => {
@@ -52,7 +52,7 @@ describe('connectionReducer', () => {
 
   it('user data mapping by peerId', () => {
     const aliceCertData = {
-      username: alice.zbayNickname,
+      username: alice.nickname,
       onionAddress: alice.hiddenService.onionAddress,
       peerId: alice.peerId.id,
       dmPublicKey: ''
