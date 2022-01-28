@@ -38,7 +38,7 @@ exports.default = async function (context) {
   console.log('env added')
   console.log(`${context.outDir}/alpha-linux.yml`)
   // alpha-linux or linux
-  const ymlData = fs.readFileSync(`${context.outDir}/alpha-linux.yml`, 'utf8').split('\n')
+  // const ymlData = fs.readFileSync(`${context.outDir}/alpha-linux.yml`, 'utf8').split('\n')
   console.log(`${context.outDir}/${appName}`)
   const checksu = await checksum(`${context.outDir}/${appName}`)
   console.log('checksum', checksu)
