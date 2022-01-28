@@ -16,9 +16,13 @@ exports.default = async function (context) {
   const targetPath = `${context.outDir}/appimagetool-x86_64.AppImage`
   await streamPipeline(response.body, fs.createWriteStream(targetPath))
   fs.chmodSync(targetPath, 0o755)
+  console.log('artifactsPaths', context.artifactPaths[0])
+  console.log('artifactsPaths', context.artifactPaths[1])
+  console.log('artifactsPaths', context.artifactPaths[2])
   childProcess.execSync(`${context.artifactPaths[0]} --appimage-extract`)
   childProcess.execSync(`mv ./squashfs-root ${context.outDir}/squashfs-root`)
   const data = fs.readFileSync(`${context.outDir}/squashfs-root/AppRun`, 'utf8').split('\n')
+  console.log('data', data)
   const index = data.findIndex(text => text === 'BIN="$APPDIR/quiet"')
   if (index !== -1) {
     data[index - 1] = 'export LD_PRELOAD="${APPDIR}/usr/lib/libssl.so"'
