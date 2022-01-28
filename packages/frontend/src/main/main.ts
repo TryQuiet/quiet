@@ -263,6 +263,7 @@ app.on('ready', async () => {
     Menu.setApplicationMenu(null)
   }
   console.log('LD_PRELOAD', process.env.LD_PRELOAD)
+  console.log('S3_BUCKET', process.env.S3_BUCKET)
 
   await applyDevTools()
 
