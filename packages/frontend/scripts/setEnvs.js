@@ -63,11 +63,12 @@ exports.default = async function (context) {
     childProcess.execSync(`mv ./Quiet-x86_64.AppImage ${context.outDir}/${appName}`)
   } else throw new Error('no file name')
   console.log('env added')
-  console.log(`${context.outDir}/alpha-linux.yml`)
   // alpha-linux or linux
   // const ymlData = fs.readFileSync(`${context.outDir}/alpha-linux.yml`, 'utf8').split('\n')
   console.log(`${context.outDir}/${appName}`)
   const checksu = await checksum(`${context.outDir}/${appName}`)
+  childProcess.execSync(`cd ${context.outDir}`)
+  childProcess.execSync(`ls`)
   console.log('checksum', checksu)
   return `${context.outDir}/${appName}`
 }
