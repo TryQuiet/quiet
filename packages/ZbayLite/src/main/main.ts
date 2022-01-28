@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, ipcMain, session } from 'electron'
+import { app, session, BrowserWindow, Menu, powerMonitor, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import electronStore from '../shared/electronStore'
 import electronLocalshortcut from 'electron-localshortcut'
@@ -320,11 +320,19 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('start-waggle', async () => {
-    await waggleProcess?.connectionsManager.closeAllServices()
-    await waggleProcess?.dataServer.close()
-    waggleProcess = await runWaggle(mainWindow.webContents)
+    await startWaggle()
+  })
+
+  powerMonitor.addListener('resume', async () => {
+    await startWaggle()
   })
 })
+
+const startWaggle = async () => {
+  await waggleProcess?.connectionsManager.closeAllServices()
+  await waggleProcess?.dataServer.close()
+  waggleProcess = await runWaggle(mainWindow.webContents)
+}
 
 app.setAsDefaultProtocolClient('zbay')
 

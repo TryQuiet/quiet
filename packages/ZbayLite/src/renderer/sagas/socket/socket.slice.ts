@@ -14,7 +14,9 @@ export const socketSlice = createSlice({
   name: StoreKeys.Socket,
   reducers: {
     startConnection: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
-    closeConnection: state => state,
+    closeConnection: (state, _action: PayloadAction<null>) => {
+      state.isConnected = false
+    },
     setConnected: state => {
       state.isConnected = true
     }
