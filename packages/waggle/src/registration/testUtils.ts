@@ -58,5 +58,6 @@ export const getStorage = async (quietDir: string) => {
     }
   )
   await storage.init(await createLibp2p(peerId), peerId)
+  await storage.initDatabases()
   return storage
 }
