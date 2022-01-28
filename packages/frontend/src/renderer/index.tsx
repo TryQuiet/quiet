@@ -26,6 +26,11 @@ if (process.env.REACT_APP_ENABLE_SENTRY === 'true') {
   })
 }
 
+const b = ''
+
+//@ts-ignore
+b()
+
 const log = Object.assign(debug('frontend:renderer'), {
   error: debug('frontend:renderer:err')
 })
