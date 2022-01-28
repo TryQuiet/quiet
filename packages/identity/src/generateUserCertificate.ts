@@ -63,11 +63,11 @@ async function generateuserCertificate ({
   })
   const attr = pkcs10.attributes as any
   let dmPubKey = null
-  let zbayNickName = null
+  let nickname = null
   let peerId = null
   try {
     dmPubKey = attr?.[1].values[0].valueBlock.valueHex
-    zbayNickName = attr?.[2].values[0].valueBlock.value
+    nickname = attr?.[2].values[0].valueBlock.value
     peerId = attr?.[3].values[0].valueBlock.value
   } catch (err) {
     throw new Error('Cannot get certificate request extension')
@@ -102,7 +102,7 @@ async function generateuserCertificate ({
       new Extension({
         extnID: CertFieldsTypes.nickName,
         critical: false,
-        extnValue: new PrintableString({ value: zbayNickName }).toBER(false)
+        extnValue: new PrintableString({ value: nickname }).toBER(false)
       }),
       new Extension({
         extnID: CertFieldsTypes.peerId,

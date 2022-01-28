@@ -1,4 +1,4 @@
-import { createRootCA } from '@zbayapp/identity'
+import { createRootCA } from '@quiet/identity'
 import { AsyncReturnType } from '../../utils/types/AsyncReturnType.interface'
 import { HiddenService, Identity, PeerId } from '../identity/identity.types'
 import { Community } from './communities.slice'

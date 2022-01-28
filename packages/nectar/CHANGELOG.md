@@ -3,17 +3,57 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [2.0.0](https://github.com/ZbayApp/monorepo/compare/@zbayapp/nectar@2.0.0-alpha.1...@zbayapp/nectar@2.0.0) (2021-12-29)
+# [0.1.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/@quiet/nectar@0.1.0-alpha.0...@quiet/nectar@0.1.0-alpha.1) (2022-01-27)
 
-**Note:** Version bump only for package @zbayapp/nectar
-
-
+**Note:** Version bump only for package @quiet/nectar
 
 
 
-# [2.0.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/@zbayapp/nectar@2.0.0-alpha.0...@zbayapp/nectar@2.0.0-alpha.1) (2021-12-29)
 
-**Note:** Version bump only for package @zbayapp/nectar
+
+# [0.1.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/nectar@3.2.0-alpha.0...@quiet/nectar@0.1.0-alpha.0) (2022-01-25)
+
+**Note:** Version bump only for package @quiet/nectar
+
+
+
+
+
+# [3.2.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/nectar@3.1.0-alpha.0...@quiet/nectar@3.2.0-alpha.0) (2022-01-25)
+
+**Note:** Version bump only for package @quiet/nectar
+
+
+
+
+
+# 3.1.0-alpha.0 (2022-01-25)
+
+**Note:** Version bump only for package @quiet/nectar
+
+
+
+
+
+# [3.0.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/nectar@2.0.0...@quiet/nectar@3.0.0-alpha.0) (2022-01-24)
+
+**Note:** Version bump only for package @quiet/nectar
+
+
+
+
+
+# [2.0.0](https://github.com/ZbayApp/monorepo/compare/@quiet/nectar@2.0.0-alpha.1...@quiet/nectar@2.0.0) (2021-12-29)
+
+**Note:** Version bump only for package @quiet/nectar
+
+
+
+
+
+# [2.0.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/@quiet/nectar@2.0.0-alpha.0...@quiet/nectar@2.0.0-alpha.1) (2021-12-29)
+
+**Note:** Version bump only for package @quiet/nectar
 
 
 
@@ -21,7 +61,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # 2.0.0-alpha.0 (2021-12-28)
 
-**Note:** Version bump only for package @zbayapp/nectar
+**Note:** Version bump only for package @quiet/nectar
 
 
 

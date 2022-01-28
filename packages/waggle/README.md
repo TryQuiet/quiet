@@ -1,6 +1,6 @@
 ## Waggle
 
-Communication manager for Zbay project. Uses OrbitDB, Libp2p, Tor and websockets.
+Communication manager for Quiet project. Uses OrbitDB, Libp2p, Tor and websockets.
 
 ### Installation
 
@@ -14,7 +14,7 @@ Install dependencies:
 `npm install`
 
 
-### Running waggle separately (without ZbayLite)
+### Running waggle separately (without frontend)
 
 Run entryNode.ts
 

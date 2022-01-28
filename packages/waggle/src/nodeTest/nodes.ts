@@ -1,5 +1,5 @@
 import Node from '../node'
-import { ZBAY_DIR_PATH } from '../constants'
+import { QUIET_DIR_PATH } from '../constants'
 import WebsocketsOverTor from '../libp2p/websocketOverTor'
 import Websockets from 'libp2p-websockets'
 import { DataServer } from '../socket/DataServer'
@@ -7,8 +7,8 @@ import { ConnectionsManager } from '../libp2p/connectionsManager'
 import CommunitiesManager from '../communities/manager'
 import { createUsersCerts } from '../libp2p/tests/client-server'
 import { ConnectionsManagerOptions } from '../common/types'
-import { RootCA } from '@zbayapp/identity'
-import { Certificates } from '@zbayapp/nectar'
+import { RootCA } from '@quiet/identity'
+import { Certificates } from '@quiet/nectar'
 
 /**
  * More customizable version of Node (entry node), mainly for testing purposes
@@ -41,7 +41,7 @@ export class LocalNode extends Node {
     torControlPort = 9051,
     httpTunnelPort = 9052,
     hiddenServicePort = 7788,
-    torAppDataPath = ZBAY_DIR_PATH,
+    torAppDataPath = QUIET_DIR_PATH,
     hiddenServiceSecret?: string,
     storageOptions?: TestStorageOptions,
     appDataPath?: string,

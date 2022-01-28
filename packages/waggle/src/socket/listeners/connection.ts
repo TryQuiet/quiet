@@ -8,7 +8,7 @@ import {
   SendMessagePayload,
   SocketActionTypes,
   SubscribeToTopicPayload
-} from '@zbayapp/nectar'
+} from '@quiet/nectar'
 import IOProxy from '../IOProxy'
 
 import logger from '../../logger'

@@ -1,10 +1,10 @@
 import CommunitiesManager from './manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
-import { createMinConnectionManager, createTmpDir, tmpZbayDirPath, TorMock } from '../common/testUtils'
+import { createMinConnectionManager, createTmpDir, tmpQuietDirPath, TorMock } from '../common/testUtils'
 import PeerId from 'peer-id'
 import { getPorts } from '../common/utils'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
-import { Certificates } from '@zbayapp/nectar'
+import { Certificates } from '@quiet/nectar'
 jest.setTimeout(100_000)
 
 describe('Community manager', () => {
@@ -15,7 +15,7 @@ describe('Community manager', () => {
     const appDataPath = createTmpDir()
     const ports = await getPorts()
     connectionsManager = createMinConnectionManager({
-      env: { appDataPath: tmpZbayDirPath(appDataPath.name) },
+      env: { appDataPath: tmpQuietDirPath(appDataPath.name) },
       torControlPort: ports.controlPort
     })
     const torInitMock = jest.fn(async () => {

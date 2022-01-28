@@ -1,4 +1,4 @@
-import { formatPEM } from '@zbayapp/identity'
+import { formatPEM } from '@quiet/identity'
 import { Certificate } from 'pkijs'
 
 export function dumpPEM(tag: string, body: string | Certificate | CryptoKey) {
