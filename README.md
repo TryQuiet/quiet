@@ -56,7 +56,7 @@ lerna run <script> --stream --scope <package-name>
 Available package names are:
 - @quiet/identity
 - @quiet/nectar
+- @quiet/waggle
 - e2e-tests
 - integration-tests
-- waggle
-- frontend
+- quiet (frontend)

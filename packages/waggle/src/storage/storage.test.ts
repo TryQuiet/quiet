@@ -142,6 +142,8 @@ describe('Certificate', () => {
 
     await storage.init(libp2p, peerId)
 
+    await storage.initDatabases()
+
     const result = await storage.saveCertificate({ certificate: userCertificate.userCertString, rootPermsData })
 
     expect(result).toBe(true)
@@ -163,6 +165,8 @@ describe('Certificate', () => {
 
     await storage.init(libp2p, peerId)
 
+    await storage.initDatabases()
+
     const result = await storage.saveCertificate({ certificate: oldUserCertificate.userCertString, rootPermsData })
 
     expect(result).toBe(false)
@@ -175,6 +179,8 @@ describe('Certificate', () => {
     const libp2p = await createLibp2p(peerId)
 
     await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
 
     for (const empty of [null, '', undefined]) {
       const result = await storage.saveCertificate({ certificate: empty, rootPermsData })
@@ -192,6 +198,8 @@ describe('Certificate', () => {
 
     await storage.init(libp2p, peerId)
 
+    await storage.initDatabases()
+
     await storage.saveCertificate({ certificate: userCertificate.userCertString, rootPermsData })
 
     for (const username of ['alice', 'Alice', 'Ąlice']) {
@@ -208,6 +216,8 @@ describe('Certificate', () => {
 
     await storage.init(libp2p, peerId)
 
+    await storage.initDatabases()
+
     const usernameExists = storage.usernameExists('alice')
 
     expect(usernameExists).toBe(false)
@@ -222,6 +232,8 @@ describe('Message', () => {
     const libp2p = await createLibp2p(peerId)
 
     await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
 
     await storage.subscribeToChannel(channel)
 
@@ -262,6 +274,8 @@ describe('Message', () => {
     const libp2p = await createLibp2p(peerId)
 
     await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
 
     await storage.subscribeToChannel(channel)
 

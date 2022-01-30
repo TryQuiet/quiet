@@ -23,7 +23,7 @@ jobs:
         uses: ./.github/actions/setup-env
 
       - name: "Unit tests"
-        run: lerna run test-ci --scope waggle --stream
+        run: lerna run test-ci --scope @quiet/waggle --stream
 
   unit-tests-with-tor:
     runs-on: ${{ matrix.os }}
@@ -42,4 +42,4 @@ jobs:
         uses: ./.github/actions/setup-env
 
       - name: "Unit tests"
-        run: lerna run test-ci-tor --scope waggle --stream
+        run: lerna run test-ci-tor --scope @quiet/waggle --stream

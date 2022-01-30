@@ -56,7 +56,6 @@ export enum SocketActionTypes {
   SAVE_OWNER_CERTIFICATE = 'saveOwnerCertificate',
   SAVED_OWNER_CERTIFICATE = 'savedOwnerCertificate',
   SEND_DIRECT_MESSAGE = 'sendDirectMessage',
-  SEND_IDS = 'sendIds',
   SEND_MESSAGE = 'sendMessage',
   SEND_MESSAGES_IDS = 'sendIds',
   SEND_PEER_ID = 'sendPeerId',

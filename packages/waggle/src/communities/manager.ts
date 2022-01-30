@@ -151,6 +151,8 @@ export default class CommunitiesManager {
 
     this.communities.set(peerIdB58string, { storage })
 
+    await storage.initDatabases()
+
     log(`Initialized storage for peer ${peerIdB58string}`)
 
     return libp2pObj.localAddress
