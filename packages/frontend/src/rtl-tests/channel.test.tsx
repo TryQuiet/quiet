@@ -17,7 +17,8 @@ import {
   publicChannels,
   getFactory,
   SocketActionTypes,
-  ChannelMessage
+  ChannelMessage,
+  messages
 } from '@quiet/nectar'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -259,6 +260,61 @@ describe('Channel', () => {
         SocketActionTypes.INCOMING_MESSAGES,
         {
           messages: [authenticMessage, spoofedMessage],
+          communityId: community.id
+        }
+      ])
+    }
+  })
+
+  it('validates and displays persisted messages even if verification status cache is invalid', async () => {
+    const { store, runSaga } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    const aliceMessage = (
+      await factory.build<typeof publicChannels.actions.test_message>('Message', {
+        identity: alice
+      })
+    ).payload.message
+
+    store.dispatch(
+      messages.actions.addPublicKeyMapping({
+        publicKey: aliceMessage.pubKey,
+        cryptoKey: ({} as unknown) as CryptoKey
+      })
+    )
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    await act(async () => {
+      await runSaga(mockIncomingMessages).toPromise()
+    })
+
+    // Mssage is shown
+    const persistedMessage = await screen.findByText(aliceMessage.message)
+    expect(persistedMessage).toBeVisible()
+
+    function* mockIncomingMessages(): Generator {
+      yield* apply(socket.socketClient, socket.socketClient.emit, [
+        SocketActionTypes.INCOMING_MESSAGES,
+        {
+          messages: [aliceMessage],
           communityId: community.id
         }
       ])
