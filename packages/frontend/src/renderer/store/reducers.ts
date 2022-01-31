@@ -34,6 +34,7 @@ const persistConfig = {
     NectarStoreKeys.Identity,
     NectarStoreKeys.Communities,
     NectarStoreKeys.PublicChannels,
+    NectarStoreKeys.Messages,
     StoreKeys.App,
     StoreKeys.Contacts,
     StoreKeys.DirectMessages,
