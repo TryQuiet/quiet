@@ -1,16 +1,16 @@
-import { app, BrowserWindow, Menu, ipcMain, session } from 'electron'
-import { autoUpdater } from 'electron-updater'
-import electronStore from '../shared/electronStore'
-import electronLocalshortcut from 'electron-localshortcut'
-import debug from 'debug'
-import path from 'path'
-import url from 'url'
-import config from './config'
-import { DataServer, ConnectionsManager } from '@quiet/waggle'
-import { waggleVersion, runWaggle } from './waggleManager'
-
-import { setEngine, CryptoEngine } from 'pkijs'
+import '../../sentryInit'
 import { Crypto } from '@peculiar/webcrypto'
+import { ConnectionsManager, DataServer } from '@quiet/waggle'
+import debug from 'debug'
+import { app, BrowserWindow, ipcMain, Menu, session } from 'electron'
+import electronLocalshortcut from 'electron-localshortcut'
+import { autoUpdater } from 'electron-updater'
+import path from 'path'
+import { CryptoEngine, setEngine } from 'pkijs'
+import url from 'url'
+import electronStore from '../shared/electronStore'
+import config from './config'
+import { runWaggle, waggleVersion } from './waggleManager'
 
 const log = Object.assign(debug('frontend:main'), {
   error: debug('frontend:main:err')
