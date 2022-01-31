@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import { Grid, Typography } from '@material-ui/core'
@@ -78,12 +78,14 @@ interface CreateChannelFormValues {
 
 export interface CreateChannelProps {
   open: boolean
+  channelCreationError?: string
   createChannel: (name: string) => void
   handleClose: () => void
 }
 
 export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   open,
+  channelCreationError,
   createChannel,
   handleClose
 }) => {
@@ -94,6 +96,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   const {
     handleSubmit,
     formState: { errors },
+    setError,
     control,
     reset
   } = useForm<{ channelName: string }>({
@@ -114,6 +117,12 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     const parsedName = parseChannelName(name)
     setChannelName(parsedName)
   }
+
+  useEffect(() => {
+    if (channelCreationError) {
+      setError('channelName', { message: channelCreationError })
+    }
+  }, [channelCreationError])
 
   return (
     <Modal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>

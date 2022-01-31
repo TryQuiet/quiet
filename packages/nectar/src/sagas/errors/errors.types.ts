@@ -26,7 +26,10 @@ export enum ErrorMessages {
 
   // Network
   NETWORK_SETUP_FAILED = 'Creating network failed',
-  NOT_CONNECTED = "You're not connected with other peers."
+  NOT_CONNECTED = "You're not connected with other peers.",
+
+  // Channels
+  CHANNEL_NAME_TAKEN = 'Channel with this name already exists'
 }
 
 export const GENERAL_ERRORS = 'general'
