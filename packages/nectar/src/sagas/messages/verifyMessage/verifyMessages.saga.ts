@@ -25,7 +25,9 @@ function* verifyMessage(message: ChannelMessage, crypto: SubtleCrypto): Generato
   const publicKeysMapping = yield* select(messagesSelectors.publicKeysMapping)
 
   let cryptoKey = publicKeysMapping[message.pubKey]
-  if (!cryptoKey) {
+  /* Sometimes an empty object is being stored as a key (async call problem?)
+     checking its content (key type) prevents invalid object from being passed to verification method */
+  if (!cryptoKey || !cryptoKey.type) {
     cryptoKey = yield* call(keyObjectFromString, message.pubKey, crypto)
     yield* put(
       messagesActions.addPublicKeyMapping({ publicKey: message.pubKey, cryptoKey: cryptoKey })
