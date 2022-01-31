@@ -20,7 +20,7 @@ jobs:
         uses: ./.github/actions/setup-env
 
       - name: run tests
-        run: lerna run test-connect-ci --scope waggle --stream
+        run: lerna run test-connect-ci --scope @quiet/waggle --stream
 
   test-replicate:
     timeout-minutes: 25
@@ -39,7 +39,7 @@ jobs:
         run: npm install --global ts-node
 
       - name: run test without tor
-        run: lerna run test-replication-no-tor --scope waggle --stream
+        run: lerna run test-replication-no-tor --scope @quiet/waggle --stream
 
       - name: run test with tor
-        run: lerna run test-replication-tor --scope waggle --stream
+        run: lerna run test-replication-tor --scope @quiet/waggle --stream
