@@ -123,4 +123,40 @@ describe('join community', () => {
     const createUsernameTitle = screen.getByText('Register a username')
     expect(createUsernameTitle).toBeVisible()
   })
+
+  it('invitation code is trimmed in a field', async () => {
+    const { store } = await prepareStore({
+      [StoreKeys.Socket]: {
+        ...new SocketState(),
+        isConnected: true
+      },
+      [StoreKeys.Modals]: {
+        ...new ModalsInitialState(),
+        [ModalName.joinCommunityModal]: { open: true }
+      }
+    })
+
+    renderComponent(
+      <>
+        <JoinCommunity />
+        <CreateUsernameModal />
+      </>,
+      store
+    )
+
+    // Confirm proper modal title is displayed
+    const dictionary = JoinCommunityDictionary()
+    const joinCommunityTitle = screen.getByText(dictionary.header)
+    expect(joinCommunityTitle).toBeVisible()
+
+    // Enter community address  surrounded by whitespaces and hit button
+    const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
+    const joinCommunityButton = screen.getByText(dictionary.button)
+    userEvent.type(joinCommunityInput, '     3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd     ')
+    userEvent.click(joinCommunityButton)
+
+    // Confirm user is being redirected to username registration
+    const createUsernameTitle = await screen.findByText('Register a username')
+    expect(createUsernameTitle).toBeVisible()
+  })
 })
