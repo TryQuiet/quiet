@@ -1,0 +1,23 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ModalName = void 0;
+var ModalName;
+(function (ModalName) {
+    ModalName["applicationUpdate"] = "applicationUpdate";
+    ModalName["addModerator"] = "addModerator";
+    ModalName["createChannel"] = "createChannel";
+    ModalName["accountSettingsModal"] = "accountSettingsModal";
+    ModalName["openexternallink"] = "openexternallink";
+    ModalName["criticalError"] = "criticalError";
+    ModalName["createUsernameModal"] = "createUsernameModal";
+    ModalName["channelInfo"] = "channelInfo";
+    ModalName["channelSettingsModal"] = "channelSettingsModal";
+    ModalName["publishChannel"] = "publishChannel";
+    ModalName["joinChannel"] = "joinChannel";
+    ModalName["newMessageSeparate"] = "newMessageSeparate";
+    ModalName["quitApp"] = "quitApp";
+    ModalName["joinCommunityModal"] = "joinCommunityModal";
+    ModalName["createCommunityModal"] = "createCommunityModal";
+    ModalName["sentryWarningModal"] = "sentryWarningModal";
+    ModalName["loadingPanel"] = "loadingPanel";
+})(ModalName = exports.ModalName || (exports.ModalName = {}));
