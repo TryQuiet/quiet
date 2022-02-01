@@ -96,6 +96,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   const {
     handleSubmit,
     formState: { errors },
+    setValue,
     setError,
     control
   } = useForm<{ channelName: string }>({
@@ -104,8 +105,6 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
 
   const onSubmit = (values: CreateChannelFormValues) => {
     submitForm(createChannel, values)
-    setChannelName('')
-    // reset()
   }
 
   const submitForm = (handleSubmit: (value: string) => void, values: CreateChannelFormValues) => {
@@ -116,6 +115,13 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     const parsedName = parseChannelName(name)
     setChannelName(parsedName)
   }
+
+  React.useEffect(() => {
+    if (!open) {
+      setValue('channelName', '')
+      setChannelName('')
+    }
+  }, [open])
 
   React.useEffect(() => {
     if (channelCreationError) {
