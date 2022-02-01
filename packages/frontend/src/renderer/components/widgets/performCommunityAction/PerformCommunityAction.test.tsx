@@ -114,7 +114,7 @@ describe('PerformCommunityAction component (join community mode)', () => {
       community={false}
     />
     const result = renderComponent(component)
-    const textInput = result.queryByPlaceholderText('Invite link')
+    const textInput = result.queryByPlaceholderText('Invite code')
     expect(textInput).not.toBeNull()
     userEvent.type(textInput, registrarUrl)
     const submitButton = result.queryByRole('button')
@@ -141,7 +141,7 @@ describe('PerformCommunityAction component (join community mode)', () => {
       community={false}
     />
     const result = renderComponent(component)
-    const textInput = result.queryByPlaceholderText('Invite link')
+    const textInput = result.queryByPlaceholderText('Invite code')
     expect(textInput).not.toBeNull()
     userEvent.type(textInput, registrarUrl)
     const submitButton = result.queryByRole('button')
@@ -165,7 +165,7 @@ describe('PerformCommunityAction component (join community mode)', () => {
       community={false}
     />
     const result = renderComponent(component)
-    const textInput = result.queryByPlaceholderText('Invite link')
+    const textInput = result.queryByPlaceholderText('Invite code')
     expect(textInput).not.toBeNull()
     userEvent.type(textInput, 'My Community')
     const submitButton = result.queryByRole('button')
