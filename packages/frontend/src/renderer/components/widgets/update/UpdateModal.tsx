@@ -58,7 +58,7 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, han
         </Grid>
         <Grid container item justify='center'>
           <Grid item className={classes.subTitle}>
-            <Typography variant='body2'>An update is available for Zbay.</Typography>
+            <Typography variant='body2'>An update is available for Quiet.</Typography>
           </Grid>
         </Grid>
         <Grid container spacing={8} justify='center'>
