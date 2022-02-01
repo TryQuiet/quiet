@@ -204,7 +204,7 @@ export default class IOProxy {
       emitServerError(this.io, {
         type: SocketActionTypes.REGISTRAR,
         message: ErrorMessages.REGISTRAR_CONNECTION_FAILED,
-        communityId: payload.id
+        community: payload.id
       })
       return
     }
@@ -216,14 +216,14 @@ export default class IOProxy {
         emitValidationError(this.io, {
           type: SocketActionTypes.REGISTRAR,
           message: ErrorMessages.USERNAME_TAKEN,
-          communityId: payload.id
+          community: payload.id
         })
         return
       case 400:
         emitValidationError(this.io, {
           type: SocketActionTypes.REGISTRAR,
           message: ErrorMessages.INVALID_USERNAME,
-          communityId: payload.id
+          community: payload.id
         })
         return
       default:
@@ -233,7 +233,7 @@ export default class IOProxy {
         emitServerError(this.io, {
           type: SocketActionTypes.REGISTRAR,
           message: ErrorMessages.REGISTRATION_FAILED,
-          communityId: payload.id
+          community: payload.id
         })
         return
     }
@@ -247,21 +247,21 @@ export default class IOProxy {
     })
   }
 
-  public async createNetwork(communityId: string) {
+  public async createNetwork(community: string) {
     let network
     try {
       network = await this.connectionsManager.createNetwork()
     } catch (e) {
-      log.error(`Creating network for community ${communityId} failed`, e)
+      log.error(`Creating network for community ${community} failed`, e)
       emitServerError(this.io, {
         type: SocketActionTypes.NETWORK,
         message: ErrorMessages.NETWORK_SETUP_FAILED,
-        communityId
+        community
       })
       return
     }
-    log(`Sending network data for ${communityId}`)
-    this.io.emit(SocketActionTypes.NETWORK, { id: communityId, payload: network })
+    log(`Sending network data for ${community}`)
+    this.io.emit(SocketActionTypes.NETWORK, { id: community, payload: network })
   }
 
   public async createCommunity(payload: InitCommunityPayload) {
@@ -278,7 +278,7 @@ export default class IOProxy {
       emitServerError(this.io, {
         type: SocketActionTypes.COMMUNITY,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
-        communityId: payload.id
+        community: payload.id
       })
       return
     }
@@ -301,7 +301,7 @@ export default class IOProxy {
       emitServerError(this.io, {
         type: SocketActionTypes.REGISTRAR,
         message: ErrorMessages.REGISTRAR_LAUNCH_FAILED,
-        communityId: payload.id
+        community: payload.id
       })
     } else {
       log(`Launched registrar for ${payload.id}`)

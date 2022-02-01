@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import { Grid, Typography } from '@material-ui/core'
@@ -97,8 +97,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     handleSubmit,
     formState: { errors },
     setError,
-    control,
-    reset
+    control
   } = useForm<{ channelName: string }>({
     mode: 'onTouched'
   })
@@ -106,7 +105,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   const onSubmit = (values: CreateChannelFormValues) => {
     submitForm(createChannel, values)
     setChannelName('')
-    reset()
+    // reset()
   }
 
   const submitForm = (handleSubmit: (value: string) => void, values: CreateChannelFormValues) => {
@@ -118,7 +117,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     setChannelName(parsedName)
   }
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (channelCreationError) {
       setError('channelName', { message: channelCreationError })
     }
@@ -148,10 +147,14 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                   errors={errors}
                   onchange={event => {
                     event.persist()
-                    onChange(event.target.value)
-                    field.onChange(event.target.value)
+                    const value = event.target.value
+                    onChange(value)
+                    // Call default
+                    field.onChange(event)
                   }}
-                  onblur={field.onBlur}
+                  onblur={() => {
+                    field.onBlur()
+                  }}
                   value={field.value}
                   data-testid={'createChannelInput'}
                 />

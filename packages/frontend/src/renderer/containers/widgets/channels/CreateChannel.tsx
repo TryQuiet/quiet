@@ -25,8 +25,8 @@ export const CreateChannel = () => {
   const community = useSelector(communities.selectors.currentCommunityId)
   const channels = useSelector(publicChannels.selectors.publicChannels)
 
-  const communityErrors = useSelector(errors.selectors.currentCommunityErrorsByType)
-  const error = communityErrors?.[socketActionTypes.CREATED_CHANNEL]
+  const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
+  const error = communityErrors?.find(error => error.type == SocketActionTypes.CREATED_CHANNEL)
 
   const createChannelModal = useModal(ModalName.createChannel)
 
@@ -47,17 +47,25 @@ export const CreateChannel = () => {
   }, [channels])
 
   const createChannel = (name: string) => {
+    // Clear errors
+    if (error) {
+      dispatch(
+        errors.actions.clearError(error)
+      )
+    }
+    // Validate channel name
     if (channels.some(channel => channel.name === name)) {
       dispatch(
         errors.actions.addError({
           type: SocketActionTypes.CREATED_CHANNEL,
           message: ErrorMessages.CHANNEL_NAME_TAKEN,
           code: ErrorCodes.VALIDATION,
-          communityId: community
+          community: community
         })
       )
       return
     }
+    // Create channel
     const channel: PublicChannel = {
       name: name,
       description: `Welcome to #${name}`,

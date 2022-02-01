@@ -164,6 +164,9 @@ describe('Add new channel', () => {
     const input = screen.getByPlaceholderText('Enter a channel name')
     userEvent.type(input, channel.channel.name)
 
+    const button = screen.getByText('Create Channel')
+    userEvent.click(button)
+
     const error = await screen.findByText(ErrorMessages.CHANNEL_NAME_TAKEN)
     expect(error).toBeVisible()
   })

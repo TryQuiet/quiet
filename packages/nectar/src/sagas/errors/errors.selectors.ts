@@ -3,43 +3,46 @@ import { currentCommunityId } from '../communities/communities.selectors'
 import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { errorsAdapter } from './errors.adapter'
-import { GENERAL_ERRORS } from './errors.types'
 
 const errorSlice: CreatedSelectors[StoreKeys.Errors] = (state: StoreState) =>
   state[StoreKeys.Errors]
 
-export const generalErrors = createSelector(errorSlice, (reducerState) =>
-  errorsAdapter.getSelectors().selectAll(reducerState[GENERAL_ERRORS])
+export const selectEntities = createSelector(
+  errorSlice, 
+  (reducerState) => {
+    return errorsAdapter
+      .getSelectors()
+      .selectEntities(reducerState.errors)
+  }
+)
+
+export const selectAll = createSelector(
+  errorSlice,
+  (reducerState) => {
+    return errorsAdapter
+      .getSelectors()
+      .selectAll(reducerState.errors)
+  }
+)
+
+export const generalErrors = createSelector(
+  selectAll,
+  (errors) => {
+    if(!errors) return null
+    return errors.filter(error => !error.community)
+  }
 )
 
 export const currentCommunityErrors = createSelector(
   currentCommunityId,
-  errorSlice,
-  (communityId: string, reducerState) => {
-    if (communityId && reducerState[communityId]) {
-      return errorsAdapter.getSelectors().selectAll(reducerState[communityId])
-    } else {
-      return null
-    }
-  }
-)
-
-export const currentCommunityErrorsByType = createSelector(
-  currentCommunityId,
-  errorSlice,
-  (communityId: string, reducerState) => {
-    if (communityId && reducerState[communityId]) {
-      return errorsAdapter
-        .getSelectors()
-        .selectEntities(reducerState[communityId])
-    } else {
-      return null
-    }
+  selectAll,
+  (community, errors) => {
+    if (!community || !errors) return null
+    return errors.filter(error => error.community === community)
   }
 )
 
 export const errorsSelectors = {
-  currentCommunityErrors,
-  currentCommunityErrorsByType,
-  generalErrors
+  generalErrors,
+  currentCommunityErrors
 }

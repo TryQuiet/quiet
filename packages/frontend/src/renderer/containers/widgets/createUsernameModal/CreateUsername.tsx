@@ -20,8 +20,8 @@ const CreateUsernameModal = () => {
 
   const id = useSelector(identity.selectors.currentIdentity)
   const certificate = useSelector(identity.selectors.currentIdentity)?.userCertificate
-  const communityErrors = useSelector(errors.selectors.currentCommunityErrorsByType)
-  const error = communityErrors?.[socketActionTypes.REGISTRAR]
+  const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
+  const error = communityErrors?.find(error => error.type == socketActionTypes.REGISTRAR)
 
   const currentCommunityId = useSelector(communities.selectors.currentCommunityId)
   const invitationUrl = useSelector(communities.selectors.registrarUrl(currentCommunityId))

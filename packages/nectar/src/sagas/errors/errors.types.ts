@@ -1,11 +1,8 @@
-export class ErrorPayloadData {
+export interface ErrorPayload {
   type: string
-  message: string
-  communityId?: string
-}
-
-export class ErrorPayload extends ErrorPayloadData {
-  code: number
+  code?: number
+  message?: string
+  community?: string
 }
 
 export enum ErrorCodes {
@@ -31,5 +28,3 @@ export enum ErrorMessages {
   // Channels
   CHANNEL_NAME_TAKEN = 'Channel with this name already exists'
 }
-
-export const GENERAL_ERRORS = 'general'
