@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import React from 'react'
 import { CommunityAction } from './community.keys'
 import PerformCommunityActionComponent from './PerformCommunityActionComponent'
+import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { CommunityNameErrors, InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
@@ -114,7 +115,7 @@ describe('PerformCommunityAction component (join community mode)', () => {
       community={false}
     />
     const result = renderComponent(component)
-    const textInput = result.queryByPlaceholderText('Invite code')
+    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
     userEvent.type(textInput, registrarUrl)
     const submitButton = result.queryByRole('button')
@@ -141,7 +142,7 @@ describe('PerformCommunityAction component (join community mode)', () => {
       community={false}
     />
     const result = renderComponent(component)
-    const textInput = result.queryByPlaceholderText('Invite code')
+    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
     userEvent.type(textInput, registrarUrl)
     const submitButton = result.queryByRole('button')
@@ -165,7 +166,7 @@ describe('PerformCommunityAction component (join community mode)', () => {
       community={false}
     />
     const result = renderComponent(component)
-    const textInput = result.queryByPlaceholderText('Invite code')
+    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
     userEvent.type(textInput, 'My Community')
     const submitButton = result.queryByRole('button')
