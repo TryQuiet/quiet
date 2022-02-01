@@ -3,6 +3,86 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.1.0-alpha.4](https://github.com/ZbayApp/waggle/compare/@quiet/waggle@0.1.0-alpha.3...@quiet/waggle@0.1.0-alpha.4) (2022-01-27)
+
+**Note:** Version bump only for package @quiet/waggle
+
+
+
+
+
+# [0.1.0-alpha.3](https://github.com/ZbayApp/waggle/compare/@quiet/waggle@0.1.0-alpha.2...@quiet/waggle@0.1.0-alpha.3) (2022-01-27)
+
+**Note:** Version bump only for package @quiet/waggle
+
+
+
+
+
+# [0.1.0-alpha.2](https://github.com/ZbayApp/waggle/compare/@quiet/waggle@0.1.0-alpha.1...@quiet/waggle@0.1.0-alpha.2) (2022-01-25)
+
+**Note:** Version bump only for package @quiet/waggle
+
+
+
+
+
+# [0.1.0-alpha.1](https://github.com/ZbayApp/waggle/compare/@quiet/waggle@0.1.0-alpha.0...@quiet/waggle@0.1.0-alpha.1) (2022-01-25)
+
+**Note:** Version bump only for package @quiet/waggle
+
+
+
+
+
+# [0.1.0-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/waggle@6.4.0-alpha.0...@quiet/waggle@0.1.0-alpha.0) (2022-01-25)
+
+**Note:** Version bump only for package @quiet/waggle
+
+
+
+
+
+# [6.4.0-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/waggle@6.3.0-alpha.0...@quiet/waggle@6.4.0-alpha.0) (2022-01-25)
+
+**Note:** Version bump only for package @quiet/waggle
+
+
+
+
+
+# [6.3.0-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/waggle@6.2.0-alpha.0...@quiet/waggle@6.3.0-alpha.0) (2022-01-25)
+
+**Note:** Version bump only for package @quiet/waggle
+
+
+
+
+
+# 6.2.0-alpha.0 (2022-01-25)
+
+**Note:** Version bump only for package @quiet/waggle
+
+
+
+
+
+# [6.1.0-alpha.0](https://github.com/ZbayApp/waggle/compare/waggle@6.0.0-alpha.0...waggle@6.1.0-alpha.0) (2022-01-24)
+
+**Note:** Version bump only for package waggle
+
+
+
+
+
+# [6.0.0-alpha.0](https://github.com/ZbayApp/waggle/compare/waggle@5.0.0...waggle@6.0.0-alpha.0) (2022-01-24)
+
+**Note:** Version bump only for package waggle
+
+
+
+
+
 # [5.0.0](https://github.com/ZbayApp/waggle/compare/waggle@5.0.0-alpha.1...waggle@5.0.0) (2021-12-29)
 
 **Note:** Version bump only for package waggle
@@ -302,7 +382,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 - Tor binaries for 3 platforms (linux, macos, win). Use proper binary depending on current platform.
 - Run tests on linux and macos (CI)
-- @zbayapp/identity lib
+- @quiet/identity lib
 - Verify certificate before saving it to database
 - Return all certificates on db.load
 - Validators for storage

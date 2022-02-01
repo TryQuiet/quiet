@@ -20,9 +20,9 @@ import {
   CreatedChannelResponse,
   FetchAllMessagesResponse,
   GetPublicChannelsResponse,
-  SendCertificatesResponse
-  , ErrorMessages
-} from '@zbayapp/nectar'
+  SendCertificatesResponse,
+  ErrorMessages
+} from '@quiet/nectar'
 import { emitServerError, emitValidationError } from './errors'
 
 import logger from '../logger'
@@ -147,7 +147,7 @@ export default class IOProxy {
       return
     }
     log(`Sending ${payload.ids.length} messages ids`)
-    this.io.emit(SocketActionTypes.SEND_IDS, payload)
+    this.io.emit(SocketActionTypes.SEND_MESSAGES_IDS, payload)
   }
 
   public createdChannel = (payload: CreatedChannelResponse) => {

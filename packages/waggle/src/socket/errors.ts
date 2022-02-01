@@ -1,5 +1,5 @@
 import SocketIO from 'socket.io'
-import { ErrorCodes, ErrorPayload, ErrorPayloadData, SocketActionTypes } from '@zbayapp/nectar'
+import { ErrorCodes, ErrorPayload, ErrorPayloadData, SocketActionTypes } from '@quiet/nectar'
 
 export const emitError = (io: SocketIO.Server, payload: ErrorPayload) => {
   io.emit(SocketActionTypes.ERROR, payload)

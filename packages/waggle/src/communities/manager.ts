@@ -3,7 +3,7 @@ import { ConnectionsManager, InitLibp2pParams } from '../libp2p/connectionsManag
 import { Storage } from '../storage'
 import { getPorts } from '../common/utils'
 import { CertificateRegistration } from '../registration'
-import { Certificates, InitCommunityPayload, PermsData } from '@zbayapp/nectar'
+import { Certificates, InitCommunityPayload, PermsData } from '@quiet/nectar'
 import logger from '../logger'
 
 const log = logger('communities')
@@ -150,6 +150,8 @@ export default class CommunitiesManager {
     await storage.init(libp2pObj.libp2p, params.peerId)
 
     this.communities.set(peerIdB58string, { storage })
+
+    await storage.initDatabases()
 
     log(`Initialized storage for peer ${peerIdB58string}`)
 

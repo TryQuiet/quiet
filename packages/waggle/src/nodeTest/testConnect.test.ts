@@ -1,5 +1,5 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { createRootCA, RootCA } from '@zbayapp/identity'
+import { createRootCA, RootCA } from '@quiet/identity'
 import getPort from 'get-port'
 import waitForExpect from 'wait-for-expect'
 import path from 'path'
@@ -40,7 +40,7 @@ const launchNode = async (
     NodeType = NodeWithoutTor
   }
   const torDir = path.join(tmpDir.name, `tor${i}`)
-  const tmpAppDataPath = path.join(tmpDir.name, `.zbayTmp${i}`)
+  const tmpAppDataPath = path.join(tmpDir.name, `.quietTmp${i}`)
   const port = await getPort()
   const socksProxyPort = await getPort()
   const torControlPort = await getPort()

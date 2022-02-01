@@ -1,7 +1,7 @@
 {
-  "name": "@zbayapp/identity",
-  "version": "4.0.0",
-  "description": "Zbay tools for creating certificates and signing messages",
+  "name": "@quiet/identity",
+  "version": "0.1.0-alpha.1",
+  "description": "Quiet tools for creating certificates and signing messages",
   "main": "lib/index.js",
   "types": "lib/index.d.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "url": "git+ssh://git@github.com/ZbayApp/identity.git"
   },
   "keywords": [
-    "zbay",
+    "quiet",
     "identity",
     "certificate"
   ],

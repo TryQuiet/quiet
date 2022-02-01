@@ -12,7 +12,7 @@ import {
   CommunitiesState
 } from '../communities.slice'
 import { createCommunitySaga } from './createCommunity.saga'
-import { createRootCA } from '@zbayapp/identity'
+import { createRootCA } from '@quiet/identity'
 
 describe('createCommunitySaga', () => {
   test('create new community', async () => {

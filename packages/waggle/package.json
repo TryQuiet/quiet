@@ -1,6 +1,6 @@
 {
-	"name": "waggle",
-	"version": "5.0.0",
+	"name": "@quiet/waggle",
+	"version": "0.1.0-alpha.4",
 	"description": "tlg-manager",
 	"types": "lib/index.d.ts",
 	"main": "lib/index.js",
@@ -80,8 +80,8 @@
 	"dependencies": {
 		"@chainsafe/libp2p-noise": "^4.0.0",
 		"@peculiar/webcrypto": "1.2.2",
-		"@zbayapp/identity": "*",
-		"@zbayapp/nectar": "*",
+		"@quiet/identity": "^0.1.0-alpha.1",
+		"@quiet/nectar": "^0.1.0-alpha.1",
 		"abortable-iterator": "^3.0.0",
 		"class-validator": "^0.13.1",
 		"cli-table": "^0.3.6",

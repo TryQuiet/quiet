@@ -4,7 +4,7 @@ import {
   loadPrivateKey,
   parseCertificate,
   sign
-} from '@zbayapp/identity'
+} from '@quiet/identity'
 import { KeyObject } from 'crypto'
 import { arrayBufferToString } from 'pvutils'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -58,7 +58,7 @@ describe('sendMessageSaga', () => {
     hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: 'id', pubKey: 'pubKey', privKey: 'privKey' },
-    zbayNickname: '',
+    nickname: '',
     userCsr: undefined,
     userCertificate: ''
   }

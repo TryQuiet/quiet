@@ -24,12 +24,12 @@ export interface UserCsr {
 }
 
 export const createUserCsr = async ({
-  zbayNickname,
+  nickname,
   commonName,
   peerId,
   dmPublicKey
 }: {
-  zbayNickname: string
+  nickname: string
   commonName: string
   peerId: string
   dmPublicKey: string
@@ -37,7 +37,7 @@ export const createUserCsr = async ({
   hashAlg: string
 }): Promise<UserCsr> => {
   const pkcs10 = await requestCertificate({
-    zbayNickname: zbayNickname,
+    nickname: nickname,
     commonName: commonName,
     peerId: peerId,
     dmPublicKey: dmPublicKey,
@@ -57,14 +57,14 @@ export const createUserCsr = async ({
 }
 
 async function requestCertificate({
-  zbayNickname,
+  nickname,
   commonName,
   peerId,
   dmPublicKey,
   signAlg = config.signAlg,
   hashAlg = config.hashAlg
 }: {
-  zbayNickname: string
+  nickname: string
   commonName: string
   peerId: string
   dmPublicKey: string
@@ -112,7 +112,7 @@ async function requestCertificate({
     }),
     new Attribute({
       type: CertFieldsTypes.nickName,
-      values: [new PrintableString({ value: zbayNickname })]
+      values: [new PrintableString({ value: nickname })]
     }),
     new Attribute({
       type: CertFieldsTypes.peerId,

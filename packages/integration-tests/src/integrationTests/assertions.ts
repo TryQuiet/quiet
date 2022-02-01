@@ -1,4 +1,4 @@
-import { ErrorPayload, publicChannels, SocketActionTypes } from '@zbayapp/nectar'
+import { ErrorPayload, publicChannels, SocketActionTypes } from '@quiet/nectar'
 import waitForExpect from 'wait-for-expect'
 import logger from '../logger'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'

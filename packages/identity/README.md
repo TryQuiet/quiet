@@ -1,1 +1,1 @@
-# Zbay identity
+# Quiet identity

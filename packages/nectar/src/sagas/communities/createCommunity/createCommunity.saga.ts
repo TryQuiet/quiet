@@ -1,4 +1,4 @@
-import { createRootCA } from '@zbayapp/identity'
+import { createRootCA } from '@quiet/identity'
 import { Time } from 'pkijs'
 import { call, apply, put } from 'typed-redux-saga'
 import { communitiesActions, Community } from '../communities.slice'

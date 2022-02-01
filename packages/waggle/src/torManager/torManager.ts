@@ -2,7 +2,7 @@ import * as child_process from 'child_process'
 import crypto from 'crypto'
 import * as fs from 'fs'
 import path from 'path'
-import { ZBAY_DIR_PATH } from '../constants'
+import { QUIET_DIR_PATH } from '../constants'
 import logger from '../logger'
 import { removeFilesFromDir } from '../common/utils'
 import { TorControl } from './TorControl'
@@ -66,7 +66,7 @@ export class Tor {
       }
       this.generateHashedPassword()
       this.initTorControl()
-      const dirPath = this.appDataPath || ZBAY_DIR_PATH
+      const dirPath = this.appDataPath || QUIET_DIR_PATH
 
       if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath)

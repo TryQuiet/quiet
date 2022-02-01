@@ -1,5 +1,5 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
-import { parseCertificate } from '@zbayapp/identity'
+import { parseCertificate } from '@quiet/identity'
 import Certificate from 'pkijs/src/Certificate'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
