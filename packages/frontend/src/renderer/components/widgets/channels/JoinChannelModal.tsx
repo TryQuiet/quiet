@@ -215,7 +215,7 @@ export const JoinChannelModal: React.FC<JoinChannelModalProps> = ({
                     />
                   ) : (
                     <Typography variant='caption' className={classes.info}>
-                        If you have an invite link, open it in a browser
+                        If you have an invite code, open it in a browser
                     </Typography>
                   )}
                 </Grid>

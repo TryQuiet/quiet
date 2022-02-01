@@ -62,8 +62,8 @@ export const JoinCommunityDictionary = (handleRedirection?: () => void): Perform
   }
   return {
     header: 'Join community',
-    label: 'Paste your invite link to join an existing community',
-    placeholder: 'Invite link',
+    label: 'Paste your invite code to join an existing community',
+    placeholder: 'Invite code',
     hint: '',
     button: 'Continue',
     field: inviteLinkField(),

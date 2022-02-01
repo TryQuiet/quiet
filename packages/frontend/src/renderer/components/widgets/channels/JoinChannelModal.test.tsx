@@ -209,7 +209,7 @@ describe('JoinChannelModal', () => {
                       <span
                         class="MuiTypography-root makeStyles-info-6 MuiTypography-caption"
                       >
-                        If you have an invite link, open it in a browser
+                        If you have an invite code, open it in a browser
                       </span>
                     </div>
                   </form>
