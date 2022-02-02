@@ -125,7 +125,7 @@ describe('UpdateModal', () => {
                       <p
                         class="MuiTypography-root MuiTypography-body2"
                       >
-                        An update is available for Zbay.
+                        An update is available for Quiet.
                       </p>
                     </div>
                   </div>
