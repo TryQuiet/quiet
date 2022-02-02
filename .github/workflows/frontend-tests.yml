@@ -24,7 +24,7 @@ jobs:
         uses: ./.github/actions/setup-env
 
       - name: "Unit tests"
-        run: lerna run test --scope quiet --stream
+        run: lerna run test-ci --scope quiet --stream
 
       - name: "frontend-nectar bracket tests"
-        run: lerna run rtl-test --scope quiet --stream 
+        run: lerna run rtl-test-ci --scope quiet --stream
