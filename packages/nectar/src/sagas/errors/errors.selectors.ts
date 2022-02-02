@@ -1,8 +1,10 @@
 import { createSelector } from 'reselect'
 import { currentCommunityId } from '../communities/communities.selectors'
+import { SocketActionTypes } from '../socket/const/actionTypes'
 import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { errorsAdapter } from './errors.adapter'
+import { ErrorPayload } from './errors.types'
 
 const errorSlice: CreatedSelectors[StoreKeys.Errors] = (state: StoreState) =>
   state[StoreKeys.Errors]
@@ -37,8 +39,14 @@ export const currentCommunityErrors = createSelector(
   currentCommunityId,
   selectAll,
   (community, errors) => {
-    if (!community || !errors) return null
-    return errors.filter(error => error.community === community)
+    if (!community || !errors) {
+      return {}
+    }
+    const communityErrors = errors.filter(error => error.community === community)
+    return communityErrors.reduce((types: { [type: string]: ErrorPayload }, error) => {
+      types[error.type] = error
+      return types
+    }, {})
   }
 )
 
