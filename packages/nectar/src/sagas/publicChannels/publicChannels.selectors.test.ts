@@ -176,7 +176,7 @@ describe('publicChannelsSelectors', () => {
             type: MessageType.Basic,
             message: `message_${item.id}`,
             createdAt: item.createdAt,
-            channelId: 'general',
+            channelAddress: 'general',
             signature: '',
             pubKey: ''
           },
@@ -387,7 +387,7 @@ describe('publicChannelsSelectors', () => {
 
     store.dispatch(
       publicChannels.actions.setCurrentChannel({
-        channel: channel.address,
+        channelAddress: channel.address,
         communityId: community.id
       })
     )

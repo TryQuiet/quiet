@@ -109,11 +109,11 @@ export interface FetchAllMessagesResponse {
 }
 
 export interface MarkUnreadMessagesPayload {
-  messages: UnreadChannelMessage[],
+  messages: UnreadChannelMessage[]
   communityId: string
 }
 
 export interface ClearUnreadMessagesPayload {
-  ids: string[],
+  ids: string[]
   communityId: string
 }

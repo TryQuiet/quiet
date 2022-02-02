@@ -29,7 +29,7 @@ import logger from '../../utils/logger'
 const log = logger('publicChannels')
 
 export class PublicChannelsState {
-  public channels: EntityState<CommunityChannels> = 
+  public channels: EntityState<CommunityChannels> =
   communityChannelsAdapter.getInitialState()
 }
 

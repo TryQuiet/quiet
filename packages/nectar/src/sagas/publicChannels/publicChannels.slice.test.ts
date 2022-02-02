@@ -4,10 +4,11 @@ import { publicChannelsSelectors } from './publicChannels.selectors'
 import {
   publicChannelsActions,
   publicChannelsReducer,
-  CommunityChannels,
   PublicChannelsState
 } from './publicChannels.slice'
-
+import {
+  CommunityChannels
+} from './publicChannels.types'
 import {
   channelMessagesAdapter,
   communityChannelsAdapter,
@@ -20,6 +21,7 @@ import {
 } from '../communities/communities.slice'
 
 import { communitiesAdapter } from '../communities/communities.adapter'
+import { unreadMessagesAdapter } from './markUnreadMessages/unreadMessages.adapter'
 
 const mockGetPublicChannels = {
   public: {
@@ -61,7 +63,7 @@ describe('publicChannelsReducer', () => {
       id: '0',
       message: 'message0',
       createdAt: 0,
-      channelId: '',
+      channelAddress: '',
       signature: '',
       pubKey: '12',
       type: 1
@@ -70,7 +72,7 @@ describe('publicChannelsReducer', () => {
       id: '2',
       message: 'message2',
       createdAt: 0,
-      channelId: '',
+      channelAddress: '',
       signature: '',
       pubKey: '12',
       type: 1
@@ -79,7 +81,7 @@ describe('publicChannelsReducer', () => {
       id: '4',
       message: 'message4',
       createdAt: 0,
-      channelId: '',
+      channelAddress: '',
       signature: '',
       pubKey: '12',
       type: 1
@@ -88,7 +90,7 @@ describe('publicChannelsReducer', () => {
       id: '1',
       message: 'message1',
       createdAt: 0,
-      channelId: '',
+      channelAddress: '',
       signature: '',
       pubKey: '12',
       type: 1
@@ -98,12 +100,13 @@ describe('publicChannelsReducer', () => {
   const communityChannels: CommunityChannels = {
     id: 'communityId',
     currentChannel: 'currentChannel',
+    channelLoadingSlice: 0,
     channels: publicChannelsAdapter.getInitialState(),
     channelMessages: channelMessagesAdapter.setAll(
       channelMessagesAdapter.getInitialState(),
       messages
     ),
-    channelLoadingSlice: 0
+    unreadMessages: unreadMessagesAdapter.getInitialState()
   }
 
   beforeEach(() => {

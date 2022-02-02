@@ -25,17 +25,17 @@ import {
   publicChannelsAdapter
 } from '../../publicChannels/publicChannels.adapter'
 import {
-  CommunityChannels,
   publicChannelsReducer,
   PublicChannelsState
 } from '../../publicChannels/publicChannels.slice'
-import { PublicChannel } from '../../publicChannels/publicChannels.types'
+import { CommunityChannels, PublicChannel } from '../../publicChannels/publicChannels.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { StoreKeys } from '../../store.keys'
 import { MessageTypes } from '../const/messageTypes'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { sendMessageSaga } from './sendMessage.saga'
+import { unreadMessagesAdapter } from '../../publicChannels/markUnreadMessages/unreadMessages.adapter'
 
 describe('sendMessageSaga', () => {
   const communityId = 'id'
@@ -89,12 +89,13 @@ describe('sendMessageSaga', () => {
   const communityChannels: CommunityChannels = {
     id: communityId,
     currentChannel: publicChannel.address,
+    channelLoadingSlice: 0,
     channels: publicChannelsAdapter.setAll(
       publicChannelsAdapter.getInitialState(),
       [publicChannel]
     ),
     channelMessages: channelMessagesAdapter.getInitialState(),
-    channelLoadingSlice: 0
+    unreadMessages: unreadMessagesAdapter.getInitialState()
   }
 
   test('sign and send message', async () => {

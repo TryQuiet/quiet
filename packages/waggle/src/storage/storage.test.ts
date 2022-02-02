@@ -237,7 +237,7 @@ describe('Message', () => {
 
     await storage.subscribeToChannel(channel)
 
-    const spy = jest.spyOn(storage.publicChannelsRepos.get(message.channelId).db, 'add')
+    const spy = jest.spyOn(storage.publicChannelsRepos.get(message.channelAddress).db, 'add')
 
     await storage.sendMessage(message)
 
@@ -245,7 +245,7 @@ describe('Message', () => {
     expect(spy).toHaveBeenCalled()
 
     // Confirm message has been added to db
-    const result = await storage.askForMessages(message.channelId, [message.id])
+    const result = await storage.askForMessages(message.channelAddress, [message.id])
     expect(result.filteredMessages.length).toBe(1)
   })
 

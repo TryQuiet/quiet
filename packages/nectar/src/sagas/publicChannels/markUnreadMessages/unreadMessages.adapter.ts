@@ -1,5 +1,5 @@
-import { createEntityAdapter } from "@reduxjs/toolkit";
-import { UnreadChannelMessage } from "../publicChannels.types";
+import { createEntityAdapter } from '@reduxjs/toolkit'
+import { UnreadChannelMessage } from '../publicChannels.types'
 
-export const unreadMessagesAdapter = 
+export const unreadMessagesAdapter =
     createEntityAdapter<UnreadChannelMessage>()

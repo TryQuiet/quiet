@@ -31,23 +31,23 @@ export function* markUnreadMessagesSaga(
 }
 
 export function* clearUnreadMessagesSaga(
-    action: PayloadAction<ReturnType<typeof publicChannelsActions.setCurrentChannel>['payload']>
+  action: PayloadAction<ReturnType<typeof publicChannelsActions.setCurrentChannel>['payload']>
 ): Generator {
-    const channelAddress = action.payload.channelAddress
-    const communityId = action.payload.communityId
+  const channelAddress = action.payload.channelAddress
+  const communityId = action.payload.communityId
 
-    const unread = yield* select(publicChannelsSelectors.unreadMessages)
+  const unread = yield* select(publicChannelsSelectors.unreadMessages)
 
-    const ids = unread
-        .filter(message => message.channelAddress === channelAddress)
-        .map(message => message.id)
+  const ids = unread
+    .filter(message => message.channelAddress === channelAddress)
+    .map(message => message.id)
 
-    const payload: ClearUnreadMessagesPayload = {
-        ids: ids,
-        communityId: communityId
-    }
+  const payload: ClearUnreadMessagesPayload = {
+    ids: ids,
+    communityId: communityId
+  }
 
-    yield* put(
-        publicChannelsActions.clearUnreadMessages(payload)
-    )
+  yield* put(
+    publicChannelsActions.clearUnreadMessages(payload)
+  )
 }
