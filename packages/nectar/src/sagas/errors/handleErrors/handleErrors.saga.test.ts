@@ -14,7 +14,7 @@ import { Identity } from '../../identity/identity.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { StoreKeys } from '../../store.keys'
 import { errorsActions } from '../errors.slice'
-import { ErrorCodes, ErrorMessages, GENERAL_ERRORS } from '../errors.types'
+import { ErrorCodes, ErrorMessages } from '../errors.types'
 import { handleErrorsSaga } from './handleErrors.saga'
 
 describe('handle errors', () => {
@@ -44,10 +44,10 @@ describe('handle errors', () => {
     await expectSaga(
       handleErrorsSaga,
       errorsActions.addError({
+        community: community.id,
         type: SocketActionTypes.REGISTRAR,
-        message: ErrorMessages.REGISTRATION_FAILED,
-        communityId: community.id,
-        code: ErrorCodes.SERVER_ERROR
+        code: ErrorCodes.SERVER_ERROR,
+        message: ErrorMessages.REGISTRATION_FAILED
       })
     )
       .withReducer(
@@ -87,8 +87,8 @@ describe('handle errors', () => {
     const addErrorAction = errorsActions.addError({
       type: SocketActionTypes.REGISTRAR,
       message: ErrorMessages.INVALID_USERNAME,
-      communityId: community.id,
-      code: ErrorCodes.VALIDATION
+      code: ErrorCodes.VALIDATION,
+      community: community.id
     })
     testSaga(handleErrorsSaga, addErrorAction)
       .next()
@@ -99,7 +99,6 @@ describe('handle errors', () => {
     const addErrorAction = errorsActions.addError({
       type: 'sockets',
       message: 'other error',
-      communityId: GENERAL_ERRORS,
       code: ErrorCodes.SERVER_ERROR
     })
     testSaga(handleErrorsSaga, addErrorAction)

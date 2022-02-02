@@ -160,8 +160,8 @@ describe('IO proxy', () => {
     expect(observedIO).toBeCalledWith(SocketActionTypes.ERROR, {
       type: SocketActionTypes.REGISTRAR,
       message: ErrorMessages.REGISTRAR_CONNECTION_FAILED,
-      communityId: 'someCommunityId',
-      code: 500
+      code: 500,
+      community: 'someCommunityId'
     })
   })
 
@@ -188,8 +188,8 @@ describe('IO proxy', () => {
       expect(observedIO).toBeCalledWith(SocketActionTypes.ERROR, {
         type: SocketActionTypes.REGISTRAR,
         message: socketMessage,
-        communityId: 'someCommunityId',
-        code: socketStatusCode
+        code: socketStatusCode,
+        community: 'someCommunityId'
       })
     }
   )
