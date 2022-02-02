@@ -11,6 +11,7 @@ import { DisplayableMessage } from '@quiet/nectar'
 const useStyles = makeStyles(theme => ({
   scroll: {
     overflow: 'scroll',
+    overflowX: 'hidden',
     height: '100%'
   },
   list: {
