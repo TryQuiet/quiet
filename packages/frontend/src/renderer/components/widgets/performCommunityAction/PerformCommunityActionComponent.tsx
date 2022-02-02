@@ -139,7 +139,8 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   const {
     handleSubmit,
     formState: { errors },
-    control
+    control,
+    setValue
   } = useForm<PerformCommunityActionFormValues>({
     mode: 'onTouched'
   })
@@ -184,7 +185,10 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                       })}
                       placeholder={dictionary.placeholder}
                       errors={errors}
-                      onchange={field.onChange}
+                      onchange={(ev) => {
+                        setValue('name', ev.target.value.trim())
+                      }
+                      }
                       onblur={field.onBlur}
                       value={field.value}
                     />
