@@ -65,7 +65,11 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export const parseChannelName = (name = '') => {
-  return name.toLowerCase().replace(/ +/g, '-')
+  return name
+    .toLowerCase()
+    .trimStart()
+    .trimEnd()
+    .replace(/ +/g, '-')
 }
 
 const createChannelFields = {
