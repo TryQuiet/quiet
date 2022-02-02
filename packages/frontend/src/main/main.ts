@@ -1,4 +1,3 @@
-import '../../sentryInit'
 import { Crypto } from '@peculiar/webcrypto'
 import { ConnectionsManager, DataServer } from '@quiet/waggle'
 import debug from 'debug'

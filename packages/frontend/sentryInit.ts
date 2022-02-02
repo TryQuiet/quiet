@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/electron"
+import * as Sentry from "@sentry/react"
 
 if (process.env.REACT_APP_ENABLE_SENTRY === 'true') {
   console.log('Initializing sentry')
