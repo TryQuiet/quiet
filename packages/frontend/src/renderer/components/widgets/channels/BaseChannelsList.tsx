@@ -16,11 +16,13 @@ export const BaseChannelsList: React.FC<BaseChannelsListProps> = ({
     <List disablePadding>
       {channels
         .map(channel => (
-          <ChannelsListItem
-            key={channel.name}
-            channel={channel}
-          />
-        ))}
+            <ChannelsListItem
+              key={channel.name}
+              channel={channel}
+            />
+          )
+        )
+      }
     </List>
   )
 }

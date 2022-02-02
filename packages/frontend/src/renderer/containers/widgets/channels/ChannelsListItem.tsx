@@ -12,14 +12,16 @@ export const ChannelsListItem: React.FC<ChannelsListItemContainerProps> = ({
 }) => {
   const dispatch = useDispatch()
 
+  const unread = useSelector(publicChannels.selectors.currentChannelUnreadStatus)
+
   const currentCommunity = useSelector(communities.selectors.currentCommunityId)
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
 
   const selected = currentChannel === channel.name
 
-  const setCurrentChannel = (name: string) => {
+  const setCurrentChannel = (address: string) => {
     dispatch(publicChannels.actions.setCurrentChannel({
-      channel: name,
+      channelAddress: address,
       communityId: currentCommunity
     }))
   }
@@ -27,6 +29,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemContainerProps> = ({
   return (
     <ChannelsListItemComponent
       channel={channel}
+      unread={unread}
       selected={selected}
       setCurrentChannel={setCurrentChannel}
     />

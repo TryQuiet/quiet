@@ -1,8 +1,7 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 import Grid from '@material-ui/core/Grid'
-import { publicChannels, PublicChannel } from '@quiet/nectar'
-
+import { publicChannels } from '@quiet/nectar'
 import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'
 import SidebarHeader from '../../../components/ui/Sidebar/SidebarHeader'
 import QuickActionButton from '../../../components/widgets/sidebar/QuickActionButton'
@@ -11,13 +10,9 @@ import SearchIcon from '../../../static/images/st-search.svg'
 import { useModal } from '../../hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 
-interface useChannelPanelDataReturnTypes {
-  channels: PublicChannel[]
-}
-
-const useChannelsPanelData = (): useChannelPanelDataReturnTypes => {
+const useChannelsPanelData = () => {
   const data = {
-    channels: useSelector(publicChannels.selectors.publicChannels)
+    channels: useSelector(publicChannels.selectors.publicChannels),
   }
   return data
 }

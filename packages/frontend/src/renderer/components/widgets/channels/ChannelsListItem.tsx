@@ -54,12 +54,14 @@ const useStyles = makeStyles(theme => ({
 
 export interface ChannelsListItemComponentProps {
   channel: PublicChannel
+  unread: boolean
   selected: boolean
   setCurrentChannel: (name: string) => void
 }
 
 export const ChannelsListItem: React.FC<ChannelsListItemComponentProps> = ({
   channel,
+  unread,
   selected,
   setCurrentChannel
 }) => {
@@ -83,8 +85,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemComponentProps> = ({
               <Typography
                 variant='body2'
                 className={classNames(classes.title, {
-                  // TODO
-                  [classes.newMessages]: false
+                  [classes.newMessages]: unread
                 })}>
                 {`# ${channel.name}`}
               </Typography>

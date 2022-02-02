@@ -360,7 +360,7 @@ describe('publicChannelsSelectors', () => {
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
-      channelId: channel.address
+      channelAddress: channel.address
     }
 
     const spoofedMessage: ChannelMessage = {
@@ -370,7 +370,7 @@ describe('publicChannelsSelectors', () => {
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
-      channelId: channel.address,
+      channelAddress: channel.address,
       pubKey: johnPublicKey
     }
 

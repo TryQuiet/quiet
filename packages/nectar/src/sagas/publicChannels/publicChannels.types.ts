@@ -1,4 +1,13 @@
-import { Dictionary } from '@reduxjs/toolkit'
+import { Dictionary, EntityState } from '@reduxjs/toolkit'
+
+export interface CommunityChannels {
+  id: string
+  currentChannel: string
+  channelLoadingSlice: number
+  channels: EntityState<PublicChannel>
+  channelMessages: EntityState<ChannelMessage>
+  unreadMessages: EntityState<UnreadChannelMessage>
+}
 
 export interface PublicChannel {
   name: string
@@ -13,9 +22,14 @@ export interface ChannelMessage {
   type: number
   message: string
   createdAt: number
-  channelId: string
+  channelAddress: string
   signature: string
   pubKey: string
+}
+
+export interface UnreadChannelMessage {
+  id: string
+  channelAddress: string
 }
 
 export interface DisplayableMessage {
@@ -65,7 +79,7 @@ export interface AddPublicChannelsListPayload {
 }
 
 export interface SetCurrentChannelPayload {
-  channel: string
+  channelAddress: string
   communityId: string
 }
 
@@ -91,5 +105,15 @@ export interface IncomingMessages {
 export interface FetchAllMessagesResponse {
   messages: ChannelMessage[]
   channelAddress: string
+  communityId: string
+}
+
+export interface MarkUnreadMessagesPayload {
+  messages: UnreadChannelMessage[],
+  communityId: string
+}
+
+export interface ClearUnreadMessagesPayload {
+  ids: string[],
   communityId: string
 }
