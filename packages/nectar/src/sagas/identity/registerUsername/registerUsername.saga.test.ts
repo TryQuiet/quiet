@@ -34,7 +34,7 @@ describe('registerUsernameSaga', () => {
     userCsr: undefined,
     userCertificate: ''
   }
-  
+
   const identityWithoutPeerId: Identity = {
     id: 'id',
     hiddenService: {

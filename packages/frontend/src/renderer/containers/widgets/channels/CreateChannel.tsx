@@ -26,7 +26,7 @@ export const CreateChannel = () => {
   const channels = useSelector(publicChannels.selectors.publicChannels)
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
-  const error = communityErrors?.find(error => error.type == SocketActionTypes.CREATED_CHANNEL)
+  const error = communityErrors?.find(error => error.type === SocketActionTypes.CREATED_CHANNEL)
 
   const createChannelModal = useModal(ModalName.createChannel)
 

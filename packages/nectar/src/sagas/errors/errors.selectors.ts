@@ -8,7 +8,7 @@ const errorSlice: CreatedSelectors[StoreKeys.Errors] = (state: StoreState) =>
   state[StoreKeys.Errors]
 
 export const selectEntities = createSelector(
-  errorSlice, 
+  errorSlice,
   (reducerState) => {
     return errorsAdapter
       .getSelectors()
@@ -28,7 +28,7 @@ export const selectAll = createSelector(
 export const generalErrors = createSelector(
   selectAll,
   (errors) => {
-    if(!errors) return null
+    if (!errors) return null
     return errors.filter(error => !error.community)
   }
 )
