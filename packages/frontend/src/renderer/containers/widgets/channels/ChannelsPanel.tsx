@@ -12,7 +12,7 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 
 const useChannelsPanelData = () => {
   const data = {
-    channels: useSelector(publicChannels.selectors.publicChannels),
+    channels: useSelector(publicChannels.selectors.publicChannels)
   }
   return data
 }
