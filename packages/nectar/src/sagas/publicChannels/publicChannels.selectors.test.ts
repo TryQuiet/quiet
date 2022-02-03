@@ -400,4 +400,4 @@ describe('publicChannelsSelectors', () => {
   })
 })
 
-export {}
+export { }
