@@ -1,12 +1,3 @@
-/* eslint import/first: 0 */
-jest.mock('../../../containers/widgets/channelSettings/BlockedUsers', () => {
-  const TabContent = () => <div>TabContent</div>
-  return TabContent
-})
-jest.mock('../../../containers/widgets/channelSettings/Moderators', () => {
-  const TabContent = () => <div>TabContent</div>
-  return TabContent
-})
 import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
