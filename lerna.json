@@ -5,7 +5,7 @@
   "version": "independent",
   "command": { 
     "version": {
-      "allowBranch": ["master"],
+      "allowBranch": ["master", "fix/change-app-icon"],
       "conventionalCommits": true,
       "createRelease": "github"
     }
