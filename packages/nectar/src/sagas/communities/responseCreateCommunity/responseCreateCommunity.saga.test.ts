@@ -37,7 +37,7 @@ describe('responseCreateCommunity', () => {
             entities: {
               id: {
                 id: 'id',
-                zbayNickname: '',
+                nickname: '',
                 hiddenService: {
                   onionAddress: 'onionAddress',
                   privateKey: 'privateKey'

@@ -1,15 +1,10 @@
-import { keyFromCertificate, parseCertificate, setupCrypto } from '@zbayapp/identity'
+import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
 import { Store } from '../store.types'
 import { getFactory, Identity, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import {
-  currentChannel,
-  currentChannelMessages,
   currentChannelMessagesCount,
   currentChannelMessagesMergedBySender,
-  currentCommunityChannelsState,
-  publicChannelsByCommunity,
-  publicChannelsMessages,
   slicedCurrentChannelMessages,
   sortedCurrentChannelMessages,
   validCurrentChannelMessages
@@ -47,12 +42,12 @@ describe('publicChannelsSelectors', () => {
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
-      { id: community.id, zbayNickname: 'alice' }
+      { id: community.id, nickname: 'alice' }
     )
 
     john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
-      { id: community.id, zbayNickname: 'john' }
+      { id: community.id, nickname: 'john' }
     )
 
     /* Messages ids are being used only for veryfing proper order...
@@ -325,7 +320,7 @@ describe('publicChannelsSelectors', () => {
         "Today": Array [
           Array [
             Object {
-              "createdAt": 1643143800,
+              "createdAt": 1643835000,
               "date": "8:50 PM",
               "id": "9",
               "message": "message_9",

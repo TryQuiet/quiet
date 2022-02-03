@@ -2,7 +2,7 @@ import {
   createMinConnectionManager,
   createTmpDir,
   ResponseMock,
-  tmpZbayDirPath,
+  tmpQuietDirPath,
   TorMock
 } from '../common/testUtils'
 import { getPorts } from '../common/utils'
@@ -14,9 +14,10 @@ import {
   InitCommunityPayload,
   LaunchRegistrarPayload,
   RegisterUserCertificatePayload,
-  SocketActionTypes
-  , ErrorCodes, ErrorMessages
-} from '@zbayapp/nectar'
+  SocketActionTypes,
+  ErrorCodes,
+  ErrorMessages
+} from '@quiet/nectar'
 import IOProxy from './IOProxy'
 
 describe('IO proxy', () => {
@@ -28,7 +29,7 @@ describe('IO proxy', () => {
     const appDataPath = createTmpDir()
     const ports = await getPorts()
     manager = createMinConnectionManager({
-      env: { appDataPath: tmpZbayDirPath(appDataPath.name) },
+      env: { appDataPath: tmpQuietDirPath(appDataPath.name) },
       torControlPort: ports.controlPort
     })
     const torInitMock = jest.fn(async () => {
@@ -159,8 +160,8 @@ describe('IO proxy', () => {
     expect(observedIO).toBeCalledWith(SocketActionTypes.ERROR, {
       type: SocketActionTypes.REGISTRAR,
       message: ErrorMessages.REGISTRAR_CONNECTION_FAILED,
-      communityId: 'someCommunityId',
-      code: 500
+      code: 500,
+      community: 'someCommunityId'
     })
   })
 
@@ -187,8 +188,8 @@ describe('IO proxy', () => {
       expect(observedIO).toBeCalledWith(SocketActionTypes.ERROR, {
         type: SocketActionTypes.REGISTRAR,
         message: socketMessage,
-        communityId: 'someCommunityId',
-        code: socketStatusCode
+        code: socketStatusCode,
+        community: 'someCommunityId'
       })
     }
   )

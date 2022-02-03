@@ -1,6 +1,6 @@
 import waitForExpect from 'wait-for-expect'
-import { identity, communities, messages, connection } from '@zbayapp/nectar'
-import { keyFromCertificate, parseCertificate } from '@zbayapp/identity'
+import { identity, communities, messages, connection } from '@quiet/nectar'
+import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp } from '../utils'
 import logger from '../logger'

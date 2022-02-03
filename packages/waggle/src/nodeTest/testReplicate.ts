@@ -1,5 +1,5 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { createRootCA, RootCA } from '@zbayapp/identity'
+import { createRootCA, RootCA } from '@quiet/identity'
 import Table from 'cli-table'
 import path from 'path'
 import { CryptoEngine, setEngine, Time } from 'pkijs'
@@ -82,7 +82,7 @@ const launchNode = async (
   useSnapshot: boolean = false
 ) => {
   const torDir = path.join(tmpDir.name, `tor${i}`)
-  const tmpAppDataPath = path.join(tmpDir.name, `.zbayTmp${i}`)
+  const tmpAppDataPath = path.join(tmpDir.name, `.quietTmp${i}`)
   const port = await getPort()
   const socksProxyPort = await getPort()
   const torControlPort = await getPort()

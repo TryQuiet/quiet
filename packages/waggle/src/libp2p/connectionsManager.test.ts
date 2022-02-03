@@ -1,6 +1,6 @@
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
-import { createTmpDir, tmpZbayDirPath } from '../common/testUtils'
+import { createTmpDir, tmpQuietDirPath } from '../common/testUtils'
 import * as utils from '../common/utils'
 import { ConnectionsManager } from './connectionsManager'
 
@@ -11,7 +11,7 @@ let connectionsManager: ConnectionsManager
 beforeEach(() => {
   jest.clearAllMocks()
   tmpDir = createTmpDir()
-  tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
+  tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
   connectionsManager = null
 })
 

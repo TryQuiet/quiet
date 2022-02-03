@@ -2,8 +2,8 @@ import { io, Socket } from 'socket.io-client'
 import Websockets from 'libp2p-websockets'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { all, call, fork, takeEvery } from 'typed-redux-saga'
-import waggle, { ConnectionsManager } from 'waggle'
-import { Store, StoreKeys, errors, prepareStore, useIO } from '@zbayapp/nectar'
+import waggle, { ConnectionsManager } from '@quiet/waggle'
+import { Store, StoreKeys, errors, prepareStore, useIO } from '@quiet/nectar'
 import path from 'path'
 import assert from 'assert'
 import getPort from 'get-port'
@@ -55,7 +55,7 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
   const proxyPort = await getPort({ port: 1234 })
   const controlPort = await getPort({ port: 5555 })
   const httpTunnelPort = await getPort({ port: 9000 })
-  const appPath = createPath(createTmpDir(`zbayIntegrationTest-${appName}`).name)
+  const appPath = createPath(createTmpDir(`quietIntegrationTest-${appName}`).name)
   const manager = new waggle.ConnectionsManager({
     agentHost: 'localhost',
     agentPort: proxyPort,
@@ -105,7 +105,7 @@ export const createAppWithoutTor = async (mockedState?: {
   const proxyPort = await getPort({ port: 1234 })
   const controlPort = await getPort({ port: 5555 })
   const httpTunnelPort = await getPort({ port: 9000 })
-  const appPath = createPath(createTmpDir(`zbayIntegrationTest-${appName}`).name)
+  const appPath = createPath(createTmpDir(`quietIntegrationTest-${appName}`).name)
   const manager = new waggle.ConnectionsManager({
     agentHost: 'localhost',
     agentPort: proxyPort,

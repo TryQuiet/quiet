@@ -1,4 +1,4 @@
-Nectar is common presentation layer functionalities for zbay project - it contains logic that connects frontend and backend
+Nectar is common presentation layer functionalities for quiet project - it contains logic that connects frontend and backend
 
 ### Running tests
 

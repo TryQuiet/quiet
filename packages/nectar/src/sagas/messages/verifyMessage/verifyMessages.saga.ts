@@ -4,7 +4,7 @@ import { getCrypto } from 'pkijs'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { messagesSelectors } from '../messages.selectors'
 import { stringToArrayBuffer } from 'pvutils'
-import { keyObjectFromString, verifySignature } from '@zbayapp/identity'
+import { keyObjectFromString, verifySignature } from '@quiet/identity'
 import { messagesActions } from '../messages.slice'
 import { MessageVerificationStatus } from '../messages.types'
 import { ChannelMessage } from '../../publicChannels/publicChannels.types'
@@ -25,7 +25,9 @@ function* verifyMessage(message: ChannelMessage, crypto: SubtleCrypto): Generato
   const publicKeysMapping = yield* select(messagesSelectors.publicKeysMapping)
 
   let cryptoKey = publicKeysMapping[message.pubKey]
-  if (!cryptoKey) {
+  /* Sometimes an empty object is being stored as a key (async call problem?)
+     checking its content (key type) prevents invalid object from being passed to verification method */
+  if (!cryptoKey || !cryptoKey.type) {
     cryptoKey = yield* call(keyObjectFromString, message.pubKey, crypto)
     yield* put(
       messagesActions.addPublicKeyMapping({ publicKey: message.pubKey, cryptoKey: cryptoKey })

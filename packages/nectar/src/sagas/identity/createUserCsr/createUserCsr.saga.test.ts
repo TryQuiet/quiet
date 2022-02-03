@@ -1,5 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit'
-import { createUserCsr } from '@zbayapp/identity'
+import { createUserCsr } from '@quiet/identity'
 import { KeyObject } from 'crypto'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
@@ -44,7 +44,7 @@ describe('createUserCsrSaga', () => {
     }
     const identity: Identity = {
       id: 'id',
-      zbayNickname: '',
+      nickname: '',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
@@ -53,7 +53,7 @@ describe('createUserCsrSaga', () => {
     }
     const identityWithCsr: Identity = {
       id: 'id',
-      zbayNickname: '',
+      nickname: '',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
@@ -61,7 +61,7 @@ describe('createUserCsrSaga', () => {
       userCertificate: null
     }
     const createUserCsrPayload: CreateUserCsrPayload = {
-      zbayNickname: '',
+      nickname: '',
       commonName: '',
       peerId: '',
       dmPublicKey: '',

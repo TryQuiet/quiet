@@ -10,7 +10,7 @@ import {
 } from './helpers'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
-import { keyObjectFromString, verifySignature } from '@zbayapp/identity'
+import { keyObjectFromString, verifySignature } from '@quiet/identity'
 import { MessageType } from '../../sagas/messages/messages.types'
 import { DateTime } from 'luxon'
 
@@ -72,7 +72,7 @@ export const getFactory = async (store: Store) => {
         publicKey: '9f016defcbe48829db163e86b28efb10318faf3b109173105e3dc024e951bb1b',
         privateKey: '4dcebbf395c0e9415bc47e52c96fcfaf4bd2485a516f45118c2477036b45fc0b'
       },
-      zbayNickname: factory.sequence('Identity.zbayNickname', n => `user_${n}`)
+      nickname: factory.sequence('Identity.nickname', n => `user_${n}`)
     },
     {
       afterBuild: async (action: ReturnType<typeof identity.actions.addNewIdentity>) => {
@@ -80,7 +80,7 @@ export const getFactory = async (store: Store) => {
         if (community.CA) {
           const userCertData = await createUserCertificateTestHelper(
             {
-              zbayNickname: action.payload.zbayNickname,
+              nickname: action.payload.nickname,
               commonName: action.payload.hiddenService.onionAddress,
               peerId: action.payload.peerId.id
             },
@@ -113,10 +113,10 @@ export const getFactory = async (store: Store) => {
     {
       communityId: factory.assoc('Identity', 'id'),
       channel: {
-        name: factory.sequence('PublicChannel.name', n => `public_channel_${n}`),
+        name: factory.sequence('PublicChannel.name', n => `public-channel-${n}`),
         description: 'Description',
         timestamp: DateTime.utc().toSeconds(),
-        owner: factory.assoc('Identity', 'zbayNickname'),
+        owner: factory.assoc('Identity', 'nickname'),
         address: ''
       }
     },

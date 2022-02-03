@@ -3,7 +3,7 @@ import path from 'path'
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { Config } from '../constants'
-import { createLibp2p, createTmpDir, tmpZbayDirPath, rootPermsData, createMinConnectionManager } from '../common/testUtils'
+import { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createMinConnectionManager } from '../common/testUtils'
 import { Storage } from './storage'
 import * as utils from '../common/utils'
 import { FactoryGirl } from 'factory-girl'
@@ -11,7 +11,7 @@ import {
   createUserCert,
   keyFromCertificate,
   parseCertificate
-} from '@zbayapp/identity'
+} from '@quiet/identity'
 import {
   communities,
   Community,
@@ -23,7 +23,7 @@ import {
   Identity,
   ChannelMessage,
   PublicChannel
-} from '@zbayapp/nectar'
+} from '@quiet/nectar'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 
 jest.setTimeout(30_000)
@@ -55,7 +55,7 @@ beforeAll(async () => {
 
   alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
     'Identity',
-    { id: community.id, zbayNickname: 'alice' }
+    { id: community.id, nickname: 'alice' }
   )
 
   message = (
@@ -71,7 +71,7 @@ beforeAll(async () => {
 beforeEach(async () => {
   jest.clearAllMocks()
   tmpDir = createTmpDir()
-  tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
+  tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
   tmpOrbitDbDir = path.join(tmpAppDataPath, Config.ORBIT_DB_DIR)
   tmpIpfsPath = path.join(tmpAppDataPath, Config.IPFS_REPO_PATH)
   const { controlPort } = await utils.getPorts()
@@ -142,6 +142,8 @@ describe('Certificate', () => {
 
     await storage.init(libp2p, peerId)
 
+    await storage.initDatabases()
+
     const result = await storage.saveCertificate({ certificate: userCertificate.userCertString, rootPermsData })
 
     expect(result).toBe(true)
@@ -163,6 +165,8 @@ describe('Certificate', () => {
 
     await storage.init(libp2p, peerId)
 
+    await storage.initDatabases()
+
     const result = await storage.saveCertificate({ certificate: oldUserCertificate.userCertString, rootPermsData })
 
     expect(result).toBe(false)
@@ -175,6 +179,8 @@ describe('Certificate', () => {
     const libp2p = await createLibp2p(peerId)
 
     await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
 
     for (const empty of [null, '', undefined]) {
       const result = await storage.saveCertificate({ certificate: empty, rootPermsData })
@@ -192,6 +198,8 @@ describe('Certificate', () => {
 
     await storage.init(libp2p, peerId)
 
+    await storage.initDatabases()
+
     await storage.saveCertificate({ certificate: userCertificate.userCertString, rootPermsData })
 
     for (const username of ['alice', 'Alice', 'Ąlice']) {
@@ -208,6 +216,8 @@ describe('Certificate', () => {
 
     await storage.init(libp2p, peerId)
 
+    await storage.initDatabases()
+
     const usernameExists = storage.usernameExists('alice')
 
     expect(usernameExists).toBe(false)
@@ -222,6 +232,8 @@ describe('Message', () => {
     const libp2p = await createLibp2p(peerId)
 
     await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
 
     await storage.subscribeToChannel(channel)
 
@@ -240,7 +252,7 @@ describe('Message', () => {
   it('is not saved to db if did not pass signature verification', async () => {
     const john = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, zbayNickname: 'john' })
+    >('Identity', { id: community.id, nickname: 'john' })
 
     const aliceMessage = await factory.create<
     ReturnType<typeof publicChannels.actions.test_message>['payload']
@@ -262,6 +274,8 @@ describe('Message', () => {
     const libp2p = await createLibp2p(peerId)
 
     await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
 
     await storage.subscribeToChannel(channel)
 

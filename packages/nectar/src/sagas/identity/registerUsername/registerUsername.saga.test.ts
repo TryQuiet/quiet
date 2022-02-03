@@ -7,7 +7,7 @@ import {
   Community
 } from '../../communities/communities.slice'
 import { errorsAdapter } from '../../errors/errors.adapter'
-import { errorsReducer } from '../../errors/errors.slice'
+import { errorsReducer, ErrorsState } from '../../errors/errors.slice'
 import { ErrorCodes, ErrorMessages } from '../../errors/errors.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { StoreKeys } from '../../store.keys'
@@ -30,10 +30,11 @@ describe('registerUsernameSaga', () => {
     },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    zbayNickname: '',
+    nickname: '',
     userCsr: undefined,
     userCertificate: ''
   }
+
   const identityWithoutPeerId: Identity = {
     id: 'id',
     hiddenService: {
@@ -42,10 +43,11 @@ describe('registerUsernameSaga', () => {
     },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: '', pubKey: 'pubKey', privKey: 'privKey' },
-    zbayNickname: '',
+    nickname: '',
     userCsr: undefined,
     userCertificate: ''
   }
+
   const community: Community = {
     name: '',
     id: 'id',
@@ -60,7 +62,7 @@ describe('registerUsernameSaga', () => {
   }
 
   const connectionError = {
-    communityId: 'id',
+    community: 'id',
     type: SocketActionTypes.REGISTRAR,
     code: ErrorCodes.VALIDATION,
     message: ErrorMessages.NOT_CONNECTED
@@ -101,7 +103,7 @@ describe('registerUsernameSaga', () => {
       )
       .put(
         identityActions.createUserCsr({
-          zbayNickname: username,
+          nickname: username,
           commonName: 'onionAddress.onion',
           peerId: 'peerId',
           dmPublicKey: 'publicKey',
@@ -137,12 +139,11 @@ describe('registerUsernameSaga', () => {
               [community]
             )
           },
-          [StoreKeys.Errors]: {}
+          [StoreKeys.Errors]: {
+            ...new ErrorsState()
+          }
         }
       )
-      // .put(
-      //   errorsActions.addError(connectionError)
-      // )
       .hasFinalState({
         [StoreKeys.Identity]: {
           ...new IdentityState(),
@@ -160,11 +161,11 @@ describe('registerUsernameSaga', () => {
           )
         },
         [StoreKeys.Errors]: {
-          id: {
-            ...errorsAdapter.setAll(errorsAdapter.getInitialState(), [
-              connectionError
-            ])
-          }
+          ...new ErrorsState(),
+          errors: errorsAdapter.setAll(
+            errorsAdapter.getInitialState(),
+            [connectionError]
+          )
         }
       })
       .run())

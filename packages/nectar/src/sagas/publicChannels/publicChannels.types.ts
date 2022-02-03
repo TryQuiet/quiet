@@ -1,3 +1,5 @@
+import { Dictionary } from '@reduxjs/toolkit'
+
 export interface PublicChannel {
   name: string
   description: string
@@ -32,9 +34,7 @@ export type MessagesGroupedByDay = Array<{
 
 export interface GetPublicChannelsResponse {
   communityId: string
-  channels: {
-    [name: string]: PublicChannel
-  }
+  channels: Dictionary<PublicChannel>
 }
 
 export interface CreatedChannelResponse {

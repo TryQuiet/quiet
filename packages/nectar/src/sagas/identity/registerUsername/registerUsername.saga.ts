@@ -22,7 +22,7 @@ export function* registerUsernameSaga(
   if (!commonName || !peerId) {
     yield* put(
       errorsActions.addError({
-        communityId: identity.id,
+        community: identity.id,
         type: SocketActionTypes.REGISTRAR,
         code: ErrorCodes.VALIDATION,
         message: ErrorMessages.NOT_CONNECTED
@@ -39,7 +39,7 @@ export function* registerUsernameSaga(
   )
 
   const payload = {
-    zbayNickname: action.payload,
+    nickname: action.payload,
     commonName: commonName,
     peerId,
     dmPublicKey,

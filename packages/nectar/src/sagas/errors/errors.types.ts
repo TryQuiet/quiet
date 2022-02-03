@@ -1,11 +1,8 @@
-export class ErrorPayloadData {
+export interface ErrorPayload {
   type: string
-  message: string
-  communityId?: string
-}
-
-export class ErrorPayload extends ErrorPayloadData {
-  code: number
+  code?: number
+  message?: string
+  community?: string
 }
 
 export enum ErrorCodes {
@@ -26,7 +23,8 @@ export enum ErrorMessages {
 
   // Network
   NETWORK_SETUP_FAILED = 'Creating network failed',
-  NOT_CONNECTED = "You're not connected with other peers."
-}
+  NOT_CONNECTED = "You're not connected with other peers.",
 
-export const GENERAL_ERRORS = 'general'
+  // Channels
+  CHANNEL_NAME_TAKEN = 'Channel with this name already exists'
+}

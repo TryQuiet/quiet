@@ -15,7 +15,7 @@ import * as os from 'os'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { ConnectionsManagerOptions } from '../common/types'
-import { Certificates, SocketActionTypes } from '@zbayapp/nectar'
+import { Certificates, SocketActionTypes } from '@quiet/nectar'
 import {
   createLibp2pAddress,
   createLibp2pListenAddress,
@@ -23,7 +23,7 @@ import {
   torBinForPlatform,
   torDirForPlatform
 } from '../common/utils'
-import { ZBAY_DIR_PATH } from '../constants'
+import { QUIET_DIR_PATH } from '../constants'
 import IOProxy from '../socket/IOProxy'
 import initListeners from '../socket/listeners'
 import { Storage } from '../storage'
@@ -73,7 +73,7 @@ export class ConnectionsManager extends EventEmitter {
   httpTunnelPort: number
   socksProxyAgent: any
   options: ConnectionsManagerOptions
-  zbayDir: string
+  quietDir: string
   io: SocketIO.Server
   ioProxy: IOProxy
   libp2pTransportClass: any
@@ -93,7 +93,7 @@ export class ConnectionsManager extends EventEmitter {
       ...new ConnectionsManagerOptions(),
       ...options
     }
-    this.zbayDir = this.options.env?.appDataPath || ZBAY_DIR_PATH
+    this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.StorageCls = storageClass || Storage
     this.libp2pTransportClass = options.libp2pTransportClass || WebsocketsOverTor
     this.ioProxy = new IOProxy(this)
@@ -178,7 +178,7 @@ export class ConnectionsManager extends EventEmitter {
     const basePath = this.options.env.resourcesPath || ''
     this.tor = new Tor({
       torPath: torBinForPlatform(basePath),
-      appDataPath: this.zbayDir,
+      appDataPath: this.quietDir,
       controlPort: this.options.torControlPort,
       socksPort: this.agentPort,
       torPassword: this.options.torPassword,
@@ -253,7 +253,7 @@ export class ConnectionsManager extends EventEmitter {
 
   public createStorage = (peerId: string, communityId: string) => {
     log(`Creating storage for community: ${communityId}`)
-    return new this.StorageCls(this.zbayDir, this.ioProxy, communityId, {
+    return new this.StorageCls(this.quietDir, this.ioProxy, communityId, {
       ...this.options,
       orbitDbDir: `OrbitDB${peerId}`,
       ipfsDir: `Ipfs${peerId}`
