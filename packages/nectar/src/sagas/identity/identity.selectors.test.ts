@@ -188,55 +188,51 @@ describe('communitiesSelectors will recive correct data', () => {
 
   it('select unregistered communities with user identity without certificate', () => {
     const unregisteredCommunities = identitySelectors.unregisteredCommunities(store.getState())
-    const idOfJoinedCommunities = unregisteredCommunities.map(community => community.id)
+    const idOfJoinedCommunities = unregisteredCommunities.id
 
-    expect(idOfJoinedCommunities).toEqual(['communityDelta'])
+    expect(idOfJoinedCommunities).toEqual('communityDelta')
     expect(unregisteredCommunities).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "CA": Object {
-            "rootCertString": "certString",
-            "rootKeyString": "keyString",
-          },
-          "id": "communityDelta",
-          "name": "beta",
-          "onionAddress": "",
-          "peerList": Array [],
-          "port": 0,
-          "privateKey": "",
-          "registrar": null,
-          "registrarUrl": "",
-          "rootCa": "",
-        },
-      ]
-    `)
+Object {
+  "CA": Object {
+    "rootCertString": "certString",
+    "rootKeyString": "keyString",
+  },
+  "id": "communityDelta",
+  "name": "beta",
+  "onionAddress": "",
+  "peerList": Array [],
+  "port": 0,
+  "privateKey": "",
+  "registrar": null,
+  "registrarUrl": "",
+  "rootCa": "",
+}
+`)
   })
 
   it('select communities without user identity', () => {
     const unregisteredCommunities = identitySelectors.unregisteredCommunitiesWithoutUserIdentity(
       store.getState()
     )
-    const idOfJoinedCommunities = unregisteredCommunities.map(community => community.id)
+    const idOfJoinedCommunities = unregisteredCommunities.id
 
-    expect(idOfJoinedCommunities).toEqual(['communityAlpha'])
+    expect(idOfJoinedCommunities).toEqual('communityAlpha')
     expect(unregisteredCommunities).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "CA": Object {
-            "rootCertString": "certString",
-            "rootKeyString": "keyString",
-          },
-          "id": "communityAlpha",
-          "name": "alpha",
-          "onionAddress": "",
-          "peerList": Array [],
-          "port": 0,
-          "privateKey": "",
-          "registrar": null,
-          "registrarUrl": "",
-          "rootCa": "",
-        },
-      ]
-    `)
+Object {
+  "CA": Object {
+    "rootCertString": "certString",
+    "rootKeyString": "keyString",
+  },
+  "id": "communityAlpha",
+  "name": "alpha",
+  "onionAddress": "",
+  "peerList": Array [],
+  "port": 0,
+  "privateKey": "",
+  "registrar": null,
+  "registrarUrl": "",
+  "rootCa": "",
+}
+`)
   })
 })

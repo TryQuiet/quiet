@@ -13,7 +13,7 @@ export function* initCommunities(): Generator {
   const unregisteredCommunities = yield* select(identitySelectors.unregisteredCommunities)
   const userName = yield* select(identitySelectors.currentIdentity)
 
-  for (const community of unregisteredCommunities) {
+  if (unregisteredCommunities) {
     yield* put(identityActions.registerUsername(userName.nickname))
   }
 
@@ -25,7 +25,7 @@ export function* initCommunities(): Generator {
 export function* launchCommunitySaga(
   socket: Socket,
   action: PayloadAction<
-  ReturnType<typeof communitiesActions.launchCommunity>['payload']
+    ReturnType<typeof communitiesActions.launchCommunity>['payload']
   >
 ): Generator {
   let communityId: string = action.payload

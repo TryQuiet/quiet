@@ -127,8 +127,8 @@ describe('join community', () => {
   })
 
   it('user rejoins to remembered community with user certificate', async () => {
-    const factoryStore = (await prepareStore()).store
-    const factory = await getFactory(factoryStore)
+    const store = (await prepareStore()).store
+    const factory = await getFactory(store)
 
     const community = await factory.create<
     ReturnType<typeof communities.actions.addNewCommunity>['payload']
@@ -137,13 +137,13 @@ describe('join community', () => {
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice1' })
 
-    factoryStore.dispatch(socketActions.setConnected())
+    store.dispatch(socketActions.setConnected())
 
-    factoryStore.dispatch(modalsActions.openModal({
+    store.dispatch(modalsActions.openModal({
       name: ModalName.joinCommunityModal
     }))
 
-    factoryStore.dispatch(identity.actions.storeUserCertificate({
+    store.dispatch(identity.actions.storeUserCertificate({
       userCertificate: '',
       communityId: community.id
     }))
@@ -154,12 +154,12 @@ describe('join community', () => {
         <CreateUsernameModal />
         <LoadingPanelModal />
       </>,
-      factoryStore
+      store
     )
     const switchLink1 = result1.queryByText(LoadingMessages.CreateCommunity)
-    expect(switchLink1).not.toBeNull()
+    expect(switchLink1).toBeInTheDocument()
 
-    factoryStore.dispatch(identity.actions.storeUserCertificate({
+    store.dispatch(identity.actions.storeUserCertificate({
       userCertificate: 'userCert',
       communityId: community.id
     }))
@@ -170,7 +170,7 @@ describe('join community', () => {
         <CreateUsernameModal />
         <LoadingPanelModal />
       </>,
-      factoryStore
+      store
     )
 
     const switchLink2 = result2.queryByText(LoadingMessages.CreateCommunity)

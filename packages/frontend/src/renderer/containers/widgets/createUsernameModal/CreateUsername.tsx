@@ -37,10 +37,8 @@ const CreateUsernameModal = () => {
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const loadingCommunityModal = useModal(ModalName.loadingPanel)
 
-  const communitiesWithoutUserIdentity = useSelector(identity.selectors.unregisteredCommunitiesWithoutUserIdentity)
-  const isCommunityWithoutUserIdentity = communitiesWithoutUserIdentity.length
-  const unregisteredCommunities = useSelector(identity.selectors.unregisteredCommunities)
-  const isUnregisteredCommunity = unregisteredCommunities.length
+  const isCommunityWithoutUserIdentity = useSelector(identity.selectors.unregisteredCommunitiesWithoutUserIdentity)
+  const isUnregisteredCommunity = useSelector(identity.selectors.unregisteredCommunities)
 
   const isConnected = useSelector(socketSelectors.isConnected)
   const isOwner = useSelector(communities.selectors.isOwner)
@@ -52,10 +50,10 @@ const CreateUsernameModal = () => {
       setIsRetryingRegistration(true)
       createUsernameModal.handleOpen({
         communityAction: communityAction,
-        communityData: communitiesWithoutUserIdentity[0].registrarUrl
+        communityData: isCommunityWithoutUserIdentity.registrarUrl
       })
     }
-  }, [communitiesWithoutUserIdentity, isConnected, isCreateUserNameStarted])
+  }, [isCommunityWithoutUserIdentity, isConnected, isCreateUserNameStarted])
 
   useEffect(() => {
     let communityMessage: LoadingMessages
@@ -66,7 +64,7 @@ const CreateUsernameModal = () => {
         message: communityMessage
       })
     }
-  }, [unregisteredCommunities])
+  }, [isUnregisteredCommunity])
   useEffect(() => {
     // when Quiet is reopening in create username modal, we need to set createUsernameModal.communityAction
     if (!createUsernameModal.communityAction) {
@@ -80,7 +78,7 @@ const CreateUsernameModal = () => {
       joinCommunityModal.handleClose()
       createCommunityModal.handleClose()
     }
-  }, [channels.length, invitationUrl, certificate, allCommunitiesInitialized, communitiesWithoutUserIdentity, unregisteredCommunities])
+  }, [channels.length, invitationUrl, certificate, allCommunitiesInitialized, isCommunityWithoutUserIdentity, isUnregisteredCommunity])
 
   useEffect(() => {
     if (id?.hiddenService && !certificate) {
@@ -101,11 +99,11 @@ const CreateUsernameModal = () => {
     let action
     /* Launch/create community */
     if (isRetryingRegistration) {
-      dispatch(communities.actions.removeUnregisteredCommunity(communitiesWithoutUserIdentity[0]))
+      dispatch(communities.actions.removeUnregisteredCommunity(isCommunityWithoutUserIdentity))
       action =
         createUsernameModal.communityAction === CommunityAction.Create
-          ? communities.actions.createNewCommunity(communitiesWithoutUserIdentity[0].name)
-          : communities.actions.joinCommunity(communitiesWithoutUserIdentity[0].registrarUrl)
+          ? communities.actions.createNewCommunity(isCommunityWithoutUserIdentity.name)
+          : communities.actions.joinCommunity(isCommunityWithoutUserIdentity.registrarUrl)
     } else {
       action =
         createUsernameModal.communityAction === CommunityAction.Create
