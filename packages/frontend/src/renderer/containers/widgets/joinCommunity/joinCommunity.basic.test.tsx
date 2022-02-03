@@ -12,9 +12,7 @@ import JoinCommunity from './joinCommunity'
 import CreateCommunity from '../createCommunity/createCommunity'
 import { JoinCommunityDictionary, CreateCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
 import CreateUsernameModal from '../createUsernameModal/CreateUsername'
-import LoadingPanelModal from '../loadingPanel/loadingPanel'
-import { identity, communities, getFactory, Identity, identityAdapter, StoreKeys as NectarStoreKeys } from '@quiet/nectar'
-import { LoadingMessages } from '../loadingPanel/loadingMessages'
+import { communities, getFactory, StoreKeys as NectarStoreKeys } from '@quiet/nectar'
 
 describe('join community', () => {
   it('users switches from join to create', async () => {
@@ -93,7 +91,7 @@ describe('join community', () => {
     expect(joinCommunityTitle).toBeVisible()
   })
 
-  it('user rejoins to remembered community without user data', async () => {
+  it('user rejoins to remembered community', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
@@ -111,7 +109,7 @@ describe('join community', () => {
     const factory = await getFactory(store)
 
     await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     renderComponent(
@@ -126,34 +124,7 @@ describe('join community', () => {
     expect(createUsernameTitle).toBeVisible()
   })
 
-  it('user rejoins to remembered community with certificate', async () => {
-    const factoryStore = (await prepareStore()).store
-    const factory = await getFactory(factoryStore)
-
-    const community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
-
-    const identityAlpha: Identity = {
-      id: community.id,
-      nickname: 'nickname',
-      hiddenService: {
-        onionAddress: '',
-        privateKey: ''
-      },
-      dmKeys: {
-        publicKey: '',
-        privateKey: ''
-      },
-      peerId: {
-        id: '',
-        pubKey: '',
-        privKey: ''
-      },
-      userCsr: null,
-      userCertificate: ''
-    }
-
+  it('invitation code is trimmed in a field', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
@@ -162,44 +133,30 @@ describe('join community', () => {
       [StoreKeys.Modals]: {
         ...new ModalsInitialState(),
         [ModalName.joinCommunityModal]: { open: true }
-      },
-      [NectarStoreKeys.Communities]: factoryStore.getState().Communities,
-      [NectarStoreKeys.Identity]: {
-        ...new identity.State(),
-        identities: identityAdapter.setAll(
-          identityAdapter.getInitialState(),
-          [identityAlpha]
-        )
       }
     })
 
-    const result1 = renderComponent(
+    renderComponent(
       <>
         <JoinCommunity />
         <CreateUsernameModal />
-        <LoadingPanelModal />
       </>,
       store
     )
 
-    const switchLink1 = result1.queryByText(LoadingMessages.CreateCommunity)
-    expect(switchLink1).not.toBeNull()
+    // Confirm proper modal title is displayed
+    const dictionary = JoinCommunityDictionary()
+    const joinCommunityTitle = screen.getByText(dictionary.header)
+    expect(joinCommunityTitle).toBeVisible()
 
-    store.dispatch(identity.actions.storeUserCertificate({
-      userCertificate: 'userCert',
-      communityId: community.id
-    }))
+    // Enter community address  surrounded by whitespaces and hit button
+    const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
+    const joinCommunityButton = screen.getByText(dictionary.button)
+    userEvent.type(joinCommunityInput, '     3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd     ')
+    userEvent.click(joinCommunityButton)
 
-    const result2 = renderComponent(
-      <>
-        <JoinCommunity />
-        <CreateUsernameModal />
-        <LoadingPanelModal />
-      </>,
-      store
-    )
-
-    const switchLink2 = result2.queryByText(LoadingMessages.CreateCommunity)
-    expect(switchLink2).toBeNull()
+    // Confirm user is being redirected to username registration
+    const createUsernameTitle = await screen.findByText('Register a username')
+    expect(createUsernameTitle).toBeVisible()
   })
 })
