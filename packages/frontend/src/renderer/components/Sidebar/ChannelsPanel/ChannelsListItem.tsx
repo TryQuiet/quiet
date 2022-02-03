@@ -84,7 +84,8 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
                 variant='body2'
                 className={classNames(classes.title, {
                   [classes.newMessages]: unread
-                })}>
+                })}
+                data-testid={`${channel.name}-link-text`}>
                 {`# ${channel.name}`}
               </Typography>
             </Grid>

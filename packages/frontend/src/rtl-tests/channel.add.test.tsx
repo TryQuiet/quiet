@@ -137,7 +137,7 @@ describe('Add new channel', () => {
 
     // Check if sidebar item displays as selected
     const link = screen.getByTestId('my-super-channel-link')
-    expect(link).toHaveClass('makeStyles-selected-536')
+    expect(link).toHaveStyle('backgroundColor: rgb(103, 191, 211)') // lushSky: '#67BFD3'
   })
 
   it('Displays error if trying to add channel with already taken name', async () => {
