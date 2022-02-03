@@ -13,7 +13,7 @@ export function* initCommunities(): Generator {
   const unregisteredCommunities = yield* select(identitySelectors.unregisteredCommunities)
   const userName = yield* select(identitySelectors.currentIdentity)
 
-  for (const community of unregisteredCommunities) {
+  if (unregisteredCommunities) {
     yield* put(identityActions.registerUsername(userName.nickname))
   }
 
