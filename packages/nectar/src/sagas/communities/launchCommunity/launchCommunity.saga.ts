@@ -25,7 +25,7 @@ export function* initCommunities(): Generator {
 export function* launchCommunitySaga(
   socket: Socket,
   action: PayloadAction<
-    ReturnType<typeof communitiesActions.launchCommunity>['payload']
+  ReturnType<typeof communitiesActions.launchCommunity>['payload']
   >
 ): Generator {
   let communityId: string = action.payload
