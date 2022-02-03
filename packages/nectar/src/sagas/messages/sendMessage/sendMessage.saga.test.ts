@@ -155,9 +155,9 @@ describe('sendMessageSaga', () => {
             type: MessageTypes.BASIC,
             message: 'message',
             createdAt: 8,
+            channelAddress: publicChannel.address,
             signature: 'signature',
-            pubKey: 'key',
-            channelId: publicChannel.address
+            pubKey: 'key'
           }
         }
       ])

@@ -28,7 +28,7 @@ import {
   ErrorCodes,
   ErrorMessages
 } from '@quiet/nectar'
-import Channel from '../renderer/containers/pages/Channel'
+import Channel from '../renderer/components/Channel/Channel'
 
 jest.setTimeout(20_000)
 

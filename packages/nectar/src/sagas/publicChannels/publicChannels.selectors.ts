@@ -205,14 +205,6 @@ export const unreadChannels = createSelector(
   }
 )
 
-export const currentChannelUnreadStatus = createSelector(
-  unreadChannels,
-  currentChannel,
-  (unreads, channel) => {
-    return unreads.some(unread => unread === channel)
-  }
-)
-
 export const publicChannelsSelectors = {
   publicChannelsByCommunity,
   publicChannels,
@@ -221,6 +213,5 @@ export const publicChannelsSelectors = {
   dailyGroupedCurrentChannelMessages,
   currentChannelMessagesMergedBySender,
   unreadMessages,
-  unreadChannels,
-  currentChannelUnreadStatus
+  unreadChannels
 }

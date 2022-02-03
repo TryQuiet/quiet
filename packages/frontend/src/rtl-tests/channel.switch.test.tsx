@@ -7,8 +7,8 @@ import { ioMock } from '../shared/setupTests'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 
-import Sidebar from '../renderer/components/widgets/sidebar/Sidebar'
-import Channel from '../renderer/containers/pages/Channel'
+import Sidebar from '../renderer/components/Sidebar/Sidebar'
+import Channel from '../renderer/components/Channel/Channel'
 
 import { getFactory, identity, publicChannels, communities } from '@quiet/nectar'
 

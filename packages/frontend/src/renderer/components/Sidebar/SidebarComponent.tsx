@@ -1,12 +1,10 @@
 import React from 'react'
-
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 import { Scrollbars } from 'rc-scrollbars'
 import { AutoSizer } from 'react-virtualized'
-
-import IdentityPanel from '../../../containers/ui/IdentityPanel'
-import ChannelsPanel from '../../../containers/widgets/channels/ChannelsPanel'
+import IdentityPanel, { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
+import ChannelsPanel, { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel'
 // import DirectMessagesPanel from '../../../containers/widgets/channels/DirectMessagesPanel'
 
 const useStyles = makeStyles((theme) => ({
@@ -32,19 +30,21 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const Sidebar: React.FC = () => {
+const SidebarComponent: React.FC<IdentityPanelProps & ChannelsPanelProps> = ({
+  ...props
+}) => {
   const classes = useStyles({})
   return (
     <Grid container direction='column' className={classes.root}>
       <Grid item xs container direction='column' className={classes.padding}>
         <Grid item >
-          <IdentityPanel />
+          <IdentityPanel {...props} />
         </Grid>
         <Grid item xs container direction='column'>
           <AutoSizer>
             {({ width, height }) => (
               <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
-                <ChannelsPanel title='Channels' />
+                <ChannelsPanel {...props} />
                 {/* <DirectMessagesPanel title='Direct Messages' /> */}
               </Scrollbars>
             )}
@@ -55,4 +55,4 @@ const Sidebar: React.FC = () => {
   )
 }
 
-export default Sidebar
+export default SidebarComponent

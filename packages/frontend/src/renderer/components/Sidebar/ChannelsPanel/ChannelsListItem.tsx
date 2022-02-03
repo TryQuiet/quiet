@@ -1,11 +1,9 @@
 import React from 'react'
 import classNames from 'classnames'
-
 import { Typography, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
-
 import { PublicChannel } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
@@ -52,14 +50,14 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export interface ChannelsListItemComponentProps {
+export interface ChannelsListItemProps {
   channel: PublicChannel
   unread: boolean
   selected: boolean
   setCurrentChannel: (name: string) => void
 }
 
-export const ChannelsListItem: React.FC<ChannelsListItemComponentProps> = ({
+export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   channel,
   unread,
   selected,

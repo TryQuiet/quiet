@@ -1,10 +1,9 @@
 import React from 'react'
-
+import { makeStyles } from '@material-ui/core/styles'
+import { Button } from '@material-ui/core'
 import Typography from '@material-ui/core/Typography'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { Button } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-
+import { useModal } from '../../../containers/hooks'
 import { Community } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
@@ -36,12 +35,15 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-interface IdentityPanelProps {
-  community: Community
-  handleSettings: () => void
+export interface IdentityPanelProps {
+  currentCommunity: Community
+  accountSettingsModal: ReturnType<typeof useModal>
 }
 
-export const IdentityPanel: React.FC<IdentityPanelProps> = ({ handleSettings, community }) => {
+export const IdentityPanel: React.FC<IdentityPanelProps> = ({
+  currentCommunity,
+  accountSettingsModal
+}) => {
   const classes = useStyles({})
 
   return (
@@ -49,12 +51,12 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ handleSettings, co
       <Button
         onClick={event => {
           event.persist()
-          handleSettings()
+          accountSettingsModal.handleOpen()
         }}
         component='span'
         classes={{ root: classes.button, label: classes.buttonLabel }}>
         <Typography variant='h4' className={classes.nickname}>
-          { community?.name || '' }
+          {currentCommunity?.name || ''}
         </Typography>
         <ExpandMoreIcon fontSize='small' />
       </Button>

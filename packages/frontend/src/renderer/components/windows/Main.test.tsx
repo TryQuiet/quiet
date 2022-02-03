@@ -151,35 +151,6 @@ describe('Main', () => {
                                   class="MuiList-root"
                                 />
                               </div>
-                              <div
-                                class="MuiGrid-root MuiGrid-item"
-                              >
-                                <button
-                                  class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-button-221"
-                                  tabindex="0"
-                                  type="button"
-                                >
-                                  <span
-                                    class="MuiButton-label"
-                                  >
-                                    <div
-                                      class="makeStyles-iconDiv-223"
-                                    >
-                                      <img
-                                        src="test-file-stub"
-                                      />
-                                    </div>
-                                    <p
-                                      class="MuiTypography-root MuiTypography-body2"
-                                    >
-                                      Find Channel
-                                    </p>
-                                  </span>
-                                  <span
-                                    class="MuiTouchRipple-root"
-                                  />
-                                </button>
-                              </div>
                             </div>
                           </div>
                           <div
