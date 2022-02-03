@@ -1,46 +1,63 @@
 /* global Notification */
 import { soundTypeToAudio } from '../shared/sounds'
-import electronStore from '../shared/electronStore'
-import history from '../shared/history'
-import { DisplayableMessage } from '@quiet/nectar'
+import { PayloadAction } from '@reduxjs/toolkit'
+import { identity, NotificationsOptions, NotificationsSounds, publicChannels as channels, publicChannels, settings, users } from '@quiet/nectar'
+import { all, call, select } from 'typed-redux-saga'
+import store from './store'
 
-export const createNotification = async ({
-  title,
-  body,
-  data
-}: {
+export interface NotificationsData {
   title: string
-  body: string
-  data: any
-}) => {
-  const sound = parseInt(electronStore.get('notificationCenter.user.sound'))
-  if (sound) {
-    await soundTypeToAudio[sound].play()
+  message: string
+  sound: NotificationsSounds
+  communityId: string
+  channelName: string
+}
+
+export function* displayMessageNotificationSaga(
+  action: PayloadAction<ReturnType<typeof channels.actions.incomingMessages>['payload']>
+): Generator {
+  const publicChannels = yield* select(channels.selectors.publicChannels)
+  const usersData = yield* select(users.selectors.certificatesMapping)
+  const myIdentity = yield* select(identity.selectors.currentIdentity)
+  const currentChannel = yield* select(channels.selectors.currentChannel)
+  const notificationsOption = yield* select(settings.selectors.getNotificationsOption)
+  const notificationsSound = yield* select(settings.selectors.getNotificationsSound)
+
+  const createNotificationsCalls = action.payload.messages.map((messageData) => {
+    const publicChannelFromMessage = publicChannels.find((channel) => channel.address === messageData.channelId)
+
+    const isMessageFromMyUser = usersData[messageData.pubKey]?.username === myIdentity.nickname
+    const isMessageFromCurrentChannel = currentChannel === publicChannelFromMessage.name
+    const isNotificationsOptionOff = NotificationsOptions.doNotNotifyOfAnyMessages === notificationsOption
+
+    if (!isMessageFromMyUser && !isMessageFromCurrentChannel && !isNotificationsOptionOff) {
+      return call(createNotificationSaga, {
+        title: `New message in ${publicChannelFromMessage.name || 'Unnamed'}`,
+        message: `${messageData.message.substring(0, 64)}${messageData.message.length > 64 ? '...' : ''}`,
+        sound: notificationsSound,
+        communityId: action.payload.communityId,
+        channelName: publicChannelFromMessage.name
+      })
+    }
+  })
+  yield* all(createNotificationsCalls)
+}
+
+export function* createNotificationSaga(payload: NotificationsData): Generator {
+  if (soundTypeToAudio[payload.sound]) {
+    soundTypeToAudio[payload.sound].play()
   }
-  const notification = new Notification(title, { body: body })
+  const notification = new Notification(payload.title, { body: payload.message })
   notification.onclick = () => {
-    history.push(data)
+    store.dispatch(publicChannels.actions.setCurrentChannel({
+      channel: payload.channelName,
+      communityId: payload.communityId
+    }))
   }
+
   return notification
 }
 
-export const displayDirectMessageNotification = async ({
-  message,
-  username
-}: {
-  message: DisplayableMessage
-  username: string
-}) => {
-  if (!message || !message.message) {
-    return
-  }
-  return await createNotification({
-    title: `New message from ${username || 'Unnamed'}`,
-    body: `${message.message.substring(0, 64)}${message.message.length > 64 ? '...' : ''}`,
-    data: `/main/direct-messages/${username}`
-  })
-}
-
 export default {
-  createNotification
+  createNotificationSaga
 }

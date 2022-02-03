@@ -1,3 +1,4 @@
+import { NotificationsOptions, NotificationsSounds } from '@quiet/nectar'
 import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { Notifications } from './Notifications'
@@ -5,10 +6,10 @@ import { Notifications } from './Notifications'
 describe('Notifications', () => {
   it('renders component', () => {
     const props = {
-      userFilterType: 1,
-      userSound: 1,
-      setUserNotification: jest.fn(),
-      setUserNotificationsSound: jest.fn()
+      notificationsOption: NotificationsOptions.notifyForEveryMessage,
+      notificationsSound: NotificationsSounds.bang,
+      setNotificationsOption: jest.fn(),
+      setNotificationsSound: jest.fn()
     }
     const result = renderComponent(<Notifications {...props} />)
     expect(result.baseElement).toMatchInlineSnapshot(`

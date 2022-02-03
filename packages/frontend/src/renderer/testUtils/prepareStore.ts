@@ -6,7 +6,8 @@ import {
   messages,
   publicChannels,
   connection,
-  StoreKeys as NectarStoreKeys
+  StoreKeys as NectarStoreKeys,
+  settings
 } from '@quiet/nectar'
 import { StoreKeys } from '../store/store.keys'
 import { combineReducers, createStore, applyMiddleware } from 'redux'
@@ -28,6 +29,7 @@ export const reducers = {
   [NectarStoreKeys.Messages]: messages.reducer,
   [NectarStoreKeys.PublicChannels]: publicChannels.reducer,
   [NectarStoreKeys.Connection]: connection.reducer,
+  [NectarStoreKeys.Settings]: settings.reducer,
   [StoreKeys.App]: appReducer,
   [StoreKeys.Socket]: socketReducer,
   [StoreKeys.Modals]: modalsReducer,

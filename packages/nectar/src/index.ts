@@ -41,6 +41,8 @@ import { StoreKeys } from './sagas/store.keys'
 
 import { connectionActions, connectionReducer } from './sagas/appConnection/connection.slice'
 import { connectionSelectors } from './sagas/appConnection/connection.selectors'
+import { settingsActions, settingsReducer } from './sagas/settings/settings.slice'
+import { settingsSelectors } from './sagas/settings/settings.selectors'
 
 export { SocketActionTypes } from './sagas/socket/const/actionTypes'
 export { Store } from './sagas/store.types'
@@ -78,8 +80,16 @@ export * from './sagas/messages/messages.types'
 
 export * from './sagas/errors/errors.types'
 
+export * from './sagas/settings/settings.types'
+
 export const app = {
   actions: appActions
+}
+
+export const settings = {
+  reducer: settingsReducer,
+  selectors: settingsSelectors,
+  actions: settingsActions,
 }
 
 export const publicChannels = {
@@ -147,5 +157,6 @@ export default {
   connection,
   reducers,
   storeKeys,
-  socketActionTypes
+  socketActionTypes,
+  settings
 }
