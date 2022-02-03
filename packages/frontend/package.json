@@ -18,6 +18,7 @@
       ]
     },
     "mac": {
+      "icon": "./build/icon.icns",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
@@ -30,6 +31,7 @@
       ]
     },
     "win": {
+      "icon": "./build/icon.png",
       "target": "NSIS",
       "sign": "scripts/sign.js",
       "files": [
@@ -39,6 +41,7 @@
       ]
     },
     "linux": {
+      "icon": "./build/icon.png",
       "target": [
         "AppImage"
       ],
