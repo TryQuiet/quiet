@@ -41,7 +41,7 @@ jobs:
         run: lerna run build:prod --scope quiet
 
       - name: "Set electron-builder props"
-        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=dev.quiet" >> $GITHUB_ENV
+        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
       - name: "Release"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -92,7 +92,7 @@ jobs:
         run: xattr -cr .
 
       - name: "Set electron-builder props"
-        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=dev.quiet" >> $GITHUB_ENV
+        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
 
       - name: "Release"
         env:
@@ -150,7 +150,7 @@ jobs:
 
       - name: "Set electron-builder props"
         shell: bash
-        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=dev.quiet" >> $GITHUB_ENV
+        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
 
       - name: "Release"
         shell: bash
