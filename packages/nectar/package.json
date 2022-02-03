@@ -9,7 +9,8 @@
     "test": "cross-env TZ=UTC jest sagas/*",
     "lint": "eslint --ext .ts ./src/ --fix",
     "lint-ci": "eslint --ext .ts ./src/",
-    "prettier": "prettier"
+    "prettier": "prettier",
+    "rmDist": "rm -rf lib/"
   },
   "files": [
     "lib/**/*",

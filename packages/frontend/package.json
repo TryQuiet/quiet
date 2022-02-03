@@ -95,7 +95,8 @@
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:renderer": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "rmDist": "rm -rf dist/"
   },
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
