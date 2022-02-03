@@ -1,4 +1,3 @@
-import '../../sentryInit'
 import { Crypto } from '@peculiar/webcrypto'
 import { ConnectionsManager, DataServer } from '@quiet/waggle'
 import debug from 'debug'
@@ -11,6 +10,7 @@ import url from 'url'
 import electronStore from '../shared/electronStore'
 import config from './config'
 import { runWaggle, waggleVersion } from './waggleManager'
+import { initSentry } from '../../sentryConfig'
 
 const log = Object.assign(debug('frontend:main'), {
   error: debug('frontend:main:err')
@@ -18,6 +18,8 @@ const log = Object.assign(debug('frontend:main'), {
 
 electronStore.set('appDataPath', app.getPath('appData'))
 electronStore.set('waggleVersion', waggleVersion)
+
+initSentry()
 
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
