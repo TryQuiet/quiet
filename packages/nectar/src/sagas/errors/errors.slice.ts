@@ -9,18 +9,25 @@ import { StoreKeys } from '../store.keys'
 import { errorsAdapter } from './errors.adapter'
 import { ErrorPayload } from './errors.types'
 
-type ErrorsState = Dictionary<EntityState<ErrorPayload>>
-const initialState: ErrorsState = {}
+export class ErrorsState {
+  public errors: EntityState<ErrorPayload> =
+  errorsAdapter.getInitialState()
+}
 
 export const errorsSlice = createSlice({
-  initialState,
+  initialState: {
+    ...new ErrorsState()
+  },
   name: StoreKeys.Errors,
   reducers: {
     addError: (state, action: PayloadAction<ErrorPayload>) => {
-      state[action.payload.communityId] = errorsAdapter.upsertOne(
-        state[action.payload.communityId] ?? errorsAdapter.getInitialState(),
+      errorsAdapter.upsertOne(
+        state.errors,
         action.payload
       )
+    },
+    clearError: (state, action: PayloadAction<ErrorPayload>) => {
+      errorsAdapter.removeOne(state.errors, action.payload.type)
     }
   }
 })

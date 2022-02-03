@@ -16,6 +16,7 @@ import CreateChannel from '../renderer/containers/widgets/channels/CreateChannel
 import Channel from '../renderer/containers/pages/Channel'
 
 import {
+  ErrorMessages,
   getFactory,
   identity,
   publicChannels,
@@ -23,7 +24,7 @@ import {
   SubscribeToTopicPayload
 } from '@quiet/nectar'
 
-import { ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
+import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 
 jest.setTimeout(20_000)
@@ -137,5 +138,36 @@ describe('Add new channel', () => {
     // Check if sidebar item displays as selected
     const link = screen.getByTestId('my-super-channel-link')
     expect(link).toHaveClass('makeStyles-selected-539')
+  })
+
+  it('Displays error if trying to add channel with already taken name', async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
+
+    const factory = await getFactory(store)
+
+    const channel = await factory.create<
+    ReturnType<typeof publicChannels.actions.addChannel>['payload']
+    >('PublicChannel')
+
+    renderComponent(
+      <>
+        <CreateChannel />
+      </>,
+      store
+    )
+
+    const input = screen.getByPlaceholderText('Enter a channel name')
+    userEvent.type(input, channel.channel.name)
+
+    const button = screen.getByText('Create Channel')
+    userEvent.click(button)
+
+    const error = await screen.findByText(ErrorMessages.CHANNEL_NAME_TAKEN)
+    expect(error).toBeVisible()
   })
 })

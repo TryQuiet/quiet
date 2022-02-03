@@ -113,7 +113,7 @@ export const getFactory = async (store: Store) => {
     {
       communityId: factory.assoc('Identity', 'id'),
       channel: {
-        name: factory.sequence('PublicChannel.name', n => `public_channel_${n}`),
+        name: factory.sequence('PublicChannel.name', n => `public-channel-${n}`),
         description: 'Description',
         timestamp: DateTime.utc().toSeconds(),
         owner: factory.assoc('Identity', 'nickname'),

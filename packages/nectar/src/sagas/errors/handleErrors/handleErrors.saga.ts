@@ -2,11 +2,12 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { identityActions } from '../../identity/identity.slice'
 import { call, put, select } from 'typed-redux-saga'
-import logger from '../../../utils/logger'
 import { errorsActions } from '../errors.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { ErrorPayload } from '../errors.types'
+import logger from '../../../utils/logger'
+
 const log = logger('errors')
 
 function* retryRegistration(communityId: string) {
@@ -20,6 +21,7 @@ function* retryRegistration(communityId: string) {
     userCsr: identity.userCsr,
     registrarAddress
   }
+
   yield* put(identityActions.storeUserCsr(payload))
   log(`registering certificate for community ${communityId} failed, trying again`)
 }
@@ -30,7 +32,7 @@ export function* handleErrorsSaga(
   const error: ErrorPayload = action.payload
   if (error.type === SocketActionTypes.REGISTRAR) {
     if (error.code === 500) {
-      yield* call(retryRegistration, error.communityId)
+      yield* call(retryRegistration, error.community)
     }
   }
 }

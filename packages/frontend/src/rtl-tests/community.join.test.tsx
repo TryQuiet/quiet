@@ -242,7 +242,6 @@ describe('User', () => {
               nickname: 'alice'
             })
           ).payload
-
           return socket.socketClient.emit(SocketActionTypes.NETWORK, {
             id: community.id,
             payload: {
@@ -258,8 +257,8 @@ describe('User', () => {
           socket.socketClient.emit(SocketActionTypes.ERROR, {
             type: SocketActionTypes.REGISTRAR,
             message: ErrorMessages.USERNAME_TAKEN,
-            communityId: community.id,
-            code: ErrorCodes.VALIDATION
+            code: ErrorCodes.VALIDATION,
+            community: community.id
           })
         }
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {

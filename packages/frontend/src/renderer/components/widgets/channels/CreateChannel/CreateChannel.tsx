@@ -65,7 +65,11 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export const parseChannelName = (name = '') => {
-  return name.toLowerCase().replace(/ +/g, '-')
+  return name
+    .toLowerCase()
+    .trimStart()
+    .trimEnd()
+    .replace(/ +/g, '-')
 }
 
 const createChannelFields = {
@@ -78,12 +82,14 @@ interface CreateChannelFormValues {
 
 export interface CreateChannelProps {
   open: boolean
+  channelCreationError?: string
   createChannel: (name: string) => void
   handleClose: () => void
 }
 
 export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   open,
+  channelCreationError,
   createChannel,
   handleClose
 }) => {
@@ -94,16 +100,15 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   const {
     handleSubmit,
     formState: { errors },
-    control,
-    reset
+    setValue,
+    setError,
+    control
   } = useForm<{ channelName: string }>({
     mode: 'onTouched'
   })
 
   const onSubmit = (values: CreateChannelFormValues) => {
     submitForm(createChannel, values)
-    setChannelName('')
-    reset()
   }
 
   const submitForm = (handleSubmit: (value: string) => void, values: CreateChannelFormValues) => {
@@ -114,6 +119,19 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     const parsedName = parseChannelName(name)
     setChannelName(parsedName)
   }
+
+  React.useEffect(() => {
+    if (!open) {
+      setValue('channelName', '')
+      setChannelName('')
+    }
+  }, [open])
+
+  React.useEffect(() => {
+    if (channelCreationError) {
+      setError('channelName', { message: channelCreationError })
+    }
+  }, [channelCreationError])
 
   return (
     <Modal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
@@ -139,10 +157,14 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                   errors={errors}
                   onchange={event => {
                     event.persist()
-                    onChange(event.target.value)
-                    field.onChange(event.target.value)
+                    const value = event.target.value
+                    onChange(value)
+                    // Call default
+                    field.onChange(event)
                   }}
-                  onblur={field.onBlur}
+                  onblur={() => {
+                    field.onBlur()
+                  }}
                   value={field.value}
                   data-testid={'createChannelInput'}
                 />
