@@ -16,6 +16,7 @@ const log = Object.assign(debug('frontend:main'), {
 })
 
 const appDataPath = app.getPath('appData')
+console.log(appDataPath)
 
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
@@ -140,6 +141,9 @@ const checkForPayloadOnStartup = (payload: string) => {
   }
 }
 
+let browserWidth: number
+let browserHeight: number
+
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
     width: windowSize.width,
@@ -218,9 +222,11 @@ export const checkForUpdate = async (win: BrowserWindow) => {
     })
     autoUpdater.on('update-not-available', () => {
       log('event no update')
+      // electronStore.set('updateStatus', config.UPDATE_STATUSES.NO_UPDATE)
     })
     autoUpdater.on('update-available', info => {
       log(info)
+      // electronStore.set('updateStatus', config.UPDATE_STATUSES.PROCESSING_UPDATE)
     })
 
     autoUpdater.on('update-downloaded', () => {
@@ -302,6 +308,12 @@ app.on('before-quit', async e => {
     await waggleProcess.connectionsManager.closeAllServices()
     await waggleProcess.dataServer.close()
   }
+  // if (browserWidth && browserHeight) {
+  //   electronStore.set('windowSize', {
+  //     width: browserWidth,
+  //     height: browserHeight
+  //   })
+  // }
   process.exit()
 })
 
