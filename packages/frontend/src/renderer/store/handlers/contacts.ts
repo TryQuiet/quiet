@@ -1,7 +1,7 @@
 import { produce, immerable } from 'immer'
 import { DateTime } from 'luxon'
 import { createAction, handleActions } from 'redux-actions'
-import { remote } from 'electron'
+// import remote from '@electron/remote'
 
 import history from '../../../shared/history'
 import { actionTypes } from '../../../shared/static'
@@ -156,7 +156,7 @@ export const updateLastSeen = ({ contact }) => async (dispatch, getState) => {
   console.log('updateLastSeen')
   const lastSeen = DateTime.utc()
   const unread = selectors.newMessages(contact.address)(getState()).length
-  remote.app.badgeCount = remote.app.badgeCount - unread
+  // remote.app.badgeCount = remote.app.badgeCount - unread
   dispatch(cleanNewMessages({ contactAddress: contact.username }))
   dispatch(cleanNewMessages({ contactAddress: contact.address }))
   dispatch(
@@ -340,7 +340,7 @@ export const reducer = handleActions<ContactsStore, PayloadType<ContactActions>>
     ) =>
       produce(state, draft => {
         draft[contactAddress].newMessages = draft[contactAddress].newMessages.concat(messagesIds)
-        remote.app.setBadgeCount(remote.app.getBadgeCount() + messagesIds.length)
+        // remote.app.setBadgeCount(remote.app.getBadgeCount() + messagesIds.length)
       }),
     [setLastSeen.toString()]: (
       state,

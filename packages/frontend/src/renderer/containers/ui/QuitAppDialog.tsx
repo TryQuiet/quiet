@@ -3,7 +3,7 @@ import React from 'react'
 import { useModal } from '../hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import QuitAppDialog from '../../components/ui/QuitApp/QuitAppDialog'
-import { remote } from 'electron'
+// import remote from '@electron/remote'
 
 export interface IQuitAppDialogActionsReturnTypes {
   handleQuit: () => void
@@ -11,8 +11,8 @@ export interface IQuitAppDialogActionsReturnTypes {
 
 const useQuitAppDialogActions = (): IQuitAppDialogActionsReturnTypes => {
   const handleQuit = () => {
-    remote.app.relaunch()
-    remote.app.quit()
+    // remote.app.relaunch()
+    // remote.app.quit()
   }
   return { handleQuit }
 }

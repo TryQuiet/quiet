@@ -9,7 +9,6 @@ test('mock, because we keep those for the next iteration', async () => {
 // import { createOwnCertificate } from './certificates.saga'
 // import { createUserCsr } from '@quiet/identity'
 // import { StoreKeys } from '../store.keys'
-// import electronStore from '../../../shared/electronStore'
 // import { Store } from '../reducers'
 // import { registrationServiceAddress } from '../../../shared/static'
 // import { DirectMessages } from '../handlers/directMessages'

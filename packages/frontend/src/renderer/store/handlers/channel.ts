@@ -1,7 +1,7 @@
 import { produce, immerable } from 'immer'
 import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
-import { remote } from 'electron'
+// import remote from '@electron/remote'
 import { DateTime } from 'luxon'
 
 import history from '../../../shared/history'
@@ -9,7 +9,6 @@ import contactsSelectors from '../selectors/contacts'
 
 import { actionTypes } from '../../../shared/static'
 import contactsHandlers from './contacts'
-import electronStore from '../../../shared/electronStore'
 
 import { ActionsType, PayloadType } from './types'
 // import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.reducer'xs
@@ -104,8 +103,8 @@ const loadChannel = key => async (dispatch, getState) => {
     dispatch(setDisplayableLimit(30))
     const contact = contactsSelectors.contact(key)(getState())
     const unread = contact.newMessages.length
-    remote.app.setBadgeCount(remote.app.getBadgeCount() - unread)
-    electronStore.set(`lastSeen.${key}`, `${Math.floor(DateTime.utc().toSeconds())}`)
+    // remote.app.setBadgeCount(remote.app.getBadgeCount() - unread)
+    // electronStore.set(`lastSeen.${key}`, `${Math.floor(DateTime.utc().toSeconds())}`)
     dispatch(setAddress(contact.address))
     dispatch(contactsHandlers.actions.cleanNewMessages({ contactAddress: contact.key }))
     dispatch(contactsHandlers.actions.cleanNewMessages({ contactAddress: key }))

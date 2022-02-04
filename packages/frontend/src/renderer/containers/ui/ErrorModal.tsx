@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { remote } from 'electron'
+// import remote from '@electron/remote'
 
 import ErrorModal from '../../components/ui/ErrorModal/ErrorModal'
 import criticalErrorSelectors from '../../store/selectors/criticalError'
@@ -17,8 +17,8 @@ export const useErrorModalData = () => {
 
 export const useErrorModalActions = () => {
   const restartApp = () => {
-    remote.app.relaunch()
-    remote.app.quit()
+    // remote.app.relaunch()
+    // remote.app.quit()
   }
   return { restartApp }
 }

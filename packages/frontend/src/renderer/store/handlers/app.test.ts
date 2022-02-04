@@ -17,7 +17,7 @@ jest.mock('electron', () => {
   return { remote, ipcRenderer }
 })
 
-import { remote } from 'electron'
+// import remote from '@electron/remote'
 
 import handlers from './app'
 import selectors from '../selectors/app'
@@ -33,8 +33,7 @@ describe('criticalError reducer', () => {
         }
       }
     })
-    // @ts-expect-error
-    remote.app = jest.mock()
+        // remote.app = jest.mock()
     jest.clearAllMocks()
   })
 

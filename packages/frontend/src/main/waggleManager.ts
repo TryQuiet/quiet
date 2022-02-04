@@ -1,6 +1,5 @@
 import waggle, { DataServer, ConnectionsManager } from '@quiet/waggle'
 import { BrowserWindow } from 'electron'
-import electronStore from '../shared/electronStore'
 import getPort from 'get-port'
 
 export const getPorts = async (): Promise<{
@@ -25,14 +24,13 @@ export const getPorts = async (): Promise<{
 }
 
 export const runWaggle = async (
-  webContents: BrowserWindow['webContents']
+  webContents: BrowserWindow['webContents'],
+  appDataPath
 ): Promise<{
   connectionsManager: ConnectionsManager
   dataServer: DataServer
 }> => {
   const ports = await getPorts()
-
-  const appDataPath = electronStore.get('appDataPath')
 
   const dataServer = new waggle.DataServer(ports.dataServer)
   await dataServer.listen()

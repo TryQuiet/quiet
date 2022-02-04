@@ -2,7 +2,6 @@
 // import { PayloadAction } from '@reduxjs/toolkit'
 // import { certificatesActions } from './certificates.reducer'
 // import { createUserCsr, configCrypto, CertFieldsTypes, parseCertificate, getCertFieldValue } from '@quiet/identity'
-// import electronStore from '../../../shared/electronStore'
 // import { actions } from '../handlers/directMessages'
 // import { actions as identityActions } from '../handlers/identity'
 // import { registrationServiceAddress } from '../../../shared/static'

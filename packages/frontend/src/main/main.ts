@@ -1,6 +1,5 @@
 import { app, BrowserWindow, Menu, ipcMain, session } from 'electron'
 import { autoUpdater } from 'electron-updater'
-import electronStore from '../shared/electronStore'
 import electronLocalshortcut from 'electron-localshortcut'
 import debug from 'debug'
 import path from 'path'
@@ -16,8 +15,7 @@ const log = Object.assign(debug('frontend:main'), {
   error: debug('frontend:main:err')
 })
 
-electronStore.set('appDataPath', app.getPath('appData'))
-electronStore.set('waggleVersion', waggleVersion)
+const appDataPath = app.getPath('appData')
 
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
@@ -142,19 +140,14 @@ const checkForPayloadOnStartup = (payload: string) => {
   }
 }
 
-let browserWidth: number
-let browserHeight: number
-
 const createWindow = async () => {
-  const windowUserSize = electronStore.get('windowSize')
   mainWindow = new BrowserWindow({
-    width: windowUserSize ? windowUserSize.width : windowSize.width,
-    height: windowUserSize ? windowUserSize.height : windowSize.height,
+    width: windowSize.width,
+    height: windowSize.height,
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true
     },
     autoHideMenuBar: true
   })
@@ -225,11 +218,9 @@ export const checkForUpdate = async (win: BrowserWindow) => {
     })
     autoUpdater.on('update-not-available', () => {
       log('event no update')
-      electronStore.set('updateStatus', config.UPDATE_STATUSES.NO_UPDATE)
     })
     autoUpdater.on('update-available', info => {
       log(info)
-      electronStore.set('updateStatus', config.UPDATE_STATUSES.PROCESSING_UPDATE)
     })
 
     autoUpdater.on('update-downloaded', () => {
@@ -299,7 +290,7 @@ app.on('ready', async () => {
   ipcMain.on('start-waggle', async () => {
     await waggleProcess?.connectionsManager.closeAllServices()
     await waggleProcess?.dataServer.close()
-    waggleProcess = await runWaggle(mainWindow.webContents)
+    waggleProcess = await runWaggle(mainWindow.webContents, appDataPath)
   })
 })
 
@@ -310,12 +301,6 @@ app.on('before-quit', async e => {
   if (waggleProcess !== null) {
     await waggleProcess.connectionsManager.closeAllServices()
     await waggleProcess.dataServer.close()
-  }
-  if (browserWidth && browserHeight) {
-    electronStore.set('windowSize', {
-      width: browserWidth,
-      height: browserHeight
-    })
   }
   process.exit()
 })

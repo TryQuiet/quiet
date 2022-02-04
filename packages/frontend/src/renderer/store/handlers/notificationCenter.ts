@@ -1,7 +1,6 @@
 import { produce, immerable } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 import { actionTypes, notificationFilterType } from '../../../shared/static'
-import electronStore from '../../../shared/electronStore'
 import notificationCenterSelector from '../selectors/notificationCenter'
 import directMessageChannelSelector from '../selectors/directMessageChannel'
 import channelSelector from '../selectors/channel'
@@ -75,32 +74,32 @@ export const actions = {
 export type NotificationCenterActions = ActionsType<typeof actions>
 
 export const init = () => async (dispatch, getState) => {
-  if (!electronStore.get('notificationCenter')) {
-    electronStore.set(
-      'notificationCenter',
-      notificationCenterSelector.notificationCenter(getState())
-    )
-  }
-  const notificationData = electronStore.get('notificationCenter')
-  await dispatch(
-    setUserNotificationSettings({
-      userData: notificationData.user
-    })
-  )
-  await dispatch(
-    setContactsNotificationSettings({
-      contacts: notificationData.contacts
-    })
-  )
-  await dispatch(
-    setChannelNotificationSettings({
-      channelsData: notificationData.channels
-    })
-  )
+  // if (!electronStore.get('notificationCenter')) {
+  //   electronStore.set(
+  //     'notificationCenter',
+  //     notificationCenterSelector.notificationCenter(getState())
+  //   )
+  // }
+  // const notificationData = electronStore.get('notificationCenter')
+  // await dispatch(
+  //   setUserNotificationSettings({
+  //     userData: notificationData.user
+  //   })
+  // )
+  // await dispatch(
+  //   setContactsNotificationSettings({
+  //     contacts: notificationData.contacts
+  //   })
+  // )
+  // await dispatch(
+  //   setChannelNotificationSettings({
+  //     channelsData: notificationData.channels
+  //   })
+  // )
 }
 export const setChannelsNotification = filterType => async (dispatch, getState) => {
   const channel = channelSelector.channel(getState())
-  electronStore.set(`notificationCenter.channels.${channel.id}`, filterType)
+  // electronStore.set(`notificationCenter.channels.${channel.id}`, filterType)
   dispatch(
     setChannelNotificationFilter({
       channelId: channel.id,
@@ -110,7 +109,7 @@ export const setChannelsNotification = filterType => async (dispatch, getState) 
 }
 export const setContactNotification = filterType => async (dispatch, getState) => {
   const address = directMessageChannelSelector.targetRecipientAddress(getState())
-  electronStore.set(`notificationCenter.contacts.${address}`, filterType)
+  // electronStore.set(`notificationCenter.contacts.${address}`, filterType)
   dispatch(
     setContactNotificationFilter({
       contact: address,
@@ -119,7 +118,7 @@ export const setContactNotification = filterType => async (dispatch, getState) =
   )
 }
 export const unblockUserNotification = address => async dispatch => {
-  electronStore.set(`notificationCenter.contacts.${address}`, notificationFilterType.ALL_MESSAGES)
+  // electronStore.set(`notificationCenter.contacts.${address}`, notificationFilterType.ALL_MESSAGES)
   dispatch(
     setContactNotificationFilter({
       contact: address,
@@ -128,7 +127,7 @@ export const unblockUserNotification = address => async dispatch => {
   )
 }
 export const setUserNotification = filterType => async dispatch => {
-  electronStore.set('notificationCenter.user.filterType', filterType)
+  // electronStore.set('notificationCenter.user.filterType', filterType)
   dispatch(
     setUserNotificationFilter({
       filterType: filterType
@@ -136,7 +135,7 @@ export const setUserNotification = filterType => async dispatch => {
   )
 }
 export const setUserNotificationsSound = sound => async dispatch => {
-  electronStore.set('notificationCenter.user.sound', sound)
+  // electronStore.set('notificationCenter.user.sound', sound)
   dispatch(
     setUserNotificationSound({
       sound: sound

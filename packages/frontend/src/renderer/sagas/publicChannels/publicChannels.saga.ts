@@ -10,7 +10,6 @@
 
 // import contactsSelectors from '../../store/selectors/contacts'
 // import publicChannelsSelectors from '../../store/selectors/publicChannels'
-// import electronStore from '../../../shared/electronStore'
 // import debug from 'debug'
 // import { DisplayableMessage } from '../../zbay/messages.types'
 

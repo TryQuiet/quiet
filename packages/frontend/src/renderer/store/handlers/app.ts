@@ -1,5 +1,5 @@
 import { produce, immerable } from 'immer'
-import { remote } from 'electron'
+// import remote from '@electron/remote'
 import { createAction, handleActions } from 'redux-actions'
 import { actionTypes } from '../../../shared/static'
 
@@ -26,7 +26,7 @@ export const initialState: App = {
   })
 }
 
-const loadVersion = createAction(actionTypes.SET_APP_VERSION, () => remote.app.getVersion())
+const loadVersion = createAction(actionTypes.SET_APP_VERSION, () => 1.0)
 const setModalTab = createAction<'channelInfo' | 'moderators' | 'notifications'>(
   actionTypes.SET_CURRENT_MODAL_TAB
 )
@@ -44,7 +44,7 @@ export const reducer = handleActions<App, PayloadType<AppActions>>(
   {
     [loadVersion.toString()]: (state, { payload: version }: AppActions['loadVersion']) =>
       produce(state, draft => {
-        draft.version = version
+        draft.version = 'asd'
       }),
     [setModalTab.toString()]: (state, { payload: tabName }: AppActions['setModalTab']) =>
       produce(state, draft => {
