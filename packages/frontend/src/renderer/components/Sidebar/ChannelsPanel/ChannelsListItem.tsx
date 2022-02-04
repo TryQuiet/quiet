@@ -21,6 +21,7 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     opacity: 0.7,
+    fontWeight: 300,
     paddingLeft: 16,
     paddingRight: 16,
     overflow: 'hidden',
@@ -30,7 +31,8 @@ const useStyles = makeStyles(theme => ({
     textTransform: 'lowercase'
   },
   newMessages: {
-    opacity: 1
+    opacity: 1,
+    fontWeight: 600
   },
   connectedIcon: {
     marginLeft: 16,
