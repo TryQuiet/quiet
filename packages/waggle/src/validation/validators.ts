@@ -7,7 +7,7 @@ const messageSchema = joi.object({
   type: joi.number().required().positive().integer(),
   message: joi.string().required(),
   createdAt: joi.number().required(),
-  channelId: joi.string().required(),
+  channelAddress: joi.string().required(),
   signature: joi.string().required(),
   pubKey: joi.string().required()
 })
