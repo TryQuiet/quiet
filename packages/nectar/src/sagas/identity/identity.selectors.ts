@@ -45,7 +45,7 @@ export const unregisteredCommunities = createSelector(
   allCommunities,
   selectIdentities,
   (allCommunities, identities) => {
-    return allCommunities.filter((community) => {
+    return allCommunities.find((community) => {
       return !identities[community.id]?.userCertificate && identities[community.id]
     })
   }
@@ -55,7 +55,7 @@ export const unregisteredCommunitiesWithoutUserIdentity = createSelector(
   allCommunities,
   selectIdentities,
   (allCommunities, identities) => {
-    return allCommunities.filter((community) => {
+    return allCommunities.find((community) => {
       return !identities[community.id]
     })
   }
