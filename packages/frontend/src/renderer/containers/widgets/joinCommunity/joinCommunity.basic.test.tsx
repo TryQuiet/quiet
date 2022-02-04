@@ -5,14 +5,16 @@ import userEvent from '@testing-library/user-event'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { prepareStore } from '../../../testUtils/prepareStore'
 import { StoreKeys } from '../../../store/store.keys'
-import { SocketState } from '../../../sagas/socket/socket.slice'
+import { socketActions, SocketState } from '../../../sagas/socket/socket.slice'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { ModalsInitialState } from '../../../sagas/modals/modals.slice'
+import { modalsActions, ModalsInitialState } from '../../../sagas/modals/modals.slice'
 import JoinCommunity from './joinCommunity'
 import CreateCommunity from '../createCommunity/createCommunity'
 import { JoinCommunityDictionary, CreateCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
 import CreateUsernameModal from '../createUsernameModal/CreateUsername'
-import { communities, getFactory, StoreKeys as NectarStoreKeys } from '@quiet/nectar'
+import LoadingPanelModal from '../loadingPanel/loadingPanel'
+import { identity, communities, getFactory, StoreKeys as NectarStoreKeys } from '@quiet/nectar'
+import { LoadingMessages } from '../loadingPanel/loadingMessages'
 
 describe('join community', () => {
   it('users switches from join to create', async () => {
@@ -109,7 +111,7 @@ describe('join community', () => {
     const factory = await getFactory(store)
 
     await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     renderComponent(
@@ -122,6 +124,57 @@ describe('join community', () => {
 
     const createUsernameTitle = screen.getByText('Register a username')
     expect(createUsernameTitle).toBeVisible()
+  })
+
+  it('user rejoins to remembered community with user certificate', async () => {
+    const store = (await prepareStore()).store
+    const factory = await getFactory(store)
+
+    const community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+    await factory.create<
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice1' })
+
+    store.dispatch(socketActions.setConnected())
+
+    store.dispatch(modalsActions.openModal({
+      name: ModalName.joinCommunityModal
+    }))
+
+    store.dispatch(identity.actions.storeUserCertificate({
+      userCertificate: '',
+      communityId: community.id
+    }))
+
+    const result1 = renderComponent(
+      <>
+        <JoinCommunity />
+        <CreateUsernameModal />
+        <LoadingPanelModal />
+      </>,
+      store
+    )
+    const switchLink1 = result1.queryByText(LoadingMessages.CreateCommunity)
+    expect(switchLink1).toBeInTheDocument()
+
+    store.dispatch(identity.actions.storeUserCertificate({
+      userCertificate: 'userCert',
+      communityId: community.id
+    }))
+
+    const result2 = renderComponent(
+      <>
+        <JoinCommunity />
+        <CreateUsernameModal />
+        <LoadingPanelModal />
+      </>,
+      store
+    )
+
+    const switchLink2 = result2.queryByText(LoadingMessages.CreateCommunity)
+    expect(switchLink2).toBeNull()
   })
 
   it('invitation code is trimmed in a field', async () => {
