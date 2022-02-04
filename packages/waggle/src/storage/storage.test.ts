@@ -264,7 +264,7 @@ describe('Message', () => {
 
     const spoofedMessage = {
       ...aliceMessage.message,
-      channelId: channel.address,
+      channelAddress: channel.address,
       pubKey: johnPublicKey
     }
 
@@ -279,7 +279,7 @@ describe('Message', () => {
 
     await storage.subscribeToChannel(channel)
 
-    const spy = jest.spyOn(storage.publicChannelsRepos.get(spoofedMessage.channelId).db, 'add')
+    const spy = jest.spyOn(storage.publicChannelsRepos.get(spoofedMessage.channelAddress).db, 'add')
 
     await storage.sendMessage(spoofedMessage)
 
@@ -287,7 +287,7 @@ describe('Message', () => {
     expect(spy).toHaveBeenCalled()
 
     // Confirm message hasn't been added to db
-    const result = await storage.askForMessages(spoofedMessage.channelId, [spoofedMessage.id])
+    const result = await storage.askForMessages(spoofedMessage.channelAddress, [spoofedMessage.id])
     expect(result.filteredMessages.length).toBe(0)
   })
 })
