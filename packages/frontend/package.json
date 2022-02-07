@@ -18,6 +18,7 @@
       ]
     },
     "mac": {
+      "icon": "./build/icon.icns",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
@@ -30,6 +31,7 @@
       ]
     },
     "win": {
+      "icon": "./build/icon.png",
       "target": "NSIS",
       "sign": "scripts/sign.js",
       "files": [
@@ -39,6 +41,7 @@
       ]
     },
     "linux": {
+      "icon": "./build/icon.png",
       "target": [
         "AppImage"
       ],
@@ -66,7 +69,7 @@
   },
   "homepage": "https://github.com/ZbayApp",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "0.1.0-alpha.16",
+  "version": "0.1.0-alpha.17",
   "description": "Decentralized team chat",
   "main": "dist/main/main.js",
   "scripts": {
@@ -105,9 +108,9 @@
     "@material-ui/icons": "^4.2.1",
     "@material-ui/lab": "^4.0.0-alpha.34",
     "@peculiar/webcrypto": "1.2.2",
-    "@quiet/identity": "^0.1.0-alpha.1",
-    "@quiet/nectar": "^0.1.0-alpha.1",
-    "@quiet/waggle": "^0.1.0-alpha.4",
+    "@quiet/identity": "^0.1.0-alpha.2",
+    "@quiet/nectar": "^0.1.0-alpha.2",
+    "@quiet/waggle": "^0.1.0-alpha.5",
     "@redux-saga/types": "^1.1.0",
     "@reduxjs/toolkit": "^1.6.2",
     "@sentry/react": "^6.14.0",

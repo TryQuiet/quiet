@@ -1,6 +1,6 @@
 {
   "name": "@quiet/identity",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Quiet tools for creating certificates and signing messages",
   "main": "lib/index.js",
   "types": "lib/index.d.js",
