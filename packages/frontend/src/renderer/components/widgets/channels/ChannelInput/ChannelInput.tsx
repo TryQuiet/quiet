@@ -431,41 +431,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   }}
                 />
               </Grid>
-              <Grid item className={classes.actions}>
-                <Grid container justify='center' alignItems='center'>
-                  <Icon
-                    className={classes.emoji}
-                    src={emojiHovered ? emojiBlack : emojiGray}
-                    onClickHandler={() => {
-                      setOpenEmoji(true)
-                    }}
-                    onMouseEnterHandler={() => {
-                      setEmojiHovered(true)
-                    }}
-                    onMouseLeaveHandler={() => {
-                      setEmojiHovered(false)
-                    }}
-                  />
-                </Grid>
-                {openEmoji && (
-                  <ClickAwayListener
-                    onClickAway={() => {
-                      setOpenEmoji(false)
-                    }}>
-                    <div className={classes.picker}>
-                      <Picker
-                        /* eslint-disable */
-                        onEmojiClick={(_e, emoji) => {
-                          setHtmlMessage(htmlMessage => htmlMessage + emoji.emoji)
-                          setMessage(message + emoji.emoji)
-                          setOpenEmoji(false)
-                        }}
-                      /* eslint-enable */
-                      />
-                    </div>
-                  </ClickAwayListener>
-                )}
-              </Grid>
             </Grid>
           </ClickAwayListener>
         </Grid>
