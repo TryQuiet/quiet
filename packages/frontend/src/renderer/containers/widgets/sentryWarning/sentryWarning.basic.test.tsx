@@ -57,3 +57,5 @@ describe('Sentry warning modal', () => {
     expect(warningText).toBeNull()
   })
 })
+
+// change just to run frontend tests

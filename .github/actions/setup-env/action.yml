@@ -13,6 +13,15 @@ runs:
       run: git config --global http.postBuffer 524288000
       shell: bash
 
+    - name: Add msbuild to PATH
+      if: ${{ matrix.os == 'windows-latest' }}
+      uses: microsoft/setup-msbuild@v1.1
+      shell: bash
+    # - name: Set VS version (Windows)
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: npm config set msvs_version 2022 --global
+    #   shell: bash
+
     - name: "Set unsafe-perm"
       run: npm set unsafe-perm true
       shell: bash
