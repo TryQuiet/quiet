@@ -1,7 +1,7 @@
 /* global Notification */
 import { soundTypeToAudio } from '../shared/sounds'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { identity, NotificationsOptions, NotificationsSounds, publicChannels as channels, publicChannels, settings, users } from '@quiet/nectar'
+import { Identity, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, PublicChannel, publicChannels as channels, publicChannels, settings, User, users } from '@quiet/nectar'
 import { all, call, select } from 'typed-redux-saga'
 import store from './store'
 
@@ -13,19 +13,44 @@ export interface NotificationsData {
   channelName: string
 }
 
+interface createNotificationsCallsDataType {
+  action: {
+    payload: IncomingMessages;
+    type: string;
+  };
+  publicChannels: PublicChannel[];
+  usersData: {
+    [pubKey: string]: User;
+  };
+  myIdentity: Identity;
+  currentChannel: string;
+  notificationsOption: NotificationsOptions;
+  notificationsSound: NotificationsSounds;
+}
+
 export function* displayMessageNotificationSaga(
   action: PayloadAction<ReturnType<typeof channels.actions.incomingMessages>['payload']>
 ): Generator {
-  const publicChannels = yield* select(channels.selectors.publicChannels)
-  const usersData = yield* select(users.selectors.certificatesMapping)
-  const myIdentity = yield* select(identity.selectors.currentIdentity)
-  const currentChannel = yield* select(channels.selectors.currentChannel)
-  const notificationsOption = yield* select(settings.selectors.getNotificationsOption)
-  const notificationsSound = yield* select(settings.selectors.getNotificationsSound)
+  const createNotificationsCallsData = {
+    action,
+    publicChannels: yield* select(channels.selectors.publicChannels),
+    usersData: yield* select(users.selectors.certificatesMapping),
+    myIdentity: yield* select(identity.selectors.currentIdentity),
+    currentChannel: yield* select(channels.selectors.currentChannel),
+    notificationsOption: yield* select(settings.selectors.getNotificationsOption),
+    notificationsSound: yield* select(settings.selectors.getNotificationsSound),
+  }
 
-  const createNotificationsCalls = action.payload.messages.map((messageData) => {
+  const createNotificationsCalls = yield* call(messagesMapForNotificationsCalls, createNotificationsCallsData)
+  yield* all(createNotificationsCalls)
+}
+
+const messagesMapForNotificationsCalls = (
+  { action, currentChannel, myIdentity, notificationsOption,
+    notificationsSound, publicChannels, usersData }: createNotificationsCallsDataType
+) => {
+  return action.payload.messages.map((messageData) => {
     const publicChannelFromMessage = publicChannels.find((channel) => channel.address === messageData.channelId)
-
     const isMessageFromMyUser = usersData[messageData.pubKey]?.username === myIdentity.nickname
     const isMessageFromCurrentChannel = currentChannel === publicChannelFromMessage.name
     const isNotificationsOptionOff = NotificationsOptions.doNotNotifyOfAnyMessages === notificationsOption
@@ -40,10 +65,9 @@ export function* displayMessageNotificationSaga(
       })
     }
   })
-  yield* all(createNotificationsCalls)
 }
 
-export function* createNotificationSaga(payload: NotificationsData): Generator {
+export const createNotificationSaga = (payload: NotificationsData): Notification => {
   if (soundTypeToAudio[payload.sound]) {
     soundTypeToAudio[payload.sound].play()
   }
