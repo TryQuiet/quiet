@@ -75,11 +75,11 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
         />
       </PageHeader>
       <Grid item xs className={classes.messages}>
-        {/* <ChannelMessagesComponent
+        <ChannelMessagesComponent
           channel={channel.address}
           messages={messages}
           setChannelLoadingSlice={setChannelLoadingSlice}
-        /> */}
+        />
       </Grid>
       <Grid item>
         <ChannelInputComponent
