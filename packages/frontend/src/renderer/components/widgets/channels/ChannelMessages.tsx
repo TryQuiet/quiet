@@ -11,7 +11,7 @@ import { DisplayableMessage } from '@quiet/nectar'
 const useStyles = makeStyles(theme => ({
   scroll: {
     overflow: 'scroll',
-    overflowX: 'hidden',
+    // overflowX: 'hidden',
     height: '100%'
   },
   list: {
@@ -32,8 +32,8 @@ const useStyles = makeStyles(theme => ({
     padding: '8px 16px'
   },
   item: {
-    backgroundColor: theme.palette.colors.gray03,
-    padding: '9px 16px'
+    backgroundColor: theme.palette.colors.gray01,
+    padding: '9px 32px'
   },
   bold: {
     fontWeight: 'bold'
