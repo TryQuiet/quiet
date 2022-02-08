@@ -1,0 +1,32 @@
+name: Visual regressions
+
+on:
+  pull_request:
+    paths:
+      - packages/frontend/**
+
+jobs:
+  chromatic-deployment:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-20.04]
+
+    steps:
+      - name: "Print OS"
+        run: echo ${{ matrix.os }}
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Required to retrieve git history
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+
+      - name: "Publish to Chromatic"
+        uses: chromaui/action@v1
+        with:
+          workingDir: ./packages/frontend
+          token: ${{ secrets.GH_TOKEN }}
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
