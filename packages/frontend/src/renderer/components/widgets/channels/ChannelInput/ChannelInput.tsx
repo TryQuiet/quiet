@@ -431,7 +431,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   }}
                 />
               </Grid>
-              <Grid item className={classes.actions}>
+              {/* <Grid item className={classes.actions}>
                 <Grid container justify='center' alignItems='center'>
                   <Icon
                     className={classes.emoji}
@@ -465,7 +465,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     </div>
                   </ClickAwayListener>
                 )}
-              </Grid>
+              </Grid> */}
             </Grid>
           </ClickAwayListener>
         </Grid>
