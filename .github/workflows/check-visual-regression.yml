@@ -1,4 +1,4 @@
-name: Check visual regression
+name: Visual regressions
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
       - packages/frontend/**
 
 jobs:
-  chromatic:
+  chromatic-deployment:
     runs-on: ${{ matrix.os }}
 
     strategy:
