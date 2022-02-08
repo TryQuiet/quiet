@@ -14,7 +14,7 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 
 const useStyles = makeStyles(theme => ({
   root: {
-    background: '#000',
+    background: '#fff',
     height: '100%',
     width: '100%'
   },
