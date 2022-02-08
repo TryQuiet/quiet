@@ -176,7 +176,7 @@ describe('publicChannelsSelectors', () => {
             type: MessageType.Basic,
             message: `message_${item.id}`,
             createdAt: item.createdAt,
-            channelId: 'general',
+            channelAddress: 'general',
             signature: '',
             pubKey: ''
           },
@@ -320,7 +320,7 @@ describe('publicChannelsSelectors', () => {
         "Today": Array [
           Array [
             Object {
-              "createdAt": 1643921400,
+              "createdAt": 1644353400,
               "date": "8:50 PM",
               "id": "9",
               "message": "message_9",
@@ -360,7 +360,7 @@ describe('publicChannelsSelectors', () => {
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
-      channelId: channel.address
+      channelAddress: channel.address
     }
 
     const spoofedMessage: ChannelMessage = {
@@ -370,7 +370,7 @@ describe('publicChannelsSelectors', () => {
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
-      channelId: channel.address,
+      channelAddress: channel.address,
       pubKey: johnPublicKey
     }
 
@@ -387,7 +387,7 @@ describe('publicChannelsSelectors', () => {
 
     store.dispatch(
       publicChannels.actions.setCurrentChannel({
-        channel: channel.address,
+        channelAddress: channel.address,
         communityId: community.id
       })
     )
@@ -400,4 +400,4 @@ describe('publicChannelsSelectors', () => {
   })
 })
 
-export { }
+export {}

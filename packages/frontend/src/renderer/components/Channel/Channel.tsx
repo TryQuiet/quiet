@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { communities, identity, messages, publicChannels } from '@quiet/nectar'
 
-import ChannelComponent from '../../components/pages/Channel'
+import ChannelComponent from './ChannelComponent'
 
-import { useModal } from '../hooks'
+import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 
 const Channel = () => {

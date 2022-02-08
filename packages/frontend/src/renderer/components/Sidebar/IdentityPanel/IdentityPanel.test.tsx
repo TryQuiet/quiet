@@ -16,7 +16,14 @@ describe('IdentityPanel', () => {
     >('Community')
 
     const result = renderComponent(
-      <IdentityPanel community={community} handleSettings={jest.fn()} />
+      <IdentityPanel
+        currentCommunity={community}
+        accountSettingsModal={{
+          open: false,
+          handleOpen: function (_args?: any): any {},
+          handleClose: function (): any {}
+        }}
+      />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

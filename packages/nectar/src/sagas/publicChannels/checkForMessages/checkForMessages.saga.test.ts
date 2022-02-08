@@ -61,7 +61,7 @@ describe('checkForMessagesSaga', () => {
             type: type,
             message: 'message',
             createdAt: DateTime.utc().valueOf(),
-            channelId: 'general',
+            channelAddress: 'general',
             signature: '',
             pubKey: ''
           },

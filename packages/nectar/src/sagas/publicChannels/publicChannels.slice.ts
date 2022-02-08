@@ -5,8 +5,9 @@ import {
   communityChannelsAdapter,
   channelMessagesAdapter
 } from './publicChannels.adapter'
+import { unreadMessagesAdapter } from './markUnreadMessages/unreadMessages.adapter'
 import {
-  PublicChannel,
+  CommunityChannels,
   ChannelMessage,
   CreateChannelPayload,
   CreateGeneralChannelPayload,
@@ -17,7 +18,9 @@ import {
   ChannelMessagesIdsResponse,
   SubscribeToTopicPayload,
   AskForMessagesPayload,
-  IncomingMessages
+  IncomingMessages,
+  MarkUnreadMessagesPayload,
+  ClearUnreadMessagesPayload
 } from './publicChannels.types'
 import { MessageType } from '../messages/messages.types'
 import { Identity } from '../identity/identity.types'
@@ -28,14 +31,6 @@ const log = logger('publicChannels')
 export class PublicChannelsState {
   public channels: EntityState<CommunityChannels> =
   communityChannelsAdapter.getInitialState()
-}
-
-export interface CommunityChannels {
-  id: string
-  currentChannel: string
-  channels: EntityState<PublicChannel>
-  channelMessages: EntityState<ChannelMessage>
-  channelLoadingSlice: number
 }
 
 export const publicChannelsSlice = createSlice({
@@ -60,9 +55,10 @@ export const publicChannelsSlice = createSlice({
       const communityChannels: CommunityChannels = {
         id: action.payload.id,
         currentChannel: 'general',
+        channelLoadingSlice: 0,
         channels: publicChannelsAdapter.getInitialState(),
         channelMessages: channelMessagesAdapter.getInitialState(),
-        channelLoadingSlice: 0
+        unreadMessages: unreadMessagesAdapter.getInitialState()
       }
       communityChannelsAdapter.addOne(state.channels, communityChannels)
     },
@@ -85,10 +81,10 @@ export const publicChannelsSlice = createSlice({
       state,
       action: PayloadAction<SetCurrentChannelPayload>
     ) => {
-      const { communityId, channel } = action.payload
+      const { communityId, channelAddress } = action.payload
       communityChannelsAdapter.updateOne(state.channels, {
         id: communityId,
-        changes: { currentChannel: channel }
+        changes: { currentChannel: channelAddress }
       })
     },
     setChannelLoadingSlice: (
@@ -120,7 +116,7 @@ export const publicChannelsSlice = createSlice({
             type: MessageType.Empty,
             message: '',
             createdAt: 0,
-            channelId: '',
+            channelAddress: '',
             signature: '',
             pubKey: ''
           }
@@ -142,6 +138,26 @@ export const publicChannelsSlice = createSlice({
       channelMessagesAdapter.upsertMany(
         state.channels.entities[communityId].channelMessages,
         messages
+      )
+    },
+    markUnreadMessages: (
+      state,
+      action: PayloadAction<MarkUnreadMessagesPayload>
+    ) => {
+      const { messages, communityId } = action.payload
+      unreadMessagesAdapter.upsertMany(
+        state.channels.entities[communityId].unreadMessages,
+        messages
+      )
+    },
+    clearUnreadMessages: (
+      state,
+      action: PayloadAction<ClearUnreadMessagesPayload>
+    ) => {
+      const { ids, communityId } = action.payload
+      unreadMessagesAdapter.removeMany(
+        state.channels.entities[communityId].unreadMessages,
+        ids
       )
     },
     // Utility action for testing purposes

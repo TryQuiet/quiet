@@ -9,10 +9,10 @@ import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { currentCommunityId } from '../communities/communities.selectors'
 import { MessageType } from '../messages/messages.types'
-import { CommunityChannels } from './publicChannels.slice'
-import { DisplayableMessage } from '../..'
 import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { messagesVerificationStatus } from '../messages/messages.selectors'
+import { CommunityChannels, DisplayableMessage } from './publicChannels.types'
+import { unreadMessagesAdapter } from './markUnreadMessages/unreadMessages.adapter'
 
 const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
   state[StoreKeys.PublicChannels]
@@ -34,39 +34,52 @@ export const currentCommunityChannelsState = createSelector(
     const empty: CommunityChannels = {
       id: '',
       currentChannel: '',
+      channelLoadingSlice: 0,
       channels: publicChannelsAdapter.getInitialState(),
       channelMessages: channelMessagesAdapter.getInitialState(),
-      channelLoadingSlice: 0
+      unreadMessages: unreadMessagesAdapter.getInitialState()
     }
     return publicChannels[currentCommunity] || empty
   }
 )
 
-export const publicChannels = createSelector(currentCommunityChannelsState, state => {
-  return publicChannelsAdapter.getSelectors().selectAll(state.channels)
-})
+export const publicChannels = createSelector(
+  currentCommunityChannelsState,
+  (state: CommunityChannels) => {
+    return publicChannelsAdapter.getSelectors().selectAll(state.channels)
+  }
+)
 
-export const publicChannelsMessages = createSelector(currentCommunityChannelsState, state => {
-  return channelMessagesAdapter.getSelectors().selectAll(state.channelMessages)
-})
+export const publicChannelsMessages = createSelector(
+  currentCommunityChannelsState,
+  (state: CommunityChannels) => {
+    return channelMessagesAdapter.getSelectors().selectAll(state.channelMessages)
+  }
+)
 
 export const missingChannelsMessages = createSelector(publicChannelsMessages, messages => {
   return messages.filter(message => message.type === MessageType.Empty).map(message => message.id)
 })
 
-export const currentChannel = createSelector(currentCommunityChannelsState, state => {
-  return state.currentChannel
-})
+export const currentChannel = createSelector(
+  currentCommunityChannelsState,
+  (state: CommunityChannels) => {
+    return state.currentChannel
+  }
+)
 
-export const channelLoadingSlice = createSelector(currentCommunityChannelsState, state => {
-  return state.channelLoadingSlice
-})
+export const channelLoadingSlice = createSelector(
+  currentCommunityChannelsState,
+  (state: CommunityChannels) => {
+    return state.channelLoadingSlice
+  }
+)
 
 export const currentChannelMessages = createSelector(
   publicChannelsMessages,
   currentChannel,
   (messages, channel) => {
-    return messages.filter(message => message.channelId === channel)
+    return messages.filter(message => message.channelAddress === channel)
   }
 )
 
@@ -178,11 +191,27 @@ export const currentChannelMessagesMergedBySender = createSelector(
   }
 )
 
+export const unreadMessages = createSelector(
+  currentCommunityChannelsState,
+  (state: CommunityChannels) => {
+    return unreadMessagesAdapter.getSelectors().selectAll(state.unreadMessages)
+  }
+)
+
+export const unreadChannels = createSelector(
+  unreadMessages,
+  (messages) => {
+    return messages.map(message => message.channelAddress)
+  }
+)
+
 export const publicChannelsSelectors = {
   publicChannelsByCommunity,
   publicChannels,
   currentChannel,
   currentChannelMessagesCount,
   dailyGroupedCurrentChannelMessages,
-  currentChannelMessagesMergedBySender
+  currentChannelMessagesMergedBySender,
+  unreadMessages,
+  unreadChannels
 }

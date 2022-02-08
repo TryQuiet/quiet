@@ -1,11 +1,9 @@
 import React from 'react'
 import classNames from 'classnames'
-
 import { Typography, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
-
 import { PublicChannel } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
@@ -23,6 +21,7 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     opacity: 0.7,
+    fontWeight: 300,
     paddingLeft: 16,
     paddingRight: 16,
     overflow: 'hidden',
@@ -32,7 +31,8 @@ const useStyles = makeStyles(theme => ({
     textTransform: 'lowercase'
   },
   newMessages: {
-    opacity: 1
+    opacity: 1,
+    fontWeight: 600
   },
   connectedIcon: {
     marginLeft: 16,
@@ -52,14 +52,16 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export interface ChannelsListItemComponentProps {
+export interface ChannelsListItemProps {
   channel: PublicChannel
+  unread: boolean
   selected: boolean
   setCurrentChannel: (name: string) => void
 }
 
-export const ChannelsListItem: React.FC<ChannelsListItemComponentProps> = ({
+export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   channel,
+  unread,
   selected,
   setCurrentChannel
 }) => {
@@ -83,9 +85,9 @@ export const ChannelsListItem: React.FC<ChannelsListItemComponentProps> = ({
               <Typography
                 variant='body2'
                 className={classNames(classes.title, {
-                  // TODO
-                  [classes.newMessages]: false
-                })}>
+                  [classes.newMessages]: unread
+                })}
+                data-testid={`${channel.name}-link-text`}>
                 {`# ${channel.name}`}
               </Typography>
             </Grid>
