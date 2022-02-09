@@ -7,6 +7,7 @@ import { subscribeToTopicSaga } from './subscribeToTopic/subscribeToTopic.saga'
 import { subscribeToAllTopicsSaga } from './subscribeToAllTopics/subscribeToAllTopics.saga'
 import { createChannelSaga } from './createChannel/createChannel.saga'
 import { createGeneralChannelSaga } from './createGeneralChannel/createGeneralChannel.saga'
+import { clearUnreadMessagesSaga, markUnreadMessagesSaga } from './markUnreadMessages/markUnreadMessages.saga'
 
 export function* publicChannelsMasterSaga(socket: Socket): Generator {
   yield all([
@@ -36,6 +37,14 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
       publicChannelsActions.askForMessages.type,
       askForMessagesSaga,
       socket
+    ),
+    takeEvery(
+      publicChannelsActions.incomingMessages.type,
+      markUnreadMessagesSaga
+    ),
+    takeEvery(
+      publicChannelsActions.setCurrentChannel.type,
+      clearUnreadMessagesSaga
     )
   ])
 }

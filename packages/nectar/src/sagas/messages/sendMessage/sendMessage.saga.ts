@@ -38,9 +38,9 @@ export function* sendMessageSaga(
     type: MessageTypes.BASIC,
     message: action.payload,
     createdAt: currentTime,
+    channelAddress: channelAddress,
     signature,
-    pubKey,
-    channelId: channelAddress
+    pubKey
   }
 
   yield* apply(socket, socket.emit, [

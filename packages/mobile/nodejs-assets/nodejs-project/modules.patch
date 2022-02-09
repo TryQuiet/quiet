@@ -1,0 +1,33 @@
+--- node_modules/bcrypto/deps/torsion/src/entropy/sys.c.backup	2021-08-19 13:43:26.000000000 +0200
++++ node_modules/bcrypto/deps/torsion/src/entropy/sys.c	2021-08-19 13:45:25.000000000 +0200
+@@ -294,7 +294,7 @@
+ #    define DEV_RANDOM_NAME "/dev/urandom"
+ #  elif defined(__APPLE__)
+ #    include <AvailabilityMacros.h>
+-#    if MAC_OS_X_VERSION_MAX_ALLOWED >= 101200 /* 10.12 (2016) */
++#    if __has_include(<sys/random.h>)
+ #      include <sys/random.h> /* getentropy */
+ #      define HAVE_GETENTROPY
+ #    endif
+--- node_modules/cbor/lib/utils.js.backup	2021-08-19 13:47:22.000000000 +0200
++++ node_modules/cbor/lib/utils.js	2021-08-19 13:48:06.000000000 +0200
+@@ -18,7 +18,7 @@
+ /* istanbul ignore else */
+ if (TD) {
+   // node 11+, browsers : node 8.3+
+-  const td = new TD('utf8', {fatal: true, ignoreBOM: true})
++  const td = new TD('utf8', {ignoreBOM: true})
+   exports.utf8 = (buf) => td.decode(buf)
+   exports.utf8.checksUTF8 = true
+ } else {
+--- node_modules/ipfs-repo-migrations/node_modules/cbor/lib/utils.js.backup	2021-08-19 13:50:49.000000000 +0200
++++ node_modules/ipfs-repo-migrations/node_modules/cbor/lib/utils.js	2021-08-19 13:51:13.000000000 +0200
+@@ -13,7 +13,7 @@
+  */
+ /* istanbul ignore next */ // TextDecoder in node 11+, browsers
+ const TD = (typeof TextDecoder === 'function') ? TextDecoder : util.TextDecoder
+-const td = new TD('utf8', {fatal: true, ignoreBOM: true})
++const td = new TD('utf8', {ignoreBOM: true})
+ exports.utf8 = (buf) => td.decode(buf)
+ exports.utf8.checksUTF8 = true
+ 

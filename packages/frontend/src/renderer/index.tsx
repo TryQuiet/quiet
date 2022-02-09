@@ -9,22 +9,11 @@ import waggleHandlers from './store/handlers/waggle'
 
 import debug from 'debug'
 
-import * as Sentry from '@sentry/react'
-import { Integrations } from '@sentry/tracing'
+import { initSentry } from '../shared/sentryConfig'
 
 import { socketActions, WebsocketConnectionPayload } from './sagas/socket/socket.slice'
 
-if (process.env.REACT_APP_ENABLE_SENTRY === 'true') {
-  Sentry.init({
-    dsn: 'https://1ca88607c3d14e15b36cb2cfd5f16d68@o1060867.ingest.sentry.io/6050774',
-    integrations: [new Integrations.BrowserTracing()],
-
-    // Set tracesSampleRate to 1.0 to capture 100%
-    // of transactions for performance monitoring.
-    // We recommend adjusting this value in production
-    tracesSampleRate: 1.0
-  })
-}
+initSentry()
 
 const log = Object.assign(debug('frontend:renderer'), {
   error: debug('frontend:renderer:err')

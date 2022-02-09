@@ -69,7 +69,7 @@ describe('Validators - Messages', () => {
       type: 1,
       message: 'hello',
       createdAt: 1234567,
-      channelId: '123n23l234lk234',
+      channelAddress: '123n23l234lk234',
       signature: 'asdfasdf',
       pubKey: 'afsdf'
     }
@@ -80,7 +80,7 @@ describe('Validators - Messages', () => {
       type: 1,
       message: 'hello',
       createdAt: 1234567,
-      channelId: '123n23l234lk234',
+      channelAddress: '123n23l234lk234',
       signature: 'asdfasdf',
       pubKey: 'afsdf'
     }
