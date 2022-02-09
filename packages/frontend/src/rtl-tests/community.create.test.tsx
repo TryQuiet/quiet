@@ -21,7 +21,7 @@ import {
   RegisterOwnerCertificatePayload,
   SocketActionTypes
 } from '@quiet/nectar'
-import Channel from '../renderer/containers/pages/Channel'
+import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/containers/widgets/loadingPanel/loadingPanel'
 import { LoadingMessages } from '../renderer/containers/widgets/loadingPanel/loadingMessages'
 
@@ -215,6 +215,7 @@ describe('User', () => {
         "Modals/closeModal",
         "Modals/closeModal",
         "Modals/closeModal",
+        "PublicChannels/clearUnreadMessages",
       ]
     `)
   })
@@ -379,6 +380,7 @@ describe('User', () => {
         "PublicChannels/subscribeToTopic",
         "PublicChannels/setCurrentChannel",
         "PublicChannels/addChannel",
+        "PublicChannels/clearUnreadMessages",
       ]
     `)
   })

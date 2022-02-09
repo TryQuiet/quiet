@@ -9,6 +9,9 @@ import { runWaggle } from './waggleManager'
 
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
+import { initSentry } from '../shared/sentryConfig'
+
+initSentry()
 
 const log = Object.assign(debug('frontend:main'), {
   error: debug('frontend:main:err')

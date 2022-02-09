@@ -6,8 +6,8 @@ import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 
 import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
-import Sidebar from '../widgets/sidebar/Sidebar'
-import Channel from '../../containers/pages/Channel'
+import Sidebar from '../Sidebar/Sidebar'
+import Channel from '../Channel/Channel'
 
 const useStyles = makeStyles(() => ({
   gridRoot: {
@@ -36,6 +36,7 @@ export const Main: React.FC<MainProps> = ({
   isLogWindowOpened
 }) => {
   const classes = useStyles({})
+
   const debounce = (fn, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
     return _ => {
@@ -48,10 +49,12 @@ export const Main: React.FC<MainProps> = ({
       }, ms)
     }
   }
+
   const [dimensions, setDimensions] = React.useState({
     height: window.innerHeight,
     width: window.innerWidth
   })
+
   useEffect(() => {
     const debouncedHandleResize = debounce(function handleResize() {
       setDimensions({
@@ -66,6 +69,7 @@ export const Main: React.FC<MainProps> = ({
       window.removeEventListener('resize', debouncedHandleResize)
     }
   })
+
   return (
     <>
       <WindowWrapper>
@@ -82,7 +86,8 @@ export const Main: React.FC<MainProps> = ({
               className={classnames({
                 [classes.logsContainer]: dimensions.width <= 900
               })}
-              item></Grid>
+              item>
+            </Grid>
           )}
         </Grid>
       </WindowWrapper>
