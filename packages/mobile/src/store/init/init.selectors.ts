@@ -1,44 +1,46 @@
 import { createSelector } from 'reselect';
 import { StoreKeys } from '../store.keys';
-import { StoreState } from '../store.types';
-import { selectReducer } from '../store.utils';
+import { CreatedSelectors, StoreState } from '../store.types';
 import { initChecksAdapter } from './init.adapter';
 
+const initSlice: CreatedSelectors[StoreKeys.Init] = (state: StoreState) =>
+  state[StoreKeys.Init]
+
 export const dataDirectoryPath = createSelector(
-  selectReducer(StoreKeys.Init),
-  (reducerState: StoreState[StoreKeys.Init]) => reducerState.dataDirectoryPath,
+  initSlice,
+  (reducerState) => reducerState.dataDirectoryPath,
 );
 
 export const torData = createSelector(
-  selectReducer(StoreKeys.Init),
-  (reducerState: StoreState[StoreKeys.Init]) => reducerState.torData,
+  initSlice,
+  (reducerState) => reducerState.torData,
 );
 
 export const isNavigatorReady = createSelector(
-  selectReducer(StoreKeys.Init),
-  (reducerState: StoreState[StoreKeys.Init]) => reducerState.isNavigatorReady,
+  initSlice,
+  (reducerState) => reducerState.isNavigatorReady,
 );
 
 export const isCryptoEngineInitialized = createSelector(
-  selectReducer(StoreKeys.Init),
-  (reducerState: StoreState[StoreKeys.Init]) =>
+  initSlice,
+  (reducerState) =>
     reducerState.isCryptoEngineInitialized,
 );
 
 export const initDescription = createSelector(
-  selectReducer(StoreKeys.Init),
-  (reducerState: StoreState[StoreKeys.Init]) => reducerState.initDescription,
+  initSlice,
+  (reducerState) => reducerState.initDescription,
 );
 
 export const initChecks = createSelector(
-  selectReducer(StoreKeys.Init),
-  (reducerState: StoreState[StoreKeys.Init]) =>
+  initSlice,
+  (reducerState) =>
     initChecksAdapter.getSelectors().selectAll(reducerState.initChecks),
 );
 
 export const currentScreen = createSelector(
-  selectReducer(StoreKeys.Init),
-  (reducerState: StoreState[StoreKeys.Init]) => reducerState.currentScreen,
+  initSlice,
+  (reducerState) => reducerState.currentScreen,
 );
 
 export const initSelectors = {

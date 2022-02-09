@@ -1,7 +1,7 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.build.json",
   "compilerOptions": {
-    "target": "es2017",
+    "rootDir": "./src",
     "outDir": "./lib",
     "jsx": "react-native",
     "typeRoots": [
@@ -11,10 +11,11 @@
     "declaration": false
   },
   "include": [
-    "src",
+    "src"
   ],
   "exclude": [
     "node_modules",
     "**/__tests__/*"
   ]
 }
+  

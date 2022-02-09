@@ -2,6 +2,10 @@
 #
 .DS_Store
 
+# Project
+#
+lib
+
 # Xcode
 #
 build/

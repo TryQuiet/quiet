@@ -6,14 +6,15 @@ import { ScreenNames } from '../../const/ScreenNames.enum';
 import { initActions } from '../../store/init/init.slice';
 import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen';
 
-import { errors, identity } from '@zbayapp/nectar';
+import { errors, identity, SocketActionTypes } from '@quiet/nectar';
 
 export const RegistrationScreen: FC = () => {
   const dispatch = useDispatch();
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity);
 
-  const error = useSelector(errors.selectors.certificateRegistration);
+  const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
+  const error = communityErrors[SocketActionTypes.REGISTRAR]
 
   useEffect(() => {
     dispatch(initActions.setCurrentScreen(ScreenNames.RegistrationScreen));
@@ -40,7 +41,7 @@ export const RegistrationScreen: FC = () => {
   return (
     <Registration
       registerUsernameAction={registerUsername}
-      registerUsernameError={error}
+      registerUsernameError={error.message}
     />
   );
 };

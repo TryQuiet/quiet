@@ -1,8 +1,8 @@
 import React from 'react';
-
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent';
 import { Chat } from './Chat.component';
 import { Keyboard } from 'react-native';
+import { MessageType } from '@quiet/nectar';
 
 jest.useFakeTimers();
 
@@ -34,33 +34,37 @@ describe('Chat component', () => {
         messages={[
           {
             id: '1',
-            type: '1',
+            type: MessageType.Basic,
             message:
               'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
-            createdAt: '1:30pm',
+            createdAt: 0,
+            date: '1:30pm',
             nickname: 'holmes',
           },
           {
             id: '2',
-            type: '1',
+            type: MessageType.Basic,
             message:
               'Bear claw bear claw donut marzipan chocolate cake sugar plum pie. Chocolate cake chocolate bar ice cream. Marzipan powder brownie muffin jelly beans. Sesame snaps tootsie roll macaroon donut.',
-            createdAt: '1:32pm',
+            createdAt: 0,
+            date: '1:32pm',
             nickname: 'holmes',
           },
           {
             id: '3',
-            type: '1',
+            type: MessageType.Basic,
             message: 'Marshmallows!',
-            createdAt: '1:32pm',
+            createdAt: 0,
+            date: '1:32pm',
             nickname: 'emily',
           },
           {
             id: '4',
-            type: '1',
+            type: MessageType.Basic,
             message:
               'Chupa chups soufflé danish. Cake chocolate brownie cookie bear claw soufflé. Muffin chupa chups sweet caramels jelly beans chocolate bar bonbon liquorice.',
-            createdAt: '1:32pm',
+              createdAt: 0,
+              date: '1:32pm',
             nickname: 'bartek',
           },
         ]}

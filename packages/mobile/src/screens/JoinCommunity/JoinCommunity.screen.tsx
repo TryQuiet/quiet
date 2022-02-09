@@ -5,7 +5,7 @@ import { initActions } from '../../store/init/init.slice';
 import { ScreenNames } from '../../const/ScreenNames.enum';
 import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen';
 
-import { communities, identity } from '@zbayapp/nectar';
+import { communities, identity } from '@quiet/nectar';
 
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component';
 

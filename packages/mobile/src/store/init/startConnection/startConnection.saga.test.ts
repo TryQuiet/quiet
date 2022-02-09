@@ -7,7 +7,7 @@ import { StoreKeys } from '../../store.keys';
 import { initReducer, InitState } from '../init.slice';
 import { connect, startConnectionSaga } from './startConnection.saga';
 
-import { socket } from '@zbayapp/nectar';
+import { socket } from '@quiet/nectar';
 
 describe('startConnectionSaga', () => {
   test('should be defined', async () => {

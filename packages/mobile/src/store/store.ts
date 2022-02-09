@@ -6,17 +6,18 @@ import createSagaMiddleware from 'redux-saga';
 import { NodeEnv } from '../utils/const/NodeEnv.enum';
 import { initActions } from './init/init.slice';
 import { rootReducer } from './root.reducer';
-import { StoreKeys } from './store.keys';
+
+import { storeKeys as NectarStoreKeys } from '@quiet/nectar'
 
 const persistedReducer = persistReducer(
   {
     key: 'persistedReducer',
     storage: AsyncStorage,
     whitelist: [
-      StoreKeys.Communities,
-      StoreKeys.Identity,
-      StoreKeys.PublicChannels,
-      StoreKeys.Users,
+      NectarStoreKeys.Identity,
+      NectarStoreKeys.Communities,
+      NectarStoreKeys.PublicChannels,
+      NectarStoreKeys.Messages,
     ],
   },
   rootReducer,

@@ -5,8 +5,6 @@ import { initActions } from '../../store/init/init.slice';
 import { ScreenNames } from '../../const/ScreenNames.enum';
 import { Typography } from '../../components/Typography/Typography.component';
 
-import { communities } from '@zbayapp/nectar';
-
 export const MainScreen: FC = () => {
   const dispatch = useDispatch();
 

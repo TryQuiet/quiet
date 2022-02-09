@@ -5,12 +5,12 @@ import { select, call, put } from 'typed-redux-saga';
 import { initSelectors } from '../init.selectors';
 import { initActions } from '../init.slice';
 
-declare global {
-  interface Crypto {
-    subtle: any;
-  }
-  let crypto: Crypto;
-}
+// declare global {
+//   interface Crypto {
+//     subtle: any;
+//   }
+//   let crypto: Crypto;
+// }
 
 export function* setupCryptoSaga(): Generator {
   const isCryptoEngineInitialized = yield* select(

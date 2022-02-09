@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "waggle": "3.1.0"
+    "@quiet/waggle": "^0.1.0-alpha.5"
   }
 }

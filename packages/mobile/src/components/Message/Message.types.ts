@@ -1,4 +1,4 @@
-import { DisplayableMessage } from '../../store/publicChannels/publicChannels.types';
+import { DisplayableMessage } from '@quiet/nectar';
 
 export interface MessageProps {
   message: DisplayableMessage;

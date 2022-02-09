@@ -1,6 +1,7 @@
-import { Palette } from 'styled-components';
+// import { Palette } from 'styled-components';
 
-export const defaultPalette: Palette = {
+// export const defaultPalette: Palette = {
+  export const defaultPalette = {
   main: {
     brand: '#521C74',
     white: '#ffffff',

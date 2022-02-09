@@ -1,11 +1,11 @@
 import {
   DisplayableMessage,
-  IChannelInfo,
-} from '../../store/publicChannels/publicChannels.types';
+  PublicChannel,
+} from '@quiet/nectar';
 
 export interface ChatProps {
   sendMessageAction: (message: string) => void;
-  channel: IChannelInfo;
+  channel: PublicChannel;
   messages: DisplayableMessage[];
   user: string;
 }

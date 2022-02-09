@@ -1,6 +1,6 @@
-module.exports = {
-  jsxBracketSameLine: true,
-  singleQuote: true,
-  trailingComma: 'all',
-  arrowParens: 'avoid',
-};
+const defaultConfig = require('../../.prettierrc.js')
+const modifiedConfig = {
+  ...defaultConfig
+}
+
+module.exports = modifiedConfig
