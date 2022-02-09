@@ -1,15 +1,15 @@
-import React from 'react';
+import React from 'react'
 
-import { renderComponent } from '../../utils/functions/renderComponent/renderComponent';
-import { Typography } from './Typography.component';
+import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
+import { Typography } from './Typography.component'
 
 describe('Typography component', () => {
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
       <Typography color={'main'} fontSize={20} fontWeight={'bold'}>
         {'Typography'}
-      </Typography>,
-    );
+      </Typography>
+    )
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <Text
@@ -32,6 +32,6 @@ describe('Typography component', () => {
       >
         Typography
       </Text>
-    `);
-  });
-});
+    `)
+  })
+})

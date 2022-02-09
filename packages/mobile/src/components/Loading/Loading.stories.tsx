@@ -1,7 +1,7 @@
-import { storiesOf } from '@storybook/react-native';
-import React from 'react';
+import { storiesOf } from '@storybook/react-native'
+import React from 'react'
 
-import { Loading } from './Loading.component';
+import { Loading } from './Loading.component'
 
 storiesOf('Loading', module)
   .add('Default', () => (
@@ -11,24 +11,24 @@ storiesOf('Loading', module)
       checks={[
         {
           event: 'native services started',
-          passed: true,
+          passed: true
         },
         {
           event: 'tor initialized',
-          passed: true,
+          passed: true
         },
         {
           event: 'onion address added',
-          passed: false,
+          passed: false
         },
         {
           event: 'waggle started',
-          passed: false,
+          passed: false
         },
         {
           event: 'websocket connected',
-          passed: false,
-        },
+          passed: false
+        }
       ]}
     />
   ))
@@ -43,4 +43,4 @@ storiesOf('Loading', module)
       progress={1}
       description={'Downloading tools to protect your privacy'}
     />
-  ));
+  ))

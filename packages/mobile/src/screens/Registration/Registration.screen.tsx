@@ -1,47 +1,44 @@
-import React, { FC, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { appImages } from '../../../assets';
-import { Registration } from '../../components/Registration/Registration.component';
-import { ScreenNames } from '../../const/ScreenNames.enum';
-import { initActions } from '../../store/init/init.slice';
-import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen';
+import React, { FC, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { appImages } from '../../../assets'
+import { Registration } from '../../components/Registration/Registration.component'
+import { ScreenNames } from '../../const/ScreenNames.enum'
+import { initActions } from '../../store/init/init.slice'
+import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen'
 
-import { errors, identity, SocketActionTypes } from '@quiet/nectar';
+import { errors, identity, SocketActionTypes } from '@quiet/nectar'
 
 export const RegistrationScreen: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
-  const currentIdentity = useSelector(identity.selectors.currentIdentity);
+  const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
   const error = communityErrors[SocketActionTypes.REGISTRAR]
 
   useEffect(() => {
-    dispatch(initActions.setCurrentScreen(ScreenNames.RegistrationScreen));
-  });
+    dispatch(initActions.setCurrentScreen(ScreenNames.RegistrationScreen))
+  })
 
   useEffect(() => {
-    if (
-      currentIdentity !== undefined &&
-      currentIdentity.userCertificate !== null
-    ) {
+    if (currentIdentity?.userCertificate !== null) {
       replaceScreen(ScreenNames.SuccessScreen, {
         onPress: () => {},
         icon: appImages.username_registered,
         title: 'You created a username',
-        message: 'Your username will be registered shortly',
-      });
+        message: 'Your username will be registered shortly'
+      })
     }
-  }, [currentIdentity]);
+  }, [currentIdentity])
 
   const registerUsername = (name: string) => {
-    dispatch(identity.actions.registerUsername(name));
-  };
+    dispatch(identity.actions.registerUsername(name))
+  }
 
   return (
     <Registration
       registerUsernameAction={registerUsername}
       registerUsernameError={error.message}
     />
-  );
-};
+  )
+}

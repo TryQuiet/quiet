@@ -1,9 +1,9 @@
-import React, { FC } from 'react';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import { StyledButton } from './Button.styles';
-import { ButtonProps } from './Button.types';
+import React, { FC } from 'react'
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
+import { StyledButton } from './Button.styles'
+import { ButtonProps } from './Button.types'
 
-import * as Progress from 'react-native-progress';
+import * as Progress from 'react-native-progress'
 
 export const Button: FC<ButtonProps> = ({ onPress, title, loading, style }) => {
   return (
@@ -15,5 +15,5 @@ export const Button: FC<ButtonProps> = ({ onPress, title, loading, style }) => {
       )}
       {!loading && <StyledButton style={style}>{title}</StyledButton>}
     </TouchableWithoutFeedback>
-  );
-};
+  )
+}

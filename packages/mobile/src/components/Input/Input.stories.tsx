@@ -1,7 +1,7 @@
-import { storiesOf } from '@storybook/react-native';
-import React from 'react';
+import { storiesOf } from '@storybook/react-native'
+import React from 'react'
 
-import { Input } from './Input.component';
+import { Input } from './Input.component'
 
 storiesOf('Input', module)
   .add('Default', () => <Input placeholder={'Message #general as @holmes'} />)
@@ -40,4 +40,4 @@ storiesOf('Input', module)
         'Your username cannot have any spaces or special characters, must be lowercase letters and numbers only.'
       }
     />
-  ));
+  ))

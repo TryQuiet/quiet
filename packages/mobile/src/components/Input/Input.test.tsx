@@ -1,7 +1,7 @@
-import React from 'react';
+import React from 'react'
 
-import { renderComponent } from '../../utils/functions/renderComponent/renderComponent';
-import { Input } from './Input.component';
+import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
+import { Input } from './Input.component'
 
 describe('MessageInput component', () => {
   it('should match inline snapshot', () => {
@@ -9,8 +9,8 @@ describe('MessageInput component', () => {
       <Input
         onChangeText={() => {}}
         placeholder={'Message #general as @holmes'}
-      />,
-    );
+      />
+    )
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View>
@@ -62,6 +62,6 @@ describe('MessageInput component', () => {
           />
         </View>
       </View>
-    `);
-  });
-});
+    `)
+  })
+})

@@ -1,4 +1,4 @@
-export type InitCheck = {
-  event: string;
-  passed: boolean;
-};
+export interface InitCheck {
+  event: string
+  passed: boolean
+}

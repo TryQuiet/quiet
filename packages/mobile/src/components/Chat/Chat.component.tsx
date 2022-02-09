@@ -1,52 +1,50 @@
-import React, { FC, useState, useEffect, useRef } from 'react';
-import { Keyboard, Platform, StyleSheet, View } from 'react-native';
-import { KeyboardAvoidingView, FlatList } from 'react-native';
-import { Message } from '../Message/Message.component';
-import { Input } from '../Input/Input.component';
-import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component';
+import React, { FC, useState, useEffect, useRef } from 'react'
+import { Keyboard, Platform, StyleSheet, View, KeyboardAvoidingView, FlatList, TextInput } from 'react-native'
+import { Message } from '../Message/Message.component'
+import { Input } from '../Input/Input.component'
+import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 
-import { ChatProps } from './Chat.types';
-import { TextInput } from 'react-native';
+import { ChatProps } from './Chat.types'
 
 export const Chat: FC<ChatProps> = ({
   sendMessageAction,
   channel,
   messages,
-  user,
+  user
 }) => {
-  const [didKeyboardShow, setKeyboardShow] = useState(false);
-  const [messageInput, setMessageInput] = useState<string | undefined>();
+  const [didKeyboardShow, setKeyboardShow] = useState(false)
+  const [messageInput, setMessageInput] = useState<string | undefined>()
 
-  const messageInputRef = useRef<null | TextInput>(null);
+  const messageInputRef = useRef<null | TextInput>(null)
 
   useEffect(() => {
     const onKeyboardDidShow = () => {
-      setKeyboardShow(true);
-    };
+      setKeyboardShow(true)
+    }
 
     const onKeyboardDidHide = () => {
-      setKeyboardShow(false);
-    };
+      setKeyboardShow(false)
+    }
 
-    Keyboard.addListener('keyboardDidShow', onKeyboardDidShow);
-    Keyboard.addListener('keyboardDidHide', onKeyboardDidHide);
+    Keyboard.addListener('keyboardDidShow', onKeyboardDidShow)
+    Keyboard.addListener('keyboardDidHide', onKeyboardDidHide)
 
     return () => {
-      Keyboard.removeListener('keyboardDidShow', onKeyboardDidShow);
-      Keyboard.removeListener('keyboardDidHide', onKeyboardDidHide);
-    };
-  }, [messageInput?.length, setKeyboardShow]);
+      Keyboard.removeListener('keyboardDidShow', onKeyboardDidShow)
+      Keyboard.removeListener('keyboardDidHide', onKeyboardDidHide)
+    }
+  }, [messageInput?.length, setKeyboardShow])
 
-  const [isInputEmpty, setInputEmpty] = useState(true);
+  const [isInputEmpty, setInputEmpty] = useState(true)
 
   const onInputTextChange = (value: string) => {
     if (value.length === 0) {
-      setInputEmpty(true);
+      setInputEmpty(true)
     } else {
-      setInputEmpty(false);
+      setInputEmpty(false)
     }
-    setMessageInput(value);
-  };
+    setMessageInput(value)
+  }
 
   const onPress = () => {
     if (
@@ -54,27 +52,27 @@ export const Chat: FC<ChatProps> = ({
       messageInput === undefined ||
       messageInput?.length === 0
     ) {
-      return;
+      return
     }
-    messageInputRef.current.clear();
-    sendMessageAction(messageInput);
-    setMessageInput('');
-  };
+    messageInputRef.current.clear()
+    sendMessageAction(messageInput)
+    setMessageInput('')
+  }
 
-  const inputStyle = didKeyboardShow ? customInputStyle.expanded : {};
+  const inputStyle = didKeyboardShow ? customInputStyle.expanded : {}
   const inputWrapperStyle = didKeyboardShow
     ? customInputWrapperStyle.expanded
-    : customInputWrapperStyle.default;
+    : customInputWrapperStyle.default
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={25}
       style={{
         flex: 1,
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        backgroundColor: 'white',
+        backgroundColor: 'white'
       }}>
       <FlatList
         inverted
@@ -100,7 +98,7 @@ export const Chat: FC<ChatProps> = ({
             height: 56,
             paddingLeft: 20,
             paddingRight: 20,
-            backgroundColor: '#fbfbfb',
+            backgroundColor: '#fbfbfb'
           }}>
           <View style={{ alignSelf: 'flex-end' }}>
             <MessageSendButton onPress={onPress} disabled={isInputEmpty} />
@@ -108,23 +106,23 @@ export const Chat: FC<ChatProps> = ({
         </View>
       )}
     </KeyboardAvoidingView>
-  );
-};
+  )
+}
 
 const customInputWrapperStyle = StyleSheet.create({
   default: {
     paddingLeft: 20,
     paddingRight: 20,
-    paddingBottom: 20,
+    paddingBottom: 20
   },
   expanded: {
-    padding: 0,
-  },
-});
+    padding: 0
+  }
+})
 
 const customInputStyle = StyleSheet.create({
   expanded: {
     borderTopWidth: 1,
-    borderWidth: 0,
-  },
-});
+    borderWidth: 0
+  }
+})

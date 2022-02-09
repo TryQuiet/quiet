@@ -1,5 +1,5 @@
-import { ErrorRouteProp } from '../../route.params';
+import { ErrorRouteProp } from '../../route.params'
 
-export type ErrorScreenProps = {
-  route: ErrorRouteProp;
-};
+export interface ErrorScreenProps {
+  route: ErrorRouteProp
+}

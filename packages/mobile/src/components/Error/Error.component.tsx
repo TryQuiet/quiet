@@ -1,9 +1,9 @@
-import React, { FC } from 'react';
-import { Image, View } from 'react-native';
-import { Button } from '../Button/Button.component';
-import { Typography } from '../Typography/Typography.component';
+import React, { FC } from 'react'
+import { Image, View } from 'react-native'
+import { Button } from '../Button/Button.component'
+import { Typography } from '../Typography/Typography.component'
 
-import { ErrorProps } from './Error.types';
+import { ErrorProps } from './Error.types'
 
 export const Error: FC<ErrorProps> = ({ onPress, icon, title, message }) => {
   return (
@@ -14,7 +14,7 @@ export const Error: FC<ErrorProps> = ({ onPress, icon, title, message }) => {
           margin: 20,
           resizeMode: 'cover',
           width: 84,
-          height: 84,
+          height: 84
         }}
       />
       <Typography fontSize={16} fontWeight={'medium'} color={'error'}>
@@ -32,5 +32,5 @@ export const Error: FC<ErrorProps> = ({ onPress, icon, title, message }) => {
         style={{ width: 100, marginTop: 10 }}
       />
     </View>
-  );
-};
+  )
+}

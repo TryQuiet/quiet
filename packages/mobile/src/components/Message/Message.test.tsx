@@ -1,15 +1,15 @@
-import { MessageType } from '@quiet/nectar';
-import React from 'react';
+import { MessageType } from '@quiet/nectar'
+import React from 'react'
 
-import { renderComponent } from '../../utils/functions/renderComponent/renderComponent';
-import { Message } from './Message.component';
+import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
+import { Message } from './Message.component'
 
 jest.mock('react-native-jdenticon', () => {
   const mockJdenticon = () => {
-    return null;
-  };
-  return mockJdenticon;
-});
+    return null
+  }
+  return mockJdenticon
+})
 
 describe('Message component', () => {
   it('should match inline snapshot', () => {
@@ -22,10 +22,10 @@ describe('Message component', () => {
             'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
           createdAt: 0,
           date: '1:30pm',
-          nickname: 'holmes',
+          nickname: 'holmes'
         }}
-      />,
-    );
+      />
+    )
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
@@ -161,6 +161,6 @@ describe('Message component', () => {
           </View>
         </View>
       </View>
-    `);
-  });
-});
+    `)
+  })
+})

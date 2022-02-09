@@ -1,8 +1,8 @@
-import { storiesOf } from '@storybook/react-native';
-import React from 'react';
-import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function';
+import { storiesOf } from '@storybook/react-native'
+import React from 'react'
+import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function'
 
-import { MessageSendButton } from './MessageSendButton.component';
+import { MessageSendButton } from './MessageSendButton.component'
 
 storiesOf('MessageSendButton', module)
   .add('Default', () => (
@@ -16,4 +16,4 @@ storiesOf('MessageSendButton', module)
       onPress={storybookLog('Disabled button click')}
       disabled={true}
     />
-  ));
+  ))

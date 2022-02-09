@@ -1,8 +1,8 @@
-import React from 'react';
-import { storiesOf } from '@storybook/react-native';
-import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function';
+import React from 'react'
+import { storiesOf } from '@storybook/react-native'
+import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function'
 
-import { Error } from './Error.component';
+import { Error } from './Error.component'
 
 storiesOf('Error', module).add('Default', () => (
   <Error
@@ -11,4 +11,4 @@ storiesOf('Error', module).add('Default', () => (
     }
     onPress={storybookLog('Error button click')}
   />
-));
+))

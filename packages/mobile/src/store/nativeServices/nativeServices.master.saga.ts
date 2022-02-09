@@ -1,10 +1,10 @@
-import { all, fork, takeEvery } from 'typed-redux-saga';
-import { createDataDirectorySaga } from './createDataDirectory/createDataDirectory.saga';
-import { nativeServicesActions } from './nativeServices.slice';
-import { nativeServicesCallbacksSaga } from './nativeServicesCallbacks/nativeServicesCallbacks';
-import { pushNotificationsSaga } from './pushNotifications/pushNotifications.saga';
-import { startTorSaga } from './startTor/startTor.saga';
-import { startWaggleSaga } from './startWaggle/startWaggle.saga';
+import { all, fork, takeEvery } from 'typed-redux-saga'
+import { createDataDirectorySaga } from './createDataDirectory/createDataDirectory.saga'
+import { nativeServicesActions } from './nativeServices.slice'
+import { nativeServicesCallbacksSaga } from './nativeServicesCallbacks/nativeServicesCallbacks'
+import { pushNotificationsSaga } from './pushNotifications/pushNotifications.saga'
+import { startTorSaga } from './startTor/startTor.saga'
+import { startWaggleSaga } from './startWaggle/startWaggle.saga'
 
 export function* nativeServicesMasterSaga(): Generator {
   yield all([
@@ -18,7 +18,7 @@ export function* nativeServicesMasterSaga(): Generator {
     fork(startWaggleSaga),
     takeEvery(
       nativeServicesActions.initPushNotifications.type,
-      pushNotificationsSaga,
-    ),
-  ]);
+      pushNotificationsSaga
+    )
+  ])
 }

@@ -1,5 +1,5 @@
-import { SuccessRouteProp } from '../../route.params';
+import { SuccessRouteProp } from '../../route.params'
 
-export type SuccessScreenProps = {
-  route: SuccessRouteProp;
-};
+export interface SuccessScreenProps {
+  route: SuccessRouteProp
+}

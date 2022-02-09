@@ -1,16 +1,16 @@
-import {FontWeight} from './Typography.types';
+import { FontWeight } from './Typography.types'
 
 export const getFontFamily = (fontWeight: FontWeight | undefined): string => {
   switch (fontWeight) {
     case 'bold':
-      return 'Rubik-Bold';
+      return 'Rubik-Bold'
     case 'medium':
-      return 'Rubik-Medium';
+      return 'Rubik-Medium'
     case 'thin':
-      return 'Rubik-Light';
+      return 'Rubik-Light'
     case 'normal':
-      return 'Rubik-Regular';
+      return 'Rubik-Regular'
     default:
-      return 'Rubik-Regular';
+      return 'Rubik-Regular'
   }
-};
+}

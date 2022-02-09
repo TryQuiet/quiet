@@ -1,25 +1,25 @@
-import React, { FC } from 'react';
-import { Image, View } from 'react-native';
-import deviceInfoModule from 'react-native-device-info';
-import * as Progress from 'react-native-progress';
-import { appImages } from '../../../assets';
-import { defaultTheme } from '../../styles/themes/default.theme';
-import { InitCheck } from '../InitCheck/InitCheck.component';
-import { Typography } from '../Typography/Typography.component';
+import React, { FC } from 'react'
+import { Image, View } from 'react-native'
+import deviceInfoModule from 'react-native-device-info'
+import * as Progress from 'react-native-progress'
+import { appImages } from '../../../assets'
+import { defaultTheme } from '../../styles/themes/default.theme'
+import { InitCheck } from '../InitCheck/InitCheck.component'
+import { Typography } from '../Typography/Typography.component'
 
-import { LoadingProps } from './Loading.types';
+import { LoadingProps } from './Loading.types'
 
 export const Loading: FC<LoadingProps> = ({
   progress,
   description,
-  checks,
+  checks
 }) => {
   return (
     <View
       style={{
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'center'
       }}>
       <Image
         source={appImages.zbay_icon}
@@ -27,7 +27,7 @@ export const Loading: FC<LoadingProps> = ({
           margin: 20,
           resizeMode: 'cover',
           width: 84,
-          height: 84,
+          height: 84
         }}
       />
       <Typography
@@ -55,5 +55,5 @@ export const Loading: FC<LoadingProps> = ({
         </Typography>
       </View>
     </View>
-  );
-};
+  )
+}

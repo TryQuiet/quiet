@@ -1,6 +1,6 @@
-import React, { FC } from 'react';
-import { Success } from '../../components/Success/Success.component';
-import { SuccessScreenProps } from './Success.types';
+import React, { FC } from 'react'
+import { Success } from '../../components/Success/Success.component'
+import { SuccessScreenProps } from './Success.types'
 
 export const SuccessScreen: FC<SuccessScreenProps> = ({ route }) => {
   return (
@@ -10,5 +10,5 @@ export const SuccessScreen: FC<SuccessScreenProps> = ({ route }) => {
       title={route.params.title}
       message={route.params.message}
     />
-  );
-};
+  )
+}

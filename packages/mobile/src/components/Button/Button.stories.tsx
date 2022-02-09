@@ -1,8 +1,8 @@
-import { storiesOf } from '@storybook/react-native';
-import React from 'react';
-import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function';
+import { storiesOf } from '@storybook/react-native'
+import React from 'react'
+import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function'
 
-import { Button } from './Button.component';
+import { Button } from './Button.component'
 
 storiesOf('Button', module)
   .add('Default', () => (
@@ -14,4 +14,4 @@ storiesOf('Button', module)
       loading={true}
       onPress={storybookLog('Button clicked')}
     />
-  ));
+  ))

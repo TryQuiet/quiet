@@ -1,28 +1,28 @@
-import { combineReducers } from '@reduxjs/toolkit';
-import { expectSaga } from 'redux-saga-test-plan';
-import { NativeModules } from 'react-native';
-import { StoreKeys } from '../../store.keys';
+import { combineReducers } from '@reduxjs/toolkit'
+import { expectSaga } from 'redux-saga-test-plan'
+import { NativeModules } from 'react-native'
+import { StoreKeys } from '../../store.keys'
 import {
   nativeServicesReducer,
-  NativeServicesState,
-} from '../nativeServices.slice';
+  NativeServicesState
+} from '../nativeServices.slice'
 
-import { startTorSaga } from './startTor.saga';
+import { startTorSaga } from './startTor.saga'
 
 describe('startTorSaga', () => {
-  test('should start tor with native method', () => {
+  test('should start tor with native method', async () => {
     NativeModules.TorModule = {
-      startTor: jest.fn(),
-    };
-    expectSaga(startTorSaga)
+      startTor: jest.fn()
+    }
+    await expectSaga(startTorSaga)
       .withReducer(
         combineReducers({ [StoreKeys.NativeServices]: nativeServicesReducer }),
         {
           [StoreKeys.NativeServices]: {
-            ...new NativeServicesState(),
-          },
-        },
+            ...new NativeServicesState()
+          }
+        }
       )
-      .run();
-  });
-});
+      .run()
+  })
+})

@@ -1,14 +1,14 @@
-import { Pressable, TextInput } from 'react-native';
-import styled, { css } from 'styled-components/native';
+import { Pressable, TextInput } from 'react-native'
+import styled, { css } from 'styled-components/native'
 
 export const StyledTextInput = styled(TextInput)`
   text-align-vertical: center;
   padding-top: 8px;
   padding-bottom: 8px;
-`;
+`
 
 export const StyledWrapper = styled(Pressable)<{
-  disabled: boolean;
+  disabled: boolean
 }>`
   ${({ theme, disabled }) => css`
     min-height: 42px;
@@ -23,4 +23,4 @@ export const StyledWrapper = styled(Pressable)<{
     padding-right: 15px;
     flex-grow: 1;
   `}
-`;
+`

@@ -1,14 +1,14 @@
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
-import {render, RenderAPI} from '@testing-library/react-native';
-import React from 'react';
-import {Provider} from 'react-redux';
-import {ThemeProvider} from 'styled-components/native';
+import { NavigationContainer } from '@react-navigation/native'
+import { createStackNavigator } from '@react-navigation/stack'
+import { render, RenderAPI } from '@testing-library/react-native'
+import React from 'react'
+import { Provider } from 'react-redux'
+import { ThemeProvider } from 'styled-components/native'
 
-import {store} from '../../../store/store';
-import {defaultTheme} from '../../../styles/themes/default.theme';
+import { store } from '../../../store/store'
+import { defaultTheme } from '../../../styles/themes/default.theme'
 
-const {Navigator, Screen} = createStackNavigator();
+const { Navigator, Screen } = createStackNavigator()
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const renderScreen = (PassedScreen: React.FC<any>): RenderAPI => {
@@ -22,7 +22,7 @@ export const renderScreen = (PassedScreen: React.FC<any>): RenderAPI => {
         </NavigationContainer>
       </ThemeProvider>
     </Provider>
-  );
+  )
 
-  return render(<RenderedScreen />);
-};
+  return render(<RenderedScreen />)
+}

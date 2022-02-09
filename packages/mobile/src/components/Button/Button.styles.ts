@@ -1,6 +1,6 @@
-import { Text } from 'react-native';
-import styled, { css } from 'styled-components/native';
-import { getFontFamily } from '../Typography/Typography.utils';
+import { Text } from 'react-native'
+import styled, { css } from 'styled-components/native'
+import { getFontFamily } from '../Typography/Typography.utils'
 
 export const StyledButton = styled(Text)`
   ${({ theme }) =>
@@ -13,4 +13,4 @@ export const StyledButton = styled(Text)`
       font-family: ${getFontFamily('normal')};
       border-radius: 5px;
     `}
-`;
+`

@@ -1,6 +1,6 @@
-import { combineReducers } from '@reduxjs/toolkit';
-import { StoreKeys } from './store.keys';
-import { initReducer } from './init/init.slice';
+import { combineReducers } from '@reduxjs/toolkit'
+import { StoreKeys } from './store.keys'
+import { initReducer } from './init/init.slice'
 import nectarReducers from '@quiet/nectar'
 
 export const reducers = {
@@ -8,4 +8,4 @@ export const reducers = {
   [StoreKeys.Init]: initReducer
 }
 
-export const rootReducer = combineReducers(reducers);
+export const rootReducer = combineReducers(reducers)

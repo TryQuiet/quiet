@@ -1,5 +1,5 @@
-import { DisplayableMessage } from '@quiet/nectar';
+import { DisplayableMessage } from '@quiet/nectar'
 
 export interface MessageProps {
-  message: DisplayableMessage;
+  message: DisplayableMessage
 }

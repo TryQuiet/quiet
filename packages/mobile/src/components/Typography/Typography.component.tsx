@@ -1,7 +1,7 @@
-import React, { FC } from 'react';
+import React, { FC } from 'react'
 
-import { StyledTypography } from './Typography.styles';
-import { TypographyProps } from './Typography.types';
+import { StyledTypography } from './Typography.styles'
+import { TypographyProps } from './Typography.types'
 
 export const Typography: FC<TypographyProps> = ({
   children,
@@ -11,7 +11,7 @@ export const Typography: FC<TypographyProps> = ({
   style,
   horizontalTextAlign,
   verticalTextAlign,
-  numberOfLines,
+  numberOfLines
 }) => (
   <StyledTypography
     color={color}
@@ -23,4 +23,4 @@ export const Typography: FC<TypographyProps> = ({
     verticalTextAlign={verticalTextAlign}>
     {children}
   </StyledTypography>
-);
+)

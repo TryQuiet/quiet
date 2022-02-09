@@ -1,9 +1,9 @@
-import CryptoEngine from 'pkijs/src/CryptoEngine';
-import { setEngine } from 'pkijs/src/common';
+import CryptoEngine from 'pkijs/src/CryptoEngine'
+import { setEngine } from 'pkijs/src/common'
 
-import { select, call, put } from 'typed-redux-saga';
-import { initSelectors } from '../init.selectors';
-import { initActions } from '../init.slice';
+import { select, call, put } from 'typed-redux-saga'
+import { initSelectors } from '../init.selectors'
+import { initActions } from '../init.slice'
 
 // declare global {
 //   interface Crypto {
@@ -14,11 +14,11 @@ import { initActions } from '../init.slice';
 
 export function* setupCryptoSaga(): Generator {
   const isCryptoEngineInitialized = yield* select(
-    initSelectors.isCryptoEngineInitialized,
-  );
+    initSelectors.isCryptoEngineInitialized
+  )
   if (!isCryptoEngineInitialized) {
-    yield* call(initCryptoEngine);
-    yield* put(initActions.setCryptoEngineInitialized(true));
+    yield* call(initCryptoEngine)
+    yield* put(initActions.setCryptoEngineInitialized(true))
   }
 }
 
@@ -29,7 +29,7 @@ export const initCryptoEngine = () => {
     new CryptoEngine({
       name: '',
       crypto,
-      subtle: crypto.subtle,
-    }),
-  );
-};
+      subtle: crypto.subtle
+    })
+  )
+}

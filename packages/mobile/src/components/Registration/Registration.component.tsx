@@ -1,42 +1,41 @@
-import React, { FC, useEffect } from 'react';
-import { useState } from 'react';
-import { Keyboard, KeyboardAvoidingView } from 'react-native';
-import { Button } from '../Button/Button.component';
-import { Input } from '../Input/Input.component';
-import { Typography } from '../Typography/Typography.component';
+import React, { FC, useEffect, useState } from 'react'
+import { Keyboard, KeyboardAvoidingView } from 'react-native'
+import { Button } from '../Button/Button.component'
+import { Input } from '../Input/Input.component'
+import { Typography } from '../Typography/Typography.component'
 
-import { RegistrationProps } from './Registration.types';
+import { RegistrationProps } from './Registration.types'
 
 export const Registration: FC<RegistrationProps> = ({
   registerUsernameAction,
-  registerUsernameError,
+  registerUsernameError
 }) => {
-  const [usernameInput, setUsernameInput] = useState<string | undefined>();
-  const [inputError, setInputError] = useState<string | undefined>();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [usernameInput, setUsernameInput] = useState<string | undefined>()
+  const [inputError, setInputError] = useState<string | undefined>()
+  const [loading, setLoading] = useState<boolean>(false)
 
   useEffect(() => {
     if (registerUsernameError) {
-      setLoading(false);
-      setInputError(registerUsernameError);
+      setLoading(false)
+      setInputError(registerUsernameError)
     }
-  }, [registerUsernameError]);
+  }, [registerUsernameError])
 
   const onChangeText = (value: string) => {
-    setInputError(undefined);
-    setUsernameInput(value);
-  };
+    setInputError(undefined)
+    setUsernameInput(value)
+  }
 
   const onPress = () => {
-    Keyboard.dismiss();
-    setLoading(true);
+    Keyboard.dismiss()
+    setLoading(true)
     if (usernameInput === undefined || usernameInput?.length === 0) {
-      setLoading(false);
-      setInputError('Username can not be empty');
-      return;
+      setLoading(false)
+      setInputError('Username can not be empty')
+      return
     }
-    registerUsernameAction(usernameInput);
-  };
+    registerUsernameAction(usernameInput)
+  }
 
   return (
     <KeyboardAvoidingView
@@ -45,7 +44,7 @@ export const Registration: FC<RegistrationProps> = ({
         flex: 1,
         justifyContent: 'center',
         paddingLeft: 20,
-        paddingRight: 20,
+        paddingRight: 20
       }}>
       <Typography
         fontSize={24}
@@ -70,5 +69,5 @@ export const Registration: FC<RegistrationProps> = ({
         style={{ marginTop: 30 }}
       />
     </KeyboardAvoidingView>
-  );
-};
+  )
+}

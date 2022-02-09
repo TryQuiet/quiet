@@ -1,13 +1,13 @@
-import React from 'react';
+import React from 'react'
 
-import { renderComponent } from '../../utils/functions/renderComponent/renderComponent';
-import { MessageSendButton } from './MessageSendButton.component';
+import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
+import { MessageSendButton } from './MessageSendButton.component'
 
 describe('MessageSendButton component', () => {
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
-      <MessageSendButton onPress={jest.fn()} disabled={false} />,
-    );
+      <MessageSendButton onPress={jest.fn()} disabled={false} />
+    )
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <RNGestureHandlerButton
@@ -47,6 +47,6 @@ describe('MessageSendButton component', () => {
           />
         </View>
       </RNGestureHandlerButton>
-    `);
-  });
-});
+    `)
+  })
+})

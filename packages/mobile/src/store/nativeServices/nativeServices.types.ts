@@ -1,5 +1,5 @@
 interface Onion {
-    address: string,
-    key: string,
-    port: Number
+  address: string
+  key: string
+  port: Number
 }

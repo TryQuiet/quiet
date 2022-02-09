@@ -1,13 +1,13 @@
 // import { Palette } from 'styled-components';
 
 // export const defaultPalette: Palette = {
-  export const defaultPalette = {
+export const defaultPalette = {
   main: {
     brand: '#521C74',
-    white: '#ffffff',
+    white: '#ffffff'
   },
   statusBar: {
-    main: '#CB444E',
+    main: '#CB444E'
   },
   typography: {
     main: '#000000',
@@ -15,11 +15,11 @@
     hint: '#999999',
     error: '#E42656',
     greyLight: '#B8B8B8',
-    greyDark: '#999999',
+    greyDark: '#999999'
   },
   input: {
     border: '#B3B3B3',
     backgroundDefault: '#ffffff',
-    backgroundDisabled: '#EBEBEB',
-  },
-};
+    backgroundDisabled: '#EBEBEB'
+  }
+}

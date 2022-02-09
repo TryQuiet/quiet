@@ -1,9 +1,8 @@
-import React, { FC } from 'react';
-import { KeyboardAvoidingView } from 'react-native';
-import { View } from 'react-native';
-import { Typography } from '../Typography/Typography.component';
-import { MessageProps } from './Message.types';
-import Jdenticon from 'react-native-jdenticon';
+import React, { FC } from 'react'
+import { KeyboardAvoidingView, View } from 'react-native'
+import { Typography } from '../Typography/Typography.component'
+import { MessageProps } from './Message.types'
+import Jdenticon from 'react-native-jdenticon'
 
 export const Message: FC<MessageProps> = ({ message }) => {
   return (
@@ -11,13 +10,13 @@ export const Message: FC<MessageProps> = ({ message }) => {
       <View
         style={{
           flexDirection: 'row',
-          paddingBottom: 30,
+          paddingBottom: 30
         }}>
         <View
           style={{
             flex: 1,
             alignItems: 'center',
-            paddingRight: 12,
+            paddingRight: 12
           }}>
           <Jdenticon
             value={message.nickname}
@@ -36,7 +35,7 @@ export const Message: FC<MessageProps> = ({ message }) => {
               style={{
                 alignSelf: 'flex-start',
                 paddingTop: 2,
-                paddingLeft: 8,
+                paddingLeft: 8
               }}>
               <Typography fontSize={14} color={'subtitle'}>
                 {message.createdAt}
@@ -49,5 +48,5 @@ export const Message: FC<MessageProps> = ({ message }) => {
         </View>
       </View>
     </KeyboardAvoidingView>
-  );
-};
+  )
+}

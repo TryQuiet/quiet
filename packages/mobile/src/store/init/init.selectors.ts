@@ -1,47 +1,47 @@
-import { createSelector } from 'reselect';
-import { StoreKeys } from '../store.keys';
-import { CreatedSelectors, StoreState } from '../store.types';
-import { initChecksAdapter } from './init.adapter';
+import { createSelector } from 'reselect'
+import { StoreKeys } from '../store.keys'
+import { CreatedSelectors, StoreState } from '../store.types'
+import { initChecksAdapter } from './init.adapter'
 
 const initSlice: CreatedSelectors[StoreKeys.Init] = (state: StoreState) =>
   state[StoreKeys.Init]
 
 export const dataDirectoryPath = createSelector(
   initSlice,
-  (reducerState) => reducerState.dataDirectoryPath,
-);
+  (reducerState) => reducerState.dataDirectoryPath
+)
 
 export const torData = createSelector(
   initSlice,
-  (reducerState) => reducerState.torData,
-);
+  (reducerState) => reducerState.torData
+)
 
 export const isNavigatorReady = createSelector(
   initSlice,
-  (reducerState) => reducerState.isNavigatorReady,
-);
+  (reducerState) => reducerState.isNavigatorReady
+)
 
 export const isCryptoEngineInitialized = createSelector(
   initSlice,
   (reducerState) =>
-    reducerState.isCryptoEngineInitialized,
-);
+    reducerState.isCryptoEngineInitialized
+)
 
 export const initDescription = createSelector(
   initSlice,
-  (reducerState) => reducerState.initDescription,
-);
+  (reducerState) => reducerState.initDescription
+)
 
 export const initChecks = createSelector(
   initSlice,
   (reducerState) =>
-    initChecksAdapter.getSelectors().selectAll(reducerState.initChecks),
-);
+    initChecksAdapter.getSelectors().selectAll(reducerState.initChecks)
+)
 
 export const currentScreen = createSelector(
   initSlice,
-  (reducerState) => reducerState.currentScreen,
-);
+  (reducerState) => reducerState.currentScreen
+)
 
 export const initSelectors = {
   dataDirectoryPath,
@@ -50,5 +50,5 @@ export const initSelectors = {
   isCryptoEngineInitialized,
   initDescription,
   initChecks,
-  currentScreen,
-};
+  currentScreen
+}

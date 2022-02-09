@@ -1,7 +1,7 @@
-import {storiesOf} from '@storybook/react-native';
-import React from 'react';
+import { storiesOf } from '@storybook/react-native'
+import React from 'react'
 
-import {Typography} from './Typography.component';
+import { Typography } from './Typography.component'
 
 storiesOf('Typography', module)
   .add('Default', () => (
@@ -16,7 +16,7 @@ storiesOf('Typography', module)
     <Typography fontSize={20} fontWeight={'thin'}>
       {'This is random text'}
     </Typography>
-  ));
+  ))
 // .add('Colored', () => (
 //   <Typography color={'warning'} fontSize={20}>
 //     {'This is random text'}

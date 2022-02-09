@@ -1,30 +1,30 @@
-import { RouteProp } from '@react-navigation/core';
-import { Dispatch } from 'react';
-import { ScreenNames } from './const/ScreenNames.enum';
+import { RouteProp } from '@react-navigation/core'
+import { Dispatch } from 'react'
+import { ScreenNames } from './const/ScreenNames.enum'
 
-export type RootStackParamList = {
-  [ScreenNames.SplashScreen]: undefined;
-  [ScreenNames.MainScreen]: undefined;
+export interface RootStackParamList {
+  [ScreenNames.SplashScreen]: undefined
+  [ScreenNames.MainScreen]: undefined
   [ScreenNames.SuccessScreen]: {
-    onPress: () => void;
-    icon: any;
-    title: string;
-    message?: string;
-  };
+    onPress: () => void
+    icon: any
+    title: string
+    message?: string
+  }
   [ScreenNames.ErrorScreen]: {
-    onPress: (dispatch: Dispatch<any>) => void;
-    icon: any;
-    title: string;
-    message?: string;
-  };
-};
+    onPress: (dispatch: Dispatch<any>) => void
+    icon: any
+    title: string
+    message?: string
+  }
+}
 
 export type SuccessRouteProp = RouteProp<
-  RootStackParamList,
-  ScreenNames.SuccessScreen
->;
+RootStackParamList,
+ScreenNames.SuccessScreen
+>
 
 export type ErrorRouteProp = RouteProp<
-  RootStackParamList,
-  ScreenNames.ErrorScreen
->;
+RootStackParamList,
+ScreenNames.ErrorScreen
+>

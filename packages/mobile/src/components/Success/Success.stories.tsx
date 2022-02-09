@@ -1,9 +1,9 @@
-import { storiesOf } from '@storybook/react-native';
-import React from 'react';
-import { appImages } from '../../../assets';
-import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function';
+import { storiesOf } from '@storybook/react-native'
+import React from 'react'
+import { appImages } from '../../../assets'
+import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function'
 
-import { Success } from './Success.component';
+import { Success } from './Success.component'
 
 storiesOf('Success', module).add('Default', () => (
   <Success
@@ -12,4 +12,4 @@ storiesOf('Success', module).add('Default', () => (
     title={'You created a username'}
     message={'Your username will be registered shortly'}
   />
-));
+))

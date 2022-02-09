@@ -1,9 +1,9 @@
-import React, { useCallback, useRef, forwardRef } from 'react';
-import { TextInput, View } from 'react-native';
-import { Typography } from '../Typography/Typography.component';
+import React, { useCallback, useRef, forwardRef } from 'react'
+import { TextInput, View } from 'react-native'
+import { Typography } from '../Typography/Typography.component'
 
-import { StyledTextInput, StyledWrapper } from './Input.styles';
-import { InputProps } from './Input.types';
+import { StyledTextInput, StyledWrapper } from './Input.styles'
+import { InputProps } from './Input.types'
 
 export const Input = forwardRef<TextInput, InputProps>(
   (
@@ -15,17 +15,17 @@ export const Input = forwardRef<TextInput, InputProps>(
       hint,
       multiline,
       disabled,
-      style,
+      style
     },
-    ref,
+    ref
   ) => {
-    const textInputRef = useRef<null | TextInput>(null);
+    const textInputRef = useRef<null | TextInput>(null)
 
     const handleViewPress = useCallback(() => {
       if (textInputRef.current) {
-        textInputRef.current.focus();
+        textInputRef.current.focus()
       }
-    }, []);
+    }, [])
 
     return (
       <View>
@@ -41,9 +41,9 @@ export const Input = forwardRef<TextInput, InputProps>(
           <StyledTextInput
             onChangeText={onChangeText}
             ref={(instance: TextInput | null) => {
-              textInputRef.current = instance;
+              textInputRef.current = instance
               if (ref !== null && 'current' in ref) {
-                ref.current = instance;
+                ref.current = instance
               }
             }}
             multiline={multiline}
@@ -62,6 +62,6 @@ export const Input = forwardRef<TextInput, InputProps>(
           </Typography>
         )}
       </View>
-    );
-  },
-);
+    )
+  }
+)

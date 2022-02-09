@@ -1,13 +1,13 @@
 
-import { combineReducers } from '@reduxjs/toolkit';
-import { expectSaga } from 'redux-saga-test-plan';
-import { call } from 'redux-saga-test-plan/matchers';
-import { Socket } from 'socket.io-client';
-import { StoreKeys } from '../../store.keys';
-import { initReducer, InitState } from '../init.slice';
-import { connect, startConnectionSaga } from './startConnection.saga';
+import { combineReducers } from '@reduxjs/toolkit'
+import { expectSaga } from 'redux-saga-test-plan'
+import { call } from 'redux-saga-test-plan/matchers'
+import { Socket } from 'socket.io-client'
+import { StoreKeys } from '../../store.keys'
+import { initReducer, InitState } from '../init.slice'
+import { connect, startConnectionSaga } from './startConnection.saga'
 
-import { socket } from '@quiet/nectar';
+import { socket } from '@quiet/nectar'
 
 describe('startConnectionSaga', () => {
   test('should be defined', async () => {
@@ -15,13 +15,13 @@ describe('startConnectionSaga', () => {
     await expectSaga(startConnectionSaga)
       .withReducer(combineReducers({ [StoreKeys.Init]: initReducer }), {
         [StoreKeys.Init]: {
-          ...new InitState(),
-        },
+          ...new InitState()
+        }
       })
       .provide([
         [call.fn(connect), _socket]
       ])
       .fork(socket.useIO, _socket)
-      .run();
-  });
-});
+      .run()
+  })
+})

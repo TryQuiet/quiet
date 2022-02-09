@@ -1,24 +1,24 @@
-import React from 'react';
-import { renderComponent } from '../../utils/functions/renderComponent/renderComponent';
-import { Chat } from './Chat.component';
-import { Keyboard } from 'react-native';
-import { MessageType } from '@quiet/nectar';
+import React from 'react'
+import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
+import { Chat } from './Chat.component'
+import { Keyboard } from 'react-native'
+import { MessageType } from '@quiet/nectar'
 
-jest.useFakeTimers();
+jest.useFakeTimers()
 
 jest.mock('react-native-jdenticon', () => {
   const mockJdenticon = () => {
-    return null;
-  };
-  return mockJdenticon;
-});
+    return null
+  }
+  return mockJdenticon
+})
 
 describe('Chat component', () => {
   jest
     .spyOn(Keyboard, 'addListener')
-    // @ts-ignore
-    .mockImplementation(() => ({ remove: jest.fn() }));
-  jest.spyOn(Keyboard, 'removeListener').mockImplementation(() => null);
+    // @ts-expect-error
+    .mockImplementation(() => ({ remove: jest.fn() }))
+  jest.spyOn(Keyboard, 'removeListener').mockImplementation(() => null)
 
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
@@ -29,7 +29,7 @@ describe('Chat component', () => {
           description: '',
           owner: '',
           timestamp: 0,
-          address: '',
+          address: ''
         }}
         messages={[
           {
@@ -39,7 +39,7 @@ describe('Chat component', () => {
               'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
             createdAt: 0,
             date: '1:30pm',
-            nickname: 'holmes',
+            nickname: 'holmes'
           },
           {
             id: '2',
@@ -48,7 +48,7 @@ describe('Chat component', () => {
               'Bear claw bear claw donut marzipan chocolate cake sugar plum pie. Chocolate cake chocolate bar ice cream. Marzipan powder brownie muffin jelly beans. Sesame snaps tootsie roll macaroon donut.',
             createdAt: 0,
             date: '1:32pm',
-            nickname: 'holmes',
+            nickname: 'holmes'
           },
           {
             id: '3',
@@ -56,21 +56,21 @@ describe('Chat component', () => {
             message: 'Marshmallows!',
             createdAt: 0,
             date: '1:32pm',
-            nickname: 'emily',
+            nickname: 'emily'
           },
           {
             id: '4',
             type: MessageType.Basic,
             message:
               'Chupa chups soufflé danish. Cake chocolate brownie cookie bear claw soufflé. Muffin chupa chups sweet caramels jelly beans chocolate bar bonbon liquorice.',
-              createdAt: 0,
-              date: '1:32pm',
-            nickname: 'bartek',
-          },
+            createdAt: 0,
+            date: '1:32pm',
+            nickname: 'bartek'
+          }
         ]}
         user={'holmes'}
-      />,
-    );
+      />
+    )
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
@@ -830,6 +830,6 @@ describe('Chat component', () => {
           </View>
         </View>
       </View>
-    `);
-  });
-});
+    `)
+  })
+})
