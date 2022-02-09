@@ -111,7 +111,7 @@ describe('join community', () => {
     const factory = await getFactory(store)
 
     await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     renderComponent(
@@ -131,10 +131,10 @@ describe('join community', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
     await factory.create<
-      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice1' })
 
     store.dispatch(socketActions.setConnected())
