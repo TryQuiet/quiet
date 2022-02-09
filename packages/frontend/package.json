@@ -244,7 +244,7 @@
     "css-loader": "^2.1.0",
     "electron": "17.0.0",
     "electron-build-env": "^0.2.0",
-    "electron-builder": "^22.10.5",
+    "electron-builder": "^22.14.13",
     "electron-devtools-installer": "^3.1.1",
     "electron-node-loader": "^1.2.0",
     "electron-notarize": "^0.2.1",
