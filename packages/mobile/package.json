@@ -12,7 +12,7 @@
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "gen": "plop",
-    "postinstall": "node_modules/.bin/rn-nodeify --install crypto,stream,events --hack",
+    "postinstall": "rm -rf ./node_modules/@quiet/nectar && cp -L -R ../nectar ./node_modules/@quiet && node_modules/.bin/rn-nodeify --install crypto,stream,events --hack",
     "postversion": "react-native-version",
     "prepublish": "npm run build"
   },

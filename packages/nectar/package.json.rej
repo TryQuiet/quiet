@@ -1,0 +1,17 @@
+***************
+*** 51,57 ****
+        "url": "http://github.com/aexmachina/factory-girl/raw/master/LICENSE"
+      }
+    ],
+-   "main": "./src/index",
+    "name": "factory-girl",
+    "repository": {
+      "type": "git",
+--- 51,57 ----
+        "url": "http://github.com/aexmachina/factory-girl/raw/master/LICENSE"
+      }
+    ],
++   "main": "./index",
+    "name": "factory-girl",
+    "repository": {
+      "type": "git",
