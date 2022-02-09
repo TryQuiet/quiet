@@ -1,0 +1,11 @@
+--- node_modules/@zbayapp/identity/lib/index.js.backup	2021-09-09 13:40:19.000000000 +0200
++++ node_modules/@zbayapp/identity/lib/index.js	2021-09-09 13:41:03.000000000 +0200
+@@ -34,8 +34,3 @@
+ Object.defineProperty(exports, "arrayBufferToHexString", { enumerable: true, get: function () { return common_1.arrayBufferToHexString; } });
+ const config_1 = __importDefault(require("./config"));
+ exports.configCrypto = config_1.default;
+-const helpers_1 = require("./test/helpers");
+-Object.defineProperty(exports, "createTestRootCA", { enumerable: true, get: function () { return helpers_1.createTestRootCA; } });
+-Object.defineProperty(exports, "createTestUserCert", { enumerable: true, get: function () { return helpers_1.createTestUserCert; } });
+-Object.defineProperty(exports, "createTestUserCsr", { enumerable: true, get: function () { return helpers_1.createTestUserCsr; } });
+-Object.defineProperty(exports, "userData", { enumerable: true, get: function () { return helpers_1.userData; } });

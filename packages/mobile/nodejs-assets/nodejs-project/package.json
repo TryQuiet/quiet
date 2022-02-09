@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "patch": "patch -f -p0 < modules.patch && rm -rf node_modules/wrtc"
+    "patch": "patch -f -p0 < modules.patch && patch -f -p0 < identity.patch && rm -rf node_modules/wrtc"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "waggle": "^3.1.0"
+    "waggle": "3.1.0"
   }
 }

@@ -15,10 +15,6 @@ export const MainScreen: FC = () => {
     // dispatch(communities.actions.createNewCommunity('test'));
   });
 
-  // const sendMessage = (message: string) => {
-  //   dispatch(messages.actions.sendMessage(message));
-  // };
-
   return (
     <View style={{ flex: 1 }}>
       <Typography fontSize={14}>Hello main screen!</Typography>

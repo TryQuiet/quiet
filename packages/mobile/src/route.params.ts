@@ -5,9 +5,6 @@ import { ScreenNames } from './const/ScreenNames.enum';
 export type RootStackParamList = {
   [ScreenNames.SplashScreen]: undefined;
   [ScreenNames.MainScreen]: undefined;
-  [ScreenNames.RegistrationScreen]: {
-    error: string | undefined;
-  };
   [ScreenNames.SuccessScreen]: {
     onPress: () => void;
     icon: any;
@@ -21,11 +18,6 @@ export type RootStackParamList = {
     message?: string;
   };
 };
-
-export type RegistrationRouteProp = RouteProp<
-  RootStackParamList,
-  ScreenNames.RegistrationScreen
->;
 
 export type SuccessRouteProp = RouteProp<
   RootStackParamList,

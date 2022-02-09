@@ -1,11 +1,14 @@
 import './App.dev-menu';
 
-import { SuccessScreen } from './screens/Success/Success.screen';
-import { RegistrationScreen } from './screens/Registration/Registration.screen';
+import React, { useEffect } from 'react';
 import WebviewCrypto from 'react-native-webview-crypto';
+import { useDispatch } from 'react-redux';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.screen';
+import { RegistrationScreen } from './screens/Registration/Registration.screen';
+import { SuccessScreen } from './screens/Success/Success.screen';
 import { ErrorScreen } from './screens/Error/Error.screen';
 import { MainScreen } from './screens/Main/Main.screen';
-import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -18,8 +21,6 @@ import { persistor, sagaMiddleware } from './store/store';
 import { defaultTheme } from './styles/themes/default.theme';
 import { navigationContainerRef } from './utils/functions/navigateTo/navigateTo';
 import { initActions } from './store/init/init.slice';
-import { useDispatch } from 'react-redux';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import PushNotificationIOS, {
   PushNotification,
 } from '@react-native-community/push-notification-ios';
@@ -73,6 +74,10 @@ export default function App(): JSX.Element {
               <Screen
                 component={SplashScreen}
                 name={ScreenNames.SplashScreen}
+              />
+              <Screen
+                component={JoinCommunityScreen}
+                name={ScreenNames.JoinCommunityScreen}
               />
               <Screen
                 component={RegistrationScreen}
