@@ -71,6 +71,7 @@ async function generateRootCA({
   })
   const certificate = new Certificate({
     serialNumber: new Integer({ value: 1 }),
+    version: 2,
     extensions: [
       new Extension({
         extnID: ExtensionsTypes.basicConstr,
