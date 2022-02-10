@@ -6,7 +6,5 @@
   "scripts": {},
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "@quiet/waggle": "../../../waggle"
-  }
+  "dependencies": {}
 }

@@ -65,3 +65,7 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+
+# Waggle
+/nodejs-assets/nodejs-project/waggle.zip
+/nodejs-assets/nodejs-project/waggle/
