@@ -5,7 +5,7 @@ import { actionTypes } from '../../../shared/static'
 import { ActionsType, PayloadType } from './types'
 
 export class App {
-  version: string
+  version: number
 
   constructor(values?: Partial<App>) {
     Object.assign(this, values)
@@ -31,7 +31,7 @@ export const reducer = handleActions<App, PayloadType<AppActions>>(
   {
     [loadVersion.toString()]: (state, { payload: version }: AppActions['loadVersion']) =>
       produce(state, draft => {
-        draft.version = 'asd'
+        draft.version = version
       })
   },
   initialState

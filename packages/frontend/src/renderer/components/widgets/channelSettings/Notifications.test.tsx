@@ -53,7 +53,7 @@ describe('Notifications', () => {
                       class="MuiTypography-root MuiTypography-body2"
                     >
                       #
-                      
+                      username
                     </p>
                   </div>
                   <div
