@@ -13,7 +13,7 @@ import {
 import { publicChannelsSelectors } from './sagas/publicChannels/publicChannels.selectors'
 import { publicChannelsMasterSaga } from './sagas/publicChannels/publicChannels.master.saga'
 
-import { usersReducer, usersActions } from './sagas/users/users.slice'
+import { usersReducer, usersActions, UsersState } from './sagas/users/users.slice'
 import { usersSelectors } from './sagas/users/users.selectors'
 
 import { identityReducer, identityActions, IdentityState } from './sagas/identity/identity.slice'
@@ -41,7 +41,7 @@ import { StoreKeys } from './sagas/store.keys'
 
 import { connectionActions, connectionReducer } from './sagas/appConnection/connection.slice'
 import { connectionSelectors } from './sagas/appConnection/connection.selectors'
-import { settingsActions, settingsReducer } from './sagas/settings/settings.slice'
+import { settingsActions, settingsReducer, SettingsState } from './sagas/settings/settings.slice'
 import { settingsSelectors } from './sagas/settings/settings.selectors'
 
 export { SocketActionTypes } from './sagas/socket/const/actionTypes'
@@ -88,6 +88,7 @@ export const app = {
 
 export const settings = {
   reducer: settingsReducer,
+  State: SettingsState,
   selectors: settingsSelectors,
   actions: settingsActions,
 }
@@ -102,6 +103,7 @@ export const publicChannels = {
 
 export const users = {
   reducer: usersReducer,
+  State: UsersState,
   actions: usersActions,
   selectors: usersSelectors
 }

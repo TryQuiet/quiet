@@ -1,9 +1,10 @@
 /* global Notification */
-import { soundTypeToAudio } from '../shared/sounds'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { Identity, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, PublicChannel, publicChannels as channels, publicChannels, settings, User, users } from '@quiet/nectar'
-import { all, call, select } from 'typed-redux-saga'
-import store from './store'
+import { Identity, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, PublicChannel, publicChannels as channels, settings, User, users } from '@quiet/nectar'
+import { all, call, SagaGenerator, select } from 'typed-redux-saga'
+import { CallEffect } from 'redux-saga/effects'
+import { remote } from 'electron'
+import create from './store/create'
 
 export interface NotificationsData {
   title: string
@@ -11,9 +12,10 @@ export interface NotificationsData {
   sound: NotificationsSounds
   communityId: string
   channelName: string
+  yourBrowserWindow: Electron.BrowserWindow
 }
 
-interface createNotificationsCallsDataType {
+export interface createNotificationsCallsDataType {
   action: {
     payload: IncomingMessages;
     type: string;
@@ -40,48 +42,52 @@ export function* displayMessageNotificationSaga(
     notificationsOption: yield* select(settings.selectors.getNotificationsOption),
     notificationsSound: yield* select(settings.selectors.getNotificationsSound),
   }
-
   const createNotificationsCalls = yield* call(messagesMapForNotificationsCalls, createNotificationsCallsData)
+
   yield* all(createNotificationsCalls)
 }
 
-const messagesMapForNotificationsCalls = (
+export const messagesMapForNotificationsCalls = (
   { action, currentChannel, myIdentity, notificationsOption,
     notificationsSound, publicChannels, usersData }: createNotificationsCallsDataType
-) => {
+): SagaGenerator<Notification, CallEffect<Notification>>[] => {
   return action.payload.messages.map((messageData) => {
     const publicChannelFromMessage = publicChannels.find((channel) => channel.address === messageData.channelId)
     const isMessageFromMyUser = usersData[messageData.pubKey]?.username === myIdentity.nickname
+    // it will change name with address
     const isMessageFromCurrentChannel = currentChannel === publicChannelFromMessage.name
     const isNotificationsOptionOff = NotificationsOptions.doNotNotifyOfAnyMessages === notificationsOption
 
-    if (!isMessageFromMyUser && !isMessageFromCurrentChannel && !isNotificationsOptionOff) {
-      return call(createNotificationSaga, {
+    const [yourBrowserWindow] = remote.BrowserWindow.getAllWindows()
+    const isAppInForeground = yourBrowserWindow.isFocused()
+
+    if (!isMessageFromMyUser && (!isMessageFromCurrentChannel || !isAppInForeground) && !isNotificationsOptionOff) {
+      return call(createNotification, {
         title: `New message in ${publicChannelFromMessage.name || 'Unnamed'}`,
         message: `${messageData.message.substring(0, 64)}${messageData.message.length > 64 ? '...' : ''}`,
         sound: notificationsSound,
         communityId: action.payload.communityId,
-        channelName: publicChannelFromMessage.name
+        channelName: publicChannelFromMessage.name,
+        yourBrowserWindow
       })
     }
   })
 }
 
-export const createNotificationSaga = (payload: NotificationsData): Notification => {
-  if (soundTypeToAudio[payload.sound]) {
-    soundTypeToAudio[payload.sound].play()
-  }
+export const createNotification = (payload: NotificationsData): Notification => {
   const notification = new Notification(payload.title, { body: payload.message })
   notification.onclick = () => {
-    store.dispatch(publicChannels.actions.setCurrentChannel({
+    create().dispatch(channels.actions.setCurrentChannel({
       channel: payload.channelName,
       communityId: payload.communityId
     }))
+
+    payload.yourBrowserWindow.show()
   }
 
   return notification
 }
 
 export default {
-  createNotificationSaga
+  createNotification
 }
