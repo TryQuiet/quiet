@@ -28,19 +28,19 @@ export default () => {
       <HashRouter>
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
-              <CreateChannel />
-              <JoinCommunity />
-              <CreateCommunity />
-              <CreateUsernameModal />
-              <LoadingPanel />
-              <CssBaseline />
-              <JoinChannelModal />
-              <SentryWarning />
-              <SettingsModal />
-              <UpdateModal />
-              <QuitAppDialog />
-              <Route path='/' component={Index} />
-              <Route path='/main' component={Main} />
+            <CreateChannel />
+            <JoinCommunity />
+            <CreateCommunity />
+            <CreateUsernameModal />
+            <LoadingPanel />
+            <CssBaseline />
+            <JoinChannelModal />
+            <SentryWarning />
+            <SettingsModal />
+            <UpdateModal />
+            <QuitAppDialog />
+            <Route path='/' component={Index} />
+            <Route path='/main' component={Main} />
           </PersistGate>
         </Provider>
       </HashRouter>

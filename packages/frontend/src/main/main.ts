@@ -141,7 +141,7 @@ const createWindow = async () => {
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false,
+      contextIsolation: false
     },
     autoHideMenuBar: true
   })

@@ -7,7 +7,7 @@ jest.mock('electron', () => {
   return { ipcRenderer }
 })
 
-jest.mock('@electron/remote',() => {
+jest.mock('@electron/remote', () => {
   // @ts-expect-error
   const remote = jest.mock()
   // @ts-expect-error
