@@ -267,15 +267,18 @@ app.on('ready', async () => {
         checkForPayloadOnStartup(payload)
       }
     }
-    if (!isDev) {
-      await checkForUpdate(mainWindow)
-      setInterval(async () => {
-        if (!isBrowserWindow(mainWindow)) {
-          throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
-        }
-        await checkForUpdate(mainWindow)
-      }, 15 * 60000)
-    }
+
+    // TEMPORARY DISABLE UPDATER
+
+    // if (!isDev) {
+    //   await checkForUpdate(mainWindow)
+    //   setInterval(async () => {
+    //     if (!isBrowserWindow(mainWindow)) {
+    //       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
+    //     }
+    //     await checkForUpdate(mainWindow)
+    //   }, 15 * 60000)
+    // }
   })
 
   ipcMain.on('proceed-update', () => {
