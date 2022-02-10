@@ -18,7 +18,6 @@ const log = Object.assign(debug('frontend:main'), {
 })
 
 const appDataPath = app.getPath('appData')
-console.log(appDataPath)
 
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
