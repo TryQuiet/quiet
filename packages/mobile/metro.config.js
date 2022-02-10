@@ -10,14 +10,14 @@ const blacklist = require('metro-config/src/defaults/exclusionList');
 const path = require('path');
 
 const watchFolders = [
-  path.resolve(__dirname, '../identity'),
-  path.resolve(__dirname, '../nectar'),
+  // path.resolve(__dirname, '../identity'),
+  // path.resolve(__dirname, '../nectar'),
   path.resolve(__dirname, '../waggle')
 ]
 
 const extraNodeModules = {
-  '@quiet/identity': path.resolve(__dirname, '../identity'),
-  '@quiet/nectar': path.resolve(__dirname, '../nectar'),
+  // '@quiet/identity': path.resolve(__dirname, '../identity'),
+  // '@quiet/nectar': path.resolve(__dirname, '../nectar'),
   '@quiet/waggle': path.resolve(__dirname, '../waggle')
 }
 
