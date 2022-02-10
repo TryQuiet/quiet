@@ -12,7 +12,7 @@
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "gen": "plop",
-    "prepare-waggle-asset": "rf-lerna zipbundle @quiet/waggle --target ./nodejs-assets/nodejs-project/waggle.zip && cd ./nodejs-assets/nodejs-project/ && unzip waggle.zip -d waggle/ && rm -rf waggle/node_modules/wrtc",
+    "prepare-waggle-asset": "rf-lerna zipbundle @quiet/waggle --target ./nodejs-assets/nodejs-project/waggle.zip && cd ./nodejs-assets/nodejs-project/ && rm -rf waggle/ && unzip waggle.zip -d waggle/ && rm -rf waggle.zip && rm -rf waggle/node_modules/wrtc",
     "postinstall": "rm -rf ./node_modules/@quiet/nectar && cp -L -R ../nectar ./node_modules/@quiet && rm -rf ./node_modules/@quiet/identity && cp -L -R ../identity ./node_modules/@quiet && node_modules/.bin/rn-nodeify --install crypto,stream,events --hack && npm run prepare-waggle-asset",
     "postversion": "react-native-version",
     "prepublish": "npm run build"
