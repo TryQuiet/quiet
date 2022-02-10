@@ -21,6 +21,10 @@ runs:
       run: npm i -g lerna
       shell: bash
 
+    - name: "Install rf-lerna globally"
+      run: npm i -g rf-lerna
+      shell: bash
+
     - name: "Cache NPM dependencies"
       id: cache-nodemodules
       uses: actions/cache@v2
