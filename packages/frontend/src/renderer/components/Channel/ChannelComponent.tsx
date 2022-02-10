@@ -60,8 +60,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
 
   const [infoClass, setInfoClass] = useState<string>(null)
 
-  console.log('Quiet developers are the best!')
-
   return (
     <Page>
       <PageHeader>
