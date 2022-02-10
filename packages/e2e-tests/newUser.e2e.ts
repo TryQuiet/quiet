@@ -1,7 +1,22 @@
 import { fixture, test, Selector } from 'testcafe'
+import * as fs from 'fs'
+import * as path from 'path'
+import * as os from 'os'
 
 fixture`Electron test`
   .page('../frontend/dist/main/index.html#/')
+  .before(async t => {
+    console.info('Cleaning up')
+    try {
+      const paaath = path.join(os.homedir(), '.config/Quiet')
+      console.log('PAAAAATH', paaath)
+      fs.rmdirSync(path.join(os.homedir(), '.config/Quiet'), { recursive: true })
+      fs.rmdirSync(path.join(os.homedir(), '.config/Electron'), { recursive: true })
+      fs.rmdirSync(path.join(os.homedir(), '.config/e2e-tests-nodejs/'), { recursive: true })
+    } catch {
+      console.info('No data directories to clean up')
+    }
+  })
 
 const longTimeout = 100000
 
@@ -48,7 +63,29 @@ test('User can create new community, register and send few messages to general c
   await t.expect(messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
 
   const messagesGroup = messagesList.find('li')
-  // Can throw assertion error because of sending message too early - https://github.com/ZbayApp/monorepo/issues/14
+  await t.expect(messagesGroup.exists).ok({ timeout: 30000 })
+  await t.expect(messagesGroup.count).eql(1)
+
+  const messageGroupContent = messagesGroup.find('p').withAttribute('data-testid', /messagesGroupContent-/)
+  await t.expect(messageGroupContent.exists).ok()
+  await t.expect(messageGroupContent.textContent).eql('Hello\xa0everyone')
+  await t.wait(5000)
+  console.time('Pause between tests')
+})
+
+test('User reopens app, sees general channel and the messages he sent before', async t => {
+  console.timeEnd('Pause between tests')
+  // User opens app for the first time, sees spinner, waits for spinner to disappear
+  await t.expect(Selector('span').withText('Starting Quiet').exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
+
+  // Returning user sees "general" channel
+  await t.expect(Selector('h6').withText('#general').exists).ok('User can\'t see "general" channel')
+  
+  // User sees the message sent previously
+  const messagesList = Selector('ul').withAttribute('id', 'messages-scroll')
+  await t.expect(messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
+
+  const messagesGroup = messagesList.find('li')
   await t.expect(messagesGroup.exists).ok({ timeout: 30000 })
   await t.expect(messagesGroup.count).eql(1)
 
