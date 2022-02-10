@@ -4,12 +4,14 @@ import electronLocalshortcut from 'electron-localshortcut'
 import debug from 'debug'
 import path from 'path'
 import url from 'url'
-import config from './config'
 import { DataServer, ConnectionsManager } from '@quiet/waggle'
-import { waggleVersion, runWaggle } from './waggleManager'
+import { runWaggle } from './waggleManager'
 
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
+import { initSentry } from '../shared/sentryConfig'
+
+initSentry()
 
 const log = Object.assign(debug('frontend:main'), {
   error: debug('frontend:main:err')
@@ -92,17 +94,6 @@ if (!gotTheLock) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
     }
-    // const url = new URL(commandLine[process.platform === 'win32' ? 3 : 1])
-    // if (url.searchParams.has('invitation')) {
-    //   mainWindow.webContents.send('newInvitation', {
-    //     invitation: url.searchParams.get('invitation')
-    //   })
-    // }
-    // if (url.searchParams.has('importchannel')) {
-    //   mainWindow.webContents.send('newChannel', {
-    //     channelParams: url.searchParams.get('importchannel')
-    //   })
-    // }
   })
 }
 
@@ -222,11 +213,9 @@ export const checkForUpdate = async (win: BrowserWindow) => {
     })
     autoUpdater.on('update-not-available', () => {
       log('event no update')
-      // electronStore.set('updateStatus', config.UPDATE_STATUSES.NO_UPDATE)
     })
     autoUpdater.on('update-available', info => {
       log(info)
-      // electronStore.set('updateStatus', config.UPDATE_STATUSES.PROCESSING_UPDATE)
     })
 
     autoUpdater.on('update-downloaded', () => {
@@ -278,15 +267,18 @@ app.on('ready', async () => {
         checkForPayloadOnStartup(payload)
       }
     }
-    if (!isDev) {
-      await checkForUpdate(mainWindow)
-      setInterval(async () => {
-        if (!isBrowserWindow(mainWindow)) {
-          throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
-        }
-        await checkForUpdate(mainWindow)
-      }, 15 * 60000)
-    }
+
+    // TEMPORARY DISABLE UPDATER
+
+    // if (!isDev) {
+    //   await checkForUpdate(mainWindow)
+    //   setInterval(async () => {
+    //     if (!isBrowserWindow(mainWindow)) {
+    //       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
+    //     }
+    //     await checkForUpdate(mainWindow)
+    //   }, 15 * 60000)
+    // }
   })
 
   ipcMain.on('proceed-update', () => {
@@ -308,12 +300,6 @@ app.on('before-quit', async e => {
     await waggleProcess.connectionsManager.closeAllServices()
     await waggleProcess.dataServer.close()
   }
-  // if (browserWidth && browserHeight) {
-  //   electronStore.set('windowSize', {
-  //     width: browserWidth,
-  //     height: browserHeight
-  //   })
-  // }
   process.exit()
 })
 

@@ -79,16 +79,9 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
 }) => {
   const classes = useStyles({})
 
-  // const whitelist = electronStore.get('whitelist')
-
   const [allowThisLink, setAllowThisLink] = React.useState(false)
   const [allowAllLink, setAllowAllLink] = React.useState(false)
   const [dontAutoload, setDontAutoload] = React.useState(false)
-
-  React.useEffect(() => {
-    // setAllowThisLink(whitelist ? whitelist.whitelisted.indexOf(url) !== -1 : false)
-    // setAllowAllLink(whitelist ? whitelist.allowAll : false)
-  }, [url])
 
   const uri = new URL(url)
 

@@ -18,6 +18,7 @@
       ]
     },
     "mac": {
+      "icon": "./build/icon.icns",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
@@ -30,6 +31,7 @@
       ]
     },
     "win": {
+      "icon": "./build/icon.png",
       "target": "NSIS",
       "sign": "scripts/sign.js",
       "files": [
@@ -39,6 +41,7 @@
       ]
     },
     "linux": {
+      "icon": "./build/icon.png",
       "target": [
         "AppImage"
       ],
@@ -66,7 +69,7 @@
   },
   "homepage": "https://github.com/ZbayApp",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "0.1.0-alpha.16",
+  "version": "0.2.0-alpha.1",
   "description": "Decentralized team chat",
   "main": "dist/main/main.js",
   "scripts": {
@@ -95,7 +98,8 @@
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:renderer": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "chromatic": "npx chromatic --exit-zero-on-changes=false"
   },
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
@@ -105,13 +109,12 @@
     "@material-ui/icons": "^4.2.1",
     "@material-ui/lab": "^4.0.0-alpha.34",
     "@peculiar/webcrypto": "1.2.2",
-    "@quiet/identity": "^0.1.0-alpha.1",
-    "@quiet/nectar": "^0.1.0-alpha.1",
-    "@quiet/waggle": "^0.1.0-alpha.4",
+    "@quiet/identity": "^0.2.0-alpha.0",
+    "@quiet/nectar": "^0.2.0-alpha.0",
+    "@quiet/waggle": "^0.2.0-alpha.0",
     "@redux-saga/types": "^1.1.0",
     "@reduxjs/toolkit": "^1.6.2",
-    "@sentry/react": "^6.14.0",
-    "@sentry/tracing": "^6.14.0",
+    "@sentry/electron": "^2.5.4",
     "@types/lodash": "^4.14.169",
     "@types/ps-node": "^0.1.0",
     "@types/redux-debounced": "^0.2.19",
@@ -156,7 +159,6 @@
     "keymirror": "0.1.1",
     "luxon": "^1.11.4",
     "material-ui-formik-components": "^0.5.2",
-    "notistack": "^0.8.2",
     "pkijs": "*",
     "prop-types": "^15.7.1",
     "protons": "^2.0.0",
@@ -239,12 +241,13 @@
     "babel-jest": "^24.1.0",
     "babel-loader": "^8.0.5",
     "babel-plugin-require-context-hook": "^1.0.0",
+    "chromatic": "^6.4.3",
     "concurrently": "^4.1.0",
     "cross-env": "^5.2.0",
     "css-loader": "^2.1.0",
     "electron": "17.0.0",
     "electron-build-env": "^0.2.0",
-    "electron-builder": "^22.10.5",
+    "electron-builder": "^22.14.13",
     "electron-devtools-installer": "^3.1.1",
     "electron-node-loader": "^1.2.0",
     "electron-notarize": "^0.2.1",

@@ -11,9 +11,9 @@ import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { StoreKeys } from '../renderer/store/store.keys'
 
-import Sidebar from '../renderer/components/widgets/sidebar/Sidebar'
 import CreateChannel from '../renderer/containers/widgets/channels/CreateChannel'
-import Channel from '../renderer/containers/pages/Channel'
+import Channel from '../renderer/components/Channel/Channel'
+import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
 import {
   ErrorMessages,
@@ -137,7 +137,7 @@ describe('Add new channel', () => {
 
     // Check if sidebar item displays as selected
     const link = screen.getByTestId('my-super-channel-link')
-    expect(link).toHaveClass('makeStyles-selected-539')
+    expect(link).toHaveStyle('backgroundColor: rgb(103, 191, 211)') // lushSky: '#67BFD3'
   })
 
   it('Displays error if trying to add channel with already taken name', async () => {

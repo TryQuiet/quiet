@@ -1,6 +1,6 @@
 {
   "name": "@quiet/nectar",
-  "version": "0.1.0-alpha.1",
+  "version": "0.2.0-alpha.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -39,7 +39,7 @@
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-typescript": "^7.15.0",
     "@peculiar/webcrypto": "*",
-    "@quiet/identity": "^0.1.0-alpha.1",
+    "@quiet/identity": "^0.2.0-alpha.0",
     "@types/factory-girl": "^5.0.8",
     "@types/jest": "^26.0.24",
     "@types/luxon": "^2.0.0",

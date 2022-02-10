@@ -2,7 +2,7 @@
 
 exports[`publicChannelsSelectors get messages sorted by date 1`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": Any<Number>,
   "id": "1",
   "message": "message_1",
@@ -14,7 +14,7 @@ Object {
 
 exports[`publicChannelsSelectors get messages sorted by date 2`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": Any<Number>,
   "id": "2",
   "message": "message_2",
@@ -26,7 +26,7 @@ Object {
 
 exports[`publicChannelsSelectors get messages sorted by date 3`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": Any<Number>,
   "id": "3",
   "message": "message_3",
@@ -38,7 +38,7 @@ Object {
 
 exports[`publicChannelsSelectors get messages sorted by date 4`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": Any<Number>,
   "id": "4",
   "message": "message_4",
@@ -50,7 +50,7 @@ Object {
 
 exports[`publicChannelsSelectors get messages sorted by date 5`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": Any<Number>,
   "id": "5",
   "message": "message_5",
@@ -62,7 +62,7 @@ Object {
 
 exports[`publicChannelsSelectors get messages sorted by date 6`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": Any<Number>,
   "id": "6",
   "message": "message_6",
@@ -74,7 +74,7 @@ Object {
 
 exports[`publicChannelsSelectors get messages sorted by date 7`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": Any<Number>,
   "id": "7",
   "message": "message_7",
@@ -86,7 +86,7 @@ Object {
 
 exports[`publicChannelsSelectors get messages sorted by date 8`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": Any<Number>,
   "id": "8",
   "message": "message_8",
@@ -98,7 +98,7 @@ Object {
 
 exports[`publicChannelsSelectors get messages sorted by date 9`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": Any<Number>,
   "id": "9",
   "message": "message_9",
@@ -110,7 +110,7 @@ Object {
 
 exports[`publicChannelsSelectors get sliced messages 1`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": 1603174290.001,
   "id": "3",
   "message": "message_3",
@@ -122,7 +122,7 @@ Object {
 
 exports[`publicChannelsSelectors get sliced messages 2`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": 1603174290.002,
   "id": "4",
   "message": "message_4",
@@ -134,7 +134,7 @@ Object {
 
 exports[`publicChannelsSelectors get sliced messages 3`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": 1603174321,
   "id": "5",
   "message": "message_5",
@@ -146,7 +146,7 @@ Object {
 
 exports[`publicChannelsSelectors get sliced messages 4`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": 1603174322,
   "id": "6",
   "message": "message_6",
@@ -158,7 +158,7 @@ Object {
 
 exports[`publicChannelsSelectors get sliced messages 5`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": 1612548120,
   "id": "7",
   "message": "message_7",
@@ -170,7 +170,7 @@ Object {
 
 exports[`publicChannelsSelectors get sliced messages 6`] = `
 Object {
-  "channelId": "general",
+  "channelAddress": "general",
   "createdAt": 1612558200,
   "id": "8",
   "message": "message_8",
@@ -182,8 +182,8 @@ Object {
 
 exports[`publicChannelsSelectors get sliced messages 7`] = `
 Object {
-  "channelId": "general",
-  "createdAt": 1643921400,
+  "channelAddress": "general",
+  "createdAt": 1644526200,
   "id": "9",
   "message": "message_9",
   "pubKey": Any<String>,
