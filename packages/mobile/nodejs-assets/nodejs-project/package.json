@@ -3,12 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "patch": "patch -f -p0 < modules.patch && patch -f -p0 < identity.patch && rm -rf node_modules/wrtc"
-  },
+  "scripts": {},
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@quiet/waggle": "^0.1.0-alpha.5"
+    "@quiet/waggle": "../../../waggle"
   }
 }

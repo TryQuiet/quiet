@@ -65,6 +65,3 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
-
-# Waggle
-/waggle/waggle.zip
