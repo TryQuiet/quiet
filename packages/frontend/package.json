@@ -159,7 +159,6 @@
     "keymirror": "0.1.1",
     "luxon": "^1.11.4",
     "material-ui-formik-components": "^0.5.2",
-    "notistack": "^0.8.2",
     "pkijs": "*",
     "prop-types": "^15.7.1",
     "protons": "^2.0.0",

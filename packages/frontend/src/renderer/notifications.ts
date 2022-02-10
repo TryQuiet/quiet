@@ -1,5 +1,4 @@
 /* global Notification */
-import { soundTypeToAudio } from '../shared/sounds'
 import history from '../shared/history'
 import { DisplayableMessage } from '@quiet/nectar'
 
@@ -12,10 +11,6 @@ export const createNotification = async ({
   body: string
   data: any
 }) => {
-  // const sound = parseInt(electronStore.get('notificationCenter.user.sound'))
-  // if (sound) {
-  //   await soundTypeToAudio[sound].play()
-  // }
   const notification = new Notification(title, { body: body })
   notification.onclick = () => {
     history.push(data)

@@ -1,7 +1,6 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 
-import contactsSelectors from '../../../store/selectors/contacts'
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
 
 interface ChannelMessagesProps {
@@ -9,9 +8,10 @@ interface ChannelMessagesProps {
 }
 
 export const ChannelMessages = ({ contactId }: ChannelMessagesProps) => {
-  const contact = useSelector(contactsSelectors.contact(contactId))
+  // const contact = useSelector(contactsSelectors.contact(contactId))
+  const contact = 'contact'
 
-  return <ChannelMessagesComponent channel={contact.address} />
+  return <ChannelMessagesComponent channel={contact} />
 }
 
 export default ChannelMessages

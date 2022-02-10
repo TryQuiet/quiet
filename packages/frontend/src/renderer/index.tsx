@@ -5,7 +5,6 @@ import { ipcRenderer } from 'electron'
 import Root from './Root'
 import store from './store'
 import updateHandlers from './store/handlers/update'
-import waggleHandlers from './store/handlers/waggle'
 
 import debug from 'debug'
 
@@ -31,11 +30,6 @@ ipcRenderer.on('newUpdateAvailable', (_event) => {
 
 ipcRenderer.on('connectToWebsocket', (_event, payload: WebsocketConnectionPayload) => {
   store.dispatch(socketActions.startConnection(payload))
-})
-
-ipcRenderer.on('waggleInitialized', (_event) => {
-  log('waggle initialized')
-  store.dispatch(waggleHandlers.actions.setIsWaggleConnected(true))
 })
 
 render(<Root />, document.getElementById('root'))

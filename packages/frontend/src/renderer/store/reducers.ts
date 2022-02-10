@@ -13,16 +13,16 @@ import { socketReducer } from '../sagas/socket/socket.slice'
 import { modalsReducer } from '../sagas/modals/modals.slice'
 
 import appHandlers from './handlers/app'
-import waggleHandlers from './handlers/waggle'
-import contactsHandlers from './handlers/contacts'
-import channelHandlers from './handlers/channel'
-import directMessages from './handlers/directMessages'
-import directMessageChannelHandlers from './handlers/directMessageChannel'
-import notifications from './handlers/notifications'
-import notificationCenter from './handlers/notificationCenter'
-import mentionsHandlers from './handlers/mentions'
-import criticalErrorHandlers from './handlers/criticalError'
-import whitelistHandlers from './handlers/whitelist'
+// import waggleHandlers from './handlers/waggle'
+// import contactsHandlers from './handlers/contacts'
+// import channelHandlers from './handlers/channel'
+// import directMessages from './handlers/directMessages'
+// import directMessageChannelHandlers from './handlers/directMessageChannel'
+// import notifications from './handlers/notifications'
+// import notificationCenter from './handlers/notificationCenter'
+// import mentionsHandlers from './handlers/mentions'
+// import criticalErrorHandlers from './handlers/criticalError'
+// import whitelistHandlers from './handlers/whitelist'
 
 const reduxStorage = createElectronStorage()
 
@@ -35,10 +35,7 @@ const persistConfig = {
     NectarStoreKeys.Communities,
     NectarStoreKeys.PublicChannels,
     NectarStoreKeys.Messages,
-    StoreKeys.App,
-    StoreKeys.Contacts,
-    StoreKeys.DirectMessages,
-    StoreKeys.Whitelist
+    StoreKeys.App
   ]
 }
 
@@ -46,17 +43,7 @@ export const reducers = {
   ...nectarReducers.reducers,
   [StoreKeys.App]: appHandlers.reducer,
   [StoreKeys.Socket]: socketReducer,
-  [StoreKeys.Waggle]: waggleHandlers.reducer,
-  [StoreKeys.Modals]: modalsReducer,
-  [StoreKeys.DirectMessages]: directMessages.reducer,
-  [StoreKeys.DirectMessageChannel]: directMessageChannelHandlers.reducer,
-  [StoreKeys.Notifications]: notifications.reducer,
-  [StoreKeys.NotificationCenter]: notificationCenter.reducer,
-  [StoreKeys.Channel]: channelHandlers.reducer,
-  [StoreKeys.Contacts]: contactsHandlers.reducer,
-  [StoreKeys.Mentions]: mentionsHandlers.reducer,
-  [StoreKeys.Whitelist]: whitelistHandlers.reducer,
-  [StoreKeys.CriticalError]: criticalErrorHandlers.reducer
+  [StoreKeys.Modals]: modalsReducer
 }
 
 export type Store = StoreType<typeof reducers>

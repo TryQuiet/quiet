@@ -2,7 +2,7 @@ import { RouteProp } from '@react-navigation/core'
 import { Dispatch } from 'react'
 import { ScreenNames } from './const/ScreenNames.enum'
 
-export interface RootStackParamList {
+export type RootStackParamList = {
   [ScreenNames.SplashScreen]: undefined
   [ScreenNames.MainScreen]: undefined
   [ScreenNames.SuccessScreen]: {

@@ -1,12 +1,12 @@
 import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
-
 import { Notifications } from './Notifications'
-import { Contact } from '../../../store/handlers/contacts'
 
 describe('Notifications', () => {
   it('renders component', () => {
-    const contact = new Contact()
+    const contact = {
+      username: 'username'
+    }
     const result = renderComponent(
       <Notifications
         channelData={contact}
