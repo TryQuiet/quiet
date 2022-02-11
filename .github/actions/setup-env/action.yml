@@ -3,11 +3,11 @@ name: 'Setup environment'
 on:
   workflow_call:
     inputs:
-      mobilevar:
+      username:
         description: 'isMobile env variable passed from the caller workflow'
-        default: false
+        default: baba
         required: false
-        type: boolean
+        type: string
 
 runs:
   using: "composite"
@@ -25,7 +25,7 @@ runs:
     - name: "Bootstrap project mobile"
       run: |
         echo mobile env
-        echo ${{inputs.mobilevar}}
+        echo ${{inputs.username}}
       shell: bash
       
     - name: "Set unsafe-perm"
