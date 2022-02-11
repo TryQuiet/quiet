@@ -1,7 +1,12 @@
 import { fixture, test, Selector } from 'testcafe'
+function getMainWindowUrl() {
+  return `${process.env.APPDIR}/dist/main/index.html#/`;
+}
+
+const MAIN_PAGE = getMainWindowUrl();
 
 fixture`Electron test`
-  .page('../frontend/dist/main/index.html#/')
+  .page(`${MAIN_PAGE}`)
 
 const longTimeout = 100000
 
