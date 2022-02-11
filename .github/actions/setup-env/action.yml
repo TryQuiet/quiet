@@ -3,11 +3,11 @@ name: 'Setup environment'
 on:
   workflow_call:
     inputs:
-      username:
+      mobile:
         description: 'isMobile env variable passed from the caller workflow'
-        default: baba
+        default: false
         required: false
-        type: string
+        type: boolean
 
 runs:
   using: "composite"
