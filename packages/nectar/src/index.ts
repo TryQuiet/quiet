@@ -63,6 +63,7 @@ export * from './sagas/users/users.types'
 export { communityChannelsAdapter } from './sagas/publicChannels/publicChannels.adapter'
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
 export { certificatesAdapter } from './sagas/users/users.adapter'
+export { unreadMessagesAdapter } from './sagas/publicChannels/markUnreadMessages/unreadMessages.adapter'
 
 export {
   publicChannelsAdapter,

@@ -1,11 +1,8 @@
 import { displayMessageNotificationSaga } from './notifications'
 import { expectSaga } from 'redux-saga-test-plan'
-import { certificatesAdapter, channelMessagesAdapter, communities, CommunityChannels, communityChannelsAdapter, getFactory, Identity, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, prepareStore, PublicChannel, publicChannels, publicChannelsAdapter, settings, StoreKeys, users } from '@quiet/nectar'
+import { unreadMessagesAdapter, certificatesAdapter, channelMessagesAdapter, communities, CommunityChannels, communityChannelsAdapter, getFactory, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, prepareStore, PublicChannel, publicChannels, publicChannelsAdapter, settings, StoreKeys, users } from '@quiet/nectar'
 import { combineReducers } from '@reduxjs/toolkit'
 import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
-import { remote } from 'electron'
-import create from './store/create'
-import { unreadMessagesAdapter } from 'packages/nectar/src/sagas/publicChannels/markUnreadMessages/unreadMessages.adapter'
 
 const originalNotification = window.Notification
 const mockNotification = jest.fn()
@@ -281,7 +278,7 @@ describe('displayNotificationsSaga', () => {
     expect(mockDispatch).toBeCalledWith({
       payload:
       {
-        channel: 'channelId',
+        channelAddress: 'channelId',
         communityId: 1
       },
       type: 'PublicChannels/setCurrentChannel'
