@@ -53,5 +53,5 @@ runs:
       shell: bash
 
     - name: "Bootstrap project"
-      run: lerna bootstrap --scope ${{@quiet/identity,@quiet/nectar,@quiet/waggle,integration-tests,e2e-tests}}
+      run: lerna bootstrap --scope ${{'{@quiet/identity,@quiet/nectar,@quiet/waggle,integration-tests,e2e-tests}'}}
       shell: bash
