@@ -1,4 +1,13 @@
 name: 'Setup environment'
+ 
+on:
+  workflow_call:
+    inputs:
+      mobilevar:
+        description: 'isMobile env variable passed from the caller workflow'
+        default: false
+        required: false
+        type: boolean
 
 runs:
   using: "composite"
