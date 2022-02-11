@@ -23,7 +23,7 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          mobilevar: 'asdf'
+          mobilevar: false
 
       - name: "Unit tests"
         run: lerna run test --scope @quiet/mobile --stream
