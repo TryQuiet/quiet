@@ -2,16 +2,18 @@ import { fixture, test, Selector, t } from 'testcafe'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as os from 'os'
+import { Channel, LoadingPanel } from './selectors'
 
 const longTimeout = 100000
 
 fixture`Electron test`
   .before(async t => {
+    const dataPath = path.join(os.homedir(), '.config')
     console.info('Cleaning up')
     try {
-      fs.rmdirSync(path.join(os.homedir(), '.config/Quiet'), { recursive: true })
-      fs.rmdirSync(path.join(os.homedir(), '.config/Electron'), { recursive: true })
-      fs.rmdirSync(path.join(os.homedir(), '.config/e2e-tests-nodejs/'), { recursive: true })
+      fs.rmdirSync(path.join(dataPath, 'Quiet'), { recursive: true })
+      fs.rmdirSync(path.join(dataPath, 'Electron'), { recursive: true })
+      fs.rmdirSync(path.join(dataPath, 'e2e-tests-nodejs'), { recursive: true })
     } catch {
       console.info('No data directories to clean up')
     }
@@ -34,7 +36,7 @@ test('User can create new community, register and send few messages to general c
   await goToMainPage()
 
   // User opens app for the first time, sees spinner, waits for spinner to disappear
-  await t.expect(Selector('span').withText('Starting Quiet').exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
+  await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
   // User sees "join community" page and switches to "create community" view by clicking on the link
   const joinCommunityTitle = await Selector('h3').withText('Join community')()
@@ -61,46 +63,39 @@ test('User can create new community, register and send few messages to general c
   await t.click(submitButton)
 
   // User waits for the spinner to disappear and then sees general channel
-  await t.expect(Selector('span').withText('Creating community').exists).notOk(`"Creating community" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
-  await t.expect(Selector('h6').withText('#general').exists).ok('User can\'t see "general" channel')
+  const generalChannel = new Channel('general')
+  await t.expect(new LoadingPanel('Creating community').title.exists).notOk(`"Creating community" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
+  await t.expect(generalChannel.title.exists).ok('User can\'t see "general" channel')
 
-  // User types a message, hits enter
-  const messageInput = Selector('div').withAttribute('placeholder', `Message #general as @${username}`)
-  await t.expect(messageInput.exists).ok()
-  await t.typeText(messageInput, 'Hello everyone')
-  await t.pressKey('enter')
+  // User sends a message
+  await t.expect(generalChannel.messageInput.exists).ok()
+  await generalChannel.sendMessage('Hello everyone')
 
   // Sent message is visible on the messages' list as part of a group
-  const messagesList = Selector('ul').withAttribute('id', 'messages-scroll')
-  await t.expect(messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
+  await t.expect(generalChannel.messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
 
-  const messagesGroup = messagesList.find('li')
-  await t.expect(messagesGroup.exists).ok({ timeout: 30000 })
-  await t.expect(messagesGroup.count).eql(1)
+  await t.expect(generalChannel.messagesGroup.exists).ok({ timeout: 30000 })
+  await t.expect(generalChannel.messagesGroup.count).eql(1)
 
-  const messageGroupContent = messagesGroup.find('p').withAttribute('data-testid', /messagesGroupContent-/)
-  await t.expect(messageGroupContent.exists).ok()
-  await t.expect(messageGroupContent.textContent).eql('Hello\xa0everyone')
+  await t.expect(generalChannel.messagesGroupContent.exists).ok()
+  await t.expect(generalChannel.messagesGroupContent.textContent).eql('Hello\xa0everyone')
   await t.wait(5000) // TODO: remove after fixing https://github.com/ZbayApp/monorepo/issues/222
 })
 
 test('User reopens app, sees general channel and the messages he sent before', async t => {
-  console.timeEnd('Pause between tests')
   // User opens app for the first time, sees spinner, waits for spinner to disappear
-  await t.expect(Selector('span').withText('Starting Quiet').exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
+  await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
   // Returning user sees "general" channel
-  await t.expect(Selector('h6').withText('#general').exists).ok('User can\'t see "general" channel')
+  const generalChannel = new Channel('general')
+  await t.expect(generalChannel.title.exists).ok('User can\'t see "general" channel')
 
   // User sees the message sent previously
-  const messagesList = Selector('ul').withAttribute('id', 'messages-scroll')
-  await t.expect(messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
+  await t.expect(generalChannel.messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
 
-  const messagesGroup = messagesList.find('li')
-  await t.expect(messagesGroup.exists).ok({ timeout: 30000 })
-  await t.expect(messagesGroup.count).eql(1)
+  await t.expect(generalChannel.messagesGroup.exists).ok({ timeout: 30000 })
+  await t.expect(generalChannel.messagesGroup.count).eql(1)
 
-  const messageGroupContent = messagesGroup.find('p').withAttribute('data-testid', /messagesGroupContent-/)
-  await t.expect(messageGroupContent.exists).ok()
-  await t.expect(messageGroupContent.textContent).eql('Hello\xa0everyone')
+  await t.expect(generalChannel.messagesGroupContent.exists).ok()
+  await t.expect(generalChannel.messagesGroupContent.textContent).eql('Hello\xa0everyone')
 })
