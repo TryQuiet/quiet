@@ -6,6 +6,22 @@
 	"main": "lib/index.js",
 	"author": "",
 	"license": "MIT",
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"prepublish": "npm run build",
+		"version": "git add -A src",
+		"postinstall": "rm -rf node_modules/ipfs-core-types/src",
+		"postversion": "git push && git push --tags",
+		"lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
+		"lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
+		"test": "cross-env DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)\"",
+		"test-ci": "jest ./src/**/* --runInBand --colors --ci --silent --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)|src/.*\\.tor.test\\.(t|j)s$\"",
+		"test-ci-tor": "jest --runInBand --colors --ci --silent --verbose --testPathPattern=\"src/.*\\.tor.test\\.(t|j)s$\"",
+		"test-connect": "DEBUG='libp2p:websockets*' jest ./src/nodeTest/* --verbose",
+		"test-connect-ci": "jest ./src/nodeTest/* --colors --ci --silent --verbose",
+		"test-replication-no-tor": "ts-node -v && cross-env DEBUG='waggle:dbSnap*,waggle:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 200 --entriesCount 1000 --no-useTor",
+		"test-replication-tor": "cross-env DEBUG='waggle:dbSnap*,waggle:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 500 --entriesCount 1000 --useTor"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git+ssh://git@github.com:ZbayApp/waggle.git"
@@ -64,6 +80,8 @@
 	"dependencies": {
 		"@chainsafe/libp2p-noise": "^4.0.0",
 		"@peculiar/webcrypto": "1.2.2",
+		"@quiet/identity": "^0.2.0-alpha.0",
+		"@quiet/nectar": "^0.2.0-alpha.0",
 		"abortable-iterator": "^3.0.0",
 		"class-validator": "^0.13.1",
 		"cli-table": "^0.3.6",
