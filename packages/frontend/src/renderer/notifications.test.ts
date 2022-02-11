@@ -5,6 +5,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
 import { remote } from 'electron'
 import create from './store/create'
+import { unreadMessagesAdapter } from 'packages/nectar/src/sagas/publicChannels/markUnreadMessages/unreadMessages.adapter'
 
 const originalNotification = window.Notification
 const mockNotification = jest.fn()
@@ -61,7 +62,7 @@ beforeAll(async () => {
       type: 1,
       message: 'message',
       createdAt: 1000000,
-      channelId: incomingMessagesChannelId,
+      channelAddress: incomingMessagesChannelId,
       signature: 'signature',
       pubKey: 'pubKey'
     }],
@@ -92,7 +93,8 @@ beforeAll(async () => {
       [publicChannel, publicChannel2]
     ),
     channelMessages: channelMessagesAdapter.getInitialState(),
-    channelLoadingSlice: 0
+    channelLoadingSlice: 0,
+    unreadMessages: unreadMessagesAdapter.getInitialState()
   }
 
   const userCertString = userIdentity.userCertificate

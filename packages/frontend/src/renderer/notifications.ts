@@ -54,7 +54,7 @@ export const messagesMapForNotificationsCalls = (
   }: createNotificationsCallsDataType
 ): Array<SagaGenerator<Notification, CallEffect<Notification>>> => {
   return action.payload.messages.map((messageData) => {
-    const publicChannelFromMessage = publicChannels.find((channel) => channel.address === messageData.channelId)
+    const publicChannelFromMessage = publicChannels.find((channel) => channel.address === messageData.channelAddress)
     const isMessageFromMyUser = usersData[messageData.pubKey]?.username === myIdentity.nickname
     // it will change name with address
     const isMessageFromCurrentChannel = currentChannel === publicChannelFromMessage.name
@@ -80,7 +80,7 @@ export const createNotification = (payload: NotificationsData): Notification => 
   const notification = new Notification(payload.title, { body: payload.message })
   notification.onclick = () => {
     create().dispatch(channels.actions.setCurrentChannel({
-      channel: payload.channelName,
+      channelAddress: payload.channelName,
       communityId: payload.communityId
     }))
 
