@@ -8,7 +8,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import { Contact } from '../../../store/handlers/contacts'
 
-
 const useStyles = makeStyles((theme) => ({
   title: {},
   addModerator: {
@@ -120,7 +119,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
                   type='submit'
                   fullWidth
                   className={classes.button}
-                  onClick={() => { return }}
+                  onClick={() => { }}
                 >
                   Unmute Channel
                 </Button>

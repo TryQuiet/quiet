@@ -61,7 +61,7 @@ export const BlockedUsers: React.FC<BlockedUsersProps> = ({ blockedUsers, users 
               actionName='unblock'
               prefix='@'
               action={() => {
-                return
+
               }}
             />
           </Grid>

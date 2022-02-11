@@ -12,7 +12,6 @@ export const useBlockedUsersData = () => {
   return data
 }
 
-
 export const BlockedUsers = () => {
   const { users, blockedUsers } = useBlockedUsersData()
 

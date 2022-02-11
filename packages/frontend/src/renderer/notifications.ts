@@ -17,17 +17,17 @@ export interface NotificationsData {
 
 export interface createNotificationsCallsDataType {
   action: {
-    payload: IncomingMessages;
-    type: string;
-  };
-  publicChannels: PublicChannel[];
+    payload: IncomingMessages
+    type: string
+  }
+  publicChannels: PublicChannel[]
   usersData: {
-    [pubKey: string]: User;
-  };
-  myIdentity: Identity;
-  currentChannel: string;
-  notificationsOption: NotificationsOptions;
-  notificationsSound: NotificationsSounds;
+    [pubKey: string]: User
+  }
+  myIdentity: Identity
+  currentChannel: string
+  notificationsOption: NotificationsOptions
+  notificationsSound: NotificationsSounds
 }
 
 export function* displayMessageNotificationSaga(
@@ -40,7 +40,7 @@ export function* displayMessageNotificationSaga(
     myIdentity: yield* select(identity.selectors.currentIdentity),
     currentChannel: yield* select(channels.selectors.currentChannel),
     notificationsOption: yield* select(settings.selectors.getNotificationsOption),
-    notificationsSound: yield* select(settings.selectors.getNotificationsSound),
+    notificationsSound: yield* select(settings.selectors.getNotificationsSound)
   }
   const createNotificationsCalls = yield* call(messagesMapForNotificationsCalls, createNotificationsCallsData)
 
@@ -48,9 +48,11 @@ export function* displayMessageNotificationSaga(
 }
 
 export const messagesMapForNotificationsCalls = (
-  { action, currentChannel, myIdentity, notificationsOption,
-    notificationsSound, publicChannels, usersData }: createNotificationsCallsDataType
-): SagaGenerator<Notification, CallEffect<Notification>>[] => {
+  {
+    action, currentChannel, myIdentity, notificationsOption,
+    notificationsSound, publicChannels, usersData
+  }: createNotificationsCallsDataType
+): Array<SagaGenerator<Notification, CallEffect<Notification>>> => {
   return action.payload.messages.map((messageData) => {
     const publicChannelFromMessage = publicChannels.find((channel) => channel.address === messageData.channelId)
     const isMessageFromMyUser = usersData[messageData.pubKey]?.username === myIdentity.nickname
