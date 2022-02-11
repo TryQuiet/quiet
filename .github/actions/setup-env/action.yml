@@ -13,6 +13,12 @@ runs:
       run: git config --global http.postBuffer 524288000
       shell: bash
 
+    - name: "Bootstrap project mobile"
+      run: |
+        echo mobile env
+        echo $ {{env.INPUT_MOBILE}}
+      shell: bash
+      
     - name: "Set unsafe-perm"
       run: npm set unsafe-perm true
       shell: bash
@@ -38,5 +44,5 @@ runs:
       shell: bash
 
     - name: "Bootstrap project"
-      run: lerna bootstrap
+      run: lerna bootstrap --scope {@quiet/identity,@quiet/nectar,@quiet/waggle,integration-tests,e2e-tests}
       shell: bash
