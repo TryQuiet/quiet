@@ -58,8 +58,6 @@ export * from './sagas/publicChannels/publicChannels.types'
 
 export { Community } from './sagas/communities/communities.slice'
 
-export { CommunityChannels } from './sagas/publicChannels/publicChannels.slice'
-
 export * from './sagas/users/users.types'
 
 export { communityChannelsAdapter } from './sagas/publicChannels/publicChannels.adapter'

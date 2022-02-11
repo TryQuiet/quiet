@@ -37,7 +37,7 @@ export const CreateChannel = () => {
     ) {
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channel: newChannel.name,
+          channelAddress: newChannel.name,
           communityId: community
         })
       )

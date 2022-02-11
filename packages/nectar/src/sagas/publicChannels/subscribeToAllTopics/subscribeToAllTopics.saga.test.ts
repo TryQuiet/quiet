@@ -4,7 +4,6 @@ import { StoreKeys } from '../../store.keys'
 import {
   publicChannelsActions,
   publicChannelsReducer,
-  CommunityChannels,
   PublicChannelsState
 } from '../publicChannels.slice'
 import { subscribeToAllTopicsSaga } from './subscribeToAllTopics.saga'
@@ -21,8 +20,9 @@ import {
 import { identityReducer, IdentityState } from '../../identity/identity.slice'
 import { communitiesAdapter } from '../../communities/communities.adapter'
 import { identityAdapter } from '../../identity/identity.adapter'
-import { PublicChannel } from '../publicChannels.types'
+import { CommunityChannels, PublicChannel } from '../publicChannels.types'
 import { Identity } from '../../identity/identity.types'
+import { unreadMessagesAdapter } from '../markUnreadMessages/unreadMessages.adapter'
 
 describe('subscribeToAllTopicsSaga', () => {
   const community: Community = {
@@ -67,12 +67,13 @@ describe('subscribeToAllTopicsSaga', () => {
   const communityChannels: CommunityChannels = {
     id: 'id',
     currentChannel: 'channelOne',
+    channelLoadingSlice: 0,
     channels: publicChannelsAdapter.setAll(
       publicChannelsAdapter.getInitialState(),
       [channelOne, channelTwo]
     ),
     channelMessages: channelMessagesAdapter.getInitialState(),
-    channelLoadingSlice: 0
+    unreadMessages: unreadMessagesAdapter.getInitialState()
   }
 
   test('ask for missing messages', async () => {

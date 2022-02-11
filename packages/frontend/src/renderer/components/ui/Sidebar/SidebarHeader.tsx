@@ -1,14 +1,11 @@
 import React from 'react'
-
 import classNames from 'classnames'
-
+import { makeStyles } from '@material-ui/styles'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
-
 import PlusIconWithBorder from '../assets/icons/PlusIconWithBorder'
 import Tooltip from '../Tooltip/Tooltip'
-import { makeStyles } from '@material-ui/styles'
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -50,8 +47,8 @@ interface SidebarHeaderProps {
 export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   title,
   action,
-  tooltipText,
-  actionTitle
+  actionTitle,
+  tooltipText
 }) => {
   const classes = useStyles({})
   return (

@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0-alpha.2](https://github.com/ZbayApp/monorepo/compare/quiet@0.2.0-alpha.1...quiet@0.2.0-alpha.2) (2022-02-10)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+# [0.2.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/quiet@0.2.0-alpha.0...quiet@0.2.0-alpha.1) (2022-02-09)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+# [0.2.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.17...quiet@0.2.0-alpha.0) (2022-02-09)
+
+
+### Reverts
+
+* Revert "merge" ([c594651](https://github.com/ZbayApp/monorepo/commit/c594651fd9d1aeed9cc5623fc8933c78a55ef080))
+
+
+
+
+
 # [0.1.0-alpha.17](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.16...quiet@0.1.0-alpha.17) (2022-02-03)
 
 **Note:** Version bump only for package quiet

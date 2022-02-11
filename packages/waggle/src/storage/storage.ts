@@ -358,7 +358,7 @@ export class Storage {
       log.error('STORAGE: public channel message is invalid')
       return
     }
-    const db = this.publicChannelsRepos.get(message.channelId).db
+    const db = this.publicChannelsRepos.get(message.channelAddress).db
     try {
       await db.add(message)
     } catch (e) {

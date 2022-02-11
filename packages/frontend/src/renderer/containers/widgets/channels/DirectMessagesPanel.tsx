@@ -3,7 +3,6 @@ import React from 'react'
 import Grid from '@material-ui/core/Grid'
 import SidebarHeader from '../../../components/ui/Sidebar/SidebarHeader'
 import QuickActionButton from '../../../components/widgets/sidebar/QuickActionButton'
-import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'
 
 import { useModal } from '../../hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
@@ -25,7 +24,7 @@ export const DirectMessagesPanel = ({ title }) => {
         <SidebarHeader title={title} action={modal.handleOpen} tooltipText='Create new message' />
       </Grid>
       <Grid item>
-        <BaseChannelsList channels={channels} />
+        {/* <BaseChannelsList channels={channels} /> */}
       </Grid>
       <Grid item>
         <QuickActionButton text='New Message' action={modal.handleOpen} />

@@ -8,7 +8,7 @@ import { SocketState } from '../renderer/sagas/socket/socket.slice'
 import LoadingPanel from '../renderer/containers/widgets/loadingPanel/loadingPanel'
 import JoinCommunity from '../renderer/containers/widgets/joinCommunity/joinCommunity'
 import CreateCommunity from '../renderer/containers/widgets/createCommunity/createCommunity'
-import Channel from '../renderer/containers/pages/Channel'
+import Channel from '../renderer/components/Channel/Channel'
 import {
   CreateCommunityDictionary,
   JoinCommunityDictionary

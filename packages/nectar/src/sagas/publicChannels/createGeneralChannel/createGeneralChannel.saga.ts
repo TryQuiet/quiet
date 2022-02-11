@@ -27,7 +27,7 @@ export function* createGeneralChannelSaga(
   yield* put(
     publicChannelsActions.setCurrentChannel({
       communityId: action.payload.communityId,
-      channel: channel.address
+      channelAddress: channel.address
     })
   )
 }
