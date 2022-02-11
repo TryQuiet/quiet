@@ -286,4 +286,43 @@ describe('displayNotificationsSaga', () => {
 
     expect(mockShow).toHaveBeenCalled()
   })
+
+  test('notification shows for message in current channel when app window does not have focus', async () => {
+    mockIsFocused.mockImplementationOnce(() => { return false })
+
+    const storeReducersWithCurrentChannelFromMessage = {
+      ...storeReducersWithDifferentCurrentChannel,
+      [StoreKeys.PublicChannels]: {
+        ...new publicChannels.State(),
+        channels: communityChannelsAdapter.setAll(
+          communityChannelsAdapter.getInitialState(),
+          [{
+            ...communityChannels,
+            currentChannel: incomingMessagesChannelId
+          }]
+        )
+      }
+    }
+
+    await expectSaga(
+      displayMessageNotificationSaga,
+      publicChannels.actions.incomingMessages(incomingMessages))
+      .withReducer(
+        combineReducers({
+          [StoreKeys.Identity]: identity.reducer,
+          [StoreKeys.Settings]: settings.reducer,
+          [StoreKeys.PublicChannels]: publicChannels.reducer,
+          [StoreKeys.Users]: users.reducer,
+          [StoreKeys.Communities]: communities.reducer
+
+        }),
+        storeReducersWithCurrentChannelFromMessage
+      )
+      .run()
+
+    expect(notification).toBeCalledWith(
+      `New message in ${incomingMessagesChannelId}`,
+      { body: incomingMessages.messages[0].message }
+    )
+  })
 })
