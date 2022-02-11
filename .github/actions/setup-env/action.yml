@@ -16,7 +16,7 @@ runs:
     - name: "Bootstrap project mobile"
       run: |
         echo mobile env
-        echo $ {{env.INPUT_MOBILE}}
+        echo ${{env.INPUT_MOBILEVAR}}
       shell: bash
       
     - name: "Set unsafe-perm"
