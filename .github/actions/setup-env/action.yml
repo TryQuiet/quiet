@@ -40,10 +40,25 @@ runs:
       run: npm cache clean --force
       shell: bash
 
+    # - name: 'Update node-gyp'
+    #   if: ${{ matrix.os == 'windows-2019' }}
+    #   run: npm install --global --production windows-build-tools --vs2017
+    #   shell: bash
+
+    - name: 'check paths'
+      run: echo $HOME
+    - name: 'check paths'
+      run: echo ${{env.HOME}}
+
     - name: 'Update node-gyp'
       if: ${{ matrix.os == 'windows-2019' }}
-      run: npm install --global --production windows-build-tools --vs2017
+      run: npm install --global node-gyp@latest
       shell: bash
+
+    # - name: 'Update node-gyp'
+    #   if: ${{ matrix.os == 'windows-2019' }}
+    #   run: npm config set node_gyp node_modules\node-gyp\bin\node-gyp.js
+      # shell: bash
 
     # - name: "Cache NPM dependencies"
     #   id: cache-nodemodules
