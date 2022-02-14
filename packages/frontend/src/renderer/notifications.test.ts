@@ -3,14 +3,24 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { unreadMessagesAdapter, certificatesAdapter, channelMessagesAdapter, communities, CommunityChannels, communityChannelsAdapter, getFactory, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, prepareStore, PublicChannel, publicChannels, publicChannelsAdapter, settings, StoreKeys, users } from '@quiet/nectar'
 import { combineReducers } from '@reduxjs/toolkit'
 import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
+import { soundTypeToAudio } from '../shared/sounds'
 
 const originalNotification = window.Notification
 const mockNotification = jest.fn()
 const mockDispatch = jest.fn()
-
 const notification = jest.fn().mockImplementation(() => { return mockNotification })
 
 jest.mock('./store/create', () => { return () => ({ dispatch: mockDispatch }) })
+
+jest.mock('../shared/sounds', () => ({
+  //@ts-ignore
+  ...jest.requireActual('../shared/sounds'),
+  soundTypeToAudio: {
+    pow: {
+      play: jest.fn()
+    }
+  }
+}));
 
 const mockShow = jest.fn()
 const mockIsFocused = jest.fn()
@@ -324,5 +334,26 @@ describe('displayNotificationsSaga', () => {
       `New message in ${incomingMessagesChannelId}`,
       { body: incomingMessages.messages[0].message }
     )
+  })
+
+  test('play a sound when the notification is displayed', async () => {
+    mockIsFocused.mockImplementationOnce(() => { return true })
+
+    await expectSaga(
+      displayMessageNotificationSaga,
+      publicChannels.actions.incomingMessages(incomingMessages))
+      .withReducer(
+        combineReducers({
+          [StoreKeys.Identity]: identity.reducer,
+          [StoreKeys.Settings]: settings.reducer,
+          [StoreKeys.PublicChannels]: publicChannels.reducer,
+          [StoreKeys.Users]: users.reducer,
+          [StoreKeys.Communities]: communities.reducer
+
+        }),
+        storeReducersWithDifferentCurrentChannel
+      )
+      .run()
+    expect(soundTypeToAudio.pow.play).toHaveBeenCalled()
   })
 })

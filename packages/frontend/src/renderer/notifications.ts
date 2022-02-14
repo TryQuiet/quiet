@@ -4,6 +4,7 @@ import { Identity, identity, IncomingMessages, NotificationsOptions, Notificatio
 import { all, call, SagaGenerator, select } from 'typed-redux-saga'
 import { CallEffect } from 'redux-saga/effects'
 import { remote } from 'electron'
+import { soundTypeToAudio } from '../shared/sounds'
 import create from './store/create'
 
 export interface NotificationsData {
@@ -54,7 +55,11 @@ export const messagesMapForNotificationsCalls = (
   }: createNotificationsCallsDataType
 ): Array<SagaGenerator<Notification, CallEffect<Notification>>> => {
   return action.payload.messages.map((messageData) => {
-    const publicChannelFromMessage = publicChannels.find((channel) => channel.address === messageData.channelAddress)
+    const publicChannelFromMessage = publicChannels.find((channel) => {
+      //@ts-ignore
+      if (messageData?.channelId) return channel.address === messageData.channelId
+      else if (messageData?.channelAddress) return channel.address === messageData.channelAddress
+    })
     const isMessageFromMyUser = usersData[messageData.pubKey]?.username === myIdentity.nickname
     // it will change name with address
     const isMessageFromCurrentChannel = currentChannel === publicChannelFromMessage.name
@@ -77,6 +82,9 @@ export const messagesMapForNotificationsCalls = (
 }
 
 export const createNotification = (payload: NotificationsData): Notification => {
+  if (soundTypeToAudio[payload.sound]) {
+    soundTypeToAudio[payload.sound].play()
+  }
   const notification = new Notification(payload.title, { body: payload.message })
   notification.onclick = () => {
     create().dispatch(channels.actions.setCurrentChannel({
