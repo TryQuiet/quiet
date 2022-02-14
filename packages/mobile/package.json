@@ -12,8 +12,8 @@
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "gen": "plop",
-    "prepare-waggle-asset": "rf-lerna zipbundle @quiet/waggle --target ./nodejs-assets/nodejs-project/waggle.zip && cd ./nodejs-assets/nodejs-project/ && rm -rf waggle/ && unzip waggle.zip -d waggle/ && rm -rf waggle.zip && rm -rf waggle/node_modules/wrtc",
-    "postinstall": "rm -rf ./node_modules/@quiet/nectar && cp -L -R ../nectar ./node_modules/@quiet && rm -rf ./node_modules/@quiet/identity && cp -L -R ../identity ./node_modules/@quiet && node_modules/.bin/rn-nodeify --install crypto,stream,events --hack && npm run prepare-waggle-asset",
+    "provide-waggle-asset": "rf-lerna zipbundle @quiet/waggle --target ./nodejs-assets/nodejs-project/waggle.zip && cd ./nodejs-assets/nodejs-project/ && rm -rf waggle/ && unzip waggle.zip -d waggle/ && rm -rf waggle.zip && rm -rf waggle/node_modules/wrtc",
+    "postinstall": "npm run provide-waggle-asset",
     "postversion": "react-native-version",
     "prepublish": "npm run build"
   },
@@ -56,7 +56,6 @@
     "readable-stream": "^3.6.0",
     "redux-persist": "^6.0.0",
     "redux-saga": "^1.1.3",
-    "rn-nodeify": "^10.3.0",
     "socket.io-client": "^4.1.3",
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.0",
@@ -89,31 +88,12 @@
     "jest": "^26.6.3",
     "metro-react-native-babel-preset": "^0.64.0",
     "plop": "^2.7.4",
+    "node-libs-react-native": "^1.2.1",
     "react-native-dev-menu": "^4.0.2",
     "react-native-version": "^4.0.0",
     "react-test-renderer": "17.0.1",
     "redux-saga-test-plan": "^4.0.1",
     "typescript": "^4.3.5"
-  },
-  "react-native": {
-    "crypto": "react-native-crypto",
-    "events": "react-native-events",
-    "stream": "stream-browserify",
-    "_stream_transform": "readable-stream/transform",
-    "_stream_readable": "readable-stream/readable",
-    "_stream_writable": "readable-stream/writable",
-    "_stream_duplex": "readable-stream/duplex",
-    "_stream_passthrough": "readable-stream/passthrough"
-  },
-  "browser": {
-    "crypto": "react-native-crypto",
-    "events": "react-native-events",
-    "stream": "stream-browserify",
-    "_stream_transform": "readable-stream/transform",
-    "_stream_readable": "readable-stream/readable",
-    "_stream_writable": "readable-stream/writable",
-    "_stream_duplex": "readable-stream/duplex",
-    "_stream_passthrough": "readable-stream/passthrough"
   },
   "resolutions": {
     "@types/react": "^17"
