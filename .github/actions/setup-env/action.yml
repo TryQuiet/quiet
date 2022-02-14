@@ -18,11 +18,7 @@ runs:
       shell: bash
 
     - name: "Install lerna globally"
-      run: npm i -g lerna
-      shell: bash
-
-    - name: "Install rf-lerna globally"
-      run: npm i -g rf-lerna
+      run: npm i -g lerna rf-lerna
       shell: bash
 
     - name: "Cache NPM dependencies"
