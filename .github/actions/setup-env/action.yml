@@ -55,10 +55,19 @@ runs:
     # - name: 'check paths'
     #   run: echo ${{env.HOME}}
     #   shell: bash
-    # - name: 'Update node-gyp'
-    #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: npm install --global node-gyp@latest
-    #   shell: bash
+    - name: 'Update node-gyp'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: npm install --global node-gyp@latest
+      shell: bash
+
+    - name: 'Update node-gyp'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: npm --version
+      shell: bash
+    - name: 'Where node'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: where node
+      shell: bash
     # - name: 'check paths'
     #   if: ${{ matrix.os == 'windows-latest' }}
     #   run: |
