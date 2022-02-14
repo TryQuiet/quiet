@@ -93,32 +93,36 @@ describe('Chat component', () => {
           data={
             Array [
               Object {
-                "createdAt": "1:30pm",
+                "createdAt": 0,
+                "date": "1:30pm",
                 "id": "1",
                 "message": "Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.",
                 "nickname": "holmes",
-                "type": "1",
+                "type": 1,
               },
               Object {
-                "createdAt": "1:32pm",
+                "createdAt": 0,
+                "date": "1:32pm",
                 "id": "2",
                 "message": "Bear claw bear claw donut marzipan chocolate cake sugar plum pie. Chocolate cake chocolate bar ice cream. Marzipan powder brownie muffin jelly beans. Sesame snaps tootsie roll macaroon donut.",
                 "nickname": "holmes",
-                "type": "1",
+                "type": 1,
               },
               Object {
-                "createdAt": "1:32pm",
+                "createdAt": 0,
+                "date": "1:32pm",
                 "id": "3",
                 "message": "Marshmallows!",
                 "nickname": "emily",
-                "type": "1",
+                "type": 1,
               },
               Object {
-                "createdAt": "1:32pm",
+                "createdAt": 0,
+                "date": "1:32pm",
                 "id": "4",
                 "message": "Chupa chups soufflé danish. Cake chocolate brownie cookie bear claw soufflé. Muffin chupa chups sweet caramels jelly beans chocolate bar bonbon liquorice.",
                 "nickname": "bartek",
-                "type": "1",
+                "type": 1,
               },
             ]
           }
@@ -278,7 +282,7 @@ describe('Chat component', () => {
                           }
                           verticalTextAlign="center"
                         >
-                          1:30pm
+                          0
                         </Text>
                       </View>
                     </View>
@@ -429,7 +433,7 @@ describe('Chat component', () => {
                           }
                           verticalTextAlign="center"
                         >
-                          1:32pm
+                          0
                         </Text>
                       </View>
                     </View>
@@ -580,7 +584,7 @@ describe('Chat component', () => {
                           }
                           verticalTextAlign="center"
                         >
-                          1:32pm
+                          0
                         </Text>
                       </View>
                     </View>
@@ -731,7 +735,7 @@ describe('Chat component', () => {
                           }
                           verticalTextAlign="center"
                         >
-                          1:32pm
+                          0
                         </Text>
                       </View>
                     </View>

@@ -127,7 +127,7 @@ describe('Message component', () => {
                   }
                   verticalTextAlign="center"
                 >
-                  1:30pm
+                  0
                 </Text>
               </View>
             </View>
