@@ -87,6 +87,7 @@ runs:
       run: |
         cd "C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\run-script"
         ls
+        npm install node-gyp@latest
       shell: bash
 
     # - name: 'Where node'
@@ -116,10 +117,10 @@ runs:
     #     cd @npmcli
     #     ls
     #   shell: bash
-    - name: 'Where node'
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: npm install node-gyp@latest
-      shell: bash
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: npm install node-gyp@latest
+    #   shell: bash
 
     # - name: 'Where node'
     #   if: ${{ matrix.os == 'windows-latest' }}
