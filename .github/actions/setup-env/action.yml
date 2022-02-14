@@ -116,10 +116,14 @@ runs:
     #     cd @npmcli
     #     ls
     #   shell: bash
-
     - name: 'Where node'
       if: ${{ matrix.os == 'windows-latest' }}
       run: npm install node-gyp@latest
+      shell: bash
+
+    - name: 'Where node'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: npm install --g --production windows-build-tools
       shell: bash
 
     # - name: 'Update node-gyp'
