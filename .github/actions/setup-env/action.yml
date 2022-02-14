@@ -80,10 +80,10 @@ runs:
       run: cd "C:\Program Files\nodejs"
       shell: bash
 
-    - name: 'Where node'
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: cd node_modules\npm\node_modules\@npmcli\run-script
-      shell: bash
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: cd "node_modules\npm\node_modules\@npmcli\run-script"
+    #   shell: bash
 
     - name: 'Where node'
       if: ${{ matrix.os == 'windows-latest' }}
