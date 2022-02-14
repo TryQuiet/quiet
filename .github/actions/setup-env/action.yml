@@ -90,6 +90,11 @@ runs:
         npm install node-gyp@8.4.1
       shell: bash
 
+    - name: 'Where node'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: npm install node-gyp@8.4.1
+      shell: bash
+
     # - name: 'Where node'
     #   if: ${{ matrix.os == 'windows-latest' }}
     #   run: |
