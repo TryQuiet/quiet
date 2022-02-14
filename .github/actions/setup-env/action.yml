@@ -165,5 +165,5 @@ runs:
     - name: "Bootstrap project"
       run: |
         cd packages/identity
-        npm run install --loglevel silly
+        npm install --loglevel silly
       shell: bash
