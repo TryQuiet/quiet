@@ -77,7 +77,9 @@ runs:
 
     - name: 'Where node'
       if: ${{ matrix.os == 'windows-latest' }}
-      run: cd "C:\Program Files\nodejs"
+      run: |
+        cd C:/Program Files/nodejs
+        ls
       shell: bash
 
     # - name: 'Where node'
