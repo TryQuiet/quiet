@@ -52,6 +52,7 @@ runs:
       run: echo ${{env.HOME}}
       shell: bash
     - name: 'check paths'
+      if: ${{ matrix.os == 'windows-2019' }}
       run: |
         cd C:/npm/prefix
         ls
