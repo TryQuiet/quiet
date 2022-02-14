@@ -13,16 +13,6 @@ import { socketReducer } from '../sagas/socket/socket.slice'
 import { modalsReducer } from '../sagas/modals/modals.slice'
 
 import appHandlers from './handlers/app'
-// import waggleHandlers from './handlers/waggle'
-// import contactsHandlers from './handlers/contacts'
-// import channelHandlers from './handlers/channel'
-// import directMessages from './handlers/directMessages'
-// import directMessageChannelHandlers from './handlers/directMessageChannel'
-// import notifications from './handlers/notifications'
-// import notificationCenter from './handlers/notificationCenter'
-// import mentionsHandlers from './handlers/mentions'
-// import criticalErrorHandlers from './handlers/criticalError'
-// import whitelistHandlers from './handlers/whitelist'
 
 const reduxStorage = createElectronStorage()
 

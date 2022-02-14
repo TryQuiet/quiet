@@ -29,7 +29,7 @@ export const reducers = {
   [NectarStoreKeys.Connection]: connection.reducer,
   [StoreKeys.App]: appReducer,
   [StoreKeys.Socket]: socketReducer,
-  [StoreKeys.Modals]: modalsReducer,
+  [StoreKeys.Modals]: modalsReducer
 }
 
 export const prepareStore = async (

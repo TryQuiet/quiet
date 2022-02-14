@@ -1,4 +1,13 @@
 name: 'Setup environment'
+ 
+on:
+  workflow_call:
+    inputs:
+      mobile:
+        description: 'isMobile env variable passed from the caller workflow'
+        default: false
+        required: false
+        type: boolean
 
 runs:
   using: "composite"
@@ -6,13 +15,23 @@ runs:
     - uses: actions/setup-node@master
       with:
         node-version: "16.9.1"
-    
+    # - uses: actions/setup-python@v2
+    #   with:
+    #     python-version: 3.8
+
     # https://stackoverflow.com/questions/46232906/git-clone-error-rpc-failed-curl-56-openssl-ssl-read-ssl-error-syscall-errno
     - name: 'Increase git postBuffer size'
       if: ${{ matrix.os == 'windows-latest' }}
       run: git config --global http.postBuffer 524288000
       shell: bash
 
+
+    - name: "Bootstrap project mobile"
+      run: |
+        echo mobile env
+        echo ${{inputs.mobile}}
+      shell: bash
+      
     - name: "Set unsafe-perm"
       run: npm set unsafe-perm true
       shell: bash
@@ -21,22 +40,124 @@ runs:
       run: npm i -g lerna
       shell: bash
 
-    - name: "Cache NPM dependencies"
-      id: cache-nodemodules
-      uses: actions/cache@v2
-      with:
-        path: |
-          node_modules
-          */*/node_modules
-        key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.OS }}-npm-cache-
+    - name: "Clean cache"
+      run: npm cache clean --force
+      shell: bash
+
+    # - name: 'Update node-gyp'
+    #   if: ${{ matrix.os == 'windows-2019' }}
+    #   run: npm install --global --production windows-build-tools --vs2017
+    #   shell: bash
+
+    # - name: 'check paths'
+    #   run: echo $HOME
+    #   shell: bash
+    # - name: 'check paths'
+    #   run: echo ${{env.HOME}}
+    #   shell: bash
+    # - name: 'Update node-gyp'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: npm install --global node-gyp@latest
+    #   shell: bash
+
+    # - name: 'Update node-gyp'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: npm --version
+    #   shell: bash
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: where node
+    #   shell: bash
+    # - name: 'check paths'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: |
+    #     cd C:/npm/prefix/node_modules/node-gyp/bin
+    #     ls
+    #   shell: bash
+
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: |
+    #     cd "C:/Program Files/nodejs"
+    #     ls
+    #   shell: bash
+
+    - name: 'Where node'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: |
+        cd "C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\run-script"
+        ls
+        npm install node-gyp@8.4.1
+      shell: bash
+
+    - name: 'Where node'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: npm install -g node-gyp@8.4.1
+      shell: bash
+
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: |
+    #     cd node_modules
+    #     ls
+    #   shell: bash
+
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: |
+    #     cd npm
+    #     ls
+    #   shell: bash
+
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: |
+    #     cd node_modules
+    #     ls
+    #   shell: bash
+
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: |
+    #     cd @npmcli
+    #     ls
+    #   shell: bash
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: npm install node-gyp@latest
+    #   shell: bash
+
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: npm install --g --production windows-build-tools
+    #   shell: bash
+
+    - name: 'Update node-gyp'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: npm config set node_gyp C:/npm/prefix/node_modules/node-gyp/bin/node-gyp.js
+      shell: bash
+
+    # - name: 'Update node-gyp'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: npm config set msvs_version 2015
+    #   shell: bash
+
+    # - name: "Cache NPM dependencies"
+    #   id: cache-nodemodules
+    #   uses: actions/cache@v2
+    #   with:
+    #     path: |
+    #       node_modules
+    #       */*/node_modules
+    #     key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+    #     restore-keys: |
+    #       ${{ runner.OS }}-npm-cache-
 
     - name: "Install monorepo dependencies"
-      if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+      # if: steps.cache-nodemodules.outputs.cache-hit != 'true'
       run: npm ci
       shell: bash
 
     - name: "Bootstrap project"
-      run: lerna bootstrap
+      run: lerna bootstrap --scope "{@quiet/identity,@quiet/nectar,@quiet/waggle,quiet,integration-tests,e2e-tests}"
       shell: bash
