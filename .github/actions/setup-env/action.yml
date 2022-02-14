@@ -21,7 +21,7 @@ runs:
 
     # https://stackoverflow.com/questions/46232906/git-clone-error-rpc-failed-curl-56-openssl-ssl-read-ssl-error-syscall-errno
     - name: 'Increase git postBuffer size'
-      if: ${{ matrix.os == 'windows-2019' }}
+      if: ${{ matrix.os == 'windows-latest' }}
       run: git config --global http.postBuffer 524288000
       shell: bash
 
@@ -49,32 +49,32 @@ runs:
     #   run: npm install --global --production windows-build-tools --vs2017
     #   shell: bash
 
-    - name: 'check paths'
-      run: echo $HOME
-      shell: bash
-    - name: 'check paths'
-      run: echo ${{env.HOME}}
-      shell: bash
-    - name: 'Update node-gyp'
-      if: ${{ matrix.os == 'windows-2019' }}
-      run: npm install --global node-gyp@latest
-      shell: bash
-    - name: 'check paths'
-      if: ${{ matrix.os == 'windows-2019' }}
-      run: |
-        cd C:/npm/prefix/node_modules/node-gyp/bin
-        ls
-      shell: bash
+    # - name: 'check paths'
+    #   run: echo $HOME
+    #   shell: bash
+    # - name: 'check paths'
+    #   run: echo ${{env.HOME}}
+    #   shell: bash
+    # - name: 'Update node-gyp'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: npm install --global node-gyp@latest
+    #   shell: bash
+    # - name: 'check paths'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: |
+    #     cd C:/npm/prefix/node_modules/node-gyp/bin
+    #     ls
+    #   shell: bash
 
-    - name: 'Update node-gyp'
-      if: ${{ matrix.os == 'windows-2019' }}
-      run: npm config set node_gyp C:/npm/prefix/node_modules/node-gyp/bin/node-gyp.js
-      shell: bash
+    # - name: 'Update node-gyp'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: npm config set node_gyp C:/npm/prefix/node_modules/node-gyp/bin/node-gyp.js
+    #   shell: bash
 
-    - name: 'Update node-gyp'
-      if: ${{ matrix.os == 'windows-2019' }}
-      run: npm config set msvs_version 2017
-      shell: bash
+    # - name: 'Update node-gyp'
+    #   if: ${{ matrix.os == 'windows-2019' }}
+    #   run: npm config set msvs_version 2017
+    #   shell: bash
 
     # - name: "Cache NPM dependencies"
     #   id: cache-nodemodules
