@@ -56,7 +56,7 @@ export const messagesMapForNotificationsCalls = (
 ): Array<SagaGenerator<Notification, CallEffect<Notification>>> => {
   return action.payload.messages.map((messageData) => {
     const publicChannelFromMessage = publicChannels.find((channel) => {
-      //@ts-ignore
+      // @ts-expect-error
       if (messageData?.channelId) return channel.address === messageData.channelId
       else if (messageData?.channelAddress) return channel.address === messageData.channelAddress
     })

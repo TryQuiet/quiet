@@ -13,14 +13,14 @@ const notification = jest.fn().mockImplementation(() => { return mockNotificatio
 jest.mock('./store/create', () => { return () => ({ dispatch: mockDispatch }) })
 
 jest.mock('../shared/sounds', () => ({
-  //@ts-ignore
+  // @ts-expect-error
   ...jest.requireActual('../shared/sounds'),
   soundTypeToAudio: {
     pow: {
       play: jest.fn()
     }
   }
-}));
+}))
 
 const mockShow = jest.fn()
 const mockIsFocused = jest.fn()
@@ -56,11 +56,11 @@ beforeAll(async () => {
   const factory = await getFactory(store)
 
   const community1 = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+  ReturnType<typeof communities.actions.addNewCommunity>['payload']
   >('Community')
 
   const userIdentity = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+  ReturnType<typeof identity.actions.addNewIdentity>['payload']
   >('Identity', { id: community1.id, nickname: 'alice' })
 
   incomingMessages = {
