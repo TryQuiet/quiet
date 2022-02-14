@@ -75,50 +75,52 @@ runs:
     #     ls
     #   shell: bash
 
-    - name: 'Where node'
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: |
-        cd "C:/Program Files/nodejs"
-        ls
-      shell: bash
-
     # - name: 'Where node'
     #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: cd "node_modules\npm\node_modules\@npmcli\run-script"
+    #   run: |
+    #     cd "C:/Program Files/nodejs"
+    #     ls
     #   shell: bash
 
     - name: 'Where node'
       if: ${{ matrix.os == 'windows-latest' }}
       run: |
-        cd node_modules
+        cd "C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\run-script"
         ls
       shell: bash
 
-    - name: 'Where node'
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: |
-        cd npm
-        ls
-      shell: bash
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: |
+    #     cd node_modules
+    #     ls
+    #   shell: bash
 
-    - name: 'Where node'
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: |
-        cd node_modules
-        ls
-      shell: bash
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: |
+    #     cd npm
+    #     ls
+    #   shell: bash
 
-    - name: 'Where node'
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: |
-        cd @npmcli
-        ls
-      shell: bash
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: |
+    #     cd node_modules
+    #     ls
+    #   shell: bash
 
-    - name: 'Where node'
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: npm install node-gyp@latest
-      shell: bash
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: |
+    #     cd @npmcli
+    #     ls
+    #   shell: bash
+
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: npm install node-gyp@latest
+    #   shell: bash
 
     # - name: 'Update node-gyp'
     #   if: ${{ matrix.os == 'windows-latest' }}
