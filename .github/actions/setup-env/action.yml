@@ -40,9 +40,9 @@ runs:
       run: npm i -g lerna
       shell: bash
 
-    # - name: "Clean cache"
-    #   run: npm cache clean --force
-    #   shell: bash
+    - name: "Clean cache"
+      run: npm cache clean --force
+      shell: bash
 
     # - name: 'Update node-gyp'
     #   if: ${{ matrix.os == 'windows-2019' }}
@@ -92,7 +92,7 @@ runs:
 
     - name: 'Where node'
       if: ${{ matrix.os == 'windows-latest' }}
-      run: npm install node-gyp@8.4.1
+      run: npm install -g node-gyp@8.4.1
       shell: bash
 
     # - name: 'Where node'
@@ -132,10 +132,10 @@ runs:
     #   run: npm install --g --production windows-build-tools
     #   shell: bash
 
-    # - name: 'Update node-gyp'
-    #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: npm config set node_gyp C:/npm/prefix/node_modules/node-gyp/bin/node-gyp.js
-    #   shell: bash
+    - name: 'Update node-gyp'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: npm config set node_gyp C:/npm/prefix/node_modules/node-gyp/bin/node-gyp.js
+      shell: bash
 
     # - name: 'Update node-gyp'
     #   if: ${{ matrix.os == 'windows-latest' }}
