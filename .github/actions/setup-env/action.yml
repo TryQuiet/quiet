@@ -51,17 +51,18 @@ runs:
     - name: 'check paths'
       run: echo ${{env.HOME}}
       shell: bash
-    - name: 'check paths'
-      if: ${{ matrix.os == 'windows-2019' }}
-      run: |
-        cd C:/npm/prefix
-        ls
-      shell: bash
-
     - name: 'Update node-gyp'
       if: ${{ matrix.os == 'windows-2019' }}
       run: npm install --global node-gyp@latest
       shell: bash
+    - name: 'check paths'
+      if: ${{ matrix.os == 'windows-2019' }}
+      run: |
+        cd C:/npm/prefix/node_modules
+        ls
+      shell: bash
+
+
 
     # - name: 'Update node-gyp'
     #   if: ${{ matrix.os == 'windows-2019' }}
