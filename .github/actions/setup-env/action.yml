@@ -41,6 +41,7 @@ runs:
 
     - name: 'Update node-gyp'
       run: npm install -g node-gyp@latest
+      shell: bash
 
     # - name: "Cache NPM dependencies"
     #   id: cache-nodemodules
