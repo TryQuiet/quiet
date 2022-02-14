@@ -90,10 +90,10 @@ runs:
         npm install node-gyp@8.4.1
       shell: bash
 
-    # - name: 'Where node'
-    #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: npm install node-gyp@8.4.1
-    #   shell: bash
+    - name: 'Where node'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: npm install node-gyp@8.4.1
+      shell: bash
 
     # - name: 'Where node'
     #   if: ${{ matrix.os == 'windows-latest' }}
@@ -159,7 +159,7 @@ runs:
       shell: bash
 
     - name: "Bootstrap project"
-      run: lerna bootstrap --scope "{@quiet/identity,@quiet/nectar,@quiet/waggle,quiet,integration-tests,e2e-tests}"
+      run: lerna bootstrap --scope "{@quiet/identity,@quiet/nectar,@quiet/waggle,integration-tests,e2e-tests}"
       shell: bash
 
     # - name: "Bootstrap project"
