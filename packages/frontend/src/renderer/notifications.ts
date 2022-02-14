@@ -5,7 +5,7 @@ import { all, call, SagaGenerator, select } from 'typed-redux-saga'
 import { CallEffect } from 'redux-saga/effects'
 import { remote } from 'electron'
 import { soundTypeToAudio } from '../shared/sounds'
-import create from './store/create'
+import store from './store'
 
 export interface NotificationsData {
   title: string
@@ -87,7 +87,7 @@ export const createNotification = (payload: NotificationsData): Notification => 
   }
   const notification = new Notification(payload.title, { body: payload.message })
   notification.onclick = () => {
-    create().dispatch(channels.actions.setCurrentChannel({
+    store.dispatch(channels.actions.setCurrentChannel({
       channelAddress: payload.channelName,
       communityId: payload.communityId
     }))
