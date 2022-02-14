@@ -52,7 +52,7 @@ runs:
       run: echo ${{env.HOME}}
       shell: bash
     - name: 'check paths'
-      run: npm prefix -g
+      run: echo ${{npm prefix -g}}
       shell: bash
 
     - name: 'Update node-gyp'
