@@ -62,12 +62,10 @@ runs:
         ls
       shell: bash
 
-
-
-    # - name: 'Update node-gyp'
-    #   if: ${{ matrix.os == 'windows-2019' }}
-    #   run: npm config set node_gyp node_modules\node-gyp\bin\node-gyp.js
-      # shell: bash
+    - name: 'Update node-gyp'
+      if: ${{ matrix.os == 'windows-2019' }}
+      run: npm config set node_gyp C:/npm/prefix/node_modules/node-gyp/bin/node-gyp.js
+      shell: bash
 
     # - name: "Cache NPM dependencies"
     #   id: cache-nodemodules
