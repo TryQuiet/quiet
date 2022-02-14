@@ -40,9 +40,11 @@ runs:
       run: npm cache clean --force
       shell: bash
 
-    # - name: 'Update node-gyp'
-    #   run: npm install -g node-gyp@latest
-    #   shell: bash
+    - name: 'Update node-gyp'
+      run: |
+        npm install --global node-gyp@latest
+        npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
+      shell: bash
 
     # - name: "Cache NPM dependencies"
     #   id: cache-nodemodules
