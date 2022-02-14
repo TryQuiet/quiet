@@ -15,12 +15,16 @@ runs:
     - uses: actions/setup-node@master
       with:
         node-version: "16.9.1"
-    
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
     # https://stackoverflow.com/questions/46232906/git-clone-error-rpc-failed-curl-56-openssl-ssl-read-ssl-error-syscall-errno
     - name: 'Increase git postBuffer size'
       if: ${{ matrix.os == 'windows-2019' }}
       run: git config --global http.postBuffer 524288000
       shell: bash
+
 
     - name: "Bootstrap project mobile"
       run: |
