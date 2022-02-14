@@ -87,6 +87,34 @@ runs:
 
     - name: 'Where node'
       if: ${{ matrix.os == 'windows-latest' }}
+      run: |
+        cd node_modules
+        ls
+      shell: bash
+
+    - name: 'Where node'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: |
+        cd npm
+        ls
+      shell: bash
+
+    - name: 'Where node'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: |
+        cd node_modules
+        ls
+      shell: bash
+
+    - name: 'Where node'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: |
+        cd @npmcli
+        ls
+      shell: bash
+
+    - name: 'Where node'
+      if: ${{ matrix.os == 'windows-latest' }}
       run: npm install node-gyp@latest
       shell: bash
 
