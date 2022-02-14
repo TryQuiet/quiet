@@ -60,14 +60,14 @@ runs:
     #   run: npm install --global node-gyp@latest
     #   shell: bash
 
-    - name: 'Update node-gyp'
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: npm --version
-      shell: bash
-    - name: 'Where node'
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: where node
-      shell: bash
+    # - name: 'Update node-gyp'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: npm --version
+    #   shell: bash
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: where node
+    #   shell: bash
     # - name: 'check paths'
     #   if: ${{ matrix.os == 'windows-latest' }}
     #   run: |
@@ -132,10 +132,10 @@ runs:
     #   run: npm config set node_gyp C:/npm/prefix/node_modules/node-gyp/bin/node-gyp.js
     #   shell: bash
 
-    - name: 'Update node-gyp'
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: npm config set msvs_version 2015
-      shell: bash
+    # - name: 'Update node-gyp'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: npm config set msvs_version 2015
+    #   shell: bash
 
     # - name: "Cache NPM dependencies"
     #   id: cache-nodemodules
