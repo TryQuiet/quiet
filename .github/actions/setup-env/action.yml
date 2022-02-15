@@ -139,7 +139,7 @@ runs:
 
     # - name: 'Update node-gyp'
     #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: npm config set msvs_version 2015
+    #   run: npm config set msvs_version 2017
     #   shell: bash
 
     # - name: "Cache NPM dependencies"
@@ -159,5 +159,11 @@ runs:
       shell: bash
 
     - name: "Bootstrap project"
-      run: lerna bootstrap --scope "{@quiet/identity,@quiet/nectar,@quiet/waggle,quiet,integration-tests,e2e-tests}"
+      run: lerna bootstrap --scope "{@quiet/identity,@quiet/nectar,@quiet/waggle,integration-tests,e2e-tests}"
       shell: bash
+
+    # - name: "Bootstrap project"
+    #   run: |
+    #     cd packages/identity
+    #     npm install --loglevel silly
+    #   shell: bash
