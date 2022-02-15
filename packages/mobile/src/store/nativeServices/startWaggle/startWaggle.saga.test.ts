@@ -3,10 +3,7 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import { initActions, initReducer, InitState } from '../../init/init.slice'
 import { StoreKeys } from '../../store.keys'
-import {
-  nativeServicesReducer,
-  NativeServicesState
-} from '../nativeServices.slice'
+import { nativeServicesReducer, NativeServicesState } from '../nativeServices.slice'
 
 import { startNodeProcess, startWaggleSaga } from './startWaggle.saga'
 
@@ -33,14 +30,12 @@ describe('startWaggleSaga', () => {
           }
         }
       )
-      .provide([[call.fn(startNodeProcess), null]])
-      .put(
-        initActions.updateInitDescription(
-          'Data is being retrieved from a distributed database'
-        )
-      )
-      .put(initActions.onWaggleStarted(true))
-      .call(startNodeProcess, 'dataDirectoryPath', 9010, 9150, 'cookie')
+      .provide([
+        [call.fn(startNodeProcess), null]
+      ])
+      .put(initActions.updateInitDescription('Data is being retrieved from a distributed database'))
+      .put(initActions.onWaggleStarted(4677))
+      .call(startNodeProcess, 4677, 'dataDirectoryPath', 9010, 9150, 'cookie')
       .run()
   })
 })
