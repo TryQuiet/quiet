@@ -11,7 +11,7 @@ describe('Main', () => {
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <Main match={{ url: 'test' }} isLogWindowOpened={false} />
+          <Main match={{ url: 'test' }} />
         </Provider>
       </HashRouter>
     )
