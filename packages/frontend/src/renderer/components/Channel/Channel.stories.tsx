@@ -158,6 +158,16 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
             date: '12:46',
             nickname: 'windoo'
           }
+        ],   
+        [
+          {
+            id: '16',
+            type: 1,
+            message: 'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
+            createdAt: 0,
+            date: '12:46',
+            nickname: 'vader'
+          }
         ]
       ]
     }
