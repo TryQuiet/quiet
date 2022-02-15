@@ -1,16 +1,20 @@
 import { fixture, test, Selector } from 'testcafe'
-function getMainWindowUrl() {
-  return `${process.env.APPDIR}/dist/main/index.html#/`;
-}
-
-const MAIN_PAGE = getMainWindowUrl();
+import * as fs from 'fs'
+// function getMainWindowUrl() {
+//   console.trace('GETTING MAIN WINDOW URL')
+//   console.log(process.env.APPDIR)
+//   return `${process.env.APPDIR}/dist/main/index.html#/`;
+// }
 
 fixture`Electron test`
-  .page(`${MAIN_PAGE}`)
 
 const longTimeout = 100000
 
 test('User can create new community, register and send few messages to general channel', async t => {
+  const data = fs.readFileSync('/tmp/mainWindowUrl', {encoding: 'utf8'})  // Only with hacked electron plugin
+  console.log('Test starts on page:', data)
+  await t.navigateTo(data)
+  
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(Selector('span').withText('Starting Quiet').exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 

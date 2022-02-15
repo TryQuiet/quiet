@@ -1,7 +1,7 @@
 const pjson = require('./package.json')
 
 function getMainWindowUrl() {
-  return `${process.env.APPDIR}/dist/main/index.html#/`;
+  return `/dist/main/index.html#/`;  // This works only with hacking get-config.js
 }
 
 const getAppName = () => {
@@ -13,14 +13,16 @@ const getAppName = () => {
 }
 
 module.exports = {
-   get mainWindowUrl() {
-       console.trace('Here getter', getMainWindowUrl())
-       return getMainWindowUrl();
-   },
-   set mainWindowUrl(value) {
-    console.trace('wtf? why is something calling this?', value);
- },
+  mainWindowUrl: getMainWindowUrl(),
+//    get mainWindowUrl() {
+//        console.trace('Here getter', getMainWindowUrl())
+//        return getMainWindowUrl();
+//    },
+//    set mainWindowUrl(value) {
+//     console.trace('wtf? why is something calling this?', value);
+//  },
    electronPath: `./dist/${getAppName()}`,
+  //  openDevTools: true
 }
 
 // module.exports = {
