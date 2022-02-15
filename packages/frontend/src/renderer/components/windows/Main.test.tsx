@@ -19,37 +19,37 @@ describe('Main', () => {
       <body>
         <div>
           <div
-            class="makeStyles-wrapper-4"
+            class="makeStyles-wrapper-3"
           >
             <div
-              class="MuiGrid-root makeStyles-gridRoot-1 MuiGrid-container"
+              class="MuiGrid-root makeStyles-gridRoot-1 MuiGrid-container MuiGrid-wrap-xs-nowrap"
             >
               <div
                 class="MuiGrid-root MuiGrid-item"
               >
                 <div
-                  class="MuiGrid-root makeStyles-root-108 MuiGrid-container MuiGrid-direction-xs-column"
+                  class="MuiGrid-root makeStyles-root-107 MuiGrid-container MuiGrid-direction-xs-column"
                 >
                   <div
-                    class="MuiGrid-root makeStyles-padding-109 MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true"
+                    class="MuiGrid-root makeStyles-padding-108 MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-item"
                     >
                       <div
-                        class="makeStyles-root-113"
+                        class="makeStyles-root-112"
                       >
                         <span
                           aria-disabled="false"
-                          class="MuiButtonBase-root MuiButton-root makeStyles-button-114 MuiButton-text"
+                          class="MuiButtonBase-root MuiButton-root makeStyles-button-113 MuiButton-text"
                           role="button"
                           tabindex="0"
                         >
                           <span
-                            class="MuiButton-label makeStyles-buttonLabel-115"
+                            class="MuiButton-label makeStyles-buttonLabel-114"
                           >
                             <h4
-                              class="MuiTypography-root makeStyles-nickname-116 MuiTypography-h4"
+                              class="MuiTypography-root makeStyles-nickname-115 MuiTypography-h4"
                             />
                             <svg
                               aria-hidden="true"
@@ -90,14 +90,14 @@ describe('Main', () => {
                                 class="MuiGrid-root MuiGrid-item"
                               >
                                 <div
-                                  class="MuiGrid-root makeStyles-root-187 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
+                                  class="MuiGrid-root makeStyles-root-186 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
                                 >
                                   <div
                                     class="MuiGrid-root MuiGrid-item"
                                   >
                                     <span>
                                       <p
-                                        class="MuiTypography-root makeStyles-title-188 makeStyles-clickable-189 MuiTypography-body2"
+                                        class="MuiTypography-root makeStyles-title-187 makeStyles-clickable-188 MuiTypography-body2"
                                       >
                                         Channels
                                       </p>
@@ -108,7 +108,7 @@ describe('Main', () => {
                                   >
                                     <span>
                                       <button
-                                        class="MuiButtonBase-root MuiIconButton-root makeStyles-iconButton-190 MuiIconButton-edgeEnd"
+                                        class="MuiButtonBase-root MuiIconButton-root makeStyles-iconButton-189 MuiIconButton-edgeEnd"
                                         data-testid="addChannelButton"
                                         tabindex="0"
                                         type="button"
