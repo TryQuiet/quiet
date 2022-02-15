@@ -12,7 +12,7 @@
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "gen": "plop",
-    "provide-waggle-asset": "rf-lerna zipbundle @quiet/waggle --target ./nodejs-assets/nodejs-project/waggle.zip && cd ./nodejs-assets/nodejs-project/ && rm -rf waggle/ && unzip waggle.zip -d waggle/ && rm -rf waggle.zip && rm -rf waggle/node_modules/wrtc",
+    "provide-waggle-asset": "rf-lerna zipbundle @quiet/waggle --target ./nodejs-assets/nodejs-project/waggle.zip && cd ./nodejs-assets/nodejs-project/ && rm -rf waggle/ && unzip waggle.zip -d waggle/ && rm -rf waggle.zip && patch -p0 --forward < parse-duration.patch || true && rm -rf waggle/node_modules/wrtc",
     "postinstall": "npm run provide-waggle-asset",
     "postversion": "react-native-version",
     "prepublish": "npm run build"
@@ -21,6 +21,7 @@
     "@peculiar/webcrypto": "^1.1.7",
     "@quiet/identity": "^0.2.0-alpha.0",
     "@quiet/nectar": "^0.2.0-alpha.0",
+    "@quiet/waggle": "^0.2.0-alpha.0",
     "@react-native-async-storage/async-storage": "^1.15.4",
     "@react-native-community/art": "^1.2.0",
     "@react-navigation/native": "^5.9.4",
