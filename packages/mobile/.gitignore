@@ -67,5 +67,4 @@ buck-out/
 /ios/Pods/
 
 # Waggle
-/nodejs-assets/nodejs-project/waggle.zip
-/nodejs-assets/nodejs-project/waggle/
+/nodejs-assets/nodejs-project/

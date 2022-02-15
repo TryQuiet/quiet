@@ -39,5 +39,5 @@ export const runWaggle = async (): Promise<any> => {
 
 runWaggle().catch(error => {
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-  console.log(`Run waggle err: ${error.message}`)
+  console.log(error)
 })

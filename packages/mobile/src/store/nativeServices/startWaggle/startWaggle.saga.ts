@@ -43,6 +43,6 @@ export const startNodeProcess = (
   authCookie: string
 ) => {
   nodejs.start(
-    `waggle/lib/mobileWaggleManager.js -d ${dataDirectoryPath} -p ${dataPort} -s ${socksPort} -c ${controlPort} -a ${authCookie}`
+    `lib/mobileWaggleManager.js -d ${dataDirectoryPath} -p ${dataPort} -s ${socksPort} -c ${controlPort} -a ${authCookie}`
   )
 }
