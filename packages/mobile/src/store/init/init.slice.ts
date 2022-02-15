@@ -8,6 +8,7 @@ import { InitCheckKeys } from './initCheck.keys'
 export class InitState {
   public dataDirectoryPath: string = ''
   public torData: TorData = {
+    httpTunnelPort: 0,
     socksPort: 0,
     controlPort: 0,
     authCookie: ''
@@ -34,6 +35,7 @@ export class InitState {
 }
 
 export interface TorData {
+  httpTunnelPort: number
   socksPort: number
   controlPort: number
   authCookie: string

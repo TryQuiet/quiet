@@ -12,6 +12,7 @@ export function* startWaggleSaga(): Generator {
     if (
       dataDirectoryPath !== '' &&
       dataPort !== 0 &&
+      torData.httpTunnelPort !== 0 &&
       torData.socksPort !== 0 &&
       torData.controlPort !== 0
     ) {
@@ -24,6 +25,7 @@ export function* startWaggleSaga(): Generator {
         startNodeProcess,
         dataDirectoryPath,
         dataPort,
+        torData.httpTunnelPort,
         torData.socksPort,
         torData.controlPort,
         torData.authCookie
@@ -38,11 +40,12 @@ export function* startWaggleSaga(): Generator {
 export const startNodeProcess = (
   dataDirectoryPath: string,
   dataPort: number,
+  httpTunnelPort: number,
   socksPort: number,
   controlPort: number,
   authCookie: string
 ) => {
   nodejs.start(
-    `lib/mobileWaggleManager.js -d ${dataDirectoryPath} -p ${dataPort} -s ${socksPort} -c ${controlPort} -a ${authCookie}`
+    `lib/mobileWaggleManager.js -d ${dataDirectoryPath} -p ${dataPort} -t ${httpTunnelPort} -s ${socksPort} -c ${controlPort} -a ${authCookie}`
   )
 }
