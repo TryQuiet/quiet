@@ -14,8 +14,8 @@ export const Component = Template.bind({})
 const args: CreateUsernameComponentProps = {
   open: true,
   handleClose: function (): void {},
-  handleRegisterUsername: function(payload: { nickname: string }): void {
-      console.log('Registering username: ', payload.nickname)
+  registerUsername: function(nickname: string): void {
+    console.log('Registering username: ', nickname)
   }
 }
 

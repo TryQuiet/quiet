@@ -10,6 +10,7 @@ import UsernameCreated from './UsernameCreated/UsernameCreated'
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 import { TextInput } from '../../forms/components/textInput'
 import { userNameField } from '../../forms/fields/createUserFields'
+import { parseName } from '../../../utils/functions/naming'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -101,25 +102,25 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export interface CreateUsernameComponentProps {
-  open: boolean
-  handleRegisterUsername?: (payload: { nickname: string }) => void
-  certificateRegistrationError?: string
-  certificate?: string
-  handleClose: () => void
+const userFields = {
+  userName: userNameField()
 }
 
 interface CreateUserValues {
   userName: string
 }
 
-const userFields = {
-  userName: userNameField()
+export interface CreateUsernameComponentProps {
+  open: boolean
+  registerUsername: (name: string) => void
+  certificateRegistrationError?: string
+  certificate?: string
+  handleClose: () => void
 }
 
 export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = ({
   open,
-  handleRegisterUsername,
+  registerUsername,
   certificateRegistrationError,
   certificate,
   handleClose
@@ -141,16 +142,16 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   })
 
   const onSubmit = (values: CreateUserValues) => {
-    submitForm(handleRegisterUsername, values, setFormSent)
+    submitForm(registerUsername, values, setFormSent)
   }
 
   const submitForm = (
-    handleSubmit: ({ nickname: string }) => void,
+    handleSubmit: (value: string) => void,
     values: CreateUserValues,
     setFormSent
   ) => {
     setFormSent(true)
-    handleSubmit({ nickname: values.userName })
+    handleSubmit(parseName(values.userName, true))
   }
 
   React.useEffect(() => {
@@ -194,7 +195,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                         variant='outlined'
                         onchange={field.onChange}
                         onblur={field.onBlur}
-                        value={field.value}
+                        value={parseName(field.value)}
                       />
                     )}
                   />

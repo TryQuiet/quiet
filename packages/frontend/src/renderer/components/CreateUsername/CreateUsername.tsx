@@ -65,7 +65,7 @@ const CreateUsername = () => {
       })
     }
   }, [isUnregisteredCommunity])
-  
+
   useEffect(() => {
     // when Quiet is reopening in create username modal, we need to set createUsernameModal.communityAction
     if (!createUsernameModal.communityAction) {
@@ -93,9 +93,9 @@ const CreateUsername = () => {
     }
   }, [error])
 
-  const handleAction = (payload: { nickname: string }) => {
+  const handleAction = (nickname: string) => {
     setIsCreateUserNameStarted(true)
-    setUsername(payload.nickname)
+    setUsername(nickname)
     const value = createUsernameModal.communityData
     let action
     /* Launch/create community */
@@ -124,7 +124,7 @@ const CreateUsername = () => {
   return (
     <CreateUsernameComponent
       {...createUsernameModal}
-      handleRegisterUsername={handleAction}
+      registerUsername={handleAction}
       certificateRegistrationError={error?.message}
       certificate={certificate}
     />
