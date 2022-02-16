@@ -1,10 +1,8 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import { Grid, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
-
-import WarningIcon from '@material-ui/icons/Warning'
 
 import Modal from '../../../ui/Modal/Modal'
 import LoadingButton from '../../../ui/LoadingButton/LoadingButton'
@@ -64,12 +62,31 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export const parseChannelName = (name = '') => {
-  return name
-    .toLowerCase()
-    .trimStart()
-    .trimEnd()
-    .replace(/ +/g, '-')
+const trimHyphen = (input: string, allowTrailingHyphen: boolean): string => {
+  while (input.charAt(0) === '-' || input.charAt(0) === ' ') {
+    input = input.substring(1)
+  }
+
+  if (allowTrailingHyphen) {
+    // Allow only one hyphen at the end of the inserted value
+    while (
+      (input.charAt(input.length - 1) === '-' || input.charAt(input.length - 1) === ' ') &&
+      (input.charAt(input.length - 2) === '-' || input.charAt(input.length - 2) === ' ')
+    ) {
+      input = input.substring(0, input.length - 1)
+    }
+  } else {
+    while (input.charAt(input.length - 1) === '-' || input.charAt(input.length - 1) === ' ') {
+      input = input.substring(0, input.length - 1)
+    }
+  }
+
+  return input
+}
+
+export const parseChannelName = (name = '', submitted: boolean = false) => {
+  const trimmedName = trimHyphen(name, !submitted)
+  return trimmedName.toLowerCase().replace(/ +/g, '-')
 }
 
 const createChannelFields = {
@@ -95,8 +112,6 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
 }) => {
   const classes = useStyles({})
 
-  const [channelName, setChannelName] = useState('')
-
   const {
     handleSubmit,
     formState: { errors },
@@ -112,18 +127,12 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   }
 
   const submitForm = (handleSubmit: (value: string) => void, values: CreateChannelFormValues) => {
-    handleSubmit(parseChannelName(values.channelName))
-  }
-
-  const onChange = (name: string) => {
-    const parsedName = parseChannelName(name)
-    setChannelName(parsedName)
+    handleSubmit(parseChannelName(values.channelName, true))
   }
 
   React.useEffect(() => {
     if (!open) {
       setValue('channelName', '')
-      setChannelName('')
     }
   }, [open])
 
@@ -156,34 +165,17 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                   placeholder={'Enter a channel name'}
                   errors={errors}
                   onchange={event => {
-                    event.persist()
-                    const value = event.target.value
-                    onChange(value)
-                    // Call default
                     field.onChange(event)
                   }}
                   onblur={() => {
                     field.onBlur()
                   }}
-                  value={field.value}
+                  value={parseChannelName(field.value)}
                   data-testid={'createChannelInput'}
                 />
               )}
             />
-            <div className={classes.gutter}>
-              {!errors.channelName && channelName.length > 0 && (
-                <Grid container alignItems='center' direction='row'>
-                  <Grid item className={classes.iconDiv}>
-                    <WarningIcon className={classes.warrningIcon} />
-                  </Grid>
-                  <Grid item xs>
-                    <Typography variant='body2' className={classes.warrningMessage}>
-                      Your channel will be created as <b>{`#${channelName}`}</b>
-                    </Typography>
-                  </Grid>
-                </Grid>
-              )}
-            </div>
+            <div className={classes.gutter} />
             <LoadingButton
               variant='contained'
               color='primary'

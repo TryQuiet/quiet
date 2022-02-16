@@ -107,11 +107,7 @@ describe('Add new channel', () => {
     )
 
     const input = screen.getByPlaceholderText('Enter a channel name')
-    userEvent.type(input, 'my Super Channel')
-
-    // Check if parsed channel name displays properly
-    const info = screen.getByText('#my-super-channel')
-    expect(info).toBeVisible()
+    userEvent.type(input, 'my-Super Channel ')
 
     const button = screen.getByText('Create Channel')
     userEvent.click(button)
