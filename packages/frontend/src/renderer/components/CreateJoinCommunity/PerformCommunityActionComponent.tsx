@@ -5,15 +5,15 @@ import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 
-import Modal from '../../ui/Modal/Modal'
-import { LoadingButton } from '../../ui/LoadingButton/LoadingButton'
+import Modal from '../ui/Modal/Modal'
+import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 
-import { CommunityAction } from './community.keys'
+import { CommunityAction } from '../CreateJoinCommunity/community.keys'
 import {
   CreateCommunityDictionary,
   JoinCommunityDictionary
-} from './PerformCommunityAction.dictionary'
-import { TextInput } from '../../../forms/components/textInput'
+} from '../CreateJoinCommunity/community.dictionary'
+import { TextInput } from '../../forms/components/textInput'
 import { Controller, useForm } from 'react-hook-form'
 
 const useStyles = makeStyles(theme => ({

@@ -1,11 +1,11 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { CommunityAction } from '../../../components/widgets/performCommunityAction/community.keys'
-import PerformCommunityActionComponent from '../../../components/widgets/performCommunityAction/PerformCommunityActionComponent'
-import { ModalName } from '../../../sagas/modals/modals.types'
-import { useModal } from '../../hooks'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
+import { CommunityAction } from '../../../components/CreateJoinCommunity/community.keys'
+import { useModal } from '../../../containers/hooks'
+import { ModalName } from '../../../sagas/modals/modals.types'
 import { communities } from '@quiet/nectar'
+import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 
 const CreateCommunity = () => {
   const isConnected = useSelector(socketSelectors.isConnected)

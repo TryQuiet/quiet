@@ -4,7 +4,7 @@ import { communities, errors, identity, publicChannels, socketActionTypes, conne
 import CreateUsernameComponent from '../CreateUsername/CreateUsernameComponent'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
-import { CommunityAction } from '../widgets/performCommunityAction/community.keys'
+import { CommunityAction } from '../CreateJoinCommunity/community.keys'
 import { LoadingMessages } from '../../containers/widgets/loadingPanel/loadingMessages'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
 

@@ -4,9 +4,9 @@ import userEvent from '@testing-library/user-event'
 import React from 'react'
 import { CommunityAction } from './community.keys'
 import PerformCommunityActionComponent from './PerformCommunityActionComponent'
-import { inviteLinkField } from '../../../forms/fields/communityFields'
-import { CommunityNameErrors, InviteLinkErrors } from '../../../forms/fieldsErrors'
-import { renderComponent } from '../../../testUtils/renderComponent'
+import { inviteLinkField } from '../../forms/fields/communityFields'
+import { CommunityNameErrors, InviteLinkErrors } from '../../forms/fieldsErrors'
+import { renderComponent } from '../../testUtils/renderComponent'
 
 describe('PerformCommunityAction component (create community mode)', () => {
   const action = CommunityAction.Create
