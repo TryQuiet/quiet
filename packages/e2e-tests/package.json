@@ -31,8 +31,8 @@
   "dependencies": {
     "cross-env": "^5.2.0",
     "electron": "12.1.0",
-    "testcafe": "^1.17.0",
-    "testcafe-browser-provider-electron": "0.0.16"
+    "testcafe": "^1.18.3",
+    "testcafe-browser-provider-electron": "*"
   },
   "author": "",
   "license": "ISC"
