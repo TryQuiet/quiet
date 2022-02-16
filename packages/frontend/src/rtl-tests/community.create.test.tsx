@@ -8,7 +8,7 @@ import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import CreateCommunity from '../renderer/containers/widgets/createCommunity/createCommunity'
-import CreateUsernameModal from '../renderer/containers/widgets/createUsernameModal/CreateUsername'
+import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { CreateCommunityDictionary } from '../renderer/components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
 import MockedSocket from 'socket.io-mock'
@@ -68,7 +68,7 @@ describe('User', () => {
     renderComponent(
       <>
         <CreateCommunity />
-        <CreateUsernameModal />
+        <CreateUsername />
         <Channel />
       </>,
       store
@@ -231,7 +231,7 @@ describe('User', () => {
     renderComponent(
       <>
         <CreateCommunity />
-        <CreateUsernameModal />
+        <CreateUsername />
         <LoadingPanel />
         <Channel />
       </>,

@@ -5,11 +5,11 @@ import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 
-import Modal from '../../ui/Modal/Modal'
-import UsernameCreated from './UsernameCreated'
-import { LoadingButton } from '../../ui/LoadingButton/LoadingButton'
-import { TextInput } from '../../../forms/components/textInput'
-import { userNameField } from '../../../forms/fields/createUserFields'
+import Modal from '../ui/Modal/Modal'
+import UsernameCreated from './UsernameCreated/UsernameCreated'
+import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
+import { TextInput } from '../../forms/components/textInput'
+import { userNameField } from '../../forms/fields/createUserFields'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -101,7 +101,7 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-interface CreateUsernameModalProps {
+export interface CreateUsernameComponentProps {
   open: boolean
   handleRegisterUsername?: (payload: { nickname: string }) => void
   certificateRegistrationError?: string
@@ -117,7 +117,7 @@ const userFields = {
   userName: userNameField()
 }
 
-export const CreateUsernameModal: React.FC<CreateUsernameModalProps> = ({
+export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = ({
   open,
   handleRegisterUsername,
   certificateRegistrationError,
@@ -231,4 +231,4 @@ export const CreateUsernameModal: React.FC<CreateUsernameModalProps> = ({
   )
 }
 
-export default CreateUsernameModal
+export default CreateUsernameComponent

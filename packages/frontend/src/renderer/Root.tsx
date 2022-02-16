@@ -11,7 +11,7 @@ import store from './store'
 import Index from './containers/windows/Index'
 import Main from './containers/windows/Main'
 import ChannelSettingsModal from './containers/widgets/channelSettings/ChannelSettingsModal'
-import CreateUsernameModal from './containers/widgets/createUsernameModal/CreateUsername'
+import CreateUsername from './components/CreateUsername/CreateUsername'
 import ErrorModal from './containers/ui/ErrorModal'
 import JoinChannelModal from './containers/widgets/channels/JoinChannelModal'
 import NewMessageModal from './containers/widgets/channels/NewMessageModal'
@@ -38,7 +38,7 @@ export default () => {
               <CreateChannel />
               <JoinCommunity />
               <CreateCommunity />
-              <CreateUsernameModal />
+              <CreateUsername />
               <LoadingPanel />
               <CssBaseline />
               <ErrorModal />

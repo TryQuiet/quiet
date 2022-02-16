@@ -11,10 +11,10 @@ import { modalsActions, ModalsInitialState } from '../../../sagas/modals/modals.
 import JoinCommunity from './joinCommunity'
 import CreateCommunity from '../createCommunity/createCommunity'
 import { JoinCommunityDictionary, CreateCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
-import CreateUsernameModal from '../createUsernameModal/CreateUsername'
+import CreateUsername from '../../../components/CreateUsername/CreateUsername'
 import LoadingPanelModal from '../loadingPanel/loadingPanel'
-import { identity, communities, getFactory, StoreKeys as NectarStoreKeys } from '@quiet/nectar'
 import { LoadingMessages } from '../loadingPanel/loadingMessages'
+import { identity, communities, getFactory, StoreKeys as NectarStoreKeys } from '@quiet/nectar'
 
 describe('join community', () => {
   it('users switches from join to create', async () => {
@@ -67,7 +67,7 @@ describe('join community', () => {
     renderComponent(
       <>
         <JoinCommunity />
-        <CreateUsernameModal />
+        <CreateUsername />
       </>,
       store
     )
@@ -117,7 +117,7 @@ describe('join community', () => {
     renderComponent(
       <>
         <JoinCommunity />
-        <CreateUsernameModal />
+        <CreateUsername />
       </>,
       store
     )
@@ -151,7 +151,7 @@ describe('join community', () => {
     const result1 = renderComponent(
       <>
         <JoinCommunity />
-        <CreateUsernameModal />
+        <CreateUsername />
         <LoadingPanelModal />
       </>,
       store
@@ -167,7 +167,7 @@ describe('join community', () => {
     const result2 = renderComponent(
       <>
         <JoinCommunity />
-        <CreateUsernameModal />
+        <CreateUsername />
         <LoadingPanelModal />
       </>,
       store
@@ -192,7 +192,7 @@ describe('join community', () => {
     renderComponent(
       <>
         <JoinCommunity />
-        <CreateUsernameModal />
+        <CreateUsername />
       </>,
       store
     )

@@ -6,7 +6,6 @@ import PerformCommunityActionComponent from '../../../components/widgets/perform
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../hooks'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
-import { CreateUsernameModalProps } from '../createUsernameModal/CreateUsername'
 import { LoadingMessages } from '../loadingPanel/loadingMessages'
 
 const JoinCommunity = () => {
@@ -16,7 +15,7 @@ const JoinCommunity = () => {
   const community = useSelector(communities.selectors.currentCommunity)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
-  const createUsernameModal = useModal<CreateUsernameModalProps>(ModalName.createUsernameModal)
+  const createUsernameModal = useModal(ModalName.createUsernameModal)
 
   const loadingStartApp = useModal(ModalName.loadingPanel)
 

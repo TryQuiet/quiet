@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { communities, errors, identity, publicChannels, socketActionTypes, connection, ErrorCodes } from '@quiet/nectar'
-import CreateUsernameModalComponent from '../../../components/widgets/createUsername/CreateUsernameModal'
-import { ModalName } from '../../../sagas/modals/modals.types'
-import { useModal } from '../../hooks'
-import { CommunityAction } from '../../../components/widgets/performCommunityAction/community.keys'
-import { LoadingMessages } from '../loadingPanel/loadingMessages'
-import { socketSelectors } from '../../../sagas/socket/socket.selectors'
+import CreateUsernameComponent from '../CreateUsername/CreateUsernameComponent'
+import { ModalName } from '../../sagas/modals/modals.types'
+import { useModal } from '../../containers/hooks'
+import { CommunityAction } from '../widgets/performCommunityAction/community.keys'
+import { LoadingMessages } from '../../containers/widgets/loadingPanel/loadingMessages'
+import { socketSelectors } from '../../sagas/socket/socket.selectors'
 
-export interface CreateUsernameModalProps {
+export interface CreateUsernameProps {
   communityAction: CommunityAction
   communityData: string
 }
 
-const CreateUsernameModal = () => {
+const CreateUsername = () => {
   const dispatch = useDispatch()
 
   const [username, setUsername] = useState('')
@@ -32,7 +32,7 @@ const CreateUsernameModal = () => {
   const allCommunitiesCount = useSelector(communities.selectors.allCommunities).length
   const allCommunitiesInitialized = allCommunitiesCount > 0 && initializedCommunitiesCount === allCommunitiesCount
 
-  const createUsernameModal = useModal<CreateUsernameModalProps>(ModalName.createUsernameModal)
+  const createUsernameModal = useModal<CreateUsernameProps>(ModalName.createUsernameModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const loadingCommunityModal = useModal(ModalName.loadingPanel)
@@ -65,6 +65,7 @@ const CreateUsernameModal = () => {
       })
     }
   }, [isUnregisteredCommunity])
+  
   useEffect(() => {
     // when Quiet is reopening in create username modal, we need to set createUsernameModal.communityAction
     if (!createUsernameModal.communityAction) {
@@ -121,7 +122,7 @@ const CreateUsernameModal = () => {
   }
 
   return (
-    <CreateUsernameModalComponent
+    <CreateUsernameComponent
       {...createUsernameModal}
       handleRegisterUsername={handleAction}
       certificateRegistrationError={error?.message}
@@ -130,4 +131,4 @@ const CreateUsernameModal = () => {
   )
 }
 
-export default CreateUsernameModal
+export default CreateUsername

@@ -8,7 +8,7 @@ import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import JoinCommunity from '../renderer/containers/widgets/joinCommunity/joinCommunity'
-import CreateUsernameModal from '../renderer/containers/widgets/createUsernameModal/CreateUsername'
+import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
 import LoadingPanel from '../renderer/containers/widgets/loadingPanel/loadingPanel'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { JoinCommunityDictionary } from '../renderer/components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
@@ -54,7 +54,7 @@ describe('User', () => {
     renderComponent(
       <>
         <JoinCommunity />
-        <CreateUsernameModal />
+        <CreateUsername />
         <Channel />
       </>,
       store
@@ -218,7 +218,7 @@ describe('User', () => {
       <>
         <LoadingPanel />
         <JoinCommunity />
-        <CreateUsernameModal />
+        <CreateUsername />
         <Channel />
       </>,
       store

@@ -8,7 +8,7 @@ import { StoreKeys } from '../../../store/store.keys'
 import { SocketState } from '../../../sagas/socket/socket.slice'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { modalsActions, ModalsInitialState } from '../../../sagas/modals/modals.slice'
-import CreateUsernameModal from '../createUsernameModal/CreateUsername'
+import CreateUsername from '../../../components/CreateUsername/CreateUsername'
 import JoinCommunity from '../joinCommunity/joinCommunity'
 import CreateCommunity from './createCommunity'
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
@@ -71,7 +71,7 @@ describe('Create community', () => {
     renderComponent(
       <>
         <CreateCommunity />
-        <CreateUsernameModal />
+        <CreateUsername />
       </>,
       store
     )
@@ -120,7 +120,7 @@ describe('Create community', () => {
     renderComponent(
       <>
         <CreateCommunity />
-        <CreateUsernameModal />
+        <CreateUsername />
       </>,
       store
     )
