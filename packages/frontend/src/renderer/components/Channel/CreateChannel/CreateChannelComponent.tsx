@@ -9,6 +9,7 @@ import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 
 import { TextInput } from '../../../forms/components/textInput'
 import { channelNameField } from '../../../forms/fields/createChannelFields'
+import { parseName } from '../../../../utils/functions/naming'
 
 const useStyles = makeStyles(theme => ({
   main: {
@@ -62,33 +63,6 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const trimHyphen = (input: string, allowTrailingHyphen: boolean): string => {
-  while (input.charAt(0) === '-' || input.charAt(0) === ' ') {
-    input = input.substring(1)
-  }
-
-  if (allowTrailingHyphen) {
-    // Allow only one hyphen at the end of the inserted value
-    while (
-      (input.charAt(input.length - 1) === '-' || input.charAt(input.length - 1) === ' ') &&
-      (input.charAt(input.length - 2) === '-' || input.charAt(input.length - 2) === ' ')
-    ) {
-      input = input.substring(0, input.length - 1)
-    }
-  } else {
-    while (input.charAt(input.length - 1) === '-' || input.charAt(input.length - 1) === ' ') {
-      input = input.substring(0, input.length - 1)
-    }
-  }
-
-  return input
-}
-
-export const parseChannelName = (name = '', submitted: boolean = false) => {
-  const trimmedName = trimHyphen(name, !submitted)
-  return trimmedName.toLowerCase().replace(/ +/g, '-')
-}
-
 const createChannelFields = {
   channelName: channelNameField()
 }
@@ -127,7 +101,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   }
 
   const submitForm = (handleSubmit: (value: string) => void, values: CreateChannelFormValues) => {
-    handleSubmit(parseChannelName(values.channelName, true))
+    handleSubmit(parseName(values.channelName, true))
   }
 
   React.useEffect(() => {
@@ -170,7 +144,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                   onblur={() => {
                     field.onBlur()
                   }}
-                  value={parseChannelName(field.value)}
+                  value={parseName(field.value)}
                   data-testid={'createChannelInput'}
                 />
               )}
