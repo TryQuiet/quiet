@@ -11,7 +11,7 @@ import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { StoreKeys } from '../renderer/store/store.keys'
 
-import CreateChannel from '../renderer/containers/widgets/channels/CreateChannel'
+import CreateChannel from '../renderer/components/Channel/CreateChannel/CreateChannel'
 import Channel from '../renderer/components/Channel/Channel'
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import CreateChannelComponent from '../../../components/widgets/channels/CreateChannel/CreateChannel'
+import CreateChannelComponent from './CreateChannelComponent'
 import {
   communities,
   ErrorCodes,
@@ -13,7 +13,7 @@ import {
   SocketActionTypes
 } from '@quiet/nectar'
 import { DateTime } from 'luxon'
-import { useModal } from '../../hooks'
+import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 
 export const CreateChannel = () => {

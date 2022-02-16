@@ -5,15 +5,15 @@ import { screen } from '@testing-library/dom'
 import { act } from 'react-dom/test-utils'
 import { take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
-import { ioMock } from '../../../../../shared/setupTests'
-import { prepareStore } from '../../../../testUtils/prepareStore'
-import { renderComponent } from '../../../../testUtils/renderComponent'
+import { ioMock } from '../../../../shared/setupTests'
+import { prepareStore } from '../../../testUtils/prepareStore'
+import { renderComponent } from '../../../testUtils/renderComponent'
 
-import CreateChannel from '../../../../containers/widgets/channels/CreateChannel'
-import CreateChannelComponent from '../../../../components/widgets/channels/CreateChannel/CreateChannel'
+import CreateChannel from './CreateChannel'
+import CreateChannelComponent from './CreateChannelComponent'
 
-import { ModalName } from '../../../../sagas/modals/modals.types'
-import { modalsActions } from '../../../../sagas/modals/modals.slice'
+import { ModalName } from '../../../sagas/modals/modals.types'
+import { modalsActions } from '../../../sagas/modals/modals.slice'
 
 import { getFactory, identity, publicChannels } from '@quiet/nectar'
 

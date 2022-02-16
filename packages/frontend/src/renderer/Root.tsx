@@ -24,7 +24,7 @@ import theme from './theme'
 import CreateCommunity from './containers/widgets/createCommunity/createCommunity'
 import JoinCommunity from './containers/widgets/joinCommunity/joinCommunity'
 import LoadingPanel from './containers/widgets/loadingPanel/loadingPanel'
-import CreateChannel from './containers/widgets/channels/CreateChannel'
+import CreateChannel from './components/Channel/CreateChannel/CreateChannel'
 
 export default () => {
   const persistor = persistStore(store)
