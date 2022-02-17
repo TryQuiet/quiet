@@ -4,7 +4,7 @@ import { Identity, identity, IncomingMessages, NotificationsOptions, Notificatio
 import { call, put, select, takeEvery } from 'typed-redux-saga'
 import { remote } from 'electron'
 import { soundTypeToAudio } from '../../../shared/sounds'
-import { eventChannel } from 'redux-saga'
+import { eventChannel, END } from 'redux-saga'
 
 export interface NotificationsData {
   title: string
@@ -102,6 +102,10 @@ export const createNotification = (payload: NotificationsData, emit): any => {
       communityId: payload.communityId
     }))
     payload.yourBrowserWindow.show()
+  }
+
+  notification.onclose = () => {
+    emit(END)
   }
 
   return () => { }
