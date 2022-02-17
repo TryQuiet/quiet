@@ -1,11 +1,15 @@
 import { fixture, test, Selector } from 'testcafe'
+import * as fs from 'fs'
+// import * as electronPlugin from 'testcafe-browser-provider-electron';
 
 fixture`Electron test`
-  .page('../frontend/dist/main/index.html#/')
 
 const longTimeout = 100000
 
 test('User can create new community, register and send few messages to general channel', async t => {
+  await t.navigateTo(fs.readFileSync('/tmp/mainWindowUrl', {'encoding': 'utf8'})) // TODO: hacking - REMOVE //'/dist/main/index.html#/')
+
+  // await t.navigateTo('/dist/main/index.html#/')
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(Selector('span').withText('Starting Quiet').exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 

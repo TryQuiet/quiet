@@ -1,6 +1,7 @@
 import { Client } from '../ipc';
 import resolveFileUrl from '../utils/resolve-file-url';
 import CONSTANTS from '../constants';
+import * as fs from 'fs'
 
 const ELECTRON_VERSION  = process.versions.electron && Number(process.versions.electron.split('.')[0]);
 
@@ -82,6 +83,7 @@ module.exports = function install (config, testPageUrl) {
     config.electronAppPath = `file://${app.getAppPath()}`
     if (config.relativePageUrls) {
         config.mainWindowUrl = config.electronAppPath + config.mainWindowUrl
+        fs.writeFileSync('/tmp/mainWindowUrl', config.mainWindowUrl)  // TODO: remove
     }
 
     function stripQuery (url) {
@@ -93,7 +95,7 @@ module.exports = function install (config, testPageUrl) {
     }
 
     function loadUrl (webContext, url, options) {
-        console.log('MOCKS LOAD URL', config)
+        console.log('MOCKS LOAD URL', url, config)
         let testUrl = stripQuery(url);
 
         if (isFileProtocol(url))
@@ -105,9 +107,10 @@ module.exports = function install (config, testPageUrl) {
             stopLoadingTimeout();
 
             ipc.sendInjectingStatus({ completed: true });
+            // ipc.sendConfig(config)
 
             WebContents.prototype.loadURL = origLoadURL;
-
+            
             url = testPageUrl;
 
             windowHandler.window = this;
@@ -115,11 +118,12 @@ module.exports = function install (config, testPageUrl) {
             if (config.openDevTools)
                 webContext.openDevTools();
         }
-
+        // console.log('IT IS CALLED', webContext, url)
         return origLoadURL.call(webContext, url, options);
     }
 
     function loadURLWrapper (url, options) {
+        console.log('LOAD URL WRAPPER')
         startLoadingTimeout(config.mainWindowUrl);
 
         if (ELECTRON_VERSION >= ELECTRON_VERSION_WITH_ASYNC_LOAD_URL)
@@ -146,6 +150,7 @@ module.exports = function install (config, testPageUrl) {
         WebContents.prototype.loadURL = loadURLWrapper;
 
     app.getAppPath = function () {
+        console.log('GET APP PATH MOCK')
         return config.appPath || origGetAppPath.call(this);
     };
 
