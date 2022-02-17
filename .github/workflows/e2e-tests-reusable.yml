@@ -7,25 +7,33 @@ jobs:
   e2e-linux:
     runs-on: ubuntu-20.04
     timeout-minutes: 20
+
     env:
       DISPLAY: ":99.0"
+      S3_BUCKET: "Test if env is passed to action"
+
     steps:
       - uses: actions/checkout@v2
 
       - name: Install WM
         run: sudo apt install fluxbox
 
-      - name: "Setup environment"
+      - name: Setup environment
         uses: ./.github/actions/setup-env
 
+      - name: Prepare build
+        uses: ./.github/actions/prepare-build
+        with:
+          source-path: linux
+      
+      - name: Build app
+        run: lerna run distUbuntu --scope frontend --stream
+      
       - name: Run X11
         run: |
           Xvfb :99 -screen 0 1920x1080x24 &
           sleep 3
           fluxbox &
-
-      - name: Build app
-        run: lerna run distUbuntu --scope frontend --stream
 
       - name: Run tests
         run: lerna run start:e2e --scope e2e-tests --stream

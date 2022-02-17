@@ -38,5 +38,5 @@ runs:
       shell: bash
 
     - name: "Bootstrap project"
-      run: lerna bootstrap
+      run: lerna bootstrap --loglevel silly
       shell: bash
