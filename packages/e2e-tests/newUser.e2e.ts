@@ -1,15 +1,24 @@
-import { fixture, test, Selector } from 'testcafe'
+import { fixture, test, Selector, t } from 'testcafe'
 import * as fs from 'fs'
-// import * as electronPlugin from 'testcafe-browser-provider-electron';
 
 fixture`Electron test`
 
 const longTimeout = 100000
 
-test('User can create new community, register and send few messages to general channel', async t => {
-  await t.navigateTo(fs.readFileSync('/tmp/mainWindowUrl', {'encoding': 'utf8'})) // TODO: hacking - REMOVE //'/dist/main/index.html#/')
+const goToMainPage = async () => {
+  // Built app version. This is a really hacky way of accessing proper mainWindowUrl
+  let pageUrl = fs.readFileSync('/tmp/mainWindowUrl', {'encoding': 'utf8'})
+  if (!pageUrl) {
+    // For dev version
+    pageUrl = '../frontend/dist/main/index.html#/'
+  }
+  console.info(`Navigating to ${pageUrl}`)
+  await t.navigateTo(pageUrl)
+}
 
-  // await t.navigateTo('/dist/main/index.html#/')
+test('User can create new community, register and send few messages to general channel', async t => {
+  await goToMainPage()
+
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(Selector('span').withText('Starting Quiet').exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 

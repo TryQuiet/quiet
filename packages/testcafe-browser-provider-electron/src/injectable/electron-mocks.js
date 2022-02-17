@@ -83,7 +83,7 @@ module.exports = function install (config, testPageUrl) {
     config.electronAppPath = `file://${app.getAppPath()}`
     if (config.relativePageUrls) {
         config.mainWindowUrl = config.electronAppPath + config.mainWindowUrl
-        fs.writeFileSync('/tmp/mainWindowUrl', config.mainWindowUrl)  // TODO: remove
+        fs.writeFileSync('/tmp/mainWindowUrl', config.mainWindowUrl)  // Hacky way of allowing test case to access mainWindowUrl
     }
 
     function stripQuery (url) {

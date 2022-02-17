@@ -24,6 +24,9 @@ jobs:
           sleep 3
           fluxbox &
 
+      - name: Build app
+        run: lerna run distUbuntu --scope frontend --stream
+
       - name: Run tests
         run: lerna run start:e2e --scope e2e-tests --stream
       
