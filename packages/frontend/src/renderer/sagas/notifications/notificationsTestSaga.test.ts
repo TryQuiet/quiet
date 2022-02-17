@@ -1,26 +1,27 @@
-import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
-import { certificatesAdapter, channelMessagesAdapter, communities, CommunityChannels, communityChannelsAdapter, getFactory, identity, IncomingMessages, NotificationsOptions, prepareStore, PublicChannel, publicChannels, publicChannelsAdapter, settings, StoreKeys, unreadMessagesAdapter, users } from '@quiet/nectar'
+import { setupCrypto } from '@quiet/identity'
+import { communities, getFactory, identity, IncomingMessages, prepareStore, publicChannels, settings, users } from '@quiet/nectar'
 import { Action } from 'redux-actions'
 import { testSaga } from 'redux-saga-test-plan'
-import { createNotificationsCallsDataType, displayMessageNotificationSaga, exportBridge, messagesMapForNotificationsCalls } from './notifications'
-import { put } from 'typed-redux-saga'
+import { displayMessageNotificationSaga, exportBridge, messagesMapForNotificationsCalls } from './notifications'
 
 let incomingMessages: IncomingMessages
-let storeReducers
-let communityChannels: CommunityChannels
-let userPubKey: string
-const incomingMessagesChannelId = 'channelId'
+let store
+let publicChannel2
 
 beforeAll(async () => {
   setupCrypto()
-  const store = prepareStore().store
-  const factory = await getFactory(store)
+  store = await prepareStore()
+  const factory = await getFactory(store.store)
 
   const community1 = await factory.create<
   ReturnType<typeof communities.actions.addNewCommunity>['payload']
   >('Community')
 
-  const userIdentity = await factory.create<
+  publicChannel2 = await factory.create<
+  ReturnType<typeof publicChannels.actions.addChannel>['payload']
+  >('PublicChannel', { communityId: community1.id })
+
+  await factory.create<
   ReturnType<typeof identity.actions.addNewIdentity>['payload']
   >('Identity', { id: community1.id, nickname: 'alice' })
 
@@ -30,67 +31,11 @@ beforeAll(async () => {
       type: 1,
       message: 'message',
       createdAt: 1000000,
-      channelAddress: incomingMessagesChannelId,
+      channelAddress: publicChannel2.channel.address,
       signature: 'signature',
       pubKey: 'pubKey'
     }],
-    communityId: community1.id
-  }
-
-  const publicChannel: PublicChannel = {
-    name: 'general',
-    description: 'description',
-    owner: 'user',
-    timestamp: 0,
-    address: 'general'
-  }
-
-  const publicChannel2: PublicChannel = {
-    name: incomingMessagesChannelId,
-    description: 'description',
-    owner: 'user',
-    timestamp: 0,
-    address: incomingMessagesChannelId
-  }
-
-  communityChannels = {
-    id: community1.id,
-    currentChannel: publicChannel.address,
-    channels: publicChannelsAdapter.setAll(
-      publicChannelsAdapter.getInitialState(),
-      [publicChannel, publicChannel2]
-    ),
-    channelMessages: channelMessagesAdapter.getInitialState(),
-    channelLoadingSlice: 0,
-    unreadMessages: unreadMessagesAdapter.getInitialState()
-  }
-
-  const userCertString = userIdentity.userCertificate
-
-  const parsedCert = parseCertificate(userCertString)
-  userPubKey = keyFromCertificate(parsedCert)
-
-  storeReducers = {
-    [StoreKeys.Identity]: store.getState().Identity,
-    [StoreKeys.Settings]: {
-      ...new settings.State(),
-      notificationsOption: NotificationsOptions.notifyForEveryMessage
-    },
-    [StoreKeys.PublicChannels]: {
-      ...new publicChannels.State(),
-      channels: communityChannelsAdapter.setAll(
-        communityChannelsAdapter.getInitialState(),
-        [communityChannels]
-      )
-    },
-    [StoreKeys.Users]: {
-      ...new users.State(),
-      certificates: certificatesAdapter.setAll(
-        certificatesAdapter.getInitialState(),
-        [parsedCert]
-      )
-    },
-    [StoreKeys.Communities]: store.getState().Communities
+    communityId: '1'
   }
 })
 
