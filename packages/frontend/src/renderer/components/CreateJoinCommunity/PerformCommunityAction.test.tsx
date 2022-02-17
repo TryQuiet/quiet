@@ -36,7 +36,7 @@ describe('PerformCommunityAction component (create community mode)', () => {
 
   it.each([
     ['bu', CommunityNameErrors.NameToShort],
-    ['Community Name', CommunityNameErrors.WrongCharacter],
+    ['Community Name!', CommunityNameErrors.WrongCharacter],
     ['mybeautifulcommunityname', CommunityNameErrors.NameTooLong]
   ])('user inserting invalid community name "%s" should see "%s" error', async (communityName: string, error: string) => {
     const handleCommunityAction = jest.fn()

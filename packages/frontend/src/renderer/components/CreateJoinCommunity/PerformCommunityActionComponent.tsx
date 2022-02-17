@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import classNames from 'classnames'
 
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
+
+import WarningIcon from '@material-ui/icons/Warning'
 
 import Modal from '../ui/Modal/Modal'
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
@@ -15,9 +17,9 @@ import {
 } from '../CreateJoinCommunity/community.dictionary'
 import { TextInput } from '../../forms/components/textInput'
 import { Controller, useForm } from 'react-hook-form'
+import { parseName } from '../../../utils/functions/naming'
 
 const useStyles = makeStyles(theme => ({
-  root: {},
   focus: {
     '& .MuiOutlinedInput-root': {
       '&.Mui-focused fieldset': {
@@ -41,70 +43,55 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.colors.white,
     padding: '0px 32px'
   },
-  title: {
-    marginTop: 24
+  fullContainer: {
+    width: '100%'
   },
-  fullWidth: {
-    paddingBottom: 25
-  },
-  note: {
-    fontSize: 14,
-    lineHeight: '20px',
-    color: theme.palette.colors.black30
-  },
-  field: {
-    marginTop: 18
-  },
-  buttonDiv: {
-    marginTop: 24
-  },
-  info: {
-    lineHeight: '18px',
-    color: theme.palette.colors.darkGray,
-    letterSpacing: 0.4
+  gutter: {
+    marginTop: 8,
+    marginBottom: 24
   },
   button: {
-    width: 139,
-    height: 60,
-    backgroundColor: theme.palette.colors.purple,
-    padding: theme.spacing(2),
+    width: 165,
+    backgroundColor: theme.palette.colors.quietBlue,
+    color: theme.palette.colors.white,
     '&:hover': {
-      backgroundColor: theme.palette.colors.darkPurple
+      backgroundColor: theme.palette.colors.quietBlue
     },
-    '&:disabled': {
-      backgroundColor: theme.palette.colors.lightGray,
-      color: 'rgba(255,255,255,0.6)'
-    }
+    textTransform: 'none',
+    height: 48,
+    fontWeight: 'normal'
   },
-  closeModal: {
-    backgroundColor: 'transparent',
-    height: 60,
-    fontSize: 16,
+  title: {
+    marginBottom: 24
+  },
+  iconDiv: {
+    width: 24,
+    height: 28,
+    marginRight: 8
+  },
+  warrningIcon: {
+    color: '#FFCC00'
+  },
+  warrningMessage: {
+    wordBreak: 'break-word'
+  },
+  rootBar: {
+    width: 350,
+    marginTop: 32,
+    marginBottom: 16
+  },
+  progressBar: {
+    backgroundColor: theme.palette.colors.linkBlue
+  },
+  info: {
     lineHeight: '19px',
-    color: theme.palette.colors.darkGray,
-    '&:hover': {
-      backgroundColor: 'transparent'
-    }
-  },
-  buttonContainer: {
-    marginBottom: 49
-  },
-  label: {
-    fontSize: 12,
-    color: theme.palette.colors.black30
-  },
-  link: {
-    cursor: 'pointer',
-    color: theme.palette.colors.linkBlue
-  },
-  spacing24: {
-    marginTop: 24
-  },
-  infoDiv: {
-    lineHeight: 'initial',
-    marginTop: 8
+    color: theme.palette.colors.darkGray
   }
 }))
+
+interface PerformCommunityActionFormValues {
+  name: string
+}
 
 export interface PerformCommunityActionProps {
   open: boolean
@@ -114,10 +101,6 @@ export interface PerformCommunityActionProps {
   handleClose: () => void
   isConnectionReady?: boolean
   community: boolean
-}
-
-interface PerformCommunityActionFormValues {
-  name: string
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -131,6 +114,9 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
 }) => {
   const classes = useStyles({})
 
+  const [communityName, setCommunityName] = useState('')
+  const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
+
   const dictionary =
     communityAction === CommunityAction.Create
       ? CreateCommunityDictionary(handleRedirection)
@@ -139,8 +125,8 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   const {
     handleSubmit,
     formState: { errors },
-    control,
-    setValue
+    setValue,
+    control
   } = useForm<PerformCommunityActionFormValues>({
     mode: 'onTouched'
   })
@@ -152,71 +138,105 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     handleSubmit: (value: string) => void,
     values: PerformCommunityActionFormValues
   ) => {
-    handleSubmit(values.name)
+    const submitValue =
+      communityAction === CommunityAction.Create ? parseName(values.name) : values.name.trim()
+    handleSubmit(submitValue)
   }
+
+  const onChange = (name: string) => {
+    if (communityAction === CommunityAction.Join) return
+    // Check community name against naming policy if user creates community
+    const parsedName = parseName(name)
+    setCommunityName(parsedName)
+    setParsedNameDiffers(name !== parsedName)
+  }
+
+  React.useEffect(() => {
+    if (!open) {
+      setValue('name', '')
+      setCommunityName('')
+    }
+  }, [open])
 
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={!community}>
       <Grid container className={classes.main} direction='column'>
         <>
-          <Grid className={classes.title} item>
-            <Typography variant={'h3'}>{dictionary.header}</Typography>
-          </Grid>
-
           <form onSubmit={handleSubmit(onSubmit)}>
-            <Grid container>
-              <Grid className={classes.field} item xs={12}>
-                <Typography variant='caption' className={classes.label}>
-                  {dictionary.label}{' '}
-                </Typography>
-                <Controller
-                  control={control}
-                  defaultValue={''}
-                  rules={dictionary.field.validation}
-                  name={'name'}
-                  render={({ field }) => (
-                    <TextInput
-                      {...dictionary.field.fieldProps}
-                      fullWidth
-                      classes={classNames({
-                        [classes.focus]: true,
-                        [classes.margin]: true,
-                        [classes.error]: errors.name
-                      })}
-                      placeholder={dictionary.placeholder}
-                      errors={errors}
-                      onchange={(ev) => {
-                        setValue('name', ev.target.value.trim())
-                      }
-                      }
-                      onblur={field.onBlur}
-                      value={field.value}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12} className={classes.infoDiv}>
-                <Typography variant='caption' className={classes.info}>
-                  {dictionary.hint}
-                </Typography>
-              </Grid>
+            <Grid
+              container
+              justify='flex-start'
+              direction='column'
+              className={classes.fullContainer}>
+              <Typography variant='h3' className={classes.title}>
+                {dictionary.header}
+              </Typography>
+              <Typography variant='body2'>{dictionary.label}</Typography>
+              <Controller
+                control={control}
+                defaultValue={''}
+                rules={dictionary.field.validation}
+                name={'name'}
+                render={({ field }) => (
+                  <TextInput
+                    {...dictionary.field.fieldProps}
+                    fullWidth
+                    classes={classNames({
+                      [classes.focus]: true,
+                      [classes.margin]: true,
+                      [classes.error]: errors.name
+                    })}
+                    placeholder={dictionary.placeholder}
+                    errors={errors}
+                    variant='outlined'
+                    onchange={event => {
+                      event.persist()
+                      const value = event.target.value
+                      onChange(value)
+                      // Call default
+                      field.onChange(event)
+                    }}
+                    onblur={() => {
+                      field.onBlur()
+                    }}
+                    value={field.value}
+                  />
+                )}
+              />
             </Grid>
-            <Grid container direction={'row'} justify={'flex-start'} spacing={2}>
-              <Grid item xs={'auto'} className={classes.buttonDiv}>
-                <LoadingButton
-                  type='submit'
-                  variant='contained'
-                  size='small'
-                  color='primary'
-                  fullWidth
-                  text={dictionary.button ?? 'Continue'}
-                  classes={{ button: classes.button }}
-                  disabled={!isConnectionReady}
-                />
+            <div className={classes.gutter}>
+              {!errors.name && communityName.length > 0 && parsedNameDiffers && (
+                <Grid container alignItems='center' direction='row'>
+                  <Grid item className={classes.iconDiv}>
+                    <WarningIcon className={classes.warrningIcon} />
+                  </Grid>
+                  <Grid item xs>
+                    <Typography
+                      variant='body2'
+                      className={classes.warrningMessage}
+                      data-testid={'createCommunityNameWarning'}>
+                      Your community will be created as <b>{`#${communityName}`}</b>
+                    </Typography>
+                  </Grid>
+                </Grid>
+              )}
+            </div>
+            <div className={classes.gutter}>
+              <Grid container alignItems='center' direction='row'>
+                {dictionary.redirection}
               </Grid>
-            </Grid>
+            </div>
+            <LoadingButton
+              type='submit'
+              variant='contained'
+              size='small'
+              color='primary'
+              fullWidth
+              text={dictionary.button ?? 'Continue'}
+              classes={{ button: classes.button }}
+              disabled={!isConnectionReady}
+            />
           </form>
-          <Grid style={{ marginTop: '24px' }}>{dictionary.redirection}</Grid>
         </>
       </Grid>
     </Modal>

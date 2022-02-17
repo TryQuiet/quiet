@@ -16,6 +16,7 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { modalsActions } from '../../../sagas/modals/modals.slice'
 
 import { getFactory, identity, publicChannels } from '@quiet/nectar'
+import { ChannelNameErrors, FieldErrors } from '../../../forms/fieldsErrors'
 
 describe('Add new channel', () => {
   let socket: MockedSocket
@@ -25,7 +26,7 @@ describe('Add new channel', () => {
     ioMock.mockImplementation(() => socket)
   })
 
-  it('Submits channel name without trailing hyphen', async () => {
+  it('user submits corrected name', async () => {
     const { store, runSaga } = await prepareStore(
       {},
       socket // Fork Nectar's sagas
@@ -45,7 +46,7 @@ describe('Add new channel', () => {
     const input = screen.getByPlaceholderText('Enter a channel name')
     const button = screen.getByText('Create Channel')
 
-    userEvent.type(input, 'trailing-hyphen-')
+    userEvent.type(input, 'Some channel NAME  ')
     userEvent.click(button)
 
     await act(async () => {
@@ -54,101 +55,56 @@ describe('Add new channel', () => {
 
     function* testSubmittedChannelName(): Generator {
       const createChannelAction = yield* take(publicChannels.actions.createChannel)
-      expect(createChannelAction.payload.channel.name).toEqual('trailing-hyphen')
+      expect(createChannelAction.payload.channel.name).toEqual('some-channel-name')
     }
   })
 
-  it('Submits channel name without trailing whitespace', async () => {
-    const { store, runSaga } = await prepareStore(
-      {},
-      socket // Fork Nectar's sagas
+  it('user provides proper name', async () => {
+    renderComponent(
+      <CreateChannelComponent open={true} createChannel={() => {}} handleClose={() => {}} />
     )
-
-    const factory = await getFactory(store)
-
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
-      'Identity',
-      { nickname: 'alice' }
-    )
-
-    renderComponent(<CreateChannel />, store)
-
-    store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
 
     const input = screen.getByPlaceholderText('Enter a channel name')
-    const button = screen.getByText('Create Channel')
+    const warning = await screen.queryByTestId('createChannelNameWarning')
 
-    userEvent.type(input, 'trailing whitespace ')
-    userEvent.click(button)
-
-    await act(async () => {
-      await runSaga(testSubmittedChannelName).toPromise()
-    })
-
-    function* testSubmittedChannelName(): Generator {
-      const createChannelAction = yield* take(publicChannels.actions.createChannel)
-      expect(createChannelAction.payload.channel.name).toEqual('trailing-whitespace')
-    }
+    userEvent.type(input, 'happy-path')
+    expect(warning).toBeNull()
   })
 
-  it('Parse channel name in real time', async () => {
+  it.each([
+    ['double-hyp--hens', 'double-hyp-hens'],
+    ['-start-with-hyphen', 'start-with-hyphen'],
+    [' start-with-space', 'start-with-space'],
+    ['end-with-hyphen-', 'end-with-hyphen'],
+    ['end-with-space ', 'end-with-space'],
+    ['UpperCaseToLowerCase', 'uppercasetolowercase'],
+    ['spaces to hyphens', 'spaces-to-hyphens']
+  ])('user inserting wrong channel name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
     renderComponent(
       <CreateChannelComponent open={true} createChannel={() => {}} handleClose={() => {}} />
     )
 
     const input = screen.getByPlaceholderText('Enter a channel name')
 
-    const assertions = [
-      {
-        insert: '    ',
-        expect: ''
-      },
-      {
-        insert: '----',
-        expect: ''
-      },
-      {
-        insert: '-start-with-hyphen',
-        expect: 'start-with-hyphen'
-      },
-      {
-        insert: ' start-with-space',
-        expect: 'start-with-space'
-      },
-      {
-        insert: 'end-with-hyphen-',
-        expect: 'end-with-hyphen-'
-      },
-      {
-        insert: 'end-with-double-hyphen--',
-        expect: 'end-with-double-hyphen-'
-      },
-      {
-        insert: 'end-with-space ',
-        expect: 'end-with-space-'
-      },
-      {
-        insert: 'end-with-hyphen-space  ',
-        expect: 'end-with-hyphen-space-'
-      },
-      {
-        insert: 'UpperCaseToLowerCase',
-        expect: 'uppercasetolowercase'
-      },
-      {
-        insert: 'spaces to hyphens',
-        expect: 'spaces-to-hyphens'
-      },
-      {
-        insert: 'regular-hyphens',
-        expect: 'regular-hyphens'
-      }
-    ]
+    userEvent.type(input, name)
+    expect(screen.getByTestId('createChannelNameWarning')).toHaveTextContent(`Your channel will be created as #${corrected}`)
+  })
 
-    for (const assertion of assertions) {
-      userEvent.type(input, assertion.insert)
-      expect(input).toHaveValue(assertion.expect)
-      userEvent.clear(input)
-    }
+  it.each([
+    ['   whitespaces', FieldErrors.Whitespaces],
+    ['----hyphens', FieldErrors.Whitespaces],
+    ['!@#', ChannelNameErrors.WrongCharacter]
+  ])('user inserting invalid channel name "%s" should see "%s" error', async (name: string, error: string) => {
+    renderComponent(
+      <CreateChannelComponent open={true} createChannel={() => {}} handleClose={() => {}} />
+    )
+
+    const input = screen.getByPlaceholderText('Enter a channel name')
+    const button = screen.getByText('Create Channel')
+
+    userEvent.type(input, name)
+    userEvent.click(button)
+    const message = await screen.findByText(error)
+    expect(message).toBeVisible()
   })
 })

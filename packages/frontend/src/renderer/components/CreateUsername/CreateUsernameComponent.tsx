@@ -5,15 +5,17 @@ import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 
+import WarningIcon from '@material-ui/icons/Warning'
+
 import Modal from '../ui/Modal/Modal'
 import UsernameCreated from './UsernameCreated/UsernameCreated'
+
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 import { TextInput } from '../../forms/components/textInput'
 import { userNameField } from '../../forms/fields/createUserFields'
 import { parseName } from '../../../utils/functions/naming'
 
 const useStyles = makeStyles(theme => ({
-  root: {},
   focus: {
     '& .MuiOutlinedInput-root': {
       '&.Mui-focused fieldset': {
@@ -37,68 +39,50 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.colors.white,
     padding: '0px 32px'
   },
-  title: {
-    marginTop: 24
+  fullContainer: {
+    width: '100%',
+    height: '100%'
   },
-  fullWidth: {
-    paddingBottom: 25
-  },
-  note: {
-    fontSize: 14,
-    lineHeight: '20px',
-    color: theme.palette.colors.black30
-  },
-  field: {
-    marginTop: 18
-  },
-  buttonDiv: {
-    marginTop: 24
-  },
-  info: {
-    lineHeight: '18px',
-    color: theme.palette.colors.darkGray,
-    letterSpacing: 0.4
+  gutter: {
+    marginTop: 8,
+    marginBottom: 24
   },
   button: {
-    width: 139,
-    height: 60,
-    backgroundColor: theme.palette.colors.purple,
-    padding: theme.spacing(2),
+    width: 165,
+    backgroundColor: theme.palette.colors.quietBlue,
+    color: theme.palette.colors.white,
     '&:hover': {
-      backgroundColor: theme.palette.colors.darkPurple
+      backgroundColor: theme.palette.colors.quietBlue
     },
-    '&:disabled': {
-      backgroundColor: theme.palette.colors.lightGray,
-      color: 'rgba(255,255,255,0.6)'
-    }
+    textTransform: 'none',
+    height: 48,
+    fontWeight: 'normal'
   },
-  closeModal: {
-    backgroundColor: 'transparent',
-    height: 60,
-    fontSize: 16,
+  title: {
+    marginBottom: 24
+  },
+  iconDiv: {
+    width: 24,
+    height: 28,
+    marginRight: 8
+  },
+  warrningIcon: {
+    color: '#FFCC00'
+  },
+  warrningMessage: {
+    wordBreak: 'break-word'
+  },
+  rootBar: {
+    width: 350,
+    marginTop: 32,
+    marginBottom: 16
+  },
+  progressBar: {
+    backgroundColor: theme.palette.colors.linkBlue
+  },
+  info: {
     lineHeight: '19px',
-    color: theme.palette.colors.darkGray,
-    '&:hover': {
-      backgroundColor: 'transparent'
-    }
-  },
-  buttonContainer: {
-    marginBottom: 49
-  },
-  label: {
-    fontSize: 12,
-    color: theme.palette.colors.black30
-  },
-  link: {
-    cursor: 'pointer',
-    color: theme.palette.colors.linkBlue
-  },
-  spacing24: {
-    marginTop: 24
-  },
-  infoDiv: {
-    lineHeight: 'initial',
-    marginTop: 8
+    color: theme.palette.colors.darkGray
   }
 }))
 
@@ -128,6 +112,8 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   const classes = useStyles({})
 
   const [formSent, setFormSent] = useState(false)
+  const [userName, setUserName] = useState('')
+  const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
 
   const responseReceived = Boolean(certificateRegistrationError || certificate)
   const waitingForResponse = formSent && !responseReceived
@@ -135,6 +121,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   const {
     handleSubmit,
     formState: { errors },
+    setValue,
     setError,
     control
   } = useForm<CreateUserValues>({
@@ -151,8 +138,21 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
     setFormSent
   ) => {
     setFormSent(true)
-    handleSubmit(parseName(values.userName, true))
+    handleSubmit(parseName(values.userName))
   }
+
+  const onChange = (name: string) => {
+    const parsedName = parseName(name)
+    setUserName(parsedName)
+    setParsedNameDiffers(name !== parsedName)
+  }
+
+  React.useEffect(() => {
+    if (!open) {
+      setValue('userName', '')
+      setUserName('')
+    }
+  }, [open])
 
   React.useEffect(() => {
     if (certificateRegistrationError) {
@@ -165,62 +165,74 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
       <Grid container className={classes.main} direction='column'>
         {!certificate ? (
           <>
-            <Grid className={classes.title} item>
-              <Typography variant={'h3'}>Register a username</Typography>
-            </Grid>
-
             <form onSubmit={handleSubmit(onSubmit)}>
-              <Grid container>
-                <Grid className={classes.field} item xs={12}>
-                  <Typography variant='caption' className={classes.label}>
-                    Choose your favorite username:{' '}
-                  </Typography>
-                  <Controller
-                    control={control}
-                    defaultValue={''}
-                    rules={userFields.userName.validation}
-                    name={'userName'}
-                    render={({ field }) => (
-                      <TextInput
-                        {...userFields.userName.fieldProps}
-                        fullWidth
-                        classes={classNames({
-                          [classes.focus]: true,
-                          [classes.margin]: true,
-                          [classes.error]: errors.userName
-                        })}
-                        placeholder={'Enter a username'}
-                        errors={errors}
-                        onPaste={e => e.preventDefault()}
-                        variant='outlined'
-                        onchange={field.onChange}
-                        onblur={field.onBlur}
-                        value={parseName(field.value)}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={12} className={classes.infoDiv}>
-                  <Typography variant='caption' className={classes.info}>
-                    Your username cannot have any spaces or special characters, must be lowercase
-                    letters and numbers only. Cannot be less than 3 and more than 20 characters.
-                  </Typography>
-                </Grid>
-              </Grid>
-              <Grid container direction={'row'} justify={'flex-start'} spacing={2}>
-                <Grid item xs={'auto'} className={classes.buttonDiv}>
-                  <LoadingButton
-                    type='submit'
-                    variant='contained'
-                    size='small'
-                    color='primary'
-                    fullWidth
-                    text={'Register'}
-                    classes={{ button: classes.button }}
-                    disabled={waitingForResponse}
-                    inProgress={waitingForResponse}
-                  />
-                </Grid>
+              <Grid
+                container
+                justify='flex-start'
+                direction='column'
+                className={classes.fullContainer}>
+                <Typography variant='h3' className={classes.title}>
+                  Register a username
+                </Typography>
+                <Typography variant='body2'>Choose your favorite username</Typography>
+                <Controller
+                  control={control}
+                  defaultValue={''}
+                  rules={userFields.userName.validation}
+                  name={'userName'}
+                  render={({ field }) => (
+                    <TextInput
+                      {...userFields.userName.fieldProps}
+                      fullWidth
+                      classes={classNames({
+                        [classes.focus]: true,
+                        [classes.margin]: true,
+                        [classes.error]: errors.userName
+                      })}
+                      placeholder={'Enter a username'}
+                      errors={errors}
+                      onPaste={e => e.preventDefault()}
+                      variant='outlined'
+                      onchange={event => {
+                        event.persist()
+                        const value = event.target.value
+                        onChange(value)
+                        // Call default
+                        field.onChange(event)
+                      }}
+                      onblur={() => {
+                        field.onBlur()
+                      }}
+                      value={field.value}
+                    />
+                  )}
+                />
+                <div className={classes.gutter}>
+                  {!errors.userName && userName.length > 0 && parsedNameDiffers && (
+                    <Grid container alignItems='center' direction='row'>
+                      <Grid item className={classes.iconDiv}>
+                        <WarningIcon className={classes.warrningIcon} />
+                      </Grid>
+                      <Grid item xs>
+                        <Typography
+                          variant='body2'
+                          className={classes.warrningMessage}
+                          data-testid={'createUserNameWarning'}>
+                          Your user name will be registered as <b>{`@${userName}`}</b>
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  )}
+                </div>
+                <LoadingButton
+                  variant='contained'
+                  color='primary'
+                  inProgress={waitingForResponse}
+                  disabled={waitingForResponse}
+                  type='submit'
+                  text={'Register'}
+                  classes={{ button: classes.button }}
+                />
               </Grid>
             </form>
           </>

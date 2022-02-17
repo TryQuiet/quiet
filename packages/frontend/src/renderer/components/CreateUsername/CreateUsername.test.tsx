@@ -5,66 +5,43 @@ import { screen } from '@testing-library/dom'
 import { renderComponent } from '../../testUtils/renderComponent'
 
 import CreateUsernameComponent from './CreateUsernameComponent'
+import { FieldErrors, UsernameErrors } from '../../forms/fieldsErrors'
 
-describe('Add new channel', () => {
-  it('Parse user name in real time', async () => {
+describe('Create username', () => {
+  it.each([
+    ['double-hyp--hens', 'double-hyp-hens'],
+    ['-start-with-hyphen', 'start-with-hyphen'],
+    [' start-with-space', 'start-with-space'],
+    ['end-with-hyphen-', 'end-with-hyphen'],
+    ['end-with-space ', 'end-with-space'],
+    ['UpperCaseToLowerCase', 'uppercasetolowercase'],
+    ['spaces to hyphens', 'spaces-to-hyphens']
+  ])('user inserting wrong name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
     renderComponent(
       <CreateUsernameComponent open={true} registerUsername={() => {}} handleClose={() => {}} />
     )
 
     const input = screen.getByPlaceholderText('Enter a username')
 
-    const assertions = [
-      {
-        insert: '    ',
-        expect: ''
-      },
-      {
-        insert: '----',
-        expect: ''
-      },
-      {
-        insert: '-start-with-hyphen',
-        expect: 'start-with-hyphen'
-      },
-      {
-        insert: ' start-with-space',
-        expect: 'start-with-space'
-      },
-      {
-        insert: 'end-with-hyphen-',
-        expect: 'end-with-hyphen-'
-      },
-      {
-        insert: 'end-with-double-hyphen--',
-        expect: 'end-with-double-hyphen-'
-      },
-      {
-        insert: 'end-with-space ',
-        expect: 'end-with-space-'
-      },
-      {
-        insert: 'end-with-hyphen-space  ',
-        expect: 'end-with-hyphen-space-'
-      },
-      {
-        insert: 'UpperCaseToLowerCase',
-        expect: 'uppercasetolowercase'
-      },
-      {
-        insert: 'spaces to hyphens',
-        expect: 'spaces-to-hyphens'
-      },
-      {
-        insert: 'regular-hyphens',
-        expect: 'regular-hyphens'
-      }
-    ]
+    userEvent.type(input, name)
+    expect(screen.getByTestId('createUserNameWarning')).toHaveTextContent(`Your user name will be registered as @${corrected}`)
+  })
 
-    for (const assertion of assertions) {
-      userEvent.type(input, assertion.insert)
-      expect(input).toHaveValue(assertion.expect)
-      userEvent.clear(input)
-    }
+  it.each([
+    ['   whitespaces', FieldErrors.Whitespaces],
+    ['----hyphens', FieldErrors.Whitespaces],
+    ['!@#', UsernameErrors.WrongCharacter]
+  ])('user inserting invalid name "%s" should see "%s" error', async (name: string, error: string) => {
+    renderComponent(
+      <CreateUsernameComponent open={true} registerUsername={() => {}} handleClose={() => {}} />
+    )
+
+    const input = screen.getByPlaceholderText('Enter a username')
+    const button = screen.getByText('Register')
+
+    userEvent.type(input, name)
+    userEvent.click(button)
+    const message = await screen.findByText(error)
+    expect(message).toBeVisible()
   })
 })
