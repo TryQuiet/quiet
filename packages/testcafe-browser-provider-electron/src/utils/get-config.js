@@ -55,7 +55,7 @@ export default function (id, mainPath) {
     else
         config.electronPath = require('electron');
 
-    if (config.mainWindowUrl.indexOf('file:') === 0 || !PROTOCOL_RE.test(config.mainWindowUrl))
+    if (!config.relativePageUrls && (config.mainWindowUrl.indexOf('file:') === 0 || !PROTOCOL_RE.test(config.mainWindowUrl)))
         config.mainWindowUrl = resolveFileUrl(mainDir, config.mainWindowUrl);
 
     config.serverId = 'testcafe-electron-server-' + id;

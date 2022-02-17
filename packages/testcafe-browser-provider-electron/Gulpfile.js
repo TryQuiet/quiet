@@ -68,6 +68,7 @@ function testJsConfigSpecifically () {
 
 exports.lint  = lint;
 exports.build = gulp.parallel(lint, gulp.series(clean, build));
+exports.onlybuild = gulp.parallel(gulp.series(clean, build));
 exports.test  = gulp.series(
     exports.build,
     testRegularApp,

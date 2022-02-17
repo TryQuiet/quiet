@@ -68,6 +68,7 @@ function getWebContents () {
 }
 
 module.exports = function install (config, testPageUrl) {
+    console.log('MOCKS INSTALL')
     ipc = new Client(config, { dialogHandler, contextMenuHandler, windowHandler });
 
     const ipcConnectionPromise = ipc.connect();
@@ -78,6 +79,11 @@ module.exports = function install (config, testPageUrl) {
     let origLoadURL      = WebContents.prototype.loadURL;
     const origGetAppPath = app.getAppPath;
 
+    config.electronAppPath = `file://${app.getAppPath()}`
+    if (config.relativePageUrls) {
+        config.mainWindowUrl = config.electronAppPath + config.mainWindowUrl
+    }
+
     function stripQuery (url) {
         return url.replace(URL_QUERY_RE, '');
     }
@@ -87,6 +93,7 @@ module.exports = function install (config, testPageUrl) {
     }
 
     function loadUrl (webContext, url, options) {
+        console.log('MOCKS LOAD URL', config)
         let testUrl = stripQuery(url);
 
         if (isFileProtocol(url))
