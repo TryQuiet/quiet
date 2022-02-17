@@ -3,24 +3,13 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { unreadMessagesAdapter, certificatesAdapter, channelMessagesAdapter, communities, CommunityChannels, communityChannelsAdapter, getFactory, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, prepareStore, PublicChannel, publicChannels, publicChannelsAdapter, settings, StoreKeys, users } from '@quiet/nectar'
 import { combineReducers } from '@reduxjs/toolkit'
 import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
-import { soundTypeToAudio } from '../shared/sounds'
+import { soundTypeToAudio } from '../../../shared/sounds'
 
 const originalNotification = window.Notification
 const mockNotification = jest.fn()
-const mockDispatch = jest.fn()
 const notification = jest.fn().mockImplementation(() => { return mockNotification })
-
-jest.mock('./store/create', () => { return () => ({ dispatch: mockDispatch }) })
-
-jest.mock('../shared/sounds', () => ({
-  // @ts-expect-error
-  ...jest.requireActual('../shared/sounds'),
-  soundTypeToAudio: {
-    pow: {
-      play: jest.fn()
-    }
-  }
-}))
+// @ts-expect-error
+window.Notification = notification
 
 const mockShow = jest.fn()
 const mockIsFocused = jest.fn()
@@ -41,8 +30,15 @@ jest.mock('electron', () => {
   }
 })
 
-// @ts-expect-error
-window.Notification = notification
+jest.mock('../../../shared/sounds', () => ({
+  // @ts-expect-error
+  ...jest.requireActual('../../../shared/sounds'),
+  soundTypeToAudio: {
+    pow: {
+      play: jest.fn()
+    }
+  }
+}))
 
 let incomingMessages: IncomingMessages
 let storeReducersWithDifferentCurrentChannel
@@ -262,7 +258,7 @@ describe('displayNotificationsSaga', () => {
     expect(notification).not.toHaveBeenCalled()
   })
 
-  test('clicking in notification takes you to message in relevant channel, and foregrounds the app', async () => {
+  test('clicking in notification foregrounds the app', async () => {
     mockIsFocused.mockImplementationOnce(() => { return false })
 
     await expectSaga(
@@ -284,15 +280,6 @@ describe('displayNotificationsSaga', () => {
     // simulate click on notification
     // @ts-expect-error
     mockNotification.onclick()
-
-    expect(mockDispatch).toBeCalledWith({
-      payload:
-      {
-        channelAddress: 'channelId',
-        communityId: 1
-      },
-      type: 'PublicChannels/setCurrentChannel'
-    })
 
     expect(mockShow).toHaveBeenCalled()
   })

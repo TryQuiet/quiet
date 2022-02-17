@@ -16,5 +16,5 @@ export const reducers = {
   [StoreKeys.Errors]: errorsReducer,
   [StoreKeys.Messages]: messagesReducer,
   [StoreKeys.Connection]: connectionReducer,
-  [StoreKeys.Settings]: settingsReducer,
+  [StoreKeys.Settings]: settingsReducer
 }

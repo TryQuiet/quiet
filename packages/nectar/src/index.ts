@@ -90,7 +90,7 @@ export const settings = {
   reducer: settingsReducer,
   State: SettingsState,
   selectors: settingsSelectors,
-  actions: settingsActions,
+  actions: settingsActions
 }
 
 export const publicChannels = {

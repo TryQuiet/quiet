@@ -25,6 +25,36 @@ import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 
 jest.setTimeout(20_000)
 
+const notification = jest.fn().mockImplementation(() => { return jest.fn() })
+// @ts-expect-error
+window.Notification = notification
+
+jest.mock('electron', () => {
+  return {
+    remote:
+    {
+      BrowserWindow: {
+        getAllWindows: () => {
+          return [{
+            show: jest.fn(),
+            isFocused: jest.fn()
+          }]
+        }
+      }
+    }
+  }
+})
+
+jest.mock('../shared/sounds', () => ({
+  // @ts-expect-error
+  ...jest.requireActual('../shared/sounds'),
+  soundTypeToAudio: {
+    pow: {
+      play: jest.fn()
+    }
+  }
+}))
+
 describe('Channel', () => {
   let socket: MockedSocket
 
