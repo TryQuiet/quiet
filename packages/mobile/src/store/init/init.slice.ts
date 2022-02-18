@@ -1,4 +1,6 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { FixedTask } from 'typed-redux-saga'
+import { Socket } from 'socket.io-client'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { StoreKeys } from '../store.keys'
 import { initChecksAdapter } from './init.adapter'
@@ -13,9 +15,10 @@ export class InitState {
     controlPort: 0,
     authCookie: ''
   }
-
+  
   public isNavigatorReady: boolean = false
   public isCryptoEngineInitialized: boolean = false
+  public isConnected: boolean = false
   public initDescription: string = ''
   public initChecks: EntityState<InitCheck> = initChecksAdapter.setAll(
     initChecksAdapter.getInitialState(),
@@ -39,6 +42,18 @@ export interface TorData {
   socksPort: number
   controlPort: number
   authCookie: string
+}
+
+export interface WebsocketConnectionPayload {
+  dataPort: number
+}
+
+export interface CloseConnectionPayload {
+  task: FixedTask<Generator>
+}
+
+export interface SetConnectedPayload {
+  socket: Socket
 }
 
 export const initSlice = createSlice({
@@ -70,7 +85,7 @@ export const initSlice = createSlice({
     onDataDirectoryCreated: (state, action: PayloadAction<string>) => {
       state.dataDirectoryPath = action.payload
     },
-    onWaggleStarted: (state, _action: PayloadAction<number>) => {
+    onWaggleStarted: (state, _action: PayloadAction<WebsocketConnectionPayload>) => {
       const event = InitCheckKeys.Waggle
       initChecksAdapter.updateOne(state.initChecks, {
         changes: {
@@ -79,6 +94,13 @@ export const initSlice = createSlice({
         },
         id: event
       })
+    },
+    startConnection: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
+    suspendConnection: state => {
+      state.isConnected = false
+    },
+    setConnected: state => {
+      state.isConnected = true
     },
     setCurrentScreen: (state, action: PayloadAction<ScreenNames>) => {
       state.currentScreen = action.payload

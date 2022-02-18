@@ -30,7 +30,7 @@ export function* startWaggleSaga(): Generator {
         torData.controlPort,
         torData.authCookie
       )
-      yield* put(initActions.onWaggleStarted(dataPort))
+      yield* put(initActions.onWaggleStarted({dataPort: dataPort}))
       break
     }
     yield* delay(500)
