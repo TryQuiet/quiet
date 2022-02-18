@@ -15,7 +15,7 @@ export class InitState {
     controlPort: 0,
     authCookie: ''
   }
-  
+
   public isNavigatorReady: boolean = false
   public isCryptoEngineInitialized: boolean = false
   public isConnected: boolean = false

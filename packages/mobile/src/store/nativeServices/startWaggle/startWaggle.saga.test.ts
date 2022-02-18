@@ -35,7 +35,7 @@ describe('startWaggleSaga', () => {
         [call.fn(startNodeProcess), null]
       ])
       .put(initActions.updateInitDescription('Data is being retrieved from a distributed database'))
-      .put(initActions.onWaggleStarted({ dataPort: 4677}))
+      .put(initActions.onWaggleStarted({ dataPort: 4677 }))
       .call(startNodeProcess, 4677, 'dataDirectoryPath', 9010, 9150, 'cookie')
       .run()
   })
