@@ -204,7 +204,7 @@ describe('Certificate', () => {
 
     for (const username of ['alice', 'Alice', 'Ąlice']) {
       const usernameCert = storage.usernameCert(username)
-      expect(usernameCert).toBeTruthy()
+      expect(usernameCert).toEqual(userCertificate.userCertString)
     }
   })
 
