@@ -45,15 +45,15 @@ beforeAll(async () => {
   const factory = await getFactory(store.store)
 
   const community1 = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+  ReturnType<typeof communities.actions.addNewCommunity>['payload']
   >('Community')
 
   publicChannel2 = await factory.create<
-    ReturnType<typeof publicChannels.actions.addChannel>['payload']
+  ReturnType<typeof publicChannels.actions.addChannel>['payload']
   >('PublicChannel', { communityId: community1.id })
 
   await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+  ReturnType<typeof identity.actions.addNewIdentity>['payload']
   >('Identity', { id: community1.id, nickname: 'alice' })
 
   incomingMessages = {
