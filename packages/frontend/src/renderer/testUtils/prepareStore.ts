@@ -39,7 +39,11 @@ export const prepareStore = async (
   mockedSocket?: MockedSocket
 ) => {
   const combinedReducers = combineReducers(reducers)
-  const sagaMiddleware = createSagaMiddleware()
+
+  const num = 1
+  const task: any = 'a'
+  const sagaMiddleware = createSagaMiddleware({ sagaMonitor: { effectResolved: () => { } } })
+
   const store = createStore(
     combinedReducers,
     mockedState,

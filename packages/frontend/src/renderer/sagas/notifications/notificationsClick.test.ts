@@ -3,7 +3,7 @@ import rootSaga from '../../sagas/index.saga'
 import { communities, getFactory, identity, IncomingMessages, publicChannels } from '@quiet/nectar'
 import { setupCrypto } from '@quiet/identity'
 import { waitFor } from '@testing-library/react'
-
+import { SagaMonitor } from 'redux-saga'
 const originalNotification = window.Notification
 const mockNotification = jest.fn()
 const notification = jest.fn().mockImplementation(() => { return mockNotification })
@@ -45,15 +45,15 @@ beforeAll(async () => {
   const factory = await getFactory(store.store)
 
   const community1 = await factory.create<
-  ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
   >('Community')
 
   publicChannel2 = await factory.create<
-  ReturnType<typeof publicChannels.actions.addChannel>['payload']
+    ReturnType<typeof publicChannels.actions.addChannel>['payload']
   >('PublicChannel', { communityId: community1.id })
 
   await factory.create<
-  ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
   >('Identity', { id: community1.id, nickname: 'alice' })
 
   incomingMessages = {
@@ -76,8 +76,10 @@ afterAll(() => {
 
 describe('displayMessageNotificationSaga', () => {
   it('clicking in notification takes you to message in relevant channel', async () => {
+
     store.runSaga(rootSaga)
     store.store.dispatch(publicChannels.actions.incomingMessages(incomingMessages))
+    console.log(store)
     // simulate click on notification
     // @ts-expect-error
     mockNotification.onclick()

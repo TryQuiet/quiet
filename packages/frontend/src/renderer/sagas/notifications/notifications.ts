@@ -102,6 +102,8 @@ export const createNotification = (payload: NotificationsData, emit): any => {
       communityId: payload.communityId
     }))
     payload.yourBrowserWindow.show()
+
+    emit(END)
   }
 
   notification.onclose = () => {
