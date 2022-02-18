@@ -11,7 +11,7 @@ import {
 } from '@quiet/nectar'
 import { StoreKeys } from '../store/store.keys'
 import { combineReducers, createStore, applyMiddleware } from 'redux'
-import createSagaMiddleware from 'redux-saga'
+import createSagaMiddleware, { SagaMonitor as SagaMonitorType } from 'redux-saga'
 import thunk from 'redux-thunk'
 import rootSaga from '../sagas/index.saga'
 import { reducer as appReducer } from '../store/handlers/app'
@@ -19,6 +19,7 @@ import { socketActions, socketReducer } from '../sagas/socket/socket.slice'
 import { modalsReducer } from '../sagas/modals/modals.slice'
 import MockedSocket from 'socket.io-mock'
 import { fork, delay, call, put } from 'typed-redux-saga'
+import { map } from 'lodash'
 
 export const reducers = {
   [NectarStoreKeys.Communities]: communities.reducer,
@@ -34,15 +35,50 @@ export const reducers = {
   [StoreKeys.Modals]: modalsReducer
 }
 
+interface option {
+  effectId: number
+  parentEffectId: number
+  label?: string
+  effect: any
+}
+
+class SagaMonitor {
+  effectsTriggeredArray: Array<{ [effectId: number]: option }>
+  effectsResolvedArray: Array<{ [effectId: number]: any }>
+  constructor(
+  ) {
+    this.effectsTriggeredArray = []
+    this.effectsResolvedArray = []
+  }
+
+  effectTriggered: SagaMonitorType['effectTriggered'] = (options) => {
+    this.effectsTriggeredArray.push({ [options.effectId]: options })
+  }
+
+  effectResolved: SagaMonitorType['effectResolved'] = (effectId, result) => {
+    this.effectsResolvedArray.push({ [effectId]: result })
+  }
+
+  public isEffectResolved = (effectName) => {
+    const it = this.effectsResolvedArray.filter((effect) => {
+      const effectNameObject = Object.values(Object.values(effect)[0])[2] as any
+      return effectNameObject?.name === effectName
+    })
+
+    return Boolean(it.length)
+  }
+}
+
 export const prepareStore = async (
   mockedState?: { [key in StoreKeys | NectarStoreKeys]?: any },
   mockedSocket?: MockedSocket
 ) => {
   const combinedReducers = combineReducers(reducers)
 
-  const num = 1
-  const task: any = 'a'
-  const sagaMiddleware = createSagaMiddleware({ sagaMonitor: { effectResolved: () => { } } })
+  const sagaMonitor = new SagaMonitor()
+  const sagaMiddleware = createSagaMiddleware({
+    sagaMonitor
+  })
 
   const store = createStore(
     combinedReducers,
@@ -55,9 +91,11 @@ export const prepareStore = async (
     // Mock socket connected event
     await sagaMiddleware.run(mockSocketConnectionSaga, mockedSocket).toPromise()
   }
+
   return {
     store,
-    runSaga: sagaMiddleware.run
+    runSaga: sagaMiddleware.run,
+    sagaMonitor
   }
 }
 

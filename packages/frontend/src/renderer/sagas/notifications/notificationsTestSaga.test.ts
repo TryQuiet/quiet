@@ -2,7 +2,7 @@ import { setupCrypto } from '@quiet/identity'
 import { communities, getFactory, identity, IncomingMessages, prepareStore, publicChannels, settings, users } from '@quiet/nectar'
 import { Action } from 'redux-actions'
 import { testSaga } from 'redux-saga-test-plan'
-import { displayMessageNotificationSaga, exportBridge, messagesMapForNotificationsCalls } from './notifications'
+import { displayMessageNotificationSaga, bridgeAction, messagesMapForNotificationsCalls } from './notifications'
 
 let incomingMessages: IncomingMessages
 let store
@@ -133,7 +133,7 @@ describe('displayMessageNotificationSaga', () => {
       .next(messagesMapCallData.notificationsSound)
       .call(messagesMapForNotificationsCalls, messagesMapCallData)
       .next(channel)
-      .takeEvery(channel, exportBridge)
+      .takeEvery(channel, bridgeAction)
       .next()
       .isDone()
   }

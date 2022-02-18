@@ -1,6 +1,6 @@
 import { displayMessageNotificationSaga } from './notifications'
 import { expectSaga } from 'redux-saga-test-plan'
-import { communities, getFactory, identity, IncomingMessages, NotificationsOptions, prepareStore, publicChannels, settings, StoreKeys, users } from '@quiet/nectar'
+import { communities, getFactory, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, prepareStore, publicChannels, settings, StoreKeys, users } from '@quiet/nectar'
 import { combineReducers } from '@reduxjs/toolkit'
 import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
 import { soundTypeToAudio } from '../../../shared/sounds'
@@ -35,6 +35,12 @@ jest.mock('../../../shared/sounds', () => ({
   ...jest.requireActual('../../../shared/sounds'),
   soundTypeToAudio: {
     pow: {
+      play: jest.fn()
+    },
+    bang: {
+      play: jest.fn()
+    },
+    splat: {
       play: jest.fn()
     }
   }
@@ -90,6 +96,7 @@ afterEach(() => {
   notification.mockClear()
   mockShow.mockClear()
   mockIsFocused.mockClear()
+  jest.resetAllMocks()
 })
 
 describe('displayNotificationsSaga', () => {
@@ -192,6 +199,38 @@ describe('displayNotificationsSaga', () => {
       )
       .run()
     expect(soundTypeToAudio.pow.play).toHaveBeenCalled()
+  })
+
+  test('do not play a sound when the notification is displayed and sounds setting is set on do not play sound ', async () => {
+    mockIsFocused.mockImplementationOnce(() => { return true })
+
+    const storeWithNotificationsSoundTurnedOff = {
+      ...store.store.getState(),
+      [StoreKeys.Settings]: {
+        ...new settings.State(),
+        notificationsSound: NotificationsSounds.none
+      }
+    }
+
+    await expectSaga(
+      displayMessageNotificationSaga,
+      publicChannels.actions.incomingMessages(incomingMessages))
+      .withReducer(
+        combineReducers({
+          [StoreKeys.Identity]: identity.reducer,
+          [StoreKeys.Settings]: settings.reducer,
+          [StoreKeys.PublicChannels]: publicChannels.reducer,
+          [StoreKeys.Users]: users.reducer,
+          [StoreKeys.Communities]: communities.reducer
+
+        }),
+        storeWithNotificationsSoundTurnedOff
+      )
+      .run()
+
+    expect(soundTypeToAudio.pow.play).not.toHaveBeenCalled()
+    expect(soundTypeToAudio.bang.play).not.toHaveBeenCalled()
+    expect(soundTypeToAudio.splat.play).not.toHaveBeenCalled()
   })
 
   test('do not display notification when settings are set on do not show notifications', async () => {

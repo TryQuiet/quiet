@@ -30,7 +30,7 @@ export interface createNotificationsCallsDataType {
   notificationsSound: NotificationsSounds
 }
 
-export function* exportBridge(action): Generator {
+export function* bridgeAction(action): Generator {
   yield* put(action)
 }
 
@@ -49,7 +49,7 @@ export function* displayMessageNotificationSaga(
 
   const notificationClickedChannel = yield* call(messagesMapForNotificationsCalls, createNotificationsCallsData)
 
-  yield* takeEvery(notificationClickedChannel, exportBridge)
+  yield* takeEvery(notificationClickedChannel, bridgeAction)
 }
 export const messagesMapForNotificationsCalls = (
   {
