@@ -7,17 +7,24 @@ jobs:
   e2e-linux:
     runs-on: ubuntu-20.04
     timeout-minutes: 20
+
     env:
       DISPLAY: ":99.0"
+
     steps:
       - uses: actions/checkout@v2
 
       - name: Install WM
         run: sudo apt install fluxbox
 
-      - name: "Setup environment"
+      - name: Setup environment
         uses: ./.github/actions/setup-env
 
+      - name: Before build
+        uses: ./.github/actions/before-build
+        with:
+          source-path: linux
+      
       - name: Run X11
         run: |
           Xvfb :99 -screen 0 1920x1080x24 &
@@ -25,7 +32,7 @@ jobs:
           fluxbox &
 
       - name: Run tests
-        run: lerna run start:e2e --scope e2e-tests --stream
+        run: lerna run test:build --scope e2e-tests --stream
       
       - name: Archive test screenshots
         uses: actions/upload-artifact@v2
@@ -35,7 +42,7 @@ jobs:
           path: packages/e2e-tests/screenshots
 
   # e2e-windows:
-  #   runs-on: windows-latest
+  #   runs-on: windows-2019
   #   timeout-minutes: 20
   #   steps:
   #     - uses: actions/checkout@v2

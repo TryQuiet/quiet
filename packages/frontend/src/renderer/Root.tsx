@@ -11,7 +11,7 @@ import store from './store'
 import Index from './containers/windows/Index'
 import Main from './containers/windows/Main'
 import ChannelSettingsModal from './containers/widgets/channelSettings/ChannelSettingsModal'
-import CreateUsernameModal from './containers/widgets/createUsernameModal/CreateUsername'
+import CreateUsername from './components/CreateUsername/CreateUsername'
 import ErrorModal from './containers/ui/ErrorModal'
 import JoinChannelModal from './containers/widgets/channels/JoinChannelModal'
 import NewMessageModal from './containers/widgets/channels/NewMessageModal'
@@ -21,10 +21,10 @@ import SettingsModal from './containers/widgets/settings/SettingsModal'
 import UpdateModal from './containers/widgets/update/UpdateModal'
 import QuitAppDialog from './containers/ui/QuitAppDialog'
 import theme from './theme'
-import CreateCommunity from './containers/widgets/createCommunity/createCommunity'
-import JoinCommunity from './containers/widgets/joinCommunity/joinCommunity'
+import CreateCommunity from './components/CreateJoinCommunity/CreateCommunity/CreateCommunity'
+import JoinCommunity from './components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import LoadingPanel from './containers/widgets/loadingPanel/loadingPanel'
-import CreateChannel from './containers/widgets/channels/CreateChannel'
+import CreateChannel from './components/Channel/CreateChannel/CreateChannel'
 
 export default () => {
   const persistor = persistStore(store)
@@ -38,7 +38,7 @@ export default () => {
               <CreateChannel />
               <JoinCommunity />
               <CreateCommunity />
-              <CreateUsernameModal />
+              <CreateUsername />
               <LoadingPanel />
               <CssBaseline />
               <ErrorModal />

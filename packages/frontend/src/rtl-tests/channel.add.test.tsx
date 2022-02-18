@@ -11,7 +11,7 @@ import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { StoreKeys } from '../renderer/store/store.keys'
 
-import CreateChannel from '../renderer/containers/widgets/channels/CreateChannel'
+import CreateChannel from '../renderer/components/Channel/CreateChannel/CreateChannel'
 import Channel from '../renderer/components/Channel/Channel'
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
@@ -107,11 +107,7 @@ describe('Add new channel', () => {
     )
 
     const input = screen.getByPlaceholderText('Enter a channel name')
-    userEvent.type(input, 'my Super Channel')
-
-    // Check if parsed channel name displays properly
-    const info = screen.getByText('#my-super-channel')
-    expect(info).toBeVisible()
+    userEvent.type(input, 'my-Super Channel ')
 
     const button = screen.getByText('Create Channel')
     userEvent.click(button)
