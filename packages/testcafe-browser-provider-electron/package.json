@@ -18,8 +18,7 @@
   "scripts": {
     "test": "gulp test",
     "build": "gulp onlybuild",
-    "publish-please": "del-cli package-lock.json node_modules && npm i && publish-please",
-    "prepublish": "publish-please guard"
+    "prepublish": "npm run build"
   },
   "keywords": [
     "testcafe",
@@ -59,7 +58,6 @@
     "gulp": "^4.0.0",
     "gulp-babel": "^7.0.0",
     "gulp-eslint": "^3.0.1",
-    "publish-please": "^5.4.3",
     "testcafe": "*",
     "tmp": "0.0.28"
   },

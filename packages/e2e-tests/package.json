@@ -6,14 +6,15 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
-    "build:e2e": "lerna run build:prod --scope quiet",
+    "build:app": "lerna run build:prod --scope quiet",
     "build:testcafe": "lerna run build --scope testcafe-browser-provider-electron",
     "lint": "eslint --ext .ts . --fix",
     "lint-ci": "eslint --ext .ts .",
     "prettier": "prettier",
-    "start:e2e:dev": "npm run build:e2e && npm run start:e2e",
-    "start:e2e": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:../frontend\" \"./**/*.e2e.ts\"",
-    "start:e2eWin": "npm run build:e2e && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:../frontend\" \"./**/*.e2e.ts\""
+    "test:build": "lerna run distUbuntu --scope frontend && npm run test",
+    "test:dev": "npm run build:app && npm run test",
+    "test": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:../frontend\" \"./**/*.e2e.ts\"",
+    "test:win": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:../frontend\" \"./**/*.e2e.ts\""
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.7.1",

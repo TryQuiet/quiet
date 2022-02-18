@@ -26,9 +26,6 @@ jobs:
         with:
           source-path: linux
       
-      - name: Build app
-        run: lerna run distUbuntu --scope frontend --stream
-      
       - name: Run X11
         run: |
           Xvfb :99 -screen 0 1920x1080x24 &
@@ -36,7 +33,7 @@ jobs:
           fluxbox &
 
       - name: Run tests
-        run: lerna run start:e2e --scope e2e-tests --stream
+        run: lerna run test:build --scope e2e-tests --stream
       
       - name: Archive test screenshots
         uses: actions/upload-artifact@v2
