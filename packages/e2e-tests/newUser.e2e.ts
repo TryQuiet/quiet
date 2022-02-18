@@ -6,10 +6,12 @@ fixture`Electron test`
 const longTimeout = 100000
 
 const goToMainPage = async () => {
-  // Built app version. This is a really hacky way of accessing proper mainWindowUrl
-  let pageUrl = fs.readFileSync('/tmp/mainWindowUrl', { encoding: 'utf8' })
-  if (!pageUrl) {
-    // For dev version
+  let pageUrl: string
+  try {
+    // Test built app version. This is a really hacky way of accessing proper mainWindowUrl
+    pageUrl = fs.readFileSync('/tmp/mainWindowUrl', { encoding: 'utf8' })
+  } catch {
+    // If no file found assume that tests are run with a dev project version
     pageUrl = '../frontend/dist/main/index.html#/'
   }
   console.info(`Navigating to ${pageUrl}`)
