@@ -2,7 +2,7 @@ name: 'Prepare app build'
 
 inputs:
   source-path:
-    description: 'OS name (linux | darwin | win)'
+    description: 'OS name (linux | darwin | win32)'
     required: true
 
 runs:
@@ -28,6 +28,6 @@ runs:
       run: echo $S3_BUCKET
       shell: bash
 
-    - name: "Build on Linux"
+    - name: "Build the project"
       run: lerna run build:prod --scope quiet
       shell: bash

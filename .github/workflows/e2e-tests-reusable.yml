@@ -10,7 +10,6 @@ jobs:
 
     env:
       DISPLAY: ":99.0"
-      S3_BUCKET: "Test if env is passed to action"
 
     steps:
       - uses: actions/checkout@v2

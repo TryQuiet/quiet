@@ -7,7 +7,7 @@ const longTimeout = 100000
 
 const goToMainPage = async () => {
   // Built app version. This is a really hacky way of accessing proper mainWindowUrl
-  let pageUrl = fs.readFileSync('/tmp/mainWindowUrl', {'encoding': 'utf8'})
+  let pageUrl = fs.readFileSync('/tmp/mainWindowUrl', { encoding: 'utf8' })
   if (!pageUrl) {
     // For dev version
     pageUrl = '../frontend/dist/main/index.html#/'
