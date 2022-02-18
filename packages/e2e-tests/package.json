@@ -11,7 +11,7 @@
     "lint": "eslint --ext .ts . --fix",
     "lint-ci": "eslint --ext .ts .",
     "prettier": "prettier",
-    "test:build": "lerna run distUbuntu --scope frontend && npm run test",
+    "test:build": "lerna run distUbuntu --scope quiet && npm run test",
     "test:dev": "npm run build:app && npm run test",
     "test": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:../frontend\" \"./**/*.e2e.ts\"",
     "test:win": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:../frontend\" \"./**/*.e2e.ts\""

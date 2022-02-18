@@ -21,8 +21,8 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
 
-      - name: Prepare build
-        uses: ./.github/actions/prepare-build
+      - name: Before build
+        uses: ./.github/actions/before-build
         with:
           source-path: linux
       

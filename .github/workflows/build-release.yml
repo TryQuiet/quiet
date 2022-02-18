@@ -42,6 +42,7 @@ jobs:
 
       - name: "Set electron-builder props"
         run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
+      
       - name: "Release"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
