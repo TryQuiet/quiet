@@ -1,11 +1,26 @@
-import { fixture, test, Selector } from 'testcafe'
+import { fixture, test, Selector, t } from 'testcafe'
+import * as fs from 'fs'
 
 fixture`Electron test`
-  .page('../frontend/dist/main/index.html#/')
 
 const longTimeout = 100000
 
+const goToMainPage = async () => {
+  let pageUrl: string
+  try {
+    // Test built app version. This is a really hacky way of accessing proper mainWindowUrl
+    pageUrl = fs.readFileSync('/tmp/mainWindowUrl', { encoding: 'utf8' })
+  } catch {
+    // If no file found assume that tests are run with a dev project version
+    pageUrl = '../frontend/dist/main/index.html#/'
+  }
+  console.info(`Navigating to ${pageUrl}`)
+  await t.navigateTo(pageUrl)
+}
+
 test('User can create new community, register and send few messages to general channel', async t => {
+  await goToMainPage()
+
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(Selector('span').withText('Starting Quiet').exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 

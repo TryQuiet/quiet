@@ -1,5 +1,6 @@
 export enum FieldErrors {
   Required = 'Required field',
+  Whitespaces = 'Username cannot contain whitespaces'
 }
 
 export enum UsernameErrors {

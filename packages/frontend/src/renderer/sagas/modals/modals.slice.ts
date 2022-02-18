@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CreateUsernameModalProps } from '../../containers/widgets/createUsernameModal/CreateUsername'
+import { CreateUsernameProps } from '../../components/CreateUsername/CreateUsername'
 import { ModalName } from './modals.types'
 
 export interface OpenModalPayload {
   name: ModalName
-  args?: CreateUsernameModalProps | { message?: string }
+  args?: CreateUsernameProps | { message?: string }
 }
 
 export class ModalsInitialState {
@@ -15,7 +15,7 @@ export class ModalsInitialState {
   [ModalName.criticalError] = { open: false };
   [ModalName.createUsernameModal]: {
     open: boolean
-    args: CreateUsernameModalProps
+    args: CreateUsernameProps
   } = {
     open: false,
     args: undefined
