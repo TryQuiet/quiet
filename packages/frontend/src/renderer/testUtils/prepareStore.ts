@@ -61,9 +61,9 @@ class SagaMonitor {
     this.effectsResolvedArray.set(effectId, { ...triggeredEffect, result })
   }
 
-  public isEffectResolved = () => {
+  public isEffectResolved = (effectName) => {
     const parentEffect = Array.from(this.effectsResolvedArray).filter((effect) => {
-      return effect[1].result.meta?.name === 'takeEvery(channel, bridgeAction)'
+      return effect[1].result.meta?.name === effectName
     })
     const childrenEffects = Array.from(this.effectsResolvedArray).filter((effect) => {
       return effect[1].parentEffectId === parentEffect[0][0]

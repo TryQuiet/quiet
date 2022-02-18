@@ -82,7 +82,7 @@ describe('displayMessageNotificationSaga', () => {
     // simulate click on notification
     // @ts-expect-error
     mockNotification.onclick()
-    const isTakeEveryResolved = store.sagaMonitor.isEffectResolved()
+    const isTakeEveryResolved = store.sagaMonitor.isEffectResolved('takeEvery(channel, bridgeAction)')
 
     expect(publicChannels.selectors.currentChannel(store.store.getState())).toBe(publicChannel2.channel.address)
     expect(isTakeEveryResolved).toBeTruthy()
@@ -95,7 +95,7 @@ describe('displayMessageNotificationSaga', () => {
     // simulate close notification
     // @ts-expect-error
     mockNotification.onclose()
-    const isTakeEveryResolved = store.sagaMonitor.isEffectResolved()
+    const isTakeEveryResolved = store.sagaMonitor.isEffectResolved('takeEvery(channel, bridgeAction)')
 
     expect(isTakeEveryResolved).toBeTruthy()
   })
