@@ -199,7 +199,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                     onblur={() => {
                       field.onBlur()
                     }}
-                    value={field.value}
+                    value={communityAction === CommunityAction.Join ? field.value.trim() : field.value}
                   />
                 )}
               />

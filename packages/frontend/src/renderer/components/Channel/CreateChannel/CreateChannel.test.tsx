@@ -1,7 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
-import { screen } from '@testing-library/dom'
+import { screen, waitFor } from '@testing-library/dom'
 import { act } from 'react-dom/test-utils'
 import { take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
@@ -95,8 +95,10 @@ describe('Add new channel', () => {
     ['----hyphens', FieldErrors.Whitespaces],
     ['!@#', ChannelNameErrors.WrongCharacter]
   ])('user inserting invalid channel name "%s" should see "%s" error', async (name: string, error: string) => {
+    const createChannel = jest.fn()
+
     renderComponent(
-      <CreateChannelComponent open={true} createChannel={() => {}} handleClose={() => {}} />
+      <CreateChannelComponent open={true} createChannel={createChannel} handleClose={() => {}} />
     )
 
     const input = screen.getByPlaceholderText('Enter a channel name')
@@ -104,6 +106,9 @@ describe('Add new channel', () => {
 
     userEvent.type(input, name)
     userEvent.click(button)
+
+    await waitFor(() => expect(createChannel).not.toBeCalled())
+
     const message = await screen.findByText(error)
     expect(message).toBeVisible()
   })

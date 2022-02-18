@@ -1,7 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
-import { screen } from '@testing-library/dom'
+import { screen, waitFor } from '@testing-library/dom'
 import { renderComponent } from '../../testUtils/renderComponent'
 
 import CreateUsernameComponent from './CreateUsernameComponent'
@@ -32,8 +32,10 @@ describe('Create username', () => {
     ['----hyphens', FieldErrors.Whitespaces],
     ['!@#', UsernameErrors.WrongCharacter]
   ])('user inserting invalid name "%s" should see "%s" error', async (name: string, error: string) => {
+    const registerUsername = jest.fn()
+
     renderComponent(
-      <CreateUsernameComponent open={true} registerUsername={() => {}} handleClose={() => {}} />
+      <CreateUsernameComponent open={true} registerUsername={registerUsername} handleClose={() => {}} />
     )
 
     const input = screen.getByPlaceholderText('Enter a username')
@@ -41,6 +43,9 @@ describe('Create username', () => {
 
     userEvent.type(input, name)
     userEvent.click(button)
+
+    await waitFor(() => expect(registerUsername).not.toBeCalled())
+
     const message = await screen.findByText(error)
     expect(message).toBeVisible()
   })
