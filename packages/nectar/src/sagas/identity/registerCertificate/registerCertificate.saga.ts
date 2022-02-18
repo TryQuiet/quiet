@@ -8,7 +8,7 @@ import { RegisterOwnerCertificatePayload, RegisterUserCertificatePayload } from 
 
 export function* registerCertificateSaga(
   socket: Socket,
-  action: PayloadAction<ReturnType<typeof identityActions.storeUserCsr>['payload']>
+  action: PayloadAction<ReturnType<typeof identityActions.registerCertificate>['payload']>
 ): Generator {
   const currentCommunity = yield* select(communitiesSelectors.currentCommunity)
   if (currentCommunity.CA?.rootCertString) {

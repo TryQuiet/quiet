@@ -49,7 +49,6 @@ describe('Registration service', () => {
     const saveCertificate = jest.spyOn(storage, 'saveCertificate')
     const response = await registerUser(user.userCsr, ports.socksPort)
     const responseData = await response.json()
-    console.log(responseData)
     expect(saveCertificate).toBeCalledTimes(1)
     const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.certificate)
     expect(isProperUserCert.result).toBe(true)
@@ -57,7 +56,47 @@ describe('Registration service', () => {
     expect(responseData.rootCa).toBe(certRoot.rootCertString)
   })
 
-  it('returns 403 if username already exists', async () => {
+  it('returns existing certificate if username is taken but csr and cert public keys match', async () => {
+    const user = await createUserCsr({
+      nickname: 'userName',
+      commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey1',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg
+    })
+
+    const userCert = await createUserCert(certRoot.rootCertString, certRoot.rootKeyString, user.userCsr, new Date(), new Date(2030, 1, 1))
+    storage = await getStorage(tmpAppDataPath)
+    await storage.saveCertificate({
+      certificate: userCert.userCertString,
+      rootPermsData: {
+        certificate: certRoot.rootCertString,
+        privKey: certRoot.rootKeyString
+      }
+    })
+    const saveCertificate = jest.spyOn(storage, 'saveCertificate')
+    registrationService = await setupRegistrar(
+      null,
+      storage,
+      { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
+    )
+    const response = await registerUser(
+      user.userCsr,
+      ports.socksPort,
+      true,
+      registrationService.getHiddenServiceData().port
+    )
+    const responseData = await response.json()
+    expect(response.status).toEqual(200)
+    const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.certificate)
+    expect(isProperUserCert.result).toBe(true)
+    expect(responseData.peers.length).toBe(1)
+    expect(responseData.rootCa).toBe(certRoot.rootCertString)
+    expect(saveCertificate).not.toHaveBeenCalled()
+  })
+
+  it('returns 403 if username already exists and csr and cert public keys dont match', async () => {
     const user = await createUserCsr({
       nickname: 'userName',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',

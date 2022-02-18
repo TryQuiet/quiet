@@ -22,7 +22,7 @@ function* retryRegistration(communityId: string) {
     registrarAddress
   }
 
-  yield* put(identityActions.storeUserCsr(payload))
+  yield* put(identityActions.registerCertificate(payload))
   log(`registering certificate for community ${communityId} failed, trying again`)
 }
 

@@ -1,9 +1,10 @@
-import { createUserCert, UserCert, loadCSR, CertFieldsTypes, getReqFieldValue } from '@quiet/identity'
+import { createUserCert, UserCert, loadCSR, CertFieldsTypes, getReqFieldValue, keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { SaveCertificatePayload, PermsData } from '@quiet/nectar'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import express, { Request, Response } from 'express'
 import getPort from 'get-port'
 import { Server } from 'http'
+import { CertificationRequest } from 'pkijs'
 
 import logger from '../logger'
 import { Storage } from '../storage'
@@ -117,7 +118,19 @@ export class CertificateRegistration {
     return await Promise.all(peers)
   }
 
+  private pubKeyMatch(cert: string, parsedCsr: CertificationRequest) {
+    const parsedCertificate = parseCertificate(cert)
+    const pubKey = keyFromCertificate(parsedCertificate)
+    const pubKeyCsr = keyFromCertificate(parsedCsr)
+
+    if (pubKey === pubKeyCsr) {
+      return true
+    }
+    return false
+  }
+
   private async registerUser(req: Request, res: Response): Promise<void> {
+    let cert: string
     const userData = new UserCsrData()
     userData.csr = req.body.data
     const validationErrors = await validate(userData)
@@ -129,23 +142,30 @@ export class CertificateRegistration {
 
     const parsedCsr = await loadCSR(userData.csr)
     const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
-    const usernameExists = this._storage.usernameExists(username)
-    if (usernameExists) {
+    const usernameCert = this._storage.usernameCert(username)
+
+    if (usernameCert && !this.pubKeyMatch(usernameCert, parsedCsr)) {
       log(`Username ${username} is taken`)
       res.status(403).send()
       return
+    } else {
+      log('Requesting same CSR again')
+      cert = usernameCert
     }
 
-    let cert: UserCert
-    try {
-      cert = await this.registerCertificate(userData.csr)
-    } catch (e) {
-      log.error(`Something went wrong with registering user: ${e.message as string}`)
-      res.status(400).send()
-      return
+    if (!usernameCert) {
+      log('username doesnt have existing cert, creating new')
+      try {
+        const certObj = await this.registerCertificate(userData.csr)
+        cert = certObj.userCertString
+      } catch (e) {
+        log.error(`Something went wrong with registering user: ${e.message as string}`)
+        res.status(400).send()
+        return
+      }
     }
     res.send({
-      certificate: cert.userCertString,
+      certificate: cert,
       peers: await this.getPeers(),
       rootCa: this._permsData.certificate
     })
