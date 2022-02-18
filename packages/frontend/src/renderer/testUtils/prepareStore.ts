@@ -35,37 +35,42 @@ export const reducers = {
   [StoreKeys.Modals]: modalsReducer
 }
 
-interface option {
+interface options {
   effectId: number
   parentEffectId: number
   label?: string
   effect: any
+  result: any
 }
 
 class SagaMonitor {
-  effectsTriggeredArray: Array<{ [effectId: number]: option }>
-  effectsResolvedArray: Array<{ [effectId: number]: any }>
+  effectsTriggeredArray
+  effectsResolvedArray
   constructor(
   ) {
-    this.effectsTriggeredArray = []
-    this.effectsResolvedArray = []
+    this.effectsTriggeredArray = new Map<number, options>()
+    this.effectsResolvedArray = new Map<number, options>()
   }
 
   effectTriggered: SagaMonitorType['effectTriggered'] = (options) => {
-    this.effectsTriggeredArray.push({ [options.effectId]: options })
+    this.effectsTriggeredArray.set(options.effectId, options)
   }
 
   effectResolved: SagaMonitorType['effectResolved'] = (effectId, result) => {
-    this.effectsResolvedArray.push({ [effectId]: result })
+    const triggeredEffect = this.effectsTriggeredArray.get(effectId)
+    this.effectsResolvedArray.set(effectId, { ...triggeredEffect, result })
   }
 
-  public isEffectResolved = (effectName) => {
-    const it = this.effectsResolvedArray.filter((effect) => {
-      const effectNameObject = Object.values(Object.values(effect)[0])[2] as any
-      return effectNameObject?.name === effectName
+  public isEffectResolved = () => {
+    const parentEffect = Array.from(this.effectsResolvedArray).filter((effect) => {
+      return effect[1].result.meta?.name === 'takeEvery(channel, bridgeAction)'
     })
-
-    return Boolean(it.length)
+    const childrenEffects = Array.from(this.effectsResolvedArray).filter((effect) => {
+      return effect[1].parentEffectId === parentEffect[0][0]
+    })
+    return childrenEffects.filter((effect) => {
+      return effect[1].result === '@@redux-saga/TERMINATE'
+    }).length
   }
 }
 
