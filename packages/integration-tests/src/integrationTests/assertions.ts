@@ -133,15 +133,20 @@ export const assertInitializedExistingCommunitiesAndRegistrars = async (
 }
 
 export const assertReceivedRegistrationError = async (store: Store, error?: ErrorPayload) => {
-  const communityId = store.getState().Communities.communities.ids[0]
   await waitForExpect(() => {
-    expect(store.getState().Errors[communityId]?.ids[0]).toEqual(SocketActionTypes.REGISTRAR)
+    expect(store.getState().Errors.errors?.ids[0]).toEqual(SocketActionTypes.REGISTRAR)
   }, 20_000)
   if (error) {
     await waitForExpect(() => {
-      expect(store.getState().Errors[communityId].entities[SocketActionTypes.REGISTRAR]).toStrictEqual(error)
+      expect(store.getState().Errors.errors?.entities[SocketActionTypes.REGISTRAR]).toStrictEqual(error)
     }, 20_000)
   }
+}
+
+export const assertNoRegistrationError = async(store: Store) => {
+  await waitForExpect(() => {
+    expect(store.getState().Errors.errors?.ids.includes('registrar')).toBe(false)
+  }, 20_000)
 }
 
 export const assertReceivedCertificate = async (store: Store) => {

@@ -23,7 +23,7 @@ describe('owner creates community', () => {
   })
 
   test('Owner creates community', async () => {
-    await createCommunity({ userName: 'Owner', store: owner.store })
+    await createCommunity({ userName: 'owner', store: owner.store })
     // Give orbitDB enough time to subscribe to topics.
     await sleep(5_000)
   })

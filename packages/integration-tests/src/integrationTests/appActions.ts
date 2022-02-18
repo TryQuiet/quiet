@@ -1,5 +1,5 @@
 import waitForExpect from 'wait-for-expect'
-import { identity, communities, messages, connection } from '@quiet/nectar'
+import { identity, communities, messages, connection, RegisterCertificatePayload } from '@quiet/nectar'
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp } from '../utils'
@@ -37,6 +37,14 @@ interface SendRegistrationRequest {
   userName: string
   store: Store
   registrarPort?: number
+}
+
+export interface OwnerData {
+  registrarAddress: string
+  communityId: string
+  ownerPeerId: string
+  ownerRootCA: string
+  registrarPort: number
 }
 
 export async function createCommunity({ userName, store }: CreateCommunity) {
@@ -143,6 +151,18 @@ export async function registerUsername(payload: Register) {
   }, timeout)
 
   store.dispatch(identity.actions.registerUsername(userName))
+}
+
+export async function sendCsr(store: Store, registrarAddress) {
+  const communityId = store.getState().Communities.communities.ids[0] as string
+  const userCsr = store.getState().Identity.identities.entities[communityId].userCsr
+
+  const csr: RegisterCertificatePayload = {
+    registrarAddress,
+    communityId,
+    userCsr
+  }
+  store.dispatch(identity.actions.registerCertificate(csr))
 }
 
 export async function joinCommunity(payload: JoinCommunity) {

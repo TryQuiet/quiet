@@ -89,7 +89,7 @@ export interface StoreUserCertificatePayload {
   communityId: string
 }
 
-export interface StoreUserCsrPayload {
+export interface RegisterCertificatePayload {
   userCsr: UserCsr
   communityId: string
   registrarAddress: string

@@ -13,6 +13,6 @@ export function* identityMasterSaga(socket: Socket): Generator {
     takeEvery(identityActions.createUserCsr.type, createUserCsrSaga),
     takeEvery(identityActions.savedOwnerCertificate.type, savedOwnerCertificateSaga, socket),
     takeEvery(identityActions.saveOwnerCertToDb.type, saveOwnerCertToDbSaga, socket),
-    takeEvery(identityActions.storeUserCsr.type, registerCertificateSaga, socket)
+    takeEvery(identityActions.registerCertificate.type, registerCertificateSaga, socket)
   ])
 }

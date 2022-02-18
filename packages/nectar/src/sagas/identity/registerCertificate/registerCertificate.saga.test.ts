@@ -14,7 +14,7 @@ import {
   identityReducer,
   IdentityState
 } from '../identity.slice'
-import { CertData, Identity, StoreUserCsrPayload, UserCsr } from '../identity.types'
+import { CertData, Identity, RegisterCertificatePayload, UserCsr } from '../identity.types'
 import { registerCertificateSaga } from './registerCertificate.saga'
 
 describe('registerCertificateSaga', () => {
@@ -51,7 +51,7 @@ describe('registerCertificateSaga', () => {
     }
     const communityId = 'id'
     const registrarAddress = 'wzispgrbrrkt3bari4kljpqz2j6ozzu3vlsoi2wqupgu7ewi4ncibrid'
-    const storeUserCsrPayload: StoreUserCsrPayload = {
+    const registerCertificatePayload: RegisterCertificatePayload = {
       registrarAddress: registrarAddress,
       communityId: communityId,
       userCsr: userCsr
@@ -59,7 +59,7 @@ describe('registerCertificateSaga', () => {
     await expectSaga(
       registerCertificateSaga,
       socket,
-      identityActions.storeUserCsr(storeUserCsrPayload)
+      identityActions.registerCertificate(registerCertificatePayload)
     )
       .withReducer(
         combineReducers({
@@ -125,7 +125,7 @@ describe('registerCertificateSaga', () => {
       pkcs10: jest.fn() as unknown as CertData
     }
     const registrarAddress = 'wzispgrbrrkt3bari4kljpqz2j6ozzu3vlsoi2wqupgu7ewi4ncibrid'
-    const storeUserCsrPayload: StoreUserCsrPayload = {
+    const registerCertificatePayload: RegisterCertificatePayload = {
       registrarAddress: registrarAddress,
       communityId: communityId,
       userCsr: userCsr
@@ -133,7 +133,7 @@ describe('registerCertificateSaga', () => {
     await expectSaga(
       registerCertificateSaga,
       socket,
-      identityActions.storeUserCsr(storeUserCsrPayload)
+      identityActions.registerCertificate(registerCertificatePayload)
     )
       .withReducer(combineReducers({ [StoreKeys.Communities]: communitiesReducer }), {
         [StoreKeys.Communities]: {

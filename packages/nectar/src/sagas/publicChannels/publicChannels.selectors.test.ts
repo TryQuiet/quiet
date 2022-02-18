@@ -37,7 +37,7 @@ describe('publicChannelsSelectors', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -320,7 +320,7 @@ describe('publicChannelsSelectors', () => {
         "Today": Array [
           Array [
             Object {
-              "createdAt": 1644353400,
+              "createdAt": 1645217400,
               "date": "8:50 PM",
               "id": "9",
               "message": "message_9",
