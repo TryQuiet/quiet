@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react'
-import { communityNameField, inviteLinkField } from '../../../forms/fields/communityFields'
-import { FieldData } from '../../../forms/types'
-import TextWithLink from '../../ui/TextWithLink/TextWithLink'
+import { communityNameField, inviteLinkField } from '../../forms/fields/communityFields'
+import { FieldData } from '../../forms/types'
+import TextWithLink from '../ui/TextWithLink/TextWithLink'
 
 export interface PerformCommunityActionDictionary {
   header: string

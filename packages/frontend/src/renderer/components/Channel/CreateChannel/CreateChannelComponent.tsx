@@ -6,11 +6,12 @@ import { makeStyles } from '@material-ui/core/styles'
 
 import WarningIcon from '@material-ui/icons/Warning'
 
-import Modal from '../../../ui/Modal/Modal'
-import LoadingButton from '../../../ui/LoadingButton/LoadingButton'
+import Modal from '../../ui/Modal/Modal'
+import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 
-import { TextInput } from '../../../../forms/components/textInput'
-import { channelNameField } from '../../../../forms/fields/createChannelFields'
+import { TextInput } from '../../../forms/components/textInput'
+import { channelNameField } from '../../../forms/fields/createChannelFields'
+import { parseName } from '../../../../utils/functions/naming'
 
 const useStyles = makeStyles(theme => ({
   main: {
@@ -64,14 +65,6 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export const parseChannelName = (name = '') => {
-  return name
-    .toLowerCase()
-    .trimStart()
-    .trimEnd()
-    .replace(/ +/g, '-')
-}
-
 const createChannelFields = {
   channelName: channelNameField()
 }
@@ -96,6 +89,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   const classes = useStyles({})
 
   const [channelName, setChannelName] = useState('')
+  const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
 
   const {
     handleSubmit,
@@ -112,12 +106,13 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   }
 
   const submitForm = (handleSubmit: (value: string) => void, values: CreateChannelFormValues) => {
-    handleSubmit(parseChannelName(values.channelName))
+    handleSubmit(parseName(values.channelName))
   }
 
   const onChange = (name: string) => {
-    const parsedName = parseChannelName(name)
+    const parsedName = parseName(name)
     setChannelName(parsedName)
+    setParsedNameDiffers(name !== parsedName)
   }
 
   React.useEffect(() => {
@@ -171,13 +166,13 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
               )}
             />
             <div className={classes.gutter}>
-              {!errors.channelName && channelName.length > 0 && (
+              {!errors.channelName && channelName.length > 0 && parsedNameDiffers && (
                 <Grid container alignItems='center' direction='row'>
                   <Grid item className={classes.iconDiv}>
                     <WarningIcon className={classes.warrningIcon} />
                   </Grid>
                   <Grid item xs>
-                    <Typography variant='body2' className={classes.warrningMessage}>
+                    <Typography variant='body2' className={classes.warrningMessage} data-testid={'createChannelNameWarning'}>
                       Your channel will be created as <b>{`#${channelName}`}</b>
                     </Typography>
                   </Grid>

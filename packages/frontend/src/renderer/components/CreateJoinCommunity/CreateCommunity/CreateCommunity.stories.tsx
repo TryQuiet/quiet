@@ -3,8 +3,8 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import { withTheme } from '../../../storybook/decorators'
 
-import PerformCommunityActionComponent, { PerformCommunityActionProps } from './PerformCommunityActionComponent'
-import { CommunityAction } from './community.keys'
+import PerformCommunityActionComponent, { PerformCommunityActionProps } from '../PerformCommunityActionComponent'
+import { CommunityAction } from '../community.keys'
 
 const Template: ComponentStory<typeof PerformCommunityActionComponent> = args => {
   return <PerformCommunityActionComponent {...args} />
@@ -15,8 +15,8 @@ export const Component = Template.bind({})
 const args: PerformCommunityActionProps = {
   open: true,
   communityAction: CommunityAction.Create,
-  handleCommunityAction: function (): void {
-    console.log('Handle community action')
+  handleCommunityAction: function (value: string): void {
+    console.log('Creating community: ', value)
   },
   handleRedirection: function (): void {
     console.log('Redirected to join community')
@@ -28,7 +28,7 @@ const args: PerformCommunityActionProps = {
 Component.args = args
 
 const component: ComponentMeta<typeof PerformCommunityActionComponent> = {
-  title: 'Components/PerformCommunityAction',
+  title: 'Components/CreateCommunity',
   decorators: [withTheme],
   component: PerformCommunityActionComponent
 }

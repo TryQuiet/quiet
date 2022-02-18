@@ -1,13 +1,12 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { communities } from '@quiet/nectar'
-import { CommunityAction } from '../../../components/widgets/performCommunityAction/community.keys'
-import PerformCommunityActionComponent from '../../../components/widgets/performCommunityAction/PerformCommunityActionComponent'
-import { ModalName } from '../../../sagas/modals/modals.types'
-import { useModal } from '../../hooks'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
-import { CreateUsernameModalProps } from '../createUsernameModal/CreateUsername'
-import { LoadingMessages } from '../loadingPanel/loadingMessages'
+import { communities } from '@quiet/nectar'
+import { CommunityAction } from '../../../components/CreateJoinCommunity/community.keys'
+import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
+import { ModalName } from '../../../sagas/modals/modals.types'
+import { useModal } from '../../../containers/hooks'
+import { LoadingMessages } from '../../../containers/widgets/loadingPanel/loadingMessages'
 
 const JoinCommunity = () => {
   const dispatch = useDispatch()
@@ -16,7 +15,7 @@ const JoinCommunity = () => {
   const community = useSelector(communities.selectors.currentCommunity)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
-  const createUsernameModal = useModal<CreateUsernameModalProps>(ModalName.createUsernameModal)
+  const createUsernameModal = useModal(ModalName.createUsernameModal)
 
   const loadingStartApp = useModal(ModalName.loadingPanel)
 
