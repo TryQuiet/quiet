@@ -12,4 +12,5 @@ export enum StoreKeys {
   Communities = 'Communities',
   App = 'App',
   Connection = 'Connection',
+  Settings = 'Settings'
 }

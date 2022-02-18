@@ -9,8 +9,8 @@ import Checkbox from '@material-ui/core/Checkbox'
 import Icon from '../../ui/Icon/Icon'
 import radioChecked from '../../../static/images/radioChecked.svg'
 import radioUnselected from '../../../static/images/radioUnselected.svg'
-import { notificationFilterType, soundType } from '../../../../shared/static'
 import { direct, relentless, sharp } from '../../../../shared/sounds'
+import { NotificationsOptions, NotificationsSounds } from '@quiet/nectar'
 
 const useStyles = makeStyles((theme) => ({
   title: {},
@@ -75,17 +75,17 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface NotificationsProps {
-  userFilterType: number
-  setUserNotification: (type: number) => void
-  userSound: number
-  setUserNotificationsSound: (type: number) => void
+  notificationsOption: NotificationsOptions
+  notificationsSound: NotificationsSounds
+  setNotificationsOption: (type: NotificationsOptions) => void
+  setNotificationsSound: (type: NotificationsSounds) => void
 }
 
 export const Notifications: React.FC<NotificationsProps> = ({
-  userFilterType,
-  setUserNotification,
-  userSound,
-  setUserNotificationsSound
+  notificationsOption,
+  notificationsSound,
+  setNotificationsOption,
+  setNotificationsSound
 }) => {
   const classes = useStyles({})
   return (
@@ -114,11 +114,11 @@ export const Notifications: React.FC<NotificationsProps> = ({
               <Checkbox
                 icon={<Icon src={radioUnselected} />}
                 checkedIcon={<Icon src={radioChecked} />}
-                checked={notificationFilterType.ALL_MESSAGES === userFilterType}
+                checked={NotificationsOptions.notifyForEveryMessage === notificationsOption}
               />
             }
             onChange={() =>
-              setUserNotification(notificationFilterType.ALL_MESSAGES)
+              setNotificationsOption(NotificationsOptions.notifyForEveryMessage)
             }
             label={
               <Grid container direction='column' className={classes.offset}>
@@ -139,11 +139,11 @@ export const Notifications: React.FC<NotificationsProps> = ({
               <Checkbox
                 icon={<Icon src={radioUnselected} />}
                 checkedIcon={<Icon src={radioChecked} />}
-                checked={notificationFilterType.MENTIONS === userFilterType}
+                checked={NotificationsOptions.notifyForDirectMessagesAndMentions === notificationsOption}
               />
             }
             onChange={() =>
-              setUserNotification(notificationFilterType.MENTIONS)
+              setNotificationsOption(NotificationsOptions.notifyForDirectMessagesAndMentions)
             }
             label={
               <Grid container direction='column' className={classes.offset}>
@@ -169,10 +169,10 @@ export const Notifications: React.FC<NotificationsProps> = ({
               <Checkbox
                 icon={<Icon src={radioUnselected} />}
                 checkedIcon={<Icon src={radioChecked} />}
-                checked={notificationFilterType.NONE === userFilterType}
+                checked={NotificationsOptions.doNotNotifyOfAnyMessages === notificationsOption}
               />
             }
-            onChange={() => setUserNotification(notificationFilterType.NONE)}
+            onChange={() => setNotificationsOption(NotificationsOptions.doNotNotifyOfAnyMessages)}
             label={
               <Grid container direction='column' className={classes.offset}>
                 <Grid item>
@@ -202,12 +202,12 @@ export const Notifications: React.FC<NotificationsProps> = ({
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={userSound !== soundType.NONE}
+                  checked={notificationsSound !== NotificationsSounds.none}
                   onChange={e => {
                     if (e.target.checked) {
-                      setUserNotificationsSound(soundType.POW)
+                      setNotificationsSound(NotificationsSounds.pow)
                     } else {
-                      setUserNotificationsSound(soundType.NONE)
+                      setNotificationsSound(NotificationsSounds.none)
                     }
                   }}
                   color='default'
@@ -227,11 +227,11 @@ export const Notifications: React.FC<NotificationsProps> = ({
                 <Checkbox
                   icon={<Icon src={radioUnselected} />}
                   checkedIcon={<Icon src={radioChecked} />}
-                  checked={soundType.POW === userSound}
+                  checked={NotificationsSounds.pow === notificationsSound}
                 />
               }
               onChange={() => {
-                setUserNotificationsSound(soundType.POW)
+                setNotificationsSound(NotificationsSounds.pow)
 
                 void direct.play()
               }}
@@ -245,12 +245,12 @@ export const Notifications: React.FC<NotificationsProps> = ({
                 <Checkbox
                   icon={<Icon src={radioUnselected} />}
                   checkedIcon={<Icon src={radioChecked} />}
-                  checked={soundType.BANG === userSound}
+                  checked={NotificationsSounds.bang === notificationsSound}
                 />
               }
               onChange={() => {
                 void sharp.play()
-                setUserNotificationsSound(soundType.BANG)
+                setNotificationsSound(NotificationsSounds.bang)
               }}
               label='Bang'
             />
@@ -262,12 +262,12 @@ export const Notifications: React.FC<NotificationsProps> = ({
                 <Checkbox
                   icon={<Icon src={radioUnselected} />}
                   checkedIcon={<Icon src={radioChecked} />}
-                  checked={soundType.SPLAT === userSound}
+                  checked={NotificationsSounds.splat === notificationsSound}
                 />
               }
               onChange={() => {
                 void relentless.play()
-                setUserNotificationsSound(soundType.SPLAT)
+                setNotificationsSound(NotificationsSounds.splat)
               }}
               label='Splat'
             />

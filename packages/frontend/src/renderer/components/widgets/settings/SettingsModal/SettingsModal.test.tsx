@@ -369,12 +369,13 @@ describe('SettingsModal', () => {
                                     >
                                       <span
                                         aria-disabled="false"
-                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root"
+                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root PrivateSwitchBase-checked-264 Mui-checked"
                                       >
                                         <span
                                           class="MuiIconButton-label"
                                         >
                                           <input
+                                            checked=""
                                             class="PrivateSwitchBase-input-266"
                                             data-indeterminate="false"
                                             type="checkbox"
@@ -388,7 +389,7 @@ describe('SettingsModal', () => {
                                             viewBox="0 0 24 24"
                                           >
                                             <path
-                                              d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+                                              d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
                                             />
                                           </svg>
                                         </span>
@@ -415,12 +416,13 @@ describe('SettingsModal', () => {
                                     >
                                       <span
                                         aria-disabled="false"
-                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-264 Mui-checked MuiIconButton-colorSecondary"
                                       >
                                         <span
                                           class="MuiIconButton-label"
                                         >
                                           <input
+                                            checked=""
                                             class="PrivateSwitchBase-input-266"
                                             data-indeterminate="false"
                                             type="checkbox"

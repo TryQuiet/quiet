@@ -5,8 +5,6 @@ export enum StoreKeys {
   Modals = 'Modals',
   DirectMessages = 'directMessages',
   DirectMessageChannel = 'directMessageChannel',
-  Notifications = 'notifications',
-  NotificationCenter = 'notificationCenter',
   Channel = 'channel',
   Contacts = 'contacts',
   Mentions = 'mentions',

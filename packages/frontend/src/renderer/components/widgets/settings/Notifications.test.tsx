@@ -1,3 +1,4 @@
+import { NotificationsOptions, NotificationsSounds } from '@quiet/nectar'
 import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { Notifications } from './Notifications'
@@ -5,10 +6,10 @@ import { Notifications } from './Notifications'
 describe('Notifications', () => {
   it('renders component', () => {
     const props = {
-      userFilterType: 1,
-      userSound: 1,
-      setUserNotification: jest.fn(),
-      setUserNotificationsSound: jest.fn()
+      notificationsOption: NotificationsOptions.notifyForEveryMessage,
+      notificationsSound: NotificationsSounds.bang,
+      setNotificationsOption: jest.fn(),
+      setNotificationsSound: jest.fn()
     }
     const result = renderComponent(<Notifications {...props} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -270,13 +271,12 @@ describe('Notifications', () => {
                   >
                     <span
                       aria-disabled="false"
-                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-159 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-160 Mui-checked MuiIconButton-colorSecondary"
+                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-159 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
                     >
                       <span
                         class="MuiIconButton-label"
                       >
                         <input
-                          checked=""
                           class="PrivateSwitchBase-input-162"
                           data-indeterminate="false"
                           type="checkbox"
@@ -305,12 +305,13 @@ describe('Notifications', () => {
                   >
                     <span
                       aria-disabled="false"
-                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-159 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-159 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-160 Mui-checked MuiIconButton-colorSecondary"
                     >
                       <span
                         class="MuiIconButton-label"
                       >
                         <input
+                          checked=""
                           class="PrivateSwitchBase-input-162"
                           data-indeterminate="false"
                           type="checkbox"

@@ -33,10 +33,9 @@ const useStyles = makeStyles(() => ({
 interface BlockedUsersProps {
   blockedUsers: User[]
   users: Contact[]
-  unblock: (address: string) => void
 }
 
-export const BlockedUsers: React.FC<BlockedUsersProps> = ({ blockedUsers, users, unblock }) => {
+export const BlockedUsers: React.FC<BlockedUsersProps> = ({ blockedUsers, users }) => {
   const classes = useStyles({})
   const blockedAddresses = Array.from(Object.keys(blockedUsers)).filter(address =>
     users.find(user => user.address === address)
@@ -62,7 +61,7 @@ export const BlockedUsers: React.FC<BlockedUsersProps> = ({ blockedUsers, users,
               actionName='unblock'
               prefix='@'
               action={() => {
-                unblock(address)
+
               }}
             />
           </Grid>
