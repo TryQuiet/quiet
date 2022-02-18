@@ -2,9 +2,17 @@ For running end to end tests we use testcafe (https://testcafe.io/) along with i
 
 ## Running tests locally
 
-`npm run build:prod`
+*  Using built version:
 
-`npm run start:e2e`
+`npm run test:build`
+
+or when you already have a built app to test:
+
+`npm run test`
+
+* Using dev version:
+
+`npm run test:dev`
 
 ## Notes
 

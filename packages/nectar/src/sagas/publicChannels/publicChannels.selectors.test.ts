@@ -320,7 +320,7 @@ describe('publicChannelsSelectors', () => {
         "Today": Array [
           Array [
             Object {
-              "createdAt": 1644958200,
+              "createdAt": 1645217400,
               "date": "8:50 PM",
               "id": "9",
               "message": "message_9",
