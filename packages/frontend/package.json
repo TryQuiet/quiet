@@ -47,7 +47,7 @@
       ],
       "extraFiles": [
         {
-          "from": "libssl.so",
+          "from": "tor/libssl.so",
           "to": "usr/lib/libssl.so"
         }
       ],
