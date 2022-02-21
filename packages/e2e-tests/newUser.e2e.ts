@@ -1,23 +1,20 @@
-import { fixture, test, Selector, t } from 'testcafe'
 import * as fs from 'fs'
 import * as path from 'path'
-import * as os from 'os'
+import { fixture, t, test } from 'testcafe'
 import { Channel, CreateCommunityModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal } from './selectors'
 
 const longTimeout = 100000
 
-fixture`Electron test`
-  // .before(async t => {  // Before hook breaks the test -.-'
-  //   const dataPath = path.join(os.homedir(), '.config')
-  //   console.info('Cleaning up')
-  //   try {
-  //     fs.rmdirSync(path.join(dataPath, 'Quiet'), { recursive: true })
-  //     fs.rmdirSync(path.join(dataPath, 'Electron'), { recursive: true })
-  //     fs.rmdirSync(path.join(dataPath, 'e2e-tests-nodejs'), { recursive: true })
-  //   } catch {
-  //     console.info('No data directories to clean up')
-  //   }
-  // })
+fixture`New user test`
+  .beforeEach(async t => {
+    await goToMainPage()
+  })
+  .after(async t => {
+    const dataPath = fs.readFileSync('/tmp/appDataPath', { encoding: 'utf8' })
+    const fullDataPath = path.join(dataPath, 'Quiet')
+    console.log(`Test data is in ${fullDataPath}. You may want to remove it.`)
+    // await fs.rm(fullDataPath, { recursive: true, force: true }) // TODO: use this with node >=14, rmdirSync doesn't seem to work
+  })
   
 const goToMainPage = async () => {
   let pageUrl: string
@@ -33,8 +30,6 @@ const goToMainPage = async () => {
 }
 
 test('User can create new community, register and send few messages to general channel', async t => {
-  await goToMainPage()
-
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
@@ -77,8 +72,6 @@ test('User can create new community, register and send few messages to general c
 })
 
 test('User reopens app, sees general channel and the messages he sent before', async t => {
-  await goToMainPage()
-  
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
