@@ -13,7 +13,7 @@ import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import PeerId from 'peer-id'
-import { CryptoEngine, setEngine } from 'pkijs'
+import { CryptoEngine, setEngine, Certificate } from 'pkijs'
 import {
   IMessageThread,
   DirectMessagesRepo,
@@ -507,7 +507,7 @@ export class Storage {
     return allUsers
   }
 
-  public usernameExists(username: string): boolean {
+  public usernameCert(username: string): string | null {
     /**
      * Check if given username is already in use
      */
@@ -516,9 +516,9 @@ export class Storage {
       const parsedCert = parseCertificate(cert)
       const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
       if (certUsername.localeCompare(username, undefined, { sensitivity: 'base' }) === 0) {
-        return true
+        return cert
       }
     }
-    return false
+    return null
   }
 }

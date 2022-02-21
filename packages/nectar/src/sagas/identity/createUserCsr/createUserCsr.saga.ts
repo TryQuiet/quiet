@@ -33,5 +33,5 @@ export function* createUserCsrSaga(
 
   log('createUserCsrSaga')
 
-  yield* put(identityActions.storeUserCsr(payload))
+  yield* put(identityActions.registerCertificate(payload))
 }

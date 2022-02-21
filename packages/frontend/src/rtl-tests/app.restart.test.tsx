@@ -6,13 +6,13 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { StoreKeys } from '../renderer/store/store.keys'
 import { SocketState } from '../renderer/sagas/socket/socket.slice'
 import LoadingPanel from '../renderer/containers/widgets/loadingPanel/loadingPanel'
-import JoinCommunity from '../renderer/containers/widgets/joinCommunity/joinCommunity'
-import CreateCommunity from '../renderer/containers/widgets/createCommunity/createCommunity'
+import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
+import CreateCommunity from '../renderer/components/CreateJoinCommunity/CreateCommunity/CreateCommunity'
 import Channel from '../renderer/components/Channel/Channel'
 import {
   CreateCommunityDictionary,
   JoinCommunityDictionary
-} from '../renderer/components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
+} from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { LoadingMessages } from '../renderer/containers/widgets/loadingPanel/loadingMessages'

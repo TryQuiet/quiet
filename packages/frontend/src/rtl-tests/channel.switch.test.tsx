@@ -30,6 +30,21 @@ import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
 
 jest.setTimeout(20_000)
+jest.mock('electron', () => {
+  return {
+    remote:
+    {
+      BrowserWindow: {
+        getAllWindows: () => {
+          return [{
+            show: jest.fn(),
+            isFocused: jest.fn()
+          }]
+        }
+      }
+    }
+  }
+})
 
 describe('Switch channels', () => {
   let socket: MockedSocket

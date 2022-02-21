@@ -18,8 +18,6 @@ import contactsHandlers from './handlers/contacts'
 import channelHandlers from './handlers/channel'
 import directMessages from './handlers/directMessages'
 import directMessageChannelHandlers from './handlers/directMessageChannel'
-import notifications from './handlers/notifications'
-import notificationCenter from './handlers/notificationCenter'
 import mentionsHandlers from './handlers/mentions'
 import criticalErrorHandlers from './handlers/criticalError'
 import whitelistHandlers from './handlers/whitelist'
@@ -35,6 +33,7 @@ const persistConfig = {
     NectarStoreKeys.Communities,
     NectarStoreKeys.PublicChannels,
     NectarStoreKeys.Messages,
+    NectarStoreKeys.Settings,
     StoreKeys.App,
     StoreKeys.Contacts,
     StoreKeys.DirectMessages,
@@ -50,8 +49,6 @@ export const reducers = {
   [StoreKeys.Modals]: modalsReducer,
   [StoreKeys.DirectMessages]: directMessages.reducer,
   [StoreKeys.DirectMessageChannel]: directMessageChannelHandlers.reducer,
-  [StoreKeys.Notifications]: notifications.reducer,
-  [StoreKeys.NotificationCenter]: notificationCenter.reducer,
   [StoreKeys.Channel]: channelHandlers.reducer,
   [StoreKeys.Contacts]: contactsHandlers.reducer,
   [StoreKeys.Mentions]: mentionsHandlers.reducer,
