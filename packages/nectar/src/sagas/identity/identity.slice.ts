@@ -4,8 +4,8 @@ import { identityAdapter } from './identity.adapter'
 import {
   CreateUserCsrPayload,
   Identity,
+  RegisterCertificatePayload,
   StoreUserCertificatePayload,
-  StoreUserCsrPayload,
   UpdateUsernamePayload
 } from './identity.types'
 
@@ -33,7 +33,7 @@ export const identitySlice = createSlice({
         }
       })
     },
-    storeUserCsr: (state, action: PayloadAction<StoreUserCsrPayload>) => {
+    registerCertificate: (state, action: PayloadAction<RegisterCertificatePayload>) => {
       identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,
         changes: {

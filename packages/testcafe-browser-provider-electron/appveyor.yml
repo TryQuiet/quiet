@@ -1,0 +1,22 @@
+version: "#{build} on {branch}"
+clone_depth: 1
+branches:
+  only:
+  - master
+
+environment:
+  matrix:
+    - nodejs_version: "stable"
+
+install:
+- ps: Install-Product node $env:nodejs_version
+- cmd: >-
+    node --version
+
+    npm --version
+
+    npm install
+
+build: off
+test_script:
+- cmd: npm test

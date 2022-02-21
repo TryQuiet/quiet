@@ -1,6 +1,7 @@
 import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { Notifications } from './Notifications'
+import { NotificationsOptions } from '@quiet/nectar'
 
 describe('Notifications', () => {
   it('renders component', () => {
@@ -11,9 +12,7 @@ describe('Notifications', () => {
       <Notifications
         channelData={contact}
         openNotificationsTab={() => {}}
-        setChannelsNotification={() => {}}
         openSettingsModal={() => {}}
-        currentFilter={1}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -57,99 +56,44 @@ describe('Notifications', () => {
                     </p>
                   </div>
                   <div
-                    class="MuiGrid-root makeStyles-radioDiv-5 MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column"
                   >
-                    <label
-                      class="MuiFormControlLabel-root makeStyles-radioIcon-6"
+                    <div
+                      class="MuiGrid-root MuiGrid-item"
                     >
-                      <span
-                        aria-disabled="false"
-                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-157 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-158 Mui-checked MuiIconButton-colorSecondary"
+                      <h4
+                        class="MuiTypography-root MuiTypography-h4"
+                      >
+                        You've muted this channel
+                      </h4>
+                    </div>
+                    <div
+                      class="MuiGrid-root makeStyles-infoDiv-7 MuiGrid-item"
+                    >
+                      <p
+                        class="MuiTypography-root MuiTypography-body2"
+                      >
+                        Unmute this channel to change your notification settings.
+                      </p>
+                    </div>
+                    <div
+                      class="MuiGrid-root"
+                    >
+                      <button
+                        class="MuiButtonBase-root MuiButton-root MuiButton-contained makeStyles-button-8 MuiButton-containedPrimary MuiButton-containedSizeLarge MuiButton-sizeLarge MuiButton-fullWidth"
+                        tabindex="0"
+                        type="submit"
                       >
                         <span
-                          class="MuiIconButton-label"
+                          class="MuiButton-label"
                         >
-                          <input
-                            checked=""
-                            class="PrivateSwitchBase-input-160"
-                            data-indeterminate="false"
-                            type="checkbox"
-                            value=""
-                          />
-                          <img
-                            src="test-file-stub"
-                          />
+                          Unmute Channel
                         </span>
                         <span
                           class="MuiTouchRipple-root"
                         />
-                      </span>
-                      <span
-                        class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
-                      >
-                        Every new message
-                      </span>
-                    </label>
-                    <label
-                      class="MuiFormControlLabel-root makeStyles-radioIcon-6"
-                    >
-                      <span
-                        aria-disabled="false"
-                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-157 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
-                      >
-                        <span
-                          class="MuiIconButton-label"
-                        >
-                          <input
-                            class="PrivateSwitchBase-input-160"
-                            data-indeterminate="false"
-                            type="checkbox"
-                            value=""
-                          />
-                          <img
-                            src="test-file-stub"
-                          />
-                        </span>
-                        <span
-                          class="MuiTouchRipple-root"
-                        />
-                      </span>
-                      <span
-                        class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
-                      >
-                        Just @mentions
-                      </span>
-                    </label>
-                    <label
-                      class="MuiFormControlLabel-root makeStyles-radioIcon-6"
-                    >
-                      <span
-                        aria-disabled="false"
-                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-157 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
-                      >
-                        <span
-                          class="MuiIconButton-label"
-                        >
-                          <input
-                            class="PrivateSwitchBase-input-160"
-                            data-indeterminate="false"
-                            type="checkbox"
-                            value=""
-                          />
-                          <img
-                            src="test-file-stub"
-                          />
-                        </span>
-                        <span
-                          class="MuiTouchRipple-root"
-                        />
-                      </span>
-                      <span
-                        class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
-                      >
-                        Nothing
-                      </span>
-                    </label>
+                      </button>
+                    </div>
                   </div>
                   <div
                     class="MuiGrid-root makeStyles-captionDiv-9 MuiGrid-item"

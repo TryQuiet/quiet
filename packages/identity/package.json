@@ -1,6 +1,6 @@
 {
   "name": "@quiet/identity",
-  "version": "0.2.0-alpha.0",
+  "version": "0.3.0-alpha.0",
   "description": "Quiet tools for creating certificates and signing messages",
   "main": "lib/index.js",
   "types": "lib/index.d.js",
@@ -11,7 +11,8 @@
     "test-ci": "jest --colors --collectCoverage --ci",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
-    "check-style": "prettier --check src/**"
+    "check-style": "prettier --check src/**",
+    "rmDist": "rm -rf lib/"
   },
   "repository": {
     "type": "git",

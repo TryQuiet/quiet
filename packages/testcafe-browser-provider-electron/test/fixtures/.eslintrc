@@ -1,0 +1,12 @@
+{
+    "rules": {
+      "no-unused-expressions": 0 // NOTE: for chai's expect
+    },
+    "env": {
+      "browser": true,
+      "mocha": true
+    },
+    "globals": {
+      "fixture": true
+    }
+}

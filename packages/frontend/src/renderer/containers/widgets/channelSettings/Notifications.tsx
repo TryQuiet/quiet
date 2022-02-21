@@ -18,29 +18,25 @@ export const useNotificationsData = (): useNotificationsDataReturnType => {
   return data
 }
 
-export const useNotificationsActions = (currentFilter: number) => {
+export const useNotificationsActions = () => {
   const dispatch = useDispatch()
-
-  const setChannelsNotification = useCallback(() => {}, [dispatch, currentFilter])
 
   const openNotificationsTab = useCallback(() => {}, [dispatch])
 
-  return { setChannelsNotification, openNotificationsTab }
+  return { openNotificationsTab }
 }
 
 export const Notifications = () => {
-  const { channelData, currentFilter } = useNotificationsData()
-  const { openNotificationsTab, setChannelsNotification } = useNotificationsActions(currentFilter)
+  const { channelData } = useNotificationsData()
+  const { openNotificationsTab } = useNotificationsActions()
 
   const openSettingsModal = useModal(ModalName.accountSettingsModal)
 
   return (
     <NotificationsComponent
       channelData={channelData}
-      currentFilter={currentFilter}
       openNotificationsTab={openNotificationsTab}
       openSettingsModal={openSettingsModal.handleOpen}
-      setChannelsNotification={setChannelsNotification}
     />
   )
 }

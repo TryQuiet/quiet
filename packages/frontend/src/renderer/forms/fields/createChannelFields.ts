@@ -22,6 +22,9 @@ export const channelNameField = (name = 'channelName'): FieldData => {
       pattern: {
         value: /^[-a-zA-Z0-9 ]+$/g,
         message: ChannelNameErrors.WrongCharacter
+      },
+      validate: {
+        whitespaces: (value) => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
       }
     }
   }

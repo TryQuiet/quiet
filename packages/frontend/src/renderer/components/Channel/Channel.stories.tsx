@@ -158,6 +158,16 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
             date: '12:46',
             nickname: 'windoo'
           }
+        ],
+        [
+          {
+            id: '16',
+            type: 1,
+            message: 'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
+            createdAt: 0,
+            date: '12:46',
+            nickname: 'vader'
+          }
         ]
       ]
     }
@@ -165,11 +175,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
 
   const sendMessage = useCallback((_message: string) => {}, [])
 
-  args.messages = messages
-
-  args.onInputEnter = sendMessage
-
-  return <ChannelComponent {...args} />
+  return <ChannelComponent {...args} messages={messages} onInputEnter={sendMessage} />
 }
 
 export const Component = Template.bind({})

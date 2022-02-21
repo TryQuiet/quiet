@@ -17,7 +17,7 @@ export const parseCertificationRequest = (pem: string): CertificationRequest => 
   return new CertificationRequest({ schema: asn1.result })
 }
 
-export const keyFromCertificate = (certificate: Certificate): string => {
+export const keyFromCertificate = (certificate: Certificate | CertificationRequest): string => {
   return Buffer.from(
     certificate.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex
   ).toString('base64')

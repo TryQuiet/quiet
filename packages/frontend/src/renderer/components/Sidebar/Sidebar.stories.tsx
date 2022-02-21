@@ -13,9 +13,6 @@ import { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel'
 const Template: ComponentStory<typeof SidebarComponent> = args => {
   const [currentChannel, setCurrentChannel] = useState('general')
 
-  args.setCurrentChannel = setCurrentChannel
-  args.currentChannel = currentChannel
-
   return (
     <WindowWrapper>
       <Grid
@@ -28,14 +25,12 @@ const Template: ComponentStory<typeof SidebarComponent> = args => {
           position: 'relative'
         }}>
         <Grid item>
-          <SidebarComponent {...args} />
+          <SidebarComponent {...args} setCurrentChannel={setCurrentChannel} currentChannel={currentChannel} />
         </Grid>
       </Grid>
     </WindowWrapper>
   )
 }
-
-export const Component = Template.bind({})
 
 const args: IdentityPanelProps & ChannelsPanelProps = {
   // @ts-expect-error
@@ -66,7 +61,7 @@ const args: IdentityPanelProps & ChannelsPanelProps = {
   ],
   unreadChannels: ['spooky'],
   setCurrentChannel: function (_address: string): void {},
-  currentChannel: '',
+  currentChannel: 'general',
   createChannelModal: {
     open: false,
     handleOpen: function (_args?: any): any {},
@@ -79,12 +74,17 @@ const args: IdentityPanelProps & ChannelsPanelProps = {
   }
 }
 
+export const Component = Template.bind({})
+
 Component.args = args
+
+export const Reusable: ComponentStory<typeof SidebarComponent> = () => <SidebarComponent {...args} />
 
 const component: ComponentMeta<typeof SidebarComponent> = {
   title: 'Components/SidebarComponent',
   decorators: [withTheme],
-  component: SidebarComponent
+  component: SidebarComponent,
+  excludeStories: ['Reusable']
 }
 
 export default component
