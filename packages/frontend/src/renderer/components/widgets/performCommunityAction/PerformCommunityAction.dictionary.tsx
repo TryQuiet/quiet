@@ -11,6 +11,7 @@ export interface PerformCommunityActionDictionary {
   button?: string
   field: FieldData
   redirection?: ReactElement
+  id: string
 }
 
 export const CreateCommunityDictionary = (
@@ -39,7 +40,8 @@ export const CreateCommunityDictionary = (
     hint: '',
     button: 'Continue',
     field: communityNameField(),
-    redirection: link
+    redirection: link,
+    id: 'createCommunity',
   }
 }
 
@@ -67,6 +69,7 @@ export const JoinCommunityDictionary = (handleRedirection?: () => void): Perform
     hint: '',
     button: 'Continue',
     field: inviteLinkField(),
-    redirection: link
+    redirection: link,
+    id: 'joinCommunity',
   }
 }

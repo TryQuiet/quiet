@@ -7,18 +7,18 @@ import { Channel, LoadingPanel } from './selectors'
 const longTimeout = 100000
 
 fixture`Electron test`
-  .before(async t => {
-    const dataPath = path.join(os.homedir(), '.config')
-    console.info('Cleaning up')
-    try {
-      fs.rmdirSync(path.join(dataPath, 'Quiet'), { recursive: true })
-      fs.rmdirSync(path.join(dataPath, 'Electron'), { recursive: true })
-      fs.rmdirSync(path.join(dataPath, 'e2e-tests-nodejs'), { recursive: true })
-    } catch {
-      console.info('No data directories to clean up')
-    }
-  })
-
+  // .before(async t => {  // Before hook breaks the test -.-'
+  //   const dataPath = path.join(os.homedir(), '.config')
+  //   console.info('Cleaning up')
+  //   try {
+  //     fs.rmdirSync(path.join(dataPath, 'Quiet'), { recursive: true })
+  //     fs.rmdirSync(path.join(dataPath, 'Electron'), { recursive: true })
+  //     fs.rmdirSync(path.join(dataPath, 'e2e-tests-nodejs'), { recursive: true })
+  //   } catch {
+  //     console.info('No data directories to clean up')
+  //   }
+  // })
+  
 const goToMainPage = async () => {
   let pageUrl: string
   try {
@@ -47,10 +47,10 @@ test('User can create new community, register and send few messages to general c
   // User is on "Create community" page, enters valid community name and presses the button
   const createCommunityTitle = await Selector('h3').withText('Create your community')()
   await t.expect(createCommunityTitle).ok()
-  const continueButton2 = Selector('button').withText('Continue')
+  const continueButton = Selector('button').withAttribute('data-testid', 'continue-createCommunity')
   const communityNameInput = Selector('input').withAttribute('placeholder', 'Community name')
   await t.typeText(communityNameInput, 'testcommunity')
-  await t.click(continueButton2)
+  await t.click(continueButton)
 
   // User sees "register username" page, enters the valid name and submits by clicking on the button
   const registerUsernameTitle = await Selector('h3').withText('Register a username')()
@@ -76,13 +76,15 @@ test('User can create new community, register and send few messages to general c
 
   await t.expect(generalChannel.messagesGroup.exists).ok({ timeout: 30000 })
   await t.expect(generalChannel.messagesGroup.count).eql(1)
-
+  await t.debug()
   await t.expect(generalChannel.messagesGroupContent.exists).ok()
   await t.expect(generalChannel.messagesGroupContent.textContent).eql('Hello\xa0everyone')
-  await t.wait(5000) // TODO: remove after fixing https://github.com/ZbayApp/monorepo/issues/222
+  await t.wait(10000) // TODO: remove after fixing https://github.com/ZbayApp/monorepo/issues/222
 })
 
 test('User reopens app, sees general channel and the messages he sent before', async t => {
+  await goToMainPage()
+  
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 

@@ -202,7 +202,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
               </Grid>
             </Grid>
             <Grid container direction={'row'} justify={'flex-start'} spacing={2}>
-              <Grid item xs={'auto'} className={classes.buttonDiv}>
+              <Grid item xs={'auto'} className={classes.buttonDiv} data-testid={`divContinue-${dictionary.id}`}>
                 <LoadingButton
                   type='submit'
                   variant='contained'
@@ -210,6 +210,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                   color='primary'
                   fullWidth
                   text={dictionary.button ?? 'Continue'}
+                  data-testid={`continue-${dictionary.id}`}
                   classes={{ button: classes.button }}
                   disabled={!isConnectionReady}
                 />
