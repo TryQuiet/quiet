@@ -1,47 +1,47 @@
+import { NotificationsOptions, NotificationsSounds, settings } from '@quiet/nectar'
 import React, { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import notificationCenterSelector from '../../../store/selectors/notificationCenter'
-import notificationCenterHandlers from '../../../store/handlers/notificationCenter'
 import NotificationsComponent from '../../../components/widgets/settings/Notifications'
 
 interface useNotificationsDataReturnType {
-  userFilterType: number
-  userSound: number
+  notificationsOption: NotificationsOptions
+  notificationsSound: NotificationsSounds
 }
 
 export const useNotificationsData = (): useNotificationsDataReturnType => {
   const data = {
-    userFilterType: useSelector(notificationCenterSelector.userFilterType),
-    userSound: useSelector(notificationCenterSelector.userSound)
+    notificationsOption: useSelector(settings.selectors.getNotificationsOption),
+    notificationsSound: useSelector(settings.selectors.getNotificationsSound)
   }
   return data
 }
 
-export const useNotificationsActions = (userFilterType: number, sound: number) => {
+export const useNotificationsActions = (notificationsOption: NotificationsOptions, notificationsSound: NotificationsSounds) => {
   const dispatch = useDispatch()
 
-  const setUserNotification = useCallback(() => {
-    dispatch(notificationCenterHandlers.epics.setUserNotification(userFilterType))
-  }, [dispatch, userFilterType])
+  const setNotificationsOption = useCallback((option) => {
+    dispatch(settings.actions.setNotificationsOption(option))
+  }, [dispatch, notificationsOption])
 
-  const setUserNotificationsSound = useCallback(() => {
-    dispatch(notificationCenterHandlers.epics.setUserNotificationsSound(sound))
-  }, [dispatch, sound])
+  const setNotificationsSound = useCallback((sound) => {
+    dispatch(settings.actions.setNotificationsSound(sound))
+  }, [dispatch, notificationsSound])
 
-  return { setUserNotification, setUserNotificationsSound }
+  return { setNotificationsOption, setNotificationsSound }
 }
 
 export const Notifications = () => {
-  const { userFilterType, userSound } = useNotificationsData()
-  const { setUserNotification, setUserNotificationsSound } = useNotificationsActions(userFilterType, userSound)
+  const { notificationsOption, notificationsSound } = useNotificationsData()
+  const { setNotificationsOption, setNotificationsSound } =
+    useNotificationsActions(notificationsOption, notificationsSound)
 
   return (
     <NotificationsComponent
-      userFilterType={userFilterType}
-      userSound={userSound}
-      setUserNotification={setUserNotification}
-      setUserNotificationsSound={setUserNotificationsSound}
+      notificationsOption={notificationsOption}
+      notificationsSound={notificationsSound}
+      setNotificationsOption={setNotificationsOption}
+      setNotificationsSound={setNotificationsSound}
     />
   )
 }

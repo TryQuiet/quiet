@@ -16,6 +16,7 @@ describe('restart app without doing anything', () => {
   let owner: AsyncReturnType<typeof createApp>
   let store: typeof owner.store
   let oldState: ReturnType<typeof owner.store.getState>
+  let dataPath: string
 
   beforeAll(async () => {
     owner = await createApp()
@@ -35,7 +36,8 @@ describe('restart app without doing anything', () => {
 
   test('Owner relaunch application with previous state', async () => {
     oldState = store.getState()
-    owner = await createApp(oldState)
+    dataPath = owner.appPath
+    owner = await createApp(oldState, dataPath)
     // Wait before checking state in case some unwanted actions are executing and manipulating store
     await sleep(20_000)
     store = owner.store
@@ -51,6 +53,7 @@ describe('create community and restart app', () => {
   let owner: AsyncReturnType<typeof createApp>
   let store: typeof owner.store
   let oldState: ReturnType<typeof owner.store.getState>
+  let dataPath: string
 
   beforeAll(async () => {
     owner = await createApp()
@@ -73,9 +76,10 @@ describe('create community and restart app', () => {
 
   test('Owner relaunch application with previous state', async () => {
     oldState = store.getState()
+    dataPath = owner.appPath
     // Clear Initialized communities and registrars to make sure they are reinitialized
     clearInitializedCommunitiesAndRegistrars(store)
-    owner = await createApp(oldState)
+    owner = await createApp(oldState, dataPath)
     // Wait before checking state in case some unwanted actions are executing and manipulating store
     await sleep(10_000)
     store = owner.store

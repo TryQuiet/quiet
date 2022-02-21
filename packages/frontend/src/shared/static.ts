@@ -182,19 +182,6 @@ export const actionTypes = mirrorKey({
   ADD_DIRECT_CONTACT: undefined
 })
 
-export const notificationFilterType = {
-  ALL_MESSAGES: 1,
-  MENTIONS: 2,
-  NONE: 3,
-  MUTE: 4
-}
-export const soundType = {
-  NONE: 0,
-  POW: 1,
-  BANG: 2,
-  SPLAT: 3
-}
-
 export const loadNextMessagesLimit = 20
 
 export const dataFromRootPems = {

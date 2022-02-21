@@ -9,6 +9,7 @@ import { identityReducer } from '../../sagas/identity/identity.slice'
 import { messagesReducer } from '../../sagas/messages/messages.slice'
 import { publicChannelsReducer } from '../../sagas/publicChannels/publicChannels.slice'
 import { usersReducer } from '../../sagas/users/users.slice'
+import { settingsReducer } from '../../sagas/settings/settings.slice'
 
 export const reducers = {
   [StoreKeys.Communities]: communitiesReducer,
@@ -17,7 +18,8 @@ export const reducers = {
   [StoreKeys.Errors]: errorsReducer,
   [StoreKeys.Messages]: messagesReducer,
   [StoreKeys.PublicChannels]: publicChannelsReducer,
-  [StoreKeys.Connection]: connectionReducer
+  [StoreKeys.Connection]: connectionReducer,
+  [StoreKeys.Settings]: settingsReducer
 }
 
 export const prepareStore = (mockedState?: { [key in StoreKeys]?: any }) => {

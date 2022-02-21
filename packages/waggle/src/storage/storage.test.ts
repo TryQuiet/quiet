@@ -203,8 +203,8 @@ describe('Certificate', () => {
     await storage.saveCertificate({ certificate: userCertificate.userCertString, rootPermsData })
 
     for (const username of ['alice', 'Alice', 'Ąlice']) {
-      const usernameExists = storage.usernameExists(username)
-      expect(usernameExists).toBe(true)
+      const usernameCert = storage.usernameCert(username)
+      expect(usernameCert).toEqual(userCertificate.userCertString)
     }
   })
 
@@ -218,9 +218,9 @@ describe('Certificate', () => {
 
     await storage.initDatabases()
 
-    const usernameExists = storage.usernameExists('alice')
+    const usernameCert = storage.usernameCert('alice')
 
-    expect(usernameExists).toBe(false)
+    expect(usernameCert).toBeNull()
   })
 })
 
