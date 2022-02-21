@@ -1,7 +1,7 @@
 import { Selector, t } from 'testcafe'
 
 export class LoadingPanel {
-  private text: string
+  private readonly text: string
 
   constructor(title: string) {
     this.text = title
@@ -13,7 +13,7 @@ export class LoadingPanel {
 }
 
 export class Channel {
-  private name: string
+  private readonly name: string
 
   constructor(name: string) {
     this.name = name
@@ -63,7 +63,6 @@ export class CreateCommunityModal {
   async typeCommunityName(name: string) {
     const communityNameInput = Selector('input').withAttribute('placeholder', 'Community name')
     await t.typeText(communityNameInput, name)
-    
   }
 
   async submit() {

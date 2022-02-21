@@ -41,7 +41,7 @@ export const CreateCommunityDictionary = (
     button: 'Continue',
     field: communityNameField(),
     redirection: link,
-    id: 'createCommunity',
+    id: 'createCommunity'
   }
 }
 
@@ -70,6 +70,6 @@ export const JoinCommunityDictionary = (handleRedirection?: () => void): Perform
     button: 'Continue',
     field: inviteLinkField(),
     redirection: link,
-    id: 'joinCommunity',
+    id: 'joinCommunity'
   }
 }

@@ -15,7 +15,7 @@ fixture`New user test`
     console.log(`Test data is in ${fullDataPath}. You may want to remove it.`)
     // await fs.rm(fullDataPath, { recursive: true, force: true }) // TODO: use this with node >=14, rmdirSync doesn't seem to work
   })
-  
+
 const goToMainPage = async () => {
   let pageUrl: string
   try {
@@ -41,7 +41,7 @@ test('User can create new community, register and send few messages to general c
   await joinModal.switchToCreateCommunity()
 
   // User is on "Create community" page, enters valid community name and presses the button
-  const createModal = new CreateCommunityModal()  
+  const createModal = new CreateCommunityModal()
   await t.expect(createModal.title.exists).ok()
   await createModal.typeCommunityName('testcommunity')
   await createModal.submit()
