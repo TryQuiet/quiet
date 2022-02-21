@@ -6,6 +6,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
+    "postinstall": "npm run patch",
+    "patch": "patch -p0 --forward < factory-girl.patch || true",
     "test": "cross-env TZ=UTC jest sagas/*",
     "lint": "eslint --ext .ts ./src/ --fix",
     "lint-ci": "eslint --ext .ts ./src/",
