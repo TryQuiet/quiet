@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "0.3.0-alpha.0",
+  "version": "0.3.0-alpha.1",
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -18,8 +18,8 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.7",
-    "@quiet/identity": "^0.3.0-alpha.0",
-    "@quiet/nectar": "^0.3.0-alpha.0",
+    "@quiet/identity": "^0.3.0-alpha.1",
+    "@quiet/nectar": "^0.3.0-alpha.1",
     "@react-native-async-storage/async-storage": "^1.15.4",
     "@react-native-community/art": "^1.2.0",
     "@react-navigation/native": "^5.9.4",
