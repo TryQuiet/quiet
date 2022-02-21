@@ -2,7 +2,7 @@ import { fixture, test, Selector, t } from 'testcafe'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as os from 'os'
-import { Channel, LoadingPanel } from './selectors'
+import { Channel, CreateCommunityModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal } from './selectors'
 
 const longTimeout = 100000
 
@@ -39,28 +39,23 @@ test('User can create new community, register and send few messages to general c
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
   // User sees "join community" page and switches to "create community" view by clicking on the link
-  const joinCommunityTitle = await Selector('h3').withText('Join community')()
-  await t.expect(joinCommunityTitle).ok('User can\'t see "Join community" title')
-  const createCommunityLink = Selector('a').withAttribute('data-testid', 'JoinCommunityLink')
-  await t.click(createCommunityLink)
+  const joinModal = new JoinCommunityModal()
+
+  // const joinCommunityTitle = await Selector('h3').withText('Join community')()
+  await t.expect(joinModal.title.exists).ok('User can\'t see "Join community" title')
+  await joinModal.switchToCreateCommunity()
 
   // User is on "Create community" page, enters valid community name and presses the button
-  const createCommunityTitle = await Selector('h3').withText('Create your community')()
-  await t.expect(createCommunityTitle).ok()
-  const continueButton = Selector('button').withAttribute('data-testid', 'continue-createCommunity')
-  const communityNameInput = Selector('input').withAttribute('placeholder', 'Community name')
-  await t.typeText(communityNameInput, 'testcommunity')
-  await t.click(continueButton)
+  const createModal = new CreateCommunityModal()  
+  await t.expect(createModal.title.exists).ok()
+  await createModal.typeCommunityName('testcommunity')
+  await createModal.submit()
 
   // User sees "register username" page, enters the valid name and submits by clicking on the button
-  const registerUsernameTitle = await Selector('h3').withText('Register a username')()
-  await t.expect(registerUsernameTitle).ok()
-  const usernameInput = Selector('input').withAttribute('name', 'userName').filterVisible()
-  const submitButton = Selector('button').withText('Register')
-  await t.expect(usernameInput.exists).ok()
-  const username = 'testuser'
-  await t.typeText(usernameInput, username)
-  await t.click(submitButton)
+  const registerModal = new RegisterUsernameModal()
+  await t.expect(registerModal.title.exists).ok()
+  await registerModal.typeUsername('testuser')
+  await registerModal.submit()
 
   // User waits for the spinner to disappear and then sees general channel
   const generalChannel = new Channel('general')
@@ -76,7 +71,6 @@ test('User can create new community, register and send few messages to general c
 
   await t.expect(generalChannel.messagesGroup.exists).ok({ timeout: 30000 })
   await t.expect(generalChannel.messagesGroup.count).eql(1)
-  await t.debug()
   await t.expect(generalChannel.messagesGroupContent.exists).ok()
   await t.expect(generalChannel.messagesGroupContent.textContent).eql('Hello\xa0everyone')
   await t.wait(10000) // TODO: remove after fixing https://github.com/ZbayApp/monorepo/issues/222

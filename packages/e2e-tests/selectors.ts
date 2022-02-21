@@ -44,3 +44,47 @@ export class Channel {
     await t.pressKey('enter')
   }
 }
+
+export class JoinCommunityModal {
+  get title() {
+    return Selector('h3').withText('Join community')
+  }
+
+  async switchToCreateCommunity() {
+    await t.click(Selector('a').withAttribute('data-testid', 'JoinCommunityLink'))
+  }
+}
+
+export class CreateCommunityModal {
+  get title() {
+    return Selector('h3').withText('Create your community')
+  }
+
+  async typeCommunityName(name: string) {
+    const communityNameInput = Selector('input').withAttribute('placeholder', 'Community name')
+    await t.typeText(communityNameInput, name)
+    
+  }
+
+  async submit() {
+    const continueButton = Selector('button').withAttribute('data-testid', 'continue-createCommunity')
+    await t.click(continueButton)
+  }
+}
+
+export class RegisterUsernameModal {
+  get title() {
+    return Selector('h3').withText('Register a username')
+  }
+
+  async typeUsername(username: string) {
+    const usernameInput = Selector('input').withAttribute('name', 'userName').filterVisible()
+    await t.expect(usernameInput.exists).ok()
+    await t.typeText(usernameInput, username)
+  }
+
+  async submit() {
+    const submitButton = Selector('button').withText('Register')
+    await t.click(submitButton)
+  }
+}
