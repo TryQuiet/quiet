@@ -20,10 +20,11 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
     }
 
     @ReactMethod
-    fun startTor(socksPort: Int, controlPort: Int) {
-
+    fun startTor(httpTunnelPort: Int, socksPort: Int, controlPort: Int) {
+        
         val service = Intent(context, TorService::class.java)
             service.action = SERVICE_ACTION_EXECUTE
+            service.putExtra("httpTunnelPort", httpTunnelPort)
             service.putExtra("socksPort", socksPort)
             service.putExtra("controlPort", controlPort)
 
@@ -65,8 +66,9 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
         context.startService(service)
     }
 
-    override fun onTorInit(socksPort: Int, controlPort: Int, authCookie: String) {
+    override fun onTorInit(httpTunnelPort: Int, socksPort: Int, controlPort: Int, authCookie: String) {
         val payload: WritableMap = Arguments.createMap()
+        payload.putInt("httpTunnelPort", httpTunnelPort)
         payload.putInt("socksPort", socksPort)
         payload.putInt("controlPort", controlPort)
         payload.putString("authCookie", authCookie)

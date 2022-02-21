@@ -12,7 +12,7 @@
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "gen": "plop",
-    "provide-waggle-asset": "rm -rf ./nodejs-assets/nodejs-project/* && rf-lerna zipbundle @quiet/waggle --target ./nodejs-assets/nodejs-project/waggle.zip && cd ./nodejs-assets/nodejs-project/ && unzip ./waggle.zip && rm -rf ./waggle.zip && cp ../parse-duration.patch ./ && patch -p0 --forward < ./parse-duration.patch || true && rm -rf ./node_modules/electron && rm -rf ./node_modules/wrtc",
+    "provide-waggle-asset": "rm -rf ./nodejs-assets/nodejs-project/* && rf-lerna zipbundle @quiet/waggle --target ./nodejs-assets/nodejs-project/waggle.zip && cd ./nodejs-assets/nodejs-project/ && unzip ./waggle.zip && rm -rf ./waggle.zip && cp ../parse-duration.patch ./ && patch -p0 --forward < ./parse-duration.patch || true && cp ../identity.patch ./ && patch -p0 --forward < ./identity.patch || true && cp ../nectar.patch ./ && patch -p0 --forward < ./nectar.patch || true && rm -rf ./node_modules/electron && rm -rf ./node_modules/wrtc",
     "postinstall": "npm run provide-waggle-asset",
     "postversion": "react-native-version",
     "prepublish": "npm run build"

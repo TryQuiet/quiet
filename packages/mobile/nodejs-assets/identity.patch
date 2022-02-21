@@ -1,0 +1,12 @@
+--- node_modules/@quiet/identity/lib/index.js.backup
++++ node_modules/@quiet/identity/lib/index.js
+@@ -35,9 +35,3 @@
+ Object.defineProperty(exports, "getReqFieldValue", { enumerable: true, get: function () { return common_1.getReqFieldValue; } });
+ const config_1 = __importDefault(require("./config"));
+ exports.configCrypto = config_1.default;
+-const helpers_1 = require("./test/helpers");
+-Object.defineProperty(exports, "setupCrypto", { enumerable: true, get: function () { return helpers_1.setupCrypto; } });
+-Object.defineProperty(exports, "createTestRootCA", { enumerable: true, get: function () { return helpers_1.createTestRootCA; } });
+-Object.defineProperty(exports, "createTestUserCert", { enumerable: true, get: function () { return helpers_1.createTestUserCert; } });
+-Object.defineProperty(exports, "createTestUserCsr", { enumerable: true, get: function () { return helpers_1.createTestUserCsr; } });
+-Object.defineProperty(exports, "userData", { enumerable: true, get: function () { return helpers_1.userData; } });
