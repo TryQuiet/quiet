@@ -1,0 +1,11 @@
+--- node_modules/pvutils/build/utils.js.backup
++++ node_modules/pvutils/build/utils.js
+@@ -13,7 +13,7 @@
+     if ((parameters instanceof Object) === false) {
+         return defaultValue;
+     }
+-    return parameters[name] ?? defaultValue;
++    return parameters[name] || defaultValue;
+ }
+ function bufferToHexCodes(inputBuffer, inputOffset = 0, inputLength = (inputBuffer.byteLength - inputOffset), insertSpace = false) {
+     let result = "";
