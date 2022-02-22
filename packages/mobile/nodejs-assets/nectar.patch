@@ -1,0 +1,16 @@
+--- node_modules/@quiet/nectar/lib/index.js.backup
++++ node_modules/@quiet/nectar/lib/index.js
+@@ -35,13 +35,8 @@
+ Object.defineProperty(exports, "SocketActionTypes", { enumerable: true, get: function () { return actionTypes_2.SocketActionTypes; } });
+ var store_keys_2 = require("./sagas/store.keys");
+ Object.defineProperty(exports, "StoreKeys", { enumerable: true, get: function () { return store_keys_2.StoreKeys; } });
+-var prepareStore_1 = require("./utils/tests/prepareStore");
+-Object.defineProperty(exports, "prepareStore", { enumerable: true, get: function () { return prepareStore_1.prepareStore; } });
+ var startConnection_saga_2 = require("./sagas/socket/startConnection/startConnection.saga");
+ Object.defineProperty(exports, "useIO", { enumerable: true, get: function () { return startConnection_saga_2.useIO; } });
+-var factories_1 = require("./utils/tests/factories");
+-Object.defineProperty(exports, "getFactory", { enumerable: true, get: function () { return factories_1.getFactory; } });
+-__exportStar(require("./utils/tests/helpers"), exports);
+ __exportStar(require("./sagas/publicChannels/publicChannels.types"), exports);
+ __exportStar(require("./sagas/users/users.types"), exports);
+ var publicChannels_adapter_1 = require("./sagas/publicChannels/publicChannels.adapter");

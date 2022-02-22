@@ -1,11 +1,13 @@
 {
   "name": "@quiet/nectar",
-  "version": "0.3.0-alpha.0",
+  "version": "0.3.0-alpha.2",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
+    "postinstall": "npm run patch",
+    "patch": "patch -p0 --forward < factory-girl.patch || true",
     "test": "cross-env TZ=UTC jest sagas/*",
     "lint": "eslint --ext .ts ./src/ --fix",
     "lint-ci": "eslint --ext .ts ./src/",
@@ -40,7 +42,7 @@
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-typescript": "^7.15.0",
     "@peculiar/webcrypto": "*",
-    "@quiet/identity": "^0.3.0-alpha.0",
+    "@quiet/identity": "^0.3.0-alpha.2",
     "@types/factory-girl": "^5.0.8",
     "@types/jest": "^26.0.24",
     "@types/luxon": "^2.0.0",

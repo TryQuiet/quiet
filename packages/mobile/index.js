@@ -1,7 +1,7 @@
 /**
  * @format
  */
-import './shim';
+require("node-libs-react-native/globals.js");
 
 import React, { lazy, Suspense } from 'react';
 import { AppRegistry } from 'react-native';

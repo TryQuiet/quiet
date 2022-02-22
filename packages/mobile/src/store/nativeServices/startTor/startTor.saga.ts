@@ -8,7 +8,8 @@ export function* startTorSaga(): Generator {
   yield* put(
     initActions.updateInitDescription('Tor initialization in progress')
   )
+  const httpTunnelPort = yield* call(FindFreePort.getFirstStartingFrom, 8050)
   const socksPort = yield* call(FindFreePort.getFirstStartingFrom, 9050)
   const controlPort = yield* call(FindFreePort.getFirstStartingFrom, 9151)
-  yield* call(NativeModules.TorModule.startTor, socksPort, controlPort)
+  yield* call(NativeModules.TorModule.startTor, httpTunnelPort, socksPort, controlPort)
 }

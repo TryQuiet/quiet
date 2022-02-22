@@ -41,7 +41,7 @@ class TorService: Service() {
         return START_REDELIVER_INTENT
     }
 
-    private fun startTor(socksPort: Int, controlPort: Int) {
+    private fun startTor(httpTunnelPort: Int, socksPort: Int, controlPort: Int) {
         /**
          * Default torrc file is being created by tor-android lib
          * so there is a need for overwrite it with custom file
@@ -49,7 +49,7 @@ class TorService: Service() {
          **/
         torrc = File(filesDir, "torrc")
 
-        val torrcCustom: File? = updateTorrcCustomFile(socksPort, controlPort)
+        val torrcCustom: File? = updateTorrcCustomFile(httpTunnelPort, socksPort, controlPort)
         if ((torrcCustom?.exists()) == false || (torrcCustom?.canRead()) == false)
             return
 
@@ -63,7 +63,7 @@ class TorService: Service() {
                 authCookie = cookie.readBytes().toHex()
             }
 
-            client?.onTorInit(socksPort, controlPort, authCookie)
+            client?.onTorInit(httpTunnelPort, socksPort, controlPort, authCookie)
         }
     }
 
@@ -106,13 +106,14 @@ class TorService: Service() {
         return true
     }
 
-    private fun updateTorrcCustomFile(socksPort: Int, controlPort: Int): File? {
+    private fun updateTorrcCustomFile(httpTunnelPort: Int, socksPort: Int, controlPort: Int): File? {
         val extraLines = StringBuffer()
 
         extraLines.append("RunAsDaemon 1").append('\n')
         extraLines.append("CookieAuthentication 1").append('\n')
         extraLines.append("ControlPort ").append(controlPort).append('\n')
         extraLines.append("SOCKSPort ").append(socksPort).append('\n')
+        extraLines.append("HTTPTunnelPort ").append(httpTunnelPort).append('\n')
 
         Log.d("TORRC","torrc.custom=\n$extraLines")
 
@@ -139,7 +140,7 @@ class TorService: Service() {
     }
 
     interface Callbacks {
-        fun onTorInit(socksPort: Int, controlPort: Int, authCookie: String)
+        fun onTorInit(httpTunnelPort: Int, socksPort: Int, controlPort: Int, authCookie: String)
     }
 
     inner class LocalBinder: Binder() {
@@ -150,9 +151,10 @@ class TorService: Service() {
 
     inner class IncomingIntentRouter(private val intent: Intent): Runnable {
         override fun run() {
+            val httpTunnelPort = intent.getIntExtra("httpTunnelPort", 8050)
             val socksPort = intent.getIntExtra("socksPort", 9050)
             val controlPort = intent.getIntExtra("controlPort", 9151)
-            startTor(socksPort, controlPort)
+            startTor(httpTunnelPort, socksPort, controlPort)
         }
     }
 }
