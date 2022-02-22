@@ -1,6 +1,6 @@
 {
   "name": "e2e-tests",
-  "version": "0.3.0-alpha.2",
+  "version": "0.3.0-alpha.3",
   "description": "For running end to end tests we use testcafe (https://testcafe.io/) along with its official electron plugin (https://github.com/DevExpress/testcafe-browser-provider-electron)",
   "main": "index.js",
   "scripts": {
@@ -35,7 +35,7 @@
     "cross-env": "^5.2.0",
     "electron": "12.1.0",
     "testcafe": "^1.18.3",
-    "testcafe-browser-provider-electron": "^0.1.0-alpha.2"
+    "testcafe-browser-provider-electron": "^0.1.0-alpha.3"
   },
   "author": "",
   "license": "ISC"
