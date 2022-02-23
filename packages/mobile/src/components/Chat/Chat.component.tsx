@@ -90,7 +90,6 @@ export const Chat: FC<ChatProps> = ({
           style={inputStyle}
         />
       </View>
-
       {didKeyboardShow && (
         <View
           style={{

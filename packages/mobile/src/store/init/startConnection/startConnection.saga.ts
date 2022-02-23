@@ -2,10 +2,9 @@ import { io, Socket } from 'socket.io-client'
 import { put, call, cancel, fork, takeEvery, FixedTask } from 'typed-redux-saga'
 import { eventChannel } from 'redux-saga'
 import { socket as nectar } from '@quiet/nectar'
-import { ScreenNames } from '../../../const/ScreenNames.enum'
-import { replaceScreen } from '../../../utils/functions/replaceScreen/replaceScreen'
 import { PayloadAction } from '@reduxjs/toolkit/dist/createAction'
 import { initActions } from '../init.slice'
+import { initialRoutingSaga } from '../initialRouting/initialRouting.saga'
 
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof initActions.startConnection>['payload']>
@@ -22,8 +21,8 @@ export function* startConnectionSaga(
 function* setConnectedSaga(socket: Socket): Generator {
   // @ts-expect-error
   const task = yield* fork(nectar.useIO, socket)
-  // Redirection (this is most likely to be changed later)
-  yield* call(replaceScreen, ScreenNames.MainScreen)
+  // Screen redirection
+  yield* fork(initialRoutingSaga)
   // Handle suspending current connection
   yield* takeEvery(initActions.suspendConnection, cancelRootTaskSaga, task)
 }
