@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0-alpha.4](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.2.0-alpha.0...@quiet/identity@0.3.0-alpha.4) (2022-02-23)
+
+**Note:** Version bump only for package @quiet/identity
+
+
+
+
+
 # [0.3.0-alpha.3](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.2.0-alpha.0...@quiet/identity@0.3.0-alpha.3) (2022-02-22)
 
 **Note:** Version bump only for package @quiet/identity
