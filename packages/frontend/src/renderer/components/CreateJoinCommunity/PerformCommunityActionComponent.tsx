@@ -233,6 +233,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
               color='primary'
               fullWidth
               text={dictionary.button ?? 'Continue'}
+              data-testid={`continue-${dictionary.id}`}
               classes={{ button: classes.button }}
               disabled={!isConnectionReady}
             />
