@@ -118,7 +118,7 @@ jobs:
         uses: ./.github/actions/setup-env
 
       - name: Before build
-        uses: ./.github/actions/before-build
+        uses: ./.github/actions/before-build-win
         with:
           source-path: win32
 

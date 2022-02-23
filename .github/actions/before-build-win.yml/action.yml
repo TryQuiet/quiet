@@ -17,7 +17,7 @@ runs:
       shell: bash
 
     - name: "Pull tor binary"
-      run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinaries
+      run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesWin
       shell: bash
     
     - name: "Verify Sentry setup"
