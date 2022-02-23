@@ -16,7 +16,7 @@ runs:
       run: npm i -g electron-builder@22.10.5
       shell: bash
 
-   - name: "Pull tor binary"
+    - name: "Pull tor binary"
       if: ${{ contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos') }}
       run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinaries
       shell: bash
