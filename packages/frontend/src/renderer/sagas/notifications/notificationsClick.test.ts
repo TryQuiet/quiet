@@ -74,7 +74,7 @@ afterAll(() => {
   window.Notification = originalNotification
 })
 
-describe('displayMessageNotificationSaga', () => {
+describe('displayMessageNotificationSaga test', () => {
   it('clicking in notification takes you to message in relevant channel and ends emit', async () => {
     store.runSaga(rootSaga)
     store.store.dispatch(publicChannels.actions.incomingMessages(incomingMessages))
