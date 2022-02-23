@@ -429,6 +429,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     var text = e.clipboardData.getData('text/plain')
                     document.execCommand('insertHTML', false, text)
                   }}
+                  data-testid='messageInput'
                 />
               </Grid>
               <Grid item className={classes.actions}>
