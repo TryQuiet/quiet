@@ -12,8 +12,9 @@
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "gen": "plop",
-    "provide-waggle-asset": "rm -rf ./nodejs-assets/nodejs-project/* && rf-lerna zipbundle @quiet/waggle --target ./nodejs-assets/nodejs-project/waggle.zip && cd ./nodejs-assets/nodejs-project/ && unzip ./waggle.zip && rm -rf ./waggle.zip && cp ../parse-duration.patch ./ && patch -p0 --forward < ./parse-duration.patch || true && cp ../identity.patch ./ && patch -p0 --forward < ./identity.patch || true && cp ../nectar.patch ./ && patch -p0 --forward < ./nectar.patch || true && patch -p0 --forward --binary < ./pvutils.patch || true &&rm -rf ./node_modules/electron && rm -rf ./node_modules/wrtc",
-    "postinstall": "npm run provide-waggle-asset",
+    "exclude-test-assets": "find . -print | grep -i -e '/test/' -e '/tests/' | grep -v @quiet | xargs rm -rf",
+    "provide-waggle-assets": "rm -rf ./nodejs-assets/nodejs-project/* && rf-lerna zipbundle @quiet/waggle --target ./nodejs-assets/nodejs-project/waggle.zip && cd ./nodejs-assets/nodejs-project/ && unzip ./waggle.zip && rm -rf ./waggle.zip && cp ../modules.patch ./ && patch -p0 --forward --binary < ./modules.patch || true && rm -rf ./node_modules/electron && rm -rf ./node_modules/wrtc",
+    "postinstall": "npm run provide-waggle-assets && npm run exclude-test-assets",
     "postversion": "react-native-version",
     "prepublish": "npm run build"
   },
@@ -61,7 +62,7 @@
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.0",
     "typed-redux-saga": "^1.3.1",
-    "zbayapp-nodejs-mobile-react-native": "^1.2.0"
+    "zbayapp-nodejs-mobile-react-native": "^1.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
