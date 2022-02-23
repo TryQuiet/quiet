@@ -1,6 +1,7 @@
 import { RouteProp } from '@react-navigation/core'
 import { Dispatch } from 'react'
 import { ScreenNames } from './const/ScreenNames.enum'
+import { UsernameRegistrationScreenProps } from './screens/UsernameRegistration/UsernameRegistration.types'
 
 // eslint-disable-next-line
 export type RootStackParamList = {
@@ -17,6 +18,9 @@ export type RootStackParamList = {
     icon: any
     title: string
     message?: string
+  },
+  [ScreenNames.UsernameRegistrationScreen]: {
+    registrar: string
   }
 }
 
@@ -28,4 +32,9 @@ ScreenNames.SuccessScreen
 export type ErrorRouteProp = RouteProp<
 RootStackParamList,
 ScreenNames.ErrorScreen
+>
+
+export type UsernameRegistrationRouteProp = RouteProp<
+RootStackParamList,
+ScreenNames.UsernameRegistrationScreen
 >

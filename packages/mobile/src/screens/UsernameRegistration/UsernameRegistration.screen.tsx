@@ -9,7 +9,7 @@ import { Registration } from '../../components/Registration/Registration.compone
 
 import { communities, errors, identity, SocketActionTypes } from '@quiet/nectar'
 
-export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = ({ registrar }) => {
+export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
   const [username, setUsername] = useState('')
@@ -23,8 +23,10 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
   const error = communityErrors[SocketActionTypes.REGISTRAR]
 
+  const registrar = route.params.registrar
+
   useEffect(() => {
-    if (currentIdentity?.userCertificate !== null) {
+    if (currentIdentity?.userCertificate) {
       replaceScreen(ScreenNames.SuccessScreen, {
         onPress: () => replaceScreen(ScreenNames.MainScreen),
         icon: appImages.username_registered,
@@ -32,7 +34,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
         message: 'Your username will be registered shortly'
       })
     }
-  }, [currentIdentity])
+  }, [currentIdentity?.userCertificate])
 
   const handleAction = (username: string) => {
     setUsername(username)
@@ -45,13 +47,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
     if (currentIdentity?.hiddenService && !currentIdentity.userCertificate) {
       dispatch(identity.actions.registerUsername(username))
     }
-  }, [currentIdentity])
-
-  useEffect(() => {
-    if (currentIdentity?.userCertificate) {
-      replaceScreen(ScreenNames.MainScreen)
-    }
-  }, [currentIdentity])
+  }, [currentIdentity?.hiddenService])
 
   return (
     <Registration

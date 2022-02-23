@@ -1,3 +1,5 @@
+import { UsernameRegistrationRouteProp } from "../../route.params";
+
 export interface UsernameRegistrationScreenProps {
-  registrar: string
+  route: UsernameRegistrationRouteProp
 }
