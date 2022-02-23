@@ -11,7 +11,7 @@ import { currentCommunityId } from '../communities/communities.selectors'
 import { MessageType } from '../messages/messages.types'
 import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { messagesVerificationStatus } from '../messages/messages.selectors'
-import { CommunityChannels, DisplayableMessage } from './publicChannels.types'
+import { CommunityChannels, DisplayableMessage, MessagesDailyGroups } from './publicChannels.types'
 import { unreadMessagesAdapter } from './markUnreadMessages/unreadMessages.adapter'
 
 const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
@@ -171,7 +171,7 @@ export const dailyGroupedCurrentChannelMessages = createSelector(
 export const currentChannelMessagesMergedBySender = createSelector(
   dailyGroupedCurrentChannelMessages,
   groups => {
-    const result: { [day: string]: DisplayableMessage[][] } = {}
+    const result: MessagesDailyGroups = {}
     for (const day in groups) {
       result[day] = groups[day].reduce((merged, message) => {
         // Get last item from collected array for comparison

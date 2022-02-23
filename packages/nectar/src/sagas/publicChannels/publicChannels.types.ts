@@ -41,10 +41,9 @@ export interface DisplayableMessage {
   nickname: string
 }
 
-export type MessagesGroupedByDay = Array<{
-  day: string
-  messages: DisplayableMessage[]
-}>
+export interface MessagesDailyGroups {
+  [date: string]: DisplayableMessage[][]
+}
 
 export interface GetPublicChannelsResponse {
   communityId: string
