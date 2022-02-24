@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from 'react-dom'
 import { ipcRenderer } from 'electron'
 
-import Root from './Root'
+import Root, { persistor } from './Root'
 import store from './store'
 import updateHandlers from './store/handlers/update'
 import waggleHandlers from './store/handlers/waggle'
@@ -31,6 +31,11 @@ ipcRenderer.on('newUpdateAvailable', (_event) => {
 
 ipcRenderer.on('connectToWebsocket', (_event, payload: WebsocketConnectionPayload) => {
   store.dispatch(socketActions.startConnection(payload))
+})
+
+ipcRenderer.on('force-save-state', async (_event) => {
+  await persistor.flush()
+  ipcRenderer.send('state-saved')
 })
 
 ipcRenderer.on('waggleInitialized', (_event) => {
