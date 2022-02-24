@@ -1,5 +1,5 @@
-import { DisplayableMessage, ChannelMessage } from "../../../sagas/publicChannels/publicChannels.types"
-import { formatMessageDisplayDate } from "./formatMessageDisplayDate"
+import { DisplayableMessage, ChannelMessage } from '../../../sagas/publicChannels/publicChannels.types'
+import { formatMessageDisplayDate } from './formatMessageDisplayDate'
 
 export const displayableMessage = (message: ChannelMessage, nickname: string): DisplayableMessage => {
   const date = formatMessageDisplayDate(message.createdAt)

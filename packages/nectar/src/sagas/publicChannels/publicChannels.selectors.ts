@@ -140,7 +140,7 @@ export const dailyGroupedCurrentChannelMessages = createSelector(
   displayableCurrentChannelMessages,
   messages => {
     const result: { [date: string]: DisplayableMessage[] } = messages.reduce((groups, message) => {
-      let date = formatMessageDisplayDay(message.date)
+      const date = formatMessageDisplayDay(message.date)
 
       if (!groups[date]) {
         groups[date] = []
