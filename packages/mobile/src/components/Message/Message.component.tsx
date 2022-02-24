@@ -5,7 +5,6 @@ import { MessageProps } from './Message.types'
 import Jdenticon from 'react-native-jdenticon'
 
 export const Message: FC<MessageProps> = ({ data }) => {
-
   const messageDisplayData = data[0]
 
   return (

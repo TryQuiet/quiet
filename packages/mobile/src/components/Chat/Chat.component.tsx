@@ -135,17 +135,17 @@ const customInputStyle = StyleSheet.create({
 export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps> = ({ messages }) => {
   return (
     <>
-    {Object.keys(messages).map(day => {
-      return (
-        <div key={day}>
-          {/* <MessagesDivider title={day} /> */}
-          {messages[day].map(data => {
+      {Object.keys(messages).map(day => {
+        return (
+          <div key={day}>
+            {/* <MessagesDivider title={day} /> */}
+            {messages[day].map(data => {
             // Messages merged by sender (DisplayableMessage[])
-            return <Message key={data[0].id} data={data} />
-          })}
-        </div>
-      )
-    })}
+              return <Message key={data[0].id} data={data} />
+            })}
+          </div>
+        )
+      })}
     </>
   )
 }

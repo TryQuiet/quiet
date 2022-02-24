@@ -1,4 +1,4 @@
-import { UsernameRegistrationRouteProp } from "../../route.params";
+import { UsernameRegistrationRouteProp } from '../../route.params'
 
 export interface UsernameRegistrationScreenProps {
   route: UsernameRegistrationRouteProp

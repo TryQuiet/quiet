@@ -18,7 +18,7 @@ export type RootStackParamList = {
     icon: any
     title: string
     message?: string
-  },
+  }
   [ScreenNames.UsernameRegistrationScreen]: {
     registrar: string
   }
