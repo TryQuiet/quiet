@@ -84,6 +84,7 @@ module.exports = function install (config, testPageUrl) {
     if (config.relativePageUrls) {
         config.mainWindowUrl = config.electronAppPath + config.mainWindowUrl
         fs.writeFileSync('/tmp/mainWindowUrl', config.mainWindowUrl)  // Hacky way of allowing test case to access mainWindowUrl
+        fs.writeFileSync('/tmp/appDataPath', app.getPath('appData'))
     }
 
     function stripQuery (url) {

@@ -37,6 +37,7 @@ describe('ChannelInput', () => {
                     <div
                       class="makeStyles-input-3"
                       contenteditable="true"
+                      data-testid="messageInput"
                       placeholder="Message #channel as @user"
                     >
                       
