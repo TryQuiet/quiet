@@ -9,8 +9,8 @@
  }
  function bufferToHexCodes(inputBuffer, inputOffset = 0, inputLength = (inputBuffer.byteLength - inputOffset), insertSpace = false) {
      let result = "";
---- node_modules/parse-duration/index.js.backup	2022-02-18 16:51:51.000000000 +0100
-+++ node_modules/parse-duration/index.js	2022-02-18 16:52:05.000000000 +0100
+--- node_modules/parse-duration/index.js.backup
++++ node_modules/parse-duration/index.js
 @@ -1,6 +1,6 @@
  'use strict'
  
