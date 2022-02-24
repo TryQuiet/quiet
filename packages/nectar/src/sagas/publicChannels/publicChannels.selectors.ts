@@ -9,7 +9,7 @@ import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { currentCommunityId } from '../communities/communities.selectors'
 import { MessageType } from '../messages/messages.types'
-import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
+import { formatMessageDisplayDate, formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { messagesVerificationStatus } from '../messages/messages.selectors'
 import { CommunityChannels, DisplayableMessage } from './publicChannels.types'
 import { unreadMessagesAdapter } from './markUnreadMessages/unreadMessages.adapter'
@@ -148,13 +148,7 @@ export const dailyGroupedCurrentChannelMessages = createSelector(
   displayableCurrentChannelMessages,
   messages => {
     const result: { [date: string]: DisplayableMessage[] } = messages.reduce((groups, message) => {
-      let date: string
-
-      if (message.date.includes(',')) {
-        date = message.date.split(',')[0]
-      } else {
-        date = 'Today'
-      }
+      let date = formatMessageDisplayDay(message.date)
 
       if (!groups[date]) {
         groups[date] = []
