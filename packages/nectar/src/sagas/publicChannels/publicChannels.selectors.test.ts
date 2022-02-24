@@ -252,15 +252,20 @@ describe('publicChannelsSelectors', () => {
 
   it('get grouped messages', async () => {
     const messages = currentChannelMessagesMergedBySender(store.getState())
-    const displayable: {[id: string]: DisplayableMessage} = {}
     
+    // Convert regular messages to displayable messages
+    const displayable: {[id: string]: DisplayableMessage} = {}
     for (const message of Object.values(msgs)) {
       displayable[message.id] = displayableMessage(message, msgsOwners[message.id])
     }
-
+    
+    // Get groups names
     const groupDay1 = formatMessageDisplayDay(formatMessageDisplayDate(msgs['7'].createdAt))
+    expect(groupDay1).toBe('Feb 05')
     const groupDay2 = formatMessageDisplayDay(formatMessageDisplayDate(msgs['1'].createdAt))
+    expect(groupDay2).toBe('Oct 20')
     const groupDay3 = formatMessageDisplayDay(formatMessageDisplayDate(msgs['9'].createdAt))
+    expect(groupDay3).toBe('Today')
 
     const expectedGrouppedMessages = {
       [groupDay1]: [

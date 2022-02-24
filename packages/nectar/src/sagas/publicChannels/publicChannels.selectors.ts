@@ -9,10 +9,11 @@ import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { currentCommunityId } from '../communities/communities.selectors'
 import { MessageType } from '../messages/messages.types'
-import { formatMessageDisplayDate, formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
+import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { messagesVerificationStatus } from '../messages/messages.selectors'
 import { CommunityChannels, DisplayableMessage } from './publicChannels.types'
 import { unreadMessagesAdapter } from './markUnreadMessages/unreadMessages.adapter'
+import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 
 const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
   state[StoreKeys.PublicChannels]
@@ -131,16 +132,7 @@ const displayableCurrentChannelMessages = createSelector(
   (messages, certificates) =>
     messages.map(message => {
       const user = certificates[message.pubKey]
-      const date = formatMessageDisplayDate(message.createdAt)
-      const displayableMessage: DisplayableMessage = {
-        id: message.id,
-        type: message.type,
-        message: message.message,
-        createdAt: message.createdAt,
-        date: date,
-        nickname: user.username
-      }
-      return displayableMessage
+      return displayableMessage(message, user.username)
     })
 )
 
