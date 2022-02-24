@@ -278,7 +278,7 @@ describe('Chat component', () => {
                 ]
               }
             >
-              <div>
+              <View>
                 <View
                   onLayout={[Function]}
                   style={
@@ -588,8 +588,8 @@ describe('Chat component', () => {
                     </View>
                   </View>
                 </View>
-              </div>
-              <div>
+              </View>
+              <View>
                 <View
                   onLayout={[Function]}
                   style={
@@ -2081,7 +2081,7 @@ describe('Chat component', () => {
                     </View>
                   </View>
                 </View>
-              </div>
+              </View>
             </View>
             <View
               onLayout={[Function]}
@@ -2100,7 +2100,7 @@ describe('Chat component', () => {
                 ]
               }
             >
-              <div>
+              <View>
                 <View
                   onLayout={[Function]}
                   style={
@@ -2410,8 +2410,8 @@ describe('Chat component', () => {
                     </View>
                   </View>
                 </View>
-              </div>
-              <div>
+              </View>
+              <View>
                 <View
                   onLayout={[Function]}
                   style={
@@ -3903,7 +3903,7 @@ describe('Chat component', () => {
                     </View>
                   </View>
                 </View>
-              </div>
+              </View>
             </View>
           </View>
         </RCTScrollView>
