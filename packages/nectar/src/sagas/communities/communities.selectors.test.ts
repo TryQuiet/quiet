@@ -11,8 +11,8 @@ import {
 describe('communitiesSelectors', () => {
   setupCrypto()
   let store: Store
-  let communityAlpha: Community;
-  let communityBeta: Community;
+  let communityAlpha: Community
+  let communityBeta: Community
 
   beforeEach(async () => {
     store = prepareStore({}).store
