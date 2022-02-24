@@ -48,7 +48,7 @@ export const Message: FC<MessageProps> = ({ data }) => {
             {data.map((message, index) => {
               const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
               return (
-                <View style={outerDivStyle}>
+                <View style={outerDivStyle} key={index}>
                   <Typography fontSize={14}>{message.message}</Typography>
                 </View>
               )

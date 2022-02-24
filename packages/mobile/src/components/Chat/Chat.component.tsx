@@ -84,6 +84,7 @@ export const Chat: FC<ChatProps> = ({
       <FlatList
         inverted
         data={Object.keys(messages.groups)}
+        keyExtractor={item => item}
         renderItem={() => <ChannelMessagesComponent messages={messages.groups} />}
         style={{ paddingLeft: 20, paddingRight: 20 }}
       />
@@ -137,13 +138,13 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps> =
     <>
       {Object.keys(messages).map(day => {
         return (
-          <div key={day}>
+          <View key={day}>
             {/* <MessagesDivider title={day} /> */}
             {messages[day].map(data => {
             // Messages merged by sender (DisplayableMessage[])
               return <Message key={data[0].id} data={data} />
             })}
-          </div>
+          </View>
         )
       })}
     </>
