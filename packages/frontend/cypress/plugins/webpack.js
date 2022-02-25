@@ -1,13 +1,13 @@
 module.exports = {
     resolve: {
-      extensions: [".ts", ".jsx"]
+      extensions: [".ts", ".jsx", ".tsx", ".js"]
     },
     node: { fs: "empty", child_process: "empty", readline: "empty" },
     module: {
       rules: [
         {
-          test: /\.ts$/,
-          exclude: [/node_modules/],
+          test: /\.(t|j)sx?$/,
+          exclude: /test/,
           use: [
             {
             loader: "ts-loader"

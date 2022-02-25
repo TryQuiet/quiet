@@ -21,4 +21,3 @@ it('should render basic component', () => {
     </React.Fragment>
   )
 })
-1
