@@ -186,49 +186,21 @@ describe.only('send message - users are online', () => {
   let userOneMessageData
   let userTwoMessageData
 
-  test('owner user sends one message to general channel', async () => {
+  test('each user sends one message to general channel', async () => {
     ownerMessageData = await sendMessage('owner says hi', owner.store)
-  })
-
-  test('Owner replicated all messages 1/3', async () => {
-    await assertReceivedMessages('owner', 1, 120_000, owner.store)
-  })
-
-  test('userOne replicated all messages 1/3', async () => {
-    await assertReceivedMessages('userOne', 1, 120_000, userOne.store)
-  })
-
-  test('userTwo replicated all messages 1/3', async () => {
-    await assertReceivedMessages('userTwo', 1, 120_000, userTwo.store)
-  })
-  test('user One sends one message to general channel', async () => {
     userOneMessageData = await sendMessage('userOne says hi', userOne.store)
-  })
-
-  test('Owner replicated all messages 2/3', async () => {
-    await assertReceivedMessages('owner', 2, 120_000, owner.store)
-  })
-
-  test('userOne replicated all messages 2/3', async () => {
-    await assertReceivedMessages('userOne', 2, 120_000, userOne.store)
-  })
-
-  test('userTwo replicated all messages 2/3', async () => {
-    await assertReceivedMessages('userTwo', 2, 120_000, userTwo.store)
-  })
-  test('user Two sends one message to general channel', async () => {
     userTwoMessageData = await sendMessage('userTwo says hi', userTwo.store)
   })
 
-  test('Owner replicated all messages 3/3', async () => {
+  test('Owner replicated all messages', async () => {
     await assertReceivedMessages('owner', 3, 120_000, owner.store)
   })
 
-  test('userOne replicated all messages 3/3', async () => {
+  test('userOne replicated all messages', async () => {
     await assertReceivedMessages('userOne', 3, 120_000, userOne.store)
   })
 
-  test('userTwo replicated all messages 3/3', async () => {
+  test('userTwo replicated all messages', async () => {
     await assertReceivedMessages('userTwo', 3, 120_000, userTwo.store)
   })
 
