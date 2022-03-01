@@ -17,7 +17,10 @@ import { DateTime } from 'luxon'
 import { MessageType } from '../messages/messages.types'
 import { currentCommunityId } from '../communities/communities.selectors'
 import { FactoryGirl } from 'factory-girl'
-import { formatMessageDisplayDate, formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
+import {
+  formatMessageDisplayDate,
+  formatMessageDisplayDay
+} from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 
 describe('publicChannelsSelectors', () => {
@@ -172,22 +175,21 @@ describe('publicChannelsSelectors', () => {
       .map(({ value }) => value)
 
     for (const item of shuffled) {
-      const message = await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
-        'Message',
-        {
-          identity: item.identity,
-          message: {
-            id: item.id,
-            type: MessageType.Basic,
-            message: `message_${item.id}`,
-            createdAt: item.createdAt,
-            channelAddress: 'general',
-            signature: '',
-            pubKey: ''
-          },
-          verifyAutomatically: true
-        }
-      )
+      const message = await factory.create<
+      ReturnType<typeof publicChannelsActions.test_message>['payload']
+      >('Message', {
+        identity: item.identity,
+        message: {
+          id: item.id,
+          type: MessageType.Basic,
+          message: `message_${item.id}`,
+          createdAt: item.createdAt,
+          channelAddress: 'general',
+          signature: '',
+          pubKey: ''
+        },
+        verifyAutomatically: true
+      })
       msgs[item.id] = message.message
       msgsOwners[item.id] = item.identity.nickname
     }
@@ -252,7 +254,7 @@ describe('publicChannelsSelectors', () => {
     const messages = currentChannelMessagesMergedBySender(store.getState())
 
     // Convert regular messages to displayable messages
-    const displayable: {[id: string]: DisplayableMessage} = {}
+    const displayable: { [id: string]: DisplayableMessage } = {}
     for (const message of Object.values(msgs)) {
       displayable[message.id] = displayableMessage(message, msgsOwners[message.id])
     }
@@ -267,16 +269,16 @@ describe('publicChannelsSelectors', () => {
 
     const expectedGrouppedMessages = {
       [groupDay1]: [
-        [displayable['7'], displayable['8']]
+        [displayable['7']], 
+        [displayable['8']]
       ],
       [groupDay2]: [
-        [displayable['1'], displayable['2'], displayable['3'], displayable['4']],
+        [displayable['1']],
+        [displayable['2'], displayable['3'], displayable['4']],
         [displayable['5']],
         [displayable['6']]
       ],
-      [groupDay3]: [
-        [displayable['9']]
-      ]
+      [groupDay3]: [[displayable['9']]]
     }
     expect(messages).toStrictEqual(expectedGrouppedMessages)
   })
