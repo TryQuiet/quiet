@@ -171,7 +171,7 @@ export const currentChannelMessagesMergedBySender = createSelector(
         // Get last item from collected array for comparison
         const last = merged.length && merged[merged.length - 1][0]
 
-        if (last.nickname === message.nickname && last.createdAt - message.createdAt < 300) {
+        if (last.nickname === message.nickname && message.createdAt - last.createdAt < 300) {
           merged[merged.length - 1].push(message)
         } else {
           merged.push([message])
