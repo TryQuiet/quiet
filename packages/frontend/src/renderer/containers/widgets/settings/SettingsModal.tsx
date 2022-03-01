@@ -8,10 +8,9 @@ import { communities, identity } from '@quiet/nectar'
 const SettingsModalContainer = () => {
   const modal = useModal(ModalName.accountSettingsModal)
 
-  const user = useSelector(identity.selectors.currentIdentity)?.nickname || 'Settings'
   const owner = useSelector(communities.selectors.isOwner)
 
-  return <SettingsModal user={user} owner={owner} {...modal} />
+  return <SettingsModal title={'Settings'} owner={owner} {...modal} />
 }
 
 export default SettingsModalContainer
