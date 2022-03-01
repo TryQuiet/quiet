@@ -95,7 +95,7 @@ export const createNotification = (payload: NotificationsData, emit): any => {
   if (soundTypeToAudio[payload.sound]) {
     soundTypeToAudio[payload.sound].play()
   }
-  const notification = new Notification(payload.title, { body: payload.message })
+  const notification = new Notification(payload.title, { body: payload.message, silent: true })
   notification.onclick = () => {
     emit(channels.actions.setCurrentChannel({
       channelAddress: payload.channelName,
