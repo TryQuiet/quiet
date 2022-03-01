@@ -47,7 +47,15 @@ export const currentCommunityChannelsState = createSelector(
 export const publicChannels = createSelector(
   currentCommunityChannelsState,
   (state: CommunityChannels) => {
-    return publicChannelsAdapter.getSelectors().selectAll(state.channels)
+    return publicChannelsAdapter.getSelectors().selectAll(state.channels).sort((a, b) => {
+      if (a.name === 'general') {
+        return -1
+      }
+      if (b.name === 'general') {
+        return 0
+      }
+      return a.name.localeCompare(b.name)
+    })
   }
 )
 
@@ -184,12 +192,9 @@ export const unreadMessages = createSelector(
   }
 )
 
-export const unreadChannels = createSelector(
-  unreadMessages,
-  (messages) => {
-    return messages.map(message => message.channelAddress)
-  }
-)
+export const unreadChannels = createSelector(unreadMessages, messages => {
+  return messages.map(message => message.channelAddress)
+})
 
 export const publicChannelsSelectors = {
   publicChannelsByCommunity,
