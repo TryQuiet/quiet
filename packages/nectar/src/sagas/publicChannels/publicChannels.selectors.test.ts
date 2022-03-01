@@ -269,7 +269,7 @@ describe('publicChannelsSelectors', () => {
 
     const expectedGrouppedMessages = {
       [groupDay1]: [
-        [displayable['7']], 
+        [displayable['7']],
         [displayable['8']]
       ],
       [groupDay2]: [
