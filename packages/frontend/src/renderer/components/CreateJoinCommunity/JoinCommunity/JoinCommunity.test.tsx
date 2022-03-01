@@ -325,38 +325,17 @@ describe('join community', () => {
   })
 
   it('remove unregistered community from store after invalid registration with username taken error', async () => {
-    const communityAlpha: Community = {
-      name: 'alpha',
-      id: 'communityAlpha',
-      CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-      registrarUrl: '',
-      rootCa: '',
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0
-    }
+    const factoryStore = await prepareStore()
 
-    const identityAlpha: Identity = {
-      id: 'communityAlpha',
-      nickname: 'nickname',
-      hiddenService: {
-        onionAddress: '',
-        privateKey: ''
-      },
-      dmKeys: {
-        publicKey: '',
-        privateKey: ''
-      },
-      peerId: {
-        id: '',
-        pubKey: '',
-        privKey: ''
-      },
-      userCsr: null,
-      userCertificate: ''
-    }
+    const factory = await getFactory(factoryStore.store)
+
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, userCsr: null, nickname: 'alice', userCertificate: null })
 
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
@@ -367,17 +346,14 @@ describe('join community', () => {
         ...new ModalsInitialState(),
         [ModalName.joinCommunityModal]: { open: true }
       },
-      [NectarStoreKeys.Communities]: {
-        ...new communities.State(),
-        currentCommunity: 'communityAlpha',
-        communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
-          communityAlpha
-        ])
-      },
+      [NectarStoreKeys.Communities]: factoryStore.store.getState().Communities,
       [NectarStoreKeys.Identity]: {
         ...new identity.State(),
         identities: identityAdapter.setAll(identityAdapter.getInitialState(), [
-          identityAlpha
+          {
+            ...alice,
+            userCertificate: ''
+          }
         ])
       }
     })
