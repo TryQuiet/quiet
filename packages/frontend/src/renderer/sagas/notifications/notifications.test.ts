@@ -59,15 +59,15 @@ beforeAll(async () => {
   const factory = await getFactory(store.store)
 
   community1 = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+  ReturnType<typeof communities.actions.addNewCommunity>['payload']
   >('Community')
 
   publicChannel2 = await factory.create<
-    ReturnType<typeof publicChannels.actions.addChannel>['payload']
+  ReturnType<typeof publicChannels.actions.addChannel>['payload']
   >('PublicChannel', { communityId: community1.id })
 
   identity1 = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+  ReturnType<typeof identity.actions.addNewIdentity>['payload']
   >('Identity', { id: community1.id, nickname: 'alice' })
 
   const parsedCert = parseCertificate(identity1.userCertificate)
@@ -122,8 +122,8 @@ describe('displayNotificationsSaga', () => {
     expect(notification).toBeCalledWith(
       `New message in #${publicChannel2.channel.address}`,
       {
-        body: incomingMessages.messages[0].message, "silent": true
-      },
+        body: incomingMessages.messages[0].message, silent: true
+      }
 
     )
   })
@@ -323,7 +323,7 @@ describe('displayNotificationsSaga', () => {
 
     expect(notification).toBeCalledWith(
       `New message in #${publicChannel2.channel.address}`,
-      { body: incomingMessages.messages[0].message, "silent": true }
+      { body: incomingMessages.messages[0].message, silent: true }
     )
   })
 })
