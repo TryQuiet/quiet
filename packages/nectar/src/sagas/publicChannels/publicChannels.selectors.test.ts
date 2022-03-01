@@ -3,6 +3,7 @@ import { Store } from '../store.types'
 import { getFactory, Identity, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import {
+  publicChannels as getPublicChannels,
   currentChannelMessagesCount,
   currentChannelMessagesMergedBySender,
   slicedCurrentChannelMessages,
@@ -57,6 +58,25 @@ describe('publicChannelsSelectors', () => {
       'Identity',
       { id: community.id, nickname: 'john' }
     )
+
+    // Setup channels
+    const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
+
+    for (const name of channelNames) {
+      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
+        'PublicChannel',
+        {
+          communityId: community.id,
+          channel: {
+            name: name,
+            description: `Welcome to #${name}`,
+            timestamp: DateTime.utc().valueOf(),
+            owner: alice.nickname,
+            address: name
+          }
+        }
+      )
+    }
 
     /* Messages ids are being used only for veryfing proper order...
     ...they have no impact on selectors work */
@@ -284,22 +304,6 @@ describe('publicChannelsSelectors', () => {
   })
 
   it('filter out unverified messages', async () => {
-    const channel = (
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          communityId: community.id,
-          channel: {
-            name: 'spoofing',
-            description: 'Welcome to channel #spoofing',
-            timestamp: DateTime.utc().toSeconds(),
-            owner: 'alice',
-            address: 'spoofing'
-          }
-        }
-      )
-    ).channel
-
     const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
 
     // Build messages
@@ -310,7 +314,7 @@ describe('publicChannelsSelectors', () => {
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
-      channelAddress: channel.address
+      channelAddress: 'pets'
     }
 
     const spoofedMessage: ChannelMessage = {
@@ -320,7 +324,7 @@ describe('publicChannelsSelectors', () => {
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
-      channelAddress: channel.address,
+      channelAddress: 'pets',
       pubKey: johnPublicKey
     }
 
@@ -337,7 +341,7 @@ describe('publicChannelsSelectors', () => {
 
     store.dispatch(
       publicChannels.actions.setCurrentChannel({
-        channelAddress: channel.address,
+        channelAddress: 'pets',
         communityId: community.id
       })
     )
@@ -347,6 +351,19 @@ describe('publicChannelsSelectors', () => {
     expect(messages.length).toBe(1)
 
     expect(messages[0].id).toBe(authenticMessage.id)
+  })
+
+  it('get channel list in a consistent order', async () => {
+    const channels = getPublicChannels(store.getState()).map(channel => channel.name)
+
+    expect(channels).toStrictEqual([
+      'general',
+      'allergies',
+      'antiques',
+      'croatia',
+      'pets',
+      'sailing'
+    ])
   })
 })
 
