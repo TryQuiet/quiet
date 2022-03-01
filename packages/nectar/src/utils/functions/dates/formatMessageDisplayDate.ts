@@ -10,3 +10,10 @@ export const formatMessageDisplayDate = (createdAt: number): string => {
   }
   return DateTime.fromSeconds(createdAt).setLocale(locale).toFormat('t')
 }
+
+export const formatMessageDisplayDay = (date: string): string => {
+  if (date.includes(',')) {
+    return date.split(',')[0]
+  }
+  return 'Today'
+}

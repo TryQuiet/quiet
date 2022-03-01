@@ -129,6 +129,7 @@ class TorModule: RCTEventEmitter {
       let payload: NSMutableDictionary = [:]
       payload["socksPort"] = socksPort
       payload["controlPort"] = controlPort
+      payload["httpTunnelPort"] = httpTunnelPort
       payload["authCookie"] = cookie.hexEncodedString()
       self.sendEvent(withName: "onTorInit", body: payload)
       

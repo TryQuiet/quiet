@@ -1,16 +1,27 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import { Keyboard, Platform, StyleSheet, View, KeyboardAvoidingView, FlatList, TextInput } from 'react-native'
+import {
+  Keyboard,
+  Platform,
+  StyleSheet,
+  View,
+  KeyboardAvoidingView,
+  FlatList,
+  TextInput
+} from 'react-native'
 import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 
-import { ChatProps } from './Chat.types'
+import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
 
 export const Chat: FC<ChatProps> = ({
   sendMessageAction,
   channel,
-  messages,
-  user
+  user,
+  messages = {
+    count: 0,
+    groups: {}
+  }
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [messageInput, setMessageInput] = useState<string | undefined>()
@@ -47,11 +58,7 @@ export const Chat: FC<ChatProps> = ({
   }
 
   const onPress = () => {
-    if (
-      !messageInputRef.current ||
-      messageInput === undefined ||
-      messageInput?.length === 0
-    ) {
+    if (!messageInputRef.current || messageInput === undefined || messageInput?.length === 0) {
       return
     }
     messageInputRef.current.clear()
@@ -76,9 +83,9 @@ export const Chat: FC<ChatProps> = ({
       }}>
       <FlatList
         inverted
-        data={messages}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => <Message message={item} />}
+        data={Object.keys(messages.groups)}
+        keyExtractor={item => item}
+        renderItem={() => <ChannelMessagesComponent messages={messages.groups} />}
         style={{ paddingLeft: 20, paddingRight: 20 }}
       />
       <View style={inputWrapperStyle}>
@@ -90,7 +97,6 @@ export const Chat: FC<ChatProps> = ({
           style={inputStyle}
         />
       </View>
-
       {didKeyboardShow && (
         <View
           style={{
@@ -126,3 +132,21 @@ const customInputStyle = StyleSheet.create({
     borderWidth: 0
   }
 })
+
+export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps> = ({ messages }) => {
+  return (
+    <>
+      {Object.keys(messages).map(day => {
+        return (
+          <View key={day}>
+            {/* <MessagesDivider title={day} /> */}
+            {messages[day].map(data => {
+            // Messages merged by sender (DisplayableMessage[])
+              return <Message key={data[0].id} data={data} />
+            })}
+          </View>
+        )
+      })}
+    </>
+  )
+}

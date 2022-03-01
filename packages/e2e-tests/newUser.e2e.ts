@@ -68,7 +68,9 @@ test('User can create new community, register and send few messages to general c
   await t.expect(generalChannel.messagesGroup.count).eql(1)
   await t.expect(generalChannel.messagesGroupContent.exists).ok()
   await t.expect(generalChannel.messagesGroupContent.textContent).eql('Hello\xa0everyone')
-  await t.wait(10000) // TODO: remove after fixing https://github.com/ZbayApp/monorepo/issues/222
+  await t.wait(10000)
+  // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
+  // See: https://github.com/ZbayApp/monorepo/issues/222
 })
 
 test('User reopens app, sees general channel and the messages he sent before', async t => {
