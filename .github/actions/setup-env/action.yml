@@ -28,7 +28,7 @@ runs:
         path: |
           node_modules
           */*/node_modules
-        key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.OS }}-npm-cachy-cache-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.OS }}-npm-cache-
 
