@@ -68,7 +68,8 @@ export const messagesMapForNotificationsCalls = (
           return channel.address === messageData.channelAddress
         }
       })
-      const isMessageFromMyUser = usersData[messageData.pubKey]?.username === myIdentity.nickname
+      const senderName = usersData[messageData.pubKey]?.username
+      const isMessageFromMyUser = senderName === myIdentity.nickname
       // it will change name with address
       const isMessageFromCurrentChannel = currentChannel === publicChannelFromMessage.name
       const isNotificationsOptionOff = NotificationsOptions.doNotNotifyOfAnyMessages === notificationsOption
@@ -78,7 +79,7 @@ export const messagesMapForNotificationsCalls = (
 
       if (!isMessageFromMyUser && (!isMessageFromCurrentChannel || !isAppInForeground) && !isNotificationsOptionOff) {
         return createNotification({
-          title: `New message in #${publicChannelFromMessage.name || 'Unnamed'}`,
+          title: `New message from ${senderName || 'unknown user'} in #${publicChannelFromMessage.name || 'Unnamed'}`,
           message: `${messageData.message.substring(0, 64)}${messageData.message.length > 64 ? '...' : ''}`,
           sound: notificationsSound,
           communityId: action.payload.communityId,
