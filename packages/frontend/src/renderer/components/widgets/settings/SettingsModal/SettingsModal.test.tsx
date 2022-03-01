@@ -51,7 +51,7 @@ describe('SettingsModal', () => {
                     class="MuiTypography-root makeStyles-title-10 makeStyles-bold-18 MuiTypography-subtitle1 MuiTypography-alignCenter"
                     style="margin-left: 36px;"
                   >
-                    bob
+                    settings
                   </h6>
                 </div>
                 <div
@@ -607,7 +607,7 @@ describe('SettingsModal', () => {
                     class="MuiTypography-root makeStyles-title-286 makeStyles-bold-294 MuiTypography-subtitle1 MuiTypography-alignCenter"
                     style="margin-left: 36px;"
                   >
-                    alice
+                    Settings
                   </h6>
                 </div>
                 <div
