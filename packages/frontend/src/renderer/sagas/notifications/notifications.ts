@@ -2,7 +2,7 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { Identity, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, PublicChannel, publicChannels as channels, settings, User, users } from '@quiet/nectar'
 import { call, put, select, takeEvery } from 'typed-redux-saga'
-import { remote } from 'electron'
+import { app, remote } from 'electron'
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel, END } from 'redux-saga'
 
@@ -93,10 +93,17 @@ export const messagesMapForNotificationsCalls = (
 }
 
 export const createNotification = (payload: NotificationsData, emit): any => {
+  if (process.platform === 'win32') {
+    app.setAppUserModelId(app.name);
+  }
   if (soundTypeToAudio[payload.sound]) {
     soundTypeToAudio[payload.sound].play()
   }
-  const notification = new Notification(payload.title, { body: payload.message, silent: true })
+  const notification = new Notification(payload.title, {
+    body: payload.message,
+    icon: 'packages/frontend/build' + '/icon.png',
+    silent: true
+  })
   notification.onclick = () => {
     emit(channels.actions.setCurrentChannel({
       channelAddress: payload.channelName,
