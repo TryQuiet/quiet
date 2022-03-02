@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { fixture, t, test } from 'testcafe'
-import { Channel, CreateCommunityModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal } from './selectors'
+import { Channel, CreateCommunityModal, DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal } from './selectors'
 
 const longTimeout = 100000
 
@@ -30,13 +30,17 @@ const goToMainPage = async () => {
 }
 
 test('User can create new community, register and send few messages to general channel', async t => {
+  // Close debug sentry modal if present
+  const debugModeModal = new DebugModeModal()
+  if (await debugModeModal.title.exists) {
+    await debugModeModal.close()
+  }
+  
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
   // User sees "join community" page and switches to "create community" view by clicking on the link
   const joinModal = new JoinCommunityModal()
-
-  // const joinCommunityTitle = await Selector('h3').withText('Join community')()
   await t.expect(joinModal.title.exists).ok('User can\'t see "Join community" title')
   await joinModal.switchToCreateCommunity()
 
@@ -68,7 +72,7 @@ test('User can create new community, register and send few messages to general c
   await t.expect(generalChannel.messagesGroup.count).eql(1)
   await t.expect(generalChannel.messagesGroupContent.exists).ok()
   await t.expect(generalChannel.messagesGroupContent.textContent).eql('Hello\xa0everyone')
-  await t.wait(10000)
+  await t.wait(2000)
   // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
   // See: https://github.com/ZbayApp/monorepo/issues/222
 })

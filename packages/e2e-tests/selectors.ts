@@ -87,3 +87,13 @@ export class RegisterUsernameModal {
     await t.click(submitButton)
   }
 }
+
+export class DebugModeModal {
+  get title() {
+    return Selector('h3').withText('App is running in debug mode')
+  }
+
+  async close() {
+    await t.click(Selector('button').withText('Understand'))
+  }
+}
