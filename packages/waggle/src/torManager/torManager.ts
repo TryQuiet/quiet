@@ -58,7 +58,7 @@ export class Tor {
     this.httpTunnelPort = httpTunnelPort.toString()
   }
 
-  public init = async ({ repeat = 3, timeout = 40000 } = {}): Promise<void> => {
+  public init = async ({ repeat = 6, timeout = 120000 } = {}): Promise<void> => {
     log('Initializing tor...')
     return await new Promise((resolve, reject) => {
       if (this.process) {
@@ -83,6 +83,7 @@ export class Tor {
       let counter = 0
 
       const tryToSpawnTor = async () => {
+        log(`Trying to spawn tor for the ${counter} time...`)
         if (counter > repeat) {
           reject(new Error(`Failed to spawn tor ${counter} times`))
           return
@@ -95,6 +96,7 @@ export class Tor {
                 log.error(err)
               }
               if (stdout.trim() === 'tor' || stdout.search('tor.exe') !== -1) {
+                log(`Killing old tor, pid: ${oldTorPid}`)
                 process.kill(oldTorPid, 'SIGTERM')
               } else {
                 fs.unlinkSync(this.torPidPath)
@@ -107,6 +109,7 @@ export class Tor {
           await this.spawnTor(timeout)
           resolve()
         } catch {
+          log('Killing tor')
           await this.process.kill()
           removeFilesFromDir(this.torDataDirectory)
           counter++
@@ -139,7 +142,7 @@ export class Tor {
     return byPlatform[process.platform]
   }
 
-  protected readonly spawnTor = async (timeoutMs): Promise<void> => {
+  protected readonly spawnTor = async (timeoutMs: number): Promise<void> => {
     return await new Promise((resolve, reject) => {
       this.process = child_process.spawn(
         this.torPath,
