@@ -12,11 +12,11 @@ const runTest = async () => {
   if (argv.appPath) {
     command += ` -- --appPath=${argv.appPath}`
   }
-  
-  for (let i=1; i<=Number(argv.iter); i++) {
+
+  for (let i = 1; i <= Number(argv.iter); i++) {
     console.log(`Starting ${i} test`)
-    let output = await promExec(command)
-    
+    const output = await promExec(command)
+
     console.log(output.stdout.trim())
     console.log(output.stderr.trim())
     console.log(`Finished ${i} test`)

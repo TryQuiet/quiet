@@ -17,12 +17,11 @@ test('Smoke test', async t => {
   // User sees "join community" page and switches to "create community" view by clicking on the link
   const joinModal = new JoinCommunityModal()
   if (!(await joinModal.title.exists)) {
-    console.log("Community probably already exists. Checking if general channel is visible")
+    console.log('Community probably already exists. Checking if general channel is visible')
     const generalChannel = new Channel('general')
     await t.expect(generalChannel.title.exists).ok('User can\'t see "general" channel')
-    
   } else {
-    console.log("Community does not exist, creating one")
+    console.log('Community does not exist, creating one')
     await joinModal.switchToCreateCommunity()
 
     // User is on "Create community" page, enters valid community name and presses the button
@@ -30,13 +29,13 @@ test('Smoke test', async t => {
     await t.expect(createModal.title.exists).ok()
     await createModal.typeCommunityName('testcommunity')
     await createModal.submit()
-  
+
     // User sees "register username" page, enters the valid name and submits by clicking on the button
     const registerModal = new RegisterUsernameModal()
     await t.expect(registerModal.title.exists).ok()
     await registerModal.typeUsername('testuser')
     await registerModal.submit()
-  
+
     // User waits for the spinner to disappear and then sees general channel
     const generalChannel = new Channel('general')
     await t.expect(new LoadingPanel('Creating community').title.exists).notOk(`"Creating community" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
