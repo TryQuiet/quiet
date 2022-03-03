@@ -71,8 +71,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ user, owner, open,
   const scrollbarRef = React.useRef()
 
   const [offset, setOffset] = React.useState(0)
-
-  const [currentTab, setCurrentTab] = useState('notifications')
+  const defaultCurrentTab = owner ? 'invite' : 'notifications'
+  const [currentTab, setCurrentTab] = useState(defaultCurrentTab)
 
   const adjustOffset = () => {
     if (contentRef.clientWidth > 800) {

@@ -183,7 +183,7 @@ describe('User', () => {
         "Identity/registerUsername",
         "Identity/updateUsername",
         "Identity/createUserCsr",
-        "Identity/registerCertificate",
+        "Identity/storeUserCsr",
         "Communities/storePeerList",
         "Identity/storeUserCertificate",
         "Communities/updateCommunity",
@@ -334,7 +334,7 @@ describe('User', () => {
         "Identity/registerUsername",
         "Identity/updateUsername",
         "Identity/createUserCsr",
-        "Identity/registerCertificate",
+        "Identity/storeUserCsr",
         "Errors/addError",
         "Modals/closeModal",
       ]
