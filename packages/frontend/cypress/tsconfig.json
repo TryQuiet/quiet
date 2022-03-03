@@ -1,0 +1,22 @@
+{
+    "extends": "../../../tsconfig.json",
+    "compilerOptions": {
+      "outDir": "../dist",
+      "jsx": "react",
+      "typeRoots": [
+        "../../@types",
+        "../node_modules/@types",
+        "../src/renderer/expanded-theme.ts"
+      ],
+      "resolveJsonModule": true
+    },
+    "include": [
+      "../src"
+    ],
+    "exclude": [
+      "node_modules",
+      "**/__tests__/*",
+      "**/__mocks__/*",
+      "/**/*.test.ts"
+    ]
+  }
