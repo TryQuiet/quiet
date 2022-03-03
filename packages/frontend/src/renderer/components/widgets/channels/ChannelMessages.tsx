@@ -7,7 +7,7 @@ import List from '@material-ui/core/List'
 import MessagesDivider from '../MessagesDivider'
 import BasicMessageComponent from './BasicMessage'
 
-import { DisplayableMessage } from '@quiet/nectar'
+import { MessagesDailyGroups } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
   scroll: {
@@ -45,7 +45,7 @@ export interface IChannelMessagesProps {
   channel: string
   messages?: {
     count: number
-    groups: { [date: string]: DisplayableMessage[][] }
+    groups: MessagesDailyGroups
   }
   setChannelLoadingSlice?: (value: number) => void
 }

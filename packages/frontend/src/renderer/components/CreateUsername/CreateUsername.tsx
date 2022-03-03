@@ -94,6 +94,11 @@ const CreateUsername = () => {
   }, [error])
 
   const handleAction = (nickname: string) => {
+    // in case after 'username taken' error
+    if (isUnregisteredCommunity) {
+      dispatch(communities.actions.removeUnregisteredCommunity(isUnregisteredCommunity))
+    }
+
     setIsCreateUserNameStarted(true)
     setUsername(nickname)
     const value = createUsernameModal.communityData

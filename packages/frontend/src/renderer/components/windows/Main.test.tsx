@@ -95,13 +95,11 @@ describe('Main', () => {
                                   <div
                                     class="MuiGrid-root MuiGrid-item"
                                   >
-                                    <span>
-                                      <p
-                                        class="MuiTypography-root makeStyles-title-187 makeStyles-clickable-188 MuiTypography-body2"
-                                      >
-                                        Channels
-                                      </p>
-                                    </span>
+                                    <p
+                                      class="MuiTypography-root makeStyles-title-187 MuiTypography-body2"
+                                    >
+                                      Channels
+                                    </p>
                                   </div>
                                   <div
                                     class="MuiGrid-root MuiGrid-item"

@@ -60,17 +60,12 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
       className={classes.root}>
       <Grid item>
         {actionTitle ? (
-          <Tooltip title='More channels' className={classes.tooltip} placement='bottom'>
-            <Typography
-              variant='body2'
-              className={classNames(classes.title, classes.clickable)}
-              onClick={event => {
-                event.persist()
-                actionTitle()
-              }}>
-              {title}
-            </Typography>
-          </Tooltip>
+          <Typography
+            variant='body2'
+            className={classNames(classes.title)}
+          >
+            {title}
+          </Typography>
         ) : (
           <Typography variant='body2' className={classes.title}>
             {title}

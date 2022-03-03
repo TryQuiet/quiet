@@ -17,9 +17,15 @@ runs:
       shell: bash
 
     - name: "Pull tor binary"
-      run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinaries && npm run pullLibs
+      if: ${{ inputs.source-path == 'linux' || inputs.source-path == 'darwin' }}
+      run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinaries
       shell: bash
-    
+
+    - name: "Pull tor binary for Windows"
+      if: ${{ inputs.source-path == 'win32' }}
+      run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesWin
+      shell: bash
+
     - name: "Verify Sentry setup"
       run: echo $REACT_APP_ENABLE_SENTRY
       shell: bash

@@ -1,27 +1,57 @@
 import { io, Socket } from 'socket.io-client'
-import { put, call, fork } from 'typed-redux-saga'
-import { socket } from '@quiet/nectar'
-import config from './config'
-import { ScreenNames } from '../../../const/ScreenNames.enum'
-import { replaceScreen } from '../../../utils/functions/replaceScreen/replaceScreen'
-import { nativeServicesActions } from '../../nativeServices/nativeServices.slice'
+import { put, call, cancel, fork, takeEvery, FixedTask } from 'typed-redux-saga'
+import { PayloadAction } from '@reduxjs/toolkit'
+import { socket as nectar } from '@quiet/nectar'
+import { initActions } from '../init.slice'
+import { initialRoutingSaga } from '../initialRouting/initialRouting.saga'
+import { eventChannel } from 'redux-saga'
 
-export function* startConnectionSaga(): Generator {
-  const _socket = yield* call(connect)
-  // There is a type-specific problem with passing Socket object between this saga and @quiet/nectar
-  // @ts-expect-error
-  yield* fork(socket.useIO, _socket)
-  //
-  yield* put(nativeServicesActions.initPushNotifications())
-  //
-  yield* call(replaceScreen, ScreenNames.MainScreen)
+export function* startConnectionSaga(
+  action: PayloadAction<ReturnType<typeof initActions.startConnection>['payload']>
+): Generator {
+  const dataPort = action.payload.dataPort
+
+  const socket = yield* call(io, `http://localhost:${dataPort}`)
+  yield* fork(handleSocketLifecycleActions, socket)
+
+  // Handle opening/restoring connection
+  yield* takeEvery(initActions.setConnected, setConnectedSaga, socket)
 }
 
-export const connect = async (): Promise<Socket> => {
-  const socket = io(config.socket.address)
-  return await new Promise(resolve => {
-    socket.on('connect', async () => {
-      resolve(socket)
-    })
+function* setConnectedSaga(socket: Socket): Generator {
+  // @ts-expect-error
+  const task = yield* fork(nectar.useIO, socket)
+  // Screen redirection
+  yield* fork(initialRoutingSaga)
+  // Handle suspending current connection
+  yield* takeEvery(initActions.suspendConnection, cancelRootTaskSaga, task)
+}
+
+function* handleSocketLifecycleActions(socket: Socket): Generator {
+  const socketChannel = yield* call(subscribeSocketLifecycle, socket)
+  yield takeEvery(socketChannel, function* (action) {
+    yield put(action)
   })
+}
+
+function subscribeSocketLifecycle(socket: Socket) {
+  return eventChannel<
+  ReturnType<typeof initActions.setConnected> |
+  ReturnType<typeof initActions.suspendConnection>
+  >(emit => {
+    socket.on('connect', async () => {
+      console.log('websocket connected')
+      emit(initActions.setConnected())
+    })
+    socket.on('disconnect', () => {
+      console.log('closing socket connection')
+      emit(initActions.suspendConnection())
+    })
+    return () => {}
+  })
+}
+
+function* cancelRootTaskSaga(task: FixedTask<Generator>): Generator {
+  console.log('canceling root task')
+  yield* cancel(task)
 }

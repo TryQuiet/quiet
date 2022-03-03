@@ -19,3 +19,7 @@ jest.mock('zbayapp-nodejs-mobile-react-native', () => ({
 jest.mock('react-native-push-notification', () => ({
   PushNotification: jest.fn(),
 }));
+
+jest.mock('react-native-find-free-port', () => ({
+  getFirstStartingFrom: jest.fn()
+}))

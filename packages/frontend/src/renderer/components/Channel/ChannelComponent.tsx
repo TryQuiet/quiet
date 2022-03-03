@@ -12,7 +12,7 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { useModal } from '../../containers/hooks'
 
-import { DisplayableMessage, PublicChannel, Identity } from '@quiet/nectar'
+import { DisplayableMessage, PublicChannel, Identity, MessagesDailyGroups } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -29,7 +29,7 @@ export interface ChannelComponentProps {
   channelInfoModal: ReturnType<typeof useModal>
   messages: {
     count: number
-    groups: { [date: string]: DisplayableMessage[][] }
+    groups: MessagesDailyGroups
   }
   setChannelLoadingSlice: (value: number) => void
   onDelete: () => void

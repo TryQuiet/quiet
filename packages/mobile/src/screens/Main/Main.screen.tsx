@@ -1,21 +1,53 @@
-import React, { FC, useEffect } from 'react'
+import React, { FC, useEffect, useCallback } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { View } from 'react-native'
-import { useDispatch } from 'react-redux'
 import { initActions } from '../../store/init/init.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
-import { Typography } from '../../components/Typography/Typography.component'
+import { Chat } from '../../components/Chat/Chat.component'
+
+import { identity, messages, publicChannels } from '@quiet/nectar'
 
 export const MainScreen: FC = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
     dispatch(initActions.setCurrentScreen(ScreenNames.MainScreen))
-    // dispatch(communities.actions.createNewCommunity('test'));
   })
+
+  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+
+  const allChannels = useSelector(publicChannels.selectors.publicChannels)
+  const currentChannelAddress = useSelector(publicChannels.selectors.currentChannel)
+  const currentChannel = allChannels.find(channel => channel?.address === currentChannelAddress)
+
+  const channelMessagesCount = useSelector(
+    publicChannels.selectors.currentChannelMessagesCount
+  )
+
+  const channelMessages = useSelector(
+    publicChannels.selectors.currentChannelMessagesMergedBySender
+  )
+
+  const sendMessageAction = useCallback(
+    (message: string) => {
+      dispatch(messages.actions.sendMessage(message))
+    },
+    [dispatch]
+  )
 
   return (
     <View style={{ flex: 1 }}>
-      <Typography fontSize={14}>Hello main screen!</Typography>
+      {currentChannel && (
+        <Chat
+          sendMessageAction={sendMessageAction}
+          channel={currentChannel}
+          user={currentIdentity.nickname}
+          messages={{
+            count: channelMessagesCount,
+            groups: channelMessages
+          }}
+        />
+      )}
     </View>
   )
 }
