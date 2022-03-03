@@ -1,21 +1,20 @@
-import { ClientFunction } from 'testcafe'
+import { ClientFunction, t } from 'testcafe'
 import * as fs from 'fs'
-import * as path from 'path'
 
 export const getPageHTML = ClientFunction(() => {
   // Debugging purposes
   return document.documentElement.outerHTML
 })
 
-export const getDownloadedAppName = () => {
-  const envs = {
-    linux: '.appimage',
-    win32: '.exe'
+export const goToMainPage = async () => {
+  let pageUrl: string
+  try {
+    // Test built app version. This is a really hacky way of accessing proper mainWindowUrl
+    pageUrl = fs.readFileSync('/tmp/mainWindowUrl', { encoding: 'utf8' })
+  } catch {
+    // If no file found assume that tests are run with a dev project venjhbrsion
+    pageUrl = '../frontend/dist/main/index.html#/'
   }
-  const files = fs.readdirSync('.')
-  const apps = files.filter((file) => {
-    return path.extname(file).toLowerCase() === envs[process.platform]
-  })
-  if (!apps) throw Error('NO APPS FOUND')
-  return apps[0]
+  console.info(`Navigating to ${pageUrl}`)
+  await t.navigateTo(pageUrl)
 }

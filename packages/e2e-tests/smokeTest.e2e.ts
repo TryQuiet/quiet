@@ -2,34 +2,17 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { fixture, t, test } from 'testcafe'
 import { Channel, CreateCommunityModal, DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal } from './selectors'
+import { goToMainPage } from './utils'
 
 const longTimeout = 100000
 
 fixture`Smoke test`
   .beforeEach(async t => {
     await goToMainPage()
+    await new DebugModeModal().close()
   })
 
-const goToMainPage = async () => {
-  let pageUrl: string
-  try {
-    // Test built app version. This is a really hacky way of accessing proper mainWindowUrl
-    pageUrl = fs.readFileSync('/tmp/mainWindowUrl', { encoding: 'utf8' })
-  } catch {
-    // If no file found assume that tests are run with a dev project version
-    pageUrl = '../frontend/dist/main/index.html#/'
-  }
-  console.info(`Navigating to ${pageUrl}`)
-  await t.navigateTo(pageUrl)
-}
-
 test('Smoke test', async t => {
-  const debugModeModal = new DebugModeModal()
-  if (await debugModeModal.title.exists) {
-    console.log('Close debug warning modal')
-    await debugModeModal.close()
-  }
-
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
   // User sees "join community" page and switches to "create community" view by clicking on the link
   const joinModal = new JoinCommunityModal()
@@ -39,7 +22,7 @@ test('Smoke test', async t => {
     await t.expect(generalChannel.title.exists).ok('User can\'t see "general" channel')
     
   } else {
-    console.log("Community doesn not exist, creating it")
+    console.log("Community does not exist, creating one")
     await joinModal.switchToCreateCommunity()
 
     // User is on "Create community" page, enters valid community name and presses the button
@@ -58,7 +41,8 @@ test('Smoke test', async t => {
     const generalChannel = new Channel('general')
     await t.expect(new LoadingPanel('Creating community').title.exists).notOk(`"Creating community" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
     await t.expect(generalChannel.title.exists).ok('User can\'t see "general" channel')
-    console.log('WAITING FOR DATA TO BE SAVED')
+
+    console.log('Waiting for data to be saved')
     await t.wait(2000)
   }
 })

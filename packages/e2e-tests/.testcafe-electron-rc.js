@@ -1,8 +1,17 @@
 const fs = require('fs')
 const path = require('path')
-// Note: this config file assumes that the app is present in e2e-tests directory
+const yargs = require('yargs')
+const { hideBin } = require('yargs/helpers')
 
-const getAppName = () => {
+const argv = yargs(hideBin(process.argv)).argv
+
+const getElectronAppPath = () => {
+  // Note: this config file assumes that the executable (app) is present in e2e-tests directory
+  if (argv.appPath) {
+    console.log(`Using app path from arguments: ${argv.appPath}`)
+    return argv.appPath
+  }
+
   const envs = {
     linux: '.appimage',
     win32: '.exe'
@@ -12,12 +21,14 @@ const getAppName = () => {
     return path.extname(file).toLowerCase() === envs[process.platform]
   })
   if (!apps) throw Error('NO APPS FOUND')
+
+  console.log(`Using app from current directory: ${apps[0]}`)
   return apps[0]
 }
 
 module.exports = {
-  mainWindowUrl: '/dist/main/index.html#/',
-  electronPath: `${getAppName()}`,
+  mainWindowUrl: path.join('/dist', 'main', 'index.html#/'),
+  electronPath: `${getElectronAppPath()}`,
   relativePageUrls: true,
   openDevTools: true,
 }

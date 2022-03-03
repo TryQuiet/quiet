@@ -12,7 +12,7 @@
     "lint": "eslint --ext .ts ./src/ --fix",
     "lint-ci": "eslint --ext .ts ./src/",
     "prettier": "prettier",
-    "rmDist": "rm -rf lib/"
+    "rmDist": "rimraf lib/"
   },
   "files": [
     "lib/**/*",

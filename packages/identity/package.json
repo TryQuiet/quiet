@@ -12,7 +12,7 @@
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "check-style": "prettier --check src/**",
-    "rmDist": "rm -rf lib/"
+    "rmDist": "rimraf lib/"
   },
   "repository": {
     "type": "git",

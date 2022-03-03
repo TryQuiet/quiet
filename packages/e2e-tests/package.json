@@ -37,7 +37,8 @@
     "cross-env": "^5.2.0",
     "electron": "12.1.0",
     "testcafe": "^1.18.3",
-    "testcafe-browser-provider-electron": "^0.1.0-alpha.6"
+    "testcafe-browser-provider-electron": "^0.1.0-alpha.6",
+    "yargs": "^17.3.1"
   },
   "author": "",
   "license": "ISC"

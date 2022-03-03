@@ -94,6 +94,8 @@ export class DebugModeModal {
   }
 
   async close() {
-    await t.click(Selector('button').withText('Understand'))
+    if (await this.title.exists) {
+      await t.click(Selector('button').withText('Understand'))
+    }
   }
 }

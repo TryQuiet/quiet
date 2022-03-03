@@ -100,7 +100,7 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "chromatic": "npx chromatic --exit-zero-on-changes=false",
-    "rmDist": "rm -rf dist/"
+    "rmDist": "rimraf dist/"
   },
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
