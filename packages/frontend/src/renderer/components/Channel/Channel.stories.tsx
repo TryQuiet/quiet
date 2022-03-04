@@ -188,7 +188,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
     newMessages.groups.Today.push([newMessage])
 
     setMessages({
-      ...messages,
+      count: messages.count++,
       groups: {
         ...messages.groups,
         Today: newMessages.groups.Today
