@@ -88,13 +88,11 @@ describe('Channels panel', () => {
                   <div
                     class="MuiGrid-root MuiGrid-item"
                   >
-                    <span>
-                      <p
-                        class="MuiTypography-root makeStyles-title-105 makeStyles-clickable-106 MuiTypography-body2"
-                      >
-                        Channels
-                      </p>
-                    </span>
+                    <p
+                      class="MuiTypography-root makeStyles-title-105 MuiTypography-body2"
+                    >
+                      Channels
+                    </p>
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item"
@@ -359,13 +357,11 @@ describe('Channels panel', () => {
                 <div
                   class="MuiGrid-root MuiGrid-item"
                 >
-                  <span>
-                    <p
-                      class="MuiTypography-root makeStyles-title-105 makeStyles-clickable-106 MuiTypography-body2"
-                    >
-                      Channels
-                    </p>
-                  </span>
+                  <p
+                    class="MuiTypography-root makeStyles-title-105 MuiTypography-body2"
+                  >
+                    Channels
+                  </p>
                 </div>
                 <div
                   class="MuiGrid-root MuiGrid-item"
