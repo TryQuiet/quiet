@@ -19,7 +19,7 @@ export function* startConnectionSaga(
 }
 
 function* setConnectedSaga(socket: Socket): Generator {
-  /// @ts-expect-error
+  // @ts-expect-error
   const task = yield* fork(nectar.useIO, socket)
   // Screen redirection
   yield* fork(initialRoutingSaga)

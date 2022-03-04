@@ -3903,7 +3903,7 @@ describe('Chat component', () => {
                     </View>
                   </View>
                 </View>
-              </div>
+              </View>
             </View>
           </View>
         </RCTScrollView>
