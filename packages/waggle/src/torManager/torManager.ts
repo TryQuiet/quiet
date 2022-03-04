@@ -79,6 +79,7 @@ export class Tor {
       if (fs.existsSync(this.torPidPath)) {
         const file = fs.readFileSync(this.torPidPath)
         oldTorPid = Number(file.toString())
+        log(`${this.torPidPath} exists. Old tor pid: ${oldTorPid}`)
       }
       let counter = 0
 
@@ -88,23 +89,15 @@ export class Tor {
           reject(new Error(`Failed to spawn tor ${counter} times`))
           return
         }
-        if (oldTorPid) {
-          child_process.exec(
-            this.torProcessNameCommand(oldTorPid.toString()),
-            (err: child_process.ExecException, stdout: string, _stderr: string) => {
-              if (err) {
-                log.error(err)
-              }
-              if (stdout.trim() === 'tor' || stdout.search('tor.exe') !== -1) {
-                log(`Killing old tor, pid: ${oldTorPid}`)
-                process.kill(oldTorPid, 'SIGTERM')
-              } else {
-                fs.unlinkSync(this.torPidPath)
-              }
-              oldTorPid = null
-            }
-          )
+        
+        this.clearOldTorProcess(oldTorPid)
+
+        try {
+          this.clearHangingTorProcesses()
+        } catch (e) {
+          log(`Error occured while trying to clear hanging tor processes`)
         }
+
         try {
           await this.spawnTor(timeout)
           resolve()
@@ -140,6 +133,53 @@ export class Tor {
       win32: `TASKLIST /FI "PID eq ${oldTorPid}"`
     }
     return byPlatform[process.platform]
+  }
+
+  public clearHangingTorProcesses = () => {
+    if (process.platform !== 'win32') return
+    const winCommand = 'powershell "Get-Process tor | Format-Table Id, Path -HideTableHeaders"'
+    const result = child_process.execSync(winCommand).toString().trim()
+    if (!result) return
+    const torProcesses = result.split('\n')
+    log(`Found ${torProcesses.length} hanging tor process(es)`)
+    torProcesses.forEach((torProcessData) => {
+      if (!torProcessData.trim()) return
+      const [pid, torPath] = torProcessData.split(' ')
+      if (torPath === this.torPath) {
+        log(`Killing tor process. Path ${torPath}, pid ${pid}.`)
+        try {
+          process.kill(Number(pid), 'SIGTERM')
+        } catch (e) {
+          log.error(`Tried killing hanging tor process. Failed. Reason: ${e.message}`)
+        }
+        
+      }
+    })
+  }
+
+  public clearOldTorProcess = (oldTorPid: number) => {
+    if (!oldTorPid) return
+    child_process.exec(
+      this.torProcessNameCommand(oldTorPid.toString()),
+      (err: child_process.ExecException, stdout: string, _stderr: string) => {
+        if (err) {
+          log.error(err)
+        }
+        if (stdout.trim() === 'tor' || stdout.search('tor.exe') !== -1) {
+          log(`Killing old tor, pid: ${oldTorPid}`)
+          try {
+            process.kill(oldTorPid, 'SIGTERM')
+          } catch (e) {
+            log.error(`Tried killing old tor process. Failed. Reason: ${e.message}`)
+          }
+          
+        } else {
+          log(`Deleting ${this.torPidPath}`)
+          fs.unlinkSync(this.torPidPath)
+        }
+        oldTorPid = null
+      }
+    )
   }
 
   protected readonly spawnTor = async (timeoutMs: number): Promise<void> => {
