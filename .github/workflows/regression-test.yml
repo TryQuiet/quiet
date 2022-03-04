@@ -24,4 +24,4 @@ jobs:
         uses: ./.github/actions/setup-env
 
       - name: "Regression tests"
-        run: cd packages/frontend && npm run regression-test
+        run: cd packages/frontend && npm run regression-test:ci
