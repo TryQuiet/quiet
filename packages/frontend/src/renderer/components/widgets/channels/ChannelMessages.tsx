@@ -71,8 +71,8 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   const scrollbarRef = React.useRef<HTMLDivElement>()
   const messagesRef = React.useRef<HTMLUListElement>()
 
-  const previousSlice = usePrevious(messagesSlice)
-  const previousMessages = usePrevious(messages.count)
+  const previousSlice: number = usePrevious(messagesSlice)
+  const previousMessages: number = usePrevious(messages.count)
 
   const scrollBottom = () => {
     if (!scrollbarRef.current) return
@@ -109,7 +109,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
       scrollbarRef.current &&
       scrollPosition === 0 &&
       previousMessages &&
-      // @ts-expect-error
+
       messages.count > previousMessages + previousSlice &&
       messagesSlice === 0
     ) {

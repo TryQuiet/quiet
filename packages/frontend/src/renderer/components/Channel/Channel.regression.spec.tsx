@@ -1,14 +1,14 @@
 import React from 'react'
-import { mount } from '@cypress/react'
+import CssBaseline from '@material-ui/core/CssBaseline'
 import { composeStories, setGlobalConfig } from '@storybook/testing-react'
+import { mount } from '@cypress/react'
+import { it, cy, beforeEach } from 'local-cypress'
+import compareSnapshotCommand from 'cypress-visual-regression/dist/command'
+
 import * as stories from './Channel.stories'
 import { withTheme } from '../../storybook/decorators'
-import CssBaseline from '@material-ui/core/CssBaseline'
-const compareSnapshotCommand = require('cypress-visual-regression/dist/command')
 
 compareSnapshotCommand()
-
-import { it, cy, beforeEach } from 'local-cypress'
 
 setGlobalConfig(withTheme)
 export const sleep = async (time = 1000) =>
@@ -34,7 +34,6 @@ describe('Scroll behavior test', () => {
   })
 
   it('scroll should be at the bottom after entering channel', () => {
-    // @ts-ignore
     cy.get('[data-testid="channelContent"]').compareSnapshot('after launch')
   })
 
@@ -44,14 +43,12 @@ describe('Scroll behavior test', () => {
       .focus()
       .type('you underestimate the power of the force')
       .type('{enter}')
-    // @ts-ignore
     cy.get('[data-testid="channelContent"]').compareSnapshot('send after enter')
   })
 
   it('should scroll to the bottom when scroll is in the middle and user sends new message', () => {
     cy.get('[data-testid="channelContent"]').scrollTo(0, 100)
 
-    // @ts-ignore
     cy.get('[data-testid="channelContent"]').compareSnapshot('scroll to the middle')
 
     cy.get('[data-testid="messageInput"]').focus().type('obi wan was wrong').type('{enter}')
@@ -60,7 +57,6 @@ describe('Scroll behavior test', () => {
       .type('actually, he is on the dark side')
       .type('{enter}')
 
-    // @ts-ignore
     cy.get('[data-testid="channelContent"]').compareSnapshot('send after scroll')
   })
 
@@ -69,13 +65,11 @@ describe('Scroll behavior test', () => {
 
     cy.get('[data-testid="channelContent"]').scrollTo(0, 0)
 
-    // @ts-ignore
     cy.get('[data-testid="channelContent"]').compareSnapshot('scroll to the top')
 
     // Send only one message because previous bug was only after sending one message
     cy.get('[data-testid="messageInput"]').focus().type('and youda too').type('{enter}')
 
-    // @ts-ignore
     cy.get('[data-testid="channelContent"]').compareSnapshot('send after top scroll')
   })
 })
