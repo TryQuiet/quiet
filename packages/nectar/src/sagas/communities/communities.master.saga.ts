@@ -10,9 +10,11 @@ import {
 } from './launchCommunity/launchCommunity.saga'
 import { launchRegistrarSaga } from './launchRegistrar/launchRegistrar.saga'
 import { responseCreateCommunitySaga } from './responseCreateCommunity/responseCreateCommunity.saga'
+import { checkInterruptedRegistrationsSaga } from './checkInterruptedRegistrations/checkInterruptedRegistrations.saga'
 
 export function* communitiesMasterSaga(socket: Socket): Generator {
   yield all([
+    fork(checkInterruptedRegistrationsSaga),
     takeEvery(
       communitiesActions.responseCreateCommunity.type,
       responseCreateCommunitySaga

@@ -2,16 +2,12 @@ import { StoreKeys } from '../store.keys'
 import { createSelector } from '@reduxjs/toolkit'
 import { identityAdapter } from './identity.adapter'
 import { CreatedSelectors, StoreState } from '../store.types'
-import { allCommunities, communitiesSelectors, _allCommunities } from '../communities/communities.selectors'
+import { communitiesSelectors, selectCommunities } from '../communities/communities.selectors'
 
 const identitySlice: CreatedSelectors[StoreKeys.Identity] = (
   state: StoreState
 ) => state[StoreKeys.Identity]
 
-export const selectIdentities = createSelector(
-  identitySlice,
-  (reducerState) => identityAdapter.getSelectors().selectEntities(reducerState.identities)
-)
 export const selectById = (id: string) =>
   createSelector(identitySlice, (reducerState) =>
     identityAdapter.getSelectors().selectById(reducerState.identities, id)
@@ -31,32 +27,22 @@ export const currentIdentity = createSelector(
   }
 )
 
+export const interruptedRegistration = createSelector(
+  selectCommunities,
+  selectEntities,
+  (communities, identities) => {
+    return communities.find(community => {
+      return !identities[community.id] || !identities[community.id].userCertificate
+    })
+  }
+)
+
 export const joinedCommunities = createSelector(
-  allCommunities,
-  selectIdentities,
-  (allCommunities, identities) => {
-    return allCommunities.filter((community) => {
-      return identities[community.id]?.userCertificate
-    })
-  }
-)
-
-export const unregisteredCommunities = createSelector(
-  allCommunities,
-  selectIdentities,
-  (allCommunities, identities) => {
-    return allCommunities.find((community) => {
-      return !identities[community.id]?.userCertificate && identities[community.id]
-    })
-  }
-)
-
-export const unregisteredCommunitiesWithoutUserIdentity = createSelector(
-  allCommunities,
-  selectIdentities,
-  (allCommunities, identities) => {
-    return allCommunities.find((community) => {
-      return !identities[community.id]
+  selectCommunities,
+  selectEntities,
+  (communities, identities) => {
+    return communities.filter((community) => {
+      return identities[community.id].userCertificate
     })
   }
 )
@@ -65,7 +51,6 @@ export const identitySelectors = {
   selectById,
   selectEntities,
   currentIdentity,
-  joinedCommunities,
-  unregisteredCommunities,
-  unregisteredCommunitiesWithoutUserIdentity
+  interruptedRegistration,
+  joinedCommunities
 }
