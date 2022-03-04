@@ -13,12 +13,11 @@ class TorModule: RCTEventEmitter {
     let log_loc = "notice file /dev/null"
     #endif
     
-    conf.cookieAuthentication = true
+    conf.cookieAuthentication = false
     
     conf.arguments = [
       "--allow-missing-torrc",
       "--ignore-missing-torrc",
-      "--CookieAuthentication", "0",
       "--ClientOnly", "1",
       "--AvoidDiskWrites", "1",
       "--SocksPort", "127.0.0.1:\(socksPort)",
