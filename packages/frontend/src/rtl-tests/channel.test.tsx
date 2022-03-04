@@ -322,7 +322,7 @@ describe('Channel', () => {
     store.dispatch(
       messages.actions.addPublicKeyMapping({
         publicKey: aliceMessage.pubKey,
-        cryptoKey: ({} as unknown) as CryptoKey
+        cryptoKey: undefined
       })
     )
 
