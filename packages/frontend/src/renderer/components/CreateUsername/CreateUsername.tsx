@@ -35,6 +35,9 @@ const CreateUsername = () => {
     }
   }, []) // Verify
 
+  // Add logic for closing loadingPanel
+  // Add logic for redirecting after successfull registration
+
   useEffect(() => {
     if (error?.code === 500) {
       error = undefined
