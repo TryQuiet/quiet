@@ -158,7 +158,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   }, [channel, messages, scrollbarRef])
 
   return (
-    <div className={classes.scroll} ref={scrollbarRef} onScroll={onScroll}>
+    <div className={classes.scroll} ref={scrollbarRef} onScroll={onScroll} data-testid="channelContent">
       <List disablePadding className={classes.list} ref={messagesRef} id='messages-scroll'>
         {Object.keys(messages.groups).map(day => {
           return (
