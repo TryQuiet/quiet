@@ -15,6 +15,6 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
-
+import 'cypress-storybook/cypress'
 // Alternatively you can use CommonJS syntax:
 // require('./commands')

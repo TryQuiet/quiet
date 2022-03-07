@@ -1,8 +1,12 @@
 const webpack = require('webpack'); //to access built-in plugins
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
 module.exports = {
     resolve: {
-      extensions: [".ts", ".jsx", ".tsx", ".js"]
+      extensions: [".ts", ".jsx", ".tsx", ".js"],
+      plugins: [
+        new TsconfigPathsPlugin({ configFile: 'tsconfig.build.json' })
+      ]
     },
     node: { fs: "empty", child_process: "empty", readline: "empty" },
     module: {

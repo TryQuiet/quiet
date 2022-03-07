@@ -17,7 +17,7 @@
       "node_modules",
       "**/__tests__/*",
       "**/__mocks__/*",
-      "/**/*.test.tsx",
-      "/**/*.test.ts"
+      "**/*.test.tsx",
+      "**/*.test.ts"
     ]
   }
