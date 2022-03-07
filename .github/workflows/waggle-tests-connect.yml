@@ -7,7 +7,7 @@ on:
 
 jobs:
   test-connect:
-    timeout-minutes: 20
+    timeout-minutes: 40
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -23,7 +23,7 @@ jobs:
         run: lerna run test-connect-ci --scope @quiet/waggle --stream
 
   test-replicate:
-    timeout-minutes: 25
+    timeout-minutes: 40
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
