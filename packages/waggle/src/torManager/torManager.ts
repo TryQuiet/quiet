@@ -135,11 +135,21 @@ export class Tor {
     return byPlatform[process.platform]
   }
 
+  private readonly hangingTorProcessesCommand = (): string => {
+    const byPlatform = {
+      linux: 'pgrep -a -x tor | awk \'{print $1, $2}\'',
+      darwin: '',
+      win32: 'powershell "Get-Process tor | Format-Table Id, Path -HideTableHeaders"',
+    }
+    return byPlatform[process.platform] // Returns pairs: <pid> <path>
+  }
+
   public clearHangingTorProcesses = () => {
-    if (process.platform !== 'win32') return
-    const winCommand = 'powershell "Get-Process tor | Format-Table Id, Path -HideTableHeaders"'
-    const result = child_process.execSync(winCommand).toString().trim()
+    if (process.platform === 'darwin') return
+
+    const result = child_process.execSync(this.hangingTorProcessesCommand()).toString().trim()
     if (!result) return
+
     const torProcesses = result.split('\n')
     log(`Found ${torProcesses.length} hanging tor process(es)`)
     torProcesses.forEach((torProcessData) => {
