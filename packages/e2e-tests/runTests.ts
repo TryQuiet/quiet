@@ -6,11 +6,10 @@ import { hideBin } from 'yargs/helpers'
 const argv = yargs(hideBin(process.argv)).argv
 
 const runTest = async () => {
-  console.log('AAAAAAfSADFASFDADSF', argv)
   const promExec = promisify(exec)
   let command = 'npm run test:smoke'
   if (argv.appPath) {
-    command += ` -- --appPath=${argv.appPath}`
+    command += ` -- --appPath=${argv.appPath as string}`
   }
 
   for (let i = 1; i <= Number(argv.iter); i++) {

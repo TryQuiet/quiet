@@ -89,13 +89,13 @@ export class Tor {
           reject(new Error(`Failed to spawn tor ${counter} times`))
           return
         }
-        
+
         this.clearOldTorProcess(oldTorPid)
 
         try {
-          this.clearHangingTorProcesses()
+          this.clearHangingTorProcess()
         } catch (e) {
-          log(`Error occured while trying to clear hanging tor processes`)
+          log('Error occured while trying to clear hanging tor processes')
         }
 
         try {
@@ -136,22 +136,23 @@ export class Tor {
   }
 
   private readonly hangingTorProcessesCommand = (): string => {
+    /**
+     *  Commands should output pairs: <pid> <path>
+     */
     const byPlatform = {
       linux: 'pgrep -a -x tor | awk \'{print $1, $2}\'',
-      darwin: '',
-      win32: 'powershell "Get-Process tor | Format-Table Id, Path -HideTableHeaders"',
+      darwin: 'ps -A | grep /tor | grep -v grep | awk \'{print $1, $4}\'',
+      win32: 'powershell "Get-Process tor | Format-Table Id, Path -HideTableHeaders"'
     }
-    return byPlatform[process.platform] // Returns pairs: <pid> <path>
+    return byPlatform[process.platform]
   }
 
-  public clearHangingTorProcesses = () => {
-    if (process.platform === 'darwin') return
-
+  public clearHangingTorProcess = () => {
     const result = child_process.execSync(this.hangingTorProcessesCommand()).toString().trim()
     if (!result) return
 
     const torProcesses = result.split('\n')
-    log(`Found ${torProcesses.length} hanging tor process(es)`)
+    log(`Found ${torProcesses.length} tor process(es)`)
     torProcesses.forEach((torProcessData) => {
       if (!torProcessData.trim()) return
       const [pid, torPath] = torProcessData.split(' ')
@@ -162,7 +163,6 @@ export class Tor {
         } catch (e) {
           log.error(`Tried killing hanging tor process. Failed. Reason: ${e.message}`)
         }
-        
       }
     })
   }
@@ -182,7 +182,6 @@ export class Tor {
           } catch (e) {
             log.error(`Tried killing old tor process. Failed. Reason: ${e.message}`)
           }
-          
         } else {
           log(`Deleting ${this.torPidPath}`)
           fs.unlinkSync(this.torPidPath)
