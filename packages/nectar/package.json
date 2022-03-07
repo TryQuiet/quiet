@@ -6,7 +6,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
-    "postinstall": "npm run patch",
+    "postinstall": "run-script-os",
+    "postinstall:default": "npm run patch",
+    "postinstall:win32": "echo \"On Windows. Not patching factory-girl\"",
     "patch": "patch -p0 --forward < factory-girl.patch || true",
     "test": "cross-env TZ=UTC jest sagas/*",
     "lint": "eslint --ext .ts ./src/ --fix",
@@ -67,6 +69,7 @@
     "prettier": "^2.3.2",
     "pvutils": "*",
     "redux-saga-test-plan": "^4.0.3",
+    "run-script-os": "^1.1.6",
     "tmp": "^0.2.1",
     "typescript": "^4.3.5"
   },
