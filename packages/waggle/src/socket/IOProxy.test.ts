@@ -151,7 +151,7 @@ describe('IO proxy', () => {
   it('emits error if connecting to registrar fails', async () => {
     const observedIO = jest.spyOn(ioProxy.io, 'emit')
     const payload: RegisterUserCertificatePayload = {
-      id: 'someCommunityId',
+      communityId: 'someCommunityId',
       userCsr: 'userCsr',
       serviceAddress: 'improperServiceAddress.onion'
     }
@@ -179,7 +179,7 @@ describe('IO proxy', () => {
         Promise.resolve(new ResponseMock().init(registrarStatusCode))
       )
       const payload: RegisterUserCertificatePayload = {
-        id: 'someCommunityId',
+        communityId: 'someCommunityId',
         userCsr: 'userCsr',
         serviceAddress: 'http://properAddress.onion'
       }
@@ -206,14 +206,14 @@ describe('IO proxy', () => {
       Promise.resolve(new ResponseMock().init(200, registrarResponse))
     )
     const payload: RegisterUserCertificatePayload = {
-      id: 'someCommunityId',
+      communityId: 'someCommunityId',
       userCsr: 'userCsr',
       serviceAddress: 'http://properAddress.onion'
     }
     await ioProxy.registerUserCertificate(payload)
     expect(observedIO).toBeCalledTimes(1)
     expect(observedIO).toBeCalledWith(SocketActionTypes.SEND_USER_CERTIFICATE, {
-      id: 'someCommunityId',
+      communityId: 'someCommunityId',
       payload: registrarResponse
     })
   })

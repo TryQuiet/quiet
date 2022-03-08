@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
-import { communities } from '@quiet/nectar'
-import { CommunityAction } from '../../../components/CreateJoinCommunity/community.keys'
+import { communities, identity, CommunityOwnership, CreateNetworkPayload } from '@quiet/nectar'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../../containers/hooks'
@@ -12,40 +11,46 @@ const JoinCommunity = () => {
   const dispatch = useDispatch()
 
   const isConnected = useSelector(socketSelectors.isConnected)
-  const community = useSelector(communities.selectors.currentCommunity)
+
+  const currentCommunity = useSelector(communities.selectors.currentCommunity)
+  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
-  const createUsernameModal = useModal(ModalName.createUsernameModal)
 
   const loadingStartApp = useModal(ModalName.loadingPanel)
 
   useEffect(() => {
-    if (!loadingStartApp.open && !isConnected) {
+    if (!isConnected && joinCommunityModal.open) {
       loadingStartApp.handleOpen({
         message: LoadingMessages.StartApp
       })
-    }
-  }, [community, loadingStartApp, dispatch])
-
-  useEffect(() => {
-    if (isConnected) {
+    } else {
       loadingStartApp.handleClose()
     }
   }, [isConnected])
 
   useEffect(() => {
-    if (!community && !joinCommunityModal.open) {
+    if (!currentCommunity && !joinCommunityModal.open) {
       joinCommunityModal.handleOpen()
     }
-  }, [community, joinCommunityModal, dispatch])
+  }, [currentCommunity])
+
+  useEffect(() => {
+    if (currentIdentity && !currentIdentity.userCertificate && joinCommunityModal.open) {
+      joinCommunityModal.handleClose()
+    }
+  }, [currentIdentity])
 
   const handleCommunityAction = (address: string) => {
-    createUsernameModal.handleOpen({
-      communityAction: CommunityAction.Join,
-      communityData: address
-    })
+    const payload: CreateNetworkPayload = {
+      ownership: CommunityOwnership.User,
+      registrar: address
+    }
+    dispatch(communities.actions.createNetwork(payload))
   }
 
+  // From 'You can create a new community instead' link
   const handleRedirection = () => {
     if (!createCommunityModal.open) {
       createCommunityModal.handleOpen()
@@ -57,11 +62,11 @@ const JoinCommunity = () => {
   return (
     <PerformCommunityActionComponent
       {...joinCommunityModal}
-      communityAction={CommunityAction.Join}
+      communityOwnership={CommunityOwnership.User}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={handleRedirection}
       isConnectionReady={isConnected}
-      community={Boolean(community)}
+      isCloseDisabled={!Boolean(currentCommunity)}
     />
   )
 }

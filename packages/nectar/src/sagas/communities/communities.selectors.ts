@@ -29,7 +29,7 @@ export const currentCommunityId = createSelector(communitiesSlice, reducerState 
 })
 
 export const registrarUrl = (communityId: string) =>
-  createSelector(selectCommunities, communities => {
+  createSelector(selectEntities, communities => {
     const community = communities[communityId]
     
     let registrarAddress: string = ''

@@ -21,7 +21,10 @@ import {
   FetchAllMessagesResponse,
   GetPublicChannelsResponse,
   SendCertificatesResponse,
-  ErrorMessages
+  ErrorMessages,
+  Community,
+  NetworkData,
+  ResponseCreateNetworkPayload
 } from '@quiet/nectar'
 import { emitServerError, emitValidationError } from './errors'
 
@@ -175,13 +178,13 @@ export default class IOProxy {
 
   public registerOwnerCertificate = async (payload: RegisterOwnerCertificatePayload) => {
     const cert = await CertificateRegistration.registerOwnerCertificate(
-      payload.userCsr,
+      payload.userCsr.userCsr,
       payload.permsData
     )
-    log(`Saved owner certificate ${payload.id}`)
+    log(`Saved owner certificate ${payload.communityId}`)
     this.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
-      id: payload.id,
-      payload: { certificate: cert, peers: [], rootCa: payload.permsData.certificate }
+      id: payload.communityId,
+      payload: { certificate: cert, peers: [] }
     })
   }
 
@@ -204,7 +207,7 @@ export default class IOProxy {
       emitServerError(this.io, {
         type: SocketActionTypes.REGISTRAR,
         message: ErrorMessages.REGISTRAR_CONNECTION_FAILED,
-        community: payload.id
+        community: payload.communityId
       })
       return
     }
@@ -216,52 +219,57 @@ export default class IOProxy {
         emitValidationError(this.io, {
           type: SocketActionTypes.REGISTRAR,
           message: ErrorMessages.USERNAME_TAKEN,
-          community: payload.id
+          community: payload.communityId
         })
         return
       case 400:
         emitValidationError(this.io, {
           type: SocketActionTypes.REGISTRAR,
           message: ErrorMessages.INVALID_USERNAME,
-          community: payload.id
+          community: payload.communityId
         })
         return
       default:
         log.error(
-          `Registrar responded with ${response.status} "${response.statusText}" (${payload.id})`
+          `Registrar responded with ${response.status} "${response.statusText}" (${payload.communityId})`
         )
         emitServerError(this.io, {
           type: SocketActionTypes.REGISTRAR,
           message: ErrorMessages.REGISTRATION_FAILED,
-          community: payload.id
+          community: payload.communityId
         })
         return
     }
+    
     const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
       await response.json()
 
-    log(`Sending user certificate (${payload.id})`)
+    log(`Sending user certificate (${payload.communityId})`)
     this.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
-      id: payload.id,
+      id: payload.communityId,
       payload: registrarResponse
     })
   }
 
-  public async createNetwork(community: string) {
-    let network
+  public async createNetwork(community: Community) {
+    let network: NetworkData
     try {
       network = await this.connectionsManager.createNetwork()
     } catch (e) {
-      log.error(`Creating network for community ${community} failed`, e)
+      log.error(`Creating network for community ${community.id} failed`, e)
       emitServerError(this.io, {
         type: SocketActionTypes.NETWORK,
         message: ErrorMessages.NETWORK_SETUP_FAILED,
-        community
+        community: community.id
       })
       return
     }
-    log(`Sending network data for ${community}`)
-    this.io.emit(SocketActionTypes.NETWORK, { id: community, payload: network })
+    log(`Sending network data for ${community.id}`)
+    const payload: ResponseCreateNetworkPayload = {
+      community, 
+      network
+    }
+    this.io.emit(SocketActionTypes.NETWORK, payload)
   }
 
   public async createCommunity(payload: InitCommunityPayload) {

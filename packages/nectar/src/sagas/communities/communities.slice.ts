@@ -2,9 +2,11 @@ import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { communitiesAdapter } from './communities.adapter'
 import {
-  ResponseCreateCommunityPayload,
+  CreateNetworkPayload,
+  ResponseCreateNetworkPayload,
   ResponseRegistrarPayload,
-  StorePeerListPayload
+  StorePeerListPayload,
+  UpdateCommunityPayload
 } from './communities.types'
 
 export class CommunitiesState {
@@ -43,7 +45,7 @@ export const communitiesSlice = createSlice({
     addNewCommunity: (state, action: PayloadAction<Community>) => {
       communitiesAdapter.addOne(state.communities, action.payload)
     },
-    updateCommunity: (state, _action: PayloadAction<Partial<Community>>) => state,
+    updateCommunity: (state, _action: PayloadAction<UpdateCommunityPayload>) => state,
     updateCommunityData: (state, action: PayloadAction<Partial<Community>>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
@@ -52,12 +54,10 @@ export const communitiesSlice = createSlice({
         }
       })
     },
-    joinCommunity: (state, _action: PayloadAction<string>) => state,
-    createNetwork: (state, _action: PayloadAction<string>) => state,
-    createNewCommunity: (state, _action: PayloadAction<string>) => state,
-    responseCreateCommunity: (
+    createNetwork: (state, _action: PayloadAction<CreateNetworkPayload>) => state,
+    responseCreateNetwork: (
       state,
-      _action: PayloadAction<ResponseCreateCommunityPayload>
+      _action: PayloadAction<ResponseCreateNetworkPayload>
     ) => state,
     responseRegistrar: (
       state,

@@ -1,68 +1,53 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { communities, errors, identity, socketActionTypes } from '@quiet/nectar'
+import { socketSelectors } from '../../sagas/socket/socket.selectors'
+import { errors, identity, socketActionTypes } from '@quiet/nectar'
 import CreateUsernameComponent from '../CreateUsername/CreateUsernameComponent'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
-import { CommunityAction } from '../CreateJoinCommunity/community.keys'
-
-export interface CreateUsernameProps {
-  communityAction: CommunityAction
-  communityData: string
-}
+import { LoadingMessages } from '../../containers/widgets/loadingPanel/loadingMessages'
 
 const CreateUsername = () => {
   const dispatch = useDispatch()
 
-  const [username, setUsername] = useState('')
-
-  const interruptedRegistration = useSelector(identity.selectors.interruptedRegistration)
+  const isConnected = useSelector(socketSelectors.isConnected)
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-  const certificate = useSelector(identity.selectors.currentIdentity)?.userCertificate
+
+  const createUsernameModal = useModal(ModalName.createUsernameModal)
+
+  const loadingStartApp = useModal(ModalName.loadingPanel)
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
   let error = communityErrors[socketActionTypes.REGISTRAR]
 
-  const createUsernameModal = useModal<CreateUsernameProps>(ModalName.createUsernameModal)
-  const loadingPanel = useModal(ModalName.loadingPanel)
+  useEffect(() => {
+    if (!isConnected && createUsernameModal.open) {
+      loadingStartApp.handleOpen({
+        message: LoadingMessages.StartApp
+      })
+    } else {
+      loadingStartApp.handleClose()
+    }
+  }, [isConnected])
 
   useEffect(() => {
-    if (interruptedRegistration) {
-      loadingPanel.handleOpen({
-        message: 'Continuing username registration'
-      })
+    if (currentIdentity && !currentIdentity.userCertificate && !createUsernameModal.open) {
+      createUsernameModal.handleOpen()
     }
-  }, []) // Verify
-
-  // Add logic for closing loadingPanel
-  // Add logic for redirecting after successfull registration
+    if (currentIdentity && currentIdentity.userCertificate && createUsernameModal.open) {
+      createUsernameModal.handleClose()
+    }
+  }, [currentIdentity])
 
   useEffect(() => {
     if (error?.code === 500) {
       error = undefined
     }
-  }, [error]) // Verify
-
-  // Move to nectar
-  useEffect(() => {
-    if (currentIdentity?.hiddenService && !certificate) {
-      dispatch(identity.actions.registerUsername(username))
-    }
-  }, [currentIdentity?.hiddenService])
-
+  }, [error])
 
   const handleAction = (nickname: string) => {
-    setUsername(nickname)
-
-    const value = createUsernameModal.communityData
-
-    const action =
-      createUsernameModal.communityAction === CommunityAction.Create
-        ? communities.actions.createNewCommunity(value) // Reuse already existing entities instead of creating new ones
-        : communities.actions.joinCommunity(value)
-
-    dispatch(action)
+    dispatch(identity.actions.registerUsername(nickname))
   }
 
   return (
@@ -70,8 +55,8 @@ const CreateUsername = () => {
       {...createUsernameModal}
       registerUsername={handleAction}
       certificateRegistrationError={error?.message}
-      certificate={certificate}
-      />
+      certificate={currentIdentity?.userCertificate}
+    />
   )
 }
 

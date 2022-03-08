@@ -10,13 +10,15 @@ import WarningIcon from '@material-ui/icons/Warning'
 import Modal from '../ui/Modal/Modal'
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 
-import { CommunityAction } from '../CreateJoinCommunity/community.keys'
 import {
   CreateCommunityDictionary,
   JoinCommunityDictionary
 } from '../CreateJoinCommunity/community.dictionary'
-import { TextInput } from '../../forms/components/textInput'
+
+import { CommunityOwnership } from '@quiet/nectar'
+
 import { Controller, useForm } from 'react-hook-form'
+import { TextInput } from '../../forms/components/textInput'
 import { parseName } from '../../../utils/functions/naming'
 
 const useStyles = makeStyles(theme => ({
@@ -95,22 +97,22 @@ interface PerformCommunityActionFormValues {
 
 export interface PerformCommunityActionProps {
   open: boolean
-  communityAction: CommunityAction
+  communityOwnership: CommunityOwnership
   handleCommunityAction: (value: string) => void
   handleRedirection: () => void
   handleClose: () => void
-  isConnectionReady?: boolean
-  community: boolean
+  isConnectionReady?: boolean,
+  isCloseDisabled: boolean
 }
 
-export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
+export const PerformcommunityOwnershipComponent: React.FC<PerformCommunityActionProps> = ({
   open,
-  communityAction,
+  communityOwnership,
   handleCommunityAction,
   handleRedirection,
   handleClose,
   isConnectionReady = true,
-  community
+  isCloseDisabled
 }) => {
   const classes = useStyles({})
 
@@ -118,7 +120,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
 
   const dictionary =
-    communityAction === CommunityAction.Create
+    communityOwnership === CommunityOwnership.Owner
       ? CreateCommunityDictionary(handleRedirection)
       : JoinCommunityDictionary(handleRedirection)
 
@@ -139,12 +141,12 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     values: PerformCommunityActionFormValues
   ) => {
     const submitValue =
-      communityAction === CommunityAction.Create ? parseName(values.name) : values.name.trim()
+      communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()
     handleSubmit(submitValue)
   }
 
   const onChange = (name: string) => {
-    if (communityAction === CommunityAction.Join) return
+    if (communityOwnership === CommunityOwnership.User) return
     // Check community name against naming policy if user creates community
     const parsedName = parseName(name)
     setCommunityName(parsedName)
@@ -159,7 +161,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   }, [open])
 
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={!community}>
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={isCloseDisabled}>
       <Grid container className={classes.main} direction='column'>
         <>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -199,7 +201,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                     onblur={() => {
                       field.onBlur()
                     }}
-                    value={communityAction === CommunityAction.Join ? field.value.trim() : field.value}
+                    value={communityOwnership === CommunityOwnership.User ? field.value.trim() : field.value}
                   />
                 )}
               />
@@ -244,4 +246,4 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   )
 }
 
-export default PerformCommunityActionComponent
+export default PerformcommunityOwnershipComponent

@@ -12,10 +12,9 @@ import CreateUsername from '../../CreateUsername/CreateUsername'
 import JoinCommunity from '../JoinCommunity/JoinCommunity'
 import CreateCommunity from './CreateCommunity'
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../community.dictionary'
-import { identity, communities, StoreKeys as NectarStoreKeys, getFactory } from '@quiet/nectar'
 import { CommunityNameErrors, FieldErrors } from '../../../forms/fieldsErrors'
 import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
-import { CommunityAction } from '../community.keys'
+import { identity, communities, StoreKeys as NectarStoreKeys, getFactory, CommunityOwnership } from '@quiet/nectar'
 
 describe('Create community', () => {
   it('users switches from create to join', async () => {
@@ -137,11 +136,11 @@ describe('Create community', () => {
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      communityAction={CommunityAction.Create}
+      communityOwnership={CommunityOwnership.Owner}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={() => { }}
       isConnectionReady={true}
-      community={false}
+      isCloseDisabled={true}
     />
     const result = renderComponent(component)
     const communityName = 'communityname'
@@ -168,11 +167,11 @@ describe('Create community', () => {
       <PerformCommunityActionComponent
         open={true}
         handleClose={() => {}}
-        communityAction={CommunityAction.Create}
+        communityOwnership={CommunityOwnership.Owner}
         handleCommunityAction={() => {}}
         handleRedirection={() => {}}
         isConnectionReady={true}
-        community={false}
+        isCloseDisabled={true}
       />
     )
 
@@ -194,11 +193,11 @@ describe('Create community', () => {
     renderComponent(<PerformCommunityActionComponent
       open={true}
       handleClose={() => {}}
-      communityAction={CommunityAction.Create}
+      communityOwnership={CommunityOwnership.Owner}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={() => {}}
       isConnectionReady={true}
-      community={false}
+      isCloseDisabled={true}
     />)
 
     const input = screen.getByPlaceholderText('Community name')
@@ -219,11 +218,11 @@ describe('Create community', () => {
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => {}}
-      communityAction={CommunityAction.Create}
+      communityOwnership={CommunityOwnership.Owner}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={() => {}}
       isConnectionReady={false}
-      community={false}
+      isCloseDisabled={true}
     />
 
     const result = renderComponent(component)
@@ -240,11 +239,11 @@ describe('Create community', () => {
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      communityAction={CommunityAction.Create}
+      communityOwnership={CommunityOwnership.Owner}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={handleRedirection}
       isConnectionReady={true}
-      community={false}
+      isCloseDisabled={true}
     />
 
     const result = renderComponent(component)

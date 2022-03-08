@@ -27,16 +27,6 @@ export const currentIdentity = createSelector(
   }
 )
 
-export const interruptedRegistration = createSelector(
-  selectCommunities,
-  selectEntities,
-  (communities, identities) => {
-    return communities.find(community => {
-      return !identities[community.id] || !identities[community.id].userCertificate
-    })
-  }
-)
-
 export const joinedCommunities = createSelector(
   selectCommunities,
   selectEntities,
@@ -51,6 +41,5 @@ export const identitySelectors = {
   selectById,
   selectEntities,
   currentIdentity,
-  interruptedRegistration,
   joinedCommunities
 }

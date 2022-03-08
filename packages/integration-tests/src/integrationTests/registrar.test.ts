@@ -174,7 +174,7 @@ describe('Certificate already exists in db, user asks for certificate providing 
   test('User is registered and sends the same CSR again, no registration error', async () => {
     await assertReceivedCertificates('owner', 2, 120_000, owner.store)
     await assertReceivedCertificates('user', 2, 120_000, user.store)
-    await sendCsr(user.store, ownerData.registrarAddress)
+    await sendCsr(user.store)
     // Wait for registrar response
     await sleep(30_000)
     await assertNoRegistrationError(user.store)
