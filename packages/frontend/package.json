@@ -87,7 +87,7 @@
     "test": "jest",
     "test:watch": "jest --watchAll",
     "rtl-test": "jest ./src/rtl-tests",
-    "regression-test:update": "./node_modules/.bin/cypress run-ct --env type=base --config screenshotsFolder=cypress/snapshots/base",
+    "regression-test:update": "cypress install && ./node_modules/.bin/cypress run-ct --env type=base --config screenshotsFolder=cypress/snapshots/base",
     "regression-test": "./node_modules/.bin/cypress run-ct --env type=actual",
     "regression-test:ci": "cypress install && ./node_modules/.bin/cypress run-ct --env type=actual",
     "prepublish": "npm run build:main",
