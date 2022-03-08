@@ -37,6 +37,7 @@ describe('Scroll behavior test', () => {
   const messageInput = '[data-testid="messageInput"]'
 
   it('scroll should be at the bottom after entering channel', () => {
+    cy.viewport(500, 351)
     cy.get(channelContent).compareSnapshot('after launch')
     })
 
