@@ -34,6 +34,13 @@ jobs:
           install: false
           command: npm run regression-test:ci
           working-directory: packages/frontend
+
+      - name: Archive test screenshots
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: test-screenshots-linux
+          path: packages/frontend/cypress/snapshots
       
       # - name: "Download cypress binary"
       #   run: cd packages/frontend && npm install cypress

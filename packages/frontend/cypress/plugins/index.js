@@ -9,8 +9,13 @@ module.exports = (on, config) => {
   })
   getCompareSnapshotsPlugin(on, config);
 
-  on('file:preprocessor', () => {
-    console.log('processing file')
+  on('before:browser:launch', (browser, launchOptions) => {
+    if (browser.name === 'electron' && browser.isHeadless) {
+      console.log('headlesssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss electron')
+      launchOptions.preferences.width = 1400
+      launchOptions.preferences.height = 1200
+    }
+    return launchOptions
   })
 
   return config
