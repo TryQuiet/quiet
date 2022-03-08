@@ -1,4 +1,4 @@
-name: Regression tests
+name: Scroll regression tests
 
 on:
   pull_request:
