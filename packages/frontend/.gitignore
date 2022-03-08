@@ -45,3 +45,8 @@ node_modules
 screenshots/
 
 src/renderer/zcash/index.node
+
+# Cypress tests
+
+/cypress/snapshots/actual
+/cypress/snapshots/diff
