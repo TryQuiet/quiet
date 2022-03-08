@@ -40,7 +40,7 @@ describe('Scroll behavior test', () => {
     cy.get(channelContent).compareSnapshot('after launch', {
       capture: 'fullPage'
     })
-    })
+  })
 
   it('scroll should be at the bottom after sending messages', () => {
     cy.get(messageInput).focus().type('luke where are you?').type('{enter}')
@@ -50,7 +50,6 @@ describe('Scroll behavior test', () => {
       .type('{enter}')
     cy.get(channelContent).compareSnapshot('send after enter')
   })
-
 
   it('should scroll to the bottom when scroll is in the middle and user sends new message', () => {
     cy.get(channelContent).scrollTo(0, 100)

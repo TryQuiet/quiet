@@ -26,7 +26,7 @@ jobs:
       - name: "Install libs"
         run: sudo apt-get update && sudo apt-get install -y libgtk2.0-0 libgtk-3-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
 
-      - name: "remove test files workaround"
+      - name: "Remove test files workaround"
         run: find packages/frontend/src -name '*.test.*' -delete && find packages/waggle/src -name '*.test.*' -delete
 
       - uses: cypress-io/github-action@v2
@@ -41,18 +41,3 @@ jobs:
         with:
           name: test-screenshots-linux
           path: packages/frontend/cypress/snapshots
-      
-      # - name: "Download cypress binary"
-      #   run: cd packages/frontend && npm install cypress
-
-      # - name: "Download cypress binary"
-      #   run: npm install -g cypress
-
-      # - name: "check Cypress errors"
-      #   run: npx cypress cache path
-
-      # - name: "check missing ldds"
-      #   run: ldd /home/runner/.cache/Cypress/3.3.1/Cypress/Cypress
-
-      # - name: "Regression tests"
-      #   run: cd packages/frontend && npm run regression-test:ci
