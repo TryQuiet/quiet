@@ -7,7 +7,7 @@ import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 import { DisplayableMessage } from '@quiet/nectar'
 
 const Template: ComponentStory<typeof ChannelComponent> = args => {
-  const [messages, _setMessages] = useState<{
+  const [messages, setMessages] = useState<{
     count: number
     groups: { [day: string]: DisplayableMessage[][] }
   }>({
@@ -57,7 +57,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
           {
             id: '5',
             type: 1,
-            message: 'That\'s impossible!',
+            message: "That's impossible!",
             createdAt: 0,
             date: '12:41',
             nickname: 'chad'
@@ -163,7 +163,8 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
           {
             id: '16',
             type: 1,
-            message: 'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
+            message:
+              'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
             createdAt: 0,
             date: '12:46',
             nickname: 'vader'
@@ -173,7 +174,27 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
     }
   })
 
-  const sendMessage = useCallback((_message: string) => {}, [])
+  const sendMessage = useCallback(message => {
+    const newMessage = {
+      id: '16',
+      type: 1,
+      message: message,
+      createdAt: 0,
+      date: '13:02',
+      nickname: 'vader'
+    }
+
+    const newMessages = messages
+    newMessages.groups.Today.push([newMessage])
+
+    setMessages({
+      count: messages.count++,
+      groups: {
+        ...messages.groups,
+        Today: newMessages.groups.Today
+      }
+    })
+  }, [])
 
   return <ChannelComponent {...args} messages={messages} onInputEnter={sendMessage} />
 }

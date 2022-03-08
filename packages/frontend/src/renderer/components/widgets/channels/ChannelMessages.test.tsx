@@ -32,6 +32,7 @@ describe('ChannelMessages', () => {
         <div>
           <div
             class="makeStyles-scroll-1"
+            data-testid="channelContent"
           >
             <ul
               class="MuiList-root makeStyles-list-2"
