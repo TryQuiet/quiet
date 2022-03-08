@@ -11,12 +11,6 @@ import { withTheme } from '../../storybook/decorators'
 compareSnapshotCommand()
 
 setGlobalConfig(withTheme)
-export const sleep = async (time = 1000) =>
-  await new Promise<void>(resolve => {
-    setTimeout(() => {
-      resolve()
-    }, time)
-  })
 
 const { Component } = composeStories(stories)
 
