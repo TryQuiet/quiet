@@ -135,36 +135,27 @@ export class Tor {
     return byPlatform[process.platform]
   }
 
-  private readonly hangingTorProcessesCommand = (): string => {
+  private readonly hangingTorProcessCommand = (): string => {
     /**
-     *  Commands should output pairs: <pid> <path>
+     *  Commands should output hanging tor pid
      */
     const byPlatform = {
-      linux: 'pgrep -a -x tor | awk \'{print $1, $2}\'',
-      darwin: 'ps -A | grep /tor | grep -v grep | awk \'{print $1, $4}\'',
-      win32: 'powershell "Get-Process tor | Format-Table Id, Path -HideTableHeaders"'
+      linux: `pgrep -af ${this.torDataDirectory} | grep -v pgrep | awk '{print $1}'`,
+      darwin: `ps -A | grep ${this.torDataDirectory} | grep -v grep | awk '{print $1}'`,
+      win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${this.torDataDirectory.replace(/\\/g, '\\\\')}%' and name = 'tor.exe'} | Format-Table ProcessId -HideTableHeaders"`
     }
     return byPlatform[process.platform]
   }
 
   public clearHangingTorProcess = () => {
-    const result = child_process.execSync(this.hangingTorProcessesCommand()).toString().trim()
-    if (!result) return
-
-    const torProcesses = result.split('\n')
-    log(`Found ${torProcesses.length} tor process(es)`)
-    torProcesses.forEach((torProcessData) => {
-      if (!torProcessData.trim()) return
-      const [pid, torPath] = torProcessData.split(' ')
-      if (torPath === this.torPath) {
-        log(`Killing tor process. Path ${torPath}, pid ${pid}.`)
-        try {
-          process.kill(Number(pid), 'SIGTERM')
-        } catch (e) {
-          log.error(`Tried killing hanging tor process. Failed. Reason: ${e.message}`)
-        }
-      }
-    })
+    const torProcessId = child_process.execSync(this.hangingTorProcessCommand()).toString('utf8').trim()
+    if (!torProcessId) return
+    log(`Found tor process with pid ${torProcessId}. Killing...`)
+    try {
+      process.kill(Number(torProcessId), 'SIGTERM')
+    } catch (e) {
+      log.error(`Tried killing hanging tor process. Failed. Reason: ${e.message}`)
+    }
   }
 
   public clearOldTorProcess = (oldTorPid: number) => {
