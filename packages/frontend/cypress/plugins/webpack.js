@@ -3,18 +3,14 @@ const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
 module.exports = {
     resolve: {
-      extensions: [".ts", ".jsx", ".tsx", ".js"],
-      plugins: [
-        new TsconfigPathsPlugin({ configFile: 'tsconfig.build.json' })
-      ]
+      extensions: [".ts", ".jsx", ".tsx", ".js"]
     },
     node: { fs: "empty", child_process: "empty", readline: "empty" },
     module: {
-      noParse: /[a-zA-Z]+\.test\..*/, 
       rules: [
         {
           test: /\.(t|j)sx?$/,
-            exclude: [/node_modules/, /[a-zA-Z]+\.test\..*/],
+            exclude: [/node_modules/],
             loader: "ts-loader",
           },
         {

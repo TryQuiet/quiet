@@ -9,7 +9,6 @@
         "../src/renderer/expanded-theme.ts"
       ],
       "resolveJsonModule": true,
-      "types": ["jest"]
     },
     "include": [
       "../src"
@@ -18,7 +17,7 @@
       "node_modules",
       "**/__tests__/*",
       "**/__mocks__/*",
-      "**/*.test.tsx",
-      "**/*.test.ts"
+      "../src/**/*.test.tsx",
+      "../src/**/*.test.ts"
     ]
   }
