@@ -7,7 +7,7 @@ import { persistReducer } from 'redux-persist'
 import { StoreType } from './handlers/types'
 import { StoreKeys } from './store.keys'
 
-import nectarReducers, { storeKeys as NectarStoreKeys } from '@quiet/nectar'
+import nectarReducers, { storeKeys as NectarStoreKeys, MessagesTransform } from '@quiet/nectar'
 
 import { socketReducer } from '../sagas/socket/socket.slice'
 import { modalsReducer } from '../sagas/modals/modals.slice'
@@ -38,7 +38,8 @@ const persistConfig = {
     StoreKeys.Contacts,
     StoreKeys.DirectMessages,
     StoreKeys.Whitelist
-  ]
+  ],
+  transforms: [MessagesTransform]
 }
 
 export const reducers = {

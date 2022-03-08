@@ -1,6 +1,6 @@
 {
 	"name": "@quiet/waggle",
-	"version": "0.3.0-alpha.6",
+	"version": "0.4.0-alpha.0",
 	"description": "tlg-manager",
 	"types": "lib/index.d.ts",
 	"main": "lib/index.js",
@@ -82,7 +82,7 @@
 		"@chainsafe/libp2p-noise": "^4.0.0",
 		"@peculiar/webcrypto": "1.2.2",
 		"@quiet/identity": "^0.3.0-alpha.5",
-		"@quiet/nectar": "^0.3.0-alpha.6",
+		"@quiet/nectar": "^0.4.0-alpha.0",
 		"abortable-iterator": "^3.0.0",
 		"class-validator": "^0.13.1",
 		"cli-table": "^0.3.6",

@@ -7,7 +7,7 @@ import { NodeEnv } from '../utils/const/NodeEnv.enum'
 import { initActions } from './init/init.slice'
 import { rootReducer } from './root.reducer'
 
-import { storeKeys as NectarStoreKeys } from '@quiet/nectar'
+import { storeKeys as NectarStoreKeys, MessagesTransform } from '@quiet/nectar'
 
 const persistedReducer = persistReducer(
   {
@@ -18,7 +18,8 @@ const persistedReducer = persistReducer(
       NectarStoreKeys.Communities,
       NectarStoreKeys.PublicChannels,
       NectarStoreKeys.Messages
-    ]
+    ],
+    transforms: [MessagesTransform]
   },
   rootReducer
 )
