@@ -97,24 +97,24 @@ export function subscribe(socket: Socket) {
     socket.on(
       SocketActionTypes.SEND_USER_CERTIFICATE,
       (payload: {
-        id: string
+        communityId: string
         payload: { peers: string[]; certificate: string; rootCa: string }
       }) => {
         emit(
           communitiesActions.storePeerList({
-            communityId: payload.id,
+            communityId: payload.communityId,
             peerList: payload.payload.peers
           })
         )
         emit(
           identityActions.storeUserCertificate({
             userCertificate: payload.payload.certificate,
-            communityId: payload.id
+            communityId: payload.communityId
           })
         )
         emit(
           communitiesActions.updateCommunity({
-            id: payload.id,
+            id: payload.communityId,
             rootCa: payload.payload.rootCa
           })
         )
