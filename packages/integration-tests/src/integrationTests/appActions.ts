@@ -165,10 +165,12 @@ export async function registerUsername(payload: Register) {
 
 export async function sendCsr(store: Store) {
   const communityId = store.getState().Communities.communities.ids[0] as string
+  const nickname = store.getState().Identity.identities.entities[communityId].nickname
   const userCsr = store.getState().Identity.identities.entities[communityId].userCsr
 
   const csr: RegisterCertificatePayload = {
     communityId,
+    nickname: nickname,
     userCsr
   }
 

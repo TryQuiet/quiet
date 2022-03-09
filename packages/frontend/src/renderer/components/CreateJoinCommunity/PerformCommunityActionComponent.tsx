@@ -102,7 +102,7 @@ export interface PerformCommunityActionProps {
   handleRedirection: () => void
   handleClose: () => void
   isConnectionReady?: boolean
-  isCloseDisabled: boolean,
+  isCloseDisabled: boolean
   hasReceivedResponse: boolean
 }
 

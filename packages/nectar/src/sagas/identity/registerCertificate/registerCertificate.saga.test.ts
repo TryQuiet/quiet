@@ -31,6 +31,7 @@ describe('registerCertificateSaga', () => {
 
     const registerCertificatePayload: RegisterCertificatePayload = {
       communityId: community.id,
+      nickname: identity.nickname,
       userCsr: identity.userCsr
     }
 
@@ -98,6 +99,7 @@ describe('registerCertificateSaga', () => {
 
     const registerCertificatePayload: RegisterCertificatePayload = {
       communityId: community.id,
+      nickname: identity.nickname,
       userCsr: identity.userCsr
     }
 

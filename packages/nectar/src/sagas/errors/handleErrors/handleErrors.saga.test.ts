@@ -77,6 +77,7 @@ describe('handle errors', () => {
       .put(
         identityActions.registerCertificate({
           communityId: community.id,
+          nickname: identity.nickname,
           userCsr: identity.userCsr
         })
       )

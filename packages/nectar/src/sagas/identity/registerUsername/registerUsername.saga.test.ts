@@ -35,6 +35,7 @@ describe('registerUsernameSaga', () => {
 
     // Identity won't have userCsr as long as its corresponding community has no CA (factory specific logic)
     const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      nickname: undefined,
       id: community.id
     })
 
@@ -45,7 +46,7 @@ describe('registerUsernameSaga', () => {
     }
 
     const createUserCsrPayload: CreateUserCsrPayload = {
-      nickname: 'username',
+      nickname: 'nickname',
       commonName: identity.hiddenService.onionAddress,
       peerId: identity.peerId.id,
       dmPublicKey: identity.dmKeys.publicKey,
@@ -54,7 +55,7 @@ describe('registerUsernameSaga', () => {
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(registerUsernameSaga, identityActions.registerUsername('username'))
+    await expectSaga(registerUsernameSaga, identityActions.registerUsername('nickname'))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(createUserCsr), userCsr]])
@@ -62,6 +63,7 @@ describe('registerUsernameSaga', () => {
       .put(
         identityActions.registerCertificate({
           communityId: community.id,
+          nickname: 'nickname',
           userCsr: userCsr
         })
       )
@@ -97,6 +99,7 @@ describe('registerUsernameSaga', () => {
 
     const identity = (
       await factory.build<typeof identityActions.addNewIdentity>('Identity', {
+        nickname: undefined,
         id: community.id
       })
     ).payload
@@ -106,13 +109,14 @@ describe('registerUsernameSaga', () => {
     store.dispatch(identityActions.addNewIdentity(identity))
 
     const reducer = combineReducers(reducers)
-    await expectSaga(registerUsernameSaga, identityActions.registerUsername('username'))
+    await expectSaga(registerUsernameSaga, identityActions.registerUsername('nickname'))
       .withReducer(reducer)
       .withState(store.getState())
       .not.call(createUserCsr)
       .put(
         identityActions.registerCertificate({
           communityId: community.id,
+          nickname: 'nickname',
           userCsr: userCsr
         })
       )

@@ -76,10 +76,9 @@ describe('User', () => {
         const data = input as socketEventData<[RegisterOwnerCertificatePayload]>
         const payload = data[0]
         socket.socketClient.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
-          id: payload.communityId,
-          payload: {
-            certificate: payload.userCsr,
-            rootCa: payload.permsData.certificate,
+          communityId: payload.communityId,
+          network: {
+            certificate: payload.permsData.certificate,
             peers: []
           }
         })
@@ -234,12 +233,10 @@ describe('User', () => {
         const data = input as socketEventData<[RegisterOwnerCertificatePayload]>
         const payload = data[0]
         socket.socketClient.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
-          id: payload.communityId,
-          payload: {
+          communityId: payload.communityId,
+          network: {
             certificate: payload.permsData.certificate,
-            peers: [],
-            rootCa:
-              'MIIBTTCB8wIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMB4XDTEwMTIyODEwMTAxMFoXDTMwMTIyODEwMTAxMFowEjEQMA4GA1UEAxMHWmJheSBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABBXmkE9W4NHQWUgmaH6j7TLSzOgyNIr8VshAeAMAg36IGvhtxhXNMUMYUApE7K9cifbxn6RVkSird97B7IFMefKjPzA9MA8GA1UdEwQIMAYBAf8CAQMwCwYDVR0PBAQDAgCGMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAKBggqhkjOPQQDAgNJADBGAiEAgY783/mGO15DK319VK/2wiAvq10oce4YdWdx2XUrKFoCIQDOh7r8ZlyLoNAT6FiNM/oBCaR3FrKmg7Nz4+ZbtvZMiw=='
+            peers: []
           }
         })
       }

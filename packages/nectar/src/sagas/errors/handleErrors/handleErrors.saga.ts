@@ -6,14 +6,16 @@ import { errorsActions } from '../errors.slice'
 import { ErrorPayload } from '../errors.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import logger from '../../../utils/logger'
+import { RegisterCertificatePayload } from '../../identity/identity.types'
 
 const log = logger('errors')
 
 function* retryRegistration(communityId: string) {
   const identity = yield* select(identitySelectors.selectById(communityId))
 
-  const payload = {
+  const payload: RegisterCertificatePayload = {
     communityId: communityId,
+    nickname: identity.nickname,
     userCsr: identity.userCsr
   }
 
