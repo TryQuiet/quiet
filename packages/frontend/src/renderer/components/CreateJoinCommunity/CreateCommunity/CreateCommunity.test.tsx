@@ -109,6 +109,7 @@ describe('Create community', () => {
       handleRedirection={() => { }}
       isConnectionReady={true}
       isCloseDisabled={true}
+      hasReceivedResponse={false}
     />
     const result = renderComponent(component)
     const communityName = 'communityname'
@@ -140,6 +141,7 @@ describe('Create community', () => {
         handleRedirection={() => {}}
         isConnectionReady={true}
         isCloseDisabled={true}
+        hasReceivedResponse={false}
       />
     )
 
@@ -166,6 +168,7 @@ describe('Create community', () => {
       handleRedirection={() => {}}
       isConnectionReady={true}
       isCloseDisabled={true}
+      hasReceivedResponse={false}
     />)
 
     const input = screen.getByPlaceholderText('Community name')
@@ -191,6 +194,7 @@ describe('Create community', () => {
       handleRedirection={() => {}}
       isConnectionReady={false}
       isCloseDisabled={true}
+      hasReceivedResponse={false}
     />
 
     const result = renderComponent(component)
@@ -212,6 +216,7 @@ describe('Create community', () => {
       handleRedirection={handleRedirection}
       isConnectionReady={true}
       isCloseDisabled={true}
+      hasReceivedResponse={false}
     />
 
     const result = renderComponent(component)

@@ -107,6 +107,7 @@ describe('join community', () => {
       handleRedirection={() => { }}
       isConnectionReady={true}
       isCloseDisabled={true}
+      hasReceivedResponse={false}
     />
 
     const result = renderComponent(component)
@@ -136,6 +137,7 @@ describe('join community', () => {
       handleRedirection={() => { }}
       isConnectionReady={true}
       isCloseDisabled={true}
+      hasReceivedResponse={false}
     />
 
     const result = renderComponent(component)
@@ -168,6 +170,7 @@ describe('join community', () => {
       handleRedirection={() => { }}
       isConnectionReady={true}
       isCloseDisabled={true}
+      hasReceivedResponse={false}
     />)
 
     const input = screen.getByPlaceholderText('Invite code')
@@ -193,6 +196,7 @@ describe('join community', () => {
       handleRedirection={() => { }}
       isConnectionReady={false}
       isCloseDisabled={true}
+      hasReceivedResponse={false}
     />
 
     const result = renderComponent(component)
@@ -220,6 +224,7 @@ describe('join community', () => {
       handleRedirection={handleRedirection}
       isConnectionReady={true}
       isCloseDisabled={true}
+      hasReceivedResponse={false}
     />
 
     const result = renderComponent(component)

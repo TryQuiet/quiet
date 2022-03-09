@@ -102,7 +102,8 @@ export interface PerformCommunityActionProps {
   handleRedirection: () => void
   handleClose: () => void
   isConnectionReady?: boolean
-  isCloseDisabled: boolean
+  isCloseDisabled: boolean,
+  hasReceivedResponse: boolean
 }
 
 export const PerformcommunityOwnershipComponent: React.FC<PerformCommunityActionProps> = ({
@@ -112,12 +113,16 @@ export const PerformcommunityOwnershipComponent: React.FC<PerformCommunityAction
   handleRedirection,
   handleClose,
   isConnectionReady = true,
-  isCloseDisabled
+  isCloseDisabled,
+  hasReceivedResponse
 }) => {
   const classes = useStyles({})
 
+  const [formSent, setFormSent] = useState(false)
   const [communityName, setCommunityName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
+
+  const waitingForResponse = formSent && !hasReceivedResponse
 
   const dictionary =
     communityOwnership === CommunityOwnership.Owner
@@ -134,12 +139,14 @@ export const PerformcommunityOwnershipComponent: React.FC<PerformCommunityAction
   })
 
   const onSubmit = (values: PerformCommunityActionFormValues) =>
-    submitForm(handleCommunityAction, values)
+    submitForm(handleCommunityAction, values, setFormSent)
 
   const submitForm = (
     handleSubmit: (value: string) => void,
-    values: PerformCommunityActionFormValues
+    values: PerformCommunityActionFormValues,
+    setFormSent
   ) => {
+    setFormSent(true)
     const submitValue =
       communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()
     handleSubmit(submitValue)
@@ -237,6 +244,7 @@ export const PerformcommunityOwnershipComponent: React.FC<PerformCommunityAction
               text={dictionary.button ?? 'Continue'}
               data-testid={`continue-${dictionary.id}`}
               classes={{ button: classes.button }}
+              inProgress={waitingForResponse}
               disabled={!isConnectionReady}
             />
           </form>

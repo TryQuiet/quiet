@@ -67,6 +67,7 @@ const JoinCommunity = () => {
       handleRedirection={handleRedirection}
       isConnectionReady={isConnected}
       isCloseDisabled={!currentCommunity}
+      hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
     />
   )
 }
