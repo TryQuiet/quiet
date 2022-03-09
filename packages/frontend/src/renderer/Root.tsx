@@ -21,8 +21,8 @@ import JoinCommunity from './components/CreateJoinCommunity/JoinCommunity/JoinCo
 import LoadingPanel from './containers/widgets/loadingPanel/loadingPanel'
 import CreateChannel from './components/Channel/CreateChannel/CreateChannel'
 
+export const persistor = persistStore(store)
 export default () => {
-  const persistor = persistStore(store)
   return (
     <MuiThemeProvider theme={theme}>
       <HashRouter>

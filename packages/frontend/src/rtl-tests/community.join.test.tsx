@@ -199,6 +199,7 @@ describe('User', () => {
         "Modals/closeModal",
         "Modals/closeModal",
         "Modals/closeModal",
+        "PublicChannels/setChannelLoadingSlice",
       ]
     `)
   })

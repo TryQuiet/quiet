@@ -22,13 +22,11 @@ describe('SidebarHeader', () => {
             <div
               class="MuiGrid-root MuiGrid-item"
             >
-              <span>
-                <p
-                  class="MuiTypography-root makeStyles-title-2 makeStyles-clickable-3 MuiTypography-body2"
-                >
-                  sample title
-                </p>
-              </span>
+              <p
+                class="MuiTypography-root makeStyles-title-2 MuiTypography-body2"
+              >
+                sample title
+              </p>
             </div>
             <div
               class="MuiGrid-root MuiGrid-item"

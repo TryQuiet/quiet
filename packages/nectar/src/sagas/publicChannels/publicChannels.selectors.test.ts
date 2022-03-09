@@ -3,6 +3,7 @@ import { Store } from '../store.types'
 import { getFactory, Identity, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import {
+  publicChannels as getPublicChannels,
   currentChannelMessagesCount,
   currentChannelMessagesMergedBySender,
   slicedCurrentChannelMessages,
@@ -10,13 +11,18 @@ import {
   validCurrentChannelMessages
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
+import { DisplayableMessage, ChannelMessage } from './publicChannels.types'
 import { communitiesActions, Community } from '../communities/communities.slice'
 import { identityActions } from '../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { MessageType } from '../messages/messages.types'
 import { currentCommunityId } from '../communities/communities.selectors'
 import { FactoryGirl } from 'factory-girl'
-import { ChannelMessage } from './publicChannels.types'
+import {
+  formatMessageDisplayDate,
+  formatMessageDisplayDay
+} from '../../utils/functions/dates/formatMessageDisplayDate'
+import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 
 describe('publicChannelsSelectors', () => {
   let store: Store
@@ -25,6 +31,9 @@ describe('publicChannelsSelectors', () => {
   let community: Community
   let alice: Identity
   let john: Identity
+
+  const msgs: { [id: string]: ChannelMessage } = {}
+  const msgsOwners: { [id: string]: string } = {}
 
   beforeAll(async () => {
     setupCrypto()
@@ -37,7 +46,7 @@ describe('publicChannelsSelectors', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -49,6 +58,25 @@ describe('publicChannelsSelectors', () => {
       'Identity',
       { id: community.id, nickname: 'john' }
     )
+
+    // Setup channels
+    const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
+
+    for (const name of channelNames) {
+      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
+        'PublicChannel',
+        {
+          communityId: community.id,
+          channel: {
+            name: name,
+            description: `Welcome to #${name}`,
+            timestamp: DateTime.utc().valueOf(),
+            owner: alice.nickname,
+            address: name
+          }
+        }
+      )
+    }
 
     /* Messages ids are being used only for veryfing proper order...
     ...they have no impact on selectors work */
@@ -167,22 +195,23 @@ describe('publicChannelsSelectors', () => {
       .map(({ value }) => value)
 
     for (const item of shuffled) {
-      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
-        'Message',
-        {
-          identity: item.identity,
-          message: {
-            id: item.id,
-            type: MessageType.Basic,
-            message: `message_${item.id}`,
-            createdAt: item.createdAt,
-            channelAddress: 'general',
-            signature: '',
-            pubKey: ''
-          },
-          verifyAutomatically: true
-        }
-      )
+      const message = await factory.create<
+      ReturnType<typeof publicChannelsActions.test_message>['payload']
+      >('Message', {
+        identity: item.identity,
+        message: {
+          id: item.id,
+          type: MessageType.Basic,
+          message: `message_${item.id}`,
+          createdAt: item.createdAt,
+          channelAddress: 'general',
+          signature: '',
+          pubKey: ''
+        },
+        verifyAutomatically: true
+      })
+      msgs[item.id] = message.message
+      msgsOwners[item.id] = item.identity.nickname
     }
   })
 
@@ -221,6 +250,15 @@ describe('publicChannelsSelectors', () => {
   })
 
   it('get sliced messages', async () => {
+    const expectedSlicedMessagesOrder = [
+      msgs['3'],
+      msgs['4'],
+      msgs['5'],
+      msgs['6'],
+      msgs['7'],
+      msgs['8'],
+      msgs['9']
+    ]
     const community = currentCommunityId(store.getState())
     store.dispatch(
       publicChannels.actions.setChannelLoadingSlice({
@@ -229,127 +267,43 @@ describe('publicChannelsSelectors', () => {
       })
     )
     const messages = slicedCurrentChannelMessages(store.getState())
-    messages.forEach(message => {
-      expect(message).toMatchSnapshot({
-        pubKey: expect.any(String),
-        signature: expect.any(String)
-      })
-    })
+    expect(messages).toStrictEqual(expectedSlicedMessagesOrder)
   })
 
   it('get grouped messages', async () => {
     const messages = currentChannelMessagesMergedBySender(store.getState())
-    expect(messages).toMatchInlineSnapshot(`
-      Object {
-        "Feb 05": Array [
-          Array [
-            Object {
-              "createdAt": 1612548120,
-              "date": "Feb 05, 6:02 PM",
-              "id": "7",
-              "message": "message_7",
-              "nickname": "alice",
-              "type": 1,
-            },
-            Object {
-              "createdAt": 1612558200,
-              "date": "Feb 05, 8:50 PM",
-              "id": "8",
-              "message": "message_8",
-              "nickname": "alice",
-              "type": 1,
-            },
-          ],
-        ],
-        "Oct 20": Array [
-          Array [
-            Object {
-              "createdAt": 1603173000,
-              "date": "Oct 20, 5:50 AM",
-              "id": "1",
-              "message": "message_1",
-              "nickname": "alice",
-              "type": 1,
-            },
-            Object {
-              "createdAt": 1603174200,
-              "date": "Oct 20, 6:10 AM",
-              "id": "2",
-              "message": "message_2",
-              "nickname": "alice",
-              "type": 1,
-            },
-            Object {
-              "createdAt": 1603174290.001,
-              "date": "Oct 20, 6:11 AM",
-              "id": "3",
-              "message": "message_3",
-              "nickname": "alice",
-              "type": 1,
-            },
-            Object {
-              "createdAt": 1603174290.002,
-              "date": "Oct 20, 6:11 AM",
-              "id": "4",
-              "message": "message_4",
-              "nickname": "alice",
-              "type": 1,
-            },
-          ],
-          Array [
-            Object {
-              "createdAt": 1603174321,
-              "date": "Oct 20, 6:12 AM",
-              "id": "5",
-              "message": "message_5",
-              "nickname": "john",
-              "type": 1,
-            },
-          ],
-          Array [
-            Object {
-              "createdAt": 1603174322,
-              "date": "Oct 20, 6:12 AM",
-              "id": "6",
-              "message": "message_6",
-              "nickname": "alice",
-              "type": 1,
-            },
-          ],
-        ],
-        "Today": Array [
-          Array [
-            Object {
-              "createdAt": 1645217400,
-              "date": "8:50 PM",
-              "id": "9",
-              "message": "message_9",
-              "nickname": "alice",
-              "type": 1,
-            },
-          ],
-        ],
-      }
-    `)
+
+    // Convert regular messages to displayable messages
+    const displayable: { [id: string]: DisplayableMessage } = {}
+    for (const message of Object.values(msgs)) {
+      displayable[message.id] = displayableMessage(message, msgsOwners[message.id])
+    }
+
+    // Get groups names
+    const groupDay1 = formatMessageDisplayDay(formatMessageDisplayDate(msgs['7'].createdAt))
+    expect(groupDay1).toBe('Feb 05')
+    const groupDay2 = formatMessageDisplayDay(formatMessageDisplayDate(msgs['1'].createdAt))
+    expect(groupDay2).toBe('Oct 20')
+    const groupDay3 = formatMessageDisplayDay(formatMessageDisplayDate(msgs['9'].createdAt))
+    expect(groupDay3).toBe('Today')
+
+    const expectedGrouppedMessages = {
+      [groupDay1]: [
+        [displayable['7']],
+        [displayable['8']]
+      ],
+      [groupDay2]: [
+        [displayable['1']],
+        [displayable['2'], displayable['3'], displayable['4']],
+        [displayable['5']],
+        [displayable['6']]
+      ],
+      [groupDay3]: [[displayable['9']]]
+    }
+    expect(messages).toStrictEqual(expectedGrouppedMessages)
   })
 
   it('filter out unverified messages', async () => {
-    const channel = (
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          communityId: community.id,
-          channel: {
-            name: 'spoofing',
-            description: 'Welcome to channel #spoofing',
-            timestamp: DateTime.utc().toSeconds(),
-            owner: 'alice',
-            address: 'spoofing'
-          }
-        }
-      )
-    ).channel
-
     const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
 
     // Build messages
@@ -360,7 +314,7 @@ describe('publicChannelsSelectors', () => {
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
-      channelAddress: channel.address
+      channelAddress: 'pets'
     }
 
     const spoofedMessage: ChannelMessage = {
@@ -370,7 +324,7 @@ describe('publicChannelsSelectors', () => {
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
-      channelAddress: channel.address,
+      channelAddress: 'pets',
       pubKey: johnPublicKey
     }
 
@@ -387,7 +341,7 @@ describe('publicChannelsSelectors', () => {
 
     store.dispatch(
       publicChannels.actions.setCurrentChannel({
-        channelAddress: channel.address,
+        channelAddress: 'pets',
         communityId: community.id
       })
     )
@@ -398,6 +352,19 @@ describe('publicChannelsSelectors', () => {
 
     expect(messages[0].id).toBe(authenticMessage.id)
   })
+
+  it('get channel list in a consistent order', async () => {
+    const channels = getPublicChannels(store.getState()).map(channel => channel.name)
+
+    expect(channels).toStrictEqual([
+      'general',
+      'allergies',
+      'antiques',
+      'croatia',
+      'pets',
+      'sailing'
+    ])
+  })
 })
 
-export { }
+export {}

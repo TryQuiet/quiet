@@ -1,5 +1,4 @@
-
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useState } from 'react'
 import { Keyboard, KeyboardAvoidingView } from 'react-native'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
@@ -8,19 +7,11 @@ import { Typography } from '../Typography/Typography.component'
 import { JoinCommunityProps } from './JoinCommunity.types'
 
 export const JoinCommunity: FC<JoinCommunityProps> = ({
-  joinCommunityAction,
-  joinCommunityError
+  openUsernameRegistration
 }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
-
-  useEffect(() => {
-    if (joinCommunityError) {
-      setLoading(false)
-      setInputError(joinCommunityError)
-    }
-  }, [joinCommunityError])
 
   const onChangeText = (value: string) => {
     setInputError(undefined)
@@ -35,7 +26,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
       setInputError('Community address can not be empty')
       return
     }
-    joinCommunityAction(joinCommunityInput)
+    openUsernameRegistration(joinCommunityInput)
   }
 
   return (

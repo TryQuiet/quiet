@@ -3,10 +3,8 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import { initActions, initReducer, InitState } from '../../init/init.slice'
 import { StoreKeys } from '../../store.keys'
-import {
-  nativeServicesReducer,
-  NativeServicesState
-} from '../nativeServices.slice'
+import { nativeServicesReducer, NativeServicesState } from '../nativeServices.slice'
+import FindFreePort from 'react-native-find-free-port'
 
 import { startNodeProcess, startWaggleSaga } from './startWaggle.saga'
 
@@ -26,6 +24,7 @@ describe('startWaggleSaga', () => {
             ...new InitState(),
             dataDirectoryPath: 'dataDirectoryPath',
             torData: {
+              httpTunnelPort: 8050,
               socksPort: 9010,
               controlPort: 9150,
               authCookie: 'cookie'
@@ -33,14 +32,13 @@ describe('startWaggleSaga', () => {
           }
         }
       )
-      .provide([[call.fn(startNodeProcess), null]])
-      .put(
-        initActions.updateInitDescription(
-          'Data is being retrieved from a distributed database'
-        )
-      )
-      .put(initActions.onWaggleStarted(true))
-      .call(startNodeProcess, 'dataDirectoryPath', 9010, 9150, 'cookie')
+      .provide([
+        [call.fn(FindFreePort.getFirstStartingFrom), 4677],
+        [call.fn(startNodeProcess), null]
+      ])
+      .call(FindFreePort.getFirstStartingFrom, 4677)
+      .call(startNodeProcess, 'dataDirectoryPath', 4677, 8050, 9010, 9150, 'cookie')
+      .put(initActions.onWaggleStarted({ dataPort: 4677 }))
       .run()
   })
 })

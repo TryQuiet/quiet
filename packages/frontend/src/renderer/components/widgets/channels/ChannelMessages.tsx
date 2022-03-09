@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { usePrevious } from '../../hooks'
 
 import { makeStyles } from '@material-ui/core/styles'
 import List from '@material-ui/core/List'
@@ -6,7 +7,7 @@ import List from '@material-ui/core/List'
 import MessagesDivider from '../MessagesDivider'
 import BasicMessageComponent from './BasicMessage'
 
-import { DisplayableMessage } from '@quiet/nectar'
+import { MessagesDailyGroups } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
   scroll: {
@@ -44,7 +45,7 @@ export interface IChannelMessagesProps {
   channel: string
   messages?: {
     count: number
-    groups: { [date: string]: DisplayableMessage[][] }
+    groups: MessagesDailyGroups
   }
   setChannelLoadingSlice?: (value: number) => void
 }
@@ -62,13 +63,16 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
 
   const chunkSize = 50 // Should come from the configuration
 
-  const [scrollPosition, setScrollPosition] = React.useState(-1)
+  const [scrollPosition, setScrollPosition] = React.useState(1)
   const [scrollHeight, setScrollHeight] = React.useState(0)
 
   const [messagesSlice, setMessagesSlice] = React.useState(0)
 
   const scrollbarRef = React.useRef<HTMLDivElement>()
   const messagesRef = React.useRef<HTMLUListElement>()
+
+  const previousSlice: number = usePrevious(messagesSlice)
+  const previousMessages: number = usePrevious(messages.count)
 
   const scrollBottom = () => {
     if (!scrollbarRef.current) return
@@ -93,9 +97,27 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   /* Keep scroll position when new chunk of messages are being loaded */
   useEffect(() => {
     if (scrollbarRef.current && scrollPosition === 0) {
-      scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight - scrollHeight
+      setTimeout(() => {
+        scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight - scrollHeight
+      })
     }
   }, [messages.count])
+
+  /* Scroll to bottom if new message arrives and scroll is at the top */
+  useEffect(() => {
+    if (
+      scrollbarRef.current &&
+      scrollPosition === 0 &&
+      previousMessages &&
+
+      messages.count > previousMessages + previousSlice &&
+      messagesSlice === 0
+    ) {
+      setTimeout(() => {
+        scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight
+      })
+    }
+  }, [messages.count, messagesSlice])
 
   /* Lazy loading messages - top (load) */
   useEffect(() => {
@@ -136,7 +158,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   }, [channel, messages, scrollbarRef])
 
   return (
-    <div className={classes.scroll} ref={scrollbarRef} onScroll={onScroll}>
+    <div className={classes.scroll} ref={scrollbarRef} onScroll={onScroll} data-testid="channelContent">
       <List disablePadding className={classes.list} ref={messagesRef} id='messages-scroll'>
         {Object.keys(messages.groups).map(day => {
           return (

@@ -4,7 +4,7 @@ import Tor
 @objc(TorModule)
 class TorModule: RCTEventEmitter {
   
-  private func getTorBaseConfiguration(socksPort: in_port_t, controlPort: in_port_t) -> TorConfiguration {
+  private func getTorBaseConfiguration(socksPort: in_port_t, controlPort: in_port_t, httpTunnelPort: in_port_t) -> TorConfiguration {
     let conf = TorConfiguration()
     
     #if DEBUG
@@ -22,6 +22,7 @@ class TorModule: RCTEventEmitter {
       "--AvoidDiskWrites", "1",
       "--SocksPort", "127.0.0.1:\(socksPort)",
       "--ControlPort", "127.0.0.1:\(controlPort)",
+      "--HTTPTunnelPort", "127.0.0.1:\(httpTunnelPort)",
       "--Log", log_loc,
     ]
     
@@ -39,11 +40,11 @@ class TorModule: RCTEventEmitter {
   
   private var torThread: TorThread?
   
-  @objc(startTor:controlPort:)
-  func startTor(socksPort: in_port_t, controlPort: in_port_t) -> Void {
+  @objc(startTor:controlPort:httpTunnelPort:)
+  func startTor(socksPort: in_port_t, controlPort: in_port_t, httpTunnelPort: in_port_t) -> Void {
     
     let torBaseConfiguration = getTorBaseConfiguration(
-      socksPort: socksPort, controlPort: controlPort
+      socksPort: socksPort, controlPort: controlPort, httpTunnelPort: httpTunnelPort
     )
     
     #if DEBUG
@@ -128,6 +129,7 @@ class TorModule: RCTEventEmitter {
       let payload: NSMutableDictionary = [:]
       payload["socksPort"] = socksPort
       payload["controlPort"] = controlPort
+      payload["httpTunnelPort"] = httpTunnelPort
       payload["authCookie"] = cookie.hexEncodedString()
       self.sendEvent(withName: "onTorInit", body: payload)
       

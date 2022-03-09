@@ -14,7 +14,7 @@ import { JoinCommunityDictionary, CreateCommunityDictionary } from '../community
 import CreateUsername from '../../CreateUsername/CreateUsername'
 import LoadingPanelModal from '../../../containers/widgets/loadingPanel/loadingPanel'
 import { LoadingMessages } from '../../../containers/widgets/loadingPanel/loadingMessages'
-import { identity, communities, getFactory, StoreKeys as NectarStoreKeys } from '@quiet/nectar'
+import { communities, getFactory, StoreKeys as NectarStoreKeys, Identity, Community, identity, identityAdapter, communitiesAdapter } from '@quiet/nectar'
 import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { CommunityAction } from '../community.keys'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
@@ -190,7 +190,7 @@ describe('join community', () => {
 
     const component = <PerformCommunityActionComponent
       open={true}
-      handleClose={() => {}}
+      handleClose={() => { }}
       communityAction={CommunityAction.Join}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={() => { }}
@@ -217,9 +217,9 @@ describe('join community', () => {
 
     const component = <PerformCommunityActionComponent
       open={true}
-      handleClose={() => {}}
+      handleClose={() => { }}
       communityAction={CommunityAction.Join}
-      handleCommunityAction={() => {}}
+      handleCommunityAction={() => { }}
       handleRedirection={handleRedirection}
       isConnectionReady={true}
       community={false}
@@ -322,5 +322,72 @@ describe('join community', () => {
 
     const switchLink2 = result2.queryByText(LoadingMessages.CreateCommunity)
     expect(switchLink2).toBeNull()
+  })
+
+  it('remove unregistered community from store after invalid registration with username taken error', async () => {
+    const factoryStore = await prepareStore()
+
+    const factory = await getFactory(factoryStore.store)
+
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, userCsr: null, nickname: 'alice', userCertificate: null })
+
+    const { store } = await prepareStore({
+      [StoreKeys.Socket]: {
+        ...new SocketState(),
+        isConnected: true
+      },
+      [StoreKeys.Modals]: {
+        ...new ModalsInitialState(),
+        [ModalName.joinCommunityModal]: { open: true }
+      },
+      [NectarStoreKeys.Communities]: factoryStore.store.getState().Communities,
+      [NectarStoreKeys.Identity]: {
+        ...new identity.State(),
+        identities: identityAdapter.setAll(identityAdapter.getInitialState(), [
+          {
+            ...alice,
+            userCertificate: ''
+          }
+        ])
+      }
+    })
+
+    renderComponent(
+      <>
+        <JoinCommunity />
+        <CreateUsername />
+      </>,
+      store
+    )
+
+    // Confirm proper modal title is displayed
+    const dictionary = JoinCommunityDictionary()
+    const joinCommunityTitle = screen.getByText(dictionary.header)
+    expect(joinCommunityTitle).toBeVisible()
+
+    // Enter community address and hit button
+    const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
+    const joinCommunityButton = screen.getByText(dictionary.button)
+    userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+    userEvent.click(joinCommunityButton)
+
+    // Confirm user is being redirected to username registration
+    const createUsernameTitle = await screen.findByText('Register a username')
+    expect(createUsernameTitle).toBeVisible()
+
+    // Enter user name and hit button
+    const createUsernameInput = screen.getByPlaceholderText('Enter a username')
+    const createUsernameButton = screen.getByText('Register')
+    userEvent.type(createUsernameInput, 'alice')
+    userEvent.click(createUsernameButton)
+
+    // Wait for action what removes community from store after click on register button and check is it removed
+    await waitFor(() => expect(store.getState().Communities.communities.ids.length).toBe(0))
   })
 })

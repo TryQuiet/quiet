@@ -256,6 +256,17 @@ app.on('ready', async () => {
     log('failed loading')
   })
 
+  mainWindow.once('close', e => {
+    e.preventDefault()
+    log('Closing window')
+    mainWindow.webContents.send('force-save-state')
+  })
+
+  ipcMain.on('state-saved', e => {
+    mainWindow.close()
+    log('Saved state, closed window')
+  })
+
   mainWindow.webContents.once('did-finish-load', async () => {
     if (!isBrowserWindow(mainWindow)) {
       throw new Error('mainWindow is on unexpected type {mainWindow}')
@@ -294,7 +305,6 @@ app.on('ready', async () => {
 app.setAsDefaultProtocolClient('quiet')
 
 app.on('before-quit', async e => {
-  e.preventDefault()
   if (waggleProcess !== null) {
     await waggleProcess.connectionsManager.closeAllServices()
     await waggleProcess.dataServer.close()

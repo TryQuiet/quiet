@@ -209,6 +209,7 @@ describe('User', () => {
         "Connection/addInitializedRegistrar",
         "PublicChannels/createChannel",
         "PublicChannels/subscribeToTopic",
+        "PublicChannels/setChannelLoadingSlice",
         "PublicChannels/setCurrentChannel",
         "PublicChannels/addChannel",
         "Modals/closeModal",
@@ -380,6 +381,7 @@ describe('User', () => {
         "PublicChannels/subscribeToTopic",
         "PublicChannels/setCurrentChannel",
         "PublicChannels/addChannel",
+        "PublicChannels/setChannelLoadingSlice",
         "PublicChannels/clearUnreadMessages",
       ]
     `)

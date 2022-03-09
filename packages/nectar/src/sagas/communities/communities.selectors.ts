@@ -81,7 +81,7 @@ export const registrarUrl = (communityId: string) =>
   })
 
 export const isOwner = createSelector(currentCommunity, (community) => {
-  return community?.CA !== null
+  return Boolean(community?.CA)
 })
 
 export const communitiesSelectors = {
