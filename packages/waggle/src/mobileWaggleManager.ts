@@ -13,7 +13,7 @@ export const runWaggle = async (): Promise<any> => {
     .requiredOption('-t, --httpTunnelPort <httpTunnelPort>', 'httpTunnelPort')
     .requiredOption('-s, --socksPort <socksPort>', 'socks port')
     .requiredOption('-c, --controlPort <controlPort>', 'control port')
-    .requiredOption('-a, --authCookie <authCookie>', 'control port authentication cookie')
+    // .requiredOption('-a, --authCookie <authCookie>', 'control port authentication cookie')
 
   program.parse(process.argv)
 
@@ -34,7 +34,7 @@ export const runWaggle = async (): Promise<any> => {
       createPaths: false,
       spawnTor: false,
       torControlPort: options.controlPort,
-      torAuthCookie: options.authCookie
+      torAuthCookie: undefined
     }
   })
 
