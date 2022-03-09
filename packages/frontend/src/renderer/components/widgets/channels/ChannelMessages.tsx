@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import { usePrevious } from '../../hooks'
 
 import { makeStyles } from '@material-ui/core/styles'
@@ -42,6 +42,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export interface IChannelMessagesProps {
+  username: string
   channel: string
   messages?: {
     count: number
@@ -52,6 +53,7 @@ export interface IChannelMessagesProps {
 
 // TODO: scrollbar smart pagination
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
+  username,
   channel,
   messages = {
     count: 0,
@@ -79,6 +81,16 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
     scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight
   }
 
+  const isLastMessageOwner = () => {
+    if (!messages?.groups) return
+    const groupsArray = Array.from(Object.values(messages.groups))
+    if (!groupsArray.length) return 
+    const usersArray = groupsArray[groupsArray.length - 1]
+    const chunksArray = usersArray[usersArray.length - 1]
+    const lastMessage = chunksArray[chunksArray.length - 1]
+    return lastMessage.nickname === username
+  }
+
   /* Get scroll position and save it to the state as 0 (top), 1 (bottom) or -1 (middle) */
   const onScroll = React.useCallback(() => {
     const top = scrollbarRef.current?.scrollTop === 0
@@ -103,24 +115,9 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
     }
   }, [messages.count])
 
-  /* Scroll to bottom if new message arrives and scroll is at the top */
-  useEffect(() => {
-    if (
-      scrollbarRef.current &&
-      scrollPosition === 0 &&
-      previousMessages &&
-
-      messages.count > previousMessages + previousSlice &&
-      messagesSlice === 0
-    ) {
-      setTimeout(() => {
-        scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight
-      })
-    }
-  }, [messages.count, messagesSlice])
-
   /* Lazy loading messages - top (load) */
   useEffect(() => {
+    console.log(messages.groups)
     if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
     if (scrollbarRef.current && scrollPosition === 0) {
       // Cache scroll height before loading new messages (to keep the scroll position after re-rendering)
@@ -130,7 +127,19 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
       setMessagesSlice(trim)
       setChannelLoadingSlice(trim)
     }
-  }, [setChannelLoadingSlice, scrollPosition])
+    if (
+      isLastMessageOwner() &&
+      scrollbarRef.current &&
+      scrollPosition === 0 &&
+      previousMessages &&
+      messages.count > previousMessages + previousSlice &&
+      messagesSlice === 0
+    ) {
+      setTimeout(() => {
+        scrollBottom()
+      })
+    }
+  }, [setChannelLoadingSlice, scrollPosition, messages.count])
 
   /* Lazy loading messages - bottom (trim) */
   useEffect(() => {
@@ -144,7 +153,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   }, [setChannelLoadingSlice, scrollPosition, messages.count])
 
   /* Scroll to the bottom on entering the channel or resizing window */
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (scrollbarRef.current && scrollPosition === 1) {
       setTimeout(() => {
         scrollBottom()
@@ -158,7 +167,11 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   }, [channel, messages, scrollbarRef])
 
   return (
-    <div className={classes.scroll} ref={scrollbarRef} onScroll={onScroll} data-testid="channelContent">
+    <div
+      className={classes.scroll}
+      ref={scrollbarRef}
+      onScroll={onScroll}
+      data-testid='channelContent'>
       <List disablePadding className={classes.list} ref={messagesRef} id='messages-scroll'>
         {Object.keys(messages.groups).map(day => {
           return (

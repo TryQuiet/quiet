@@ -24,7 +24,7 @@ describe('ChannelMessages', () => {
     }
 
     const result = renderComponent(
-      <ChannelMessagesComponent channel={'general'} messages={messages} />
+      <ChannelMessagesComponent username='user' channel={'general'} messages={messages} />
     )
 
     expect(result.baseElement).toMatchInlineSnapshot(`
