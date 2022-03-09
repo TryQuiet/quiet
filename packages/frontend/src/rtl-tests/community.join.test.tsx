@@ -193,6 +193,7 @@ describe('User', () => {
         "PublicChannels/subscribeToAllTopics",
         "PublicChannels/subscribeToTopic",
         "PublicChannels/addChannel",
+        "PublicChannels/setChannelLoadingSlice",
       ]
     `)
   })

@@ -35,7 +35,7 @@ const CreateUsername = () => {
     if (currentIdentity && !currentIdentity.userCertificate && !createUsernameModal.open) {
       createUsernameModal.handleOpen()
     }
-    if (currentIdentity.userCertificate && createUsernameModal.open) {
+    if (currentIdentity?.userCertificate && createUsernameModal.open) {
       createUsernameModal.handleClose()
     }
   }, [currentIdentity])
