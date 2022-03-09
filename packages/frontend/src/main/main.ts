@@ -322,11 +322,7 @@ app.on('ready', async () => {
 
 app.setAsDefaultProtocolClient('quiet')
 
-app.on('before-quit', async e => {
-  if (waggleProcess !== null) {
-    await waggleProcess.connectionsManager.closeAllServices()
-    await waggleProcess.dataServer.close()
-  }
+app.on('before-quit', () => {
   if (browserWidth && browserHeight) {
     electronStore.set('windowSize', {
       width: browserWidth,
@@ -336,7 +332,11 @@ app.on('before-quit', async e => {
 })
 
 // Quit when all windows are closed.
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
+  if (waggleProcess !== null) {
+    await waggleProcess.connectionsManager.closeAllServices()
+    await waggleProcess.dataServer.close()
+  }
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   // NOTE: temporarly quit macos when using 'X'. Reloading the app loses the connection with waggle. To be fixed.

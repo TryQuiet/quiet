@@ -9,7 +9,6 @@ import { createCommunity, joinCommunity, getCommunityOwnerData, sendMessage } fr
 import { createApp, createAppWithoutTor, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 
-jest.setTimeout(600_000)
 const crypto = new Crypto()
 
 global.crypto = crypto

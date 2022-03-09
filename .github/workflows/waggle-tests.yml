@@ -21,6 +21,8 @@ jobs:
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/nectar,@quiet/waggle,@quiet/identity"
 
       - name: "Unit tests"
         run: lerna run test-ci --scope @quiet/waggle --stream
@@ -40,6 +42,8 @@ jobs:
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/nectar,@quiet/waggle,@quiet/identity"
 
       - name: "Unit tests"
         run: lerna run test-ci-tor --scope @quiet/waggle --stream

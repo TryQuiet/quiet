@@ -5,7 +5,6 @@ import { createApp, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { ErrorPayload, SocketActionTypes, ErrorCodes, ErrorMessages } from '@quiet/nectar'
 
-jest.setTimeout(120_000)
 const crypto = new Crypto()
 
 global.crypto = crypto

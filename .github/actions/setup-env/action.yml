@@ -1,5 +1,10 @@
 name: 'Setup environment'
 
+inputs:
+  bootstrap-packages:
+    description: 'Lerna bootstrap packages (comma separated without spaces)'
+    required: false
+
 runs:
   using: "composite"
   steps:
@@ -43,5 +48,11 @@ runs:
       shell: bash
 
     - name: "Bootstrap project"
-      run: lerna bootstrap
+      run: |
+        if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
+        then
+            lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
+        else
+            lerna bootstrap
+        fi
       shell: bash

@@ -11,6 +11,6 @@ const getAppName = () => {
 module.exports = {
   mainWindowUrl: '/dist/main/index.html#/',
   electronPath: `./dist/${getAppName()}`,
-  relativePageUrls: true
+  relativePageUrls: true,
   // openDevTools: true,
 }
