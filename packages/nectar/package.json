@@ -6,9 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
-    "postinstall": "run-script-os",
-    "postinstall:default": "npm run patch",
-    "postinstall:win32": "echo \"On Windows. Not patching factory-girl\"",
+    "postinstall": "npm run patch",
     "patch": "patch -p0 --forward < factory-girl.patch || true",
     "test": "cross-env TZ=UTC jest sagas/*",
     "lint": "eslint --ext .ts ./src/ --fix",
