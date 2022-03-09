@@ -52,6 +52,7 @@ export interface CreateUserCsrPayload {
 
 export interface RegisterCertificatePayload {
   communityId: string
+  nickname: string
   userCsr: UserCsr
 }
 

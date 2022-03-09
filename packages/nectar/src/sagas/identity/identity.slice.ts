@@ -28,6 +28,7 @@ export const identitySlice = createSlice({
       identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,
         changes: {
+          nickname: action.payload.nickname,
           userCsr: action.payload.userCsr
         }
       })
