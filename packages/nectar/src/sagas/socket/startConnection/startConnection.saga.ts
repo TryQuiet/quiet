@@ -74,28 +74,23 @@ export function subscribe(socket: Socket) {
       emit(usersActions.responseSendCertificates(payload))
     })
     socket.on(SocketActionTypes.NEW_COMMUNITY, (payload: ResponseCreateCommunityPayload) => {
-      log('created COMMUNITY')
       emit(identityActions.saveOwnerCertToDb())
       emit(publicChannelsActions.createGeneralChannel({ communityId: payload.id }))
     })
     socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {
-      log('created REGISTRAR')
       log(payload)
       emit(communitiesActions.responseRegistrar(payload))
       emit(connectionActions.addInitializedRegistrar(payload.id))
     })
     socket.on(SocketActionTypes.NETWORK, (payload: ResponseCreateNetworkPayload) => {
-      log('created NETWORK')
       log(payload)
       emit(communitiesActions.responseCreateNetwork(payload))
     })
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
-      log('launched COMMUNITY', payload.id)
       emit(communitiesActions.launchRegistrar(payload.id))
       emit(connectionActions.addInitializedCommunity(payload.id))
     })
     socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {
-      log('Got Error')
       log(payload)
       emit(errorsActions.addError(payload))
     })
@@ -105,7 +100,6 @@ export function subscribe(socket: Socket) {
         id: string
         payload: { peers: string[]; certificate: string; rootCa: string }
       }) => {
-        log('got response with cert', payload.payload.rootCa)
         emit(
           communitiesActions.storePeerList({
             communityId: payload.id,
@@ -130,22 +124,22 @@ export function subscribe(socket: Socket) {
     socket.on(
       SocketActionTypes.SAVED_OWNER_CERTIFICATE,
       (payload: {
-        id: string
-        payload: { certificate: string; peers: string[] }
+        communityId: string
+        network: { certificate: string; peers: string[] }
       }) => {
         emit(
           communitiesActions.storePeerList({
-            communityId: payload.id,
-            peerList: payload.payload.peers
+            communityId: payload.communityId,
+            peerList: payload.network.peers
           })
         )
         emit(
           identityActions.storeUserCertificate({
-            userCertificate: payload.payload.certificate,
-            communityId: payload.id
+            userCertificate: payload.network.certificate,
+            communityId: payload.communityId
           })
         )
-        emit(identityActions.savedOwnerCertificate(payload.id))
+        emit(identityActions.savedOwnerCertificate(payload.communityId))
       }
     )
     return () => { }

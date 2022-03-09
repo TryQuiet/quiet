@@ -181,10 +181,10 @@ export default class IOProxy {
       payload.userCsr.userCsr,
       payload.permsData
     )
-    log(`Saved owner certificate ${payload.communityId}`)
+    log(`Saved owner certificate for community ${payload.communityId}`)
     this.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
-      id: payload.communityId,
-      payload: { certificate: cert, peers: [] }
+      communityId: payload.communityId,
+      network: { certificate: cert, peers: [] }
     })
   }
 
@@ -246,7 +246,7 @@ export default class IOProxy {
 
     log(`Sending user certificate (${payload.communityId})`)
     this.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
-      id: payload.communityId,
+      communityId: payload.communityId,
       payload: registrarResponse
     })
   }
