@@ -98,7 +98,7 @@ describe('User', () => {
           const certificate = certificateHelper.userCert.userCertObject.certificate
           const rootCa = communityHelper.CA.rootCertString
           return socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
-            id: payload.communityId,
+            communityId: payload.communityId,
             payload: {
               certificate: certificate,
               rootCa: rootCa
