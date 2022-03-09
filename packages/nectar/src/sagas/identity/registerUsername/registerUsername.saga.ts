@@ -35,6 +35,7 @@ export function* registerUsernameSaga(action: PayloadAction<string>): Generator 
 
   const payload: RegisterCertificatePayload = {
     communityId: currentCommunity.id,
+    nickname: nickname,
     userCsr: userCsr
   }
 
