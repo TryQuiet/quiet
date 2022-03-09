@@ -18,6 +18,8 @@ jobs:
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/nectar,@quiet/waggle,@quiet/identity"
 
       - name: run tests
         run: lerna run test-connect-ci --scope @quiet/waggle --stream
@@ -34,6 +36,8 @@ jobs:
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/nectar,@quiet/waggle,@quiet/identity"
 
       - name: Install ts-node globally
         run: npm install --global ts-node
