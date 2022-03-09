@@ -10,7 +10,7 @@ import {
 
 describe('communitiesSelectors', () => {
   setupCrypto()
-  
+
   let store: Store
   let communityAlpha: Community
   let communityBeta: Community

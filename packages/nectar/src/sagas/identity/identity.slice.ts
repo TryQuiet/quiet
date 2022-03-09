@@ -38,8 +38,8 @@ export const identitySlice = createSlice({
     ) => {
       identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,
-        changes: { 
-          userCertificate: action.payload.userCertificate 
+        changes: {
+          userCertificate: action.payload.userCertificate
         }
       })
     },

@@ -9,18 +9,18 @@ export enum CommunityOwnership {
 }
 
 export interface NetworkData {
-  hiddenService: HiddenService,
+  hiddenService: HiddenService
   peerId: PeerId
 }
 
 export interface CreateNetworkPayload {
-  ownership: CommunityOwnership,
-  name?: string,
+  ownership: CommunityOwnership
+  name?: string
   registrar?: string
 }
 
 export interface ResponseCreateNetworkPayload {
-  community: Community,
+  community: Community
   network: NetworkData
 }
 
@@ -39,7 +39,7 @@ export interface InitCommunityPayload {
 }
 
 export interface UpdateCommunityPayload {
-  id: string,
+  id: string
   rootCa: string
 }
 

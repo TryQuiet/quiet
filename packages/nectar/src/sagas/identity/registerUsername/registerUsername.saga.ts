@@ -35,7 +35,7 @@ export function* registerUsernameSaga(action: PayloadAction<string>): Generator 
 
   const payload: RegisterCertificatePayload = {
     communityId: currentCommunity.id,
-    userCsr: userCsr,
+    userCsr: userCsr
   }
 
   yield* put(identityActions.registerCertificate(payload))

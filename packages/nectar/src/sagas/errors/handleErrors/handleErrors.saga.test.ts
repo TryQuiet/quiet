@@ -30,6 +30,7 @@ describe('handle errors', () => {
     privateKey: '',
     port: 0
   }
+
   const identity: Identity = {
     id: 'id',
     hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },

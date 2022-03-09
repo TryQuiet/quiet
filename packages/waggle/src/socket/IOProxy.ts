@@ -240,7 +240,7 @@ export default class IOProxy {
         })
         return
     }
-    
+
     const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
       await response.json()
 
@@ -266,7 +266,7 @@ export default class IOProxy {
     }
     log(`Sending network data for ${community.id}`)
     const payload: ResponseCreateNetworkPayload = {
-      community, 
+      community,
       network
     }
     this.io.emit(SocketActionTypes.NETWORK, payload)

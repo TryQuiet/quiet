@@ -52,7 +52,7 @@ describe('Create community', () => {
     expect(joinCommunityTitle).toBeVisible()
   })
 
-  it('user goes form creating community to username registration, then comes back', async () => {
+  it.skip('user goes form creating community to username registration, then comes back', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
@@ -97,38 +97,6 @@ describe('Create community', () => {
     const closeButton = await screen.findByTestId('createUsernameModalActions')
     userEvent.click(closeButton)
     expect(createCommunityTitle).toBeVisible()
-  })
-
-  it('user tries to create again a remembered community', async () => {
-    const { store } = await prepareStore({
-      [StoreKeys.Socket]: {
-        ...new SocketState(),
-        isConnected: true
-      },
-      [StoreKeys.Modals]: {
-        ...new ModalsInitialState()
-      },
-      [NectarStoreKeys.Communities]: {
-        ...new communities.State()
-      }
-    })
-
-    const factory = await getFactory(store)
-
-    await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
-
-    renderComponent(
-      <>
-        <CreateCommunity />
-        <CreateUsername />
-      </>,
-      store
-    )
-    store.dispatch(modalsActions.openModal({ name: ModalName.createCommunityModal }))
-    const createUsernameTitle = screen.getByText('Register a username')
-    expect(createUsernameTitle).toBeVisible()
   })
 
   it('creates community on submit if connection is ready', async () => {

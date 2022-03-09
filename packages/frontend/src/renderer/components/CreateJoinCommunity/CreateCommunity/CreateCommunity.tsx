@@ -47,7 +47,7 @@ const CreateCommunity = () => {
       handleCommunityAction={handleCommunityAction}
       handleRedirection={handleRedirection}
       isConnectionReady={isConnected}
-      isCloseDisabled={!Boolean(currentCommunity)}
+      isCloseDisabled={!currentCommunity}
     />
   )
 }

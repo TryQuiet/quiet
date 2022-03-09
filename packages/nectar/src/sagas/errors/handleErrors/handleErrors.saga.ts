@@ -1,25 +1,20 @@
 import { PayloadAction } from '@reduxjs/toolkit'
+import { call, put, select } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { identityActions } from '../../identity/identity.slice'
-import { call, put, select } from 'typed-redux-saga'
 import { errorsActions } from '../errors.slice'
-import { communitiesSelectors } from '../../communities/communities.selectors'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { ErrorPayload } from '../errors.types'
+import { SocketActionTypes } from '../../socket/const/actionTypes'
 import logger from '../../../utils/logger'
 
 const log = logger('errors')
 
 function* retryRegistration(communityId: string) {
   const identity = yield* select(identitySelectors.selectById(communityId))
-  const registrarAddress = yield* select(
-    communitiesSelectors.registrarUrl(communityId)
-  )
 
   const payload = {
-    communityId,
-    userCsr: identity.userCsr,
-    registrarAddress
+    communityId: communityId,
+    userCsr: identity.userCsr
   }
 
   yield* put(identityActions.registerCertificate(payload))

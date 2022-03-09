@@ -1,14 +1,13 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
-import { setupCrypto } from '@quiet/identity'
+import { setupCrypto, createUserCsr, UserCsr } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
 import { reducers } from '../../reducers'
 import { identityActions } from '../identity.slice'
 import { registerUsernameSaga } from './registerUsername.saga'
 import { communitiesActions } from '../../communities/communities.slice'
-import { createUserCsr, UserCsr } from '@quiet/identity'
 import { CertData, CreateUserCsrPayload } from '../identity.types'
 import { config } from '../../users/const/certFieldTypes'
 
@@ -20,7 +19,7 @@ describe('registerUsernameSaga', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community', {
       id: '1',
       name: 'rockets',
@@ -76,7 +75,7 @@ describe('registerUsernameSaga', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community', {
       id: '1',
       name: 'rockets',
@@ -96,11 +95,11 @@ describe('registerUsernameSaga', () => {
       pkcs10: jest.fn() as unknown as CertData
     }
 
-    let identity = (
+    const identity = (
       await factory.build<typeof identityActions.addNewIdentity>('Identity', {
         id: community.id
       })
-    )['payload']
+    ).payload
 
     identity.userCsr = userCsr
 

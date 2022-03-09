@@ -30,10 +30,12 @@ export function* createNetworkSaga(
 
   const id = yield* call(generateId)
 
+  const registrarUrl = action.payload.registrar ? `http://${action.payload.registrar}.onion` : undefined
+
   const payload: Community = {
     id: id,
     name: action.payload.name,
-    registrarUrl: `http://${action.payload.registrar}.onion`,
+    registrarUrl: registrarUrl,
     CA: CA,
     rootCa: CA?.rootCertString,
     peerList: [],

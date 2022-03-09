@@ -57,9 +57,9 @@ export function subscribe(socket: Socket) {
       emit(connectionActions.addConnectedPeers(payload.connectedPeers))
     })
     socket.on(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, (payload: GetPublicChannelsResponse) => {
-        emit(publicChannelsActions.responseGetPublicChannels(payload))
-        emit(publicChannelsActions.subscribeToAllTopics(payload.communityId))
-      }
+      emit(publicChannelsActions.responseGetPublicChannels(payload))
+      emit(publicChannelsActions.subscribeToAllTopics(payload.communityId))
+    }
     )
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       emit(publicChannelsActions.addChannel(payload))

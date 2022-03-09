@@ -20,11 +20,11 @@ describe('registerCertificateSaga', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     const identity = await factory.create<
-      ReturnType<typeof identityActions.addNewIdentity>['payload']
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', {
       id: community.id
     })
@@ -66,7 +66,7 @@ describe('registerCertificateSaga', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community', {
       id: '1',
       name: 'rockets',
@@ -86,11 +86,11 @@ describe('registerCertificateSaga', () => {
       pkcs10: jest.fn() as unknown as CertData
     }
 
-    let identity = (
+    const identity = (
       await factory.build<typeof identityActions.addNewIdentity>('Identity', {
         id: community.id
       })
-    )['payload']
+    ).payload
 
     identity.userCsr = userCsr
 
