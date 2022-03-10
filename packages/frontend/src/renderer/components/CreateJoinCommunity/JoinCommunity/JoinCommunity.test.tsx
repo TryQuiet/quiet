@@ -54,7 +54,7 @@ describe('join community', () => {
     expect(createCommunityTitle).toBeVisible()
   })
 
-  it.skip('user goes form joning community to username registration, then comes back', async () => {
+  it.skip('user goes from joning community to username registration, then comes back', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
@@ -214,7 +214,7 @@ describe('join community', () => {
     expect(handleCommunityAction).not.toBeCalled()
   })
 
-  it('swhows loading spinner on submit button while waiting for the response', async () => {
+  it('shows loading spinner on submit button while waiting for the response', async () => {
     const { rerender } = renderComponent(<PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
@@ -252,7 +252,7 @@ describe('join community', () => {
     expect(screen.queryByTestId('loading-button-progress')).toBeNull()
   })
 
-  it('handles redirection if user clicks on the link', async () => {
+  it('handles redirection to create community page if user clicks on the link', async () => {
     const handleRedirection = jest.fn()
 
     const component = <PerformCommunityActionComponent
