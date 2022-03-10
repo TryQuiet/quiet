@@ -19,6 +19,8 @@ const log = Object.assign(debug('frontend:main'), {
   error: debug('frontend:main:err')
 })
 
+console.log(app.getPath('appData'), 'appDataaaaaaaa')
+
 electronStore.set('appDataPath', app.getPath('appData'))
 electronStore.set('waggleVersion', waggleVersion)
 

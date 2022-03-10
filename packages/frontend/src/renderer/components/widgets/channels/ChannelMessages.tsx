@@ -84,7 +84,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   const isLastMessageOwner = () => {
     if (!messages?.groups) return
     const groupsArray = Array.from(Object.values(messages.groups))
-    if (!groupsArray.length) return 
+    if (!groupsArray.length) return
     const usersArray = groupsArray[groupsArray.length - 1]
     const chunksArray = usersArray[usersArray.length - 1]
     const lastMessage = chunksArray[chunksArray.length - 1]
@@ -117,7 +117,6 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
 
   /* Lazy loading messages - top (load) */
   useEffect(() => {
-    console.log(messages.groups)
     if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
     if (scrollbarRef.current && scrollPosition === 0) {
       // Cache scroll height before loading new messages (to keep the scroll position after re-rendering)
