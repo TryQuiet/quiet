@@ -34,7 +34,9 @@ describe('registerUsernameSaga', () => {
     })
 
     // Identity won't have userCsr as long as its corresponding community has no CA (factory specific logic)
-    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    const identity = await factory.create<
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
+    >('Identity', {
       nickname: undefined,
       id: community.id
     })
@@ -144,7 +146,7 @@ describe('registerUsernameSaga', () => {
       port: 0
     })
 
-    const userCsr: UserCsr = {
+    const oldUserCsr: UserCsr = {
       userCsr: 'userCsr',
       userKey: 'userKey',
       pkcs10: jest.fn() as unknown as CertData
@@ -157,16 +159,32 @@ describe('registerUsernameSaga', () => {
       })
     ).payload
 
-    identity.userCsr = userCsr
+    identity.userCsr = oldUserCsr
 
     store.dispatch(identityActions.addNewIdentity(identity))
+
+    const userCsr: UserCsr = {
+      userCsr: 'userCsr',
+      userKey: 'userKey',
+      pkcs10: jest.fn() as unknown as CertData
+    }
+
+    const createUserCsrPayload: CreateUserCsrPayload = {
+      nickname: 'nickname',
+      commonName: identity.hiddenService.onionAddress,
+      peerId: identity.peerId.id,
+      dmPublicKey: identity.dmKeys.publicKey,
+      signAlg: config.signAlg,
+      hashAlg: config.hashAlg
+    }
 
     const reducer = combineReducers(reducers)
     await expectSaga(registerUsernameSaga, identityActions.registerUsername('nickname'))
       .withReducer(reducer)
       .withState(store.getState())
-      .not.call(createUserCsr)
-      .not.put(
+      .provide([[call.fn(createUserCsr), userCsr]])
+      .call(createUserCsr, createUserCsrPayload)
+      .put(
         identityActions.registerCertificate({
           communityId: community.id,
           nickname: 'nickname',
