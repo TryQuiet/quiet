@@ -88,7 +88,7 @@ const CreateUsername = () => {
   }, [id?.hiddenService])
 
   useEffect(() => {
-    if (error?.code === ErrorCodes.VALIDATION) {
+    if (error?.code !== ErrorCodes.NOT_FOUND) {
       loadingCommunityModal.handleClose()
     }
   }, [error])

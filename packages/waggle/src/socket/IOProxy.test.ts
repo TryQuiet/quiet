@@ -159,15 +159,15 @@ describe('IO proxy', () => {
     expect(observedIO).toBeCalledTimes(1)
     expect(observedIO).toBeCalledWith(SocketActionTypes.ERROR, {
       type: SocketActionTypes.REGISTRAR,
+      code: ErrorCodes.SERVICE_UNAVAILABLE,
       message: ErrorMessages.REGISTRAR_CONNECTION_FAILED,
-      code: 500,
       community: 'someCommunityId'
     })
   })
 
   it.each([
-    [ErrorMessages.USERNAME_TAKEN, ErrorCodes.VALIDATION, 403],
-    [ErrorMessages.INVALID_USERNAME, ErrorCodes.VALIDATION, 400],
+    [ErrorMessages.USERNAME_TAKEN, ErrorCodes.FORBIDDEN, 403],
+    [ErrorMessages.INVALID_USERNAME, ErrorCodes.BAD_REQUEST, 400],
     [ErrorMessages.REGISTRATION_FAILED, ErrorCodes.SERVER_ERROR, 500]
   ])(
     'emits error "%s" with code %s if registrar returns %s',

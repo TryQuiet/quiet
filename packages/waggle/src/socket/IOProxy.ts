@@ -21,9 +21,10 @@ import {
   FetchAllMessagesResponse,
   GetPublicChannelsResponse,
   SendCertificatesResponse,
-  ErrorMessages
+  ErrorMessages,
+  ErrorCodes
 } from '@quiet/nectar'
-import { emitServerError, emitValidationError } from './errors'
+import { emitError } from './errors'
 
 import logger from '../logger'
 
@@ -44,7 +45,7 @@ export default class IOProxy {
     try {
       return this.communities.getStorage(peerId)
     } catch (e) {
-      emitServerError(this.io, { type: 'general', message: 'Community does not exist' })
+      emitError(this.io, { type: 'general', message: 'Community does not exist' })
       throw e
     }
   }
@@ -75,10 +76,7 @@ export default class IOProxy {
     })
   }
 
-  public sendMessage = async (
-    peerId: string,
-    message: ChannelMessage
-  ): Promise<void> => {
+  public sendMessage = async (peerId: string, message: ChannelMessage): Promise<void> => {
     await this.getStorage(peerId).sendMessage(message)
   }
 
@@ -155,10 +153,7 @@ export default class IOProxy {
     this.io.emit(SocketActionTypes.CREATED_CHANNEL, payload)
   }
 
-  public loadAllDirectMessages = (
-    messages: string[],
-    channelAddress: string
-  ) => {
+  public loadAllDirectMessages = (messages: string[], channelAddress: string) => {
     if (messages.length === 0) {
       return
     }
@@ -169,7 +164,7 @@ export default class IOProxy {
     })
   }
 
-  public loadAllPrivateConversations = (payload) => {
+  public loadAllPrivateConversations = payload => {
     this.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
   }
 
@@ -201,8 +196,9 @@ export default class IOProxy {
         payload.userCsr
       )
     } catch (e) {
-      emitServerError(this.io, {
+      emitError(this.io, {
         type: SocketActionTypes.REGISTRAR,
+        code: ErrorCodes.SERVICE_UNAVAILABLE,
         message: ErrorMessages.REGISTRAR_CONNECTION_FAILED,
         community: payload.id
       })
@@ -212,17 +208,27 @@ export default class IOProxy {
     switch (response.status) {
       case 200:
         break
-      case 403:
-        emitValidationError(this.io, {
+      case 400:
+        emitError(this.io, {
           type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.BAD_REQUEST,
+          message: ErrorMessages.INVALID_USERNAME,
+          community: payload.id
+        })
+        return
+      case 403:
+        emitError(this.io, {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.USERNAME_TAKEN,
           community: payload.id
         })
         return
-      case 400:
-        emitValidationError(this.io, {
+      case 404:
+        emitError(this.io, {
           type: SocketActionTypes.REGISTRAR,
-          message: ErrorMessages.INVALID_USERNAME,
+          code: ErrorCodes.NOT_FOUND,
+          message: ErrorMessages.REGISTRAR_NOT_FOUND,
           community: payload.id
         })
         return
@@ -230,8 +236,9 @@ export default class IOProxy {
         log.error(
           `Registrar responded with ${response.status} "${response.statusText}" (${payload.id})`
         )
-        emitServerError(this.io, {
+        emitError(this.io, {
           type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.SERVER_ERROR,
           message: ErrorMessages.REGISTRATION_FAILED,
           community: payload.id
         })
@@ -253,7 +260,7 @@ export default class IOProxy {
       network = await this.connectionsManager.createNetwork()
     } catch (e) {
       log.error(`Creating network for community ${community} failed`, e)
-      emitServerError(this.io, {
+      emitError(this.io, {
         type: SocketActionTypes.NETWORK,
         message: ErrorMessages.NETWORK_SETUP_FAILED,
         community
@@ -275,7 +282,7 @@ export default class IOProxy {
       await this.communities.launch(payload)
     } catch (e) {
       log(`Couldn't launch community for peer ${payload.peerId.id}.`, e)
-      emitServerError(this.io, {
+      emitError(this.io, {
         type: SocketActionTypes.COMMUNITY,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
         community: payload.id
@@ -298,7 +305,7 @@ export default class IOProxy {
       payload.port
     )
     if (!registrar) {
-      emitServerError(this.io, {
+      emitError(this.io, {
         type: SocketActionTypes.REGISTRAR,
         message: ErrorMessages.REGISTRAR_LAUNCH_FAILED,
         community: payload.id

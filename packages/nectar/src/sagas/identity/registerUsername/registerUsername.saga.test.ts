@@ -64,7 +64,6 @@ describe('registerUsernameSaga', () => {
   const connectionError = {
     community: 'id',
     type: SocketActionTypes.REGISTRAR,
-    code: ErrorCodes.VALIDATION,
     message: ErrorMessages.NOT_CONNECTED
   }
 

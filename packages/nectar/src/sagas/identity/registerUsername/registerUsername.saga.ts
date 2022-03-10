@@ -24,7 +24,6 @@ export function* registerUsernameSaga(
       errorsActions.addError({
         community: identity.id,
         type: SocketActionTypes.REGISTRAR,
-        code: ErrorCodes.VALIDATION,
         message: ErrorMessages.NOT_CONNECTED
       })
     )

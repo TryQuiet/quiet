@@ -78,8 +78,8 @@ describe('registrar is offline, user tries to join, then registrar goes online',
   test('user get error message', async () => {
     const community = user.store.getState().Communities.currentCommunity
     const expectedError: ErrorPayload = {
-      code: ErrorCodes.SERVER_ERROR,
       type: SocketActionTypes.REGISTRAR,
+      code: ErrorCodes.SERVER_ERROR,
       message: ErrorMessages.REGISTRATION_FAILED,
       community
     }
@@ -131,8 +131,8 @@ describe('User tries to register existing username', () => {
   test('User receives registration error with a proper message', async () => {
     const userCommunity = user.store.getState().Communities.currentCommunity
     const expectedError: ErrorPayload = {
-      code: ErrorCodes.VALIDATION,
       type: SocketActionTypes.REGISTRAR,
+      code: ErrorCodes.FORBIDDEN,
       message: ErrorMessages.USERNAME_TAKEN,
       community: userCommunity
     }

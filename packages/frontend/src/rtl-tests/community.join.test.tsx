@@ -257,8 +257,8 @@ describe('User', () => {
           expect(payload.id).toEqual(community.id)
           socket.socketClient.emit(SocketActionTypes.ERROR, {
             type: SocketActionTypes.REGISTRAR,
+            code: ErrorCodes.FORBIDDEN,
             message: ErrorMessages.USERNAME_TAKEN,
-            code: ErrorCodes.VALIDATION,
             community: community.id
           })
         }
