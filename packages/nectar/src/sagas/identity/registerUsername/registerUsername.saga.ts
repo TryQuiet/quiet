@@ -1,6 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put, call } from 'typed-redux-saga'
-import { createUserCsr } from '@quiet/identity'
+import { createUserCsr, UserCsr } from '@quiet/identity'
 import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
 import { CreateUserCsrPayload, RegisterCertificatePayload } from '../identity.types'
@@ -12,23 +12,22 @@ export function* registerUsernameSaga(action: PayloadAction<string>): Generator 
 
   // Nickname can differ between saga calls
   const nickname = action.payload
+  
+  let userCsr: UserCsr
 
-  let userCsr = identity.userCsr
-  if (!userCsr || userCsr === null) {
-    try {
-      const payload: CreateUserCsrPayload = {
-        nickname: nickname,
-        commonName: identity.hiddenService.onionAddress,
-        peerId: identity.peerId.id,
-        dmPublicKey: identity.dmKeys.publicKey,
-        signAlg: config.signAlg,
-        hashAlg: config.hashAlg
-      }
-      userCsr = yield* call(createUserCsr, payload)
-    } catch (e) {
-      console.error(e)
-      return
+  try {
+    const payload: CreateUserCsrPayload = {
+      nickname: nickname,
+      commonName: identity.hiddenService.onionAddress,
+      peerId: identity.peerId.id,
+      dmPublicKey: identity.dmKeys.publicKey,
+      signAlg: config.signAlg,
+      hashAlg: config.hashAlg
     }
+    userCsr = yield* call(createUserCsr, payload)
+  } catch (e) {
+    console.error(e)
+    return
   }
 
   const currentCommunity = yield* select(communitiesSelectors.currentCommunity)
