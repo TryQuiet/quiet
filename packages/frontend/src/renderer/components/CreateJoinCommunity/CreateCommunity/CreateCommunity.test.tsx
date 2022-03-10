@@ -1,20 +1,22 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { screen, waitFor } from '@testing-library/dom'
+import { act } from 'react-dom/test-utils'
 import userEvent from '@testing-library/user-event'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { prepareStore } from '../../../testUtils/prepareStore'
 import { StoreKeys } from '../../../store/store.keys'
 import { SocketState } from '../../../sagas/socket/socket.slice'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { modalsActions, ModalsInitialState } from '../../../sagas/modals/modals.slice'
+import { ModalsInitialState } from '../../../sagas/modals/modals.slice'
 import CreateUsername from '../../CreateUsername/CreateUsername'
 import JoinCommunity from '../JoinCommunity/JoinCommunity'
 import CreateCommunity from './CreateCommunity'
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../community.dictionary'
 import { CommunityNameErrors, FieldErrors } from '../../../forms/fieldsErrors'
 import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
-import { identity, communities, StoreKeys as NectarStoreKeys, getFactory, CommunityOwnership } from '@quiet/nectar'
+import { identity, communities, StoreKeys as NectarStoreKeys, CommunityOwnership } from '@quiet/nectar'
+import { communityNameField } from '../../../forms/fields/communityFields'
 
 describe('Create community', () => {
   it('users switches from create to join', async () => {
@@ -52,7 +54,7 @@ describe('Create community', () => {
     expect(joinCommunityTitle).toBeVisible()
   })
 
-  it.skip('user goes form creating community to username registration, then comes back', async () => {
+  it.skip('user goes from creating community to username registration, then comes back', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
@@ -204,7 +206,45 @@ describe('Create community', () => {
     expect(submitButton).toBeDisabled()
   })
 
-  it('handles redirection if user clicks on the link', async () => {
+  it('shows loading spinner on submit button while waiting for the response', async () => {
+    const { rerender } = renderComponent(<PerformCommunityActionComponent
+      open={true}
+      handleClose={() => { }}
+      communityOwnership={CommunityOwnership.Owner}
+      handleCommunityAction={() => { }}
+      handleRedirection={() => { }}
+      isConnectionReady={true}
+      isCloseDisabled={true}
+      hasReceivedResponse={false}
+    />)
+
+    const textInput = screen.getByPlaceholderText(communityNameField().fieldProps.placeholder)
+    userEvent.type(textInput, 'rockets')
+
+    const submitButton = screen.getByRole('button')
+    expect(submitButton).toBeEnabled()
+    userEvent.click(submitButton)
+
+    await act(async () => {})
+
+    expect(screen.queryByTestId('loading-button-progress')).toBeVisible()
+
+    // Rerender component to verify circular progress has dissapeared
+    rerender(<PerformCommunityActionComponent
+      open={true}
+      handleClose={() => { }}
+      communityOwnership={CommunityOwnership.Owner}
+      handleCommunityAction={() => { }}
+      handleRedirection={() => { }}
+      isConnectionReady={true}
+      isCloseDisabled={true}
+      hasReceivedResponse={true}
+    />)
+
+    expect(screen.queryByTestId('loading-button-progress')).toBeNull()
+  })
+
+  it('handles redirection to join community page if user clicks on the link', async () => {
     const handleRedirection = jest.fn()
     const handleCommunityAction = jest.fn()
 
