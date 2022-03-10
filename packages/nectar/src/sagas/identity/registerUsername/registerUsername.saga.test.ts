@@ -70,7 +70,60 @@ describe('registerUsernameSaga', () => {
       .run()
   })
 
-  it('reuse existing csr', async () => {
+  it("reuse existing csr if provided username hasn't changed", async () => {
+    setupCrypto()
+    const store = prepareStore().store
+
+    const factory = await getFactory(store)
+
+    const community = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community', {
+      id: '1',
+      name: 'rockets',
+      registrarUrl: 'registrarUrl',
+      CA: null,
+      rootCa: 'rootCa',
+      peerList: [],
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0
+    })
+
+    const userCsr: UserCsr = {
+      userCsr: 'userCsr',
+      userKey: 'userKey',
+      pkcs10: jest.fn() as unknown as CertData
+    }
+
+    const identity = (
+      await factory.build<typeof identityActions.addNewIdentity>('Identity', {
+        nickname: undefined,
+        id: community.id
+      })
+    ).payload
+
+    identity.userCsr = userCsr
+
+    store.dispatch(identityActions.addNewIdentity(identity))
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(registerUsernameSaga, identityActions.registerUsername(identity.nickname))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.call(createUserCsr)
+      .put(
+        identityActions.registerCertificate({
+          communityId: community.id,
+          nickname: identity.nickname,
+          userCsr: userCsr
+        })
+      )
+      .run()
+  })
+
+  it("don't reuse existing csr if provided username has changed", async () => {
     setupCrypto()
     const store = prepareStore().store
 
@@ -113,7 +166,7 @@ describe('registerUsernameSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .not.call(createUserCsr)
-      .put(
+      .not.put(
         identityActions.registerCertificate({
           communityId: community.id,
           nickname: 'nickname',

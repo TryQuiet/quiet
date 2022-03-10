@@ -13,8 +13,14 @@ export function* registerUsernameSaga(action: PayloadAction<string>): Generator 
   // Nickname can differ between saga calls
   const nickname = action.payload
 
-  let userCsr = identity.userCsr
-  if (!userCsr || userCsr === null) {
+  let userCsr = null
+
+  // Reuse the same csr if nickname hasn't changed
+  if (identity.nickname === nickname) {
+    userCsr = identity.userCsr
+  }
+
+  if (userCsr === null) {
     try {
       const payload: CreateUserCsrPayload = {
         nickname: nickname,
