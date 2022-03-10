@@ -9,7 +9,8 @@ const SettingsModalContainer = () => {
   const modal = useModal(ModalName.accountSettingsModal)
 
   const user = useSelector(identity.selectors.currentIdentity)?.nickname || 'Settings'
-  const owner = useSelector(communities.selectors.isOwner)
+  const community = useSelector(communities.selectors.currentCommunity)
+  const owner = Boolean(community?.CA)
 
   return <SettingsModal user={user} owner={owner} {...modal} />
 }

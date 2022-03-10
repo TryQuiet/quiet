@@ -1,27 +1,37 @@
-import React from 'react'
-import { useSelector } from 'react-redux'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
-import { CommunityAction } from '../../../components/CreateJoinCommunity/community.keys'
-import { useModal } from '../../../containers/hooks'
-import { ModalName } from '../../../sagas/modals/modals.types'
-import { communities } from '@quiet/nectar'
+import { communities, identity, CommunityOwnership, CreateNetworkPayload } from '@quiet/nectar'
 import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
+import { ModalName } from '../../../sagas/modals/modals.types'
+import { useModal } from '../../../containers/hooks'
 
 const CreateCommunity = () => {
+  const dispatch = useDispatch()
+
   const isConnected = useSelector(socketSelectors.isConnected)
 
-  const community = useSelector(communities.selectors.currentCommunity)
+  const currentCommunity = useSelector(communities.selectors.currentCommunity)
+  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
-  const createUsernameModal = useModal(ModalName.createUsernameModal)
+
+  useEffect(() => {
+    if (currentIdentity && !currentIdentity.userCertificate && createCommunityModal.open) {
+      createCommunityModal.handleClose()
+    }
+  }, [currentIdentity])
 
   const handleCommunityAction = (name: string) => {
-    createUsernameModal.handleOpen({
-      communityAction: CommunityAction.Create,
-      communityData: name
-    })
+    const payload: CreateNetworkPayload = {
+      ownership: CommunityOwnership.Owner,
+      name: name
+    }
+    dispatch(communities.actions.createNetwork(payload))
   }
 
+  // From 'You can join a community instead' link
   const handleRedirection = () => {
     if (!joinCommunityModal.open) {
       joinCommunityModal.handleOpen()
@@ -33,11 +43,12 @@ const CreateCommunity = () => {
   return (
     <PerformCommunityActionComponent
       {...createCommunityModal}
-      communityAction={CommunityAction.Create}
+      communityOwnership={CommunityOwnership.Owner}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={handleRedirection}
       isConnectionReady={isConnected}
-      community={Boolean(community)}
+      isCloseDisabled={!currentCommunity}
+      hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
     />
   )
 }
