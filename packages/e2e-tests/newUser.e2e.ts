@@ -1,14 +1,17 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import { fixture, t, test } from 'testcafe'
-import { Channel, CreateCommunityModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal } from './selectors'
+import { fixture, test } from 'testcafe'
+import { Channel, CreateCommunityModal, DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal } from './selectors'
+import { goToMainPage } from './utils'
 
 const longTimeout = 100000
 
 fixture`New user test`
   .beforeEach(async t => {
     await goToMainPage()
+    await new DebugModeModal().close()
   })
+
   .after(async t => {
     const dataPath = fs.readFileSync('/tmp/appDataPath', { encoding: 'utf8' })
     const fullDataPath = path.join(dataPath, 'Quiet')
@@ -16,27 +19,12 @@ fixture`New user test`
     // await fs.rm(fullDataPath, { recursive: true, force: true }) // TODO: use this with node >=14, rmdirSync doesn't seem to work
   })
 
-const goToMainPage = async () => {
-  let pageUrl: string
-  try {
-    // Test built app version. This is a really hacky way of accessing proper mainWindowUrl
-    pageUrl = fs.readFileSync('/tmp/mainWindowUrl', { encoding: 'utf8' })
-  } catch {
-    // If no file found assume that tests are run with a dev project version
-    pageUrl = '../frontend/dist/main/index.html#/'
-  }
-  console.info(`Navigating to ${pageUrl}`)
-  await t.navigateTo(pageUrl)
-}
-
 test('User can create new community, register and send few messages to general channel', async t => {
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
   // User sees "join community" page and switches to "create community" view by clicking on the link
   const joinModal = new JoinCommunityModal()
-
-  // const joinCommunityTitle = await Selector('h3').withText('Join community')()
   await t.expect(joinModal.title.exists).ok('User can\'t see "Join community" title')
   await joinModal.switchToCreateCommunity()
 
@@ -68,7 +56,7 @@ test('User can create new community, register and send few messages to general c
   await t.expect(generalChannel.messagesGroup.count).eql(1)
   await t.expect(generalChannel.messagesGroupContent.exists).ok()
   await t.expect(generalChannel.messagesGroupContent.textContent).eql('Hello\xa0everyone')
-  await t.wait(10000)
+  await t.wait(5000)
   // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
   // See: https://github.com/ZbayApp/monorepo/issues/222
 })

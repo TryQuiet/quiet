@@ -61,6 +61,7 @@
     "wait-for-expect": "^3.0.2"
   },
   "jest": {
+    "testTimeout": 300000,
     "extensionsToTreatAsEsm": [
       ".ts"
     ],
