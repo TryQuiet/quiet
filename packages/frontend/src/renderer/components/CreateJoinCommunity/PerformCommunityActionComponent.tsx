@@ -106,7 +106,7 @@ export interface PerformCommunityActionProps {
   hasReceivedResponse: boolean
 }
 
-export const PerformcommunityOwnershipComponent: React.FC<PerformCommunityActionProps> = ({
+export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
   open,
   communityOwnership,
   handleCommunityAction,
@@ -254,4 +254,4 @@ export const PerformcommunityOwnershipComponent: React.FC<PerformCommunityAction
   )
 }
 
-export default PerformcommunityOwnershipComponent
+export default PerformCommunityActionComponent
