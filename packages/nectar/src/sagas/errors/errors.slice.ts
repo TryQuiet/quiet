@@ -1,8 +1,7 @@
 import {
   createSlice,
   EntityState,
-  PayloadAction,
-  Dictionary
+  PayloadAction
 } from '@reduxjs/toolkit'
 
 import { StoreKeys } from '../store.keys'

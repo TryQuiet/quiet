@@ -1,24 +1,22 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { screen, waitFor } from '@testing-library/dom'
+import { act } from 'react-dom/test-utils'
 import userEvent from '@testing-library/user-event'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { prepareStore } from '../../../testUtils/prepareStore'
 import { StoreKeys } from '../../../store/store.keys'
-import { socketActions, SocketState } from '../../../sagas/socket/socket.slice'
+import { SocketState } from '../../../sagas/socket/socket.slice'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { modalsActions, ModalsInitialState } from '../../../sagas/modals/modals.slice'
+import { ModalsInitialState } from '../../../sagas/modals/modals.slice'
 import JoinCommunity from './JoinCommunity'
 import CreateCommunity from '../CreateCommunity/CreateCommunity'
 import { JoinCommunityDictionary, CreateCommunityDictionary } from '../community.dictionary'
 import CreateUsername from '../../CreateUsername/CreateUsername'
-import LoadingPanelModal from '../../../containers/widgets/loadingPanel/loadingPanel'
-import { LoadingMessages } from '../../../containers/widgets/loadingPanel/loadingMessages'
-import { communities, getFactory, StoreKeys as NectarStoreKeys, Identity, Community, identity, identityAdapter, communitiesAdapter } from '@quiet/nectar'
 import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
-import { CommunityAction } from '../community.keys'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
+import { CommunityOwnership } from '@quiet/nectar'
 
 describe('join community', () => {
   it('users switches from join to create', async () => {
@@ -56,7 +54,7 @@ describe('join community', () => {
     expect(createCommunityTitle).toBeVisible()
   })
 
-  it('user goes form joning community to username registration, then comes back', async () => {
+  it.skip('user goes from joning community to username registration, then comes back', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
@@ -105,11 +103,12 @@ describe('join community', () => {
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      communityAction={CommunityAction.Join}
+      communityOwnership={CommunityOwnership.User}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={() => { }}
       isConnectionReady={true}
-      community={false}
+      isCloseDisabled={true}
+      hasReceivedResponse={false}
     />
 
     const result = renderComponent(component)
@@ -134,11 +133,12 @@ describe('join community', () => {
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      communityAction={CommunityAction.Join}
+      communityOwnership={CommunityOwnership.User}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={() => { }}
       isConnectionReady={true}
-      community={false}
+      isCloseDisabled={true}
+      hasReceivedResponse={false}
     />
 
     const result = renderComponent(component)
@@ -166,11 +166,12 @@ describe('join community', () => {
     renderComponent(<PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      communityAction={CommunityAction.Join}
+      communityOwnership={CommunityOwnership.User}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={() => { }}
       isConnectionReady={true}
-      community={false}
+      isCloseDisabled={true}
+      hasReceivedResponse={false}
     />)
 
     const input = screen.getByPlaceholderText('Invite code')
@@ -191,11 +192,12 @@ describe('join community', () => {
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      communityAction={CommunityAction.Join}
+      communityOwnership={CommunityOwnership.User}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={() => { }}
       isConnectionReady={false}
-      community={false}
+      isCloseDisabled={true}
+      hasReceivedResponse={false}
     />
 
     const result = renderComponent(component)
@@ -212,17 +214,56 @@ describe('join community', () => {
     expect(handleCommunityAction).not.toBeCalled()
   })
 
-  it('handles redirection if user clicks on the link', async () => {
+  it('shows loading spinner on submit button while waiting for the response', async () => {
+    const { rerender } = renderComponent(<PerformCommunityActionComponent
+      open={true}
+      handleClose={() => { }}
+      communityOwnership={CommunityOwnership.User}
+      handleCommunityAction={() => { }}
+      handleRedirection={() => { }}
+      isConnectionReady={true}
+      isCloseDisabled={true}
+      hasReceivedResponse={false}
+    />)
+
+    const textInput = screen.getByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+    userEvent.type(textInput, 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad')
+
+    const submitButton = screen.getByRole('button')
+    expect(submitButton).toBeEnabled()
+    userEvent.click(submitButton)
+
+    await act(async () => {})
+
+    expect(screen.queryByTestId('loading-button-progress')).toBeVisible()
+
+    // Rerender component to verify circular progress has dissapeared
+    rerender(<PerformCommunityActionComponent
+      open={true}
+      handleClose={() => { }}
+      communityOwnership={CommunityOwnership.User}
+      handleCommunityAction={() => { }}
+      handleRedirection={() => { }}
+      isConnectionReady={true}
+      isCloseDisabled={true}
+      hasReceivedResponse={true}
+    />)
+
+    expect(screen.queryByTestId('loading-button-progress')).toBeNull()
+  })
+
+  it('handles redirection to create community page if user clicks on the link', async () => {
     const handleRedirection = jest.fn()
 
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      communityAction={CommunityAction.Join}
+      communityOwnership={CommunityOwnership.User}
       handleCommunityAction={() => { }}
       handleRedirection={handleRedirection}
       isConnectionReady={true}
-      community={false}
+      isCloseDisabled={true}
+      hasReceivedResponse={false}
     />
 
     const result = renderComponent(component)
@@ -233,161 +274,5 @@ describe('join community', () => {
     userEvent.click(switchLink)
 
     expect(handleRedirection).toBeCalled()
-  })
-
-  // TODO: move this scenario to rtl-tests and provide socket (nectar sagas) to prepareStore method
-  it.skip('user rejoins to remembered community without user data', async () => {
-    const { store } = await prepareStore({
-      [StoreKeys.Socket]: {
-        ...new SocketState(),
-        isConnected: true
-      },
-      [StoreKeys.Modals]: {
-        ...new ModalsInitialState(),
-        [ModalName.joinCommunityModal]: { open: true }
-      },
-      [NectarStoreKeys.Communities]: {
-        ...new communities.State()
-      }
-    })
-
-    const factory = await getFactory(store)
-
-    await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
-
-    renderComponent(
-      <>
-        <JoinCommunity />
-        <CreateUsername />
-      </>,
-      store
-    )
-
-    const createUsernameTitle = screen.getByText('Register a username')
-    expect(createUsernameTitle).toBeVisible()
-  })
-
-  // TODO: move this scenario to rtl-tests and provide socket (nectar sagas) to prepareStore method
-  it.skip('user rejoins to remembered community with user certificate', async () => {
-    const { store } = await prepareStore()
-
-    const factory = await getFactory(store)
-
-    const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
-
-    await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'alice' })
-
-    store.dispatch(modalsActions.openModal({
-      name: ModalName.joinCommunityModal
-    }))
-
-    store.dispatch(identity.actions.storeUserCertificate({
-      userCertificate: '',
-      communityId: community.id
-    }))
-
-    const result1 = renderComponent(
-      <>
-        <JoinCommunity />
-        <CreateUsername />
-        <LoadingPanelModal />
-      </>,
-      store
-    )
-
-    const switchLink1 = result1.queryByText(LoadingMessages.CreateCommunity)
-    expect(switchLink1).toBeInTheDocument()
-
-    store.dispatch(identity.actions.storeUserCertificate({
-      userCertificate: 'userCert',
-      communityId: community.id
-    }))
-
-    /* Calling renderComponent doesn't simulate 'closing' the app - it just renders jsdom
-       the only way to achieve desired scenario is to mock the initial state of redux store */
-    const result2 = renderComponent(
-      <>
-        <JoinCommunity />
-        <CreateUsername />
-        <LoadingPanelModal />
-      </>,
-      store
-    )
-
-    const switchLink2 = result2.queryByText(LoadingMessages.CreateCommunity)
-    expect(switchLink2).toBeNull()
-  })
-
-  it('remove unregistered community from store after invalid registration with username taken error', async () => {
-    const factoryStore = await prepareStore()
-
-    const factory = await getFactory(factoryStore.store)
-
-    const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
-
-    const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, userCsr: null, nickname: 'alice', userCertificate: null })
-
-    const { store } = await prepareStore({
-      [StoreKeys.Socket]: {
-        ...new SocketState(),
-        isConnected: true
-      },
-      [StoreKeys.Modals]: {
-        ...new ModalsInitialState(),
-        [ModalName.joinCommunityModal]: { open: true }
-      },
-      [NectarStoreKeys.Communities]: factoryStore.store.getState().Communities,
-      [NectarStoreKeys.Identity]: {
-        ...new identity.State(),
-        identities: identityAdapter.setAll(identityAdapter.getInitialState(), [
-          {
-            ...alice,
-            userCertificate: ''
-          }
-        ])
-      }
-    })
-
-    renderComponent(
-      <>
-        <JoinCommunity />
-        <CreateUsername />
-      </>,
-      store
-    )
-
-    // Confirm proper modal title is displayed
-    const dictionary = JoinCommunityDictionary()
-    const joinCommunityTitle = screen.getByText(dictionary.header)
-    expect(joinCommunityTitle).toBeVisible()
-
-    // Enter community address and hit button
-    const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
-    const joinCommunityButton = screen.getByText(dictionary.button)
-    userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
-    userEvent.click(joinCommunityButton)
-
-    // Confirm user is being redirected to username registration
-    const createUsernameTitle = await screen.findByText('Register a username')
-    expect(createUsernameTitle).toBeVisible()
-
-    // Enter user name and hit button
-    const createUsernameInput = screen.getByPlaceholderText('Enter a username')
-    const createUsernameButton = screen.getByText('Register')
-    userEvent.type(createUsernameInput, 'alice')
-    userEvent.click(createUsernameButton)
-
-    // Wait for action what removes community from store after click on register button and check is it removed
-    await waitFor(() => expect(store.getState().Communities.communities.ids.length).toBe(0))
   })
 })
