@@ -1,6 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { screen, waitFor } from '@testing-library/dom'
+import { act } from 'react-dom/test-utils'
 import userEvent from '@testing-library/user-event'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { prepareStore } from '../../../testUtils/prepareStore'
@@ -211,6 +212,44 @@ describe('join community', () => {
     expect(submitButton).toBeDisabled()
 
     expect(handleCommunityAction).not.toBeCalled()
+  })
+
+  it('swhows loading spinner on submit button while waiting for the response', async () => {
+    const { rerender } = renderComponent(<PerformCommunityActionComponent
+      open={true}
+      handleClose={() => { }}
+      communityOwnership={CommunityOwnership.User}
+      handleCommunityAction={() => { }}
+      handleRedirection={() => { }}
+      isConnectionReady={true}
+      isCloseDisabled={true}
+      hasReceivedResponse={false}
+    />)
+
+    const textInput = screen.getByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+    userEvent.type(textInput, 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad')
+
+    const submitButton = screen.getByRole('button')
+    expect(submitButton).toBeEnabled()
+    userEvent.click(submitButton)
+
+    await act(async () => {})
+
+    expect(screen.queryByTestId('loading-button-progress')).toBeVisible()
+
+    // Rerender component to verify circular progress has dissapeared
+    rerender(<PerformCommunityActionComponent
+      open={true}
+      handleClose={() => { }}
+      communityOwnership={CommunityOwnership.User}
+      handleCommunityAction={() => { }}
+      handleRedirection={() => { }}
+      isConnectionReady={true}
+      isCloseDisabled={true}
+      hasReceivedResponse={true}
+    />)
+
+    expect(screen.queryByTestId('loading-button-progress')).toBeNull()
   })
 
   it('handles redirection if user clicks on the link', async () => {

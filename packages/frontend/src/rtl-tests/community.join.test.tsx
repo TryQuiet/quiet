@@ -325,5 +325,6 @@ describe('User', () => {
     `)
   })
 
-  it.skip('retries joining community after receiving error', async () => {})
+  // https://github.com/ZbayApp/monorepo/issues/311 - needs to be completed first
+  it.todo('retries joining community after receiving error', async () => {})
 })
