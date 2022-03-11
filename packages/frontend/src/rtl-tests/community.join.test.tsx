@@ -25,7 +25,8 @@ import {
   createUserCertificateTestHelper,
   ErrorCodes,
   ErrorMessages,
-  getFactory
+  getFactory,
+  errors
 } from '@quiet/nectar'
 import Channel from '../renderer/components/Channel/Channel'
 
@@ -247,27 +248,6 @@ describe('User', () => {
             community: community.id
           })
         }
-        if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          const community = communities.selectors.currentCommunity(store.getState())
-          expect(payload.id).toEqual(community.id)
-          socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
-            id: payload.id
-          })
-          socket.socketClient.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
-            communityId: community.id,
-            channels: {
-              general: {
-                name: 'general',
-                description: 'string',
-                owner: 'owner',
-                timestamp: 0,
-                address: 'general'
-              }
-            }
-          })
-        }
       })
 
     // Log all the dispatched actions in order
@@ -325,6 +305,112 @@ describe('User', () => {
     `)
   })
 
-  // https://github.com/ZbayApp/monorepo/issues/311 - needs to be completed first
-  it.todo('retries joining community after receiving error')
+  it('clears error before sending another username registration request', async () => {
+    const { store, runSaga } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
+
+    renderComponent(
+      <>
+        <LoadingPanel />
+        <JoinCommunity />
+        <CreateUsername />
+        <Channel />
+      </>,
+      store
+    )
+
+    jest
+      .spyOn(socket, 'emit')
+      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+        if (action === SocketActionTypes.CREATE_NETWORK) {
+          const data = input as socketEventData<[Community]>
+          const payload = data[0]
+          return socket.socketClient.emit(SocketActionTypes.NETWORK, {
+            community: payload,
+            network: {
+              hiddenService: {
+                onionAddress: 'onionAddress',
+                privKey: 'privKey'
+              },
+              peerId: {
+                id: 'peerId'
+              }
+            }
+          })
+        }
+      })
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
+
+    // Confirm proper modal title is displayed
+    const dictionary = JoinCommunityDictionary()
+    const joinCommunityTitle = screen.getByText(dictionary.header)
+    expect(joinCommunityTitle).toBeVisible()
+
+    // Enter community address and hit button
+    const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
+    const joinCommunityButton = screen.getByText(dictionary.button)
+    userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+    userEvent.click(joinCommunityButton)
+
+    // Confirm user is being redirected to username registration
+    const createUsernameTitle = await screen.findByText('Register a username')
+    expect(createUsernameTitle).toBeVisible()
+
+    await act(async () => {
+      const community = communities.selectors.currentCommunity(store.getState())
+      store.dispatch(
+        errors.actions.addError({
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.FORBIDDEN,
+          message: ErrorMessages.USERNAME_TAKEN,
+          community: community.id
+        })
+      )
+    })
+
+    // Check if 'username taken' error message is visible
+    expect(createUsernameTitle).toBeVisible()
+    expect(await screen.findByText(ErrorMessages.USERNAME_TAKEN)).toBeVisible()
+
+    // Enter username and hit button
+    const createUsernameInput = screen.getByPlaceholderText('Enter a username')
+    const createUsernameButton = screen.getByText('Register')
+    userEvent.type(createUsernameInput, 'bob')
+    userEvent.click(createUsernameButton)
+
+    // Wait for the actions that updates the store
+    await act(async () => {})
+
+    // Check if 'username taken' error message disappeared
+    expect(await screen.queryByText(ErrorMessages.USERNAME_TAKEN)).toBeNull()
+
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Communities/createNetwork",
+        "Communities/responseCreateNetwork",
+        "Communities/addNewCommunity",
+        "Communities/setCurrentCommunity",
+        "PublicChannels/addPublicChannelsList",
+        "Identity/addNewIdentity",
+        "Modals/closeModal",
+        "Modals/openModal",
+        "Errors/addError",
+        "Errors/clearError",
+        "Identity/registerUsername",
+        "Identity/registerCertificate",
+      ]
+    `)
+  })
 })

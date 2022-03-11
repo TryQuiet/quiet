@@ -79,8 +79,8 @@ describe('registrar is offline, user tries to join, then registrar goes online',
     const community = user.store.getState().Communities.currentCommunity
     const expectedError: ErrorPayload = {
       type: SocketActionTypes.REGISTRAR,
-      code: ErrorCodes.SERVER_ERROR,
-      message: ErrorMessages.REGISTRATION_FAILED,
+      code: ErrorCodes.NOT_FOUND,
+      message: ErrorMessages.REGISTRAR_NOT_FOUND,
       community
     }
     await assertReceivedRegistrationError(user.store, expectedError)
