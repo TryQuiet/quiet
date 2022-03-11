@@ -27,7 +27,8 @@ export function* startWaggleSaga(): Generator {
         dataPort,
         torData.httpTunnelPort,
         torData.socksPort,
-        torData.controlPort
+        torData.controlPort,
+        torData.authCookie
       )
       yield* put(initActions.onWaggleStarted({ dataPort: dataPort }))
       break
@@ -41,9 +42,10 @@ export const startNodeProcess = (
   dataPort: number,
   httpTunnelPort: number,
   socksPort: number,
-  controlPort: number
+  controlPort: number,
+  authCookie: string
 ) => {
   nodejs.start(
-    `lib/mobileWaggleManager.js -d ${dataDirectoryPath} -p ${dataPort} -t ${httpTunnelPort} -s ${socksPort} -c ${controlPort}`
+    `lib/mobileWaggleManager.js -d ${dataDirectoryPath} -p ${dataPort} -t ${httpTunnelPort} -s ${socksPort} -c ${controlPort} -a ${authCookie}`
   )
 }
