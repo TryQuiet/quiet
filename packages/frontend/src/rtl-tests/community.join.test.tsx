@@ -18,15 +18,14 @@ import { socketEventData } from '../renderer/testUtils/socket'
 import {
   identity,
   communities,
-  getFactory,
   SocketActionTypes,
   RegisterUserCertificatePayload,
   InitCommunityPayload,
-  Identity,
   Community,
   createUserCertificateTestHelper,
   ErrorCodes,
-  ErrorMessages
+  ErrorMessages,
+  getFactory
 } from '@quiet/nectar'
 import Channel from '../renderer/components/Channel/Channel'
 
@@ -41,9 +40,6 @@ describe('User', () => {
   })
 
   it('joins community and registers username', async () => {
-    let community: Community
-    let alice: Identity
-
     const { store, runSaga } = await prepareStore(
       {},
       socket // Fork Nectar's sagas
@@ -66,50 +62,53 @@ describe('User', () => {
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
         if (action === SocketActionTypes.CREATE_NETWORK) {
-          const data = input as socketEventData<[string]>
-          community = (
-            await factory.build<typeof communities.actions.addNewCommunity>('Community', {
-              id: data[0]
-            })
-          ).payload
-          alice = (
-            await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
-              id: community.id,
-              nickname: 'alice'
-            })
-          ).payload
-
+          const data = input as socketEventData<[Community]>
+          const payload = data[0]
           return socket.socketClient.emit(SocketActionTypes.NETWORK, {
-            id: community.id,
-            payload: {
-              hiddenService: alice.hiddenService,
-              peerId: alice.peerId
+            community: payload,
+            network: {
+              hiddenService: {
+                onionAddress: 'onionAddress',
+                privKey: 'privKey'
+              },
+              peerId: {
+                id: 'peerId'
+              }
             }
           })
         }
         if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
           const data = input as socketEventData<[RegisterUserCertificatePayload]>
           const payload = data[0]
-          expect(payload.id).toEqual(community.id)
-          const certificate = await createUserCertificateTestHelper(
+          const user = identity.selectors.currentIdentity(store.getState())
+          // This community serves only as a mocked object for generating valid crytpo data (certificate, rootCA)
+          const communityHelper = (
+            await factory.build<typeof communities.actions.addNewCommunity>('Community', {
+              id: data[0]
+            })
+          ).payload
+          const certificateHelper = await createUserCertificateTestHelper(
             {
-              nickname: alice.nickname,
-              commonName: alice.hiddenService.onionAddress,
-              peerId: alice.peerId.id
+              nickname: user.nickname,
+              commonName: communityHelper.registrarUrl,
+              peerId: user.peerId.id
             },
-            community.CA
+            communityHelper.CA
           )
+          const certificate = certificateHelper.userCert.userCertObject.certificate
+          const rootCa = communityHelper.CA.rootCertString
           return socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
-            id: payload.id,
+            communityId: payload.communityId,
             payload: {
               certificate: certificate,
-              rootCa: community.CA.rootCertString
+              rootCa: rootCa
             }
           })
         }
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input as socketEventData<[InitCommunityPayload]>
           const payload = data[0]
+          const community = communities.selectors.currentCommunity(store.getState())
           expect(payload.id).toEqual(community.id)
           socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
             id: payload.id
@@ -172,20 +171,19 @@ describe('User', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Modals/openModal",
-        "Modals/openModal",
-        "Communities/joinCommunity",
+        "Communities/createNetwork",
+        "Communities/responseCreateNetwork",
         "Communities/addNewCommunity",
-        "PublicChannels/addPublicChannelsList",
         "Communities/setCurrentCommunity",
-        "Communities/responseCreateCommunity",
+        "PublicChannels/addPublicChannelsList",
         "Identity/addNewIdentity",
+        "Modals/closeModal",
+        "Modals/openModal",
         "Identity/registerUsername",
-        "Identity/updateUsername",
-        "Identity/createUserCsr",
         "Identity/registerCertificate",
         "Communities/storePeerList",
         "Identity/storeUserCertificate",
+        "Modals/closeModal",
         "Communities/updateCommunity",
         "Communities/updateCommunityData",
         "Communities/launchCommunity",
@@ -195,19 +193,12 @@ describe('User', () => {
         "PublicChannels/subscribeToAllTopics",
         "PublicChannels/subscribeToTopic",
         "PublicChannels/addChannel",
-        "Modals/closeModal",
-        "Modals/closeModal",
-        "Modals/closeModal",
-        "Modals/closeModal",
         "PublicChannels/setChannelLoadingSlice",
       ]
     `)
   })
 
-  it('sees proper registration error when trying to join with already used username', async () => {
-    let community: Community
-    let alice: Identity
-
+  it('sees proper registration error when trying to join with already taken username', async () => {
     const { store, runSaga } = await prepareStore(
       {},
       socket // Fork Nectar's sagas
@@ -225,36 +216,30 @@ describe('User', () => {
       store
     )
 
-    const factory = await getFactory(store)
-
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
         if (action === SocketActionTypes.CREATE_NETWORK) {
-          const data = input as socketEventData<[string]>
-          community = (
-            await factory.build<typeof communities.actions.addNewCommunity>('Community', {
-              id: data[0]
-            })
-          ).payload
-          alice = (
-            await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
-              id: community.id,
-              nickname: 'alice'
-            })
-          ).payload
+          const data = input as socketEventData<[Community]>
+          const payload = data[0]
           return socket.socketClient.emit(SocketActionTypes.NETWORK, {
-            id: community.id,
-            payload: {
-              hiddenService: alice.hiddenService,
-              peerId: alice.peerId
+            community: payload,
+            network: {
+              hiddenService: {
+                onionAddress: 'onionAddress',
+                privKey: 'privKey'
+              },
+              peerId: {
+                id: 'peerId'
+              }
             }
           })
         }
         if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
           const data = input as socketEventData<[RegisterUserCertificatePayload]>
           const payload = data[0]
-          expect(payload.id).toEqual(community.id)
+          const community = communities.selectors.currentCommunity(store.getState())
+          expect(payload.communityId).toEqual(community.id)
           socket.socketClient.emit(SocketActionTypes.ERROR, {
             type: SocketActionTypes.REGISTRAR,
             code: ErrorCodes.FORBIDDEN,
@@ -265,6 +250,7 @@ describe('User', () => {
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input as socketEventData<[InitCommunityPayload]>
           const payload = data[0]
+          const community = communities.selectors.currentCommunity(store.getState())
           expect(payload.id).toEqual(community.id)
           socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
             id: payload.id
@@ -324,21 +310,21 @@ describe('User', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Modals/openModal",
-        "Modals/openModal",
-        "Communities/joinCommunity",
+        "Communities/createNetwork",
+        "Communities/responseCreateNetwork",
         "Communities/addNewCommunity",
-        "PublicChannels/addPublicChannelsList",
         "Communities/setCurrentCommunity",
-        "Communities/responseCreateCommunity",
+        "PublicChannels/addPublicChannelsList",
         "Identity/addNewIdentity",
+        "Modals/closeModal",
+        "Modals/openModal",
         "Identity/registerUsername",
-        "Identity/updateUsername",
-        "Identity/createUserCsr",
         "Identity/registerCertificate",
         "Errors/addError",
-        "Modals/closeModal",
       ]
     `)
   })
+
+  // https://github.com/ZbayApp/monorepo/issues/311 - needs to be completed first
+  it.todo('retries joining community after receiving error')
 })

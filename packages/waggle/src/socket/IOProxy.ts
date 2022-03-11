@@ -22,6 +22,9 @@ import {
   GetPublicChannelsResponse,
   SendCertificatesResponse,
   ErrorMessages,
+  Community,
+  NetworkData,
+  ResponseCreateNetworkPayload,
   ErrorCodes
 } from '@quiet/nectar'
 import { emitError } from './errors'
@@ -170,13 +173,13 @@ export default class IOProxy {
 
   public registerOwnerCertificate = async (payload: RegisterOwnerCertificatePayload) => {
     const cert = await CertificateRegistration.registerOwnerCertificate(
-      payload.userCsr,
+      payload.userCsr.userCsr,
       payload.permsData
     )
-    log(`Saved owner certificate ${payload.id}`)
+    log(`Saved owner certificate for community ${payload.communityId}`)
     this.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
-      id: payload.id,
-      payload: { certificate: cert, peers: [], rootCa: payload.permsData.certificate }
+      communityId: payload.communityId,
+      network: { certificate: cert, peers: [] }
     })
   }
 
@@ -200,7 +203,7 @@ export default class IOProxy {
         type: SocketActionTypes.REGISTRAR,
         code: ErrorCodes.SERVICE_UNAVAILABLE,
         message: ErrorMessages.REGISTRAR_CONNECTION_FAILED,
-        community: payload.id
+        community: payload.communityId
       })
       return
     }
@@ -213,7 +216,7 @@ export default class IOProxy {
           type: SocketActionTypes.REGISTRAR,
           code: ErrorCodes.BAD_REQUEST,
           message: ErrorMessages.INVALID_USERNAME,
-          community: payload.id
+          community: payload.communityId
         })
         return
       case 403:
@@ -221,7 +224,7 @@ export default class IOProxy {
           type: SocketActionTypes.REGISTRAR,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.USERNAME_TAKEN,
-          community: payload.id
+          community: payload.communityId
         })
         return
       case 404:
@@ -229,33 +232,34 @@ export default class IOProxy {
           type: SocketActionTypes.REGISTRAR,
           code: ErrorCodes.NOT_FOUND,
           message: ErrorMessages.REGISTRAR_NOT_FOUND,
-          community: payload.id
+          community: payload.communityId
         })
         return
       default:
         log.error(
-          `Registrar responded with ${response.status} "${response.statusText}" (${payload.id})`
+          `Registrar responded with ${response.status} "${response.statusText}" (${payload.communityId})`
         )
         emitError(this.io, {
           type: SocketActionTypes.REGISTRAR,
           code: ErrorCodes.SERVER_ERROR,
           message: ErrorMessages.REGISTRATION_FAILED,
-          community: payload.id
+          community: payload.communityId
         })
         return
     }
+
     const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
       await response.json()
 
-    log(`Sending user certificate (${payload.id})`)
+    log(`Sending user certificate (${payload.communityId})`)
     this.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
-      id: payload.id,
+      communityId: payload.communityId,
       payload: registrarResponse
     })
   }
 
-  public async createNetwork(community: string) {
-    let network
+  public async createNetwork(community: Community) {
+    let network: NetworkData
     try {
       network = await this.connectionsManager.createNetwork()
     } catch (e) {
@@ -263,12 +267,16 @@ export default class IOProxy {
       emitError(this.io, {
         type: SocketActionTypes.NETWORK,
         message: ErrorMessages.NETWORK_SETUP_FAILED,
-        community
+        community: community.id
       })
       return
     }
-    log(`Sending network data for ${community}`)
-    this.io.emit(SocketActionTypes.NETWORK, { id: community, payload: network })
+    log(`Sending network data for ${community.id}`)
+    const payload: ResponseCreateNetworkPayload = {
+      community,
+      network
+    }
+    this.io.emit(SocketActionTypes.NETWORK, payload)
   }
 
   public async createCommunity(payload: InitCommunityPayload) {

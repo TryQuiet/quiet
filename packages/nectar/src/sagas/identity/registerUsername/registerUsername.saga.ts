@@ -1,50 +1,49 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { select, put } from 'typed-redux-saga'
+import { select, put, call } from 'typed-redux-saga'
+import { createUserCsr } from '@quiet/identity'
 import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
-import { errorsActions } from '../../errors/errors.slice'
+import { CreateUserCsrPayload, RegisterCertificatePayload } from '../identity.types'
 import { config } from '../../users/const/certFieldTypes'
-import logger from '../../../utils/logger'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { ErrorCodes, ErrorMessages } from '../../errors/errors.types'
-const log = logger('identity')
+import { communitiesSelectors } from '../../communities/communities.selectors'
 
-export function* registerUsernameSaga(
-  action: PayloadAction<string>
-): Generator {
+export function* registerUsernameSaga(action: PayloadAction<string>): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
-  const commonName = identity.hiddenService.onionAddress
-  const peerId = identity.peerId.id
-  const dmPublicKey = identity.dmKeys.publicKey
 
-  log('registerUsernameSaga')
+  // Nickname can differ between saga calls
+  const nickname = action.payload
 
-  if (!commonName || !peerId) {
-    yield* put(
-      errorsActions.addError({
-        community: identity.id,
-        type: SocketActionTypes.REGISTRAR,
-        message: ErrorMessages.NOT_CONNECTED
-      })
-    )
-    return
+  let userCsr = null
+
+  // Reuse the same csr if nickname hasn't changed
+  if (identity.nickname === nickname) {
+    userCsr = identity.userCsr
   }
 
-  yield* put(
-    identityActions.updateUsername({
-      communityId: identity.id,
-      nickname: action.payload
-    })
-  )
-
-  const payload = {
-    nickname: action.payload,
-    commonName: commonName,
-    peerId,
-    dmPublicKey,
-    signAlg: config.signAlg,
-    hashAlg: config.hashAlg
+  if (userCsr === null) {
+    try {
+      const payload: CreateUserCsrPayload = {
+        nickname: nickname,
+        commonName: identity.hiddenService.onionAddress,
+        peerId: identity.peerId.id,
+        dmPublicKey: identity.dmKeys.publicKey,
+        signAlg: config.signAlg,
+        hashAlg: config.hashAlg
+      }
+      userCsr = yield* call(createUserCsr, payload)
+    } catch (e) {
+      console.error(e)
+      return
+    }
   }
 
-  yield* put(identityActions.createUserCsr(payload))
+  const currentCommunity = yield* select(communitiesSelectors.currentCommunity)
+
+  const payload: RegisterCertificatePayload = {
+    communityId: currentCommunity.id,
+    nickname: nickname,
+    userCsr: userCsr
+  }
+
+  yield* put(identityActions.registerCertificate(payload))
 }

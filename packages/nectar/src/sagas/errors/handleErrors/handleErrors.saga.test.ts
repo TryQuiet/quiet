@@ -32,6 +32,7 @@ describe('handle errors', () => {
     privateKey: '',
     port: 0
   }
+
   const identity: Identity = {
     id: 'id',
     hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
@@ -81,8 +82,8 @@ describe('handle errors', () => {
       .put(
         identityActions.registerCertificate({
           communityId: community.id,
-          userCsr: identity.userCsr,
-          registrarAddress: community.registrarUrl
+          nickname: identity.nickname,
+          userCsr: identity.userCsr
         })
       )
       .run()

@@ -1,7 +1,28 @@
 import { createRootCA } from '@quiet/identity'
 import { AsyncReturnType } from '../../utils/types/AsyncReturnType.interface'
-import { HiddenService, Identity, PeerId } from '../identity/identity.types'
+import { HiddenService, PeerId, Identity } from '../identity/identity.types'
 import { Community } from './communities.slice'
+
+export enum CommunityOwnership {
+  Owner = 'owner',
+  User = 'user'
+}
+
+export interface NetworkData {
+  hiddenService: HiddenService
+  peerId: PeerId
+}
+
+export interface CreateNetworkPayload {
+  ownership: CommunityOwnership
+  name?: string
+  registrar?: string
+}
+
+export interface ResponseCreateNetworkPayload {
+  community: Community
+  network: NetworkData
+}
 
 export interface Certificates {
   certificate: string
@@ -15,6 +36,11 @@ export interface InitCommunityPayload {
   hiddenService: HiddenService
   certs: Certificates
   peers?: string[]
+}
+
+export interface UpdateCommunityPayload {
+  id: string
+  rootCa: string
 }
 
 export interface AddNewCommunityPayload {

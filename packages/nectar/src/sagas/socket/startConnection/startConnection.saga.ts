@@ -8,6 +8,7 @@ import { communitiesMasterSaga } from '../../communities/communities.master.saga
 import { communitiesActions } from '../../communities/communities.slice'
 import {
   ResponseCreateCommunityPayload,
+  ResponseCreateNetworkPayload,
   ResponseLaunchCommunityPayload,
   ResponseRegistrarPayload
 } from '../../communities/communities.types'
@@ -35,16 +36,19 @@ const log = logger('socket')
 
 export function subscribe(socket: Socket) {
   return eventChannel<
+  | ReturnType<typeof publicChannelsActions.addChannel>
   | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
   | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
   | ReturnType<typeof publicChannelsActions.incomingMessages>
+  | ReturnType<typeof publicChannelsActions.createGeneralChannel>
   | ReturnType<typeof usersActions.responseSendCertificates>
-  | ReturnType<typeof communitiesActions.responseCreateCommunity>
+  | ReturnType<typeof communitiesActions.responseCreateNetwork>
   | ReturnType<typeof errorsActions.addError>
   | ReturnType<typeof identityActions.storeUserCertificate>
   | ReturnType<typeof identityActions.throwIdentityError>
   | ReturnType<typeof communitiesActions.storePeerList>
   | ReturnType<typeof communitiesActions.updateCommunity>
+  | ReturnType<typeof communitiesActions.responseRegistrar>
   | ReturnType<typeof connectionActions.addInitializedCommunity>
   | ReturnType<typeof connectionActions.addInitializedRegistrar>
   | ReturnType<typeof connectionActions.addConnectedPeers>
@@ -52,12 +56,10 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.CONNECTED_PEERS, (payload: { connectedPeers: ConnectedPeers }) => {
       emit(connectionActions.addConnectedPeers(payload.connectedPeers))
     })
-    socket.on(
-      SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
-      (payload: GetPublicChannelsResponse) => {
-        emit(publicChannelsActions.responseGetPublicChannels(payload))
-        emit(publicChannelsActions.subscribeToAllTopics(payload.communityId))
-      }
+    socket.on(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, (payload: GetPublicChannelsResponse) => {
+      emit(publicChannelsActions.responseGetPublicChannels(payload))
+      emit(publicChannelsActions.subscribeToAllTopics(payload.communityId))
+    }
     )
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       emit(publicChannelsActions.addChannel(payload))
@@ -72,53 +74,47 @@ export function subscribe(socket: Socket) {
       emit(usersActions.responseSendCertificates(payload))
     })
     socket.on(SocketActionTypes.NEW_COMMUNITY, (payload: ResponseCreateCommunityPayload) => {
-      log('created COMMUNITY')
       emit(identityActions.saveOwnerCertToDb())
       emit(publicChannelsActions.createGeneralChannel({ communityId: payload.id }))
     })
     socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {
-      log('created REGISTRAR')
       log(payload)
       emit(communitiesActions.responseRegistrar(payload))
       emit(connectionActions.addInitializedRegistrar(payload.id))
     })
-    socket.on(SocketActionTypes.NETWORK, (payload: any) => {
-      log('created NETWORK')
+    socket.on(SocketActionTypes.NETWORK, (payload: ResponseCreateNetworkPayload) => {
       log(payload)
-      emit(communitiesActions.responseCreateCommunity(payload))
+      emit(communitiesActions.responseCreateNetwork(payload))
     })
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
-      log('launched COMMUNITY', payload.id)
       emit(communitiesActions.launchRegistrar(payload.id))
       emit(connectionActions.addInitializedCommunity(payload.id))
     })
     socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {
-      log('Got Error')
       log(payload)
       emit(errorsActions.addError(payload))
     })
     socket.on(
       SocketActionTypes.SEND_USER_CERTIFICATE,
       (payload: {
-        id: string
+        communityId: string
         payload: { peers: string[]; certificate: string; rootCa: string }
       }) => {
-        log('got response with cert', payload.payload.rootCa)
         emit(
           communitiesActions.storePeerList({
-            communityId: payload.id,
+            communityId: payload.communityId,
             peerList: payload.payload.peers
           })
         )
         emit(
           identityActions.storeUserCertificate({
             userCertificate: payload.payload.certificate,
-            communityId: payload.id
+            communityId: payload.communityId
           })
         )
         emit(
           communitiesActions.updateCommunity({
-            id: payload.id,
+            id: payload.communityId,
             rootCa: payload.payload.rootCa
           })
         )
@@ -128,28 +124,22 @@ export function subscribe(socket: Socket) {
     socket.on(
       SocketActionTypes.SAVED_OWNER_CERTIFICATE,
       (payload: {
-        id: string
-        payload: { certificate: string; peers: string[]; rootCa: string }
+        communityId: string
+        network: { certificate: string; peers: string[] }
       }) => {
         emit(
           communitiesActions.storePeerList({
-            communityId: payload.id,
-            peerList: payload.payload.peers
+            communityId: payload.communityId,
+            peerList: payload.network.peers
           })
         )
         emit(
           identityActions.storeUserCertificate({
-            userCertificate: payload.payload.certificate,
-            communityId: payload.id
+            userCertificate: payload.network.certificate,
+            communityId: payload.communityId
           })
         )
-        emit(
-          communitiesActions.updateCommunity({
-            id: payload.id,
-            rootCa: payload.payload.rootCa
-          })
-        )
-        emit(identityActions.savedOwnerCertificate(payload.id))
+        emit(identityActions.savedOwnerCertificate(payload.communityId))
       }
     )
     return () => { }
