@@ -33,10 +33,10 @@ if (isDev || process.env.DATA_DIR) {
   }
 
   const newUserDataPath = path.join(appDataPath, 'Quiet')
-  
+
   app.setPath('appData', appDataPath)
   app.setPath('userData', newUserDataPath)
-  
+
   electronStore.set('appDataPath', app.getPath('appData'))
   electronStore.set('waggleVersion', waggleVersion)
 }
