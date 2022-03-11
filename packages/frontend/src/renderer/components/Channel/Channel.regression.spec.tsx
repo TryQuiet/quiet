@@ -30,11 +30,11 @@ describe('Scroll behavior test', () => {
   const channelContent = '[data-testid="channelContent"]'
   const messageInput = '[data-testid="messageInput"]'
 
-  it('scroll should be at the bottom after entering channel', () => {
-    cy.get(channelContent).compareSnapshot('after launch', {
-      capture: 'fullPage'
-    })
-  })
+  // it('scroll should be at the bottom after entering channel', () => {
+  //   cy.get(channelContent).compareSnapshot('after launch', {
+  //     capture: 'fullPage'
+  //   })
+  // })
 
   // it('scroll should be at the bottom after sending messages', () => {
   //   cy.get(messageInput).focus().type('luke where are you?').type('{enter}')

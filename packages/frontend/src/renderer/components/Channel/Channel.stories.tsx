@@ -317,54 +317,6 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
             createdAt: 0,
             date: '12:46',
             nickname: 'obi'
-          },
-          {
-            id: '12',
-            type: 1,
-            message: 'Of course, I Agree',
-            createdAt: 0,
-            date: '12:46',
-            nickname: 'obi'
-          }
-        ],
-        [
-          {
-            id: '13',
-            type: 1,
-            message: 'Wrough!',
-            createdAt: 0,
-            date: '12:46',
-            nickname: 'wookie'
-          }
-        ],
-        [
-          {
-            id: '14',
-            type: 1,
-            message: 'Yeah!',
-            createdAt: 0,
-            date: '12:46',
-            nickname: 'leah'
-          }
-        ],
-        [
-          {
-            id: '15',
-            type: 1,
-            message: 'The more messages the better',
-            createdAt: 0,
-            date: '12:46',
-            nickname: 'luke'
-          }
-        ],
-        [
-          {
-            id: '16',
-            type: 1,
-            message: 'We cannot grant you the rank of messager',
-            createdAt: 0,
-            date: '12:46',
-            nickname: 'windoo'
           }
         ],
         [
@@ -383,8 +335,95 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
   })
 
   const setChannelLoadingSlice = useCallback(slice => {
+    const oldMess =  [
+      [
+        {
+          id: '4',
+          type: 1,
+          message: 'Luck, I am your father!',
+          createdAt: 0,
+          date: '12:40',
+          nickname: 'chad'
+        },
+        {
+          id: '5',
+          type: 1,
+          message: "That's impossible!",
+          createdAt: 0,
+          date: '12:41',
+          nickname: 'chad'
+        },
+        {
+          id: '6',
+          type: 1,
+          message: 'Nooo!',
+          createdAt: 0,
+          date: '12:45',
+          nickname: 'chad'
+        }
+      ],
+      [
+        {
+          id: '7',
+          type: 1,
+          message: 'Uhuhu!',
+          createdAt: 0,
+          date: '12:46',
+          nickname: 'anakin'
+        }
+      ],
+      [
+        {
+          id: '8',
+          type: 1,
+          message: 'Why?',
+          createdAt: 0,
+          date: '12:46',
+          nickname: 'anakin'
+        }
+      ],
+      [
+        {
+          id: '9',
+          type: 1,
+          message: 'Messages more there should be',
+          createdAt: 0,
+          date: '12:46',
+          nickname: 'yoda'
+        }
+      ],
+      [
+        {
+          id: '11',
+          type: 1,
+          message: 'I Agree',
+          createdAt: 0,
+          date: '12:46',
+          nickname: 'obi'
+        }
+      ],
+      [
+        {
+          id: '16',
+          type: 1,
+          message:
+            'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
+          createdAt: 0,
+          date: '12:46',
+          nickname: 'vader'
+        }
+      ]
+    ]
     console.log(slice)
-    console.log('setloading')
+    if (slice==0) {
+      setMessages({
+        count: 0,
+        groups: {
+          '25 Oct': oldMess,
+          ...messages.groups
+        }
+      })
+    }
   }, [])
 
   const sendMessage = useCallback(message => {
