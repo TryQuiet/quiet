@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { KeyboardAvoidingView, View, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { MessageProps } from './Message.types'
 import Jdenticon from 'react-native-jdenticon'
@@ -8,7 +8,7 @@ export const Message: FC<MessageProps> = ({ data }) => {
   const messageDisplayData = data[0]
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <View
         style={{
           flexDirection: 'row',
@@ -56,7 +56,7 @@ export const Message: FC<MessageProps> = ({ data }) => {
           </View>
         </View>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   )
 }
 
