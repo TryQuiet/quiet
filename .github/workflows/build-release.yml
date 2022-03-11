@@ -118,6 +118,10 @@ jobs:
           fileName: 'win-certificate.pfx'
           encodedString: ${{ secrets.WIN_CSC_LINK }}
 
+      - name: "Remove test files workaround (jest types conflicting with cypress types)"
+        run: find packages/frontend/src -name '*.test.*' -delete
+        shell: bash
+
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
