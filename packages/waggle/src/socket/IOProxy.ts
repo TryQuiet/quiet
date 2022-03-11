@@ -263,7 +263,7 @@ export default class IOProxy {
     try {
       network = await this.connectionsManager.createNetwork()
     } catch (e) {
-      log.error(`Creating network for community ${community} failed`, e)
+      log.error(`Creating network for community ${community.id} failed`, e)
       emitError(this.io, {
         type: SocketActionTypes.NETWORK,
         message: ErrorMessages.NETWORK_SETUP_FAILED,
