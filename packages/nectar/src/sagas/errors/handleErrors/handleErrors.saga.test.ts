@@ -1,5 +1,7 @@
 import { combineReducers } from 'redux'
 import { expectSaga, testSaga } from 'redux-saga-test-plan'
+import { call } from 'redux-saga-test-plan/matchers'
+import { delay } from 'typed-redux-saga'
 import { communitiesAdapter } from '../../communities/communities.adapter'
 import {
   communitiesReducer, CommunitiesState, Community
@@ -47,8 +49,8 @@ describe('handle errors', () => {
       errorsActions.addError({
         community: community.id,
         type: SocketActionTypes.REGISTRAR,
-        code: ErrorCodes.SERVER_ERROR,
-        message: ErrorMessages.REGISTRATION_FAILED
+        code: ErrorCodes.NOT_FOUND,
+        message: ErrorMessages.REGISTRAR_NOT_FOUND
       })
     )
       .withReducer(
@@ -59,7 +61,7 @@ describe('handle errors', () => {
         {
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
-            currentCommunity: 'id-0',
+            currentCommunity: 'id',
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]
@@ -74,6 +76,9 @@ describe('handle errors', () => {
           }
         }
       )
+      .provide([
+        [call.fn(delay), null]
+      ])
       .put(
         identityActions.registerCertificate({
           communityId: community.id,
@@ -87,8 +92,8 @@ describe('handle errors', () => {
   test('registrar validation error does not trigger re-registration', async () => {
     const addErrorAction = errorsActions.addError({
       type: SocketActionTypes.REGISTRAR,
+      code: ErrorCodes.BAD_REQUEST,
       message: ErrorMessages.INVALID_USERNAME,
-      code: ErrorCodes.VALIDATION,
       community: community.id
     })
     testSaga(handleErrorsSaga, addErrorAction)
