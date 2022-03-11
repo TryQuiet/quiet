@@ -40,7 +40,7 @@ export const Message: FC<MessageProps> = ({ data }) => {
                 paddingLeft: 8
               }}>
               <Typography fontSize={14} color={'subtitle'}>
-                {messageDisplayData.createdAt}
+                {messageDisplayData.date}
               </Typography>
             </View>
           </View>
