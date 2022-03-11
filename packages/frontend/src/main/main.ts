@@ -24,7 +24,7 @@ export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
 const webcrypto = new Crypto()
 
-if (isDev) {
+if (isDev || process.env.DATA_DIR) {
   const dataDir = process.env.DATA_DIR || 'Quietdev'
   const appDataPath = path.join(app.getPath('appData'), dataDir)
 
