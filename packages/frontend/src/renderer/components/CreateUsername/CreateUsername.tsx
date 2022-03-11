@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
-import { errors, identity, socketActionTypes } from '@quiet/nectar'
+import { ErrorCodes, errors, identity, socketActionTypes } from '@quiet/nectar'
 import CreateUsernameComponent from '../CreateUsername/CreateUsernameComponent'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
@@ -18,8 +18,7 @@ const CreateUsername = () => {
 
   const loadingStartApp = useModal(ModalName.loadingPanel)
 
-  const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
-  let error = communityErrors[socketActionTypes.REGISTRAR]
+  const error = useSelector(errors.selectors.registrarErrors)
 
   useEffect(() => {
     if (!isConnected && createUsernameModal.open) {
@@ -40,13 +39,13 @@ const CreateUsername = () => {
     }
   }, [currentIdentity])
 
-  useEffect(() => {
-    if (error?.code === 500) {
-      error = undefined
-    }
-  }, [error])
-
   const handleAction = (nickname: string) => {
+    // Clear errors
+    if (error) {
+      dispatch(
+        errors.actions.clearError(error)
+      )
+    }
     dispatch(identity.actions.registerUsername(nickname))
   }
 
