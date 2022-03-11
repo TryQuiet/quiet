@@ -1,10 +1,11 @@
 import React, { FC, useEffect } from 'react'
 import { View } from 'react-native'
-import { useDispatch } from 'react-redux'
-import { initActions } from '../../store/init/init.slice'
+import { useDispatch, useSelector } from 'react-redux'
 import { ScreenNames } from '../../const/ScreenNames.enum'
-import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
 import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen'
+import { initActions } from '../../store/init/init.slice'
+import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
+import { identity, communities, CommunityOwnership, CreateNetworkPayload } from '@quiet/nectar'
 
 export const JoinCommunityScreen: FC = () => {
   const dispatch = useDispatch()
@@ -13,15 +14,26 @@ export const JoinCommunityScreen: FC = () => {
     dispatch(initActions.setCurrentScreen(ScreenNames.JoinCommunityScreen))
   })
 
-  const openUsernameRegistration = (registrar: string) => {
-    replaceScreen(ScreenNames.UsernameRegistrationScreen, {
-      registrar: registrar
-    })
+  const currentCommunity = useSelector(communities.selectors.currentCommunity)
+  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+
+  useEffect(() => {
+    if (currentIdentity && !currentIdentity.userCertificate) {
+      replaceScreen(ScreenNames.UsernameRegistrationScreen)
+    }
+  }, [currentIdentity])
+
+  const joinCommunityAction = (address: string) => {
+    const payload: CreateNetworkPayload = {
+      ownership: CommunityOwnership.User,
+      registrar: address
+    }
+    dispatch(communities.actions.createNetwork(payload))
   }
 
   return (
     <View style={{ flex: 1 }}>
-      <JoinCommunity openUsernameRegistration={openUsernameRegistration} />
+      <JoinCommunity joinCommunityAction={joinCommunityAction} />
     </View>
   )
 }
