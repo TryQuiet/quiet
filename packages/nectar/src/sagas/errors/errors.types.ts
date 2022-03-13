@@ -6,12 +6,16 @@ export interface ErrorPayload {
 }
 
 export enum ErrorCodes {
-  VALIDATION = 403,
-  SERVER_ERROR = 500
+  BAD_REQUEST = 400,
+  FORBIDDEN = 403,
+  NOT_FOUND = 404,
+  SERVER_ERROR = 500,
+  SERVICE_UNAVAILABLE = 503
 }
 
 export enum ErrorMessages {
   // Registrar
+  REGISTRAR_NOT_FOUND = 'Address not found',
   REGISTRAR_CONNECTION_FAILED = 'Connecting to registrar failed',
   REGISTRAR_LAUNCH_FAILED = 'Could not launch registrar',
   REGISTRATION_FAILED = 'Registering username failed.',

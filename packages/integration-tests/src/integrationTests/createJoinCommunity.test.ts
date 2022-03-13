@@ -6,7 +6,6 @@ import {
 } from './appActions'
 import { assertConnectedToPeers, assertReceivedCertificates } from './assertions'
 
-jest.setTimeout(600_000)
 const crypto = new Crypto()
 
 global.crypto = crypto

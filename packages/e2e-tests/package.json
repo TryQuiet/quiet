@@ -1,6 +1,6 @@
 {
   "name": "e2e-tests",
-  "version": "0.4.0-alpha.0",
+  "version": "0.4.0-alpha.2",
   "description": "For running end to end tests we use testcafe (https://testcafe.io/) along with its official electron plugin (https://github.com/DevExpress/testcafe-browser-provider-electron)",
   "main": "index.js",
   "scripts": {
@@ -13,8 +13,10 @@
     "prettier": "prettier",
     "test:build": "lerna run distUbuntu --scope quiet && npm run test",
     "test:dev": "npm run build:app && npm run test",
-    "test": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:../frontend\" \"./**/*.e2e.ts\"",
-    "test:win": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:../frontend\" \"./**/*.e2e.ts\""
+    "test": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
+    "test:win": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
+    "test:smoke": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*,frontend*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:.\" \"./**/smokeTest.e2e.ts\"",
+    "test:smoke:win": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:.\" \"./**/smokeTest.e2e.ts\""
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.7.1",
@@ -35,7 +37,8 @@
     "cross-env": "^5.2.0",
     "electron": "12.1.0",
     "testcafe": "^1.18.3",
-    "testcafe-browser-provider-electron": "^0.2.0-alpha.0"
+    "testcafe-browser-provider-electron": "^0.2.0-alpha.0",
+    "yargs": "^17.3.1"
   },
   "author": "",
   "license": "ISC"

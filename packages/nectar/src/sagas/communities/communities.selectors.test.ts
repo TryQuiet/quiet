@@ -10,6 +10,7 @@ import {
 
 describe('communitiesSelectors', () => {
   setupCrypto()
+
   let store: Store
   let communityAlpha: Community
   let communityBeta: Community
@@ -83,37 +84,5 @@ describe('communitiesSelectors', () => {
       store.getState()
     )
     expect(registrarUrl).toBe(url)
-  })
-
-  it('isOwner returns false if no community in the store', async () => {
-    const { store } = prepareStore()
-    const isOwner = communitiesSelectors.isOwner(
-      store.getState()
-    )
-    expect(isOwner).toBe(false)
-  })
-
-  it('isOwner returns false if community has no CA', async () => {
-    const { store } = prepareStore()
-    const factory = await getFactory(store)
-    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
-      CA: null
-    })
-    const isOwner = communitiesSelectors.isOwner(
-      store.getState()
-    )
-    expect(isOwner).toBe(false)
-  })
-
-  it('isOwner returns true if community contains CA', async () => {
-    const { store } = prepareStore()
-    const factory = await getFactory(store)
-    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
-      CA: { rootCertString: 'certString', rootKeyString: 'keyString' }
-    })
-    const isOwner = communitiesSelectors.isOwner(
-      store.getState()
-    )
-    expect(isOwner).toBe(true)
   })
 })

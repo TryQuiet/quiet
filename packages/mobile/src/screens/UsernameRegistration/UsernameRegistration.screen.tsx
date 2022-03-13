@@ -7,7 +7,7 @@ import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen
 import { initActions } from '../../store/init/init.slice'
 import { Registration } from '../../components/Registration/Registration.component'
 
-import { communities, errors, identity, SocketActionTypes } from '@quiet/nectar'
+import { errors, identity, SocketActionTypes } from '@quiet/nectar'
 
 export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
@@ -39,7 +39,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   const handleAction = (username: string) => {
     setUsername(username)
     if (registrar) {
-      dispatch(communities.actions.joinCommunity(registrar))
+      // dispatch(communities.actions.joinCommunity(registrar))
     }
   }
 
