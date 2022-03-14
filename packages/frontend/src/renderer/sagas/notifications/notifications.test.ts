@@ -119,9 +119,11 @@ describe('displayNotificationsSaga', () => {
       .run()
 
     expect(notification).toBeCalledWith(
-      'New message from user_1 in #public-channel-1',
-      { body: incomingMessages.messages[0].message, silent: true }
-    )
+      'New message from user_1 in #public-channel-1', {
+        body: incomingMessages.messages[0].message,
+        icon: 'packages/frontend/build/icon.png',
+        silent: true
+      })
   })
 
   test('do not display notification when incoming message is from same user', async () => {
@@ -318,8 +320,10 @@ describe('displayNotificationsSaga', () => {
       .run()
 
     expect(notification).toBeCalledWith(
-      'New message from user_1 in #public-channel-1',
-      { body: incomingMessages.messages[0].message, silent: true }
-    )
+      'New message from user_1 in #public-channel-1', {
+        body: incomingMessages.messages[0].message,
+        icon: 'packages/frontend/build/icon.png',
+        silent: true
+      })
   })
 })

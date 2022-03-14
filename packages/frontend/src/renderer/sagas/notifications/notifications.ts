@@ -94,7 +94,7 @@ export const messagesMapForNotificationsCalls = (
 
 export const createNotification = (payload: NotificationsData, emit): any => {
   if (process.platform === 'win32') {
-    app.setAppUserModelId(app.name);
+    app.setAppUserModelId(app.name)
   }
   if (soundTypeToAudio[payload.sound]) {
     soundTypeToAudio[payload.sound].play()
