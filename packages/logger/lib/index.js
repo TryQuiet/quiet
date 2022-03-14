@@ -21,8 +21,8 @@ const consoleLogger = (packageName) => (module) => {
 exports.consoleLogger = consoleLogger;
 const logger = (packageName) => {
     console.log('LOGGER MAIN', packageName, process.env.NODE_ENV, process.env.REACT_APP_ENABLE_SENTRY);
-    // if (process.env.NODE_ENV === 'production' && process.env.REACT_APP_ENABLE_SENTRY === 'true') {
-    if (process.env.SAVE_LOGS) {
+    if (process.env.NODE_ENV === 'production' && process.env.REACT_APP_ENABLE_SENTRY === 'true') {
+        // if (process.env.SAVE_LOGS) {
         return (0, exports.saveToFileLogger)(packageName);
     }
     return (0, exports.consoleLogger)(packageName);
