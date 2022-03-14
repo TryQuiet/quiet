@@ -5,8 +5,6 @@ import { store } from './store/store'
 import { communities, publicChannels } from '@quiet/nectar'
 import { ToastAndroid } from 'react-native'
 
-
-
 if (Config.NODE_ENV === NodeEnv.Development) {
   DevMenu.addItem('Get store state', () => {
     console.info(JSON.stringify(store.getState(), null, 2))
