@@ -34,9 +34,26 @@ Ubuntu ```npm run distUbuntu```
 
 The built installers can then be found in the `dist` folder.
 
+## Running multiple Quiet instances
+
+To run new Quiet instance on the same machine set DATA_DIR=<dirname> environment variable before running the app. This will be used as its data directory.
+
+* Linux | MacOS:
+
+`DATA_DIR=testQuiet ./Quiet-app.<AppImage | dmg>`
+
+* Windows:
+
+```
+set DATA_DIR=testQuiet
+Quiet.exe
+```
+
+Note: development version uses separate directory by default
+
 ##### Removing data
 
-To remove all your data from a machine, be sure to delete the Quiet and Zcash folders. Here's where to find them:
+To remove all your data from a machine, be sure to delete the Quiet folder. Here's where to find them:
 
 On Linux ```~/.config/```
 
