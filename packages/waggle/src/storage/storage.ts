@@ -13,7 +13,7 @@ import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import PeerId from 'peer-id'
-import { CryptoEngine, setEngine, Certificate } from 'pkijs'
+import { CryptoEngine, setEngine } from 'pkijs'
 import {
   IMessageThread,
   DirectMessagesRepo,

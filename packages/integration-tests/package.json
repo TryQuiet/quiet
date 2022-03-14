@@ -47,6 +47,7 @@
     "@quiet/identity": "^0.3.0-alpha.5",
     "@quiet/nectar": "^0.4.0-alpha.0",
     "@quiet/waggle": "^0.4.0-alpha.0",
+		"@quiet/logger": "^0.1.0-alpha.0",
     "@reduxjs/toolkit": "^1.6.1",
     "debug": "^4.3.2",
     "get-port": "^5.1.1",

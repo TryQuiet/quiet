@@ -7,7 +7,7 @@ import store from './store'
 import updateHandlers from './store/handlers/update'
 import waggleHandlers from './store/handlers/waggle'
 
-import debug from 'debug'
+import logger from '../logger'
 
 import { initSentry } from '../shared/sentryConfig'
 
@@ -15,9 +15,7 @@ import { socketActions, WebsocketConnectionPayload } from './sagas/socket/socket
 
 initSentry()
 
-const log = Object.assign(debug('frontend:renderer'), {
-  error: debug('frontend:renderer:err')
-})
+const log = logger('renderer')
 
 if (window) {
   window.localStorage.setItem('debug', process.env.DEBUG)

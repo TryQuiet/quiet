@@ -4,7 +4,7 @@ import logger from '../logger'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp, sleep } from '../utils'
 
-const log = logger()
+const log = logger('assertions')
 
 const App: AsyncReturnType<typeof createApp> = null
 type Store = typeof App.store

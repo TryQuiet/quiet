@@ -11,7 +11,7 @@ import tmp from 'tmp'
 import logger from './logger'
 import { Saga, Task } from '@redux-saga/types'
 
-const log = logger()
+const log = logger('utils')
 
 export const createTmpDir = (prefix: string) => {
   return tmp.dirSync({ mode: 0o750, prefix, unsafeCleanup: true })

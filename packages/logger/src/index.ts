@@ -17,10 +17,24 @@ export const consoleLogger = (packageName: string) => (module: string) => {
 const logger = (packageName: string) => {
   console.log('LOGGER MAIN', packageName, process.env.NODE_ENV, process.env.REACT_APP_ENABLE_SENTRY)
   if (process.env.NODE_ENV === 'production' && process.env.REACT_APP_ENABLE_SENTRY === 'true') {
-  // if (process.env.SAVE_LOGS) {
+    // if (process.env.SAVE_LOGS) {
     return saveToFileLogger(packageName)
   }
   return consoleLogger(packageName)
 }
 
-export default logger('nectar')
+// console.log('WHAT IS logger in logger?:', logger)
+
+// export {logger as handleLogger}
+// const logger = (name) => {
+//   console.log('THIS IS LOGGER', name)
+// }
+// const nectarLogger = logger('nectar')
+
+// const nectarLogger = Object.assign(debug(`${'nectar'}:${module}`), {
+//   error: debug(`${'nectar'}:${module}:err`)
+// })
+
+// export { nectarLogger }
+
+export default logger

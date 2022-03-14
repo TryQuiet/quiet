@@ -2,7 +2,6 @@ import { app, BrowserWindow, Menu, ipcMain, session } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import electronStore from '../shared/electronStore'
 import electronLocalshortcut from 'electron-localshortcut'
-import debug from 'debug'
 import path from 'path'
 import url from 'url'
 import config from './config'
@@ -13,11 +12,11 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import { initSentry } from '../shared/sentryConfig'
 
+import logger from '../logger'
+
 initSentry()
 
-const log = Object.assign(debug('frontend:main'), {
-  error: debug('frontend:main:err')
-})
+const log = logger('main')
 
 electronStore.set('appDataPath', app.getPath('appData'))
 electronStore.set('waggleVersion', waggleVersion)

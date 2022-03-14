@@ -1,9 +1,8 @@
 import crypto from 'crypto'
 import { IConversation } from '../store/handlers/directMessages'
-import debug from 'debug'
-const log = Object.assign(debug('quiet:crypto'), {
-  error: debug('quiet:crypto:err')
-})
+import logger from '../../logger'
+
+const log = logger('crypto')
 
 export const constants = {
   IVO: '5183666c72eec9e45183666c72eec9e4',
