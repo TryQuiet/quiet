@@ -2,7 +2,7 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { Identity, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, PublicChannel, publicChannels as channels, settings, User, users } from '@quiet/nectar'
 import { call, put, select, takeEvery } from 'typed-redux-saga'
-import { remote } from 'electron'
+import { app, remote } from 'electron'
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel, END } from 'redux-saga'
 
@@ -68,7 +68,8 @@ export const messagesMapForNotificationsCalls = (
           return channel.address === messageData.channelAddress
         }
       })
-      const isMessageFromMyUser = usersData[messageData.pubKey]?.username === myIdentity.nickname
+      const senderName = usersData[messageData.pubKey]?.username
+      const isMessageFromMyUser = senderName === myIdentity.nickname
       // it will change name with address
       const isMessageFromCurrentChannel = currentChannel === publicChannelFromMessage.name
       const isNotificationsOptionOff = NotificationsOptions.doNotNotifyOfAnyMessages === notificationsOption
@@ -78,7 +79,7 @@ export const messagesMapForNotificationsCalls = (
 
       if (!isMessageFromMyUser && (!isMessageFromCurrentChannel || !isAppInForeground) && !isNotificationsOptionOff) {
         return createNotification({
-          title: `New message in ${publicChannelFromMessage.name || 'Unnamed'}`,
+          title: `New message from ${senderName || 'unknown user'} in #${publicChannelFromMessage.name || 'Unnamed'}`,
           message: `${messageData.message.substring(0, 64)}${messageData.message.length > 64 ? '...' : ''}`,
           sound: notificationsSound,
           communityId: action.payload.communityId,
@@ -92,10 +93,17 @@ export const messagesMapForNotificationsCalls = (
 }
 
 export const createNotification = (payload: NotificationsData, emit): any => {
+  if (process.platform === 'win32') {
+    app.setAppUserModelId(app.name)
+  }
   if (soundTypeToAudio[payload.sound]) {
     soundTypeToAudio[payload.sound].play()
   }
-  const notification = new Notification(payload.title, { body: payload.message })
+  const notification = new Notification(payload.title, {
+    body: payload.message,
+    icon: 'packages/frontend/build' + '/icon.png',
+    silent: true
+  })
   notification.onclick = () => {
     emit(channels.actions.setCurrentChannel({
       channelAddress: payload.channelName,

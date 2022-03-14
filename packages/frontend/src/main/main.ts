@@ -4,6 +4,7 @@ import electronStore from '../shared/electronStore'
 import electronLocalshortcut from 'electron-localshortcut'
 import path from 'path'
 import url from 'url'
+import fs from 'fs'
 import config from './config'
 import { DataServer, ConnectionsManager } from '@quiet/waggle'
 import { waggleVersion, runWaggle } from './waggleManager'
@@ -18,12 +19,26 @@ initSentry()
 
 const log = logger('main')
 
-electronStore.set('appDataPath', app.getPath('appData'))
-electronStore.set('waggleVersion', waggleVersion)
-
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
 const webcrypto = new Crypto()
+
+if (isDev || process.env.DATA_DIR) {
+  const dataDir = process.env.DATA_DIR || 'Quietdev'
+  const appDataPath = path.join(app.getPath('appData'), dataDir)
+
+  if (!fs.existsSync(appDataPath)) {
+    fs.mkdirSync(appDataPath)
+  }
+
+  const newUserDataPath = path.join(appDataPath, 'Quiet')
+
+  app.setPath('appData', appDataPath)
+  app.setPath('userData', newUserDataPath)
+
+  electronStore.set('appDataPath', app.getPath('appData'))
+  electronStore.set('waggleVersion', waggleVersion)
+}
 
 interface IWindowSize {
   width: number
