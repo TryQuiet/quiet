@@ -73,6 +73,9 @@ beforeAll(async () => {
   const parsedCert = parseCertificate(identity1.userCertificate)
   userPubKey = await keyFromCertificate(parsedCert)
 
+  const senderPubKey = Object.keys(users.selectors.certificatesMapping(store.store.getState()))
+    .find((pubKey) => pubKey !== userPubKey)
+
   incomingMessages = {
     messages: [{
       id: 'id',
@@ -81,7 +84,7 @@ beforeAll(async () => {
       createdAt: 1000000,
       channelAddress: publicChannel2.channel.address,
       signature: 'signature',
-      pubKey: Object.keys(users.selectors.certificatesMapping(store.store.getState())).find((pubKey) => pubKey !== userPubKey)
+      pubKey: senderPubKey
     }],
     communityId: community1.id
   }
