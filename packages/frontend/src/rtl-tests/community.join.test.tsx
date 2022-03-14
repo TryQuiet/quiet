@@ -9,7 +9,6 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
-import LoadingPanel from '../renderer/containers/widgets/loadingPanel/loadingPanel'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { JoinCommunityDictionary } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
@@ -29,6 +28,7 @@ import {
   errors
 } from '@quiet/nectar'
 import Channel from '../renderer/components/Channel/Channel'
+import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 
 jest.setTimeout(20_000)
 
@@ -50,6 +50,7 @@ describe('User', () => {
 
     renderComponent(
       <>
+        <LoadingPanel />
         <JoinCommunity />
         <CreateUsername />
         <Channel />
@@ -194,6 +195,7 @@ describe('User', () => {
         "PublicChannels/subscribeToAllTopics",
         "PublicChannels/subscribeToTopic",
         "PublicChannels/addChannel",
+        "Modals/closeModal",
         "PublicChannels/setChannelLoadingSlice",
       ]
     `)

@@ -13,6 +13,7 @@ describe('SpinnerLoader', () => {
         <div>
           <div
             class="MuiGrid-root test-class-name MuiGrid-container MuiGrid-direction-xs-column MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+            data-testid="spinnerLoader"
           >
             <div
               class="MuiCircularProgress-root makeStyles-spinner-2 makeStyles-spinner-3 MuiCircularProgress-indeterminate"

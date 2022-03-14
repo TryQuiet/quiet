@@ -1,8 +1,8 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
-import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
-import Modal from '../../ui/Modal/Modal'
+import SpinnerLoader from '../ui/Spinner/SpinnerLoader'
+import Modal from '../ui/Modal/Modal'
 
 const useStyles = makeStyles(() => ({
   spinner: {
@@ -15,20 +15,18 @@ const useStyles = makeStyles(() => ({
 interface LoadingPanelComponentProps {
   open: boolean
   handleClose: () => void
-  isClosedDisabled?: boolean
   message: string
 }
 
 const LoadingPanelComponent: React.FC<LoadingPanelComponentProps> = ({
   open,
   handleClose,
-  isClosedDisabled = true,
   message
 }) => {
   const classes = useStyles({})
 
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={isClosedDisabled} >
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
       <SpinnerLoader
         size={40}
         message={message}
