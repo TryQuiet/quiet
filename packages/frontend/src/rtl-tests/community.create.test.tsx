@@ -151,7 +151,7 @@ describe('User', () => {
     userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => {})
+    await act(async () => { })
 
     // Check if create/username modals are gone
     expect(createCommunityTitle).not.toBeVisible()
@@ -305,7 +305,7 @@ describe('User', () => {
     userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => {})
+    await act(async () => { })
 
     // Check if 'creating community' loading panel is displayed
     // await waitFor(() => {

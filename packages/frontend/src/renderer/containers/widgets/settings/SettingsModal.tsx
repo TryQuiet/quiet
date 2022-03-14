@@ -12,7 +12,7 @@ const SettingsModalContainer = () => {
   const community = useSelector(communities.selectors.currentCommunity)
   const owner = Boolean(community?.CA)
 
-  return <SettingsModal user={user} owner={owner} {...modal} />
+  return <SettingsModal title={'Settings'} owner={owner} {...modal} />
 }
 
 export default SettingsModalContainer
