@@ -62,22 +62,18 @@ describe('Restart app works correctly', () => {
 
     const channelName = await screen.findByText('#general')
 
-    const joinDictionary = JoinCommunityDictionary()
-    const joinCommunityTitle = screen.queryByText(joinDictionary.header)
+    const joinCommunityDictionary = JoinCommunityDictionary()
+    const joinCommunityTitle = screen.queryByText(joinCommunityDictionary.header)
 
-    const createDictionary = CreateCommunityDictionary()
-    const createCommunityTitle = screen.queryByText(createDictionary.header)
+    const createCommunityDictionary = CreateCommunityDictionary()
+    const createCommunityTitle = screen.queryByText(createCommunityDictionary.header)
 
-    const createCommunityLoadingText = screen.queryByText(LoadingMessages.CreateCommunity)
-    const joinCommunityLoadingText = screen.queryByText(LoadingMessages.JoinCommunity)
     const startAppLoadingText = screen.queryByText(LoadingMessages.StartApp)
 
     expect(channelName).toBeVisible()
 
+    expect(startAppLoadingText).toBeNull()
     expect(joinCommunityTitle).toBeNull()
     expect(createCommunityTitle).toBeNull()
-    expect(createCommunityLoadingText).toBeNull()
-    expect(joinCommunityLoadingText).toBeNull()
-    expect(startAppLoadingText).toBeNull()
   })
 })

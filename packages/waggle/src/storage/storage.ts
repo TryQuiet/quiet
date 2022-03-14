@@ -217,7 +217,6 @@ export class Storage {
   }
 
   async initAllChannels() {
-    console.time('initAllChannels')
     await Promise.all(
       Object.values(this.channels.all).map(async (channel: PublicChannel) => {
         if (!this.publicChannelsRepos.has(channel.address)) {
@@ -225,11 +224,9 @@ export class Storage {
         }
       })
     )
-    console.timeEnd('initAllChannels')
   }
 
   async initAllConversations() {
-    console.time('initAllConversations')
     await Promise.all(
       Object.keys(this.messageThreads.all).map(async conversation => {
         if (!this.directMessagesRepos.has(conversation)) {
@@ -237,7 +234,6 @@ export class Storage {
         }
       })
     )
-    console.timeEnd('initAllConversations')
   }
 
   protected getAllEventLogEntries<T>(db: EventStore<T>): T[] {

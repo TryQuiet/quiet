@@ -1,5 +1,10 @@
 name: 'Setup environment'
 
+inputs:
+  bootstrap-packages:
+    description: 'Lerna bootstrap packages (comma separated without spaces)'
+    required: false
+
 runs:
   using: "composite"
   steps:
@@ -7,9 +12,13 @@ runs:
       with:
         node-version: "12"
     
+    - name: Print OS name
+      run: echo ${{ runner.os }}
+      shell: bash
+
     # https://stackoverflow.com/questions/46232906/git-clone-error-rpc-failed-curl-56-openssl-ssl-read-ssl-error-syscall-errno
     - name: 'Increase git postBuffer size'
-      if: contains(matrix.os, 'windows')
+      if: ${{ runner.os == 'Windows' }}
       run: git config --global http.postBuffer 524288000
       shell: bash
 
@@ -22,6 +31,7 @@ runs:
       shell: bash
 
     - name: "Cache NPM dependencies"
+      if: ${{ runner.os != 'Windows' }}  # Caching slows down setup for Windows
       id: cache-nodemodules
       uses: actions/cache@v2
       with:
@@ -38,5 +48,11 @@ runs:
       shell: bash
 
     - name: "Bootstrap project"
-      run: lerna bootstrap
+      run: |
+        if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
+        then
+            lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
+        else
+            lerna bootstrap
+        fi
       shell: bash

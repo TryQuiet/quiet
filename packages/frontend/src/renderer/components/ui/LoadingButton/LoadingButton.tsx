@@ -49,7 +49,7 @@ export const LoadingButton: React.FC<ButtonProps & LoadingButtonProps> = ({
 
   return (
     <Button className={classNames(classes.button, { [classes.inProgress]: inProgress })} {...buttonProps}>
-      {inProgress ? <CircularProgress size={20} className={classes.progress} /> : text }
+      {inProgress ? <CircularProgress size={20} className={classes.progress} data-testid={'loading-button-progress'} /> : text }
     </Button>
   )
 }

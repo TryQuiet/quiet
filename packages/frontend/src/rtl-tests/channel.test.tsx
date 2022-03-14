@@ -25,20 +25,23 @@ import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 
 jest.setTimeout(20_000)
 
-const notification = jest.fn().mockImplementation(() => { return jest.fn() })
+const notification = jest.fn().mockImplementation(() => {
+  return jest.fn()
+})
 // @ts-expect-error
 window.Notification = notification
 
 jest.mock('electron', () => {
   return {
-    remote:
-    {
+    remote: {
       BrowserWindow: {
         getAllWindows: () => {
-          return [{
-            show: jest.fn(),
-            isFocused: jest.fn()
-          }]
+          return [
+            {
+              show: jest.fn(),
+              isFocused: jest.fn()
+            }
+          ]
         }
       }
     }
@@ -211,6 +214,7 @@ describe('Channel', () => {
         "PublicChannels/markUnreadMessages",
         "Messages/addPublicKeyMapping",
         "Messages/addMessageVerificationStatus",
+        "PublicChannels/setChannelLoadingSlice",
       ]
     `)
 
@@ -322,7 +326,7 @@ describe('Channel', () => {
     store.dispatch(
       messages.actions.addPublicKeyMapping({
         publicKey: aliceMessage.pubKey,
-        cryptoKey: ({} as unknown) as CryptoKey
+        cryptoKey: undefined
       })
     )
 

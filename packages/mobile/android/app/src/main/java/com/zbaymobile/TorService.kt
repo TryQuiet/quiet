@@ -58,10 +58,10 @@ class TorService: Service() {
         if(runTorCommand(torBinary, torrcCustom)) {
             var authCookie: String = ""
 
-            val cookie = File(dataDirectory, "control_auth_cookie")
-            if(cookie.exists()) {
-                authCookie = cookie.readBytes().toHex()
-            }
+            // val cookie = File(dataDirectory, "control_auth_cookie")
+            // if(cookie.exists()) {
+            //     authCookie = cookie.readBytes().toHex()
+            // }
 
             client?.onTorInit(httpTunnelPort, socksPort, controlPort, authCookie)
         }
@@ -110,7 +110,7 @@ class TorService: Service() {
         val extraLines = StringBuffer()
 
         extraLines.append("RunAsDaemon 1").append('\n')
-        extraLines.append("CookieAuthentication 1").append('\n')
+        extraLines.append("CookieAuthentication 0").append('\n')
         extraLines.append("ControlPort ").append(controlPort).append('\n')
         extraLines.append("SOCKSPort ").append(socksPort).append('\n')
         extraLines.append("HTTPTunnelPort ").append(httpTunnelPort).append('\n')

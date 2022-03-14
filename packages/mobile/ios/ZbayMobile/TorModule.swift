@@ -4,7 +4,7 @@ import Tor
 @objc(TorModule)
 class TorModule: RCTEventEmitter {
   
-  private func getTorBaseConfiguration(socksPort: in_port_t, controlPort: in_port_t, httpTunnelPort: in_port_t) -> TorConfiguration {
+  private func getTorBaseConfiguration(socksPort: NSNumber, controlPort: NSNumber, httpTunnelPort: NSNumber) -> TorConfiguration {
     let conf = TorConfiguration()
     
     #if DEBUG
@@ -13,7 +13,7 @@ class TorModule: RCTEventEmitter {
     let log_loc = "notice file /dev/null"
     #endif
     
-    conf.cookieAuthentication = true
+    conf.cookieAuthentication = false
     
     conf.arguments = [
       "--allow-missing-torrc",
@@ -41,7 +41,7 @@ class TorModule: RCTEventEmitter {
   private var torThread: TorThread?
   
   @objc(startTor:controlPort:httpTunnelPort:)
-  func startTor(socksPort: in_port_t, controlPort: in_port_t, httpTunnelPort: in_port_t) -> Void {
+  func startTor(socksPort: NSNumber, controlPort: NSNumber, httpTunnelPort: NSNumber) -> Void {
     
     let torBaseConfiguration = getTorBaseConfiguration(
       socksPort: socksPort, controlPort: controlPort, httpTunnelPort: httpTunnelPort
@@ -107,19 +107,19 @@ class TorModule: RCTEventEmitter {
         // print("[libevent \(s)] \(String(cString: msg).trimmingCharacters(in: .whitespacesAndNewlines))")
       }
       
-      var auth: Data? {
-        if let cookieUrl = torBaseConfiguration.dataDirectory?.appendingPathComponent("control_auth_cookie") {
-          return try? Data(contentsOf: cookieUrl)
-        }
-        
-        return nil
-      }
-      
-      guard let cookie = auth else {
-        print("[\(String(describing: type(of: self)))] Could not connect to Tor - cookie unreadable!")
-        
-        return
-      }
+//      var auth: Data? {
+//        if let cookieUrl = torBaseConfiguration.dataDirectory?.appendingPathComponent("control_auth_cookie") {
+//          return try? Data(contentsOf: cookieUrl)
+//        }
+//
+//        return nil
+//      }
+//
+//      guard let cookie = auth else {
+//        print("[\(String(describing: type(of: self)))] Could not connect to Tor - cookie unreadable!")
+//
+//        return
+//      }
       
       #if DEBUG
       print("[\(String(describing: type(of: self)))] cookie=", cookie.hexEncodedString())
@@ -130,7 +130,8 @@ class TorModule: RCTEventEmitter {
       payload["socksPort"] = socksPort
       payload["controlPort"] = controlPort
       payload["httpTunnelPort"] = httpTunnelPort
-      payload["authCookie"] = cookie.hexEncodedString()
+//      payload["authCookie"] = cookie.hexEncodedString()
+      payload["authCookie"] = ""
       self.sendEvent(withName: "onTorInit", body: payload)
       
     })

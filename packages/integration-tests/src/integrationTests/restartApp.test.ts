@@ -7,7 +7,6 @@ import { createApp, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { assertInitializedExistingCommunitiesAndRegistrars } from './assertions'
 
-jest.setTimeout(600_000)
 const crypto = new Crypto()
 
 global.crypto = crypto

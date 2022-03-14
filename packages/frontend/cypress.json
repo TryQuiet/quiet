@@ -1,0 +1,13 @@
+{
+    "component": {
+        "componentFolder": "src",
+        "testFiles": "**/*spec.{js,jsx,ts,tsx}"
+    },
+    "ignoreTestFiles": [
+        "**/__snapshots__/*",
+        "**/__image_snapshots__/*"
+    ],
+    "screenshotsFolder": "./cypress/snapshots/actual",
+    "trashAssetsBeforeRuns": true,
+    "video": false
+}
