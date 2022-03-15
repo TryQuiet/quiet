@@ -171,14 +171,14 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     setFocused(true)
   }
 
-  const scrollToBottom = () => {
-    const scroll = document.getElementById('messages-scroll')?.parentElement
-    setTimeout(() => {
-      if (scroll?.scrollTop) {
-        scroll.scrollTop = scroll.scrollHeight
-      }
-    }, 100)
-  }
+  // const scrollToBottom = () => {
+  //   const scroll = document.getElementById('messages-scroll')?.parentElement
+  //   setTimeout(() => {
+  //     if (scroll?.scrollTop) {
+  //       scroll.scrollTop = scroll.scrollHeight
+  //     }
+  //   }, 100)
+  // }
 
   React.useEffect(() => {
     inputRef.current.updater.enqueueForceUpdate(inputRef.current)
@@ -333,7 +333,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         onKeyPress(e.target.innerText)
         setMessage('')
         setHtmlMessage('')
-        scrollToBottom()
+        // scrollToBottom()
       } else {
         if (e.nativeEvent.keyCode === 13) {
           e.preventDefault()
@@ -352,7 +352,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       onKeyPress,
       setMessage,
       setHtmlMessage,
-      scrollToBottom,
+      // scrollToBottom,
       infoClass,
       setInfoClass,
       setSelected

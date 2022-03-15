@@ -72,13 +72,14 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
 
   const scrollbarRef = React.useRef<HTMLDivElement>()
   const messagesRef = React.useRef<HTMLUListElement>()
-
+  
   const previousSlice: number = usePrevious(messagesSlice)
   const previousMessages: number = usePrevious(messages.count)
-
+  
   const scrollBottom = () => {
     if (!scrollbarRef.current) return
-    scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight
+
+    scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight + 500
   }
 
   const isLastMessageOwner = () => {
@@ -90,86 +91,100 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
     const lastMessage = chunksArray[chunksArray.length - 1]
     return lastMessage.nickname === username
   }
-
+  
   /* Get scroll position and save it to the state as 0 (top), 1 (bottom) or -1 (middle) */
-  const onScroll = React.useCallback(() => {
-    const top = scrollbarRef.current?.scrollTop === 0
+  // const onScroll = React.useCallback(() => {
+  //   const top = scrollbarRef.current?.scrollTop === 0
+    
+  //   const bottom =
+  //     scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop ===
+  //     scrollbarRef.current?.clientHeight
 
-    const bottom =
-      scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop ===
-      scrollbarRef.current?.clientHeight
+  //   let position = -1
+  //   if (top) position = 0
+  //   if (bottom) position = 1
+    
+  //   setScrollPosition(position)
+  // }, [])
 
-    let position = -1
-    if (top) position = 0
-    if (bottom) position = 1
-
-    setScrollPosition(position)
-  }, [setScrollPosition])
-
-  /* Keep scroll position when new chunk of messages are being loaded */
-  useEffect(() => {
-    if (scrollbarRef.current && scrollPosition === 0) {
-      setTimeout(() => {
-        scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight - scrollHeight
-      })
-    }
-  }, [messages.count])
-
-  /* Lazy loading messages - top (load) */
-  useEffect(() => {
-    if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
-    if (scrollbarRef.current && scrollPosition === 0) {
-      // Cache scroll height before loading new messages (to keep the scroll position after re-rendering)
-      setScrollHeight(scrollbarRef.current.scrollHeight)
-      // Load next chunk of messages
-      const trim = Math.max(0, messagesSlice - chunkSize)
-      setMessagesSlice(trim)
-      setChannelLoadingSlice(trim)
-    }
-    if (
-      isLastMessageOwner() &&
-      scrollbarRef.current &&
-      scrollPosition === 0 &&
-      previousMessages &&
-      messages.count > previousMessages + previousSlice &&
-      messagesSlice === 0
-    ) {
-      setTimeout(() => {
-        scrollBottom()
-      })
-    }
-  }, [setChannelLoadingSlice, scrollPosition, messages.count])
-
-  /* Lazy loading messages - bottom (trim) */
-  useEffect(() => {
-    if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
-    if (scrollbarRef.current && scrollPosition === 1) {
-      const totalMessagesAmount = messages.count + messagesSlice
-      const bottomMessagesSlice = Math.max(0, totalMessagesAmount - chunkSize)
-      setMessagesSlice(bottomMessagesSlice)
-      setChannelLoadingSlice(bottomMessagesSlice)
-    }
-  }, [setChannelLoadingSlice, scrollPosition, messages.count])
 
   /* Scroll to the bottom on entering the channel or resizing window */
-  useLayoutEffect(() => {
-    if (scrollbarRef.current && scrollPosition === 1) {
-      setTimeout(() => {
-        scrollBottom()
-      })
-    }
-    const eventListener = () => {
-      scrollBottom()
-    }
-    window.addEventListener('resize', eventListener)
-    return () => window.removeEventListener('resize', eventListener)
-  }, [channel, messages, scrollbarRef])
+  // useLayoutEffect(() => {
+  //   // console.log('scrollPositionInUseEffectIs ', scrollPosition)
+  //   if (scrollbarRef.current && scrollPosition === 1) {
+
+  //     scrollBottom()
+  //   }
+  //   if (scrollbarRef.current && scrollPosition === -1 && isLastMessageOwner()) {
+
+  //     scrollBottom()
+  //   }
+  //   const eventListener = () => {
+
+  //     scrollBottom()
+  //   }
+
+  //   window.addEventListener('resize', eventListener)
+  //   return () => window.removeEventListener('resize', eventListener)
+  // }, [channel, messages.count])
+
+  /* Keep scroll position when new chunk of messages is being loaded */
+  // useEffect(() => {
+  //   if (scrollbarRef.current && scrollPosition === 0) {
+  //     console.log('scroll agent')
+  //     scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight - scrollHeight
+  //   }
+  //   if (
+  //     isLastMessageOwner() &&
+  //     scrollbarRef.current &&
+  //     scrollPosition === 0 &&
+  //     previousMessages &&
+  //     messages.count > previousMessages + previousSlice &&
+  //     messagesSlice === 0
+  //   ) {
+  //     setTimeout(() => {
+  //       console.log('scrollAgent2')
+  //       scrollBottom()
+  //     })
+  //   }
+  // }, [messages.count])
+  
+  /* Lazy loading messages - top (load) */
+  // useEffect(() => {
+  //   if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
+  //   if (scrollbarRef.current && scrollPosition === 0) {
+  //     // Cache scroll height before loading new messages (to keep the scroll position after re-rendering)
+  //     setScrollHeight(scrollbarRef.current.scrollHeight)
+  //     // Load next chunk of messages
+  //     const trim = Math.max(0, messagesSlice - chunkSize)
+  //     // setScrollPosition(-1)
+  //     setMessagesSlice(trim)
+  //     setChannelLoadingSlice(trim)
+  //   }
+  // }, [setChannelLoadingSlice, scrollPosition])
+
+  /* Lazy loading messages - bottom (trim) */
+  // useEffect(() => {
+  //   if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
+  //   if (scrollbarRef.current && scrollPosition === 1) {
+  //     const totalMessagesAmount = messages.count + messagesSlice
+  //     const bottomMessagesSlice = Math.max(0, totalMessagesAmount - chunkSize)
+  //     setMessagesSlice(bottomMessagesSlice)
+  //     setChannelLoadingSlice(bottomMessagesSlice)
+  //   }
+  // }, [setChannelLoadingSlice, scrollPosition, messages.count])
+
+
+  // useEffect(() => {
+  //   setMessagesSlice(0)
+  //   setChannelLoadingSlice(0)
+  // }, [channel])
 
   return (
     <div
       className={classes.scroll}
       ref={scrollbarRef}
-      onScroll={onScroll}
+      // onScroll={onScroll}
       data-testid='channelContent'>
       <List disablePadding className={classes.list} ref={messagesRef} id='messages-scroll'>
         {Object.keys(messages.groups).map(day => {

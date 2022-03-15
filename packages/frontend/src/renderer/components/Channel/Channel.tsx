@@ -46,7 +46,6 @@ const Channel = () => {
 
   const setChannelLoadingSlice = useCallback(
     (value: number) => {
-      console.log('slice value', value)
       dispatch(
         publicChannels.actions.setChannelLoadingSlice({
           communityId: currentCommunityId,
