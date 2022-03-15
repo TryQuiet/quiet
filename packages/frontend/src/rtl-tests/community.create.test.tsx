@@ -152,7 +152,7 @@ describe('User', () => {
     userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => { })
+    await act(async () => {})
 
     // Check if create/username modals are gone
     expect(createCommunityTitle).not.toBeVisible()
@@ -168,6 +168,7 @@ describe('User', () => {
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "PublicChannels/addPublicChannelsList",
+        "Modals/openModal",
         "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
@@ -176,6 +177,7 @@ describe('User', () => {
         "Communities/storePeerList",
         "Identity/storeUserCertificate",
         "Identity/savedOwnerCertificate",
+        "Modals/openModal",
         "Modals/closeModal",
         "Communities/launchRegistrar",
         "Connection/addInitializedCommunity",
@@ -191,6 +193,7 @@ describe('User', () => {
         "PublicChannels/setChannelLoadingSlice",
         "PublicChannels/setCurrentChannel",
         "PublicChannels/addChannel",
+        "Modals/closeModal",
         "PublicChannels/clearUnreadMessages",
       ]
     `)
