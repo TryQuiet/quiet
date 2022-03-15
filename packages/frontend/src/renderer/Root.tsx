@@ -34,12 +34,12 @@ export default () => {
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <SnackbarProvider maxSnack={3}>
+              <LoadingPanel />
               <ChannelSettingsModal />
               <CreateChannel />
               <JoinCommunity />
               <CreateCommunity />
               <CreateUsername />
-              <LoadingPanel />
               <CssBaseline />
               <ErrorModal />
               <JoinChannelModal />

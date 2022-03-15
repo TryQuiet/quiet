@@ -32,14 +32,23 @@ const LoadingPanel = () => {
     message = LoadingPanelMessage.FetchingData
   }
 
-  // Open/close loading panel
+  // Before connecting websocket
   useEffect(() => {
-    if (!isConnected || (currentCommunity && !isChannelReplicated)) {
-      loadingPanelModal.handleOpen()
-    } else {
+    if (isConnected) {
       loadingPanelModal.handleClose()
     }
-  }, [isConnected, isChannelReplicated])
+  }, [isConnected])
+
+  // Before replicating data
+  useEffect(() => {
+    if (isConnected) {
+      if (currentCommunity && !isChannelReplicated) {
+        loadingPanelModal.handleOpen()
+      } else {
+        loadingPanelModal.handleClose()
+      }
+    }
+  }, [isConnected, currentCommunity, isChannelReplicated])
 
   return <LoadingPanelComponent {...loadingPanelModal} message={message} />
 }
