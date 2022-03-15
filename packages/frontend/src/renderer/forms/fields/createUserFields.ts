@@ -12,7 +12,7 @@ export const userNameField = (name = 'userName'): FieldData => {
     validation: {
       required: FieldErrors.Required,
       minLength: {
-        value: 3,
+        value: 1,
         message: UsernameErrors.NameToShort
       },
       maxLength: {

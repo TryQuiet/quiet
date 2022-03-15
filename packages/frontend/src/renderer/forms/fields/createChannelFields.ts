@@ -12,7 +12,7 @@ export const channelNameField = (name = 'channelName'): FieldData => {
     validation: {
       required: FieldErrors.Required,
       minLength: {
-        value: 3,
+        value: 1,
         message: ChannelNameErrors.NameToShort
       },
       maxLength: {
