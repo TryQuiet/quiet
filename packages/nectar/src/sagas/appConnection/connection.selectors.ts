@@ -18,6 +18,11 @@ export const initializedRegistrars = createSelector(
   (reducerState) => reducerState.initializedRegistrars
 )
 
+export const lastConnectedTime = createSelector(
+  connectionSlice,
+  (reducerState) => reducerState.lastConnectedTime
+)
+
 export const connectedPeers = createSelector(
   connectionSlice,
   (reducerState) => {
@@ -47,6 +52,7 @@ export const connectedPeersMapping = createSelector(
 export const connectionSelectors = {
   initializedCommunities,
   initializedRegistrars,
+  lastConnectedTime,
   connectedPeers,
   connectedPeersMapping
 }

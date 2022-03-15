@@ -9,6 +9,7 @@ export class ConnectionState {
   public initializedCommunities: { [key: string]: boolean } = {}
   public initializedRegistrars: { [key: string]: boolean } = {}
 
+  public lastConnectedTime: number = 0
   public connectedPeers: EntityState<string> = connectedPeersAdapter.getInitialState()
 }
 
@@ -39,6 +40,9 @@ export const connectionSlice = createSlice({
         state.connectedPeers,
         action.payload
       )
+    },
+    setLastConnectedTime: (state, action: PayloadAction<number>) => {
+      state.lastConnectedTime = action.payload
     }
   }
 })

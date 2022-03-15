@@ -124,7 +124,7 @@ describe('displayNotificationsSaga', () => {
     expect(notification).toBeCalledWith(
       'New message from user_1 in #public-channel-1', {
         body: incomingMessages.messages[0].message,
-        icon: 'packages/frontend/build/icon.png',
+        icon: '../../build/icon.png',
         silent: true
       })
   })
@@ -325,7 +325,7 @@ describe('displayNotificationsSaga', () => {
     expect(notification).toBeCalledWith(
       'New message from user_1 in #public-channel-1', {
         body: incomingMessages.messages[0].message,
-        icon: 'packages/frontend/build/icon.png',
+        icon: '../../build/icon.png',
         silent: true
       })
   })
