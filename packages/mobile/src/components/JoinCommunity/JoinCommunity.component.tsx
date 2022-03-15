@@ -7,7 +7,7 @@ import { Typography } from '../Typography/Typography.component'
 import { JoinCommunityProps } from './JoinCommunity.types'
 
 export const JoinCommunity: FC<JoinCommunityProps> = ({
-  openUsernameRegistration
+  joinCommunityAction
 }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
@@ -26,7 +26,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
       setInputError('Community address can not be empty')
       return
     }
-    openUsernameRegistration(joinCommunityInput)
+    joinCommunityAction(joinCommunityInput)
   }
 
   return (

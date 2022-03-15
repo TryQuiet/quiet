@@ -1,3 +1,3 @@
 export interface JoinCommunityProps {
-  openUsernameRegistration: (registrar: string) => void
+  joinCommunityAction: (address: string) => void
 }

@@ -31,16 +31,10 @@ describe('Message component', () => {
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
-        onLayout={[Function]}
         style={
-          Array [
-            Object {
-              "flex": 1,
-            },
-            Object {
-              "paddingBottom": 0,
-            },
-          ]
+          Object {
+            "flex": 1,
+          }
         }
       >
         <View
@@ -129,7 +123,7 @@ describe('Message component', () => {
                   }
                   verticalTextAlign="center"
                 >
-                  0
+                  1:30pm
                 </Text>
               </View>
             </View>
