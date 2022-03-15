@@ -5,7 +5,6 @@ import { communities, identity, CommunityOwnership, CreateNetworkPayload } from 
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../../containers/hooks'
-import { LoadingMessages } from '../../../containers/widgets/loadingPanel/loadingMessages'
 
 const JoinCommunity = () => {
   const dispatch = useDispatch()
@@ -17,18 +16,6 @@ const JoinCommunity = () => {
 
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
-
-  const loadingStartApp = useModal(ModalName.loadingPanel)
-
-  useEffect(() => {
-    if (!isConnected && joinCommunityModal.open) {
-      loadingStartApp.handleOpen({
-        message: LoadingMessages.StartApp
-      })
-    } else {
-      loadingStartApp.handleClose()
-    }
-  }, [isConnected])
 
   useEffect(() => {
     if (!currentCommunity && !joinCommunityModal.open) {

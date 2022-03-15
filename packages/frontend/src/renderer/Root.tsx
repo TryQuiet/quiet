@@ -23,8 +23,8 @@ import QuitAppDialog from './containers/ui/QuitAppDialog'
 import theme from './theme'
 import CreateCommunity from './components/CreateJoinCommunity/CreateCommunity/CreateCommunity'
 import JoinCommunity from './components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
-import LoadingPanel from './containers/widgets/loadingPanel/loadingPanel'
 import CreateChannel from './components/Channel/CreateChannel/CreateChannel'
+import LoadingPanel from './components/LoadingPanel/LoadingPanel'
 
 export const persistor = persistStore(store)
 export default () => {
@@ -34,12 +34,12 @@ export default () => {
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <SnackbarProvider maxSnack={3}>
+              <LoadingPanel />
               <ChannelSettingsModal />
               <CreateChannel />
               <JoinCommunity />
               <CreateCommunity />
               <CreateUsername />
-              <LoadingPanel />
               <CssBaseline />
               <ErrorModal />
               <JoinChannelModal />

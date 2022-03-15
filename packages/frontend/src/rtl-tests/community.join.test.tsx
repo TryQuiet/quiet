@@ -9,7 +9,6 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
-import LoadingPanel from '../renderer/containers/widgets/loadingPanel/loadingPanel'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { JoinCommunityDictionary } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
@@ -29,6 +28,7 @@ import {
   errors
 } from '@quiet/nectar'
 import Channel from '../renderer/components/Channel/Channel'
+import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 
 jest.setTimeout(20_000)
 
@@ -50,6 +50,7 @@ describe('User', () => {
 
     renderComponent(
       <>
+        <LoadingPanel />
         <JoinCommunity />
         <CreateUsername />
         <Channel />
@@ -160,7 +161,7 @@ describe('User', () => {
     userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => { })
+    await act(async () => {})
 
     // Check if join/username modals are gone
     expect(joinCommunityTitle).not.toBeVisible()
@@ -177,6 +178,7 @@ describe('User', () => {
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "PublicChannels/addPublicChannelsList",
+        "Modals/openModal",
         "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
@@ -184,6 +186,7 @@ describe('User', () => {
         "Identity/registerCertificate",
         "Communities/storePeerList",
         "Identity/storeUserCertificate",
+        "Modals/openModal",
         "Modals/closeModal",
         "Communities/updateCommunity",
         "Communities/updateCommunityData",
@@ -192,8 +195,10 @@ describe('User', () => {
         "Connection/addInitializedCommunity",
         "PublicChannels/responseGetPublicChannels",
         "PublicChannels/subscribeToAllTopics",
+        "Modals/openModal",
         "PublicChannels/subscribeToTopic",
         "PublicChannels/addChannel",
+        "Modals/closeModal",
         "PublicChannels/setChannelLoadingSlice",
       ]
     `)
@@ -281,7 +286,7 @@ describe('User', () => {
     userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => { })
+    await act(async () => {})
 
     // Check if 'username taken' error message is visible
     expect(createUsernameTitle).toBeVisible()
@@ -295,6 +300,7 @@ describe('User', () => {
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "PublicChannels/addPublicChannelsList",
+        "Modals/openModal",
         "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
@@ -391,7 +397,7 @@ describe('User', () => {
     userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => { })
+    await act(async () => {})
 
     // Check if 'username taken' error message disappeared
     expect(await screen.queryByText(ErrorMessages.USERNAME_TAKEN)).toBeNull()
@@ -403,6 +409,7 @@ describe('User', () => {
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "PublicChannels/addPublicChannelsList",
+        "Modals/openModal",
         "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
