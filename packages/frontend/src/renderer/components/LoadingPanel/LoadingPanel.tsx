@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
@@ -7,12 +7,13 @@ import { communities, publicChannels } from '@quiet/nectar'
 import LoadingPanelComponent from './loadingPanelComponent'
 
 export enum LoadingPanelMessage {
-  Loading = 'Loading...',
   StartingApplication = 'Starting Quiet',
   FetchingData = 'Fetching Data'
 }
 
 const LoadingPanel = () => {
+  const [message, setMessage] = useState(LoadingPanelMessage.StartingApplication)
+
   const loadingPanelModal = useModal(ModalName.loadingPanel)
 
   const isConnected = useSelector(socketSelectors.isConnected)
@@ -21,16 +22,6 @@ const LoadingPanel = () => {
   const isChannelReplicated = Boolean(
     useSelector(publicChannels.selectors.publicChannels)?.length > 0
   )
-
-  let message = LoadingPanelMessage.Loading
-
-  // Set loading message text
-  if (!isConnected) {
-    message = LoadingPanelMessage.StartingApplication
-  }
-  if (currentCommunity && !isChannelReplicated) {
-    message = LoadingPanelMessage.FetchingData
-  }
 
   // Before connecting websocket
   useEffect(() => {
@@ -43,6 +34,7 @@ const LoadingPanel = () => {
   useEffect(() => {
     if (isConnected) {
       if (currentCommunity && !isChannelReplicated) {
+        setMessage(LoadingPanelMessage.FetchingData)
         loadingPanelModal.handleOpen()
       } else {
         loadingPanelModal.handleClose()
