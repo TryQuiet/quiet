@@ -12,7 +12,8 @@
     "prepublish": "npm run build",
     "lint": "eslint --ext .ts . --fix",
     "lint-ci": "eslint --ext .ts .",
-    "prettier": "prettier"
+    "prettier": "prettier",
+    "rmDist": "rimraf lib/"
   },
   "devDependencies": {
     "@types/node": "^17.0.21",
