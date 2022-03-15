@@ -9,7 +9,6 @@ import { Community } from '@quiet/nectar'
 const useStyles = makeStyles(theme => ({
   root: {
     marginTop: theme.spacing(1),
-    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag',
     paddingLeft: 16,
     paddingRight: 16
   },
