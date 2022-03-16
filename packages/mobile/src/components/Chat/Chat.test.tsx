@@ -280,16 +280,10 @@ describe('Chat component', () => {
             >
               <View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -378,7 +372,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            28 Oct, 10:00
                           </Text>
                         </View>
                       </View>
@@ -448,16 +442,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -546,7 +534,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            28 Oct, 10:02
                           </Text>
                         </View>
                       </View>
@@ -591,16 +579,10 @@ describe('Chat component', () => {
               </View>
               <View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -689,7 +671,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:40
                           </Text>
                         </View>
                       </View>
@@ -786,16 +768,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -884,7 +860,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -927,16 +903,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -1025,7 +995,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -1068,16 +1038,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -1166,7 +1130,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -1209,16 +1173,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -1307,7 +1265,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -1377,16 +1335,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -1475,7 +1427,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -1518,16 +1470,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -1616,7 +1562,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -1659,16 +1605,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -1757,7 +1697,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -1800,16 +1740,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -1898,7 +1832,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -1941,16 +1875,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -2039,7 +1967,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -2102,16 +2030,10 @@ describe('Chat component', () => {
             >
               <View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -2200,7 +2122,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            28 Oct, 10:00
                           </Text>
                         </View>
                       </View>
@@ -2270,16 +2192,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -2368,7 +2284,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            28 Oct, 10:02
                           </Text>
                         </View>
                       </View>
@@ -2413,16 +2329,10 @@ describe('Chat component', () => {
               </View>
               <View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -2511,7 +2421,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:40
                           </Text>
                         </View>
                       </View>
@@ -2608,16 +2518,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -2706,7 +2610,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -2749,16 +2653,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -2847,7 +2745,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -2890,16 +2788,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -2988,7 +2880,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -3031,16 +2923,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -3129,7 +3015,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -3199,16 +3085,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -3297,7 +3177,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -3340,16 +3220,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -3438,7 +3312,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -3481,16 +3355,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -3579,7 +3447,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -3622,16 +3490,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -3720,7 +3582,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>
@@ -3763,16 +3625,10 @@ describe('Chat component', () => {
                   </View>
                 </View>
                 <View
-                  onLayout={[Function]}
                   style={
-                    Array [
-                      Object {
-                        "flex": 1,
-                      },
-                      Object {
-                        "paddingBottom": 0,
-                      },
-                    ]
+                    Object {
+                      "flex": 1,
+                    }
                   }
                 >
                   <View
@@ -3861,7 +3717,7 @@ describe('Chat component', () => {
                             }
                             verticalTextAlign="center"
                           >
-                            0
+                            12:46
                           </Text>
                         </View>
                       </View>

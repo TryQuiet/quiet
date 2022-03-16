@@ -1,8 +1,8 @@
 import { setupCrypto } from '@quiet/identity'
-import { communities, getFactory, identity, IncomingMessages, prepareStore, publicChannels, settings, users } from '@quiet/nectar'
+import { communities, connection, getFactory, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, prepareStore, publicChannels, settings, users } from '@quiet/nectar'
 import { Action } from 'redux-actions'
 import { testSaga } from 'redux-saga-test-plan'
-import { displayMessageNotificationSaga, bridgeAction, messagesMapForNotificationsCalls } from './notifications'
+import { displayMessageNotificationSaga, bridgeAction, messagesMapForNotificationsCalls, createNotificationsCallsDataType } from './notifications'
 
 let incomingMessages: IncomingMessages
 let store
@@ -53,7 +53,7 @@ describe('displayMessageNotificationSaga', () => {
     communityId: 'communityId'
   }
 
-  const messagesMapCallData = {
+  const messagesMapCallData: createNotificationsCallsDataType = {
     action: {
       type: 'PublicChannels/incomingMessages',
       payload: incomingMessages
@@ -96,7 +96,7 @@ describe('displayMessageNotificationSaga', () => {
         publicKey: '9f016defcbe48829db163e86b28efb10318faf3b109173105e3dc024e951bb1b',
         privateKey: '4dcebbf395c0e9415bc47e52c96fcfaf4bd2485a516f45118c2477036b45fc0b'
       },
-      id: 1,
+      id: '1',
       nickname: 'alice',
       userCsr: {
         userCsr: 'MIIBnTCCAUMCAQAwSTFHMEUGA1UEAxM+cHV0bnhpd3V0YmxnbGRlNWkybWN6cG8zN2g1bjRkdm9xa3FnMm1reHpvdjdyaXdxdTJvd2lhaWQub25pb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAARqSHMdA7OP5tKoSvhGXMGTC2+pPNOnXVWjE+uJ8XnuXdvwSiVl6ftlagOg99T15Yleo0YAlxgG4Adv4zo0PFljoIGXMC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFBwPHypD935SgTKAft3XGWHl0ffRMA8GCSqGSIb3DQEJDDECBAAwFQYKKwYBBAGDjBsCATEHEwVhbGljZTA9BgkrBgECAQ8DAQExMBMuUW1XVk1hVXFFQjczZ3pnR2tjOXdTN3JuaE5jcFN5SDY0ZG1iR1VkVTJUTTNlVjAKBggqhkjOPQQDAgNIADBFAiEAl39WSOInUuXC5HnAt+zVQuClLOTp/n0ivwolchNez5wCIAvU/6yYXyFjiZ912PImgFL+pt/f+05dxkD9f10cIdlL',
@@ -110,8 +110,9 @@ describe('displayMessageNotificationSaga', () => {
       userCertificate: 'MIIB5DCCAYsCBgF+/ot9tDAKBggqhkjOPQQDAjALMQkwBwYDVQQDEwAwHhcNMTAxMjI4MTAxMDEwWhcNMzAxMjI4MTAxMDEwWjBJMUcwRQYDVQQDEz5wdXRueGl3dXRibGdsZGU1aTJtY3pwbzM3aDVuNGR2b3FrcWcybWt4em92N3Jpd3F1Mm93aWFpZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABGpIcx0Ds4/m0qhK+EZcwZMLb6k806ddVaMT64nxee5d2/BKJWXp+2VqA6D31PXliV6jRgCXGAbgB2/jOjQ8WWOjgaEwgZ4wCQYDVR0TBAIwADALBgNVHQ8EBAMCAI4wHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMA8GCSqGSIb3DQEJDAQCBAAwFQYKKwYBBAGDjBsCAQQHEwVhbGljZTA9BgkrBgECAQ8DAQEEMBMuUW1XVk1hVXFFQjczZ3pnR2tjOXdTN3JuaE5jcFN5SDY0ZG1iR1VkVTJUTTNlVjAKBggqhkjOPQQDAgNHADBEAiAGwhjFKKkqYKE3r4VVbl5IDe/Fta9+3lsY9Veegu0BlwIgdvis9mPAr0VOUeMRMWc3vVjyDlZqSdiXgcLxzdESKYA='
     },
     currentChannel: 'general',
-    notificationsOption: 'notifyForEveryMessage',
-    notificationsSound: 'pow'
+    notificationsOption: NotificationsOptions.notifyForEveryMessage,
+    notificationsSound: NotificationsSounds.pow,
+    lastConnectedTime: 1000
   }
 
   const channel: () => Action<any> = () => ({ payload: {}, type: 'some-type' })
@@ -131,6 +132,8 @@ describe('displayMessageNotificationSaga', () => {
       .next(messagesMapCallData.notificationsOption)
       .select(settings.selectors.getNotificationsSound)
       .next(messagesMapCallData.notificationsSound)
+      .select(connection.selectors.lastConnectedTime)
+      .next(messagesMapCallData.lastConnectedTime)
       .call(messagesMapForNotificationsCalls, messagesMapCallData)
       .next(channel)
       .takeEvery(channel, bridgeAction)
