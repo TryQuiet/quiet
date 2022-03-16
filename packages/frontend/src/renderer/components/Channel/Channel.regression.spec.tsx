@@ -2,13 +2,21 @@ import React from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import { composeStories, setGlobalConfig } from '@storybook/testing-react'
 import { mount } from '@cypress/react'
-import { it, cy, beforeEach } from 'local-cypress'
+import { it, cy, beforeEach, Cypress } from 'local-cypress'
 import compareSnapshotCommand from 'cypress-visual-regression/dist/command'
 
 import * as stories from './Channel.stories'
 import { withTheme } from '../../storybook/decorators'
 
 compareSnapshotCommand()
+
+const resizeObserverLoopErrRe = /^[^(ResizeObserver loop limit exceeded)]/
+Cypress.on('uncaught:exception', err => {
+  /* returning false here prevents Cypress from failing the test */
+  if (resizeObserverLoopErrRe.test(err.message)) {
+    return false
+  }
+})
 
 setGlobalConfig(withTheme)
 
@@ -38,10 +46,7 @@ describe('Scroll behavior test', () => {
 
   it('scroll should be at the bottom after sending messages', () => {
     cy.get(messageInput).focus().type('luke where are you?').type('{enter}')
-    cy.get(messageInput)
-      .focus()
-      .type('you underestimate the power of the force')
-      .type('{enter}')
+    cy.get(messageInput).focus().type('you underestimate the power of the force').type('{enter}')
     cy.get(channelContent).compareSnapshot('send after enter')
   })
 
@@ -51,10 +56,7 @@ describe('Scroll behavior test', () => {
     cy.get(channelContent).compareSnapshot('scroll to the middle')
 
     cy.get(messageInput).focus().type('obi wan was wrong').type('{enter}')
-    cy.get(messageInput)
-      .focus()
-      .type('actually, he is on the dark side')
-      .type('{enter}')
+    cy.get(messageInput).focus().type('actually, he is on the dark side').type('{enter}')
 
     cy.get(channelContent).compareSnapshot('send after scroll')
   })
@@ -62,6 +64,11 @@ describe('Scroll behavior test', () => {
   it('should scroll to the bottom when scroll is at the top and user sends new message', () => {
     cy.get(messageInput).focus().type('hi').type('{enter}')
 
+    cy.get(channelContent).scrollTo(0, 0)
+
+    cy.wait(2000)
+
+    // Scroll again because of lazy loading
     cy.get(channelContent).scrollTo(0, 0)
 
     cy.get(channelContent).compareSnapshot('scroll to the top')

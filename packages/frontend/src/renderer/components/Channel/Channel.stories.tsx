@@ -335,7 +335,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
   })
 
   const setChannelLoadingSlice = useCallback(slice => {
-    const oldMess =  [
+    const oldMess = [
       [
         {
           id: '4',
@@ -415,9 +415,9 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
       ]
     ]
     console.log(slice)
-    if (slice==0) {
+    if (slice === 0) {
       setMessages({
-        count: 0,
+        count: 55,
         groups: {
           '25 Oct': oldMess,
           ...messages.groups
@@ -456,7 +456,7 @@ export const Component = Template.bind({})
 const args: ChannelComponentProps = {
   user: {
     id: 'id',
-    nickname: 'chad',
+    nickname: 'vader',
     hiddenService: {
       onionAddress: 'onionAddress',
       privateKey: 'privateKey'
