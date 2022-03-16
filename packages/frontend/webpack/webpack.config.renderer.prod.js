@@ -16,7 +16,7 @@ module.exports = {
       {
         test: /\.(t|j)sx?$/,
         loader: ['ts-loader'],
-        exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]nectar/]
+        exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]nectar/, /packages[\/\\]logger/]
       },
       {
         test: /\.js$/,
