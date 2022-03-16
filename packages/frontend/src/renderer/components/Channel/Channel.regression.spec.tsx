@@ -30,45 +30,45 @@ describe('Scroll behavior test', () => {
   const channelContent = '[data-testid="channelContent"]'
   const messageInput = '[data-testid="messageInput"]'
 
-  // it('scroll should be at the bottom after entering channel', () => {
-  //   cy.get(channelContent).compareSnapshot('after launch', {
-  //     capture: 'fullPage'
-  //   })
-  // })
+  it('scroll should be at the bottom after entering channel', () => {
+    cy.get(channelContent).compareSnapshot('after launch', {
+      capture: 'fullPage'
+    })
+  })
 
-  // it('scroll should be at the bottom after sending messages', () => {
-  //   cy.get(messageInput).focus().type('luke where are you?').type('{enter}')
-  //   cy.get(messageInput)
-  //     .focus()
-  //     .type('you underestimate the power of the force')
-  //     .type('{enter}')
-  //   cy.get(channelContent).compareSnapshot('send after enter')
-  // })
+  it('scroll should be at the bottom after sending messages', () => {
+    cy.get(messageInput).focus().type('luke where are you?').type('{enter}')
+    cy.get(messageInput)
+      .focus()
+      .type('you underestimate the power of the force')
+      .type('{enter}')
+    cy.get(channelContent).compareSnapshot('send after enter')
+  })
 
-  // it('should scroll to the bottom when scroll is in the middle and user sends new message', () => {
-  //   cy.get(channelContent).scrollTo(0, 100)
+  it('should scroll to the bottom when scroll is in the middle and user sends new message', () => {
+    cy.get(channelContent).scrollTo(0, 100)
 
-  //   cy.get(channelContent).compareSnapshot('scroll to the middle')
+    cy.get(channelContent).compareSnapshot('scroll to the middle')
 
-  //   cy.get(messageInput).focus().type('obi wan was wrong').type('{enter}')
-  //   cy.get(messageInput)
-  //     .focus()
-  //     .type('actually, he is on the dark side')
-  //     .type('{enter}')
+    cy.get(messageInput).focus().type('obi wan was wrong').type('{enter}')
+    cy.get(messageInput)
+      .focus()
+      .type('actually, he is on the dark side')
+      .type('{enter}')
 
-  //   cy.get(channelContent).compareSnapshot('send after scroll')
-  // })
+    cy.get(channelContent).compareSnapshot('send after scroll')
+  })
 
-  // it('should scroll to the bottom when scroll is at the top and user sends new message', () => {
-  //   cy.get(messageInput).focus().type('hi').type('{enter}')
+  it('should scroll to the bottom when scroll is at the top and user sends new message', () => {
+    cy.get(messageInput).focus().type('hi').type('{enter}')
 
-  //   cy.get(channelContent).scrollTo(0, 0)
+    cy.get(channelContent).scrollTo(0, 0)
 
-  //   cy.get(channelContent).compareSnapshot('scroll to the top')
+    cy.get(channelContent).compareSnapshot('scroll to the top')
 
-  //   // Send only one message because previous bug was only after sending one message
-  //   cy.get(messageInput).focus().type('and youda too').type('{enter}')
+    // Send only one message because previous bug was only after sending one message
+    cy.get(messageInput).focus().type('and youda too').type('{enter}')
 
-  //   cy.get(channelContent).compareSnapshot('send after top scroll')
-  // })
+    cy.get(channelContent).compareSnapshot('send after top scroll')
+  })
 })
