@@ -10,6 +10,8 @@ PODS:
     - React-jsi (= 0.64.0)
     - ReactCommon/turbomodule/core (= 0.64.0)
   - glog (0.3.5)
+  - nodejs-mobile-react-native (0.8.0):
+    - React-Core
   - RCT-Folly (2020.01.13.00):
     - boost-for-react-native
     - DoubleConversion
@@ -312,14 +314,13 @@ PODS:
   - SSZipArchive (2.2.3)
   - Tor (405.9.1)
   - Yoga (1.14.0)
-  - nodejs-mobile-react-native (0.8.0):
-    - React
 
 DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - nodejs-mobile-react-native (from `../node_modules/nodejs-mobile-react-native`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -363,7 +364,6 @@ DEPENDENCIES:
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
   - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
-  - nodejs-mobile-react-native (from `../node_modules/nodejs-mobile-react-native`)
 
 SPEC REPOS:
   trunk:
@@ -379,6 +379,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/React/FBReactNativeSpec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
+  nodejs-mobile-react-native:
+    :path: "../node_modules/nodejs-mobile-react-native"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -461,8 +463,6 @@ EXTERNAL SOURCES:
     :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
-  nodejs-mobile-react-native:
-    :path: "../node_modules/nodejs-mobile-react-native"
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
@@ -470,6 +470,7 @@ SPEC CHECKSUMS:
   FBLazyVector: 49cbe4b43e445b06bf29199b6ad2057649e4c8f5
   FBReactNativeSpec: 516b33ae439c387dc390e816f89c51af63c8af76
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
+  nodejs-mobile-react-native: 644f0a318dd1cd82e555c42e9d2c4efd2000449e
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c
   RCTRequired: 2f8cb5b7533219bf4218a045f92768129cf7050a
   RCTTypeSafety: 512728b73549e72ad7330b92f3d42936f2a4de5b
@@ -512,7 +513,6 @@ SPEC CHECKSUMS:
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
   Tor: 39dc71bf048312e202608eb499ca5c74e841b503
   Yoga: 8c8436d4171c87504c648ae23b1d81242bdf3bbf
-  nodejs-mobile-react-native: 7dedf513770b8473c68c9f3e453f13f0ebe648a5
 
 PODFILE CHECKSUM: 00da52e7b35fc3cca0de0f3f64c1a496b8207f2d
 
