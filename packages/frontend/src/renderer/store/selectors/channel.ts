@@ -6,7 +6,7 @@ import waggleSelectors from './waggle'
 import { Store } from '../reducers'
 import { Channel } from '../handlers/channel'
 
-import logger from '../../../logger'
+import logger from '../../logger'
 const log = logger('channel')
 
 const channel = (s: Store) => s.channel

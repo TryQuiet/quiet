@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import { IConversation } from '../store/handlers/directMessages'
-import logger from '../../logger'
+import logger from '../logger'
 
 const log = logger('crypto')
 

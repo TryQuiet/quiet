@@ -7,7 +7,7 @@ import store from './store'
 import updateHandlers from './store/handlers/update'
 import waggleHandlers from './store/handlers/waggle'
 
-import logger from '../logger'
+import logger from './logger'
 
 import { initSentry } from '../shared/sentryConfig'
 

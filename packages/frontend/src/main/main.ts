@@ -13,7 +13,7 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import { initSentry } from '../shared/sentryConfig'
 
-import logger from '../logger'
+import logger from './logger'
 
 initSentry()
 
