@@ -10,7 +10,6 @@
 		"build": "tsc -p tsconfig.build.json",
 		"prepublish": "npm run build",
 		"version": "git add -A src",
-		"postinstall": "rimraf node_modules/ipfs-core-types/src",
 		"postversion": "git push && git push --tags",
 		"lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
 		"lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
@@ -107,6 +106,7 @@
 		"libp2p-mplex": "^0.10.1",
 		"libp2p-websockets": "^0.16.2",
 		"multiaddr": "^10.0.1",
+		"npm-force-resolutions": "^0.0.10",
 		"orbit-db": "^0.28.3",
 		"orbit-db-io": "^1.0.2",
 		"orbit-db-store": "^4.3.3",
@@ -118,5 +118,8 @@
 		"uint8arrays": "^1.1.0",
 		"url": "^0.11.0",
 		"validator": "^13.6.0"
+	},
+	"resolutions": {
+		"ipfs-core-types": "0.10.2-df1bd1bb.0"
 	}
 }
