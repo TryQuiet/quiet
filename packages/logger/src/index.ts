@@ -1,11 +1,15 @@
 import debug from 'debug'
+import path from 'path'
 import log from 'electron-log'
 
 export const saveToFileLogger = (packageName: string) => (module: string) => {
-  console.log('initializing logger for ', packageName, module, log.transports.file.getFile().path)
+  const appInstanceDir = process.env.DATA_DIR || ''
+  log.transports.file.resolvePath = (variables) => {
+    return path.join(variables.appData, appInstanceDir, variables.appName, 'logs', variables.fileName)
+  }
+  log.info('Logs path:', log.transports.file.getFile().path)
   Object.assign(console, log.functions);
-  const appInstanceDir = process.env.DATA_DIR ? `${process.env.DATA_DIR}|` : ''
-  return Object.assign(log.scope(`${appInstanceDir}${packageName}:${module}`).log, log.functions, {})
+  return Object.assign(log.scope(`${packageName}:${module}`).log, log.functions, {})
 }
 
 export const consoleLogger = (packageName: string) => (module: string) => {
