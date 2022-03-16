@@ -11,10 +11,6 @@ export const communityNameField = (name = 'name'): FieldData => {
     },
     validation: {
       required: FieldErrors.Required,
-      minLength: {
-        value: 1,
-        message: CommunityNameErrors.NameToShort
-      },
       maxLength: {
         value: 20,
         message: CommunityNameErrors.NameTooLong
