@@ -48,7 +48,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({
   const classes = useStyles({})
 
   let communityName = ''
-  if (currentCommunity) {
+  if (currentCommunity?.name.length >= 1) {
     communityName = capitalizeFirstLetter(currentCommunity.name)
   }
 
