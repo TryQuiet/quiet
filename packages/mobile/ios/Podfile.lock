@@ -312,7 +312,7 @@ PODS:
   - SSZipArchive (2.2.3)
   - Tor (405.9.1)
   - Yoga (1.14.0)
-  - zbayapp-nodejs-mobile-react-native (1.2.1):
+  - nodejs-mobile-react-native (0.8.0):
     - React
 
 DEPENDENCIES:
@@ -363,7 +363,7 @@ DEPENDENCIES:
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
   - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
-  - zbayapp-nodejs-mobile-react-native (from `../node_modules/zbayapp-nodejs-mobile-react-native`)
+  - nodejs-mobile-react-native (from `../node_modules/nodejs-mobile-react-native`)
 
 SPEC REPOS:
   trunk:
@@ -461,8 +461,8 @@ EXTERNAL SOURCES:
     :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
-  zbayapp-nodejs-mobile-react-native:
-    :path: "../node_modules/zbayapp-nodejs-mobile-react-native"
+  nodejs-mobile-react-native:
+    :path: "../node_modules/nodejs-mobile-react-native"
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
@@ -512,7 +512,7 @@ SPEC CHECKSUMS:
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
   Tor: 39dc71bf048312e202608eb499ca5c74e841b503
   Yoga: 8c8436d4171c87504c648ae23b1d81242bdf3bbf
-  zbayapp-nodejs-mobile-react-native: 7dedf513770b8473c68c9f3e453f13f0ebe648a5
+  nodejs-mobile-react-native: 7dedf513770b8473c68c9f3e453f13f0ebe648a5
 
 PODFILE CHECKSUM: 00da52e7b35fc3cca0de0f3f64c1a496b8207f2d
 
