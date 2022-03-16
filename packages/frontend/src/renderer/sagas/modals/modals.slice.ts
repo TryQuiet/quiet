@@ -3,7 +3,7 @@ import { ModalName } from './modals.types'
 
 export interface OpenModalPayload {
   name: ModalName
-  args?: { message?: string }
+  args?: {}
 }
 
 export class ModalsInitialState {
@@ -22,13 +22,7 @@ export class ModalsInitialState {
   [ModalName.joinCommunityModal] = { open: false };
   [ModalName.createCommunityModal] = { open: false };
   [ModalName.sentryWarningModal] = { open: false };
-  [ModalName.loadingPanel]: {
-    open: boolean
-    args: { message: string }
-  } = {
-    open: false,
-    args: undefined
-  }
+  [ModalName.loadingPanel] = { open: true } // Loading modal is open by default and closes on websocket connection
 }
 
 export const modalsSlice = createSlice({

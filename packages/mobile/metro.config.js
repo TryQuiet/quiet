@@ -12,7 +12,8 @@ const path = require('path');
  const watchFolders = [
    path.resolve(__dirname, '../identity'),
    path.resolve(__dirname, '../nectar'),
-   path.resolve(__dirname, '../waggle')
+   path.resolve(__dirname, '../waggle'),
+   path.resolve(__dirname, '../testcafe-browser-provider-electron')
  ]
 
  const extraNodeModules = {

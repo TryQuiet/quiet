@@ -43,7 +43,7 @@ describe('IdentityPanel', () => {
                 <h4
                   class="MuiTypography-root makeStyles-nickname-4 MuiTypography-h4"
                 >
-                  community_1
+                  Community_1
                 </h4>
                 <svg
                   aria-hidden="true"

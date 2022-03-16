@@ -73,7 +73,9 @@ beforeAll(async () => {
   const parsedCert = parseCertificate(identity1.userCertificate)
   userPubKey = await keyFromCertificate(parsedCert)
 
-  console.log(userPubKey)
+  const senderPubKey = Object.keys(users.selectors.certificatesMapping(store.store.getState()))
+    .find((pubKey) => pubKey !== userPubKey)
+
   incomingMessages = {
     messages: [{
       id: 'id',
@@ -82,7 +84,7 @@ beforeAll(async () => {
       createdAt: 1000000,
       channelAddress: publicChannel2.channel.address,
       signature: 'signature',
-      pubKey: 'pubKey22'
+      pubKey: senderPubKey
     }],
     communityId: community1.id
   }
@@ -120,9 +122,11 @@ describe('displayNotificationsSaga', () => {
       .run()
 
     expect(notification).toBeCalledWith(
-      `New message in ${publicChannel2.channel.address}`,
-      { body: incomingMessages.messages[0].message }
-    )
+      'New message from user_1 in #public-channel-1', {
+        body: incomingMessages.messages[0].message,
+        icon: '../../build/icon.png',
+        silent: true
+      })
   })
 
   test('do not display notification when incoming message is from same user', async () => {
@@ -319,8 +323,10 @@ describe('displayNotificationsSaga', () => {
       .run()
 
     expect(notification).toBeCalledWith(
-      `New message in ${publicChannel2.channel.address}`,
-      { body: incomingMessages.messages[0].message }
-    )
+      'New message from user_1 in #public-channel-1', {
+        body: incomingMessages.messages[0].message,
+        icon: '../../build/icon.png',
+        silent: true
+      })
   })
 })

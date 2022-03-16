@@ -3,10 +3,9 @@ import { Keyboard, KeyboardAvoidingView } from 'react-native'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
+import { UsernameRegistrationProps } from './UsernameRegistration.types'
 
-import { RegistrationProps } from './Registration.types'
-
-export const Registration: FC<RegistrationProps> = ({
+export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   registerUsernameAction,
   registerUsernameError
 }) => {
