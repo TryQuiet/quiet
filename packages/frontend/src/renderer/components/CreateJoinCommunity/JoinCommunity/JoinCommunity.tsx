@@ -18,10 +18,10 @@ const JoinCommunity = () => {
   const createCommunityModal = useModal(ModalName.createCommunityModal)
 
   useEffect(() => {
-    if (!currentCommunity && !joinCommunityModal.open) {
+    if (isConnected && !currentCommunity && !joinCommunityModal.open) {
       joinCommunityModal.handleOpen()
     }
-  }, [currentCommunity])
+  }, [isConnected, currentCommunity])
 
   useEffect(() => {
     if (currentIdentity && !currentIdentity.userCertificate && joinCommunityModal.open) {
