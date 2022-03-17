@@ -1,6 +1,6 @@
 {
 	"name": "@quiet/waggle",
-	"version": "0.4.0-alpha.0",
+	"version": "0.4.0-alpha.2",
 	"description": "tlg-manager",
 	"types": "lib/index.d.ts",
 	"main": "lib/index.js",
@@ -8,9 +8,9 @@
 	"license": "MIT",
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json",
+		"preinstall": "npx npm-force-resolutions",
 		"prepublish": "npm run build",
 		"version": "git add -A src",
-		"postinstall": "rm -rf node_modules/ipfs-core-types/src",
 		"postversion": "git push && git push --tags",
 		"lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
 		"lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
@@ -21,14 +21,15 @@
 		"test-connect-ci": "jest ./src/nodeTest/* --colors --ci --silent --verbose",
 		"test-replication-no-tor": "ts-node -v && cross-env DEBUG='waggle:dbSnap*,waggle:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 200 --entriesCount 1000 --no-useTor",
 		"test-replication-tor": "cross-env DEBUG='waggle:dbSnap*,waggle:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 500 --entriesCount 1000 --useTor",
-		"rmDist": "rm -rf lib/"
+		"rmDist": "rimraf lib/"
 	},
 	"repository": {
 		"type": "git",
 		"url": "git+ssh://git@github.com:ZbayApp/waggle.git"
 	},
 	"files": [
-		"lib/**/*"
+		"lib/**/*",
+		"package-lock.json"
 	],
 	"jest": {
 		"transform": {
@@ -81,8 +82,8 @@
 	"dependencies": {
 		"@chainsafe/libp2p-noise": "^4.0.0",
 		"@peculiar/webcrypto": "1.2.2",
-		"@quiet/identity": "^0.3.0-alpha.5",
-		"@quiet/nectar": "^0.4.0-alpha.0",
+		"@quiet/identity": "^0.3.0-alpha.7",
+		"@quiet/nectar": "^0.4.0-alpha.2",
 		"abortable-iterator": "^3.0.0",
 		"class-validator": "^0.13.1",
 		"cli-table": "^0.3.6",
@@ -107,6 +108,7 @@
 		"libp2p-mplex": "^0.10.1",
 		"libp2p-websockets": "^0.16.2",
 		"multiaddr": "^10.0.1",
+		"npm-force-resolutions": "^0.0.10",
 		"orbit-db": "^0.28.3",
 		"orbit-db-io": "^1.0.2",
 		"orbit-db-store": "^4.3.3",
@@ -118,5 +120,8 @@
 		"uint8arrays": "^1.1.0",
 		"url": "^0.11.0",
 		"validator": "^13.6.0"
+	},
+	"resolutions": {
+		"ipfs-core-types": "0.10.2-df1bd1bb.0"
 	}
 }

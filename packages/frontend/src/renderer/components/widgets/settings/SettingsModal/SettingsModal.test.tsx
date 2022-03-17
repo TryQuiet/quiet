@@ -11,7 +11,7 @@ describe('SettingsModal', () => {
   it('renders component for non-owner', () => {
     const result = renderComponent(
       <Provider store={store}>
-        <SettingsModal user='bob' owner={false} open handleClose={jest.fn()} />
+        <SettingsModal title='settings' owner={false} open handleClose={jest.fn()} />
       </Provider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -51,7 +51,7 @@ describe('SettingsModal', () => {
                     class="MuiTypography-root makeStyles-title-10 makeStyles-bold-18 MuiTypography-subtitle1 MuiTypography-alignCenter"
                     style="margin-left: 36px;"
                   >
-                    bob
+                    settings
                   </h6>
                 </div>
                 <div
@@ -566,7 +566,7 @@ describe('SettingsModal', () => {
   it('renders component for the owner', () => {
     const result = renderComponent(
       <Provider store={store}>
-        <SettingsModal user='alice' owner={true} open handleClose={jest.fn()} />
+        <SettingsModal title='Settings' owner={true} open handleClose={jest.fn()} />
       </Provider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -606,7 +606,7 @@ describe('SettingsModal', () => {
                     class="MuiTypography-root makeStyles-title-286 makeStyles-bold-294 MuiTypography-subtitle1 MuiTypography-alignCenter"
                     style="margin-left: 36px;"
                   >
-                    alice
+                    Settings
                   </h6>
                 </div>
                 <div
@@ -756,7 +756,7 @@ describe('SettingsModal', () => {
                                   <h5
                                     class="MuiTypography-root MuiTypography-h5"
                                   >
-                                    Your invitation url
+                                    Your invitation code
                                   </h5>
                                 </div>
                                 <div
@@ -849,13 +849,13 @@ describe('SettingsModal', () => {
   })
 
   it('displays "Add members" tab for community owner', async () => {
-    renderComponent(<SettingsModal user='string' owner={true} open handleClose={jest.fn()} />)
+    renderComponent(<SettingsModal title='string' owner={true} open handleClose={jest.fn()} />)
     expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Add members/i })).not.toBeNull()
   })
 
   it('does not display "Add members" tab if user is not a community owner', async () => {
-    renderComponent(<SettingsModal user='string' owner={false} open handleClose={jest.fn()} />)
+    renderComponent(<SettingsModal title='string' owner={false} open handleClose={jest.fn()} />)
     expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Add members/i })).toBeNull()
   })

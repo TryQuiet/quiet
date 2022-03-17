@@ -1,13 +1,13 @@
 /* eslint import/first: 0 */
 import React from 'react'
-import { renderComponent } from '../../../testUtils/renderComponent'
+import { renderComponent } from '../../testUtils/renderComponent'
 
-import LoadingPanelComponent from './loadingPanel'
+import LoadingPanelComponent from './loadingPanelComponent'
 
 describe('CreateUsernameModal', () => {
   it('renders component', () => {
     const result = renderComponent(
-      <LoadingPanelComponent handleClose={jest.fn()} open={true} message={'message'} isClosedDisabled={true} />
+      <LoadingPanelComponent handleClose={jest.fn()} open={true} message={'message'} />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
@@ -66,6 +66,7 @@ describe('CreateUsernameModal', () => {
               >
                 <div
                   class="MuiGrid-root makeStyles-spinner-1 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                  data-testid="spinnerLoader"
                 >
                   <div
                     class="MuiCircularProgress-root makeStyles-spinner-146 makeStyles-spinner-147 MuiCircularProgress-indeterminate"

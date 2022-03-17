@@ -11,10 +11,6 @@ export const userNameField = (name = 'userName'): FieldData => {
     },
     validation: {
       required: FieldErrors.Required,
-      minLength: {
-        value: 3,
-        message: UsernameErrors.NameToShort
-      },
       maxLength: {
         value: 20,
         message: UsernameErrors.NameTooLong

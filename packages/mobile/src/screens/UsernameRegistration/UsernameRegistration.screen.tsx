@@ -1,18 +1,16 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { appImages } from '../../../assets'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { UsernameRegistrationScreenProps } from './UsernameRegistration.types'
 import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen'
 import { initActions } from '../../store/init/init.slice'
-import { Registration } from '../../components/Registration/Registration.component'
+import { UsernameRegistration } from '../../components/Registration/UsernameRegistration.component'
 
-import { communities, errors, identity, SocketActionTypes } from '@quiet/nectar'
+import { errors, identity } from '@quiet/nectar'
 
-export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = ({ route }) => {
+export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = () => {
   const dispatch = useDispatch()
-
-  const [username, setUsername] = useState('')
 
   useEffect(() => {
     dispatch(initActions.setCurrentScreen(ScreenNames.UsernameRegistrationScreen))
@@ -20,10 +18,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
-  const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
-  const error = communityErrors[SocketActionTypes.REGISTRAR]
-
-  const registrar = route.params.registrar
+  const error = useSelector(errors.selectors.registrarErrors)
 
   useEffect(() => {
     if (currentIdentity?.userCertificate) {
@@ -36,21 +31,18 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
     }
   }, [currentIdentity?.userCertificate])
 
-  const handleAction = (username: string) => {
-    setUsername(username)
-    if (registrar) {
-      dispatch(communities.actions.joinCommunity(registrar))
+  const handleAction = (nickname: string) => {
+    // Clear errors
+    if (error) {
+      dispatch(
+        errors.actions.clearError(error)
+      )
     }
+    dispatch(identity.actions.registerUsername(nickname))
   }
 
-  useEffect(() => {
-    if (currentIdentity?.hiddenService && !currentIdentity.userCertificate) {
-      dispatch(identity.actions.registerUsername(username))
-    }
-  }, [currentIdentity?.hiddenService])
-
   return (
-    <Registration
+    <UsernameRegistration
       registerUsernameAction={handleAction}
       registerUsernameError={error?.message}
     />

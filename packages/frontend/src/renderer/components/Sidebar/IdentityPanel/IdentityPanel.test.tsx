@@ -43,8 +43,59 @@ describe('IdentityPanel', () => {
                 <h4
                   class="MuiTypography-root makeStyles-nickname-4 MuiTypography-h4"
                 >
-                  community_1
+                  Community_1
                 </h4>
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall"
+                  focusable="false"
+                  role="presentation"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+                  />
+                </svg>
+              </span>
+              <span
+                class="MuiTouchRipple-root"
+              />
+            </span>
+          </div>
+        </div>
+      </body>
+    `)
+  })
+
+  it("doesn't break if there's no community", async () => {
+    const result = renderComponent(
+      <IdentityPanel
+        currentCommunity={undefined}
+        accountSettingsModal={{
+          open: false,
+          handleOpen: function (_args?: any): any {},
+          handleClose: function (): any {}
+        }}
+      />
+    )
+    expect(result.baseElement).toMatchInlineSnapshot(`
+      <body>
+        <div>
+          <div
+            class="makeStyles-root-85"
+          >
+            <span
+              aria-disabled="false"
+              class="MuiButtonBase-root MuiButton-root makeStyles-button-86 MuiButton-text"
+              role="button"
+              tabindex="0"
+            >
+              <span
+                class="MuiButton-label makeStyles-buttonLabel-87"
+              >
+                <h4
+                  class="MuiTypography-root makeStyles-nickname-88 MuiTypography-h4"
+                />
                 <svg
                   aria-hidden="true"
                   class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall"

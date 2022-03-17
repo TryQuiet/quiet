@@ -2,8 +2,6 @@ import { DataServer } from './socket/DataServer'
 import { ConnectionsManager } from './libp2p/connectionsManager'
 import { Command } from 'commander'
 
-process.env.DEBUG = 'waggle:*'
-
 export const runWaggle = async (): Promise<any> => {
   const program = new Command()
 

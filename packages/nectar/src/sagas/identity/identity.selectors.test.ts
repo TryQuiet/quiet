@@ -9,6 +9,7 @@ import { Identity } from './identity.types'
 
 describe('communitiesSelectors will recive correct data', () => {
   let store: Store
+
   const communityAlpha: Community = {
     name: 'alpha',
     id: 'communityAlpha',
@@ -21,6 +22,7 @@ describe('communitiesSelectors will recive correct data', () => {
     privateKey: '',
     port: 0
   }
+
   const communityBeta: Community = {
     name: 'beta',
     id: 'communityBeta',
@@ -158,81 +160,5 @@ describe('communitiesSelectors will recive correct data', () => {
         "userCsr": null,
       }
     `)
-  })
-
-  it('select joined communities with user identity with certificate', () => {
-    const joinedCommunities = identitySelectors.joinedCommunities(store.getState())
-    const idOfJoinedCommunities = joinedCommunities.map(community => community.id)
-
-    expect(idOfJoinedCommunities).toEqual(['communityBeta'])
-    expect(joinedCommunities).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "CA": Object {
-            "rootCertString": "certString",
-            "rootKeyString": "keyString",
-          },
-          "id": "communityBeta",
-          "name": "beta",
-          "onionAddress": "",
-          "peerList": Array [],
-          "port": 0,
-          "privateKey": "",
-          "registrar": null,
-          "registrarUrl": "",
-          "rootCa": "",
-        },
-      ]
-    `)
-  })
-
-  it('select unregistered communities with user identity without certificate', () => {
-    const unregisteredCommunities = identitySelectors.unregisteredCommunities(store.getState())
-    const idOfJoinedCommunities = unregisteredCommunities.id
-
-    expect(idOfJoinedCommunities).toEqual('communityDelta')
-    expect(unregisteredCommunities).toMatchInlineSnapshot(`
-Object {
-  "CA": Object {
-    "rootCertString": "certString",
-    "rootKeyString": "keyString",
-  },
-  "id": "communityDelta",
-  "name": "beta",
-  "onionAddress": "",
-  "peerList": Array [],
-  "port": 0,
-  "privateKey": "",
-  "registrar": null,
-  "registrarUrl": "",
-  "rootCa": "",
-}
-`)
-  })
-
-  it('select communities without user identity', () => {
-    const unregisteredCommunities = identitySelectors.unregisteredCommunitiesWithoutUserIdentity(
-      store.getState()
-    )
-    const idOfJoinedCommunities = unregisteredCommunities.id
-
-    expect(idOfJoinedCommunities).toEqual('communityAlpha')
-    expect(unregisteredCommunities).toMatchInlineSnapshot(`
-Object {
-  "CA": Object {
-    "rootCertString": "certString",
-    "rootKeyString": "keyString",
-  },
-  "id": "communityAlpha",
-  "name": "alpha",
-  "onionAddress": "",
-  "peerList": Array [],
-  "port": 0,
-  "privateKey": "",
-  "registrar": null,
-  "registrarUrl": "",
-  "rootCa": "",
-}
-`)
   })
 })

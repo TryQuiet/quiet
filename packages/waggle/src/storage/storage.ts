@@ -125,6 +125,7 @@ export class Storage {
 
   protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> {
     log('Initializing IPFS')
+    // @ts-expect-error
     return await IPFS.create({
       // error here 'permission denied 0.0.0.0:443'
       libp2p: async () => libp2p,
@@ -217,7 +218,6 @@ export class Storage {
   }
 
   async initAllChannels() {
-    console.time('initAllChannels')
     await Promise.all(
       Object.values(this.channels.all).map(async (channel: PublicChannel) => {
         if (!this.publicChannelsRepos.has(channel.address)) {
@@ -225,11 +225,9 @@ export class Storage {
         }
       })
     )
-    console.timeEnd('initAllChannels')
   }
 
   async initAllConversations() {
-    console.time('initAllConversations')
     await Promise.all(
       Object.keys(this.messageThreads.all).map(async conversation => {
         if (!this.directMessagesRepos.has(conversation)) {
@@ -237,7 +235,6 @@ export class Storage {
         }
       })
     )
-    console.timeEnd('initAllConversations')
   }
 
   protected getAllEventLogEntries<T>(db: EventStore<T>): T[] {

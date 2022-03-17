@@ -96,7 +96,7 @@ describe('Channel', () => {
     // >('Community')
 
     const alice = await factory.create<
-      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { nickname: 'alice' })
 
     renderComponent(
@@ -122,15 +122,15 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const aliceMessage = await factory.create<
-      ReturnType<typeof publicChannels.actions.test_message>['payload']
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: alice,
       verifyAutomatically: true
@@ -160,14 +160,14 @@ describe('Channel', () => {
     jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
       if (action === SocketActionTypes.ASK_FOR_MESSAGES) {
         const data = (input as socketEventData<
-          [
-            {
-              peerId: string
-              channelAddress: string
-              ids: string[]
-              communityId: string
-            }
-          ]
+        [
+          {
+            peerId: string
+            channelAddress: string
+            ids: string[]
+            communityId: string
+          }
+        ]
         >)[0]
         if (data.ids.length > 1) {
           fail('Requested too many massages')
@@ -240,15 +240,15 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const john = await factory.create<
-      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'john' })
 
     const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
@@ -310,11 +310,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const aliceMessage = (

@@ -3,9 +3,7 @@ import '@testing-library/jest-dom/extend-expect'
 import { screen } from '@testing-library/dom'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
-import { StoreKeys } from '../renderer/store/store.keys'
-import { SocketState } from '../renderer/sagas/socket/socket.slice'
-import LoadingPanel from '../renderer/containers/widgets/loadingPanel/loadingPanel'
+import LoadingPanel, { LoadingPanelMessage } from '../renderer/components/LoadingPanel/LoadingPanel'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateCommunity from '../renderer/components/CreateJoinCommunity/CreateCommunity/CreateCommunity'
 import Channel from '../renderer/components/Channel/Channel'
@@ -15,8 +13,7 @@ import {
 } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { LoadingMessages } from '../renderer/containers/widgets/loadingPanel/loadingMessages'
-import { identity, communities, getFactory } from '@quiet/nectar'
+import { communities, getFactory } from '@quiet/nectar'
 
 jest.setTimeout(20_000)
 
@@ -30,25 +27,15 @@ describe('Restart app works correctly', () => {
 
   it('Displays channel component, not displays join/create community component', async () => {
     const { store } = await prepareStore(
-      {
-        [StoreKeys.Socket]: {
-          ...new SocketState(),
-          isConnected: false
-        }
-      },
+      {},
       socket // Fork Nectar's sagas
     )
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<
+    await factory.create<
     ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
-
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice'
-    })
 
     renderComponent(
       <>
@@ -60,24 +47,18 @@ describe('Restart app works correctly', () => {
       store
     )
 
-    const channelName = await screen.findByText('#general')
-
-    const joinDictionary = JoinCommunityDictionary()
-    const joinCommunityTitle = screen.queryByText(joinDictionary.header)
-
-    const createDictionary = CreateCommunityDictionary()
-    const createCommunityTitle = screen.queryByText(createDictionary.header)
-
-    const createCommunityLoadingText = screen.queryByText(LoadingMessages.CreateCommunity)
-    const joinCommunityLoadingText = screen.queryByText(LoadingMessages.JoinCommunity)
-    const startAppLoadingText = screen.queryByText(LoadingMessages.StartApp)
-
-    expect(channelName).toBeVisible()
-
-    expect(joinCommunityTitle).toBeNull()
-    expect(createCommunityTitle).toBeNull()
-    expect(createCommunityLoadingText).toBeNull()
-    expect(joinCommunityLoadingText).toBeNull()
+    const startAppLoadingText = screen.queryByText(LoadingPanelMessage.StartingApplication)
     expect(startAppLoadingText).toBeNull()
+
+    const joinCommunityDictionary = JoinCommunityDictionary()
+    const joinCommunityTitle = screen.queryByText(joinCommunityDictionary.header)
+    expect(joinCommunityTitle).toBeNull()
+
+    const createCommunityDictionary = CreateCommunityDictionary()
+    const createCommunityTitle = screen.queryByText(createCommunityDictionary.header)
+    expect(createCommunityTitle).toBeNull()
+
+    const channelName = await screen.findByText('#general')
+    expect(channelName).toBeVisible()
   })
 })

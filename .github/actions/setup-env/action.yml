@@ -9,6 +9,11 @@ on:
         required: false
         type: boolean
 
+inputs:
+  bootstrap-packages:
+    description: 'Lerna bootstrap packages (comma separated without spaces)'
+    required: false
+
 runs:
   using: "composite"
   steps:
@@ -168,11 +173,19 @@ runs:
       shell: bash
 
     - name: "Bootstrap project"
-      run: lerna bootstrap --scope "{@quiet/identity,@quiet/nectar,@quiet/waggle,integration-tests,e2e-tests}"
-      shell: bash
+      # run: lerna bootstrap --scope "{@quiet/identity,@quiet/nectar,@quiet/waggle,integration-tests,e2e-tests}"
+      # shell: bash
 
     # - name: "Bootstrap project"
     #   run: |
     #     cd packages/identity
     #     npm install --loglevel silly
     #   shell: bash
+      run: |
+        if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
+        then
+            lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
+        else
+            lerna bootstrap
+        fi
+      shell: bash

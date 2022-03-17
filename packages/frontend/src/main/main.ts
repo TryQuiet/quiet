@@ -4,6 +4,8 @@ import electronLocalshortcut from 'electron-localshortcut'
 import debug from 'debug'
 import path from 'path'
 import url from 'url'
+import fs from 'fs'
+import config from './config'
 import { DataServer, ConnectionsManager } from '@quiet/waggle'
 import { runWaggle } from './waggleManager'
 
@@ -17,11 +19,25 @@ const log = Object.assign(debug('frontend:main'), {
   error: debug('frontend:main:err')
 })
 
-const appDataPath = app.getPath('appData')
-
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
 const webcrypto = new Crypto()
+
+if (isDev || process.env.DATA_DIR) {
+  const dataDir = process.env.DATA_DIR || 'Quietdev'
+  const appDataPath = path.join(app.getPath('appData'), dataDir)
+
+  if (!fs.existsSync(appDataPath)) {
+    fs.mkdirSync(appDataPath)
+  }
+
+  const newUserDataPath = path.join(appDataPath, 'Quiet')
+
+  app.setPath('appData', appDataPath)
+  app.setPath('userData', newUserDataPath)
+
+  electronStore.set('appDataPath', app.getPath('appData'))
+}
 
 interface IWindowSize {
   width: number
@@ -304,16 +320,12 @@ app.on('ready', async () => {
 
 app.setAsDefaultProtocolClient('quiet')
 
-app.on('before-quit', async e => {
+// Quit when all windows are closed.
+app.on('window-all-closed', async () => {
   if (waggleProcess !== null) {
     await waggleProcess.connectionsManager.closeAllServices()
     await waggleProcess.dataServer.close()
   }
-  process.exit()
-})
-
-// Quit when all windows are closed.
-app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   // NOTE: temporarly quit macos when using 'X'. Reloading the app loses the connection with waggle. To be fixed.

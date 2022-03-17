@@ -4,12 +4,12 @@ import { Button } from '@material-ui/core'
 import Typography from '@material-ui/core/Typography'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { useModal } from '../../../containers/hooks'
+import { capitalizeFirstLetter } from '../../../../utils/functions/capitalize'
 import { Community } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
   root: {
     marginTop: theme.spacing(1),
-    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag',
     paddingLeft: 16,
     paddingRight: 16
   },
@@ -46,6 +46,11 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({
 }) => {
   const classes = useStyles({})
 
+  let communityName = ''
+  if (currentCommunity?.name.length >= 1) {
+    communityName = capitalizeFirstLetter(currentCommunity.name)
+  }
+
   return (
     <div className={classes.root}>
       <Button
@@ -56,7 +61,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({
         component='span'
         classes={{ root: classes.button, label: classes.buttonLabel }}>
         <Typography variant='h4' className={classes.nickname}>
-          {currentCommunity?.name || ''}
+          {communityName}
         </Typography>
         <ExpandMoreIcon fontSize='small' />
       </Button>

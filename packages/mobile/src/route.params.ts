@@ -19,9 +19,6 @@ export type RootStackParamList = {
     title: string
     message?: string
   }
-  [ScreenNames.UsernameRegistrationScreen]: {
-    registrar: string
-  }
 }
 
 export type SuccessRouteProp = RouteProp<
@@ -32,9 +29,4 @@ ScreenNames.SuccessScreen
 export type ErrorRouteProp = RouteProp<
 RootStackParamList,
 ScreenNames.ErrorScreen
->
-
-export type UsernameRegistrationRouteProp = RouteProp<
-RootStackParamList,
-ScreenNames.UsernameRegistrationScreen
 >

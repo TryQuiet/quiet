@@ -20,7 +20,8 @@ import {
   AskForMessagesPayload,
   IncomingMessages,
   MarkUnreadMessagesPayload,
-  ClearUnreadMessagesPayload
+  ClearUnreadMessagesPayload,
+  CreatedChannelResponse
 } from './publicChannels.types'
 import { MessageType } from '../messages/messages.types'
 import { Identity } from '../identity/identity.types'
@@ -41,7 +42,7 @@ export const publicChannelsSlice = createSlice({
   reducers: {
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
     createGeneralChannel: (state, _action: PayloadAction<CreateGeneralChannelPayload>) => state,
-    addChannel: (state, action: PayloadAction<CreateChannelPayload>) => {
+    addChannel: (state, action: PayloadAction<CreatedChannelResponse>) => {
       const { channel, communityId } = action.payload
       publicChannelsAdapter.addOne(
         state.channels.entities[communityId].channels,

@@ -18,8 +18,8 @@ import QuitAppDialog from './containers/ui/QuitAppDialog'
 import theme from './theme'
 import CreateCommunity from './components/CreateJoinCommunity/CreateCommunity/CreateCommunity'
 import JoinCommunity from './components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
-import LoadingPanel from './containers/widgets/loadingPanel/loadingPanel'
 import CreateChannel from './components/Channel/CreateChannel/CreateChannel'
+import LoadingPanel from './components/LoadingPanel/LoadingPanel'
 
 export const persistor = persistStore(store)
 export default () => {
@@ -28,11 +28,11 @@ export default () => {
       <HashRouter>
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
+              <LoadingPanel />
               <CreateChannel />
               <JoinCommunity />
               <CreateCommunity />
               <CreateUsername />
-              <LoadingPanel />
               <CssBaseline />
               <JoinChannelModal />
               <SentryWarning />

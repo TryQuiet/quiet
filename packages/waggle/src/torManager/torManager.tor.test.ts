@@ -169,4 +169,12 @@ describe('Tor manager (using tor)', () => {
     expect(status).toBe(false)
     await tor.kill()
   })
+
+  it('should find hanging tor process and kill it', async () => {
+    const processKill = jest.spyOn(process, 'kill')
+    const tor = await spawnTorProcess(tmpAppDataPath)
+    await tor.init()
+    tor.clearHangingTorProcess()
+    expect(processKill).toHaveBeenCalledTimes(1)
+  })
 })
