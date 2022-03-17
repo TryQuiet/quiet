@@ -1,6 +1,6 @@
 import { displayMessageNotificationSaga } from './notifications'
 import { expectSaga } from 'redux-saga-test-plan'
-import { communities, getFactory, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, prepareStore, publicChannels, settings, StoreKeys, users } from '@quiet/nectar'
+import { communities, connection, getFactory, identity, IncomingMessages, messages, NotificationsOptions, NotificationsSounds, prepareStore, publicChannels, settings, StoreKeys, users } from '@quiet/nectar'
 import { combineReducers } from '@reduxjs/toolkit'
 import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
 import { soundTypeToAudio } from '../../../shared/sounds'
@@ -52,6 +52,7 @@ let publicChannel2
 let community1
 let identity1
 let userPubKey
+const lastConnectedTime = 1000000
 
 beforeAll(async () => {
   setupCrypto()
@@ -76,12 +77,14 @@ beforeAll(async () => {
   const senderPubKey = Object.keys(users.selectors.certificatesMapping(store.store.getState()))
     .find((pubKey) => pubKey !== userPubKey)
 
+  store.store.dispatch(connection.actions.setLastConnectedTime(lastConnectedTime))
+
   incomingMessages = {
     messages: [{
       id: 'id',
       type: 1,
       message: 'message',
-      createdAt: 1000000,
+      createdAt: lastConnectedTime + 1,
       channelAddress: publicChannel2.channel.address,
       signature: 'signature',
       pubKey: senderPubKey
@@ -328,5 +331,35 @@ describe('displayNotificationsSaga', () => {
         icon: '../../build/icon.png',
         silent: true
       })
+  })
+
+  test('do not display notification when the message was sent before last connection app time', async () => {
+    mockIsFocused.mockImplementationOnce(() => { return true })
+
+    const incomingMessagesWithTimeStampBeforeLastConnectedTime: IncomingMessages = {
+      ...incomingMessages,
+      messages: [{
+        ...incomingMessages.messages[0],
+        createdAt: lastConnectedTime - 1
+      }]
+    }
+
+    await expectSaga(
+      displayMessageNotificationSaga,
+      publicChannels.actions.incomingMessages(incomingMessagesWithTimeStampBeforeLastConnectedTime))
+      .withReducer(
+        combineReducers({
+          [StoreKeys.Identity]: identity.reducer,
+          [StoreKeys.Settings]: settings.reducer,
+          [StoreKeys.PublicChannels]: publicChannels.reducer,
+          [StoreKeys.Users]: users.reducer,
+          [StoreKeys.Communities]: communities.reducer
+
+        }),
+        store.store.getState()
+      )
+      .run()
+
+    expect(notification).not.toHaveBeenCalled()
   })
 })
