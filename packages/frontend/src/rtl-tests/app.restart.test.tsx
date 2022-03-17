@@ -26,8 +26,8 @@ describe('Restart app works correctly', () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
-      disconnect: jest.fn(),
-    }));
+      disconnect: jest.fn()
+    }))
   })
 
   it('Displays channel component, not displays join/create community component', async () => {

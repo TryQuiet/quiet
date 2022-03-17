@@ -71,7 +71,7 @@ describe('Scroll behavior test', () => {
     cy.get(messageInput).focus().type('hi').type('{enter}')
 
     cy.get(channelContent).scrollTo(0, 0)
-    
+
     cy.wait(2000)
 
     // Scroll again because of lazy loading

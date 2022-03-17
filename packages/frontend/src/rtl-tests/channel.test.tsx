@@ -67,8 +67,8 @@ describe('Channel', () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
-      disconnect: jest.fn(),
-    }));
+      disconnect: jest.fn()
+    }))
   })
 
   it("causes no error if there's no data yet", async () => {

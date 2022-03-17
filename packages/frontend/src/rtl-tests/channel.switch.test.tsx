@@ -64,8 +64,8 @@ describe('Switch channels', () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
-      disconnect: jest.fn(),
-    }));
+      disconnect: jest.fn()
+    }))
 
     redux = await prepareStore({}, socket)
     factory = await getFactory(redux.store)
