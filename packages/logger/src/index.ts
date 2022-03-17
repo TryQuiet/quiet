@@ -8,7 +8,7 @@ export const saveToFileLogger = (packageName: string) => (module: string) => {
     return path.join(variables.appData, appInstanceDir, variables.appName, 'logs', variables.fileName)
   }
   log.info('Logs path:', log.transports.file.getFile().path)
-  Object.assign(console, log.functions);
+  Object.assign(console, log.functions)
   return Object.assign(log.scope(`${packageName}:${module}`).log, log.functions, {})
 }
 
