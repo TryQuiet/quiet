@@ -10,7 +10,6 @@ import { Community } from '@quiet/nectar'
 const useStyles = makeStyles(theme => ({
   root: {
     marginTop: theme.spacing(1),
-    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag',
     paddingLeft: 16,
     paddingRight: 16
   },
@@ -48,7 +47,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({
   const classes = useStyles({})
 
   let communityName = ''
-  if (currentCommunity) {
+  if (currentCommunity?.name.length >= 1) {
     communityName = capitalizeFirstLetter(currentCommunity.name)
   }
 

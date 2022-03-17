@@ -34,10 +34,10 @@ if (isDev || process.env.DATA_DIR) {
 
   app.setPath('appData', appDataPath)
   app.setPath('userData', newUserDataPath)
-
-  electronStore.set('appDataPath', app.getPath('appData'))
-  electronStore.set('waggleVersion', waggleVersion)
 }
+
+electronStore.set('appDataPath', app.getPath('appData'))
+electronStore.set('waggleVersion', waggleVersion)
 
 interface IWindowSize {
   width: number
@@ -309,17 +309,17 @@ app.on('ready', async () => {
       }
     }
 
-    // TEMPORARY DISABLE UPDATER
+    // TEMPORARY DISABLE UPDATER FOR LINUX
 
-    // if (!isDev) {
-    //   await checkForUpdate(mainWindow)
-    //   setInterval(async () => {
-    //     if (!isBrowserWindow(mainWindow)) {
-    //       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
-    //     }
-    //     await checkForUpdate(mainWindow)
-    //   }, 15 * 60000)
-    // }
+    if (!isDev && process.platform !== 'linux') {
+      await checkForUpdate(mainWindow)
+      setInterval(async () => {
+        if (!isBrowserWindow(mainWindow)) {
+          throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
+        }
+        await checkForUpdate(mainWindow)
+      }, 15 * 60000)
+    }
   })
 
   ipcMain.on('proceed-update', () => {

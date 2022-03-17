@@ -137,10 +137,10 @@ describe('Create community', () => {
     renderComponent(
       <PerformCommunityActionComponent
         open={true}
-        handleClose={() => {}}
+        handleClose={() => { }}
         communityOwnership={CommunityOwnership.Owner}
-        handleCommunityAction={() => {}}
-        handleRedirection={() => {}}
+        handleCommunityAction={() => { }}
+        handleRedirection={() => { }}
         isConnectionReady={true}
         isCloseDisabled={true}
         hasReceivedResponse={false}
@@ -157,17 +157,16 @@ describe('Create community', () => {
     ['   whitespaces', FieldErrors.Whitespaces],
     ['----hyphens', FieldErrors.Whitespaces],
     ['!@#', CommunityNameErrors.WrongCharacter],
-    ['sh', CommunityNameErrors.NameToShort],
     ['too-long-community-name', CommunityNameErrors.NameTooLong]
   ])('user inserting invalid community name "%s" should see "%s" error', async (name: string, error: string) => {
     const handleCommunityAction = jest.fn()
 
     renderComponent(<PerformCommunityActionComponent
       open={true}
-      handleClose={() => {}}
+      handleClose={() => { }}
       communityOwnership={CommunityOwnership.Owner}
       handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => {}}
+      handleRedirection={() => { }}
       isConnectionReady={true}
       isCloseDisabled={true}
       hasReceivedResponse={false}
@@ -190,10 +189,10 @@ describe('Create community', () => {
 
     const component = <PerformCommunityActionComponent
       open={true}
-      handleClose={() => {}}
+      handleClose={() => { }}
       communityOwnership={CommunityOwnership.Owner}
       handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => {}}
+      handleRedirection={() => { }}
       isConnectionReady={false}
       isCloseDisabled={true}
       hasReceivedResponse={false}
@@ -225,7 +224,7 @@ describe('Create community', () => {
     expect(submitButton).toBeEnabled()
     userEvent.click(submitButton)
 
-    await act(async () => {})
+    await act(async () => { })
 
     expect(screen.queryByTestId('loading-button-progress')).toBeVisible()
 

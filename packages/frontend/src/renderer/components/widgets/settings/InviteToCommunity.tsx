@@ -47,7 +47,7 @@ export const InviteToCommunity: FC<InviteFriendProps> = ({ communityName, invita
       </Grid>
       <Grid item>
         <Grid item >
-          <Typography variant='h5'>Your invitation url</Typography>
+          <Typography variant='h5'>Your invitation code</Typography>
         </Grid>
         <Grid item>
           <Typography variant='body2'>

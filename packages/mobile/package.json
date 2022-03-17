@@ -14,7 +14,9 @@
     "gen": "plop",
     "exclude-test-assets": "find . -print | grep -i -e '/test/' -e '/tests/' | grep -v @quiet | xargs rm -rf",
     "provide-waggle-assets": "rm -rf ./nodejs-assets/nodejs-project/* && rf-lerna zipbundle @quiet/waggle --target ./nodejs-assets/nodejs-project/waggle.zip && cd ./nodejs-assets/nodejs-project/ && unzip ./waggle.zip && rm -rf ./waggle.zip && cp ../parse-duration.patch ./ && patch -p0 --forward --binary < ./parse-duration.patch || true && cp ../libp2p.patch ./ && patch -p0 --forward --binary < ./libp2p.patch || true && rm -rf ./node_modules/electron && rm -rf ./node_modules/wrtc",
-    "postinstall": "npm run provide-waggle-assets && npm run exclude-test-assets",
+    "enable-waggle-logging-android": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -p0 --forward --binary < ./enable-waggle-logs-android.patch || true",
+    "enable-waggle-logging-ios": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -p0 --forward --binary < ./enable-waggle-logs-ios.patch || true",
+    "postinstall": "npm run provide-waggle-assets && npm run enable-waggle-logging-android && npm run enable-waggle-logging-ios && npm run exclude-test-assets",
     "postversion": "react-native-version",
     "prepublish": "npm run build"
   },
@@ -32,6 +34,7 @@
     "events": "^1.1.1",
     "i18next": "^20.2.2",
     "luxon": "^1.27.0",
+    "nodejs-mobile-react-native": "^0.8.0",
     "pkijs": "*",
     "pvutils": "^1.0.17",
     "react": "17.0.1",
@@ -61,8 +64,7 @@
     "socket.io-client": "^4.1.3",
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.0",
-    "typed-redux-saga": "^1.3.1",
-    "zbayapp-nodejs-mobile-react-native": "^1.2.1"
+    "typed-redux-saga": "^1.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
