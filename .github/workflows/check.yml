@@ -20,6 +20,8 @@ jobs:
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/nectar,@quiet/waggle,@quiet/identity,quiet,testcafe-browser-provider-electron,e2e-tests,integration-tests"
 
       - name: "Lint"
         run: lerna run lint-ci --stream
