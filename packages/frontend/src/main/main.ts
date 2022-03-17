@@ -311,17 +311,17 @@ app.on('ready', async () => {
       }
     }
 
-    // TEMPORARY DISABLE UPDATER
+    // TEMPORARY DISABLE UPDATER FOR LINUX
 
-    // if (!isDev) {
-    //   await checkForUpdate(mainWindow)
-    //   setInterval(async () => {
-    //     if (!isBrowserWindow(mainWindow)) {
-    //       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
-    //     }
-    //     await checkForUpdate(mainWindow)
-    //   }, 15 * 60000)
-    // }
+    if (!isDev && process.platform !== 'linux') {
+      await checkForUpdate(mainWindow)
+      setInterval(async () => {
+        if (!isBrowserWindow(mainWindow)) {
+          throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
+        }
+        await checkForUpdate(mainWindow)
+      }, 15 * 60000)
+    }
   })
 
   ipcMain.on('proceed-update', () => {
