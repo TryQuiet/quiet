@@ -11,7 +11,7 @@ interface ChannelMessagesProps {
 export const ChannelMessages = ({ contactId }: ChannelMessagesProps) => {
   const contact = useSelector(contactsSelectors.contact(contactId))
 
-  return <ChannelMessagesComponent channel={contact.address} />
+  return <ChannelMessagesComponent username='user' channel={contact.address} />
 }
 
 export default ChannelMessages

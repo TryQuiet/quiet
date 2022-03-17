@@ -76,6 +76,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
       </PageHeader>
       <Grid item xs className={classes.messages}>
         <ChannelMessagesComponent
+          username={user?.nickname}
           channel={channel.address}
           messages={messages}
           setChannelLoadingSlice={setChannelLoadingSlice}

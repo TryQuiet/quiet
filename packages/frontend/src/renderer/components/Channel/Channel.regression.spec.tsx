@@ -2,13 +2,21 @@ import React from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import { composeStories, setGlobalConfig } from '@storybook/testing-react'
 import { mount } from '@cypress/react'
-import { it, cy, beforeEach } from 'local-cypress'
+import { it, cy, beforeEach, Cypress } from 'local-cypress'
 import compareSnapshotCommand from 'cypress-visual-regression/dist/command'
 
 import * as stories from './Channel.stories'
 import { withTheme } from '../../storybook/decorators'
 
 compareSnapshotCommand()
+
+const resizeObserverLoopErrRe = /^[^(ResizeObserver loop limit exceeded)]/
+Cypress.on('uncaught:exception', err => {
+  /* returning false here prevents Cypress from failing the test */
+  if (resizeObserverLoopErrRe.test(err.message)) {
+    return false
+  }
+})
 
 setGlobalConfig(withTheme)
 
@@ -62,6 +70,11 @@ describe('Scroll behavior test', () => {
   it('should scroll to the bottom when scroll is at the top and user sends new message', () => {
     cy.get(messageInput).focus().type('hi').type('{enter}')
 
+    cy.get(channelContent).scrollTo(0, 0)
+    
+    cy.wait(2000)
+
+    // Scroll again because of lazy loading
     cy.get(channelContent).scrollTo(0, 0)
 
     cy.get(channelContent).compareSnapshot('scroll to the top')

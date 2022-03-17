@@ -32,6 +32,11 @@ describe('User', () => {
   beforeEach(() => {
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
+    window.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn()
+    }))
   })
 
   afterEach(() => {
@@ -190,6 +195,7 @@ describe('User', () => {
         "PublicChannels/createChannel",
         "PublicChannels/subscribeToTopic",
         "Modals/closeModal",
+        "PublicChannels/setChannelLoadingSlice",
         "PublicChannels/setChannelLoadingSlice",
         "PublicChannels/setCurrentChannel",
         "PublicChannels/addChannel",

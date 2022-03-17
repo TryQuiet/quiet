@@ -25,6 +25,11 @@ describe('General channel', () => {
   beforeEach(() => {
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
+    window.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+    }));
   })
 
   it('create automatically along with creating community', async () => {
