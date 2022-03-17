@@ -26,8 +26,8 @@ runs:
       run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesWin
       shell: bash
 
-    - name: "Verify Sentry setup"
-      run: echo $REACT_APP_ENABLE_SENTRY
+    - name: "Verify test mode setup"
+      run: echo $TEST_MODE
       shell: bash
     
     - name: "Verify bucket setup"

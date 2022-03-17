@@ -21,7 +21,7 @@ export const consoleLogger = (packageName: string) => (module: string) => {
 }
 
 const logger = (packageName: string) => {
-  if (process.env.NODE_ENV !== 'development' && process.env.APP_MODE === 'test') {
+  if (process.env.NODE_ENV !== 'development' && process.env.TEST_MODE === 'true') {
     return saveToFileLogger(packageName)
   }
   return consoleLogger(packageName)

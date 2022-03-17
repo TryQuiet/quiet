@@ -7,10 +7,10 @@ const SentryWarning = () => {
   const modal = useModal(ModalName.sentryWarningModal)
 
   useEffect(() => {
-    if (process.env.REACT_APP_ENABLE_SENTRY === 'true') {
+    if (process.env.TEST_MODE === 'true') {
       modal.handleOpen()
     }
-  }, [process.env.REACT_APP_ENABLE_SENTRY])
+  }, [process.env.TEST_MODE])
 
   return <SentryWarningComponent {...modal} />
 }
