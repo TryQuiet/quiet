@@ -1,18 +1,17 @@
+import './setMainEnvs' // Needs to be at the top of imports
 import { app, BrowserWindow, Menu, ipcMain, session } from 'electron'
+import fs from 'fs'
+import path from 'path'
 import { autoUpdater } from 'electron-updater'
 import electronStore from '../shared/electronStore'
 import electronLocalshortcut from 'electron-localshortcut'
-import path from 'path'
 import url from 'url'
-import fs from 'fs'
 import config from './config'
 import { DataServer, ConnectionsManager } from '@quiet/waggle'
 import { waggleVersion, runWaggle } from './waggleManager'
-
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import { initSentry } from '../shared/sentryConfig'
-
 import logger from './logger'
 
 initSentry()

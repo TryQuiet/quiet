@@ -13,7 +13,7 @@ export const saveToFileLogger = (packageName: string) => (module: string) => {
 }
 
 export const consoleLogger = (packageName: string) => (module: string) => {
-  debug('quietLogger')('Initializing debug logger')
+  debug('quiet')('Initializing debug logger')
   const logger = Object.assign(debug(`${packageName}:${module}`), {
     error: debug(`${packageName}:${module}:err`)
   })
@@ -21,7 +21,7 @@ export const consoleLogger = (packageName: string) => (module: string) => {
 }
 
 const logger = (packageName: string) => {
-  if (process.env.NODE_ENV === 'production' && process.env.REACT_APP_ENABLE_SENTRY === 'true') {
+  if (process.env.NODE_ENV !== 'development' && process.env.APP_MODE === 'test') {
     return saveToFileLogger(packageName)
   }
   return consoleLogger(packageName)

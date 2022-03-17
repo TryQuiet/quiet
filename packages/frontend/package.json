@@ -79,7 +79,7 @@
     "pullLibs": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/libssl.so -P ./ && chmod 775 ./libssl.so",
     "pullBinariesWin": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/tor.exe -P ./tor/  && chmod 775 ./tor/tor.exe",
     "dist": "export SOURCE_PATH=darwin && npm run copyBinaries && npm run build:prod && electron-builder --mac",
-    "distUbuntu": "export SOURCE_PATH=linux && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
+    "distUbuntu": "export SOURCE_PATH=linux REACT_APP_ENABLE_SENTRY=true && npm run setMainEnvs && npm run copyBinaries && npm run pullLibs && npm run build:prod && REACT_APP_ENABLE_SENTRY=true NODE_ENV=production electron-builder --linux",
     "distwin": "export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
@@ -94,7 +94,7 @@
     "build:prod": "concurrently \"npm run build:main\" \"npm run build:renderer:prod\"",
     "build:dev": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
     "build:renderer": "webpack --config webpack/webpack.config.renderer.dev.js",
-    "build:main": "tsc -p tsconfig.build.json",
+    "build:main": "tsc -p tsconfig.build.json && npm run copyMainEnvs",
     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
     "prestart": "npm run build:main",
     "start": "cross-env DEBUG='waggle:*,quiet:*,nectar:*,frontend:*' npm run start:renderer",
@@ -103,7 +103,9 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "chromatic": "npx chromatic --exit-zero-on-changes=false",
-    "rmDist": "rimraf dist/"
+    "rmDist": "rimraf dist/",
+    "setMainEnvs": "node scripts/setMainEnvs.js",
+    "copyMainEnvs": "cp mainEnvs.json dist/main"
   },
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
