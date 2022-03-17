@@ -4,6 +4,14 @@ import { DateTime } from 'luxon'
 import { ChannelMessagesComponent } from './ChannelMessages'
 
 describe('ChannelMessages', () => {
+  beforeEach(() => {
+    window.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn()
+    }))
+  })
+
   it('renders component', async () => {
     const message = {
       id: 'string',
@@ -24,7 +32,7 @@ describe('ChannelMessages', () => {
     }
 
     const result = renderComponent(
-      <ChannelMessagesComponent channel={'general'} messages={messages} />
+      <ChannelMessagesComponent username='user' channel={'general'} messages={messages} />
     )
 
     expect(result.baseElement).toMatchInlineSnapshot(`
