@@ -1,4 +1,4 @@
-import './setMainEnvs' // Needs to be at the top of imports
+import './loadMainEnvs' // Needs to be at the top of imports
 import { app, BrowserWindow, Menu, ipcMain, session } from 'electron'
 import fs from 'fs'
 import path from 'path'
