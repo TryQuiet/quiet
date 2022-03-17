@@ -2,7 +2,7 @@ import { put, select, call, delay } from 'typed-redux-saga'
 import { initActions } from '../../init/init.slice'
 import { initSelectors } from '../../init/init.selectors'
 import FindFreePort from 'react-native-find-free-port'
-import nodejs from 'zbayapp-nodejs-mobile-react-native'
+import nodejs from 'nodejs-mobile-react-native'
 
 export function* startWaggleSaga(): Generator {
   while (true) {
@@ -45,7 +45,7 @@ export const startNodeProcess = (
   controlPort: number,
   authCookie: string
 ) => {
-  nodejs.start(
+  nodejs.startWithArgs(
     `lib/mobileWaggleManager.js -d ${dataDirectoryPath} -p ${dataPort} -t ${httpTunnelPort} -s ${socksPort} -c ${controlPort} -a ${authCookie}`
   )
 }
