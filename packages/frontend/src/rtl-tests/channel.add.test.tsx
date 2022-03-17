@@ -35,6 +35,11 @@ describe('Add new channel', () => {
   beforeEach(() => {
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
+    window.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+    }));
   })
 
   it('Opens modal on button click', async () => {

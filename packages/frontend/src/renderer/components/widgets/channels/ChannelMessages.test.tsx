@@ -4,6 +4,14 @@ import { DateTime } from 'luxon'
 import { ChannelMessagesComponent } from './ChannelMessages'
 
 describe('ChannelMessages', () => {
+  beforeEach(() => {
+    window.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+    }));
+  })
+  
   it('renders component', async () => {
     const message = {
       id: 'string',

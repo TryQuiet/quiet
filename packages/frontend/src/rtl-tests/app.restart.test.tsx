@@ -23,6 +23,11 @@ describe('Restart app works correctly', () => {
   beforeEach(() => {
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
+    window.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+    }));
   })
 
   it('Displays channel component, not displays join/create community component', async () => {
