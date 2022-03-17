@@ -36,10 +36,10 @@ if (isDev || process.env.DATA_DIR) {
 
   app.setPath('appData', appDataPath)
   app.setPath('userData', newUserDataPath)
-
-  electronStore.set('appDataPath', app.getPath('appData'))
-  electronStore.set('waggleVersion', waggleVersion)
 }
+
+electronStore.set('appDataPath', app.getPath('appData'))
+electronStore.set('waggleVersion', waggleVersion)
 
 interface IWindowSize {
   width: number
