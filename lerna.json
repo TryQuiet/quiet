@@ -1,6 +1,6 @@
 {
   "packages": [
-    "packages/frontend"
+    "packages/*"
   ],
   "version": "independent",
   "command": { 
