@@ -44,7 +44,16 @@ describe('restart app without doing anything', () => {
 
   test('Assert that owner store is correct', async () => {
     const currentState = store.getState()
-    expect(currentState).toMatchObject(oldState)
+    const oldStateWithLastConnectedTimeFromCurrentState = {
+      ...oldState,
+      Connection: {
+        ...oldState.Connection,
+        lastConnectedTime: currentState.Connection.lastConnectedTime
+      }
+    }
+
+    expect(currentState).toMatchObject(oldStateWithLastConnectedTimeFromCurrentState)
+    expect(currentState.Connection.lastConnectedTime).not.toBe(oldState.Connection.lastConnectedTime)
   })
 })
 
@@ -82,8 +91,17 @@ describe('create community and restart app', () => {
     // Wait before checking state in case some unwanted actions are executing and manipulating store
     await sleep(10_000)
     store = owner.store
+
     const currentState = store.getState()
-    expect(currentState).toMatchObject(oldState)
+    const oldStateWithLastConnectedTimeFromCurrentState = {
+      ...oldState,
+      Connection: {
+        ...oldState.Connection,
+        lastConnectedTime: currentState.Connection.lastConnectedTime
+      }
+    }
+    expect(currentState).toMatchObject(oldStateWithLastConnectedTimeFromCurrentState)
+    expect(currentState.Connection.lastConnectedTime).not.toBe(oldState.Connection.lastConnectedTime)
   })
 
   test('Assert community and registrar are initialized', async () => {
