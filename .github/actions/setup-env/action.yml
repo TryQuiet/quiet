@@ -83,7 +83,6 @@ runs:
     #   shell: bash
 
     - name: 'install node-gyp'
-      if: ${{ matrix.os == 'windows-latest' }}
       run: |
         cd "C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\run-script"
         npm install node-gyp@8.4.0
