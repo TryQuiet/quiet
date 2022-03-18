@@ -110,7 +110,7 @@ runs:
 
     - name: 'Where node'
       run: |
-        cd 'C:\Program Files\Microsoft Visual Studio'
+        cd 'C:\Program Files\Microsoft Visual Studio\2022'
         ls
       shell: bash
 
@@ -127,10 +127,9 @@ runs:
     #     cd @npmcli
     #     ls
     #   shell: bash
-    # - name: 'Where node'
-    #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: npm install node-gyp@latest
-    #   shell: bash
+    - name: 'Install nodegyp'
+      run: npm install -g node-gyp@latest
+      shell: bash
 
     # - name: 'Where node'
     #   if: ${{ matrix.os == 'windows-latest' }}
