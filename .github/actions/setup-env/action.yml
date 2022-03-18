@@ -159,7 +159,7 @@ runs:
       shell: bash
 
     - name: "Bootstrap project"
-      run: lerna bootstrap --scope "{@quiet/identity,@quiet/nectar,@quiet/waggle,integration-tests,e2e-tests,quiet}"
+      run: lerna bootstrap --scope "{@quiet/identity}"
       shell: bash
 
     # - name: "Bootstrap project"
