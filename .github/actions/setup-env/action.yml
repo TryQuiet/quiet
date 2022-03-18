@@ -103,7 +103,6 @@ runs:
     #   shell: bash
 
     - name: 'Where node'
-      if: ${{ matrix.os == 'windows-2019' }}
       run: |
         cd C:\Program Files (x86)\Microsoft Visual Studio
         ls
@@ -137,10 +136,9 @@ runs:
     #   run: npm config set node_gyp C:/npm/prefix/node_modules/node-gyp/bin/node-gyp.js
     #   shell: bash
 
-    - name: 'Update node-gyp'
-      if: ${{ matrix.os == 'windows-2019' }}
-      run: npm config set msvs_version 2017
-      shell: bash
+    # - name: 'Update node-gyp'
+    #   run: npm config set msvs_version 2017
+    #   shell: bash
 
     # - name: "Cache NPM dependencies"
     #   id: cache-nodemodules
