@@ -13,6 +13,7 @@ const path = require('path');
    path.resolve(__dirname, '../identity'),
    path.resolve(__dirname, '../nectar'),
    path.resolve(__dirname, '../waggle'),
+   path.resolve(__dirname, '../logger'),
    path.resolve(__dirname, '../testcafe-browser-provider-electron')
  ]
 
@@ -20,6 +21,7 @@ const path = require('path');
    '@quiet/identity': path.resolve(__dirname, '../identity'),
    '@quiet/nectar': path.resolve(__dirname, '../nectar'),
    '@quiet/waggle': path.resolve(__dirname, '../waggle'),
+   '@quiet/logger': path.resolve(__dirname, '../logger'),
    ...require('node-libs-react-native')
  }
 
