@@ -46,6 +46,7 @@ runs:
       run: npm i -g lerna rf-lerna
       shell: bash
 
+    - name: "Clean cache"    
       run: npm cache clean --force
       shell: bash
 
