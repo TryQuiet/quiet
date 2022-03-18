@@ -37,7 +37,7 @@ if (isDev || process.env.DATA_DIR) {
   app.setPath('userData', newUserDataPath)
 }
 
-const appDataPath = app.getPath('appData')
+let appDataPath = app.getPath('appData')
 
 interface IWindowSize {
   width: number
