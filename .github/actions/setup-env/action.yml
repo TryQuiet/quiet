@@ -81,7 +81,6 @@ runs:
     #     cd "C:/Program Files/nodejs"
     #     ls
     #   shell: bash
-
     - name: 'install node-gyp'
       run: |
         cd "C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\run-script"
@@ -90,6 +89,16 @@ runs:
         ls
         cd lib
         ls
+      shell: bash
+
+    - name: 'install node-gyp'
+      run: |
+        cd "C:\hostedtoolcache\windows\node\16.13.0\x64\node_modules\npm\node_modules\node-gyp"
+        ls
+        # npm install node-gyp@8.4.0
+        # ls
+        # cd lib
+        # ls
       shell: bash
 
     # - name: 'Where node'
