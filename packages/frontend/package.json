@@ -62,9 +62,8 @@
       "bucket": "test.quiet"
     },
     "extraResources": [
-      "worker/**/*",
       "tor/**/*",
-      "tlgManager/**/*"
+      "mainEnvs.json"
     ]
   },
   "homepage": "https://github.com/ZbayApp",

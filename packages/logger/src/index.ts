@@ -21,6 +21,10 @@ export const consoleLogger = (packageName: string) => (module: string) => {
 }
 
 const logger = (packageName: string) => {
+  if (process.env.DEBUG) {
+    // Make sure you can always access logs even if something is not right with electron-log
+    return consoleLogger(packageName)
+  }
   if (process.env.NODE_ENV !== 'development' && process.env.TEST_MODE === 'true') {
     return saveToFileLogger(packageName)
   }
