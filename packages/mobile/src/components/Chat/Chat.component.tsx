@@ -83,9 +83,11 @@ export const Chat: FC<ChatProps> = ({
       }}>
       <FlatList
         inverted
-        data={Object.keys(messages.groups)}
+        data={Object.keys(messages.groups).reverse()}
         keyExtractor={item => item}
-        renderItem={() => <ChannelMessagesComponent messages={messages.groups} />}
+        renderItem={({ item }) => (
+          <ChannelMessagesComponent messages={messages.groups[item]} day={item} />
+        )}
         style={{ paddingLeft: 20, paddingRight: 20 }}
       />
       <View style={inputWrapperStyle}>
@@ -133,20 +135,17 @@ const customInputStyle = StyleSheet.create({
   }
 })
 
-export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps> = ({ messages }) => {
+export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps> = ({
+  messages,
+  day
+}) => {
   return (
-    <>
-      {Object.keys(messages).map(day => {
-        return (
-          <View key={day}>
-            {/* <MessagesDivider title={day} /> */}
-            {messages[day].map(data => {
-            // Messages merged by sender (DisplayableMessage[])
-              return <Message key={data[0].id} data={data} />
-            })}
-          </View>
-        )
+    <View key={day}>
+      {/* <MessagesDivider title={day} /> */}
+      {messages.map(data => {
+        // Messages merged by sender (DisplayableMessage[])
+        return <Message key={data[0].id} data={data} />
       })}
-    </>
+    </View>
   )
 }

@@ -1,4 +1,5 @@
 import {
+  DisplayableMessage,
   MessagesDailyGroups,
   PublicChannel
 } from '@quiet/nectar'
@@ -14,5 +15,6 @@ export interface ChatProps {
 }
 
 export interface ChannelMessagesComponentProps {
-  messages: MessagesDailyGroups
+  messages: DisplayableMessage[][]
+  day: string
 }
