@@ -88,6 +88,8 @@ runs:
         ls
         npm install node-gyp@8.4.0
         ls
+        cd lib
+        ls
       shell: bash
 
     # - name: 'Where node'
@@ -102,17 +104,17 @@ runs:
     #     ls
     #   shell: bash
 
-    - name: 'Where node'
-      run: |
-        cd 'C:\Program Files (x86)\Microsoft Visual Studio\Installer'
-        ls
-      shell: bash
+    # - name: 'Where node'
+    #   run: |
+    #     cd 'C:\Program Files (x86)\Microsoft Visual Studio\Installer'
+    #     ls
+    #   shell: bash
 
-    - name: 'Where node'
-      run: |
-        cd 'C:\Program Files\Microsoft Visual Studio\2022'
-        ls
-      shell: bash
+    # - name: 'Where node'
+    #   run: |
+    #     cd 'C:\Program Files\Microsoft Visual Studio\2022'
+    #     ls
+    #   shell: bash
 
     # - name: 'Where node'
     #   if: ${{ matrix.os == 'windows-latest' }}
@@ -127,9 +129,9 @@ runs:
     #     cd @npmcli
     #     ls
     #   shell: bash
-    - name: 'Install nodegyp'
-      run: npm install -g node-gyp@latest
-      shell: bash
+    # - name: 'Install nodegyp'
+    #   run: npm install -g node-gyp@latest
+    #   shell: bash
 
     # - name: 'Where node'
     #   if: ${{ matrix.os == 'windows-latest' }}
