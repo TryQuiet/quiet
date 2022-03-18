@@ -25,19 +25,19 @@ const webcrypto = new Crypto()
 
 if (isDev || process.env.DATA_DIR) {
   const dataDir = process.env.DATA_DIR || 'Quietdev'
-  const appDataPath = path.join(app.getPath('appData'), dataDir)
+  const dataPath = path.join(app.getPath('appData'), dataDir)
 
-  if (!fs.existsSync(appDataPath)) {
-    fs.mkdirSync(appDataPath)
+  if (!fs.existsSync(dataPath)) {
+    fs.mkdirSync(dataPath)
   }
 
-  const newUserDataPath = path.join(appDataPath, 'Quiet')
+  const newUserDataPath = path.join(dataPath, 'Quiet')
 
-  app.setPath('appData', appDataPath)
+  app.setPath('appData', dataPath)
   app.setPath('userData', newUserDataPath)
-
-  electronStore.set('appDataPath', app.getPath('appData'))
 }
+
+const appDataPath = app.getPath('appData')
 
 interface IWindowSize {
   width: number

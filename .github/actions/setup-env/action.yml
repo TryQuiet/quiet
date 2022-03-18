@@ -87,18 +87,18 @@ runs:
     #     ls
     #   shell: bash
 
-    - name: 'Where node'
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: |
-        cd "C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\run-script"
-        ls
-        npm install node-gyp@8.4.1
-      shell: bash
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: |
+    #     cd "C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\run-script"
+    #     ls
+    #     npm install node-gyp@8.4.1
+    #   shell: bash
 
-    - name: 'Where node'
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: npm install -g node-gyp@8.4.1
-      shell: bash
+    # - name: 'Where node'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: npm install -g node-gyp@8.4.1
+    #   shell: bash
 
     # - name: 'Where node'
     #   if: ${{ matrix.os == 'windows-latest' }}
@@ -137,10 +137,10 @@ runs:
     #   run: npm install --g --production windows-build-tools
     #   shell: bash
 
-    - name: 'Update node-gyp'
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: npm config set node_gyp C:/npm/prefix/node_modules/node-gyp/bin/node-gyp.js
-      shell: bash
+    # - name: 'Update node-gyp'
+    #   if: ${{ matrix.os == 'windows-latest' }}
+    #   run: npm config set node_gyp C:/npm/prefix/node_modules/node-gyp/bin/node-gyp.js
+    #   shell: bash
 
     # - name: 'Update node-gyp'
     #   if: ${{ matrix.os == 'windows-latest' }}

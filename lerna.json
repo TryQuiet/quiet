@@ -1,11 +1,11 @@
 {
   "packages": [
-    "packages/*"
+    "packages/frontend"
   ],
   "version": "independent",
   "command": { 
     "version": {
-      "allowBranch": ["master"],
+      "allowBranch": ["master",  "chore/bump-electron"],
       "conventionalCommits": true,
       "createRelease": "github"
     }
