@@ -43,7 +43,7 @@ setEngine(
   })
 )
 
-console.log('aaa')
+console.log('a')
 
 let mainWindow: BrowserWindow | null
 
