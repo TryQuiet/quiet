@@ -20,6 +20,8 @@ const log = Object.assign(debug('frontend:main'), {
   error: debug('frontend:main:err')
 })
 
+console.log('')
+
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
 const webcrypto = new Crypto()
