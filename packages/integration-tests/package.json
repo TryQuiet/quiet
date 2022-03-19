@@ -1,6 +1,6 @@
 {
   "name": "integration-tests",
-  "version": "0.4.0-alpha.3",
+  "version": "0.4.0-alpha.4",
   "description": "",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
