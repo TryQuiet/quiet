@@ -1,5 +1,5 @@
 import waitForExpect from 'wait-for-expect'
-import { identity, communities, messages, connection, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership } from '@quiet/nectar'
+import { identity, communities, messages, connection, publicChannels, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership } from '@quiet/nectar'
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp } from '../utils'
@@ -45,6 +45,12 @@ export interface OwnerData {
   ownerPeerId: string
   ownerRootCA: string
   registrarPort: number
+}
+
+interface SendMessage {
+  message: string
+  channelName?: string
+  store: Store
 }
 
 export async function createCommunity({ userName, store }: CreateCommunity) {
@@ -225,13 +231,31 @@ export async function joinCommunity(payload: JoinCommunity) {
 }
 
 export async function sendMessage(
-  message: string,
-  store: Store
+  payload: SendMessage
 ): Promise<{ message: string; publicKey: string }> {
+  const {
+    message,
+    channelName,
+    store
+  } = payload
+
   log(message, 'sendMessage')
+  const communityId = store.getState().Communities.communities.ids[0]
+  // const community =
+  // store.getState().Communities.communities.entities[
+  //   ownerStoreState.Communities.currentCommunity
+  // ]
+  if (channelName) {
+    store.dispatch(
+      publicChannels.actions.setCurrentChannel({
+        channelAddress: channelName,
+        communityId: communityId.toString()
+      })
+    )
+  }
+
   store.dispatch(messages.actions.sendMessage(message))
 
-  const communityId = store.getState().Communities.communities.ids[0]
   const certificate =
     store.getState().Identity.identities.entities[communityId].userCertificate
 
