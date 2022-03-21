@@ -102,7 +102,7 @@ runs:
     #   shell: bash
 
     - name: 'Install windows build tools'
-      run: npm install --g --production windows-build-tools@5.2.2
+      run: npm install --g --production windows-build-tools@4.0.0
       shell: bash
 
     # - name: 'Where node'
