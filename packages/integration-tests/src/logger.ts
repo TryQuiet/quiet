@@ -1,11 +1,3 @@
-import debug from 'debug'
+import logger from '@quiet/logger'
 
-const resultLogger = () => {
-  const module = 'test'
-  return Object.assign(debug(`nectar:${module}`), {
-    failed: debug(`nectar:${module}:failed`),
-    passed: debug(`nectar:${module}:passed`)
-  })
-}
-
-export default resultLogger
+export default logger('nectar:test')

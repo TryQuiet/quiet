@@ -25,7 +25,7 @@
   "license": "ISC",
   "dependencies": {
     "@reduxjs/toolkit": "^1.6.1",
-    "debug": "^4.3.2",
+    "@quiet/logger": "^0.1.0-alpha.0",
     "factory-girl": "^5.0.4",
     "get-port": "^5.1.1",
     "luxon": "^2.0.2",

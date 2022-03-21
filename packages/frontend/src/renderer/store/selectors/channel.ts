@@ -6,10 +6,8 @@ import waggleSelectors from './waggle'
 import { Store } from '../reducers'
 import { Channel } from '../handlers/channel'
 
-import debug from 'debug'
-const log = Object.assign(debug('quiet:channel'), {
-  error: debug('quiet:channel:err')
-})
+import logger from '../../logger'
+const log = logger('channel')
 
 const channel = (s: Store) => s.channel
 const contacts = (s: Store) => s.contacts

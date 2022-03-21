@@ -18,16 +18,16 @@ runs:
 
     - name: "Pull tor binary"
       if: ${{ inputs.source-path == 'linux' || inputs.source-path == 'darwin' }}
-      run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinaries
+      run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinaries && npm run setMainEnvs
       shell: bash
 
     - name: "Pull tor binary for Windows"
       if: ${{ inputs.source-path == 'win32' }}
-      run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesWin
+      run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesWin && npm run setMainEnvs
       shell: bash
 
-    - name: "Verify Sentry setup"
-      run: echo $REACT_APP_ENABLE_SENTRY
+    - name: "Verify test mode setup"
+      run: echo $TEST_MODE
       shell: bash
     
     - name: "Verify bucket setup"

@@ -20,7 +20,7 @@ describe('Sentry warning modal', () => {
   })
 
   it('is visible if sentry is enabled', async () => {
-    process.env.REACT_APP_ENABLE_SENTRY = 'true'
+    process.env.TEST_MODE = 'true'
 
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {

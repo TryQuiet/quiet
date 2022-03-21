@@ -5,7 +5,8 @@
       "paths": {
         "@quiet/identity": ["packages/identity/src/index.ts"],
         "@quiet/nectar": ["packages/nectar/src/index.ts"],
-        "@quiet/waggle": ["packages/waggle/src/index.ts"]
+        "@quiet/waggle": ["packages/waggle/src/index.ts"],
+        "@quiet/logger": ["packages/logger/src/index.ts"],
       },
       "module": "commonjs",
       "declaration": true,

@@ -67,10 +67,18 @@ To limit script execution to specific package, add scope to the command
 lerna run <script> --stream --scope <package-name>
 ```
 
+or multiple packages:
+
+```
+lerna run <script> --stream --scope '{<package-name-1>,<package-name-2>}'
+
+```
+
 Available package names are:
 - @quiet/identity
 - @quiet/nectar
 - @quiet/waggle
+- @quiet/logger
 - e2e-tests
 - integration-tests
 - quiet (frontend)

@@ -16,7 +16,7 @@ jobs:
       startsWith(github.ref, 'refs/tags/quiet')
 
     env:
-      REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
+      TEST_MODE: ${{ github.event.action == 'prereleased' }}
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
     steps:
@@ -25,7 +25,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/nectar,@quiet/waggle,@quiet/identity,quiet"
+          bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity,quiet"
 
       - name: Before build
         uses: ./.github/actions/before-build
@@ -50,7 +50,7 @@ jobs:
       startsWith(github.ref, 'refs/tags/quiet')
 
     env:
-      REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
+      TEST_MODE: ${{ github.event.action == 'prereleased' }}
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
     steps:
@@ -69,7 +69,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/nectar,@quiet/waggle,@quiet/identity,quiet"
+          bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity,quiet"
 
       - name: Before build
         uses: ./.github/actions/before-build
@@ -101,7 +101,7 @@ jobs:
       startsWith(github.ref, 'refs/tags/quiet')
 
     env:
-      REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
+      TEST_MODE: ${{ github.event.action == 'prereleased' }}
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
     steps:
@@ -125,7 +125,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/nectar,@quiet/waggle,@quiet/identity,quiet"
+          bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity,quiet"
 
       - name: Before build
         uses: ./.github/actions/before-build
