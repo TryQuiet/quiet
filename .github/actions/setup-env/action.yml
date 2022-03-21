@@ -14,7 +14,7 @@ runs:
   steps:
     - uses: actions/setup-node@master
       with:
-        node-version: "17.7.2"
+        node-version: "15.0.0"
     # - uses: actions/setup-python@v2
     #   with:
     #     python-version: 3.8
