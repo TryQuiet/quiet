@@ -101,8 +101,8 @@ runs:
     #     # ls
     #   shell: bash
 
-    - name: 'Where node'
-      run: npm install --g --production windows-build-tools
+    - name: 'Install windows build tools'
+      run: npm install --g --production windows-build-tools --vs2017XS
       shell: bash
 
     # - name: 'Where node'
