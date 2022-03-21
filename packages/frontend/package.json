@@ -246,6 +246,8 @@
     "cross-env": "^5.2.0",
     "css-loader": "^2.1.0",
     "electron": "16.0.8",
+    "electron-store": "^5.2.0",
+    "electron-store-webpack-wrapper": "^0.0.2",
     "electron-build-env": "^0.2.0",
     "electron-builder": "^22.14.13",
     "electron-devtools-installer": "^3.1.1",
