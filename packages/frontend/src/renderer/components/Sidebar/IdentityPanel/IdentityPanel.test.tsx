@@ -117,4 +117,65 @@ describe('IdentityPanel', () => {
       </body>
     `)
   })
+
+  it("doesn't break if there's a community without a name", async () => {
+    const { store } = await prepareStore()
+
+    const factory = await getFactory(store)
+
+    const community: Community = (
+      await factory.build<typeof communities.actions.addNewCommunity>('Community')
+    ).payload
+
+    community.name = undefined
+
+    const result = renderComponent(
+      <IdentityPanel
+        currentCommunity={community}
+        accountSettingsModal={{
+          open: false,
+          handleOpen: function (_args?: any): any {},
+          handleClose: function (): any {}
+        }}
+      />
+    )
+    expect(result.baseElement).toMatchInlineSnapshot(`
+      <body>
+        <div>
+          <div
+            class="makeStyles-root-169"
+          >
+            <span
+              aria-disabled="false"
+              class="MuiButtonBase-root MuiButton-root makeStyles-button-170 MuiButton-text"
+              role="button"
+              tabindex="0"
+            >
+              <span
+                class="MuiButton-label makeStyles-buttonLabel-171"
+              >
+                <h4
+                  class="MuiTypography-root makeStyles-nickname-172 MuiTypography-h4"
+                />
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall"
+                  focusable="false"
+                  role="presentation"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+                  />
+                </svg>
+              </span>
+              <span
+                class="MuiTouchRipple-root"
+              />
+            </span>
+          </div>
+        </div>
+      </body>
+    `)
+  })
 })
