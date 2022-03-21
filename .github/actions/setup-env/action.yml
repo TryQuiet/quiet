@@ -101,9 +101,9 @@ runs:
     #     # ls
     #   shell: bash
 
-    - name: 'Install windows build tools'
-      run: npm install --g --production windows-build-tools@4.0.0
-      shell: bash
+    # - name: 'Install windows build tools'
+    #   run: npm install --g --production windows-build-tools@4.0.0
+    #   shell: bash
 
     # - name: 'Where node'
     #   if: ${{ matrix.os == 'windows-latest' }}
