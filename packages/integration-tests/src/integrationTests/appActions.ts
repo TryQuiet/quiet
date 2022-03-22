@@ -25,7 +25,7 @@ interface JoinCommunity {
   store: Store
 }
 
-interface Register {
+export interface Register {
   registrarAddress: string
   userName: string
   registrarPort: number
@@ -241,10 +241,7 @@ export async function sendMessage(
 
   log(message, 'sendMessage')
   const communityId = store.getState().Communities.communities.ids[0]
-  // const community =
-  // store.getState().Communities.communities.entities[
-  //   ownerStoreState.Communities.currentCommunity
-  // ]
+
   if (channelName) {
     store.dispatch(
       publicChannels.actions.setCurrentChannel({
