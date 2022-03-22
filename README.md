@@ -92,6 +92,8 @@ const watchFolders = [
 
 ## Setting up mobile environment
 
+Add ndk.dir path to your ```/packages/mobile/android/local.properties``` file: ```ndk.dir=/usr/lib/android-sdk/android-ndk-r21e```.
+
 Docker container with Android development environment can be found in ```packages/mobile/android-environment```.
 
 Build it running ```docker build -t mobile-dev -f Dockerfile .```, then start it with:
