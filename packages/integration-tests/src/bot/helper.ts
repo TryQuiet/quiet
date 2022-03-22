@@ -10,6 +10,12 @@ const App: AsyncReturnType<typeof createApp> = null
 type Store = typeof App.store
 const timeout = 120_000
 
+export const getRandomInt = (min: number, max: number) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
 const defaults = {
   timeout: 4500,
   interval: 50
@@ -61,7 +67,7 @@ export const waitForExpect = function waitForExpect(
 
 const assertContains = (value: any, container: any[]) => {
   if (container.includes(value)) return
-  throw assert.AssertionError
+  throw assert.fail(`${container} does not contain ${value}`)
 }
 
 export async function assertReceivedChannelAndSubscribe(

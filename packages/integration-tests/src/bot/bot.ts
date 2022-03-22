@@ -3,23 +3,39 @@ import { sendMessage } from "../integrationTests/appActions"
 import { AsyncReturnType } from "../types/AsyncReturnType.interface"
 import { createApp, sleep } from "../utils"
 import logger from '../logger'
-import { assertReceivedChannelAndSubscribe, registerUsername, waitForExpect } from "./helper"
+import { assertReceivedChannelAndSubscribe, getRandomInt, registerUsername, waitForExpect } from "./helper"
+import { Store } from '@quiet/nectar'
+import {LoremIpsum} from 'lorem-ipsum'
+import {program} from 'commander'
+
 const log = logger('bot')
 
+program
+  .requiredOption('-r, --registrar <string>', 'Address of community')
+  .option('-c, --channel <string>', 'Channel name for spamming messages', 'bot-spam')
+  .requiredOption('-m, --messages <number>', 'Number of all messages that will be sent to a channel')
+  .option('-u, --users <number>', 'Number of users (bots)', '3')
 
-function getRandomInt(min: number, max: number) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min) + min);
-}
+program.parse();
+const options = program.opts();
+
+const lorem = new LoremIpsum({
+  wordsPerSentence: {
+    max: 16,
+    min: 1
+  }
+});
+
 let apps: Map<string, AsyncReturnType<typeof createApp>> = new Map()
-const timeout = 120_000
-const channelName = 'bot-spam-2'
-
+const timeout = 200_000
+const channelName = options.channel //'bot-spam'
+const allMessagesCount = options.messages //10
+const numberOfUsers = options.users //3
+const registrarAddress = options.registrar
 
 const createBots = async () => {
-  for (let i=0; i < 3; i++) {
-    apps.set(`bot_${(Math.random() + 1).toString(36).substring(7)}`, await createApp())
+  for (let i=0; i < numberOfUsers; i++) {
+    apps.set(`bot_${(Math.random() + 1).toString(36).substring(5)}`, await createApp())
   }
 }
 
@@ -27,7 +43,7 @@ const registerBots = async () => {
   for (const [username, app] of apps) {
     const store = app.store
     const payload = {
-        registrarAddress: 'zdfw2dq2z7gtwsio3qk6gdfcn6pbq7apdxjrswedaaztyssfyyrkwmyd',
+        registrarAddress,
         userName: username,
         registrarPort: null,
         store: store
@@ -40,12 +56,14 @@ const registerBots = async () => {
     await waitForExpect(() => {
       assert.ok(store.getState().Identity.identities.entities[communityId].userCertificate)
     }, timeout)
-    await assertReceivedChannelAndSubscribe(username, channelName, 120_000, store)
+    await assertReceivedChannelAndSubscribe(username, channelName, timeout, store)
   }
 }
 
 const sendMessages = async () => {
-  const allMessagesCount = 5
+  /**
+   * Split all messages between the bots and send them in random order
+   */
   const messagesPerUser = Math.floor(allMessagesCount / apps.size)
   
   const messagesToSend = new Map()
@@ -56,39 +74,47 @@ const sendMessages = async () => {
   while (messagesToSend.size > 0) {
     const usernames = Array.from(messagesToSend.keys())
     const currentUsername = usernames[Math.floor(Math.random() * usernames.length)]
-    const messagesLeft = messagesToSend.get(currentUsername)
-    
-    if (messagesLeft - 1 === 0) {
+    let messagesLeft = messagesToSend.get(currentUsername)
+    messagesLeft -= 1
+
+    if (messagesLeft <= 0) {
       await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, 'Bye!')
       messagesToSend.delete(currentUsername)
       log(`User ${currentUsername} is finished with sending messages`)
       continue
     }
 
-    await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, `(${messagesLeft}) What's up?`)
-    messagesToSend.set(currentUsername, messagesLeft - 1)
+    await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, `(${messagesLeft}) ${lorem.generateSentences(1)}`)
+    messagesToSend.set(currentUsername, messagesLeft)
   }
 
   await sleep(10_000)
 }
 
-
-async function sendMessageWithLatency(username: string, store, message: string) {
-  const userTypingTime = getRandomInt(5000, 10_000)
+const sendMessageWithLatency = async (username: string, store: Store, message: string) => {
+  const userTypingTime = getRandomInt(2000, 4000)
   log(`${username} is waiting ${userTypingTime}ms to send a message`)
   await sleep(userTypingTime)
   await sendMessage({
     message,
     channelName,
-    store: store
+    store
   })
 }
 
+const closeAll = async () => {
+  for (const [_username, app] of apps) {
+    await app.manager.closeAllServices()
+  }
+}
 
 const run = async () => {
   await createBots()
   await registerBots()
   await sendMessages()
+  await closeAll()
 }
 
-run().then(() => console.log('FINISHED')).catch((e) => console.error(e))
+run().then(() => {
+  console.log('FINISHED')
+}).catch((e) => console.error(e))
