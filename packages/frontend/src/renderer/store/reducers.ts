@@ -2,6 +2,8 @@ import { combineReducers } from '@reduxjs/toolkit'
 
 import createElectronStorage from 'redux-persist-electron-storage'
 
+import ElectronStore from 'electron-store'
+
 import { persistReducer } from 'redux-persist'
 
 import { StoreType } from './handlers/types'
@@ -14,7 +16,14 @@ import { modalsReducer } from '../sagas/modals/modals.slice'
 
 import appHandlers from './handlers/app'
 
-const reduxStorage = createElectronStorage()
+const options = {
+  projectName: 'quiet',
+}
+
+// @ts-ignore
+const store = new ElectronStore<Store>(options)
+
+const reduxStorage = createElectronStorage({electronStore: store})
 
 const persistConfig = {
   key: 'root',
