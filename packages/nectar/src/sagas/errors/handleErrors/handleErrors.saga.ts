@@ -28,8 +28,8 @@ export function* handleErrorsSaga(
 ): Generator {
   const error: ErrorPayload = action.payload
   if (error.type === SocketActionTypes.REGISTRAR) {
-    if (error.code === ErrorCodes.NOT_FOUND) {
-      yield* call(delay, 15000)
+    if (error.code === ErrorCodes.NOT_FOUND || error.code === ErrorCodes.SERVICE_UNAVAILABLE) {
+      yield* call(delay, 5000)
       yield* call(retryRegistration, error.community)
     }
   }

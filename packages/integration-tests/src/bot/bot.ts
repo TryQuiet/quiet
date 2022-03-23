@@ -12,7 +12,7 @@ const log = logger('bot')
 
 program
   .requiredOption('-r, --registrar <string>', 'Address of community')
-  .option('-c, --channel <string>', 'Channel name for spamming messages', 'bot-spam')
+  .option('-c, --channel <string>', 'Channel name for spamming messages', 'spam-bot')
   .requiredOption('-m, --messages <number>', 'Number of all messages that will be sent to a channel')
   .option('-u, --users <number>', 'Number of users (bots)', '3')
 
@@ -27,13 +27,14 @@ const lorem = new LoremIpsum({
 });
 
 let apps: Map<string, AsyncReturnType<typeof createApp>> = new Map()
-const timeout = 200_000
+const timeout = 100_000
 const channelName = options.channel //'bot-spam'
 const allMessagesCount = options.messages //10
 const numberOfUsers = options.users //3
 const registrarAddress = options.registrar
 
 const createBots = async () => {
+  log(`Creating ${numberOfUsers} bots`)
   for (let i=0; i < numberOfUsers; i++) {
     apps.set(`bot_${(Math.random() + 1).toString(36).substring(5)}`, await createApp())
   }
@@ -46,7 +47,7 @@ const registerBots = async () => {
         registrarAddress,
         userName: username,
         registrarPort: null,
-        store: store
+        store
     }
     log(`Registering ${username}`)
     await registerUsername(payload)
@@ -54,7 +55,7 @@ const registerBots = async () => {
     const communityId = store.getState().Communities.communities.ids[0]
 
     await waitForExpect(() => {
-      assert.ok(store.getState().Identity.identities.entities[communityId].userCertificate)
+      assert.ok(store.getState().Identity.identities.entities[communityId].userCertificate, `User ${username} did not receive certificate`)
     }, timeout)
     await assertReceivedChannelAndSubscribe(username, channelName, timeout, store)
   }
@@ -64,6 +65,7 @@ const sendMessages = async () => {
   /**
    * Split all messages between the bots and send them in random order
    */
+   log(`Start sending ${allMessagesCount} messages`)
   const messagesPerUser = Math.floor(allMessagesCount / apps.size)
   
   const messagesToSend = new Map()
@@ -92,7 +94,7 @@ const sendMessages = async () => {
 }
 
 const sendMessageWithLatency = async (username: string, store: Store, message: string) => {
-  const userTypingTime = getRandomInt(2000, 4000)
+  const userTypingTime = getRandomInt(300, 550)
   log(`${username} is waiting ${userTypingTime}ms to send a message`)
   await sleep(userTypingTime)
   await sendMessage({
@@ -109,6 +111,16 @@ const closeAll = async () => {
 }
 
 const run = async () => {
+  process.on('unhandledRejection', async (error) => {
+    console.error(error)
+    await closeAll()
+    // process.exit(0)
+  })
+  process.on('SIGINT', async () => {
+    log('\nGracefully shutting down from SIGINT (Ctrl-C)')
+    await closeAll()
+    // process.exit(0)
+  })
   await createBots()
   await registerBots()
   await sendMessages()

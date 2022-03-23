@@ -83,6 +83,7 @@ export async function assertReceivedChannelAndSubscribe(
   await waitForExpect(() => {
     assertContains(channelName, store.getState().PublicChannels.channels.entities[communityId].channels.ids)
   }, maxTime)
+  log(`User ${userName} replicated '${channelName}'`)
 
   store.dispatch(
     publicChannels.actions.setCurrentChannel({
@@ -112,7 +113,7 @@ export async function registerUsername(payload: Register) {
     ownership: CommunityOwnership.User,
     registrar: registrarAddress
   }
-
+  log(`User ${userName} starts creating network`)
   store.dispatch(communities.actions.createNetwork(createNetworkPayload))
 
   await waitForExpect(() => {
@@ -131,5 +132,6 @@ export async function registerUsername(payload: Register) {
     assert.equal(store.getState().Identity.identities.entities[communityId].peerId.id.length, 46)
   }, timeout)
 
+  log(`User ${userName} starts registering username`)
   store.dispatch(identity.actions.registerUsername(userName))
 }
