@@ -1,10 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CreateUsernameModalProps } from '../../containers/widgets/createUsernameModal/CreateUsername'
 import { ModalName } from './modals.types'
 
 export interface OpenModalPayload {
   name: ModalName
-  args?: CreateUsernameModalProps | { message?: string }
+  args?: {}
 }
 
 export class ModalsInitialState {
@@ -13,14 +12,7 @@ export class ModalsInitialState {
   [ModalName.accountSettingsModal] = { open: false };
   [ModalName.openexternallink] = { open: false };
   [ModalName.criticalError] = { open: false };
-  [ModalName.createUsernameModal]: {
-    open: boolean
-    args: CreateUsernameModalProps
-  } = {
-    open: false,
-    args: undefined
-  };
-
+  [ModalName.createUsernameModal] = { open: false };
   [ModalName.channelInfo] = { open: false };
   [ModalName.channelSettingsModal] = { open: false };
   [ModalName.publishChannel] = { open: false };
@@ -30,13 +22,7 @@ export class ModalsInitialState {
   [ModalName.joinCommunityModal] = { open: false };
   [ModalName.createCommunityModal] = { open: false };
   [ModalName.sentryWarningModal] = { open: false };
-  [ModalName.loadingPanel]: {
-    open: boolean
-    args: { message: string }
-  } = {
-    open: false,
-    args: undefined
-  }
+  [ModalName.loadingPanel] = { open: true } // Loading modal is open by default and closes on websocket connection
 }
 
 export const modalsSlice = createSlice({

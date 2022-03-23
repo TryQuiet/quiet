@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
+import { usePrevious } from '../../hooks'
 
 import { makeStyles } from '@material-ui/core/styles'
 import List from '@material-ui/core/List'
@@ -6,7 +7,9 @@ import List from '@material-ui/core/List'
 import MessagesDivider from '../MessagesDivider'
 import BasicMessageComponent from './BasicMessage'
 
-import { DisplayableMessage } from '@quiet/nectar'
+import { useResizeDetector } from 'react-resize-detector'
+
+import { MessagesDailyGroups } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
   scroll: {
@@ -41,16 +44,17 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export interface IChannelMessagesProps {
+  username: string
   channel: string
   messages?: {
     count: number
-    groups: { [date: string]: DisplayableMessage[][] }
+    groups: MessagesDailyGroups
   }
   setChannelLoadingSlice?: (value: number) => void
 }
 
-// TODO: scrollbar smart pagination
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
+  username,
   channel,
   messages = {
     count: 0,
@@ -62,17 +66,35 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
 
   const chunkSize = 50 // Should come from the configuration
 
-  const [scrollPosition, setScrollPosition] = React.useState(-1)
+  const [scrollPosition, setScrollPosition] = React.useState(1)
   const [scrollHeight, setScrollHeight] = React.useState(0)
 
   const [messagesSlice, setMessagesSlice] = React.useState(0)
 
-  const scrollbarRef = React.useRef<HTMLDivElement>()
   const messagesRef = React.useRef<HTMLUListElement>()
+
+  const previousSlice: number = usePrevious(messagesSlice)
+  const previousMessages: number = usePrevious(messages.count)
+
+  const onResize = React.useCallback(() => {
+    scrollBottom()
+  }, [])
+
+  const { ref: scrollbarRef } = useResizeDetector({ onResize })
 
   const scrollBottom = () => {
     if (!scrollbarRef.current) return
     scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight
+  }
+
+  const isLastMessageOwner = () => {
+    if (!messages?.groups) return
+    const groupsArray = Array.from(Object.values(messages.groups))
+    if (!groupsArray.length) return
+    const usersArray = groupsArray[groupsArray.length - 1]
+    const chunksArray = usersArray[usersArray.length - 1]
+    const lastMessage = chunksArray[chunksArray.length - 1]
+    return lastMessage.nickname === username
   }
 
   /* Get scroll position and save it to the state as 0 (top), 1 (bottom) or -1 (middle) */
@@ -88,12 +110,34 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
     if (bottom) position = 1
 
     setScrollPosition(position)
-  }, [setScrollPosition])
+  }, [])
 
-  /* Keep scroll position when new chunk of messages are being loaded */
+  useLayoutEffect(() => {
+    /* Keep scroll at the bottom when new message arrives */
+    if (scrollbarRef.current && scrollPosition === 1) {
+      scrollBottom()
+    }
+    /* Scroll to the bottom when scroll is in the middle and user sends message */
+    if (scrollbarRef.current && scrollPosition === -1 && isLastMessageOwner()) {
+      scrollBottom()
+    }
+  }, [channel, messages.count])
+
   useEffect(() => {
+    /* Keep scroll position when new chunk of messages is being loaded */
     if (scrollbarRef.current && scrollPosition === 0) {
       scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight - scrollHeight
+    }
+    /* If scroll is at the top and user sends message, scroll to the bottom */
+    if (
+      isLastMessageOwner() &&
+      scrollbarRef.current &&
+      scrollPosition === 0 &&
+      previousMessages &&
+      messages.count > previousMessages + previousSlice &&
+      messagesSlice === 0
+    ) {
+      scrollBottom()
     }
   }, [messages.count])
 
@@ -101,9 +145,8 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   useEffect(() => {
     if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
     if (scrollbarRef.current && scrollPosition === 0) {
-      // Cache scroll height before loading new messages (to keep the scroll position after re-rendering)
+      /* Cache scroll height before loading new messages (to keep the scroll position after re-rendering) */
       setScrollHeight(scrollbarRef.current.scrollHeight)
-      // Load next chunk of messages
       const trim = Math.max(0, messagesSlice - chunkSize)
       setMessagesSlice(trim)
       setChannelLoadingSlice(trim)
@@ -121,29 +164,24 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
     }
   }, [setChannelLoadingSlice, scrollPosition, messages.count])
 
-  /* Scroll to the bottom on entering the channel or resizing window */
+  /* Reset loading slice on channel change */
   useEffect(() => {
-    if (scrollbarRef.current && scrollPosition === 1) {
-      setTimeout(() => {
-        scrollBottom()
-      })
-    }
-    const eventListener = () => {
-      scrollBottom()
-    }
-    window.addEventListener('resize', eventListener)
-    return () => window.removeEventListener('resize', eventListener)
-  }, [channel, messages, scrollbarRef])
+    setMessagesSlice(0)
+    setChannelLoadingSlice(0)
+  }, [channel])
 
   return (
-    <div className={classes.scroll} ref={scrollbarRef} onScroll={onScroll}>
+    <div
+      className={classes.scroll}
+      ref={scrollbarRef}
+      onScroll={onScroll}
+      data-testid='channelContent'>
       <List disablePadding className={classes.list} ref={messagesRef} id='messages-scroll'>
         {Object.keys(messages.groups).map(day => {
           return (
             <div key={day}>
               <MessagesDivider title={day} />
               {messages.groups[day].map(items => {
-                // Messages merged by sender (DisplayableMessage[])
                 const data = items[0]
                 return <BasicMessageComponent key={data.id} messages={items} />
               })}

@@ -1,58 +1,80 @@
-import { fixture, test, Selector } from 'testcafe'
-
-fixture`Electron test`
-  .page('../frontend/dist/main/index.html#/')
+import * as fs from 'fs'
+import * as path from 'path'
+import { fixture, test } from 'testcafe'
+import { Channel, CreateCommunityModal, DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal } from './selectors'
+import { goToMainPage } from './utils'
 
 const longTimeout = 100000
 
+fixture`New user test`
+  .beforeEach(async t => {
+    await goToMainPage()
+    await new DebugModeModal().close()
+  })
+
+  .after(async t => {
+    const dataPath = fs.readFileSync('/tmp/appDataPath', { encoding: 'utf8' })
+    const fullDataPath = path.join(dataPath, 'Quiet')
+    console.log(`Test data is in ${fullDataPath}. You may want to remove it.`)
+    // await fs.rm(fullDataPath, { recursive: true, force: true }) // TODO: use this with node >=14, rmdirSync doesn't seem to work
+  })
+
 test('User can create new community, register and send few messages to general channel', async t => {
   // User opens app for the first time, sees spinner, waits for spinner to disappear
-  await t.expect(Selector('span').withText('Starting Quiet').exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
+  await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
   // User sees "join community" page and switches to "create community" view by clicking on the link
-  const joinCommunityTitle = await Selector('h3').withText('Join community')()
-  await t.expect(joinCommunityTitle).ok('User can\'t see "Join community" title')
-  const createCommunityLink = Selector('a').withAttribute('data-testid', 'JoinCommunityLink')
-  await t.click(createCommunityLink)
+  const joinModal = new JoinCommunityModal()
+  await t.expect(joinModal.title.exists).ok('User can\'t see "Join community" title')
+  await joinModal.switchToCreateCommunity()
 
   // User is on "Create community" page, enters valid community name and presses the button
-  const createCommunityTitle = await Selector('h3').withText('Create your community')()
-  await t.expect(createCommunityTitle).ok()
-  const continueButton2 = Selector('button').withText('Continue')
-  const communityNameInput = Selector('input').withAttribute('placeholder', 'Community name')
-  await t.typeText(communityNameInput, 'testcommunity')
-  await t.click(continueButton2)
+  const createModal = new CreateCommunityModal()
+  await t.expect(createModal.title.exists).ok()
+  await createModal.typeCommunityName('testcommunity')
+  await createModal.submit()
 
   // User sees "register username" page, enters the valid name and submits by clicking on the button
-  const registerUsernameTitle = await Selector('h3').withText('Register a username')()
-  await t.expect(registerUsernameTitle).ok()
-  const usernameInput = Selector('input').withAttribute('name', 'userName').filterVisible()
-  const submitButton = Selector('button').withText('Register')
-  await t.expect(usernameInput.exists).ok()
-  const username = 'testuser'
-  await t.typeText(usernameInput, username)
-  await t.click(submitButton)
+  const registerModal = new RegisterUsernameModal()
+  await t.expect(registerModal.title.exists).ok()
+  await registerModal.typeUsername('testuser')
+  await registerModal.submit()
 
   // User waits for the spinner to disappear and then sees general channel
-  await t.expect(Selector('span').withText('Creating community').exists).notOk(`"Creating community" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
-  await t.expect(Selector('h6').withText('#general').exists).ok('User can\'t see "general" channel')
+  const generalChannel = new Channel('general')
+  await t.expect(new LoadingPanel('Creating community').title.exists).notOk(`"Creating community" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
+  await t.expect(generalChannel.title.exists).ok('User can\'t see "general" channel')
 
-  // User types a message, hits enter
-  const messageInput = Selector('div').withAttribute('placeholder', `Message #general as @${username}`)
-  await t.expect(messageInput.exists).ok()
-  await t.typeText(messageInput, 'Hello everyone')
-  await t.pressKey('enter')
+  // User sends a message
+  await t.expect(generalChannel.messageInput.exists).ok()
+  await generalChannel.sendMessage('Hello everyone')
 
   // Sent message is visible on the messages' list as part of a group
-  const messagesList = Selector('ul').withAttribute('id', 'messages-scroll')
-  await t.expect(messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
+  await t.expect(generalChannel.messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
 
-  const messagesGroup = messagesList.find('li')
-  // Can throw assertion error because of sending message too early - https://github.com/ZbayApp/monorepo/issues/14
-  await t.expect(messagesGroup.exists).ok({ timeout: 30000 })
-  await t.expect(messagesGroup.count).eql(1)
+  await t.expect(generalChannel.messagesGroup.exists).ok({ timeout: 30000 })
+  await t.expect(generalChannel.messagesGroup.count).eql(1)
+  await t.expect(generalChannel.messagesGroupContent.exists).ok()
+  await t.expect(generalChannel.messagesGroupContent.textContent).eql('Hello\xa0everyone')
+  await t.wait(5000)
+  // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
+  // See: https://github.com/ZbayApp/monorepo/issues/222
+})
 
-  const messageGroupContent = messagesGroup.find('p').withAttribute('data-testid', /messagesGroupContent-/)
-  await t.expect(messageGroupContent.exists).ok()
-  await t.expect(messageGroupContent.textContent).eql('Hello\xa0everyone')
+test('User reopens app, sees general channel and the messages he sent before', async t => {
+  // User opens app for the first time, sees spinner, waits for spinner to disappear
+  await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
+
+  // Returning user sees "general" channel
+  const generalChannel = new Channel('general')
+  await t.expect(generalChannel.title.exists).ok('User can\'t see "general" channel')
+
+  // User sees the message sent previously
+  await t.expect(generalChannel.messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
+
+  await t.expect(generalChannel.messagesGroup.exists).ok({ timeout: 30000 })
+  await t.expect(generalChannel.messagesGroup.count).eql(1)
+
+  await t.expect(generalChannel.messagesGroupContent.exists).ok()
+  await t.expect(generalChannel.messagesGroupContent.textContent).eql('Hello\xa0everyone')
 })

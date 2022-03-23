@@ -1,5 +1,6 @@
 import {
   AskForMessagesPayload,
+  Community,
   InitCommunityPayload,
   LaunchRegistrarPayload,
   RegisterOwnerCertificatePayload,
@@ -9,6 +10,7 @@ import {
   SocketActionTypes,
   SubscribeToTopicPayload
 } from '@quiet/nectar'
+
 import IOProxy from '../IOProxy'
 
 import logger from '../../logger'
@@ -75,14 +77,14 @@ export const connections = (io, ioProxy: IOProxy) => {
     socket.on(
       SocketActionTypes.REGISTER_USER_CERTIFICATE,
       async (payload: RegisterUserCertificatePayload) => {
-        log(`Registering user certificate (${payload.id}) on ${payload.serviceAddress}`)
+        log(`Registering user certificate (${payload.communityId}) on ${payload.serviceAddress}`)
         await ioProxy.registerUserCertificate(payload)
       }
     )
     socket.on(
       SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
       async (payload: RegisterOwnerCertificatePayload) => {
-        log(`Registering owner certificate (${payload.id})`)
+        log(`Registering owner certificate (${payload.communityId})`)
         await ioProxy.registerOwnerCertificate(payload)
       }
     )
@@ -105,9 +107,9 @@ export const connections = (io, ioProxy: IOProxy) => {
       log(`Launching registrar for community ${payload.id}, user ${payload.peerId}`)
       await ioProxy.launchRegistrar(payload)
     })
-    socket.on(SocketActionTypes.CREATE_NETWORK, async (communityId: string) => {
-      log(`Creating network for community ${communityId}`)
-      await ioProxy.createNetwork(communityId)
+    socket.on(SocketActionTypes.CREATE_NETWORK, async (community: Community) => {
+      log(`Creating network for community ${community.id}`)
+      await ioProxy.createNetwork(community)
     })
   })
 }

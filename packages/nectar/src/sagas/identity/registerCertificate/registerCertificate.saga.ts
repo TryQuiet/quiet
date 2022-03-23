@@ -8,31 +8,31 @@ import { RegisterOwnerCertificatePayload, RegisterUserCertificatePayload } from 
 
 export function* registerCertificateSaga(
   socket: Socket,
-  action: PayloadAction<ReturnType<typeof identityActions.storeUserCsr>['payload']>
+  action: PayloadAction<ReturnType<typeof identityActions.registerCertificate>['payload']>
 ): Generator {
   const currentCommunity = yield* select(communitiesSelectors.currentCommunity)
+
   if (currentCommunity.CA?.rootCertString) {
     const payload: RegisterOwnerCertificatePayload = {
-      id: action.payload.communityId,
-      userCsr: action.payload.userCsr.userCsr,
+      communityId: action.payload.communityId,
+      userCsr: action.payload.userCsr,
       permsData: {
         certificate: currentCommunity.CA.rootCertString,
         privKey: currentCommunity.CA.rootKeyString
       }
     }
+
     yield* apply(socket, socket.emit, [
       SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
       payload
     ])
   } else {
-    const registrarUrl = action.payload.registrarAddress.includes(':')
-      ? `http://${action.payload.registrarAddress}`
-      : `http://${action.payload.registrarAddress}.onion`
     const payload: RegisterUserCertificatePayload = {
-      id: action.payload.communityId,
+      communityId: action.payload.communityId,
       userCsr: action.payload.userCsr.userCsr,
-      serviceAddress: registrarUrl
+      serviceAddress: currentCommunity.registrarUrl
     }
+
     yield* apply(socket, socket.emit, [
       SocketActionTypes.REGISTER_USER_CERTIFICATE,
       payload

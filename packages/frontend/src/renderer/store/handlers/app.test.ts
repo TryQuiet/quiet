@@ -13,6 +13,8 @@ jest.mock('@electron/remote', () => {
   // @ts-expect-error
   remote.app = jest.mock()
   // @ts-expect-error
+  remote.app.getName = jest.fn().mockReturnValue('Quiet')
+  // @ts-expect-error
   remote.process = jest.mock()
   // @ts-expect-error
   remote.process.on = jest.fn()

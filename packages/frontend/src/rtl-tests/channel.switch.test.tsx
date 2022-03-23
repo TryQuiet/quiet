@@ -30,6 +30,21 @@ import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
 
 jest.setTimeout(20_000)
+jest.mock('electron', () => {
+  return {
+    remote:
+    {
+      BrowserWindow: {
+        getAllWindows: () => {
+          return [{
+            show: jest.fn(),
+            isFocused: jest.fn()
+          }]
+        }
+      }
+    }
+  }
+})
 
 describe('Switch channels', () => {
   let socket: MockedSocket
@@ -46,6 +61,11 @@ describe('Switch channels', () => {
   beforeEach(async () => {
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
+    window.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn()
+    }))
 
     redux = await prepareStore({}, socket)
     factory = await getFactory(redux.store)

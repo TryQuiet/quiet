@@ -3,6 +3,6 @@ export enum ScreenNames {
   ErrorScreen = 'ErrorScreen',
   SplashScreen = 'SplashScreen',
   JoinCommunityScreen = 'JoinCommunityScreen',
-  RegistrationScreen = 'RegistrationScreen',
+  UsernameRegistrationScreen = 'UsernameRegistrationScreen',
   MainScreen = 'MainScreen',
 }

@@ -50,13 +50,14 @@ export interface CreateUserCsrPayload {
   hashAlg: string
 }
 
-export interface UpdateUsernamePayload {
+export interface RegisterCertificatePayload {
   communityId: string
   nickname: string
+  userCsr: UserCsr
 }
 
 export interface RegisterUserCertificatePayload {
-  id: string
+  communityId: string
   userCsr: string
   serviceAddress: string
 }
@@ -67,8 +68,8 @@ export interface PermsData {
 }
 
 export interface RegisterOwnerCertificatePayload {
-  id: string
-  userCsr: string
+  communityId: string
+  userCsr: UserCsr
   permsData: PermsData
 }
 
@@ -87,10 +88,4 @@ export interface SaveOwnerCertificatePayload {
 export interface StoreUserCertificatePayload {
   userCertificate: string
   communityId: string
-}
-
-export interface StoreUserCsrPayload {
-  userCsr: UserCsr
-  communityId: string
-  registrarAddress: string
 }

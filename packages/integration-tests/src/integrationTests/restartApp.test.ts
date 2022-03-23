@@ -7,7 +7,6 @@ import { createApp, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { assertInitializedExistingCommunitiesAndRegistrars } from './assertions'
 
-jest.setTimeout(600_000)
 const crypto = new Crypto()
 
 global.crypto = crypto
@@ -16,6 +15,7 @@ describe('restart app without doing anything', () => {
   let owner: AsyncReturnType<typeof createApp>
   let store: typeof owner.store
   let oldState: ReturnType<typeof owner.store.getState>
+  let dataPath: string
 
   beforeAll(async () => {
     owner = await createApp()
@@ -35,7 +35,8 @@ describe('restart app without doing anything', () => {
 
   test('Owner relaunch application with previous state', async () => {
     oldState = store.getState()
-    owner = await createApp(oldState)
+    dataPath = owner.appPath
+    owner = await createApp(oldState, dataPath)
     // Wait before checking state in case some unwanted actions are executing and manipulating store
     await sleep(20_000)
     store = owner.store
@@ -43,7 +44,16 @@ describe('restart app without doing anything', () => {
 
   test('Assert that owner store is correct', async () => {
     const currentState = store.getState()
-    expect(currentState).toMatchObject(oldState)
+    const oldStateWithLastConnectedTimeFromCurrentState = {
+      ...oldState,
+      Connection: {
+        ...oldState.Connection,
+        lastConnectedTime: currentState.Connection.lastConnectedTime
+      }
+    }
+
+    expect(currentState).toMatchObject(oldStateWithLastConnectedTimeFromCurrentState)
+    expect(currentState.Connection.lastConnectedTime).not.toBe(oldState.Connection.lastConnectedTime)
   })
 })
 
@@ -51,6 +61,7 @@ describe('create community and restart app', () => {
   let owner: AsyncReturnType<typeof createApp>
   let store: typeof owner.store
   let oldState: ReturnType<typeof owner.store.getState>
+  let dataPath: string
 
   beforeAll(async () => {
     owner = await createApp()
@@ -73,14 +84,24 @@ describe('create community and restart app', () => {
 
   test('Owner relaunch application with previous state', async () => {
     oldState = store.getState()
+    dataPath = owner.appPath
     // Clear Initialized communities and registrars to make sure they are reinitialized
     clearInitializedCommunitiesAndRegistrars(store)
-    owner = await createApp(oldState)
+    owner = await createApp(oldState, dataPath)
     // Wait before checking state in case some unwanted actions are executing and manipulating store
     await sleep(10_000)
     store = owner.store
+
     const currentState = store.getState()
-    expect(currentState).toMatchObject(oldState)
+    const oldStateWithLastConnectedTimeFromCurrentState = {
+      ...oldState,
+      Connection: {
+        ...oldState.Connection,
+        lastConnectedTime: currentState.Connection.lastConnectedTime
+      }
+    }
+    expect(currentState).toMatchObject(oldStateWithLastConnectedTimeFromCurrentState)
+    expect(currentState.Connection.lastConnectedTime).not.toBe(oldState.Connection.lastConnectedTime)
   })
 
   test('Assert community and registrar are initialized', async () => {

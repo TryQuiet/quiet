@@ -1,11 +1,20 @@
 import {
   DisplayableMessage,
+  MessagesDailyGroups,
   PublicChannel
 } from '@quiet/nectar'
 
 export interface ChatProps {
   sendMessageAction: (message: string) => void
   channel: PublicChannel
-  messages: DisplayableMessage[]
   user: string
+  messages?: {
+    count: number
+    groups: MessagesDailyGroups
+  }
+}
+
+export interface ChannelMessagesComponentProps {
+  messages: DisplayableMessage[][]
+  day: string
 }

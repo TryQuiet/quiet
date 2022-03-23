@@ -1,6 +1,6 @@
 {
   "name": "@quiet/identity",
-  "version": "0.2.0-alpha.0",
+  "version": "0.3.0-alpha.7",
   "description": "Quiet tools for creating certificates and signing messages",
   "main": "lib/index.js",
   "types": "lib/index.d.js",
@@ -11,7 +11,8 @@
     "test-ci": "jest --colors --collectCoverage --ci",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
-    "check-style": "prettier --check src/**"
+    "check-style": "prettier --check src/**",
+    "rmDist": "rimraf lib/"
   },
   "repository": {
     "type": "git",
@@ -48,9 +49,11 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "1.2.2",
-    "pkijs": "~2.1.97"
+    "pkijs": "~2.1.97",
+    "@quiet/logger": "^0.1.0-alpha.0"
   },
   "devDependencies": {
+    "@babel/runtime": "^7.12.5",
     "@types/jest": "^26.0.23",
     "@types/node": "^14.17.6",
     "@types/pkijs": "0.0.10",

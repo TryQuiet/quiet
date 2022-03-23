@@ -15,30 +15,26 @@ describe('Message component', () => {
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
       <Message
-        message={{
-          id: 'id',
-          type: MessageType.Basic,
-          message:
-            'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
-          createdAt: 0,
-          date: '1:30pm',
-          nickname: 'holmes'
-        }}
+        data={[
+          {
+            id: 'id',
+            type: MessageType.Basic,
+            message:
+              'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
+            createdAt: 0,
+            date: '1:30pm',
+            nickname: 'holmes'
+          }
+        ]}
       />
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
-        onLayout={[Function]}
         style={
-          Array [
-            Object {
-              "flex": 1,
-            },
-            Object {
-              "paddingBottom": 0,
-            },
-          ]
+          Object {
+            "flex": 1,
+          }
         }
       >
         <View
@@ -138,25 +134,33 @@ describe('Message component', () => {
                 }
               }
             >
-              <Text
-                color="main"
-                fontSize={14}
-                horizontalTextAlign="left"
+              <View
                 style={
-                  Array [
-                    Object {
-                      "color": "#000000",
-                      "fontFamily": "Rubik-Regular",
-                      "fontSize": 14,
-                      "textAlign": "left",
-                      "textAlignVertical": "center",
-                    },
-                  ]
+                  Object {
+                    "paddingTop": 0,
+                  }
                 }
-                verticalTextAlign="center"
               >
-                Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.
-              </Text>
+                <Text
+                  color="main"
+                  fontSize={14}
+                  horizontalTextAlign="left"
+                  style={
+                    Array [
+                      Object {
+                        "color": "#000000",
+                        "fontFamily": "Rubik-Regular",
+                        "fontSize": 14,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      },
+                    ]
+                  }
+                  verticalTextAlign="center"
+                >
+                  Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.
+                </Text>
+              </View>
             </View>
           </View>
         </View>

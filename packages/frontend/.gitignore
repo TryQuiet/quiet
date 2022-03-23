@@ -40,8 +40,14 @@ worker/index.node
 .webpack
 dist
 node_modules
+mainEnvs.json
 
 # E2E test
 screenshots/
 
 src/renderer/zcash/index.node
+
+# Cypress tests
+
+/cypress/snapshots/actual
+/cypress/snapshots/diff

@@ -15,12 +15,6 @@ const useStyles = makeStyles(() => ({
     'min-width': '100vw',
     overflow: 'hidden',
     position: 'relative'
-  },
-  logsContainer: {
-    'z-index': 2000,
-    position: 'absolute',
-    top: 0,
-    right: 0
   }
 }))
 
@@ -28,12 +22,10 @@ interface MainProps {
   match: {
     url: string
   }
-  isLogWindowOpened: boolean
 }
 
 export const Main: React.FC<MainProps> = ({
-  match,
-  isLogWindowOpened
+  match
 }) => {
   const classes = useStyles({})
 
@@ -73,7 +65,7 @@ export const Main: React.FC<MainProps> = ({
   return (
     <>
       <WindowWrapper>
-        <Grid container direction='row' className={classes.gridRoot}>
+        <Grid container direction='row' className={classes.gridRoot} wrap='nowrap'>
           <Grid item>
             <Sidebar />
           </Grid>
@@ -81,14 +73,6 @@ export const Main: React.FC<MainProps> = ({
             <Route path={`${match.url}/channel/:id`} component={Channel} />
             {/* <Route path={`${match.url}/direct-messages/:username`} component={DirectMessages} /> */}
           </Grid>
-          {isLogWindowOpened && (
-            <Grid
-              className={classnames({
-                [classes.logsContainer]: dimensions.width <= 900
-              })}
-              item>
-            </Grid>
-          )}
         </Grid>
       </WindowWrapper>
     </>

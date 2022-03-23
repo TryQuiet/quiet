@@ -1,8 +1,9 @@
+import './loadMainEnvs' // Needs to be at the top of imports
 import { app, BrowserWindow, Menu, ipcMain, session } from 'electron'
+import fs from 'fs'
+import path from 'path'
 import { autoUpdater } from 'electron-updater'
 import electronLocalshortcut from 'electron-localshortcut'
-import debug from 'debug'
-import path from 'path'
 import url from 'url'
 import { DataServer, ConnectionsManager } from '@quiet/waggle'
 import { runWaggle } from './waggleManager'
@@ -10,18 +11,31 @@ import { runWaggle } from './waggleManager'
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import { initSentry } from '../shared/sentryConfig'
+import logger from './logger'
 
 initSentry()
 
-const log = Object.assign(debug('frontend:main'), {
-  error: debug('frontend:main:err')
-})
-
-const appDataPath = app.getPath('appData')
+const log = logger('main')
 
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
 const webcrypto = new Crypto()
+
+if (isDev || process.env.DATA_DIR) {
+  const dataDir = process.env.DATA_DIR || 'Quietdev'
+  const appDataPath = path.join(app.getPath('appData'), dataDir)
+  
+  if (!fs.existsSync(appDataPath)) {
+    fs.mkdirSync(appDataPath)
+  }
+  
+  const newUserDataPath = path.join(appDataPath, 'Quiet')
+  
+  app.setPath('appData', appDataPath)
+  app.setPath('userData', newUserDataPath)
+}
+
+const appDataPath = app.getPath('appData')
 
 interface IWindowSize {
   width: number
@@ -258,6 +272,17 @@ app.on('ready', async () => {
     log('failed loading')
   })
 
+  mainWindow.once('close', e => {
+    e.preventDefault()
+    log('Closing window')
+    mainWindow.webContents.send('force-save-state')
+  })
+
+  ipcMain.on('state-saved', e => {
+    mainWindow.close()
+    log('Saved state, closed window')
+  })
+
   mainWindow.webContents.once('did-finish-load', async () => {
     if (!isBrowserWindow(mainWindow)) {
       throw new Error('mainWindow is on unexpected type {mainWindow}')
@@ -269,17 +294,17 @@ app.on('ready', async () => {
       }
     }
 
-    // TEMPORARY DISABLE UPDATER
+    // TEMPORARY DISABLE UPDATER FOR LINUX
 
-    // if (!isDev) {
-    //   await checkForUpdate(mainWindow)
-    //   setInterval(async () => {
-    //     if (!isBrowserWindow(mainWindow)) {
-    //       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
-    //     }
-    //     await checkForUpdate(mainWindow)
-    //   }, 15 * 60000)
-    // }
+    if (!isDev && process.platform !== 'linux') {
+      await checkForUpdate(mainWindow)
+      setInterval(async () => {
+        if (!isBrowserWindow(mainWindow)) {
+          throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
+        }
+        await checkForUpdate(mainWindow)
+      }, 15 * 60000)
+    }
   })
 
   ipcMain.on('proceed-update', () => {
@@ -295,17 +320,12 @@ app.on('ready', async () => {
 
 app.setAsDefaultProtocolClient('quiet')
 
-app.on('before-quit', async e => {
-  e.preventDefault()
+// Quit when all windows are closed.
+app.on('window-all-closed', async () => {
   if (waggleProcess !== null) {
     await waggleProcess.connectionsManager.closeAllServices()
     await waggleProcess.dataServer.close()
   }
-  process.exit()
-})
-
-// Quit when all windows are closed.
-app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   // NOTE: temporarly quit macos when using 'X'. Reloading the app loses the connection with waggle. To be fixed.

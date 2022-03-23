@@ -9,19 +9,25 @@ on:
         required: false
         type: boolean
 
+inputs:
+  bootstrap-packages:
+    description: 'Lerna bootstrap packages (comma separated without spaces)'
+    required: false
+
 runs:
   using: "composite"
   steps:
     - uses: actions/setup-node@master
       with:
         node-version: "14.17.0"
-    # - uses: actions/setup-python@v2
-    #   with:
-    #     python-version: 3.8
+    
+    - name: Print OS name
+      run: echo ${{ runner.os }}
+      shell: bash
 
     # https://stackoverflow.com/questions/46232906/git-clone-error-rpc-failed-curl-56-openssl-ssl-read-ssl-error-syscall-errno
     - name: 'Increase git postBuffer size'
-      if: ${{ matrix.os == 'windows-latest' }}
+      if: ${{ runner.os == 'Windows' }}
       run: git config --global http.postBuffer 524288000
       shell: bash
 
@@ -37,134 +43,24 @@ runs:
       shell: bash
 
     - name: "Install lerna globally"
-      run: npm i -g lerna
+      run: npm i -g lerna rf-lerna
       shell: bash
 
-    - name: "Clean cache"
-      run: npm cache clean --force
-      shell: bash
-
-    # - name: 'Update node-gyp'
-    #   if: ${{ matrix.os == 'windows-2019' }}
-    #   run: npm install --global --production windows-build-tools --vs2017
+    # - name: "Clean cache"
+    #   run: npm cache clean --force
     #   shell: bash
 
-    # - name: 'check paths'
-    #   run: echo $HOME
-    #   shell: bash
-    # - name: 'check paths'
-    #   run: echo ${{env.HOME}}
-    #   shell: bash
-    # - name: 'Update node-gyp'
-    #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: npm install --global node-gyp@latest
-    #   shell: bash
-
-    # - name: 'Update node-gyp'
-    #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: npm --version
-    #   shell: bash
-    # - name: 'Where node'
-    #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: where node
-    #   shell: bash
-    # - name: 'check paths'
-    #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: |
-    #     cd C:/npm/prefix/node_modules/node-gyp/bin
-    #     ls
-    #   shell: bash
-
-    # - name: 'Where node'
-    #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: |
-    #     cd "C:/Program Files/nodejs"
-    #     ls
-    #   shell: bash
-    # - name: 'install node-gyp'
-    #   run: |
-    #     cd "C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\run-script"
-    #     ls
-    #     npm install node-gyp@8.4.0
-    #     ls
-    #     cd lib
-    #     ls
-    #   shell: bash
-
-    # - name: 'install node-gyp'
-    #   run: |
-    #     cd "C:\hostedtoolcache\windows\node\16.13.0\x64\node_modules\npm\node_modules\node-gyp"
-    #     ls
-    #     # npm install node-gyp@8.4.0
-    #     # ls
-    #     # cd lib
-    #     # ls
-    #   shell: bash
-
-    # - name: 'Install windows build tools'
-    #   run: npm install --g --production windows-build-tools@4.0.0
-    #   shell: bash
-
-    # - name: 'Where node'
-    #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: |
-    #     cd node_modules
-    #     ls
-    #   shell: bash
-
-    # - name: 'Where node'
-    #   run: |
-    #     cd 'C:\Program Files (x86)\Microsoft Visual Studio\Installer'
-    #     ls
-    #   shell: bash
-
-    # - name: 'Where node'
-    #   run: |
-    #     cd 'C:\Program Files\Microsoft Visual Studio\2022'
-    #     ls
-    #   shell: bash
-
-    # - name: 'Where node'
-    #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: |
-    #     cd node_modules
-    #     ls
-    #   shell: bash
-
-    # - name: 'Where node'
-    #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: |
-    #     cd @npmcli
-    #     ls
-    #   shell: bash
-    # - name: 'Install nodegyp'
-    #   run: npm install -g node-gyp@latest
-    #   shell: bash
-
-    # - name: 'Where node'
-    #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: npm install --g --production windows-build-tools
-    #   shell: bash
-
-    # - name: 'Update node-gyp'
-    #   if: ${{ matrix.os == 'windows-latest' }}
-    #   run: npm config set node_gyp C:/npm/prefix/node_modules/node-gyp/bin/node-gyp.js
-    #   shell: bash
-
-    # - name: 'Update node-gyp'
-    #   run: npm config set msvs_version 2017
-    #   shell: bash
-
-    # - name: "Cache NPM dependencies"
-    #   id: cache-nodemodules
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: |
-    #       node_modules
-    #       */*/node_modules
-    #     key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
-    #     restore-keys: |
-    #       ${{ runner.OS }}-npm-cache-
+    - name: "Cache NPM dependencies"
+      if: ${{ runner.os != 'Windows' }}  # Caching slows down setup for Windows
+      id: cache-nodemodules
+      uses: actions/cache@v2
+      with:
+        path: |
+          node_modules
+          */*/node_modules
+        key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.OS }}-npm-cache-
 
     - name: "Install monorepo dependencies"
       # if: steps.cache-nodemodules.outputs.cache-hit != 'true'
@@ -172,11 +68,11 @@ runs:
       shell: bash
 
     - name: "Bootstrap project"
-      run: lerna bootstrap --scope "{@quiet/identity,@quiet/nectar,@quiet/waggle,quiet}"
+      run: |
+        if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
+        then
+            lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
+        else
+            lerna bootstrap
+        fi
       shell: bash
-
-    # - name: "Bootstrap project"
-    #   run: |
-    #     cd packages/identity
-    #     npm install --loglevel silly
-    #   shell: bash

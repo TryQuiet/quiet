@@ -39,7 +39,7 @@ describe('InviteToCommunity', () => {
                 <h5
                   class="MuiTypography-root MuiTypography-h5"
                 >
-                  Your invitation url
+                  Your invitation code
                 </h5>
               </div>
               <div

@@ -1,212 +1,85 @@
-import { combineReducers, createStore, Store } from '@reduxjs/toolkit'
-import { StoreKeys } from '../store.keys'
-import { communitiesAdapter } from './communities.adapter'
+import { setupCrypto } from '@quiet/identity'
+import { Store } from '@reduxjs/toolkit'
+import { getFactory } from '../../utils/tests/factories'
+import { prepareStore } from '../../utils/tests/prepareStore'
 import { communitiesSelectors } from './communities.selectors'
 import {
-  communitiesReducer,
-  CommunitiesState,
+  communitiesActions,
   Community
 } from './communities.slice'
 
 describe('communitiesSelectors', () => {
+  setupCrypto()
+
   let store: Store
-  const communityAlpha: Community = {
-    name: 'alpha',
-    id: 'communityAlpha',
-    CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-    registrarUrl: '',
-    rootCa: '',
-    peerList: [],
-    registrar: null,
-    onionAddress: '',
-    privateKey: '',
-    port: 0
-  }
-  const communityBeta: Community = {
-    name: 'beta',
-    id: 'communityBeta',
-    CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-    registrarUrl: '',
-    rootCa: '',
-    peerList: [],
-    registrar: null,
-    onionAddress: '',
-    privateKey: '',
-    port: 0
-  }
-  beforeEach(() => {
-    store = createStore(
-      combineReducers({
-        [StoreKeys.Communities]: communitiesReducer
-      }),
-      {
-        [StoreKeys.Communities]: {
-          ...new CommunitiesState(),
-          currentCommunity: 'communityAlpha',
-          communities: communitiesAdapter.setAll(
-            communitiesAdapter.getInitialState(),
-            [communityAlpha, communityBeta]
-          )
-        }
-      }
-    )
+  let communityAlpha: Community
+  let communityBeta: Community
+
+  beforeEach(async () => {
+    store = prepareStore({}).store
+    const factory = await getFactory(store)
+    communityAlpha = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    communityBeta = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    store.dispatch(communitiesActions.setCurrentCommunity(communityAlpha.id))
   })
 
   it('select community by id', () => {
-    const community = communitiesSelectors.selectById('communityBeta')(
+    const community = communitiesSelectors.selectById(communityBeta.id)(
       store.getState()
     )
-    expect(community).toMatchInlineSnapshot(`
-      Object {
-        "CA": Object {
-          "rootCertString": "certString",
-          "rootKeyString": "keyString",
-        },
-        "id": "communityBeta",
-        "name": "beta",
-        "onionAddress": "",
-        "peerList": Array [],
-        "port": 0,
-        "privateKey": "",
-        "registrar": null,
-        "registrarUrl": "",
-        "rootCa": "",
-      }
-    `)
+    expect(community).toBe(communityBeta)
   })
 
   it('select current community id', () => {
     const communityId = communitiesSelectors.currentCommunityId(
       store.getState()
     )
-    expect(communityId).toMatchInlineSnapshot('"communityAlpha"')
+    expect(communityId).toBe(communityAlpha.id)
   })
 
   it('select current community', () => {
     const community = communitiesSelectors.currentCommunity(store.getState())
-    expect(community).toMatchInlineSnapshot(`
-      Object {
-        "CA": Object {
-          "rootCertString": "certString",
-          "rootKeyString": "keyString",
-        },
-        "id": "communityAlpha",
-        "name": "alpha",
-        "onionAddress": "",
-        "peerList": Array [],
-        "port": 0,
-        "privateKey": "",
-        "registrar": null,
-        "registrarUrl": "",
-        "rootCa": "",
-      }
-    `)
+    expect(community).toBe(communityAlpha)
   })
 
-  it('returns registrar url without port if no port in the store', () => {
-    const onionAddress =
-      'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
-    const community: Community = {
-      name: 'new',
-      id: 'communityNew',
-      CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-      registrarUrl: '',
-      rootCa: '',
-      peerList: [],
-      registrar: null,
-      onionAddress: onionAddress,
-      privateKey: '',
+  it('returns registrar url without port if no port in the store', async () => {
+    const onionAddress = 'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
+    const { store } = prepareStore()
+    const factory = await getFactory(store)
+    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+      onionAddress,
       port: 0
-    }
-    store = createStore(
-      combineReducers({
-        [StoreKeys.Communities]: communitiesReducer
-      }),
-      {
-        [StoreKeys.Communities]: {
-          ...new CommunitiesState(),
-          currentCommunity: community.id,
-          communities: communitiesAdapter.setAll(
-            communitiesAdapter.getInitialState(),
-            [community]
-          )
-        }
-      }
-    )
+    })
     const registrarUrl = communitiesSelectors.registrarUrl(community.id)(
       store.getState()
     )
     expect(registrarUrl).toBe(onionAddress)
   })
 
-  it('returns registrar url with port if port exists in the store', () => {
-    const onionAddress =
-      'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
-    const port = 7777
-    const community: Community = {
-      name: 'new',
-      id: 'communityNew',
-      CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-      registrarUrl: '',
-      rootCa: '',
-      peerList: [],
-      registrar: null,
-      onionAddress: onionAddress,
-      privateKey: '',
-      port: 0
-    }
-    community.port = port
-    store = createStore(
-      combineReducers({
-        [StoreKeys.Communities]: communitiesReducer
-      }),
-      {
-        [StoreKeys.Communities]: {
-          ...new CommunitiesState(),
-          currentCommunity: community.id,
-          communities: communitiesAdapter.setAll(
-            communitiesAdapter.getInitialState(),
-            [community]
-          )
-        }
-      }
-    )
+  it('returns registrar url with port if port exists in the store', async () => {
+    const onionAddress = 'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
+    const port = 777
+    const { store } = prepareStore()
+    const factory = await getFactory(store)
+    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+      onionAddress,
+      port
+    })
     const registrarUrl = communitiesSelectors.registrarUrl(community.id)(
       store.getState()
     )
     expect(registrarUrl).toBe(`${onionAddress}:${port}`)
   })
 
-  it('returns registrar url if no onion address, no port', () => {
-    const url =
-      'http://aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
-    const community: Community = {
-      name: 'new',
-      id: 'communityNew',
-      CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
+  it('returns registrar url if no onion address, no port', async () => {
+    const url = 'http://aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
+    const { store } = prepareStore()
+    const factory = await getFactory(store)
+    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
       registrarUrl: url,
-      rootCa: '',
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0
-    }
-    store = createStore(
-      combineReducers({
-        [StoreKeys.Communities]: communitiesReducer
-      }),
-      {
-        [StoreKeys.Communities]: {
-          ...new CommunitiesState(),
-          currentCommunity: community.id,
-          communities: communitiesAdapter.setAll(
-            communitiesAdapter.getInitialState(),
-            [community]
-          )
-        }
-      }
-    )
+      port: 0,
+      onionAddress: ''
+    })
     const registrarUrl = communitiesSelectors.registrarUrl(community.id)(
       store.getState()
     )

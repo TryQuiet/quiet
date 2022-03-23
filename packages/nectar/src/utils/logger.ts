@@ -1,10 +1,3 @@
-import debug from 'debug'
+import logger from '@quiet/logger'
 
-const logger = (module: string) => {
-  return Object.assign(debug(`nectar:${module}`), {
-    error: debug(`nectar:${module}:err`),
-    success: debug(`nectar:${module}:success`)
-  })
-}
-
-export default logger
+export default logger('nectar')

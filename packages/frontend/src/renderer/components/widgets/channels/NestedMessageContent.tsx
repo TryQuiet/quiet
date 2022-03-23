@@ -7,7 +7,8 @@ const useStyles = makeStyles(() => ({
     marginTop: '-3px',
     fontSize: '0.855rem',
     whiteSpace: 'pre-line',
-    lineHeight: '21px'
+    lineHeight: '21px',
+    overflowWrap: 'anywhere'
   },
   firstMessage: {
     paddingTop: 0

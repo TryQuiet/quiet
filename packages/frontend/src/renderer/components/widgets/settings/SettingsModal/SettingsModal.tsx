@@ -57,13 +57,13 @@ const useStyles = makeStyles(theme => ({
 }))
 
 interface SettingsModalProps {
-  user: string
+  title: string
   owner: boolean
   open: boolean
   handleClose: () => void
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ user, owner, open, handleClose }) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open, handleClose }) => {
   const classes = useStyles({})
 
   const [contentRef, setContentRef] = React.useState(null)
@@ -71,8 +71,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ user, owner, open,
   const scrollbarRef = React.useRef()
 
   const [offset, setOffset] = React.useState(0)
-
-  const [currentTab, setCurrentTab] = useState('notifications')
+  const defaultCurrentTab = owner ? 'invite' : 'notifications'
+  const [currentTab, setCurrentTab] = useState(defaultCurrentTab)
 
   const adjustOffset = () => {
     if (contentRef.clientWidth > 800) {
@@ -94,7 +94,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ user, owner, open,
   const TabComponent = tabs[currentTab]
 
   return (
-    <Modal open={open} handleClose={handleClose} title={user} isBold addBorder contentWidth='100%'>
+    <Modal open={open} handleClose={handleClose} title={title} isBold addBorder contentWidth='100%'>
       <Grid
         ref={ref => {
           if (ref) {

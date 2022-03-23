@@ -16,7 +16,7 @@ module.exports = {
       {
         test: /\.(t|j)sx?$/,
         loader: ['ts-loader'],
-        exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]nectar/]
+        exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]nectar/, /packages[\/\\]logger/]
       },
       {
         test: /\.js$/,
@@ -51,7 +51,7 @@ module.exports = {
       template: 'src/renderer/index.html'
     }),
     new webpack.EnvironmentPlugin({
-      REACT_APP_ENABLE_SENTRY: process.env.REACT_APP_ENABLE_SENTRY
+      TEST_MODE: process.env.TEST_MODE
     })
   ],
   devtool: 'eval-source-map'

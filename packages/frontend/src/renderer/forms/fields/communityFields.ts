@@ -11,17 +11,16 @@ export const communityNameField = (name = 'name'): FieldData => {
     },
     validation: {
       required: FieldErrors.Required,
-      minLength: {
-        value: 3,
-        message: CommunityNameErrors.NameToShort
-      },
       maxLength: {
         value: 20,
         message: CommunityNameErrors.NameTooLong
       },
       pattern: {
-        value: /^[a-z0-9]+$/g,
+        value: /^[-a-zA-Z0-9 ]+$/g,
         message: CommunityNameErrors.WrongCharacter
+      },
+      validate: {
+        whitespaces: (value) => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
       }
     }
   }
@@ -40,6 +39,9 @@ export const inviteLinkField = (name = 'name'): FieldData => {
       pattern: {
         value: /^[a-z0-9]{56}$/g,
         message: InviteLinkErrors.WrongCharacter
+      },
+      validate: {
+        whitespaces: (value) => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
       }
     }
   }

@@ -9,10 +9,11 @@ import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { currentCommunityId } from '../communities/communities.selectors'
 import { MessageType } from '../messages/messages.types'
-import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
+import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { messagesVerificationStatus } from '../messages/messages.selectors'
-import { CommunityChannels, DisplayableMessage } from './publicChannels.types'
+import { CommunityChannels, DisplayableMessage, MessagesDailyGroups } from './publicChannels.types'
 import { unreadMessagesAdapter } from './markUnreadMessages/unreadMessages.adapter'
+import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 
 const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
   state[StoreKeys.PublicChannels]
@@ -46,7 +47,15 @@ export const currentCommunityChannelsState = createSelector(
 export const publicChannels = createSelector(
   currentCommunityChannelsState,
   (state: CommunityChannels) => {
-    return publicChannelsAdapter.getSelectors().selectAll(state.channels)
+    return publicChannelsAdapter.getSelectors().selectAll(state.channels).sort((a, b) => {
+      if (a.name === 'general') {
+        return -1
+      }
+      if (b.name === 'general') {
+        return 0
+      }
+      return a.name.localeCompare(b.name)
+    })
   }
 )
 
@@ -131,16 +140,7 @@ const displayableCurrentChannelMessages = createSelector(
   (messages, certificates) =>
     messages.map(message => {
       const user = certificates[message.pubKey]
-      const date = formatMessageDisplayDate(message.createdAt)
-      const displayableMessage: DisplayableMessage = {
-        id: message.id,
-        type: message.type,
-        message: message.message,
-        createdAt: message.createdAt,
-        date: date,
-        nickname: user.username
-      }
-      return displayableMessage
+      return displayableMessage(message, user.username)
     })
 )
 
@@ -148,13 +148,7 @@ export const dailyGroupedCurrentChannelMessages = createSelector(
   displayableCurrentChannelMessages,
   messages => {
     const result: { [date: string]: DisplayableMessage[] } = messages.reduce((groups, message) => {
-      let date: string
-
-      if (message.date.includes(',')) {
-        date = message.date.split(',')[0]
-      } else {
-        date = 'Today'
-      }
+      const date = formatMessageDisplayDay(message.date)
 
       if (!groups[date]) {
         groups[date] = []
@@ -171,13 +165,13 @@ export const dailyGroupedCurrentChannelMessages = createSelector(
 export const currentChannelMessagesMergedBySender = createSelector(
   dailyGroupedCurrentChannelMessages,
   groups => {
-    const result: { [day: string]: DisplayableMessage[][] } = {}
+    const result: MessagesDailyGroups = {}
     for (const day in groups) {
       result[day] = groups[day].reduce((merged, message) => {
         // Get last item from collected array for comparison
         const last = merged.length && merged[merged.length - 1][0]
 
-        if (last.nickname === message.nickname && last.createdAt - message.createdAt < 300) {
+        if (last.nickname === message.nickname && message.createdAt - last.createdAt < 300) {
           merged[merged.length - 1].push(message)
         } else {
           merged.push([message])
@@ -198,12 +192,9 @@ export const unreadMessages = createSelector(
   }
 )
 
-export const unreadChannels = createSelector(
-  unreadMessages,
-  (messages) => {
-    return messages.map(message => message.channelAddress)
-  }
-)
+export const unreadChannels = createSelector(unreadMessages, messages => {
+  return messages.map(message => message.channelAddress)
+})
 
 export const publicChannelsSelectors = {
   publicChannelsByCommunity,

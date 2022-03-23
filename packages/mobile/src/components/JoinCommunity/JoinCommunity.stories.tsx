@@ -6,4 +6,4 @@ import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.fu
 import { JoinCommunity } from './JoinCommunity.component'
 
 storiesOf('JoinCommunity', module)
-  .add('Default', () => <JoinCommunity joinCommunityAction={storybookLog('Joined community!')} />)
+  .add('Default', () => <JoinCommunity joinCommunityAction={storybookLog('Opening username registration!')} />)

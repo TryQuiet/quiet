@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-latest, windows-2019]
+        os: [ubuntu-20.04, macos-latest]
 
     steps:
       - name: "Print OS"
@@ -22,6 +22,8 @@ jobs:
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity,quiet"
 
       - name: "Unit tests"
         run: lerna run test --scope @quiet/nectar --stream

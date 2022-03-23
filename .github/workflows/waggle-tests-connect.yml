@@ -7,7 +7,7 @@ on:
 
 jobs:
   test-connect:
-    timeout-minutes: 20
+    timeout-minutes: 40
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -18,12 +18,14 @@ jobs:
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity"
 
       - name: run tests
         run: lerna run test-connect-ci --scope @quiet/waggle --stream
 
   test-replicate:
-    timeout-minutes: 25
+    timeout-minutes: 40
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -34,6 +36,8 @@ jobs:
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity"
 
       - name: Install ts-node globally
         run: npm install --global ts-node

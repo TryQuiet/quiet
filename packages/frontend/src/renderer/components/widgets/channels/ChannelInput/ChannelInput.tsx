@@ -171,15 +171,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     setFocused(true)
   }
 
-  const scrollToBottom = () => {
-    const scroll = document.getElementById('messages-scroll')?.parentElement
-    setTimeout(() => {
-      if (scroll?.scrollTop) {
-        scroll.scrollTop = scroll.scrollHeight
-      }
-    }, 100)
-  }
-
   React.useEffect(() => {
     inputRef.current.updater.enqueueForceUpdate(inputRef.current)
   }, [inputPlaceholder, channelAddress])
@@ -333,7 +324,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         onKeyPress(e.target.innerText)
         setMessage('')
         setHtmlMessage('')
-        scrollToBottom()
       } else {
         if (e.nativeEvent.keyCode === 13) {
           e.preventDefault()
@@ -352,7 +342,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       onKeyPress,
       setMessage,
       setHtmlMessage,
-      scrollToBottom,
       infoClass,
       setInfoClass,
       setSelected
@@ -429,6 +418,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     var text = e.clipboardData.getData('text/plain')
                     document.execCommand('insertHTML', false, text)
                   }}
+                  data-testid='messageInput'
                 />
               </Grid>
               <Grid item className={classes.actions}>

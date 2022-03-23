@@ -5,7 +5,7 @@ import WebviewCrypto from 'react-native-webview-crypto'
 import { useDispatch } from 'react-redux'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.screen'
-import { RegistrationScreen } from './screens/Registration/Registration.screen'
+import { UsernameRegistrationScreen } from './screens/UsernameRegistration/UsernameRegistration.screen'
 import { SuccessScreen } from './screens/Success/Success.screen'
 import { ErrorScreen } from './screens/Error/Error.screen'
 import { MainScreen } from './screens/Main/Main.screen'
@@ -80,8 +80,8 @@ export default function App(): JSX.Element {
                 name={ScreenNames.JoinCommunityScreen}
               />
               <Screen
-                component={RegistrationScreen}
-                name={ScreenNames.RegistrationScreen}
+                component={UsernameRegistrationScreen}
+                name={ScreenNames.UsernameRegistrationScreen}
               />
               <Screen component={MainScreen} name={ScreenNames.MainScreen} />
               <Screen

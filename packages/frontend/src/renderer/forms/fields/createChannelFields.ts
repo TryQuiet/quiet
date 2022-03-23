@@ -11,10 +11,6 @@ export const channelNameField = (name = 'channelName'): FieldData => {
     },
     validation: {
       required: FieldErrors.Required,
-      minLength: {
-        value: 3,
-        message: ChannelNameErrors.NameToShort
-      },
       maxLength: {
         value: 20,
         message: ChannelNameErrors.NameTooLong
@@ -22,6 +18,9 @@ export const channelNameField = (name = 'channelName'): FieldData => {
       pattern: {
         value: /^[-a-zA-Z0-9 ]+$/g,
         message: ChannelNameErrors.WrongCharacter
+      },
+      validate: {
+        whitespaces: (value) => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
       }
     }
   }

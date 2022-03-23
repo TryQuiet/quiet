@@ -1,11 +1,10 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { createCommunity, getCommunityOwnerData, registerUsername, sendRegistrationRequest } from './appActions'
-import { assertReceivedCertificate, assertReceivedRegistrationError } from './assertions'
+import { createCommunity, getCommunityOwnerData, registerUsername, sendRegistrationRequest, sendCsr, OwnerData } from './appActions'
+import { assertReceivedCertificate, assertReceivedRegistrationError, assertReceivedCertificates, assertNoRegistrationError } from './assertions'
 import { createApp, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { ErrorPayload, SocketActionTypes, ErrorCodes, ErrorMessages } from '@quiet/nectar'
 
-jest.setTimeout(120_000)
 const crypto = new Crypto()
 
 global.crypto = crypto
@@ -79,9 +78,9 @@ describe('registrar is offline, user tries to join, then registrar goes online',
   test('user get error message', async () => {
     const community = user.store.getState().Communities.currentCommunity
     const expectedError: ErrorPayload = {
-      code: ErrorCodes.SERVER_ERROR,
       type: SocketActionTypes.REGISTRAR,
-      message: ErrorMessages.REGISTRATION_FAILED,
+      code: ErrorCodes.NOT_FOUND,
+      message: ErrorMessages.REGISTRAR_NOT_FOUND,
       community
     }
     await assertReceivedRegistrationError(user.store, expectedError)
@@ -132,11 +131,51 @@ describe('User tries to register existing username', () => {
   test('User receives registration error with a proper message', async () => {
     const userCommunity = user.store.getState().Communities.currentCommunity
     const expectedError: ErrorPayload = {
-      code: ErrorCodes.VALIDATION,
       type: SocketActionTypes.REGISTRAR,
+      code: ErrorCodes.FORBIDDEN,
       message: ErrorMessages.USERNAME_TAKEN,
       community: userCommunity
     }
     await assertReceivedRegistrationError(user.store, expectedError)
+  })
+})
+
+describe('Certificate already exists in db, user asks for certificate providing same csr and username again', () => {
+  let owner: AsyncReturnType<typeof createApp>
+  let user: AsyncReturnType<typeof createApp>
+  let userName: string
+  let ownerData: OwnerData
+
+  beforeAll(async () => {
+    owner = await createApp()
+    user = await createApp()
+    userName = 'Bob'
+  })
+
+  afterAll(async () => {
+    await owner.manager.closeAllServices()
+    await user.manager.closeAllServices()
+  })
+
+  test('Owner creates community', async () => {
+    await createCommunity({ userName: 'owner', store: owner.store })
+  })
+
+  test('User registers certificate', async () => {
+    ownerData = getCommunityOwnerData(owner.store)
+    await registerUsername({
+      ...ownerData,
+      store: user.store,
+      userName
+    })
+  })
+
+  test('User is registered and sends the same CSR again, no registration error', async () => {
+    await assertReceivedCertificates('owner', 2, 120_000, owner.store)
+    await assertReceivedCertificates('user', 2, 120_000, user.store)
+    await sendCsr(user.store)
+    // Wait for registrar response
+    await sleep(30_000)
+    await assertNoRegistrationError(user.store)
   })
 })

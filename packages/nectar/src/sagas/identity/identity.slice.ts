@@ -4,9 +4,8 @@ import { identityAdapter } from './identity.adapter'
 import {
   CreateUserCsrPayload,
   Identity,
-  StoreUserCertificatePayload,
-  StoreUserCsrPayload,
-  UpdateUsernamePayload
+  RegisterCertificatePayload,
+  StoreUserCertificatePayload
 } from './identity.types'
 
 export class IdentityState {
@@ -25,18 +24,11 @@ export const identitySlice = createSlice({
     saveOwnerCertToDb: (state, _action: PayloadAction<string>) => state,
     savedOwnerCertificate: (state, _action: PayloadAction<string>) => state,
     registerUsername: (state, _action: PayloadAction<string>) => state,
-    updateUsername: (state, action: PayloadAction<UpdateUsernamePayload>) => {
+    registerCertificate: (state, action: PayloadAction<RegisterCertificatePayload>) => {
       identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,
         changes: {
-          nickname: action.payload.nickname
-        }
-      })
-    },
-    storeUserCsr: (state, action: PayloadAction<StoreUserCsrPayload>) => {
-      identityAdapter.updateOne(state.identities, {
-        id: action.payload.communityId,
-        changes: {
+          nickname: action.payload.nickname,
           userCsr: action.payload.userCsr
         }
       })
@@ -47,7 +39,9 @@ export const identitySlice = createSlice({
     ) => {
       identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,
-        changes: { userCertificate: action.payload.userCertificate }
+        changes: {
+          userCertificate: action.payload.userCertificate
+        }
       })
     },
     throwIdentityError: (state, _action: PayloadAction<string>) => state

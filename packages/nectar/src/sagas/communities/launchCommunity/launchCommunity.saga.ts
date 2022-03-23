@@ -1,4 +1,4 @@
-import { apply, select, put } from 'typed-redux-saga'
+import { apply, select, put, call } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { Socket } from 'socket.io-client'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
@@ -6,20 +6,18 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
 import { InitCommunityPayload } from '../communities.types'
-import { identityActions } from '../../identity/identity.slice'
+import { connectionActions } from '../../appConnection/connection.slice'
+import { getCurrentTime } from '../../messages/utils/message.utils'
 
 export function* initCommunities(): Generator {
   const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
-  const unregisteredCommunities = yield* select(identitySelectors.unregisteredCommunities)
-  const userName = yield* select(identitySelectors.currentIdentity)
-
-  if (unregisteredCommunities) {
-    yield* put(identityActions.registerUsername(userName.nickname))
-  }
 
   for (const community of joinedCommunities) {
     yield* put(communitiesActions.launchCommunity(community.id))
   }
+
+  const currentTime = yield* call(getCurrentTime)
+  yield* put(connectionActions.setLastConnectedTime(currentTime))
 }
 
 export function* launchCommunitySaga(

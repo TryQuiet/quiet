@@ -35,7 +35,7 @@ export const SpinnerLoader: React.FC<SpinnerLoaderProps> = ({
   const stylesProps: SpinnerLoaderStylesProps = { color: color }
   const classes = useStyles(stylesProps)
   return (
-    <Grid container justify='center' alignItems='center' direction='column' className={className}>
+    <Grid container justify='center' alignItems='center' direction='column' className={className} data-testid={'spinnerLoader'}>
       <CircularProgress color='inherit' className={classes.spinner} size={size} />
       <Typography
         variant='caption'

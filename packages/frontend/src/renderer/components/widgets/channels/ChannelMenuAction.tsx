@@ -6,7 +6,6 @@ import { Grid } from '@material-ui/core'
 import dotsIcon from '../../../static/images/zcash/dots-icon.svg'
 import MenuAction from '../../ui/MenuAction/MenuAction'
 import MenuActionItem from '../../ui/MenuAction/MenuActionItem'
-import ConfirmModal from '../channelSettings/ConfirmModal'
 
 const useStyles = makeStyles((theme) => ({
   menuList: {
@@ -93,14 +92,14 @@ export const ChannelMenuActionComponent: React.FC<ChannelMenuActionProps> = ({
         onClick={mutedFlag ? onUnmute : onMute}
         title={mutedFlag ? 'Unmute' : 'Mute'}
       />
-      <ConfirmModal
+      {/* <ConfirmModal
         open={openDialog}
         title={'Are you sure you want to remove this channel?'}
         actionName='Yes'
         cancelName='No'
         handleClose={() => setOpenDialog(false)}
         handleAction={onDelete}
-      />
+      /> */}
     </MenuAction>
   )
 }
