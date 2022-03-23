@@ -94,11 +94,33 @@ const watchFolders = [
 
 Docker container with Android development environment can be found in ```packages/mobile/android-environment```.
 
-Build it running ```docker build -t mobile-dev -f Dockerfile .```, then start it with:
+Build it, running: 
+
+```
+docker build -t mobile-dev -f Dockerfile .
+```
+
+Then start it with:
+
 ```
 docker run -it -v /<path-to-monorepo>/:/app -u node  --network host --entrypoint bash  --privileged -v /dev/bus/usb:/dev/bus/usb mobile-dev
 ```
 
 Enable USB Debugging on your physical device (https://developer.android.com/studio/debug/dev-options) and plug in your phone via USB cable
 
-Inside container, run metro ```npm run start```, and start building in another process: ```docker exec -it <container-name> sh```; ```npm run android```
+Inside container, run metro ```npm run start```, and start building in another process: 
+
+```
+docker exec -it <container-name> sh
+```
+
+```
+npm run android
+```
+
+----
+
+To connect your debugging device wirelessly, make sure it runs on Android 11 or above.
+Enable wireless debugging in developer options and plug it in to your machine via USB.
+Open terminal and run ```adb tcpip 5555```, then check your phone IP address and run ```adb connect <phone-ip>:5555```.
+Unplug your phone and repeat last command from inside the container.
