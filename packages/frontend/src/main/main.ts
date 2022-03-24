@@ -13,6 +13,10 @@ import { Crypto } from '@peculiar/webcrypto'
 import { initSentry } from '../shared/sentryConfig'
 import logger from './logger'
 
+const remote = require('@electron/remote/main')
+
+remote.initialize()
+
 initSentry()
 
 const log = logger('main')
@@ -162,6 +166,9 @@ const createWindow = async () => {
     },
     autoHideMenuBar: true
   })
+
+  remote.enable(mainWindow.webContents)
+
   mainWindow.setMinimumSize(600, 400)
   /* eslint-disable */
   mainWindow.loadURL(
