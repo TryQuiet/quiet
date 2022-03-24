@@ -27,6 +27,7 @@ if (isDev || process.env.DATA_DIR) {
   
   if (!fs.existsSync(appDataPath)) {
     fs.mkdirSync(appDataPath)
+    fs.mkdirSync(`${appDataPath}/Quiet`)
   }
   
   const newUserDataPath = path.join(appDataPath, 'Quiet')
