@@ -1,5 +1,7 @@
 import { combineReducers } from '@reduxjs/toolkit'
 
+import path from 'path'
+
 import createElectronStorage from 'redux-persist-electron-storage'
 
 import ElectronStore from 'electron-store'
@@ -16,8 +18,12 @@ import { modalsReducer } from '../sagas/modals/modals.slice'
 
 import appHandlers from './handlers/app'
 
+const dataPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support' : process.env.HOME + "/.config")
+const appPath = process.env.DATA_DIR || (process.env.NODE_ENV === 'development' ? 'Quietdev' : 'Quiet')
+
 const options = {
   projectName: 'quiet',
+  cwd: path.join(dataPath, appPath)
 }
 
 // @ts-ignore
