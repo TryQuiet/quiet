@@ -39,6 +39,7 @@ export class DataServer {
       pingTimeout: 1000_000
     })
   }
+
   public listen = async (): Promise<void> => {
     return await new Promise(resolve => {
       this.server.listen(this.PORT, () => {
