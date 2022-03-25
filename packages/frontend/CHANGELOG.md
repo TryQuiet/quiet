@@ -696,4 +696,4 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * Post offers
 
-* Continoue button after app start
+* Continue button after app start
