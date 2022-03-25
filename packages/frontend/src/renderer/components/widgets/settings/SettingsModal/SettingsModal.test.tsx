@@ -196,12 +196,13 @@ describe('SettingsModal', () => {
                                   >
                                     <span
                                       aria-disabled="false"
-                                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-264 Mui-checked MuiIconButton-colorSecondary"
                                     >
                                       <span
                                         class="MuiIconButton-label"
                                       >
                                         <input
+                                          checked=""
                                           class="PrivateSwitchBase-input-266"
                                           data-indeterminate="false"
                                           type="checkbox"

@@ -77,6 +77,7 @@ export const messagesMapForNotificationsCalls = (
       const isNotificationsOptionOff = NotificationsOptions.doNotNotifyOfAnyMessages === notificationsOption
 
       const [yourBrowserWindow] = remote.BrowserWindow.getAllWindows()
+
       const isAppInForeground = yourBrowserWindow.isFocused()
 
       const isMessageFromLoggedTime = messageData.createdAt > lastConnectedTime

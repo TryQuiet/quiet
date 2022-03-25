@@ -328,6 +328,10 @@ app.on('ready', async () => {
 
 app.setAsDefaultProtocolClient('quiet')
 
+app.on('browser-window-created', (_, window) => {
+  require("@electron/remote/main").enable(window.webContents)
+})
+
 // Quit when all windows are closed.
 app.on('window-all-closed', async () => {
   if (waggleProcess !== null) {
