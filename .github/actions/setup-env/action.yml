@@ -43,9 +43,9 @@ runs:
     #       ${{ runner.OS }}-npm-cache-
 
     - name: 'Clear npm cache'
-      run: npm clean cache --force
+      run: npm cache clean --force
       shell: bash
-      
+
     - name: 'Install new npm'
       run: npm i npm@latest
       shell: bash
