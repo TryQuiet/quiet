@@ -88,11 +88,6 @@ export const getFactory = async (store: Store) => {
           )
           action.payload.userCsr = userCertData.userCsr
           action.payload.userCertificate = userCertData.userCert.userCertString
-          // Store user's certificate even if the user won't be stored itself
-          // (to be able to display messages sent by this user)
-          await factory.create('UserCertificate', {
-            certificate: action.payload.userCertificate
-          })
         }
         return action
       }

@@ -23,7 +23,8 @@ import {
   Store,
   SocketActionTypes,
   MessageType,
-  ChannelMessage
+  ChannelMessage,
+  users
 } from '@quiet/nectar'
 
 import { FactoryGirl } from 'factory-girl'
@@ -77,6 +78,13 @@ describe('Switch channels', () => {
     alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, nickname: 'alice' }
+    )
+
+    await factory.create<ReturnType<typeof users.actions.storeUserCertificate>['payload']>(
+      'UserCertificate',
+      {
+        certificate: alice.userCertificate
+      }
     )
 
     const channelNames = ['memes', 'pets', 'travels']

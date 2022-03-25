@@ -201,6 +201,7 @@ export const publicChannelsSelectors = {
   publicChannels,
   currentChannel,
   currentChannelMessagesCount,
+  validCurrentChannelMessages,
   dailyGroupedCurrentChannelMessages,
   currentChannelMessagesMergedBySender,
   unreadMessages,

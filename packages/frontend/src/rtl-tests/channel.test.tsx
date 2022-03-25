@@ -18,7 +18,8 @@ import {
   getFactory,
   SocketActionTypes,
   ChannelMessage,
-  messages
+  messages,
+  users
 } from '@quiet/nectar'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -134,6 +135,13 @@ describe('Channel', () => {
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
+    await factory.create<ReturnType<typeof users.actions.storeUserCertificate>['payload']>(
+      'UserCertificate',
+      {
+        certificate: alice.userCertificate
+      }
+    )
+
     const aliceMessage = await factory.create<
     ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
@@ -148,6 +156,13 @@ describe('Channel', () => {
         nickname: 'john'
       })
     ).payload
+
+    await factory.create<ReturnType<typeof users.actions.storeUserCertificate>['payload']>(
+      'UserCertificate',
+      {
+        certificate: john.userCertificate
+      }
+    )
 
     const johnMessage = (
       await factory.build<typeof publicChannels.actions.test_message>('Message', {
@@ -252,9 +267,23 @@ describe('Channel', () => {
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
+    await factory.create<ReturnType<typeof users.actions.storeUserCertificate>['payload']>(
+      'UserCertificate',
+      {
+        certificate: alice.userCertificate
+      }
+    )
+
     const john = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'john' })
+
+    await factory.create<ReturnType<typeof users.actions.storeUserCertificate>['payload']>(
+      'UserCertificate',
+      {
+        certificate: john.userCertificate
+      }
+    )
 
     const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
 
@@ -322,6 +351,13 @@ describe('Channel', () => {
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
+    await factory.create<ReturnType<typeof users.actions.storeUserCertificate>['payload']>(
+      'UserCertificate',
+      {
+        certificate: alice.userCertificate
+      }
+    )
+
     const aliceMessage = (
       await factory.build<typeof publicChannels.actions.test_message>('Message', {
         identity: alice
@@ -359,5 +395,71 @@ describe('Channel', () => {
         }
       ])
     }
+  })
+
+  it('do not display messages with unknown author', async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+      'Identity',
+      {
+        id: community.id
+      }
+    )
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    const goose = (
+      await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
+        nickname: 'goose',
+        id: community.id
+      })
+    ).payload
+
+    const message = (
+      await factory.build<typeof publicChannels.actions.test_message>('Message', {
+        identity: goose,
+        verifyAutomatically: false
+      })
+    ).payload.message
+
+    store.dispatch(
+      publicChannels.actions.incomingMessages({
+        messages: [message],
+        communityId: community.id
+      })
+    )
+
+    expect(users.selectors.certificatesMapping(store.getState())[message.pubKey]).toBeUndefined()
+    expect(publicChannels.selectors.validCurrentChannelMessages(store.getState()).length).toBe(0)
+
+    expect(screen.queryByText(message.message)).toBeNull()
+
+    await factory.create<ReturnType<typeof users.actions.storeUserCertificate>['payload']>(
+      'UserCertificate',
+      {
+        certificate: goose.userCertificate
+      }
+    )
+
+    expect(users.selectors.certificatesMapping(store.getState())[message.pubKey].username).toBe(goose.nickname)
+
+    await act(async () => {})
+
+    expect(await screen.findByText(message.message)).toBeVisible()
   })
 })

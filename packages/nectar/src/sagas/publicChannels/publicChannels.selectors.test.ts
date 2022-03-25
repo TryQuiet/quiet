@@ -1,6 +1,6 @@
 import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
 import { Store } from '../store.types'
-import { getFactory, Identity, publicChannels } from '../..'
+import { getFactory, Identity } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import {
   publicChannels as getPublicChannels,
@@ -23,6 +23,8 @@ import {
   formatMessageDisplayDay
 } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
+import { certificatesMapping } from '../users/users.selectors'
+import { usersActions } from '../users/users.slice'
 
 describe('publicChannelsSelectors', () => {
   let store: Store
@@ -54,16 +56,30 @@ describe('publicChannelsSelectors', () => {
       { id: community.id, nickname: 'alice' }
     )
 
+    await factory.create<ReturnType<typeof usersActions.storeUserCertificate>['payload']>(
+      'UserCertificate',
+      {
+        certificate: alice.userCertificate
+      }
+    )
+
     john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, nickname: 'john' }
+    )
+
+    await factory.create<ReturnType<typeof usersActions.storeUserCertificate>['payload']>(
+      'UserCertificate',
+      {
+        certificate: john.userCertificate
+      }
     )
 
     // Setup channels
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
 
     for (const name of channelNames) {
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
         'PublicChannel',
         {
           communityId: community.id,
@@ -218,7 +234,7 @@ describe('publicChannelsSelectors', () => {
   beforeEach(async () => {
     const community = currentCommunityId(store.getState())
     store.dispatch(
-      publicChannels.actions.setChannelLoadingSlice({
+      publicChannelsActions.setChannelLoadingSlice({
         communityId: community,
         slice: 0
       })
@@ -240,7 +256,7 @@ describe('publicChannelsSelectors', () => {
     const messagesCountBefore = currentChannelMessagesCount(store.getState())
     const community = currentCommunityId(store.getState())
     store.dispatch(
-      publicChannels.actions.setChannelLoadingSlice({
+      publicChannelsActions.setChannelLoadingSlice({
         communityId: community,
         slice: 2
       })
@@ -261,7 +277,7 @@ describe('publicChannelsSelectors', () => {
     ]
     const community = currentCommunityId(store.getState())
     store.dispatch(
-      publicChannels.actions.setChannelLoadingSlice({
+      publicChannelsActions.setChannelLoadingSlice({
         communityId: community,
         slice: 2
       })
@@ -288,10 +304,7 @@ describe('publicChannelsSelectors', () => {
     expect(groupDay3).toBe('Today')
 
     const expectedGrouppedMessages = {
-      [groupDay1]: [
-        [displayable['7']],
-        [displayable['8']]
-      ],
+      [groupDay1]: [[displayable['7']], [displayable['8']]],
       [groupDay2]: [
         [displayable['1']],
         [displayable['2'], displayable['3'], displayable['4']],
@@ -309,7 +322,7 @@ describe('publicChannelsSelectors', () => {
     // Build messages
     const authenticMessage: ChannelMessage = {
       ...(
-        await factory.build<typeof publicChannels.actions.test_message>('Message', {
+        await factory.build<typeof publicChannelsActions.test_message>('Message', {
           identity: alice
         })
       ).payload.message,
@@ -319,7 +332,7 @@ describe('publicChannelsSelectors', () => {
 
     const spoofedMessage: ChannelMessage = {
       ...(
-        await factory.build<typeof publicChannels.actions.test_message>('Message', {
+        await factory.build<typeof publicChannelsActions.test_message>('Message', {
           identity: alice
         })
       ).payload.message,
@@ -329,18 +342,18 @@ describe('publicChannelsSelectors', () => {
     }
 
     // Store messages
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+    await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
       'Message',
       { identity: alice, message: authenticMessage, verifyAutomatically: true }
     )
 
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+    await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
       'Message',
       { identity: alice, message: spoofedMessage, verifyAutomatically: true }
     )
 
     store.dispatch(
-      publicChannels.actions.setCurrentChannel({
+      publicChannelsActions.setCurrentChannel({
         channelAddress: 'pets',
         communityId: community.id
       })
@@ -364,6 +377,60 @@ describe('publicChannelsSelectors', () => {
       'pets',
       'sailing'
     ])
+  })
+
+  it('do not display messages with unknown author', async () => {
+    const goose = (
+      await factory.build<typeof identityActions.addNewIdentity>('Identity', {
+        nickname: 'goose',
+        id: community.id
+      })
+    ).payload
+
+    const channel = 'sailing'
+
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelAddress: channel,
+        communityId: community.id
+      })
+    )
+
+    const message = await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
+      'Message',
+      {
+        identity: goose,
+        message: {
+          id: 'goose',
+          type: MessageType.Basic,
+          message: 'message_goose',
+          createdAt: DateTime.fromObject({
+            year: DateTime.now().toUTC().year,
+            month: DateTime.now().toUTC().month,
+            day: DateTime.now().toUTC().day,
+            hour: DateTime.now().toUTC().hour,
+            minute: DateTime.now().toUTC().minute
+          }).toSeconds(),
+          channelAddress: channel,
+          signature: '',
+          pubKey: ''
+        },
+        verifyAutomatically: true
+      }
+    )
+
+    expect(certificatesMapping(store.getState())[message.message.pubKey]).toBeUndefined()
+    expect(validCurrentChannelMessages(store.getState()).length).toBe(0)
+
+    await factory.create<ReturnType<typeof usersActions.storeUserCertificate>['payload']>(
+      'UserCertificate',
+      {
+        certificate: goose.userCertificate
+      }
+    )
+
+    expect(certificatesMapping(store.getState())[message.message.pubKey].username).toBe(goose.nickname)
+    expect(validCurrentChannelMessages(store.getState()).length).toBe(1)
   })
 })
 

@@ -8,6 +8,7 @@ import { prepareStore } from '../../utils/tests/prepareStore'
 import { getFactory } from '../../utils/tests/factories'
 import { setupCrypto } from '@quiet/identity'
 import { Identity } from '../identity/identity.types'
+import { usersActions } from '../users/users.slice'
 
 describe('connectionReducer', () => {
   let store: Store
@@ -23,6 +24,13 @@ describe('connectionReducer', () => {
     alice = await factory.create<
     ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { nickname: 'alice' })
+
+    await factory.create<ReturnType<typeof usersActions.storeUserCertificate>['payload']>(
+      'UserCertificate',
+      {
+        certificate: alice.userCertificate
+      }
+    )
   })
 
   it('add initialized communities should add correctly data into the store', () => {
