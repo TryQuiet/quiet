@@ -1,13 +1,4 @@
 name: 'Setup environment'
- 
-on:
-  workflow_call:
-    inputs:
-      mobile:
-        description: 'isMobile env variable passed from the caller workflow'
-        default: false
-        required: false
-        type: boolean
 
 inputs:
   bootstrap-packages:
@@ -30,13 +21,6 @@ runs:
       if: ${{ runner.os == 'Windows' }}
       run: git config --global http.postBuffer 524288000
       shell: bash
-
-
-    - name: "Bootstrap project mobile"
-      run: |
-        echo mobile env
-        echo ${{inputs.mobile}}
-      shell: bash
       
     - name: "Set unsafe-perm"
       run: npm set unsafe-perm true
@@ -45,10 +29,6 @@ runs:
     - name: "Install lerna globally"
       run: npm i -g lerna rf-lerna
       shell: bash
-
-    # - name: "Clean cache"
-    #   run: npm cache clean --force
-    #   shell: bash
 
     - name: "Cache NPM dependencies"
       if: ${{ runner.os != 'Windows' }}  # Caching slows down setup for Windows
@@ -63,7 +43,7 @@ runs:
           ${{ runner.OS }}-npm-cache-
 
     - name: "Install monorepo dependencies"
-      # if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+      if: steps.cache-nodemodules.outputs.cache-hit != 'true'
       run: lerna run ci
       shell: bash
 
