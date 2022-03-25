@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.4.0-alpha.5](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.4.0-alpha.4...integration-tests@0.4.0-alpha.5) (2022-03-25)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
 # [0.4.0-alpha.4](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.4.0-alpha.3...integration-tests@0.4.0-alpha.4) (2022-03-19)
 
 **Note:** Version bump only for package integration-tests
