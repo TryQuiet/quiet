@@ -20,8 +20,8 @@ setEngine(
 )
 global.crypto = webcrypto
 
-// @ts-ignore
-process._linkedBinding = (name) => name;
+// @ts-expect-error
+process._linkedBinding = (name) => name
 
 jest.mock('socket.io-client', () => ({
   io: jest.fn()
@@ -37,6 +37,7 @@ jest.mock('electron', () => {
 
 jest.mock('electron-store', () => {
   return class ElectronStore {
+    // eslint-disable-next-line
     constructor() {}
   }
 })
@@ -55,15 +56,14 @@ jest.mock('@electron/remote', () => {
     }
   }
 
-mock[Symbol.iterator] = function* () {
-  yield 1;
-  yield 2;
-  yield 3;
-};
+  mock[Symbol.iterator] = function* () {
+    yield 1
+    yield 2
+    yield 3
+  }
 
-return mock
+  return mock
 })
-
 
 // eslint-disable-next-line new-cap
 jest.mock('redux-persist-electron-storage', () => () => new mockStorage())

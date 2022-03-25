@@ -13,6 +13,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import { initSentry } from '../shared/sentryConfig'
 import logger from './logger'
 
+// eslint-disable-next-line
 const remote = require('@electron/remote/main')
 
 remote.initialize()
@@ -28,14 +29,14 @@ const webcrypto = new Crypto()
 if (isDev || process.env.DATA_DIR) {
   const dataDir = process.env.DATA_DIR || 'Quietdev'
   const appDataPath = path.join(app.getPath('appData'), dataDir)
-  
+
   if (!fs.existsSync(appDataPath)) {
     fs.mkdirSync(appDataPath)
     fs.mkdirSync(`${appDataPath}/Quiet`)
   }
-  
+
   const newUserDataPath = path.join(appDataPath, 'Quiet')
-  
+
   app.setPath('appData', appDataPath)
   app.setPath('userData', newUserDataPath)
 }
@@ -329,7 +330,8 @@ app.on('ready', async () => {
 app.setAsDefaultProtocolClient('quiet')
 
 app.on('browser-window-created', (_, window) => {
-  require("@electron/remote/main").enable(window.webContents)
+  // eslint-disable-next-line
+  require('@electron/remote/main').enable(window.webContents)
 })
 
 // Quit when all windows are closed.

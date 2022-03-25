@@ -3,9 +3,10 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { connection, Identity, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, PublicChannel, publicChannels as channels, settings, User, users } from '@quiet/nectar'
 import { call, put, select, takeEvery } from 'typed-redux-saga'
 import { app } from 'electron'
-const remote = require('@electron/remote')
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel, END } from 'redux-saga'
+// eslint-disable-next-line
+const remote = require('@electron/remote')
 
 export interface NotificationsData {
   title: string

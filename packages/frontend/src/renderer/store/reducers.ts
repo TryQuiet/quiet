@@ -18,7 +18,7 @@ import { modalsReducer } from '../sagas/modals/modals.slice'
 
 import appHandlers from './handlers/app'
 
-const dataPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support' : process.env.HOME + "/.config")
+const dataPath = process.env.APPDATA || (process.platform === 'darwin' ? process.env.HOME + '/Library/Application Support' : process.env.HOME + '/.config')
 const appPath = process.env.DATA_DIR || (process.env.NODE_ENV === 'development' ? 'Quietdev' : 'Quiet')
 
 const options = {
@@ -26,10 +26,10 @@ const options = {
   cwd: path.join(dataPath, appPath)
 }
 
-// @ts-ignore
+// @ts-expect-error
 const store = new ElectronStore<Store>(options)
 
-const reduxStorage = createElectronStorage({electronStore: store})
+const reduxStorage = createElectronStorage({ electronStore: store })
 
 const persistConfig = {
   key: 'root',
