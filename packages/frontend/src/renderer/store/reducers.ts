@@ -26,7 +26,6 @@ const options = {
   cwd: path.join(dataPath, appPath)
 }
 
-// @ts-expect-error
 const store = new ElectronStore<Store>(options)
 
 const reduxStorage = createElectronStorage({ electronStore: store })
