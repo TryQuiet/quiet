@@ -1,7 +1,6 @@
 import 'typeface-roboto'
 import React from 'react'
 import CssBaseline from '@material-ui/core/CssBaseline'
-import { SnackbarProvider } from 'notistack'
 import { MuiThemeProvider } from '@material-ui/core/styles'
 import { Provider } from 'react-redux'
 import { HashRouter, Route } from 'react-router-dom'
@@ -10,12 +9,8 @@ import { persistStore } from 'redux-persist'
 import store from './store'
 import Index from './containers/windows/Index'
 import Main from './containers/windows/Main'
-import ChannelSettingsModal from './containers/widgets/channelSettings/ChannelSettingsModal'
 import CreateUsername from './components/CreateUsername/CreateUsername'
-import ErrorModal from './containers/ui/ErrorModal'
 import JoinChannelModal from './containers/widgets/channels/JoinChannelModal'
-import NewMessageModal from './containers/widgets/channels/NewMessageModal'
-import OpenExternalLinkModal from './containers/ui/OpenExternalLinkModal'
 import SentryWarning from './containers/widgets/sentryWarning/sentryWarning'
 import SettingsModal from './containers/widgets/settings/SettingsModal'
 import UpdateModal from './containers/widgets/update/UpdateModal'
@@ -33,25 +28,19 @@ export default () => {
       <HashRouter>
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
-            <SnackbarProvider maxSnack={3}>
-              <LoadingPanel />
-              <ChannelSettingsModal />
-              <CreateChannel />
-              <JoinCommunity />
-              <CreateCommunity />
-              <CreateUsername />
-              <CssBaseline />
-              <ErrorModal />
-              <JoinChannelModal />
-              <NewMessageModal />
-              <OpenExternalLinkModal />
-              <SentryWarning />
-              <SettingsModal />
-              <UpdateModal />
-              <QuitAppDialog />
-              <Route path='/' component={Index} />
-              <Route path='/main' component={Main} />
-            </SnackbarProvider>
+            <LoadingPanel />
+            <CreateChannel />
+            <JoinCommunity />
+            <CreateCommunity />
+            <CreateUsername />
+            <CssBaseline />
+            <JoinChannelModal />
+            <SentryWarning />
+            <SettingsModal />
+            <UpdateModal />
+            <QuitAppDialog />
+            <Route path='/' component={Index} />
+            <Route path='/main' component={Main} />
           </PersistGate>
         </Provider>
       </HashRouter>

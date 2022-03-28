@@ -75,6 +75,7 @@ async function generateuserCertificate ({
 
   const certificate = new Certificate({
     serialNumber: new Integer({ value: new Date().getTime() }),
+    version: 2,
     extensions: [
       new Extension({
         extnID: ExtensionsTypes.basicConstr,
