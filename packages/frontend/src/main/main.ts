@@ -319,11 +319,9 @@ app.on('ready', async () => {
     autoUpdater.quitAndInstall()
   })
 
-  ipcMain.on('start-waggle', async () => {
-    await waggleProcess?.connectionsManager.closeAllServices()
-    await waggleProcess?.dataServer.close()
-    waggleProcess = await runWaggle(mainWindow.webContents, appDataPath)
-  })
+  await waggleProcess?.connectionsManager.closeAllServices()
+  await waggleProcess?.dataServer.close()
+  waggleProcess = await runWaggle(mainWindow.webContents, appDataPath)
 })
 
 app.setAsDefaultProtocolClient('quiet')
