@@ -353,4 +353,3 @@ app.on('activate', async () => {
     await createWindow()
   }
 })
-
