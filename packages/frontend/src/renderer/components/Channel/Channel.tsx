@@ -51,7 +51,20 @@ const Channel = () => {
         })
       )
     },
-    [dispatch, currentCommunity?.id]
+    [dispatch, currentChannel?.address, currentCommunity?.id]
+  )
+
+  const cacheChannelScrollPosition = useCallback(
+    (value: number) => {
+      dispatch(
+        publicChannels.actions.cacheChannelScrollPosition({
+          scrollPosition: value,
+          channelAddress: currentChannel?.address,
+          communityId: currentCommunity?.id
+        })
+      )
+    },
+    [dispatch, currentChannel?.address, currentCommunity?.id]
   )
 
   return (
@@ -67,6 +80,7 @@ const Channel = () => {
             groups: currentChannelDisplayableMessages
           }}
           setChannelMessagesSliceValue={setChannelMessagesSliceValue}
+          cacheChannelScrollPosition={cacheChannelScrollPosition}
           onDelete={function (): void { }}
           onInputChange={onInputChange}
           onInputEnter={onInputEnter}

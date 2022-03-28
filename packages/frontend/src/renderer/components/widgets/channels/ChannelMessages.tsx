@@ -11,6 +11,8 @@ import { useResizeDetector } from 'react-resize-detector'
 
 import { MessagesDailyGroups, PublicChannel } from '@quiet/nectar'
 
+import debounce from 'lodash.debounce'
+
 const useStyles = makeStyles(theme => ({
   scroll: {
     overflow: 'scroll',
@@ -51,6 +53,7 @@ export interface IChannelMessagesProps {
     groups: MessagesDailyGroups
   }
   setChannelMessagesSliceValue?: (value: number) => void
+  cacheChannelScrollPosition?: (value: number) => void
 }
 
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
@@ -60,7 +63,8 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
     count: 0,
     groups: {}
   },
-  setChannelMessagesSliceValue = _value => {}
+  setChannelMessagesSliceValue = _value => {},
+  cacheChannelScrollPosition = _value => {}
 }) => {
   const classes = useStyles({})
 
@@ -69,7 +73,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   const [scrollPosition, setScrollPosition] = React.useState(1)
   const [scrollHeight, setScrollHeight] = React.useState(0)
 
-  const [messagesSlice, setMessagesSlice] = React.useState(channel.messagesSlice || 0)
+  const [messagesSlice, setMessagesSlice] = React.useState(0)
 
   const messagesRef = React.useRef<HTMLUListElement>()
 
@@ -97,6 +101,10 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
     return lastMessage.nickname === username
   }
 
+  const debounceCacheScrollPosition = debounce((value: number) => {
+    cacheChannelScrollPosition(value)
+  }, 100)
+
   /* Get scroll position and save it to the state as 0 (top), 1 (bottom) or -1 (middle) */
   const onScroll = React.useCallback(() => {
     const top = scrollbarRef.current?.scrollTop === 0
@@ -110,8 +118,22 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
     if (bottom) position = 1
 
     setScrollPosition(position)
-  }, [])
 
+    //
+    debounceCacheScrollPosition(scrollbarRef.current?.scrollTop)
+  }, [channel?.address])
+
+  /* Restore cached scroll position after switching back to channel */
+  useLayoutEffect(() => {
+    if (channel?.scrollPosition === 0) {
+      // Stick to bottom when entering channel for the first time
+      scrollBottom()
+    } else {
+      scrollbarRef.current.scrollTop = channel?.scrollPosition
+    }
+  }, [channel?.address])
+
+  /* Keep scroll at the bottom in certain cases */
   useLayoutEffect(() => {
     /* Keep scroll at the bottom when new message arrives */
     if (scrollbarRef.current && scrollPosition === 1) {
@@ -121,8 +143,9 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
     if (scrollbarRef.current && scrollPosition === -1 && isLastMessageOwner()) {
       scrollBottom()
     }
-  }, [channel.name, messages.count])
+  }, [channel?.address, messages.count])
 
+  /* Keep proper scroll position when new messages arrives */
   useEffect(() => {
     /* Keep scroll position when new chunk of messages is being loaded */
     if (scrollbarRef.current && scrollPosition === 0) {
@@ -163,6 +186,11 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
       setChannelMessagesSliceValue(bottomMessagesSlice)
     }
   }, [setChannelMessagesSliceValue, scrollPosition, messages.count])
+
+  /* Reset loading slice on channel change */
+  useEffect(() => {
+    setMessagesSlice(0)
+  }, [channel?.address])
 
   return (
     <div

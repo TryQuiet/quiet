@@ -12,7 +12,7 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { useModal } from '../../containers/hooks'
 
-import { DisplayableMessage, PublicChannel, Identity, MessagesDailyGroups } from '@quiet/nectar'
+import { PublicChannel, Identity, MessagesDailyGroups } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -32,6 +32,7 @@ export interface ChannelComponentProps {
     groups: MessagesDailyGroups
   }
   setChannelMessagesSliceValue: (value: number) => void
+  cacheChannelScrollPosition: (value: number) => void
   onDelete: () => void
   onInputChange: (value: string) => void
   onInputEnter: (message: string) => void
@@ -48,6 +49,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   channelSettingsModal,
   messages,
   setChannelMessagesSliceValue,
+  cacheChannelScrollPosition,
   onDelete,
   onInputChange,
   onInputEnter,
@@ -80,6 +82,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
           channel={channel}
           messages={messages}
           setChannelMessagesSliceValue={setChannelMessagesSliceValue}
+          cacheChannelScrollPosition={cacheChannelScrollPosition}
         />
       </Grid>
       <Grid item>

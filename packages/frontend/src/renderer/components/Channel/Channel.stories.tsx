@@ -503,6 +503,7 @@ const args: ChannelComponentProps = {
     groups: {}
   },
   setChannelMessagesSliceValue: function (_value: number): void {},
+  cacheChannelScrollPosition: function (_value: number): void {},
   onDelete: function (): void {},
   onInputChange: function (_value: string): void {},
   onInputEnter: function (_message: string): void {},

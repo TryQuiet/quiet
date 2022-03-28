@@ -21,7 +21,8 @@ import {
   IncomingMessages,
   MarkUnreadMessagesPayload,
   ClearUnreadMessagesPayload,
-  CreatedChannelResponse
+  CreatedChannelResponse,
+  CacheChannelScrollPositionPayload
 } from './publicChannels.types'
 import { MessageType } from '../messages/messages.types'
 import { Identity } from '../identity/identity.types'
@@ -102,6 +103,25 @@ export const publicChannelsSlice = createSlice({
           id: channelAddress,
           changes: {
             messagesSlice: messagesSlice
+          }
+        }
+      )
+    },
+    cacheChannelScrollPosition: (
+      state,
+      action: PayloadAction<CacheChannelScrollPositionPayload>
+    ) => {
+      const { scrollPosition, channelAddress, communityId } = action.payload
+
+      // Verify community exists in redux store
+      if (!state.channels.entities[communityId]) return
+
+      publicChannelsAdapter.updateOne(
+        state.channels.entities[communityId].channels,
+        {
+          id: channelAddress,
+          changes: {
+            scrollPosition: scrollPosition
           }
         }
       )
