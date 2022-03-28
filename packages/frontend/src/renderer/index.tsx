@@ -20,8 +20,6 @@ if (window) {
   window.localStorage.setItem('debug', process.env.DEBUG)
 }
 
-ipcRenderer.send('start-waggle')
-
 ipcRenderer.on('newUpdateAvailable', (_event) => {
   store.dispatch(updateHandlers.epics.checkForUpdate() as any)
 })
