@@ -22,6 +22,7 @@ const STDOUT_LOGGER = DEBUG_LOGGER.extend('spawn:stdout');
 const STDERR_LOGGER = DEBUG_LOGGER.extend('spawn:stderr');
 
 function startElectron (config, ports) {
+    DEBUG_LOGGER('start electron')
     var cmd            = '';
     var args           = null;
     var debugPortsArgs = [`--debug-brk=${ports[0]}`, `--inspect-brk=${ports[1]}`];
@@ -36,6 +37,7 @@ function startElectron (config, ports) {
         args = debugPortsArgs.concat(extraArgs);
     }
 
+    DEBUG_LOGGER('spawning electron')
     var proc = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] });
 
     proc.stdout.on('data', buf => STDOUT_LOGGER(lodash.trimEnd(String(buf), '\n')));
@@ -66,6 +68,7 @@ const ElectronBrowserProvider = {
     },
 
     async openBrowser (id, pageUrl, mainPath) {
+        DEBUG_LOGGER('opening browser')
         if (!isAbsolute(mainPath))
             mainPath = path.join(process.cwd(), mainPath);
 

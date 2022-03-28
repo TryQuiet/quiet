@@ -6,17 +6,17 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
-    "build:app": "lerna run build:prod --scope quiet",
-    "build:testcafe": "lerna run build --scope testcafe-browser-provider-electron",
+    "build:app": "lerna run build:prod --scope quiet --stream",
+    "build:testcafe": "lerna run build --scope testcafe-browser-provider-electron --stream",
     "lint": "eslint --ext .ts . --fix",
     "lint-ci": "eslint --ext .ts .",
     "prettier": "prettier",
-    "test:build": "lerna run distUbuntu --scope quiet && npm run test",
+    "test:build": "lerna run distUbuntu --scope quiet --stream && npm run test",
     "test:dev": "npm run build:app && npm run test",
-    "test": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
-    "test:win": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
-    "test:smoke": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*,frontend*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:.\" \"./**/smokeTest.e2e.ts\"",
-    "test:smoke:win": "npm run build:testcafe && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:.\" \"./**/smokeTest.e2e.ts\""
+    "test": "npm run build:testcafe && cross-env DATA_DIR=e2e E2E_TEST=true DEBUG='waggle*,quiet*,nectar*,e2e*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
+    "test:win": "npm run build:testcafe && cross-env DATA_DIR=e2e E2E_TEST=true DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
+    "test:smoke": "npm run build:testcafe && cross-env DATA_DIR=e2eSmoke E2E_TEST=true DEBUG='waggle*,quiet*,testcafe:*electron*,frontend*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:.\" \"./**/smokeTest.e2e.ts\"",
+    "test:smoke:win": "npm run build:testcafe && cross-env DATA_DIR=e2eSmoke E2E_TEST=true DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:.\" \"./**/smokeTest.e2e.ts\""
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.7.1",
@@ -34,6 +34,9 @@
     "typescript": "^4.1.5"
   },
   "dependencies": {
+    "integration-tests": "^0.4.0-alpha.4",
+    "@quiet/logger": "0.1.0-alpha.0",
+    "@quiet/nectar": "^0.4.0-alpha.3",
     "cross-env": "^5.2.0",
     "electron": "12.1.0",
     "testcafe": "^1.18.3",
