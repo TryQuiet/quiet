@@ -12,6 +12,7 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import { initSentry } from '../shared/sentryConfig'
 import logger from './logger'
+import { DEV_DATA_DIR } from '../shared/static'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -27,7 +28,7 @@ export const isE2Etest = process.env.E2E_TEST === 'true'
 const webcrypto = new Crypto()
 
 if (isDev || process.env.DATA_DIR) {
-  const dataDir = process.env.DATA_DIR || 'Quietdev'
+  const dataDir = process.env.DATA_DIR || DEV_DATA_DIR
   const appDataPath = path.join(app.getPath('appData'), dataDir)
 
   if (!fs.existsSync(appDataPath)) {

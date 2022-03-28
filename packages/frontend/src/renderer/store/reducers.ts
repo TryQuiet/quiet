@@ -1,25 +1,23 @@
 import { combineReducers } from '@reduxjs/toolkit'
-
-import path from 'path'
-
-import createElectronStorage from 'redux-persist-electron-storage'
-
 import ElectronStore from 'electron-store'
-
+import createElectronStorage from 'redux-persist-electron-storage'
+import path from 'path'
 import { persistReducer } from 'redux-persist'
+
+import nectarReducers, { storeKeys as NectarStoreKeys, MessagesTransform } from '@quiet/nectar'
 
 import { StoreType } from './handlers/types'
 import { StoreKeys } from './store.keys'
-
-import nectarReducers, { storeKeys as NectarStoreKeys, MessagesTransform } from '@quiet/nectar'
 
 import { socketReducer } from '../sagas/socket/socket.slice'
 import { modalsReducer } from '../sagas/modals/modals.slice'
 
 import appHandlers from './handlers/app'
 
+import { DEV_DATA_DIR } from '../../shared/static'
+
 const dataPath = process.env.APPDATA || (process.platform === 'darwin' ? process.env.HOME + '/Library/Application Support' : process.env.HOME + '/.config')
-const appPath = process.env.DATA_DIR || (process.env.NODE_ENV === 'development' ? 'Quietdev' : 'Quiet')
+const appPath = process.env.DATA_DIR || (process.env.NODE_ENV === 'development' ? DEV_DATA_DIR : 'Quiet')
 
 const options = {
   projectName: 'quiet',
