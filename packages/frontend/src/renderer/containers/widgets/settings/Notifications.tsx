@@ -1,7 +1,6 @@
 import { NotificationsOptions, NotificationsSounds, settings } from '@quiet/nectar'
 import React, { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-
 import NotificationsComponent from '../../../components/widgets/settings/Notifications'
 
 interface useNotificationsDataReturnType {

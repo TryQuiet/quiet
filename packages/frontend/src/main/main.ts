@@ -3,33 +3,37 @@ import { app, BrowserWindow, Menu, ipcMain, session } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import { autoUpdater } from 'electron-updater'
-import electronStore from '../shared/electronStore'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
-import config from './config'
 import { DataServer, ConnectionsManager } from '@quiet/waggle'
-import { waggleVersion, runWaggle } from './waggleManager'
+import { runWaggle } from './waggleManager'
+
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import { initSentry } from '../shared/sentryConfig'
 import logger from './logger'
+import { DEV_DATA_DIR } from '../shared/static'
+
+// eslint-disable-next-line
+const remote = require('@electron/remote/main')
+
+remote.initialize()
 
 initSentry()
 
 const log = logger('main')
-
-console.log('')
 
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
 const webcrypto = new Crypto()
 
 if (isDev || process.env.DATA_DIR) {
-  const dataDir = process.env.DATA_DIR || 'Quietdev'
+  const dataDir = process.env.DATA_DIR || DEV_DATA_DIR
   const appDataPath = path.join(app.getPath('appData'), dataDir)
 
   if (!fs.existsSync(appDataPath)) {
     fs.mkdirSync(appDataPath)
+    fs.mkdirSync(`${appDataPath}/Quiet`)
   }
 
   const newUserDataPath = path.join(appDataPath, 'Quiet')
@@ -38,8 +42,7 @@ if (isDev || process.env.DATA_DIR) {
   app.setPath('userData', newUserDataPath)
 }
 
-electronStore.set('appDataPath', app.getPath('appData'))
-electronStore.set('waggleVersion', waggleVersion)
+const appDataPath = app.getPath('appData')
 
 interface IWindowSize {
   width: number
@@ -111,17 +114,6 @@ if (!gotTheLock) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
     }
-    // const url = new URL(commandLine[process.platform === 'win32' ? 3 : 1])
-    // if (url.searchParams.has('invitation')) {
-    //   mainWindow.webContents.send('newInvitation', {
-    //     invitation: url.searchParams.get('invitation')
-    //   })
-    // }
-    // if (url.searchParams.has('importchannel')) {
-    //   mainWindow.webContents.send('newChannel', {
-    //     channelParams: url.searchParams.get('importchannel')
-    //   })
-    // }
   })
 }
 
@@ -164,18 +156,19 @@ let browserWidth: number
 let browserHeight: number
 
 const createWindow = async () => {
-  const windowUserSize = electronStore.get('windowSize')
   mainWindow = new BrowserWindow({
-    width: windowUserSize ? windowUserSize.width : windowSize.width,
-    height: windowUserSize ? windowUserSize.height : windowSize.height,
+    width: windowSize.width,
+    height: windowSize.height,
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true
+      contextIsolation: false
     },
     autoHideMenuBar: true
   })
+
+  remote.enable(mainWindow.webContents)
+
   mainWindow.setMinimumSize(600, 400)
   /* eslint-disable */
   mainWindow.loadURL(
@@ -243,11 +236,9 @@ export const checkForUpdate = async (win: BrowserWindow) => {
     })
     autoUpdater.on('update-not-available', () => {
       log('event no update')
-      electronStore.set('updateStatus', config.UPDATE_STATUSES.NO_UPDATE)
     })
     autoUpdater.on('update-available', info => {
       log(info)
-      electronStore.set('updateStatus', config.UPDATE_STATUSES.PROCESSING_UPDATE)
     })
 
     autoUpdater.on('update-downloaded', () => {
@@ -330,18 +321,14 @@ app.on('ready', async () => {
 
   await waggleProcess?.connectionsManager.closeAllServices()
   await waggleProcess?.dataServer.close()
-  waggleProcess = await runWaggle(mainWindow.webContents)
+  waggleProcess = await runWaggle(mainWindow.webContents, appDataPath)
 })
 
 app.setAsDefaultProtocolClient('quiet')
 
-app.on('before-quit', () => {
-  if (browserWidth && browserHeight) {
-    electronStore.set('windowSize', {
-      width: browserWidth,
-      height: browserHeight
-    })
-  }
+app.on('browser-window-created', (_, window) => {
+  // eslint-disable-next-line
+  require('@electron/remote/main').enable(window.webContents)
 })
 
 // Quit when all windows are closed.

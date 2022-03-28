@@ -21,8 +21,10 @@ jobs:
         with:
           fetch-depth: 0 # Required to retrieve git history
 
-      - name: "Setup environment"
+      - name: Setup environment
         uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity,quiet"
 
       - name: "Publish to Chromatic"
         uses: chromaui/action@v1

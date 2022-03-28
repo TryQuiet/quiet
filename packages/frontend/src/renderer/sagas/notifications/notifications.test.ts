@@ -14,17 +14,16 @@ window.Notification = notification
 const mockShow = jest.fn()
 const mockIsFocused = jest.fn()
 
-jest.mock('electron', () => {
+jest.mock('@electron/remote', () => {
   return {
-    remote:
-    {
-      BrowserWindow: {
-        getAllWindows: () => {
-          return [{
-            show: mockShow,
-            isFocused: mockIsFocused
-          }]
-        }
+    BrowserWindow: {
+      getAllWindows: () => {
+        return [
+          {
+            isFocused: mockIsFocused,
+            show: mockShow
+          }
+        ]
       }
     }
   }

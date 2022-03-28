@@ -1,28 +1,32 @@
 import { combineReducers } from '@reduxjs/toolkit'
-
+import ElectronStore from 'electron-store'
 import createElectronStorage from 'redux-persist-electron-storage'
-
+import path from 'path'
 import { persistReducer } from 'redux-persist'
+
+import nectarReducers, { storeKeys as NectarStoreKeys, MessagesTransform } from '@quiet/nectar'
 
 import { StoreType } from './handlers/types'
 import { StoreKeys } from './store.keys'
-
-import nectarReducers, { storeKeys as NectarStoreKeys, MessagesTransform } from '@quiet/nectar'
 
 import { socketReducer } from '../sagas/socket/socket.slice'
 import { modalsReducer } from '../sagas/modals/modals.slice'
 
 import appHandlers from './handlers/app'
-import waggleHandlers from './handlers/waggle'
-import contactsHandlers from './handlers/contacts'
-import channelHandlers from './handlers/channel'
-import directMessages from './handlers/directMessages'
-import directMessageChannelHandlers from './handlers/directMessageChannel'
-import mentionsHandlers from './handlers/mentions'
-import criticalErrorHandlers from './handlers/criticalError'
-import whitelistHandlers from './handlers/whitelist'
 
-const reduxStorage = createElectronStorage()
+import { DEV_DATA_DIR } from '../../shared/static'
+
+const dataPath = process.env.APPDATA || (process.platform === 'darwin' ? process.env.HOME + '/Library/Application Support' : process.env.HOME + '/.config')
+const appPath = process.env.DATA_DIR || (process.env.NODE_ENV === 'development' ? DEV_DATA_DIR : 'Quiet')
+
+const options = {
+  projectName: 'quiet',
+  cwd: path.join(dataPath, appPath)
+}
+
+const store = new ElectronStore<Store>(options)
+
+const reduxStorage = createElectronStorage({ electronStore: store })
 
 const persistConfig = {
   key: 'root',
@@ -33,11 +37,7 @@ const persistConfig = {
     NectarStoreKeys.Communities,
     NectarStoreKeys.PublicChannels,
     NectarStoreKeys.Messages,
-    NectarStoreKeys.Settings,
-    StoreKeys.App,
-    StoreKeys.Contacts,
-    StoreKeys.DirectMessages,
-    StoreKeys.Whitelist
+    StoreKeys.App
   ],
   transforms: [MessagesTransform]
 }
@@ -46,15 +46,7 @@ export const reducers = {
   ...nectarReducers.reducers,
   [StoreKeys.App]: appHandlers.reducer,
   [StoreKeys.Socket]: socketReducer,
-  [StoreKeys.Waggle]: waggleHandlers.reducer,
-  [StoreKeys.Modals]: modalsReducer,
-  [StoreKeys.DirectMessages]: directMessages.reducer,
-  [StoreKeys.DirectMessageChannel]: directMessageChannelHandlers.reducer,
-  [StoreKeys.Channel]: channelHandlers.reducer,
-  [StoreKeys.Contacts]: contactsHandlers.reducer,
-  [StoreKeys.Mentions]: mentionsHandlers.reducer,
-  [StoreKeys.Whitelist]: whitelistHandlers.reducer,
-  [StoreKeys.CriticalError]: criticalErrorHandlers.reducer
+  [StoreKeys.Modals]: modalsReducer
 }
 
 export type Store = StoreType<typeof reducers>

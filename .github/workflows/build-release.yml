@@ -103,7 +103,7 @@ jobs:
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
-
+      
     steps:
       - uses: actions/checkout@v2
 
