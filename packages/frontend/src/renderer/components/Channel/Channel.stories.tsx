@@ -334,7 +334,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
     }
   })
 
-  const setChannelLoadingSlice = useCallback(slice => {
+  const setChannelMessagesSliceValue = useCallback(slice => {
     const oldMess = [
       [
         {
@@ -448,7 +448,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
     })
   }, [])
 
-  return <ChannelComponent {...args} messages={messages} onInputEnter={sendMessage} setChannelLoadingSlice={setChannelLoadingSlice} />
+  return <ChannelComponent {...args} messages={messages} onInputEnter={sendMessage} setChannelMessagesSliceValue={setChannelMessagesSliceValue} />
 }
 
 export const Component = Template.bind({})
@@ -502,7 +502,7 @@ const args: ChannelComponentProps = {
     count: 0,
     groups: {}
   },
-  setChannelLoadingSlice: function (_value: number): void {},
+  setChannelMessagesSliceValue: function (_value: number): void {},
   onDelete: function (): void {},
   onInputChange: function (_value: string): void {},
   onInputEnter: function (_message: string): void {},

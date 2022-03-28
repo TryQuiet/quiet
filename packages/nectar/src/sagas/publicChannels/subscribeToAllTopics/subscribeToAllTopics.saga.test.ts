@@ -67,20 +67,16 @@ describe('subscribeToAllTopicsSaga', () => {
   const communityChannels: CommunityChannels = {
     id: 'id',
     currentChannel: 'channelOne',
-    channelLoadingSlice: 0,
-    channels: publicChannelsAdapter.setAll(
-      publicChannelsAdapter.getInitialState(),
-      [channelOne, channelTwo]
-    ),
+    channels: publicChannelsAdapter.setAll(publicChannelsAdapter.getInitialState(), [
+      channelOne,
+      channelTwo
+    ]),
     channelMessages: channelMessagesAdapter.getInitialState(),
     unreadMessages: unreadMessagesAdapter.getInitialState()
   }
 
   test('ask for missing messages', async () => {
-    await expectSaga(
-      subscribeToAllTopicsSaga,
-      publicChannelsActions.subscribeToAllTopics('id')
-    )
+    await expectSaga(subscribeToAllTopicsSaga)
       .withReducer(
         combineReducers({
           [StoreKeys.PublicChannels]: publicChannelsReducer,
@@ -90,25 +86,20 @@ describe('subscribeToAllTopicsSaga', () => {
         {
           [StoreKeys.PublicChannels]: {
             ...new PublicChannelsState(),
-            channels: communityChannelsAdapter.setAll(
-              communityChannelsAdapter.getInitialState(),
-              [communityChannels]
-            )
+            channels: communityChannelsAdapter.setAll(communityChannelsAdapter.getInitialState(), [
+              communityChannels
+            ])
           },
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
             currentCommunity: 'id',
-            communities: communitiesAdapter.setAll(
-              communitiesAdapter.getInitialState(),
-              [community]
-            )
+            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
+              community
+            ])
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
-            identities: identityAdapter.setAll(
-              identityAdapter.getInitialState(),
-              [identity]
-            )
+            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity])
           }
         }
       )

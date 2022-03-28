@@ -204,8 +204,7 @@ describe('User', () => {
         "PublicChannels/subscribeToTopic",
         "PublicChannels/addChannel",
         "Modals/closeModal",
-        "PublicChannels/setChannelLoadingSlice",
-        "PublicChannels/setChannelLoadingSlice",
+        "PublicChannels/setChannelMessagesSliceValue",
       ]
     `)
   })

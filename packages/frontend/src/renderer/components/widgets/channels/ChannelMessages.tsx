@@ -9,7 +9,7 @@ import BasicMessageComponent from './BasicMessage'
 
 import { useResizeDetector } from 'react-resize-detector'
 
-import { MessagesDailyGroups } from '@quiet/nectar'
+import { MessagesDailyGroups, PublicChannel } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
   scroll: {
@@ -45,12 +45,12 @@ const useStyles = makeStyles(theme => ({
 
 export interface IChannelMessagesProps {
   username: string
-  channel: string
+  channel: PublicChannel
   messages?: {
     count: number
     groups: MessagesDailyGroups
   }
-  setChannelLoadingSlice?: (value: number) => void
+  setChannelMessagesSliceValue?: (value: number) => void
 }
 
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
@@ -60,7 +60,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
     count: 0,
     groups: {}
   },
-  setChannelLoadingSlice = _value => {}
+  setChannelMessagesSliceValue = _value => {}
 }) => {
   const classes = useStyles({})
 
@@ -69,7 +69,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   const [scrollPosition, setScrollPosition] = React.useState(1)
   const [scrollHeight, setScrollHeight] = React.useState(0)
 
-  const [messagesSlice, setMessagesSlice] = React.useState(0)
+  const [messagesSlice, setMessagesSlice] = React.useState(channel.messagesSlice || 0)
 
   const messagesRef = React.useRef<HTMLUListElement>()
 
@@ -121,7 +121,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
     if (scrollbarRef.current && scrollPosition === -1 && isLastMessageOwner()) {
       scrollBottom()
     }
-  }, [channel, messages.count])
+  }, [channel.name, messages.count])
 
   useEffect(() => {
     /* Keep scroll position when new chunk of messages is being loaded */
@@ -149,9 +149,9 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
       setScrollHeight(scrollbarRef.current.scrollHeight)
       const trim = Math.max(0, messagesSlice - chunkSize)
       setMessagesSlice(trim)
-      setChannelLoadingSlice(trim)
+      setChannelMessagesSliceValue(trim)
     }
-  }, [setChannelLoadingSlice, scrollPosition])
+  }, [setChannelMessagesSliceValue, scrollPosition])
 
   /* Lazy loading messages - bottom (trim) */
   useEffect(() => {
@@ -160,15 +160,9 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
       const totalMessagesAmount = messages.count + messagesSlice
       const bottomMessagesSlice = Math.max(0, totalMessagesAmount - chunkSize)
       setMessagesSlice(bottomMessagesSlice)
-      setChannelLoadingSlice(bottomMessagesSlice)
+      setChannelMessagesSliceValue(bottomMessagesSlice)
     }
-  }, [setChannelLoadingSlice, scrollPosition, messages.count])
-
-  /* Reset loading slice on channel change */
-  useEffect(() => {
-    setMessagesSlice(0)
-    setChannelLoadingSlice(0)
-  }, [channel])
+  }, [setChannelMessagesSliceValue, scrollPosition, messages.count])
 
   return (
     <div

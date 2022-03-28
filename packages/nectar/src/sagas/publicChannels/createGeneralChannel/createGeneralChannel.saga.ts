@@ -3,13 +3,14 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { DateTime } from 'luxon'
+import { PublicChannel } from '../publicChannels.types'
 
 export function* createGeneralChannelSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.createGeneralChannel>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
 
-  const channel = {
+  const channel: PublicChannel = {
     name: 'general',
     description: 'Welcome to #general',
     owner: identity.nickname,

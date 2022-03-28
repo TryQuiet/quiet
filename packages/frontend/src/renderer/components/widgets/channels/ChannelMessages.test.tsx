@@ -2,6 +2,7 @@ import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { DateTime } from 'luxon'
 import { ChannelMessagesComponent } from './ChannelMessages'
+import { PublicChannel } from '@quiet/nectar'
 
 describe('ChannelMessages', () => {
   beforeEach(() => {
@@ -13,6 +14,14 @@ describe('ChannelMessages', () => {
   })
 
   it('renders component', async () => {
+    const channel: PublicChannel = {
+      name: 'general',
+      description: 'Welcome to #general',
+      owner: 'owner',
+      timestamp: 0,
+      address: 'general'
+    }
+
     const message = {
       id: 'string',
       type: 1,
@@ -32,7 +41,7 @@ describe('ChannelMessages', () => {
     }
 
     const result = renderComponent(
-      <ChannelMessagesComponent username='user' channel={'general'} messages={messages} />
+      <ChannelMessagesComponent username='user' channel={channel} messages={messages} />
     )
 
     expect(result.baseElement).toMatchInlineSnapshot(`

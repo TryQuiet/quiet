@@ -14,11 +14,12 @@ import {
 } from '../../communities/communities.slice'
 import { communitiesAdapter } from '../../communities/communities.adapter'
 import { Identity } from '../../identity/identity.types'
+import { PublicChannel } from '../publicChannels.types'
 
 describe('subscribeToTopicSaga', () => {
   const socket = { emit: jest.fn() } as unknown as Socket
 
-  const channel = {
+  const channel: PublicChannel = {
     name: 'general',
     description: 'stuff',
     owner: 'nobody',

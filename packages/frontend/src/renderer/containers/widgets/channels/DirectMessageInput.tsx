@@ -31,16 +31,14 @@ export const ChannelInput = () => {
 
   const { onChange, onEnter, resetDebounce } = useDirectMessageInputActions()
 
-  const channels = useSelector(publicChannels.selectors.publicChannels)
-  const currentChannelAddress = useSelector(publicChannels.selectors.currentChannel)
-  const currentChannel = channels.find(channel => channel.address === currentChannelAddress)
+  const currentChannel = useSelector(publicChannels.selectors.currentChannel)
 
   const user = useSelector(identity.selectors.currentIdentity)
 
   return (
     <ChannelInputComponent
-      channelAddress={currentChannelAddress}
-      channelName={currentChannel?.name}
+      channelAddress={currentChannel.address}
+      channelName={currentChannel.name}
       // TODO https://github.com/ZbayApp/ZbayLite/issues/443
       inputPlaceholder={`#${currentChannel?.name} as @${user?.nickname}`}
       onChange={value => {

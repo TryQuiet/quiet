@@ -31,7 +31,7 @@ export interface ChannelComponentProps {
     count: number
     groups: MessagesDailyGroups
   }
-  setChannelLoadingSlice: (value: number) => void
+  setChannelMessagesSliceValue: (value: number) => void
   onDelete: () => void
   onInputChange: (value: string) => void
   onInputEnter: (message: string) => void
@@ -47,7 +47,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   channelInfoModal,
   channelSettingsModal,
   messages,
-  setChannelLoadingSlice,
+  setChannelMessagesSliceValue,
   onDelete,
   onInputChange,
   onInputEnter,
@@ -77,9 +77,9 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
       <Grid item xs className={classes.messages}>
         <ChannelMessagesComponent
           username={user?.nickname}
-          channel={channel.address}
+          channel={channel}
           messages={messages}
-          setChannelLoadingSlice={setChannelLoadingSlice}
+          setChannelMessagesSliceValue={setChannelMessagesSliceValue}
         />
       </Grid>
       <Grid item>

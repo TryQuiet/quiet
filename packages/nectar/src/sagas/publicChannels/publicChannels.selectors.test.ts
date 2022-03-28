@@ -8,7 +8,8 @@ import {
   currentChannelMessagesMergedBySender,
   slicedCurrentChannelMessages,
   sortedCurrentChannelMessages,
-  validCurrentChannelMessages
+  validCurrentChannelMessages,
+  currentChannel
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
 import { DisplayableMessage, ChannelMessage } from './publicChannels.types'
@@ -16,7 +17,7 @@ import { communitiesActions, Community } from '../communities/communities.slice'
 import { identityActions } from '../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { MessageType } from '../messages/messages.types'
-import { currentCommunityId } from '../communities/communities.selectors'
+import { currentCommunity } from '../communities/communities.selectors'
 import { FactoryGirl } from 'factory-girl'
 import {
   formatMessageDisplayDate,
@@ -72,7 +73,8 @@ describe('publicChannelsSelectors', () => {
             description: `Welcome to #${name}`,
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: name
+            address: name,
+            messagesSlice: 0
           }
         }
       )
@@ -216,13 +218,17 @@ describe('publicChannelsSelectors', () => {
   })
 
   beforeEach(async () => {
-    const community = currentCommunityId(store.getState())
-    store.dispatch(
-      publicChannels.actions.setChannelLoadingSlice({
-        communityId: community,
-        slice: 0
-      })
-    )
+    const community = currentCommunity(store.getState())
+    const channels = getPublicChannels(store.getState())
+    channels.forEach(channel => {
+      store.dispatch(
+        publicChannels.actions.setChannelMessagesSliceValue({
+          messagesSlice: 0,
+          channelAddress: channel.address,
+          communityId: community.id
+        })
+      )
+    })
   })
 
   it('get messages sorted by date', async () => {
@@ -238,11 +244,13 @@ describe('publicChannelsSelectors', () => {
 
   it('get sliced messages count', async () => {
     const messagesCountBefore = currentChannelMessagesCount(store.getState())
-    const community = currentCommunityId(store.getState())
+    const community = currentCommunity(store.getState())
+    const channel = currentChannel(store.getState())
     store.dispatch(
-      publicChannels.actions.setChannelLoadingSlice({
-        communityId: community,
-        slice: 2
+      publicChannels.actions.setChannelMessagesSliceValue({
+        messagesSlice: 2,
+        communityId: community.id,
+        channelAddress: channel.address
       })
     )
     const messagesCountAfter = currentChannelMessagesCount(store.getState())
@@ -259,11 +267,13 @@ describe('publicChannelsSelectors', () => {
       msgs['8'],
       msgs['9']
     ]
-    const community = currentCommunityId(store.getState())
+    const community = currentCommunity(store.getState())
+    const channel = currentChannel(store.getState())
     store.dispatch(
-      publicChannels.actions.setChannelLoadingSlice({
-        communityId: community,
-        slice: 2
+      publicChannels.actions.setChannelMessagesSliceValue({
+        messagesSlice: 2,
+        channelAddress: channel.address,
+        communityId: community.id
       })
     )
     const messages = slicedCurrentChannelMessages(store.getState())
