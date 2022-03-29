@@ -10,7 +10,7 @@ runs:
   steps:
     - uses: actions/setup-node@master
       with:
-        node-version: "15.14.0"
+        node-version: "16.13.0"
     
     - name: Print OS name
       run: echo ${{ runner.os }}
@@ -42,8 +42,12 @@ runs:
     #     restore-keys: |
     #       ${{ runner.OS }}-npm-cache-
 
+    - name: 'Verify cache'
+      run: npm cache verify
+      shell: bash
+
     - name: 'Clear npm cache'
-      run: npm cache clean --force
+      run: npm clear cache --force
       shell: bash
 
     - name: 'Install new npm'
