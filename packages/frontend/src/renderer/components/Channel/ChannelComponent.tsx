@@ -75,10 +75,10 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
 
   const { ref: scrollbarRef } = useResizeDetector({ onResize })
 
-  const scrollBottom = debounce(() => {
+  const scrollBottom = () => {
     if (!scrollbarRef.current) return
     scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight
-  }, 100)
+  }
 
   const onEnterKeyPress = (message: string) => {
     scrollBottom()
