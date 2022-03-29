@@ -2,7 +2,6 @@ import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { DateTime } from 'luxon'
 import { ChannelMessagesComponent } from './ChannelMessages'
-import { PublicChannel } from '@quiet/nectar'
 
 describe('ChannelMessages', () => {
   beforeEach(() => {
@@ -14,14 +13,6 @@ describe('ChannelMessages', () => {
   })
 
   it('renders component', async () => {
-    const channel: PublicChannel = {
-      name: 'general',
-      description: 'Welcome to #general',
-      owner: 'owner',
-      timestamp: 0,
-      address: 'general'
-    }
-
     const message = {
       id: 'string',
       type: 1,
@@ -34,14 +25,11 @@ describe('ChannelMessages', () => {
     jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => DateTime.utc(2019, 3, 7, 13, 3, 48))
 
     const messages = {
-      count: 1,
-      groups: {
-        Today: [[message]]
-      }
+      Today: [[message]]
     }
 
     const result = renderComponent(
-      <ChannelMessagesComponent username='user' channel={channel} messages={messages} />
+      <ChannelMessagesComponent messages={messages} scrollbarRef={jest.fn()} onScroll={jest.fn()} />
     )
 
     expect(result.baseElement).toMatchInlineSnapshot(`

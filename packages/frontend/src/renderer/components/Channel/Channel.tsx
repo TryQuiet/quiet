@@ -7,6 +7,7 @@ import ChannelComponent from './ChannelComponent'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
+import { channel } from 'packages/nectar/node_modules/redux-saga'
 
 const Channel = () => {
   const dispatch = useDispatch()
@@ -23,6 +24,8 @@ const Channel = () => {
   const currentChannelDisplayableMessages = useSelector(
     publicChannels.selectors.currentChannelMessagesMergedBySender
   )
+
+  console.log('rerender', currentChannel.name, currentChannelMessagesCount)
 
   const channelSettingsModal = useModal(ModalName.channelSettingsModal)
   const channelInfoModal = useModal(ModalName.channelInfo)
@@ -43,6 +46,8 @@ const Channel = () => {
 
   const setChannelMessagesSliceValue = useCallback(
     (value: number) => {
+      if (currentChannel?.messagesSlice === value) return
+      console.log('setting channel slice', currentChannel.address, currentChannel.messagesSlice, value)
       dispatch(
         publicChannels.actions.setChannelMessagesSliceValue({
           messagesSlice: value,
@@ -51,20 +56,7 @@ const Channel = () => {
         })
       )
     },
-    [dispatch, currentChannel?.address, currentCommunity?.id]
-  )
-
-  const cacheChannelScrollPosition = useCallback(
-    (value: number) => {
-      dispatch(
-        publicChannels.actions.cacheChannelScrollPosition({
-          scrollPosition: value,
-          channelAddress: currentChannel?.address,
-          communityId: currentCommunity?.id
-        })
-      )
-    },
-    [dispatch, currentChannel?.address, currentCommunity?.id]
+    [dispatch, currentChannel?.address, currentChannel?.messagesSlice, currentCommunity?.id]
   )
 
   return (
@@ -80,7 +72,6 @@ const Channel = () => {
             groups: currentChannelDisplayableMessages
           }}
           setChannelMessagesSliceValue={setChannelMessagesSliceValue}
-          cacheChannelScrollPosition={cacheChannelScrollPosition}
           onDelete={function (): void { }}
           onInputChange={onInputChange}
           onInputEnter={onInputEnter}
