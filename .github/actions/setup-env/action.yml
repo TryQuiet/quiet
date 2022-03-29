@@ -47,7 +47,7 @@ runs:
       shell: bash
 
     - name: 'Clear npm cache'
-      run: npm clear cache --force
+      run: npm cache clean --force
       shell: bash
 
     - name: 'Install new npm'
