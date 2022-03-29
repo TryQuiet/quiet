@@ -198,5 +198,5 @@ export const createCommunity = async ({username, communityName, store, }): Promi
     )
   }, timeout)
 
-  return store.getState().Identity.identities.entities[communityId].hiddenService.onionAddress
+  return store.getState().Communities.communities.entities[communityId].onionAddress
 }
