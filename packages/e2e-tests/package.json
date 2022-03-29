@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "cross-env": "^5.2.0",
-    "electron": "12.1.0",
+    "electron": "17.0.0",
     "testcafe": "^1.18.3",
     "testcafe-browser-provider-electron": "^0.2.0-alpha.0",
     "yargs": "^17.3.1"
