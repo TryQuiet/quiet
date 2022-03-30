@@ -28,6 +28,8 @@ test.only('User can create new community, register and send few messages to gene
   await t.expect(joinModal.title.exists).ok('User can\'t see "Join community" title')
   await joinModal.switchToCreateCommunity()
 
+  await t.wait(5000)
+
   // User is on "Create community" page, enters valid community name and presses the button
   const createModal = new CreateCommunityModal()
   await t.expect(createModal.title.exists).ok()

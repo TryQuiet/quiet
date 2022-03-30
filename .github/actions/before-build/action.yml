@@ -25,10 +25,6 @@ runs:
     - name: "Verify test mode setup"
       run: echo $TEST_MODE
       shell: bash
-
-    - name: "Add alsa"
-      run: sudo apt install alsa-utils
-      shell: bash
     
     - name: "Verify bucket setup"
       run: echo $S3_BUCKET
