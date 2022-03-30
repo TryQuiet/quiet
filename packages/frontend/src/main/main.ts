@@ -44,7 +44,6 @@ if (isDev || process.env.DATA_DIR) {
 
 const appDataPath = app.getPath('appData')
 
-console.log('asdf')
 interface IWindowSize {
   width: number
   height: number
