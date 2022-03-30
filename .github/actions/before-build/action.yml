@@ -9,7 +9,7 @@ runs:
   using: "composite"
   steps:
     - name: Install electron-builder globally
-      run: npm i -g electron-builder@22.10.5
+      run: npm i -g electron-builder@22.14.13
       shell: bash
 
     - name: "Pull tor binary"
