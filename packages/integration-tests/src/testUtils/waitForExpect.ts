@@ -1,11 +1,11 @@
 const defaults = {
   timeout: 4500,
   interval: 50
-};
+}
 
 /**
  * NOTE - this is mostly copied from wait-to-expect module
- * 
+ *
  * Waits for the expectation to pass and returns a Promise
  *
  * @param  expectation  Function  Expectation that has to complete without throwing
@@ -18,31 +18,30 @@ export const waitForExpect = function waitForExpect(
   timeout = defaults.timeout,
   interval = defaults.interval
 ) {
-
   // eslint-disable-next-line no-param-reassign
-  if (interval < 1) interval = 1;
-  const maxTries = Math.ceil(timeout / interval);
-  let tries = 0;
+  if (interval < 1) interval = 1
+  const maxTries = Math.ceil(timeout / interval)
+  let tries = 0
   return new Promise((resolve, reject) => {
     const rejectOrRerun = (error: Error) => {
       if (tries > maxTries) {
-        reject(error);
-        return;
+        reject(error)
+        return
       }
       // eslint-disable-next-line no-use-before-define
-      setTimeout(runExpectation, interval);
-    };
+      setTimeout(runExpectation, interval)
+    }
     function runExpectation() {
-      tries += 1;
+      tries += 1
       try {
         Promise.resolve(expectation())
         // @ts-expect-error
           .then(() => resolve())
-          .catch(rejectOrRerun);
+          .catch(rejectOrRerun)
       } catch (error) {
-        rejectOrRerun(error);
+        rejectOrRerun(error)
       }
     }
-    setTimeout(runExpectation, 0);
-  });
-};
+    setTimeout(runExpectation, 0)
+  })
+}

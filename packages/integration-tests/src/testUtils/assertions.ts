@@ -1,7 +1,7 @@
-import { publicChannels, Store } from '@quiet/nectar';
-import assert from 'assert';
-import logger from '../logger';
-import { waitForExpect } from './waitForExpect';
+import { publicChannels, Store } from '@quiet/nectar'
+import assert from 'assert'
+import logger from '../logger'
+import { waitForExpect } from './waitForExpect'
 const log = logger('utils')
 
 const assertContains = (value: any, container: any[]) => {
@@ -18,7 +18,7 @@ export async function assertReceivedChannelAndSubscribe(
   log(`User ${userName} starts waiting ${maxTime}ms for channels`)
 
   const communityId = store.getState().Communities.communities.ids[0] as string
-  
+
   await waitForExpect(() => {
     assertContains(channelName, store.getState().PublicChannels.channels.entities[communityId].channels.ids)
   }, maxTime)
@@ -56,7 +56,7 @@ export async function assertReceivedMessages(
       store.getState().PublicChannels.channels.entities[communityId].channelMessages.ids.length, expectedCount
     )
   }, maxTime)
-  
+
   log(
     `User ${userName} received ${store.getState().PublicChannels.channels.entities[communityId]
       .channelMessages.ids.length
@@ -68,7 +68,7 @@ export const assertReceivedMessagesMatch = (
   userName: string,
   messages: string[],
   store: Store
-) => {  
+) => {
   const communityId = store.getState().Communities.communities.ids[0]
 
   const receivedMessagesEntities = Object.values(

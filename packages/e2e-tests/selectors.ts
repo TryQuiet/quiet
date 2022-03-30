@@ -53,7 +53,7 @@ export class JoinCommunityModal {
   get title() {
     return Selector('h3').withText('Join community')
   }
-  
+
   async typeCommunityCode(code: string) {
     const communityNameInput = Selector('input').withAttribute('placeholder', 'Invite code')
     await t.typeText(communityNameInput, code)

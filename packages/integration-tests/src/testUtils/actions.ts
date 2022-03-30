@@ -1,9 +1,9 @@
 
-import { communities, CommunityOwnership, CreateNetworkPayload, identity } from '@quiet/nectar';
-import assert from 'assert';
-import { Register } from '../integrationTests/appActions';
-import logger from '../logger';
-import { waitForExpect } from './waitForExpect';
+import { communities, CommunityOwnership, CreateNetworkPayload, identity } from '@quiet/nectar'
+import assert from 'assert'
+import { Register } from '../integrationTests/appActions'
+import logger from '../logger'
+import { waitForExpect } from './waitForExpect'
 const log = logger('actions')
 
 const timeout = 120_000
@@ -42,12 +42,12 @@ export async function registerUsername(payload: Register) {
   store.dispatch(identity.actions.registerUsername(userName))
 }
 
-export const createCommunity = async ({username, communityName, store, }): Promise<string> => {
+export const createCommunity = async ({ username, communityName, store }): Promise<string> => {
   const createNetworkPayload: CreateNetworkPayload = {
     ownership: CommunityOwnership.Owner,
     name: communityName
   }
-  
+
   store.dispatch(communities.actions.createNetwork(createNetworkPayload))
   await waitForExpect(() => {
     assert.strictEqual(store.getState().Identity.identities.ids.length, 1)
@@ -107,8 +107,8 @@ export const createCommunity = async ({username, communityName, store, }): Promi
   return store.getState().Communities.communities.entities[communityId].onionAddress
 }
 
-export async function joinCommunity({registrarAddress, userName, expectedPeersCount, store}) {
-  await registerUsername({registrarAddress, userName, store})
+export async function joinCommunity({ registrarAddress, userName, expectedPeersCount, store }) {
+  await registerUsername({ registrarAddress, userName, store })
 
   const communityId = store.getState().Communities.communities.ids[0]
   const userPeerId = store.getState().Identity.identities.entities[communityId].peerId.id

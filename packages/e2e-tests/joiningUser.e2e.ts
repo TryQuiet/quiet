@@ -23,7 +23,7 @@ test('User can join the community and exchange messages', async t => {
     store: communityOwner.store
   })
   const invitationCode = onionAddress.split('.')[0]
-  
+
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
@@ -46,13 +46,13 @@ test('User can join the community and exchange messages', async t => {
 
   // Joining user sees message replicated from the owner
   const ownerMessages = generalChannel.getUserMessages('Owner')
-  await t.expect(ownerMessages.exists).ok( { timeout: longTimeout })
+  await t.expect(ownerMessages.exists).ok({ timeout: longTimeout })
   await t.expect(ownerMessages.textContent).contains('Welcome to my community')
 
   // Joining user sends a message and sees it on a channel
   await generalChannel.sendMessage('Hello')
   const joiningUserMessages = generalChannel.getUserMessages('joining-user')
-  await t.expect(joiningUserMessages.exists).ok( { timeout: longTimeout })
+  await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
   await t.expect(joiningUserMessages.textContent).contains('Hello')
 
   // Owner receives the message sent by the joining user
