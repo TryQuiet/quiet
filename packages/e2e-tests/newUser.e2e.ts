@@ -32,7 +32,7 @@ test.only('User can create new community, register and send few messages to gene
 
   // User is on "Create community" page, enters valid community name and presses the button
   const createModal = new CreateCommunityModal()
-  await t.expect(createModal.title.exists).ok()
+  await t.expect(createModal.title.exists).ok({ timeout: 5000 })
   await createModal.typeCommunityName('testcommunity')
   // await createModal.submit()
 
