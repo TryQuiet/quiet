@@ -79,17 +79,10 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   }
 
   const onEnterKeyPress = (message: string) => {
+    // Go back to the bottom if scroll is at the top or in the middle
+    scrollBottom()
+    // Send message
     onInputEnter(message)
-  }
-
-  const isLastMessageOwner = () => {
-    if (!messages?.groups) return
-    const groupsArray = Array.from(Object.values(messages.groups))
-    if (!groupsArray.length) return
-    const usersArray = groupsArray[groupsArray.length - 1]
-    const chunksArray = usersArray[usersArray.length - 1]
-    const lastMessage = chunksArray[chunksArray.length - 1]
-    return lastMessage.nickname === user.nickname
   }
 
   /* Get scroll position and save it to the state as 0 (top), 1 (bottom) or -1 (middle) */
@@ -113,15 +106,11 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
     if (scrollbarRef.current && scrollPosition === 1) {
       scrollBottom()
     }
-    // Scroll to the bottom when scroll is in the middle and user sends message
-    if (scrollbarRef.current && scrollPosition !== 1 && isLastMessageOwner()) {
-      scrollBottom()
-    }
     // Keep scroll position when new chunk of messages is being loaded
     if (scrollbarRef.current && scrollPosition === 0) {
       scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight - scrollHeight
     }
-  }, [messages.count])
+  }, [messages])
 
   /* Lazy loading messages - top (load) */
   useEffect(() => {
