@@ -83,9 +83,10 @@ export const messagesMapForNotificationsCalls = (
 
       const isMessageFromLoggedTime = messageData.createdAt > lastConnectedTime
 
-      if (!isMessageFromMyUser && (!isMessageFromCurrentChannel || !isAppInForeground) && !isNotificationsOptionOff && isMessageFromLoggedTime) {
+      if (senderName && !isMessageFromMyUser && !isNotificationsOptionOff &&
+        isMessageFromLoggedTime && (!isMessageFromCurrentChannel || !isAppInForeground)) {
         return createNotification({
-          title: `New message from ${senderName || 'unknown user'} in #${publicChannelFromMessage.name || 'Unnamed'}`,
+          title: `New message from ${senderName} in #${publicChannelFromMessage.name || 'Unnamed'}`,
           message: `${messageData.message.substring(0, 64)}${messageData.message.length > 64 ? '...' : ''}`,
           sound: notificationsSound,
           communityId: action.payload.communityId,
