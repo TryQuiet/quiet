@@ -22,8 +22,9 @@ fixture`New user test`
   .afterEach(async t => {
     const { error, log } = await t.getBrowserConsoleMessages();
 
-    await t.expect(error[0]).notOk();
-    await t.expect(log[0]).eql('Typed name is Name');
+    log.forEach((val => {console.log('log', val)}))
+    error.forEach((val => {console.log('error', val)}))
+
   })
 
 test.only('User can create new community, register and send few messages to general channel', async t => {

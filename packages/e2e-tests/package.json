@@ -13,7 +13,7 @@
     "prettier": "prettier",
     "test:build": "lerna run distUbuntu --scope quiet --stream && npm run test",
     "test:dev": "npm run build:app && npm run test",
-    "test": "npm run build:testcafe && cross-env E2E_TEST=true DATA_DIR=e2e DEBUG='waggle*,quiet*,testcafe*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
+    "test": "npm run build:testcafe && cross-env E2E_TEST=true DATA_DIR=e2e DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
     "test:win": "npm run build:testcafe && cross-env E2E_TEST=true DATA_DIR=e2e DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
     "test:smoke": "npm run build:testcafe && cross-env E2E_TEST=true DATA_DIR=e2eSmoke DEBUG='waggle*,quiet*,testcafe:*electron*,frontend*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:.\" \"./**/smokeTest.e2e.ts\"",
     "test:smoke:win": "npm run build:testcafe && cross-env E2E_TEST=true DATA_DIR=e2eSmoke DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:.\" \"./**/smokeTest.e2e.ts\"",
