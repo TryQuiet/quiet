@@ -20,6 +20,8 @@ fixture`New user test`
   })
 
 test.only('User can create new community, register and send few messages to general channel', async t => {
+
+  const { error, log } = await t.getBrowserConsoleMessages()
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
