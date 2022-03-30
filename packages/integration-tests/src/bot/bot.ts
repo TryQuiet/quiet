@@ -1,12 +1,14 @@
 import assert from 'assert'
 import { sendMessage } from "../integrationTests/appActions"
 import { AsyncReturnType } from "../types/AsyncReturnType.interface"
-import { createApp, sleep } from "../utils"
+import { createApp, getRandomInt, sleep } from "../utils"
 import logger from '../logger'
-import { assertReceivedChannelAndSubscribe, getRandomInt, registerUsername, waitForExpect } from "./helper"
 import { Store } from '@quiet/nectar'
 import {LoremIpsum} from 'lorem-ipsum'
 import {program} from 'commander'
+import { registerUsername } from '../testUtils/actions'
+import { waitForExpect } from '../testUtils/waitForExpect'
+import { assertReceivedChannelAndSubscribe } from '../testUtils/assertions'
 
 const log = logger('bot')
 
@@ -28,9 +30,9 @@ const lorem = new LoremIpsum({
 
 let apps: Map<string, AsyncReturnType<typeof createApp>> = new Map()
 const timeout = 100_000
-const channelName = options.channel //'bot-spam'
-const allMessagesCount = options.messages //10
-const numberOfUsers = options.users //3
+const channelName = options.channel
+const allMessagesCount = options.messages
+const numberOfUsers = options.users
 const registrarAddress = options.registrar
 
 const createBots = async () => {

@@ -1,4 +1,4 @@
-import { createApp, noJest, sendMessage } from 'integration-tests'
+import { createApp, sendMessage, actions, waitForExpect, assertions, createCommunity } from 'integration-tests'
 import { fixture, test } from 'testcafe'
 import logger from './logger'
 import { DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Channel } from './selectors'
@@ -16,7 +16,7 @@ fixture`Joining user test`
 test('User can join the community and exchange messages', async t => {
   // Owner creates community and sends a message
   const communityOwner = await createApp()
-  const onionAddress = await noJest.createCommunity({ username: 'Owner', communityName: 'e2eCommunity', store: communityOwner.store })
+  const onionAddress = await actions.createCommunity({ username: 'Owner', communityName: 'e2eCommunity', store: communityOwner.store })
   await sendMessage({
     message: 'Welcome to my community',
     channelName: 'general',
@@ -56,7 +56,7 @@ test('User can join the community and exchange messages', async t => {
   await t.expect(joiningUserMessages.textContent).contains('Hello')
 
   // Owner receives the message sent by the joining user
-  await noJest.waitForExpect(() => noJest.assertReceivedMessagesMatch('Owner', ['Hello'], communityOwner.store))
+  await waitForExpect(() => assertions.assertReceivedMessagesMatch('Owner', ['Hello'], communityOwner.store))
 
   // Owner sends message, user receives it
   await sendMessage({

@@ -132,22 +132,15 @@ export const createAppWithoutTor = async (mockedState?: {
   return { store, runSaga, rootTask, manager, appPath }
 }
 
-const throwAssertionError = (
-  action: PayloadAction<ReturnType<typeof errors.actions.addError>['payload']>
-) => {
-  throw new assert.AssertionError({
-    message: `Nectar received error: ${JSON.stringify(action.payload)}`
-  })
-}
-
-export function* assertNoErrors(): Generator {
-  // Use at the beginning of test saga
-  yield* all([takeEvery(errors.actions.addError, throwAssertionError)])
-}
-
 export const sleep = async (time = 1000) =>
   await new Promise<void>(resolve => {
     setTimeout(() => {
       resolve()
     }, time)
   })
+
+export const getRandomInt = (min: number, max: number) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min);
+}
