@@ -16,8 +16,6 @@ import { PublicChannel, Identity, MessagesDailyGroups } from '@quiet/nectar'
 
 import { useResizeDetector } from 'react-resize-detector'
 
-import debounce from 'lodash.debounce'
-
 const useStyles = makeStyles(theme => ({
   root: {},
   messages: {
@@ -90,8 +88,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
     const top = scrollbarRef.current?.scrollTop === 0
 
     const bottom =
-      scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop ===
-      scrollbarRef.current?.clientHeight
+      Math.floor(scrollbarRef.current?.scrollHeight) - Math.floor(scrollbarRef.current?.scrollTop) ===
+      Math.floor(scrollbarRef.current?.clientHeight)
 
     let position = -1
     if (top) position = 0
@@ -129,7 +127,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
     if (scrollbarRef.current && scrollPosition === 1) {
       const totalMessagesAmount = messages.count + channel.messagesSlice
       const bottomMessagesSlice = Math.max(0, totalMessagesAmount - chunkSize)
-      console.log('bottom', channel.address)
       setChannelMessagesSliceValue(bottomMessagesSlice)
     }
   }, [setChannelMessagesSliceValue, scrollPosition, messages.count])

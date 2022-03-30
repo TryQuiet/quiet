@@ -44,7 +44,6 @@ const Channel = () => {
   const setChannelMessagesSliceValue = useCallback(
     (value: number) => {
       if (currentChannel?.messagesSlice === value) return
-      console.log('setting channel slice', currentChannel.address, currentChannel.messagesSlice, value)
       dispatch(
         publicChannels.actions.setChannelMessagesSliceValue({
           messagesSlice: value,
