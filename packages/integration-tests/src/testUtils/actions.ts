@@ -106,3 +106,28 @@ export const createCommunity = async ({username, communityName, store, }): Promi
 
   return store.getState().Communities.communities.entities[communityId].onionAddress
 }
+
+export async function joinCommunity({registrarAddress, userName, expectedPeersCount, store}) {
+  await registerUsername({registrarAddress, userName, store})
+
+  const communityId = store.getState().Communities.communities.ids[0]
+  const userPeerId = store.getState().Identity.identities.entities[communityId].peerId.id
+
+  await waitForExpect(() => {
+    assert.ok(
+      store.getState().Identity.identities.entities[communityId].userCertificate
+    )
+  }, timeout)
+
+  await waitForExpect(() => {
+    assert.equal(
+      store.getState().Communities.communities.entities[communityId].peerList.length, expectedPeersCount
+    )
+  }, timeout)
+
+  const peerList = store.getState().Communities.communities.entities[communityId].peerList
+
+  await waitForExpect(() => {
+    assert.match(peerList[peerList.length - 1], new RegExp(userPeerId))
+  }, timeout)
+}

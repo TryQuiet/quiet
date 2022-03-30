@@ -15,7 +15,7 @@ interface CreateCommunity {
   store: Store
 }
 
-interface JoinCommunity {
+export interface JoinCommunity {
   registrarAddress: string
   userName: string
   ownerPeerId: string
@@ -28,7 +28,7 @@ interface JoinCommunity {
 export interface Register {
   registrarAddress: string
   userName: string
-  registrarPort: number
+  registrarPort?: number
   store: Store
 }
 
