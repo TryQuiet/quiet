@@ -11,12 +11,11 @@
     "lint": "eslint --ext .ts . --fix",
     "lint-ci": "eslint --ext .ts .",
     "prettier": "prettier",
-    "test:build": "lerna run distUbuntu --scope quiet --stream && npm run test",
+    "test:build": "lerna run distUbuntu --scope quiet --stream && npm run test:create && npm run test:join",
     "test:dev": "npm run build:app && npm run test",
-    "test": "npm run build:testcafe && cross-env DATA_DIR=e2e E2E_TEST=true DEBUG='waggle*,quiet*,nectar*,e2e*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:../frontend\" \"./**/joiningUser.e2e.ts\"",
-    "test:win": "npm run build:testcafe && cross-env DATA_DIR=e2e E2E_TEST=true DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
-    "test:smoke": "npm run build:testcafe && cross-env DATA_DIR=e2eSmoke E2E_TEST=true DEBUG='waggle*,quiet*,testcafe:*electron*,frontend*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:.\" \"./**/smokeTest.e2e.ts\"",
-    "test:smoke:win": "npm run build:testcafe && cross-env DATA_DIR=e2eSmoke E2E_TEST=true DEBUG='waggle*,quiet*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:.\" \"./**/smokeTest.e2e.ts\""
+    "test:create": "npm run build:testcafe && cross-env DATA_DIR=e2eCreate E2E_TEST=true DEBUG='waggle*,nectar*,e2e*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
+    "test:join": "npm run build:testcafe && cross-env DATA_DIR=e2eJoin E2E_TEST=true DEBUG='waggle*,nectar*,e2e*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/joiningUser.e2e.ts\"",
+    "test:smoke": "npm run build:testcafe && cross-env DATA_DIR=e2e E2E_TEST=true DEBUG='waggle*,nectar*,e2e*,testcafe:*electron*' testcafe \"electron:.\" \"./**/smokeTest.e2e.ts\""
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.7.1",
