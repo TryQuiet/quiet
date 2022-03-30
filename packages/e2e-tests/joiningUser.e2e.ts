@@ -5,8 +5,7 @@ import { DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal
 import { goToMainPage } from './utils'
 const log = logger('join')
 
-const longTimeout = 500000
-const timeout = 120_000
+const longTimeout = 120_000
 
 fixture`Joining user test`
   .beforeEach(async t => {
@@ -14,21 +13,17 @@ fixture`Joining user test`
     await new DebugModeModal().close()
   })
 
-test('User can join the community', async t => {
+test('User can join the community and exchange messages', async t => {
+  // Owner creates community and sends a message
   const communityOwner = await createApp()
   const onionAddress = await noJest.createCommunity({ username: 'Owner', communityName: 'e2eCommunity', store: communityOwner.store })
   await sendMessage({
-    message: 'Hi from the owner',
+    message: 'Welcome to my community',
     channelName: 'general',
     store: communityOwner.store
   })
-  await sendMessage({
-    message: 'How are you?',
-    channelName: 'general',
-    store: communityOwner.store
-  })
-
   const invitationCode = onionAddress.split('.')[0]
+  
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
@@ -38,7 +33,7 @@ test('User can join the community', async t => {
   await joinModal.typeCommunityCode(invitationCode)
   await joinModal.submit()
 
-  // User sees "register username" page, enters the valid name and submits by clicking on the button
+  // User sees "register username" page, enters the valid, non-taken name and submits by clicking on the button
   const registerModal = new RegisterUsernameModal()
   await t.expect(registerModal.title.exists).ok({ timeout: longTimeout })
   await registerModal.typeUsername('joining-user')
@@ -49,28 +44,26 @@ test('User can join the community', async t => {
   await t.expect(new LoadingPanel('Creating community').title.exists).notOk(`"Creating community" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
   await t.expect(generalChannel.title.exists).ok('User can\'t see "general" channel', { timeout: longTimeout })
 
-  // Joining user sees messages replicated from the owner
+  // Joining user sees message replicated from the owner
   const ownerMessages = generalChannel.getUserMessages('Owner')
   await t.expect(ownerMessages.exists).ok( { timeout: longTimeout })
-  await t.expect(ownerMessages.textContent).contains('Hi from the owner')
-  
-  // Owner sends message
+  await t.expect(ownerMessages.textContent).contains('Welcome to my community')
+
+  // Joining user sends a message and sees it on a channel
+  await generalChannel.sendMessage('Hello')
+  const joiningUserMessages = generalChannel.getUserMessages('joining-user')
+  await t.expect(joiningUserMessages.exists).ok( { timeout: longTimeout })
+  await t.expect(joiningUserMessages.textContent).contains('Hello')
+
+  // Owner receives the message sent by the joining user
+  await noJest.waitForExpect(() => noJest.assertReceivedMessagesMatch('Owner', ['Hello'], communityOwner.store))
+
+  // Owner sends message, user receives it
   await sendMessage({
-    message: 'Hi joining-user!',
+    message: 'Hi joining-user! Nice to see you here',
     channelName: 'general',
     store: communityOwner.store
   })
-  
-  await sendMessage({
-    message: 'How are you 1 ?',
-    channelName: 'general',
-    store: communityOwner.store
-  })
-  await sendMessage({
-    message: 'How are you 2 ?',
-    channelName: 'general',
-    store: communityOwner.store
-  })
-  console.log('3 ---> ', await ownerMessages.textContent)
-  await t.expect(ownerMessages.textContent).contains('How are you 2 ?')
+  await t.expect(ownerMessages.count).eql(2)
+  await t.expect(ownerMessages.nth(1).textContent).contains('Hi joining-user! Nice to see you here', { timeout: longTimeout })
 })

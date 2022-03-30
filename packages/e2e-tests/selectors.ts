@@ -39,13 +39,8 @@ export class Channel {
     return Selector('div').withAttribute('data-testid', 'messageInput')
   }
 
-  getUserMessages(username: string, date: string = null): Selector {
-    let msgsDate = ''
-    // userMessages-${messageDisplayData.nickname}-${messageDisplayData.date}
-    if (date) {
-      msgsDate = `-${date}`
-    }
-    return Selector('div').withAttribute('data-testid', new RegExp(`userMessages-${username}${msgsDate}`))
+  getUserMessages(username: string): Selector {
+    return Selector('div').withAttribute('data-testid', new RegExp(`userMessages-${username}`))
   }
 
   async sendMessage(message: string) {

@@ -36,7 +36,6 @@
   "dependencies": {
     "integration-tests": "^0.4.0-alpha.4",
     "@quiet/logger": "0.1.0-alpha.0",
-    "@quiet/nectar": "^0.4.0-alpha.3",
     "cross-env": "^5.2.0",
     "electron": "12.1.0",
     "testcafe": "^1.18.3",

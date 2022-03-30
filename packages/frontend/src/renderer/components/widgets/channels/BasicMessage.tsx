@@ -183,7 +183,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ messages })
                 </ClickAwayListener>
               )} */}
               </Grid>
-              <Grid container direction='column' data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.date}`}>
+              <Grid container direction='column' data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
                 {messages.map((message, index) => {
                   return <NestedMessageContent message={message} index={index} />
                 })}
