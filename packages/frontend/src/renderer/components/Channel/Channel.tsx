@@ -7,7 +7,6 @@ import ChannelComponent from './ChannelComponent'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
-import { channel } from 'packages/nectar/node_modules/redux-saga'
 
 const Channel = () => {
   const dispatch = useDispatch()
@@ -24,8 +23,6 @@ const Channel = () => {
   const currentChannelDisplayableMessages = useSelector(
     publicChannels.selectors.currentChannelMessagesMergedBySender
   )
-
-  console.log('rerender', currentChannel.name, currentChannelMessagesCount)
 
   const channelSettingsModal = useModal(ModalName.channelSettingsModal)
   const channelInfoModal = useModal(ModalName.channelInfo)
