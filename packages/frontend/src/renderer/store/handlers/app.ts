@@ -1,15 +1,11 @@
 import { produce, immerable } from 'immer'
-import { remote } from 'electron'
 import { createAction, handleActions } from 'redux-actions'
 import { actionTypes } from '../../../shared/static'
 
 import { ActionsType, PayloadType } from './types'
 
 export class App {
-  version: string
-  newUser: boolean
-  modalTabToOpen: 'channelInfo' | 'moderators' | 'notifications'
-  isInitialLoadFinished: boolean
+  version: number
 
   constructor(values?: Partial<App>) {
     Object.assign(this, values)
@@ -19,23 +15,14 @@ export class App {
 
 export const initialState: App = {
   ...new App({
-    version: null,
-    newUser: false,
-    modalTabToOpen: 'notifications',
-    isInitialLoadFinished: false
+    version: null
   })
 }
 
-const loadVersion = createAction(actionTypes.SET_APP_VERSION, () => remote.app.getVersion())
-const setModalTab = createAction<'channelInfo' | 'moderators' | 'notifications'>(
-  actionTypes.SET_CURRENT_MODAL_TAB
-)
-const clearModalTab = createAction(actionTypes.CLEAR_CURRENT_MODAL_TAB)
+const loadVersion = createAction(actionTypes.SET_APP_VERSION, () => 1.0)
 
 export const actions = {
-  loadVersion,
-  setModalTab,
-  clearModalTab
+  loadVersion
 }
 
 export type AppActions = ActionsType<typeof actions>
@@ -45,14 +32,6 @@ export const reducer = handleActions<App, PayloadType<AppActions>>(
     [loadVersion.toString()]: (state, { payload: version }: AppActions['loadVersion']) =>
       produce(state, draft => {
         draft.version = version
-      }),
-    [setModalTab.toString()]: (state, { payload: tabName }: AppActions['setModalTab']) =>
-      produce(state, draft => {
-        draft.modalTabToOpen = tabName
-      }),
-    [clearModalTab.toString()]: state =>
-      produce(state, draft => {
-        draft.modalTabToOpen = null
       })
   },
   initialState

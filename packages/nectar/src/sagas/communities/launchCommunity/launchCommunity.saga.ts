@@ -8,12 +8,16 @@ import { communitiesActions } from '../communities.slice'
 import { InitCommunityPayload } from '../communities.types'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { getCurrentTime } from '../../messages/utils/message.utils'
+import { connectionSelectors } from '../../appConnection/connection.selectors'
 
 export function* initCommunities(): Generator {
   const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
 
+  const initializedCommunities = yield* select(connectionSelectors.initializedCommunities)
   for (const community of joinedCommunities) {
-    yield* put(communitiesActions.launchCommunity(community.id))
+    if (!initializedCommunities[community.id]) {
+      yield* put(communitiesActions.launchCommunity(community.id))
+    }
   }
 
   const currentTime = yield* call(getCurrentTime)

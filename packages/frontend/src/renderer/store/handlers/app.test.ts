@@ -1,9 +1,15 @@
 /* eslint import/first: 0 */
 jest.mock('electron', () => {
   // @ts-expect-error
-  const remote = jest.mock()
-  // @ts-expect-error
   const ipcRenderer = jest.mock()
+  // @ts-expect-error
+  ipcRenderer.on = jest.fn().mockReturnValue('ok')
+  return { ipcRenderer }
+})
+
+jest.mock('@electron/remote', () => {
+  // @ts-expect-error
+  const remote = jest.mock()
   // @ts-expect-error
   remote.app = jest.mock()
   // @ts-expect-error
@@ -14,12 +20,10 @@ jest.mock('electron', () => {
   remote.process.on = jest.fn()
   // @ts-expect-error
   remote.app.getVersion = jest.fn().mockReturnValue('0.13.37')
-  // @ts-expect-error
-  ipcRenderer.on = jest.fn().mockReturnValue('ok')
-  return { remote, ipcRenderer }
+  return remote
 })
 
-import { remote } from 'electron'
+import remote from '@electron/remote'
 
 import handlers from './app'
 import selectors from '../selectors/app'
@@ -30,13 +34,9 @@ describe('criticalError reducer', () => {
   beforeEach(() => {
     store = create({
       initialState: {
-        app: {
-          // ...AppState
-        }
+        app: {}
       }
     })
-    // @ts-expect-error
-    remote.app = jest.mock()
     jest.clearAllMocks()
   })
 

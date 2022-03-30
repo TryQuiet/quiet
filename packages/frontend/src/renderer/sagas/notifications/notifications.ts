@@ -2,9 +2,11 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { connection, Identity, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, PublicChannel, publicChannels as channels, settings, User, users } from '@quiet/nectar'
 import { call, put, select, takeEvery } from 'typed-redux-saga'
-import { app, remote } from 'electron'
+import { app } from 'electron'
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel, END } from 'redux-saga'
+// eslint-disable-next-line
+const remote = require('@electron/remote')
 
 export interface NotificationsData {
   title: string
@@ -76,13 +78,15 @@ export const messagesMapForNotificationsCalls = (
       const isNotificationsOptionOff = NotificationsOptions.doNotNotifyOfAnyMessages === notificationsOption
 
       const [yourBrowserWindow] = remote.BrowserWindow.getAllWindows()
+
       const isAppInForeground = yourBrowserWindow.isFocused()
 
       const isMessageFromLoggedTime = messageData.createdAt > lastConnectedTime
 
-      if (!isMessageFromMyUser && (!isMessageFromCurrentChannel || !isAppInForeground) && !isNotificationsOptionOff && isMessageFromLoggedTime) {
+      if (senderName && !isMessageFromMyUser && !isNotificationsOptionOff &&
+        isMessageFromLoggedTime && (!isMessageFromCurrentChannel || !isAppInForeground)) {
         return createNotification({
-          title: `New message from ${senderName || 'unknown user'} in #${publicChannelFromMessage.name || 'Unnamed'}`,
+          title: `New message from ${senderName} in #${publicChannelFromMessage.name || 'Unnamed'}`,
           message: `${messageData.message.substring(0, 64)}${messageData.message.length > 64 ? '...' : ''}`,
           sound: notificationsSound,
           communityId: action.payload.communityId,

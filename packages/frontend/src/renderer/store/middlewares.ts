@@ -1,6 +1,5 @@
 import { useModal } from '../containers/hooks'
 import { ModalName } from '../sagas/modals/modals.types'
-import criticalErrorHandlers from './handlers/criticalError'
 
 const isPromise = value =>
   value !== null && typeof value === 'object' && typeof value.then === 'function'
@@ -10,7 +9,6 @@ const _dispatchError = (store, err) => {
     message: err.message,
     traceback: err.stack
   }
-  store.dispatch(criticalErrorHandlers.actions.setCriticalError(criticalError))
   const modal = useModal(ModalName.criticalError)
   modal.handleOpen()
 }

@@ -14,17 +14,16 @@ window.Notification = notification
 const mockShow = jest.fn()
 const mockIsFocused = jest.fn()
 
-jest.mock('electron', () => {
+jest.mock('@electron/remote', () => {
   return {
-    remote:
-    {
-      BrowserWindow: {
-        getAllWindows: () => {
-          return [{
-            show: mockShow,
-            isFocused: mockIsFocused
-          }]
-        }
+    BrowserWindow: {
+      getAllWindows: () => {
+        return [
+          {
+            isFocused: mockIsFocused,
+            show: mockShow
+          }
+        ]
       }
     }
   }
@@ -273,13 +272,19 @@ describe('displayNotificationsSaga', () => {
     mockIsFocused.mockImplementationOnce(() => { return true })
 
     const storeReducersWithCurrentChannelFromMessage = {
-      ...store.store
+      ...store.store.getState(),
+      PublicChannels: {
+        channels: {
+          ...store.store.getState().PublicChannels.channels,
+          entities: {
+            [community1.id]: {
+              ...store.store.getState().PublicChannels.channels.entities[community1.id],
+              currentChannel: publicChannel2.channel.address
+            }
+          }
+        }
+      }
     }
-
-    storeReducersWithCurrentChannelFromMessage.dispatch(publicChannels.actions.setCurrentChannel({
-      channelAddress: publicChannel2.channel.address,
-      communityId: community1.id
-    }))
 
     await expectSaga(
       displayMessageNotificationSaga,
@@ -293,7 +298,7 @@ describe('displayNotificationsSaga', () => {
           [StoreKeys.Communities]: communities.reducer
 
         }),
-        storeReducersWithCurrentChannelFromMessage.getState()
+        storeReducersWithCurrentChannelFromMessage
       )
       .run()
 
@@ -303,11 +308,20 @@ describe('displayNotificationsSaga', () => {
   test('notification shows for message in current channel when app window does not have focus', async () => {
     mockIsFocused.mockImplementationOnce(() => { return false })
 
-    const storeReducersWithCurrentChannelFromMessage = store.store
-    storeReducersWithCurrentChannelFromMessage.dispatch(publicChannels.actions.setCurrentChannel({
-      channelAddress: publicChannel2.channel.address,
-      communityId: community1.id
-    }))
+    const storeReducersWithCurrentChannelFromMessage = {
+      ...store.store.getState(),
+      PublicChannels: {
+        channels: {
+          ...store.store.getState().PublicChannels.channels,
+          entities: {
+            [community1.id]: {
+              ...store.store.getState().PublicChannels.channels.entities[community1.id],
+              currentChannel: publicChannel2.channel.address
+            }
+          }
+        }
+      }
+    }
 
     await expectSaga(
       displayMessageNotificationSaga,
@@ -321,7 +335,7 @@ describe('displayNotificationsSaga', () => {
           [StoreKeys.Communities]: communities.reducer
 
         }),
-        storeReducersWithCurrentChannelFromMessage.getState()
+        storeReducersWithCurrentChannelFromMessage
       )
       .run()
 
@@ -347,6 +361,36 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       publicChannels.actions.incomingMessages(incomingMessagesWithTimeStampBeforeLastConnectedTime))
+      .withReducer(
+        combineReducers({
+          [StoreKeys.Identity]: identity.reducer,
+          [StoreKeys.Settings]: settings.reducer,
+          [StoreKeys.PublicChannels]: publicChannels.reducer,
+          [StoreKeys.Users]: users.reducer,
+          [StoreKeys.Communities]: communities.reducer
+
+        }),
+        store.store.getState()
+      )
+      .run()
+
+    expect(notification).not.toHaveBeenCalled()
+  })
+
+  test('do not display notification when there is no sender info', async () => {
+    mockIsFocused.mockImplementationOnce(() => { return true })
+
+    const incomingMessagesWithoutSender: IncomingMessages = {
+      ...incomingMessages,
+      messages: [{
+        ...incomingMessages.messages[0],
+        pubKey: 'notExistingPubKey'
+      }]
+    }
+
+    await expectSaga(
+      displayMessageNotificationSaga,
+      publicChannels.actions.incomingMessages(incomingMessagesWithoutSender))
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identity.reducer,

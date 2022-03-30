@@ -18,6 +18,7 @@ Cypress.on('uncaught:exception', err => {
   }
 })
 
+// @ts-expect-error
 setGlobalConfig(withTheme)
 
 const { Component } = composeStories(stories)
@@ -26,7 +27,9 @@ describe('Scroll behavior test', () => {
   beforeEach(() => {
     mount(
       <React.Fragment>
+        {/* @ts-ignore */}
         <CssBaseline>
+          {/* @ts-ignore */}
           <Component />
         </CssBaseline>
       </React.Fragment>

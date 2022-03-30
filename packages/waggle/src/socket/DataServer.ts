@@ -34,7 +34,9 @@ export class DataServer {
 
   private readonly initSocket = (): void => {
     this.io = socketio(this.server, {
-      cors: this.cors
+      cors: this.cors,
+      pingInterval: 1000_000,
+      pingTimeout: 1000_000
     })
   }
 

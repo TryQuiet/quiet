@@ -23,10 +23,4 @@ describe('app -', () => {
   it('version selector', async () => {
     expect(selectors.version(store.getState())).toMatchSnapshot()
   })
-  it('modal tab to open', async () => {
-    expect(selectors.currentModalTab(store.getState())).toMatchSnapshot()
-  })
-  it('isInitialLoadFinished', async () => {
-    expect(selectors.isInitialLoadFinished(store.getState())).toMatchSnapshot()
-  })
 })
