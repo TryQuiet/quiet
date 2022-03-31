@@ -9,8 +9,8 @@ runs:
   using: "composite"
   steps:
     - uses: actions/setup-node@master
-      # with:
-      #   node-version: ${{ runner.os == 'Windows' && '14.17.0' || '16.13.0' }}
+      with:
+        node-version: ${{ runner.os == 'Windows' && '14.17.0' || '16.13.0' }}
     
     - name: Print OS name
       run: echo ${{ runner.os }}
@@ -51,7 +51,7 @@ runs:
       shell: bash
 
     - name: 'Install new npm'
-      run: npm i npm@latest
+      run: npm i -g npm@latest
       shell: bash
 
     - name: "Install monorepo dependencies"
