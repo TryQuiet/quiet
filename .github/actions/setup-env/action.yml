@@ -55,15 +55,22 @@ runs:
       run: npm i -g npm@latest
       shell: bash
 
-    - name: "Install global build tools"
-      if: ${{ runner.os == 'Windows' }}
-      run: npm install --global --production windows-build-tools --vs2015
+    - name: 'Set npm configs'
+      run: npm config set msbuild_path "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
       shell: bash
 
-    - name: "Install global build tools"
-      if: ${{ runner.os == 'Windows' }}
-      run: npm config set msvs_version 2015 –global
+    - name: 'Set nppm config'
+      run: npm config set msvs_version 2019
       shell: bash
+    # - name: "Install global build tools"
+    #   if: ${{ runner.os == 'Windows' }}
+    #   run: npm install --global --production windows-build-tools --vs2015
+    #   shell: bash
+
+    # - name: "Install global build tools"
+    #   if: ${{ runner.os == 'Windows' }}
+    #   run: npm config set msvs_version 2015 –global
+    #   shell: bash
 
     - name: "Install monorepo dependencies"
       # if: steps.cache-nodemodules.outputs.cache-hit != 'true'
