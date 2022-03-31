@@ -8,12 +8,8 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@master
-      with:
-        node-version: "12"
-
     - name: Install electron-builder globally
-      run: npm i -g electron-builder@22.10.5
+      run: npm i -g electron-builder@22.14.3
       shell: bash
 
     - name: "Pull tor binary"
