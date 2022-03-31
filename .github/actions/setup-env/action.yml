@@ -83,10 +83,15 @@ runs:
     #   run: npm install --global --production windows-build-tools --vs2015
     #   shell: bash
 
-    # - name: "Install global build tools"
-    #   if: ${{ runner.os == 'Windows' }}
-    #   run: npm config set msvs_version 2015 –global
-    #   shell: bash
+    - name: "Install global build tools"
+      if: ${{ runner.os == 'Windows' }}
+      run: npm config set python python2.7
+      shell: bash
+
+    - name: "Install global build tools"
+      if: ${{ runner.os == 'Windows' }}
+      run: npm config set msvs_version 2015
+      shell: bash
 
     - name: "Install monorepo dependencies"
       # if: steps.cache-nodemodules.outputs.cache-hit != 'true'
