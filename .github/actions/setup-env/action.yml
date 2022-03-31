@@ -10,7 +10,7 @@ runs:
   steps:
     - uses: actions/setup-node@master
       with:
-        node-version: ${{ runner.os == 'Windows' && '12.10.0' || '16.13.0' }}
+        node-version: ${{ runner.os == 'Windows' && '16.13.0' || '16.13.0' }}
     
     - name: Print OS name
       run: echo ${{ runner.os }}
