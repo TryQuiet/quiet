@@ -63,12 +63,18 @@ runs:
     #   run: npm config set msvs_version 2019
     #   shell: bash
 
-    - name: 'patch node gyp on windows to support Visual Studio 2019'
+    # - name: 'patch node gyp on windows to support Visual Studio 2019'
+    #   if: ${{ runner.os == 'Windows' }}
+    #   run: |
+    #     npm install --global node-gyp@latest
+    #     npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
+    #   shell: powershell
+
+    - name: 'Set path in powershell'
       if: ${{ runner.os == 'Windows' }}
-      run: |
-        npm install --global node-gyp@latest
-        npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
-      shell: powershell
+      run: set path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin
+      shell: powershell'
+
     # - name: "Install global build tools"
     #   if: ${{ runner.os == 'Windows' }}
     #   run: npm install --global --production windows-build-tools --vs2015
