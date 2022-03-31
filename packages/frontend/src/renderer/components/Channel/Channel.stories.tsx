@@ -486,7 +486,8 @@ const args: ChannelComponentProps = {
     description: 'This is awesome channel in which you can chat with your friends',
     owner: 'alice',
     timestamp: 1636971603355,
-    address: 'channelAddress'
+    address: 'general',
+    messagesSlice: 0
   },
   channelSettingsModal: {
     open: false,
