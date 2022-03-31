@@ -100,8 +100,8 @@ export const messagesMapForNotificationsCalls = (data: CreateNotificationsCallsD
         return createNotification({
           title: `New message from ${senderName} in #${publicChannelFromMessage.name || 'Unnamed'}`,
           message: `${messageData.message.substring(0, 64)}${messageData.message.length > 64 ? '...' : ''}`,
-          sound: notificationsSound,
-          communityId: action.payload.communityId,
+          sound: data.notificationsSound,
+          communityId: data.action.payload.communityId,
           channelName: publicChannelFromMessage.name,
           yourBrowserWindow
         }, emit)
