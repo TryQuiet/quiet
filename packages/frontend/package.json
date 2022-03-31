@@ -97,7 +97,7 @@
     "build:main:prod": "tsc -p tsconfig.build.json && npm run copyMainEnvs",
     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
     "prestart": "npm run build:main",
-    "start": "cross-env DATA_DIR=bots DEBUG='waggle:*,quiet:*,nectar:*,frontend:*' npm run start:renderer",
+    "start": "cross-env DEBUG='waggle:*,quiet:*,nectar:*,frontend:*' npm run start:renderer",
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:renderer": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
     "storybook": "start-storybook -p 6006",
