@@ -47,7 +47,10 @@ export const publicChannelsSlice = createSlice({
       const { channel, communityId } = action.payload
       publicChannelsAdapter.addOne(
         state.channels.entities[communityId].channels,
-        channel
+        {
+          ...channel,
+          messagesSlice: 0
+        }
       )
     },
     addPublicChannelsList: (
