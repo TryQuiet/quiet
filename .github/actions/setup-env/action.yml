@@ -87,10 +87,10 @@ runs:
     #   run: npm install --global --production windows-build-tools --vs2015
     #   shell: bash
 
-    # - name: 'Remove package-lock jsona'
-    #   if: ${{ runner.os == 'Windows' }}
-    #   run: rm packages/frontend/package-lock.json
-    #   shell: bash
+    - name: 'Remove package-lock jsona'
+      if: ${{ runner.os == 'Windows' }}
+      run: rm packages/waggle/package-lock.json
+      shell: bash
 
     # - name: "Install global build tools"
     #   if: ${{ runner.os == 'Windows' }}
@@ -107,12 +107,12 @@ runs:
     #   run: npm install
     #   shell: bash
 
-    # - name: "Bootstrap project"
-    #   run: |
-    #     if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
-    #     then
-    #         lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
-    #     else
-    #         lerna bootstrap
-    #     fi
-    #   shell: bash
+    - name: "Bootstrap project"
+      run: |
+        if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
+        then
+            lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
+        else
+            lerna bootstrap
+        fi
+      shell: bash
