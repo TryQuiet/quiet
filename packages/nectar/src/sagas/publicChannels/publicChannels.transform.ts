@@ -10,8 +10,7 @@ export const PublicChannelsTransform = createTransform(
         publicChannelsAdapter.updateOne(inboundState.channels.entities[community.id].channels, {
           id: channel.address,
           changes: {
-            messagesSlice: 0,
-            scrollPosition: 0
+            messagesSlice: 0
           }
         })
       }

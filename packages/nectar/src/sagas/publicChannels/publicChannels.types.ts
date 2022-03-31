@@ -15,7 +15,6 @@ export interface PublicChannel {
   timestamp: number
   address: string
   messagesSlice?: number
-  scrollPosition?: number
 }
 
 export interface ChannelMessage {
@@ -85,12 +84,6 @@ export interface SetCurrentChannelPayload {
 
 export interface SetChannelMessagesSliceValuePayload {
   messagesSlice: number
-  channelAddress: string
-  communityId: string
-}
-
-export interface CacheChannelScrollPositionPayload {
-  scrollPosition: number
   channelAddress: string
   communityId: string
 }
