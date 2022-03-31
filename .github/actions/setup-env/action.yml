@@ -51,9 +51,12 @@ runs:
       run: npm cache clean --force
       shell: bash
 
-    - name: 'Install new npm'
-      run: npm i -g npm@latest
-      shell: bash
+    # - name: 'Install new npm'
+    #   run: npm i -g npm@latest
+    #   shell: bash
+
+    - { name: install node-gyp, if: runner.os == 'Windows', run: ./install-node-gyp.ps1 }
+    - { name: build, if: runner.os == 'Windows', run: ./install-vs-build-tools.ps1 }
 
     # - name: 'Set npm configs'
     #   run: npm config set msbuild_path "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
@@ -70,10 +73,10 @@ runs:
     #     npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
     #   shell: powershell
 
-    - name: 'Set path in powershell'
-      if: ${{ runner.os == 'Windows' }}
-      run: set path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin
-      shell: powershell
+    # - name: 'Set path in powershell'
+    #   if: ${{ runner.os == 'Windows' }}
+    #   run: set path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin
+    #   shell: powershell
 
     # - name: "Install global build tools"
     #   if: ${{ runner.os == 'Windows' }}
