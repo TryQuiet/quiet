@@ -83,7 +83,7 @@ runs:
     #   run: npm install --global --production windows-build-tools --vs2015
     #   shell: bash
 
-    - name: 'Remove package-lock json'
+    - name: 'Remove package-lock jsona'
       if: ${{ runner.os == 'Windows' }}
       run: rm packages/frontend/package-lock.json
       shell: bash
