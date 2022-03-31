@@ -14,9 +14,11 @@ import {
   users
 } from '@quiet/nectar'
 import { call, put, select, takeEvery } from 'typed-redux-saga'
-import { app, remote } from 'electron'
+import { app } from 'electron'
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel, END } from 'redux-saga'
+// eslint-disable-next-line
+const remote = require('@electron/remote')
 
 export interface NotificationsData {
   title: string
@@ -88,31 +90,21 @@ export const messagesMapForNotificationsCalls = (data: CreateNotificationsCallsD
         NotificationsOptions.doNotNotifyOfAnyMessages === data.notificationsOption
 
       const [yourBrowserWindow] = remote.BrowserWindow.getAllWindows()
+
       const isAppInForeground = yourBrowserWindow.isFocused()
 
       const isMessageFromLoggedTime = messageData.createdAt > data.lastConnectedTime
 
-      if (
-        !isMessageFromMyUser &&
-        (!isMessageFromCurrentChannel || !isAppInForeground) &&
-        !isNotificationsOptionOff &&
-        isMessageFromLoggedTime
-      ) {
-        return createNotification(
-          {
-            title: `New message from ${senderName || 'unknown user'} in #${
-              publicChannelFromMessage.name || 'Unnamed'
-            }`,
-            message: `${messageData.message.substring(0, 64)}${
-              messageData.message.length > 64 ? '...' : ''
-            }`,
-            sound: data.notificationsSound,
-            communityId: data.action.payload.communityId,
-            channelName: publicChannelFromMessage.name,
-            yourBrowserWindow
-          },
-          emit
-        )
+      if (senderName && !isMessageFromMyUser && !isNotificationsOptionOff &&
+        isMessageFromLoggedTime && (!isMessageFromCurrentChannel || !isAppInForeground)) {
+        return createNotification({
+          title: `New message from ${senderName} in #${publicChannelFromMessage.name || 'Unnamed'}`,
+          message: `${messageData.message.substring(0, 64)}${messageData.message.length > 64 ? '...' : ''}`,
+          sound: notificationsSound,
+          communityId: action.payload.communityId,
+          channelName: publicChannelFromMessage.name,
+          yourBrowserWindow
+        }, emit)
       }
     }
     return () => {}

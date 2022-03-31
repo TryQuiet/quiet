@@ -20,6 +20,9 @@ setEngine(
 )
 global.crypto = webcrypto
 
+// @ts-expect-error
+process._linkedBinding = (name) => name
+
 jest.mock('socket.io-client', () => ({
   io: jest.fn()
 }))
@@ -28,13 +31,38 @@ export const ioMock = io as jest.Mock
 
 jest.mock('electron-store-webpack-wrapper')
 
-jest.mock('./electronStore', () => ({
-  get: () => {},
-  set: () => {}
-}))
-
 jest.mock('electron', () => {
-  return { ipcRenderer: { on: () => {}, send: jest.fn() } }
+  return { ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() } }
+})
+
+jest.mock('electron-store', () => {
+  return class ElectronStore {
+    // eslint-disable-next-line
+    constructor() {}
+  }
+})
+
+jest.mock('@electron/remote', () => {
+  const mock = {
+    BrowserWindow: {
+      getAllWindows: () => {
+        return [
+          {
+            isFocused: () => true,
+            show: jest.fn()
+          }
+        ]
+      }
+    }
+  }
+
+  mock[Symbol.iterator] = function* () {
+    yield 1
+    yield 2
+    yield 3
+  }
+
+  return mock
 })
 
 // eslint-disable-next-line new-cap
