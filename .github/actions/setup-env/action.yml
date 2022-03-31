@@ -73,7 +73,7 @@ runs:
     - name: 'Set path in powershell'
       if: ${{ runner.os == 'Windows' }}
       run: set path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin
-      shell: powershell'
+      shell: powershell
 
     # - name: "Install global build tools"
     #   if: ${{ runner.os == 'Windows' }}
