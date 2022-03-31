@@ -8,6 +8,7 @@
 	"license": "MIT",
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json",
+		"preinstall": "npx npm-force-resolutions",
 		"prepublish": "npm run build",
 		"version": "git add -A src",
 		"postversion": "git push && git push --tags",

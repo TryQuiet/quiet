@@ -10,7 +10,7 @@ runs:
   steps:
     - uses: actions/setup-node@master
       with:
-        node-version: ${{ runner.os == 'Windows' && '16.13.0' || '16.13.0' }}
+        node-version: 16.13.0
     
     - name: Print OS name
       run: echo ${{ runner.os }}
@@ -25,87 +25,15 @@ runs:
     - name: "Set unsafe-perm"
       run: npm set unsafe-perm true
       shell: bash
-    
-    # - name: "Install bcrypto"
-    #   run: npm install bcrypto
-    #   shell: bash
-
+  
     - name: "Install lerna globally"
       run: npm i -g lerna rf-lerna
       shell: bash
-
-
-    # - name: "Cache NPM dependencies"
-    #   if: ${{ runner.os != 'Windows' }}  # Caching slows down setup for Windows
-    #   id: cache-nodemodules
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: |
-    #       node_modules
-    #       */*/node_modules
-    #     key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
-    #     restore-keys: |
-    #       ${{ runner.OS }}-npm-cache-
-
-    # - name: 'Verify cache'
-    #   run: npm cache verify
-    #   shell: bash
-
-    # - name: 'Clear npm cache'
-    #   run: npm cache clean --force
-    #   shell: bash
-
-    # - name: 'Install new npm'
-    #   run: npm i -g npm@latest
-    #   shell: bash
-
-    # - { name: install node-gyp, if: runner.os == 'Windows', run: ./install-node-gyp.ps1, shell: powershell }
-    # - { name: build, if: runner.os == 'Windows', run: ./install-vs-build-tools.ps1, shell: powershell }
-
-    # - name: 'Set npm configs'
-    #   run: npm config set msbuild_path "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe"
-    #   shell: bash
-
-    # - name: 'Set nppm config'
-    #   run: npm config set msvs_version 2019
-    #   shell: bash
-
-    # - name: 'patch node gyp on windows to support Visual Studio 2019'
-    #   if: ${{ runner.os == 'Windows' }}
-    #   run: |
-    #     npm install --global node-gyp@latest
-    #     npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
-    #   shell: powershell
-
-    # - name: 'Set path in powershell'
-    #   if: ${{ runner.os == 'Windows' }}
-      # run: set path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin
-      # shell: powershell
-
-    # - name: "Install global build tools"
-    #   if: ${{ runner.os == 'Windows' }}
-    #   run: npm install --global --production windows-build-tools --vs2015
-    #   shell: bash
 
     - name: 'Remove package-lock jsona'
       if: ${{ runner.os == 'Windows' }}
       run: rm packages/waggle/package-lock.json
       shell: bash
-
-    # - name: "Install global build tools"
-    #   if: ${{ runner.os == 'Windows' }}
-    #   run: npm config set python python2.7
-    #   shell: bash
-
-    # - name: "Install global build tools"
-    #   if: ${{ runner.os == 'Windows' }}
-    #   run: npm config set msvs_version 2015
-    #   shell: bash
-
-    # - name: "Install monorepo dependencies"
-    #   # if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-    #   run: npm install
-    #   shell: bash
 
     - name: "Bootstrap project"
       run: |
