@@ -42,7 +42,7 @@ const useStyles = makeStyles(theme => ({
 
 export interface IChannelMessagesProps {
   messages?: MessagesDailyGroups
-  scrollbarRef,
+  scrollbarRef
   onScroll: () => void
 }
 

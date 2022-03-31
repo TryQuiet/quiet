@@ -84,7 +84,7 @@ describe('displayMessageNotificationSaga test', () => {
     mockNotification.onclick()
     const isTakeEveryResolved = store.sagaMonitor.isEffectResolved('takeEvery(channel, bridgeAction)')
 
-    expect(publicChannels.selectors.currentChannel(store.store.getState())).toBe(publicChannel2.channel)
+    expect(publicChannels.selectors.currentChannel(store.store.getState()).address).toBe(publicChannel2.channel.address)
     expect(isTakeEveryResolved).toBeTruthy()
   })
 

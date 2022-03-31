@@ -205,6 +205,7 @@ describe('User', () => {
         "PublicChannels/addChannel",
         "Modals/closeModal",
         "PublicChannels/setChannelMessagesSliceValue",
+        "PublicChannels/setChannelMessagesSliceValue",
       ]
     `)
   })
