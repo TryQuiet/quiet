@@ -86,6 +86,7 @@ runs:
     - name: 'Remove package-lock json'
       if: ${{ runner.os == 'Windows' }}
       run: rm packages/frontend/package-lock.json
+      shell: bash
 
     # - name: "Install global build tools"
     #   if: ${{ runner.os == 'Windows' }}
