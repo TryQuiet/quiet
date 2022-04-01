@@ -1,6 +1,18 @@
 /* global Notification */
 import { PayloadAction } from '@reduxjs/toolkit'
-import { connection, Identity, identity, IncomingMessages, NotificationsOptions, NotificationsSounds, PublicChannel, publicChannels as channels, settings, User, users } from '@quiet/nectar'
+import {
+  connection,
+  Identity,
+  identity,
+  IncomingMessages,
+  NotificationsOptions,
+  NotificationsSounds,
+  PublicChannel,
+  publicChannels as channels,
+  settings,
+  User,
+  users
+} from '@quiet/nectar'
 import { call, put, select, takeEvery } from 'typed-redux-saga'
 import { app } from 'electron'
 import { soundTypeToAudio } from '../../../shared/sounds'
@@ -17,7 +29,7 @@ export interface NotificationsData {
   yourBrowserWindow: Electron.BrowserWindow
 }
 
-export interface createNotificationsCallsDataType {
+export interface CreateNotificationsCallsDataType {
   action: {
     payload: IncomingMessages
     type: string
@@ -27,7 +39,7 @@ export interface createNotificationsCallsDataType {
     [pubKey: string]: User
   }
   myIdentity: Identity
-  currentChannel: string
+  currentChannel: PublicChannel
   notificationsOption: NotificationsOptions
   notificationsSound: NotificationsSounds
   lastConnectedTime: number
@@ -40,7 +52,7 @@ export function* bridgeAction(action): Generator {
 export function* displayMessageNotificationSaga(
   action: PayloadAction<ReturnType<typeof channels.actions.incomingMessages>['payload']>
 ): Generator {
-  const createNotificationsCallsData = {
+  const createNotificationsCallsData: CreateNotificationsCallsDataType = {
     action,
     publicChannels: yield* select(channels.selectors.publicChannels),
     usersData: yield* select(users.selectors.certificatesMapping),
@@ -51,19 +63,18 @@ export function* displayMessageNotificationSaga(
     lastConnectedTime: yield* select(connection.selectors.lastConnectedTime)
   }
 
-  const notificationClickedChannel = yield* call(messagesMapForNotificationsCalls, createNotificationsCallsData)
+  const notificationClickedChannel = yield* call(
+    messagesMapForNotificationsCalls,
+    createNotificationsCallsData
+  )
 
   yield* takeEvery(notificationClickedChannel, bridgeAction)
 }
-export const messagesMapForNotificationsCalls = (
-  {
-    action, currentChannel, myIdentity, notificationsOption,
-    notificationsSound, publicChannels, usersData, lastConnectedTime
-  }: createNotificationsCallsDataType
-) => {
+
+export const messagesMapForNotificationsCalls = (data: CreateNotificationsCallsDataType) => {
   return eventChannel<ReturnType<typeof channels.actions.setCurrentChannel>>(emit => {
-    for (const messageData of action.payload.messages) {
-      const publicChannelFromMessage = publicChannels.find((channel) => {
+    for (const messageData of data.action.payload.messages) {
+      const publicChannelFromMessage = data.publicChannels.find(channel => {
         // @ts-expect-error
         if (messageData?.channelId) {
           // @ts-expect-error
@@ -72,30 +83,31 @@ export const messagesMapForNotificationsCalls = (
           return channel.address === messageData.channelAddress
         }
       })
-      const senderName = usersData[messageData.pubKey]?.username
-      const isMessageFromMyUser = senderName === myIdentity.nickname
-      const isMessageFromCurrentChannel = currentChannel === publicChannelFromMessage.name
-      const isNotificationsOptionOff = NotificationsOptions.doNotNotifyOfAnyMessages === notificationsOption
+      const senderName = data.usersData[messageData.pubKey]?.username
+      const isMessageFromMyUser = senderName === data.myIdentity.nickname
+      const isMessageFromCurrentChannel = data.currentChannel.name === publicChannelFromMessage.name
+      const isNotificationsOptionOff =
+        NotificationsOptions.doNotNotifyOfAnyMessages === data.notificationsOption
 
       const [yourBrowserWindow] = remote.BrowserWindow.getAllWindows()
 
       const isAppInForeground = yourBrowserWindow.isFocused()
 
-      const isMessageFromLoggedTime = messageData.createdAt > lastConnectedTime
+      const isMessageFromLoggedTime = messageData.createdAt > data.lastConnectedTime
 
       if (senderName && !isMessageFromMyUser && !isNotificationsOptionOff &&
         isMessageFromLoggedTime && (!isMessageFromCurrentChannel || !isAppInForeground)) {
         return createNotification({
           title: `New message from ${senderName} in #${publicChannelFromMessage.name || 'Unnamed'}`,
           message: `${messageData.message.substring(0, 64)}${messageData.message.length > 64 ? '...' : ''}`,
-          sound: notificationsSound,
-          communityId: action.payload.communityId,
+          sound: data.notificationsSound,
+          communityId: data.action.payload.communityId,
           channelName: publicChannelFromMessage.name,
           yourBrowserWindow
         }, emit)
       }
     }
-    return () => { }
+    return () => {}
   })
 }
 
@@ -112,10 +124,12 @@ export const createNotification = (payload: NotificationsData, emit): any => {
     silent: true
   })
   notification.onclick = () => {
-    emit(channels.actions.setCurrentChannel({
-      channelAddress: payload.channelName,
-      communityId: payload.communityId
-    }))
+    emit(
+      channels.actions.setCurrentChannel({
+        channelAddress: payload.channelName,
+        communityId: payload.communityId
+      })
+    )
     payload.yourBrowserWindow.show()
 
     emit(END)
@@ -125,7 +139,7 @@ export const createNotification = (payload: NotificationsData, emit): any => {
     emit(END)
   }
 
-  return () => { }
+  return () => {}
 }
 
 export default {

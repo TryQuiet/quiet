@@ -83,7 +83,7 @@
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "type-check": "tsc -p tsconfig.build.json --noEmit",
-    "test": "jest",
+    "test": "jest --testPathIgnorePatterns=\".dist/\"",
     "test:watch": "jest --watchAll",
     "rtl-test": "jest ./src/rtl-tests",
     "regression-test:update": "cypress install && ./node_modules/.bin/cypress run-ct --env type=base --config screenshotsFolder=cypress/snapshots/base-local",

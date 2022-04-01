@@ -28,7 +28,7 @@ export function* sendMessageSaga(
   const signatureArrayBuffer = yield* call(sign, action.payload, keyObject)
   const signature = yield* call(arrayBufferToString, signatureArrayBuffer)
 
-  const channelAddress = yield* select(publicChannelsSelectors.currentChannel)
+  const currentChannel = yield* select(publicChannelsSelectors.currentChannel)
 
   const messageId = yield* call(generateMessageId)
   const currentTime = yield* call(getCurrentTime)
@@ -38,7 +38,7 @@ export function* sendMessageSaga(
     type: MessageTypes.BASIC,
     message: action.payload,
     createdAt: currentTime,
-    channelAddress: channelAddress,
+    channelAddress: currentChannel.address,
     signature,
     pubKey
   }

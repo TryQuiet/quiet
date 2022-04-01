@@ -15,10 +15,7 @@ export const MainScreen: FC = () => {
   })
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-
-  const allChannels = useSelector(publicChannels.selectors.publicChannels)
-  const currentChannelAddress = useSelector(publicChannels.selectors.currentChannel)
-  const currentChannel = allChannels.find(channel => channel?.address === currentChannelAddress)
+  const currentChannel = useSelector(publicChannels.selectors.currentChannel)
 
   const channelMessagesCount = useSelector(
     publicChannels.selectors.currentChannelMessagesCount
