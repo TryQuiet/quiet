@@ -14,7 +14,6 @@ import {
   users
 } from '@quiet/nectar'
 import { call, put, select, takeEvery } from 'typed-redux-saga'
-import { app } from 'electron'
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel, END } from 'redux-saga'
 // eslint-disable-next-line
@@ -113,7 +112,7 @@ export const messagesMapForNotificationsCalls = (data: CreateNotificationsCallsD
 
 export const createNotification = (payload: NotificationsData, emit): any => {
   if (process.platform === 'win32') {
-    app.setAppUserModelId(app.name)
+    remote.app.setAppUserModelId(remote.app.name)
   }
   if (soundTypeToAudio[payload.sound]) {
     soundTypeToAudio[payload.sound].play()
