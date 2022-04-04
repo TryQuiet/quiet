@@ -111,7 +111,7 @@ export class ConnectionsManager extends EventEmitter {
     const webcrypto = new Crypto()
     setEngine(
       'newEngine',
-      // @ts-expect-error
+      // @ts-ignore
       webcrypto,
       new CryptoEngine({
         name: '',

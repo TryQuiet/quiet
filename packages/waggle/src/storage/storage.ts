@@ -33,7 +33,7 @@ const log = logger('db')
 const webcrypto = new Crypto()
 setEngine(
   'newEngine',
-  // @ts-expect-error
+  // @ts-ignore
   webcrypto,
   new CryptoEngine({
     name: '',
