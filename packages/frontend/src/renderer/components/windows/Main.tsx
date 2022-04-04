@@ -35,7 +35,7 @@ export const Main: React.FC<MainProps> = ({
       if (timer) {
         clearTimeout(timer)
       }
-      // @ts-ignore
+      // @ts-expect-error
       timer = setTimeout(_ => {
         timer = null
         fn.apply(this) // eslint-disable-line

@@ -33,7 +33,7 @@ const log = logger('db')
 const webcrypto = new Crypto()
 setEngine(
   'newEngine',
-  // @ts-ignore
+  // @ts-expect-error
   webcrypto,
   new CryptoEngine({
     name: '',
@@ -126,7 +126,7 @@ export class Storage {
 
   protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> {
     log('Initializing IPFS')
-    // @ts-ignore
+    // @ts-expect-error
     return await IPFS.create({
       // error here 'permission denied 0.0.0.0:443'
       libp2p: async () => libp2p,
