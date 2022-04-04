@@ -19,7 +19,15 @@ fixture`New user test`
     // await fs.rm(fullDataPath, { recursive: true, force: true }) // TODO: use this with node >=14, rmdirSync doesn't seem to work
   })
 
-test('User can create new community, register and send few messages to general channel', async t => {
+// .afterEach(async t => {
+//   const { error, log } = await t.getBrowserConsoleMessages();
+
+//   log.forEach((val => {console.log('log', val)}))
+//   error.forEach((val => {console.log('error', val)}))
+
+// })
+
+test.only('User can create new community, register and send few messages to general channel', async t => {
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 

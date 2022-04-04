@@ -43,21 +43,21 @@ jobs:
           name: test-screenshots-linux
           path: packages/e2e-tests/screenshots
 
-  # e2e-windows:
-  #   runs-on: windows-2019
-  #   timeout-minutes: 20
-  #   steps:
-  #     - uses: actions/checkout@v2
+  e2e-windows:
+    runs-on: windows-2019
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v2
 
-  #     - name: "Setup environment"
-  #       uses: ./.github/actions/setup-env
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
 
-  #     - name: Build project and run tests
-  #       run: lerna run start:e2eWin --scope e2e-tests --stream
+      - name: Build project and run tests
+        run: lerna run start:e2eWin --scope e2e-tests --stream
 
-  #     - name: Archive test screenshots
-  #       uses: actions/upload-artifact@v2
-  #       if: always()
-  #       with:
-  #         name: test-screenshots-windows
-  #         path: packages\e2e-tests\screenshots
+      - name: Archive test screenshots
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: test-screenshots-windows
+          path: packages\e2e-tests\screenshots
