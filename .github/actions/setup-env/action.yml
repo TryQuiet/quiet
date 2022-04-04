@@ -32,7 +32,7 @@ runs:
 
     - name: "Install monorepo dependencies"
       # if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-      run: lerna run ci
+      run: npm ci
       shell: bash
 
     - name: "Bootstrap project"
