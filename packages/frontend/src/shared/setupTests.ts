@@ -11,7 +11,7 @@ import { io } from 'socket.io-client'
 const webcrypto = new Crypto()
 setEngine(
   'newEngine',
-  // @ts-expect-error
+  // @ts-ignore
   webcrypto,
   new CryptoEngine({
     name: '',
@@ -19,10 +19,10 @@ setEngine(
     subtle: webcrypto.subtle
   })
 )
-// @ts-expect-error
+// @ts-ignore
 global.crypto = webcrypto
 
-// @ts-expect-error
+// @ts-ignore
 process._linkedBinding = (name) => name
 
 jest.mock('socket.io-client', () => ({

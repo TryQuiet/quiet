@@ -6,7 +6,7 @@ interface AutocompleteFieldsProps {
   name: string
 }
 
-// @ts-expect-error
+// @ts-ignore
 export const AutocompleteField: React.FC<AutocompleteProps & AutocompleteFieldsProps> = ({
   name,
   ...props
