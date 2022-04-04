@@ -219,7 +219,6 @@ describe('Channel', () => {
         "PublicChannels/markUnreadMessages",
         "Messages/addPublicKeyMapping",
         "Messages/addMessageVerificationStatus",
-        "PublicChannels/setChannelLoadingSlice",
       ]
     `)
 

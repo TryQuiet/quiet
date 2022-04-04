@@ -11,7 +11,7 @@ export function* markUnreadMessagesSaga(
   const currentCommunity = yield* select(communitiesSelectors.currentCommunity)
   const currentChannel = yield* select(publicChannelsSelectors.currentChannel)
 
-  const messages = action.payload.messages.filter(message => message.channelAddress !== currentChannel)
+  const messages = action.payload.messages.filter(message => message.channelAddress !== currentChannel.address)
 
   const unread: UnreadChannelMessage[] = messages.map(message => {
     return {
@@ -22,7 +22,7 @@ export function* markUnreadMessagesSaga(
 
   const payload: MarkUnreadMessagesPayload = {
     messages: unread,
-    communityId: currentCommunity.id
+    communityId: currentCommunity?.id
   }
 
   yield* put(

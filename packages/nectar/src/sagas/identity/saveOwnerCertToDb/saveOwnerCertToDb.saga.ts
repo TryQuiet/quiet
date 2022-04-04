@@ -9,7 +9,7 @@ export function* saveOwnerCertToDbSaga(socket: Socket): Generator {
   const currentCommunity = yield* select(communitiesSelectors.currentCommunity)
   const identity = yield* select(identitySelectors.currentIdentity)
   const payload: SaveOwnerCertificatePayload = {
-    id: currentCommunity.id,
+    id: currentCommunity?.id,
     peerId: identity.peerId.id,
     certificate: identity.userCertificate,
     permsData: {

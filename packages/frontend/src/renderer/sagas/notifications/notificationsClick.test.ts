@@ -1,7 +1,7 @@
 import { prepareStore } from '../../testUtils/prepareStore'
 import rootSaga from '../../sagas/index.saga'
-import { communities, getFactory, identity, IncomingMessages, publicChannels } from '@quiet/nectar'
-import { setupCrypto } from '@quiet/identity'
+import { communities, getFactory, identity, IncomingMessages, publicChannels, users } from '@quiet/nectar'
+import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
 import { waitFor } from '@testing-library/react'
 import { SagaMonitor } from 'redux-saga'
 const originalNotification = window.Notification
@@ -52,9 +52,15 @@ beforeAll(async () => {
   ReturnType<typeof publicChannels.actions.addChannel>['payload']
   >('PublicChannel', { communityId: community1.id })
 
-  await factory.create<
+  const alice = await factory.create<
   ReturnType<typeof identity.actions.addNewIdentity>['payload']
   >('Identity', { id: community1.id, nickname: 'alice' })
+
+  const parsedCert = parseCertificate(alice.userCertificate)
+  const userPubKey = await keyFromCertificate(parsedCert)
+
+  const senderPubKey = Object.keys(users.selectors.certificatesMapping(store.store.getState()))
+    .find((pubKey) => pubKey !== userPubKey)
 
   incomingMessages = {
     messages: [{
@@ -64,7 +70,7 @@ beforeAll(async () => {
       createdAt: 1000000,
       channelAddress: publicChannel2.channel.address,
       signature: 'signature',
-      pubKey: 'pubKey'
+      pubKey: senderPubKey
     }],
     communityId: '1'
   }
@@ -84,7 +90,7 @@ describe('displayMessageNotificationSaga test', () => {
     mockNotification.onclick()
     const isTakeEveryResolved = store.sagaMonitor.isEffectResolved('takeEvery(channel, bridgeAction)')
 
-    expect(publicChannels.selectors.currentChannel(store.store.getState())).toBe(publicChannel2.channel.address)
+    expect(publicChannels.selectors.currentChannel(store.store.getState()).address).toBe(publicChannel2.channel.address)
     expect(isTakeEveryResolved).toBeTruthy()
   })
 

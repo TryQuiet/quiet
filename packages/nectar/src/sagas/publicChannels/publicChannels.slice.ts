@@ -14,7 +14,7 @@ import {
   AddPublicChannelsListPayload,
   GetPublicChannelsResponse,
   SetCurrentChannelPayload,
-  SetChannelLoadingSlicePayload,
+  SetChannelMessagesSliceValuePayload,
   ChannelMessagesIdsResponse,
   SubscribeToTopicPayload,
   AskForMessagesPayload,
@@ -46,7 +46,10 @@ export const publicChannelsSlice = createSlice({
       const { channel, communityId } = action.payload
       publicChannelsAdapter.addOne(
         state.channels.entities[communityId].channels,
-        channel
+        {
+          ...channel,
+          messagesSlice: 0
+        }
       )
     },
     addPublicChannelsList: (
@@ -56,7 +59,6 @@ export const publicChannelsSlice = createSlice({
       const communityChannels: CommunityChannels = {
         id: action.payload.id,
         currentChannel: 'general',
-        channelLoadingSlice: 0,
         channels: publicChannelsAdapter.getInitialState(),
         channelMessages: channelMessagesAdapter.getInitialState(),
         unreadMessages: unreadMessagesAdapter.getInitialState()
@@ -88,21 +90,30 @@ export const publicChannelsSlice = createSlice({
         changes: { currentChannel: channelAddress }
       })
     },
-    setChannelLoadingSlice: (
+    setChannelMessagesSliceValue: (
       state,
-      action: PayloadAction<SetChannelLoadingSlicePayload>
+      action: PayloadAction<SetChannelMessagesSliceValuePayload>
     ) => {
-      const { communityId, slice } = action.payload
-      communityChannelsAdapter.updateOne(state.channels, {
-        id: communityId,
-        changes: { channelLoadingSlice: slice }
-      })
+      const { messagesSlice, channelAddress, communityId } = action.payload
+
+      // Verify community exists in redux store
+      if (!state.channels.entities[communityId]) return
+
+      publicChannelsAdapter.updateOne(
+        state.channels.entities[communityId].channels,
+        {
+          id: channelAddress,
+          changes: {
+            messagesSlice: messagesSlice
+          }
+        }
+      )
     },
     subscribeToTopic: (
       state,
       _action: PayloadAction<SubscribeToTopicPayload>
     ) => state,
-    subscribeToAllTopics: (state, _action: PayloadAction<string>) => state,
+    subscribeToAllTopics: state => state,
     responseSendMessagesIds: (
       state,
       action: PayloadAction<ChannelMessagesIdsResponse>

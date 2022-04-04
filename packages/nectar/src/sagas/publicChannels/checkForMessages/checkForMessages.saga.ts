@@ -17,7 +17,7 @@ export function* checkForMessagesSaga(): Generator {
       publicChannelsActions.askForMessages({
         peerId: identity.peerId.id,
         communityId: communityId,
-        channelAddress: channel,
+        channelAddress: channel.address,
         ids: missingMessages
       })
     )

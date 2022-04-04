@@ -58,7 +58,7 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, (payload: GetPublicChannelsResponse) => {
       emit(publicChannelsActions.responseGetPublicChannels(payload))
-      emit(publicChannelsActions.subscribeToAllTopics(payload.communityId))
+      emit(publicChannelsActions.subscribeToAllTopics())
     }
     )
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {

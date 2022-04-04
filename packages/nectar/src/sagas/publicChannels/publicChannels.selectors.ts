@@ -7,88 +7,78 @@ import {
 } from './publicChannels.adapter'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
-import { currentCommunityId } from '../communities/communities.selectors'
+import { currentCommunity } from '../communities/communities.selectors'
 import { MessageType } from '../messages/messages.types'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { messagesVerificationStatus } from '../messages/messages.selectors'
-import { CommunityChannels, DisplayableMessage, MessagesDailyGroups } from './publicChannels.types'
+import {
+  ChannelMessage,
+  CommunityChannels,
+  DisplayableMessage,
+  MessagesDailyGroups,
+  PublicChannel
+} from './publicChannels.types'
 import { unreadMessagesAdapter } from './markUnreadMessages/unreadMessages.adapter'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 
 const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
   state[StoreKeys.PublicChannels]
 
-export const selectEntities = createSelector(publicChannelSlice, reducerState =>
+const selectEntities = createSelector(publicChannelSlice, reducerState =>
   communityChannelsAdapter.getSelectors().selectEntities(reducerState.channels)
 )
 
-export const publicChannelsByCommunity = (id: string) =>
-  createSelector(selectEntities, publicChannels => {
-    const community = publicChannels[id]
-    return publicChannelsAdapter.getSelectors().selectAll(community.channels)
-  })
-
-export const currentCommunityChannelsState = createSelector(
+const selectState = createSelector(
   selectEntities,
-  currentCommunityId,
-  (publicChannels, currentCommunity) => {
-    const empty: CommunityChannels = {
-      id: '',
-      currentChannel: '',
-      channelLoadingSlice: 0,
-      channels: publicChannelsAdapter.getInitialState(),
-      channelMessages: channelMessagesAdapter.getInitialState(),
-      unreadMessages: unreadMessagesAdapter.getInitialState()
+  currentCommunity,
+  (entities, community) => {
+    return entities[community?.id]
+  }
+)
+
+const selectChannels = createSelector(selectState, (state: CommunityChannels) => {
+  if (!state) return []
+  return publicChannelsAdapter.getSelectors().selectAll(state.channels)
+})
+
+const selectChannelsMessages = createSelector(selectState, (state: CommunityChannels) => {
+  if (!state) return []
+  return channelMessagesAdapter.getSelectors().selectAll(state.channelMessages)
+})
+
+export const publicChannels = createSelector(selectChannels, (channels: PublicChannel[]) => {
+  return channels.sort((a, b) => {
+    if (a.name === 'general') {
+      return -1
     }
-    return publicChannels[currentCommunity] || empty
-  }
-)
-
-export const publicChannels = createSelector(
-  currentCommunityChannelsState,
-  (state: CommunityChannels) => {
-    return publicChannelsAdapter.getSelectors().selectAll(state.channels).sort((a, b) => {
-      if (a.name === 'general') {
-        return -1
-      }
-      if (b.name === 'general') {
-        return 0
-      }
-      return a.name.localeCompare(b.name)
-    })
-  }
-)
-
-export const publicChannelsMessages = createSelector(
-  currentCommunityChannelsState,
-  (state: CommunityChannels) => {
-    return channelMessagesAdapter.getSelectors().selectAll(state.channelMessages)
-  }
-)
-
-export const missingChannelsMessages = createSelector(publicChannelsMessages, messages => {
-  return messages.filter(message => message.type === MessageType.Empty).map(message => message.id)
+    if (b.name === 'general') {
+      return 0
+    }
+    return a.name.localeCompare(b.name)
+  })
 })
 
 export const currentChannel = createSelector(
-  currentCommunityChannelsState,
-  (state: CommunityChannels) => {
-    return state.currentChannel
+  selectState,
+  selectChannels,
+  (state: CommunityChannels, channels: PublicChannel[]) => {
+    if (!state) return undefined
+    return channels.find(channel => channel.address === state.currentChannel)
   }
 )
 
-export const channelLoadingSlice = createSelector(
-  currentCommunityChannelsState,
-  (state: CommunityChannels) => {
-    return state.channelLoadingSlice
-  }
-)
-
-export const currentChannelMessages = createSelector(
-  publicChannelsMessages,
+const currentChannelMessages = createSelector(
+  selectChannelsMessages,
   currentChannel,
-  (messages, channel) => {
-    return messages.filter(message => message.channelAddress === channel)
+  (messages: ChannelMessage[], channel: PublicChannel) => {
+    return messages.filter(message => message.channelAddress === channel.address)
+  }
+)
+
+export const missingChannelsMessages = createSelector(
+  selectChannelsMessages,
+  (messages: ChannelMessage[]) => {
+    return messages.filter(message => message.type === MessageType.Empty).map(message => message.id)
   }
 )
 
@@ -121,9 +111,9 @@ export const sortedCurrentChannelMessages = createSelector(
 
 export const slicedCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
-  channelLoadingSlice,
-  (messages, slice) => {
-    return messages.slice(slice, messages.length)
+  currentChannel,
+  (messages: ChannelMessage[], channel: PublicChannel) => {
+    return messages.slice((channel?.messagesSlice || 0), messages.length)
   }
 )
 
@@ -185,19 +175,16 @@ export const currentChannelMessagesMergedBySender = createSelector(
   }
 )
 
-export const unreadMessages = createSelector(
-  currentCommunityChannelsState,
-  (state: CommunityChannels) => {
-    return unreadMessagesAdapter.getSelectors().selectAll(state.unreadMessages)
-  }
-)
+export const unreadMessages = createSelector(selectState, (state: CommunityChannels) => {
+  if (!state) return []
+  return unreadMessagesAdapter.getSelectors().selectAll(state.unreadMessages)
+})
 
 export const unreadChannels = createSelector(unreadMessages, messages => {
   return messages.map(message => message.channelAddress)
 })
 
 export const publicChannelsSelectors = {
-  publicChannelsByCommunity,
   publicChannels,
   currentChannel,
   currentChannelMessagesCount,
