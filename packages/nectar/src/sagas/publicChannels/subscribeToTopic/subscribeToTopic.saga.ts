@@ -4,23 +4,33 @@ import { communitiesSelectors } from '../../communities/communities.selectors'
 import { apply, put, select } from 'typed-redux-saga'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { publicChannelsActions } from '../publicChannels.slice'
+import { PublicChannel } from '../publicChannels.types'
 
 export function* subscribeToTopicSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof publicChannelsActions.subscribeToTopic>['payload']>
 ): Generator {
-  const id = yield* select(communitiesSelectors.currentCommunityId)
+  const communityId = yield* select(communitiesSelectors.currentCommunityId)
+
+  const { peerId, channelData } = action.payload
+
+  const channel: PublicChannel = {
+    ...channelData,
+    messagesSlice: undefined
+  }
+
   yield* put(
     publicChannelsActions.addChannel({
-      communityId: id,
-      channel: action.payload.channelData
+      communityId: communityId,
+      channel: channel
     })
   )
+
   yield* apply(socket, socket.emit, [
     SocketActionTypes.SUBSCRIBE_TO_TOPIC,
     {
-      peerId: action.payload.peerId,
-      channelData: action.payload.channelData
+      peerId: peerId,
+      channelData: channel
     }
   ])
 }

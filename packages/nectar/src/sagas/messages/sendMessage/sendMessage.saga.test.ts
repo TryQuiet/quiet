@@ -83,13 +83,13 @@ describe('sendMessageSaga', () => {
     description: 'description',
     owner: 'user',
     timestamp: 0,
-    address: 'address'
+    address: 'address',
+    messagesSlice: 0
   }
 
   const communityChannels: CommunityChannels = {
     id: communityId,
     currentChannel: publicChannel.address,
-    channelLoadingSlice: 0,
     channels: publicChannelsAdapter.setAll(
       publicChannelsAdapter.getInitialState(),
       [publicChannel]

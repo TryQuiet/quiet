@@ -15,6 +15,7 @@ const log = logger('testConnect')
 const webcrypto = new Crypto()
 setEngine(
   'newEngine',
+  // @ts-ignore
   webcrypto,
   new CryptoEngine({
     name: '',

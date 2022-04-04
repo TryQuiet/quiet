@@ -14,7 +14,7 @@ if (Config.NODE_ENV === NodeEnv.Development) {
     const community = communities.selectors.currentCommunity(store.getState())
     const channels = publicChannels.selectors.publicChannels(store.getState())
     const currentChannel = publicChannels.selectors.currentChannel(store.getState())
-    const currentChannelIndex = channels.indexOf(channels.find(channel => channel.name === currentChannel))
+    const currentChannelIndex = channels.indexOf(channels.find(channel => channel.name === currentChannel.name))
     let nextChannelIndex: number
     if (currentChannelIndex === (channels.length - 1)) {
       nextChannelIndex = 0

@@ -1,95 +1,81 @@
 import { Socket } from 'socket.io-client'
+import { setupCrypto } from '@quiet/identity'
+import { Store } from '../../store.types'
+import { getFactory, Identity, publicChannels, SocketActionTypes } from '../../..'
+import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { publicChannelsActions } from './../publicChannels.slice'
+import { communitiesActions, Community } from '../../communities/communities.slice'
+import { identityActions } from '../../identity/identity.slice'
+import { FactoryGirl } from 'factory-girl'
+import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
-import { combineReducers } from '@reduxjs/toolkit'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { StoreKeys } from '../../store.keys'
-import { publicChannelsActions } from '../publicChannels.slice'
 import { subscribeToTopicSaga } from './subscribeToTopic.saga'
-import { identityReducer, IdentityState } from '../../identity/identity.slice'
-import { identityAdapter } from '../../identity/identity.adapter'
-import {
-  communitiesReducer,
-  CommunitiesState,
-  Community
-} from '../../communities/communities.slice'
-import { communitiesAdapter } from '../../communities/communities.adapter'
-import { Identity } from '../../identity/identity.types'
+import { PublicChannel } from '../publicChannels.types'
 
 describe('subscribeToTopicSaga', () => {
   const socket = { emit: jest.fn() } as unknown as Socket
 
-  const channel = {
-    name: 'general',
-    description: 'stuff',
-    owner: 'nobody',
-    timestamp: 666999666,
-    address: 'hell on the shore of the baltic sea'
-  }
-  const community: Community = {
-    name: '',
-    id: 'id',
-    CA: null,
-    rootCa: '',
-    peerList: [],
-    registrarUrl: 'registrarUrl',
-    registrar: null,
-    onionAddress: '',
-    privateKey: '',
-    port: 0
-  }
-  const identity: Identity = {
-    id: 'id',
-    hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-    dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
-    peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    nickname: '',
-    userCsr: undefined,
-    userCertificate: ''
-  }
+  let store: Store
+  let factory: FactoryGirl
+
+  let community: Community
+  let alice: Identity
+  let channel: PublicChannel
+
+  beforeAll(async () => {
+    setupCrypto()
+
+    store = prepareStore().store
+
+    factory = await getFactory(store)
+
+    community = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+
+    channel = publicChannels.selectors.publicChannels(store.getState())[0]
+
+    store.dispatch(publicChannelsActions.setChannelMessagesSliceValue({
+      messagesSlice: 100,
+      channelAddress: channel.address,
+      communityId: community.id
+    }))
+
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+      'Identity',
+      { id: community.id, nickname: 'alice' }
+    )
+  })
 
   test('subscribe for topic', async () => {
+    const reducer = combineReducers(reducers)
     await expectSaga(
       subscribeToTopicSaga,
       socket,
       publicChannelsActions.subscribeToTopic({
-        peerId: 'peerId',
+        peerId: alice.peerId.id,
         channelData: channel
       })
     )
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Identity]: identityReducer,
-          [StoreKeys.Communities]: communitiesReducer
-        }),
-        {
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(
-              identityAdapter.getInitialState(),
-              [identity]
-            )
-          },
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-            currentCommunity: 'id',
-            communities: communitiesAdapter.setAll(
-              communitiesAdapter.getInitialState(),
-              [community]
-            )
-          }
-        }
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
       .put(
         publicChannelsActions.addChannel({
-          communityId: 'id',
-          channel: channel
+          communityId: community.id,
+          channel: {
+            ...channel,
+            messagesSlice: undefined
+          }
         })
       )
       .apply(socket, socket.emit, [
         SocketActionTypes.SUBSCRIBE_TO_TOPIC,
         {
-          peerId: 'peerId',
-          channelData: channel
+          peerId: alice.peerId.id,
+          channelData: {
+            ...channel,
+            messagesSlice: undefined
+          }
         }
       ])
       .run()
