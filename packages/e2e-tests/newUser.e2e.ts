@@ -1,10 +1,16 @@
 import * as fs from 'fs'
+import { createApp, sendMessage, actions, waitForExpect, assertions } from 'integration-tests'
 import * as path from 'path'
 import { fixture, test } from 'testcafe'
-import { Channel, CreateCommunityModal, DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal } from './selectors'
+import { Channel, CreateCommunityModal, DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Sidebar } from './selectors'
 import { goToMainPage } from './utils'
+import logger from './logger'
+
+const log = logger('create')
 
 const longTimeout = 100000
+
+// let joiningUserApp
 
 fixture`New user test`
   .beforeEach(async t => {
@@ -20,6 +26,7 @@ fixture`New user test`
   })
 
 test('User can create new community, register and send few messages to general channel', async t => {
+  // const joiningUserApp = await createApp()
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
@@ -51,11 +58,41 @@ test('User can create new community, register and send few messages to general c
 
   // Sent message is visible on the messages' list as part of a group
   await t.expect(generalChannel.messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
+  const messages = generalChannel.getUserMessages('testuser')
+  await t.expect(messages.exists).ok({ timeout: 30000 })
+  await t.expect(messages.textContent).contains('Hello\xa0everyone')
 
-  await t.expect(generalChannel.messagesGroup.exists).ok({ timeout: 30000 })
-  await t.expect(generalChannel.messagesGroup.count).eql(1)
-  await t.expect(generalChannel.messagesGroupContent.exists).ok()
-  await t.expect(generalChannel.messagesGroupContent.textContent).eql('Hello\xa0everyone')
+  // Opens the settings tab and gets an invitation code
+  const settingsModal = await new Sidebar().openSettings()
+  await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
+  await t.expect(settingsModal.title.exists).ok()
+  await t.expect(settingsModal.invitationCode.exists).ok()
+  const invitationCode = await settingsModal.invitationCode.textContent
+  log('Received nvitation code:', invitationCode)
+  await settingsModal.close()
+
+  // Guest is joining the new community
+  // await actions.joinCommunity({
+  //   registrarAddress: invitationCode,
+  //   userName: 'alice-joining',
+  //   expectedPeersCount: 2,
+  //   store: joiningUserApp.store
+  // })
+  // await assertions.assertReceivedChannelAndSubscribe('alice-joining', 'general', longTimeout, joiningUserApp.store)
+  // await sendMessage({
+  //   message: 'Nice to meet you all',
+  //   channelName: 'general',
+  //   store: joiningUserApp.store
+  // })
+
+  // Owner sees message sent by the guest
+  // const joiningUserMessages = generalChannel.getUserMessages('alice-joining')
+  // await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
+  // await t.expect(joiningUserMessages.textContent).contains('Nice to meet you all')
+
+  // Guest closes the app
+  // await joiningUserApp.manager.closeAllServices()
+
   await t.wait(5000)
   // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
   // See: https://github.com/ZbayApp/monorepo/issues/222

@@ -94,7 +94,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
   const TabComponent = tabs[currentTab]
 
   return (
-    <Modal open={open} handleClose={handleClose} title={title} isBold addBorder contentWidth='100%'>
+    <Modal open={open} handleClose={handleClose} title={title} testIdPrefix='settings' isBold addBorder contentWidth='100%'>
       <Grid
         ref={ref => {
           if (ref) {
@@ -120,9 +120,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
                 value='notifications'
                 label='Notifications'
                 classes={{ selected: classes.selected }}
+                data-testid={'notifications-settings-tab'}
               />
               {owner && (
-                <Tab value='invite' label='Add members' classes={{ selected: classes.selected }} />
+                <Tab value='invite' label='Add members' classes={{ selected: classes.selected }} data-testid={'invite-settings-tab'} />
               )}
             </Tabs>
           </AppBar>

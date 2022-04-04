@@ -166,7 +166,6 @@ export class Storage {
     await this.certificates.load({ fetchEntryTimeout: 15000 })
     const allCertificates = this.getAllEventLogEntries(this.certificates)
     log('ALL Certificates COUNT:', allCertificates.length)
-    log('ALL Certificates:', allCertificates)
     log('STORAGE: Finished createDbForCertificates')
   }
 
@@ -328,6 +327,7 @@ export class Storage {
     }
 
     this.publicChannelsRepos.set(data.address, { db, eventsAttached: false })
+    log(`Set ${data.address} to local channels`)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await db.load({ fetchEntryTimeout: 2000 })
     db.events.on('replicate.progress', (address, _hash, _entry, progress, total) => {
@@ -355,9 +355,14 @@ export class Storage {
       log.error('STORAGE: public channel message is invalid')
       return
     }
-    const db = this.publicChannelsRepos.get(message.channelAddress).db
+    const repo = this.publicChannelsRepos.get(message.channelAddress)
+    if (!repo) {
+      log.error(`Could not send message. No '${message.channelAddress}' channel in saved public channels`)
+      log(`-> `, this.publicChannelsRepos, message)
+      return
+    }
     try {
-      await db.add(message)
+      await repo.db.add(message)
     } catch (e) {
       log.error('STORAGE: Could not append message (entry not allowed to write to the log)')
     }

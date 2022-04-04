@@ -1,4 +1,4 @@
-import { createApp, sendMessage, actions, waitForExpect, assertions, createCommunity } from 'integration-tests'
+import { createApp, sendMessage, actions, waitForExpect, assertions } from 'integration-tests'
 import { fixture, test } from 'testcafe'
 import logger from './logger'
 import { DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Channel } from './selectors'
@@ -66,4 +66,7 @@ test('User can join the community and exchange messages', async t => {
   })
   await t.expect(ownerMessages.count).eql(2)
   await t.expect(ownerMessages.nth(1).textContent).contains('Hi joining-user! Nice to see you here', { timeout: longTimeout })
+
+  // Owner closes the app
+  await communityOwner.manager.closeAllServices()
 })
