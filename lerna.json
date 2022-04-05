@@ -5,7 +5,7 @@
   "version": "independent",
   "command": { 
     "version": {
-      "allowBranch": ["master"],
+      "allowBranch": ["master", "fix/restore-updater"],
       "conventionalCommits": true,
       "createRelease": "github"
     }
