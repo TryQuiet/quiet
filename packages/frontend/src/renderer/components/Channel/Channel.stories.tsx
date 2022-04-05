@@ -1,59 +1,17 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import { withTheme } from '../../storybook/decorators'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
+import { DisplayableMessage } from '@quiet/nectar'
 
 const Template: ComponentStory<typeof ChannelComponent> = args => {
-  return (
-    <ChannelComponent
-      {...args}
-    />
-  )
-}
 
-export const Component = Template.bind({})
-
-const args: ChannelComponentProps = {
-  user: {
-    id: 'id',
-    nickname: 'vader',
-    hiddenService: {
-      onionAddress: 'onionAddress',
-      privateKey: 'privateKey'
-    },
-    peerId: {
-      id: 'id',
-      privKey: 'privKey',
-      pubKey: 'pubKey'
-    },
-    dmKeys: {
-      publicKey: 'publicKey',
-      privateKey: 'privateKey'
-    },
-    userCsr: {
-      userCsr: 'userCsr',
-      userKey: 'userKey',
-      pkcs10: {
-        publicKey: 'publicKey',
-        privateKey: 'privateKey',
-        pkcs10: 'pkcs10'
-      }
-    },
-    userCertificate: 'userCertificate'
-  },
-  channelSettingsModal: {
-    open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
-  },
-  channelInfoModal: {
-    open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
-  },
-  messages: {
+  const [messages, setMessages] = useState<{
+    count: number
+    groups: { [day: string]: DisplayableMessage[][] }
+  }>({
     count: undefined,
     groups: {
       '26 Oct': [
@@ -366,7 +324,8 @@ const args: ChannelComponentProps = {
           {
             id: '32',
             type: 1,
-            message: 'Use the force, look!',
+            message: 
+              'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
             createdAt: 0,
             date: '12:46',
             nickname: 'vader'
@@ -374,6 +333,55 @@ const args: ChannelComponentProps = {
         ]
       ]
     }
+  })
+
+  return (
+    <ChannelComponent
+      {...args}
+      messages={messages}
+    />
+  )
+}
+
+export const Component = Template.bind({})
+
+const args: Partial<ChannelComponentProps> = {
+  user: {
+    id: 'id',
+    nickname: 'vader',
+    hiddenService: {
+      onionAddress: 'onionAddress',
+      privateKey: 'privateKey'
+    },
+    peerId: {
+      id: 'id',
+      privKey: 'privKey',
+      pubKey: 'pubKey'
+    },
+    dmKeys: {
+      publicKey: 'publicKey',
+      privateKey: 'privateKey'
+    },
+    userCsr: {
+      userCsr: 'userCsr',
+      userKey: 'userKey',
+      pkcs10: {
+        publicKey: 'publicKey',
+        privateKey: 'privateKey',
+        pkcs10: 'pkcs10'
+      }
+    },
+    userCertificate: 'userCertificate'
+  },
+  channelSettingsModal: {
+    open: false,
+    handleOpen: function (_args?: any): any {},
+    handleClose: function (): any {}
+  },
+  channelInfoModal: {
+    open: false,
+    handleOpen: function (_args?: any): any {},
+    handleClose: function (): any {}
   },
   channel: {
     name: 'general',
