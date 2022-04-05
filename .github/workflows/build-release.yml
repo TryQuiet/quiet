@@ -43,6 +43,12 @@ jobs:
           ARCH: x86_64
         run: cd packages/frontend && electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
 
+      - name: "resources/tor"
+        run: cd packages/frontend/dist/linux-unpacked/resources/tor && ls
+
+      - name: "usr/libs"
+        run: cd packages/frontend/dist/linux-unpacked/usr/lib && ls
+
   # build-macos:
   #   # needs: run-e2e-tests
   #   runs-on: macos-latest
