@@ -14,12 +14,12 @@ runs:
 
     - name: "Pull tor binary"
       if: ${{ inputs.source-path == 'linux' || inputs.source-path == 'darwin' }}
-      run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinaries && npm run setMainEnvs
+      run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinaries && npm run setMainEnvs && cd tor && ls
       shell: bash
 
     - name: "Pull tor binary for Windows"
       if: ${{ inputs.source-path == 'win32' }}
-      run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesWin && npm run setMainEnvs
+      run: cd packages/frontend && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesWin && npm run setMainEnvs && cd tor && ls
       shell: bash
 
     - name: "Verify test mode setup"
