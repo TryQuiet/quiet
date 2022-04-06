@@ -16,6 +16,10 @@ runs:
       run: echo ${{ runner.os }}
       shell: bash
 
+    - name: Print openSSL version
+      run: openssl version
+      shell: bash
+
     # https://stackoverflow.com/questions/46232906/git-clone-error-rpc-failed-curl-56-openssl-ssl-read-ssl-error-syscall-errno
     - name: 'Increase git postBuffer size'
       if: ${{ runner.os == 'Windows' }}
