@@ -35,7 +35,7 @@
     "endpoint-utils": "^1.0.2",
     "lodash": "^4.17.4",
     "mustache": "^2.3.0",
-    "node-ipc": "^9.2.1",
+    "node-ipc": "9.2.1",
     "os-family": "^1.0.0",
     "pify": "^2.3.0",
     "pinkie": "^2.0.4",

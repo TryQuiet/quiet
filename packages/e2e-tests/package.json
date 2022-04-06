@@ -13,7 +13,7 @@
     "prettier": "prettier",
     "test:build": "lerna run distUbuntu --scope quiet --stream && npm run test:create && npm run test:join",
     "test:dev": "npm run build:app && npm run test",
-    "test:create": "npm run build:testcafe && cross-env DATA_DIR=e2eCreate E2E_TEST=true DEBUG='waggle*,nectar*,e2e*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
+    "test:create": "npm run build:testcafe && cross-env DATA_DIR=e2eCreate E2E_TEST=true DEBUG='waggle*,nectar*,e2e*,frontend*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
     "test:join": "npm run build:testcafe && cross-env DATA_DIR=e2eJoin E2E_TEST=true DEBUG='waggle*,nectar*,e2e*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/joiningUser.e2e.ts\"",
     "test:smoke": "npm run build:testcafe && cross-env DATA_DIR=e2e E2E_TEST=true DEBUG='waggle*,nectar*,e2e*,testcafe:*electron*' testcafe \"electron:.\" \"./**/smokeTest.e2e.ts\""
   },
@@ -36,7 +36,6 @@
     "integration-tests": "^0.4.0-alpha.8",
     "@quiet/logger": "0.1.0-alpha.4",
     "cross-env": "^5.2.0",
-    "electron": "17.0.0",
     "testcafe": "^1.18.3",
     "testcafe-browser-provider-electron": "^0.2.0-alpha.1",
     "yargs": "^17.3.1"

@@ -164,6 +164,7 @@ export default class CommunitiesManager {
     for (const storage of storages) {
       await storage.stopOrbitDb()
     }
+    log(`Closed ${storages.length} storages`)
   }
 
   public stopRegistrars = async () => {
@@ -174,6 +175,7 @@ export default class CommunitiesManager {
     for (const registrar of registrars) {
       await registrar.stop()
     }
+    log(`Stopped ${registrars.length} registrars`)
   }
 
   public setupRegistrationService = async (

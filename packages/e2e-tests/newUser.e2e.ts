@@ -10,23 +10,26 @@ const log = logger('create')
 
 const longTimeout = 100000
 
-// let joiningUserApp
-
 fixture`New user test`
+  .before(async ctx => {
+    ctx.ownerUsername = 'bob'
+    ctx.joiningUserUsername = 'alice-joining'
+  })
   .beforeEach(async t => {
     await goToMainPage()
     await new DebugModeModal().close()
   })
 
-  .after(async t => {
-    const dataPath = fs.readFileSync('/tmp/appDataPath', { encoding: 'utf8' })
-    const fullDataPath = path.join(dataPath, 'Quiet')
-    console.log(`Test data is in ${fullDataPath}. You may want to remove it.`)
-    // await fs.rm(fullDataPath, { recursive: true, force: true }) // TODO: use this with node >=14, rmdirSync doesn't seem to work
-  })
+  // .after(async t => {
+  //   const dataPath = fs.readFileSync('/tmp/appDataPath', { encoding: 'utf8' })
+  //   const fullDataPath = path.join(dataPath, process.env.DATA_DIR)
+  //   console.log(`Removing ${fullDataPath}`)
+  //   // @ts-expect-error
+  //   await fs.rm(fullDataPath, { recursive: true, force: true })
+  // })
 
-test('User can create new community, register and send few messages to general channel', async t => {
-  // const joiningUserApp = await createApp()
+test.only('User can create new community, register and send few messages to general channel', async t => {
+  log(t.fixtureCtx, 'afodijasodfhoashdoh')
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
@@ -44,7 +47,7 @@ test('User can create new community, register and send few messages to general c
   // User sees "register username" page, enters the valid name and submits by clicking on the button
   const registerModal = new RegisterUsernameModal()
   await t.expect(registerModal.title.exists).ok()
-  await registerModal.typeUsername('testuser')
+  await registerModal.typeUsername(t.fixtureCtx.ownerUsername)
   await registerModal.submit()
 
   // User waits for the spinner to disappear and then sees general channel
@@ -56,9 +59,8 @@ test('User can create new community, register and send few messages to general c
   await t.expect(generalChannel.messageInput.exists).ok()
   await generalChannel.sendMessage('Hello everyone')
 
-  // Sent message is visible on the messages' list as part of a group
-  await t.expect(generalChannel.messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
-  const messages = generalChannel.getUserMessages('testuser')
+  // Sent message is visible in a channel
+  const messages = generalChannel.getUserMessages(t.fixtureCtx.ownerUsername)
   await t.expect(messages.exists).ok({ timeout: 30000 })
   await t.expect(messages.textContent).contains('Hello\xa0everyone')
 
@@ -71,31 +73,36 @@ test('User can create new community, register and send few messages to general c
   log('Received nvitation code:', invitationCode)
   await settingsModal.close()
 
-  // Guest is joining the new community
-  // await actions.joinCommunity({
-  //   registrarAddress: invitationCode,
-  //   userName: 'alice-joining',
-  //   expectedPeersCount: 2,
-  //   store: joiningUserApp.store
-  // })
-  // await assertions.assertReceivedChannelAndSubscribe('alice-joining', 'general', longTimeout, joiningUserApp.store)
-  // await sendMessage({
-  //   message: 'Nice to meet you all',
-  //   channelName: 'general',
-  //   store: joiningUserApp.store
-  // })
+  // Guest opens the app and joins the new community
+  const joiningUserApp = await createApp()
+  await actions.joinCommunity({
+    registrarAddress: invitationCode,
+    userName: t.fixtureCtx.joiningUserUsername,
+    expectedPeersCount: 2,
+    store: joiningUserApp.store
+  })
+  await assertions.assertReceivedChannelAndSubscribe(
+    t.fixtureCtx.joiningUserUsername, 
+    'general', 
+    longTimeout, 
+    joiningUserApp.store
+  )
+  await sendMessage({
+    message: 'Nice to meet you all',
+    channelName: 'general',
+    store: joiningUserApp.store
+  })
 
   // Owner sees message sent by the guest
-  // const joiningUserMessages = generalChannel.getUserMessages('alice-joining')
-  // await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
-  // await t.expect(joiningUserMessages.textContent).contains('Nice to meet you all')
+  const joiningUserMessages = generalChannel.getUserMessages(t.fixtureCtx.joiningUserUsername)
+  await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
+  await t.expect(joiningUserMessages.textContent).contains('Nice to meet you all')
 
   // Guest closes the app
-  // await joiningUserApp.manager.closeAllServices()
-
-  await t.wait(5000)
-  // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
-  // See: https://github.com/ZbayApp/monorepo/issues/222
+  await joiningUserApp.manager.closeAllServices()
+  // await t.wait(5000)
+  // // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
+  // // See: https://github.com/ZbayApp/monorepo/issues/222
 })
 
 test('User reopens app, sees general channel and the messages he sent before', async t => {
@@ -106,12 +113,12 @@ test('User reopens app, sees general channel and the messages he sent before', a
   const generalChannel = new Channel('general')
   await t.expect(generalChannel.title.exists).ok('User can\'t see "general" channel')
 
-  // User sees the message sent previously
-  await t.expect(generalChannel.messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
+  // Returning user sees everyone's messages
+  const ownerMessages = generalChannel.getUserMessages(t.fixtureCtx.ownerUsername)
+  await t.expect(ownerMessages.exists).ok({ timeout: longTimeout })
+  await t.expect(ownerMessages.textContent).contains('Hello\xa0everyone')
 
-  await t.expect(generalChannel.messagesGroup.exists).ok({ timeout: 30000 })
-  await t.expect(generalChannel.messagesGroup.count).eql(1)
-
-  await t.expect(generalChannel.messagesGroupContent.exists).ok()
-  await t.expect(generalChannel.messagesGroupContent.textContent).eql('Hello\xa0everyone')
+  const joiningUserMessages = generalChannel.getUserMessages(t.fixtureCtx.joiningUserUsername)
+  await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
+  await t.expect(joiningUserMessages.textContent).contains('Nice to meet you all')
 })

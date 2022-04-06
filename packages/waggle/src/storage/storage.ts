@@ -301,6 +301,7 @@ export class Storage {
 
       repo.eventsAttached = true
     }
+    log(`Subscribed to channel ${channel.address}`)
   }
 
   private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
@@ -308,6 +309,7 @@ export class Storage {
       log.error('STORAGE: Invalid channel format')
       return
     }
+    log(`Creating channel ${data.address}`)
 
     const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(`channels.${data.address}`, {
       accessController: {
@@ -334,6 +336,7 @@ export class Storage {
     db.events.on('replicate.progress', (address, _hash, _entry, progress, total) => {
       log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
     })
+    log(`Created channel ${data.address}`)
     return db
   }
 

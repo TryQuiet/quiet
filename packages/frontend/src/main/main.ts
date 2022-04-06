@@ -293,6 +293,7 @@ app.on('ready', async () => {
   })
 
   mainWindow.webContents.once('did-finish-load', async () => {
+    log('Event: did-finish-load')
     if (!isBrowserWindow(mainWindow)) {
       throw new Error('mainWindow is on unexpected type {mainWindow}')
     }
@@ -334,6 +335,7 @@ app.on('browser-window-created', (_, window) => {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', async () => {
+  log('Event: window-all-closed')
   if (waggleProcess !== null) {
     await waggleProcess.connectionsManager.closeAllServices()
     await waggleProcess.dataServer.close()

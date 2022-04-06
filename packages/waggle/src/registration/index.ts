@@ -143,14 +143,15 @@ export class CertificateRegistration {
     const parsedCsr = await loadCSR(userData.csr)
     const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
     const usernameCert = this._storage.usernameCert(username)
-
-    if (usernameCert && !this.pubKeyMatch(usernameCert, parsedCsr)) {
-      log(`Username ${username} is taken`)
-      res.status(403).send()
-      return
-    } else {
-      log('Requesting same CSR again')
-      cert = usernameCert
+    if (usernameCert) {
+      if (!this.pubKeyMatch(usernameCert, parsedCsr)) {
+        log(`Username ${username} is taken`)
+        res.status(403).send()
+        return
+      } else {
+        log('Requesting same CSR again')
+        cert = usernameCert
+      }
     }
 
     if (!usernameCert) {
