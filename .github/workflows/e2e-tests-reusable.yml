@@ -6,6 +6,7 @@ on: [workflow_call]
 jobs:
   e2e-linux:
     runs-on: ubuntu-20.04
+
     timeout-minutes: 20
 
     env:
@@ -37,13 +38,13 @@ jobs:
         id: build-app
         run: lerna run distUbuntu --scope quiet --stream
 
-      - name: 'Create community' test
+      - name: Create community test
         run: lerna run test:create --scope e2e-tests --stream
-        if: steps.build-app.outcome == 'success'
-      
-      - name: 'Join community' test
+        if: always()
+
+      - name: Join community test
         run: lerna run test:join --scope e2e-tests --stream
-        if: steps.build-app.outcome == 'success'
+        if: always()
 
       - name: Archive test screenshots
         uses: actions/upload-artifact@v2

@@ -20,7 +20,7 @@ export const goToMainPage = async () => {
 }
 
 export const getBrowserConsoleLogs = async () => {
-  const { error, log } = await t.getBrowserConsoleMessages();
+  const { error, log } = await t.getBrowserConsoleMessages()
 
   console.log(error)
   console.log(log)

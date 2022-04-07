@@ -57,6 +57,7 @@ export const runWaggle = async (
   await connectionsManager.init()
 
   webContents.send('connectToWebsocket', { dataPort: ports.dataServer })
+  console.log(`Sent connectToWebsocket event with dataPort ${ports.dataServer}`)
 
   return { connectionsManager, dataServer }
 }

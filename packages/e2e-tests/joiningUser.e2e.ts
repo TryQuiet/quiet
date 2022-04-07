@@ -1,6 +1,7 @@
 import { createApp, sendMessage, actions, waitForExpect, assertions } from 'integration-tests'
 import { fixture, test } from 'testcafe'
 import { JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Channel } from './selectors'
+import { getBrowserConsoleLogs } from './utils'
 
 const longTimeout = 120_000
 
@@ -16,6 +17,7 @@ fixture`Joining user test`
     if (communityOwner) {
       await communityOwner.manager.closeAllServices()
     }
+    await getBrowserConsoleLogs()
   })
 
 test('User can join the community and exchange messages', async t => {

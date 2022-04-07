@@ -20,8 +20,8 @@ fixture`New user test`
     if (joiningUserApp) {
       await joiningUserApp.manager.closeAllServices()
     }
-    getBrowserConsoleLogs()
-  });
+    await getBrowserConsoleLogs()
+  })
 
 // .after(async t => {
 //   const dataPath = fs.readFileSync('/tmp/appDataPath', { encoding: 'utf8' })

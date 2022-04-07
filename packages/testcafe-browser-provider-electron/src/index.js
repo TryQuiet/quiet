@@ -114,10 +114,7 @@ const ElectronBrowserProvider = {
 
     async closeBrowser (id) {
         await this.openedBrowsers[id].ipc.terminateProcess();
-        console.log('BEFORE STOPPING BROWSER', require('electron').remote)
         this.openedBrowsers[id].ipc.stop();
-
-        console.log('AFTER STOPPING BROWSER', require('electron').remote)
         delete this.openedBrowsers[id];
     },
 
