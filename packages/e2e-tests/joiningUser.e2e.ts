@@ -1,25 +1,26 @@
 import { createApp, sendMessage, actions, waitForExpect, assertions } from 'integration-tests'
 import { fixture, test } from 'testcafe'
-import logger from './logger'
 import { JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Channel } from './selectors'
-import { goToMainPage } from './utils'
-const log = logger('join')
 
 const longTimeout = 120_000
 
+let communityOwner = null
+
 fixture`Joining user test`
+  .page('../frontend/dist/main/index.html#/')
   .before(async ctx => {
     ctx.ownerUsername = 'alice'
     ctx.joiningUserUsername = 'bob-joining'
   })
-  // .beforeEach(async t => {
-  //   await goToMainPage()
-  // })
+  .afterEach(async () => {
+    if (communityOwner) {
+      await communityOwner.manager.closeAllServices()
+    }
+  })
 
 test('User can join the community and exchange messages', async t => {
-  await goToMainPage()
   // Owner creates community and sends a message
-  const communityOwner = await createApp()
+  communityOwner = await createApp()
   const onionAddress = await actions.createCommunity({
     username: t.fixtureCtx.ownerUsername,
     communityName: 'e2eCommunity',
@@ -79,7 +80,4 @@ test('User can join the community and exchange messages', async t => {
   })
   await t.expect(ownerMessages.count).eql(2)
   await t.expect(ownerMessages.nth(1).textContent).contains('Hi joining-user! Nice to see you here', { timeout: longTimeout })
-
-  // Owner closes the app
-  // await communityOwner.manager.closeAllServices()
 })

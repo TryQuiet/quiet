@@ -1,26 +1,27 @@
 import { createApp, sendMessage, actions, assertions } from 'integration-tests'
 import { fixture, test, t } from 'testcafe'
 import { Channel, CreateCommunityModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Sidebar } from './selectors'
-import { goToMainPage } from './utils'
+import { getBrowserConsoleLogs } from './utils'
 import logger from './logger'
 
 const log = logger('create')
 
 const longTimeout = 100000
 
-const getBrowserConsoleLogs = async () => {
-  const { error, log } = await t.getBrowserConsoleMessages();
-
-  console.log(error)
-  console.log(log)
-}
+let joiningUserApp = null
 
 fixture`New user test`
+  .page('../frontend/dist/main/index.html#/')
   .before(async ctx => {
     ctx.ownerUsername = 'bob'
     ctx.joiningUserUsername = 'alice-joining'
   })
-  .afterEach(() => getBrowserConsoleLogs());
+  .afterEach(async () => {
+    if (joiningUserApp) {
+      await joiningUserApp.manager.closeAllServices()
+    }
+    getBrowserConsoleLogs()
+  });
 
 // .after(async t => {
 //   const dataPath = fs.readFileSync('/tmp/appDataPath', { encoding: 'utf8' })
@@ -32,8 +33,6 @@ fixture`New user test`
 // })
 
 test.only('User can create new community, register and send few messages to general channel', async t => {
-  await goToMainPage()
-  await getBrowserConsoleLogs()
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
@@ -78,7 +77,7 @@ test.only('User can create new community, register and send few messages to gene
   await settingsModal.close()
 
   // Guest opens the app and joins the new community successfully
-  const joiningUserApp = await createApp()
+  joiningUserApp = await createApp()
   await actions.joinCommunity({
     registrarAddress: invitationCode,
     userName: t.fixtureCtx.joiningUserUsername,
