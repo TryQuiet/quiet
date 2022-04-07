@@ -362,7 +362,6 @@ export class Storage {
     const repo = this.publicChannelsRepos.get(message.channelAddress)
     if (!repo) {
       log.error(`Could not send message. No '${message.channelAddress}' channel in saved public channels`)
-      log(`-> `, this.publicChannelsRepos, message)
       return
     }
     try {

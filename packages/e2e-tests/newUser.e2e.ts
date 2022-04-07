@@ -20,14 +20,14 @@ fixture`New user test`
     await new DebugModeModal().close()
   })
 
-  // .after(async t => {
-  //   const dataPath = fs.readFileSync('/tmp/appDataPath', { encoding: 'utf8' })
-  //   const fullDataPath = path.join(dataPath, process.env.DATA_DIR)
-  //   console.log(`Removing ${fullDataPath}`)
-    
-  //   // Throws 'Property 'rm' does not exist on type 'typeof import("fs")'.ts(2339)'
-  //   await fs.rm(fullDataPath, { recursive: true, force: true })
-  // })
+// .after(async t => {
+//   const dataPath = fs.readFileSync('/tmp/appDataPath', { encoding: 'utf8' })
+//   const fullDataPath = path.join(dataPath, process.env.DATA_DIR)
+//   console.log(`Removing ${fullDataPath}`)
+
+//   // Throws 'Property 'rm' does not exist on type 'typeof import("fs")'.ts(2339)'
+//   await fs.rm(fullDataPath, { recursive: true, force: true })
+// })
 
 test.only('User can create new community, register and send few messages to general channel', async t => {
   // User opens app for the first time, sees spinner, waits for spinner to disappear
@@ -83,9 +83,9 @@ test.only('User can create new community, register and send few messages to gene
   })
   await assertions.assertNoRegistrationError(joiningUserApp.store)
   await assertions.assertReceivedChannelAndSubscribe(
-    t.fixtureCtx.joiningUserUsername, 
-    'general', 
-    longTimeout, 
+    t.fixtureCtx.joiningUserUsername,
+    'general',
+    longTimeout,
     joiningUserApp.store
   )
   await t.wait(2000) // Give the waggle some time, headless tests are fast

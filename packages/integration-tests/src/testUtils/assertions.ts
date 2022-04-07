@@ -6,7 +6,7 @@ const log = logger('utils')
 
 const assertContains = (value: any, container: any[]) => {
   if (container.includes(value)) return
-  throw assert.fail(`${container} does not contain ${value}`)
+  assert.fail(`${container} does not contain ${value}`)
 }
 
 export async function assertReceivedChannelAndSubscribe(

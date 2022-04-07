@@ -55,7 +55,7 @@ export class Channel {
 export class Sidebar {
   async openSettings () {
     const button = Selector('span').withAttribute('data-testid', 'settings-panel-button')
-    await t.expect(button.exists).ok({timeout: 100000})
+    await t.expect(button.exists).ok({ timeout: 100000 })
     await t.click(button)
     return new Settings()
   }
@@ -63,10 +63,11 @@ export class Sidebar {
 
 export class Settings {
   get title () {
-    return Selector('h6').withText(`Settings`)
+    return Selector('h6').withText('Settings')
   }
 
   async switchTab(name: string) {
+    log(`Switching settings tab to '${name}'`)
     await t.click(Selector('button').withAttribute('data-testid', `${name}-settings-tab`))
   }
 
@@ -82,7 +83,6 @@ export class Settings {
   }
 }
 
-
 export class JoinCommunityModal {
   get title() {
     return Selector('h3').withText('Join community')
@@ -90,6 +90,7 @@ export class JoinCommunityModal {
 
   async typeCommunityCode(code: string) {
     const communityNameInput = Selector('input').withAttribute('placeholder', 'Invite code')
+    log(`Typing community invitation code: '${code}'`)
     await t.typeText(communityNameInput, code)
   }
 
@@ -111,19 +112,13 @@ export class CreateCommunityModal {
   }
 
   async typeCommunityName(name: string) {
-    log('typeCommunityName')
     const communityNameInput = Selector('input').withAttribute('placeholder', 'Community name')
     await t.typeText(communityNameInput, name)
-    log('typed name')
-
   }
 
   async submit() {
-    log('CreateCommunityModal submit')
     const continueButton = Selector('button').withAttribute('data-testid', 'continue-createCommunity')
     await t.click(continueButton)
-    log('CreateCommunityModal submitted')
-
   }
 }
 
@@ -151,6 +146,7 @@ export class DebugModeModal {
 
   async close() {
     if (await this.title.visible) {
+      log('Debug warning modal present. Closing.')
       await t.click(Selector('button').withText('Understand'))
     }
   }

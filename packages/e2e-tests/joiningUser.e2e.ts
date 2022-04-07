@@ -8,6 +8,10 @@ const log = logger('join')
 const longTimeout = 120_000
 
 fixture`Joining user test`
+  .before(async ctx => {
+    ctx.ownerUsername = 'alice'
+    ctx.joiningUserUsername = 'bob-joining'
+  })
   .beforeEach(async t => {
     await goToMainPage()
     await new DebugModeModal().close()
@@ -16,7 +20,11 @@ fixture`Joining user test`
 test('User can join the community and exchange messages', async t => {
   // Owner creates community and sends a message
   const communityOwner = await createApp()
-  const onionAddress = await actions.createCommunity({ username: 'Owner', communityName: 'e2eCommunity', store: communityOwner.store })
+  const onionAddress = await actions.createCommunity({
+    username: t.fixtureCtx.ownerUsername,
+    communityName: 'e2eCommunity',
+    store: communityOwner.store
+  })
   await sendMessage({
     message: 'Welcome to my community',
     channelName: 'general',
@@ -36,7 +44,7 @@ test('User can join the community and exchange messages', async t => {
   // User sees "register username" page, enters the valid, non-taken name and submits by clicking on the button
   const registerModal = new RegisterUsernameModal()
   await t.expect(registerModal.title.exists).ok({ timeout: longTimeout })
-  await registerModal.typeUsername('joining-user')
+  await registerModal.typeUsername(t.fixtureCtx.joiningUserUsername)
   await registerModal.submit()
 
   // User waits for the spinner to disappear and then sees general channel
@@ -45,18 +53,18 @@ test('User can join the community and exchange messages', async t => {
   await t.expect(generalChannel.title.exists).ok('User can\'t see "general" channel', { timeout: longTimeout })
 
   // Joining user sees message replicated from the owner
-  const ownerMessages = generalChannel.getUserMessages('Owner')
+  const ownerMessages = generalChannel.getUserMessages(t.fixtureCtx.ownerUsername)
   await t.expect(ownerMessages.exists).ok({ timeout: longTimeout })
   await t.expect(ownerMessages.textContent).contains('Welcome to my community')
 
   // Joining user sends a message and sees it on a channel
   await generalChannel.sendMessage('Hello')
-  const joiningUserMessages = generalChannel.getUserMessages('joining-user')
+  const joiningUserMessages = generalChannel.getUserMessages(t.fixtureCtx.joiningUserUsername)
   await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
   await t.expect(joiningUserMessages.textContent).contains('Hello')
 
   // Owner receives the message sent by the joining user
-  await waitForExpect(() => assertions.assertReceivedMessagesMatch('Owner', ['Hello'], communityOwner.store))
+  await waitForExpect(() => assertions.assertReceivedMessagesMatch(t.fixtureCtx.ownerUsername, ['Hello'], communityOwner.store))
 
   // Owner sends message, user receives it
   await sendMessage({

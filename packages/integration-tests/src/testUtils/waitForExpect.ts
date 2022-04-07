@@ -13,7 +13,7 @@ const defaults = {
  * @param  interval  Number  Wait-between-retries interval, 50ms by default
  * @return  Promise  Promise to return a callback result
  */
-export const waitForExpect = function waitForExpect(
+export const waitForExpect = async function waitForExpect(
   expectation: () => void | Promise<void>,
   timeout = defaults.timeout,
   interval = defaults.interval
@@ -22,7 +22,7 @@ export const waitForExpect = function waitForExpect(
   if (interval < 1) interval = 1
   const maxTries = Math.ceil(timeout / interval)
   let tries = 0
-  return new Promise((resolve, reject) => {
+  return await new Promise((resolve, reject) => {
     const rejectOrRerun = (error: Error) => {
       if (tries > maxTries) {
         reject(error)
