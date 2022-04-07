@@ -21,6 +21,7 @@ ipcRenderer.on('newUpdateAvailable', (_event) => {
 })
 
 ipcRenderer.on('connectToWebsocket', (_event, payload: WebsocketConnectionPayload) => {
+  console.log('Dispatching socketActions.startConnection')
   store.dispatch(socketActions.startConnection(payload))
 })
 

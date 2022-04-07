@@ -33,9 +33,18 @@ jobs:
           sleep 3
           fluxbox &
 
-      - name: Run tests
-        run: lerna run test:build --scope e2e-tests --stream
+      - name: Build app
+        id: build-app
+        run: lerna run distUbuntu --scope quiet --stream
+
+      - name: 'Create community' test
+        run: lerna run test:create --scope e2e-tests --stream
+        if: steps.build-app.outcome == 'success'
       
+      - name: 'Join community' test
+        run: lerna run test:join --scope e2e-tests --stream
+        if: steps.build-app.outcome == 'success'
+
       - name: Archive test screenshots
         uses: actions/upload-artifact@v2
         if: always()

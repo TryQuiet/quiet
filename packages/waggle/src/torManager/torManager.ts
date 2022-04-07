@@ -100,6 +100,7 @@ export class Tor {
 
         try {
           await this.spawnTor(timeout)
+          log('AFTER SPAWNING TOR')
           resolve()
         } catch {
           log('Killing tor')
@@ -211,7 +212,9 @@ export class Tor {
         log(data.toString())
         const regexp = /Bootstrapped 100%/
         if (regexp.test(data.toString())) {
+          log('FINISHED BOOTSTRAPPING')
           clearTimeout(timeout)
+          log('FINISHED BOOTSTRAPPING, RESOLVING')
           resolve()
         }
       })

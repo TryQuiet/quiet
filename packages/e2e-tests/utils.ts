@@ -18,3 +18,10 @@ export const goToMainPage = async () => {
   console.info(`Navigating to ${pageUrl}`)
   await t.navigateTo(pageUrl)
 }
+
+export const getBrowserConsoleLogs = async () => {
+  const { error, log } = await t.getBrowserConsoleMessages();
+
+  console.log(error)
+  console.log(log)
+}

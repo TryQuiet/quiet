@@ -1,5 +1,5 @@
 import { createApp, sendMessage, actions, assertions } from 'integration-tests'
-import { fixture, test } from 'testcafe'
+import { fixture, test, t } from 'testcafe'
 import { Channel, CreateCommunityModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Sidebar } from './selectors'
 import { goToMainPage } from './utils'
 import logger from './logger'
@@ -8,11 +8,19 @@ const log = logger('create')
 
 const longTimeout = 100000
 
+const getBrowserConsoleLogs = async () => {
+  const { error, log } = await t.getBrowserConsoleMessages();
+
+  console.log(error)
+  console.log(log)
+}
+
 fixture`New user test`
   .before(async ctx => {
     ctx.ownerUsername = 'bob'
     ctx.joiningUserUsername = 'alice-joining'
   })
+  .afterEach(() => getBrowserConsoleLogs());
 
 // .after(async t => {
 //   const dataPath = fs.readFileSync('/tmp/appDataPath', { encoding: 'utf8' })
@@ -25,6 +33,7 @@ fixture`New user test`
 
 test.only('User can create new community, register and send few messages to general channel', async t => {
   await goToMainPage()
+  await getBrowserConsoleLogs()
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 

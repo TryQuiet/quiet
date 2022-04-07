@@ -9,8 +9,9 @@ export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof socketActions.startConnection>['payload']>
 ): Generator {
   const dataPort = action.payload.dataPort
-
+  console.log('startConnectionSaga', dataPort)
   const socket = yield* call(io, `http://localhost:${dataPort}`)
+  console.log('startConnectionSaga after call', dataPort)
   yield* fork(handleSocketLifecycleActions, socket)
 
   // Handle opening/restoring connection
