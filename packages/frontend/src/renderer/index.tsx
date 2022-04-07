@@ -8,11 +8,7 @@ import updateHandlers from './store/handlers/update'
 
 import logger from './logger'
 
-import { initSentry } from '../shared/sentryConfig'
-
 import { socketActions, WebsocketConnectionPayload } from './sagas/socket/socket.slice'
-
-initSentry()
 
 const log = logger('renderer')
 

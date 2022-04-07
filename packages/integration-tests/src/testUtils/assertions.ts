@@ -9,7 +9,7 @@ const assertContains = (value: any, container: any[]) => {
   assert.fail(`${container} does not contain ${value}`)
 }
 
-export async function assertReceivedChannelAndSubscribe(
+export async function assertReceivedChannel(
   userName: string,
   channelName: string,
   maxTime: number = 60000,
@@ -31,8 +31,6 @@ export async function assertReceivedChannelAndSubscribe(
         .channels.ids[0] as string
     })
   )
-
-  // store.dispatch(publicChannels.actions.subscribeToAllTopics())
 
   log(
     `User ${userName} received ${store.getState().PublicChannels.channels.entities[communityId].channels
@@ -96,4 +94,28 @@ export const assertNoRegistrationError = async(store: Store) => {
       assert.fail(`Received registration error: ${store.getState().Errors.errors?.ids['registrar']}`)
     }
   }, 20_000)
+}
+
+export const assertConnectedToPeers = async (
+  store: Store,
+  count: number
+) => {
+  await waitForExpect(() => {
+    assert.strictEqual(store.getState().Connection.connectedPeers.ids.length, count)
+  }, 40_000)
+}
+
+export const assertReceivedCertificates = async (
+  userName: string,
+  expectedCount: number,
+  maxTime: number = 60000,
+  store: Store
+) => {
+  log(`User ${userName} starts waiting ${maxTime}ms for certificates`)
+
+  await waitForExpect(() => {
+    assert.strictEqual(store.getState().Users.certificates.ids.length, expectedCount)
+  }, maxTime)
+
+  log(`User ${userName} received ${store.getState().Users.certificates.ids.length} certificates`)
 }

@@ -1,7 +1,7 @@
 import { createApp, sendMessage, actions, waitForExpect, assertions } from 'integration-tests'
 import { fixture, test } from 'testcafe'
 import logger from './logger'
-import { DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Channel } from './selectors'
+import { JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Channel } from './selectors'
 import { goToMainPage } from './utils'
 const log = logger('join')
 
@@ -12,12 +12,12 @@ fixture`Joining user test`
     ctx.ownerUsername = 'alice'
     ctx.joiningUserUsername = 'bob-joining'
   })
-  .beforeEach(async t => {
-    await goToMainPage()
-    await new DebugModeModal().close()
-  })
+  // .beforeEach(async t => {
+  //   await goToMainPage()
+  // })
 
 test('User can join the community and exchange messages', async t => {
+  await goToMainPage()
   // Owner creates community and sends a message
   const communityOwner = await createApp()
   const onionAddress = await actions.createCommunity({
@@ -25,6 +25,7 @@ test('User can join the community and exchange messages', async t => {
     communityName: 'e2eCommunity',
     store: communityOwner.store
   })
+  await t.wait(2000) // Give the waggle some time, headless tests are fast
   await sendMessage({
     message: 'Welcome to my community',
     channelName: 'general',
@@ -52,6 +53,10 @@ test('User can join the community and exchange messages', async t => {
   await t.expect(new LoadingPanel('Creating community').title.exists).notOk(`"Creating community" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
   await t.expect(generalChannel.title.exists).ok('User can\'t see "general" channel', { timeout: longTimeout })
 
+  // Owner is connected with joining user
+  await assertions.assertReceivedCertificates(t.fixtureCtx.ownerUsername, 2, longTimeout, communityOwner.store)
+  await assertions.assertConnectedToPeers(communityOwner.store, 1)
+
   // Joining user sees message replicated from the owner
   const ownerMessages = generalChannel.getUserMessages(t.fixtureCtx.ownerUsername)
   await t.expect(ownerMessages.exists).ok({ timeout: longTimeout })
@@ -76,5 +81,5 @@ test('User can join the community and exchange messages', async t => {
   await t.expect(ownerMessages.nth(1).textContent).contains('Hi joining-user! Nice to see you here', { timeout: longTimeout })
 
   // Owner closes the app
-  await communityOwner.manager.closeAllServices()
+  // await communityOwner.manager.closeAllServices()
 })

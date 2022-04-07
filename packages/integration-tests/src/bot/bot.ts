@@ -8,7 +8,7 @@ import { LoremIpsum } from 'lorem-ipsum'
 import { program } from 'commander'
 import { registerUsername } from '../testUtils/actions'
 import { waitForExpect } from '../testUtils/waitForExpect'
-import { assertReceivedChannelAndSubscribe } from '../testUtils/assertions'
+import { assertReceivedChannel } from '../testUtils/assertions'
 
 const log = logger('bot')
 
@@ -59,7 +59,7 @@ const registerBots = async () => {
     await waitForExpect(() => {
       assert.ok(store.getState().Identity.identities.entities[communityId].userCertificate, `User ${username} did not receive certificate`)
     }, timeout)
-    await assertReceivedChannelAndSubscribe(username, channelName, timeout, store)
+    await assertReceivedChannel(username, channelName, timeout, store)
   }
 }
 

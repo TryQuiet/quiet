@@ -1,8 +1,6 @@
-import * as fs from 'fs'
-import { createApp, sendMessage, actions, waitForExpect, assertions } from 'integration-tests'
-import * as path from 'path'
+import { createApp, sendMessage, actions, assertions } from 'integration-tests'
 import { fixture, test } from 'testcafe'
-import { Channel, CreateCommunityModal, DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Sidebar } from './selectors'
+import { Channel, CreateCommunityModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Sidebar } from './selectors'
 import { goToMainPage } from './utils'
 import logger from './logger'
 
@@ -15,10 +13,6 @@ fixture`New user test`
     ctx.ownerUsername = 'bob'
     ctx.joiningUserUsername = 'alice-joining'
   })
-  .beforeEach(async t => {
-    await goToMainPage()
-    await new DebugModeModal().close()
-  })
 
 // .after(async t => {
 //   const dataPath = fs.readFileSync('/tmp/appDataPath', { encoding: 'utf8' })
@@ -30,6 +24,7 @@ fixture`New user test`
 // })
 
 test.only('User can create new community, register and send few messages to general channel', async t => {
+  await goToMainPage()
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
@@ -70,7 +65,7 @@ test.only('User can create new community, register and send few messages to gene
   await t.expect(settingsModal.title.exists).ok()
   await t.expect(settingsModal.invitationCode.exists).ok()
   const invitationCode = await settingsModal.invitationCode.textContent
-  log('Received nvitation code:', invitationCode)
+  log('Received invitation code:', invitationCode)
   await settingsModal.close()
 
   // Guest opens the app and joins the new community successfully
@@ -81,8 +76,9 @@ test.only('User can create new community, register and send few messages to gene
     expectedPeersCount: 2,
     store: joiningUserApp.store
   })
-  await assertions.assertNoRegistrationError(joiningUserApp.store)
-  await assertions.assertReceivedChannelAndSubscribe(
+  await assertions.assertReceivedCertificates(t.fixtureCtx.joiningUserUsername, 2, longTimeout, joiningUserApp.store)
+  await assertions.assertConnectedToPeers(joiningUserApp.store, 1)
+  await assertions.assertReceivedChannel(
     t.fixtureCtx.joiningUserUsername,
     'general',
     longTimeout,

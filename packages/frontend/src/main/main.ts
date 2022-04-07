@@ -10,7 +10,6 @@ import { runWaggle } from './waggleManager'
 
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
-import { initSentry } from '../shared/sentryConfig'
 import logger from './logger'
 import { DEV_DATA_DIR } from '../shared/static'
 
@@ -18,8 +17,6 @@ import { DEV_DATA_DIR } from '../shared/static'
 const remote = require('@electron/remote/main')
 
 remote.initialize()
-
-initSentry()
 
 const log = logger('main')
 

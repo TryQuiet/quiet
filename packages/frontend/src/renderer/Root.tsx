@@ -35,7 +35,6 @@ export default () => {
             <CreateUsername />
             <CssBaseline />
             <JoinChannelModal />
-            <SentryWarning />
             <SettingsModal />
             <UpdateModal />
             <QuitAppDialog />
