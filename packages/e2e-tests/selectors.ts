@@ -147,6 +147,7 @@ export class DebugModeModal {
   async close() {
     if (await this.title.visible) {
       log('Debug warning modal present. Closing.')
+      await t.wait(2000)
       await t.click(Selector('button').withText('Understand'))
     }
   }
