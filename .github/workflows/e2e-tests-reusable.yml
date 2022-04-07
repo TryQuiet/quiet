@@ -51,9 +51,11 @@ jobs:
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity,quiet,integration-tests,testcafe-browser-provider-electron,e2e-tests"
 
       - name: Build project and run tests
-        run: lerna run start:e2eWin --scope e2e-tests --stream
+        run: lerna run test:build --scope e2e-tests --stream
 
       - name: Archive test screenshots
         uses: actions/upload-artifact@v2
