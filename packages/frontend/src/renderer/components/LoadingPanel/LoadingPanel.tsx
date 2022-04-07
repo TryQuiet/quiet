@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
-import { communities, publicChannels } from '@quiet/nectar'
+import { communities, publicChannels, users } from '@quiet/nectar'
 import LoadingPanelComponent from './loadingPanelComponent'
+import { modalsActions } from '../../sagas/modals/modals.slice'
 
 export enum LoadingPanelMessage {
   StartingApplication = 'Starting Quiet',
@@ -13,6 +14,7 @@ export enum LoadingPanelMessage {
 
 const LoadingPanel = () => {
   const [message, setMessage] = useState(LoadingPanelMessage.StartingApplication)
+  const dispatch = useDispatch()
 
   const loadingPanelModal = useModal(ModalName.loadingPanel)
 
@@ -22,6 +24,12 @@ const LoadingPanel = () => {
   const isChannelReplicated = Boolean(
     useSelector(publicChannels.selectors.publicChannels)?.length > 0
   )
+
+  const community = useSelector(communities.selectors.currentCommunity)
+  const owner = Boolean(community?.CA)
+
+  const usersData = Object.keys(useSelector(users.selectors.certificates))
+  const isOnlyOneUser = usersData.length === 1
 
   // Before connecting websocket
   useEffect(() => {
@@ -38,6 +46,18 @@ const LoadingPanel = () => {
         loadingPanelModal.handleOpen()
       } else {
         loadingPanelModal.handleClose()
+      }
+
+      if (currentCommunity && isChannelReplicated && owner && isOnlyOneUser) {
+        const notification = new Notification('Community created!', {
+          body: 'Visit Settings for an invite code you can share.',
+          icon: '../../build' + '/icon.png',
+          silent: true
+        })
+
+        notification.onclick = () => {
+          dispatch(modalsActions.openModal({ name: ModalName.accountSettingsModal }))
+        }
       }
     }
   }, [isConnected, currentCommunity, isChannelReplicated])
