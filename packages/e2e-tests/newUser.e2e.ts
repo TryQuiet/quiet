@@ -24,12 +24,12 @@ fixture`New user test`
   //   const dataPath = fs.readFileSync('/tmp/appDataPath', { encoding: 'utf8' })
   //   const fullDataPath = path.join(dataPath, process.env.DATA_DIR)
   //   console.log(`Removing ${fullDataPath}`)
-  //   // @ts-expect-error
+    
+  //   // Throws 'Property 'rm' does not exist on type 'typeof import("fs")'.ts(2339)'
   //   await fs.rm(fullDataPath, { recursive: true, force: true })
   // })
 
 test.only('User can create new community, register and send few messages to general channel', async t => {
-  log(t.fixtureCtx, 'afodijasodfhoashdoh')
   // User opens app for the first time, sees spinner, waits for spinner to disappear
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
@@ -73,7 +73,7 @@ test.only('User can create new community, register and send few messages to gene
   log('Received nvitation code:', invitationCode)
   await settingsModal.close()
 
-  // Guest opens the app and joins the new community
+  // Guest opens the app and joins the new community successfully
   const joiningUserApp = await createApp()
   await actions.joinCommunity({
     registrarAddress: invitationCode,
@@ -81,12 +81,14 @@ test.only('User can create new community, register and send few messages to gene
     expectedPeersCount: 2,
     store: joiningUserApp.store
   })
+  await assertions.assertNoRegistrationError(joiningUserApp.store)
   await assertions.assertReceivedChannelAndSubscribe(
     t.fixtureCtx.joiningUserUsername, 
     'general', 
     longTimeout, 
     joiningUserApp.store
   )
+  await t.wait(2000) // Give the waggle some time, headless tests are fast
   await sendMessage({
     message: 'Nice to meet you all',
     channelName: 'general',

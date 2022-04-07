@@ -32,7 +32,7 @@ export async function assertReceivedChannelAndSubscribe(
     })
   )
 
-  store.dispatch(publicChannels.actions.subscribeToAllTopics())
+  // store.dispatch(publicChannels.actions.subscribeToAllTopics())
 
   log(
     `User ${userName} received ${store.getState().PublicChannels.channels.entities[communityId].channels
@@ -88,4 +88,12 @@ export const assertReceivedMessagesMatch = (
   assert.strictEqual(
     matchingMessages.length, messages.length, `Messages for ${userName} don't match. Was looking for ${messages}, found ${receivedMessages}`
   )
+}
+
+export const assertNoRegistrationError = async(store: Store) => {
+  await waitForExpect(() => {
+    if (store.getState().Errors.errors?.ids.includes('registrar')) {
+      assert.fail(`Received registration error: ${store.getState().Errors.errors?.ids['registrar']}`)
+    }
+  }, 20_000)
 }

@@ -12,5 +12,5 @@ module.exports = {
   mainWindowUrl: '/dist/main/index.html#/',
   electronPath: `./dist/${getAppName()}`,
   relativePageUrls: true,
-  openDevTools: true,
+  // openDevTools: true,
 }
