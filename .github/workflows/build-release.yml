@@ -27,13 +27,13 @@ jobs:
         with:
           bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity,quiet"
 
-      - name: "Push arbitrary file to s3"
-      - uses: shallwefootball/s3-upload-action@master
-        with:
-          aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_bucket: dev.quiet
-          source_dir: 'packages/frontend/snap'
+      # - name: "Push arbitrary file to s3"
+      # - uses: shallwefootball/s3-upload-action@master
+      #   with:
+      #     aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws_bucket: dev.quiet
+      #     source_dir: 'packages/frontend/snap'
 
       - name: Before build
         uses: ./.github/actions/before-build
