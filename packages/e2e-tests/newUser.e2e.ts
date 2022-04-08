@@ -1,6 +1,6 @@
 import { createApp, sendMessage, actions, assertions } from 'integration-tests'
 import { fixture, test, t } from 'testcafe'
-import { Channel, CreateCommunityModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Sidebar } from './selectors'
+import { Channel, CreateCommunityModal, DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Sidebar } from './selectors'
 import { getBrowserConsoleLogs } from './utils'
 import logger from './logger'
 
@@ -33,7 +33,9 @@ fixture`New user test`
 // })
 
 test.only('User can create new community, register and send few messages to general channel', async t => {
+  await new DebugModeModal().close()
   // User opens app for the first time, sees spinner, waits for spinner to disappear
+
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
   // User sees "join community" page and switches to "create community" view by clicking on the link

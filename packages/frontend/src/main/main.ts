@@ -289,6 +289,10 @@ app.on('ready', async () => {
     log('Saved state, closed window')
   })
 
+  await waggleProcess?.connectionsManager.closeAllServices()
+  await waggleProcess?.dataServer.close()
+  waggleProcess = await runWaggle(mainWindow.webContents, appDataPath)
+
   mainWindow.webContents.once('did-finish-load', async () => {
     log('Event: did-finish-load')
     if (!isBrowserWindow(mainWindow)) {
@@ -312,15 +316,13 @@ app.on('ready', async () => {
         await checkForUpdate(mainWindow)
       }, 15 * 60000)
     }
+    mainWindow.webContents.send('connectToWebsocket', { dataPort: waggleProcess.dataServer.PORT })
+    console.log(`Sent connectToWebsocket event with dataPort ${waggleProcess.dataServer.PORT}`)
   })
 
   ipcMain.on('proceed-update', () => {
     autoUpdater.quitAndInstall()
   })
-
-  await waggleProcess?.connectionsManager.closeAllServices()
-  await waggleProcess?.dataServer.close()
-  waggleProcess = await runWaggle(mainWindow.webContents, appDataPath)
 })
 
 app.setAsDefaultProtocolClient('quiet')
