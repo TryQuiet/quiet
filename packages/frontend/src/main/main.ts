@@ -21,6 +21,7 @@ remote.initialize()
 
 initSentry()
 
+
 const log = logger('main')
 
 export const isDev = process.env.NODE_ENV === 'development'
