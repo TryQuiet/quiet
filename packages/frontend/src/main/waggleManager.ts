@@ -24,8 +24,7 @@ export const getPorts = async (): Promise<{
 }
 
 export const runWaggle = async (
-  webContents: BrowserWindow['webContents'],
-  appDataPath
+  appDataPath: string
 ): Promise<{
   connectionsManager: ConnectionsManager
   dataServer: DataServer

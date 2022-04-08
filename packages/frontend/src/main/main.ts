@@ -267,6 +267,10 @@ app.on('ready', async () => {
 
   await applyDevTools()
 
+  await waggleProcess?.connectionsManager.closeAllServices()
+  await waggleProcess?.dataServer.close()
+  waggleProcess = await runWaggle(appDataPath)
+
   await createWindow()
   log('created windows')
 
@@ -288,10 +292,6 @@ app.on('ready', async () => {
     mainWindow.close()
     log('Saved state, closed window')
   })
-
-  await waggleProcess?.connectionsManager.closeAllServices()
-  await waggleProcess?.dataServer.close()
-  waggleProcess = await runWaggle(mainWindow.webContents, appDataPath)
 
   mainWindow.webContents.once('did-finish-load', async () => {
     log('Event: did-finish-load')
