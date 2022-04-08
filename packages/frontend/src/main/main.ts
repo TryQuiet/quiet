@@ -6,7 +6,7 @@ import { autoUpdater } from 'electron-updater'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
 import { DataServer, ConnectionsManager } from '@quiet/waggle'
-import { runWaggle } from './waggleManager'
+import { runWaggle, getPorts, ApplicationPorts } from './waggleManager'
 
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
@@ -172,6 +172,7 @@ const createWindow = async () => {
   mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, './index.html'),
+      search: `dataPort=${ports.dataServer}`,
       protocol: 'file:',
       slashes: true,
       hash: '/'
@@ -257,6 +258,7 @@ export const checkForUpdate = async (win: BrowserWindow) => {
 }
 
 let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } | null = null
+let ports: ApplicationPorts
 
 app.on('ready', async () => {
   if (process.platform === 'darwin') {
@@ -267,11 +269,13 @@ app.on('ready', async () => {
 
   await applyDevTools()
 
+  ports = await getPorts()
+  await createWindow()
+
   await waggleProcess?.connectionsManager.closeAllServices()
   await waggleProcess?.dataServer.close()
-  waggleProcess = await runWaggle(appDataPath)
+  waggleProcess = await runWaggle(ports, appDataPath)
 
-  await createWindow()
   log('created windows')
 
   if (!isBrowserWindow(mainWindow)) {
@@ -316,15 +320,11 @@ app.on('ready', async () => {
         await checkForUpdate(mainWindow)
       }, 15 * 60000)
     }
-    mainWindow.webContents.send('connectToWebsocket', { dataPort: waggleProcess.dataServer.PORT })
-    console.log(`Sent connectToWebsocket event with dataPort ${waggleProcess.dataServer.PORT}`)
   })
 
   ipcMain.on('proceed-update', () => {
     autoUpdater.quitAndInstall()
   })
-
-  await waggleProcess.connectionsManager.init()
 })
 
 app.setAsDefaultProtocolClient('quiet')

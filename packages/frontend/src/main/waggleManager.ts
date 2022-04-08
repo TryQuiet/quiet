@@ -1,5 +1,4 @@
 import waggle, { DataServer, ConnectionsManager } from '@quiet/waggle'
-import { BrowserWindow } from 'electron'
 import getPort from 'get-port'
 
 export const getPorts = async (): Promise<{
@@ -23,14 +22,14 @@ export const getPorts = async (): Promise<{
   }
 }
 
+export type ApplicationPorts = Awaited<ReturnType<typeof getPorts>>
 export const runWaggle = async (
+  ports: ApplicationPorts,
   appDataPath: string
 ): Promise<{
   connectionsManager: ConnectionsManager
   dataServer: DataServer
 }> => {
-  const ports = await getPorts()
-
   const dataServer = new waggle.DataServer(ports.dataServer)
   await dataServer.listen()
 
@@ -52,6 +51,8 @@ export const runWaggle = async (
       torControlPort: ports.controlPort
     }
   })
+
+  await connectionsManager.init()
 
   return { connectionsManager, dataServer }
 }
