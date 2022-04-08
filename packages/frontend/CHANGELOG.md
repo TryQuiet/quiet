@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.1-alpha.29](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.1-alpha.28...quiet@0.4.1-alpha.29) (2022-04-08)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
 ## [0.4.1-alpha.28](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.1-alpha.27...quiet@0.4.1-alpha.28) (2022-04-08)
 
 **Note:** Version bump only for package quiet
