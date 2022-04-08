@@ -108,6 +108,7 @@ if (!gotTheLock) {
   app.quit()
 } else {
   app.on('second-instance', _commandLine => {
+    log('Event: app.second-instance')
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
@@ -181,6 +182,7 @@ const createWindow = async () => {
   /* eslint-enable */
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
+    log('Event mainWindow.closed')
     mainWindow = null
   })
   mainWindow.on('resize', () => {
@@ -200,6 +202,7 @@ const createWindow = async () => {
       mainWindow.webContents.openDevTools()
     }
   })
+  log('Created mainWindow')
 }
 
 let isUpdatedStatusCheckingStarted = false
@@ -261,6 +264,7 @@ let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataSer
 let ports: ApplicationPorts
 
 app.on('ready', async () => {
+  log('Event: app.ready')
   if (process.platform === 'darwin') {
     Menu.setApplicationMenu(null)
   } else {
@@ -276,10 +280,8 @@ app.on('ready', async () => {
   await waggleProcess?.dataServer.close()
   waggleProcess = await runWaggle(ports, appDataPath)
 
-  log('created windows')
-
   if (!isBrowserWindow(mainWindow)) {
-    throw new Error('mainWindow is on unexpected type {mainWindow}')
+    throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
   }
 
   mainWindow.webContents.on('did-fail-load', () => {
@@ -298,9 +300,9 @@ app.on('ready', async () => {
   })
 
   mainWindow.webContents.once('did-finish-load', async () => {
-    log('Event: did-finish-load')
+    log('Event: mainWindow did-finish-load')
     if (!isBrowserWindow(mainWindow)) {
-      throw new Error('mainWindow is on unexpected type {mainWindow}')
+      throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
     }
     if (process.platform === 'win32' && process.argv) {
       const payload = process.argv[1]
@@ -315,6 +317,7 @@ app.on('ready', async () => {
       await checkForUpdate(mainWindow)
       setInterval(async () => {
         if (!isBrowserWindow(mainWindow)) {
+          //// eslint-disable-next-line
           throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
         }
         await checkForUpdate(mainWindow)
@@ -330,13 +333,14 @@ app.on('ready', async () => {
 app.setAsDefaultProtocolClient('quiet')
 
 app.on('browser-window-created', (_, window) => {
-  // eslint-disable-next-line
-  require('@electron/remote/main').enable(window.webContents)
+  log('Event: app.browser-window-created', window.getTitle())
+  //// eslint-disable-next-line
+  remote.enable(window.webContents)
 })
 
 // Quit when all windows are closed.
 app.on('window-all-closed', async () => {
-  log('Event: window-all-closed')
+  log('Event: app.window-all-closed')
   if (waggleProcess !== null) {
     await waggleProcess.connectionsManager.closeAllServices()
     await waggleProcess.dataServer.close()
@@ -348,6 +352,7 @@ app.on('window-all-closed', async () => {
 })
 
 app.on('activate', async () => {
+  log('Event: app.activate')
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {

@@ -1,7 +1,7 @@
 import { createApp, sendMessage, actions, assertions } from 'integration-tests'
 import { fixture, test, t } from 'testcafe'
 import { Channel, CreateCommunityModal, DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Sidebar } from './selectors'
-import { getBrowserConsoleLogs } from './utils'
+import { goToMainPage } from './utils'
 import logger from './logger'
 
 const log = logger('create')
@@ -11,16 +11,12 @@ const longTimeout = 100000
 let joiningUserApp = null
 
 fixture`New user test`
-  .page('../frontend/dist/main/index.html#/')
   .before(async ctx => {
     ctx.ownerUsername = 'bob'
     ctx.joiningUserUsername = 'alice-joining'
   })
-  .afterEach(async () => {
-    if (joiningUserApp) {
-      await joiningUserApp.manager.closeAllServices()
-    }
-    await getBrowserConsoleLogs()
+  .beforeEach(async () => {
+    await goToMainPage()
   })
 
 // .after(async t => {
@@ -108,7 +104,7 @@ test.only('User can create new community, register and send few messages to gene
 
   // Guest closes the app
   // await joiningUserApp.manager.closeAllServices()
-  // await t.wait(5000)
+  await t.wait(2000)
   // // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
   // // See: https://github.com/ZbayApp/monorepo/issues/222
 })

@@ -1,14 +1,14 @@
 import { createApp, sendMessage, actions, waitForExpect, assertions } from 'integration-tests'
 import { fixture, test } from 'testcafe'
 import { JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Channel } from './selectors'
-import { getBrowserConsoleLogs } from './utils'
+import { getBrowserConsoleLogs, goToMainPage } from './utils'
 
 const longTimeout = 120_000
 
 let communityOwner = null
 
 fixture`Joining user test`
-  .page('../frontend/dist/main/index.html#/')
+  // .page('../frontend/dist/main/index.html#/')
   .before(async ctx => {
     ctx.ownerUsername = 'alice'
     ctx.joiningUserUsername = 'bob-joining'
@@ -17,10 +17,11 @@ fixture`Joining user test`
     if (communityOwner) {
       await communityOwner.manager.closeAllServices()
     }
-    await getBrowserConsoleLogs()
+    // await getBrowserConsoleLogs()
   })
 
 test('User can join the community and exchange messages', async t => {
+  await goToMainPage()
   // Owner creates community and sends a message
   communityOwner = await createApp()
   const onionAddress = await actions.createCommunity({
