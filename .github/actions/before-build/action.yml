@@ -30,10 +30,6 @@ runs:
       run: echo $S3_BUCKET
       shell: bash
 
-    - name: "Rebuild NM for electron"
-      run : lerna run rebuild --scope quiet
-      shell: bash
-
     - name: "Build the project"
       run: lerna run build:prod --scope quiet
       shell: bash

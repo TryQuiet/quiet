@@ -19,7 +19,6 @@ const remote = require('@electron/remote/main')
 
 remote.initialize()
 
-
 initSentry()
 
 const log = logger('main')
@@ -304,17 +303,13 @@ app.on('ready', async () => {
       }
     }
 
-    // TEMPORARY DISABLE UPDATER FOR LINUX
-
-    if (!isDev && process.platform !== 'linux') {
       await checkForUpdate(mainWindow)
       setInterval(async () => {
         if (!isBrowserWindow(mainWindow)) {
           throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
         }
         await checkForUpdate(mainWindow)
-      }, 15 * 60000)
-    }
+      }, 5 * 1000)
   })
 
   ipcMain.on('proceed-update', () => {
