@@ -323,6 +323,8 @@ app.on('ready', async () => {
   ipcMain.on('proceed-update', () => {
     autoUpdater.quitAndInstall()
   })
+
+  await waggleProcess.connectionsManager.init()
 })
 
 app.setAsDefaultProtocolClient('quiet')

@@ -53,8 +53,6 @@ export const runWaggle = async (
     }
   })
 
-  await connectionsManager.init()
-
   return { connectionsManager, dataServer }
 }
 
