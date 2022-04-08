@@ -19,7 +19,6 @@ const remote = require('@electron/remote/main')
 
 remote.initialize()
 
-
 initSentry()
 
 const log = logger('main')
