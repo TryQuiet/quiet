@@ -21,7 +21,8 @@ import {
   IncomingMessages,
   MarkUnreadMessagesPayload,
   ClearUnreadMessagesPayload,
-  CreatedChannelResponse
+  CreatedChannelResponse,
+  SendInitialChannelMessagePayload
 } from './publicChannels.types'
 import { MessageType } from '../messages/messages.types'
 import { Identity } from '../identity/identity.types'
@@ -52,6 +53,7 @@ export const publicChannelsSlice = createSlice({
         }
       )
     },
+    sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
     addPublicChannelsList: (
       state,
       action: PayloadAction<AddPublicChannelsListPayload>

@@ -1,4 +1,4 @@
-import { select, put } from 'typed-redux-saga'
+import { select, put, call } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
@@ -10,12 +10,14 @@ export function* createGeneralChannelSaga(
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
 
+  const timestamp = yield* call(getChannelTimestamp)
+
   const channel: PublicChannel = {
     name: 'general',
     description: 'Welcome to #general',
     owner: identity.nickname,
     address: 'general',
-    timestamp: DateTime.utc().valueOf()
+    timestamp: timestamp
   }
 
   yield* put(
@@ -31,4 +33,8 @@ export function* createGeneralChannelSaga(
       channelAddress: channel.address
     })
   )
+}
+
+export const getChannelTimestamp = (): number => {
+  return DateTime.utc().valueOf()
 }
