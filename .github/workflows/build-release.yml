@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: "Push arbitrary file to s3"
-        uses: vinkabuki/s3-upload-action@master
+        uses: vinkabuki/upload-s3-action@master
         with:
           aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
