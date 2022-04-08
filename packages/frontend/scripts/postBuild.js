@@ -6,11 +6,6 @@ const glob = require('glob');
 
 let appImagePath
 
-glob(__dirname + '/**/*.AppImage', {}, (err, files) => {
-    console.log(files)
-    appImagePath = files[0]
-})
-
 function checksum(file = appImagePath, algorithm = 'sha512', encoding = 'base64', options) {
     return new Promise((resolve, reject) => {
         const hash = crypto.createHash(algorithm);
@@ -39,7 +34,7 @@ function checksum(file = appImagePath, algorithm = 'sha512', encoding = 'base64'
 const aloha = async () => {
     const newChecksum = await checksum()
     try {
-        let fileContents = fs.readFileSync('./alpha-linux.yml', 'utf8');
+        let fileContents = fs.readFileSync('../dist/alpha-linux.yml', 'utf8');
         let data = yaml.load(fileContents);
 
         data.files[0].sha512 = newChecksum
@@ -47,15 +42,14 @@ const aloha = async () => {
         console.log(data);
 
         let yamlStr = yaml.dump(data);
-        fs.writeFileSync('alpha-linux.yml', yamlStr, 'utf8');
+        fs.writeFileSync('../dist/alpha-linux.yml', yamlStr, 'utf8');
 
     } catch (e) {
         console.log(e);
     }
 }
 
-glob(__dirname + '/**/*.AppImage', {}, (err, files) => {
-    console.log(files)
+glob('../dist/*.AppImage', {}, (err, files) => {
     appImagePath = files[0]
     aloha()
 })
