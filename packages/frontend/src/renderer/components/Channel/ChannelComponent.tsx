@@ -71,11 +71,15 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
     scrollBottom()
   }, [])
 
-  const { ref: scrollbarRef } = useResizeDetector({ onResize })
+  const { ref: scrollbarRef } = useResizeDetector<HTMLDivElement>({ onResize })
 
   const scrollBottom = () => {
     if (!scrollbarRef.current) return
-    scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight
+    setScrollHeight(0)
+    scrollbarRef.current.scrollTo({
+      behavior: 'auto',
+      top: Math.abs(scrollbarRef.current?.clientHeight - scrollbarRef.current?.scrollHeight)
+    })
   }
 
   const onEnterKeyPress = (message: string) => {
