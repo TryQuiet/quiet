@@ -36,11 +36,11 @@ describe('ChannelMessages', () => {
       <body>
         <div>
           <div
-            class="makeStyles-scroll-1"
+            class="makeStyles-scroll-2"
             data-testid="channelContent"
           >
             <ul
-              class="MuiList-root makeStyles-list-2"
+              class="MuiList-root makeStyles-list-3"
               id="messages-scroll"
             >
               <div>
@@ -51,11 +51,11 @@ describe('ChannelMessages', () => {
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
                   >
                     <div
-                      class="makeStyles-divider-13"
+                      class="makeStyles-divider-14"
                     />
                   </div>
                   <div
-                    class="MuiGrid-root makeStyles-titleDiv-14 MuiGrid-item"
+                    class="MuiGrid-root makeStyles-titleDiv-15 MuiGrid-item"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1"
@@ -67,24 +67,24 @@ describe('ChannelMessages', () => {
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
                   >
                     <div
-                      class="makeStyles-divider-13"
+                      class="makeStyles-divider-14"
                     />
                   </div>
                 </div>
                 <li
-                  class="MuiListItem-root makeStyles-wrapper-149 makeStyles-wrapperPending-151 MuiListItem-gutters"
+                  class="MuiListItem-root makeStyles-wrapper-150 makeStyles-wrapperPending-152 MuiListItem-gutters"
                 >
                   <div
-                    class="MuiListItemText-root makeStyles-messageCard-148"
+                    class="MuiListItemText-root makeStyles-messageCard-149"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start"
                     >
                       <div
-                        class="MuiGrid-root makeStyles-avatar-156 MuiGrid-item"
+                        class="MuiGrid-root makeStyles-avatar-157 MuiGrid-item"
                       >
                         <div
-                          class="makeStyles-alignAvatar-157"
+                          class="makeStyles-alignAvatar-158"
                         >
                           Jdenticon
                         </div>
@@ -102,7 +102,7 @@ describe('ChannelMessages', () => {
                               class="MuiGrid-root MuiGrid-item"
                             >
                               <p
-                                class="MuiTypography-root makeStyles-username-152 MuiTypography-body1 MuiTypography-colorTextPrimary"
+                                class="MuiTypography-root makeStyles-username-153 MuiTypography-body1 MuiTypography-colorTextPrimary"
                               >
                                 string
                               </p>
@@ -111,7 +111,7 @@ describe('ChannelMessages', () => {
                               class="MuiGrid-root MuiGrid-item"
                             >
                               <p
-                                class="MuiTypography-root makeStyles-time-159 MuiTypography-body1"
+                                class="MuiTypography-root makeStyles-time-160 MuiTypography-body1"
                               >
                                 string
                               </p>
@@ -122,10 +122,10 @@ describe('ChannelMessages', () => {
                           class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
                         >
                           <div
-                            class="MuiGrid-root makeStyles-firstMessage-179 MuiGrid-item"
+                            class="MuiGrid-root makeStyles-firstMessage-180 MuiGrid-item"
                           >
                             <p
-                              class="MuiTypography-root makeStyles-message-178 MuiTypography-body1"
+                              class="MuiTypography-root makeStyles-message-179 MuiTypography-body1"
                               data-testid="messagesGroupContent-string"
                             >
                               string
