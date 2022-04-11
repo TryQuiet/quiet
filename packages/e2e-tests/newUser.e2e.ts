@@ -1,34 +1,45 @@
-import * as fs from 'fs'
-import * as path from 'path'
-import { fixture, test } from 'testcafe'
-import { Channel, CreateCommunityModal, DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal } from './selectors'
+import { createApp, sendMessage, actions, assertions } from 'integration-tests'
+import { fixture, test, t } from 'testcafe'
+import { Channel, CreateCommunityModal, DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Sidebar } from './selectors'
 import { goToMainPage } from './utils'
+import logger from './logger'
+
+const log = logger('create')
 
 const longTimeout = 100000
 
+let joiningUserApp = null
+
 fixture`New user test`
-  .beforeEach(async t => {
+  .before(async ctx => {
+    ctx.ownerUsername = 'bob'
+    ctx.ownerMessages = ['Hi']
+    ctx.joiningUserUsername = 'alice-joining'
+    ctx.joiningUserMessages = ['Nice to meet you all']
+  })
+  .afterEach(async () => {
+    if (joiningUserApp) {
+      await joiningUserApp.manager.closeAllServices()
+      joiningUserApp = null
+    }
+  })
+  .beforeEach(async () => {
     await goToMainPage()
-    await new DebugModeModal().close()
   })
 
-  .after(async t => {
-    const dataPath = fs.readFileSync('/tmp/appDataPath', { encoding: 'utf8' })
-    const fullDataPath = path.join(dataPath, 'Quiet')
-    console.log(`Test data is in ${fullDataPath}. You may want to remove it.`)
-    // await fs.rm(fullDataPath, { recursive: true, force: true }) // TODO: use this with node >=14, rmdirSync doesn't seem to work
-  })
+// .after(async t => {
+//   const dataPath = fs.readFileSync('/tmp/appDataPath', { encoding: 'utf8' })
+//   const fullDataPath = path.join(dataPath, process.env.DATA_DIR)
+//   console.log(`Removing ${fullDataPath}`)
 
-// .afterEach(async t => {
-//   const { error, log } = await t.getBrowserConsoleMessages();
-
-//   log.forEach((val => {console.log('log', val)}))
-//   error.forEach((val => {console.log('error', val)}))
-
+//   // Throws 'Property 'rm' does not exist on type 'typeof import("fs")'.ts(2339)'
+//   await fs.rm(fullDataPath, { recursive: true, force: true })
 // })
 
 test.only('User can create new community, register and send few messages to general channel', async t => {
+  await new DebugModeModal().close()
   // User opens app for the first time, sees spinner, waits for spinner to disappear
+
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
   // User sees "join community" page and switches to "create community" view by clicking on the link
@@ -45,7 +56,7 @@ test.only('User can create new community, register and send few messages to gene
   // User sees "register username" page, enters the valid name and submits by clicking on the button
   const registerModal = new RegisterUsernameModal()
   await t.expect(registerModal.title.exists).ok()
-  await registerModal.typeUsername('testuser')
+  await registerModal.typeUsername(t.fixtureCtx.ownerUsername)
   await registerModal.submit()
 
   // User waits for the spinner to disappear and then sees general channel
@@ -55,18 +66,54 @@ test.only('User can create new community, register and send few messages to gene
 
   // User sends a message
   await t.expect(generalChannel.messageInput.exists).ok()
-  await generalChannel.sendMessage('Hello everyone')
+  await generalChannel.sendMessage(t.fixtureCtx.ownerMessages[0])
 
-  // Sent message is visible on the messages' list as part of a group
-  await t.expect(generalChannel.messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
+  // Sent message is visible in a channel
+  const messages = generalChannel.getUserMessages(t.fixtureCtx.ownerUsername)
+  await t.expect(messages.exists).ok({ timeout: 30000 })
+  await t.expect(messages.textContent).contains(t.fixtureCtx.ownerMessages[0])
 
-  await t.expect(generalChannel.messagesGroup.exists).ok({ timeout: 30000 })
-  await t.expect(generalChannel.messagesGroup.count).eql(1)
-  await t.expect(generalChannel.messagesGroupContent.exists).ok()
-  await t.expect(generalChannel.messagesGroupContent.textContent).eql('Hello\xa0everyone')
-  await t.wait(5000)
-  // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
-  // See: https://github.com/ZbayApp/monorepo/issues/222
+  // Opens the settings tab and gets an invitation code
+  const settingsModal = await new Sidebar().openSettings()
+  await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
+  await t.expect(settingsModal.title.exists).ok()
+  await t.expect(settingsModal.invitationCode.exists).ok()
+  const invitationCode = await settingsModal.invitationCode.textContent
+  log('Received invitation code:', invitationCode)
+  await settingsModal.close()
+
+  // Guest opens the app and joins the new community successfully
+  joiningUserApp = await createApp()
+  await actions.joinCommunity({
+    registrarAddress: invitationCode,
+    userName: t.fixtureCtx.joiningUserUsername,
+    expectedPeersCount: 2,
+    store: joiningUserApp.store
+  })
+  await assertions.assertReceivedCertificates(t.fixtureCtx.joiningUserUsername, 2, longTimeout, joiningUserApp.store)
+  await assertions.assertConnectedToPeers(joiningUserApp.store, 1)
+  await assertions.assertReceivedChannel(
+    t.fixtureCtx.joiningUserUsername,
+    'general',
+    longTimeout,
+    joiningUserApp.store
+  )
+  await t.wait(2000) // Give the waggle some time, headless tests are fast
+
+  await sendMessage({
+    message: t.fixtureCtx.joiningUserMessages[0],
+    channelName: 'general',
+    store: joiningUserApp.store
+  })
+
+  // Owner sees message sent by the guest
+  const joiningUserMessages = generalChannel.getUserMessages(t.fixtureCtx.joiningUserUsername)
+  await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
+  await t.expect(joiningUserMessages.textContent).contains(t.fixtureCtx.joiningUserMessages[0])
+
+  await t.wait(2000)
+  // // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
+  // // See: https://github.com/ZbayApp/monorepo/issues/222
 })
 
 test('User reopens app, sees general channel and the messages he sent before', async t => {
@@ -77,12 +124,12 @@ test('User reopens app, sees general channel and the messages he sent before', a
   const generalChannel = new Channel('general')
   await t.expect(generalChannel.title.exists).ok('User can\'t see "general" channel')
 
-  // User sees the message sent previously
-  await t.expect(generalChannel.messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
+  // Returning user sees everyone's messages
+  const ownerMessages = generalChannel.getUserMessages(t.fixtureCtx.ownerUsername)
+  await t.expect(ownerMessages.exists).ok({ timeout: longTimeout })
+  await t.expect(ownerMessages.textContent).contains(t.fixtureCtx.ownerMessages[0])
 
-  await t.expect(generalChannel.messagesGroup.exists).ok({ timeout: 30000 })
-  await t.expect(generalChannel.messagesGroup.count).eql(1)
-
-  await t.expect(generalChannel.messagesGroupContent.exists).ok()
-  await t.expect(generalChannel.messagesGroupContent.textContent).eql('Hello\xa0everyone')
+  const joiningUserMessages = generalChannel.getUserMessages(t.fixtureCtx.joiningUserUsername)
+  await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
+  await t.expect(joiningUserMessages.textContent).contains(t.fixtureCtx.joiningUserMessages[0])
 })

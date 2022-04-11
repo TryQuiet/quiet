@@ -7,7 +7,7 @@
         "../@types",
         "./node_modules/@types"
       ],
-      "declaration": false,
+      "declaration": true,
     },
     "include": [
       "src"
