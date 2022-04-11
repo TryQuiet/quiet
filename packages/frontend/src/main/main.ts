@@ -16,8 +16,6 @@ import { DEV_DATA_DIR } from '../shared/static'
 
 // eslint-disable-next-line
 
-autoUpdater.autoDownload = false
-
 const remote = require('@electron/remote/main')
 
 remote.initialize()
@@ -245,21 +243,10 @@ export const checkForUpdate = async (win: BrowserWindow) => {
     autoUpdater.on('update-available', info => {
       log(info)
     })
-
     autoUpdater.on('update-downloaded', () => {
       win.webContents.send('newUpdateAvailable')
     })
     isUpdatedStatusCheckingStarted = true
-  }
-  try {
-    await autoUpdater.checkForUpdates()
-  } catch (error) {
-    if (isNetworkError(error)) {
-      log.error('Network Error')
-    } else {
-      log.error('Unknown Error')
-      log.error(error == null ? 'unknown' : (error.stack || error).toString())
-    }
   }
 }
 
