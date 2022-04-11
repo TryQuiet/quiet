@@ -309,7 +309,7 @@ app.on('ready', async () => {
           throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
         }
         await checkForUpdate(mainWindow)
-      }, 5 * 1000)
+      }, 120 * 1000)
   })
 
   ipcMain.on('proceed-update', () => {
