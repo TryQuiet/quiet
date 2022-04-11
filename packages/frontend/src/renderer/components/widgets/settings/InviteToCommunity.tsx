@@ -56,7 +56,7 @@ export const InviteToCommunity: FC<InviteFriendProps> = ({ communityName, invita
         </Grid>
       </Grid>
       <Grid item>
-        <Typography variant='body2'>{invitationUrl}</Typography>
+        <Typography variant='body2' data-testid='invitation-code'>{invitationUrl}</Typography>
       </Grid>
       <Grid>
         <CopyToClipboard text={invitationUrl}>

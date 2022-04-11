@@ -8,11 +8,7 @@ import updateHandlers from './store/handlers/update'
 
 import logger from './logger'
 
-import { initSentry } from '../shared/sentryConfig'
-
 import { socketActions, WebsocketConnectionPayload } from './sagas/socket/socket.slice'
-
-initSentry()
 
 const log = logger('renderer')
 
@@ -20,20 +16,16 @@ if (window) {
   window.localStorage.setItem('debug', process.env.DEBUG)
 }
 
-ipcRenderer.on('newUpdateAvailable', (_event) => {
+ipcRenderer.on('newUpdateAvailable', _event => {
   store.dispatch(updateHandlers.epics.checkForUpdate() as any)
 })
 
-ipcRenderer.on('connectToWebsocket', (_event, payload: WebsocketConnectionPayload) => {
-  store.dispatch(socketActions.startConnection(payload))
-})
-
-ipcRenderer.on('force-save-state', async (_event) => {
+ipcRenderer.on('force-save-state', async _event => {
   await persistor.flush()
   ipcRenderer.send('state-saved')
 })
 
-ipcRenderer.on('waggleInitialized', (_event) => {
+ipcRenderer.on('waggleInitialized', _event => {
   log('waggle initialized')
 })
 
