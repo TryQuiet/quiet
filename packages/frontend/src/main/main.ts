@@ -317,7 +317,7 @@ app.on('ready', async () => {
       await checkForUpdate(mainWindow)
       setInterval(async () => {
         if (!isBrowserWindow(mainWindow)) {
-          //// eslint-disable-next-line
+          /// / eslint-disable-next-line
           throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
         }
         await checkForUpdate(mainWindow)
@@ -334,7 +334,7 @@ app.setAsDefaultProtocolClient('quiet')
 
 app.on('browser-window-created', (_, window) => {
   log('Event: app.browser-window-created', window.getTitle())
-  //// eslint-disable-next-line
+  /// / eslint-disable-next-line
   remote.enable(window.webContents)
 })
 

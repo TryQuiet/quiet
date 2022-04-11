@@ -212,9 +212,7 @@ export class Tor {
         log(data.toString())
         const regexp = /Bootstrapped 100%/
         if (regexp.test(data.toString())) {
-          log('FINISHED BOOTSTRAPPING')
           clearTimeout(timeout)
-          log('FINISHED BOOTSTRAPPING, RESOLVING')
           resolve()
         }
       })
