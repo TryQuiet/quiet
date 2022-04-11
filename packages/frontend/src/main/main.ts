@@ -23,6 +23,8 @@ initSentry()
 
 const log = logger('main')
 
+const updaterInterval = 15 * 60_000
+
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
 const webcrypto = new Crypto()
@@ -204,8 +206,6 @@ const createWindow = async () => {
   })
 }
 
-let isUpdatedStatusCheckingStarted = false
-
 const isNetworkError = (errorObject: { message: string }) => {
   return (
     errorObject.message === 'net::ERR_INTERNET_DISCONNECTED' ||
@@ -218,35 +218,6 @@ const isNetworkError = (errorObject: { message: string }) => {
 }
 
 export const checkForUpdate = async (win: BrowserWindow) => {
-  if (!isUpdatedStatusCheckingStarted) {
-    try {
-      await autoUpdater.checkForUpdates()
-    } catch (error) {
-      if (isNetworkError(error)) {
-        log.error('Network Error')
-      } else {
-        log.error('Unknown Error')
-        log.error(error == null ? 'unknown' : (error.stack || error).toString())
-      }
-    }
-    autoUpdater.on('checking-for-update', () => {
-      log('checking for updates...')
-    })
-    autoUpdater.on('error', error => {
-      log(error)
-    })
-    autoUpdater.on('update-not-available', () => {
-      log('event no update')
-    })
-    autoUpdater.on('update-available', info => {
-      log(info)
-    })
-
-    autoUpdater.on('update-downloaded', () => {
-      win.webContents.send('newUpdateAvailable')
-    })
-    isUpdatedStatusCheckingStarted = true
-  }
   try {
     await autoUpdater.checkForUpdates()
   } catch (error) {
@@ -257,6 +228,21 @@ export const checkForUpdate = async (win: BrowserWindow) => {
       log.error(error == null ? 'unknown' : (error.stack || error).toString())
     }
   }
+  autoUpdater.on('checking-for-update', () => {
+    log('checking for updates...')
+  })
+  autoUpdater.on('error', error => {
+    log('UPDATER ERROR: ', error)
+  })
+  autoUpdater.on('update-not-available', () => {
+    log('event no update')
+  })
+  autoUpdater.on('update-available', info => {
+    log(info)
+  })
+  autoUpdater.on('update-downloaded', () => {
+    win.webContents.send('newUpdateAvailable')
+  })
 }
 
 let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } | null = null
@@ -303,17 +289,13 @@ app.on('ready', async () => {
       }
     }
 
-    // TEMPORARY DISABLE UPDATER FOR LINUX
-
-    if (!isDev && process.platform !== 'linux') {
+    await checkForUpdate(mainWindow)
+    setInterval(async () => {
+      if (!isBrowserWindow(mainWindow)) {
+        throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
+      }
       await checkForUpdate(mainWindow)
-      setInterval(async () => {
-        if (!isBrowserWindow(mainWindow)) {
-          throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
-        }
-        await checkForUpdate(mainWindow)
-      }, 15 * 60000)
-    }
+    }, updaterInterval)
   })
 
   ipcMain.on('proceed-update', () => {
