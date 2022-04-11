@@ -1,27 +1,34 @@
 import { createApp, sendMessage, actions, waitForExpect, assertions } from 'integration-tests'
 import { fixture, test } from 'testcafe'
 import { JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Channel } from './selectors'
-import { getBrowserConsoleLogs, goToMainPage } from './utils'
+import { goToMainPage } from './utils'
 
 const longTimeout = 120_000
 
 let communityOwner = null
 
 fixture`Joining user test`
-  // .page('../frontend/dist/main/index.html#/')
   .before(async ctx => {
     ctx.ownerUsername = 'alice'
+    ctx.ownerMessages = [
+      'Welcome to my community',
+      'Hi joining-user! Nice to see you here'
+    ]
     ctx.joiningUserUsername = 'bob-joining'
+    ctx.joiningUserMessages = ['Hello']
+  })
+  .beforeEach(async () => {
+    await goToMainPage()
   })
   .afterEach(async () => {
     if (communityOwner) {
       await communityOwner.manager.closeAllServices()
+      communityOwner = null
     }
-    // await getBrowserConsoleLogs()
   })
 
 test('User can join the community and exchange messages', async t => {
-  await goToMainPage()
+  // await goToMainPage()
   // Owner creates community and sends a message
   communityOwner = await createApp()
   const onionAddress = await actions.createCommunity({
@@ -31,7 +38,7 @@ test('User can join the community and exchange messages', async t => {
   })
   await t.wait(2000) // Give the waggle some time, headless tests are fast
   await sendMessage({
-    message: 'Welcome to my community',
+    message: t.fixtureCtx.ownerMessages[0],
     channelName: 'general',
     store: communityOwner.store
   })
@@ -64,24 +71,28 @@ test('User can join the community and exchange messages', async t => {
   // Joining user sees message replicated from the owner
   const ownerMessages = generalChannel.getUserMessages(t.fixtureCtx.ownerUsername)
   await t.expect(ownerMessages.exists).ok({ timeout: longTimeout })
-  await t.expect(ownerMessages.textContent).contains('Welcome to my community')
+  await t.expect(ownerMessages.textContent).contains(t.fixtureCtx.ownerMessages[0])
 
   // Joining user sends a message and sees it on a channel
-  await generalChannel.sendMessage('Hello')
+  await generalChannel.sendMessage(t.fixtureCtx.joiningUserMessages[0])
   const joiningUserMessages = generalChannel.getUserMessages(t.fixtureCtx.joiningUserUsername)
   await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
-  await t.expect(joiningUserMessages.textContent).contains('Hello')
+  await t.expect(joiningUserMessages.textContent).contains(t.fixtureCtx.joiningUserMessages[0])
 
   // Owner receives the message sent by the joining user
-  await waitForExpect(() => assertions.assertReceivedMessagesMatch(t.fixtureCtx.ownerUsername, ['Hello'], communityOwner.store))
+  await waitForExpect(() => assertions.assertReceivedMessagesMatch(
+    t.fixtureCtx.ownerUsername,
+    t.fixtureCtx.joiningUserMessages,
+    communityOwner.store
+  ))
 
   // Owner sends message, user receives it
   await sendMessage({
-    message: 'Hi joining-user! Nice to see you here',
+    message: t.fixtureCtx.ownerMessages[1],
     channelName: 'general',
     store: communityOwner.store
   })
   await t.expect(ownerMessages.count).eql(2)
-  await t.expect(ownerMessages.nth(1).textContent).contains('Hi joining-user! Nice to see you here', { timeout: longTimeout })
+  await t.expect(ownerMessages.nth(1).textContent).contains(t.fixtureCtx.ownerMessages[1], { timeout: longTimeout })
   await t.wait(2000)
 })

@@ -13,7 +13,15 @@ let joiningUserApp = null
 fixture`New user test`
   .before(async ctx => {
     ctx.ownerUsername = 'bob'
+    ctx.ownerMessages = ['Hi']
     ctx.joiningUserUsername = 'alice-joining'
+    ctx.joiningUserMessages = ['Nice to meet you all']
+  })
+  .afterEach(async () => {
+    if (joiningUserApp) {
+      await joiningUserApp.manager.closeAllServices()
+      joiningUserApp = null
+    }
   })
   .beforeEach(async () => {
     await goToMainPage()
@@ -58,12 +66,12 @@ test.only('User can create new community, register and send few messages to gene
 
   // User sends a message
   await t.expect(generalChannel.messageInput.exists).ok()
-  await generalChannel.sendMessage('Hello everyone')
+  await generalChannel.sendMessage(t.fixtureCtx.ownerMessages[0])
 
   // Sent message is visible in a channel
   const messages = generalChannel.getUserMessages(t.fixtureCtx.ownerUsername)
   await t.expect(messages.exists).ok({ timeout: 30000 })
-  await t.expect(messages.textContent).contains('Hello\xa0everyone')
+  await t.expect(messages.textContent).contains(t.fixtureCtx.ownerMessages[0])
 
   // Opens the settings tab and gets an invitation code
   const settingsModal = await new Sidebar().openSettings()
@@ -91,8 +99,9 @@ test.only('User can create new community, register and send few messages to gene
     joiningUserApp.store
   )
   await t.wait(2000) // Give the waggle some time, headless tests are fast
+
   await sendMessage({
-    message: 'Nice to meet you all',
+    message: t.fixtureCtx.joiningUserMessages[0],
     channelName: 'general',
     store: joiningUserApp.store
   })
@@ -100,7 +109,7 @@ test.only('User can create new community, register and send few messages to gene
   // Owner sees message sent by the guest
   const joiningUserMessages = generalChannel.getUserMessages(t.fixtureCtx.joiningUserUsername)
   await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
-  await t.expect(joiningUserMessages.textContent).contains('Nice to meet you all')
+  await t.expect(joiningUserMessages.textContent).contains(t.fixtureCtx.joiningUserMessages[0])
 
   await t.wait(2000)
   // // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
@@ -118,9 +127,9 @@ test('User reopens app, sees general channel and the messages he sent before', a
   // Returning user sees everyone's messages
   const ownerMessages = generalChannel.getUserMessages(t.fixtureCtx.ownerUsername)
   await t.expect(ownerMessages.exists).ok({ timeout: longTimeout })
-  await t.expect(ownerMessages.textContent).contains('Hello\xa0everyone')
+  await t.expect(ownerMessages.textContent).contains(t.fixtureCtx.ownerMessages[0])
 
   const joiningUserMessages = generalChannel.getUserMessages(t.fixtureCtx.joiningUserUsername)
   await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
-  await t.expect(joiningUserMessages.textContent).contains('Nice to meet you all')
+  await t.expect(joiningUserMessages.textContent).contains(t.fixtureCtx.joiningUserMessages[0])
 })

@@ -116,12 +116,10 @@ const run = async () => {
   process.on('unhandledRejection', async (error) => {
     console.error(error)
     await closeAll()
-    // process.exit(0)
   })
   process.on('SIGINT', async () => {
     log('\nGracefully shutting down from SIGINT (Ctrl-C)')
     await closeAll()
-    // process.exit(0)
   })
   await createBots()
   await registerBots()
