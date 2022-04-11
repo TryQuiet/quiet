@@ -229,7 +229,7 @@ export async function sendMessage(
   store: Store
 ): Promise<{ message: string; publicKey: string }> {
   log(message, 'sendMessage')
-  store.dispatch(messages.actions.sendMessage(message))
+  store.dispatch(messages.actions.sendMessage({ message }))
 
   const communityId = store.getState().Communities.communities.ids[0]
   const certificate =
