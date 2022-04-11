@@ -1,5 +1,5 @@
 
-import { communities, CommunityOwnership, CreateNetworkPayload, identity, SocketActionTypes } from '@quiet/nectar'
+import { communities, CommunityOwnership, CreateNetworkPayload, identity, publicChannels, SocketActionTypes } from '@quiet/nectar'
 import assert from 'assert'
 import { Register } from '../integrationTests/appActions'
 import logger from '../logger'
@@ -160,4 +160,14 @@ export async function retryRegistrationOnError ({ store, username, retryCounter 
       assert.fail('Waiting...')
     }
   }, timeout, interval)
+}
+
+export const switchChannel = async ({ channelName, store }) => {
+  const communityId = store.getState().Communities.communities.ids[0]
+  store.dispatch(
+    publicChannels.actions.setCurrentChannel({
+      channelAddress: channelName,
+      communityId: communityId.toString()
+    })
+  )
 }

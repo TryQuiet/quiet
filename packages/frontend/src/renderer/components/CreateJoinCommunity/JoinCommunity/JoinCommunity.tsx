@@ -15,14 +15,13 @@ const JoinCommunity = () => {
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
-  const sentryWarningModal = useModal(ModalName.sentryWarningModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
 
   useEffect(() => {
-    if (isConnected && !currentCommunity && !joinCommunityModal.open && !sentryWarningModal.open) {
+    if (isConnected && !currentCommunity && !joinCommunityModal.open) {
       joinCommunityModal.handleOpen()
     }
-  }, [isConnected, currentCommunity, sentryWarningModal.open])
+  }, [isConnected, currentCommunity])
 
   useEffect(() => {
     if (currentIdentity && !currentIdentity.userCertificate && joinCommunityModal.open) {

@@ -100,7 +100,6 @@ export class Tor {
 
         try {
           await this.spawnTor(timeout)
-          log('AFTER SPAWNING TOR')
           resolve()
         } catch {
           log('Killing tor')

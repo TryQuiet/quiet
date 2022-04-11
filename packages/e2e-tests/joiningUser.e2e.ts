@@ -83,4 +83,5 @@ test('User can join the community and exchange messages', async t => {
   })
   await t.expect(ownerMessages.count).eql(2)
   await t.expect(ownerMessages.nth(1).textContent).contains('Hi joining-user! Nice to see you here', { timeout: longTimeout })
+  await t.wait(2000)
 })

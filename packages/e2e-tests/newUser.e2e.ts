@@ -102,8 +102,6 @@ test.only('User can create new community, register and send few messages to gene
   await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
   await t.expect(joiningUserMessages.textContent).contains('Nice to meet you all')
 
-  // Guest closes the app
-  // await joiningUserApp.manager.closeAllServices()
   await t.wait(2000)
   // // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
   // // See: https://github.com/ZbayApp/monorepo/issues/222

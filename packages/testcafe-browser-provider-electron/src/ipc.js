@@ -202,14 +202,6 @@ export class Client {
     }
 
     terminateProcess () {
-        // const app = require('electron').app
-        // console.log('TERMINATE PROCESS', require('electron').app)
-        // app.quit()
-        // const hadListeners = app.emit('window-all-closed')
-        
-        // console.log('TERM PROC', hadListeners)
-        // app.quit()
-        // console.log('window-all-closed', hadListeners)
         setTimeout(() => process.exit(0), 0);
     }
 

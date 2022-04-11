@@ -6,7 +6,7 @@ import logger from '../logger'
 import { Store } from '@quiet/nectar'
 import { LoremIpsum } from 'lorem-ipsum'
 import { program } from 'commander'
-import { registerUsername } from '../testUtils/actions'
+import { registerUsername, switchChannel } from '../testUtils/actions'
 import { waitForExpect } from '../testUtils/waitForExpect'
 import { assertReceivedChannel } from '../testUtils/assertions'
 
@@ -60,6 +60,7 @@ const registerBots = async () => {
       assert.ok(store.getState().Identity.identities.entities[communityId].userCertificate, `User ${username} did not receive certificate`)
     }, timeout)
     await assertReceivedChannel(username, channelName, timeout, store)
+    await switchChannel({ channelName, store })
   }
 }
 
@@ -101,7 +102,6 @@ const sendMessageWithLatency = async (username: string, store: Store, message: s
   await sleep(userTypingTime)
   await sendMessage({
     message,
-    channelName,
     store
   })
 }
