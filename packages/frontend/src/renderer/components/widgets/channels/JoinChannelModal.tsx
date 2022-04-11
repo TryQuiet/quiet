@@ -157,7 +157,8 @@ export const JoinChannelModal: React.FC<JoinChannelModalProps> = ({
                         )} `}
                     </Typography>
                   )}
-                  {step === 0 ? (
+                  {step === 0
+                    ? (
                     <AutocompleteField
                       name={'channel'}
                       classes={{ option: classes.materialOption }}
@@ -191,7 +192,8 @@ export const JoinChannelModal: React.FC<JoinChannelModalProps> = ({
                         />
                       )}
                     />
-                  ) : (
+                      )
+                    : (
                     <>
                       <Typography variant='body2' className={classes.description}>
                         {`${values.channel.description}`}
@@ -200,9 +202,10 @@ export const JoinChannelModal: React.FC<JoinChannelModalProps> = ({
                           After joining, it may take some time for messages to fully load.
                       </Grid>
                     </>
-                  )}
+                      )}
 
-                  {step !== 0 ? (
+                  {step !== 0
+                    ? (
                     <LoadindButton
                       variant='contained'
                       color='primary'
@@ -213,11 +216,12 @@ export const JoinChannelModal: React.FC<JoinChannelModalProps> = ({
                       inProgress={loading}
                       disabled={loading}
                     />
-                  ) : (
+                      )
+                    : (
                     <Typography variant='caption' className={classes.info}>
                         If you have an invite code, open it in a browser
                     </Typography>
-                  )}
+                      )}
                 </Grid>
               </Form>
             )

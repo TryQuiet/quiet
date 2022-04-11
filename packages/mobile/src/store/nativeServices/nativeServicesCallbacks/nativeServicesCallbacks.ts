@@ -22,11 +22,11 @@ export const deviceEvents = () => {
         NativeEventKeys.TorInit,
         (data: TorData) => {
           emit(initActions.onTorInit(data))
-        },
+        }
       ),
       nativeEventEmitter?.addListener(
         NativeEventKeys.OnDataDirectoryCreated,
-        (path: string) => emit(initActions.onDataDirectoryCreated(path)),
+        (path: string) => emit(initActions.onDataDirectoryCreated(path))
       )
     ]
     return () => {

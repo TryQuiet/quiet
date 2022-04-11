@@ -109,7 +109,8 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
               </Grid>
               <Grid item container spacing={0} direction='column' className={classes.checkboxes}>
                 {' '}
-                {isImage ? (
+                {isImage
+                  ? (
                   <>
                     <Grid item container justify='center' alignItems='center'>
                       <Grid item>
@@ -142,7 +143,8 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                       </Grid>
                     </Grid>
                   </>
-                ) : (
+                    )
+                  : (
                   <Grid item container justify='center' alignItems='center'>
                     <Grid item>
                       <Checkbox
@@ -156,7 +158,7 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                       <span className={classes.bold}>{uri.hostname}</span> {'again'}
                     </Grid>
                   </Grid>
-                )}
+                    )}
                 <Grid item container justify='center' alignItems='center'>
                   <Grid item>
                     <Checkbox

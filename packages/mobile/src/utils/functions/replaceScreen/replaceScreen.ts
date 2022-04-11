@@ -8,6 +8,6 @@ export const replaceScreen = <Params extends {}>(
   params?: Params
 ): void => {
   navigationContainerRef.current?.dispatch(
-    StackActions.replace(screenName, params),
+    StackActions.replace(screenName, params)
   )
 }
