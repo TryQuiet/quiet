@@ -14,10 +14,9 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
 }
 
 export const Component = Template.bind({})
-export const Empty = Template.bind({})
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-const regular_args: ChannelComponentProps = {
+const args: ChannelComponentProps = {
   user: {
     id: 'id',
     nickname: 'vader',
@@ -393,67 +392,7 @@ const regular_args: ChannelComponentProps = {
   openNotificationsTab: function (): void {}
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const empty_args: ChannelComponentProps = {
-  user: {
-    id: 'id',
-    nickname: 'vader',
-    hiddenService: {
-      onionAddress: 'onionAddress',
-      privateKey: 'privateKey'
-    },
-    peerId: {
-      id: 'id',
-      privKey: 'privKey',
-      pubKey: 'pubKey'
-    },
-    dmKeys: {
-      publicKey: 'publicKey',
-      privateKey: 'privateKey'
-    },
-    userCsr: {
-      userCsr: 'userCsr',
-      userKey: 'userKey',
-      pkcs10: {
-        publicKey: 'publicKey',
-        privateKey: 'privateKey',
-        pkcs10: 'pkcs10'
-      }
-    },
-    userCertificate: 'userCertificate'
-  },
-  channelSettingsModal: {
-    open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
-  },
-  channelInfoModal: {
-    open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
-  },
-  messages: {
-    count: undefined,
-    groups: {}
-  },
-  channel: {
-    name: 'general',
-    description: 'Welcome to #general',
-    owner: 'alice',
-    timestamp: 0,
-    address: 'general'
-  },
-  setChannelMessagesSliceValue: function (_value: number): void {},
-  onDelete: function (): void {},
-  onInputChange: function (_value: string): void {},
-  onInputEnter: function (_message: string): void {},
-  mutedFlag: false,
-  notificationFilter: '',
-  openNotificationsTab: function (): void {}
-}
-
-Component.args = regular_args
-Empty.args = empty_args
+Component.args = args
 
 const component: ComponentMeta<typeof ChannelComponent> = {
   title: 'Components/ChannelComponent',
