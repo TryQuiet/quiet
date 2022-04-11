@@ -15,12 +15,14 @@ import logger from './logger'
 import { DEV_DATA_DIR } from '../shared/static'
 
 // eslint-disable-next-line
+
+autoUpdater.autoDownload = false
+
 const remote = require('@electron/remote/main')
 
 remote.initialize()
 
 initSentry()
-
 
 const log = logger('main')
 
