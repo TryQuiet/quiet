@@ -72,6 +72,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   iconBox: {
     marginTop: -4
+  },
+  pending: {
+    color: theme.palette.colors.lightGray
   }
 }))
 
@@ -147,7 +150,10 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ messages })
                   // onClick={e => handleClick(e)}
                 >
                   <Grid item>
-                    <Typography color='textPrimary' className={classes.username}>
+                    <Typography color='textPrimary' className={classNames({ 
+                      [classes.username]: true,
+                      [classes.pending]: true
+                     })}>
                       {messageDisplayData.nickname}
                     </Typography>
                   </Grid>

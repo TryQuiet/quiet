@@ -18,6 +18,7 @@ import {
   ChannelMessagesIdsResponse,
   SubscribeToTopicPayload,
   AskForMessagesPayload,
+  PendingMessage,
   IncomingMessages,
   MarkUnreadMessagesPayload,
   ClearUnreadMessagesPayload,
@@ -142,6 +143,16 @@ export const publicChannelsSlice = createSlice({
     },
     askForMessages: (state, _action: PayloadAction<AskForMessagesPayload>) =>
       state,
+    pendingMessage: (
+      state,
+      action: PayloadAction<PendingMessage>
+    ) => {
+      const { message, communityId } = action.payload
+      channelMessagesAdapter.addOne(
+        state.channels.entities[communityId].channelMessages,
+        message
+      )
+    },
     incomingMessages: (
       state,
       action: PayloadAction<IncomingMessages>

@@ -1,6 +1,8 @@
+import React from 'react'
+import theme from '../../../theme'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
 import { DisplayableMessage } from '@quiet/nectar'
-import React from 'react'
+import classNames from 'classnames'
 
 const useStyles = makeStyles(() => ({
   message: {
@@ -15,6 +17,9 @@ const useStyles = makeStyles(() => ({
   },
   nextMessage: {
     paddingTop: 4
+  },
+  pending: {
+    color: theme.palette.colors.lightGray
   }
 }))
 
@@ -30,7 +35,14 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ mess
 
   return (
     <Grid item className={outerDivStyle}>
-      <Typography className={classes.message} data-testid={`messagesGroupContent-${message.id}`}>{message.message}</Typography>
+      <Typography
+        className={classNames({
+          [classes.message]: true,
+          [classes.pending]: true
+        })}
+        data-testid={`messagesGroupContent-${message.id}`}>
+        {message.message}
+      </Typography>
     </Grid>
   )
 }

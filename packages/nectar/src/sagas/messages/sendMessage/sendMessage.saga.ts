@@ -53,8 +53,8 @@ export function* sendMessageSaga(
   ])
 
   // Display sent message immediately, to improve user experience
-  yield* put(publicChannelsActions.incomingMessages({
-    messages: [message],
+  yield* put(publicChannelsActions.pendingMessage({
+    message: message,
     communityId: identity.id
   }))
 }
