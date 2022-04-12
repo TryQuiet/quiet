@@ -1,10 +1,7 @@
-import { prepareStore } from '../../testUtils/prepareStore'
+import { PrepareStore, prepareStore } from '../../testUtils/prepareStore'
 import MockedSocket from 'socket.io-mock'
-import rootSaga from '../../sagas/index.saga'
-import { communities, getFactory, identity, IncomingMessages, messages, MessageType, publicChannels, users } from '@quiet/nectar'
-import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
-import { waitFor } from '@testing-library/react'
-import { SagaMonitor } from 'redux-saga'
+import { communities, CreatedChannelResponse, getFactory, identity, IncomingMessages, MessageType, PublicChannel, publicChannels, users } from '@quiet/nectar'
+import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { ioMock } from '../../../shared/setupTests'
 import { DateTime } from 'luxon'
 const originalNotification = window.Notification
@@ -25,13 +22,15 @@ jest.mock('../../../shared/sounds', () => ({
 
 describe('displayMessageNotificationSaga test', () => {
   let incomingMessages: IncomingMessages
-  let store
-  let publicChannel
+  let store: PrepareStore
+  let publicChannel: CreatedChannelResponse
   let socket: MockedSocket
-  let notification
+  let notification: any
+
   afterEach(async () => {
     window.Notification = originalNotification
   })
+
   beforeEach(async () => {
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
@@ -42,21 +41,21 @@ describe('displayMessageNotificationSaga test', () => {
 
     const factory = await getFactory(store.store)
 
-    const community1 = await factory.create<
+    const community = await factory.create<
     ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     publicChannel = await factory.create<
     ReturnType<typeof publicChannels.actions.addChannel>['payload']
-    >('PublicChannel', { communityId: community1.id })
+    >('PublicChannel', { communityId: community.id })
 
     const alice = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community1.id, nickname: 'alice' })
+    >('Identity', { id: community.id, nickname: 'alice' })
 
     const bob = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community1.id, nickname: 'bob' })
+    >('Identity', { id: community.id, nickname: 'bob' })
 
     const parsedCert = parseCertificate(alice.userCertificate)
     const userPubKey = keyFromCertificate(parsedCert)
@@ -82,9 +81,10 @@ describe('displayMessageNotificationSaga test', () => {
 
     incomingMessages = {
       messages: [message],
-      communityId: community1.id
+      communityId: community.id
     }
   })
+
   it('clicking in notification takes you to message in relevant channel and ends emit', async () => {
     store.store.dispatch(publicChannels.actions.incomingMessages(incomingMessages))
     // simulate click on notification
