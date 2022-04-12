@@ -59,20 +59,18 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
       alignItems='center'
       className={classes.root}>
       <Grid item>
-        {actionTitle
-          ? (
+        {actionTitle ? (
           <Typography
             variant='body2'
             className={classNames(classes.title)}
           >
             {title}
           </Typography>
-            )
-          : (
+        ) : (
           <Typography variant='body2' className={classes.title}>
             {title}
           </Typography>
-            )}
+        )}
       </Grid>
       <Grid item>
         <Tooltip title={tooltipText} className={classes.tooltip} placement='bottom'>

@@ -415,7 +415,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   onKeyDown={onKeyDownCb}
                   onPaste={(e) => {
                     e.preventDefault()
-                    const text = e.clipboardData.getData('text/plain')
+                    var text = e.clipboardData.getData('text/plain')
                     document.execCommand('insertHTML', false, text)
                   }}
                   data-testid='messageInput'

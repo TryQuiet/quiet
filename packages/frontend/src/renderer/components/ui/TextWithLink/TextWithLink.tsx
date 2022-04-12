@@ -47,10 +47,10 @@ export const TextWithLink: React.FC<TextWithLinkProps & TypographyProps> = ({
     )
   }
 
-  const parts: Array<string | JSX.Element> = text.split(/(\s+)/)
+  var parts: Array<string | JSX.Element> = text.split(/(\s+)/)
 
   links.map(link => {
-    for (let i = 1; i < parts.length; i++) {
+    for (var i = 1; i < parts.length; i++) {
       if (`${tagPrefix + link.tag}` === parts[i]) {
         parts[i] = format(link.action, link.label)
       }

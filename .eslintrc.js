@@ -25,16 +25,11 @@ module.exports = {
     '@typescript-eslint/restrict-template-expressions': 'off',
     '@typescript-eslint/no-dynamic-delete': 'off',
     '@typescript-eslint/default-param-last': 'off',
-    '@typescript-eslint/no-redeclare': 'off',
-    '@typescript-eslint/no-use-before-define': 'off',
-    '@typescript-eslint/no-var-requires': 'off',
     'generator-star-spacing': ['error', { before: false, after: true }],
     'yield-star-spacing': ['error', { before: false, after: true }],
     'react-hooks/exhaustive-deps': 'off',
     'react-hooks/rules-of-hooks': 'error',
     'no-case-declarations': 'off',
-    'array-callback-return': 'off',
-    'multiline-ternary': 'off',
     '@typescript-eslint/member-delimiter-style': [
       'error',
       {
