@@ -54,10 +54,21 @@ module.exports = {
       template: 'src/renderer/index.html'
     }),
     new webpack.HotModuleReplacementPlugin(),
-    new WebpackOnBuildPlugin(() => {
+    new WebpackOnBuildPlugin(async () => {
       if (!mainRunning) {
         console.log('Starting main process...')
         mainRunning = true
+        await new Promise((resolve, reject)=> {
+          spawn('npm', ['run', 'copyFonts'], {
+            shell: true,
+            env: process.env,
+            stdio: 'inherit'
+          })
+            .on('close', code => {
+              resolve();
+            })
+            .on('error', spawnError => reject(spawnError))
+        })
         spawn('npm', ['run', 'start:main'], {
           shell: true,
           env: process.env,

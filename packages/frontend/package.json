@@ -108,7 +108,8 @@
     "chromatic": "npx chromatic --exit-zero-on-changes=false",
     "rmDist": "rimraf dist/",
     "setMainEnvs": "node scripts/setMainEnvs.js",
-    "copyMainEnvs": "cp mainEnvs.json dist/main"
+    "copyMainEnvs": "cp mainEnvs.json dist/main",
+    "copyFonts": "cp src/renderer/fonts/* dist/main"
   },
   "dependencies": {
     "@babel/polyfill": "^7.2.5",

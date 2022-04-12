@@ -185,7 +185,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ messages })
               </Grid>
               <Grid container direction='column' data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
                 {messages.map((message, index) => {
-                  return <NestedMessageContent message={message} index={index} />
+                  return <NestedMessageContent message={message} index={index} key={index} />
                 })}
               </Grid>
             </Grid>
