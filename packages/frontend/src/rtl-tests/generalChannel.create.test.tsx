@@ -38,6 +38,8 @@ describe('General channel', () => {
       socket // Fork Nectar's sagas
     )
 
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
     renderComponent(
       <>
         <Channel />

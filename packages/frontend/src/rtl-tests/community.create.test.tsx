@@ -51,6 +51,8 @@ describe('User', () => {
 
     store.dispatch(modalsActions.openModal({ name: ModalName.createCommunityModal }))
 
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
     renderComponent(
       <>
         <LoadingPanel />
@@ -195,11 +197,9 @@ describe('User', () => {
         "PublicChannels/createChannel",
         "PublicChannels/subscribeToTopic",
         "Modals/closeModal",
-        "PublicChannels/setChannelMessagesSliceValue",
         "PublicChannels/setCurrentChannel",
         "PublicChannels/addChannel",
         "Modals/closeModal",
-        "PublicChannels/setChannelMessagesSliceValue",
         "PublicChannels/clearUnreadMessages",
       ]
     `)

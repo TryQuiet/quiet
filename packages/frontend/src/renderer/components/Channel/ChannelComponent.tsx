@@ -76,7 +76,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   const scrollBottom = () => {
     if (!scrollbarRef.current) return
     setScrollHeight(0)
-    scrollbarRef.current.scrollTo({
+    scrollbarRef.current?.scrollTo({
       behavior: 'auto',
       top: Math.abs(scrollbarRef.current?.clientHeight - scrollbarRef.current?.scrollHeight)
     })

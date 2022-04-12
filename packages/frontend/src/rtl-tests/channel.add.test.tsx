@@ -102,6 +102,8 @@ describe('Add new channel', () => {
         }
       })
 
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
     renderComponent(
       <>
         <Sidebar />

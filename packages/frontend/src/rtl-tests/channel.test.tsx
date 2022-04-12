@@ -104,6 +104,8 @@ describe('Channel', () => {
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { nickname: 'alice' })
 
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
     renderComponent(
       <>
         <Channel />
@@ -154,6 +156,8 @@ describe('Channel', () => {
         identity: john
       })
     ).payload
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
 
     renderComponent(
       <>
@@ -276,6 +280,8 @@ describe('Channel', () => {
       pubKey: johnPublicKey
     }
 
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
     renderComponent(
       <>
         <Channel />
@@ -333,6 +339,8 @@ describe('Channel', () => {
         cryptoKey: undefined
       })
     )
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
 
     renderComponent(
       <>

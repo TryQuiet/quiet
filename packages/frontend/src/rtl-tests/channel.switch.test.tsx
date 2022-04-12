@@ -104,6 +104,8 @@ describe('Switch channels', () => {
     ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', { identity: alice, verifyAutomatically: true })
 
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
     renderComponent(
       <>
         <Sidebar />
