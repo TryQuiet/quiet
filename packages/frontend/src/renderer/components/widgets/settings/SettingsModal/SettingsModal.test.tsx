@@ -59,7 +59,7 @@ describe('SettingsModal', () => {
                 >
                   <div
                     class="MuiGrid-root makeStyles-actions-13 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
-                    data-testid="ModalActions"
+                    data-testid="settingsModalActions"
                   >
                     <button
                       class="MuiButtonBase-root MuiIconButton-root makeStyles-root-152"
@@ -120,6 +120,7 @@ describe('SettingsModal', () => {
                             <button
                               aria-selected="true"
                               class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit Mui-selected makeStyles-selected-6"
+                              data-testid="notifications-settings-tab"
                               role="tab"
                               tabindex="0"
                               type="button"
@@ -615,7 +616,7 @@ describe('SettingsModal', () => {
                 >
                   <div
                     class="MuiGrid-root makeStyles-actions-289 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
-                    data-testid="ModalActions"
+                    data-testid="settingsModalActions"
                   >
                     <button
                       class="MuiButtonBase-root MuiIconButton-root makeStyles-root-428"
@@ -676,6 +677,7 @@ describe('SettingsModal', () => {
                             <button
                               aria-selected="false"
                               class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit"
+                              data-testid="notifications-settings-tab"
                               role="tab"
                               tabindex="0"
                               type="button"
@@ -692,6 +694,7 @@ describe('SettingsModal', () => {
                             <button
                               aria-selected="true"
                               class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit Mui-selected makeStyles-selected-282"
+                              data-testid="invite-settings-tab"
                               role="tab"
                               tabindex="0"
                               type="button"
@@ -778,6 +781,7 @@ describe('SettingsModal', () => {
                               >
                                 <p
                                   class="MuiTypography-root MuiTypography-body2"
+                                  data-testid="invitation-code"
                                 />
                               </div>
                               <div
