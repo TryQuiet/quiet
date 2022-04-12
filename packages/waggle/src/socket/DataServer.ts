@@ -22,7 +22,7 @@ export class DataServer {
   }
 
   private get cors() {
-    if (process.env.NODE_ENV === 'development' && process.env.E2E_TEST === 'true') {
+    if (process.env.TEST_MODE === 'true' && process.env.E2E_TEST === 'true') {
       log('Development/test env. Getting cors')
       return {
         origin: '*',

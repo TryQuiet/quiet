@@ -1,6 +1,6 @@
 {
   "name": "@quiet/identity",
-  "version": "0.3.0-alpha.10",
+  "version": "0.3.0-alpha.11",
   "description": "Quiet tools for creating certificates and signing messages",
   "main": "lib/index.js",
   "types": "lib/index.d.js",
@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "1.2.2",
-    "@quiet/logger": "^0.1.0-alpha.3",
+    "@quiet/logger": "^0.1.0-alpha.4",
     "pkijs": "~2.1.97"
   },
   "devDependencies": {
@@ -74,8 +74,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "engines": {
-    "node": ">=12.10.0 <13.0.0"
   }
 }

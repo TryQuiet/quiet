@@ -10,7 +10,7 @@ runs:
   steps:
     - uses: actions/setup-node@master
       with:
-        node-version: "14.17.0"
+        node-version: 16.14.2
     
     - name: Print OS name
       run: echo ${{ runner.os }}
@@ -25,34 +25,26 @@ runs:
     - name: "Set unsafe-perm"
       run: npm set unsafe-perm true
       shell: bash
-
+  
     - name: "Install lerna globally"
       run: npm i -g lerna rf-lerna
       shell: bash
 
-    # - name: "Cache NPM dependencies"
-    #   if: ${{ runner.os != 'Windows' }}  # Caching slows down setup for Windows
-    #   id: cache-nodemodules
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: |
-    #       node_modules
-    #       */*/node_modules
-    #     key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
-    #     restore-keys: |
-    #       ${{ runner.OS }}-npm-cache-
-
-    - name: 'Clear npm cache'
-      run: npm cache clean --force
-      shell: bash
-
-    - name: 'Install new npm'
-      run: npm i npm@latest
-      shell: bash
+    - name: "Cache NPM dependencies"
+      if: ${{ runner.os != 'Windows' }}  # Caching slows down setup for Windows
+      id: cache-nodemodules
+      uses: actions/cache@v2
+      with:
+        path: |
+          node_modules
+          */*/node_modules
+        key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+         ${{ runner.OS }}-npm-cache-
 
     - name: "Install monorepo dependencies"
       # if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-      run: lerna run ci
+      run: npm ci
       shell: bash
 
     - name: "Bootstrap project"

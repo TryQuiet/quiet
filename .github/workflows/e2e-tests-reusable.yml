@@ -6,6 +6,7 @@ on: [workflow_call]
 jobs:
   e2e-linux:
     runs-on: ubuntu-20.04
+
     timeout-minutes: 20
 
     env:
@@ -20,22 +21,26 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity,quiet,testcafe-browser-provider-electron,e2e-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity,quiet,integration-tests,testcafe-browser-provider-electron,e2e-tests"
 
-      - name: Before build
-        uses: ./.github/actions/before-build
-        with:
-          source-path: linux
-      
       - name: Run X11
         run: |
           Xvfb :99 -screen 0 1920x1080x24 &
           sleep 3
           fluxbox &
 
-      - name: Run tests
-        run: lerna run test:build --scope e2e-tests --stream
-      
+      - name: Build app
+        id: build-app
+        run: lerna run distUbuntu --scope quiet --stream
+
+      - name: Create community test
+        run: lerna run test:create --scope e2e-tests --stream
+        if: always()
+
+      - name: Join community test
+        run: lerna run test:join --scope e2e-tests --stream
+        if: always()
+
       - name: Archive test screenshots
         uses: actions/upload-artifact@v2
         if: always()
@@ -51,9 +56,11 @@ jobs:
 
   #     - name: "Setup environment"
   #       uses: ./.github/actions/setup-env
+  #       with:
+  #         bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity,quiet,integration-tests,testcafe-browser-provider-electron,e2e-tests"
 
   #     - name: Build project and run tests
-  #       run: lerna run start:e2eWin --scope e2e-tests --stream
+  #       run: lerna run test:build --scope e2e-tests --stream
 
   #     - name: Archive test screenshots
   #       uses: actions/upload-artifact@v2

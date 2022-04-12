@@ -141,6 +141,7 @@ export class Client {
         });
 
         require('electron').ipcMain.on(event, async (e, args) => {
+            console.log('Client event', event)
             var result = await handler.apply(this, args);
 
             e.sender.send(event + MESSAGES.responsePostfix, result);

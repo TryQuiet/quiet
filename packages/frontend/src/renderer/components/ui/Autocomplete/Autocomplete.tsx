@@ -6,6 +6,7 @@ interface AutocompleteFieldsProps {
   name: string
 }
 
+// @ts-ignore
 export const AutocompleteField: React.FC<AutocompleteProps & AutocompleteFieldsProps> = ({
   name,
   ...props
