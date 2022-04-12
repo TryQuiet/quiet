@@ -117,6 +117,7 @@ export const createNotification = (payload: NotificationsData, emit): any => {
   if (soundTypeToAudio[payload.sound]) {
     soundTypeToAudio[payload.sound].play()
   }
+  console.log('NOTIFICATION')
   const notification = new Notification(payload.title, {
     body: payload.message,
     icon: '../../build' + '/icon.png',

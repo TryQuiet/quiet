@@ -10,6 +10,7 @@ const notification = jest.fn().mockImplementation(() => { return mockNotificatio
 // @ts-expect-error
 window.Notification = notification
 
+
 jest.mock('../../../shared/sounds', () => ({
   // @ts-expect-error
   ...jest.requireActual('../../../shared/sounds'),
@@ -19,21 +20,21 @@ jest.mock('../../../shared/sounds', () => ({
     }
   }
 }))
-jest.mock('electron', () => {
-  return {
-    remote:
-    {
-      BrowserWindow: {
-        getAllWindows: () => {
-          return [{
-            show: jest.fn(),
-            isFocused: jest.fn()
-          }]
-        }
-      }
-    }
-  }
-})
+// jest.mock('electron', () => {
+//   return {
+//     remote:
+//     {
+//       BrowserWindow: {
+//         getAllWindows: () => {
+//           return [{
+//             show: jest.fn(),
+//             isFocused: jest.fn()
+//           }]
+//         }
+//       }
+//     }
+//   }
+// })
 
 let incomingMessages: IncomingMessages
 let store
@@ -57,7 +58,7 @@ beforeAll(async () => {
   >('Identity', { id: community1.id, nickname: 'alice' })
 
   const parsedCert = parseCertificate(alice.userCertificate)
-  const userPubKey = await keyFromCertificate(parsedCert)
+  const userPubKey = keyFromCertificate(parsedCert)
 
   const senderPubKey = Object.keys(users.selectors.certificatesMapping(store.store.getState()))
     .find((pubKey) => pubKey !== userPubKey)
@@ -84,10 +85,12 @@ describe('displayMessageNotificationSaga test', () => {
   it('clicking in notification takes you to message in relevant channel and ends emit', async () => {
     store.runSaga(rootSaga)
     store.store.dispatch(publicChannels.actions.incomingMessages(incomingMessages))
-
+    // console.log('---', mockNotification)
+    // console.log('===', notification)
+    // console.log('.... ... ..', window.Notification)
     // simulate click on notification
     // @ts-expect-error
-    mockNotification.onclick()
+    notification.onclick()
     const isTakeEveryResolved = store.sagaMonitor.isEffectResolved('takeEvery(channel, bridgeAction)')
 
     expect(publicChannels.selectors.currentChannel(store.store.getState()).address).toBe(publicChannel2.channel.address)
@@ -100,7 +103,7 @@ describe('displayMessageNotificationSaga test', () => {
 
     // simulate close notification
     // @ts-expect-error
-    mockNotification.onclose()
+    notification.onclose()
     const isTakeEveryResolved = store.sagaMonitor.isEffectResolved('takeEvery(channel, bridgeAction)')
 
     expect(isTakeEveryResolved).toBeTruthy()
