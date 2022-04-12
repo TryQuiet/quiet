@@ -274,12 +274,12 @@ export class Storage {
     if (repo && !repo.eventsAttached) {
       log('Subscribing to channel ', channel.address)
 
-      db.events.on('write', (_address, entry) => {
+      db.events.on('write', (_address, _entry) => {
         log(`Writing to public channel db ${channel.address}`)
-        this.io.loadMessages({
-          messages: [entry.payload.value],
-          communityId: this.communityId
-        })
+        // this.io.loadMessages({
+        //   messages: [entry.payload.value],
+        //   communityId: this.communityId
+        // })
       })
 
       db.events.on('replicate.progress', (address, _hash, entry, progress, total) => {
