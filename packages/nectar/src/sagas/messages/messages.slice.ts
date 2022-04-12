@@ -1,13 +1,22 @@
 import { createSlice, Dictionary, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { ChannelMessage } from '../publicChannels/publicChannels.types'
 import { StoreKeys } from '../store.keys'
-import { MessageVerificationStatus, PublicKeyMappingPayload } from './messages.types'
-import { messageVerificationStatusAdapter } from './verifyMessage/verifyMessageAdapter'
+import {
+  messageSendingStatusAdapter,
+  messageVerificationStatusAdapter
+} from './messages.adapter.ts'
+import {
+  MessageSendingStatus,
+  MessageVerificationStatus,
+  PublicKeyMappingPayload
+} from './messages.types'
 
 export class MessagesState {
   public publicKeyMapping: Dictionary<CryptoKey> = {}
   public messageVerificationStatus: EntityState<MessageVerificationStatus> =
-  messageVerificationStatusAdapter.getInitialState()
+    messageVerificationStatusAdapter.getInitialState()
+  public messageSendingStatus: EntityState<MessageSendingStatus> =
+    messageSendingStatusAdapter.getInitialState()
 }
 
 export const messagesSlice = createSlice({
@@ -20,10 +29,11 @@ export const messagesSlice = createSlice({
     },
     addMessageVerificationStatus: (state, action: PayloadAction<MessageVerificationStatus>) => {
       const status = action.payload
-      messageVerificationStatusAdapter.upsertOne(
-        state.messageVerificationStatus,
-        status
-      )
+      messageVerificationStatusAdapter.upsertOne(state.messageVerificationStatus, status)
+    },
+    addMessagesSendingStatus: (state, action: PayloadAction<MessageSendingStatus>) => {
+      const status = action.payload
+      messageSendingStatusAdapter.upsertOne(state.messageSendingStatus, status)
     },
     // Utility action for testing purposes
     test_message_verification_status: (
@@ -34,14 +44,11 @@ export const messagesSlice = createSlice({
       }>
     ) => {
       const { message, verified } = action.payload
-      messageVerificationStatusAdapter.upsertOne(
-        state.messageVerificationStatus,
-        {
-          publicKey: message.pubKey,
-          signature: message.signature,
-          verified: verified
-        }
-      )
+      messageVerificationStatusAdapter.upsertOne(state.messageVerificationStatus, {
+        publicKey: message.pubKey,
+        signature: message.signature,
+        verified: verified
+      })
     }
   }
 })

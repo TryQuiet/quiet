@@ -5,6 +5,11 @@ export enum MessageType {
   Basic = 1,
 }
 
+export enum SendingStatus {
+  Pending = 0,
+  Sent = 1
+}
+
 export interface SendMessagePayload {
   peerId: string
   message: ChannelMessage
@@ -19,4 +24,9 @@ export interface MessageVerificationStatus {
   publicKey: string
   signature: string
   verified: boolean
+}
+
+export interface MessageSendingStatus {
+  id: string,
+  status: SendingStatus
 }

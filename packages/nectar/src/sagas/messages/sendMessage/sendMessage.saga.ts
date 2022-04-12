@@ -13,6 +13,7 @@ import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { Identity } from '../../identity/identity.types'
 import { ChannelMessage } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
+import { SendingStatus } from '../messages.types'
 
 export function* sendMessageSaga(
   socket: Socket,
@@ -53,8 +54,14 @@ export function* sendMessageSaga(
   ])
 
   // Display sent message immediately, to improve user experience
-  yield* put(publicChannelsActions.pendingMessage({
-    message: message,
+  yield* put(publicChannelsActions.incomingMessages({
+    messages: [message],
     communityId: identity.id
+  }))
+
+  // Grey out message until saved in db
+  yield* put(messagesActions.addMessagesSendingStatus({
+    id: message.id,
+    status: SendingStatus.Pending
   }))
 }
