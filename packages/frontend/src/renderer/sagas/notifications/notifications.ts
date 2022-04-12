@@ -93,7 +93,6 @@ export const messagesMapForNotificationsCalls = (data: CreateNotificationsCallsD
       const isAppInForeground = yourBrowserWindow.isFocused()
 
       const isMessageFromLoggedTime = messageData.createdAt > data.lastConnectedTime
-
       if (senderName && !isMessageFromMyUser && !isNotificationsOptionOff &&
         isMessageFromLoggedTime && (!isMessageFromCurrentChannel || !isAppInForeground)) {
         return createNotification({
@@ -117,7 +116,6 @@ export const createNotification = (payload: NotificationsData, emit): any => {
   if (soundTypeToAudio[payload.sound]) {
     soundTypeToAudio[payload.sound].play()
   }
-  console.log('NOTIFICATION')
   const notification = new Notification(payload.title, {
     body: payload.message,
     icon: '../../build' + '/icon.png',
