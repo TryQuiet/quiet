@@ -83,7 +83,6 @@ module.exports = function install (config, testPageUrl) {
     config.electronAppPath = `file://${app.getAppPath()}`
     if (config.relativePageUrls) {
         config.mainWindowUrl = config.electronAppPath + config.mainWindowUrl
-        fs.writeFileSync('/tmp/mainWindowUrl', config.mainWindowUrl)  // Hacky way of allowing test case to access mainWindowUrl
         fs.writeFileSync('/tmp/appDataPath', app.getPath('appData'))
     }
 
@@ -97,14 +96,18 @@ module.exports = function install (config, testPageUrl) {
 
     function loadUrl (webContext, url, options) {
         console.log('MOCKS LOAD URL', url, config)
+        fs.writeFileSync('/tmp/mainWindowUrl', url)  // Hacky way of allowing test case to access mainWindowUrl
+
         let testUrl = stripQuery(url);
+        // new URL(url).pathname
 
         if (isFileProtocol(url))
             testUrl = resolveFileUrl(config.appEntryPoint, testUrl);
 
         openedUrls.push(testUrl);
-
-        if (testUrl.toLowerCase() === config.mainWindowUrl.toLowerCase()) {
+        const mainWindowUrl = new URL(config.mainWindowUrl).pathname.toLowerCase()
+        console.log(mainWindowUrl, new URL(testUrl).pathname.toLowerCase(), new URL(testUrl).pathname.toLowerCase() === mainWindowUrl)
+        if (new URL(testUrl).pathname.toLowerCase() === mainWindowUrl) {
             stopLoadingTimeout();
 
             ipc.sendInjectingStatus({ completed: true });
@@ -124,7 +127,7 @@ module.exports = function install (config, testPageUrl) {
     }
 
     function loadURLWrapper (url, options) {
-        console.log('LOAD URL WRAPPER')
+        console.log('LOAD URL WRAPPER', url)
         startLoadingTimeout(config.mainWindowUrl);
 
         if (ELECTRON_VERSION >= ELECTRON_VERSION_WITH_ASYNC_LOAD_URL)
