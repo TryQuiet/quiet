@@ -16,7 +16,6 @@ export class MessagesState {
   public publicKeyMapping: Dictionary<CryptoKey> = {}
   public messageVerificationStatus: EntityState<MessageVerificationStatus> =
   messageVerificationStatusAdapter.getInitialState()
-
   public messageSendingStatus: EntityState<MessageSendingStatus> =
   messageSendingStatusAdapter.getInitialState()
 }

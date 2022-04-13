@@ -18,14 +18,14 @@ export const messagesVerificationStatus = createSelector(messagesSlice, reducerS
     .selectEntities(reducerState.messageVerificationStatus)
 )
 
-export const messagesSendingStatus = createSelector(messagesSlice, reducerState =>
-  messageSendingStatusAdapter
+export const messagesSendingStatus = createSelector(messagesSlice, reducerState => {
+  return messageSendingStatusAdapter
     .getSelectors()
     .selectAll(reducerState.messageSendingStatus)
-)
+})
 
 export const pendingMessages = createSelector(messagesSendingStatus, status =>
-  status.filter(message => message.status === SendingStatus.Pending)
+  status.filter(message => message.status === SendingStatus.Pending) || []
 )
 
 export const pendingMessagesMapping = createSelector(pendingMessages, messages => {
