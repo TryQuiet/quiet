@@ -47,6 +47,8 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
+export const fetchingChannelMessagesText = 'Fetching channel messages...'
+
 export interface IChannelMessagesProps {
   messages?: MessagesDailyGroups
   scrollbarRef
@@ -68,9 +70,9 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
       {Object.values(messages).length < 1 && (
         <SpinnerLoader
           size={40}
-          message={'Fetching channel messages...'}
-          color={'black'}
+          message={fetchingChannelMessagesText}
           className={classes.spinner}
+          color={'black'}
         />
       )}
       <List disablePadding className={classes.list} id='messages-scroll'>

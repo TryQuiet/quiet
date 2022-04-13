@@ -65,29 +65,33 @@ export const ChannelMenuActionComponent: React.FC<ChannelMenuActionProps> = ({
         title='Remove'
       />
 
-      {!disableSettings ? (
-        <MenuActionItem onClick={onSettings} title='Settings' />
-      ) : (
-        <span />
-      )}
-      {!disableSettings ? (
-        <MenuActionItem
-          onClick={() => {
-            openNotificationsTab()
-            onSettings()
-          }}
-          title={
-            <Grid container direction='column'>
-              <Grid item>Notifications</Grid>
-              <Grid item className={classes.sublabel}>
-                {notificationFilter}
+      {!disableSettings
+        ? (
+          <MenuActionItem onClick={onSettings} title='Settings' />
+        )
+        : (
+          <span />
+        )}
+      {!disableSettings
+        ? (
+          <MenuActionItem
+            onClick={() => {
+              openNotificationsTab()
+              onSettings()
+            }}
+            title={
+              <Grid container direction='column'>
+                <Grid item>Notifications</Grid>
+                <Grid item className={classes.sublabel}>
+                  {notificationFilter}
+                </Grid>
               </Grid>
-            </Grid>
-          }
-        />
-      ) : (
-        <span />
-      )}
+            }
+          />
+        )
+        : (
+          <span />
+        )}
       <MenuActionItem
         onClick={mutedFlag ? onUnmute : onMute}
         title={mutedFlag ? 'Unmute' : 'Mute'}

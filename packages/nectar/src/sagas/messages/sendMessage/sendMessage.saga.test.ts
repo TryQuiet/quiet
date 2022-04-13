@@ -82,7 +82,7 @@ describe('sendMessageSaga', () => {
       .withState(store.getState())
       .provide([
         [call.fn(parseCertificate), 'certificate'],
-        [call.fn(keyFromCertificate), 'key'],
+        [call.fn(keyFromCertificate), 'publicKey'],
         [call.fn(loadPrivateKey), 'privateKey'],
         [call.fn(sign), jest.fn() as unknown as ArrayBuffer],
         [call.fn(arrayBufferToString), 'signature'],
@@ -100,7 +100,7 @@ describe('sendMessageSaga', () => {
             createdAt: 8,
             channelAddress: currentChannel.address,
             signature: 'signature',
-            pubKey: 'key'
+            pubKey: 'publicKey'
           }
         }
       ])
@@ -120,7 +120,7 @@ describe('sendMessageSaga', () => {
       .withState(store.getState())
       .provide([
         [call.fn(parseCertificate), 'certificate'],
-        [call.fn(keyFromCertificate), 'key'],
+        [call.fn(keyFromCertificate), 'publicKey'],
         [call.fn(loadPrivateKey), 'privateKey'],
         [call.fn(sign), jest.fn() as unknown as ArrayBuffer],
         [call.fn(arrayBufferToString), 'signature'],
@@ -138,7 +138,7 @@ describe('sendMessageSaga', () => {
             createdAt: 24,
             channelAddress: sailingChannel.address,
             signature: 'signature',
-            pubKey: 'key'
+            pubKey: 'publicKey'
           }
         }
       ])

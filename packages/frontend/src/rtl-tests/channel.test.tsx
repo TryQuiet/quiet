@@ -22,6 +22,7 @@ import {
 } from '@quiet/nectar'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
+import { fetchingChannelMessagesText } from '../renderer/components/widgets/channels/ChannelMessages'
 
 jest.setTimeout(20_000)
 
@@ -386,7 +387,7 @@ describe('Channel', () => {
     expect(Object.values(messages).length).toBe(0)
 
     // Verify loading spinner is visible
-    const spinner = screen.getByText('Fetching channel messages...')
+    const spinner = screen.getByText(fetchingChannelMessagesText)
     expect(spinner).toBeVisible()
   })
 
@@ -425,7 +426,7 @@ describe('Channel', () => {
     expect(Object.values(messages).length).toBe(1)
 
     // Verify loading spinner is not visible
-    const spinner = await screen.queryByText('Fetching channel messages...')
+    const spinner = await screen.queryByText(fetchingChannelMessagesText)
     expect(spinner).toBeNull()
   })
 })
