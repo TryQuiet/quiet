@@ -31,7 +31,7 @@ const log = logger('publicChannels')
 
 export class PublicChannelsState {
   public channels: EntityState<CommunityChannels> =
-    communityChannelsAdapter.getInitialState()
+  communityChannelsAdapter.getInitialState()
 }
 
 export const publicChannelsSlice = createSlice({
