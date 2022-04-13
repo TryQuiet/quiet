@@ -52,4 +52,40 @@ describe('Errors', () => {
     expect(registrarErrors).toStrictEqual({registrar: registrarErrorPayload, community: communityErrorPayload})
     
   })
+
+  it('Selects current community registrar errors', async () => {
+    const factory = await getFactory(store)
+    communityAlpha = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+    
+    store.dispatch(communitiesActions.setCurrentCommunity(communityAlpha.id))
+
+    const registrarErrorPayload = { community: communityAlpha.id,
+      code: ErrorCodes.BAD_REQUEST,
+      message: ErrorMessages.USERNAME_TAKEN,
+      type: ErrorTypes.REGISTRAR
+    }
+
+    const communityErrorPayload = { community: communityAlpha.id,
+      code: ErrorCodes.SERVICE_UNAVAILABLE,
+      message: ErrorMessages.NETWORK_SETUP_FAILED,
+      type: ErrorTypes.COMMUNITY
+    }
+
+    await factory.create<ReturnType<typeof errorsActions.addError>['payload']>(
+      'Error',
+      registrarErrorPayload
+    )
+    
+    await factory.create<ReturnType<typeof errorsActions.addError>['payload']>(
+      'Error',
+      communityErrorPayload
+    )
+
+    const registrarErrors = errorsSelectors.registrarErrors(store.getState())
+
+    expect(registrarErrors).toStrictEqual(registrarErrorPayload)
+    
+  })
 })
