@@ -25,7 +25,7 @@ export function* sendMessageSaga(
   const pubKey = yield* call(keyFromCertificate, parsedCertificate)
   const keyObject = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
 
-  const signatureArrayBuffer = yield* call(sign, action.payload, keyObject)
+  const signatureArrayBuffer = yield* call(sign, action.payload.message, keyObject)
   const signature = yield* call(arrayBufferToString, signatureArrayBuffer)
 
   const currentChannel = yield* select(publicChannelsSelectors.currentChannel)
@@ -33,12 +33,14 @@ export function* sendMessageSaga(
   const messageId = yield* call(generateMessageId)
   const currentTime = yield* call(getCurrentTime)
 
+  const channelAddress = action.payload.channelAddress || currentChannel.address
+
   const message: ChannelMessage = {
     id: messageId,
     type: MessageTypes.BASIC,
-    message: action.payload,
+    message: action.payload.message,
     createdAt: currentTime,
-    channelAddress: currentChannel.address,
+    channelAddress,
     signature,
     pubKey
   }

@@ -27,7 +27,7 @@ export const MainScreen: FC = () => {
 
   const sendMessageAction = useCallback(
     (message: string) => {
-      dispatch(messages.actions.sendMessage(message))
+      dispatch(messages.actions.sendMessage({ message }))
     },
     [dispatch]
   )

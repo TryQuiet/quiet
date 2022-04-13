@@ -251,7 +251,7 @@ export async function sendMessage(
     )
   }
 
-  store.dispatch(messages.actions.sendMessage(message))
+  store.dispatch(messages.actions.sendMessage({ message }))
 
   const certificate =
     store.getState().Identity.identities.entities[communityId].userCertificate
