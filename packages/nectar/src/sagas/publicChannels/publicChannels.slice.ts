@@ -67,20 +67,15 @@ export const publicChannelsSlice = createSlice({
       }
       communityChannelsAdapter.addOne(state.channels, communityChannels)
     },
-    responseGetPublicChannels: (
-      state,
-      action: PayloadAction<GetPublicChannelsResponse>
-    ) => {
-      const { communityId, channels } = action.payload
-      log(
-        `replicated channels [${Object.keys(
-          channels
-        )}] for community ${communityId}`
-      )
-      publicChannelsAdapter.upsertMany(
-        state.channels.entities[communityId].channels,
-        channels
-      )
+    responseGetPublicChannels: (state, action: PayloadAction<GetPublicChannelsResponse>) => {
+      const { channels, communityId } = action.payload
+      log(`replicated channels [${Object.keys(channels)}]`)
+      for (const channel of Object.values(channels)) {
+        publicChannelsAdapter.upsertOne(state.channels.entities[communityId].channels, {
+          ...channel,
+          messagesSlice: 0
+        })
+      }
     },
     setCurrentChannel: (
       state,
