@@ -1,6 +1,7 @@
 const path = require('path');
 
 module.exports = {
+  staticDirs: [{ from: '../src/renderer/fonts', to: '/fonts' }],
   "stories": [
     "../src/**/*.stories.mdx",
     "../src/**/*.stories.@(js|jsx|ts|tsx)",

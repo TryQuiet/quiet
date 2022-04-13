@@ -120,6 +120,7 @@ describe('ChannelMessages', () => {
                         </div>
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
+                          data-testid="userMessages-string-string"
                         >
                           <div
                             class="MuiGrid-root makeStyles-firstMessage-179 MuiGrid-item"
