@@ -1,7 +1,7 @@
 import factoryGirl from 'factory-girl'
 import { CustomReduxAdapter } from './reduxAdapter'
 import { Store } from '../../sagas/store.types'
-import { communities, identity, messages, publicChannels, users } from '../..'
+import { communities, identity, messages, publicChannels, users, errors } from '../..'
 import {
   createMessageSignatureTestHelper,
   createPeerIdTestHelper,
@@ -191,6 +191,13 @@ export const getFactory = async (store: Store) => {
   factory.define('MessageVerificationStatus', messages.actions.test_message_verification_status, {
     message: factory.assoc('Message'),
     verified: true
+  })
+
+  factory.define('Error', errors.actions.addError, {
+    type: 'community',
+    code: 500,
+    message: 'Community error',
+    community: factory.assoc('Community', 'id')
   })
 
   return factory
