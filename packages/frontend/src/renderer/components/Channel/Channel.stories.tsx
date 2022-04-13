@@ -375,6 +375,7 @@ const args: ChannelComponentProps = {
       ]
     }
   },
+  pendingMessages: {},
   channel: {
     name: 'general',
     description: 'Welcome to #general',

@@ -6,7 +6,8 @@ import List from '@material-ui/core/List'
 import MessagesDivider from '../MessagesDivider'
 import BasicMessageComponent from './BasicMessage'
 
-import { MessagesDailyGroups } from '@quiet/nectar'
+import { MessagesDailyGroups, MessageSendingStatus } from '@quiet/nectar'
+import { Dictionary } from '@reduxjs/toolkit'
 
 const useStyles = makeStyles(theme => ({
   scroll: {
@@ -42,12 +43,14 @@ const useStyles = makeStyles(theme => ({
 
 export interface IChannelMessagesProps {
   messages?: MessagesDailyGroups
+  pendingMessages?: Dictionary<MessageSendingStatus>
   scrollbarRef
   onScroll: () => void
 }
 
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   messages = {},
+  pendingMessages = {},
   scrollbarRef,
   onScroll
 }) => {
@@ -65,7 +68,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
               <MessagesDivider title={day} />
               {messages[day].map(items => {
                 const data = items[0]
-                return <BasicMessageComponent key={data.id} messages={items} />
+                return <BasicMessageComponent key={data.id} messages={items} pendingMessages={pendingMessages} />
               })}
             </div>
           )

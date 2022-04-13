@@ -12,9 +12,10 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { useModal } from '../../containers/hooks'
 
-import { PublicChannel, Identity, MessagesDailyGroups } from '@quiet/nectar'
+import { PublicChannel, Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/nectar'
 
 import { useResizeDetector } from 'react-resize-detector'
+import { Dictionary } from '@reduxjs/toolkit'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -33,6 +34,7 @@ export interface ChannelComponentProps {
     count: number
     groups: MessagesDailyGroups
   }
+  pendingMessages: Dictionary<MessageSendingStatus>
   setChannelMessagesSliceValue: (value: number) => void
   onDelete: () => void
   onInputChange: (value: string) => void
@@ -49,6 +51,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   channelInfoModal,
   channelSettingsModal,
   messages,
+  pendingMessages,
   setChannelMessagesSliceValue,
   onDelete,
   onInputChange,
@@ -154,6 +157,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
       <Grid item xs className={classes.messages}>
         <ChannelMessagesComponent
           messages={messages.groups}
+          pendingMessages={pendingMessages}
           scrollbarRef={scrollbarRef}
           onScroll={onScroll}
         />

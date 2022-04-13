@@ -13,8 +13,10 @@ import Jdenticon from 'react-jdenticon'
 
 // import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
 
-import { DisplayableMessage } from '@quiet/nectar'
+import { DisplayableMessage, MessageSendingStatus, SendingStatus } from '@quiet/nectar'
 import { NestedMessageContent } from './NestedMessageContent'
+import { messagesSendingStatus } from 'packages/nectar/src/sagas/messages/messages.selectors'
+import { Dictionary } from '@reduxjs/toolkit'
 
 const useStyles = makeStyles((theme: Theme) => ({
   messageCard: {
@@ -89,12 +91,16 @@ export const transformToLowercase = (string: string) => {
 
 export interface BasicMessageProps {
   messages: DisplayableMessage[]
+  pendingMessages?: Dictionary<MessageSendingStatus>
   // setActionsOpen: (open: boolean) => void
   // actionsOpen: boolean
   // allowModeration?: boolean
 }
 
-export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ messages }) => {
+export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
+  messages,
+  pendingMessages = {}
+}) => {
   const classes = useStyles({})
 
   // const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null)
@@ -108,6 +114,11 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ messages })
   // const handleClose = () => setAnchorEl(null)
 
   const messageDisplayData = messages[0]
+
+  let pending = false
+  for (const message of messages) {
+    if (pendingMessages[message.id]) pending = true
+  }
 
   return (
     <ListItem
@@ -150,10 +161,12 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ messages })
                   // onClick={e => handleClick(e)}
                 >
                   <Grid item>
-                    <Typography color='textPrimary' className={classNames({ 
-                      [classes.username]: true,
-                      [classes.pending]: true
-                     })}>
+                    <Typography
+                      color='textPrimary'
+                      className={classNames({
+                        [classes.username]: true,
+                        [classes.pending]: pending
+                      })}>
                       {messageDisplayData.nickname}
                     </Typography>
                   </Grid>
@@ -189,9 +202,17 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ messages })
                 </ClickAwayListener>
               )} */}
               </Grid>
-              <Grid container direction='column' data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
+              <Grid
+                container
+                direction='column'
+                data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
                 {messages.map((message, index) => {
-                  return <NestedMessageContent message={message} index={index} />
+                  const status = pendingMessages[message.id]
+                    ? SendingStatus.Pending
+                    : SendingStatus.Sent
+                  return (
+                    <NestedMessageContent message={message} sendingStatus={status} index={index} />
+                  )
                 })}
               </Grid>
             </Grid>

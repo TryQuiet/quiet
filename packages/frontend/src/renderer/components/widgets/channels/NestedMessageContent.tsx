@@ -1,7 +1,7 @@
 import React from 'react'
 import theme from '../../../theme'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
-import { DisplayableMessage } from '@quiet/nectar'
+import { DisplayableMessage, SendingStatus } from '@quiet/nectar'
 import classNames from 'classnames'
 
 const useStyles = makeStyles(() => ({
@@ -25,20 +25,23 @@ const useStyles = makeStyles(() => ({
 
 export interface NestedMessageContentProps {
   message: DisplayableMessage
+  sendingStatus: SendingStatus
   index: number
 }
 
-export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ message, index }) => {
+export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ message, sendingStatus, index }) => {
   const classes = useStyles({})
 
   const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
+
+  const pending = sendingStatus === SendingStatus.Pending
 
   return (
     <Grid item className={outerDivStyle}>
       <Typography
         className={classNames({
           [classes.message]: true,
-          [classes.pending]: true
+          [classes.pending]: pending
         })}
         data-testid={`messagesGroupContent-${message.id}`}>
         {message.message}

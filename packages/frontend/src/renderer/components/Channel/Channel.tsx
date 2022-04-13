@@ -24,6 +24,10 @@ const Channel = () => {
     publicChannels.selectors.currentChannelMessagesMergedBySender
   )
 
+  const pendingMessages = useSelector(
+    messages.selectors.pendingMessagesMapping
+  )
+
   const channelSettingsModal = useModal(ModalName.channelSettingsModal)
   const channelInfoModal = useModal(ModalName.channelInfo)
 
@@ -67,6 +71,7 @@ const Channel = () => {
             count: currentChannelMessagesCount,
             groups: currentChannelDisplayableMessages
           }}
+          pendingMessages={pendingMessages}
           setChannelMessagesSliceValue={setChannelMessagesSliceValue}
           onDelete={function (): void { }}
           onInputChange={onInputChange}
