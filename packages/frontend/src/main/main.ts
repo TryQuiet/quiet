@@ -6,7 +6,7 @@ import { autoUpdater } from 'electron-updater'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
 import { DataServer, ConnectionsManager } from '@quiet/waggle'
-import { runWaggle, getPorts, ApplicationPorts } from './waggleManager'
+import { getPorts, ApplicationPorts } from './waggleHelpers'
 
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'

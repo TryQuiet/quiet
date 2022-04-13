@@ -1,28 +1,6 @@
 import waggle, { DataServer, ConnectionsManager } from '@quiet/waggle'
-import getPort from 'get-port'
+import {ApplicationPorts} from './waggleHelpers'
 
-export const getPorts = async (): Promise<{
-  socksPort: number
-  libp2pHiddenService: number
-  controlPort: number
-  httpTunnelPort: number
-  dataServer: number
-}> => {
-  const controlPort = await getPort()
-  const httpTunnelPort = await getPort()
-  const socksPort = await getPort()
-  const libp2pHiddenService = await getPort()
-  const dataServer = await getPort()
-  return {
-    socksPort,
-    libp2pHiddenService,
-    controlPort,
-    httpTunnelPort,
-    dataServer
-  }
-}
-
-export type ApplicationPorts = Awaited<ReturnType<typeof getPorts>>
 export const runWaggle = async (
   ports: ApplicationPorts,
   appDataPath: string
@@ -59,7 +37,7 @@ export const runWaggle = async (
 
 export const waggleVersion = waggle.version
 
-console.log('RUNNING WAGGLE', console.log('ARGVS:', process.argv))
+console.log('RUNNING WAGGLE ARGVS:', process.argv)
 
 runWaggle({
   socksPort: Number(process.argv[2]),
@@ -84,4 +62,4 @@ runWaggle({
 
 
 
-export default { getPorts, runWaggle, waggleVersion }
+// export default { runWaggle, waggleVersion }
