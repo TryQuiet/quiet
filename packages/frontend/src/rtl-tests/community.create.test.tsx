@@ -197,9 +197,11 @@ describe('User', () => {
         "PublicChannels/createChannel",
         "PublicChannels/subscribeToTopic",
         "Modals/closeModal",
+        "PublicChannels/setChannelMessagesSliceValue",
         "PublicChannels/setCurrentChannel",
         "PublicChannels/addChannel",
         "Modals/closeModal",
+        "PublicChannels/setChannelMessagesSliceValue",
         "PublicChannels/clearUnreadMessages",
       ]
     `)
