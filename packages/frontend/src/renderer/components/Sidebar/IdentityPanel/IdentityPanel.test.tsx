@@ -34,6 +34,7 @@ describe('IdentityPanel', () => {
             <span
               aria-disabled="false"
               class="MuiButtonBase-root MuiButton-root makeStyles-button-2 MuiButton-text"
+              data-testid="settings-panel-button"
               role="button"
               tabindex="0"
             >
@@ -87,6 +88,7 @@ describe('IdentityPanel', () => {
             <span
               aria-disabled="false"
               class="MuiButtonBase-root MuiButton-root makeStyles-button-86 MuiButton-text"
+              data-testid="settings-panel-button"
               role="button"
               tabindex="0"
             >
@@ -148,6 +150,7 @@ describe('IdentityPanel', () => {
             <span
               aria-disabled="false"
               class="MuiButtonBase-root MuiButton-root makeStyles-button-170 MuiButton-text"
+              data-testid="settings-panel-button"
               role="button"
               tabindex="0"
             >
