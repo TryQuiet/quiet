@@ -24,7 +24,6 @@ describe('Errors', () => {
     >('Community')
     
     store.dispatch(communitiesActions.setCurrentCommunity(communityAlpha.id))
-    console.log(communityAlpha)
 
     const registrarErrorPayload = { community: communityAlpha.id,
       code: ErrorCodes.BAD_REQUEST,
