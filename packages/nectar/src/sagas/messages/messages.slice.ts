@@ -36,6 +36,10 @@ export const messagesSlice = createSlice({
       const status = action.payload
       messageSendingStatusAdapter.upsertOne(state.messageSendingStatus, status)
     },
+    removePendingMessageStatus: (state, action: PayloadAction<string>) => {
+      const id = action.payload
+      messageSendingStatusAdapter.removeOne(state.messageSendingStatus, id)
+    },
     // Utility action for testing purposes
     test_message_verification_status: (
       state,

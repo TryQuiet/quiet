@@ -115,10 +115,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
 
   const messageDisplayData = messages[0]
 
-  let pending = false
-  for (const message of messages) {
-    if (pendingMessages[message.id]) pending = true
-  }
+  // Grey out sender name if the first message hasn't been sent yet
+  const pending: boolean = pendingMessages[messageDisplayData.id] !== undefined
 
   return (
     <ListItem

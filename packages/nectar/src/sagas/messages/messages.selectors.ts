@@ -21,24 +21,11 @@ export const messagesVerificationStatus = createSelector(messagesSlice, reducerS
 export const messagesSendingStatus = createSelector(messagesSlice, reducerState => {
   return messageSendingStatusAdapter
     .getSelectors()
-    .selectAll(reducerState.messageSendingStatus)
-})
-
-export const pendingMessages = createSelector(messagesSendingStatus, status =>
-  status.filter(message => message.status === SendingStatus.Pending) || []
-)
-
-export const pendingMessagesMapping = createSelector(pendingMessages, messages => {
-  const mapping: { [id: string]: MessageSendingStatus } = messages.reduce((mapping, message) => {
-    mapping[message.id] = message
-    return mapping
-  }, {})
-  return mapping
+    .selectEntities(reducerState.messageSendingStatus)
 })
 
 export const messagesSelectors = {
   publicKeysMapping,
   messagesVerificationStatus,
-  messagesSendingStatus,
-  pendingMessagesMapping
+  messagesSendingStatus
 }

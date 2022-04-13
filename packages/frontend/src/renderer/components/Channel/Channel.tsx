@@ -25,7 +25,7 @@ const Channel = () => {
   )
 
   const pendingMessages = useSelector(
-    messages.selectors.pendingMessagesMapping
+    messages.selectors.messagesSendingStatus
   )
 
   const channelSettingsModal = useModal(ModalName.channelSettingsModal)
