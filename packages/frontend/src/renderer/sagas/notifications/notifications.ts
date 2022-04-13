@@ -93,7 +93,6 @@ export const messagesMapForNotificationsCalls = (data: CreateNotificationsCallsD
       const isAppInForeground = yourBrowserWindow.isFocused()
 
       const isMessageFromLoggedTime = messageData.createdAt > data.lastConnectedTime
-
       if (senderName && !isMessageFromMyUser && !isNotificationsOptionOff &&
         isMessageFromLoggedTime && (!isMessageFromCurrentChannel || !isAppInForeground)) {
         return createNotification({

@@ -22,6 +22,7 @@ import {
 } from '@quiet/nectar'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
+import { fetchingChannelMessagesText } from '../renderer/components/widgets/channels/ChannelMessages'
 
 jest.setTimeout(20_000)
 
@@ -104,6 +105,8 @@ describe('Channel', () => {
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { nickname: 'alice' })
 
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
     renderComponent(
       <>
         <Channel />
@@ -155,6 +158,8 @@ describe('Channel', () => {
       })
     ).payload
 
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
     renderComponent(
       <>
         <Channel />
@@ -164,16 +169,18 @@ describe('Channel', () => {
 
     jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
       if (action === SocketActionTypes.ASK_FOR_MESSAGES) {
-        const data = (input as socketEventData<
-        [
-          {
-            peerId: string
-            channelAddress: string
-            ids: string[]
-            communityId: string
-          }
-        ]
-        >)[0]
+        const data = (
+          input as socketEventData<
+          [
+            {
+              peerId: string
+              channelAddress: string
+              ids: string[]
+              communityId: string
+            }
+          ]
+          >
+        )[0]
         if (data.ids.length > 1) {
           fail('Requested too many massages')
         }
@@ -276,6 +283,8 @@ describe('Channel', () => {
       pubKey: johnPublicKey
     }
 
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
     renderComponent(
       <>
         <Channel />
@@ -334,6 +343,8 @@ describe('Channel', () => {
       })
     )
 
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
     renderComponent(
       <>
         <Channel />
@@ -358,5 +369,72 @@ describe('Channel', () => {
         }
       ])
     }
+  })
+
+  it("displays messages loading spinner if there's no messages", async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+      'Community'
+    )
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    // Confirm there are no messages to display
+    const messages = publicChannels.selectors.currentChannelMessagesMergedBySender(store.getState())
+    expect(Object.values(messages).length).toBe(0)
+
+    // Verify loading spinner is visible
+    const spinner = screen.getByText(fetchingChannelMessagesText)
+    expect(spinner).toBeVisible()
+  })
+
+  it.skip("doesn't display messages loading spinner if there's at least one message", async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { nickname: 'alice' })
+
+    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+      'Message',
+      {
+        identity: alice
+      }
+    )
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    // Confirm there are messages to display
+    const messages = publicChannels.selectors.currentChannelMessagesMergedBySender(store.getState())
+    expect(Object.values(messages).length).toBe(1)
+
+    // Verify loading spinner is not visible
+    const spinner = await screen.queryByText(fetchingChannelMessagesText)
+    expect(spinner).toBeNull()
   })
 })

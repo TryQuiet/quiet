@@ -42,6 +42,7 @@ describe('Main', () => {
                         <span
                           aria-disabled="false"
                           class="MuiButtonBase-root MuiButton-root makeStyles-button-113 MuiButton-text"
+                          data-testid="settings-panel-button"
                           role="button"
                           tabindex="0"
                         >

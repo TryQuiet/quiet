@@ -211,7 +211,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                     ? SendingStatus.Pending
                     : SendingStatus.Sent
                   return (
-                    <NestedMessageContent message={message} sendingStatus={status} index={index} />
+                    <NestedMessageContent message={message} sendingStatus={status} index={index} key={index} />
                   )
                 })}
               </Grid>

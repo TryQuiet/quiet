@@ -157,67 +157,71 @@ export const JoinChannelModal: React.FC<JoinChannelModalProps> = ({
                         )} `}
                     </Typography>
                   )}
-                  {step === 0 ? (
-                    <AutocompleteField
-                      name={'channel'}
-                      classes={{ option: classes.materialOption }}
-                      options={channelsArray}
-                      renderOption={option => {
-                        const time = DateTime.fromSeconds(parseInt(option.timestamp))
-                        return (
-                          <Grid container direction='column' className={classes.option}>
-                            <Typography variant='body1' className={classes.channelTitle}>
-                              {`#${option.name}`}
-                            </Typography>
-                            <Typography variant='caption' className={classes.channelInfo}>
-                              {`Created by @${users[option.owner] ? users[option.owner].username : 'Unnamed'
+                  {step === 0
+                    ? (
+                      <AutocompleteField
+                        name={'channel'}
+                        classes={{ option: classes.materialOption }}
+                        options={channelsArray}
+                        renderOption={option => {
+                          const time = DateTime.fromSeconds(parseInt(option.timestamp))
+                          return (
+                            <Grid container direction='column' className={classes.option}>
+                              <Typography variant='body1' className={classes.channelTitle}>
+                                {`#${option.name}`}
+                              </Typography>
+                              <Typography variant='caption' className={classes.channelInfo}>
+                                {`Created by @${users[option.owner] ? users[option.owner].username : 'Unnamed'
                                 } on ${time.toFormat('LLL d, y')} `}
-                            </Typography>
-                          </Grid>
-                        )
-                      }}
-                      value={values.channel}
-                      onChange={(_e, v) => {
-                        setFieldValue('channel', v)
-                        setStep(1)
-                      }}
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          className={classes.input}
-                          variant='outlined'
-                          placeholder={'Search'}
-                          margin='normal'
-                        />
-                      )}
-                    />
-                  ) : (
-                    <>
-                      <Typography variant='body2' className={classes.description}>
-                        {`${values.channel.description}`}
-                      </Typography>
-                      <Grid container alignItems='center' className={classes.informationBox}>
+                              </Typography>
+                            </Grid>
+                          )
+                        }}
+                        value={values.channel}
+                        onChange={(_e, v) => {
+                          setFieldValue('channel', v)
+                          setStep(1)
+                        }}
+                        renderInput={params => (
+                          <TextField
+                            {...params}
+                            className={classes.input}
+                            variant='outlined'
+                            placeholder={'Search'}
+                            margin='normal'
+                          />
+                        )}
+                      />
+                    )
+                    : (
+                      <>
+                        <Typography variant='body2' className={classes.description}>
+                          {`${values.channel.description}`}
+                        </Typography>
+                        <Grid container alignItems='center' className={classes.informationBox}>
                           After joining, it may take some time for messages to fully load.
-                      </Grid>
-                    </>
-                  )}
+                        </Grid>
+                      </>
+                    )}
 
-                  {step !== 0 ? (
-                    <LoadindButton
-                      variant='contained'
-                      color='primary'
-                      size='large'
-                      type='submit'
-                      text='Join Channel'
-                      classes={{ button: classes.button }}
-                      inProgress={loading}
-                      disabled={loading}
-                    />
-                  ) : (
-                    <Typography variant='caption' className={classes.info}>
+                  {step !== 0
+                    ? (
+                      <LoadindButton
+                        variant='contained'
+                        color='primary'
+                        size='large'
+                        type='submit'
+                        text='Join Channel'
+                        classes={{ button: classes.button }}
+                        inProgress={loading}
+                        disabled={loading}
+                      />
+                    )
+                    : (
+                      <Typography variant='caption' className={classes.info}>
                         If you have an invite code, open it in a browser
-                    </Typography>
-                  )}
+                      </Typography>
+                    )}
                 </Grid>
               </Form>
             )

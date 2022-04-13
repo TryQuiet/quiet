@@ -1,7 +1,6 @@
 import Enzyme from 'enzyme'
 import Adapter from 'enzyme-adapter-react-16'
 import registerRequireContextHook from 'babel-plugin-require-context-hook/register'
-import mockStorage from 'redux-persist-memory-storage'
 
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
@@ -66,9 +65,6 @@ jest.mock('@electron/remote', () => {
 
   return mock
 })
-
-// eslint-disable-next-line new-cap
-jest.mock('redux-persist-electron-storage', () => () => new mockStorage())
 
 jest.mock('react-jdenticon', () => () => 'Jdenticon')
 

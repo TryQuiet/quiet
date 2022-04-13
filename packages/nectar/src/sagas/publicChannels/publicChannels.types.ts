@@ -1,5 +1,4 @@
 import { Dictionary, EntityState } from '@reduxjs/toolkit'
-import { Channel } from 'redux-saga'
 
 export interface CommunityChannels {
   id: string
@@ -101,6 +100,11 @@ export interface CreateGeneralChannelPayload {
 export interface PendingMessage {
   message: ChannelMessage,
   communityId: string
+}
+
+export interface SendInitialChannelMessagePayload {
+  channelName: string
+  channelAddress: string
 }
 
 export interface IncomingMessages {

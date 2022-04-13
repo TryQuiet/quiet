@@ -11,8 +11,13 @@ export enum SendingStatus {
 }
 
 export interface SendMessagePayload {
-  peerId: string
   message: ChannelMessage
+  peerId: string
+}
+
+export interface WriteMessagePayload {
+  message: string
+  channelAddress?: string
 }
 
 export interface PublicKeyMappingPayload {

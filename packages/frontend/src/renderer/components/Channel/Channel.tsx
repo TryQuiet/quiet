@@ -40,7 +40,7 @@ const Channel = () => {
 
   const onInputEnter = useCallback(
     (message: string) => {
-      dispatch(messages.actions.sendMessage(message))
+      dispatch(messages.actions.sendMessage({ message }))
     },
     [dispatch]
   )

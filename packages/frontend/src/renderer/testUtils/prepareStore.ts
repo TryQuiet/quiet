@@ -7,11 +7,12 @@ import {
   publicChannels,
   connection,
   StoreKeys as NectarStoreKeys,
-  settings
+  settings,
+  Store
 } from '@quiet/nectar'
 import { StoreKeys } from '../store/store.keys'
 import { combineReducers, createStore, applyMiddleware } from 'redux'
-import createSagaMiddleware, { SagaMonitor as SagaMonitorType } from 'redux-saga'
+import createSagaMiddleware, { Saga, SagaMonitor as SagaMonitorType, Task } from 'redux-saga'
 import thunk from 'redux-thunk'
 import rootSaga from '../sagas/index.saga'
 import { reducer as appReducer } from '../store/handlers/app'
@@ -19,7 +20,6 @@ import { socketActions, socketReducer } from '../sagas/socket/socket.slice'
 import { modalsReducer } from '../sagas/modals/modals.slice'
 import MockedSocket from 'socket.io-mock'
 import { fork, delay, call, put } from 'typed-redux-saga'
-import { map } from 'lodash'
 
 export const reducers = {
   [NectarStoreKeys.Communities]: communities.reducer,
@@ -43,6 +43,12 @@ interface options {
   result: any
 }
 
+export interface PrepareStore {
+  store: Store
+  runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
+  sagaMonitor: SagaMonitor
+}
+
 class SagaMonitor {
   effectsTriggeredArray
   effectsResolvedArray
@@ -61,9 +67,9 @@ class SagaMonitor {
     this.effectsResolvedArray.set(effectId, { ...triggeredEffect, result })
   }
 
-  public isEffectResolved = (effectName) => {
+  public isEffectResolved = (effectName: string) => {
     const parentEffect = Array.from(this.effectsResolvedArray).filter((effect) => {
-      return effect[1].result.meta?.name === effectName
+      return effect[1].result?.meta?.name === effectName
     })
     const childrenEffects = Array.from(this.effectsResolvedArray).filter((effect) => {
       return effect[1].parentEffectId === parentEffect[0][0]
@@ -77,7 +83,7 @@ class SagaMonitor {
 export const prepareStore = async (
   mockedState?: { [key in StoreKeys | NectarStoreKeys]?: any },
   mockedSocket?: MockedSocket
-) => {
+): Promise<PrepareStore> => {
   const combinedReducers = combineReducers(reducers)
 
   const sagaMonitor = new SagaMonitor()
