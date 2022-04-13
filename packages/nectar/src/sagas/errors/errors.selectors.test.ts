@@ -3,14 +3,9 @@ import { Store } from '@reduxjs/toolkit'
 import { getFactory } from '../../utils/tests/factories'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { errorsSelectors } from './errors.selectors'
-import {
-  errorsActions
-} from './errors.slice'
-import { communitiesSelectors } from '../communities/communities.selectors'
-import {
-  communitiesActions,
-  Community
-} from '../communities/communities.slice'
+import { errorsActions } from './errors.slice'
+import { ErrorCodes, ErrorTypes, ErrorMessages } from './errors.types'
+import { communitiesActions, Community } from '../communities/communities.slice'
 
 describe('Errors', () => {
   setupCrypto()
@@ -20,51 +15,42 @@ describe('Errors', () => {
 
   beforeEach(async () => {
     store = prepareStore({}).store
-    const factory = await getFactory(store)
-    communityAlpha = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {id: 'community-id'})
-    store.dispatch(communitiesActions.setCurrentCommunity(communityAlpha.id))
   })
-
   
-  it('select current community errors', () => {
-    const errorPayload = {
-      community: 'community-id',
-      type: 'community',
-      code: 500,
-      message: 'Error occurred'
-    }
-    const errorPayload2 = {
-      community: 'community-id',
-      type: 'other',
-      code: 403,
-      message: 'Validation error occurred'
-    }
-    const errorPayload3 = {
-      community: 'community-id',
-      type: 'community',
-      code: 403,
-      message: 'Validation error occurred'
-    }
-    const errorPayload4 = {
-      community: 'other-community-id',
-      type: 'community',
-      code: 403,
-      message: 'Validation error occurred'
-    }
-    const errorPayloadGeneral = {
-      type: 'activity',
-      code: 500,
-      message: 'Some error occurred'
+  it('Selects current community errors', async () => {
+    const factory = await getFactory(store)
+    communityAlpha = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+    
+    store.dispatch(communitiesActions.setCurrentCommunity(communityAlpha.id))
+    console.log(communityAlpha)
+
+    const registrarErrorPayload = { community: communityAlpha.id,
+      code: ErrorCodes.BAD_REQUEST,
+      message: ErrorMessages.REGISTRAR_NOT_FOUND,
+      type: ErrorTypes.REGISTRAR
     }
 
-    store.dispatch(errorsActions.addError(errorPayload))
-    store.dispatch(errorsActions.addError(errorPayload2))
-    store.dispatch(errorsActions.addError(errorPayload3))
-    store.dispatch(errorsActions.addError(errorPayload4))
-    store.dispatch(errorsActions.addError(errorPayloadGeneral))
+    const communityErrorPayload = { community: communityAlpha.id,
+      code: ErrorCodes.SERVICE_UNAVAILABLE,
+      message: ErrorMessages.NETWORK_SETUP_FAILED,
+      type: ErrorTypes.COMMUNITY
+    }
 
-    const registrarError = errorsSelectors.currentCommunityErrors(store.getState())
-    console.log(store.getState().Errors)
-    console.log(registrarError)
+    await factory.create<ReturnType<typeof errorsActions.addError>['payload']>(
+      'Error',
+      registrarErrorPayload
+    )
+    
+    await factory.create<ReturnType<typeof errorsActions.addError>['payload']>(
+      'Error',
+      communityErrorPayload
+    )
+
+    const registrarErrors = errorsSelectors.currentCommunityErrors(store.getState())
+
+    expect(registrarErrors).toStrictEqual({registrar: registrarErrorPayload, community: communityErrorPayload})
+    
   })
 })
