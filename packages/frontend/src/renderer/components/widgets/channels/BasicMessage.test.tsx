@@ -85,10 +85,10 @@ describe('BasicMessage', () => {
                     data-testid="userMessages-string-string"
                   >
                     <div
-                      class="MuiGrid-root makeStyles-firstMessage-165 MuiGrid-item"
+                      class="MuiGrid-root makeStyles-firstMessage-166 MuiGrid-item"
                     >
                       <p
-                        class="MuiTypography-root makeStyles-message-164 MuiTypography-body1"
+                        class="MuiTypography-root makeStyles-message-165 MuiTypography-body1"
                         data-testid="messagesGroupContent-string"
                       >
                         string

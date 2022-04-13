@@ -224,6 +224,7 @@ describe('Channel', () => {
         "PublicChannels/askForMessages",
         "PublicChannels/incomingMessages",
         "PublicChannels/markUnreadMessages",
+        "Messages/addMessagesSendingStatus",
         "Messages/addPublicKeyMapping",
         "Messages/addMessageVerificationStatus",
       ]

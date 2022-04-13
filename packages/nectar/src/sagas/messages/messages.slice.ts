@@ -15,9 +15,10 @@ import {
 export class MessagesState {
   public publicKeyMapping: Dictionary<CryptoKey> = {}
   public messageVerificationStatus: EntityState<MessageVerificationStatus> =
-    messageVerificationStatusAdapter.getInitialState()
+  messageVerificationStatusAdapter.getInitialState()
+
   public messageSendingStatus: EntityState<MessageSendingStatus> =
-    messageSendingStatusAdapter.getInitialState()
+  messageSendingStatusAdapter.getInitialState()
 }
 
 export const messagesSlice = createSlice({

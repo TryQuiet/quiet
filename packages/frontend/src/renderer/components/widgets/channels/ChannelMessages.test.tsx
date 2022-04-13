@@ -123,10 +123,10 @@ describe('ChannelMessages', () => {
                           data-testid="userMessages-string-string"
                         >
                           <div
-                            class="MuiGrid-root makeStyles-firstMessage-180 MuiGrid-item"
+                            class="MuiGrid-root makeStyles-firstMessage-181 MuiGrid-item"
                           >
                             <p
-                              class="MuiTypography-root makeStyles-message-179 MuiTypography-body1"
+                              class="MuiTypography-root makeStyles-message-180 MuiTypography-body1"
                               data-testid="messagesGroupContent-string"
                             >
                               string

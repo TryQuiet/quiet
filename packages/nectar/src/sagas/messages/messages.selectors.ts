@@ -24,7 +24,7 @@ export const messagesSendingStatus = createSelector(messagesSlice, reducerState 
     .selectAll(reducerState.messageSendingStatus)
 )
 
-export const pendingMessages = createSelector(messagesSendingStatus, status => 
+export const pendingMessages = createSelector(messagesSendingStatus, status =>
   status.filter(message => message.status === SendingStatus.Pending)
 )
 

@@ -32,6 +32,6 @@ export interface MessageVerificationStatus {
 }
 
 export interface MessageSendingStatus {
-  id: string,
+  id: string
   status: SendingStatus
 }

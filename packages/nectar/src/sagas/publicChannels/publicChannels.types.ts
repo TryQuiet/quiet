@@ -98,7 +98,7 @@ export interface CreateGeneralChannelPayload {
 }
 
 export interface PendingMessage {
-  message: ChannelMessage,
+  message: ChannelMessage
   communityId: string
 }
 
