@@ -139,7 +139,7 @@ export default class IOProxy {
   }
 
   public loadMessages = (payload: IncomingMessages) => {
-    log('Emitting message')
+    // log('Emitting message')
     this.io.emit(SocketActionTypes.INCOMING_MESSAGES, payload)
   }
 

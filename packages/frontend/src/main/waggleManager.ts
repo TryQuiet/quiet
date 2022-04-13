@@ -59,4 +59,29 @@ export const runWaggle = async (
 
 export const waggleVersion = waggle.version
 
+console.log('RUNNING WAGGLE', console.log('ARGVS:', process.argv))
+
+runWaggle({
+  socksPort: Number(process.argv[2]),
+  libp2pHiddenService: Number(process.argv[3]),
+  controlPort: Number(process.argv[4]),
+  httpTunnelPort: Number(process.argv[5]),
+  dataServer: Number(process.argv[6])
+}, process.argv[7]).then((data) => {
+  console.log('END OF INIT')
+  process.on('message', message => {
+    console.log('WAGGLE RECEIVED', message)
+    if (message === 'close') {
+      data.connectionsManager.closeAllServices().then(() => {
+        console.log('CLOSED ALL SERVICES')
+      })
+    }
+  })
+  
+}).catch((e) => {
+  console.log('WAGGLE ERROR', e)
+})
+
+
+
 export default { getPorts, runWaggle, waggleVersion }

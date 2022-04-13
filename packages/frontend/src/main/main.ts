@@ -12,6 +12,7 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DEV_DATA_DIR } from '../shared/static'
+import {fork, ChildProcess} from 'child_process'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -248,6 +249,7 @@ export const checkForUpdate = async (win: BrowserWindow) => {
 
 let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } | null = null
 let ports: ApplicationPorts
+let waggleFork: ChildProcess = null
 
 app.on('ready', async () => {
   log('Event: app.ready')
@@ -262,9 +264,19 @@ app.on('ready', async () => {
   ports = await getPorts()
   await createWindow()
 
-  await waggleProcess?.connectionsManager.closeAllServices()
-  await waggleProcess?.dataServer.close()
-  waggleProcess = await runWaggle(ports, appDataPath)
+  // await waggleProcess?.connectionsManager.closeAllServices()
+  // await waggleProcess?.dataServer.close()
+  const forkArgvs = [
+    `${ports.socksPort}`, 
+    `${ports.libp2pHiddenService}`, 
+    `${ports.controlPort}`, 
+    `${ports.httpTunnelPort}`,
+    `${ports.dataServer}`,
+    appDataPath
+  ]
+  console.log('Forking waggle', forkArgvs)
+  waggleFork = fork(path.join(__dirname, 'waggleManager.js'), forkArgvs)
+  console.log('After Forking waggle, PID:', waggleFork.pid)
 
   if (!isBrowserWindow(mainWindow)) {
     throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
@@ -322,9 +334,12 @@ app.on('browser-window-created', (_, window) => {
 // Quit when all windows are closed.
 app.on('window-all-closed', async () => {
   log('Event: app.window-all-closed')
-  if (waggleProcess !== null) {
-    await waggleProcess.connectionsManager.closeAllServices()
-    await waggleProcess.dataServer.close()
+  // if (waggleProcess !== null) {
+  //   await waggleProcess.connectionsManager.closeAllServices()
+  //   await waggleProcess.dataServer.close()
+  // }
+  if (waggleFork !== null) {
+    waggleFork.send('close')
   }
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
