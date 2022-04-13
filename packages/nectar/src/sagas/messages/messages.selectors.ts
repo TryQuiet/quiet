@@ -1,6 +1,7 @@
 import { createSelector } from 'reselect'
 import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../store.types'
+import { messageSendingStatusAdapter } from './messages.adapter.ts'
 import { messageVerificationStatusAdapter } from './verifyMessage/verifyMessageAdapter'
 
 const messagesSlice: CreatedSelectors[StoreKeys.Messages] = (state: StoreState) =>
@@ -15,6 +16,12 @@ export const messagesVerificationStatus = createSelector(messagesSlice, reducerS
   messageVerificationStatusAdapter
     .getSelectors()
     .selectEntities(reducerState.messageVerificationStatus)
+)
+
+export const messagesSendingStatus = createSelector(messagesSlice, reducerState =>
+  messageSendingStatusAdapter
+    .getSelectors()
+    .selectEntities(reducerState.messageSendingStatus)  
 )
 
 export const messagesSelectors = {
