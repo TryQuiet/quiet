@@ -25,16 +25,14 @@ const useStyles = makeStyles(() => ({
 
 export interface NestedMessageContentProps {
   message: DisplayableMessage
-  sendingStatus: SendingStatus
+  pending: boolean
   index: number
 }
 
-export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ message, sendingStatus, index }) => {
+export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ message, pending, index }) => {
   const classes = useStyles({})
 
   const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
-
-  const pending = sendingStatus === SendingStatus.Pending
 
   return (
     <Grid item className={outerDivStyle}>
