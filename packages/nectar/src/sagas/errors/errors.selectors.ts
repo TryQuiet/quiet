@@ -50,11 +50,10 @@ export const currentCommunityErrors = createSelector(
   }
 )
 
-// Only possible error that user can do something with is taken username, everything else should not be visible.
 export const registrarErrors = createSelector(
   currentCommunityErrors,
   errors => {
-    return errors[SocketActionTypes.REGISTRAR]?.message === ErrorMessages.USERNAME_TAKEN ? errors[SocketActionTypes.REGISTRAR] : undefined
+    return errors[SocketActionTypes.REGISTRAR]
   }
 )
 
