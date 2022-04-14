@@ -18,19 +18,32 @@ function* retryRegistration(communityId: string) {
     nickname: identity.nickname,
     userCsr: identity.userCsr
   }
-
+  
   yield* put(identityActions.registerCertificate(payload))
   log(`registering certificate for community ${communityId} failed, trying again`)
 }
+
+let registrationAttempts: number = 0
 
 export function* handleErrorsSaga(
   action: PayloadAction<ReturnType<typeof errorsActions.addError>['payload']>
 ): Generator {
   const error: ErrorPayload = action.payload
   if (error.type === SocketActionTypes.REGISTRAR) {
-    if (error.code === ErrorCodes.NOT_FOUND) {
-      yield* call(delay, 15000)
-      yield* call(retryRegistration, error.community)
+    if (error.code === ErrorCodes.FORBIDDEN) {
+      yield* put(errorsActions.addError(error))
     }
+    if (error.code === ErrorCodes.NOT_FOUND || error.code === ErrorCodes.SERVER_ERROR || error.code === ErrorCodes.SERVICE_UNAVAILABLE) {
+      if (registrationAttempts < 7) {
+        yield* call(delay, 5000)
+        registrationAttempts++
+        yield* call(retryRegistration, error.community)
+      } else {
+        yield* put(errorsActions.addError(error))
+        registrationAttempts = 0
+      }
+    }
+  } else {
+    yield* put(errorsActions.addError(error))
   }
 }
