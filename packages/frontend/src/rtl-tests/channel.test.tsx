@@ -400,7 +400,7 @@ describe('Channel', () => {
     expect(spinner).toBeVisible()
   })
 
-  it.skip("doesn't display messages loading spinner if there's at least one message", async () => {
+  it("doesn't display messages loading spinner if there's at least one message", async () => {
     const { store } = await prepareStore(
       {},
       socket // Fork Nectar's sagas
@@ -414,14 +414,17 @@ describe('Channel', () => {
 
     const alice = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { nickname: 'alice' })
+    >('Identity', { id: community.id, nickname: 'alice' })
 
     await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
       'Message',
       {
-        identity: alice
+        identity: alice,
+        verifyAutomatically: true
       }
     )
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
 
     renderComponent(
       <>
@@ -430,6 +433,8 @@ describe('Channel', () => {
       store
     )
 
+    await act(async () => {})
+
     // Confirm there are messages to display
     const messages = publicChannels.selectors.currentChannelMessagesMergedBySender(store.getState())
     expect(Object.values(messages).length).toBe(1)
@@ -437,5 +442,54 @@ describe('Channel', () => {
     // Verify loading spinner is not visible
     const spinner = await screen.queryByText(fetchingChannelMessagesText)
     expect(spinner).toBeNull()
+  })
+
+  it('immediately display greyed out message after sending, then turn it black when saved to db', async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    const messageText = 'Hello!'
+
+    store.dispatch(messages.actions.sendMessage({ message: messageText }))
+
+    await act(async () => {})
+
+    // Confirm there are messages to display
+    const displayableMessages = publicChannels.selectors.currentChannelMessagesMergedBySender(store.getState())
+    expect(Object.values(displayableMessages).length).toBe(1)
+
+    // Verify message is greyed out
+    expect(await screen.findByText(messageText)).toHaveStyle('color:#B2B2B2')
+
+    // Update message sending status
+    const sentMessage = publicChannels.selectors.currentChannelMessages(store.getState())[0]
+    store.dispatch(publicChannels.actions.incomingMessages({
+      messages: [sentMessage],
+      communityId: community.id
+    }))
+
+    // Confirm message is no longer greyed out
+    expect(await screen.findByText(messageText)).not.toHaveStyle('color:#B2B2B2')
   })
 })
