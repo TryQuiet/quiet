@@ -1,6 +1,7 @@
 import waggle, { DataServer, ConnectionsManager } from '@quiet/waggle'
 import logger from './logger'
-import { program } from 'commander'
+import { Command } from 'commander'
+const program = new Command()
 
 const log = logger('waggleManager')
 
@@ -13,7 +14,7 @@ program
   .option('-r, --resourcesPath <string>', 'Application resources path')
   .requiredOption('-l, --libp2pHiddenService <number>', 'Libp2p tor hidden service port')
 
-program.parse()
+program.parse(process.argv)
 const options = program.opts()
 
 export const runWaggle = async (): Promise<{
@@ -48,8 +49,6 @@ export const runWaggle = async (): Promise<{
 }
 
 export const waggleVersion = waggle.version
-
-log('Running waggle with args:', options)
 
 runWaggle().then((data) => {
   process.on('message', message => {
