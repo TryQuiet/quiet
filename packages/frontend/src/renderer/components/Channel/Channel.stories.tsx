@@ -4,7 +4,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../storybook/decorators'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
-import { DisplayableMessage } from '@quiet/nectar'
+import { DisplayableMessage, SendingStatus } from '@quiet/nectar'
 
 const Template: ComponentStory<typeof ChannelComponent> = args => {
   const [messages] = useState<{
@@ -342,6 +342,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
 }
 
 export const Component = Template.bind({})
+export const Pending = Template.bind({})
 
 const args: Partial<ChannelComponentProps> = {
   user: {
@@ -399,6 +400,15 @@ const args: Partial<ChannelComponentProps> = {
 }
 
 Component.args = args
+Pending.args = {
+  ...args,
+  pendingMessages: {
+    ['32']: {
+      id: '32',
+      status: SendingStatus.Pending
+    }
+  }
+}
 
 const component: ComponentMeta<typeof ChannelComponent> = {
   title: 'Components/ChannelComponent',
