@@ -72,7 +72,7 @@ describe('ChannelMessages', () => {
                   </div>
                 </div>
                 <li
-                  class="MuiListItem-root makeStyles-wrapper-150 makeStyles-wrapperPending-152 MuiListItem-gutters"
+                  class="MuiListItem-root makeStyles-wrapper-150 MuiListItem-gutters"
                 >
                   <div
                     class="MuiListItemText-root makeStyles-messageCard-149"

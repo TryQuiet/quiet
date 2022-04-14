@@ -34,7 +34,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root makeStyles-wrapper-2 makeStyles-wrapperPending-4 MuiListItem-gutters"
+            class="MuiListItem-root makeStyles-wrapper-2 MuiListItem-gutters"
           >
             <div
               class="MuiListItemText-root makeStyles-messageCard-1"
