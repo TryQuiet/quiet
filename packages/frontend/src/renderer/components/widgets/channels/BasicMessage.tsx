@@ -15,7 +15,6 @@ import Jdenticon from 'react-jdenticon'
 
 import { DisplayableMessage, MessageSendingStatus, SendingStatus } from '@quiet/nectar'
 import { NestedMessageContent } from './NestedMessageContent'
-import { messagesSendingStatus } from 'packages/nectar/src/sagas/messages/messages.selectors'
 import { Dictionary } from '@reduxjs/toolkit'
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -121,9 +120,9 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
   return (
     <ListItem
       className={classNames({
-        [classes.wrapper]: true,
-        [classes.clickable]: ['failed', 'cancelled'].includes(status),
-        [classes.wrapperPending]: status !== 'broadcasted'
+        [classes.wrapper]: true
+        // [classes.clickable]: ['failed', 'cancelled'].includes(status),
+        // [classes.wrapperPending]: status !== 'broadcasted'
       })}
       // onClick={() => setActionsOpen(!actionsOpen)}
       onMouseOver={() => {}}
@@ -205,11 +204,16 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                 direction='column'
                 data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
                 {messages.map((message, index) => {
-                  const status = pendingMessages[message.id]
+                  const sendingStatus = pendingMessages[message.id]
                     ? SendingStatus.Pending
                     : SendingStatus.Sent
                   return (
-                    <NestedMessageContent message={message} sendingStatus={status} index={index} key={index} />
+                    <NestedMessageContent
+                      message={message}
+                      sendingStatus={sendingStatus}
+                      index={index}
+                      key={index}
+                    />
                   )
                 })}
               </Grid>
