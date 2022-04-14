@@ -18,10 +18,12 @@ import {
   getFactory,
   SocketActionTypes,
   ChannelMessage,
-  messages
+  messages,
+  SendingStatus
 } from '@quiet/nectar'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
+
 import { fetchingChannelMessagesText } from '../renderer/components/widgets/channels/ChannelMessages'
 
 jest.setTimeout(20_000)
@@ -475,19 +477,27 @@ describe('Channel', () => {
 
     await act(async () => {})
 
-    // Confirm there are messages to display
+    // Get sent message for further assertions
+    const sentMessage = publicChannels.selectors.currentChannelMessages(store.getState())[0]
+
+    // Confirm message has been stored immediately
     const displayableMessages = publicChannels.selectors.currentChannelMessagesMergedBySender(store.getState())
     expect(Object.values(displayableMessages).length).toBe(1)
+
+    // Verify message status is 'pending'
+    expect(messages.selectors.messagesSendingStatus(store.getState())[sentMessage.id].status).toBe(SendingStatus.Pending)
 
     // Verify message is greyed out
     expect(await screen.findByText(messageText)).toHaveStyle('color:#B2B2B2')
 
     // Update message sending status
-    const sentMessage = publicChannels.selectors.currentChannelMessages(store.getState())[0]
     store.dispatch(publicChannels.actions.incomingMessages({
       messages: [sentMessage],
       communityId: community.id
     }))
+
+    // Confirm 'pending' message status has been removed
+    expect(messages.selectors.messagesSendingStatus(store.getState())[sentMessage.id]).toBe(undefined)
 
     // Confirm message is no longer greyed out
     expect(await screen.findByText(messageText)).not.toHaveStyle('color:#B2B2B2')
