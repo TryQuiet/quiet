@@ -92,7 +92,7 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {
       log(payload)
-      emit(errorsActions.addError(payload))
+      emit(errorsActions.handleError(payload))
     })
     socket.on(
       SocketActionTypes.SEND_USER_CERTIFICATE,
