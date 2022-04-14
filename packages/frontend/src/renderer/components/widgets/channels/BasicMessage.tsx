@@ -204,13 +204,13 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                 direction='column'
                 data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
                 {messages.map((message, index) => {
-                  const sendingStatus = pendingMessages[message.id]
-                    ? SendingStatus.Pending
-                    : SendingStatus.Sent
+                  // const sendingStatus = pendingMessages[message.id]
+                  //   ? SendingStatus.Pending
+                  //   : SendingStatus.Sent
                   return (
                     <NestedMessageContent
                       message={message}
-                      sendingStatus={sendingStatus}
+                      sendingStatus={SendingStatus.Sent}
                       index={index}
                       key={index}
                     />
