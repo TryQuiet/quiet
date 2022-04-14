@@ -34,6 +34,7 @@ export function* handleErrorsSaga(
       yield* put(errorsActions.addError(error))
     }
     if (error.code === ErrorCodes.NOT_FOUND || error.code === ErrorCodes.SERVER_ERROR || error.code === ErrorCodes.SERVICE_UNAVAILABLE) {
+      // 7 retries guarantees 99.9% chance of registering username if registrar is online.
       if (registrationAttempts < 7) {
         yield* call(delay, 5000)
         registrationAttempts++
