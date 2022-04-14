@@ -42,11 +42,11 @@ describe('handle errors', () => {
 
   test('receiving registrar server error results in retrying registration and not putting error in store', async () => {
     const errorPayload = {
-    community: community.id,
-    type: ErrorTypes.REGISTRAR,
-    code: ErrorCodes.NOT_FOUND,
-    message: ErrorMessages.REGISTRAR_NOT_FOUND
-  }
+      community: community.id,
+      type: ErrorTypes.REGISTRAR,
+      code: ErrorCodes.NOT_FOUND,
+      message: ErrorMessages.REGISTRAR_NOT_FOUND
+    }
     await expectSaga(
       handleErrorsSaga,
       errorsActions.handleError(errorPayload)

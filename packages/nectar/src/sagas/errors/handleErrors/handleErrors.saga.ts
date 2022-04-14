@@ -18,7 +18,7 @@ function* retryRegistration(communityId: string) {
     nickname: identity.nickname,
     userCsr: identity.userCsr
   }
-  
+
   yield* put(identityActions.registerCertificate(payload))
   log(`registering certificate for community ${communityId} failed, trying again`)
 }
