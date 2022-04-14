@@ -283,13 +283,15 @@ export class Storage {
       })
 
       db.events.on('replicate.progress', (address, _hash, entry, progress, total) => {
-        // log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
+        log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
         this.io.loadMessages({
           messages: [entry.payload.value],
           communityId: this.communityId
         })
       })
-
+      db.events.on('replicated', async (address) => {
+        log('Replicated.', address)
+      })
       db.events.on('ready', () => {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         this.io.sendMessagesIds({
@@ -333,9 +335,6 @@ export class Storage {
     log(`Set ${data.address} to local channels`)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await db.load({ fetchEntryTimeout: 2000 })
-    // db.events.on('replicate.progress', (address, _hash, _entry, progress, total) => {
-    //   //log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
-    // })
     log(`Created channel ${data.address}`)
     return db
   }
@@ -388,13 +387,11 @@ export class Storage {
   }
 
   public async subscribeToAllConversations(conversations) {
-    console.time('subscribeToAllConversations')
     await Promise.all(
       conversations.map(async channel => {
         await this.subscribeToDirectMessageThread(channel)
       })
     )
-    console.timeEnd('subscribeToAllConversations')
   }
 
   public async subscribeToDirectMessageThread(channelAddress: string) {

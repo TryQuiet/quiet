@@ -247,7 +247,7 @@ export const checkForUpdate = async (win: BrowserWindow) => {
   })
 }
 
-let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } | null = null
+// let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } | null = null
 let ports: ApplicationPorts
 let waggleFork: ChildProcess = null
 
@@ -267,16 +267,16 @@ app.on('ready', async () => {
   // await waggleProcess?.connectionsManager.closeAllServices()
   // await waggleProcess?.dataServer.close()
   const forkArgvs = [
-    `${ports.socksPort}`, 
-    `${ports.libp2pHiddenService}`, 
-    `${ports.controlPort}`, 
-    `${ports.httpTunnelPort}`,
-    `${ports.dataServer}`,
-    appDataPath
+    `-s ${ports.socksPort}`, 
+    `-l ${ports.libp2pHiddenService}`, 
+    `-c ${ports.controlPort}`, 
+    `-h ${ports.httpTunnelPort}`,
+    `-d ${ports.dataServer}`,
+    `-a ${appDataPath}`,
+    `-r ${process.resourcesPath}`
   ]
-  console.log('Forking waggle', forkArgvs)
   waggleFork = fork(path.join(__dirname, 'waggleManager.js'), forkArgvs)
-  console.log('After Forking waggle, PID:', waggleFork.pid)
+  log('Forked waggle, PID:', waggleFork.pid)
 
   if (!isBrowserWindow(mainWindow)) {
     throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
@@ -334,17 +334,20 @@ app.on('browser-window-created', (_, window) => {
 // Quit when all windows are closed.
 app.on('window-all-closed', async () => {
   log('Event: app.window-all-closed')
-  // if (waggleProcess !== null) {
-  //   await waggleProcess.connectionsManager.closeAllServices()
-  //   await waggleProcess.dataServer.close()
-  // }
   if (waggleFork !== null) {
     waggleFork.send('close')
+    waggleFork.on('message', message => {
+      if (message === 'closedServices') {
+        log('Closing the app')
+        app.quit()
+      }
+    })
+  } else {
+    app.quit()
   }
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   // NOTE: temporarly quit macos when using 'X'. Reloading the app loses the connection with waggle. To be fixed.
-  app.quit()
 })
 
 app.on('activate', async () => {

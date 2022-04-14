@@ -1,32 +1,44 @@
 import waggle, { DataServer, ConnectionsManager } from '@quiet/waggle'
-import {ApplicationPorts} from './waggleHelpers'
+import logger from './logger'
+import { program } from 'commander'
 
-export const runWaggle = async (
-  ports: ApplicationPorts,
-  appDataPath: string
-): Promise<{
+const log = logger('waggleManager')
+
+program
+  .requiredOption('-s, --socksPort <number>', 'Socks proxy port')
+  .requiredOption('-h, --httpTunnelPort <number>', 'Tor http tunnel port')
+  .requiredOption('-a, --appDataPath <string>', 'Path of application data directory')
+  .requiredOption('-c, --controlPort <number>', 'Tor control port')
+  .requiredOption('-d, --dataServerPort <number>', 'Socket io data server port')
+  .option('-r, --resourcesPath <string>', 'Application resources path')
+  .requiredOption('-l, --libp2pHiddenService <number>', 'Libp2p tor hidden service port')
+
+program.parse()
+const options = program.opts()
+
+export const runWaggle = async (): Promise<{
   connectionsManager: ConnectionsManager
   dataServer: DataServer
 }> => {
-  const dataServer = new waggle.DataServer(ports.dataServer)
+  const dataServer = new waggle.DataServer(options.dataServerPort)
   await dataServer.listen()
 
   const isDev = process.env.NODE_ENV === 'development'
-  const resourcesPath = isDev ? null : process.resourcesPath
+  const resourcesPath = isDev ? null : options.resourcesPath.trim()
 
   const connectionsManager = new waggle.ConnectionsManager({
-    port: ports.libp2pHiddenService,
+    port: options.libp2pHiddenService,
     agentHost: 'localhost',
-    agentPort: ports.socksPort,
-    httpTunnelPort: ports.httpTunnelPort,
+    agentPort: options.socksPort,
+    httpTunnelPort: options.httpTunnelPort,
     io: dataServer.io,
     options: {
       env: {
-        appDataPath: `${appDataPath}/Quiet`,
+        appDataPath: `${options.appDataPath.trim()}/Quiet`,
         resourcesPath
       },
       spawnTor: true,
-      torControlPort: ports.controlPort
+      torControlPort: options.controlPort
     }
   })
 
@@ -37,29 +49,18 @@ export const runWaggle = async (
 
 export const waggleVersion = waggle.version
 
-console.log('RUNNING WAGGLE ARGVS:', process.argv)
+log('Running waggle with args:', options)
 
-runWaggle({
-  socksPort: Number(process.argv[2]),
-  libp2pHiddenService: Number(process.argv[3]),
-  controlPort: Number(process.argv[4]),
-  httpTunnelPort: Number(process.argv[5]),
-  dataServer: Number(process.argv[6])
-}, process.argv[7]).then((data) => {
-  console.log('END OF INIT')
+runWaggle().then((data) => {
   process.on('message', message => {
-    console.log('WAGGLE RECEIVED', message)
     if (message === 'close') {
-      data.connectionsManager.closeAllServices().then(() => {
-        console.log('CLOSED ALL SERVICES')
+      data.connectionsManager.closeAllServices().catch((e) => {
+        log.error('Error occured while closing waggle services', e)
+      }).finally(() => {
+        process.send('closedServices')
       })
     }
   })
-  
 }).catch((e) => {
-  console.log('WAGGLE ERROR', e)
+  log.error('Waggle initialization returned error', e)
 })
-
-
-
-// export default { runWaggle, waggleVersion }
