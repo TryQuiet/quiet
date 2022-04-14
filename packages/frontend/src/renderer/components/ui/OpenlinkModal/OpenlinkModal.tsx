@@ -109,8 +109,42 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
               </Grid>
               <Grid item container spacing={0} direction='column' className={classes.checkboxes}>
                 {' '}
-                {isImage ? (
-                  <>
+                {isImage
+                  ? (
+                    <>
+                      <Grid item container justify='center' alignItems='center'>
+                        <Grid item>
+                          <Checkbox
+                            checked={allowThisLink}
+                            onChange={e => setAllowThisLink(e.target.checked)}
+                            color='primary'
+                          />
+                        </Grid>
+                        <Grid item xs className={classes.checkboxLabel}>
+                          {'Automatically load images from '}
+                          <span className={classes.bold}>{uri.hostname}</span>
+                          {
+                            "- I trust them with my data and I'm not using Quiet for anonymity protection. "
+                          }
+                        </Grid>
+                      </Grid>
+                      <Grid item container justify='center' alignItems='center'>
+                        <Grid item>
+                          <Checkbox
+                            checked={dontAutoload}
+                            onChange={e => setDontAutoload(e.target.checked)}
+                            color='primary'
+                          />
+                        </Grid>
+                        <Grid item xs className={classes.checkboxLabel}>
+                          {"Don't warn me about "}
+                          <span className={classes.bold}>{uri.hostname}</span>{' '}
+                          {"again, but don't auto-load images."}
+                        </Grid>
+                      </Grid>
+                    </>
+                  )
+                  : (
                     <Grid item container justify='center' alignItems='center'>
                       <Grid item>
                         <Checkbox
@@ -120,43 +154,11 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                         />
                       </Grid>
                       <Grid item xs className={classes.checkboxLabel}>
-                        {'Automatically load images from '}
-                        <span className={classes.bold}>{uri.hostname}</span>
-                        {
-                          "- I trust them with my data and I'm not using Quiet for anonymity protection. "
-                        }
-                      </Grid>
-                    </Grid>
-                    <Grid item container justify='center' alignItems='center'>
-                      <Grid item>
-                        <Checkbox
-                          checked={dontAutoload}
-                          onChange={e => setDontAutoload(e.target.checked)}
-                          color='primary'
-                        />
-                      </Grid>
-                      <Grid item xs className={classes.checkboxLabel}>
                         {"Don't warn me about "}
-                        <span className={classes.bold}>{uri.hostname}</span>{' '}
-                        {"again, but don't auto-load images."}
+                        <span className={classes.bold}>{uri.hostname}</span> {'again'}
                       </Grid>
                     </Grid>
-                  </>
-                ) : (
-                  <Grid item container justify='center' alignItems='center'>
-                    <Grid item>
-                      <Checkbox
-                        checked={allowThisLink}
-                        onChange={e => setAllowThisLink(e.target.checked)}
-                        color='primary'
-                      />
-                    </Grid>
-                    <Grid item xs className={classes.checkboxLabel}>
-                      {"Don't warn me about "}
-                      <span className={classes.bold}>{uri.hostname}</span> {'again'}
-                    </Grid>
-                  </Grid>
-                )}
+                  )}
                 <Grid item container justify='center' alignItems='center'>
                   <Grid item>
                     <Checkbox

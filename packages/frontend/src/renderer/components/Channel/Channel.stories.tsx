@@ -7,7 +7,7 @@ import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 import { DisplayableMessage } from '@quiet/nectar'
 
 const Template: ComponentStory<typeof ChannelComponent> = args => {
-  const [messages, setMessages] = useState<{
+  const [messages] = useState<{
     count: number
     groups: { [day: string]: DisplayableMessage[][] }
   }>({

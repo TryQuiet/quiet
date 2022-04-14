@@ -42,6 +42,8 @@ describe('Restart app works correctly', () => {
     ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
     renderComponent(
       <>
         <LoadingPanel />

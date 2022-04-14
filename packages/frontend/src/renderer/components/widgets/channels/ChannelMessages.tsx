@@ -7,8 +7,15 @@ import MessagesDivider from '../MessagesDivider'
 import BasicMessageComponent from './BasicMessage'
 
 import { MessagesDailyGroups } from '@quiet/nectar'
+import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
 const useStyles = makeStyles(theme => ({
+  spinner: {
+    top: '50%',
+    textAlign: 'center',
+    position: 'relative',
+    transform: 'translate(0, -50%)'
+  },
   scroll: {
     overflow: 'scroll',
     overflowX: 'hidden',
@@ -40,6 +47,8 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
+export const fetchingChannelMessagesText = 'Fetching channel messages...'
+
 export interface IChannelMessagesProps {
   messages?: MessagesDailyGroups
   scrollbarRef
@@ -58,6 +67,14 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
       ref={scrollbarRef}
       onScroll={onScroll}
       data-testid='channelContent'>
+      {Object.values(messages).length < 1 && (
+        <SpinnerLoader
+          size={40}
+          message={fetchingChannelMessagesText}
+          className={classes.spinner}
+          color={'black'}
+        />
+      )}
       <List disablePadding className={classes.list} id='messages-scroll'>
         {Object.keys(messages).map(day => {
           return (

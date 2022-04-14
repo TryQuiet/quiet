@@ -68,3 +68,5 @@ buck-out/
 
 # Waggle
 /nodejs-assets/nodejs-project/
+/nodejs-assets/build-native-modules-MacOS-helper-script-node.sh
+/nodejs-assets/build-native-modules-MacOS-helper-script-npm.sh
