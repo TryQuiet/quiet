@@ -22,7 +22,7 @@ export class ModalsInitialState {
   [ModalName.joinCommunityModal] = { open: false };
   [ModalName.createCommunityModal] = { open: false };
   [ModalName.sentryWarningModal] = { open: false };
-  [ModalName.loadingPanel] = { open: true } // Loading modal is open by default and closes on websocket connection
+  [ModalName.loadingPanel] = { open: false } // Loading modal is open by default and closes on websocket connection
 }
 
 export const modalsSlice = createSlice({
