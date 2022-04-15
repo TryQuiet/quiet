@@ -19,6 +19,7 @@ export const errorsSlice = createSlice({
   },
   name: StoreKeys.Errors,
   reducers: {
+    handleError: (state, _action: PayloadAction<ErrorPayload>) => state,
     addError: (state, action: PayloadAction<ErrorPayload>) => {
       errorsAdapter.upsertOne(
         state.errors,

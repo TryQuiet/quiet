@@ -5,6 +5,13 @@ export interface ErrorPayload {
   community?: string
 }
 
+export enum ErrorTypes {
+  REGISTRAR = 'registrar',
+  COMMUNITY = 'community',
+  ACTIVITY = 'activity',
+  OTHER = 'other'
+}
+
 export enum ErrorCodes {
   BAD_REQUEST = 400,
   FORBIDDEN = 403,
