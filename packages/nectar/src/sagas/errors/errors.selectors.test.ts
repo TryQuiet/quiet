@@ -23,8 +23,6 @@ describe('Errors', () => {
     ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
-    store.dispatch(communitiesActions.setCurrentCommunity(communityAlpha.id))
-
     const registrarErrorPayload = {
       community: communityAlpha.id,
       code: ErrorCodes.BAD_REQUEST,
@@ -59,8 +57,6 @@ describe('Errors', () => {
     communityAlpha = await factory.create<
     ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
-
-    store.dispatch(communitiesActions.setCurrentCommunity(communityAlpha.id))
 
     const registrarErrorPayload = {
       community: communityAlpha.id,
