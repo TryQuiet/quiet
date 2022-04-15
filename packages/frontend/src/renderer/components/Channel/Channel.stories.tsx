@@ -405,7 +405,7 @@ Pending.args = {
   pendingMessages: {
     32: {
       id: '32',
-      status: SendingStatus.Pending
+      status: 0
     }
   }
 }
