@@ -500,6 +500,7 @@ describe('Channel', () => {
     expect(messages.selectors.messagesSendingStatus(store.getState())[sentMessage.id]).toBe(undefined)
 
     // Confirm message is no longer greyed out
+    expect(await screen.findByText(messageText)).toBeVisible()
     expect(await screen.findByText(messageText)).not.toHaveStyle('color:#B2B2B2')
   })
 })
