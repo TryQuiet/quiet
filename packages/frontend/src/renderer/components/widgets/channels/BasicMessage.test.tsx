@@ -34,7 +34,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root makeStyles-wrapper-2 makeStyles-wrapperPending-4 MuiListItem-gutters"
+            class="MuiListItem-root makeStyles-wrapper-2 MuiListItem-gutters"
           >
             <div
               class="MuiListItemText-root makeStyles-messageCard-1"
@@ -85,10 +85,10 @@ describe('BasicMessage', () => {
                     data-testid="userMessages-string-string"
                   >
                     <div
-                      class="MuiGrid-root makeStyles-firstMessage-165 MuiGrid-item"
+                      class="MuiGrid-root makeStyles-firstMessage-166 MuiGrid-item"
                     >
                       <p
-                        class="MuiTypography-root makeStyles-message-164 MuiTypography-body1"
+                        class="MuiTypography-root makeStyles-message-165 MuiTypography-body1"
                         data-testid="messagesGroupContent-string"
                       >
                         string

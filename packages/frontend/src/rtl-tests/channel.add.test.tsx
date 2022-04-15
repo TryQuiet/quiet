@@ -29,7 +29,6 @@ import {
 
 import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
-import { sendInitialChannelMessageSaga } from 'packages/nectar/src/sagas/publicChannels/createGeneralChannel/sendInitialChannelMessage.saga'
 import { DateTime } from 'luxon'
 
 jest.setTimeout(20_000)
