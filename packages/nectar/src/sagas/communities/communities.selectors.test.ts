@@ -20,7 +20,6 @@ describe('communitiesSelectors', () => {
     const factory = await getFactory(store)
     communityAlpha = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     communityBeta = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
-    store.dispatch(communitiesActions.setCurrentCommunity(communityAlpha.id))
   })
 
   it('select community by id', () => {
