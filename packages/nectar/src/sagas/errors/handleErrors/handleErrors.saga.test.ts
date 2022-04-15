@@ -2,45 +2,43 @@ import { combineReducers } from 'redux'
 import { expectSaga, testSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import { delay } from 'typed-redux-saga'
-import { communitiesAdapter } from '../../communities/communities.adapter'
+import { Store } from '@reduxjs/toolkit'
+import { setupCrypto } from '@quiet/identity'
 import {
-  communitiesReducer,
-  CommunitiesState,
-  Community
+  Community,
+  communitiesActions
 } from '../../communities/communities.slice'
-import { identityAdapter } from '../../identity/identity.adapter'
-import { identityActions, identityReducer, IdentityState } from '../../identity/identity.slice'
+import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
-import { StoreKeys } from '../../store.keys'
 import { errorsActions } from '../errors.slice'
 import { ErrorCodes, ErrorMessages, ErrorTypes } from '../errors.types'
 import { handleErrorsSaga } from './handleErrors.saga'
+import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { getFactory } from '../../../utils/tests/factories'
 
 describe('handle errors', () => {
-  const community: Community = {
-    name: '',
-    id: 'id',
-    registrarUrl: 'registrarUrl',
-    CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-    rootCa: '',
-    peerList: [],
-    registrar: null,
-    onionAddress: '',
-    privateKey: '',
-    port: 0
-  }
+  setupCrypto()
 
-  const identity: Identity = {
-    id: 'id',
-    hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-    dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
-    peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    nickname: '',
-    userCsr: undefined,
-    userCertificate: ''
-  }
+  let store: Store
+  let community: Community
+  let identity: Identity
+
+  beforeEach(async () => {
+    store = prepareStore({}).store
+  })
 
   test('receiving registrar server error results in retrying registration and not putting error in store', async () => {
+    const factory = await getFactory(store)
+    community = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+    identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+      'Identity',
+      { id: community.id, nickname: 'alice' }
+    )
+
+    const reducer = combineReducers(reducers)
+
     const errorPayload = {
       community: community.id,
       type: ErrorTypes.REGISTRAR,
@@ -51,25 +49,8 @@ describe('handle errors', () => {
       handleErrorsSaga,
       errorsActions.handleError(errorPayload)
     )
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer
-        }),
-        {
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-            currentCommunity: 'id',
-            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
-              community
-            ])
-          },
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity])
-          }
-        }
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
       .provide([[call.fn(delay), null]])
       .put(
         identityActions.registerCertificate({
@@ -84,6 +65,17 @@ describe('handle errors', () => {
   })
 
   test('taken username error does not trigger re-registration and puts error into store', async () => {
+    const factory = await getFactory(store)
+    community = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+    identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+      'Identity',
+      { id: community.id, nickname: 'alice' }
+    )
+
+    const reducer = combineReducers(reducers)
+
     const errorPayload = {
       type: ErrorTypes.REGISTRAR,
       code: ErrorCodes.FORBIDDEN,
@@ -94,25 +86,8 @@ describe('handle errors', () => {
       handleErrorsSaga,
       errorsActions.handleError(errorPayload)
     )
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer
-        }),
-        {
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-            currentCommunity: 'id',
-            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
-              community
-            ])
-          },
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity])
-          }
-        }
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
       .provide([[call.fn(delay), null]])
       .not
       .put(
