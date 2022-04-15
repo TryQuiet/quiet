@@ -312,7 +312,6 @@ describe('User', () => {
         "Modals/openModal",
         "Identity/registerUsername",
         "Identity/registerCertificate",
-        "Errors/handleError",
         "Errors/addError",
       ]
     `)
