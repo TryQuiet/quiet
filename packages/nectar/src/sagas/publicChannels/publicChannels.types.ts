@@ -97,6 +97,11 @@ export interface CreateGeneralChannelPayload {
   communityId: string
 }
 
+export interface PendingMessage {
+  message: ChannelMessage
+  communityId: string
+}
+
 export interface SendInitialChannelMessagePayload {
   channelName: string
   channelAddress: string

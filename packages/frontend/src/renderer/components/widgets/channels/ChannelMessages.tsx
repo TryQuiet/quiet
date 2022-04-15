@@ -1,4 +1,5 @@
 import React from 'react'
+import { Dictionary } from '@reduxjs/toolkit'
 
 import { makeStyles } from '@material-ui/core/styles'
 import List from '@material-ui/core/List'
@@ -6,8 +7,9 @@ import List from '@material-ui/core/List'
 import MessagesDivider from '../MessagesDivider'
 import BasicMessageComponent from './BasicMessage'
 
-import { MessagesDailyGroups } from '@quiet/nectar'
 import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
+
+import { MessagesDailyGroups, MessageSendingStatus } from '@quiet/nectar'
 
 const useStyles = makeStyles(theme => ({
   spinner: {
@@ -51,12 +53,14 @@ export const fetchingChannelMessagesText = 'Fetching channel messages...'
 
 export interface IChannelMessagesProps {
   messages?: MessagesDailyGroups
+  pendingMessages?: Dictionary<MessageSendingStatus>
   scrollbarRef
   onScroll: () => void
 }
 
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   messages = {},
+  pendingMessages = {},
   scrollbarRef,
   onScroll
 }) => {
@@ -82,7 +86,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
               <MessagesDivider title={day} />
               {messages[day].map(items => {
                 const data = items[0]
-                return <BasicMessageComponent key={data.id} messages={items} />
+                return <BasicMessageComponent key={data.id} messages={items} pendingMessages={pendingMessages} />
               })}
             </div>
           )

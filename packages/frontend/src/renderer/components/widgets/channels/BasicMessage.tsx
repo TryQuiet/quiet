@@ -13,8 +13,9 @@ import Jdenticon from 'react-jdenticon'
 
 // import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
 
-import { DisplayableMessage } from '@quiet/nectar'
+import { DisplayableMessage, MessageSendingStatus, SendingStatus } from '@quiet/nectar'
 import { NestedMessageContent } from './NestedMessageContent'
+import { Dictionary } from '@reduxjs/toolkit'
 
 const useStyles = makeStyles((theme: Theme) => ({
   messageCard: {
@@ -72,6 +73,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   iconBox: {
     marginTop: -4
+  },
+  pending: {
+    color: theme.palette.colors.lightGray
   }
 }))
 
@@ -86,12 +90,16 @@ export const transformToLowercase = (string: string) => {
 
 export interface BasicMessageProps {
   messages: DisplayableMessage[]
+  pendingMessages?: Dictionary<MessageSendingStatus>
   // setActionsOpen: (open: boolean) => void
   // actionsOpen: boolean
   // allowModeration?: boolean
 }
 
-export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ messages }) => {
+export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
+  messages,
+  pendingMessages = {}
+}) => {
   const classes = useStyles({})
 
   // const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null)
@@ -106,12 +114,15 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ messages })
 
   const messageDisplayData = messages[0]
 
+  // Grey out sender name if the first message hasn't been sent yet
+  const pending: boolean = pendingMessages[messageDisplayData.id] !== undefined
+
   return (
     <ListItem
       className={classNames({
-        [classes.wrapper]: true,
-        [classes.clickable]: ['failed', 'cancelled'].includes(status),
-        [classes.wrapperPending]: status !== 'broadcasted'
+        [classes.wrapper]: true
+        // [classes.clickable]: ['failed', 'cancelled'].includes(status),
+        // [classes.wrapperPending]: status !== 'broadcasted'
       })}
       // onClick={() => setActionsOpen(!actionsOpen)}
       onMouseOver={() => {}}
@@ -147,7 +158,12 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ messages })
                   // onClick={e => handleClick(e)}
                 >
                   <Grid item>
-                    <Typography color='textPrimary' className={classes.username}>
+                    <Typography
+                      color='textPrimary'
+                      className={classNames({
+                        [classes.username]: true,
+                        [classes.pending]: pending
+                      })}>
                       {messageDisplayData.nickname}
                     </Typography>
                   </Grid>
@@ -183,9 +199,20 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ messages })
                 </ClickAwayListener>
               )} */}
               </Grid>
-              <Grid container direction='column' data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
+              <Grid
+                container
+                direction='column'
+                data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
                 {messages.map((message, index) => {
-                  return <NestedMessageContent message={message} index={index} key={index} />
+                  const pending = pendingMessages[message.id] !== undefined
+                  return (
+                    <NestedMessageContent
+                      message={message}
+                      pending={pending}
+                      index={index}
+                      key={index}
+                    />
+                  )
                 })}
               </Grid>
             </Grid>

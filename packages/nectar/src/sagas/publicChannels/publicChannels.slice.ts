@@ -18,6 +18,7 @@ import {
   ChannelMessagesIdsResponse,
   SubscribeToTopicPayload,
   AskForMessagesPayload,
+  PendingMessage,
   IncomingMessages,
   MarkUnreadMessagesPayload,
   ClearUnreadMessagesPayload,

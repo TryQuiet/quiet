@@ -1,6 +1,6 @@
 {
   "name": "e2e-tests",
-  "version": "0.4.0-alpha.3",
+  "version": "0.4.3-alpha.0",
   "description": "For running end to end tests we use testcafe (https://testcafe.io/) along with its official electron plugin (https://github.com/DevExpress/testcafe-browser-provider-electron)",
   "main": "index.js",
   "scripts": {
@@ -33,11 +33,11 @@
     "typescript": "^4.1.5"
   },
   "dependencies": {
-    "integration-tests": "^0.4.0-alpha.8",
-    "@quiet/logger": "0.1.0-alpha.4",
+    "@quiet/logger": "^0.1.2-alpha.0",
     "cross-env": "^5.2.0",
+    "integration-tests": "^0.4.3-alpha.0",
     "testcafe": "^1.18.3",
-    "testcafe-browser-provider-electron": "^0.2.0-alpha.1",
+    "testcafe-browser-provider-electron": "^0.2.2-alpha.0",
     "yargs": "^17.3.1"
   },
   "author": "",

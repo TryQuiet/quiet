@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.3-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/nectar@0.4.2-alpha.0...@quiet/nectar@0.4.3-alpha.0) (2022-04-15)
+
+**Note:** Version bump only for package @quiet/nectar
+
+
+
+
+
+## [0.4.2-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/nectar@0.4.0-alpha.7...@quiet/nectar@0.4.2-alpha.0) (2022-04-15)
+
+**Note:** Version bump only for package @quiet/nectar
+
+
+
+
+
+## [0.4.1-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/nectar@0.4.0-alpha.7...@quiet/nectar@0.4.1-alpha.0) (2022-04-15)
+
+**Note:** Version bump only for package @quiet/nectar
+
+
+
+
+
 # [0.4.0-alpha.7](https://github.com/ZbayApp/monorepo/compare/@quiet/nectar@0.4.0-alpha.6...@quiet/nectar@0.4.0-alpha.7) (2022-04-04)
 
 **Note:** Version bump only for package @quiet/nectar

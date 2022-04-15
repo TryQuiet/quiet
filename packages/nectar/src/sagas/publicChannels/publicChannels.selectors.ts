@@ -187,6 +187,7 @@ export const unreadChannels = createSelector(unreadMessages, messages => {
 export const publicChannelsSelectors = {
   publicChannels,
   currentChannel,
+  currentChannelMessages,
   currentChannelMessagesCount,
   dailyGroupedCurrentChannelMessages,
   currentChannelMessagesMergedBySender,

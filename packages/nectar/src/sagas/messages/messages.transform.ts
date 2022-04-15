@@ -1,5 +1,6 @@
 import { createTransform } from 'redux-persist'
 import { StoreKeys } from '../store.keys'
+import { messageSendingStatusAdapter } from './messages.adapter.ts'
 import { MessagesState } from './messages.slice'
 
 export const MessagesTransform = createTransform(
@@ -7,7 +8,11 @@ export const MessagesTransform = createTransform(
     return { ...inboundState, publicKeyMapping: {} }
   },
   (outboundState: MessagesState, _key) => {
-    return { ...outboundState, publicKeyMapping: {} }
+    return {
+      ...outboundState,
+      messageSendingStatus: messageSendingStatusAdapter.getInitialState(),
+      publicKeyMapping: {}
+    }
   },
   { whitelist: [StoreKeys.Messages] }
 )
