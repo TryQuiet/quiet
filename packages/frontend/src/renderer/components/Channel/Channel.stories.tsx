@@ -403,7 +403,7 @@ Component.args = args
 Pending.args = {
   ...args,
   pendingMessages: {
-    ['32']: {
+    32: {
       id: '32',
       status: SendingStatus.Pending
     }
