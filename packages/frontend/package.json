@@ -137,6 +137,7 @@
     "buttercup": "^2.10.0",
     "check-disk-space": "^2.1.0",
     "classnames": "^2.3.1",
+    "commander": "~9.1.0",
     "convert-seconds": "^1.0.1",
     "country-region-data": "^1.4.7",
     "custom-electron-titlebar": "^3.2.2-hotfix62",

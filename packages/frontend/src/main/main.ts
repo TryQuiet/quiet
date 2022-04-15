@@ -5,13 +5,13 @@ import path from 'path'
 import { autoUpdater } from 'electron-updater'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
-import { DataServer, ConnectionsManager } from '@quiet/waggle'
-import { runWaggle, getPorts, ApplicationPorts } from './waggleManager'
+import { getPorts, ApplicationPorts } from './waggleHelpers'
 
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DEV_DATA_DIR } from '../shared/static'
+import { fork, ChildProcess } from 'child_process'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -246,8 +246,8 @@ export const checkForUpdate = async (win: BrowserWindow) => {
   })
 }
 
-let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } | null = null
 let ports: ApplicationPorts
+let waggleProcess: ChildProcess = null
 
 app.on('ready', async () => {
   log('Event: app.ready')
@@ -262,9 +262,28 @@ app.on('ready', async () => {
   ports = await getPorts()
   await createWindow()
 
-  await waggleProcess?.connectionsManager.closeAllServices()
-  await waggleProcess?.dataServer.close()
-  waggleProcess = await runWaggle(ports, appDataPath)
+  const forkArgvs = [
+    '-s', `${ports.socksPort}`,
+    '-l', `${ports.libp2pHiddenService}`,
+    '-c', `${ports.controlPort}`,
+    '-h', `${ports.httpTunnelPort}`,
+    '-d', `${ports.dataServer}`,
+    '-a', `${appDataPath}`,
+    '-r', `${process.resourcesPath}`
+  ]
+  waggleProcess = fork(path.join(__dirname, 'waggleManager.js'), forkArgvs)
+  log('Forked waggle, PID:', waggleProcess.pid)
+
+  waggleProcess.on('error', e => {
+    log.error('Waggle process returned error', e)
+    throw Error(e.message)
+  })
+
+  waggleProcess.on('exit', code => {
+    if (code === 1) {
+      throw Error('Abnormal waggle process termination')
+    }
+  })
 
   if (!isBrowserWindow(mainWindow)) {
     throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
@@ -323,13 +342,19 @@ app.on('browser-window-created', (_, window) => {
 app.on('window-all-closed', async () => {
   log('Event: app.window-all-closed')
   if (waggleProcess !== null) {
-    await waggleProcess.connectionsManager.closeAllServices()
-    await waggleProcess.dataServer.close()
+    waggleProcess.send('close')
+    waggleProcess.on('message', message => {
+      if (message === 'closed-services') {
+        log('Closing the app')
+        app.quit()
+      }
+    })
+  } else {
+    app.quit()
   }
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   // NOTE: temporarly quit macos when using 'X'. Reloading the app loses the connection with waggle. To be fixed.
-  app.quit()
 })
 
 app.on('activate', async () => {
