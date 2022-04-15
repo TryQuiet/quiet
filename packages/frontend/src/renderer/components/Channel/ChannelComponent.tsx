@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useLayoutEffect } from 'react'
 
 import { makeStyles } from '@material-ui/core/styles'
 import { Grid } from '@material-ui/core'
@@ -12,7 +12,9 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { useModal } from '../../containers/hooks'
 
-import { DisplayableMessage, PublicChannel, Identity, MessagesDailyGroups } from '@quiet/nectar'
+import { PublicChannel, Identity, MessagesDailyGroups } from '@quiet/nectar'
+
+import { useResizeDetector } from 'react-resize-detector'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -31,7 +33,7 @@ export interface ChannelComponentProps {
     count: number
     groups: MessagesDailyGroups
   }
-  setChannelLoadingSlice: (value: number) => void
+  setChannelMessagesSliceValue: (value: number) => void
   onDelete: () => void
   onInputChange: (value: string) => void
   onInputEnter: (message: string) => void
@@ -47,7 +49,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   channelInfoModal,
   channelSettingsModal,
   messages,
-  setChannelLoadingSlice,
+  setChannelMessagesSliceValue,
   onDelete,
   onInputChange,
   onInputEnter,
@@ -59,6 +61,85 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   const classes = useStyles({})
 
   const [infoClass, setInfoClass] = useState<string>(null)
+
+  const [scrollPosition, setScrollPosition] = React.useState(1)
+  const [scrollHeight, setScrollHeight] = React.useState(0)
+
+  const chunkSize = 50 // Should come from the configuration
+
+  const onResize = React.useCallback(() => {
+    scrollBottom()
+  }, [])
+
+  const { ref: scrollbarRef } = useResizeDetector<HTMLDivElement>({ onResize })
+
+  const scrollBottom = () => {
+    if (!scrollbarRef.current) return
+    setScrollHeight(0)
+    scrollbarRef.current?.scrollTo({
+      behavior: 'auto',
+      top: Math.abs(scrollbarRef.current?.clientHeight - scrollbarRef.current?.scrollHeight)
+    })
+  }
+
+  const onEnterKeyPress = (message: string) => {
+    // Go back to the bottom if scroll is at the top or in the middle
+    scrollBottom()
+    // Send message
+    onInputEnter(message)
+  }
+
+  /* Get scroll position and save it to the state as 0 (top), 1 (bottom) or -1 (middle) */
+  const onScroll = React.useCallback(() => {
+    const top = scrollbarRef.current?.scrollTop === 0
+
+    const bottom =
+      Math.floor(scrollbarRef.current?.scrollHeight) - Math.floor(scrollbarRef.current?.scrollTop) ===
+      Math.floor(scrollbarRef.current?.clientHeight)
+
+    let position = -1
+    if (top) position = 0
+    if (bottom) position = 1
+
+    setScrollPosition(position)
+  }, [])
+
+  /* Keep scroll position in certain cases */
+  useLayoutEffect(() => {
+    // Keep scroll at the bottom when new message arrives
+    if (scrollbarRef.current && scrollPosition === 1) {
+      scrollBottom()
+    }
+    // Keep scroll position when new chunk of messages is being loaded
+    if (scrollbarRef.current && scrollPosition === 0) {
+      scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight - scrollHeight
+    }
+  }, [messages])
+
+  /* Lazy loading messages - top (load) */
+  useEffect(() => {
+    if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
+    if (scrollbarRef.current && scrollPosition === 0) {
+      /* Cache scroll height before loading new messages (to keep the scroll position after re-rendering) */
+      setScrollHeight(scrollbarRef.current.scrollHeight)
+      const trim = Math.max(0, channel.messagesSlice - chunkSize)
+      setChannelMessagesSliceValue(trim)
+    }
+  }, [setChannelMessagesSliceValue, scrollPosition])
+
+  /* Lazy loading messages - bottom (trim) */
+  useEffect(() => {
+    if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
+    if (scrollbarRef.current && scrollPosition === 1) {
+      const totalMessagesAmount = messages.count + channel.messagesSlice
+      const bottomMessagesSlice = Math.max(0, totalMessagesAmount - chunkSize)
+      setChannelMessagesSliceValue(bottomMessagesSlice)
+    }
+  }, [setChannelMessagesSliceValue, scrollPosition, messages.count])
+
+  useEffect(() => {
+    scrollBottom()
+  }, [channel?.address])
 
   return (
     <Page>
@@ -76,10 +157,9 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
       </PageHeader>
       <Grid item xs className={classes.messages}>
         <ChannelMessagesComponent
-          username={user?.nickname}
-          channel={channel.address}
-          messages={messages}
-          setChannelLoadingSlice={setChannelLoadingSlice}
+          messages={messages.groups}
+          scrollbarRef={scrollbarRef}
+          onScroll={onScroll}
         />
       </Grid>
       <Grid item>
@@ -92,7 +172,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
             onInputChange(value)
           }}
           onKeyPress={message => {
-            onInputEnter(message)
+            onEnterKeyPress(message)
           }}
           infoClass={infoClass}
           setInfoClass={setInfoClass}

@@ -59,7 +59,8 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({
           accountSettingsModal.handleOpen()
         }}
         component='span'
-        classes={{ root: classes.button, label: classes.buttonLabel }}>
+        classes={{ root: classes.button, label: classes.buttonLabel }}
+        data-testid={'settings-panel-button'}>
         <Typography variant='h4' className={classes.nickname}>
           {communityName}
         </Typography>

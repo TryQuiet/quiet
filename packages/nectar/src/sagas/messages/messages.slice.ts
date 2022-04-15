@@ -1,7 +1,7 @@
 import { createSlice, Dictionary, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { ChannelMessage } from '../publicChannels/publicChannels.types'
 import { StoreKeys } from '../store.keys'
-import { MessageVerificationStatus, PublicKeyMappingPayload } from './messages.types'
+import { MessageVerificationStatus, PublicKeyMappingPayload, WriteMessagePayload } from './messages.types'
 import { messageVerificationStatusAdapter } from './verifyMessage/verifyMessageAdapter'
 
 export class MessagesState {
@@ -14,7 +14,7 @@ export const messagesSlice = createSlice({
   initialState: { ...new MessagesState() },
   name: StoreKeys.Messages,
   reducers: {
-    sendMessage: (state, _action: PayloadAction<string>) => state,
+    sendMessage: (state, _action: PayloadAction<WriteMessagePayload>) => state,
     addPublicKeyMapping: (state, action: PayloadAction<PublicKeyMappingPayload>) => {
       state.publicKeyMapping[action.payload.publicKey] = action.payload.cryptoKey
     },

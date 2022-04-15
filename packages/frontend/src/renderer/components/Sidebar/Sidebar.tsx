@@ -25,7 +25,7 @@ const Sidebar = () => {
     dispatch(
       publicChannels.actions.setCurrentChannel({
         channelAddress: address,
-        communityId: currentCommunity.id
+        communityId: currentCommunity?.id
       })
     )
   }
@@ -39,7 +39,7 @@ const Sidebar = () => {
     channels: channels,
     unreadChannels: unreadChannels,
     setCurrentChannel: setCurrentChannel,
-    currentChannel: currentChannel,
+    currentChannel: currentChannel?.address,
     createChannelModal: createChannelModal,
     joinChannelModal: joinChannelModal
   }

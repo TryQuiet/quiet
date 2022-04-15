@@ -13,11 +13,8 @@ const Channel = () => {
 
   const user = useSelector(identity.selectors.currentIdentity)
 
-  const currentCommunityId = useSelector(communities.selectors.currentCommunityId)
-
-  const allChannels = useSelector(publicChannels.selectors.publicChannels)
-  const currentChannelAddress = useSelector(publicChannels.selectors.currentChannel)
-  const currentChannel = allChannels.find(channel => channel?.address === currentChannelAddress)
+  const currentCommunity = useSelector(communities.selectors.currentCommunity)
+  const currentChannel = useSelector(publicChannels.selectors.currentChannel)
 
   const currentChannelMessagesCount = useSelector(
     publicChannels.selectors.currentChannelMessagesCount
@@ -39,21 +36,23 @@ const Channel = () => {
 
   const onInputEnter = useCallback(
     (message: string) => {
-      dispatch(messages.actions.sendMessage(message))
+      dispatch(messages.actions.sendMessage({ message }))
     },
     [dispatch]
   )
 
-  const setChannelLoadingSlice = useCallback(
+  const setChannelMessagesSliceValue = useCallback(
     (value: number) => {
+      if (currentChannel?.messagesSlice === value) return
       dispatch(
-        publicChannels.actions.setChannelLoadingSlice({
-          communityId: currentCommunityId,
-          slice: value
+        publicChannels.actions.setChannelMessagesSliceValue({
+          messagesSlice: value,
+          channelAddress: currentChannel?.address,
+          communityId: currentCommunity?.id
         })
       )
     },
-    [dispatch, currentCommunityId]
+    [dispatch, currentChannel?.address, currentChannel?.messagesSlice, currentCommunity?.id]
   )
 
   return (
@@ -68,7 +67,7 @@ const Channel = () => {
             count: currentChannelMessagesCount,
             groups: currentChannelDisplayableMessages
           }}
-          setChannelLoadingSlice={setChannelLoadingSlice}
+          setChannelMessagesSliceValue={setChannelMessagesSliceValue}
           onDelete={function (): void { }}
           onInputChange={onInputChange}
           onInputEnter={onInputEnter}

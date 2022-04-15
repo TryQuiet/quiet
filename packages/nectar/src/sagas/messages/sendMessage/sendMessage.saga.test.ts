@@ -1,146 +1,89 @@
-import { combineReducers } from '@reduxjs/toolkit'
 import {
+  setupCrypto,
   keyFromCertificate,
   loadPrivateKey,
   parseCertificate,
   sign
 } from '@quiet/identity'
-import { KeyObject } from 'crypto'
+import { Store } from '../../store.types'
+import { getFactory } from '../../..'
+import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { combineReducers } from '@reduxjs/toolkit'
 import { arrayBufferToString } from 'pvutils'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import { Socket } from 'socket.io-client'
-import { communitiesAdapter } from '../../communities/communities.adapter'
-import {
-  communitiesReducer,
-  CommunitiesState,
-  Community
-} from '../../communities/communities.slice'
-import { identityAdapter } from '../../identity/identity.adapter'
-import { identityReducer, IdentityState } from '../../identity/identity.slice'
+import { communitiesActions, Community } from '../../communities/communities.slice'
+import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
-import {
-  channelMessagesAdapter,
-  communityChannelsAdapter,
-  publicChannelsAdapter
-} from '../../publicChannels/publicChannels.adapter'
-import {
-  publicChannelsReducer,
-  PublicChannelsState
-} from '../../publicChannels/publicChannels.slice'
-import { CommunityChannels, PublicChannel } from '../../publicChannels/publicChannels.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { StoreKeys } from '../../store.keys'
 import { MessageTypes } from '../const/messageTypes'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { sendMessageSaga } from './sendMessage.saga'
-import { unreadMessagesAdapter } from '../../publicChannels/markUnreadMessages/unreadMessages.adapter'
+import { FactoryGirl } from 'factory-girl'
+import { currentChannel as getCurrentChannel } from '../../publicChannels/publicChannels.selectors'
+import { PublicChannel } from '../../publicChannels/publicChannels.types'
+import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
+import { DateTime } from 'luxon'
 
 describe('sendMessageSaga', () => {
-  const communityId = 'id'
+  let store: Store
+  let factory: FactoryGirl
 
-  const community: Community = {
-    id: communityId,
-    name: 'community',
-    CA: null,
-    rootCa: '',
-    peerList: [],
-    registrarUrl: 'registrarUrl',
-    registrar: null,
-    onionAddress: '',
-    privateKey: '',
-    port: 0
-  }
+  let community: Community
+  let alice: Identity
 
-  const identity: Identity = {
-    id: communityId,
-    hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-    dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
-    peerId: { id: 'id', pubKey: 'pubKey', privKey: 'privKey' },
-    nickname: '',
-    userCsr: undefined,
-    userCertificate: ''
-  }
+  let sailingChannel: PublicChannel
 
-  const csr = {
-    userCsr: 'userCsr',
-    userKey: 'userKey',
-    pkcs10: {
-      publicKey: jest.fn() as unknown as KeyObject,
-      privateKey: jest.fn() as unknown as KeyObject,
-      pkcs10: {
-        userKey: jest.fn() as unknown
+  beforeAll(async () => {
+    setupCrypto()
+
+    store = prepareStore().store
+
+    factory = await getFactory(store)
+
+    community = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+      'Identity',
+      { id: community.id, nickname: 'alice' }
+    )
+
+    sailingChannel = (await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
+      'PublicChannel',
+      {
+        communityId: alice.id,
+        channel: {
+          name: 'sailing',
+          description: 'Welcome to #sailing',
+          timestamp: DateTime.utc().valueOf(),
+          owner: alice.nickname,
+          address: 'sailing'
+        }
       }
-    }
-  }
+    )).channel
+  })
 
-  identity.userCertificate = 'userCertificate'
-  identity.userCsr = csr
-
-  const publicChannel: PublicChannel = {
-    name: 'general',
-    description: 'description',
-    owner: 'user',
-    timestamp: 0,
-    address: 'address'
-  }
-
-  const communityChannels: CommunityChannels = {
-    id: communityId,
-    currentChannel: publicChannel.address,
-    channelLoadingSlice: 0,
-    channels: publicChannelsAdapter.setAll(
-      publicChannelsAdapter.getInitialState(),
-      [publicChannel]
-    ),
-    channelMessages: channelMessagesAdapter.getInitialState(),
-    unreadMessages: unreadMessagesAdapter.getInitialState()
-  }
-
-  test('sign and send message', async () => {
+  test('sign and send message in current channel', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
+    const currentChannel = getCurrentChannel(store.getState())
+
+    const reducer = combineReducers(reducers)
     await expectSaga(
       sendMessageSaga,
       socket,
-      messagesActions.sendMessage('message')
+      messagesActions.sendMessage({ message: 'message' })
     )
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
-          [StoreKeys.PublicChannels]: publicChannelsReducer
-        }),
-        {
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-            currentCommunity: 'id',
-            communities: communitiesAdapter.setAll(
-              communitiesAdapter.getInitialState(),
-              [community]
-            )
-          },
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(
-              identityAdapter.getInitialState(),
-              [identity]
-            )
-          },
-          [StoreKeys.PublicChannels]: {
-            ...new PublicChannelsState(),
-            channels: communityChannelsAdapter.setAll(
-              communityChannelsAdapter.getInitialState(),
-              [communityChannels]
-            )
-          }
-        }
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
       .provide([
         [call.fn(parseCertificate), 'certificate'],
-        [call.fn(keyFromCertificate), 'key'],
-        [call.fn(loadPrivateKey), 'privKey'],
+        [call.fn(keyFromCertificate), 'publicKey'],
+        [call.fn(loadPrivateKey), 'privateKey'],
         [call.fn(sign), jest.fn() as unknown as ArrayBuffer],
         [call.fn(arrayBufferToString), 'signature'],
         [call.fn(generateMessageId), 4],
@@ -149,15 +92,53 @@ describe('sendMessageSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.SEND_MESSAGE,
         {
-          peerId: identity.peerId.id,
+          peerId: alice.peerId.id,
           message: {
             id: 4,
             type: MessageTypes.BASIC,
             message: 'message',
             createdAt: 8,
-            channelAddress: publicChannel.address,
+            channelAddress: currentChannel.address,
             signature: 'signature',
-            pubKey: 'key'
+            pubKey: 'publicKey'
+          }
+        }
+      ])
+      .run()
+  })
+
+  test('sign and send message in specific channel', async () => {
+    const socket = { emit: jest.fn() } as unknown as Socket
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      sendMessageSaga,
+      socket,
+      messagesActions.sendMessage({ message: 'message', channelAddress: sailingChannel.address })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([
+        [call.fn(parseCertificate), 'certificate'],
+        [call.fn(keyFromCertificate), 'publicKey'],
+        [call.fn(loadPrivateKey), 'privateKey'],
+        [call.fn(sign), jest.fn() as unknown as ArrayBuffer],
+        [call.fn(arrayBufferToString), 'signature'],
+        [call.fn(generateMessageId), 16],
+        [call.fn(getCurrentTime), 24]
+      ])
+      .apply(socket, socket.emit, [
+        SocketActionTypes.SEND_MESSAGE,
+        {
+          peerId: alice.peerId.id,
+          message: {
+            id: 16,
+            type: MessageTypes.BASIC,
+            message: 'message',
+            createdAt: 24,
+            channelAddress: sailingChannel.address,
+            signature: 'signature',
+            pubKey: 'publicKey'
           }
         }
       ])

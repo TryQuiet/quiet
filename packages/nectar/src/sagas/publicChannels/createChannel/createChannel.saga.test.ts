@@ -18,17 +18,19 @@ import { communitiesAdapter } from '../../communities/communities.adapter'
 import { identityAdapter } from '../../identity/identity.adapter'
 import { createChannelSaga } from './createChannel.saga'
 import { Identity } from '../../identity/identity.types'
+import { PublicChannel } from '../publicChannels.types'
 
 describe('createChannelSaga', () => {
   const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-  const channel = {
+  const channel: PublicChannel = {
     name: 'general',
     description: 'desc',
     owner: 'Howdy',
     timestamp: Date.now(),
     address: 'address'
   }
+
   const community: Community = {
     name: '',
     id: 'id',
@@ -41,6 +43,7 @@ describe('createChannelSaga', () => {
     privateKey: '',
     port: 0
   }
+
   const identity: Identity = {
     id: 'id',
     hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },

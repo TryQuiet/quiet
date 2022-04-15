@@ -3,7 +3,6 @@ import { Dictionary, EntityState } from '@reduxjs/toolkit'
 export interface CommunityChannels {
   id: string
   currentChannel: string
-  channelLoadingSlice: number
   channels: EntityState<PublicChannel>
   channelMessages: EntityState<ChannelMessage>
   unreadMessages: EntityState<UnreadChannelMessage>
@@ -15,6 +14,7 @@ export interface PublicChannel {
   owner: string
   timestamp: number
   address: string
+  messagesSlice?: number
 }
 
 export interface ChannelMessage {
@@ -82,8 +82,9 @@ export interface SetCurrentChannelPayload {
   communityId: string
 }
 
-export interface SetChannelLoadingSlicePayload {
-  slice: number
+export interface SetChannelMessagesSliceValuePayload {
+  messagesSlice: number
+  channelAddress: string
   communityId: string
 }
 
@@ -94,6 +95,11 @@ export interface CreateChannelPayload {
 
 export interface CreateGeneralChannelPayload {
   communityId: string
+}
+
+export interface SendInitialChannelMessagePayload {
+  channelName: string
+  channelAddress: string
 }
 
 export interface IncomingMessages {

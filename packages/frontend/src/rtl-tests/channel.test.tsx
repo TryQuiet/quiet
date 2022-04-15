@@ -23,6 +23,7 @@ import {
 } from '@quiet/nectar'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
+import { fetchingChannelMessagesText } from '../renderer/components/widgets/channels/ChannelMessages'
 
 jest.setTimeout(20_000)
 
@@ -102,8 +103,10 @@ describe('Channel', () => {
     // >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { nickname: 'alice' })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
 
     renderComponent(
       <>
@@ -128,11 +131,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     await factory.create<ReturnType<typeof users.actions.storeUserCertificate>['payload']>(
@@ -143,7 +146,7 @@ describe('Channel', () => {
     )
 
     const aliceMessage = await factory.create<
-    ReturnType<typeof publicChannels.actions.test_message>['payload']
+      ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: alice,
       verifyAutomatically: true
@@ -170,6 +173,8 @@ describe('Channel', () => {
       })
     ).payload
 
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
     renderComponent(
       <>
         <Channel />
@@ -179,16 +184,18 @@ describe('Channel', () => {
 
     jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
       if (action === SocketActionTypes.ASK_FOR_MESSAGES) {
-        const data = (input as socketEventData<
-        [
-          {
-            peerId: string
-            channelAddress: string
-            ids: string[]
-            communityId: string
-          }
-        ]
-        >)[0]
+        const data = (
+          input as socketEventData<
+            [
+              {
+                peerId: string
+                channelAddress: string
+                ids: string[]
+                communityId: string
+              }
+            ]
+          >
+        )[0]
         if (data.ids.length > 1) {
           fail('Requested too many massages')
         }
@@ -234,7 +241,6 @@ describe('Channel', () => {
         "PublicChannels/markUnreadMessages",
         "Messages/addPublicKeyMapping",
         "Messages/addMessageVerificationStatus",
-        "PublicChannels/setChannelLoadingSlice",
       ]
     `)
 
@@ -260,11 +266,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     await factory.create<ReturnType<typeof users.actions.storeUserCertificate>['payload']>(
@@ -275,7 +281,7 @@ describe('Channel', () => {
     )
 
     const john = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'john' })
 
     await factory.create<ReturnType<typeof users.actions.storeUserCertificate>['payload']>(
@@ -305,6 +311,8 @@ describe('Channel', () => {
       id: Math.random().toString(36).substr(2.9),
       pubKey: johnPublicKey
     }
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
 
     renderComponent(
       <>
@@ -344,11 +352,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     await factory.create<ReturnType<typeof users.actions.storeUserCertificate>['payload']>(
@@ -370,6 +378,8 @@ describe('Channel', () => {
         cryptoKey: undefined
       })
     )
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
 
     renderComponent(
       <>
@@ -406,7 +416,7 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
@@ -456,10 +466,126 @@ describe('Channel', () => {
       }
     )
 
-    expect(users.selectors.certificatesMapping(store.getState())[message.pubKey].username).toBe(goose.nickname)
+    expect(users.selectors.certificatesMapping(store.getState())[message.pubKey].username).toBe(
+      goose.nickname
+    )
 
     await act(async () => {})
 
     expect(await screen.findByText(message.message)).toBeVisible()
+  })
+
+  it("displays messages loading spinner if there's no messages", async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    const community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+      'Identity',
+      {
+        id: community.id
+      }
+    )
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    const goose = (
+      await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
+        nickname: 'goose',
+        id: community.id
+      })
+    ).payload
+
+    const message = (
+      await factory.build<typeof publicChannels.actions.test_message>('Message', {
+        identity: goose,
+        verifyAutomatically: false
+      })
+    ).payload.message
+
+    store.dispatch(
+      publicChannels.actions.incomingMessages({
+        messages: [message],
+        communityId: community.id
+      })
+    )
+
+    expect(users.selectors.certificatesMapping(store.getState())[message.pubKey]).toBeUndefined()
+    expect(publicChannels.selectors.validCurrentChannelMessages(store.getState()).length).toBe(0)
+
+    expect(screen.queryByText(message.message)).toBeNull()
+
+    await factory.create<ReturnType<typeof users.actions.storeUserCertificate>['payload']>(
+      'UserCertificate',
+      {
+        certificate: goose.userCertificate
+      }
+    )
+
+    expect(users.selectors.certificatesMapping(store.getState())[message.pubKey].username).toBe(
+      goose.nickname
+    )
+
+    await act(async () => {})
+
+    expect(await screen.findByText(message.message)).toBeVisible()
+    // Confirm there are no messages to display
+    const messages = publicChannels.selectors.currentChannelMessagesMergedBySender(store.getState())
+    expect(Object.values(messages).length).toBe(0)
+
+    // Verify loading spinner is visible
+    const spinner = screen.getByText(fetchingChannelMessagesText)
+    expect(spinner).toBeVisible()
+  })
+
+  it.skip("doesn't display messages loading spinner if there's at least one message", async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { nickname: 'alice' })
+
+    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+      'Message',
+      {
+        identity: alice
+      }
+    )
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    // Confirm there are messages to display
+    const messages = publicChannels.selectors.currentChannelMessagesMergedBySender(store.getState())
+    expect(Object.values(messages).length).toBe(1)
+
+    // Verify loading spinner is not visible
+    const spinner = await screen.queryByText(fetchingChannelMessagesText)
+    expect(spinner).toBeNull()
   })
 })

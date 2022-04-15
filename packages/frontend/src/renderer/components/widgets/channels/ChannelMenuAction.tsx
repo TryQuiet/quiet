@@ -6,7 +6,6 @@ import { Grid } from '@material-ui/core'
 import dotsIcon from '../../../static/images/zcash/dots-icon.svg'
 import MenuAction from '../../ui/MenuAction/MenuAction'
 import MenuActionItem from '../../ui/MenuAction/MenuActionItem'
-import ConfirmModal from '../channelSettings/ConfirmModal'
 
 const useStyles = makeStyles((theme) => ({
   menuList: {
@@ -66,41 +65,45 @@ export const ChannelMenuActionComponent: React.FC<ChannelMenuActionProps> = ({
         title='Remove'
       />
 
-      {!disableSettings ? (
-        <MenuActionItem onClick={onSettings} title='Settings' />
-      ) : (
-        <span />
-      )}
-      {!disableSettings ? (
-        <MenuActionItem
-          onClick={() => {
-            openNotificationsTab()
-            onSettings()
-          }}
-          title={
-            <Grid container direction='column'>
-              <Grid item>Notifications</Grid>
-              <Grid item className={classes.sublabel}>
-                {notificationFilter}
+      {!disableSettings
+        ? (
+          <MenuActionItem onClick={onSettings} title='Settings' />
+        )
+        : (
+          <span />
+        )}
+      {!disableSettings
+        ? (
+          <MenuActionItem
+            onClick={() => {
+              openNotificationsTab()
+              onSettings()
+            }}
+            title={
+              <Grid container direction='column'>
+                <Grid item>Notifications</Grid>
+                <Grid item className={classes.sublabel}>
+                  {notificationFilter}
+                </Grid>
               </Grid>
-            </Grid>
-          }
-        />
-      ) : (
-        <span />
-      )}
+            }
+          />
+        )
+        : (
+          <span />
+        )}
       <MenuActionItem
         onClick={mutedFlag ? onUnmute : onMute}
         title={mutedFlag ? 'Unmute' : 'Mute'}
       />
-      <ConfirmModal
+      {/* <ConfirmModal
         open={openDialog}
         title={'Are you sure you want to remove this channel?'}
         actionName='Yes'
         cancelName='No'
         handleClose={() => setOpenDialog(false)}
         handleAction={onDelete}
-      />
+      /> */}
     </MenuAction>
   )
 }

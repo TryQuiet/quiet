@@ -1,4 +1,7 @@
 import { Selector, t } from 'testcafe'
+import logger from './logger'
+
+const log = logger('selectors')
 
 export class LoadingPanel {
   private readonly text: string
@@ -39,9 +42,44 @@ export class Channel {
     return Selector('div').withAttribute('data-testid', 'messageInput')
   }
 
+  getUserMessages(username: string): Selector {
+    return Selector('div').withAttribute('data-testid', new RegExp(`userMessages-${username}`))
+  }
+
   async sendMessage(message: string) {
     await t.typeText(this.messageInput, message)
     await t.pressKey('enter')
+  }
+}
+
+export class Sidebar {
+  async openSettings () {
+    const button = Selector('span').withAttribute('data-testid', 'settings-panel-button')
+    await t.expect(button.exists).ok({ timeout: 100000 })
+    await t.click(button)
+    return new Settings()
+  }
+}
+
+export class Settings {
+  get title () {
+    return Selector('h6').withText('Settings')
+  }
+
+  async switchTab(name: string) {
+    log(`Switching settings tab to '${name}'`)
+    await t.click(Selector('button').withAttribute('data-testid', `${name}-settings-tab`))
+  }
+
+  get invitationCode () {
+    return Selector('p').withAttribute('data-testid', 'invitation-code')
+  }
+
+  async close() {
+    const closeButton = Selector('div').withAttribute('data-testid', 'settingsModalActions').find('button')
+    await t.expect(closeButton.exists).ok()
+    log('Closing settings modal')
+    await t.click(closeButton)
   }
 }
 
@@ -50,8 +88,21 @@ export class JoinCommunityModal {
     return Selector('h3').withText('Join community')
   }
 
+  async typeCommunityCode(code: string) {
+    const communityNameInput = Selector('input').withAttribute('placeholder', 'Invite code')
+    log(`Typing community invitation code: '${code}'`)
+    await t.typeText(communityNameInput, code)
+  }
+
   async switchToCreateCommunity() {
-    await t.click(Selector('a').withAttribute('data-testid', 'JoinCommunityLink'))
+    const link = Selector('a').withAttribute('data-testid', 'JoinCommunityLink')
+    await t.expect(link.exists).ok()
+    await t.click(link)
+  }
+
+  async submit() {
+    const continueButton = Selector('button').withAttribute('data-testid', 'continue-joinCommunity')
+    await t.click(continueButton)
   }
 }
 
@@ -94,7 +145,9 @@ export class DebugModeModal {
   }
 
   async close() {
-    if (await this.title.exists) {
+    if (await this.title.visible) {
+      log('Debug warning modal present. Closing.')
+      await t.wait(2000)
       await t.click(Selector('button').withText('Understand'))
     }
   }

@@ -37,6 +37,7 @@ const log = logger('socket')
 export function subscribe(socket: Socket) {
   return eventChannel<
   | ReturnType<typeof publicChannelsActions.addChannel>
+  | ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>
   | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
   | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
   | ReturnType<typeof publicChannelsActions.incomingMessages>
@@ -58,11 +59,15 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, (payload: GetPublicChannelsResponse) => {
       emit(publicChannelsActions.responseGetPublicChannels(payload))
-      emit(publicChannelsActions.subscribeToAllTopics(payload.communityId))
+      emit(publicChannelsActions.subscribeToAllTopics())
     }
     )
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       emit(publicChannelsActions.addChannel(payload))
+      emit(publicChannelsActions.sendInitialChannelMessage({
+        channelName: payload.channel.name,
+        channelAddress: payload.channel.address
+      }))
     })
     socket.on(SocketActionTypes.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
       emit(publicChannelsActions.responseSendMessagesIds(payload))

@@ -132,24 +132,26 @@ export const Modal: React.FC<IModalProps> = ({
                 className={classes.actions}
                 data-testid={`${testIdPrefix}ModalActions`}
               >
-                {canGoBack ? (
-                  <IconButton onClick={() => {
-                    if (setStep && step) { return setStep(step - 1) }
-                  }
-                  }>
-                    <BackIcon />
-                  </IconButton>
-                ) : (
-                  !isCloseDisabled && (
-                    <IconButton
-                      onClick={() => {
-                        if (handleClose) { return handleClose({}, 'backdropClick') }
-                      }}
-                    >
-                      <ClearIcon />
+                {canGoBack
+                  ? (
+                    <IconButton onClick={() => {
+                      if (setStep && step) { return setStep(step - 1) }
+                    }
+                    }>
+                      <BackIcon />
                     </IconButton>
                   )
-                )}
+                  : (
+                    !isCloseDisabled && (
+                      <IconButton
+                        onClick={() => {
+                          if (handleClose) { return handleClose({}, 'backdropClick') }
+                        }}
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    )
+                  )}
               </Grid>
             </Grid>
           </Grid>

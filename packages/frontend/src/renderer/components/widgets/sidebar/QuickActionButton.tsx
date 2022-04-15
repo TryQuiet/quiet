@@ -40,11 +40,13 @@ export const QuickActionButton: React.FC<QuickActionButtonProps> = ({ text, acti
   const classes = useStyles({})
   return (
     <Button variant='text' className={classes.button} onClick={action}>
-      {icon ? (
-        <div className={classes.iconDiv}>{icon}</div>
-      ) : (
-        <AddIcon className={classes.icon} />
-      )}
+      {icon
+        ? (
+          <div className={classes.iconDiv}>{icon}</div>
+        )
+        : (
+          <AddIcon className={classes.icon} />
+        )}
       <Typography variant='body2'>{text}</Typography>
     </Button>
   )

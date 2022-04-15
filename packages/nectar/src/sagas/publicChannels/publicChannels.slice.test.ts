@@ -1,165 +1,69 @@
-import { combineReducers, createStore, Store } from 'redux'
-import { StoreKeys } from '../store.keys'
-import { publicChannelsSelectors } from './publicChannels.selectors'
-import {
-  publicChannelsActions,
-  publicChannelsReducer,
-  PublicChannelsState
-} from './publicChannels.slice'
-import {
-  CommunityChannels
-} from './publicChannels.types'
-import {
-  channelMessagesAdapter,
-  communityChannelsAdapter,
-  publicChannelsAdapter
-} from './publicChannels.adapter'
-import {
-  communitiesReducer,
-  CommunitiesState,
-  Community
-} from '../communities/communities.slice'
-
-import { communitiesAdapter } from '../communities/communities.adapter'
-import { unreadMessagesAdapter } from './markUnreadMessages/unreadMessages.adapter'
-
-const mockGetPublicChannels = {
-  public: {
-    address:
-      'zs1ppz4qxctnv85ycex7u4cyxatz2wnduzy7usvyagma6h45lwrx88pdl3mdu25z763uvfy7a0qpfs',
-    description: 'public chat',
-    name: 'public',
-    owner: '030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede',
-    timestamp: 1587010998
-  },
-  quiet: {
-    address:
-      'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00',
-    description: 'quiet marketplace channel',
-    name: 'quiet',
-    owner: '030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede',
-    timestamp: 1587009699
-  }
-}
+import { Store } from 'redux'
+import { setupCrypto } from '@quiet/identity'
+import { currentChannel, publicChannelsSelectors } from './publicChannels.selectors'
+import { publicChannelsActions } from './publicChannels.slice'
+import { PublicChannel } from './publicChannels.types'
+import { communitiesActions, Community } from '../communities/communities.slice'
+import { FactoryGirl } from 'factory-girl'
+import { prepareStore } from '../../utils/tests/prepareStore'
+import { getFactory } from '../../utils/tests/factories'
+import { identityActions } from '../identity/identity.slice'
+import { Identity } from '../identity/identity.types'
+import { DateTime } from 'luxon'
 
 describe('publicChannelsReducer', () => {
   let store: Store
+  let factory: FactoryGirl
 
-  const communityId: Community = {
-    name: '',
-    id: 'communityId',
-    CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-    rootCa: '',
-    peerList: [],
-    registrarUrl: '',
-    registrar: null,
-    onionAddress: '',
-    privateKey: '',
-    port: 0
-  }
+  let community: Community
+  let alice: Identity
+  let generalChannel: PublicChannel
+  let quietChannel: PublicChannel
 
-  const messages = [
-    {
-      id: '0',
-      message: 'message0',
-      createdAt: 0,
-      channelAddress: '',
-      signature: '',
-      pubKey: '12',
-      type: 1
-    },
-    {
-      id: '2',
-      message: 'message2',
-      createdAt: 0,
-      channelAddress: '',
-      signature: '',
-      pubKey: '12',
-      type: 1
-    },
-    {
-      id: '4',
-      message: 'message4',
-      createdAt: 0,
-      channelAddress: '',
-      signature: '',
-      pubKey: '12',
-      type: 1
-    },
-    {
-      id: '1',
-      message: 'message1',
-      createdAt: 0,
-      channelAddress: '',
-      signature: '',
-      pubKey: '12',
-      type: 1
-    }
-  ]
+  beforeAll(async () => {
+    setupCrypto()
 
-  const communityChannels: CommunityChannels = {
-    id: 'communityId',
-    currentChannel: 'currentChannel',
-    channelLoadingSlice: 0,
-    channels: publicChannelsAdapter.getInitialState(),
-    channelMessages: channelMessagesAdapter.setAll(
-      channelMessagesAdapter.getInitialState(),
-      messages
-    ),
-    unreadMessages: unreadMessagesAdapter.getInitialState()
-  }
+    store = prepareStore().store
 
-  beforeEach(() => {
-    store = createStore(
-      combineReducers({
-        [StoreKeys.PublicChannels]: publicChannelsReducer,
-        [StoreKeys.Communities]: communitiesReducer
-      }),
-      {
-        [StoreKeys.PublicChannels]: {
-          ...new PublicChannelsState(),
-          channels: communityChannelsAdapter.setAll(
-            communityChannelsAdapter.getInitialState(),
-            [communityChannels]
-          )
-        },
-        [StoreKeys.Communities]: {
-          ...new CommunitiesState(),
-          currentCommunity: 'communityId',
-          communities: communitiesAdapter.setAll(
-            communitiesAdapter.getInitialState(),
-            [communityId]
-          )
-        }
-      }
+    factory = await getFactory(store)
+
+    community = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+      'Identity',
+      { id: community.id, nickname: 'alice' }
     )
+
+    generalChannel = currentChannel(store.getState())
+
+    quietChannel = (
+      await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel', {
+        communityId: community.id,
+        channel: {
+          name: 'quiet',
+          description: 'Welcome to #quiet',
+          timestamp: DateTime.utc().valueOf(),
+          owner: alice.nickname,
+          address: 'quiet',
+          messagesSlice: 0
+        }
+      })
+    ).payload.channel
   })
 
   it('responseGetPublicChannels should set channels info', () => {
     store.dispatch(
       publicChannelsActions.responseGetPublicChannels({
-        communityId: 'communityId',
-        channels: mockGetPublicChannels
+        communityId: community.id,
+        channels: {
+          [generalChannel.address]: generalChannel,
+          [quietChannel.address]: quietChannel
+        }
       })
     )
     const channels = publicChannelsSelectors.publicChannels(store.getState())
-    expect(channels).toMatchInlineSnapshot(`
-Array [
-  Object {
-    "address": "zs1ppz4qxctnv85ycex7u4cyxatz2wnduzy7usvyagma6h45lwrx88pdl3mdu25z763uvfy7a0qpfs",
-    "description": "public chat",
-    "name": "public",
-    "owner": "030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede",
-    "timestamp": 1587010998,
-  },
-  Object {
-    "address": "zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00",
-    "description": "quiet marketplace channel",
-    "name": "quiet",
-    "owner": "030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede",
-    "timestamp": 1587009699,
-  },
-]
-`)
+    expect(channels.length).toBe(2)
   })
 })

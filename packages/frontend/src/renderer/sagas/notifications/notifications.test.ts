@@ -32,18 +32,16 @@ window.Notification = notification
 const mockShow = jest.fn()
 const mockIsFocused = jest.fn()
 
-jest.mock('electron', () => {
+jest.mock('@electron/remote', () => {
   return {
-    remote: {
-      BrowserWindow: {
-        getAllWindows: () => {
-          return [
-            {
-              show: mockShow,
-              isFocused: mockIsFocused
-            }
-          ]
-        }
+    BrowserWindow: {
+      getAllWindows: () => {
+        return [
+          {
+            isFocused: mockIsFocused,
+            show: mockShow
+          }
+        ]
       }
     }
   }
@@ -356,7 +354,7 @@ describe('displayNotificationsSaga', () => {
           [StoreKeys.Users]: users.reducer,
           [StoreKeys.Communities]: communities.reducer
         }),
-        storeReducersWithCurrentChannelFromMessage.getState()
+        storeReducersWithCurrentChannelFromMessage
       )
       .run()
 
@@ -388,7 +386,7 @@ describe('displayNotificationsSaga', () => {
           [StoreKeys.Users]: users.reducer,
           [StoreKeys.Communities]: communities.reducer
         }),
-        storeReducersWithCurrentChannelFromMessage.getState()
+        storeReducersWithCurrentChannelFromMessage
       )
       .run()
 
@@ -427,6 +425,36 @@ describe('displayNotificationsSaga', () => {
           [StoreKeys.Communities]: communities.reducer
         }),
         store.getState()
+      )
+      .run()
+
+    expect(notification).not.toHaveBeenCalled()
+  })
+
+  test('do not display notification when there is no sender info', async () => {
+    mockIsFocused.mockImplementationOnce(() => { return true })
+
+    const incomingMessagesWithoutSender: IncomingMessages = {
+      ...incomingMessages,
+      messages: [{
+        ...incomingMessages.messages[0],
+        pubKey: 'notExistingPubKey'
+      }]
+    }
+
+    await expectSaga(
+      displayMessageNotificationSaga,
+      publicChannels.actions.incomingMessages(incomingMessagesWithoutSender))
+      .withReducer(
+        combineReducers({
+          [StoreKeys.Identity]: identity.reducer,
+          [StoreKeys.Settings]: settings.reducer,
+          [StoreKeys.PublicChannels]: publicChannels.reducer,
+          [StoreKeys.Users]: users.reducer,
+          [StoreKeys.Communities]: communities.reducer
+
+        }),
+        store.store.getState()
       )
       .run()
 

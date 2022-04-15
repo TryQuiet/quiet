@@ -3,33 +3,36 @@ import { app, BrowserWindow, Menu, ipcMain, session } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import { autoUpdater } from 'electron-updater'
-import electronStore from '../shared/electronStore'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
-import config from './config'
 import { DataServer, ConnectionsManager } from '@quiet/waggle'
-import { waggleVersion, runWaggle } from './waggleManager'
+import { runWaggle, getPorts, ApplicationPorts } from './waggleManager'
+
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
-import { initSentry } from '../shared/sentryConfig'
 import logger from './logger'
+import { DEV_DATA_DIR } from '../shared/static'
 
-initSentry()
+// eslint-disable-next-line
+const remote = require('@electron/remote/main')
+
+remote.initialize()
 
 const log = logger('main')
 
-console.log('')
+const updaterInterval = 15 * 60_000
 
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
 const webcrypto = new Crypto()
 
 if (isDev || process.env.DATA_DIR) {
-  const dataDir = process.env.DATA_DIR || 'Quietdev'
+  const dataDir = process.env.DATA_DIR || DEV_DATA_DIR
   const appDataPath = path.join(app.getPath('appData'), dataDir)
 
   if (!fs.existsSync(appDataPath)) {
     fs.mkdirSync(appDataPath)
+    fs.mkdirSync(`${appDataPath}/Quiet`)
   }
 
   const newUserDataPath = path.join(appDataPath, 'Quiet')
@@ -38,8 +41,7 @@ if (isDev || process.env.DATA_DIR) {
   app.setPath('userData', newUserDataPath)
 }
 
-electronStore.set('appDataPath', app.getPath('appData'))
-electronStore.set('waggleVersion', waggleVersion)
+const appDataPath = app.getPath('appData')
 
 interface IWindowSize {
   width: number
@@ -53,6 +55,7 @@ const windowSize: IWindowSize = {
 
 setEngine(
   'newEngine',
+  // @ts-ignore
   webcrypto,
   new CryptoEngine({
     name: '',
@@ -107,21 +110,11 @@ if (!gotTheLock) {
   app.quit()
 } else {
   app.on('second-instance', _commandLine => {
+    log('Event: app.second-instance')
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
     }
-    // const url = new URL(commandLine[process.platform === 'win32' ? 3 : 1])
-    // if (url.searchParams.has('invitation')) {
-    //   mainWindow.webContents.send('newInvitation', {
-    //     invitation: url.searchParams.get('invitation')
-    //   })
-    // }
-    // if (url.searchParams.has('importchannel')) {
-    //   mainWindow.webContents.send('newChannel', {
-    //     channelParams: url.searchParams.get('importchannel')
-    //   })
-    // }
   })
 }
 
@@ -164,23 +157,25 @@ let browserWidth: number
 let browserHeight: number
 
 const createWindow = async () => {
-  const windowUserSize = electronStore.get('windowSize')
   mainWindow = new BrowserWindow({
-    width: windowUserSize ? windowUserSize.width : windowSize.width,
-    height: windowUserSize ? windowUserSize.height : windowSize.height,
+    width: windowSize.width,
+    height: windowSize.height,
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true
+      contextIsolation: false
     },
     autoHideMenuBar: true
   })
+
+  remote.enable(mainWindow.webContents)
+
   mainWindow.setMinimumSize(600, 400)
   /* eslint-disable */
   mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, './index.html'),
+      search: `dataPort=${ports.dataServer}`,
       protocol: 'file:',
       slashes: true,
       hash: '/'
@@ -189,6 +184,7 @@ const createWindow = async () => {
   /* eslint-enable */
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
+    log('Event mainWindow.closed')
     mainWindow = null
   })
   mainWindow.on('resize', () => {
@@ -208,9 +204,8 @@ const createWindow = async () => {
       mainWindow.webContents.openDevTools()
     }
   })
+  log('Created mainWindow')
 }
-
-let isUpdatedStatusCheckingStarted = false
 
 const isNetworkError = (errorObject: { message: string }) => {
   return (
@@ -224,37 +219,6 @@ const isNetworkError = (errorObject: { message: string }) => {
 }
 
 export const checkForUpdate = async (win: BrowserWindow) => {
-  if (!isUpdatedStatusCheckingStarted) {
-    try {
-      await autoUpdater.checkForUpdates()
-    } catch (error) {
-      if (isNetworkError(error)) {
-        log.error('Network Error')
-      } else {
-        log.error('Unknown Error')
-        log.error(error == null ? 'unknown' : (error.stack || error).toString())
-      }
-    }
-    autoUpdater.on('checking-for-update', () => {
-      log('checking for updates...')
-    })
-    autoUpdater.on('error', error => {
-      log(error)
-    })
-    autoUpdater.on('update-not-available', () => {
-      log('event no update')
-      electronStore.set('updateStatus', config.UPDATE_STATUSES.NO_UPDATE)
-    })
-    autoUpdater.on('update-available', info => {
-      log(info)
-      electronStore.set('updateStatus', config.UPDATE_STATUSES.PROCESSING_UPDATE)
-    })
-
-    autoUpdater.on('update-downloaded', () => {
-      win.webContents.send('newUpdateAvailable')
-    })
-    isUpdatedStatusCheckingStarted = true
-  }
   try {
     await autoUpdater.checkForUpdates()
   } catch (error) {
@@ -265,11 +229,28 @@ export const checkForUpdate = async (win: BrowserWindow) => {
       log.error(error == null ? 'unknown' : (error.stack || error).toString())
     }
   }
+  autoUpdater.on('checking-for-update', () => {
+    log('checking for updates...')
+  })
+  autoUpdater.on('error', error => {
+    log('UPDATER ERROR: ', error)
+  })
+  autoUpdater.on('update-not-available', () => {
+    log('event no update')
+  })
+  autoUpdater.on('update-available', info => {
+    log(info)
+  })
+  autoUpdater.on('update-downloaded', () => {
+    win.webContents.send('newUpdateAvailable')
+  })
 }
 
 let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } | null = null
+let ports: ApplicationPorts
 
 app.on('ready', async () => {
+  log('Event: app.ready')
   if (process.platform === 'darwin') {
     Menu.setApplicationMenu(null)
   } else {
@@ -278,11 +259,15 @@ app.on('ready', async () => {
 
   await applyDevTools()
 
+  ports = await getPorts()
   await createWindow()
-  log('created windows')
+
+  await waggleProcess?.connectionsManager.closeAllServices()
+  await waggleProcess?.dataServer.close()
+  waggleProcess = await runWaggle(ports, appDataPath)
 
   if (!isBrowserWindow(mainWindow)) {
-    throw new Error('mainWindow is on unexpected type {mainWindow}')
+    throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
   }
 
   mainWindow.webContents.on('did-fail-load', () => {
@@ -301,8 +286,9 @@ app.on('ready', async () => {
   })
 
   mainWindow.webContents.once('did-finish-load', async () => {
+    log('Event: mainWindow did-finish-load')
     if (!isBrowserWindow(mainWindow)) {
-      throw new Error('mainWindow is on unexpected type {mainWindow}')
+      throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
     }
     if (process.platform === 'win32' && process.argv) {
       const payload = process.argv[1]
@@ -311,43 +297,31 @@ app.on('ready', async () => {
       }
     }
 
-    // TEMPORARY DISABLE UPDATER FOR LINUX
-
-    if (!isDev && process.platform !== 'linux') {
+    await checkForUpdate(mainWindow)
+    setInterval(async () => {
+      if (!isBrowserWindow(mainWindow)) {
+        throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
+      }
       await checkForUpdate(mainWindow)
-      setInterval(async () => {
-        if (!isBrowserWindow(mainWindow)) {
-          throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
-        }
-        await checkForUpdate(mainWindow)
-      }, 15 * 60000)
-    }
+    }, updaterInterval)
   })
 
   ipcMain.on('proceed-update', () => {
     autoUpdater.quitAndInstall()
   })
-
-  ipcMain.on('start-waggle', async () => {
-    await waggleProcess?.connectionsManager.closeAllServices()
-    await waggleProcess?.dataServer.close()
-    waggleProcess = await runWaggle(mainWindow.webContents)
-  })
 })
 
 app.setAsDefaultProtocolClient('quiet')
 
-app.on('before-quit', () => {
-  if (browserWidth && browserHeight) {
-    electronStore.set('windowSize', {
-      width: browserWidth,
-      height: browserHeight
-    })
-  }
+app.on('browser-window-created', (_, window) => {
+  log('Event: app.browser-window-created', window.getTitle())
+  /// / eslint-disable-next-line
+  remote.enable(window.webContents)
 })
 
 // Quit when all windows are closed.
 app.on('window-all-closed', async () => {
+  log('Event: app.window-all-closed')
   if (waggleProcess !== null) {
     await waggleProcess.connectionsManager.closeAllServices()
     await waggleProcess.dataServer.close()
@@ -359,6 +333,7 @@ app.on('window-all-closed', async () => {
 })
 
 app.on('activate', async () => {
+  log('Event: app.activate')
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {

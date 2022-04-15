@@ -16,16 +16,21 @@ import Channel from '../renderer/components/Channel/Channel'
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
 import {
+  ChannelMessage,
   ErrorMessages,
   getFactory,
   identity,
+  MessageType,
   publicChannels,
+  SendMessagePayload,
   SocketActionTypes,
   SubscribeToTopicPayload
 } from '@quiet/nectar'
 
 import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
+import { sendInitialChannelMessageSaga } from 'packages/nectar/src/sagas/publicChannels/createGeneralChannel/sendInitialChannelMessage.saga'
+import { DateTime } from 'luxon'
 
 jest.setTimeout(20_000)
 
@@ -70,7 +75,7 @@ describe('Add new channel', () => {
     expect(title).toBeVisible()
   })
 
-  it('Adds new channel and opens it', async () => {
+  it('Adds new channel and opens it. Sends initial message', async () => {
     const { store, runSaga } = await prepareStore(
       {
         [StoreKeys.Modals]: {
@@ -87,6 +92,8 @@ describe('Add new channel', () => {
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { nickname: 'alice' })
 
+    const channelName = { input: 'my-Super Channel ', output: 'my-super-channel' }
+
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
@@ -94,13 +101,25 @@ describe('Add new channel', () => {
           const data = input as socketEventData<[SubscribeToTopicPayload]>
           const payload = data[0]
           expect(payload.peerId).toEqual(alice.peerId.id)
-          expect(payload.channelData.name).toEqual('my-super-channel')
+          expect(payload.channelData.name).toEqual(channelName.output)
           return socket.socketClient.emit(SocketActionTypes.CREATED_CHANNEL, {
             channel: payload.channelData,
             communityId: alice.id // Identity id is the same as community id
           })
         }
+        if (action === SocketActionTypes.SEND_MESSAGE) {
+          const data = input as socketEventData<[SendMessagePayload]>
+          const { message } = data[0]
+          expect(message.channelAddress).toEqual(channelName.output)
+          expect(message.message).toEqual(`Created #${channelName.output}`)
+          return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
+            messages: [message],
+            communityId: alice.id
+          })
+        }
       })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
 
     renderComponent(
       <>
@@ -112,7 +131,7 @@ describe('Add new channel', () => {
     )
 
     const input = screen.getByPlaceholderText('Enter a channel name')
-    userEvent.type(input, 'my-Super Channel ')
+    userEvent.type(input, channelName.input)
 
     const button = screen.getByText('Create Channel')
     userEvent.click(button)
@@ -123,7 +142,7 @@ describe('Add new channel', () => {
 
     function* testCreateChannelSaga(): Generator {
       const createChannelAction = yield* take(publicChannels.actions.createChannel)
-      expect(createChannelAction.payload.channel.name).toEqual('my-super-channel')
+      expect(createChannelAction.payload.channel.name).toEqual(channelName.output)
       expect(createChannelAction.payload.channel.owner).toEqual(alice.nickname)
       const addChannelAction = yield* take(publicChannels.actions.addChannel)
       expect(addChannelAction.payload.channel).toEqual(createChannelAction.payload.channel)
@@ -134,11 +153,15 @@ describe('Add new channel', () => {
 
     // Check if newly created channel is present and selected
     const channelTitle = screen.getByTestId('channelTitle')
-    expect(channelTitle).toHaveTextContent('#my-super-channel')
+    expect(channelTitle).toHaveTextContent(`#${channelName.output}`)
 
     // Check if sidebar item displays as selected
-    const link = screen.getByTestId('my-super-channel-link')
+    const link = screen.getByTestId(`${channelName.output}-link`)
     expect(link).toHaveStyle('backgroundColor: rgb(103, 191, 211)') // lushSky: '#67BFD3'
+
+    // Check if initial message is visible
+    const message = await screen.findByText(`Created #${channelName.output}`)
+    expect(message).toBeVisible()
   })
 
   it('Displays error if trying to add channel with already taken name', async () => {

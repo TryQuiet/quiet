@@ -1,6 +1,6 @@
 {
 	"name": "@quiet/waggle",
-	"version": "0.4.0-alpha.3",
+	"version": "0.4.0-alpha.7",
 	"description": "tlg-manager",
 	"types": "lib/index.d.ts",
 	"main": "lib/index.js",
@@ -82,9 +82,9 @@
 	"dependencies": {
 		"@chainsafe/libp2p-noise": "^4.0.0",
 		"@peculiar/webcrypto": "1.2.2",
-		"@quiet/identity": "^0.3.0-alpha.7",
-		"@quiet/nectar": "^0.4.0-alpha.3",
-		"@quiet/logger": "^0.1.0-alpha.0",
+		"@quiet/identity": "^0.3.0-alpha.11",
+		"@quiet/logger": "^0.1.0-alpha.4",
+		"@quiet/nectar": "^0.4.0-alpha.7",
 		"abortable-iterator": "^3.0.0",
 		"class-validator": "^0.13.1",
 		"cli-table": "^0.3.6",
@@ -118,7 +118,7 @@
 		"socket.io": "3.0.5",
 		"socks-proxy-agent": "^5.0.0",
 		"streaming-iterables": "^5.0.2",
-		"uint8arrays": "^1.1.0",
+		"uint8arrays": "^3.0.0",
 		"url": "^0.11.0",
 		"validator": "^13.6.0"
 	},

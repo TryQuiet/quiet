@@ -5,8 +5,12 @@ import { startConnectionSaga } from './socket/socket.saga'
 import { socketActions } from './socket/socket.slice'
 
 export default function* root(): Generator {
+  yield* startConnectionSaga(
+    socketActions.startConnection({
+      dataPort: parseInt(new URLSearchParams(window.location.search).get('dataPort'))
+    })
+  )
   yield all([
-    takeEvery(socketActions.startConnection.type, startConnectionSaga),
     takeEvery(publicChannels.actions.incomingMessages.type, displayMessageNotificationSaga)
   ])
 }
