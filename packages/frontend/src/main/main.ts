@@ -185,6 +185,7 @@ const createWindow = async () => {
     alwaysOnTop: true
   })
 
+  // eslint-disable-next-line
   splash.loadURL(`file://${__dirname}/splash.html`)
   splash.show()
 
