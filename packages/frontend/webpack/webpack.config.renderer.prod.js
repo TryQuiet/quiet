@@ -50,6 +50,11 @@ module.exports = {
       title: 'Quiet',
       template: 'src/renderer/index.html'
     }),
+    new HtmlWebpackPlugin({
+      title: 'Quiet-splash',
+      template: 'src/renderer/splashScreen/splash.html',
+      filename: 'splash.html'
+    }),
     new webpack.EnvironmentPlugin({
       TEST_MODE: process.env.TEST_MODE
     })
