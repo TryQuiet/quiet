@@ -5,7 +5,6 @@ import path from 'path'
 import { autoUpdater } from 'electron-updater'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
-import { DataServer, ConnectionsManager } from '@quiet/waggle'
 import { getPorts, ApplicationPorts } from './waggleHelpers'
 
 import { setEngine, CryptoEngine } from 'pkijs'
@@ -334,7 +333,7 @@ app.on('window-all-closed', async () => {
   if (waggleProcess !== null) {
     waggleProcess.send('close')
     waggleProcess.on('message', message => {
-      if (message === 'closedServices') {
+      if (message === 'closed-services') {
         log('Closing the app')
         app.quit()
       }

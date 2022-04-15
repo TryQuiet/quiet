@@ -6,13 +6,13 @@ const program = new Command()
 const log = logger('waggleManager')
 
 program
-  .requiredOption('-s, --socksPort <number>', 'Socks proxy port')
-  .requiredOption('-h, --httpTunnelPort <number>', 'Tor http tunnel port')
-  .requiredOption('-a, --appDataPath <string>', 'Path of application data directory')
-  .requiredOption('-c, --controlPort <number>', 'Tor control port')
-  .requiredOption('-d, --dataServerPort <number>', 'Socket io data server port')
+  .option('-s, --socksPort <number>', 'Socks proxy port')
+  .option('-h, --httpTunnelPort <number>', 'Tor http tunnel port')
+  .option('-a, --appDataPath <string>', 'Path of application data directory')
+  .option('-c, --controlPort <number>', 'Tor control port')
+  .option('-d, --dataServerPort <number>', 'Socket io data server port')
   .option('-r, --resourcesPath <string>', 'Application resources path')
-  .requiredOption('-l, --libp2pHiddenService <number>', 'Libp2p tor hidden service port')
+  .option('-l, --libp2pHiddenService <number>', 'Libp2p tor hidden service port')
 
 program.parse(process.argv)
 const options = program.opts()
@@ -43,6 +43,18 @@ export const runWaggle = async (): Promise<{
     }
   })
 
+  process.on('message', async (message) => {
+    if (message === 'close') {
+      try {
+        await dataServer.close()
+        await connectionsManager.closeAllServices()
+      } catch (e) {
+        log.error('Error occured while closing waggle services', e)
+      }
+      process.send('closed-services')
+    }
+  })
+
   await connectionsManager.init()
 
   return { connectionsManager, dataServer }
@@ -50,16 +62,6 @@ export const runWaggle = async (): Promise<{
 
 export const waggleVersion = waggle.version
 
-runWaggle().then((data) => {
-  process.on('message', message => {
-    if (message === 'close') {
-      data.connectionsManager.closeAllServices().catch((e) => {
-        log.error('Error occured while closing waggle services', e)
-      }).finally(() => {
-        process.send('closedServices')
-      })
-    }
-  })
-}).catch((e) => {
+runWaggle().catch((e) => {
   log.error('Waggle initialization returned error', e)
 })
