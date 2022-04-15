@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.3-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/waggle@0.4.2-alpha.0...@quiet/waggle@0.4.3-alpha.0) (2022-04-15)
+
+**Note:** Version bump only for package @quiet/waggle
+
+
+
+
+
 ## [0.4.2-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/waggle@0.4.0-alpha.7...@quiet/waggle@0.4.2-alpha.0) (2022-04-15)
 
 **Note:** Version bump only for package @quiet/waggle
