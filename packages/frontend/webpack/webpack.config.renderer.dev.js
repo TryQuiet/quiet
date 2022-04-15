@@ -53,12 +53,17 @@ module.exports = {
       title: 'Quiet',
       template: 'src/renderer/index.html'
     }),
+    new HtmlWebpackPlugin({
+      title: 'Quiet-splash',
+      template: 'src/renderer/splashScreen/splash.html',
+      filename: 'splash.html'
+    }),
     new webpack.HotModuleReplacementPlugin(),
     new WebpackOnBuildPlugin(async () => {
       if (!mainRunning) {
         console.log('Starting main process...')
         mainRunning = true
-        await new Promise((resolve, reject)=> {
+        await new Promise((resolve, reject) => {
           spawn('npm', ['run', 'copyFonts'], {
             shell: true,
             env: process.env,

@@ -65,6 +65,7 @@ setEngine(
 )
 
 let mainWindow: BrowserWindow | null
+let splash: BrowserWindow | null
 
 const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
   return window instanceof BrowserWindow
@@ -160,6 +161,7 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     width: windowSize.width,
     height: windowSize.height,
+    show: false,
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
@@ -169,6 +171,28 @@ const createWindow = async () => {
   })
 
   remote.enable(mainWindow.webContents)
+
+  splash = new BrowserWindow({
+    width: windowSize.width,
+    height: windowSize.height,
+    show: false,
+    titleBarStyle: 'hidden',
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    },
+    autoHideMenuBar: true,
+    alwaysOnTop: true
+  })
+
+  splash.loadURL(`file://${__dirname}/splash.html`)
+  splash.show()
+
+  electronLocalshortcut.register(splash, 'F12', () => {
+    if (isBrowserWindow(splash)) {
+      splash.webContents.openDevTools()
+    }
+  })
 
   mainWindow.setMinimumSize(600, 400)
   /* eslint-disable */
@@ -261,6 +285,11 @@ app.on('ready', async () => {
 
   ports = await getPorts()
   await createWindow()
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    splash.destroy()
+    mainWindow.show()
+  })
 
   const forkArgvs = [
     '-s', `${ports.socksPort}`,
