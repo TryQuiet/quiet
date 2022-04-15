@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.5-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.4-alpha.0...quiet@0.4.5-alpha.0) (2022-04-15)
+
+
+### Reverts
+
+* Revert "Update RTL snapshots" ([e5d9ed9](https://github.com/ZbayApp/monorepo/commit/e5d9ed9458f816302162229f4cc9597b5c6f6313))
+
+
+
+
+
 ## [0.4.4-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.3-alpha.0...quiet@0.4.4-alpha.0) (2022-04-15)
 
 **Note:** Version bump only for package quiet
