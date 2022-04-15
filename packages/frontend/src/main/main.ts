@@ -274,6 +274,17 @@ app.on('ready', async () => {
   waggleProcess = fork(path.join(__dirname, 'waggleManager.js'), forkArgvs)
   log('Forked waggle, PID:', waggleProcess.pid)
 
+  waggleProcess.on('error', e => {
+    log.error('Waggle process returned error', e)
+    throw Error(e.message)
+  })
+
+  waggleProcess.on('exit', code => {
+    if (code === 1) {
+      throw Error('Abnormal waggle process termination')
+    }
+  })
+
   if (!isBrowserWindow(mainWindow)) {
     throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
   }

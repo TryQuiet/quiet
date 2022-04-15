@@ -62,6 +62,7 @@ export const runWaggle = async (): Promise<{
 
 export const waggleVersion = waggle.version
 
-runWaggle().catch((e) => {
-  log.error('Waggle initialization returned error', e)
+runWaggle().catch(e => {
+  log.error('Error occurred while initializing waggle', e)
+  throw Error(e.message)
 })
