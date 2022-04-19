@@ -7,8 +7,8 @@
 	"author": "",
 	"license": "MIT",
 	"scripts": {
-		"postinstall": "npm run patch",
 		"build": "tsc -p tsconfig.build.json",
+		"preinstall": "npx npm-force-resolutions",
 		"prepublish": "npm run build",
 		"version": "git add -A src",
 		"postversion": "git push && git push --tags",
@@ -21,8 +21,7 @@
 		"test-connect-ci": "jest ./src/nodeTest/* --colors --ci --silent --verbose",
 		"test-replication-no-tor": "ts-node -v && cross-env DEBUG='waggle:dbSnap*,waggle:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 200 --entriesCount 1000 --no-useTor",
 		"test-replication-tor": "cross-env DEBUG='waggle:dbSnap*,waggle:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 500 --entriesCount 1000 --useTor",
-		"rmDist": "rimraf lib/",
-		"patch": "rm -rf node_modules/electron-webrtc"
+		"rmDist": "rimraf lib/"
 	},
 	"repository": {
 		"type": "git",
@@ -122,5 +121,9 @@
 		"uint8arrays": "^3.0.0",
 		"url": "^0.11.0",
 		"validator": "^13.6.0"
+	},
+	"resolutions": {
+		"ipfs-core-types": "0.10.2-df1bd1bb.0",
+		"electron": "17.3.1"
 	}
 }
