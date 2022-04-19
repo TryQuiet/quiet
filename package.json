@@ -3,6 +3,7 @@
   "private": true,
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.7.1",
+    "chromium": "^3.0.3",
     "eslint": "^7.20.0",
     "eslint-config-standard": "^14.1.1",
     "eslint-config-standard-with-typescript": "^18.0.2",
