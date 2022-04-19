@@ -157,12 +157,14 @@ const checkForPayloadOnStartup = (payload: string) => {
 let browserWidth: number
 let browserHeight: number
 
+// Default title bar must be hidden for macos because we have custom styles for it
+const titleBarStyle = process.platform !== 'win32' ? 'hidden' : 'default'
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
     width: windowSize.width,
     height: windowSize.height,
     show: false,
-    titleBarStyle: 'hidden',
+    titleBarStyle,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
@@ -176,7 +178,7 @@ const createWindow = async () => {
     width: windowSize.width,
     height: windowSize.height,
     show: false,
-    titleBarStyle: 'hidden',
+    titleBarStyle,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
