@@ -123,7 +123,6 @@
 		"validator": "^13.6.0"
 	},
 	"resolutions": {
-		"ipfs-core-types": "0.10.2-df1bd1bb.0",
-		"electron": "17.3.1"
+		"ipfs-core-types": "0.10.2-df1bd1bb.0"
 	}
 }
