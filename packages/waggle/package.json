@@ -7,6 +7,7 @@
 	"author": "",
 	"license": "MIT",
 	"scripts": {
+		"postinstall": "npm run patch",
 		"build": "tsc -p tsconfig.build.json",
 		"prepublish": "npm run build",
 		"version": "git add -A src",
@@ -20,7 +21,8 @@
 		"test-connect-ci": "jest ./src/nodeTest/* --colors --ci --silent --verbose",
 		"test-replication-no-tor": "ts-node -v && cross-env DEBUG='waggle:dbSnap*,waggle:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 200 --entriesCount 1000 --no-useTor",
 		"test-replication-tor": "cross-env DEBUG='waggle:dbSnap*,waggle:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 500 --entriesCount 1000 --useTor",
-		"rmDist": "rimraf lib/"
+		"rmDist": "rimraf lib/",
+		"patch": "rm -rf node_modules/electron-webrtc"
 	},
 	"repository": {
 		"type": "git",
