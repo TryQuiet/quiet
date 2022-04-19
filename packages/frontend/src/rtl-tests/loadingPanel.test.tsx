@@ -27,7 +27,9 @@ describe('Loading panel', () => {
     }))
   })
 
-  it('Displays loading panel before connecting websocket', async () => {
+  it.skip('Displays loading panel before connecting websocket', async () => {
+    // todo loading panel in other electron window
+
     const { store } = await prepareStore(
       {
         [StoreKeys.Socket]: {
@@ -53,7 +55,7 @@ describe('Loading panel', () => {
 
     store.dispatch(socketActions.setConnected())
 
-    await act(async () => {})
+    await act(async () => { })
 
     // Verify loading panel dissapeared
     expect(screen.queryByTestId('spinnerLoader')).toBeNull()
@@ -103,7 +105,7 @@ describe('Loading panel', () => {
 
     store.dispatch(publicChannels.actions.addChannel(channel))
 
-    await act(async () => {})
+    await act(async () => { })
 
     // Verify loading panel dissapeared
     expect(screen.queryByTestId('spinnerLoader')).toBeNull()

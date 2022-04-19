@@ -4,7 +4,7 @@ import { SocketActionTypes } from '../socket/const/actionTypes'
 import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { errorsAdapter } from './errors.adapter'
-import { ErrorCodes, ErrorPayload } from './errors.types'
+import { ErrorPayload, ErrorMessages } from './errors.types'
 
 const errorSlice: CreatedSelectors[StoreKeys.Errors] = (state: StoreState) =>
   state[StoreKeys.Errors]
@@ -50,11 +50,10 @@ export const currentCommunityErrors = createSelector(
   }
 )
 
-// Filter out HTTP 404 response as it triggers auto-retry and should not be visible to the user
 export const registrarErrors = createSelector(
   currentCommunityErrors,
   errors => {
-    return errors[SocketActionTypes.REGISTRAR]?.code !== ErrorCodes.NOT_FOUND ? errors[SocketActionTypes.REGISTRAR] : undefined
+    return errors[SocketActionTypes.REGISTRAR]
   }
 )
 
