@@ -97,7 +97,7 @@
 		"get-port": "^5.1.1",
 		"http-server": "^0.12.3",
 		"https-proxy-agent": "^5.0.0",
-		"ipfs": "^0.60.2",
+		"ipfs": "^0.62.2",
 		"ipfs-log": "5.4.1",
 		"it-pipe": "^1.1.0",
 		"joi": "^17.4.0",
@@ -120,8 +120,5 @@
 		"uint8arrays": "^3.0.0",
 		"url": "^0.11.0",
 		"validator": "^13.6.0"
-	},
-	"resolutions": {
-		"ipfs-core-types": "0.10.2-df1bd1bb.0"
 	}
 }
