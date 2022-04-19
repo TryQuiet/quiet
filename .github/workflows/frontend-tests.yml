@@ -30,3 +30,10 @@ jobs:
 
       - name: "frontend-nectar bracket tests"
         run: lerna run rtl-test --scope quiet --stream
+
+      - name: Archive test screenshots
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: run-logs
+          path: /Users/runner/.npm/_logs/
