@@ -8,7 +8,6 @@
 	"license": "MIT",
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json",
-		"preinstall": "npx npm-force-resolutions",
 		"prepublish": "npm run build",
 		"version": "git add -A src",
 		"postversion": "git push && git push --tags",
@@ -121,8 +120,5 @@
 		"uint8arrays": "^3.0.0",
 		"url": "^0.11.0",
 		"validator": "^13.6.0"
-	},
-	"resolutions": {
-		"ipfs-core-types": "0.10.2-df1bd1bb.0"
 	}
 }
