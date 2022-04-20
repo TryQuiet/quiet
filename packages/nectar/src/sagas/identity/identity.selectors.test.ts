@@ -20,7 +20,8 @@ describe('communitiesSelectors will recive correct data', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0
+    port: 0,
+    registrationAttempts: 0
   }
 
   const communityBeta: Community = {
@@ -33,7 +34,8 @@ describe('communitiesSelectors will recive correct data', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0
+    port: 0,
+    registrationAttempts: 0
   }
 
   const communityDelta: Community = {
@@ -46,7 +48,8 @@ describe('communitiesSelectors will recive correct data', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0
+    port: 0,
+    registrationAttempts: 0
   }
 
   const identityAlpha: Identity = {
