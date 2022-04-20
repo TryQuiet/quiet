@@ -83,9 +83,14 @@ export const createMessageSignatureTestHelper = async (
   }
 }
 
+export const lastActionReducer = (state = null, action) => {
+  return action;
+}
+
 export default {
   createRootCertificateTestHelper,
   createUserCertificateTestHelper,
   createPeerIdTestHelper,
-  createMessageSignatureTestHelper
+  createMessageSignatureTestHelper,
+  lastActionReducer
 }
