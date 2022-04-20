@@ -5,7 +5,7 @@ import {
 } from './appActions'
 import { createApp, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { assertInitializedExistingCommunitiesAndRegistrars } from './assertions'
+import { assertInitializedExistingCommunitiesAndRegistrars, assertStoreStatesAreEqual } from './assertions'
 
 const crypto = new Crypto()
 
@@ -44,16 +44,7 @@ describe('restart app without doing anything', () => {
 
   test('Assert that owner store is correct', async () => {
     const currentState = store.getState()
-    const oldStateWithLastConnectedTimeFromCurrentState = {
-      ...oldState,
-      Connection: {
-        ...oldState.Connection,
-        lastConnectedTime: currentState.Connection.lastConnectedTime
-      }
-    }
-
-    expect(currentState).toMatchObject(oldStateWithLastConnectedTimeFromCurrentState)
-    expect(currentState.Connection.lastConnectedTime).not.toBe(oldState.Connection.lastConnectedTime)
+    await assertStoreStatesAreEqual(oldState, currentState)
   })
 })
 
@@ -93,15 +84,7 @@ describe('create community and restart app', () => {
     store = owner.store
 
     const currentState = store.getState()
-    const oldStateWithLastConnectedTimeFromCurrentState = {
-      ...oldState,
-      Connection: {
-        ...oldState.Connection,
-        lastConnectedTime: currentState.Connection.lastConnectedTime
-      }
-    }
-    expect(currentState).toMatchObject(oldStateWithLastConnectedTimeFromCurrentState)
-    expect(currentState.Connection.lastConnectedTime).not.toBe(oldState.Connection.lastConnectedTime)
+    await assertStoreStatesAreEqual(oldState, currentState)
   })
 
   test('Assert community and registrar are initialized', async () => {
