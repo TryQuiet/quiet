@@ -3,7 +3,7 @@ import {
   createCommunity,
   clearInitializedCommunitiesAndRegistrars
 } from './appActions'
-import { createApp, sleep } from '../utils'
+import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { assertInitializedExistingCommunitiesAndRegistrars, assertStoreStatesAreEqual } from './assertions'
 
@@ -14,7 +14,7 @@ global.crypto = crypto
 describe('restart app without doing anything', () => {
   let owner: AsyncReturnType<typeof createApp>
   let store: typeof owner.store
-  let oldState: ReturnType<typeof owner.store.getState>
+  let oldState: Partial<ReturnType<typeof owner.store.getState>>
   let dataPath: string
 
   beforeAll(async () => {
@@ -34,7 +34,7 @@ describe('restart app without doing anything', () => {
   })
 
   test('Owner relaunch application with previous state', async () => {
-    oldState = store.getState()
+    oldState = storePersistor(store.getState())
     dataPath = owner.appPath
     owner = await createApp(oldState, dataPath)
     // Wait before checking state in case some unwanted actions are executing and manipulating store
@@ -51,7 +51,7 @@ describe('restart app without doing anything', () => {
 describe('create community and restart app', () => {
   let owner: AsyncReturnType<typeof createApp>
   let store: typeof owner.store
-  let oldState: ReturnType<typeof owner.store.getState>
+  let oldState: Partial<ReturnType<typeof owner.store.getState>>
   let dataPath: string
 
   beforeAll(async () => {
@@ -74,7 +74,7 @@ describe('create community and restart app', () => {
   })
 
   test('Owner relaunch application with previous state', async () => {
-    oldState = store.getState()
+    oldState = storePersistor(store.getState())
     dataPath = owner.appPath
     // Clear Initialized communities and registrars to make sure they are reinitialized
     clearInitializedCommunitiesAndRegistrars(store)

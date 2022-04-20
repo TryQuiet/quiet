@@ -6,7 +6,7 @@ import {
   assertReceivedMessagesAreValid
 } from './assertions'
 import { createCommunity, joinCommunity, getCommunityOwnerData, sendMessage } from './appActions'
-import { createApp, createAppWithoutTor, sleep } from '../utils'
+import { createApp, createAppWithoutTor, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 
 const crypto = new Crypto()
@@ -17,8 +17,8 @@ describe('send message - users go offline and online', () => {
   let owner: AsyncReturnType<typeof createApp>
   let userOne: AsyncReturnType<typeof createApp>
   let userTwo: AsyncReturnType<typeof createApp>
-  let userOneOldState: ReturnType<typeof owner.store.getState>
-  let userTwoOldState: ReturnType<typeof owner.store.getState>
+  let userOneOldState: Partial<ReturnType<typeof owner.store.getState>>
+  let userTwoOldState: Partial<ReturnType<typeof owner.store.getState>>
   let userOneDataPath: string
   let userTwoDataPath: string
   let allMessages = []
@@ -88,8 +88,8 @@ describe('send message - users go offline and online', () => {
   })
 
   test('User one and two go offline', async () => {
-    userOneOldState = userOne.store.getState()
-    userTwoOldState = userTwo.store.getState()
+    userOneOldState = storePersistor(userOne.store.getState())
+    userTwoOldState = storePersistor(userTwo.store.getState())
     userOneDataPath = userOne.appPath
     userTwoDataPath = userTwo.appPath
     await userOne.manager.closeAllServices()

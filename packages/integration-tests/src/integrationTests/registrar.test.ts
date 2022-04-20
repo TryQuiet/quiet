@@ -1,7 +1,7 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { createCommunity, getCommunityOwnerData, registerUsername, sendRegistrationRequest, sendCsr, OwnerData } from './appActions'
 import { assertReceivedCertificate, assertReceivedRegistrationError, assertReceivedCertificates, assertNoRegistrationError } from './assertions'
-import { createApp, sleep } from '../utils'
+import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { ErrorPayload, SocketActionTypes, ErrorCodes, ErrorMessages } from '@quiet/nectar'
 
@@ -36,7 +36,7 @@ describe('offline registrar, user tries to join', () => {
 describe('registrar is offline, user tries to join, then registrar goes online', () => {
   let owner: AsyncReturnType<typeof createApp>
   let user: AsyncReturnType<typeof createApp>
-  let ownerOldState: ReturnType<typeof owner.store.getState>
+  let ownerOldState: Partial<ReturnType<typeof owner.store.getState>>
   let ownerDataPath: string
   let registrarAddress: string
 
@@ -55,7 +55,7 @@ describe('registrar is offline, user tries to join, then registrar goes online',
     const communityId = owner.store.getState().Communities.currentCommunity
     registrarAddress =
       owner.store.getState().Communities.communities.entities[communityId].onionAddress
-    ownerOldState = owner.store.getState()
+    ownerOldState = storePersistor(owner.store.getState())
     ownerDataPath = owner.appPath
     // Give orbitDB enough time to subscribe to topics.
     await sleep(3_000)
