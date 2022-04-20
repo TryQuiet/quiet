@@ -76,14 +76,7 @@ describe('registrar is offline, user tries to join, then registrar goes online',
   })
 
   test('user get error message', async () => {
-    const community = user.store.getState().Communities.currentCommunity
-    const expectedError: ErrorPayload = {
-      type: SocketActionTypes.REGISTRAR,
-      code: ErrorCodes.NOT_FOUND,
-      message: ErrorMessages.REGISTRAR_NOT_FOUND,
-      community
-    }
-    await assertReceivedRegistrationError(user.store, expectedError)
+    await assertReceivedRegistrationError(user.store)
   })
 
   test('registrar goes online', async () => {
@@ -129,14 +122,7 @@ describe('User tries to register existing username', () => {
   })
 
   test('User receives registration error with a proper message', async () => {
-    const userCommunity = user.store.getState().Communities.currentCommunity
-    const expectedError: ErrorPayload = {
-      type: SocketActionTypes.REGISTRAR,
-      code: ErrorCodes.FORBIDDEN,
-      message: ErrorMessages.USERNAME_TAKEN,
-      community: userCommunity
-    }
-    await assertReceivedRegistrationError(user.store, expectedError)
+    await assertReceivedRegistrationError(user.store)
   })
 })
 
