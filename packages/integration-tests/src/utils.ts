@@ -144,3 +144,13 @@ export const getRandomInt = (min: number, max: number) => {
   max = Math.floor(max)
   return Math.floor(Math.random() * (max - min) + min)
 }
+
+const whitelist = ['Communities', 'Identity', 'Users', 'PublicChannels', 'Messages']
+
+export const storePersistor = (state: { [key in StoreKeys]?: any }) => {
+  let MockedState = {}
+  whitelist.forEach(e => {
+    MockedState[e] = state[e]
+  })
+  return MockedState
+}
