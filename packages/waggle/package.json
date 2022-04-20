@@ -60,7 +60,6 @@
 		"@types/validator": "^13.1.4",
 		"@typescript-eslint/eslint-plugin": "^4.22.0",
 		"babel-jest": "^26.6.3",
-		"chromium": "^3.0.3",
 		"cross-env": "^5.2.0",
 		"eslint": "7.26.0",
 		"eslint-config-standard": "^16.0.2",
