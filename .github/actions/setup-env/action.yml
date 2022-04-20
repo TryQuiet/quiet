@@ -46,8 +46,8 @@ runs:
       run: |
         if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
         then
-            lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
+            lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},} -- --no-optional'
         else
-            lerna bootstrap
+            lerna bootstrap -- --no-optional
         fi
       shell: bash
