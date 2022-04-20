@@ -40,8 +40,6 @@ export async function registerUsername(payload: Register) {
 
   log(`User ${userName} starts registering username`)
   store.dispatch(identity.actions.registerUsername(userName))
-
-  await retryRegistrationOnError({ store, username: userName, retryCounter: 3 })
 }
 
 export const createCommunity = async ({ username, communityName, store }): Promise<string> => {
@@ -132,34 +130,6 @@ export async function joinCommunity({ registrarAddress, userName, expectedPeersC
   await waitForExpect(() => {
     assert.match(peerList[peerList.length - 1], new RegExp(userPeerId))
   }, timeout)
-}
-
-export async function retryRegistrationOnError ({ store, username, retryCounter }) {
-  /**
-   * Simulate user clicking "Register" button when registrar error is displayed (503 error code).
-   * The error happens sometimes even though user is usually able to register on the next try.
-   *
-   * TODO: remove after fixing registrar
-   */
-  let counter = 1
-  const interval = 10_000
-  await waitForExpect(() => {
-    const communityId = store.getState().Communities.communities.ids[0]
-    const userCertificate = store.getState().Identity.identities.entities[communityId].userCertificate
-    const registrarError = store.getState().Errors.errors?.entities[SocketActionTypes.REGISTRAR]
-    if (!userCertificate) {
-      if (registrarError && registrarError.code === 503) {
-        if (counter === retryCounter) {
-          assert.fail(`User tried to register ${retryCounter} times. Giving up`)
-        }
-        log(`User ${username} is trying to register again`)
-        store.dispatch(identity.actions.registerUsername(username))
-        counter++
-        assert.fail('Got 503 registrar code. User is clicking "register" button again')
-      }
-      assert.fail('Waiting...')
-    }
-  }, timeout, interval)
 }
 
 export const switchChannel = async ({ channelName, store }) => {
