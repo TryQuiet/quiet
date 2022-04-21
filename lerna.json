@@ -5,7 +5,7 @@
   "version": "independent",
   "command": { 
     "version": {
-      "allowBranch": ["master", "fix/loading-fonts-on-CI-builds"],
+      "allowBranch": ["master"],
       "conventionalCommits": true,
       "createRelease": "github"
     },
