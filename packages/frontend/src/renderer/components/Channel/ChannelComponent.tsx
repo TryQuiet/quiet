@@ -104,6 +104,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
     if (top) position = 0
     if (bottom) position = 1
 
+    console.log('scrollPosition', position)
+
     setScrollPosition(position)
   }, [])
 
