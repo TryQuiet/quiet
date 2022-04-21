@@ -23,7 +23,7 @@ export const certificatesMapping = createSelector(certificates, (certs) => {
 
     return (mapping[pubKey] = {
       username: getCertFieldValue(certificate, CertFieldsTypes.nickName),
-      onionAddress: getCertFieldValue(certificate, CertFieldsTypes.commonName),
+      onionAddress: getCertFieldValue(certificate, CertFieldsTypes.subjectAltName),
       peerId: getCertFieldValue(certificate, CertFieldsTypes.peerId),
       dmPublicKey: getCertFieldValue(certificate, CertFieldsTypes.dmPublicKey)
     })

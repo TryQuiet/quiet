@@ -81,7 +81,7 @@ async function requestCertificate({
   })
   pkcs10.subject.typesAndValues.push(
     new AttributeTypeAndValue({
-      type: CertFieldsTypes.commonName,
+      type: CertFieldsTypes.subjectAltName,
       value: new PrintableString({ value: commonName })
     })
   )
