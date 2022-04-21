@@ -1,6 +1,8 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const WebpackOnBuildPlugin = require('on-build-webpack')
 const webpack = require('webpack')
+const spawn = require('child_process').spawn
 
 module.exports = {
   mode: 'production',
@@ -57,6 +59,19 @@ module.exports = {
     }),
     new webpack.EnvironmentPlugin({
       TEST_MODE: process.env.TEST_MODE
+    }),
+    new WebpackOnBuildPlugin(async () => {
+      await new Promise((resolve, reject) => {
+        spawn('npm', ['run', 'copyFonts'], {
+          shell: true,
+          env: process.env,
+          stdio: 'inherit'
+        })
+          .on('close', code => {
+            resolve();
+          })
+          .on('error', spawnError => reject(spawnError))
+      })
     })
   ],
   devtool: 'eval-source-map'
