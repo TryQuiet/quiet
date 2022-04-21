@@ -87,7 +87,7 @@ export const loadCSR = async (csr: string): Promise<CertificationRequest> => {
 export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes | ObjectIdentifier): string | null => {
   if (fieldType === CertFieldsTypes.subjectAltName) {
     const block = cert.subject.typesAndValues.find((tav: any) => tav.type === fieldType)
-    console.log("aaa", cert.subject.typesAndValues)
+
     if (block) {
       return block?.value.valueBlock.value
     } else {
