@@ -109,6 +109,7 @@ test('User can create new community, register and send few messages to general c
       channelName: 'general',
       store: joiningUserApp.store
     })
+    await t.wait(500)
     await generalChannel.sendMessage(`Response to ${message}`)
   }
 
@@ -130,12 +131,12 @@ test('User can create new community, register and send few messages to general c
     channelName: 'general',
     store: joiningUserApp.store
   })
-  await t.expect(scrollOnBottom()).eql(true, 'Scroll should land on the bottom when user receives new message')
+  await t.expect(scrollOnBottom()).eql(false, 'Scrollbar should stay in place when user receives new message')
 
   // User scrolls up and sends a message
   await scrollY()
   await generalChannel.sendMessage('Responding')
-  await t.expect(scrollOnBottom()).eql(false, 'Scrollbar should stay in place when user sends a message')
+  await t.expect(scrollOnBottom()).eql(false, 'Scrollbar should scroll to the bottom user sends a message')
 
   await t.wait(2000)
   // // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
