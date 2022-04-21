@@ -16,7 +16,7 @@ describe('updateCommunitySaga', () => {
     const factory = await getFactory(store)
 
     const community: Community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     const rootCa =
