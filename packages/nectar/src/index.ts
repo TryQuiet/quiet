@@ -46,6 +46,7 @@ import { settingsSelectors } from './sagas/settings/settings.selectors'
 
 export { SocketActionTypes } from './sagas/socket/const/actionTypes'
 export { Store } from './sagas/store.types'
+export { TestStore, TestStoreState } from './utils/tests/types'
 export { StoreKeys } from './sagas/store.keys'
 
 export { prepareStore } from './utils/tests/prepareStore'
