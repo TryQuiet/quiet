@@ -63,7 +63,7 @@ setEngine(
     subtle: webcrypto.subtle
   })
 )
- 
+  
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
 
