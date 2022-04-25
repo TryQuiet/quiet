@@ -5,7 +5,7 @@
   "version": "independent",
   "command": { 
     "version": {
-      "allowBranch": ["master"],
+      "allowBranch": ["master", "fix/upload-s3"],
       "conventionalCommits": true,
       "createRelease": "github"
     },
