@@ -129,7 +129,8 @@ export async function registerUsername(payload: Register) {
     store
   } = payload
 
-  const timeout = 120_000
+  // Give it a huge timeout, it should never fail, but sometimes takes more time, depending on tor.
+  const timeout = 600_000
 
   let address: string
   if (payload.registrarAddress === '0.0.0.0') {
@@ -191,7 +192,7 @@ export async function joinCommunity(payload: JoinCommunity) {
     store
   } = payload
 
-  const timeout = 120_000
+  const timeout = 600_000
 
   await registerUsername(payload)
 
@@ -295,7 +296,7 @@ export const sendRegistrationRequest = async (
 ) => {
   const { registrarAddress, userName, registrarPort, store } = payload
 
-  const timeout = 120_000
+  const timeout = 600_000
 
   let address: string
   if (registrarAddress === '0.0.0.0') {
