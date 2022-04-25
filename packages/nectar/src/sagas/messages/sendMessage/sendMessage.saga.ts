@@ -12,7 +12,6 @@ import { MessageTypes } from '../const/messageTypes'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { Identity } from '../../identity/identity.types'
 import { ChannelMessage } from '../../publicChannels/publicChannels.types'
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { SendingStatus } from '../messages.types'
 
 export function* sendMessageSaga(
@@ -30,12 +29,12 @@ export function* sendMessageSaga(
   const signatureArrayBuffer = yield* call(sign, action.payload.message, keyObject)
   const signature = yield* call(arrayBufferToString, signatureArrayBuffer)
 
-  const currentChannel = yield* select(publicChannelsSelectors.currentChannel)
+  const currentChannel = yield* select(publicChannelsSelectors.currentChannelAddress)
 
   const messageId = yield* call(generateMessageId)
   const currentTime = yield* call(getCurrentTime)
 
-  const channelAddress = action.payload.channelAddress || currentChannel.address
+  const channelAddress = action.payload.channelAddress || currentChannel
 
   const message: ChannelMessage = {
     id: messageId,
@@ -56,7 +55,7 @@ export function* sendMessageSaga(
   ])
 
   // Display sent message immediately, to improve user experience
-  yield* put(publicChannelsActions.incomingMessages({
+  yield* put(messagesActions.incomingMessages({
     messages: [message],
     communityId: identity.id
   }))

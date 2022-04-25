@@ -244,19 +244,6 @@ export class Storage {
       .map(e => e.payload.value)
   }
 
-  public loadAllChannelMessages(channelAddress: string) {
-    // Load all channel messages for subscribed channel
-    if (!this.publicChannelsRepos.has(channelAddress)) {
-      return
-    }
-    const db: EventStore<ChannelMessage> = this.publicChannelsRepos.get(channelAddress).db
-    this.io.loadAllMessages({
-      messages: this.getAllEventLogEntries<ChannelMessage>(db),
-      channelAddress,
-      communityId: this.communityId
-    })
-  }
-
   public async subscribeToChannel(channel: PublicChannel): Promise<void> {
     let db: EventStore<ChannelMessage>
     let repo = this.publicChannelsRepos.get(channel.address)
@@ -339,20 +326,6 @@ export class Storage {
     return db
   }
 
-  public async askForMessages(
-    channelAddress: string,
-    ids: string[]
-  ): Promise<{ filteredMessages: ChannelMessage[]; channelAddress: string }> {
-    const repo = this.publicChannelsRepos.get(channelAddress)
-    if (!repo) return
-    const messages = this.getAllEventLogEntries<ChannelMessage>(repo.db)
-    const filteredMessages = []
-    for (const id of ids) {
-      filteredMessages.push(...messages.filter(i => i.id === id))
-    }
-    return { filteredMessages, channelAddress }
-  }
-
   public async sendMessage(message: ChannelMessage) {
     if (!validate.isMessage(message)) {
       log.error('STORAGE: public channel message is invalid')
@@ -424,11 +397,6 @@ export class Storage {
         log('DIRECT Messages thread ready')
       })
       repo.eventsAttached = true
-      // this.io.loadAllMessages({
-      //   messages: this.getAllEventLogEntries(db),
-      //   channelAddress,
-      //   communityId: this.communityId
-      // })
       log('Subscription to channel ready', channelAddress)
     }
   }

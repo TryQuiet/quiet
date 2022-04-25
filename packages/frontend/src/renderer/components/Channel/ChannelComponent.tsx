@@ -12,7 +12,7 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { useModal } from '../../containers/hooks'
 
-import { PublicChannel, Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/nectar'
+import { PublicChannelStorage, Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/nectar'
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
@@ -27,7 +27,9 @@ const useStyles = makeStyles(theme => ({
 
 export interface ChannelComponentProps {
   user: Identity
-  channel: PublicChannel
+  channelAddress: string
+  channelName: string
+  channelMessagesSlice: number
   channelSettingsModal: ReturnType<typeof useModal>
   channelInfoModal: ReturnType<typeof useModal>
   messages: {
@@ -47,7 +49,9 @@ export interface ChannelComponentProps {
 
 export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   user,
-  channel,
+  channelAddress,
+  channelName,
+  channelMessagesSlice,
   channelInfoModal,
   channelSettingsModal,
   messages,
@@ -125,7 +129,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
     if (scrollbarRef.current && scrollPosition === 0) {
       /* Cache scroll height before loading new messages (to keep the scroll position after re-rendering) */
       setScrollHeight(scrollbarRef.current.scrollHeight)
-      const trim = Math.max(0, channel.messagesSlice - chunkSize)
+      const trim = Math.max(0, channelMessagesSlice - chunkSize)
       setChannelMessagesSliceValue(trim)
     }
   }, [setChannelMessagesSliceValue, scrollPosition])
@@ -134,7 +138,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   useEffect(() => {
     if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
     if (scrollbarRef.current && scrollPosition === 1) {
-      const totalMessagesAmount = messages.count + channel.messagesSlice
+      const totalMessagesAmount = messages.count + channelMessagesSlice
       const bottomMessagesSlice = Math.max(0, totalMessagesAmount - chunkSize)
       setChannelMessagesSliceValue(bottomMessagesSlice)
     }
@@ -142,13 +146,13 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
 
   useEffect(() => {
     scrollBottom()
-  }, [channel?.address])
+  }, [channelAddress])
 
   return (
     <Page>
       <PageHeader>
         <ChannelHeaderComponent
-          channel={channel}
+          channelName={channelName}
           onSettings={channelSettingsModal.handleOpen}
           onInfo={channelInfoModal.handleOpen}
           onDelete={onDelete}
@@ -168,10 +172,10 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
       </Grid>
       <Grid item>
         <ChannelInputComponent
-          channelAddress={channel.address}
-          channelName={channel.name}
+          channelAddress={channelAddress}
+          channelName={channelName}
           // TODO https://github.com/ZbayApp/ZbayLite/issues/443
-          inputPlaceholder={`#${channel.name} as @${user?.nickname}`}
+          inputPlaceholder={`#${channelName} as @${user?.nickname}`}
           onChange={value => {
             onInputChange(value)
           }}

@@ -1,3 +1,4 @@
+import { EntityState } from '@reduxjs/toolkit'
 import { ChannelMessage } from '../publicChannels/publicChannels.types'
 
 export enum MessageType {
@@ -23,6 +24,22 @@ export interface WriteMessagePayload {
 export interface PublicKeyMappingPayload {
   publicKey: string
   cryptoKey: CryptoKey
+}
+
+export interface AddPublicChannelsMessagesBasePayload {
+  channelAddress: string
+}
+
+export interface PublicChannelsMessagesBase {
+  channelAddress: string
+  messages: EntityState<ChannelMessage>
+  newest: ChannelMessage | null
+  display: number
+}
+
+export interface SetDisplayedMessagesNumberPayload {
+  channelAddress: string,
+  display: number
 }
 
 export interface MessageVerificationStatus {

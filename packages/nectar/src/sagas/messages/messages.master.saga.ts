@@ -1,16 +1,18 @@
 import { takeEvery } from 'redux-saga/effects'
-import { Socket } from 'socket.io-client'
 import { all } from 'typed-redux-saga'
-import { publicChannelsActions } from '../publicChannels/publicChannels.slice'
+import { Socket } from 'socket.io-client'
 import { messagesActions } from './messages.slice'
 import { sendMessageSaga } from './sendMessage/sendMessage.saga'
-import { updateMessagesSendingStatusSaga } from './updateMessagesSendingStatus/updateMessagesSendingStatus.saga'
+import { incomingMessagesSaga } from '../publicChannels/incomingMessages/incomingMessages.saga'
+import { publicChannelsActions } from '../publicChannels/publicChannels.slice'
 import { verifyMessagesSaga } from './verifyMessage/verifyMessages.saga'
+import { updateMessagesSendingStatusSaga } from './updateMessagesSendingStatus/updateMessagesSendingStatus.saga'
 
 export function* messagesMasterSaga(socket: Socket): Generator {
   yield all([
     takeEvery(messagesActions.sendMessage.type, sendMessageSaga, socket),
-    takeEvery(publicChannelsActions.incomingMessages.type, verifyMessagesSaga),
-    takeEvery(publicChannelsActions.incomingMessages.type, updateMessagesSendingStatusSaga)
+    takeEvery(messagesActions.incomingMessages.type, incomingMessagesSaga),
+    takeEvery(publicChannelsActions.cacheMessages.type, verifyMessagesSaga),
+    takeEvery(publicChannelsActions.cacheMessages.type, updateMessagesSendingStatusSaga)
   ])
 }

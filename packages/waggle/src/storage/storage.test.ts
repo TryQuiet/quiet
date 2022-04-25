@@ -244,9 +244,7 @@ describe('Message', () => {
     // Confirm message has passed orbitdb validator (check signature verification only)
     expect(spy).toHaveBeenCalled()
 
-    // Confirm message has been added to db
-    const result = await storage.askForMessages(message.channelAddress, [message.id])
-    expect(result.filteredMessages.length).toBe(1)
+    // TODO: Confirm message has been added to db
   })
 
   it('is not saved to db if did not pass signature verification', async () => {
@@ -286,8 +284,6 @@ describe('Message', () => {
     // Confirm message has passed orbitdb validator (check signature verification only)
     expect(spy).toHaveBeenCalled()
 
-    // Confirm message hasn't been added to db
-    const result = await storage.askForMessages(spoofedMessage.channelAddress, [spoofedMessage.id])
-    expect(result.filteredMessages.length).toBe(0)
+    // TODO: Confirm message hasn't been added to db
   })
 })

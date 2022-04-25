@@ -62,10 +62,7 @@ describe('subscribeToTopicSaga', () => {
       .put(
         publicChannelsActions.addChannel({
           communityId: community.id,
-          channel: {
-            ...channel,
-            messagesSlice: undefined
-          }
+          channel: channel
         })
       )
       .apply(socket, socket.emit, [

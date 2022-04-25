@@ -11,8 +11,6 @@ import silencedBlack from '../../../static/images/silencedBlack.svg'
 import Tooltip from '../../ui/Tooltip/Tooltip'
 import { ChannelMenuActionProps } from './ChannelMenuAction'
 
-import { PublicChannel } from '@quiet/nectar'
-
 const useStyles = makeStyles(theme => ({
   root: {
     height: '75px',
@@ -85,11 +83,11 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export interface ChannelHeaderProps {
-  channel: PublicChannel
+  channelName: string
 }
 
 export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuActionProps> = ({
-  channel,
+  channelName,
   ...channelMenuActionProps
 }) => {
   const classes = useStyles({})
@@ -145,7 +143,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
                   [classes.bold]: true
                 })}
                 data-testid={'channelTitle'}>
-                {`#${channel?.name?.substring(0, 20)}`}
+                {`#${channelName?.substring(0, 20)}`}
               </Typography>
             </Grid>
             {channelMenuActionProps.mutedFlag && (

@@ -14,7 +14,9 @@ const Channel = () => {
   const user = useSelector(identity.selectors.currentIdentity)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const currentChannel = useSelector(publicChannels.selectors.currentChannel)
+  const currentChannelAddress = useSelector(publicChannels.selectors.currentChannelAddress)
+  const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
+  const currentChannelMessagesSlice = useSelector(publicChannels.selectors.currentChannelMessagesSlice)
 
   const currentChannelMessagesCount = useSelector(
     publicChannels.selectors.currentChannelMessagesCount
@@ -47,24 +49,28 @@ const Channel = () => {
 
   const setChannelMessagesSliceValue = useCallback(
     (value: number) => {
-      if (currentChannel?.messagesSlice === value) return
+      if (currentChannelMessagesSlice === value) return
       dispatch(
         publicChannels.actions.setChannelMessagesSliceValue({
           messagesSlice: value,
-          channelAddress: currentChannel?.address,
+          channelAddress: currentChannelAddress,
           communityId: currentCommunity?.id
         })
       )
     },
-    [dispatch, currentChannel?.address, currentChannel?.messagesSlice, currentCommunity?.id]
+    [dispatch, currentChannelAddress, currentChannelMessagesSlice, currentCommunity?.id]
   )
+
+  console.log('channel rerendered')
 
   return (
     <>
-      {currentChannel && (
+      {currentChannelAddress && (
         <ChannelComponent
           user={user}
-          channel={currentChannel}
+          channelAddress={currentChannelAddress}
+          channelName={currentChannelName}
+          channelMessagesSlice={currentChannelMessagesSlice}
           channelSettingsModal={channelSettingsModal}
           channelInfoModal={channelInfoModal}
           messages={{

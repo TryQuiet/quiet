@@ -20,9 +20,8 @@ import {
 import { identityReducer, IdentityState } from '../../identity/identity.slice'
 import { communitiesAdapter } from '../../communities/communities.adapter'
 import { identityAdapter } from '../../identity/identity.adapter'
-import { CommunityChannels, PublicChannel } from '../publicChannels.types'
+import { CommunityChannels, PublicChannelStorage } from '../publicChannels.types'
 import { Identity } from '../../identity/identity.types'
-import { unreadMessagesAdapter } from '../markUnreadMessages/unreadMessages.adapter'
 
 describe('subscribeToAllTopicsSaga', () => {
   const community: Community = {
@@ -48,31 +47,33 @@ describe('subscribeToAllTopicsSaga', () => {
     userCertificate: ''
   }
 
-  const channelOne: PublicChannel = {
+  const channelOne: PublicChannelStorage = {
     name: 'channelOne',
-    description: 'channelOne description',
+    description: 'Welcome to #channelOne',
     owner: 'master',
-    timestamp: 12341234,
-    address: 'channelOneAddress'
+    timestamp: 0,
+    address: 'channelOne',
+    messagesSlice: 0,
+    messages: channelMessagesAdapter.getInitialState()
   }
 
-  const channelTwo: PublicChannel = {
+  const channelTwo: PublicChannelStorage = {
     name: 'channelTwo',
-    description: 'channelTwo description',
+    description: 'Welcome to #channelTwo',
     owner: 'master',
-    timestamp: 12341234,
-    address: 'channelTwoAddress'
+    timestamp: 0,
+    address: 'channelTwo',
+    messagesSlice: 0,
+    messages: channelMessagesAdapter.getInitialState()
   }
 
   const communityChannels: CommunityChannels = {
     id: 'id',
-    currentChannel: 'channelOne',
+    currentChannelAddress: 'channelOne',
     channels: publicChannelsAdapter.setAll(publicChannelsAdapter.getInitialState(), [
       channelOne,
       channelTwo
-    ]),
-    channelMessages: channelMessagesAdapter.getInitialState(),
-    unreadMessages: unreadMessagesAdapter.getInitialState()
+    ])
   }
 
   test('ask for missing messages', async () => {

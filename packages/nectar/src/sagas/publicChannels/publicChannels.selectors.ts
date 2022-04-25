@@ -8,17 +8,12 @@ import {
 import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { currentCommunity } from '../communities/communities.selectors'
-import { MessageType } from '../messages/messages.types'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { messagesVerificationStatus } from '../messages/messages.selectors'
 import {
-  ChannelMessage,
-  CommunityChannels,
   DisplayableMessage,
-  MessagesDailyGroups,
-  PublicChannel
+  MessagesDailyGroups
 } from './publicChannels.types'
-import { unreadMessagesAdapter } from './markUnreadMessages/unreadMessages.adapter'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 
 const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
@@ -36,17 +31,12 @@ const selectState = createSelector(
   }
 )
 
-const selectChannels = createSelector(selectState, (state: CommunityChannels) => {
+const selectChannels = createSelector(selectState, (state) => {
   if (!state) return []
   return publicChannelsAdapter.getSelectors().selectAll(state.channels)
 })
 
-const selectChannelsMessages = createSelector(selectState, (state: CommunityChannels) => {
-  if (!state) return []
-  return channelMessagesAdapter.getSelectors().selectAll(state.channelMessages)
-})
-
-export const publicChannels = createSelector(selectChannels, (channels: PublicChannel[]) => {
+export const publicChannels = createSelector(selectChannels, (channels) => {
   return channels.sort((a, b) => {
     if (a.name === 'general') {
       return -1
@@ -58,27 +48,45 @@ export const publicChannels = createSelector(selectChannels, (channels: PublicCh
   })
 })
 
-export const currentChannel = createSelector(
+export const currentChannelAddress = createSelector(
   selectState,
-  selectChannels,
-  (state: CommunityChannels, channels: PublicChannel[]) => {
+  (state) => {
     if (!state) return undefined
-    return channels.find(channel => channel.address === state.currentChannel)
+    return state.currentChannelAddress
+  }
+)
+
+// Is being used in tests
+export const currentChannel = createSelector(
+  currentChannelAddress,
+  selectChannels,
+  (address, channels) => {
+    if (!address) return undefined
+    return channels.find(channel => channel.address === address)
+  }
+)
+
+export const currentChannelName = createSelector(
+  currentChannel,
+  (channel) => {
+    if (!channel) return ''
+    return channel.name
+  }
+)
+
+export const currentChannelMessagesSlice = createSelector(
+  currentChannel,
+  (channel) => {
+    if (!channel) return 0
+    return channel.messagesSlice
   }
 )
 
 const currentChannelMessages = createSelector(
-  selectChannelsMessages,
   currentChannel,
-  (messages: ChannelMessage[], channel: PublicChannel) => {
-    return messages.filter(message => message.channelAddress === channel.address)
-  }
-)
-
-export const missingChannelsMessages = createSelector(
-  selectChannelsMessages,
-  (messages: ChannelMessage[]) => {
-    return messages.filter(message => message.type === MessageType.Empty).map(message => message.id)
+  (channel) => {
+    if (!channel) return []
+    return channelMessagesAdapter.getSelectors().selectAll(channel.messages)
   }
 )
 
@@ -112,7 +120,7 @@ export const sortedCurrentChannelMessages = createSelector(
 export const slicedCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
   currentChannel,
-  (messages: ChannelMessage[], channel: PublicChannel) => {
+  (messages, channel) => {
     return messages.slice((channel?.messagesSlice || 0), messages.length)
   }
 )
@@ -175,22 +183,13 @@ export const currentChannelMessagesMergedBySender = createSelector(
   }
 )
 
-export const unreadMessages = createSelector(selectState, (state: CommunityChannels) => {
-  if (!state) return []
-  return unreadMessagesAdapter.getSelectors().selectAll(state.unreadMessages)
-})
-
-export const unreadChannels = createSelector(unreadMessages, messages => {
-  return messages.map(message => message.channelAddress)
-})
-
 export const publicChannelsSelectors = {
   publicChannels,
-  currentChannel,
-  currentChannelMessages,
+  currentChannelAddress,
+  currentChannelName,
+  currentChannelMessagesSlice,
   currentChannelMessagesCount,
-  dailyGroupedCurrentChannelMessages,
+  currentChannelMessages,
   currentChannelMessagesMergedBySender,
-  unreadMessages,
-  unreadChannels
+  slicedCurrentChannelMessages
 }

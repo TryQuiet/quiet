@@ -1,5 +1,4 @@
 import {
-  AskForMessagesPayload,
   Community,
   InitCommunityPayload,
   LaunchRegistrarPayload,
@@ -71,9 +70,6 @@ export const connections = (io, ioProxy: IOProxy) => {
         await ioProxy.subscribeToAllConversations(peerId, conversations)
       }
     )
-    socket.on(SocketActionTypes.ASK_FOR_MESSAGES, async (payload: AskForMessagesPayload) => {
-      await ioProxy.askForMessages(payload)
-    })
     socket.on(
       SocketActionTypes.REGISTER_USER_CERTIFICATE,
       async (payload: RegisterUserCertificatePayload) => {

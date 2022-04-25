@@ -47,8 +47,9 @@ describe('updateMessagesSendingStatusSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       updateMessagesSendingStatusSaga,
-      publicChannelsActions.incomingMessages({
+      publicChannelsActions.cacheMessages({
         messages: [message],
+        channelAddress: 'general',
         communityId: community.id
       })
     )

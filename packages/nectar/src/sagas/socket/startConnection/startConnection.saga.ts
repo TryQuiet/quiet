@@ -18,6 +18,7 @@ import { ErrorPayload } from '../../errors/errors.types'
 import { identityMasterSaga } from '../../identity/identity.master.saga'
 import { identityActions } from '../../identity/identity.slice'
 import { messagesMasterSaga } from '../../messages/messages.master.saga'
+import { messagesActions } from '../../messages/messages.slice'
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga'
 import {
   publicChannelsActions
@@ -36,11 +37,11 @@ const log = logger('socket')
 
 export function subscribe(socket: Socket) {
   return eventChannel<
+  | ReturnType<typeof messagesActions.incomingMessages>
+  | ReturnType<typeof messagesActions.addPublicChannelsMessagesBase>
   | ReturnType<typeof publicChannelsActions.addChannel>
   | ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>
   | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
-  | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
-  | ReturnType<typeof publicChannelsActions.incomingMessages>
   | ReturnType<typeof publicChannelsActions.createGeneralChannel>
   | ReturnType<typeof usersActions.responseSendCertificates>
   | ReturnType<typeof communitiesActions.responseCreateNetwork>
@@ -63,17 +64,17 @@ export function subscribe(socket: Socket) {
     }
     )
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
+      emit(messagesActions.addPublicChannelsMessagesBase({
+        channelAddress: payload.channel.address
+      }))
       emit(publicChannelsActions.addChannel(payload))
       emit(publicChannelsActions.sendInitialChannelMessage({
         channelName: payload.channel.name,
         channelAddress: payload.channel.address
       }))
     })
-    socket.on(SocketActionTypes.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
-      emit(publicChannelsActions.responseSendMessagesIds(payload))
-    })
     socket.on(SocketActionTypes.INCOMING_MESSAGES, (payload: IncomingMessages) => {
-      emit(publicChannelsActions.incomingMessages(payload))
+      emit(messagesActions.incomingMessages(payload))
     })
     socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
       emit(usersActions.responseSendCertificates(payload))

@@ -15,11 +15,12 @@ const Sidebar = () => {
   const accountSettingsModal = useModal(ModalName.accountSettingsModal)
 
   const channels = useSelector(publicChannels.selectors.publicChannels)
-  const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
+  // const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
+  const unreadChannels = []
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
 
-  const currentChannel = useSelector(publicChannels.selectors.currentChannel)
+  const currentChannel = useSelector(publicChannels.selectors.currentChannelAddress)
 
   const setCurrentChannel = (address: string) => {
     dispatch(
@@ -39,7 +40,7 @@ const Sidebar = () => {
     channels: channels,
     unreadChannels: unreadChannels,
     setCurrentChannel: setCurrentChannel,
-    currentChannel: currentChannel?.address,
+    currentChannel: currentChannel,
     createChannelModal: createChannelModal,
     joinChannelModal: joinChannelModal
   }

@@ -9,7 +9,7 @@ import {
   slicedCurrentChannelMessages,
   sortedCurrentChannelMessages,
   validCurrentChannelMessages,
-  currentChannel
+  currentChannelAddress
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
 import { DisplayableMessage, ChannelMessage } from './publicChannels.types'
@@ -73,8 +73,7 @@ describe('publicChannelsSelectors', () => {
             description: `Welcome to #${name}`,
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: name,
-            messagesSlice: 0
+            address: name
           }
         }
       )
@@ -245,12 +244,12 @@ describe('publicChannelsSelectors', () => {
   it('get sliced messages count', async () => {
     const messagesCountBefore = currentChannelMessagesCount(store.getState())
     const community = currentCommunity(store.getState())
-    const channel = currentChannel(store.getState())
+    const channel = currentChannelAddress(store.getState())
     store.dispatch(
       publicChannels.actions.setChannelMessagesSliceValue({
         messagesSlice: 2,
         communityId: community.id,
-        channelAddress: channel.address
+        channelAddress: channel
       })
     )
     const messagesCountAfter = currentChannelMessagesCount(store.getState())
@@ -268,11 +267,11 @@ describe('publicChannelsSelectors', () => {
       msgs['9']
     ]
     const community = currentCommunity(store.getState())
-    const channel = currentChannel(store.getState())
+    const channel = currentChannelAddress(store.getState())
     store.dispatch(
       publicChannels.actions.setChannelMessagesSliceValue({
         messagesSlice: 2,
-        channelAddress: channel.address,
+        channelAddress: channel,
         communityId: community.id
       })
     )

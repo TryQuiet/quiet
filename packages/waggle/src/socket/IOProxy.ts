@@ -5,7 +5,6 @@ import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { CertificateRegistration } from '../registration'
 import { Storage } from '../storage'
 import {
-  AskForMessagesPayload,
   ChannelMessage,
   IncomingMessages,
   InitCommunityPayload,
@@ -18,7 +17,6 @@ import {
   SubscribeToTopicPayload,
   ChannelMessagesIdsResponse,
   CreatedChannelResponse,
-  FetchAllMessagesResponse,
   GetPublicChannelsResponse,
   SendCertificatesResponse,
   ErrorMessages,
@@ -65,18 +63,6 @@ export default class IOProxy {
   public subscribeToTopic = async (payload: SubscribeToTopicPayload) => {
     log(`${payload.peerId} is subscribing to channel ${payload.channelData.address}`)
     await this.getStorage(payload.peerId).subscribeToChannel(payload.channelData)
-  }
-
-  public askForMessages = async (payload: AskForMessagesPayload) => {
-    const messages = await this.getStorage(payload.peerId).askForMessages(
-      payload.channelAddress,
-      payload.ids
-    )
-    this.loadAllMessages({
-      messages: messages.filteredMessages,
-      channelAddress: messages.channelAddress,
-      communityId: payload.communityId
-    })
   }
 
   public sendMessage = async (peerId: string, message: ChannelMessage): Promise<void> => {
@@ -128,14 +114,6 @@ export default class IOProxy {
   public loadPublicChannels = (payload: GetPublicChannelsResponse) => {
     log(`Sending ${Object.keys(payload.channels).length} public channels`)
     this.io.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, payload)
-  }
-
-  public loadAllMessages = (payload: FetchAllMessagesResponse) => {
-    if (payload.messages.length === 0) {
-      return
-    }
-    log(`Sending ${payload.messages.length} messages`)
-    this.io.emit(SocketActionTypes.RESPONSE_FETCH_ALL_MESSAGES, payload)
   }
 
   public loadMessages = (payload: IncomingMessages) => {

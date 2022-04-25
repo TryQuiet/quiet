@@ -10,7 +10,7 @@ export default function* root(): Generator {
       dataPort: parseInt(new URLSearchParams(window.location.search).get('dataPort'))
     })
   )
-  yield all([
-    takeEvery(publicChannels.actions.incomingMessages.type, displayMessageNotificationSaga)
-  ])
+  // yield all([
+  //   takeEvery(publicChannels.actions.incomingMessages.type, displayMessageNotificationSaga)
+  // ])
 }

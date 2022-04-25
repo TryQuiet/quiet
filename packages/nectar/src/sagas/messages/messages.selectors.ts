@@ -1,8 +1,7 @@
 import { createSelector } from 'reselect'
 import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../store.types'
-import { messageSendingStatusAdapter, messageVerificationStatusAdapter } from './messages.adapter.ts'
-import { MessageSendingStatus, SendingStatus } from './messages.types'
+import { messageSendingStatusAdapter, messageVerificationStatusAdapter, publicChannelsMessagesBaseAdapter } from './messages.adapter.ts'
 
 const messagesSlice: CreatedSelectors[StoreKeys.Messages] = (state: StoreState) =>
   state[StoreKeys.Messages]
@@ -10,6 +9,12 @@ const messagesSlice: CreatedSelectors[StoreKeys.Messages] = (state: StoreState) 
 export const publicKeysMapping = createSelector(
   messagesSlice,
   reducerState => reducerState.publicKeyMapping
+)
+
+export const publicChannelsMessagesBase = createSelector(messagesSlice, reducerState =>
+  publicChannelsMessagesBaseAdapter
+    .getSelectors()
+    .selectEntities(reducerState.publicChannelsMessagesBase)  
 )
 
 export const messagesVerificationStatus = createSelector(messagesSlice, reducerState =>
@@ -26,6 +31,7 @@ export const messagesSendingStatus = createSelector(messagesSlice, reducerState 
 
 export const messagesSelectors = {
   publicKeysMapping,
+  publicChannelsMessagesBase,
   messagesVerificationStatus,
   messagesSendingStatus
 }
