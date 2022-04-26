@@ -31,7 +31,10 @@ export interface ChannelComponentProps {
   channelName: string
   channelSettingsModal: ReturnType<typeof useModal>
   channelInfoModal: ReturnType<typeof useModal>
-  messages: MessagesDailyGroups
+  messages: { 
+    count: number,
+    groups: MessagesDailyGroups 
+  },
   pendingMessages: Dictionary<MessageSendingStatus>
   lazyLoading: (load: boolean) => void
   onDelete: () => void
@@ -124,7 +127,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
       setScrollHeight(scrollbarRef.current.scrollHeight)
       lazyLoading(true)
     }
-  }, [lazyLoading, scrollPosition])
+  }, [scrollPosition])
 
   /* Lazy loading messages - bottom (trim) */
   useEffect(() => {
@@ -132,7 +135,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
     if (scrollbarRef.current && scrollPosition === 1) {
       lazyLoading(false)
     }
-  }, [lazyLoading, scrollPosition])
+  }, [scrollPosition, messages.count])
 
   useEffect(() => {
     scrollBottom()
@@ -154,7 +157,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
       </PageHeader>
       <Grid item xs className={classes.messages}>
         <ChannelMessagesComponent
-          messages={messages}
+          messages={messages.groups}
           pendingMessages={pendingMessages}
           scrollbarRef={scrollbarRef}
           onScroll={onScroll}

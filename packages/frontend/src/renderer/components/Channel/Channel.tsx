@@ -16,6 +16,10 @@ const Channel = () => {
   const currentChannelAddress = useSelector(publicChannels.selectors.currentChannelAddress)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
 
+  const currentChannelMessagesCount = useSelector(
+    publicChannels.selectors.currentChannelMessagesCount
+  )
+
   const currentChannelDisplayableMessages = useSelector(
     publicChannels.selectors.currentChannelMessagesMergedBySender
   )
@@ -59,7 +63,10 @@ const Channel = () => {
           channelName={currentChannelName}
           channelSettingsModal={channelSettingsModal}
           channelInfoModal={channelInfoModal}
-          messages={currentChannelDisplayableMessages}
+          messages={{
+            count: currentChannelMessagesCount,
+            groups: currentChannelDisplayableMessages 
+          }}
           pendingMessages={pendingMessages}
           lazyLoading={lazyLoading}
           onDelete={function (): void { }}
