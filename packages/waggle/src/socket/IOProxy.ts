@@ -287,7 +287,6 @@ export default class IOProxy {
 
   public async launchCommunity(payload: InitCommunityPayload) {
     const community = this.communities.getCommunity(payload.peerId.id)
-    console.log(community, 'COMMUNITYYYYYYYYYYYYYYYYYYYYYYYYYYYS')
     if (community) return
     try {
       await this.communities.launch(payload)
