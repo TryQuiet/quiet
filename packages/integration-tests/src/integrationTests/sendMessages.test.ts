@@ -193,40 +193,40 @@ describe.only('send message - users are online', () => {
   })
 
   test('Owner replicated all messages', async () => {
-    await assertReceivedMessages('owner', 3, 120_000, owner.store)
+    await assertReceivedMessages('owner', 4, 240_000, owner.store)
   })
 
   test('userOne replicated all messages', async () => {
-    await assertReceivedMessages('userOne', 3, 120_000, userOne.store)
+    await assertReceivedMessages('userOne', 4, 240_000, userOne.store)
   })
 
   test('userTwo replicated all messages', async () => {
-    await assertReceivedMessages('userTwo', 3, 120_000, userTwo.store)
+    await assertReceivedMessages('userTwo', 4, 240_000, userTwo.store)
   })
 
   test('Replicated messages are valid', async () => {
     await assertReceivedMessagesAreValid(
       'owner',
       [ownerMessageData, userOneMessageData, userTwoMessageData],
-      20000,
+      2000,
       owner.store
     )
     await assertReceivedMessagesAreValid(
       'userOne',
       [ownerMessageData, userOneMessageData, userTwoMessageData],
-      20000,
+      2000,
       userOne.store
     )
     await assertReceivedMessagesAreValid(
       'userTwo',
-      [userTwoMessageData, ownerMessageData, userOneMessageData],
-      20000,
+      [ownerMessageData, userOneMessageData, userTwoMessageData],
+      2000,
       userTwo.store
     )
   })
 })
 
-describe.skip('send message - without tor', () => {
+xdescribe('send message - without tor', () => {
   let owner: AsyncReturnType<typeof createAppWithoutTor>
   let userOne: AsyncReturnType<typeof createAppWithoutTor>
   let userTwo: AsyncReturnType<typeof createAppWithoutTor>
