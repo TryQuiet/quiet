@@ -12,7 +12,7 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { useModal } from '../../containers/hooks'
 
-import { PublicChannelStorage, Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/nectar'
+import { Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/nectar'
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
@@ -37,7 +37,7 @@ export interface ChannelComponentProps {
     groups: MessagesDailyGroups
   }
   pendingMessages: Dictionary<MessageSendingStatus>
-  setChannelMessagesSliceValue: (value: number) => void
+  lazyLoading: (load: boolean) => void
   onDelete: () => void
   onInputChange: (value: string) => void
   onInputEnter: (message: string) => void
@@ -56,7 +56,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   channelSettingsModal,
   messages,
   pendingMessages,
-  setChannelMessagesSliceValue,
+  lazyLoading,
   onDelete,
   onInputChange,
   onInputEnter,
@@ -71,8 +71,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
 
   const [scrollPosition, setScrollPosition] = React.useState(1)
   const [scrollHeight, setScrollHeight] = React.useState(0)
-
-  const chunkSize = 50 // Should come from the configuration
 
   const onResize = React.useCallback(() => {
     scrollBottom()
@@ -129,20 +127,17 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
     if (scrollbarRef.current && scrollPosition === 0) {
       /* Cache scroll height before loading new messages (to keep the scroll position after re-rendering) */
       setScrollHeight(scrollbarRef.current.scrollHeight)
-      const trim = Math.max(0, channelMessagesSlice - chunkSize)
-      setChannelMessagesSliceValue(trim)
+      lazyLoading(true)
     }
-  }, [setChannelMessagesSliceValue, scrollPosition])
+  }, [lazyLoading, scrollPosition])
 
   /* Lazy loading messages - bottom (trim) */
   useEffect(() => {
     if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
     if (scrollbarRef.current && scrollPosition === 1) {
-      const totalMessagesAmount = messages.count + channelMessagesSlice
-      const bottomMessagesSlice = Math.max(0, totalMessagesAmount - chunkSize)
-      setChannelMessagesSliceValue(bottomMessagesSlice)
+      lazyLoading(false)
     }
-  }, [setChannelMessagesSliceValue, scrollPosition, messages.count])
+  }, [lazyLoading, scrollPosition])
 
   useEffect(() => {
     scrollBottom()

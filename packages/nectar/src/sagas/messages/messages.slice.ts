@@ -14,7 +14,8 @@ import {
   WriteMessagePayload,
   PublicChannelsMessagesBase,
   AddPublicChannelsMessagesBasePayload,
-  SetDisplayedMessagesNumberPayload
+  SetDisplayedMessagesNumberPayload,
+  LazyLoadingPayload
 } from './messages.types'
 
 export class MessagesState {
@@ -90,6 +91,7 @@ export const messagesSlice = createSlice({
         }
       )
     },
+    lazyLoading: (state, _action: PayloadAction<LazyLoadingPayload>) => state,
     // Utility action for testing purposes
     test_message_verification_status: (
       state,

@@ -9,7 +9,7 @@ import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { currentCommunity } from '../communities/communities.selectors'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
-import { messagesVerificationStatus } from '../messages/messages.selectors'
+import { currentPublicChannelMessagesBase, messagesVerificationStatus } from '../messages/messages.selectors'
 import {
   DisplayableMessage,
   MessagesDailyGroups
@@ -125,6 +125,14 @@ export const slicedCurrentChannelMessages = createSelector(
   }
 )
 
+export const currentChannelLastDisplayedMessage = createSelector(
+  slicedCurrentChannelMessages,
+  currentPublicChannelMessagesBase,
+  (messages, base) => {
+    return messages[base.display - 1]
+  }
+)
+
 export const currentChannelMessagesCount = createSelector(
   slicedCurrentChannelMessages,
   messages => {
@@ -190,6 +198,7 @@ export const publicChannelsSelectors = {
   currentChannelMessagesSlice,
   currentChannelMessagesCount,
   currentChannelMessages,
+  sortedCurrentChannelMessages,
   currentChannelMessagesMergedBySender,
-  slicedCurrentChannelMessages
+  currentChannelLastDisplayedMessage
 }

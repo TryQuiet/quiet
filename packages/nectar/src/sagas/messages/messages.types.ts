@@ -42,6 +42,10 @@ export interface SetDisplayedMessagesNumberPayload {
   display: number
 }
 
+export interface LazyLoadingPayload {
+  load: boolean
+}
+
 export interface MessageVerificationStatus {
   publicKey: string
   signature: string

@@ -47,18 +47,11 @@ const Channel = () => {
     [dispatch]
   )
 
-  const setChannelMessagesSliceValue = useCallback(
-    (value: number) => {
-      if (currentChannelMessagesSlice === value) return
-      dispatch(
-        publicChannels.actions.setChannelMessagesSliceValue({
-          messagesSlice: value,
-          channelAddress: currentChannelAddress,
-          communityId: currentCommunity?.id
-        })
-      )
+  const lazyLoading = useCallback(
+    (load: boolean) => {
+      dispatch(messages.actions.lazyLoading({ load }))
     },
-    [dispatch, currentChannelAddress, currentChannelMessagesSlice, currentCommunity?.id]
+    [dispatch]
   )
 
   console.log('channel rerendered')
@@ -78,7 +71,7 @@ const Channel = () => {
             groups: currentChannelDisplayableMessages
           }}
           pendingMessages={pendingMessages}
-          setChannelMessagesSliceValue={setChannelMessagesSliceValue}
+          lazyLoading={lazyLoading}
           onDelete={function (): void { }}
           onInputChange={onInputChange}
           onInputEnter={onInputEnter}
