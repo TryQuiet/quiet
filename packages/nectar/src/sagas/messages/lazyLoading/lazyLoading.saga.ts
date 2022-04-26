@@ -13,12 +13,18 @@ export function* lazyLoadingSaga(
 ): Generator {
   const communityId = yield* select(communitiesSelectors.currentCommunityId)
   const channelAddress = yield* select(publicChannelsSelectors.currentChannelAddress)
+
   const channelMessagesChunkSize = 50
+
   const channelMessagesEntries = yield* select(
     messagesSelectors.sortedCurrentPublicChannelMessagesEntries
-  )
+    )
+
+  const cachedChannelMessages = yield* select(publicChannelsSelectors.currentChannelMessages)
+
   /**
-   * @param  load  Boolean: true - load more messages; false - reset slice (scrolled to bottom)
+   * Load messages
+   * @param  load  Boolean: true - load more messages
    */
   if (action.payload.load) {
     const lastDisplayedMessage = yield* select(
@@ -37,10 +43,8 @@ export function* lazyLoadingSaga(
       communityId: communityId
     }
 
-    // Load more messages to cache
     yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))
 
-    // Update number of messages to display
     const channelMessagesBase = yield* select(messagesSelectors.currentPublicChannelMessagesBase)
     const display = Math.max(
       channelMessagesEntries.length,
@@ -54,14 +58,21 @@ export function* lazyLoadingSaga(
 
     yield* put(messagesActions.setDisplayedMessagesNumber(setDisplayedMessagesNumberPayload))
   } else {
+    /**
+     * Trim messages
+     * @param  load  Boolean: false - reset slice (scrolled to bottom)
+     */
+
+    // Do not proceed with empty channel
+    if (channelMessagesEntries.length <= 0) return
+    // Do not proceed if messages are already trimmed
+    if (cachedChannelMessages.length === channelMessagesChunkSize) return
+
     const messages = channelMessagesEntries
       .slice(
         Math.max(0, channelMessagesEntries.length - channelMessagesChunkSize),
         channelMessagesEntries.length
       )
-
-    // Do not proceed with empty channel
-    if (messages.length <= 0) return
 
     const cacheMessagesPayload: CacheMessagesPayload = {
       messages: messages,
@@ -69,7 +80,6 @@ export function* lazyLoadingSaga(
       communityId: communityId
     }
 
-    // Remove messages from cache
     yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))
 
     const setDisplayedMessagesNumberPayload: SetDisplayedMessagesNumberPayload = {
@@ -77,7 +87,6 @@ export function* lazyLoadingSaga(
       display: channelMessagesChunkSize
     }
 
-    // Reset number of messages to display
     yield* put(messagesActions.setDisplayedMessagesNumber(setDisplayedMessagesNumberPayload))
   }
 }
