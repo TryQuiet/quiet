@@ -502,7 +502,7 @@ export class Storage {
     const allUsers = []
     for (const cert of certs) {
       const parsedCert = parseCertificate(cert)
-      const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.subjectAltName)
+      const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
       const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
       allUsers.push({ onionAddress, peerId })
     }

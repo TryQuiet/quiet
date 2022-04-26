@@ -8,7 +8,7 @@ export function* updateCommunitySaga(
 ): Generator {
   const rootCa = loadCertificate(action.payload.rootCa)
 
-  const communityName = yield* call(getCertFieldValue, rootCa, CertFieldsTypes.subjectAltName)
+  const communityName = yield* call(getCertFieldValue, rootCa, CertFieldsTypes.commonName)
 
   const payload = {
     id: action.payload.id,
