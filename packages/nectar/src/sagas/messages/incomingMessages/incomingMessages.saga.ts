@@ -22,8 +22,11 @@ export function* incomingMessagesSaga(
       return
     }
 
+
     const cachedMessages = yield* select(publicChannelsSelectors.currentChannelMessages)
-    cachedMessages.shift()
+    if (cachedMessages.length >= 50) {
+      cachedMessages.shift()
+    }
     cachedMessages.push(message)
 
     const cacheMessagesPayload: CacheMessagesPayload = {
