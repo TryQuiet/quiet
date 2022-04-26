@@ -44,12 +44,12 @@ export function* handleErrorsSaga(
     ) {
       if (registrationAttempts < 20) {
         yield* call(delay, 5000)
-        yield* put(communitiesActions.updateRegistrationAttempts({id: error.community, registrationAttempts: registrationAttempts + 1}))
+        yield* put(communitiesActions.updateRegistrationAttempts({ id: error.community, registrationAttempts: registrationAttempts + 1 }))
         yield* put(errorsActions.addError(error))
         yield* call(retryRegistration, error.community)
       } else {
         yield* put(errorsActions.addError(error))
-        yield* put(communitiesActions.updateRegistrationAttempts({id: error.community, registrationAttempts: 0}))
+        yield* put(communitiesActions.updateRegistrationAttempts({ id: error.community, registrationAttempts: 0 }))
       }
     }
   } else {

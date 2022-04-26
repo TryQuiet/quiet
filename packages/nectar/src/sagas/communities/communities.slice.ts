@@ -34,7 +34,7 @@ export interface Community {
   onionAddress: string
   privateKey: string
   port: number
-  registrationAttempts: number,
+  registrationAttempts: number
 }
 
 export const communitiesSlice = createSlice({
@@ -85,7 +85,7 @@ export const communitiesSlice = createSlice({
     updateRegistrationAttempts: (state, action: PayloadAction<UpdateRegistrationAttemptsPayload>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
-        changes: { 
+        changes: {
           ...action.payload
         }
       })

@@ -168,13 +168,12 @@ export const assertConnectedToPeers = async (
 }
 
 export const assertStoreStatesAreEqual = async (oldState, currentState) => {
-  
   const oldStateWithLastConnectedTimeFromCurrentState = {
     ...oldState,
     Connection: {
       ...oldState.Connection,
       lastConnectedTime: currentState.Connection.lastConnectedTime
-    },
+    }
   }
 
   expect(currentState).toMatchObject(oldStateWithLastConnectedTimeFromCurrentState)
