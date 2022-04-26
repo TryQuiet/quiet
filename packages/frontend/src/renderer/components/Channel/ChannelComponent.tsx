@@ -97,7 +97,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
     const top = scrollbarRef.current?.scrollTop === 0
 
     const bottom =
-      Math.floor(scrollbarRef.current?.scrollHeight) - Math.floor(scrollbarRef.current?.scrollTop) ===
+      Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) ===
       Math.floor(scrollbarRef.current?.clientHeight)
 
     let position = -1
