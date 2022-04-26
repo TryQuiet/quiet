@@ -7,12 +7,14 @@ import { incomingMessagesSaga } from './incomingMessages/incomingMessages.saga'
 import { publicChannelsActions } from '../publicChannels/publicChannels.slice'
 import { verifyMessagesSaga } from './verifyMessage/verifyMessages.saga'
 import { updateMessagesSendingStatusSaga } from './updateMessagesSendingStatus/updateMessagesSendingStatus.saga'
+import { lazyLoadingSaga } from './lazyLoading/lazyLoading.saga'
 
 export function* messagesMasterSaga(socket: Socket): Generator {
   yield all([
     takeEvery(messagesActions.sendMessage.type, sendMessageSaga, socket),
     takeEvery(messagesActions.incomingMessages.type, incomingMessagesSaga),
     takeEvery(publicChannelsActions.cacheMessages.type, verifyMessagesSaga),
-    takeEvery(publicChannelsActions.cacheMessages.type, updateMessagesSendingStatusSaga)
+    takeEvery(publicChannelsActions.cacheMessages.type, updateMessagesSendingStatusSaga),
+    takeEvery(messagesActions.lazyLoading.type, lazyLoadingSaga)
   ])
 }
