@@ -22,8 +22,12 @@ export function* incomingMessagesSaga(
       return
     }
 
+    const cachedMessages = yield* select(publicChannelsSelectors.currentChannelMessages)
+    cachedMessages.shift()
+    cachedMessages.push(message)
+
     const cacheMessagesPayload: CacheMessagesPayload = {
-      messages: [message],
+      messages: cachedMessages,
       channelAddress: message.channelAddress,
       communityId: action.payload.communityId
     }

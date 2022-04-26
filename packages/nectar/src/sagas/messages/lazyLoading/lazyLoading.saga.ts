@@ -28,8 +28,7 @@ export function* lazyLoadingSaga(
     const lastDisplayedMessageIndex = channelMessagesEntries.indexOf(lastDisplayedMessage)
 
     const messages = channelMessagesEntries.slice(
-      Math.max(0, lastDisplayedMessageIndex - channelMessagesChunkSize),
-      lastDisplayedMessageIndex
+      Math.max(0, lastDisplayedMessageIndex - channelMessagesChunkSize)
     )
 
     const cacheMessagesPayload: CacheMessagesPayload = {
@@ -64,14 +63,14 @@ export function* lazyLoadingSaga(
     // Do not proceed with empty channel
     if (messages.length <= 0) return
 
-    const resetCachedMessagesPayload: CacheMessagesPayload = {
+    const cacheMessagesPayload: CacheMessagesPayload = {
       messages: messages,
       channelAddress: channelAddress,
       communityId: communityId
     }
 
     // Remove messages from cache
-    yield* put(publicChannelsActions.resetCachedMessages(resetCachedMessagesPayload))
+    yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))
 
     const setDisplayedMessagesNumberPayload: SetDisplayedMessagesNumberPayload = {
       channelAddress: channelAddress,

@@ -74,13 +74,6 @@ export const publicChannelsSlice = createSlice({
     subscribeToAllTopics: state => state,
     cacheMessages: (state, action: PayloadAction<CacheMessagesPayload>) => {
       const { messages, channelAddress, communityId } = action.payload
-      channelMessagesAdapter.upsertMany(
-        state.channels.entities[communityId].channels.entities[channelAddress].messages,
-        messages
-      )
-    },
-    resetCachedMessages: (state, action: PayloadAction<CacheMessagesPayload>) => {
-      const { messages, channelAddress, communityId } = action.payload
       channelMessagesAdapter.setAll(
         state.channels.entities[communityId].channels.entities[channelAddress].messages,
         messages
