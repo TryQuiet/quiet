@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, identity, messages, publicChannels } from '@quiet/nectar'
+import { identity, messages, publicChannels } from '@quiet/nectar'
 
 import ChannelComponent from './ChannelComponent'
 
@@ -13,14 +13,8 @@ const Channel = () => {
 
   const user = useSelector(identity.selectors.currentIdentity)
 
-  const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentChannelAddress = useSelector(publicChannels.selectors.currentChannelAddress)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
-  const currentChannelMessagesSlice = useSelector(publicChannels.selectors.currentChannelMessagesSlice)
-
-  const currentChannelMessagesCount = useSelector(
-    publicChannels.selectors.currentChannelMessagesCount
-  )
 
   const currentChannelDisplayableMessages = useSelector(
     publicChannels.selectors.currentChannelMessagesMergedBySender
@@ -63,13 +57,9 @@ const Channel = () => {
           user={user}
           channelAddress={currentChannelAddress}
           channelName={currentChannelName}
-          channelMessagesSlice={currentChannelMessagesSlice}
           channelSettingsModal={channelSettingsModal}
           channelInfoModal={channelInfoModal}
-          messages={{
-            count: currentChannelMessagesCount,
-            groups: currentChannelDisplayableMessages
-          }}
+          messages={currentChannelDisplayableMessages}
           pendingMessages={pendingMessages}
           lazyLoading={lazyLoading}
           onDelete={function (): void { }}

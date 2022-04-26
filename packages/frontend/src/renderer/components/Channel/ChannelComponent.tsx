@@ -29,13 +29,9 @@ export interface ChannelComponentProps {
   user: Identity
   channelAddress: string
   channelName: string
-  channelMessagesSlice: number
   channelSettingsModal: ReturnType<typeof useModal>
   channelInfoModal: ReturnType<typeof useModal>
-  messages: {
-    count: number
-    groups: MessagesDailyGroups
-  }
+  messages: MessagesDailyGroups
   pendingMessages: Dictionary<MessageSendingStatus>
   lazyLoading: (load: boolean) => void
   onDelete: () => void
@@ -51,7 +47,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   user,
   channelAddress,
   channelName,
-  channelMessagesSlice,
   channelInfoModal,
   channelSettingsModal,
   messages,
@@ -159,7 +154,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
       </PageHeader>
       <Grid item xs className={classes.messages}>
         <ChannelMessagesComponent
-          messages={messages.groups}
+          messages={messages}
           pendingMessages={pendingMessages}
           scrollbarRef={scrollbarRef}
           onScroll={onScroll}
