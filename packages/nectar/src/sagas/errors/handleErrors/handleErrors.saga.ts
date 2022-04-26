@@ -12,7 +12,7 @@ import logger from '../../../utils/logger'
 
 const log = logger('errors')
 
-function* retryRegistration(communityId: string) {
+export function* retryRegistration(communityId: string) {
   const identity = yield* select(identitySelectors.selectById(communityId))
 
   const payload: RegisterCertificatePayload = {
