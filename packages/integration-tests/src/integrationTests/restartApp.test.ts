@@ -5,7 +5,7 @@ import {
 } from './appActions'
 import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { assertInitializedExistingCommunitiesAndRegistrars, assertStoreStatesAreEqual } from './assertions'
+import { assertInitializedExistingCommunitiesAndRegistrars, assertStoreStatesAreEqual, assertInitializedCommunity } from './assertions'
 
 const crypto = new Crypto()
 
@@ -37,8 +37,6 @@ describe('restart app without doing anything', () => {
     oldState = storePersistor(store.getState())
     dataPath = owner.appPath
     owner = await createApp(oldState, dataPath)
-    // Wait before checking state in case some unwanted actions are executing and manipulating store
-    await sleep(20_000)
     store = owner.store
   })
 
@@ -64,9 +62,8 @@ describe('create community and restart app', () => {
 
   test('Owner creates community', async () => {
     await createCommunity({ userName: 'Owner', store: owner.store })
+    await assertInitializedCommunity(owner.store)
     store = owner.store
-    // Give orbitDB enough time to subscribe to topics.
-    await sleep(5_000)
   })
 
   test('Owner successfully closes app', async () => {
@@ -76,13 +73,8 @@ describe('create community and restart app', () => {
   test('Owner relaunch application with previous state', async () => {
     oldState = storePersistor(store.getState())
     dataPath = owner.appPath
-    // Clear Initialized communities and registrars to make sure they are reinitialized
-    clearInitializedCommunitiesAndRegistrars(store)
     owner = await createApp(oldState, dataPath)
-    // Wait before checking state in case some unwanted actions are executing and manipulating store
-    await sleep(10_000)
     store = owner.store
-
     const currentState = store.getState()
     await assertStoreStatesAreEqual(oldState, currentState)
   })
