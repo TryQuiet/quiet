@@ -35,12 +35,6 @@ describe('subscribeToTopicSaga', () => {
 
     channel = publicChannels.selectors.publicChannels(store.getState())[0]
 
-    store.dispatch(publicChannelsActions.setChannelMessagesSliceValue({
-      messagesSlice: 100,
-      channelAddress: channel.address,
-      communityId: community.id
-    }))
-
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, nickname: 'alice' }

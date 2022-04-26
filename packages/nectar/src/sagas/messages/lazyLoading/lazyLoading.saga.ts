@@ -9,7 +9,7 @@ import {
 } from '../../publicChannels/publicChannels.types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { communitiesSelectors } from '../../communities/communities.selectors'
-import { SetDisplayedMessagesNumberPayload } from '@quiet/nectar'
+import { SetDisplayedMessagesNumberPayload } from '../messages.types'
 
 export function* lazyLoadingSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.lazyLoading>['payload']>

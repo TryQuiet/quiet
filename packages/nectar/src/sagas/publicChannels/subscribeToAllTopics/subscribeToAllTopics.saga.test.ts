@@ -53,7 +53,6 @@ describe('subscribeToAllTopicsSaga', () => {
     owner: 'master',
     timestamp: 0,
     address: 'channelOne',
-    messagesSlice: 0,
     messages: channelMessagesAdapter.getInitialState()
   }
 
@@ -63,7 +62,6 @@ describe('subscribeToAllTopicsSaga', () => {
     owner: 'master',
     timestamp: 0,
     address: 'channelTwo',
-    messagesSlice: 0,
     messages: channelMessagesAdapter.getInitialState()
   }
 
