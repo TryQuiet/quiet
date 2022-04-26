@@ -44,7 +44,6 @@ export const messagesSlice = createSlice({
       publicChannelsMessagesBaseAdapter.addOne(state.publicChannelsMessagesBase, {
         channelAddress: channelAddress,
         messages: channelMessagesAdapter.getInitialState(),
-        newest: null,
         display: 50
       })
     },
@@ -68,17 +67,6 @@ export const messagesSlice = createSlice({
           message
         )
       }
-    },
-    updateNewestKnownMessage: (state, action: PayloadAction<ChannelMessage>) => {
-      const message = action.payload
-      publicChannelsMessagesBaseAdapter.updateOne(
-        state.publicChannelsMessagesBase, {
-          id: message.channelAddress,
-          changes: {
-            newest: message
-          }
-        }
-      )
     },
     setDisplayedMessagesNumber: (state, action: PayloadAction<SetDisplayedMessagesNumberPayload>) => {
       const { display, channelAddress } = action.payload

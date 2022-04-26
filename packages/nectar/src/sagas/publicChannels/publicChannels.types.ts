@@ -16,7 +16,6 @@ export interface PublicChannel {
 
 export interface PublicChannelStorage extends PublicChannel {
   messages: EntityState<ChannelMessage>
-  messagesSlice: number
 }
 
 export interface ChannelMessage {
@@ -104,6 +103,12 @@ export interface IncomingMessages {
 
 export interface CacheMessagesPayload {
   messages: ChannelMessage[]
+  channelAddress: string
+  communityId: string
+}
+
+export interface RemoveCachedMessagesPayload {
+  messages: string[]
   channelAddress: string
   communityId: string
 }

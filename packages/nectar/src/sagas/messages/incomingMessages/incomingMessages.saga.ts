@@ -1,7 +1,6 @@
 import { select, put } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { messagesActions } from '../messages.slice'
-import { messagesSelectors } from '../messages.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { CacheMessagesPayload } from '../../publicChannels/publicChannels.types'
@@ -17,19 +16,10 @@ export function* incomingMessagesSaga(
     }
 
     const lastDisplayedMessage = yield* select(publicChannelsSelectors.currentChannelLastDisplayedMessage)
-    const messageChannelBase = yield* select(messagesSelectors.currentPublicChannelMessagesBase)
     
     // Check if incoming message fits between (newest known message)...(number of messages to display)
     if (message.createdAt < lastDisplayedMessage?.createdAt) {
       return
-    }
-        
-    // Check if incoming message is newer than last known message (and update it if so)
-    if (
-      messageChannelBase.newest === null ||
-      message.createdAt >= messageChannelBase.newest.createdAt
-    ) {
-      yield* put(messagesActions.updateNewestKnownMessage(message))
     }
 
     const cacheMessagesPayload: CacheMessagesPayload = {

@@ -3,6 +3,7 @@ import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter
 import { currentChannelAddress } from '../publicChannels/publicChannels.selectors'
 import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../store.types'
+import { certificatesMapping } from '../users/users.selectors'
 import {
   messageSendingStatusAdapter,
   messageVerificationStatusAdapter,
@@ -16,6 +17,18 @@ export const publicKeysMapping = createSelector(
   messagesSlice,
   reducerState => reducerState.publicKeyMapping
 )
+
+export const messagesVerificationStatus = createSelector(messagesSlice, reducerState =>
+  messageVerificationStatusAdapter
+    .getSelectors()
+    .selectEntities(reducerState.messageVerificationStatus)
+)
+
+export const messagesSendingStatus = createSelector(messagesSlice, reducerState => {
+  return messageSendingStatusAdapter
+    .getSelectors()
+    .selectEntities(reducerState.messageSendingStatus)
+})
 
 export const publicChannelsMessagesBase = createSelector(messagesSlice, reducerState =>
   publicChannelsMessagesBaseAdapter
@@ -37,26 +50,42 @@ export const currentPublicChannelMessagesEntries = createSelector(
     return channelMessagesAdapter
     .getSelectors()
     .selectAll(base.messages)
+    .sort((a, b) => b.createdAt - a.createdAt).reverse()
   }
 )
 
-export const messagesVerificationStatus = createSelector(messagesSlice, reducerState =>
-  messageVerificationStatusAdapter
-    .getSelectors()
-    .selectEntities(reducerState.messageVerificationStatus)
+export const validCurrentPublicChannelMessagesEntries = createSelector(
+  currentPublicChannelMessagesEntries,
+  certificatesMapping,
+  messagesVerificationStatus,
+  (messages, certificates, verification) => {
+    const filtered = messages.filter(message => message.pubKey in certificates)
+    return filtered.filter(message => {
+      const status = verification[message.signature]
+      if (
+        status &&
+        status.publicKey === message.pubKey &&
+        status.signature === message.signature &&
+        status.verified
+      ) {
+        return message
+      }
+    })
+  }
 )
 
-export const messagesSendingStatus = createSelector(messagesSlice, reducerState => {
-  return messageSendingStatusAdapter
-    .getSelectors()
-    .selectEntities(reducerState.messageSendingStatus)
-})
+export const sortedCurrentPublicChannelMessagesEntries = createSelector(
+  validCurrentPublicChannelMessagesEntries,
+  messages => {
+    return messages.sort((a, b) => b.createdAt - a.createdAt).reverse()
+  }
+)
 
 export const messagesSelectors = {
   publicKeysMapping,
   publicChannelsMessagesBase,
   currentPublicChannelMessagesBase,
-  currentPublicChannelMessagesEntries,
+  sortedCurrentPublicChannelMessagesEntries,
   messagesVerificationStatus,
   messagesSendingStatus
 }

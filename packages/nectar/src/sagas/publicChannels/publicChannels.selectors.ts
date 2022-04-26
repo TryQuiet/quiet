@@ -9,12 +9,11 @@ import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { currentCommunity } from '../communities/communities.selectors'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
-import { currentPublicChannelMessagesBase, messagesVerificationStatus } from '../messages/messages.selectors'
+import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import {
   DisplayableMessage,
   MessagesDailyGroups
 } from './publicChannels.types'
-import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 
 const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
   state[StoreKeys.PublicChannels]
@@ -74,14 +73,6 @@ export const currentChannelName = createSelector(
   }
 )
 
-export const currentChannelMessagesSlice = createSelector(
-  currentChannel,
-  (channel) => {
-    if (!channel) return 0
-    return channel.messagesSlice
-  }
-)
-
 const currentChannelMessages = createSelector(
   currentChannel,
   (channel) => {
@@ -90,58 +81,22 @@ const currentChannelMessages = createSelector(
   }
 )
 
-export const validCurrentChannelMessages = createSelector(
-  currentChannelMessages,
-  certificatesMapping,
-  messagesVerificationStatus,
-  (messages, certificates, verification) => {
-    const filtered = messages.filter(message => message.pubKey in certificates)
-    return filtered.filter(message => {
-      const status = verification[message.signature]
-      if (
-        status &&
-        status.publicKey === message.pubKey &&
-        status.signature === message.signature &&
-        status.verified
-      ) {
-        return message
-      }
-    })
-  }
-)
-
 export const sortedCurrentChannelMessages = createSelector(
-  validCurrentChannelMessages,
+  currentChannelMessages,
   messages => {
     return messages.sort((a, b) => b.createdAt - a.createdAt).reverse()
   }
 )
 
-export const slicedCurrentChannelMessages = createSelector(
-  sortedCurrentChannelMessages,
-  currentChannel,
-  (messages, channel) => {
-    return messages.slice((channel?.messagesSlice || 0), messages.length)
-  }
-)
-
 export const currentChannelLastDisplayedMessage = createSelector(
-  slicedCurrentChannelMessages,
-  currentPublicChannelMessagesBase,
-  (messages, base) => {
-    return messages[base.display - 1]
-  }
-)
-
-export const currentChannelMessagesCount = createSelector(
-  slicedCurrentChannelMessages,
-  messages => {
-    return messages.length
+  sortedCurrentChannelMessages,
+  (messages) => {
+    return messages[messages.length]
   }
 )
 
 const displayableCurrentChannelMessages = createSelector(
-  slicedCurrentChannelMessages,
+  sortedCurrentChannelMessages,
   certificatesMapping,
   (messages, certificates) =>
     messages.map(message => {
@@ -195,10 +150,8 @@ export const publicChannelsSelectors = {
   publicChannels,
   currentChannelAddress,
   currentChannelName,
-  currentChannelMessagesSlice,
-  currentChannelMessagesCount,
   currentChannelMessages,
-  sortedCurrentChannelMessages,
+  displayableCurrentChannelMessages,
   currentChannelMessagesMergedBySender,
   currentChannelLastDisplayedMessage
 }

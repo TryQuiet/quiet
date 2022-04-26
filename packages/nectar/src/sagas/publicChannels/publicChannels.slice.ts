@@ -15,9 +15,9 @@ import {
   AddPublicChannelsListPayload,
   GetPublicChannelsResponse,
   SetCurrentChannelPayload,
-  SetChannelMessagesSliceValuePayload,
   SubscribeToTopicPayload,
-  CacheMessagesPayload
+  CacheMessagesPayload,
+  RemoveCachedMessagesPayload
 } from './publicChannels.types'
 import { Identity } from '../identity/identity.types'
 
@@ -50,7 +50,6 @@ export const publicChannelsSlice = createSlice({
       const { channel, communityId } = action.payload
       publicChannelsAdapter.addOne(state.channels.entities[communityId].channels, {
         ...channel,
-        messagesSlice: 0,
         messages: channelMessagesAdapter.getInitialState()
       })
     },
@@ -59,7 +58,6 @@ export const publicChannelsSlice = createSlice({
       for (const channel of Object.values(channels)) {
         publicChannelsAdapter.upsertOne(state.channels.entities[communityId].channels, {
           ...channel,
-          messagesSlice: 0,
           messages: channelMessagesAdapter.getInitialState()
         })
       }
@@ -73,27 +71,18 @@ export const publicChannelsSlice = createSlice({
         }
       })
     },
-    setChannelMessagesSliceValue: (
-      state,
-      action: PayloadAction<SetChannelMessagesSliceValuePayload>
-    ) => {
-      const { messagesSlice, channelAddress, communityId } = action.payload
-
-      // Verify community exists in redux store
-      if (!state.channels.entities[communityId]) return
-
-      publicChannelsAdapter.updateOne(state.channels.entities[communityId].channels, {
-        id: channelAddress,
-        changes: {
-          messagesSlice: messagesSlice
-        }
-      })
-    },
     subscribeToTopic: (state, _action: PayloadAction<SubscribeToTopicPayload>) => state,
     subscribeToAllTopics: state => state,
     cacheMessages: (state, action: PayloadAction<CacheMessagesPayload>) => {
       const { messages, channelAddress, communityId } = action.payload
       channelMessagesAdapter.upsertMany(
+        state.channels.entities[communityId].channels.entities[channelAddress].messages,
+        messages
+      )
+    },
+    removeCachedMessages: (state, action: PayloadAction<RemoveCachedMessagesPayload>) => {
+      const { messages, channelAddress, communityId } = action.payload
+      channelMessagesAdapter.removeMany(
         state.channels.entities[communityId].channels.entities[channelAddress].messages,
         messages
       )

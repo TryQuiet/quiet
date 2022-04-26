@@ -33,7 +33,6 @@ export interface AddPublicChannelsMessagesBasePayload {
 export interface PublicChannelsMessagesBase {
   channelAddress: string
   messages: EntityState<ChannelMessage>
-  newest: ChannelMessage | null
   display: number
 }
 

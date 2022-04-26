@@ -1,45 +1,84 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { select } from 'typed-redux-saga'
+import { put, select } from 'typed-redux-saga'
 import { messagesActions } from '../messages.slice'
 import { messagesSelectors } from '../messages.selectors'
+import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
+import {
+  CacheMessagesPayload,
+  RemoveCachedMessagesPayload
+} from '../../publicChannels/publicChannels.types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import { communitiesSelectors } from '../../communities/communities.selectors'
+import { SetDisplayedMessagesNumberPayload } from '@quiet/nectar'
 
 export function* lazyLoadingSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.lazyLoading>['payload']>
 ): Generator {
-    /**
-    * @param  load  Boolean: true - load more messages; false - reset slice (scrolled to bottom)
-    */
-    if (action.payload.load) {
-        const channelMessagesEntries = yield* select(messagesSelectors.currentPublicChannelMessagesEntries)
+  const communityId = yield* select(communitiesSelectors.currentCommunityId)
+  const channelAddress = yield* select(publicChannelsSelectors.currentChannelAddress)
+  const channelMessagesChunkSize = 50
+  const channelMessagesEntries = yield* select(
+    messagesSelectors.sortedCurrentPublicChannelMessagesEntries
+  )
+  /**
+   * @param  load  Boolean: true - load more messages; false - reset slice (scrolled to bottom)
+   */
+  if (action.payload.load) {
+    const lastDisplayedMessage = yield* select(
+      publicChannelsSelectors.currentChannelLastDisplayedMessage
+    )
+    const lastDisplayedMessageIndex = channelMessagesEntries.indexOf(lastDisplayedMessage)
 
-        const lastDisplayedMessage = yield* select(publicChannelsSelectors.currentChannelLastDisplayedMessage)
-        const lastDisplayedMessageIndex = channelMessagesEntries.indexOf(lastDisplayedMessage)
-    
-        const channelMessagesChunkSize = 50
-    
-        const postLoadingLastDisplayedMessage = channelMessagesEntries[lastDisplayedMessageIndex - channelMessagesChunkSize]
-    
-        // No more messages in database - update cache and set slice to 0
-        if (!postLoadingLastDisplayedMessage) {
-    
-            return
-        }
-    
-        const cachedChannelMessages = yield* select(publicChannelsSelectors.sortedCurrentChannelMessages)
-        // Check if last lazy loaded message is present in cached messages and update cache if needed
-        if (!cachedChannelMessages.indexOf(postLoadingLastDisplayedMessage)) {
-    
-        }
-    
-        // Set slice to be equal last displayed message index
-    
-        // Update number of messages to display
-        
-    } else {
-        // Set slice to be equal newest message index - chunk size
+    const messages = channelMessagesEntries.slice(
+      Math.max(0, lastDisplayedMessageIndex - channelMessagesChunkSize),
+      lastDisplayedMessageIndex
+    )
 
-        // Update numer of messages to display
-
+    const cacheMessagesPayload: CacheMessagesPayload = {
+      messages: messages,
+      channelAddress: channelAddress,
+      communityId: communityId
     }
+
+    // Load more messages to cache
+    yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))
+
+    // Update number of messages to display
+    const channelMessagesBase = yield* select(messagesSelectors.currentPublicChannelMessagesBase)
+    const display = Math.max(
+      channelMessagesEntries.length,
+      channelMessagesBase.display + channelMessagesChunkSize
+    )
+
+    const setDisplayedMessagesNumberPayload: SetDisplayedMessagesNumberPayload = {
+      channelAddress: channelAddress,
+      display: display
+    }
+
+    yield* put(messagesActions.setDisplayedMessagesNumber(setDisplayedMessagesNumberPayload))
+  } else {
+    const messages = channelMessagesEntries
+      .slice(
+        Math.max(0, channelMessagesEntries.length - channelMessagesChunkSize),
+        channelMessagesEntries.length
+      )
+      .map(message => message.id)
+
+    const removeCachedMessagesPayload: RemoveCachedMessagesPayload = {
+      messages: messages,
+      channelAddress: channelAddress,
+      communityId: communityId
+    }
+
+    // Remove messages from cache
+    yield* put(publicChannelsActions.removeCachedMessages(removeCachedMessagesPayload))
+
+    const setDisplayedMessagesNumberPayload: SetDisplayedMessagesNumberPayload = {
+      channelAddress: channelAddress,
+      display: channelMessagesChunkSize
+    }
+
+    // Reset number of messages to display
+    yield* put(messagesActions.setDisplayedMessagesNumber(setDisplayedMessagesNumberPayload))
+  }
 }
