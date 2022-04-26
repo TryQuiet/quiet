@@ -1,8 +1,8 @@
 import waitForExpect from 'wait-for-expect'
-import { identity, communities, messages, connection, publicChannels, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership } from '@quiet/nectar'
+import { identity, communities, messages, connection, publicChannels, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership, TestStore, ChannelMessage } from '@quiet/nectar'
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { createApp } from '../utils'
+import { createApp, sleep } from '../utils'
 import logger from '../logger'
 
 const log = logger('actions')
@@ -50,7 +50,7 @@ export interface OwnerData {
 interface SendMessage {
   message: string
   channelName?: string
-  store: Store
+  store: TestStore
 }
 
 export async function createCommunity({ userName, store }: CreateCommunity) {
@@ -233,7 +233,7 @@ export async function joinCommunity(payload: JoinCommunity) {
 
 export async function sendMessage(
   payload: SendMessage
-): Promise<{ message: string; publicKey: string }> {
+): Promise<ChannelMessage> {
   const {
     message,
     channelName,
@@ -254,16 +254,17 @@ export async function sendMessage(
 
   store.dispatch(messages.actions.sendMessage({ message }))
 
-  const certificate =
-    store.getState().Identity.identities.entities[communityId].userCertificate
+  await waitForExpect(() => {
+    expect(store.getState().LastAction.type).toEqual('Messages/addMessageVerificationStatus')
+  })
 
-  const parsedCertificate = parseCertificate(certificate)
-  const publicKey = keyFromCertificate(parsedCertificate)
+  const entities = Array.from(Object.values(store.getState().PublicChannels.channels.entities[communityId].channelMessages.entities))
 
-  return {
-    message,
-    publicKey
-  }
+  const newMessage = entities.filter((m) => {
+    return m.message === message
+  })
+
+  return newMessage[0]
 }
 
 export const getCommunityOwnerData = (ownerStore: Store) => {
