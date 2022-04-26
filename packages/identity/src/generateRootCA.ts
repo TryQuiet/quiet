@@ -97,13 +97,13 @@ async function generateRootCA({
   })
   certificate.issuer.typesAndValues.push(
     new AttributeTypeAndValue({
-      type: CertFieldsTypes.subjectAltName,
+      type: CertFieldsTypes.commonName,
       value: new PrintableString({ value: commonName })
     })
   )
   certificate.subject.typesAndValues.push(
     new AttributeTypeAndValue({
-      type: CertFieldsTypes.subjectAltName,
+      type: CertFieldsTypes.commonName,
       value: new PrintableString({ value: commonName })
     })
   )

@@ -3,7 +3,8 @@ import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate } 
 import { stringToArrayBuffer, fromBase64 } from 'pvutils'
 
 export enum CertFieldsTypes {
-  subjectAltName = '2.6.5.6',
+  commonName = '2.5.4.3',
+  subjectAltName = '2.5.29.17',
   nickName = '1.3.6.1.4.1.50715.2.1',
   peerId = '1.3.6.1.2.1.15.3.1.1',
   dmPublicKey = '1.2.840.113549.1.9.12'
@@ -85,7 +86,7 @@ export const loadCSR = async (csr: string): Promise<CertificationRequest> => {
 }
 
 export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes | ObjectIdentifier): string | null => {
-  if (fieldType === CertFieldsTypes.subjectAltName) {
+  if (fieldType === CertFieldsTypes.commonName) {
     const block = cert.subject.typesAndValues.find((tav: any) => tav.type === fieldType)
 
     if (block) {
@@ -113,7 +114,7 @@ export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes 
 }
 
 export const getReqFieldValue = (csr: CertificationRequest, fieldType: CertFieldsTypes | ObjectIdentifier): string | null => {
-  if (fieldType === CertFieldsTypes.subjectAltName) {
+  if (fieldType === CertFieldsTypes.commonName) {
     const block = csr.subject.typesAndValues.find((tav: any) => tav.type === fieldType)
     if (block) {
       return block?.value.valueBlock.value

@@ -90,7 +90,7 @@ describe('Certificate verification', () => {
 describe('Certificate', () => {
   it('certificate can be parsed and contains proper data', async () => {
     const certTypeData = {
-      [CertFieldsTypes.subjectAltName]: userData.commonName,
+      [CertFieldsTypes.commonName]: userData.commonName,
       [CertFieldsTypes.nickName]: userData.nickname,
       [CertFieldsTypes.peerId]: userData.peerId,
       [CertFieldsTypes.dmPublicKey]: userData.dmPublicKey
@@ -110,7 +110,7 @@ describe('Certificate', () => {
 
   it('certification request can be parsed and contains proper data', async () => {
     const certTypeData = {
-      [CertFieldsTypes.subjectAltName]: userData.commonName,
+      [CertFieldsTypes.commonName]: userData.commonName,
       [CertFieldsTypes.nickName]: userData.nickname,
       [CertFieldsTypes.peerId]: userData.peerId,
       [CertFieldsTypes.dmPublicKey]: userData.dmPublicKey

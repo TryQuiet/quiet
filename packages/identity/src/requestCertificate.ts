@@ -81,7 +81,7 @@ async function requestCertificate({
   })
   pkcs10.subject.typesAndValues.push(
     new AttributeTypeAndValue({
-      type: CertFieldsTypes.subjectAltName,
+      type: CertFieldsTypes.commonName,
       value: new PrintableString({ value: commonName })
     })
   )
@@ -117,6 +117,10 @@ async function requestCertificate({
     new Attribute({
       type: CertFieldsTypes.peerId,
       values: [new PrintableString({ value: peerId })]
+    }),
+    new Attribute({
+      type: CertFieldsTypes.subjectAltName,
+      values: [new PrintableString({ value: commonName })]
     })
   )
   await pkcs10.sign(keyPair.privateKey, hashAlg)

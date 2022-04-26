@@ -3,7 +3,7 @@ import { Integer, BitString, OctetString, PrintableString } from 'asn1js'
 import config from './config'
 import { loadCertificate, loadPrivateKey, loadCSR, ExtensionsTypes, CertFieldsTypes } from './common'
 import {
-  Certificate, Extension, ExtKeyUsage, BasicConstraints, CertificationRequest
+  Certificate, Extension, ExtKeyUsage, BasicConstraints, CertificationRequest, GeneralName, GeneralNames
 } from 'pkijs'
 
 export interface UserCert {
@@ -65,10 +65,22 @@ async function generateuserCertificate({
   let dmPubKey = null
   let nickname = null
   let peerId = null
+  let onionAddress = null
+  let altNames
+
   try {
     dmPubKey = attr?.[1].values[0].valueBlock.valueHex
     nickname = attr?.[2].values[0].valueBlock.value
     peerId = attr?.[3].values[0].valueBlock.value
+    onionAddress = attr?.[4].values[0].valueBlock.value
+    altNames = new GeneralNames({
+      names: [
+        new GeneralName({
+          type: 2, // dNSName
+          value: `${onionAddress}`
+        })
+      ]
+    })
   } catch (err) {
     throw new Error('Cannot get certificate request extension')
   }
@@ -109,6 +121,11 @@ async function generateuserCertificate({
         extnID: CertFieldsTypes.peerId,
         critical: false,
         extnValue: new PrintableString({ value: peerId }).toBER(false)
+      }),
+      new Extension({
+        extnID: CertFieldsTypes.subjectAltName,
+        critical: false,
+        extnValue: altNames.toSchema().toBER(false)
       })
     ],
     issuer: issuerCert.subject,
