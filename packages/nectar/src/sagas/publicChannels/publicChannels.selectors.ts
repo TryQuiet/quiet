@@ -91,7 +91,7 @@ export const sortedCurrentChannelMessages = createSelector(
 export const currentChannelLastDisplayedMessage = createSelector(
   sortedCurrentChannelMessages,
   (messages) => {
-    return messages[messages.length]
+    return messages[0]
   }
 )
 

@@ -47,6 +47,7 @@ export const currentPublicChannelMessagesBase = createSelector(
 export const currentPublicChannelMessagesEntries = createSelector(
   currentPublicChannelMessagesBase,
   (base) => {
+    if (!base) return []
     return channelMessagesAdapter
     .getSelectors()
     .selectAll(base.messages)

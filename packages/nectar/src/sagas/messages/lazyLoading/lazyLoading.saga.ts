@@ -3,10 +3,7 @@ import { put, select } from 'typed-redux-saga'
 import { messagesActions } from '../messages.slice'
 import { messagesSelectors } from '../messages.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import {
-  CacheMessagesPayload,
-  RemoveCachedMessagesPayload
-} from '../../publicChannels/publicChannels.types'
+import { CacheMessagesPayload } from '../../publicChannels/publicChannels.types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { SetDisplayedMessagesNumberPayload } from '../messages.types'
@@ -27,6 +24,7 @@ export function* lazyLoadingSaga(
     const lastDisplayedMessage = yield* select(
       publicChannelsSelectors.currentChannelLastDisplayedMessage
     )
+
     const lastDisplayedMessageIndex = channelMessagesEntries.indexOf(lastDisplayedMessage)
 
     const messages = channelMessagesEntries.slice(
@@ -62,16 +60,18 @@ export function* lazyLoadingSaga(
         Math.max(0, channelMessagesEntries.length - channelMessagesChunkSize),
         channelMessagesEntries.length
       )
-      .map(message => message.id)
 
-    const removeCachedMessagesPayload: RemoveCachedMessagesPayload = {
+    // Do not proceed with empty channel
+    if (messages.length <= 0) return
+
+    const resetCachedMessagesPayload: CacheMessagesPayload = {
       messages: messages,
       channelAddress: channelAddress,
       communityId: communityId
     }
 
     // Remove messages from cache
-    yield* put(publicChannelsActions.removeCachedMessages(removeCachedMessagesPayload))
+    yield* put(publicChannelsActions.resetCachedMessages(resetCachedMessagesPayload))
 
     const setDisplayedMessagesNumberPayload: SetDisplayedMessagesNumberPayload = {
       channelAddress: channelAddress,

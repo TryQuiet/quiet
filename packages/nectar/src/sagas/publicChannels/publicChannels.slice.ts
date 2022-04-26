@@ -16,8 +16,7 @@ import {
   GetPublicChannelsResponse,
   SetCurrentChannelPayload,
   SubscribeToTopicPayload,
-  CacheMessagesPayload,
-  RemoveCachedMessagesPayload
+  CacheMessagesPayload
 } from './publicChannels.types'
 import { Identity } from '../identity/identity.types'
 
@@ -80,9 +79,9 @@ export const publicChannelsSlice = createSlice({
         messages
       )
     },
-    removeCachedMessages: (state, action: PayloadAction<RemoveCachedMessagesPayload>) => {
+    resetCachedMessages: (state, action: PayloadAction<CacheMessagesPayload>) => {
       const { messages, channelAddress, communityId } = action.payload
-      channelMessagesAdapter.removeMany(
+      channelMessagesAdapter.setAll(
         state.channels.entities[communityId].channels.entities[channelAddress].messages,
         messages
       )

@@ -13,7 +13,7 @@ export function* messagesMasterSaga(socket: Socket): Generator {
   yield all([
     takeEvery(messagesActions.sendMessage.type, sendMessageSaga, socket),
     takeEvery(messagesActions.incomingMessages.type, incomingMessagesSaga),
-    takeEvery(publicChannelsActions.cacheMessages.type, verifyMessagesSaga),
+    takeEvery(messagesActions.incomingMessages.type, verifyMessagesSaga),
     takeEvery(publicChannelsActions.cacheMessages.type, updateMessagesSendingStatusSaga),
     takeEvery(messagesActions.lazyLoading.type, lazyLoadingSaga)
   ])

@@ -107,12 +107,6 @@ export interface CacheMessagesPayload {
   communityId: string
 }
 
-export interface RemoveCachedMessagesPayload {
-  messages: string[]
-  channelAddress: string
-  communityId: string
-}
-
 export interface MarkUnreadChannelPayload {
   channelAddress: string
   communityId: string
