@@ -101,7 +101,7 @@ const displayableCurrentChannelMessages = createSelector(
   (messages, certificates) =>
     messages.map(message => {
       const user = certificates[message.pubKey]
-      return displayableMessage(message, user.username)
+      return displayableMessage(message, user?.username)
     })
 )
 
