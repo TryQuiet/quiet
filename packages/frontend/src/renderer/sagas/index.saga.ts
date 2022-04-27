@@ -1,4 +1,4 @@
-import { publicChannels } from '@quiet/nectar'
+import { messages } from '@quiet/nectar'
 import { all, takeEvery } from 'redux-saga/effects'
 import { displayMessageNotificationSaga } from './notifications/notifications'
 import { startConnectionSaga } from './socket/socket.saga'
@@ -10,7 +10,7 @@ export default function* root(): Generator {
       dataPort: parseInt(new URLSearchParams(window.location.search).get('dataPort'))
     })
   )
-  // yield all([
-  //   takeEvery(publicChannels.actions.incomingMessages.type, displayMessageNotificationSaga)
-  // ])
+  yield all([
+    takeEvery(messages.actions.incomingMessages.type, displayMessageNotificationSaga)
+  ])
 }
