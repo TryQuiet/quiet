@@ -10,7 +10,8 @@ import { subscribeToAllTopicsSaga } from './subscribeToAllTopics.saga'
 import {
   channelMessagesAdapter,
   communityChannelsAdapter,
-  publicChannelsAdapter
+  publicChannelsAdapter,
+  publicChannelsStatusAdapter
 } from '../publicChannels.adapter'
 import {
   communitiesReducer,
@@ -71,7 +72,8 @@ describe('subscribeToAllTopicsSaga', () => {
     channels: publicChannelsAdapter.setAll(publicChannelsAdapter.getInitialState(), [
       channelOne,
       channelTwo
-    ])
+    ]),
+    channelsStatus: publicChannelsStatusAdapter.getInitialState()
   }
 
   test('ask for missing messages', async () => {
