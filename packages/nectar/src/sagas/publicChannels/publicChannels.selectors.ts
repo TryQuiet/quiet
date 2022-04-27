@@ -13,7 +13,8 @@ import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessa
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import {
   DisplayableMessage,
-  MessagesDailyGroups
+  MessagesDailyGroups,
+  PublicChannel
 } from './publicChannels.types'
 
 const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
@@ -34,6 +35,19 @@ const selectState = createSelector(
 const selectChannels = createSelector(selectState, (state) => {
   if (!state) return []
   return publicChannelsAdapter.getSelectors().selectAll(state.channels)
+})
+
+// Serves for testing purposes only
+export const selectGeneralChannel = createSelector(selectChannels, channels => {
+  const draft = channels.find(item => item.address === 'general')
+  const channel: PublicChannel = {
+    name: draft.name,
+    description: draft.description,
+    owner: draft.owner,
+    timestamp: draft.timestamp,
+    address: draft.address
+  }
+  return channel
 })
 
 export const publicChannels = createSelector(selectChannels, (channels) => {

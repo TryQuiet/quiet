@@ -1,121 +1,58 @@
-import { combineReducers } from '@reduxjs/toolkit'
-import { expectSaga } from 'redux-saga-test-plan'
-import { StoreKeys } from '../../store.keys'
-import {
-  publicChannelsActions,
-  publicChannelsReducer,
-  PublicChannelsState
-} from '../publicChannels.slice'
-import { subscribeToAllTopicsSaga } from './subscribeToAllTopics.saga'
-import {
-  channelMessagesAdapter,
-  communityChannelsAdapter,
-  publicChannelsAdapter,
-  publicChannelsStatusAdapter
-} from '../publicChannels.adapter'
-import {
-  communitiesReducer,
-  CommunitiesState,
-  Community
-} from '../../communities/communities.slice'
-import { identityReducer, IdentityState } from '../../identity/identity.slice'
-import { communitiesAdapter } from '../../communities/communities.adapter'
-import { identityAdapter } from '../../identity/identity.adapter'
-import { CommunityChannels, PublicChannelStorage } from '../publicChannels.types'
+import { setupCrypto } from '@quiet/identity'
+import { Store } from '../../store.types'
+import { getFactory } from '../../..'
+import { prepareStore } from '../../../utils/tests/prepareStore'
+import { communitiesActions, Community } from '../../communities/communities.slice'
+import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
+import { FactoryGirl } from 'factory-girl'
+import { PublicChannel } from '../../publicChannels/publicChannels.types'
+import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
+import { selectGeneralChannel } from '../publicChannels.selectors'
+import { DateTime } from 'luxon'
 
 describe('subscribeToAllTopicsSaga', () => {
-  const community: Community = {
-    name: '',
-    id: 'id',
-    CA: null,
-    rootCa: '',
-    peerList: [],
-    registrarUrl: 'registrarUrl',
-    registrar: null,
-    onionAddress: '',
-    privateKey: '',
-    port: 0
-  }
+  let store: Store
+  let factory: FactoryGirl
 
-  const identity: Identity = {
-    id: 'id',
-    hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-    dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
-    peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    nickname: '',
-    userCsr: undefined,
-    userCertificate: ''
-  }
+  let community: Community
+  let alice: Identity
 
-  const channelOne: PublicChannelStorage = {
-    name: 'channelOne',
-    description: 'Welcome to #channelOne',
-    owner: 'master',
-    timestamp: 0,
-    address: 'channelOne',
-    messages: channelMessagesAdapter.getInitialState()
-  }
+  let generalChannel: PublicChannel
+  let sailingChannel: PublicChannel
 
-  const channelTwo: PublicChannelStorage = {
-    name: 'channelTwo',
-    description: 'Welcome to #channelTwo',
-    owner: 'master',
-    timestamp: 0,
-    address: 'channelTwo',
-    messages: channelMessagesAdapter.getInitialState()
-  }
+  beforeAll(async () => {
+    setupCrypto()
 
-  const communityChannels: CommunityChannels = {
-    id: 'id',
-    currentChannelAddress: 'channelOne',
-    channels: publicChannelsAdapter.setAll(publicChannelsAdapter.getInitialState(), [
-      channelOne,
-      channelTwo
-    ]),
-    channelsStatus: publicChannelsStatusAdapter.getInitialState()
-  }
+    store = prepareStore().store
 
-  test('ask for missing messages', async () => {
-    await expectSaga(subscribeToAllTopicsSaga)
-      .withReducer(
-        combineReducers({
-          [StoreKeys.PublicChannels]: publicChannelsReducer,
-          [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer
-        }),
+    factory = await getFactory(store)
+
+    community = await factory.create<
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+      'Identity',
+      { id: community.id, nickname: 'alice' }
+    )
+
+    generalChannel = selectGeneralChannel(store.getState())
+
+    sailingChannel = (
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
+        'PublicChannel',
         {
-          [StoreKeys.PublicChannels]: {
-            ...new PublicChannelsState(),
-            channels: communityChannelsAdapter.setAll(communityChannelsAdapter.getInitialState(), [
-              communityChannels
-            ])
-          },
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-            currentCommunity: 'id',
-            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
-              community
-            ])
-          },
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity])
+          communityId: alice.id,
+          channel: {
+            name: 'sailing',
+            description: 'Welcome to #sailing',
+            timestamp: DateTime.utc().valueOf(),
+            owner: alice.nickname,
+            address: 'sailing'
           }
         }
       )
-      .put(
-        publicChannelsActions.subscribeToTopic({
-          channelData: channelOne,
-          peerId: 'peerId'
-        })
-      )
-      .put(
-        publicChannelsActions.subscribeToTopic({
-          channelData: channelTwo,
-          peerId: 'peerId'
-        })
-      )
-      .run()
+    ).channel
   })
 })
