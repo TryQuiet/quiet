@@ -16,11 +16,9 @@ import Channel from '../renderer/components/Channel/Channel'
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
 import {
-  ChannelMessage,
   ErrorMessages,
   getFactory,
   identity,
-  MessageType,
   publicChannels,
   SendMessagePayload,
   SocketActionTypes,

@@ -2,10 +2,9 @@ import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { act } from 'react-dom/test-utils'
 import { screen } from '@testing-library/dom'
-import { apply, take } from 'typed-redux-saga'
+import { apply } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { socketEventData } from '../renderer/testUtils/socket'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 
@@ -325,7 +324,7 @@ describe('Channel', () => {
   })
 
   it('immediately display greyed out message after sending, then turn it black when saved to db', async () => {
-    const { store } = await prepareStore(
+    const { store, runSaga } = await prepareStore(
       {},
       socket // Fork Nectar's sagas
     )
@@ -356,8 +355,7 @@ describe('Channel', () => {
     await act(async () => {})
 
     // Get sent message for further assertions
-    // const sentMessage = publicChannels.selectors.currentChannelSiftedMessages(store.getState())[0]
-    const sentMessage = jest.fn() as unknown as ChannelMessage
+    const sentMessage = publicChannels.selectors.currentChannelMessages(store.getState())[0]
 
     // Confirm message has been stored immediately
     const displayableMessages = publicChannels.selectors.currentChannelMessagesMergedBySender(store.getState())
@@ -374,6 +372,20 @@ describe('Channel', () => {
       messages: [sentMessage],
       communityId: community.id
     }))
+
+    await act(async () => {
+      await runSaga(mockIncomingMessages).toPromise()
+    })
+
+    function* mockIncomingMessages(): Generator {
+      yield* apply(socket.socketClient, socket.socketClient.emit, [
+        SocketActionTypes.INCOMING_MESSAGES,
+        {
+          messages: [sentMessage],
+          communityId: community.id
+        }
+      ])
+    }
 
     // Confirm 'pending' message status has been removed
     expect(messages.selectors.messagesSendingStatus(store.getState())[sentMessage.id]).toBe(undefined)

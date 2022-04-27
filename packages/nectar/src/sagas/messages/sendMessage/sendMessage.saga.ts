@@ -54,15 +54,15 @@ export function* sendMessageSaga(
     }
   ])
 
-  // Display sent message immediately, to improve user experience
-  yield* put(messagesActions.incomingMessages({
-    messages: [message],
-    communityId: identity.id
-  }))
-
   // Grey out message until saved in db
   yield* put(messagesActions.addMessagesSendingStatus({
     id: message.id,
     status: SendingStatus.Pending
+  }))
+
+  // Display sent message immediately, to improve user experience
+  yield* put(messagesActions.incomingMessages({
+    messages: [message],
+    communityId: identity.id
   }))
 }

@@ -186,6 +186,7 @@ describe('User', () => {
         "Communities/setCurrentCommunity",
         "PublicChannels/addPublicChannelsList",
         "Modals/openModal",
+        "Messages/lazyLoading",
         "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
@@ -205,6 +206,7 @@ describe('User', () => {
         "Modals/openModal",
         "PublicChannels/subscribeToTopic",
         "PublicChannels/addChannel",
+        "Messages/addPublicChannelsMessagesBase",
         "Modals/closeModal",
       ]
     `)
@@ -307,6 +309,7 @@ describe('User', () => {
         "Communities/setCurrentCommunity",
         "PublicChannels/addPublicChannelsList",
         "Modals/openModal",
+        "Messages/lazyLoading",
         "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
@@ -417,6 +420,7 @@ describe('User', () => {
         "Communities/setCurrentCommunity",
         "PublicChannels/addPublicChannelsList",
         "Modals/openModal",
+        "Messages/lazyLoading",
         "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",

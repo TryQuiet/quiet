@@ -78,6 +78,10 @@ export function subscribe(socket: Socket) {
       emit(messagesActions.responseSendMessagesIds(payload))
     })
     socket.on(SocketActionTypes.INCOMING_MESSAGES, (payload: IncomingMessages) => {
+      const { messages } = payload
+      for (const message of messages) {
+        emit(messagesActions.removePendingMessageStatus(message.id))
+      }
       emit(messagesActions.incomingMessages(payload))
     })
     socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {

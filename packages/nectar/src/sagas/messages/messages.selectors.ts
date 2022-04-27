@@ -46,12 +46,13 @@ export const currentPublicChannelMessagesBase = createSelector(
 
 export const currentPublicChannelMessagesEntries = createSelector(
   currentPublicChannelMessagesBase,
-  (base) => {
+  base => {
     if (!base) return []
     return channelMessagesAdapter
-    .getSelectors()
-    .selectAll(base.messages)
-    .sort((a, b) => b.createdAt - a.createdAt).reverse()
+      .getSelectors()
+      .selectAll(base.messages)
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .reverse()
   }
 )
 
@@ -82,20 +83,19 @@ export const sortedCurrentPublicChannelMessagesEntries = createSelector(
   }
 )
 
-export const missingChannelsMessages = (ids, channelAddress) => createSelector(
-  publicChannelsMessagesBase,
-  (base) => {
-    const channelIds = channelMessagesAdapter
-    .getSelectors()
-    .selectIds(base[channelAddress].messages)
-    return ids.filter((id) => !channelIds.includes(id))
-  }
-)
+export const missingChannelMessages = (ids: string[], channelAddress: string) =>
+  createSelector(publicChannelsMessagesBase, base => {
+    const channelMessages = channelMessagesAdapter
+      .getSelectors()
+      .selectIds(base[channelAddress].messages)
+    return ids.filter(id => !channelMessages.includes(id))
+  })
 
 export const messagesSelectors = {
   publicKeysMapping,
   publicChannelsMessagesBase,
   currentPublicChannelMessagesBase,
+  validCurrentPublicChannelMessagesEntries,
   sortedCurrentPublicChannelMessagesEntries,
   messagesVerificationStatus,
   messagesSendingStatus

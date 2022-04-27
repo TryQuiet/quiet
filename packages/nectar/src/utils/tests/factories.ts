@@ -13,6 +13,8 @@ import { stringToArrayBuffer } from 'pvutils'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
 import { MessageType, SendingStatus } from '../../sagas/messages/messages.types'
 import { DateTime } from 'luxon'
+import { messagesActions } from '../../sagas/messages/messages.slice'
+import { currentCommunity } from '../../sagas/communities/communities.selectors'
 
 export const getFactory = async (store: Store) => {
   const factory = new factoryGirl.FactoryGirl()
@@ -194,6 +196,16 @@ export const getFactory = async (store: Store) => {
           }
         }
         return action
+      },
+      afterCreate: async (
+        payload: ReturnType<typeof publicChannels.actions.test_message>['payload'] 
+      ) => {
+        const community = currentCommunity(store.getState())
+        store.dispatch(messagesActions.incomingMessages({
+          messages: [payload.message],
+          communityId: community.id,
+        }))
+        return payload
       }
     }
   )
@@ -203,16 +215,16 @@ export const getFactory = async (store: Store) => {
     verified: true
   })
 
+  factory.define('MessageSendingStatus', messages.actions.addMessagesSendingStatus, {
+    id: factory.assoc('Message', 'id'),
+    status: SendingStatus.Pending
+  })
+
   factory.define('Error', errors.actions.addError, {
     type: 'community',
     code: 500,
     message: 'Community error',
     community: factory.assoc('Community', 'id')
-  })
-
-  factory.define('MessageSendingStatus', messages.actions.addMessagesSendingStatus, {
-    id: factory.assoc('Message', 'id'),
-    status: SendingStatus.Pending
   })
 
   return factory
