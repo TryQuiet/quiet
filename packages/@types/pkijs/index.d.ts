@@ -32,6 +32,9 @@ declare module "pkijs" {
   export { default as CertificateChainValidationEngine } from "pkijs/src/CertificateChainValidationEngine";
   export { default as Time } from "pkijs/src/Time";
   export { default as ExtKeyUsage } from "pkijs/src/ExtKeyUsage";
+  export { default as GeneralName } from "pkijs/src/GeneralName";
+  export { default as GeneralNames } from "pkijs/src/GeneralNames";
+
 
 }
 
