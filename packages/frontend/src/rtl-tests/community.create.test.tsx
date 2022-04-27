@@ -176,6 +176,7 @@ describe('User', () => {
         "Communities/setCurrentCommunity",
         "PublicChannels/addPublicChannelsList",
         "Modals/openModal",
+        "Messages/lazyLoading",
         "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
@@ -200,7 +201,8 @@ describe('User', () => {
         "PublicChannels/setCurrentChannel",
         "PublicChannels/addChannel",
         "Modals/closeModal",
-        "PublicChannels/clearUnreadMessages",
+        "PublicChannels/clearUnreadChannel",
+        "Messages/addPublicChannelsMessagesBase",
       ]
     `)
   })
