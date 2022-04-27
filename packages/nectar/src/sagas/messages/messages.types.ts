@@ -55,12 +55,14 @@ export interface MessageSendingStatus {
   id: string
   status: SendingStatus
 }
+
 export interface AskForMessagesPayload {
-  peerId: string
-  communityId: string
-  channelAddress: string
   ids: string[]
+  peerId: string
+  channelAddress: string
+  communityId: string
 }
+
 export interface ChannelMessagesIdsResponse {
   ids: string[]
   channelAddress: string

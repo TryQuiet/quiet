@@ -1,14 +1,17 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
 import { getFactory } from '../../..'
-import { prepareStore } from '../../../utils/tests/prepareStore'
+import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { communitiesActions, Community } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
 import { FactoryGirl } from 'factory-girl'
+import { combineReducers } from 'redux'
+import { expectSaga } from 'redux-saga-test-plan'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { selectGeneralChannel } from '../publicChannels.selectors'
+import { subscribeToAllTopicsSaga } from './subscribeToAllTopics.saga'
 import { DateTime } from 'luxon'
 
 describe('subscribeToAllTopicsSaga', () => {
@@ -37,7 +40,12 @@ describe('subscribeToAllTopicsSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = selectGeneralChannel(store.getState())
+    generalChannel = {
+      ...selectGeneralChannel(store.getState()),
+      // @ts-ignore
+      messages: undefined,
+      messagesSlice: undefined
+    }
 
     sailingChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
@@ -54,5 +62,32 @@ describe('subscribeToAllTopicsSaga', () => {
         }
       )
     ).channel
+
+    sailingChannel = {
+      ...sailingChannel,
+      // @ts-ignore
+      messages: undefined,
+      messagesSlice: undefined
+    }
+  })
+
+  test('subscribe to all topics', async () => {
+    const reducer = combineReducers(reducers)
+    await expectSaga(subscribeToAllTopicsSaga)
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(
+        publicChannelsActions.subscribeToTopic({
+          peerId: alice.peerId.id,
+          channelData: generalChannel
+        })
+      )
+      .put(
+        publicChannelsActions.subscribeToTopic({
+          peerId: alice.peerId.id,
+          channelData: sailingChannel
+        })
+      )
+      .run()
   })
 })
