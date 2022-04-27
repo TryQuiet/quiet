@@ -23,7 +23,8 @@ import {
   Community,
   NetworkData,
   ResponseCreateNetworkPayload,
-  ErrorCodes
+  ErrorCodes,
+  AskForMessagesPayload
 } from '@quiet/nectar'
 import { emitError } from './errors'
 
@@ -63,6 +64,13 @@ export default class IOProxy {
   public subscribeToTopic = async (payload: SubscribeToTopicPayload) => {
     log(`${payload.peerId} is subscribing to channel ${payload.channelData.address}`)
     await this.getStorage(payload.peerId).subscribeToChannel(payload.channelData)
+  }
+
+  public askForMessages = async (payload: AskForMessagesPayload) => {
+    const messages = await this.getStorage(payload.peerId).askForMessages(
+      payload.channelAddress,
+      payload.ids
+    )
   }
 
   public sendMessage = async (peerId: string, message: ChannelMessage): Promise<void> => {

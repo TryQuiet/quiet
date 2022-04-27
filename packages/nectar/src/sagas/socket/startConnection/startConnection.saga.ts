@@ -19,16 +19,17 @@ import { identityMasterSaga } from '../../identity/identity.master.saga'
 import { identityActions } from '../../identity/identity.slice'
 import { messagesMasterSaga } from '../../messages/messages.master.saga'
 import { messagesActions } from '../../messages/messages.slice'
+import { ChannelMessagesIdsResponse } from '../../messages/messages.types'
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga'
 import {
   publicChannelsActions
 } from '../../publicChannels/publicChannels.slice'
 import {
-  ChannelMessagesIdsResponse,
   CreatedChannelResponse,
   GetPublicChannelsResponse,
   IncomingMessages
 } from '../../publicChannels/publicChannels.types'
+
 import { usersActions } from '../../users/users.slice'
 import { SendCertificatesResponse } from '../../users/users.types'
 import { SocketActionTypes } from '../const/actionTypes'
@@ -72,6 +73,9 @@ export function subscribe(socket: Socket) {
         channelName: payload.channel.name,
         channelAddress: payload.channel.address
       }))
+    })
+    socket.on(SocketActionTypes.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
+      emit(messagesActions.responseSendMessagesIds(payload))
     })
     socket.on(SocketActionTypes.INCOMING_MESSAGES, (payload: IncomingMessages) => {
       emit(messagesActions.incomingMessages(payload))

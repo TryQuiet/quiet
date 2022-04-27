@@ -51,12 +51,6 @@ export interface CreatedChannelResponse {
   communityId: string
 }
 
-export interface ChannelMessagesIdsResponse {
-  ids: string[]
-  channelAddress: string
-  communityId: string
-}
-
 export interface SubscribeToTopicPayload {
   peerId: string
   channelData: PublicChannel

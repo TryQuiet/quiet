@@ -12,6 +12,8 @@ export type Keys<Actions> = keyof Actions
 export type ActionFromMapping<Actions> = Actions[Keys<Actions>]
 
 export enum SocketActionTypes {
+  // A
+  ASK_FOR_MESSAGES = 'askForMessages',
   // C
   CLOSE = 'close',
   COMMUNITY = 'community',

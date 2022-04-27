@@ -82,6 +82,16 @@ export const sortedCurrentPublicChannelMessagesEntries = createSelector(
   }
 )
 
+export const missingChannelsMessages = (ids, channelAddress) => createSelector(
+  publicChannelsMessagesBase,
+  (base) => {
+    const channelIds = channelMessagesAdapter
+    .getSelectors()
+    .selectIds(base[channelAddress].messages)
+    return ids.filter((id) => !channelIds.includes(id))
+  }
+)
+
 export const messagesSelectors = {
   publicKeysMapping,
   publicChannelsMessagesBase,

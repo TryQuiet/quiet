@@ -287,10 +287,28 @@ export class Storage {
           communityId: this.communityId
         })
       })
-
+      db.load()
       repo.eventsAttached = true
     }
     log(`Subscribed to channel ${channel.address}`)
+  }
+
+  public async askForMessages(
+    channelAddress: string,
+    ids: string[]
+  ) {
+    const repo = this.publicChannelsRepos.get(channelAddress)
+    if (!repo) return
+    const messages = this.getAllEventLogEntries<ChannelMessage>(repo.db)
+    const filteredMessages: ChannelMessage[] = []
+    for (const id of ids) {
+      filteredMessages.push(...messages.filter(i => i.id === id))
+    }
+    // return { filteredMessages, channelAddress }
+    this.io.loadMessages({
+      messages: filteredMessages,
+      communityId: this.communityId
+    })
   }
 
   private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
