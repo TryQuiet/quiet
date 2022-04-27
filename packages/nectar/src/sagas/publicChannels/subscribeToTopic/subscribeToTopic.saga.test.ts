@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io-client'
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, Identity, publicChannels, SocketActionTypes } from '../../..'
+import { getFactory, Identity, SocketActionTypes } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { publicChannelsActions } from './../publicChannels.slice'
 import { communitiesActions, Community } from '../../communities/communities.slice'
@@ -11,6 +11,8 @@ import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import { subscribeToTopicSaga } from './subscribeToTopic.saga'
 import { PublicChannel } from '../publicChannels.types'
+import { selectGeneralChannel } from '../publicChannels.selectors'
+import { messagesActions } from '../../messages/messages.slice'
 
 describe('subscribeToTopicSaga', () => {
   const socket = { emit: jest.fn() } as unknown as Socket
@@ -19,8 +21,10 @@ describe('subscribeToTopicSaga', () => {
   let factory: FactoryGirl
 
   let community: Community
+
   let alice: Identity
-  let channel: PublicChannel
+
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -30,10 +34,15 @@ describe('subscribeToTopicSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
-    channel = publicChannels.selectors.publicChannels(store.getState())[0]
+    generalChannel = {
+      ...selectGeneralChannel(store.getState()),
+      // @ts-ignore
+      messages: undefined,
+      messagesSlice: undefined
+    }
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
@@ -41,14 +50,14 @@ describe('subscribeToTopicSaga', () => {
     )
   })
 
-  test('subscribe for topic', async () => {
+  test('subscribe to topic', async () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       subscribeToTopicSaga,
       socket,
       publicChannelsActions.subscribeToTopic({
         peerId: alice.peerId.id,
-        channelData: channel
+        channelData: generalChannel
       })
     )
       .withReducer(reducer)
@@ -56,17 +65,19 @@ describe('subscribeToTopicSaga', () => {
       .put(
         publicChannelsActions.addChannel({
           communityId: community.id,
-          channel: channel
+          channel: generalChannel
+        })
+      )
+      .put(
+        messagesActions.addPublicChannelsMessagesBase({
+          channelAddress: generalChannel.address
         })
       )
       .apply(socket, socket.emit, [
         SocketActionTypes.SUBSCRIBE_TO_TOPIC,
         {
           peerId: alice.peerId.id,
-          channelData: {
-            ...channel,
-            messagesSlice: undefined
-          }
+          channelData: generalChannel
         }
       ])
       .run()
