@@ -42,6 +42,7 @@ export function* handleErrorsSaga(
       error.code === ErrorCodes.SERVER_ERROR ||
       error.code === ErrorCodes.SERVICE_UNAVAILABLE
     ) {
+      // Arbitrary attempts number that is 99.99% sufficient for registration without asking user to resubmit form
       if (registrationAttempts < 20) {
         yield* call(delay, 5000)
         yield* put(communitiesActions.updateRegistrationAttempts({ id: error.community, registrationAttempts: registrationAttempts + 1 }))

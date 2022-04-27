@@ -136,6 +136,8 @@ describe.only('send message - users are online', () => {
   let userOne: AsyncReturnType<typeof createApp>
   let userTwo: AsyncReturnType<typeof createApp>
 
+  const timeout = 240_000
+
   beforeAll(async () => {
     owner = await createApp()
     userOne = await createApp()
@@ -171,15 +173,15 @@ describe.only('send message - users are online', () => {
   })
 
   test('Owner and users received certificates', async () => {
-    await assertReceivedCertificates('owner', 3, 120_000, owner.store)
-    await assertReceivedCertificates('userOne', 3, 120_000, userOne.store)
-    await assertReceivedCertificates('userTwo', 3, 120_000, userTwo.store)
+    await assertReceivedCertificates('owner', 3, timeout, owner.store)
+    await assertReceivedCertificates('userOne', 3, timeout, userOne.store)
+    await assertReceivedCertificates('userTwo', 3, timeout, userTwo.store)
   })
 
   test('Users replicated channel and subscribed to it', async () => {
-    await assertReceivedChannelsAndSubscribe('owner', 1, 120_000, owner.store)
-    await assertReceivedChannelsAndSubscribe('userTwo', 1, 120_000, userOne.store)
-    await assertReceivedChannelsAndSubscribe('userTwo', 1, 120_000, userTwo.store)
+    await assertReceivedChannelsAndSubscribe('owner', 1, timeout, owner.store)
+    await assertReceivedChannelsAndSubscribe('userTwo', 1, timeout, userOne.store)
+    await assertReceivedChannelsAndSubscribe('userTwo', 1, timeout, userTwo.store)
   })
 
   let ownerMessageData
@@ -193,15 +195,15 @@ describe.only('send message - users are online', () => {
   })
 
   test('Owner replicated all messages', async () => {
-    await assertReceivedMessages('owner', 4, 240_000, owner.store)
+    await assertReceivedMessages('owner', 4, timeout, owner.store)
   })
 
   test('userOne replicated all messages', async () => {
-    await assertReceivedMessages('userOne', 4, 240_000, userOne.store)
+    await assertReceivedMessages('userOne', 4, timeout, userOne.store)
   })
 
   test('userTwo replicated all messages', async () => {
-    await assertReceivedMessages('userTwo', 4, 240_000, userTwo.store)
+    await assertReceivedMessages('userTwo', 4, timeout, userTwo.store)
   })
 
   test('Replicated messages are valid', async () => {
