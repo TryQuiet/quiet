@@ -91,6 +91,7 @@ describe('websocketOverTor', () => {
     console.log(`serVert ${pems.servCert}`)
     console.log(`servKey ${pems.servKey}`)
     console.log(`ca ${pems.ca}`)
+    console.log(`caKey ${pems.ca_key}`)
     console.log(`userCert ${pems.userCert}`)
     console.log(`userKey ${pems.userKey}`)
 
