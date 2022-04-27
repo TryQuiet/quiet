@@ -4,6 +4,7 @@ export interface CommunityChannels {
   id: string
   currentChannelAddress: string
   channels: EntityState<PublicChannelStorage>
+  channelsStatus: EntityState<PublicChannelStatus>
 }
 
 export interface PublicChannel {
@@ -16,6 +17,11 @@ export interface PublicChannel {
 
 export interface PublicChannelStorage extends PublicChannel {
   messages: EntityState<ChannelMessage>
+}
+
+export interface PublicChannelStatus {
+  address: string,
+  unread: boolean
 }
 
 export interface ChannelMessage {

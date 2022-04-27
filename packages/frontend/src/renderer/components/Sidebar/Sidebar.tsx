@@ -15,8 +15,7 @@ const Sidebar = () => {
   const accountSettingsModal = useModal(ModalName.accountSettingsModal)
 
   const channels = useSelector(publicChannels.selectors.publicChannels)
-  // const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
-  const unreadChannels = []
+  const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
 

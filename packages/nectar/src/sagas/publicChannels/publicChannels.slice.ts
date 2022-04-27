@@ -3,7 +3,8 @@ import { StoreKeys } from '../store.keys'
 import {
   publicChannelsAdapter,
   communityChannelsAdapter,
-  channelMessagesAdapter
+  channelMessagesAdapter,
+  publicChannelsStatusAdapter
 } from './publicChannels.adapter'
 import {
   CommunityChannels,
@@ -16,7 +17,8 @@ import {
   GetPublicChannelsResponse,
   SetCurrentChannelPayload,
   SubscribeToTopicPayload,
-  CacheMessagesPayload
+  CacheMessagesPayload,
+  MarkUnreadChannelPayload
 } from './publicChannels.types'
 import { Identity } from '../identity/identity.types'
 
@@ -41,7 +43,8 @@ export const publicChannelsSlice = createSlice({
       const communityChannels: CommunityChannels = {
         id: id,
         currentChannelAddress: 'general',
-        channels: publicChannelsAdapter.getInitialState()
+        channels: publicChannelsAdapter.getInitialState(),
+        channelsStatus: publicChannelsStatusAdapter.getInitialState()
       }
       communityChannelsAdapter.addOne(state.channels, communityChannels)
     },
@@ -51,6 +54,10 @@ export const publicChannelsSlice = createSlice({
         ...channel,
         messages: channelMessagesAdapter.getInitialState()
       })
+      publicChannelsStatusAdapter.addOne(state.channels.entities[communityId].channelsStatus, {
+        address: channel.address,
+        unread: false
+      })
     },
     responseGetPublicChannels: (state, action: PayloadAction<GetPublicChannelsResponse>) => {
       const { channels, communityId } = action.payload
@@ -58,6 +65,10 @@ export const publicChannelsSlice = createSlice({
         publicChannelsAdapter.upsertOne(state.channels.entities[communityId].channels, {
           ...channel,
           messages: channelMessagesAdapter.getInitialState()
+        })
+        publicChannelsStatusAdapter.addOne(state.channels.entities[communityId].channelsStatus, {
+          address: channel.address,
+          unread: false
         })
       }
     },
@@ -79,6 +90,30 @@ export const publicChannelsSlice = createSlice({
         messages
       )
     },
+    markUnreadChannel: (state, action: PayloadAction<MarkUnreadChannelPayload>) => {
+      const { channelAddress, communityId } = action.payload
+      publicChannelsStatusAdapter.updateOne(
+        state.channels.entities[communityId].channelsStatus,
+        {
+          id: channelAddress,
+          changes: {
+            unread: true
+          }
+        }
+      )
+    },
+    clearUnreadChannel: (state, action: PayloadAction<MarkUnreadChannelPayload>) => {
+      const { channelAddress, communityId } = action.payload
+      publicChannelsStatusAdapter.updateOne(
+        state.channels.entities[communityId].channelsStatus,
+        {
+          id: channelAddress,
+          changes: {
+            unread: false
+          }
+        }
+      )
+    }, 
     // Utility action for testing purposes
     test_message: (
       state,

@@ -3,7 +3,8 @@ import { StoreKeys } from '../store.keys'
 import {
   publicChannelsAdapter,
   communityChannelsAdapter,
-  channelMessagesAdapter
+  channelMessagesAdapter,
+  publicChannelsStatusAdapter
 } from './publicChannels.adapter'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
@@ -153,6 +154,25 @@ export const currentChannelMessagesMergedBySender = createSelector(
   }
 )
 
+const channelsStatus = createSelector(
+  selectState,
+  state => {
+    if (!state) return {}
+    return publicChannelsStatusAdapter
+      .getSelectors()
+      .selectEntities(state.channelsStatus)
+  }
+)
+
+export const unreadChannels = createSelector(
+  channelsStatus,
+  status => {
+    return Object.values(status).map(channel => {
+      if (channel.unread) return channel.address
+    })
+  }
+)
+
 export const publicChannelsSelectors = {
   publicChannels,
   currentChannelAddress,
@@ -161,5 +181,6 @@ export const publicChannelsSelectors = {
   displayableCurrentChannelMessages,
   currentChannelMessagesCount,
   currentChannelMessagesMergedBySender,
-  currentChannelLastDisplayedMessage
+  currentChannelLastDisplayedMessage,
+  unreadChannels
 }
