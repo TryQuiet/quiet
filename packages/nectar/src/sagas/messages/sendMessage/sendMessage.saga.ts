@@ -60,6 +60,13 @@ export function* sendMessageSaga(
     status: SendingStatus.Pending
   }))
 
+  // Mark own message as properly signed
+  yield* put(messagesActions.addMessageVerificationStatus({
+    publicKey: message.pubKey,
+    signature: message.signature,
+    verified: true
+  }))
+
   // Display sent message immediately, to improve user experience
   yield* put(messagesActions.incomingMessages({
     messages: [message],

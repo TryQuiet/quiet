@@ -1,9 +1,10 @@
-import { select, put } from 'typed-redux-saga'
+import { select, put, delay } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { messagesActions } from '../messages.slice'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { CacheMessagesPayload } from '../../publicChannels/publicChannels.types'
+import { messagesSelectors } from '../messages.selectors'
 
 export function* incomingMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
@@ -13,6 +14,20 @@ export function* incomingMessagesSaga(
     const currentChannelAddress = yield* select(publicChannelsSelectors.currentChannelAddress)
     if (message.channelAddress !== currentChannelAddress) {
       return
+    }
+
+    // Do not proceed if signature is not verified
+    while (true) {
+      const messageVerificationStatus = yield* select(messagesSelectors.messagesVerificationStatus)
+      const status = messageVerificationStatus[message.signature]
+      if (status) {
+        if (!status.verified) {
+          return
+        } else {
+          break
+        }
+      }
+      yield* delay(50)
     }
 
     const lastDisplayedMessage = yield* select(publicChannelsSelectors.currentChannelLastDisplayedMessage)
