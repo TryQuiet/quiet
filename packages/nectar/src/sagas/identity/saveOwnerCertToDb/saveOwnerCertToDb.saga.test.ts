@@ -25,7 +25,8 @@ describe('saveOwnerCertificateToDb', () => {
       registrar: null,
       onionAddress: '',
       privateKey: '',
-      port: 0
+      port: 0,
+      registrationAttempts: 0
     }
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
     const identity: Identity = {

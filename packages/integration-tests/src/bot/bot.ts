@@ -3,7 +3,7 @@ import { sendMessage } from '../integrationTests/appActions'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp, getRandomInt, sleep } from '../utils'
 import logger from '../logger'
-import { Store } from '@quiet/nectar'
+import { TestStore } from '@quiet/nectar'
 import { LoremIpsum } from 'lorem-ipsum'
 import { program } from 'commander'
 import { registerUsername, switchChannel } from '../testUtils/actions'
@@ -96,7 +96,7 @@ const sendMessages = async () => {
   await sleep(10_000)
 }
 
-const sendMessageWithLatency = async (username: string, store: Store, message: string) => {
+const sendMessageWithLatency = async (username: string, store: TestStore, message: string) => {
   const userTypingTime = getRandomInt(300, 550)
   log(`${username} is waiting ${userTypingTime}ms to send a message`)
   await sleep(userTypingTime)
