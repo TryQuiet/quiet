@@ -12,7 +12,7 @@ import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
 import { errorsActions } from '../errors.slice'
 import { ErrorCodes, ErrorMessages, ErrorTypes } from '../errors.types'
-import { handleErrorsSaga } from './handleErrors.saga'
+import { handleErrorsSaga, retryRegistration } from './handleErrors.saga'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
 
@@ -31,7 +31,7 @@ describe('handle errors', () => {
     const factory = await getFactory(store)
     community = await factory.create<
     ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    >('Community', { registrationAttempts: 0 })
     identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, nickname: 'alice' }
@@ -52,15 +52,11 @@ describe('handle errors', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(delay), null]])
-      .put(
-        identityActions.registerCertificate({
-          communityId: community.id,
-          nickname: identity.nickname,
-          userCsr: identity.userCsr
-        })
+      .call(
+        retryRegistration, community.id
       )
-      .not
       .put(errorsActions.addError(errorPayload))
+      .put(communitiesActions.updateRegistrationAttempts({ id: community.id, registrationAttempts: 1 }))
       .run()
   })
 
@@ -108,6 +104,6 @@ describe('handle errors', () => {
       code: ErrorCodes.BAD_REQUEST
     }
     const addErrorAction = errorsActions.handleError(errorPayload)
-    testSaga(handleErrorsSaga, addErrorAction).next().put(errorsActions.addError(errorPayload)).next().isDone()
+    testSaga(handleErrorsSaga, addErrorAction).next().next().put(errorsActions.addError(errorPayload)).next().isDone()
   })
 })

@@ -37,6 +37,7 @@ const persistConfig = {
     NectarStoreKeys.Communities,
     NectarStoreKeys.PublicChannels,
     NectarStoreKeys.Messages,
+    NectarStoreKeys.Settings,
     StoreKeys.App
   ],
   transforms: [MessagesTransform]
