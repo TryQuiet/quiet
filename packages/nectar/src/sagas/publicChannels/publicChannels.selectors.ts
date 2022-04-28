@@ -192,6 +192,7 @@ export const publicChannelsSelectors = {
   currentChannelAddress,
   currentChannelName,
   currentChannelMessages,
+  sortedCurrentChannelMessages,
   displayableCurrentChannelMessages,
   currentChannelMessagesCount,
   currentChannelMessagesMergedBySender,
