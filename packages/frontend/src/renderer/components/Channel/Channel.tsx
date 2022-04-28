@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { identity, messages, publicChannels } from '@quiet/nectar'
@@ -52,7 +52,9 @@ const Channel = () => {
     [dispatch]
   )
 
-  console.log('channel rerendered')
+  useEffect(() => {
+    dispatch(messages.actions.resetCurrentPublicChannelCache())
+  }, [currentChannelAddress])
 
   return (
     <>

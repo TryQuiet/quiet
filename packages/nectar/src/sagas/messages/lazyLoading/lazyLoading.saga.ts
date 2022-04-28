@@ -63,30 +63,9 @@ export function* lazyLoadingSaga(
      * @param  load  Boolean: false - reset slice (scrolled to bottom)
      */
 
-    // Do not proceed with empty channel
-    if (channelMessagesEntries.length <= 0) return
     // Do not proceed if messages are already trimmed
     if (cachedChannelMessages.length === channelMessagesChunkSize) return
 
-    const messages = channelMessagesEntries
-      .slice(
-        Math.max(0, channelMessagesEntries.length - channelMessagesChunkSize),
-        channelMessagesEntries.length
-      )
-
-    const cacheMessagesPayload: CacheMessagesPayload = {
-      messages: messages,
-      channelAddress: channelAddress,
-      communityId: communityId
-    }
-
-    yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))
-
-    const setDisplayedMessagesNumberPayload: SetDisplayedMessagesNumberPayload = {
-      channelAddress: channelAddress,
-      display: channelMessagesChunkSize
-    }
-
-    yield* put(messagesActions.setDisplayedMessagesNumber(setDisplayedMessagesNumberPayload))
+    yield* put(messagesActions.resetCurrentPublicChannelCache())
   }
 }
