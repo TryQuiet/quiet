@@ -9,7 +9,8 @@ import { askForMessagesSaga } from './askForMessages/askForMessages.saga'
 import { checkForMessagesSaga } from './checkForMessages/checkForMessages.saga'
 import { markUnreadChannelsSaga } from '../publicChannels/markUnreadChannels/markUnreadChannels.saga'
 import { lazyLoadingSaga } from './lazyLoading/lazyLoading.saga'
-import { resetCurrentPublicChannelCacheSaga } from './resetChannelCache/resetChannelCache.saga'
+import { resetCurrentPublicChannelCacheSaga } from './manageCache/resetChannelCache.saga'
+import { extendCurrentPublicChannelCacheSaga } from './manageCache/extendChannelCache.saga'
 
 export function* messagesMasterSaga(socket: Socket): Generator {
   yield all([
@@ -18,6 +19,7 @@ export function* messagesMasterSaga(socket: Socket): Generator {
     takeEvery(messagesActions.incomingMessages.type, verifyMessagesSaga),
     takeEvery(messagesActions.incomingMessages.type, markUnreadChannelsSaga),
     takeEvery(messagesActions.lazyLoading.type, lazyLoadingSaga),
+    takeEvery(messagesActions.extendCurrentPublicChannelCache.type, extendCurrentPublicChannelCacheSaga),
     takeEvery(messagesActions.resetCurrentPublicChannelCache.type, resetCurrentPublicChannelCacheSaga),
     takeEvery(
       messagesActions.responseSendMessagesIds.type,
