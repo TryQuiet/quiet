@@ -1,6 +1,7 @@
 import { publicChannels, Store } from '@quiet/nectar'
 import assert from 'assert'
 import logger from '../logger'
+import { MAIN_CHANNEL } from './constants'
 import { waitForExpect } from './waitForExpect'
 const log = logger('utils')
 
@@ -51,13 +52,12 @@ export async function assertReceivedMessages(
 
   await waitForExpect(() => {
     assert.strictEqual(
-      store.getState().PublicChannels.channels.entities[communityId].channelMessages.ids.length, expectedCount
+      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids.length, expectedCount
     )
   }, maxTime)
 
   log(
-    `User ${userName} received ${store.getState().PublicChannels.channels.entities[communityId]
-      .channelMessages.ids.length
+    `User ${userName} received ${store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids.length
     } messages`
   )
 }
@@ -70,8 +70,7 @@ export const assertReceivedMessagesMatch = (
   const communityId = store.getState().Communities.communities.ids[0]
 
   const receivedMessagesEntities = Object.values(
-    store.getState().PublicChannels.channels.entities[communityId]
-      .channelMessages.entities
+    store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
   )
 
   const receivedMessages = receivedMessagesEntities.map(msg => msg.message)

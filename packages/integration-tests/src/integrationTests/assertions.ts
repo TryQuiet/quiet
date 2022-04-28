@@ -1,8 +1,8 @@
 import { ErrorPayload, publicChannels, SocketActionTypes, TestStore, messages } from '@quiet/nectar'
 import waitForExpect from 'wait-for-expect'
+import { MAIN_CHANNEL } from '../testUtils/constants'
 import logger from '../logger'
-import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { createApp, sleep } from '../utils'
+import { sleep } from '../utils'
 
 const log = logger('assertions')
 
@@ -70,13 +70,11 @@ export async function assertReceivedMessages(
 
   await waitForExpect(() => {
     expect(
-      store.getState().PublicChannels.channels.entities[communityId]
-        .channelMessages.ids
+      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids
     ).toHaveLength(expectedCount)
   }, maxTime)
   log(
-    `User ${userName} received ${store.getState().PublicChannels.channels.entities[communityId]
-      .channelMessages.ids.length
+    `User ${userName} received ${store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids.length
     } messages`
   )
 }
@@ -92,8 +90,7 @@ export const assertReceivedMessagesAreValid = async (
   const communityId = store.getState().Communities.communities.ids[0]
 
   const receivedMessages = Object.values(
-    store.getState().PublicChannels.channels.entities[communityId]
-      .channelMessages.entities
+    store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
   )
 
   const validMessages = []

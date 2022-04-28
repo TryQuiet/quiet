@@ -1,8 +1,8 @@
 import waitForExpect from 'wait-for-expect'
 import { identity, communities, messages, connection, publicChannels, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership, TestStore, ChannelMessage } from '@quiet/nectar'
-import { keyFromCertificate, parseCertificate } from '@quiet/identity'
+import { MAIN_CHANNEL } from '../testUtils/constants'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { createApp, sleep } from '../utils'
+import { createApp } from '../utils'
 import logger from '../logger'
 
 const log = logger('actions')
@@ -258,7 +258,7 @@ export async function sendMessage(
     expect(store.getState().LastAction.type).toEqual('Messages/addMessageVerificationStatus')
   })
 
-  const entities = Array.from(Object.values(store.getState().PublicChannels.channels.entities[communityId].channelMessages.entities))
+  const entities = Array.from(Object.values(store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities))
 
   const newMessage = entities.filter((m) => {
     return m.message === message
