@@ -20,7 +20,7 @@ export interface PublicChannelStorage extends PublicChannel {
 }
 
 export interface PublicChannelStatus {
-  address: string,
+  address: string
   unread: boolean
 }
 

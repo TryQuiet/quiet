@@ -293,7 +293,7 @@ export class Storage {
           communityId: this.communityId
         })
       })
-      db.load()
+      await db.load()
       repo.eventsAttached = true
     }
     log(`Subscribed to channel ${channel.address}`)

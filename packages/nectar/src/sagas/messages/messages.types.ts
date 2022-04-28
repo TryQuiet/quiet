@@ -37,7 +37,7 @@ export interface PublicChannelsMessagesBase {
 }
 
 export interface SetDisplayedMessagesNumberPayload {
-  channelAddress: string,
+  channelAddress: string
   display: number
 }
 

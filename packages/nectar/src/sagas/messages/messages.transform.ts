@@ -11,7 +11,7 @@ export const MessagesTransform = createTransform(
     return {
       ...outboundState,
       publicKeyMapping: {},
-      messageSendingStatus: 
+      messageSendingStatus:
         messageSendingStatusAdapter.getInitialState()
     }
   },

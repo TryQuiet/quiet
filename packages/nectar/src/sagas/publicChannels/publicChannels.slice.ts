@@ -113,7 +113,7 @@ export const publicChannelsSlice = createSlice({
           }
         }
       )
-    }, 
+    },
     // Utility action for testing purposes
     test_message: (
       state,

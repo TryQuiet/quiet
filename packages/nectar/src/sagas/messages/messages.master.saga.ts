@@ -25,6 +25,6 @@ export function* messagesMasterSaga(socket: Socket): Generator {
       messagesActions.askForMessages.type,
       askForMessagesSaga,
       socket
-    ),
+    )
   ])
 }

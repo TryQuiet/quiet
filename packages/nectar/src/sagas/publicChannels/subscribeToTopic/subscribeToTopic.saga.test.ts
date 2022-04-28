@@ -34,7 +34,7 @@ describe('subscribeToTopicSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     generalChannel = {

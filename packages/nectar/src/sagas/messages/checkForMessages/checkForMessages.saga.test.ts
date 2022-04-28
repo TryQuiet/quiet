@@ -33,7 +33,7 @@ describe('checkForMessagesSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     generalChannel = {
@@ -50,9 +50,8 @@ describe('checkForMessagesSaga', () => {
   })
 
   test('ask for missing messages', async () => {
-    
     const message = (await factory.create<
-      ReturnType<typeof publicChannels.actions.test_message>['payload']
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: alice,
       message: {

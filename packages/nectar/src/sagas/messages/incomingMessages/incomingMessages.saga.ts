@@ -31,7 +31,7 @@ export function* incomingMessagesSaga(
     }
 
     const lastDisplayedMessage = yield* select(publicChannelsSelectors.currentChannelLastDisplayedMessage)
-    
+
     // Check if incoming message fits between (newest known message)...(number of messages to display)
     if (message.createdAt < lastDisplayedMessage?.createdAt) {
       return

@@ -13,11 +13,11 @@ export function* markUnreadChannelsSaga(
   const { messages, communityId } = action.payload
 
   for (const message of messages) {
-      // Do not proceed for current channel
-      if (message.channelAddress !== currentChannelAddress) {
-        const payload: MarkUnreadChannelPayload = {
-          channelAddress: message.channelAddress,
-          communityId: communityId
+    // Do not proceed for current channel
+    if (message.channelAddress !== currentChannelAddress) {
+      const payload: MarkUnreadChannelPayload = {
+        channelAddress: message.channelAddress,
+        communityId: communityId
       }
 
       yield* put(

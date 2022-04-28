@@ -18,7 +18,7 @@ export function* lazyLoadingSaga(
 
   const channelMessagesEntries = yield* select(
     messagesSelectors.sortedCurrentPublicChannelMessagesEntries
-    )
+  )
 
   const cachedChannelMessages = yield* select(publicChannelsSelectors.currentChannelMessages)
 

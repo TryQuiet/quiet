@@ -3,11 +3,10 @@ import { Store } from '../store.types'
 import { getFactory, Identity, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { validCurrentPublicChannelMessagesEntries } from './messages.selectors'
-import { ChannelMessage } from '../publicChannels/publicChannels.types'
+import { ChannelMessage, PublicChannel } from '../publicChannels/publicChannels.types'
 import { communitiesActions, Community } from '../communities/communities.slice'
 import { identityActions } from '../identity/identity.slice'
 import { FactoryGirl } from 'factory-girl'
-import { PublicChannel } from '../publicChannels/publicChannels.types'
 import { selectGeneralChannel } from '../publicChannels/publicChannels.selectors'
 
 describe('messagesSelectors', () => {
@@ -32,7 +31,7 @@ describe('messagesSelectors', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     generalChannel = selectGeneralChannel(store.getState())

@@ -132,7 +132,7 @@ export const getFactory = async (store: Store) => {
         return action
       },
       afterCreate: async (
-        payload: ReturnType<typeof publicChannels.actions.addChannel>['payload'] 
+        payload: ReturnType<typeof publicChannels.actions.addChannel>['payload']
       ) => {
         await factory.create('PublicChannelsMessagesBase', ({ channelAddress: payload.channel.address }))
         return payload
@@ -198,12 +198,12 @@ export const getFactory = async (store: Store) => {
         return action
       },
       afterCreate: async (
-        payload: ReturnType<typeof publicChannels.actions.test_message>['payload'] 
+        payload: ReturnType<typeof publicChannels.actions.test_message>['payload']
       ) => {
         const community = currentCommunity(store.getState())
         store.dispatch(messagesActions.incomingMessages({
           messages: [payload.message],
-          communityId: community.id,
+          communityId: community.id
         }))
         return payload
       }
