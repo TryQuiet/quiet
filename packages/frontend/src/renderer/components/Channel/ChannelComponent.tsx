@@ -31,10 +31,10 @@ export interface ChannelComponentProps {
   channelName: string
   channelSettingsModal: ReturnType<typeof useModal>
   channelInfoModal: ReturnType<typeof useModal>
-  messages: { 
-    count: number,
-    groups: MessagesDailyGroups 
-  },
+  messages: {
+    count: number
+    groups: MessagesDailyGroups
+  }
   pendingMessages: Dictionary<MessageSendingStatus>
   lazyLoading: (load: boolean) => void
   onDelete: () => void

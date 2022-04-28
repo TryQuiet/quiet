@@ -67,7 +67,7 @@ const Channel = () => {
           channelInfoModal={channelInfoModal}
           messages={{
             count: currentChannelMessagesCount,
-            groups: currentChannelDisplayableMessages 
+            groups: currentChannelDisplayableMessages
           }}
           pendingMessages={pendingMessages}
           lazyLoading={lazyLoading}
