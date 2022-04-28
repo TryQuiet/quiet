@@ -278,6 +278,12 @@ export class Storage {
       })
       db.events.on('replicated', async (address) => {
         log('Replicated.', address)
+        const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
+        this.io.sendMessagesIds({
+          ids,
+          channelAddress: channel.address,
+          communityId: this.communityId
+        })
       })
       db.events.on('ready', () => {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
