@@ -179,7 +179,7 @@ export const assertStoreStatesAreEqual = async (oldState, currentState) => {
 export const assertInitializedCommunity = async (store: TestStore) => {
   await waitForExpect(() => {
     // This is the last action when initializing community.
-    expect(store.getState().LastAction.type).toEqual(messages.actions.addMessageVerificationStatus.type)
+    expect(store.getState().LastAction.includes(messages.actions.addMessageVerificationStatus.type))
   }, 300_000)
 }
 
@@ -188,15 +188,4 @@ export const assertRegistrationRequestSent = async (store: TestStore, count: num
   await waitForExpect(() => {
     expect(store.getState().Communities.communities.entities[communityId].registrationAttempts).toEqual(count)
   }, 240_000)
-}
-
-export const assertReceivedOldCertificate = async (store: TestStore) => {
-  const communityId = store.getState().Communities.communities.ids[0]
-
-  await waitForExpect(() => {
-    expect(
-      store.getState().LastAction?.payload?.userCertificate
-    ).toEqual(store.getState().Identity.identities.entities[communityId].userCertificate
-    )
-  }, 300_000)
 }

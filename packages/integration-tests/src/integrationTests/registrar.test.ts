@@ -1,6 +1,6 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { createCommunity, getCommunityOwnerData, registerUsername, sendRegistrationRequest, sendCsr, OwnerData } from './appActions'
-import { assertReceivedCertificate, assertReceivedRegistrationError, assertReceivedCertificates, assertNoRegistrationError, assertInitializedCommunity, assertRegistrationRequestSent, assertReceivedOldCertificate } from './assertions'
+import { assertReceivedCertificate, assertReceivedRegistrationError, assertReceivedCertificates, assertNoRegistrationError, assertInitializedCommunity, assertRegistrationRequestSent } from './assertions'
 import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { ErrorPayload, SocketActionTypes, ErrorCodes, ErrorMessages } from '@quiet/nectar'
@@ -159,7 +159,6 @@ xdescribe('Certificate already exists in db, user asks for certificate providing
     await assertReceivedCertificates('user', 2, 120_000, user.store)
     await sendCsr(user.store)
     // Wait for registrar response
-    await assertReceivedOldCertificate(user.store)
     await assertNoRegistrationError(user.store)
   })
 })

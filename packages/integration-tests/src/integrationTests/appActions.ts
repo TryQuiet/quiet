@@ -255,8 +255,8 @@ export async function sendMessage(
   store.dispatch(messages.actions.sendMessage({ message }))
 
   await waitForExpect(() => {
-    expect(store.getState().LastAction.type).toEqual('Messages/addMessageVerificationStatus')
-  })
+    expect(store.getState().LastAction.includes('Messages/addMessageVerificationStatus'))
+  }, 5000)
 
   const entities = Array.from(Object.values(store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities))
 
