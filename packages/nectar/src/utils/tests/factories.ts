@@ -15,6 +15,7 @@ import { MessageType, SendingStatus } from '../../sagas/messages/messages.types'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../sagas/messages/messages.slice'
 import { currentCommunity } from '../../sagas/communities/communities.selectors'
+import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
 
 export const getFactory = async (store: Store) => {
   const factory = new factoryGirl.FactoryGirl()
@@ -209,6 +210,12 @@ export const getFactory = async (store: Store) => {
       }
     }
   )
+
+  factory.define('CacheMessages', publicChannelsActions.cacheMessages, {
+    messages: [],
+    channelAddress: factory.assoc('PublicChannel', 'address'),
+    communityId: factory.assoc('Community', 'id')
+  })
 
   factory.define('MessageVerificationStatus', messages.actions.test_message_verification_status, {
     message: factory.assoc('Message'),

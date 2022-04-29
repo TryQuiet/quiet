@@ -9,7 +9,7 @@ import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
 import { MessageType } from '../messages.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { PublicChannel } from '../../publicChannels/publicChannels.types'
+import { ChannelMessage, PublicChannel } from '../../publicChannels/publicChannels.types'
 import {
   publicChannelsSelectors,
   selectGeneralChannel
@@ -237,7 +237,7 @@ describe('incomingMessagesSaga', () => {
           id: Math.random().toString(36).substr(2.9),
           type: MessageType.Basic,
           message: 'message',
-          createdAt: DateTime.utc().valueOf(),
+          createdAt: DateTime.utc().valueOf() - DateTime.utc().minus({ days: 1 }).valueOf(),
           channelAddress: barbequeChannel.address,
           signature: '',
           pubKey: ''
@@ -255,24 +255,41 @@ describe('incomingMessagesSaga', () => {
     )
 
     // Populate cache with messages
-    ;[...Array(50)].map(async (_, index) => {
-      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
-        'Message',
-        {
-          identity: alice,
-          message: {
-            id: Math.random().toString(36).substr(2.9),
-            type: MessageType.Basic,
-            message: 'message',
-            createdAt: DateTime.utc().valueOf() + ++index,
-            channelAddress: barbequeChannel.address,
-            signature: '',
-            pubKey: ''
-          },
-          verifyAutomatically: true
+    const messages: ChannelMessage[] = []
+    await new Promise(resolve => {
+      const iterations = 50
+      ;[...Array(iterations)].map(async (_, index) => {
+        const item = (
+          await factory.build<typeof publicChannelsActions.test_message>('Message', {
+            identity: alice,
+            message: {
+              id: Math.random().toString(36).substr(2.9),
+              type: MessageType.Basic,
+              message: 'message',
+              createdAt:
+                DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
+              channelAddress: barbequeChannel.address,
+              signature: '',
+              pubKey: ''
+            },
+            verifyAutomatically: true
+          })
+        ).payload.message
+        messages.push(item)
+        if (messages.length === iterations) {
+          resolve(true)
         }
-      )
+      })
     })
+
+    await factory.create<ReturnType<typeof publicChannelsActions.cacheMessages>['payload']>(
+      'CacheMessages',
+      {
+        messages: messages,
+        channelAddress: barbequeChannel.address,
+        communityId: community.id
+      }
+    )
 
     // Confirm cache is full (contains maximum number of messages to display)
     const cachedMessages = publicChannelsSelectors.sortedCurrentChannelMessages(store.getState())
@@ -295,5 +312,96 @@ describe('incomingMessagesSaga', () => {
     expect(publicChannelsSelectors.sortedCurrentChannelMessages(store.getState())).toStrictEqual(
       cachedMessages
     )
+  })
+
+  test("don't ignore older messages before reaching maximum messages display number", async () => {
+    // Construct tested message before others
+    const message = (
+      await factory.build<typeof publicChannelsActions.test_message>('Message', {
+        identity: alice,
+        message: {
+          id: Math.random().toString(36).substr(2.9),
+          type: MessageType.Basic,
+          message: 'message',
+          createdAt: DateTime.utc().valueOf() - DateTime.utc().minus({ days: 1 }).valueOf(),
+          channelAddress: generalChannel.address,
+          signature: '',
+          pubKey: ''
+        },
+        verifyAutomatically: true
+      })
+    ).payload.message
+
+    // Set 'general' as active channel
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelAddress: generalChannel.address,
+        communityId: community.id
+      })
+    )
+
+    // Populate cache with messages
+    const messages: ChannelMessage[] = []
+    await new Promise(resolve => {
+      const iterations = 2
+      ;[...Array(iterations)].map(async (_, index) => {
+        const item = (
+          await factory.build<typeof publicChannelsActions.test_message>('Message', {
+            identity: alice,
+            message: {
+              id: Math.random().toString(36).substr(2.9),
+              type: MessageType.Basic,
+              message: 'message',
+              createdAt:
+                DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
+              channelAddress: generalChannel.address,
+              signature: '',
+              pubKey: ''
+            },
+            verifyAutomatically: true
+          })
+        ).payload.message
+        messages.push(item)
+        if (messages.length === iterations) {
+          resolve(true)
+        }
+      })
+    })
+
+    await factory.create<ReturnType<typeof publicChannelsActions.cacheMessages>['payload']>(
+      'CacheMessages',
+      {
+        messages: messages,
+        channelAddress: generalChannel.address,
+        communityId: community.id
+      }
+    )
+
+    // Confirm cache is not full (contains maximum number of messages to display)
+    const cachedMessages = publicChannelsSelectors.sortedCurrentChannelMessages(store.getState())
+    expect(cachedMessages.length).toBeLessThan(50)
+
+    // Prepare array for assertion
+    const updatedCache = cachedMessages.map(message => message)
+    updatedCache.push(message)
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      incomingMessagesSaga,
+      messagesActions.incomingMessages({
+        messages: [message],
+        communityId: community.id
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(
+        publicChannelsActions.cacheMessages({
+          messages: updatedCache,
+          channelAddress: message.channelAddress,
+          communityId: community.id
+        })
+      )
+      .run()
   })
 })
