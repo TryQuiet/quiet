@@ -63,7 +63,7 @@ setEngine(
     subtle: webcrypto.subtle
   })
 )
- 
+
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
 
@@ -75,7 +75,7 @@ const gotTheLock = app.requestSingleInstanceLock()
 
 const extensionsFolderPath = `${app.getPath('userData')}/extensions`
 
-const applyDevTools = async () => {
+export const applyDevTools = async () => {
   /* eslint-disable */
   if (!isDev || isE2Etest) return
   /* eslint-disable */
@@ -159,7 +159,7 @@ let browserHeight: number
 
 // Default title bar must be hidden for macos because we have custom styles for it
 const titleBarStyle = process.platform !== 'win32' ? 'hidden' : 'default'
-const createWindow = async () => {
+export const createWindow = async () => {
   mainWindow = new BrowserWindow({
     width: windowSize.width,
     height: windowSize.height,
@@ -198,11 +198,12 @@ const createWindow = async () => {
   })
 
   mainWindow.setMinimumSize(600, 400)
+  let dataPort: number = ports?.dataServer ? ports?.dataServer : 7070
   /* eslint-disable */
   mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, './index.html'),
-      search: `dataPort=${ports.dataServer}`,
+      search: `dataPort=${dataPort}`,
       protocol: 'file:',
       slashes: true,
       hash: '/'
