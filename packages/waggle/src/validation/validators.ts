@@ -18,7 +18,7 @@ const channelSchema = joi.object({
   owner: joi.string().required(),
   timestamp: joi.number().required(),
   address: joi.string().required(),
-  messagesSlice: joi.number()
+  messages: joi.any()
 })
 
 export const isUser = (publicKey: string, halfKey: string): boolean => {
