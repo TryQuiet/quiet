@@ -21,7 +21,7 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
     publicChannelsSelectors.currentChannelLastDisplayedMessage
   )
 
-  const lastDisplayedMessageIndex = channelMessagesEntries.indexOf(lastDisplayedMessage)
+  const lastDisplayedMessageIndex = channelMessagesEntries.findIndex(i => i.id === lastDisplayedMessage.id)
 
   const messages = channelMessagesEntries.slice(
     Math.max(0, lastDisplayedMessageIndex - channelMessagesChunkSize)
@@ -36,10 +36,10 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
   yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))
 
   const channelMessagesBase = yield* select(messagesSelectors.currentPublicChannelMessagesBase)
-  const display = Math.max(
-    channelMessagesEntries.length,
-    channelMessagesBase.display + channelMessagesChunkSize
-  )
+  let display = channelMessagesBase.display + channelMessagesChunkSize
+  if (display > channelMessagesEntries.length) {
+    display = channelMessagesEntries.length
+  }
 
   const setDisplayedMessagesNumberPayload: SetDisplayedMessagesNumberPayload = {
     channelAddress: channelAddress,
