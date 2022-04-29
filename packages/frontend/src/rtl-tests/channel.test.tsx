@@ -7,7 +7,6 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
-import { DateTime } from 'luxon'
 import Channel from '../renderer/components/Channel/Channel'
 
 import {
@@ -19,7 +18,7 @@ import {
   ChannelMessage,
   messages,
   SendingStatus,
-  MessageType,
+  MessageType
 } from '@quiet/nectar'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -377,7 +376,7 @@ describe('Channel', () => {
     await act(async () => {
       await runSaga(mockIncomingMessages).toPromise()
     })
-    
+
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketActionTypes.INCOMING_MESSAGES,
@@ -396,7 +395,7 @@ describe('Channel', () => {
     expect(await screen.findByText(messageText)).not.toHaveStyle('color:#B2B2B2')
   })
 
-  it("Shows incoming message if it's not older than oldest message, and isn't the newest one", async () => {
+  it("shows incoming message if it's not older than oldest message, and isn't the newest one", async () => {
     const { store, runSaga } = await prepareStore(
       {},
       socket // Fork Nectar's sagas
@@ -444,26 +443,7 @@ describe('Channel', () => {
     }
 
     const [message1, message2, message3] = messages
-
-    for (const msg of messages) {
-      const message = (
-        await factory.build<typeof publicChannels.actions.test_message>('Message', {
-          identity: alice,
-          message: {
-            id: Math.random().toString(36).substr(2.9),
-            type: MessageType.Basic,
-            message: msg,
-            createdAt: messages.indexOf(msg) + 1,
-            channelAddress: 'general',
-            signature: '',
-            pubKey: ''
-          },
-          verifyAutomatically: true
-        })
-      ).payload.message
-      messages.push(message)
-    }
-
+      
     await act(async () => {
       console.log('runSaga')
       await runSaga(mockIncomingMessages).toPromise()
@@ -484,7 +464,7 @@ describe('Channel', () => {
           messages: [message1],
           communityId: community.id
         }
-      ])  
+      ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketActionTypes.INCOMING_MESSAGES,
         {
