@@ -443,7 +443,7 @@ describe('Channel', () => {
     }
 
     const [message1, message2, message3] = messages
-      
+
     await act(async () => {
       console.log('runSaga')
       await runSaga(mockIncomingMessages).toPromise()

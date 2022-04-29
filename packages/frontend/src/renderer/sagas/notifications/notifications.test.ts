@@ -316,7 +316,7 @@ describe('displayNotificationsSaga', () => {
           entities: {
             [community1.id]: {
               ...store.store.getState().PublicChannels.channels.entities[community1.id],
-              currentChannelAddress: 'dupa'
+              currentChannelAddress: publicChannel2.channel.address
             }
           }
         }
