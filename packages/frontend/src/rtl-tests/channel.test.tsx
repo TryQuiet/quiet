@@ -421,53 +421,48 @@ describe('Channel', () => {
       store
     )
 
-    const message1 = (
-      await factory.build<typeof publicChannels.actions.test_message>('Message', {
-        identity: alice,
-        message: {
-          id: Math.random().toString(36).substr(2.9),
-          type: MessageType.Basic,
-          message: 'message1',
-          createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
-          signature: '',
-          pubKey: ''
-        },
-        verifyAutomatically: true
-      })
-    ).payload.message
+    const messagesText = ['message1', 'message2', 'message3']
+    const messages: ChannelMessage[] = []
 
-    const message2 = (
-      await factory.build<typeof publicChannels.actions.test_message>('Message', {
-        identity: alice,
-        message: {
-          id: Math.random().toString(36).substr(2.9),
-          type: MessageType.Basic,
-          message: 'message2',
-          createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
-          signature: '',
-          pubKey: ''
-        },
-        verifyAutomatically: true
-      })
-    ).payload.message
+    for (const msg of messagesText) {
+      const message = (
+        await factory.build<typeof publicChannels.actions.test_message>('Message', {
+          identity: alice,
+          message: {
+            id: Math.random().toString(36).substr(2.9),
+            type: MessageType.Basic,
+            message: msg,
+            createdAt: messagesText.indexOf(msg) + 1,
+            channelAddress: 'general',
+            signature: '',
+            pubKey: ''
+          },
+          verifyAutomatically: true
+        })
+      ).payload.message
+      messages.push(message)
+    }
 
-    const message3 = (
-      await factory.build<typeof publicChannels.actions.test_message>('Message', {
-        identity: alice,
-        message: {
-          id: Math.random().toString(36).substr(2.9),
-          type: MessageType.Basic,
-          message: 'message3',
-          createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
-          signature: '',
-          pubKey: ''
-        },
-        verifyAutomatically: true
-      })
-    ).payload.message
+    const [message1, message2, message3] = messages
+
+    for (const msg of messages) {
+      const message = (
+        await factory.build<typeof publicChannels.actions.test_message>('Message', {
+          identity: alice,
+          message: {
+            id: Math.random().toString(36).substr(2.9),
+            type: MessageType.Basic,
+            message: msg,
+            createdAt: messages.indexOf(msg) + 1,
+            channelAddress: 'general',
+            signature: '',
+            pubKey: ''
+          },
+          verifyAutomatically: true
+        })
+      ).payload.message
+      messages.push(message)
+    }
 
     await act(async () => {
       console.log('runSaga')
