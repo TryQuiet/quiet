@@ -22,7 +22,8 @@ import {
   Store,
   Identity,
   ChannelMessage,
-  PublicChannel
+  PublicChannel,
+  PublicChannelStorage
 } from '@quiet/nectar'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 
@@ -34,14 +35,13 @@ let tmpOrbitDbDir: string
 let tmpIpfsPath: string
 let connectionsManager: ConnectionsManager
 let storage: Storage
-
 let store: Store
 let factory: FactoryGirl
-
 let community: Community
-let channel: PublicChannel
+let channel: PublicChannelStorage
 let alice: Identity
 let message: ChannelMessage
+let channelio: PublicChannelStorage
 
 beforeAll(async () => {
   store = prepareStore().store
@@ -52,6 +52,12 @@ beforeAll(async () => {
   >('Community')
 
   channel = publicChannels.selectors.publicChannels(store.getState())[0]
+
+  channelio = {
+    ...channel,
+  }
+
+  delete channelio.messages
 
   alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
     'Identity',
@@ -235,7 +241,7 @@ describe('Message', () => {
 
     await storage.initDatabases()
 
-    await storage.subscribeToChannel(channel)
+    await storage.subscribeToChannel(channelio)
 
     const spy = jest.spyOn(storage.publicChannelsRepos.get(message.channelAddress).db, 'add')
 
@@ -275,7 +281,7 @@ describe('Message', () => {
 
     await storage.initDatabases()
 
-    await storage.subscribeToChannel(channel)
+    await storage.subscribeToChannel(channelio)
 
     const spy = jest.spyOn(storage.publicChannelsRepos.get(spoofedMessage.channelAddress).db, 'add')
 
