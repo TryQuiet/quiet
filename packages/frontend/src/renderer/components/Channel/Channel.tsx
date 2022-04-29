@@ -1,7 +1,7 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, identity, messages, publicChannels } from '@quiet/nectar'
+import { identity, messages, publicChannels } from '@quiet/nectar'
 
 import ChannelComponent from './ChannelComponent'
 
@@ -13,8 +13,8 @@ const Channel = () => {
 
   const user = useSelector(identity.selectors.currentIdentity)
 
-  const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const currentChannel = useSelector(publicChannels.selectors.currentChannel)
+  const currentChannelAddress = useSelector(publicChannels.selectors.currentChannelAddress)
+  const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
 
   const currentChannelMessagesCount = useSelector(
     publicChannels.selectors.currentChannelMessagesCount
@@ -45,26 +45,24 @@ const Channel = () => {
     [dispatch]
   )
 
-  const setChannelMessagesSliceValue = useCallback(
-    (value: number) => {
-      if (currentChannel?.messagesSlice === value) return
-      dispatch(
-        publicChannels.actions.setChannelMessagesSliceValue({
-          messagesSlice: value,
-          channelAddress: currentChannel?.address,
-          communityId: currentCommunity?.id
-        })
-      )
+  const lazyLoading = useCallback(
+    (load: boolean) => {
+      dispatch(messages.actions.lazyLoading({ load }))
     },
-    [dispatch, currentChannel?.address, currentChannel?.messagesSlice, currentCommunity?.id]
+    [dispatch]
   )
+
+  useEffect(() => {
+    dispatch(messages.actions.resetCurrentPublicChannelCache())
+  }, [currentChannelAddress])
 
   return (
     <>
-      {currentChannel && (
+      {currentChannelAddress && (
         <ChannelComponent
           user={user}
-          channel={currentChannel}
+          channelAddress={currentChannelAddress}
+          channelName={currentChannelName}
           channelSettingsModal={channelSettingsModal}
           channelInfoModal={channelInfoModal}
           messages={{
@@ -72,7 +70,7 @@ const Channel = () => {
             groups: currentChannelDisplayableMessages
           }}
           pendingMessages={pendingMessages}
-          setChannelMessagesSliceValue={setChannelMessagesSliceValue}
+          lazyLoading={lazyLoading}
           onDelete={function (): void { }}
           onInputChange={onInputChange}
           onInputEnter={onInputEnter}

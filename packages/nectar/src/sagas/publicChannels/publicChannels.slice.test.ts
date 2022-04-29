@@ -46,8 +46,7 @@ describe('publicChannelsReducer', () => {
           description: 'Welcome to #quiet',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.nickname,
-          address: 'quiet',
-          messagesSlice: 0
+          address: 'quiet'
         }
       })
     ).payload.channel

@@ -1,15 +1,11 @@
-import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
+import { setupCrypto } from '@quiet/identity'
 import { Store } from '../store.types'
 import { getFactory, Identity, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import {
   publicChannels as getPublicChannels,
-  currentChannelMessagesCount,
   currentChannelMessagesMergedBySender,
-  slicedCurrentChannelMessages,
-  sortedCurrentChannelMessages,
-  validCurrentChannelMessages,
-  currentChannel
+  sortedCurrentChannelMessages
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
 import { DisplayableMessage, ChannelMessage } from './publicChannels.types'
@@ -17,7 +13,6 @@ import { communitiesActions, Community } from '../communities/communities.slice'
 import { identityActions } from '../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { MessageType } from '../messages/messages.types'
-import { currentCommunity } from '../communities/communities.selectors'
 import { FactoryGirl } from 'factory-girl'
 import {
   formatMessageDisplayDate,
@@ -73,8 +68,7 @@ describe('publicChannelsSelectors', () => {
             description: `Welcome to #${name}`,
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: name,
-            messagesSlice: 0
+            address: name
           }
         }
       )
@@ -217,20 +211,6 @@ describe('publicChannelsSelectors', () => {
     }
   })
 
-  beforeEach(async () => {
-    const community = currentCommunity(store.getState())
-    const channels = getPublicChannels(store.getState())
-    channels.forEach(channel => {
-      store.dispatch(
-        publicChannels.actions.setChannelMessagesSliceValue({
-          messagesSlice: 0,
-          channelAddress: channel.address,
-          communityId: community.id
-        })
-      )
-    })
-  })
-
   it('get messages sorted by date', async () => {
     const messages = sortedCurrentChannelMessages(store.getState())
     messages.forEach(message => {
@@ -240,44 +220,6 @@ describe('publicChannelsSelectors', () => {
         signature: expect.any(String)
       })
     })
-  })
-
-  it('get sliced messages count', async () => {
-    const messagesCountBefore = currentChannelMessagesCount(store.getState())
-    const community = currentCommunity(store.getState())
-    const channel = currentChannel(store.getState())
-    store.dispatch(
-      publicChannels.actions.setChannelMessagesSliceValue({
-        messagesSlice: 2,
-        communityId: community.id,
-        channelAddress: channel.address
-      })
-    )
-    const messagesCountAfter = currentChannelMessagesCount(store.getState())
-    expect(messagesCountAfter).toBe(messagesCountBefore - 2)
-  })
-
-  it('get sliced messages', async () => {
-    const expectedSlicedMessagesOrder = [
-      msgs['3'],
-      msgs['4'],
-      msgs['5'],
-      msgs['6'],
-      msgs['7'],
-      msgs['8'],
-      msgs['9']
-    ]
-    const community = currentCommunity(store.getState())
-    const channel = currentChannel(store.getState())
-    store.dispatch(
-      publicChannels.actions.setChannelMessagesSliceValue({
-        messagesSlice: 2,
-        channelAddress: channel.address,
-        communityId: community.id
-      })
-    )
-    const messages = slicedCurrentChannelMessages(store.getState())
-    expect(messages).toStrictEqual(expectedSlicedMessagesOrder)
   })
 
   it('get grouped messages', async () => {
@@ -311,56 +253,6 @@ describe('publicChannelsSelectors', () => {
       [groupDay3]: [[displayable['9']]]
     }
     expect(messages).toStrictEqual(expectedGrouppedMessages)
-  })
-
-  it('filter out unverified messages', async () => {
-    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
-
-    // Build messages
-    const authenticMessage: ChannelMessage = {
-      ...(
-        await factory.build<typeof publicChannels.actions.test_message>('Message', {
-          identity: alice
-        })
-      ).payload.message,
-      id: Math.random().toString(36).substr(2.9),
-      channelAddress: 'pets'
-    }
-
-    const spoofedMessage: ChannelMessage = {
-      ...(
-        await factory.build<typeof publicChannels.actions.test_message>('Message', {
-          identity: alice
-        })
-      ).payload.message,
-      id: Math.random().toString(36).substr(2.9),
-      channelAddress: 'pets',
-      pubKey: johnPublicKey
-    }
-
-    // Store messages
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-      'Message',
-      { identity: alice, message: authenticMessage, verifyAutomatically: true }
-    )
-
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-      'Message',
-      { identity: alice, message: spoofedMessage, verifyAutomatically: true }
-    )
-
-    store.dispatch(
-      publicChannels.actions.setCurrentChannel({
-        channelAddress: 'pets',
-        communityId: community.id
-      })
-    )
-
-    const messages = validCurrentChannelMessages(store.getState())
-
-    expect(messages.length).toBe(1)
-
-    expect(messages[0].id).toBe(authenticMessage.id)
   })
 
   it('get channel list in a consistent order', async () => {

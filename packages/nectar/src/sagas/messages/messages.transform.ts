@@ -5,13 +5,14 @@ import { MessagesState } from './messages.slice'
 
 export const MessagesTransform = createTransform(
   (inboundState: MessagesState, _key) => {
-    return { ...inboundState, publicKeyMapping: {} }
+    return { ...inboundState }
   },
   (outboundState: MessagesState, _key) => {
     return {
       ...outboundState,
-      messageSendingStatus: messageSendingStatusAdapter.getInitialState(),
-      publicKeyMapping: {}
+      publicKeyMapping: {},
+      messageSendingStatus:
+        messageSendingStatusAdapter.getInitialState()
     }
   },
   { whitelist: [StoreKeys.Messages] }

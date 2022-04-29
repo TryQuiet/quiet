@@ -5,6 +5,7 @@ import { apply, put, select } from 'typed-redux-saga'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { PublicChannel } from '../publicChannels.types'
+import { messagesActions } from '../../messages/messages.slice'
 
 export function* subscribeToTopicSaga(
   socket: Socket,
@@ -14,8 +15,9 @@ export function* subscribeToTopicSaga(
 
   const { peerId, channelData } = action.payload
 
-  const channel: PublicChannel = {
+  const channel = {
     ...channelData,
+    messages: undefined,
     messagesSlice: undefined
   }
 
@@ -23,6 +25,12 @@ export function* subscribeToTopicSaga(
     publicChannelsActions.addChannel({
       communityId: communityId,
       channel: channel
+    })
+  )
+
+  yield* put(
+    messagesActions.addPublicChannelsMessagesBase({
+      channelAddress: channel.address
     })
   )
 

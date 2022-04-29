@@ -3,23 +3,19 @@ import { StoreKeys } from '../store.keys'
 import {
   publicChannelsAdapter,
   communityChannelsAdapter,
-  channelMessagesAdapter
+  channelMessagesAdapter,
+  publicChannelsStatusAdapter
 } from './publicChannels.adapter'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { currentCommunity } from '../communities/communities.selectors'
-import { MessageType } from '../messages/messages.types'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
-import { messagesVerificationStatus } from '../messages/messages.selectors'
+import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import {
-  ChannelMessage,
-  CommunityChannels,
   DisplayableMessage,
   MessagesDailyGroups,
   PublicChannel
 } from './publicChannels.types'
-import { unreadMessagesAdapter } from './markUnreadMessages/unreadMessages.adapter'
-import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 
 const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
   state[StoreKeys.PublicChannels]
@@ -36,17 +32,25 @@ const selectState = createSelector(
   }
 )
 
-const selectChannels = createSelector(selectState, (state: CommunityChannels) => {
+const selectChannels = createSelector(selectState, (state) => {
   if (!state) return []
   return publicChannelsAdapter.getSelectors().selectAll(state.channels)
 })
 
-const selectChannelsMessages = createSelector(selectState, (state: CommunityChannels) => {
-  if (!state) return []
-  return channelMessagesAdapter.getSelectors().selectAll(state.channelMessages)
+// Serves for testing purposes only
+export const selectGeneralChannel = createSelector(selectChannels, channels => {
+  const draft = channels.find(item => item.address === 'general')
+  const channel: PublicChannel = {
+    name: draft.name,
+    description: draft.description,
+    owner: draft.owner,
+    timestamp: draft.timestamp,
+    address: draft.address
+  }
+  return channel
 })
 
-export const publicChannels = createSelector(selectChannels, (channels: PublicChannel[]) => {
+export const publicChannels = createSelector(selectChannels, (channels) => {
   return channels.sort((a, b) => {
     if (a.name === 'general') {
       return -1
@@ -58,80 +62,69 @@ export const publicChannels = createSelector(selectChannels, (channels: PublicCh
   })
 })
 
-export const currentChannel = createSelector(
+export const currentChannelAddress = createSelector(
   selectState,
-  selectChannels,
-  (state: CommunityChannels, channels: PublicChannel[]) => {
+  (state) => {
     if (!state) return undefined
-    return channels.find(channel => channel.address === state.currentChannel)
+    return state.currentChannelAddress
+  }
+)
+
+// Is being used in tests
+export const currentChannel = createSelector(
+  currentChannelAddress,
+  selectChannels,
+  (address, channels) => {
+    if (!address) return undefined
+    return channels.find(channel => channel.address === address)
+  }
+)
+
+export const currentChannelName = createSelector(
+  currentChannel,
+  (channel) => {
+    if (!channel) return ''
+    return channel.name
   }
 )
 
 const currentChannelMessages = createSelector(
-  selectChannelsMessages,
   currentChannel,
-  (messages: ChannelMessage[], channel: PublicChannel) => {
-    return messages.filter(message => message.channelAddress === channel.address)
-  }
-)
-
-export const missingChannelsMessages = createSelector(
-  selectChannelsMessages,
-  (messages: ChannelMessage[]) => {
-    return messages.filter(message => message.type === MessageType.Empty).map(message => message.id)
-  }
-)
-
-export const validCurrentChannelMessages = createSelector(
-  currentChannelMessages,
-  certificatesMapping,
-  messagesVerificationStatus,
-  (messages, certificates, verification) => {
-    const filtered = messages.filter(message => message.pubKey in certificates)
-    return filtered.filter(message => {
-      const status = verification[message.signature]
-      if (
-        status &&
-        status.publicKey === message.pubKey &&
-        status.signature === message.signature &&
-        status.verified
-      ) {
-        return message
-      }
-    })
+  (channel) => {
+    if (!channel) return []
+    return channelMessagesAdapter.getSelectors().selectAll(channel.messages)
   }
 )
 
 export const sortedCurrentChannelMessages = createSelector(
-  validCurrentChannelMessages,
+  currentChannelMessages,
   messages => {
     return messages.sort((a, b) => b.createdAt - a.createdAt).reverse()
   }
 )
 
-export const slicedCurrentChannelMessages = createSelector(
+export const currentChannelLastDisplayedMessage = createSelector(
   sortedCurrentChannelMessages,
-  currentChannel,
-  (messages: ChannelMessage[], channel: PublicChannel) => {
-    return messages.slice((channel?.messagesSlice || 0), messages.length)
-  }
-)
-
-export const currentChannelMessagesCount = createSelector(
-  slicedCurrentChannelMessages,
-  messages => {
-    return messages.length
+  (messages) => {
+    return messages[0]
   }
 )
 
 const displayableCurrentChannelMessages = createSelector(
-  slicedCurrentChannelMessages,
+  sortedCurrentChannelMessages,
   certificatesMapping,
   (messages, certificates) =>
     messages.map(message => {
       const user = certificates[message.pubKey]
-      return displayableMessage(message, user.username)
+      return displayableMessage(message, user?.username)
     })
+)
+
+export const currentChannelMessagesCount = createSelector(
+  displayableCurrentChannelMessages,
+  (messages) => {
+    return messages.length
+  }
 )
 
 export const dailyGroupedCurrentChannelMessages = createSelector(
@@ -175,22 +168,34 @@ export const currentChannelMessagesMergedBySender = createSelector(
   }
 )
 
-export const unreadMessages = createSelector(selectState, (state: CommunityChannels) => {
-  if (!state) return []
-  return unreadMessagesAdapter.getSelectors().selectAll(state.unreadMessages)
-})
+const channelsStatus = createSelector(
+  selectState,
+  state => {
+    if (!state) return {}
+    return publicChannelsStatusAdapter
+      .getSelectors()
+      .selectEntities(state.channelsStatus)
+  }
+)
 
-export const unreadChannels = createSelector(unreadMessages, messages => {
-  return messages.map(message => message.channelAddress)
-})
+export const unreadChannels = createSelector(
+  channelsStatus,
+  status => {
+    return Object.values(status).map(channel => {
+      if (channel.unread) return channel.address
+    })
+  }
+)
 
 export const publicChannelsSelectors = {
   publicChannels,
-  currentChannel,
+  currentChannelAddress,
+  currentChannelName,
   currentChannelMessages,
+  sortedCurrentChannelMessages,
+  displayableCurrentChannelMessages,
   currentChannelMessagesCount,
-  dailyGroupedCurrentChannelMessages,
   currentChannelMessagesMergedBySender,
-  unreadMessages,
+  currentChannelLastDisplayedMessage,
   unreadChannels
 }

@@ -7,10 +7,15 @@ export function* subscribeToAllTopicsSaga(): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
   const channels = yield* select(publicChannelsSelectors.publicChannels)
   for (const channel of channels) {
+    const channelData = {
+      ...channel,
+      messages: undefined,
+      messagesSlice: undefined
+    }
     yield* put(
       publicChannelsActions.subscribeToTopic({
         peerId: identity.peerId.id,
-        channelData: channel
+        channelData: channelData
       })
     )
   }

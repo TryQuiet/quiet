@@ -85,9 +85,10 @@ export const createMessageSignatureTestHelper = async (
   }
 }
 
-export const lastActionReducer = (state = null, action: any) => {
+export const lastActionReducer = (state = [], action: any) => {
   log('ACTION: ', action)
-  return action
+  state.push(action.type)
+  return state
 }
 
 export default {

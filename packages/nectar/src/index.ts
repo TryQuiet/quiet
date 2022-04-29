@@ -64,7 +64,6 @@ export * from './sagas/users/users.types'
 export { communityChannelsAdapter } from './sagas/publicChannels/publicChannels.adapter'
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
 export { certificatesAdapter } from './sagas/users/users.adapter'
-export { unreadMessagesAdapter } from './sagas/publicChannels/markUnreadMessages/unreadMessages.adapter'
 
 export {
   publicChannelsAdapter,
@@ -74,7 +73,6 @@ export {
 export { identityAdapter } from './sagas/identity/identity.adapter'
 
 export { MessagesTransform } from './sagas/messages/messages.transform'
-export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.transform'
 
 export * from './sagas/identity/identity.types'
 

@@ -1,5 +1,4 @@
 import {
-  AskForMessagesPayload,
   Community,
   InitCommunityPayload,
   LaunchRegistrarPayload,
@@ -8,7 +7,8 @@ import {
   SaveOwnerCertificatePayload,
   SendMessagePayload,
   SocketActionTypes,
-  SubscribeToTopicPayload
+  SubscribeToTopicPayload,
+  AskForMessagesPayload
 } from '@quiet/nectar'
 
 import IOProxy from '../IOProxy'
