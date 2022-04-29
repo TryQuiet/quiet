@@ -310,7 +310,6 @@ export class Storage {
     for (const id of ids) {
       filteredMessages.push(...messages.filter(i => i.id === id))
     }
-    // return { filteredMessages, channelAddress }
     this.io.loadMessages({
       messages: filteredMessages,
       communityId: this.communityId
