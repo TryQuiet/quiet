@@ -110,14 +110,18 @@ export const currentChannelLastDisplayedMessage = createSelector(
   }
 )
 
-const displayableCurrentChannelMessages = createSelector(
+export const displayableCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
   certificatesMapping,
-  (messages, certificates) =>
-    messages.map(message => {
+  (messages, certificates) => {
+    return messages.reduce((result, message) => {
       const user = certificates[message.pubKey]
-      return displayableMessage(message, user?.username)
-    })
+      if (user) {
+        result.push(displayableMessage(message, user.username))
+      }
+      return result
+    }, [])
+  }
 )
 
 export const currentChannelMessagesCount = createSelector(
