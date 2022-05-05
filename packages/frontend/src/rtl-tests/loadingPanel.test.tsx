@@ -76,7 +76,7 @@ describe('Loading panel', () => {
 
     const community = (await factory.build<typeof communities.actions.addNewCommunity>('Community'))
       .payload
-    
+
     store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
@@ -93,7 +93,7 @@ describe('Loading panel', () => {
       })
     ).payload
 
-    const alice = await factory.create<
+    await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice', userCertificate: null })
 
@@ -137,15 +137,13 @@ describe('Loading panel', () => {
     store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
-    const alice = await factory.create<
+    await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice', userCertificate: null })
 
     const aliceCertificate = store.getState().Identity.identities.entities[community.id].userCertificate
 
-    console.log(aliceCertificate, 'aliceCertifiacte')
-    
-    store.dispatch(identity.actions.storeUserCertificate({communityId: community.id, userCertificate: null}))
+    store.dispatch(identity.actions.storeUserCertificate({ communityId: community.id, userCertificate: null }))
 
     renderComponent(
       <>
@@ -154,12 +152,11 @@ describe('Loading panel', () => {
       </>,
       store
     )
-    
-    // Assertions that we don't see Loading Pannel 
+
+    // Assertions that we don't see Loading Pannel
     expect(screen.queryByTestId('spinnerLoader')).toBeNull()
     // Show 'You created a username' after receiving certificate
-    store.dispatch(identity.actions.storeUserCertificate({communityId: community.id, userCertificate: aliceCertificate}))
-    act(async () => {})
+    store.dispatch(identity.actions.storeUserCertificate({ communityId: community.id, userCertificate: aliceCertificate }))
     expect(screen.getByText('You created a username')).toBeVisible()
   })
 })
