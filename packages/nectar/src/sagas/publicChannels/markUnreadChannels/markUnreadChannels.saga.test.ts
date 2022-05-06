@@ -3,7 +3,6 @@ import { Store } from '../../store.types'
 import { getFactory, Community, ChannelMessage, MessageType } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { expectSaga } from 'redux-saga-test-plan'
-import { markUnreadMessagesSaga } from './markUnreadMessages.saga'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { communitiesActions } from '../../communities/communities.slice'
 import { FactoryGirl } from 'factory-girl'
@@ -11,8 +10,10 @@ import { combineReducers } from 'redux'
 import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
+import { markUnreadChannelsSaga } from './markUnreadChannels.saga'
+import { messagesActions } from '../../messages/messages.slice'
 
-describe('markUnreadMessagesSaga', () => {
+describe('markUnreadChannelsSaga', () => {
   let store: Store
   let factory: FactoryGirl
 
@@ -55,7 +56,7 @@ describe('markUnreadMessagesSaga', () => {
     }
   })
 
-  test('mark unread messages', async () => {
+  test('mark unread channels', async () => {
     const messagesAddresses = ['general', 'memes', 'memes', 'travels']
     const messages: ChannelMessage[] = []
 
@@ -81,8 +82,8 @@ describe('markUnreadMessagesSaga', () => {
 
     const reducer = combineReducers(reducers)
     await expectSaga(
-      markUnreadMessagesSaga,
-      publicChannelsActions.incomingMessages({
+      markUnreadChannelsSaga,
+      messagesActions.incomingMessages({
         messages: messages,
         communityId: community.id
       })
@@ -90,21 +91,20 @@ describe('markUnreadMessagesSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .put(
-        publicChannelsActions.markUnreadMessages({
-          messages: [
-            {
-              id: messages[1].id,
-              channelAddress: 'memes'
-            },
-            {
-              id: messages[2].id,
-              channelAddress: 'memes'
-            },
-            {
-              id: messages[3].id,
-              channelAddress: 'travels'
-            }
-          ],
+        publicChannelsActions.markUnreadChannel({
+          channelAddress: 'memes',
+          communityId: community.id
+        })
+      )
+      .put(
+        publicChannelsActions.markUnreadChannel({
+          channelAddress: 'memes',
+          communityId: community.id
+        })
+      )
+      .put(
+        publicChannelsActions.markUnreadChannel({
+          channelAddress: 'travels',
           communityId: community.id
         })
       )

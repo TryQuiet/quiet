@@ -383,14 +383,9 @@ const args: Partial<ChannelComponentProps> = {
     handleClose: function (): any {}
   },
   pendingMessages: {},
-  channel: {
-    name: 'general',
-    description: 'Welcome to #general',
-    owner: 'alice',
-    timestamp: 0,
-    address: 'general'
-  },
-  setChannelMessagesSliceValue: function (_value: number): void {},
+  channelAddress: 'general',
+  channelName: 'general',
+  lazyLoading: function (_load: boolean): void {},
   onDelete: function (): void {},
   onInputChange: function (_value: string): void {},
   onInputEnter: function (_message: string): void {},

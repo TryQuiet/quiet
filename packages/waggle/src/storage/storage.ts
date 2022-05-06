@@ -244,19 +244,6 @@ export class Storage {
       .map(e => e.payload.value)
   }
 
-  public loadAllChannelMessages(channelAddress: string) {
-    // Load all channel messages for subscribed channel
-    if (!this.publicChannelsRepos.has(channelAddress)) {
-      return
-    }
-    const db: EventStore<ChannelMessage> = this.publicChannelsRepos.get(channelAddress).db
-    this.io.loadAllMessages({
-      messages: this.getAllEventLogEntries<ChannelMessage>(db),
-      channelAddress,
-      communityId: this.communityId
-    })
-  }
-
   public async subscribeToChannel(channel: PublicChannel): Promise<void> {
     let db: EventStore<ChannelMessage>
     let repo = this.publicChannelsRepos.get(channel.address)
@@ -291,6 +278,12 @@ export class Storage {
       })
       db.events.on('replicated', async (address) => {
         log('Replicated.', address)
+        const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
+        this.io.sendMessagesIds({
+          ids,
+          channelAddress: channel.address,
+          communityId: this.communityId
+        })
       })
       db.events.on('ready', () => {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
@@ -300,10 +293,27 @@ export class Storage {
           communityId: this.communityId
         })
       })
-
+      await db.load()
       repo.eventsAttached = true
     }
     log(`Subscribed to channel ${channel.address}`)
+  }
+
+  public async askForMessages(
+    channelAddress: string,
+    ids: string[]
+  ) {
+    const repo = this.publicChannelsRepos.get(channelAddress)
+    if (!repo) return
+    const messages = this.getAllEventLogEntries<ChannelMessage>(repo.db)
+    const filteredMessages: ChannelMessage[] = []
+    for (const id of ids) {
+      filteredMessages.push(...messages.filter(i => i.id === id))
+    }
+    this.io.loadMessages({
+      messages: filteredMessages,
+      communityId: this.communityId
+    })
   }
 
   private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
@@ -337,20 +347,6 @@ export class Storage {
     await db.load({ fetchEntryTimeout: 2000 })
     log(`Created channel ${data.address}`)
     return db
-  }
-
-  public async askForMessages(
-    channelAddress: string,
-    ids: string[]
-  ): Promise<{ filteredMessages: ChannelMessage[]; channelAddress: string }> {
-    const repo = this.publicChannelsRepos.get(channelAddress)
-    if (!repo) return
-    const messages = this.getAllEventLogEntries<ChannelMessage>(repo.db)
-    const filteredMessages = []
-    for (const id of ids) {
-      filteredMessages.push(...messages.filter(i => i.id === id))
-    }
-    return { filteredMessages, channelAddress }
   }
 
   public async sendMessage(message: ChannelMessage) {
@@ -424,11 +420,6 @@ export class Storage {
         log('DIRECT Messages thread ready')
       })
       repo.eventsAttached = true
-      // this.io.loadAllMessages({
-      //   messages: this.getAllEventLogEntries(db),
-      //   channelAddress,
-      //   communityId: this.communityId
-      // })
       log('Subscription to channel ready', channelAddress)
     }
   }

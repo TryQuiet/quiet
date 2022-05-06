@@ -2,13 +2,11 @@ import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { act } from 'react-dom/test-utils'
 import { screen } from '@testing-library/dom'
-import { apply, take } from 'typed-redux-saga'
+import { apply } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { socketEventData } from '../renderer/testUtils/socket'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
-
 import Channel from '../renderer/components/Channel/Channel'
 
 import {
@@ -19,7 +17,8 @@ import {
   SocketActionTypes,
   ChannelMessage,
   messages,
-  SendingStatus
+  SendingStatus,
+  MessageType
 } from '@quiet/nectar'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -121,128 +120,6 @@ describe('Channel', () => {
 
     const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
     expect(messageInput).toBeVisible()
-  })
-
-  it('asks for missing messages and displays them', async () => {
-    const { store, runSaga } = await prepareStore(
-      {},
-      socket // Fork Nectar's sagas
-    )
-
-    const factory = await getFactory(store)
-
-    const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
-
-    const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'alice' })
-
-    const aliceMessage = await factory.create<
-    ReturnType<typeof publicChannels.actions.test_message>['payload']
-    >('Message', {
-      identity: alice,
-      verifyAutomatically: true
-    })
-
-    // Data from below will build but it won't be stored
-    const john = (
-      await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
-        id: community.id,
-        nickname: 'john'
-      })
-    ).payload
-
-    const johnMessage = (
-      await factory.build<typeof publicChannels.actions.test_message>('Message', {
-        identity: john
-      })
-    ).payload
-
-    window.HTMLElement.prototype.scrollTo = jest.fn()
-
-    renderComponent(
-      <>
-        <Channel />
-      </>,
-      store
-    )
-
-    jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
-      if (action === SocketActionTypes.ASK_FOR_MESSAGES) {
-        const data = (
-          input as socketEventData<
-          [
-            {
-              peerId: string
-              channelAddress: string
-              ids: string[]
-              communityId: string
-            }
-          ]
-          >
-        )[0]
-        if (data.ids.length > 1) {
-          fail('Requested too many massages')
-        }
-        if (data.ids[0] !== johnMessage.message.id) {
-          fail('Missing message has not been requested')
-        }
-        return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
-          messages: [johnMessage.message],
-          communityId: data.communityId
-        })
-      }
-    })
-
-    // Log all the dispatched actions in order
-    const actions = []
-    runSaga(function* (): Generator {
-      while (true) {
-        const action = yield* take()
-        actions.push(action.type)
-      }
-    })
-
-    // Old message is already loaded
-    const persistedMessage = await screen.findByText(aliceMessage.message.message)
-    expect(persistedMessage).toBeVisible()
-
-    // New message is not yet fetched from db
-    expect(screen.queryByText(johnMessage.message.message)).toBeNull()
-
-    await act(async () => {
-      await runSaga(mockSendMessagesIds).toPromise()
-    })
-
-    // New message is displayed
-    const newMessage = await screen.findByText(johnMessage.message.message)
-    expect(newMessage).toBeVisible()
-
-    expect(actions).toMatchInlineSnapshot(`
-      Array [
-        "PublicChannels/responseSendMessagesIds",
-        "PublicChannels/askForMessages",
-        "PublicChannels/incomingMessages",
-        "PublicChannels/markUnreadMessages",
-        "Messages/removePendingMessageStatus",
-        "Messages/addPublicKeyMapping",
-        "Messages/addMessageVerificationStatus",
-      ]
-    `)
-
-    function* mockSendMessagesIds(): Generator {
-      yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.SEND_MESSAGES_IDS,
-        {
-          peerId: alice.peerId.id,
-          channelAddress: 'general',
-          ids: [aliceMessage.message.id, johnMessage.message.id],
-          communityId: community.id
-        }
-      ])
-    }
   })
 
   it('filters out suspicious messages', async () => {
@@ -447,7 +324,7 @@ describe('Channel', () => {
   })
 
   it('immediately display greyed out message after sending, then turn it black when saved to db', async () => {
-    const { store } = await prepareStore(
+    const { store, runSaga } = await prepareStore(
       {},
       socket // Fork Nectar's sagas
     )
@@ -491,10 +368,24 @@ describe('Channel', () => {
     expect(await screen.findByText(messageText)).toHaveStyle('color:#B2B2B2')
 
     // Update message sending status
-    store.dispatch(publicChannels.actions.incomingMessages({
+    store.dispatch(messages.actions.incomingMessages({
       messages: [sentMessage],
       communityId: community.id
     }))
+
+    await act(async () => {
+      await runSaga(mockIncomingMessages).toPromise()
+    })
+
+    function* mockIncomingMessages(): Generator {
+      yield* apply(socket.socketClient, socket.socketClient.emit, [
+        SocketActionTypes.INCOMING_MESSAGES,
+        {
+          messages: [sentMessage],
+          communityId: community.id
+        }
+      ])
+    }
 
     // Confirm 'pending' message status has been removed
     expect(messages.selectors.messagesSendingStatus(store.getState())[sentMessage.id]).toBe(undefined)
@@ -502,5 +393,89 @@ describe('Channel', () => {
     // Confirm message is no longer greyed out
     expect(await screen.findByText(messageText)).toBeVisible()
     expect(await screen.findByText(messageText)).not.toHaveStyle('color:#B2B2B2')
+  })
+
+  it("shows incoming message if it's not older than oldest message, and isn't the newest one", async () => {
+    const { store, runSaga } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    const messagesText = ['message1', 'message2', 'message3']
+    const messages: ChannelMessage[] = []
+
+    for (const msg of messagesText) {
+      const message = (
+        await factory.build<typeof publicChannels.actions.test_message>('Message', {
+          identity: alice,
+          message: {
+            id: Math.random().toString(36).substr(2.9),
+            type: MessageType.Basic,
+            message: msg,
+            createdAt: messagesText.indexOf(msg) + 1,
+            channelAddress: 'general',
+            signature: '',
+            pubKey: ''
+          },
+          verifyAutomatically: true
+        })
+      ).payload.message
+      messages.push(message)
+    }
+
+    const [message1, message2, message3] = messages
+
+    await act(async () => {
+      console.log('runSaga')
+      await runSaga(mockIncomingMessages).toPromise()
+    })
+
+    function* mockIncomingMessages(): Generator {
+      console.log('mockIncomingMessage')
+      yield* apply(socket.socketClient, socket.socketClient.emit, [
+        SocketActionTypes.INCOMING_MESSAGES,
+        {
+          messages: [message3],
+          communityId: community.id
+        }
+      ])
+      yield* apply(socket.socketClient, socket.socketClient.emit, [
+        SocketActionTypes.INCOMING_MESSAGES,
+        {
+          messages: [message1],
+          communityId: community.id
+        }
+      ])
+      yield* apply(socket.socketClient, socket.socketClient.emit, [
+        SocketActionTypes.INCOMING_MESSAGES,
+        {
+          messages: [message2],
+          communityId: community.id
+        }
+      ])
+    }
+
+    expect(await screen.findByText(message1.message)).toBeVisible()
+    expect(await screen.findByText(message2.message)).toBeVisible()
+    expect(await screen.findByText(message3.message)).toBeVisible()
   })
 })

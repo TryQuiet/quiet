@@ -47,7 +47,6 @@ export enum SocketActionTypes {
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
   REGISTRAR = 'registrar',
   RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
-  RESPONSE_FETCH_ALL_MESSAGES = 'responseFetchAllMessages',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
   RESPONSE_GET_PRIVATE_CONVERSATIONS = 'responseGetPrivateConversations',
   RESPONSE_GET_PUBLIC_CHANNELS = 'responseGetPublicChannels',

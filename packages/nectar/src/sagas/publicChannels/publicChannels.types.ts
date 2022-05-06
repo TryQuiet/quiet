@@ -2,10 +2,9 @@ import { Dictionary, EntityState } from '@reduxjs/toolkit'
 
 export interface CommunityChannels {
   id: string
-  currentChannel: string
-  channels: EntityState<PublicChannel>
-  channelMessages: EntityState<ChannelMessage>
-  unreadMessages: EntityState<UnreadChannelMessage>
+  currentChannelAddress: string
+  channels: EntityState<PublicChannelStorage>
+  channelsStatus: EntityState<PublicChannelStatus>
 }
 
 export interface PublicChannel {
@@ -14,7 +13,15 @@ export interface PublicChannel {
   owner: string
   timestamp: number
   address: string
-  messagesSlice?: number
+}
+
+export interface PublicChannelStorage extends PublicChannel {
+  messages: EntityState<ChannelMessage>
+}
+
+export interface PublicChannelStatus {
+  address: string
+  unread: boolean
 }
 
 export interface ChannelMessage {
@@ -25,11 +32,6 @@ export interface ChannelMessage {
   channelAddress: string
   signature: string
   pubKey: string
-}
-
-export interface UnreadChannelMessage {
-  id: string
-  channelAddress: string
 }
 
 export interface DisplayableMessage {
@@ -53,19 +55,6 @@ export interface GetPublicChannelsResponse {
 export interface CreatedChannelResponse {
   channel: PublicChannel
   communityId: string
-}
-
-export interface ChannelMessagesIdsResponse {
-  ids: string[]
-  channelAddress: string
-  communityId: string
-}
-
-export interface AskForMessagesPayload {
-  peerId: string
-  communityId: string
-  channelAddress: string
-  ids: string[]
 }
 
 export interface SubscribeToTopicPayload {
@@ -112,18 +101,13 @@ export interface IncomingMessages {
   communityId: string
 }
 
-export interface FetchAllMessagesResponse {
+export interface CacheMessagesPayload {
   messages: ChannelMessage[]
   channelAddress: string
   communityId: string
 }
 
-export interface MarkUnreadMessagesPayload {
-  messages: UnreadChannelMessage[]
-  communityId: string
-}
-
-export interface ClearUnreadMessagesPayload {
-  ids: string[]
+export interface MarkUnreadChannelPayload {
+  channelAddress: string
   communityId: string
 }

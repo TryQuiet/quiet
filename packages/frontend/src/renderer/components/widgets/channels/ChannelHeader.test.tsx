@@ -7,13 +7,7 @@ describe('ChannelHeader', () => {
   it('renders component', () => {
     const result = renderComponent(
       <ChannelHeaderComponent
-        channel={{
-          name: 'general',
-          description: 'description',
-          owner: 'alice',
-          timestamp: 0,
-          address: 'address'
-        }}
+        channelName='general'
         onInfo={jest.fn()}
         onDelete={jest.fn()}
         onSettings={jest.fn()}

@@ -6,13 +6,18 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { StoreKeys } from '../renderer/store/store.keys'
 import { socketActions, SocketState } from '../renderer/sagas/socket/socket.slice'
 import LoadingPanel, { LoadingPanelMessage } from '../renderer/components/LoadingPanel/LoadingPanel'
+import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { communities, getFactory, publicChannels } from '@quiet/nectar'
+import { communities, identity, getFactory, publicChannels } from '@quiet/nectar'
 import { DateTime } from 'luxon'
 import { act } from 'react-dom/test-utils'
 
 jest.setTimeout(20_000)
+const mockNotification = jest.fn()
+const notification = jest.fn().mockImplementation(() => { return mockNotification })
+// @ts-expect-error
+window.Notification = notification
 
 describe('Loading panel', () => {
   let socket: MockedSocket
@@ -72,6 +77,9 @@ describe('Loading panel', () => {
     const community = (await factory.build<typeof communities.actions.addNewCommunity>('Community'))
       .payload
 
+    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.setCurrentCommunity(community.id))
+
     const channel = (
       await factory.build<typeof publicChannels.actions.addChannel>('PublicChannel', {
         communityId: community.id,
@@ -84,6 +92,10 @@ describe('Loading panel', () => {
         }
       })
     ).payload
+
+    await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice', userCertificate: null })
 
     store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
@@ -109,5 +121,42 @@ describe('Loading panel', () => {
 
     // Verify loading panel dissapeared
     expect(screen.queryByTestId('spinnerLoader')).toBeNull()
+  })
+
+  it('Do not display Loading panel when community and identity are created but certificate is missing', async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    const community = (await factory.build<typeof communities.actions.addNewCommunity>('Community'))
+      .payload
+
+    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.setCurrentCommunity(community.id))
+
+    await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice', userCertificate: null })
+
+    const aliceCertificate = store.getState().Identity.identities.entities[community.id].userCertificate
+
+    store.dispatch(identity.actions.storeUserCertificate({ communityId: community.id, userCertificate: null }))
+
+    renderComponent(
+      <>
+        <LoadingPanel />
+        <CreateUsername />
+      </>,
+      store
+    )
+
+    // Assertions that we don't see Loading Pannel
+    expect(screen.queryByTestId('spinnerLoader')).toBeNull()
+    // Show 'You created a username' after receiving certificate
+    store.dispatch(identity.actions.storeUserCertificate({ communityId: community.id, userCertificate: aliceCertificate }))
+    expect(screen.getByText('You created a username')).toBeVisible()
   })
 })

@@ -175,8 +175,11 @@ describe('User', () => {
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "PublicChannels/addPublicChannelsList",
-        "Modals/openModal",
+        "Modals/closeModal",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
         "Identity/addNewIdentity",
+        "Messages/resetCurrentPublicChannelCache",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
@@ -184,7 +187,7 @@ describe('User', () => {
         "Communities/storePeerList",
         "Identity/storeUserCertificate",
         "Identity/savedOwnerCertificate",
-        "Modals/openModal",
+        "Modals/closeModal",
         "Modals/closeModal",
         "Communities/launchRegistrar",
         "Connection/addInitializedCommunity",
@@ -200,7 +203,8 @@ describe('User', () => {
         "PublicChannels/setCurrentChannel",
         "PublicChannels/addChannel",
         "Modals/closeModal",
-        "PublicChannels/clearUnreadMessages",
+        "PublicChannels/clearUnreadChannel",
+        "Messages/addPublicChannelsMessagesBase",
       ]
     `)
   })

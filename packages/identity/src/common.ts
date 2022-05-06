@@ -4,6 +4,7 @@ import { stringToArrayBuffer, fromBase64 } from 'pvutils'
 
 export enum CertFieldsTypes {
   commonName = '2.5.4.3',
+  subjectAltName = '2.5.29.17',
   nickName = '1.3.6.1.4.1.50715.2.1',
   peerId = '1.3.6.1.2.1.15.3.1.1',
   dmPublicKey = '1.2.840.113549.1.9.12'
@@ -15,7 +16,7 @@ export enum ExtensionsTypes {
   extKeyUsage = '2.5.29.37'
 }
 
-export function hexStringToArrayBuffer (str: string): ArrayBuffer {
+export function hexStringToArrayBuffer(str: string): ArrayBuffer {
   const stringLength = str.length / 2
 
   const resultBuffer = new ArrayBuffer(stringLength)
@@ -27,7 +28,7 @@ export function hexStringToArrayBuffer (str: string): ArrayBuffer {
   return resultBuffer
 }
 
-export function arrayBufferToHexString (buffer: Buffer): string {
+export function arrayBufferToHexString(buffer: Buffer): string {
   let resultString = ''
   const view = new Uint8Array(buffer)
 
@@ -87,6 +88,7 @@ export const loadCSR = async (csr: string): Promise<CertificationRequest> => {
 export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes | ObjectIdentifier): string | null => {
   if (fieldType === CertFieldsTypes.commonName) {
     const block = cert.subject.typesAndValues.find((tav: any) => tav.type === fieldType)
+
     if (block) {
       return block?.value.valueBlock.value
     } else {

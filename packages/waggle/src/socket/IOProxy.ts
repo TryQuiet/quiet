@@ -5,7 +5,6 @@ import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { CertificateRegistration } from '../registration'
 import { Storage } from '../storage'
 import {
-  AskForMessagesPayload,
   ChannelMessage,
   IncomingMessages,
   InitCommunityPayload,
@@ -18,14 +17,14 @@ import {
   SubscribeToTopicPayload,
   ChannelMessagesIdsResponse,
   CreatedChannelResponse,
-  FetchAllMessagesResponse,
   GetPublicChannelsResponse,
   SendCertificatesResponse,
   ErrorMessages,
   Community,
   NetworkData,
   ResponseCreateNetworkPayload,
-  ErrorCodes
+  ErrorCodes,
+  AskForMessagesPayload
 } from '@quiet/nectar'
 import { emitError } from './errors'
 
@@ -72,11 +71,6 @@ export default class IOProxy {
       payload.channelAddress,
       payload.ids
     )
-    this.loadAllMessages({
-      messages: messages.filteredMessages,
-      channelAddress: messages.channelAddress,
-      communityId: payload.communityId
-    })
   }
 
   public sendMessage = async (peerId: string, message: ChannelMessage): Promise<void> => {
@@ -128,14 +122,6 @@ export default class IOProxy {
   public loadPublicChannels = (payload: GetPublicChannelsResponse) => {
     log(`Sending ${Object.keys(payload.channels).length} public channels`)
     this.io.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, payload)
-  }
-
-  public loadAllMessages = (payload: FetchAllMessagesResponse) => {
-    if (payload.messages.length === 0) {
-      return
-    }
-    log(`Sending ${payload.messages.length} messages`)
-    this.io.emit(SocketActionTypes.RESPONSE_FETCH_ALL_MESSAGES, payload)
   }
 
   public loadMessages = (payload: IncomingMessages) => {
@@ -286,6 +272,8 @@ export default class IOProxy {
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
+    const community = this.communities.getCommunity(payload.peerId.id)
+    if (community) return
     try {
       await this.communities.launch(payload)
     } catch (e) {

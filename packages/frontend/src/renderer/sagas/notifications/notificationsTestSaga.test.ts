@@ -142,7 +142,7 @@ describe('displayMessageNotificationSaga', () => {
       userCertificate:
         'MIIB5DCCAYsCBgF+/ot9tDAKBggqhkjOPQQDAjALMQkwBwYDVQQDEwAwHhcNMTAxMjI4MTAxMDEwWhcNMzAxMjI4MTAxMDEwWjBJMUcwRQYDVQQDEz5wdXRueGl3dXRibGdsZGU1aTJtY3pwbzM3aDVuNGR2b3FrcWcybWt4em92N3Jpd3F1Mm93aWFpZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABGpIcx0Ds4/m0qhK+EZcwZMLb6k806ddVaMT64nxee5d2/BKJWXp+2VqA6D31PXliV6jRgCXGAbgB2/jOjQ8WWOjgaEwgZ4wCQYDVR0TBAIwADALBgNVHQ8EBAMCAI4wHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMA8GCSqGSIb3DQEJDAQCBAAwFQYKKwYBBAGDjBsCAQQHEwVhbGljZTA9BgkrBgECAQ8DAQEEMBMuUW1XVk1hVXFFQjczZ3pnR2tjOXdTN3JuaE5jcFN5SDY0ZG1iR1VkVTJUTTNlVjAKBggqhkjOPQQDAgNHADBEAiAGwhjFKKkqYKE3r4VVbl5IDe/Fta9+3lsY9Veegu0BlwIgdvis9mPAr0VOUeMRMWc3vVjyDlZqSdiXgcLxzdESKYA='
     },
-    currentChannel: generalChannel,
+    currentChannelAddress: generalChannel,
     notificationsOption: NotificationsOptions.notifyForEveryMessage,
     notificationsSound: NotificationsSounds.pow,
     lastConnectedTime: 1000
@@ -162,8 +162,8 @@ describe('displayMessageNotificationSaga', () => {
       .next(messagesMapCallData.usersData)
       .select(identity.selectors.currentIdentity)
       .next(messagesMapCallData.myIdentity)
-      .select(publicChannels.selectors.currentChannel)
-      .next(messagesMapCallData.currentChannel)
+      .select(publicChannels.selectors.currentChannelAddress)
+      .next(messagesMapCallData.currentChannelAddress)
       .select(settings.selectors.getNotificationsOption)
       .next(messagesMapCallData.notificationsOption)
       .select(settings.selectors.getNotificationsSound)

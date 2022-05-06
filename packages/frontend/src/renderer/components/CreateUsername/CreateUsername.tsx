@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { errors, identity } from '@quiet/nectar'
+import { errors, identity, communities } from '@quiet/nectar'
 import CreateUsernameComponent from '../CreateUsername/CreateUsernameComponent'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
@@ -11,6 +11,8 @@ const CreateUsername = () => {
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
   const createUsernameModal = useModal(ModalName.createUsernameModal)
+
+  const registrationAttempts = useSelector(communities.selectors.registrationAttempts(currentIdentity?.id))
 
   const error = useSelector(errors.selectors.registrarErrors)
 
@@ -37,7 +39,7 @@ const CreateUsername = () => {
     <CreateUsernameComponent
       {...createUsernameModal}
       registerUsername={handleAction}
-      certificateRegistrationError={error?.message}
+      certificateRegistrationError={registrationAttempts ? null : error?.message}
       certificate={currentIdentity?.userCertificate}
     />
   )

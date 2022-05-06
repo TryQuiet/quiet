@@ -4,7 +4,7 @@ import createElectronStorage from 'redux-persist-electron-storage'
 import path from 'path'
 import { persistReducer } from 'redux-persist'
 
-import nectarReducers, { storeKeys as NectarStoreKeys, MessagesTransform, PublicChannelsTransform } from '@quiet/nectar'
+import nectarReducers, { storeKeys as NectarStoreKeys, MessagesTransform } from '@quiet/nectar'
 
 import { StoreType } from './handlers/types'
 import { StoreKeys } from './store.keys'
@@ -40,7 +40,7 @@ const persistConfig = {
     NectarStoreKeys.Settings,
     StoreKeys.App
   ],
-  transforms: [MessagesTransform, PublicChannelsTransform]
+  transforms: [MessagesTransform]
 }
 
 export const reducers = {

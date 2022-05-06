@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
-import { communities, publicChannels, users } from '@quiet/nectar'
+import { communities, publicChannels, users, identity } from '@quiet/nectar'
 import LoadingPanelComponent from './loadingPanelComponent'
 import { modalsActions } from '../../sagas/modals/modals.slice'
 
@@ -28,6 +28,8 @@ const LoadingPanel = () => {
   const community = useSelector(communities.selectors.currentCommunity)
   const owner = Boolean(community?.CA)
 
+  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+
   const usersData = Object.keys(useSelector(users.selectors.certificates))
   const isOnlyOneUser = usersData.length === 1
 
@@ -41,7 +43,7 @@ const LoadingPanel = () => {
   // Before replicating data
   useEffect(() => {
     if (isConnected) {
-      if (currentCommunity && !isChannelReplicated) {
+      if (currentCommunity && !isChannelReplicated && currentIdentity?.userCertificate) {
         setMessage(LoadingPanelMessage.FetchingData)
         loadingPanelModal.handleOpen()
       } else {

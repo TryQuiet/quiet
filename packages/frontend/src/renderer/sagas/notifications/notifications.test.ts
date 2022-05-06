@@ -109,7 +109,7 @@ describe('displayNotificationsSaga', () => {
 
     await expectSaga(
       displayMessageNotificationSaga,
-      publicChannels.actions.incomingMessages(incomingMessages))
+      messages.actions.incomingMessages(incomingMessages))
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identity.reducer,
@@ -144,7 +144,7 @@ describe('displayNotificationsSaga', () => {
 
     await expectSaga(
       displayMessageNotificationSaga,
-      publicChannels.actions.incomingMessages(incomingMessagesWithUserPubKey))
+      messages.actions.incomingMessages(incomingMessagesWithUserPubKey))
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identity.reducer,
@@ -165,7 +165,7 @@ describe('displayNotificationsSaga', () => {
 
     await expectSaga(
       displayMessageNotificationSaga,
-      publicChannels.actions.incomingMessages(incomingMessages))
+      messages.actions.incomingMessages(incomingMessages))
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identity.reducer,
@@ -191,7 +191,7 @@ describe('displayNotificationsSaga', () => {
 
     await expectSaga(
       displayMessageNotificationSaga,
-      publicChannels.actions.incomingMessages(incomingMessages))
+      messages.actions.incomingMessages(incomingMessages))
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identity.reducer,
@@ -220,7 +220,7 @@ describe('displayNotificationsSaga', () => {
 
     await expectSaga(
       displayMessageNotificationSaga,
-      publicChannels.actions.incomingMessages(incomingMessages))
+      messages.actions.incomingMessages(incomingMessages))
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identity.reducer,
@@ -252,7 +252,7 @@ describe('displayNotificationsSaga', () => {
 
     await expectSaga(
       displayMessageNotificationSaga,
-      publicChannels.actions.incomingMessages(incomingMessages))
+      messages.actions.incomingMessages(incomingMessages))
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identity.reducer,
@@ -279,7 +279,7 @@ describe('displayNotificationsSaga', () => {
           entities: {
             [community1.id]: {
               ...store.store.getState().PublicChannels.channels.entities[community1.id],
-              currentChannel: publicChannel2.channel.address
+              currentChannelAddress: publicChannel2.channel.address
             }
           }
         }
@@ -288,7 +288,7 @@ describe('displayNotificationsSaga', () => {
 
     await expectSaga(
       displayMessageNotificationSaga,
-      publicChannels.actions.incomingMessages(incomingMessages))
+      messages.actions.incomingMessages(incomingMessages))
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identity.reducer,
@@ -316,7 +316,7 @@ describe('displayNotificationsSaga', () => {
           entities: {
             [community1.id]: {
               ...store.store.getState().PublicChannels.channels.entities[community1.id],
-              currentChannel: publicChannel2.channel.address
+              currentChannelAddress: publicChannel2.channel.address
             }
           }
         }
@@ -325,7 +325,7 @@ describe('displayNotificationsSaga', () => {
 
     await expectSaga(
       displayMessageNotificationSaga,
-      publicChannels.actions.incomingMessages(incomingMessages))
+      messages.actions.incomingMessages(incomingMessages))
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identity.reducer,
@@ -360,7 +360,7 @@ describe('displayNotificationsSaga', () => {
 
     await expectSaga(
       displayMessageNotificationSaga,
-      publicChannels.actions.incomingMessages(incomingMessagesWithTimeStampBeforeLastConnectedTime))
+      messages.actions.incomingMessages(incomingMessagesWithTimeStampBeforeLastConnectedTime))
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identity.reducer,
@@ -390,7 +390,7 @@ describe('displayNotificationsSaga', () => {
 
     await expectSaga(
       displayMessageNotificationSaga,
-      publicChannels.actions.incomingMessages(incomingMessagesWithoutSender))
+      messages.actions.incomingMessages(incomingMessagesWithoutSender))
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identity.reducer,
