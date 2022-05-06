@@ -285,7 +285,7 @@ describe('launchCommunity', () => {
       .run()
   })
 
-  test('launch and register unregistered member and launch regitered member to community', async () => {
+  test('launch and register unregistered member and launch registered member to community', async () => {
     setupCrypto()
     const store = prepareStore().store
     const factory = await getFactory(store)
