@@ -195,6 +195,7 @@ export const publicChannelsSelectors = {
   publicChannels,
   currentChannelAddress,
   currentChannelName,
+  currentChannel,
   currentChannelMessages,
   sortedCurrentChannelMessages,
   displayableCurrentChannelMessages,
