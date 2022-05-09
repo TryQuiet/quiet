@@ -10,6 +10,8 @@ import ChannelHeaderComponent from '../widgets/channels/ChannelHeader'
 import ChannelMessagesComponent from '../widgets/channels/ChannelMessages'
 import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
+import {INPUT_STATE} from '../widgets/channels/ChannelInput/InputState.enum'
+
 import { useModal } from '../../containers/hooks'
 
 import { Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/nectar'
@@ -44,6 +46,7 @@ export interface ChannelComponentProps {
   disableSettings?: boolean
   notificationFilter: string
   openNotificationsTab: () => void
+  isCommunityInitialized: boolean
 }
 
 export const ChannelComponent: React.FC<ChannelComponentProps> = ({
@@ -61,7 +64,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   mutedFlag,
   disableSettings = false,
   notificationFilter,
-  openNotificationsTab
+  openNotificationsTab,
+  isCommunityInitialized = true
 }) => {
   const classes = useStyles({})
 
@@ -177,6 +181,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
           }}
           infoClass={infoClass}
           setInfoClass={setInfoClass}
+          inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE :INPUT_STATE.NOT_CONNECTED}
         />
       </Grid>
     </Page>

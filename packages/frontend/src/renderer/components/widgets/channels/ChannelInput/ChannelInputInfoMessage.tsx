@@ -20,19 +20,16 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 interface ChannelInputInfoMessageProps {
   showInfoMessage: boolean
-  inputState: number
 }
 
-const ChannelInputInfoMessage: React.FC<ChannelInputInfoMessageProps> = ({ showInfoMessage, inputState }) => {
+const ChannelInputInfoMessage: React.FC<ChannelInputInfoMessageProps> = ({ showInfoMessage }) => {
   const classes = useStyles({})
   return (
     <Grid container className={classes.boot}>
       <Grid item xs>
         {showInfoMessage && (
           <Typography variant='caption' className={classes.info}>
-            {inputState === 0
-              ? 'Loading messages and connecting. This may take a few minutes...'
-              : 'This user needs to update Quiet to receive direct messages.'}
+              Initializing community. This may take a few minutes...
           </Typography>
         )}
       </Grid>
