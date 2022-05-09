@@ -277,7 +277,7 @@ describe('publicChannelsSelectors', () => {
         communityId: community.id,
         channel: {
           name: 'utah',
-          description: `Welcome to #utah`,
+          description: 'Welcome to #utah',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.nickname,
           address: 'utah'
@@ -298,25 +298,25 @@ describe('publicChannelsSelectors', () => {
     }))
 
     await factory.create<
-      ReturnType<typeof publicChannelsActions.test_message>['payload']
-      >('Message', {
-        identity: elouise,
-        message: {
-          id: '0',
-          type: MessageType.Basic,
-          message: `elouise_message`,
-          createdAt: DateTime.now().valueOf(),
-          channelAddress: channel.address,
-          signature: '',
-          pubKey: ''
-        },
-        verifyAutomatically: true
-      })
+    ReturnType<typeof publicChannelsActions.test_message>['payload']
+    >('Message', {
+      identity: elouise,
+      message: {
+        id: '0',
+        type: MessageType.Basic,
+        message: 'elouise_message',
+        createdAt: DateTime.now().valueOf(),
+        channelAddress: channel.address,
+        signature: '',
+        pubKey: ''
+      },
+      verifyAutomatically: true
+    })
 
-      const messages = displayableCurrentChannelMessages(store.getState())
+    const messages = displayableCurrentChannelMessages(store.getState())
 
-      expect(messages.length).toBe(0)
-    }
+    expect(messages.length).toBe(0)
+  }
   )
 })
 
