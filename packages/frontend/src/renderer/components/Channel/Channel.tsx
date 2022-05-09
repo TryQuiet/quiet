@@ -15,19 +15,19 @@ const Channel = () => {
 
   const currentChannelAddress = useSelector(publicChannels.selectors.currentChannelAddress)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
-  
+
   const currentChannelMessagesCount = useSelector(
     publicChannels.selectors.currentChannelMessagesCount
-    )
-    
-    const currentChannelDisplayableMessages = useSelector(
-      publicChannels.selectors.currentChannelMessagesMergedBySender
-      )
-      
+  )
+
+  const currentChannelDisplayableMessages = useSelector(
+    publicChannels.selectors.currentChannelMessagesMergedBySender
+  )
+
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const initializedCommunities = useSelector(connection.selectors.initializedCommunities)
-  
-  const isCommunityInitialized = initializedCommunities[communityId]
+
+  const isCommunityInitialized = Boolean(initializedCommunities[communityId])
 
   const pendingMessages = useSelector(
     messages.selectors.messagesSendingStatus
