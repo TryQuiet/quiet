@@ -270,7 +270,7 @@ describe('publicChannelsSelectors', () => {
     ])
   })
 
-  it.only("don't select messages without author", async () => {
+  it("don't select messages without author", async () => {
     const channel = (await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
       'PublicChannel',
       {
