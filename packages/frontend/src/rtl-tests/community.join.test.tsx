@@ -206,10 +206,10 @@ describe('User', () => {
         "PublicChannels/responseGetPublicChannels",
         "PublicChannels/subscribeToAllTopics",
         "Modals/openModal",
-        "Modals/closeModal",
         "PublicChannels/subscribeToTopic",
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
+        "Modals/closeModal",
       ]
     `)
   })
