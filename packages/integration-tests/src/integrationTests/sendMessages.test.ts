@@ -6,7 +6,7 @@ import {
   assertReceivedMessagesAreValid
 } from './assertions'
 import { createCommunity, joinCommunity, getCommunityOwnerData, sendMessage } from './appActions'
-import { createApp, createAppWithoutTor, sleep } from '../utils'
+import { createApp, createAppWithoutTor, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 
 const crypto = new Crypto()
@@ -17,8 +17,8 @@ describe('send message - users go offline and online', () => {
   let owner: AsyncReturnType<typeof createApp>
   let userOne: AsyncReturnType<typeof createApp>
   let userTwo: AsyncReturnType<typeof createApp>
-  let userOneOldState: ReturnType<typeof owner.store.getState>
-  let userTwoOldState: ReturnType<typeof owner.store.getState>
+  let userOneOldState: Partial<ReturnType<typeof owner.store.getState>>
+  let userTwoOldState: Partial<ReturnType<typeof owner.store.getState>>
   let userOneDataPath: string
   let userTwoDataPath: string
   let allMessages = []
@@ -88,8 +88,8 @@ describe('send message - users go offline and online', () => {
   })
 
   test('User one and two go offline', async () => {
-    userOneOldState = userOne.store.getState()
-    userTwoOldState = userTwo.store.getState()
+    userOneOldState = storePersistor(userOne.store.getState())
+    userTwoOldState = storePersistor(userTwo.store.getState())
     userOneDataPath = userOne.appPath
     userTwoDataPath = userTwo.appPath
     await userOne.manager.closeAllServices()
@@ -136,6 +136,8 @@ describe.only('send message - users are online', () => {
   let userOne: AsyncReturnType<typeof createApp>
   let userTwo: AsyncReturnType<typeof createApp>
 
+  const timeout = 240_000
+
   beforeAll(async () => {
     owner = await createApp()
     userOne = await createApp()
@@ -171,15 +173,15 @@ describe.only('send message - users are online', () => {
   })
 
   test('Owner and users received certificates', async () => {
-    await assertReceivedCertificates('owner', 3, 120_000, owner.store)
-    await assertReceivedCertificates('userOne', 3, 120_000, userOne.store)
-    await assertReceivedCertificates('userTwo', 3, 120_000, userTwo.store)
+    await assertReceivedCertificates('owner', 3, timeout, owner.store)
+    await assertReceivedCertificates('userOne', 3, timeout, userOne.store)
+    await assertReceivedCertificates('userTwo', 3, timeout, userTwo.store)
   })
 
   test('Users replicated channel and subscribed to it', async () => {
-    await assertReceivedChannelsAndSubscribe('owner', 1, 120_000, owner.store)
-    await assertReceivedChannelsAndSubscribe('userTwo', 1, 120_000, userOne.store)
-    await assertReceivedChannelsAndSubscribe('userTwo', 1, 120_000, userTwo.store)
+    await assertReceivedChannelsAndSubscribe('owner', 1, timeout, owner.store)
+    await assertReceivedChannelsAndSubscribe('userTwo', 1, timeout, userOne.store)
+    await assertReceivedChannelsAndSubscribe('userTwo', 1, timeout, userTwo.store)
   })
 
   let ownerMessageData
@@ -193,40 +195,40 @@ describe.only('send message - users are online', () => {
   })
 
   test('Owner replicated all messages', async () => {
-    await assertReceivedMessages('owner', 3, 120_000, owner.store)
+    await assertReceivedMessages('owner', 4, timeout, owner.store)
   })
 
   test('userOne replicated all messages', async () => {
-    await assertReceivedMessages('userOne', 3, 120_000, userOne.store)
+    await assertReceivedMessages('userOne', 4, timeout, userOne.store)
   })
 
   test('userTwo replicated all messages', async () => {
-    await assertReceivedMessages('userTwo', 3, 120_000, userTwo.store)
+    await assertReceivedMessages('userTwo', 4, timeout, userTwo.store)
   })
 
   test('Replicated messages are valid', async () => {
     await assertReceivedMessagesAreValid(
       'owner',
       [ownerMessageData, userOneMessageData, userTwoMessageData],
-      20000,
+      2000,
       owner.store
     )
     await assertReceivedMessagesAreValid(
       'userOne',
       [ownerMessageData, userOneMessageData, userTwoMessageData],
-      20000,
+      2000,
       userOne.store
     )
     await assertReceivedMessagesAreValid(
       'userTwo',
-      [userTwoMessageData, ownerMessageData, userOneMessageData],
-      20000,
+      [ownerMessageData, userOneMessageData, userTwoMessageData],
+      2000,
       userTwo.store
     )
   })
 })
 
-describe.skip('send message - without tor', () => {
+xdescribe('send message - without tor', () => {
   let owner: AsyncReturnType<typeof createAppWithoutTor>
   let userOne: AsyncReturnType<typeof createAppWithoutTor>
   let userTwo: AsyncReturnType<typeof createAppWithoutTor>

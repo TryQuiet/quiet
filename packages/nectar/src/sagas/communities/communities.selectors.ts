@@ -53,11 +53,19 @@ export const registrarUrl = (communityId: string) =>
     return registrarAddress
   })
 
+export const registrationAttempts = (communityId: string) =>
+  createSelector(selectEntities, communities => {
+    const community = communities[communityId]
+    if (!community) return null
+    return community.registrationAttempts
+  })
+
 export const communitiesSelectors = {
   selectById,
   selectEntities,
   selectCommunities,
   currentCommunity,
   currentCommunityId,
-  registrarUrl
+  registrarUrl,
+  registrationAttempts
 }

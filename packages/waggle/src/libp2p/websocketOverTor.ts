@@ -111,7 +111,6 @@ class WebsocketsOverTor extends WebSockets {
     }
 
     const myUri = `${toUri(ma) as string}/?remoteAddress=${encodeURIComponent(this.localAddress)}`
-
     const rawSocket = connect(myUri, Object.assign({ binary: true }, options))
 
     if (rawSocket.socket.on) {

@@ -13,6 +13,9 @@ import { stringToArrayBuffer } from 'pvutils'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
 import { MessageType, SendingStatus } from '../../sagas/messages/messages.types'
 import { DateTime } from 'luxon'
+import { messagesActions } from '../../sagas/messages/messages.slice'
+import { currentCommunity } from '../../sagas/communities/communities.selectors'
+import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
 
 export const getFactory = async (store: Store) => {
   const factory = new factoryGirl.FactoryGirl()
@@ -107,6 +110,10 @@ export const getFactory = async (store: Store) => {
     id: factory.assoc('Community', 'id')
   })
 
+  factory.define('PublicChannelsMessagesBase', messages.actions.addPublicChannelsMessagesBase, {
+    channelAddress: factory.assoc('PublicChannel', 'address')
+  })
+
   factory.define(
     'PublicChannel',
     publicChannels.actions.addChannel,
@@ -124,6 +131,12 @@ export const getFactory = async (store: Store) => {
       afterBuild: (action: ReturnType<typeof publicChannels.actions.addChannel>) => {
         action.payload.channel.address = action.payload.channel.name
         return action
+      },
+      afterCreate: async (
+        payload: ReturnType<typeof publicChannels.actions.addChannel>['payload']
+      ) => {
+        await factory.create('PublicChannelsMessagesBase', ({ channelAddress: payload.channel.address }))
+        return payload
       }
     }
   )
@@ -184,13 +197,34 @@ export const getFactory = async (store: Store) => {
           }
         }
         return action
+      },
+      afterCreate: async (
+        payload: ReturnType<typeof publicChannels.actions.test_message>['payload']
+      ) => {
+        const community = currentCommunity(store.getState())
+        store.dispatch(messagesActions.incomingMessages({
+          messages: [payload.message],
+          communityId: community.id
+        }))
+        return payload
       }
     }
   )
 
+  factory.define('CacheMessages', publicChannelsActions.cacheMessages, {
+    messages: [],
+    channelAddress: factory.assoc('PublicChannel', 'address'),
+    communityId: factory.assoc('Community', 'id')
+  })
+
   factory.define('MessageVerificationStatus', messages.actions.test_message_verification_status, {
     message: factory.assoc('Message'),
     verified: true
+  })
+
+  factory.define('MessageSendingStatus', messages.actions.addMessagesSendingStatus, {
+    id: factory.assoc('Message', 'id'),
+    status: SendingStatus.Pending
   })
 
   factory.define('Error', errors.actions.addError, {
@@ -198,11 +232,6 @@ export const getFactory = async (store: Store) => {
     code: 500,
     message: 'Community error',
     community: factory.assoc('Community', 'id')
-  })
-
-  factory.define('MessageSendingStatus', messages.actions.addMessagesSendingStatus, {
-    id: factory.assoc('Message', 'id'),
-    status: SendingStatus.Pending
   })
 
   return factory

@@ -20,7 +20,7 @@ describe('updateCommunitySaga', () => {
     >('Community')
 
     const rootCa =
-      'MIIBTTCB8wIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMB4XDTEwMTIyODEwMTAxMFoXDTMwMTIyODEwMTAxMFowEjEQMA4GA1UEAxMHWmJheSBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABBXmkE9W4NHQWUgmaH6j7TLSzOgyNIr8VshAeAMAg36IGvhtxhXNMUMYUApE7K9cifbxn6RVkSird97B7IFMefKjPzA9MA8GA1UdEwQIMAYBAf8CAQMwCwYDVR0PBAQDAgCGMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAKBggqhkjOPQQDAgNJADBGAiEAgY783/mGO15DK319VK/2wiAvq10oce4YdWdx2XUrKFoCIQDOh7r8ZlyLoNAT6FiNM/oBCaR3FrKmg7Nz4+ZbtvZMiw=='
+      'MIIBYDCCAQagAwIBAgIBATAKBggqhkjOPQQDAjAZMRcwFQYDVQQDEw5xdWlldGNvbW11bml0eTAeFw0xMDEyMjgxMDEwMTBaFw0zMDEyMjgxMDEwMTBaMBkxFzAVBgNVBAMTDnF1aWV0Y29tbXVuaXR5MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEQhderWYwXEfJ/SY7BLkPlgrqj6I1nwICH7TUCCZ+YD2j2m7WqJ2HfWMxjF//hInzIcSwZLJEDPCJroS13tn37KM/MD0wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAIYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMAoGCCqGSM49BAMCA0gAMEUCIGZqjtn6WU65HtCjIi6sWnwsre1HdGfBQYV1z8tCSsVpAiEAjQ04iRlFT7UZOxn5Y9j1jLHtp/KvhcW7g5vgbnY0EIQ='
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -36,7 +36,7 @@ describe('updateCommunitySaga', () => {
         communitiesActions.updateCommunityData({
           id: community.id,
           rootCa: rootCa,
-          name: 'Zbay CA'
+          name: 'quietcommunity'
         })
       )
       .run()

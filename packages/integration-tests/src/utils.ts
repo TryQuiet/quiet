@@ -3,7 +3,7 @@ import Websockets from 'libp2p-websockets'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { all, call, fork, takeEvery } from 'typed-redux-saga'
 import waggle, { ConnectionsManager } from '@quiet/waggle'
-import { Store, StoreKeys, errors, prepareStore, useIO } from '@quiet/nectar'
+import { TestStore, StoreKeys, errors, prepareStore, useIO } from '@quiet/nectar'
 import path from 'path'
 import assert from 'assert'
 import getPort from 'get-port'
@@ -34,7 +34,7 @@ const connectToDataport = (url: string, name: string): Socket => {
 }
 
 export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appDataPath?: string): Promise<{
-  store: Store
+  store: TestStore
   runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
   rootTask: Task
   manager: ConnectionsManager
@@ -84,7 +84,7 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
 export const createAppWithoutTor = async (mockedState?: {
   [key in StoreKeys]?: any
 }, appDataPath?: string): Promise<{
-    store: Store
+    store: TestStore
     runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
     rootTask: Task
     manager: ConnectionsManager
@@ -143,4 +143,14 @@ export const getRandomInt = (min: number, max: number) => {
   min = Math.ceil(min)
   max = Math.floor(max)
   return Math.floor(Math.random() * (max - min) + min)
+}
+
+const whitelist = ['Communities', 'Identity', 'Users', 'PublicChannels', 'Messages']
+
+export const storePersistor = (state: { [key in StoreKeys]?: any }) => {
+  const MockedState = {}
+  whitelist.forEach(e => {
+    MockedState[e] = state[e]
+  })
+  return MockedState
 }

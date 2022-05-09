@@ -4,6 +4,7 @@ import {
   connection,
   Identity,
   identity,
+  messages,
   IncomingMessages,
   NotificationsOptions,
   NotificationsSounds,
@@ -38,7 +39,7 @@ export interface CreateNotificationsCallsDataType {
     [pubKey: string]: User
   }
   myIdentity: Identity
-  currentChannel: PublicChannel
+  currentChannelAddress: string
   notificationsOption: NotificationsOptions
   notificationsSound: NotificationsSounds
   lastConnectedTime: number
@@ -49,14 +50,14 @@ export function* bridgeAction(action): Generator {
 }
 
 export function* displayMessageNotificationSaga(
-  action: PayloadAction<ReturnType<typeof channels.actions.incomingMessages>['payload']>
+  action: PayloadAction<ReturnType<typeof messages.actions.incomingMessages>['payload']>
 ): Generator {
   const createNotificationsCallsData: CreateNotificationsCallsDataType = {
     action,
     publicChannels: yield* select(channels.selectors.publicChannels),
     usersData: yield* select(users.selectors.certificatesMapping),
     myIdentity: yield* select(identity.selectors.currentIdentity),
-    currentChannel: yield* select(channels.selectors.currentChannel),
+    currentChannelAddress: yield* select(channels.selectors.currentChannelAddress),
     notificationsOption: yield* select(settings.selectors.getNotificationsOption),
     notificationsSound: yield* select(settings.selectors.getNotificationsSound),
     lastConnectedTime: yield* select(connection.selectors.lastConnectedTime)
@@ -84,7 +85,7 @@ export const messagesMapForNotificationsCalls = (data: CreateNotificationsCallsD
       })
       const senderName = data.usersData[messageData.pubKey]?.username
       const isMessageFromMyUser = senderName === data.myIdentity.nickname
-      const isMessageFromCurrentChannel = data.currentChannel.name === publicChannelFromMessage.name
+      const isMessageFromCurrentChannel = data.currentChannelAddress === publicChannelFromMessage.address
       const isNotificationsOptionOff =
         NotificationsOptions.doNotNotifyOfAnyMessages === data.notificationsOption
 

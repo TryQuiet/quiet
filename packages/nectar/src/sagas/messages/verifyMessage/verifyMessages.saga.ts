@@ -1,16 +1,16 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, call, put, spawn } from 'typed-redux-saga'
 import { getCrypto } from 'pkijs'
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { messagesSelectors } from '../messages.selectors'
 import { stringToArrayBuffer } from 'pvutils'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
 import { messagesActions } from '../messages.slice'
 import { MessageVerificationStatus } from '../messages.types'
 import { ChannelMessage } from '../../publicChannels/publicChannels.types'
+import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 
 export function* verifyMessagesSaga(
-  action: PayloadAction<ReturnType<typeof publicChannelsActions.incomingMessages>>['payload']
+  action: PayloadAction<ReturnType<typeof publicChannelsActions.cacheMessages>>['payload']
 ): Generator {
   const crypto = getCrypto()
   const messages = action.payload.messages

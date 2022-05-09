@@ -6,7 +6,8 @@ import {
   ResponseCreateNetworkPayload,
   ResponseRegistrarPayload,
   StorePeerListPayload,
-  UpdateCommunityPayload
+  UpdateCommunityPayload,
+  UpdateRegistrationAttemptsPayload
 } from './communities.types'
 
 export class CommunitiesState {
@@ -33,6 +34,7 @@ export interface Community {
   onionAddress: string
   privateKey: string
   port: number
+  registrationAttempts: number
 }
 
 export const communitiesSlice = createSlice({
@@ -79,7 +81,15 @@ export const communitiesSlice = createSlice({
       })
     },
     launchCommunity: (state, _action: PayloadAction<string>) => state,
-    launchRegistrar: (state, _action: PayloadAction<string>) => state
+    launchRegistrar: (state, _action: PayloadAction<string>) => state,
+    updateRegistrationAttempts: (state, action: PayloadAction<UpdateRegistrationAttemptsPayload>) => {
+      communitiesAdapter.updateOne(state.communities, {
+        id: action.payload.id,
+        changes: {
+          ...action.payload
+        }
+      })
+    }
   }
 })
 

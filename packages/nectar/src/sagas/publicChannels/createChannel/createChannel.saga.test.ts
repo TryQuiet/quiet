@@ -41,7 +41,8 @@ describe('createChannelSaga', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0
+    port: 0,
+    registrationAttempts: 0
   }
 
   const identity: Identity = {

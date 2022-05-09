@@ -11,20 +11,20 @@ import { usersReducer, UsersState } from '../users/users.slice'
 
 import { communitiesAdapter } from '../communities/communities.adapter'
 import { certificatesAdapter } from '../users/users.adapter'
-import { keyFromCertificate, parseCertificate } from '@quiet/identity'
+import { keyFromCertificate, parseCertificate, userData } from '@quiet/identity'
 import { usersSelectors } from './users.selectors'
 
 describe('users selectors', () => {
   let store: Store
 
-  const communityId: Community = {
-    name: 'communityId',
-    id: 'communityId',
+  const quietcommunity: Community = {
+    name: 'quietcommunity',
+    id: 'quietcommunity',
     CA: {
       rootCertString:
-        'MIIBVTCB+wIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMCYYEzIwMjExMTE4MTEzMDAwLjM4N1oYDzIwMzAwMTMxMjMwMDAwWjASMRAwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEoKzNP5eKZZjlLb+cm+QMR9lUkSKLSRt6JcvOmR5f4ege4cOP9XQhNumf4yVt3siM5cu2r/81V5HIAcbqmbSgU6M/MD0wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAIYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMAoGCCqGSM49BAMCA0kAMEYCIQCY/PaLvdC2otl+PHIGt5F5uzirg7p2km/EQq1eDptmtAIhAPy+JIT4T81l40bKadTQt6977M+fY+Hfc1GfUiJFOZVV',
+        'MIIBYDCCAQagAwIBAgIBATAKBggqhkjOPQQDAjAZMRcwFQYDVQQDEw5xdWlldGNvbW11bml0eTAeFw0xMDEyMjgxMDEwMTBaFw0zMDEyMjgxMDEwMTBaMBkxFzAVBgNVBAMTDnF1aWV0Y29tbXVuaXR5MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAER8nj5zrEqEvjOZe1hIGx7fwXXNF2AwklSh7zBNnZSZpQfAdyeBTCF76OMQoSroZKmHkOw6EtvLhDmDA31lnFfaM/MD0wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAIYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMAoGCCqGSM49BAMCA0gAMEUCIQCLh+vUNv1Czj6N+QGe1wXH/EK1EDpv7FhNQ7KoJLPUPgIgbkZZccoEQYIiK6fgdofZ1OIPWGQcazY6yfcUpGop8PQ=',
       rootKeyString:
-        'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgWBC3C4ARMT8zD1nqYjfs+bDXflWkVFqHRovqQmLQRAKgCgYIKoZIzj0DAQehRANCAASgrM0/l4plmOUtv5yb5AxH2VSRIotJG3oly86ZHl/h6B7hw4/1dCE26Z/jJW3eyIzly7av/zVXkcgBxuqZtKBT'
+        'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgzwEMy6znlS1amoN8tcrNUXTO7WGTagioyI5XwKj8mdygCgYIKoZIzj0DAQehRANCAARHyePnOsSoS+M5l7WEgbHt/Bdc0XYDCSVKHvME2dlJmlB8B3J4FMIXvo4xChKuhkqYeQ7DoS28uEOYMDfWWcV9'
     },
     rootCa: '',
     peerList: [],
@@ -32,21 +32,19 @@ describe('users selectors', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0
+    port: 0,
+    registrationAttempts: 0
   }
 
   const userCertData = {
     username: 'userName',
-    onionAddress:
-      'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+    onionAddress: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
     peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-    dmPublicKey:
-      '0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9'
+    dmPublicKey: '0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9'
   }
 
   const userCertString =
-    'MIICDzCCAbUCBgF9Ms+EwTAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMB4XDTIxMTExODExMzAwMFoXDTMwMDEzMTIzMDAwMFowSTFHMEUGA1UEAxM+bnFudzRrYzRjNzdmYjQ3bGs1Mm01bDU3aDR0Y3hjZW83eW14ZWtmbjd5aDVtNjZ0NGp2Mm9sYWQub25pb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAT3mQI3akfoTD3i94ZJZMmZ2RZswEeQ0aW0og+/VuzUJQblVQ+UdH6kuKFjq7BTtdjYTMSCO9wfPotBX88+p2Kuo4HEMIHBMAkGA1UdEwQCMAAwCwYDVR0PBAQDAgCOMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAvBgkqhkiG9w0BCQwEIgQgC/tHWBDA4myfq1kNR8PWDsUzuzxFFZasw81PIWAumtkwGAYKKwYBBAGDjBsCAQQKEwh1c2VyTmFtZTA9BgkrBgECAQ8DAQEEMBMuUW1mM3lTa1lxTEVUOXh0QXREenZBcjVQcDNlZ0sxSDNDNWlKQVptMVNwTEVwNjAKBggqhkjOPQQDAgNIADBFAiBYmTIJtW2pARg4WTIVMXs2fvGroBxko71CnUi3Fum1WQIhAM0npNOL0/2+8dRTWRNE61D4jcbtltmXAXFjYbd711hk'
-
+    'MIICaDCCAg6gAwIBAgIGAYBqyuV2MAoGCCqGSM49BAMCMBkxFzAVBgNVBAMTDnF1aWV0Y29tbXVuaXR5MB4XDTEwMTIyODEwMTAxMFoXDTMwMTIyODEwMTAxMFowSTFHMEUGA1UEAxM+bnFudzRrYzRjNzdmYjQ3bGs1Mm01bDU3aDR0Y3hjZW83eW14ZWtmbjd5aDVtNjZ0NGp2Mm9sYWQub25pb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQZBMmiVmRBRvw+QiL5DYg7WGFUVgA7u90KMpJg4qCaCJJNh7wH2tl0EDsN4FeGmR9AkvtCGd+5vYL0nGcX/oLdo4IBEDCCAQwwCQYDVR0TBAIwADALBgNVHQ8EBAMCAIAwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMC8GCSqGSIb3DQEJDAQiBCAL+0dYEMDibJ+rWQ1Hw9YOxTO7PEUVlqzDzU8hYC6a2TAYBgorBgEEAYOMGwIBBAoTCHVzZXJOYW1lMD0GCSsGAQIBDwMBAQQwEy5RbWYzeVNrWXFMRVQ5eHRBdER6dkFyNVBwM2VnSzFIM0M1aUpBWm0xU3BMRXA2MEkGA1UdEQRCMECCPm5xbnc0a2M0Yzc3ZmI0N2xrNTJtNWw1N2g0dGN4Y2VvN3lteGVrZm43eWg1bTY2dDRqdjJvbGFkLm9uaW9uMAoGCCqGSM49BAMCA0gAMEUCIF63rnIq8vd86NT9RHSFj7borwwODqyfE7Pw64tGElpIAiEA5ZDSdrDd8OGf+kv7wxByM1Xgmc5m/aydUk+WorbO3Gg='
   const parsedCert = parseCertificate(userCertString)
   const userPubKey = keyFromCertificate(parsedCert)
 
@@ -62,7 +60,7 @@ describe('users selectors', () => {
           currentCommunity: 'communityId',
           communities: communitiesAdapter.setAll(
             communitiesAdapter.getInitialState(),
-            [communityId]
+            [quietcommunity]
           )
         },
         [StoreKeys.Users]: {
@@ -99,4 +97,4 @@ describe('users selectors', () => {
   })
 })
 
-export {}
+export { }

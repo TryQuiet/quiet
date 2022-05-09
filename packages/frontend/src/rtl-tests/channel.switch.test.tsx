@@ -23,11 +23,13 @@ import {
   Store,
   SocketActionTypes,
   MessageType,
-  ChannelMessage
+  ChannelMessage,
+  messages
 } from '@quiet/nectar'
 
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
+import store from '../renderer/store'
 
 jest.setTimeout(20_000)
 jest.mock('electron', () => {
@@ -171,6 +173,12 @@ describe('Switch channels', () => {
       redux.store
     )
 
+    // Set 'general' as active channel
+    store.dispatch(publicChannels.actions.setCurrentChannel({
+      channelAddress: 'general',
+      communityId: community.id
+    }))
+
     // Assert channel is not highglighted
     const memesChannelLink = screen.getByTestId('memes-link-text')
     expect(memesChannelLink).toHaveStyle('opacity: 0.7')
@@ -241,6 +249,73 @@ describe('Switch channels', () => {
     // Confirm nothing changed
     expect(generalChannelLink).toHaveStyle('backgroundColor: rgb(103, 191, 211)')
     expect(generalChannelLinkText).toHaveStyle('opacity: 0.7')
+
+    function* mockIncomingMessages(): Generator {
+      yield* apply(socket.socketClient, socket.socketClient.emit, [
+        SocketActionTypes.INCOMING_MESSAGES,
+        {
+          messages: [message],
+          communityId: community.id
+        }
+      ])
+    }
+  })
+
+  it('Loads messages to cache when switching channel', async () => {
+    const message = (
+      await factory.build<typeof publicChannels.actions.test_message>('Message', {
+        identity: alice,
+        message: {
+          id: Math.random().toString(36).substr(2.9),
+          type: MessageType.Basic,
+          message: 'message',
+          createdAt: DateTime.utc().valueOf(),
+          channelAddress: 'travels',
+          signature: '',
+          pubKey: ''
+        },
+        verifyAutomatically: true
+      })
+    ).payload.message
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Sidebar />
+        <Channel />
+      </>,
+      redux.store
+    )
+
+    // Set 'general' as active channel
+    store.dispatch(publicChannels.actions.setCurrentChannel({
+      channelAddress: 'general',
+      communityId: community.id
+    }))
+
+    // Assert channel is not highglighted
+    const travelsChannelLink = screen.getByTestId('travels-link-text')
+    expect(travelsChannelLink).toHaveStyle('opacity: 0.7')
+
+    await act(async () => {
+      await redux.runSaga(mockIncomingMessages).toPromise()
+    })
+
+    // Verify proper channel shows unread messages information
+    expect(travelsChannelLink).toHaveStyle('opacity: 1')
+
+    // Enter channel and confirm highlight dissapeared
+    userEvent.click(travelsChannelLink)
+    expect(travelsChannelLink).toHaveStyle('opacity: 0.7')
+
+    // Verify replicated message in present in repository
+    expect(messages.selectors.validCurrentPublicChannelMessagesEntries(redux.store.getState())[0]).toStrictEqual(message)
+    // Verify replicated messages was placed in cache
+    expect(publicChannels.selectors.currentChannelMessages(redux.store.getState())[0]).toStrictEqual(message)
+
+    // Confirm new message was properly cached and is visible
+    expect(await screen.findByText(message.message)).toBeVisible()
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [

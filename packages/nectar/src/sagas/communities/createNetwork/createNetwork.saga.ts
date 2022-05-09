@@ -42,7 +42,8 @@ export function* createNetworkSaga(
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0
+    port: 0,
+    registrationAttempts: 0
   }
 
   yield* apply(socket, socket.emit, [SocketActionTypes.CREATE_NETWORK, payload])

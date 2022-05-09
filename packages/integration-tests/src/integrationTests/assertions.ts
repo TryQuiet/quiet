@@ -1,19 +1,16 @@
-import { ErrorPayload, publicChannels, SocketActionTypes } from '@quiet/nectar'
+import { ErrorPayload, publicChannels, SocketActionTypes, TestStore, messages } from '@quiet/nectar'
 import waitForExpect from 'wait-for-expect'
+import { MAIN_CHANNEL } from '../testUtils/constants'
 import logger from '../logger'
-import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { createApp, sleep } from '../utils'
+import { sleep } from '../utils'
 
 const log = logger('assertions')
-
-const App: AsyncReturnType<typeof createApp> = null
-type Store = typeof App.store
 
 export async function assertReceivedCertificates(
   userName: string,
   expectedCount: number,
   maxTime: number = 60000,
-  store: Store
+  store: TestStore
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for certificates`)
 
@@ -31,7 +28,7 @@ export async function assertReceivedChannelsAndSubscribe(
   userName: string,
   expectedCount: number,
   maxTime: number = 60000,
-  store: Store
+  store: TestStore
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for channels`)
 
@@ -65,7 +62,7 @@ export async function assertReceivedMessages(
   userName: string,
   expectedCount: number,
   maxTime: number = 60000,
-  store: Store
+  store: TestStore
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for messages`)
 
@@ -73,13 +70,11 @@ export async function assertReceivedMessages(
 
   await waitForExpect(() => {
     expect(
-      store.getState().PublicChannels.channels.entities[communityId]
-        .channelMessages.ids
+      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids
     ).toHaveLength(expectedCount)
   }, maxTime)
   log(
-    `User ${userName} received ${store.getState().PublicChannels.channels.entities[communityId]
-      .channelMessages.ids.length
+    `User ${userName} received ${store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids.length
     } messages`
   )
 }
@@ -88,22 +83,21 @@ export const assertReceivedMessagesAreValid = async (
   userName: string,
   messages: any[],
   maxTime: number = 60000,
-  store: Store
+  store: TestStore
 ) => {
   log(`User ${userName} checks is messages are valid`)
 
   const communityId = store.getState().Communities.communities.ids[0]
 
   const receivedMessages = Object.values(
-    store.getState().PublicChannels.channels.entities[communityId]
-      .channelMessages.entities
+    store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
   )
 
   const validMessages = []
 
   for (const receivedMessage of receivedMessages) {
     const msg = messages.filter(
-      (message) => message.publicKey === receivedMessage.pubKey
+      (message) => message.signature === receivedMessage.signature
     )
     if (msg[0]) {
       validMessages.push(msg[0])
@@ -116,7 +110,7 @@ export const assertReceivedMessagesAreValid = async (
 }
 
 export const assertInitializedExistingCommunitiesAndRegistrars = async (
-  store: Store
+  store: TestStore
 ) => {
   const communityId = store.getState().Communities.communities.ids[0]
 
@@ -132,7 +126,7 @@ export const assertInitializedExistingCommunitiesAndRegistrars = async (
   })
 }
 
-export const assertReceivedRegistrationError = async (store: Store, error?: ErrorPayload) => {
+export const assertReceivedRegistrationError = async (store: TestStore, error?: ErrorPayload) => {
   await waitForExpect(() => {
     expect(store.getState().Errors.errors?.ids[0]).toEqual(SocketActionTypes.REGISTRAR)
   }, 20_000)
@@ -143,13 +137,13 @@ export const assertReceivedRegistrationError = async (store: Store, error?: Erro
   }
 }
 
-export const assertNoRegistrationError = async(store: Store) => {
+export const assertNoRegistrationError = async(store: TestStore) => {
   await waitForExpect(() => {
     expect(store.getState().Errors.errors?.ids.includes('registrar')).toBe(false)
   }, 20_000)
 }
 
-export const assertReceivedCertificate = async (store: Store) => {
+export const assertReceivedCertificate = async (store: TestStore) => {
   const communityId = store.getState().Communities.communities.ids[0]
   await waitForExpect(() => {
     expect(
@@ -159,7 +153,7 @@ export const assertReceivedCertificate = async (store: Store) => {
 }
 
 export const assertConnectedToPeers = async (
-  store: Store,
+  store: TestStore,
   count: number
 ) => {
   await sleep(10_000)
@@ -168,4 +162,30 @@ export const assertConnectedToPeers = async (
       store.getState().Connection.connectedPeers.ids.length
     ).toEqual(count)
   }, 20_000)
+}
+
+export const assertStoreStatesAreEqual = async (oldState, currentState) => {
+  const oldStateWithLastConnectedTimeFromCurrentState = {
+    ...oldState,
+    Connection: {
+      ...oldState.Connection,
+      lastConnectedTime: currentState.Connection.lastConnectedTime
+    }
+  }
+
+  expect(currentState).toMatchObject(oldStateWithLastConnectedTimeFromCurrentState)
+}
+
+export const assertInitializedCommunity = async (store: TestStore) => {
+  await waitForExpect(() => {
+    // This is the last action when initializing community.
+    expect(store.getState().LastAction.includes(messages.actions.addMessageVerificationStatus.type))
+  }, 300_000)
+}
+
+export const assertRegistrationRequestSent = async (store: TestStore, count: number) => {
+  const communityId = store.getState().Communities.communities.ids[0]
+  await waitForExpect(() => {
+    expect(store.getState().Communities.communities.entities[communityId].registrationAttempts).toEqual(count)
+  }, 240_000)
 }

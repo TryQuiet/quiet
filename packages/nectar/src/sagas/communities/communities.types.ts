@@ -77,3 +77,8 @@ export interface ResponseCreateCommunityPayload {
 export interface ResponseLaunchCommunityPayload {
   id: string
 }
+
+export interface UpdateRegistrationAttemptsPayload {
+  id: string
+  registrationAttempts: number
+}

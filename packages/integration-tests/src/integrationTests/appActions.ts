@@ -1,6 +1,6 @@
 import waitForExpect from 'wait-for-expect'
-import { identity, communities, messages, connection, publicChannels, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership } from '@quiet/nectar'
-import { keyFromCertificate, parseCertificate } from '@quiet/identity'
+import { identity, communities, messages, connection, publicChannels, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership, TestStore, ChannelMessage } from '@quiet/nectar'
+import { MAIN_CHANNEL } from '../testUtils/constants'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp } from '../utils'
 import logger from '../logger'
@@ -50,7 +50,7 @@ export interface OwnerData {
 interface SendMessage {
   message: string
   channelName?: string
-  store: Store
+  store: TestStore
 }
 
 export async function createCommunity({ userName, store }: CreateCommunity) {
@@ -129,7 +129,8 @@ export async function registerUsername(payload: Register) {
     store
   } = payload
 
-  const timeout = 120_000
+  // Give it a huge timeout, it should never fail, but sometimes takes more time, depending on tor.
+  const timeout = 600_000
 
   let address: string
   if (payload.registrarAddress === '0.0.0.0') {
@@ -191,7 +192,7 @@ export async function joinCommunity(payload: JoinCommunity) {
     store
   } = payload
 
-  const timeout = 120_000
+  const timeout = 600_000
 
   await registerUsername(payload)
 
@@ -232,7 +233,7 @@ export async function joinCommunity(payload: JoinCommunity) {
 
 export async function sendMessage(
   payload: SendMessage
-): Promise<{ message: string; publicKey: string }> {
+): Promise<ChannelMessage> {
   const {
     message,
     channelName,
@@ -253,16 +254,17 @@ export async function sendMessage(
 
   store.dispatch(messages.actions.sendMessage({ message }))
 
-  const certificate =
-    store.getState().Identity.identities.entities[communityId].userCertificate
+  await waitForExpect(() => {
+    expect(store.getState().LastAction.includes('Messages/addMessageVerificationStatus'))
+  }, 5000)
 
-  const parsedCertificate = parseCertificate(certificate)
-  const publicKey = keyFromCertificate(parsedCertificate)
+  const entities = Array.from(Object.values(store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities))
 
-  return {
-    message,
-    publicKey
-  }
+  const newMessage = entities.filter((m) => {
+    return m.message === message
+  })
+
+  return newMessage[0]
 }
 
 export const getCommunityOwnerData = (ownerStore: Store) => {
@@ -295,7 +297,7 @@ export const sendRegistrationRequest = async (
 ) => {
   const { registrarAddress, userName, registrarPort, store } = payload
 
-  const timeout = 120_000
+  const timeout = 600_000
 
   let address: string
   if (registrarAddress === '0.0.0.0') {

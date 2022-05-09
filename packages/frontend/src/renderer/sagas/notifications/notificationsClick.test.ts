@@ -1,6 +1,6 @@
 import { PrepareStore, prepareStore } from '../../testUtils/prepareStore'
 import MockedSocket from 'socket.io-mock'
-import { communities, CreatedChannelResponse, getFactory, identity, IncomingMessages, MessageType, PublicChannel, publicChannels, users } from '@quiet/nectar'
+import { communities, CreatedChannelResponse, getFactory, identity, IncomingMessages, MessageType, messages, publicChannels, users } from '@quiet/nectar'
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { ioMock } from '../../../shared/setupTests'
 import { DateTime } from 'luxon'
@@ -86,16 +86,16 @@ describe('displayMessageNotificationSaga test', () => {
   })
 
   it('clicking in notification takes you to message in relevant channel and ends emit', async () => {
-    store.store.dispatch(publicChannels.actions.incomingMessages(incomingMessages))
+    store.store.dispatch(messages.actions.incomingMessages(incomingMessages))
     // simulate click on notification
     mockNotification.onclick()
     const isTakeEveryResolved = store.sagaMonitor.isEffectResolved('takeEvery(channel, bridgeAction)')
-    expect(publicChannels.selectors.currentChannel(store.store.getState()).address).toBe(publicChannel.channel.address)
+    expect(publicChannels.selectors.currentChannelAddress(store.store.getState())).toBe(publicChannel.channel.address)
     expect(isTakeEveryResolved).toBeTruthy()
   })
 
   it('closing notification ends emit', async () => {
-    store.store.dispatch(publicChannels.actions.incomingMessages(incomingMessages))
+    store.store.dispatch(messages.actions.incomingMessages(incomingMessages))
     // simulate close notification
     mockNotification.onclose()
     const isTakeEveryResolved = store.sagaMonitor.isEffectResolved('takeEvery(channel, bridgeAction)')

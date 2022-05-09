@@ -12,5 +12,7 @@ export enum StoreKeys {
   Communities = 'Communities',
   App = 'App',
   Connection = 'Connection',
-  Settings = 'Settings'
+  Settings = 'Settings',
+  // For testing purposes
+  LastAction = 'LastAction'
 }
