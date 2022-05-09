@@ -47,7 +47,7 @@ export interface OwnerData {
   registrarPort: number
 }
 
-interface SendMessage {
+export interface SendMessage {
   message: string
   channelName?: string
   store: TestStore

@@ -1,6 +1,6 @@
-import { createApp, sendMessage, actions, assertions } from 'integration-tests'
+import { createApp, actions, assertions } from 'integration-tests'
 import { fixture, test, t } from 'testcafe'
-import { Channel, CreateCommunityModal, DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Sidebar } from './selectors'
+import { Channel, CreateCommunityModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Sidebar } from './selectors'
 import { goToMainPage } from './utils'
 import logger from './logger'
 
@@ -36,8 +36,7 @@ fixture`New user test`
 //   await fs.rm(fullDataPath, { recursive: true, force: true })
 // })
 
-test.only('User can create new community, register and send few messages to general channel', async t => {
-  await new DebugModeModal().close()
+test('User can create new community, register and send few messages to general channel', async t => {
   // User opens app for the first time, sees spinner, waits for spinner to disappear
 
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
@@ -100,7 +99,7 @@ test.only('User can create new community, register and send few messages to gene
   )
   await t.wait(2000) // Give the waggle some time, headless tests are fast
 
-  await sendMessage({
+  await actions.sendMessage({
     message: t.fixtureCtx.joiningUserMessages[0],
     channelName: 'general',
     store: joiningUserApp.store
@@ -111,25 +110,7 @@ test.only('User can create new community, register and send few messages to gene
   await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
   await t.expect(joiningUserMessages.textContent).contains(t.fixtureCtx.joiningUserMessages[0])
 
-  await t.wait(2000)
+  await t.wait(10000)
   // // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
   // // See: https://github.com/ZbayApp/monorepo/issues/222
-})
-
-test('User reopens app, sees general channel and the messages he sent before', async t => {
-  // User opens app for the first time, sees spinner, waits for spinner to disappear
-  await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
-
-  // Returning user sees "general" channel
-  const generalChannel = new Channel('general')
-  await t.expect(generalChannel.title.exists).ok('User can\'t see "general" channel')
-
-  // Returning user sees everyone's messages
-  const ownerMessages = generalChannel.getUserMessages(t.fixtureCtx.ownerUsername)
-  await t.expect(ownerMessages.exists).ok({ timeout: longTimeout })
-  await t.expect(ownerMessages.textContent).contains(t.fixtureCtx.ownerMessages[0])
-
-  const joiningUserMessages = generalChannel.getUserMessages(t.fixtureCtx.joiningUserUsername)
-  await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
-  await t.expect(joiningUserMessages.textContent).contains(t.fixtureCtx.joiningUserMessages[0])
 })
