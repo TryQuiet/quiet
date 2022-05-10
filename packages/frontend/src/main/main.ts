@@ -387,7 +387,7 @@ app.on('window-all-closed', async () => {
       log('Force closing the app')
       waggleProcess.kill()
       app.quit()
-    }, 2000);
+    }, 2000)
     waggleProcess.send('close')
     waggleProcess.on('message', message => {
       if (message === 'closed-services') {
