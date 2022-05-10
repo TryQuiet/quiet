@@ -1,5 +1,5 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
-import { parseCertificate } from '@quiet/identity'
+import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import Certificate from 'pkijs/src/Certificate'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
@@ -36,6 +36,18 @@ export const usersSlice = createSlice({
           }
           return parseCertificate(item)
         })
+      )
+    },
+    // Utility action for testing purposes
+    test_remove_user_certificate: (
+      state,
+      action: PayloadAction<{ certificate: string }>
+    ) => {
+      certificatesAdapter.removeOne(
+        state.certificates,
+        keyFromCertificate(
+          parseCertificate(action.payload.certificate)
+        )
       )
     }
   }
