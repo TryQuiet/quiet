@@ -15,7 +15,7 @@
     "test:dev": "npm run build:app && npm run test",
     "test:create": "npm run build:testcafe && cross-env DATA_DIR=e2eCreate E2E_TEST=true DEBUG='waggle*,nectar*,e2e*,frontend*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
     "test:join": "npm run build:testcafe && cross-env DATA_DIR=e2eJoin E2E_TEST=true DEBUG='waggle*,nectar*,e2e*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/joiningUser.e2e.ts\"",
-    "test:lazy": "npm run build:testcafe && cross-env DATA_DIR=e2eCreate E2E_TEST=true DEBUG='waggle*,nectar*,e2e*,frontend*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/lazyLoading.e2e.ts\"",
+    "test:lazy": "npm run build:testcafe && cross-env DATA_DIR=e2eLazy E2E_TEST=true DEBUG='waggle*,nectar*,e2e*,frontend*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/lazyLoading.e2e.ts\"",
     "test:smoke": "npm run build:testcafe && cross-env DATA_DIR=e2e E2E_TEST=true DEBUG='waggle*,nectar*,e2e*,testcafe:*electron*' testcafe \"electron:.\" \"./**/smokeTest.e2e.ts\""
   },
   "devDependencies": {

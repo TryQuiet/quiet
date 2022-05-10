@@ -15,7 +15,7 @@ import { config } from '../../sagas/users/const/certFieldTypes'
 import { PeerId } from '../../sagas/identity/identity.types'
 import { arrayBufferToString } from 'pvutils'
 import { Time } from 'pkijs'
-const log = logger('nectar')
+const log = logger('test')
 
 const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
 const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))

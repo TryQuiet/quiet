@@ -1,6 +1,6 @@
-import { createApp, sendMessage, actions, assertions } from 'integration-tests'
+import { createApp, actions, assertions } from 'integration-tests'
 import { fixture, test, ClientFunction, Selector } from 'testcafe'
-import { Channel, CreateCommunityModal, DebugModeModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Sidebar } from './selectors'
+import { Channel, CreateCommunityModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Sidebar } from './selectors'
 import { goToMainPage } from './utils'
 import logger from './logger'
 
@@ -100,33 +100,34 @@ test('User can create new community, register and send few messages to general c
   await t.wait(2000) // Give the waggle some time, headless tests are fast
 
   const sentMessages = []
-  for (let i=0; i < 40; i++) {
+  for (let i=0; i < 10; i++) {
     const message = `Message ${i}`
     sentMessages.push(message)
     console.log('Sending message', message)
-    await sendMessage({
+    await actions.sendMessage({
       message,
       channelName: 'general',
       store: joiningUserApp.store
     })
-    await t.wait(500)
+    await t.wait(100)
     await generalChannel.sendMessage(`Response to ${message}`)
+    await t.expect(scrollOnBottom()).eql(true)
   }
 
-  // Owner sees messages sent by the guest
+  // Owner sees all messages sent by the guest
   const joiningUserMessages = generalChannel.getUserMessages(t.fixtureCtx.joiningUserUsername)
   await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
-  console.log('- - ->', await joiningUserMessages.textContent)
-  
-  await t.expect(joiningUserMessages.textContent).contains(`Message 29`, { timeout: longTimeout }) // Check if the last message has been received
+  await t.expect(await joiningUserMessages.count).eql(sentMessages.length, {timeout: 10_000})
   await t.expect(scrollOnBottom()).eql(true) // Scrollbar on bottom
+
+  await t.setTestSpeed(0.05)
 
   // User scrolls up
   await scrollY()
   await t.expect(scrollOnBottom()).eql(false)
 
   // Guest sends a message
-  await sendMessage({
+  await actions.sendMessage({
     message: 'new',
     channelName: 'general',
     store: joiningUserApp.store
@@ -136,7 +137,9 @@ test('User can create new community, register and send few messages to general c
   // User scrolls up and sends a message
   await scrollY()
   await generalChannel.sendMessage('Responding')
-  await t.expect(scrollOnBottom()).eql(false, 'Scrollbar should scroll to the bottom user sends a message')
+  await t.expect(scrollOnBottom()).eql(true, 'Scrollbar should scroll to the bottom when user sends a message')
+
+  // todo: Create new channel, write something
 
   await t.wait(2000)
   // // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.

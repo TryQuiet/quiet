@@ -1,7 +1,7 @@
 
-import { communities, CommunityOwnership, CreateNetworkPayload, identity, publicChannels, SocketActionTypes } from '@quiet/nectar'
+import { ChannelMessage, communities, CommunityOwnership, CreateNetworkPayload, identity, publicChannels, messages } from '@quiet/nectar'
 import assert from 'assert'
-import { Register } from '../integrationTests/appActions'
+import { Register, SendMessage } from '../integrationTests/appActions'
 import logger from '../logger'
 import { waitForExpect } from './waitForExpect'
 const log = logger('actions')
@@ -105,6 +105,32 @@ export const createCommunity = async ({ username, communityName, store }): Promi
   }, timeout)
 
   return store.getState().Communities.communities.entities[communityId].onionAddress
+}
+
+export async function sendMessage(
+  payload: SendMessage
+): Promise<ChannelMessage> {
+  const {
+    message,
+    channelName,
+    store
+  } = payload
+
+  log(message, 'sendMessage')
+
+  store.dispatch(messages.actions.sendMessage({ message }))
+
+  await waitForExpect(() => {
+    assert.ok(store.getState().LastAction.includes('Messages/addMessageVerificationStatus'))
+  }, 5000)
+
+  const entities = Array.from(Object.values(store.getState().Messages.publicChannelsMessagesBase.entities[channelName].messages.entities))
+
+  const newMessage = entities.filter((m) => {
+    return m.message === message
+  })
+
+  return newMessage[0]
 }
 
 export async function joinCommunity({ registrarAddress, userName, expectedPeersCount, store }) {
