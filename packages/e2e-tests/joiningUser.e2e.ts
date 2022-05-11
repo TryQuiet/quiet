@@ -1,4 +1,4 @@
-import { createApp, sendMessage, actions, waitForExpect, assertions } from 'integration-tests'
+import { createApp, actions, waitForExpect, assertions } from 'integration-tests'
 import { fixture, test } from 'testcafe'
 import { JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Channel } from './selectors'
 import { goToMainPage } from './utils'
@@ -37,7 +37,7 @@ test('User can join the community and exchange messages', async t => {
     store: communityOwner.store
   })
   await t.wait(2000) // Give the waggle some time, headless tests are fast
-  await sendMessage({
+  await actions.sendMessage({
     message: t.fixtureCtx.ownerMessages[0],
     channelName: 'general',
     store: communityOwner.store
@@ -87,7 +87,7 @@ test('User can join the community and exchange messages', async t => {
   ))
 
   // Owner sends message, user receives it
-  await sendMessage({
+  await actions.sendMessage({
     message: t.fixtureCtx.ownerMessages[1],
     channelName: 'general',
     store: communityOwner.store
