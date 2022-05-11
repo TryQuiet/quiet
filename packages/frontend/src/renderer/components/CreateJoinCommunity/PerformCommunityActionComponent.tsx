@@ -20,6 +20,7 @@ import { CommunityOwnership } from '@quiet/nectar'
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
 import { parseName } from '../../../utils/functions/naming'
+import { InviteLinkErrors } from '../../forms/fieldsErrors'
 
 const useStyles = makeStyles(theme => ({
   focus: {
@@ -133,6 +134,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     handleSubmit,
     formState: { errors },
     setValue,
+    setError,
     control
   } = useForm<PerformCommunityActionFormValues>({
     mode: 'onTouched'
@@ -146,9 +148,20 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     values: PerformCommunityActionFormValues,
     setFormSent
   ) => {
-    setFormSent(true)
     const submitValue =
       communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()
+
+    if (communityOwnership === CommunityOwnership.User && submitValue.length < 56) {
+      setError('name', { message: InviteLinkErrors.ValueTooShort })
+      return
+    }
+
+    if (communityOwnership === CommunityOwnership.User && submitValue.length > 56) {
+      setError('name', { message: InviteLinkErrors.ValueTooLong })
+      return
+    }
+
+    setFormSent(true)
     handleSubmit(submitValue)
   }
 
