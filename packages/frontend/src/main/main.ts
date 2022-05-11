@@ -374,10 +374,25 @@ app.on('browser-window-created', (_, window) => {
 app.on('window-all-closed', async () => {
   log('Event: app.window-all-closed')
   if (waggleProcess !== null) {
+    /* OrbitDB released a patch (0.28.5) that omits error thrown when closing the app during heavy replication
+       it needs mending though as replication is not being stopped due to pednign ipfs block/dag calls.
+       https://github.com/orbitdb/orbit-db-store/issues/121
+       ...
+       Quiet side workaround is force-killing waggle process.
+       It may result in problems caused by post-process leftovers (like lock-files),
+       nevertheless developer team is aware of that and has a response
+       https://github.com/ZbayApp/monorepo/issues/469
+    */
+    const forceClose = setTimeout(() => {
+      log('Force closing the app')
+      waggleProcess.kill()
+      app.quit()
+    }, 2000)
     waggleProcess.send('close')
     waggleProcess.on('message', message => {
       if (message === 'closed-services') {
         log('Closing the app')
+        clearTimeout(forceClose)
         app.quit()
       }
     })

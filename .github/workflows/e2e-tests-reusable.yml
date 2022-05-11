@@ -37,6 +37,9 @@ jobs:
         run: lerna run test:create --scope e2e-tests --stream
         if: always()
 
+      - name: Create community test (returning user)
+        run: lerna run test:create:return --scope e2e-tests --stream
+
       - name: Join community test
         run: lerna run test:join --scope e2e-tests --stream
         if: always()
