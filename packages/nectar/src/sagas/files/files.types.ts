@@ -5,6 +5,10 @@ export interface FileContent {
     dir: string
 }
 
+export interface FileMetadata {
+    cid: string
+}
+
 export interface UploadFilePayload {
     file: FileContent
     peerId: string

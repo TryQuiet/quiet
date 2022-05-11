@@ -5,7 +5,7 @@ import {
   parseCertificate,
   verifyUserCert
 } from '@quiet/identity'
-import { ChannelMessage, PublicChannel, SaveCertificatePayload, FileContent } from '@quiet/nectar'
+import { ChannelMessage, PublicChannel, SaveCertificatePayload, FileContent, FileMetadata } from '@quiet/nectar'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
 import OrbitDB from 'orbit-db'
@@ -376,8 +376,10 @@ export class Storage {
     const entries = this.ipfs.files.ls(`/${file.dir}`)
     for await(const entry of entries) {
       if (entry.name === uploadingFileName) {
-        const hash = entry.cid.toString()
-        this.io.uploadedFile(hash)
+        const metadata: FileMetadata = {
+          cid: entry.cid.toString()
+        }
+        this.io.uploadedFile(metadata)
       }
     }
   }
