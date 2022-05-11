@@ -125,7 +125,7 @@ describe('join community', () => {
     await waitFor(() => expect(handleCommunityAction).toBeCalledWith(registrarUrl))
   })
 
-  it.skip('trims whitespaces from registrar url', async () => {
+  it('trims whitespaces from registrar url', async () => {
     const registrarUrl = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad    '
 
     const handleCommunityAction = jest.fn()
@@ -152,14 +152,15 @@ describe('join community', () => {
     expect(submitButton).toBeEnabled()
     userEvent.click(submitButton)
 
-    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(registrarUrl))
+    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(registrarUrl.trim()))
   })
 
   it.each([
     ['http://nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion', InviteLinkErrors.WrongCharacter],
-    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad000', InviteLinkErrors.WrongCharacter],
+    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola09bp2', InviteLinkErrors.ValueTooLong],
     ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola!', InviteLinkErrors.WrongCharacter],
-    ['nqnw4kc4c77fb47lk52m5l57h4tc', InviteLinkErrors.WrongCharacter]
+    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola ', InviteLinkErrors.ValueTooShort],
+    ['nqnw4kc4c77fb47lk52m5l57h4tc', InviteLinkErrors.ValueTooShort]
   ])('user inserting invalid url %s should see "%s" error', async (url: string, error: string) => {
     const handleCommunityAction = jest.fn()
 
