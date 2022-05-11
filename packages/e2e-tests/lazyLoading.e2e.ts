@@ -1,5 +1,5 @@
 import { createApp, actions, assertions } from 'integration-tests'
-import { fixture, test, ClientFunction, Selector } from 'testcafe'
+import { fixture, test, ClientFunction } from 'testcafe'
 import { Channel, CreateCommunityModal, JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Sidebar } from './selectors'
 import { goToMainPage } from './utils'
 import logger from './logger'
@@ -10,8 +10,9 @@ const longTimeout = 100000
 
 let joiningUserApp = null
 
-fixture`New user test`
+fixture`Lazy loading test`
   .before(async ctx => {
+    ctx.lazyLoadingMessagesChunk = 50
     ctx.ownerUsername = 'bob'
     ctx.ownerMessages = ['Hi']
     ctx.joiningUserUsername = 'alice-joining'
@@ -28,12 +29,12 @@ fixture`New user test`
   })
 
 const scrollOnBottom = ClientFunction(() => {
-  const channelContent = document.querySelector("[data-testid=channelContent]")
+  const channelContent = document.querySelector('[data-testid=channelContent]')
   return Math.floor(channelContent.scrollHeight - channelContent.scrollTop) === Math.floor(channelContent.clientHeight)
-});
+})
 
-const scrollY = ClientFunction(() => {
-  const channelContent = document.querySelector("[data-testid=channelContent]")
+const scrollUp = ClientFunction(() => {
+  const channelContent = document.querySelector('[data-testid=channelContent]')
   channelContent.scrollBy(0, -channelContent.scrollHeight)
 })
 
@@ -54,7 +55,7 @@ test('User can create new community, register and send few messages to general c
 
   // User sees "register username" page, enters the valid name and submits by clicking on the button
   const registerModal = new RegisterUsernameModal()
-  await t.expect(registerModal.title.exists).ok({timeout: 10_000})
+  await t.expect(registerModal.title.exists).ok({ timeout: 10_000 })
   await registerModal.typeUsername(t.fixtureCtx.ownerUsername)
   await registerModal.submit()
 
@@ -63,17 +64,9 @@ test('User can create new community, register and send few messages to general c
   await t.expect(new LoadingPanel('Creating community').title.exists).notOk(`"Creating community" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
   await t.expect(generalChannel.title.exists).ok('User can\'t see "general" channel')
 
-  // User sends a message
-  await t.expect(generalChannel.messageInput.exists).ok()
-  await generalChannel.sendMessage(t.fixtureCtx.ownerMessages[0])
-
-  // Sent message is visible in a channel
-  const messages = generalChannel.getUserMessages(t.fixtureCtx.ownerUsername)
-  await t.expect(messages.exists).ok({ timeout: 30000 })
-  await t.expect(messages.textContent).contains(t.fixtureCtx.ownerMessages[0])
-
-  // Opens the settings tab and gets an invitation code
-  const settingsModal = await new Sidebar().openSettings()
+  // Owner opens the settings tab and gets an invitation code
+  const sidebar = new Sidebar()
+  const settingsModal = await sidebar.openSettings()
   await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
   await t.expect(settingsModal.title.exists).ok()
   await t.expect(settingsModal.invitationCode.exists).ok()
@@ -99,49 +92,67 @@ test('User can create new community, register and send few messages to general c
   )
   await t.wait(2000) // Give the waggle some time, headless tests are fast
 
+  // Users exchange messages
   const sentMessages = []
-  for (let i=0; i < 10; i++) {
-    const message = `Message ${i}`
-    sentMessages.push(message)
-    console.log('Sending message', message)
-    await actions.sendMessage({
-      message,
+  sentMessages.push('Created #general') // Initial message sent automatically when creating a channel
+  for (let i = 0; i < 40; i++) {
+    const message = await actions.sendMessage({
+      message: `Message ${i}`,
       channelName: 'general',
       store: joiningUserApp.store
     })
-    await t.wait(100)
-    await generalChannel.sendMessage(`Response to ${message}`)
+    sentMessages.push(message.message)
+    console.log('Sending message', message.message)
+    const ownerMessage = `Response to ${message.message}`
+    await generalChannel.sendMessage(ownerMessage)
+    sentMessages.push(ownerMessage)
     await t.expect(scrollOnBottom()).eql(true)
   }
 
-  // Owner sees all messages sent by the guest
-  const joiningUserMessages = generalChannel.getUserMessages(t.fixtureCtx.joiningUserUsername)
-  await t.expect(joiningUserMessages.exists).ok({ timeout: longTimeout })
-  await t.expect(await joiningUserMessages.count).eql(sentMessages.length, {timeout: 10_000})
+  // Owner sees only a chunk of messages
+  const allMessages = generalChannel.getAllMessages()
+  await t.expect(allMessages.exists).ok()
+  await t.expect(allMessages.count).eql(t.fixtureCtx.lazyLoadingMessagesChunk, 'User should see 50 last messages before scrolling up', { timeout: 10_000 })
+  console.log('first message before scroll', await allMessages.nth(0).textContent)
+  await t.expect(allMessages.nth(0).textContent).eql(sentMessages[sentMessages.length - t.fixtureCtx.lazyLoadingMessagesChunk], `User should see ${t.fixtureCtx.lazyLoadingMessagesChunk} last messages before scrolling up`)
   await t.expect(scrollOnBottom()).eql(true) // Scrollbar on bottom
 
-  await t.setTestSpeed(0.05)
-
-  // User scrolls up
-  await scrollY()
+  // Owner scrolls up and can see first messages on the channel
+  await scrollUp()
   await t.expect(scrollOnBottom()).eql(false)
+  console.log('user messages count', await allMessages.count, await allMessages.nth(0).textContent)
+  await t.expect(allMessages.nth(0).textContent).eql(sentMessages[0], 'User should see first message after scrolling up')
 
-  // Guest sends a message
-  await actions.sendMessage({
+  // Guest sends a message, owner's scrollbar should not move
+  const newMsg = await actions.sendMessage({
     message: 'new',
     channelName: 'general',
     store: joiningUserApp.store
   })
+  sentMessages.push(newMsg.message)
   await t.expect(scrollOnBottom()).eql(false, 'Scrollbar should stay in place when user receives new message')
 
-  // User scrolls up and sends a message
-  await scrollY()
+  // Owner scrolls up and sends a message
+  await scrollUp()
   await generalChannel.sendMessage('Responding')
+  sentMessages.push('Responding')
   await t.expect(scrollOnBottom()).eql(true, 'Scrollbar should scroll to the bottom when user sends a message')
+  await t.expect(allMessages.nth(0).textContent).eql(sentMessages[sentMessages.length - t.fixtureCtx.lazyLoadingMessagesChunk], `User should see ${t.fixtureCtx.lazyLoadingMessagesChunk} last messages before scrolling up`)
 
-  // todo: Create new channel, write something
+  // Scroll up before switching channel
+  await scrollUp()
 
-  await t.wait(2000)
+  // Owner creates a new channel
+  const newChannelName = 'test-channel'
+  const newChannel = await sidebar.addNewChannel(newChannelName)
+  await t.expect(newChannel.title.exists).ok(`User can't see "${newChannelName}" channel title`)
+
+  // Owner switches to 'general', sees scrollbar on the bottom and only chunk of messages
+  await sidebar.switchChannel('general')
+  await t.expect(scrollOnBottom()).eql(true, 'Scrollbar should be on the bottom when user switches channel')
+  await t.expect(allMessages.count).eql(t.fixtureCtx.lazyLoadingMessagesChunk, `User should see only ${t.fixtureCtx.lazyLoadingMessagesChunk} last messages after switching channel`)
+
+  await t.wait(5000)
   // // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
   // // See: https://github.com/ZbayApp/monorepo/issues/222
 })

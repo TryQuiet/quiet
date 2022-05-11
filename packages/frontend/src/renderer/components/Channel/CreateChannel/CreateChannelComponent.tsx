@@ -186,6 +186,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
               type='submit'
               text='Create Channel'
               classes={{ button: classes.button }}
+              data-testid="channelNameSubmit"
             />
           </Grid>
         </form>

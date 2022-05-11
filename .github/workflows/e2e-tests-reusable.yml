@@ -41,6 +41,10 @@ jobs:
         run: lerna run test:join --scope e2e-tests --stream
         if: always()
 
+      - name: Lazy loading and scrollbar test
+        run: lerna run test:lazy --scope e2e-tests --stream
+        if: always()
+
       - name: Archive test screenshots
         uses: actions/upload-artifact@v2
         if: always()
