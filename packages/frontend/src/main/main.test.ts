@@ -112,21 +112,21 @@ describe('electron app ready event', () => {
     expect(setApplicationMenu).toHaveBeenCalledWith(null)
   })
 
-  //todo
+  // todo
   it('apply devtools logic will trigger one time and smt', async () => {
     expect(spyApplyDevTools).toHaveBeenCalledTimes(1)
   })
 
   it('get ports logic will trigger and will return propper ports', async () => {
     expect(spyGetPorts).toHaveBeenCalledTimes(1)
-    const getPortsResult = (): Promise<any> => spyGetPorts.mock.results[0].value
+    const getPortsResult = async (): Promise<any> => spyGetPorts.mock.results[0].value
     await waitFor(async () =>
       expect(Object.keys(await getPortsResult())).toEqual([
-        "socksPort",
-        "libp2pHiddenService",
-        "controlPort",
-        "httpTunnelPort",
-        "dataServer",
+        'socksPort',
+        'libp2pHiddenService',
+        'controlPort',
+        'httpTunnelPort',
+        'dataServer'
       ])
     )
   })
@@ -134,9 +134,9 @@ describe('electron app ready event', () => {
   it('creates splash screen and main window, show splash screen', async () => {
     expect(spyCreateWindow).toHaveBeenCalledTimes(1)
 
-    //create 2 windows, splash screen and main window
+    // create 2 windows, splash screen and main window
     expect(BrowserWindow).toHaveBeenCalledTimes(2)
-    //show spalsh screen
+    // show spalsh screen
     expect(mockShowWindow).toHaveBeenCalledTimes(1)
   })
 
@@ -170,7 +170,7 @@ describe('electron app ready event', () => {
 
     await mockwebContentsOnceCalls[0][1]()
 
-    //checking is autoUpdater strat
+    // checking is autoUpdater strat
     expect(autoUpdater.checkForUpdates).toHaveBeenCalledTimes(1)
 
     // checking autoUpdater events are triggered
@@ -186,26 +186,26 @@ describe('electron app ready event', () => {
   })
 })
 
-//to improve
+// to improve
 describe('other electron app events ', () => {
   it('app events listenners tirggering', async () => {
-    //open-url app event
+    // open-url app event
     expect(mockAppOnCalls[0][0]).toBe('open-url')
     const event = { preventDefault: () => { } }
     mockAppOnCalls[0][1](event, 'https://anything.com')
     expect(mockWindowWebContentsSend).toHaveBeenCalled()
 
-    //browser-window-created app event
+    // browser-window-created app event
     const window = new BrowserWindow()
     expect(mockAppOnCalls[2][0]).toBe('browser-window-created')
     mockAppOnCalls[2][1](null, window)
-    expect(remote.enable).toHaveBeenCalled
+    expect(remote.enable).toHaveBeenCalled()
 
-    //window-all-closed app event
+    // window-all-closed app event
     expect(mockAppOnCalls[3][0]).toBe('window-all-closed')
     mockAppOnCalls[3][1]()
 
-    //activate app event
+    // activate app event
     expect(mockAppOnCalls[4][0]).toBe('activate')
     mockAppOnCalls[4][1]()
   })
