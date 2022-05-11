@@ -38,7 +38,7 @@ const scrollUp = ClientFunction(() => {
   channelContent.scrollBy(0, -channelContent.scrollHeight)
 })
 
-test('User can create new community, register and send few messages to general channel', async t => {
+test('Two users register, can scroll to older messages and switch channels', async t => {
   // User opens app for the first time, sees spinner, waits for spinner to disappears
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
 
