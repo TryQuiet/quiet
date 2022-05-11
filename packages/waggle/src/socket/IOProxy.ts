@@ -24,7 +24,8 @@ import {
   NetworkData,
   ResponseCreateNetworkPayload,
   ErrorCodes,
-  AskForMessagesPayload
+  AskForMessagesPayload,
+  FileContent
 } from '@quiet/nectar'
 import { emitError } from './errors'
 
@@ -75,6 +76,14 @@ export default class IOProxy {
 
   public sendMessage = async (peerId: string, message: ChannelMessage): Promise<void> => {
     await this.getStorage(peerId).sendMessage(message)
+  }
+
+  public uploadFile = async (peerId: string, file: FileContent) => {
+    await this.getStorage(peerId).uploadFile(file)
+  }
+
+  public uploadedFile = (hash: string) => {
+    this.io.emit(SocketActionTypes.UPLOADED_FILE, hash)
   }
 
   // DMs

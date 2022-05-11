@@ -5,7 +5,7 @@ import {
   parseCertificate,
   verifyUserCert
 } from '@quiet/identity'
-import { ChannelMessage, PublicChannel, SaveCertificatePayload } from '@quiet/nectar'
+import { ChannelMessage, PublicChannel, SaveCertificatePayload, FileContent } from '@quiet/nectar'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
 import OrbitDB from 'orbit-db'
@@ -363,6 +363,22 @@ export class Storage {
       await repo.db.add(message)
     } catch (e) {
       log.error('STORAGE: Could not append message (entry not allowed to write to the log)')
+    }
+  }
+
+  public async uploadFile(file: FileContent) {
+    // Create directory for file
+    await this.ipfs.files.mkdir(`/${file.dir}`, { parents: true })
+    // Write file to IPFS
+    const uploadingFileName = `${file.name}.${file.ext}`
+    await this.ipfs.files.write(`/${file.dir}/${uploadingFileName}`, file.buffer, { create: true })
+    // Get uploaded file information
+    const entries = this.ipfs.files.ls(`/${file.dir}`)
+    for await(const entry of entries) {
+      if (entry.name === uploadingFileName) {
+        const hash = entry.cid.toString()
+        this.io.uploadedFile(hash)
+      }
     }
   }
 

@@ -62,4 +62,7 @@ export enum SocketActionTypes {
   SUBSCRIBE_FOR_ALL_CONVERSATIONS = 'subscribeToAllConversations',
   SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD = 'subscribeToDirectMessageThread',
   SUBSCRIBE_TO_TOPIC = 'subscribeToTopic',
+  // U
+  UPLOAD_FILE= 'uploadFile',
+  UPLOADED_FILE = 'uploadedFile'
 }

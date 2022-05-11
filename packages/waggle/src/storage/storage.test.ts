@@ -23,7 +23,8 @@ import {
   Identity,
   ChannelMessage,
   PublicChannel,
-  PublicChannelStorage
+  PublicChannelStorage,
+  FileContent
 } from '@quiet/nectar'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 
@@ -288,5 +289,33 @@ describe('Message', () => {
 
     // Confirm message has passed orbitdb validator (check signature verification only)
     expect(spy).not.toHaveBeenCalled()
+  })
+})
+
+describe('Files', () => {
+  it('is uploaded to IPFS', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+
+    const spy = jest.spyOn(storage.io, 'uploadedFile')
+
+    const buffer = fs.readFileSync(path.join(__dirname, '/testUtils/test-image.png')).toString()
+
+    const fileContent: FileContent = {
+      buffer: buffer,
+      name: 'test-image',
+      ext: 'png',
+      dir: 'photos'
+    }
+
+    await storage.uploadFile(fileContent)
+
+    expect(spy).toHaveBeenCalled()
   })
 })

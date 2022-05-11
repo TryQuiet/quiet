@@ -8,7 +8,8 @@ import {
   SendMessagePayload,
   SocketActionTypes,
   SubscribeToTopicPayload,
-  AskForMessagesPayload
+  AskForMessagesPayload,
+  UploadFilePayload
 } from '@quiet/nectar'
 
 import IOProxy from '../IOProxy'
@@ -36,6 +37,12 @@ export const connections = (io, ioProxy: IOProxy) => {
       SocketActionTypes.SEND_MESSAGE,
       async (payload: SendMessagePayload) => {
         await ioProxy.sendMessage(payload.peerId, payload.message)
+      }
+    )
+    socket.on(
+      SocketActionTypes.UPLOAD_FILE,
+      async (payload: UploadFilePayload) => {
+        await ioProxy.uploadFile(payload.peerId, payload.file)
       }
     )
     socket.on(
