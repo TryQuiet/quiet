@@ -67,7 +67,7 @@ setEngine(
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
 
-const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
+export const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
   return window instanceof BrowserWindow
 }
 
@@ -198,12 +198,11 @@ export const createWindow = async () => {
   })
 
   mainWindow.setMinimumSize(600, 400)
-  let dataPort: number = ports?.dataServer ? ports?.dataServer : 7070
   /* eslint-disable */
   mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, './index.html'),
-      search: `dataPort=${dataPort}`,
+      search: `dataPort=${ports.dataServer}`,
       protocol: 'file:',
       slashes: true,
       hash: '/'

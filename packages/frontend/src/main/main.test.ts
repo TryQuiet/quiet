@@ -1,11 +1,29 @@
-import { checkForUpdate, createWindow, applyDevTools } from './main'
-import { BrowserWindow, app } from 'electron'
-import { autoUpdater } from 'electron-updater'
+import * as main from './main'
+import * as waggleHelpers from './waggleHelpers'
 
-const mockShow = jest.fn()
+import { autoUpdater } from 'electron-updater'
+import { BrowserWindow, app, ipcMain, Menu } from 'electron'
+import { waitFor } from '@testing-library/dom'
+// eslint-disable-next-line
+const remote = require('@electron/remote/main')
+
+const mockShowWindow = jest.fn()
+const mockWindowWebContentsSend = jest.fn()
+const mockwebContentsOn = jest.fn()
+const mockwebContentsOnce = jest.fn()
+const mockDestroyWindow = jest.fn()
+const mockWindowOnce = jest.fn()
+
+const spyApplyDevTools = jest.spyOn(main, 'applyDevTools')
+const spyCreateWindow = jest.spyOn(main, 'createWindow')
+const spyGetPorts = jest.spyOn(waggleHelpers, 'getPorts')
+
+jest.spyOn(main, 'isBrowserWindow').mockReturnValue(true)
 
 jest.mock('@electron/remote/main', () => {
   return {
+    // @ts-expect-error
+    ...jest.requireActual('@electron/remote/main'),
     initialize: jest.fn(),
     enable: jest.fn()
   }
@@ -17,16 +35,23 @@ jest.mock('electron-localshortcut', () => {
   }
 })
 
-jest.mock('./waggleHelpers', async () => ({
-  getPorts: async () => {
-    return {
-      dataPort: jest.fn()
-    }
+jest.mock('child_process', () => {
+  return {
+    // @ts-expect-error
+    ...jest.requireActual('child_process'),
+    fork: jest.fn().mockImplementation(() => {
+      return {
+        on: jest.fn(),
+        send: jest.fn()
+      }
+    })
   }
-}))
+})
 
 jest.mock('electron', () => {
   return {
+    // @ts-expect-error
+    ...jest.requireActual('electron'),
     app: {
       getPath: jest.fn(),
       getName: jest.fn(),
@@ -39,11 +64,25 @@ jest.mock('electron', () => {
     BrowserWindow: jest.fn().mockImplementation(() => {
       return {
         loadURL: jest.fn(),
-        show: mockShow,
+        show: mockShowWindow,
         setMinimumSize: jest.fn(),
-        on: jest.fn()
+        on: jest.fn(),
+        once: mockWindowOnce,
+        getTitle: jest.fn(),
+        destroy: mockDestroyWindow,
+        webContents: {
+          on: mockwebContentsOn,
+          once: mockwebContentsOnce,
+          send: mockWindowWebContentsSend
+        }
       }
-    })
+    }),
+    Menu: {
+      setApplicationMenu: jest.fn()
+    },
+    ipcMain: {
+      on: jest.fn()
+    }
   }
 })
 
@@ -56,43 +95,118 @@ jest.mock('electron-updater', () => {
   }
 })
 
-describe('main electron process', () => {
-  it('mian process creates two windows and show spalsh screen', async () => {
-    await createWindow()
+const appOn = app.on as jest.Mock<any, any>
+const setApplicationMenu = Menu.setApplicationMenu as jest.Mock<any, any>
+const autoUpdaterOn = autoUpdater.on as jest.Mock<any, any>
+const mockAppOnCalls = appOn.mock.calls
+const mockIpcMainOn = ipcMain.on as jest.Mock<any, any>
+
+describe('electron app ready event', () => {
+  it('application will trigger ready event, next run listener function of ready event', async () => {
+    expect(mockAppOnCalls[1][0]).toBe('ready')
+    await mockAppOnCalls[1][1]()
+  })
+
+  it('application menu will set one time as null - remove menu bar', async () => {
+    expect(setApplicationMenu).toHaveBeenCalledTimes(1)
+    expect(setApplicationMenu).toHaveBeenCalledWith(null)
+  })
+
+  //todo
+  it('apply devtools logic will trigger one time and smt', async () => {
+    expect(spyApplyDevTools).toHaveBeenCalledTimes(1)
+  })
+
+  it('get ports logic will trigger and will return propper ports', async () => {
+    expect(spyGetPorts).toHaveBeenCalledTimes(1)
+    const getPortsResult = (): Promise<any> => spyGetPorts.mock.results[0].value
+    await waitFor(async () =>
+      expect(Object.keys(await getPortsResult())).toEqual([
+        "socksPort",
+        "libp2pHiddenService",
+        "controlPort",
+        "httpTunnelPort",
+        "dataServer",
+      ])
+    )
+  })
+
+  it('creates splash screen and main window, show splash screen', async () => {
+    expect(spyCreateWindow).toHaveBeenCalledTimes(1)
 
     //create 2 windows, splash screen and main window
     expect(BrowserWindow).toHaveBeenCalledTimes(2)
-
     //show spalsh screen
-    expect(mockShow).toHaveBeenCalledTimes(1)
+    expect(mockShowWindow).toHaveBeenCalledTimes(1)
   })
 
-  it('checkForUpdate', async () => {
-    const window = new BrowserWindow()
-    await checkForUpdate(window)
+  it('replacing splash screen with main window in webcontents did-finish-load window event', async () => {
+    const mockwebContentsOnCalls = mockwebContentsOn.mock.calls
+    expect(mockwebContentsOnCalls[0][0]).toBe('did-finish-load')
+    mockShowWindow.mockClear()
+    mockwebContentsOnCalls[0][1]()
+
+    // expect the splash screen to be destroyed and the main window to appear
+    expect(mockDestroyWindow).toHaveBeenCalledTimes(1)
+    expect(mockShowWindow).toHaveBeenCalledTimes(1)
+  })
+
+  it('close application and save state correctly', async () => {
+    const mockWindowOnceCalls = mockWindowOnce.mock.calls
+
+    expect(mockWindowOnce).toHaveBeenCalledTimes(1)
+    expect(mockWindowOnceCalls[0][0]).toBe('close')
+    const event = { preventDefault: () => { } }
+    mockWindowOnceCalls[0][1](event)
+    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('force-save-state')
+
+    const mockIpcMainOnCalls = mockIpcMainOn.mock.calls
+    expect(mockIpcMainOnCalls[0][0]).toBe('state-saved')
+  })
+
+  it('checks for updates in webcontents once did-finish-load window event', async () => {
+    const mockwebContentsOnceCalls = mockwebContentsOnce.mock.calls
+    expect(mockwebContentsOnceCalls[0][0]).toBe('did-finish-load')
+
+    await mockwebContentsOnceCalls[0][1]()
 
     //checking is autoUpdater strat
     expect(autoUpdater.checkForUpdates).toHaveBeenCalledTimes(1)
 
-    // checking autoUpdater life cycle
-    const autoUpdaterOn = autoUpdater.on as jest.Mock<any, any>
+    // checking autoUpdater events are triggered
     expect(autoUpdaterOn.mock.calls[0][0]).toBe('checking-for-update')
     expect(autoUpdaterOn.mock.calls[1][0]).toBe('error')
     expect(autoUpdaterOn.mock.calls[2][0]).toBe('update-not-available')
     expect(autoUpdaterOn.mock.calls[3][0]).toBe('update-available')
+
+    // update-downloaded event will send contet about available update to renderer process
     expect(autoUpdaterOn.mock.calls[4][0]).toBe('update-downloaded')
+    autoUpdaterOn.mock.calls[4][1]()
+    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('newUpdateAvailable')
   })
+})
 
-  // it('running dev tools', async () => {
-  //   await applyDevTools()
-  // })
+//to improve
+describe('other electron app events ', () => {
+  it('app events listenners tirggering', async () => {
+    //open-url app event
+    expect(mockAppOnCalls[0][0]).toBe('open-url')
+    const event = { preventDefault: () => { } }
+    mockAppOnCalls[0][1](event, 'https://anything.com')
+    expect(mockWindowWebContentsSend).toHaveBeenCalled()
 
-  it('electron app have proper life cycle', async () => {
-    const appOn = app.on as jest.Mock<any, any>
-    expect(appOn.mock.calls[0][0]).toBe('open-url')
-    expect(appOn.mock.calls[1][0]).toBe('ready')
-    expect(appOn.mock.calls[2][0]).toBe('browser-window-created')
-    expect(appOn.mock.calls[3][0]).toBe('window-all-closed')
-    expect(appOn.mock.calls[4][0]).toBe('activate')
+    //browser-window-created app event
+    const window = new BrowserWindow()
+    expect(mockAppOnCalls[2][0]).toBe('browser-window-created')
+    mockAppOnCalls[2][1](null, window)
+    expect(remote.enable).toHaveBeenCalled
+
+    //window-all-closed app event
+    expect(mockAppOnCalls[3][0]).toBe('window-all-closed')
+    mockAppOnCalls[3][1]()
+
+    //activate app event
+    expect(mockAppOnCalls[4][0]).toBe('activate')
+    mockAppOnCalls[4][1]()
   })
 })
