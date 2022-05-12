@@ -25,6 +25,8 @@ export enum SocketActionTypes {
   CREATE_NETWORK = 'createNetwork',
   // D
   DIRECT_MESSAGE = 'directMessage',
+  DOWNLOAD_FILE = 'downloadFile',
+  DOWNLOADED_FILE = 'downloadedFile',
   // E
   ERROR = 'error',
   // G

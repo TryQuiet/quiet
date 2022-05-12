@@ -87,6 +87,14 @@ export default class IOProxy {
     this.io.emit(SocketActionTypes.UPLOADED_FILE, metadata)
   }
 
+  public downloadFile = async (peerId: string, cid: string) => {
+    await this.getStorage(peerId).downloadFile(cid)
+  }
+
+  public downloadedFile = (metadata: FileMetadata) => {
+    this.io.emit(SocketActionTypes.DOWNLOADED_FILE, metadata)
+  }
+
   // DMs
 
   public initializeConversation = async (

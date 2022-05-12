@@ -27,6 +27,7 @@ import { MessagesAccessController } from './MessagesAccessController'
 import logger from '../logger'
 import IOProxy from '../socket/IOProxy'
 import validate from '../validation/validators'
+import { CID } from 'multiformats/cid'
 
 const log = logger('db')
 
@@ -377,10 +378,24 @@ export class Storage {
     for await(const entry of entries) {
       if (entry.name === uploadingFileName) {
         const metadata: FileMetadata = {
-          cid: entry.cid.toString()
+          cid: entry.cid.toString(),
+          buffer: null
         }
         this.io.uploadedFile(metadata)
       }
+    }
+  }
+
+  public async downloadFile(cid: string) {
+    const _CID = CID.parse(cid)
+    const entries = this.ipfs.files.read(_CID)
+    for await(const entry of entries) {
+      const buffer = new Buffer(entry).toString()
+      const metadata: FileMetadata = {
+        cid: cid,
+        buffer: buffer
+      }
+      this.io.downloadedFile(metadata)
     }
   }
 

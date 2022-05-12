@@ -24,7 +24,8 @@ import {
   ChannelMessage,
   PublicChannel,
   PublicChannelStorage,
-  FileContent
+  FileContent,
+  FileMetadata
 } from '@quiet/nectar'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 
@@ -292,8 +293,8 @@ describe('Message', () => {
   })
 })
 
-describe('Files', () => {
-  it('is uploaded to IPFS', async () => {
+describe.only('Files', () => {
+  it('is uploaded to IPFS then can be downloaded', async () => {
     storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
 
     const peerId = await PeerId.create()
@@ -303,7 +304,8 @@ describe('Files', () => {
 
     await storage.initDatabases()
 
-    const spy = jest.spyOn(storage.io, 'uploadedFile')
+    // Uploading
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
 
     const buffer = fs.readFileSync(path.join(__dirname, '/testUtils/test-image.png')).toString()
 
@@ -316,6 +318,22 @@ describe('Files', () => {
 
     await storage.uploadFile(fileContent)
 
-    expect(spy).toHaveBeenCalled()
+    expect(uploadSpy).toHaveBeenCalled()
+    
+    // Downloading
+    const downloadSpy = jest.spyOn(storage.io, 'downloadedFile')
+    
+    const uploadMetadata = uploadSpy.mock.calls[0][0]
+    const cid = uploadMetadata.cid
+    console.log(cid)
+
+    await storage.downloadFile(cid)
+
+    const downloadMetadata: FileMetadata = {
+      cid: cid,
+      buffer: fileContent.buffer
+    }
+
+    expect(downloadSpy).toHaveBeenCalledWith(downloadMetadata)
   })
 })
