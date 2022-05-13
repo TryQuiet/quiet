@@ -2,7 +2,7 @@ export interface FileContent {
     buffer: string
     name: string
     ext: string
-    dir: string
+    dir?: string
 }
 
 export interface FileMetadata {
