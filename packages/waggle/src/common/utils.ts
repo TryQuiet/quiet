@@ -28,6 +28,32 @@ export function removeFilesFromDir(dirPath: string) {
   }
 }
 
+export const getFilesRecursively = (directory: string, arr: string[]) => {
+  const filesInDirectory = fs.readdirSync(directory);
+  for (const file of filesInDirectory) {
+    const absolute = path.join(directory, file);
+    if (fs.statSync(absolute).isDirectory()) {
+        getFilesRecursively(absolute, arr);
+    } else {
+        arr.push(absolute);
+      }
+    }  
+  }
+
+export const removeFiles = (appPath: string, filename: string) => {
+  const IpfsAndOrbitDb = fs.readdirSync(appPath).filter(i => i.startsWith('Ipfs') || i.startsWith('OrbitDB'))
+  let files = []
+  IpfsAndOrbitDb.forEach((e) => {
+    const directory = path.resolve(appPath, e)
+    getFilesRecursively(directory, files)
+  })
+  files.forEach(e => {
+    if (e.endsWith(filename)) {
+      fs.unlinkSync(e)
+    }
+  })
+}
+
 export function fetchAbsolute(fetch: Function): Function {
   return (baseUrl: string) => (url: string, ...otherParams) =>
     url.startsWith('/') ? fetch(baseUrl + url, ...otherParams) : fetch(url, ...otherParams)
