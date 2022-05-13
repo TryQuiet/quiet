@@ -14,7 +14,9 @@ export enum CommunityNameErrors {
 }
 
 export enum InviteLinkErrors {
-  WrongCharacter = 'Please check your invitation code and try again'
+  WrongCharacter = 'Please check your invitation code and try again',
+  ValueTooLong = 'Invitation code is too long',
+  ValueTooShort = 'Invitation code is too short'
 }
 
 export enum ChannelNameErrors {

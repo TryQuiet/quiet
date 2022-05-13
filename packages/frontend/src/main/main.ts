@@ -67,7 +67,7 @@ setEngine(
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
 
-const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
+export const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
   return window instanceof BrowserWindow
 }
 
@@ -75,7 +75,7 @@ const gotTheLock = app.requestSingleInstanceLock()
 
 const extensionsFolderPath = `${app.getPath('userData')}/extensions`
 
-const applyDevTools = async () => {
+export const applyDevTools = async () => {
   /* eslint-disable */
   if (!isDev || isE2Etest) return
   /* eslint-disable */
@@ -159,7 +159,7 @@ let browserHeight: number
 
 // Default title bar must be hidden for macos because we have custom styles for it
 const titleBarStyle = process.platform !== 'win32' ? 'hidden' : 'default'
-const createWindow = async () => {
+export const createWindow = async () => {
   mainWindow = new BrowserWindow({
     width: windowSize.width,
     height: windowSize.height,
@@ -374,10 +374,25 @@ app.on('browser-window-created', (_, window) => {
 app.on('window-all-closed', async () => {
   log('Event: app.window-all-closed')
   if (waggleProcess !== null) {
+    /* OrbitDB released a patch (0.28.5) that omits error thrown when closing the app during heavy replication
+       it needs mending though as replication is not being stopped due to pednign ipfs block/dag calls.
+       https://github.com/orbitdb/orbit-db-store/issues/121
+       ...
+       Quiet side workaround is force-killing waggle process.
+       It may result in problems caused by post-process leftovers (like lock-files),
+       nevertheless developer team is aware of that and has a response
+       https://github.com/ZbayApp/monorepo/issues/469
+    */
+    const forceClose = setTimeout(() => {
+      log('Force closing the app')
+      waggleProcess.kill()
+      app.quit()
+    }, 2000)
     waggleProcess.send('close')
     waggleProcess.on('message', message => {
       if (message === 'closed-services') {
         log('Closing the app')
+        clearTimeout(forceClose)
         app.quit()
       }
     })
