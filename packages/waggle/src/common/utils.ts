@@ -42,6 +42,7 @@ export const getFilesRecursively = (directory: string, arr: string[]) => {
 }
 
 export const removeFiles = (appPath: string, filename: string) => {
+  if (!fs.existsSync(appPath)) return
   const IpfsAndOrbitDb = fs.readdirSync(appPath).filter(i => i.startsWith('Ipfs') || i.startsWith('OrbitDB'))
   const files = []
   IpfsAndOrbitDb.forEach((e) => {
