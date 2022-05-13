@@ -4,6 +4,7 @@ import { ChannelMessage } from '../publicChannels/publicChannels.types'
 export enum MessageType {
   Empty = -1,
   Basic = 1,
+  IMAGE = 2
 }
 
 export enum SendingStatus {
@@ -18,6 +19,11 @@ export interface SendMessagePayload {
 
 export interface WriteMessagePayload {
   message: string
+  channelAddress?: string
+}
+
+export interface SendImagePayload {
+  buffer: string
   channelAddress?: string
 }
 

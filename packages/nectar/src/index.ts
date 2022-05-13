@@ -55,7 +55,6 @@ export { useIO } from './sagas/socket/startConnection/startConnection.saga'
 export { getFactory } from './utils/tests/factories'
 export * from './utils/tests/helpers'
 
-
 export { Community } from './sagas/communities/communities.slice'
 
 export { communityChannelsAdapter } from './sagas/publicChannels/publicChannels.adapter'

@@ -1,4 +1,5 @@
 import { createSlice, Dictionary, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { FileMetadata } from '../files/files.types'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
 import { ChannelMessage, IncomingMessages } from '../publicChannels/publicChannels.types'
 import { StoreKeys } from '../store.keys'
@@ -17,7 +18,8 @@ import {
   SetDisplayedMessagesNumberPayload,
   LazyLoadingPayload,
   AskForMessagesPayload,
-  ChannelMessagesIdsResponse
+  ChannelMessagesIdsResponse,
+  SendImagePayload
 } from './messages.types'
 
 export class MessagesState {
@@ -37,6 +39,9 @@ export const messagesSlice = createSlice({
   initialState: { ...new MessagesState() },
   name: StoreKeys.Messages,
   reducers: {
+    downloadFile: (state, _action: PayloadAction<FileMetadata>) => state,
+    uploadFile: (state, _action: PayloadAction<SendImagePayload>) => state,
+
     sendMessage: (state, _action: PayloadAction<WriteMessagePayload>) => state,
     addPublicKeyMapping: (state, action: PayloadAction<PublicKeyMappingPayload>) => {
       state.publicKeyMapping[action.payload.publicKey] = action.payload.cryptoKey
