@@ -67,7 +67,7 @@ setEngine(
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
 
-const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
+export const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
   return window instanceof BrowserWindow
 }
 
@@ -75,7 +75,7 @@ const gotTheLock = app.requestSingleInstanceLock()
 
 const extensionsFolderPath = `${app.getPath('userData')}/extensions`
 
-const applyDevTools = async () => {
+export const applyDevTools = async () => {
   /* eslint-disable */
   if (!isDev || isE2Etest) return
   /* eslint-disable */
@@ -159,7 +159,7 @@ let browserHeight: number
 
 // Default title bar must be hidden for macos because we have custom styles for it
 const titleBarStyle = process.platform !== 'win32' ? 'hidden' : 'default'
-const createWindow = async () => {
+export const createWindow = async () => {
   mainWindow = new BrowserWindow({
     width: windowSize.width,
     height: windowSize.height,
