@@ -55,4 +55,7 @@ describe('Remove files', () => {
       'Quiet/some-file.txt'
     ])
   })
+  it('No error if directory doesnt exist', () => {
+    expect(() => removeFiles('LOCK', 'non/existent/dir')).not.toThrow()
+  })
 })
