@@ -382,21 +382,24 @@ export class Storage {
           buffer: null
         }
         this.io.uploadedFile(metadata)
+        break
       }
     }
   }
 
   public async downloadFile(cid: string) {
     const _CID = CID.parse(cid)
-    const entries = this.ipfs.files.read(_CID)
+    const entries = this.ipfs.get(_CID)
+    let merged = new Uint8Array(0)
     for await(const entry of entries) {
-      const buffer = new Buffer(entry).toString()
-      const metadata: FileMetadata = {
-        cid: cid,
-        buffer: buffer
-      }
-      this.io.downloadedFile(metadata)
+      merged = new Uint8Array([ ...merged, ...entry ])
     }
+    const buffer = new Buffer(merged).toString()
+    const metadata: FileMetadata = {
+      cid: cid,
+      buffer: buffer
+    }
+    this.io.downloadedFile(metadata)
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {
