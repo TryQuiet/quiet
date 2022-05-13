@@ -75,7 +75,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   }, [])
 
   const { ref: scrollbarRef } = useResizeDetector<HTMLDivElement>({ onResize })
-
   const scrollBottom = () => {
     if (!scrollbarRef.current) return
     setScrollHeight(0)
