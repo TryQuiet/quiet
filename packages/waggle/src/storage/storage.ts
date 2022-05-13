@@ -20,7 +20,7 @@ import {
   PublicChannelsRepo,
   StorageOptions
 } from '../common/types'
-import { createPaths } from '../common/utils'
+import { createPaths, removeFiles } from '../common/utils'
 import { Config } from '../constants'
 import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
@@ -70,8 +70,11 @@ export class Storage {
     this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
   }
 
+  
+  
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
     log('STORAGE: Entered init')
+    removeFiles(this.quietDir, 'LOCK')
     if (this.options?.createPaths) {
       createPaths([this.ipfsRepoPath, this.orbitDbDir])
     }
