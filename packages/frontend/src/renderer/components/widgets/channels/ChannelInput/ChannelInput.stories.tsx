@@ -1,6 +1,8 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
+import { INPUT_STATE } from './InputState.enum'
+
 import { ChannelInputComponent, ChannelInputProps } from './ChannelInput'
 import { withTheme } from '../../../../storybook/decorators'
 
@@ -13,6 +15,7 @@ const Template: ComponentStory<typeof ChannelInputComponent> = args => {
 }
 
 export const Component = Template.bind({})
+export const Disabled = Template.bind({})
 
 const args: ChannelInputProps = {
   channelAddress: 'channelAddress',
@@ -26,7 +29,21 @@ const args: ChannelInputProps = {
   setInfoClass: function (_arg: string): void {}
 }
 
+const argsDisabledInput: ChannelInputProps = {
+  channelAddress: 'channelAddress',
+  channelParticipants: [{ nickname: 'john' }, { nickname: 'emily' }],
+  inputPlaceholder: '#general as @alice',
+  onChange: function (_arg: string): void {},
+  onKeyPress: function (input: string): void {
+    console.log('send message', input)
+  },
+  infoClass: '',
+  setInfoClass: function (_arg: string): void {},
+  inputState: INPUT_STATE.NOT_CONNECTED
+}
+
 Component.args = args
+Disabled.args = argsDisabledInput
 
 const component: ComponentMeta<typeof ChannelInputComponent> = {
   title: 'Components/ChannelInput',

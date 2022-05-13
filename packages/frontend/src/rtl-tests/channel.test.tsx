@@ -587,17 +587,8 @@ describe('Channel', () => {
 
     // This input loses the first letter, hence the next assertion looks for a string without that.
     userEvent.type(messageInput, 'hhello')
-
-    // We can't access value of this input by HTML, so we check if the text is visible and we expect it to throw error.
-    let isTextVisible = true
-    try {
-      screen.getByText('hello')
-    } catch (err) {
-      console.log(err)
-      isTextVisible = false
-    }
-
-    expect(isTextVisible).toBeFalsy()
+    
+    expect(await screen.queryByText('hello')).toBeNull()
 
     userEvent.type(messageInput, '{enter}')
 
