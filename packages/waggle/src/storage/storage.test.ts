@@ -22,7 +22,6 @@ import {
   Store,
   Identity,
   ChannelMessage,
-  PublicChannel,
   PublicChannelStorage
 } from '@quiet/nectar'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
