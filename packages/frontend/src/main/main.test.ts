@@ -113,9 +113,9 @@ describe('electron app ready event', () => {
   })
 
   // todo
-  it('apply devtools logic will trigger one time and smt', async () => {
-    expect(spyApplyDevTools).toHaveBeenCalledTimes(1)
-  })
+  // it('apply devtools logic will trigger one time and ... todo', async () => {
+  //   expect(spyApplyDevTools).toHaveBeenCalledTimes(1)
+  // })
 
   it('get ports logic will trigger and will return propper ports', async () => {
     expect(spyGetPorts).toHaveBeenCalledTimes(1)
@@ -188,7 +188,7 @@ describe('electron app ready event', () => {
 
 // to improve
 describe('other electron app events ', () => {
-  it('app events listenners tirggering', async () => {
+  it('app events listeners triggering', async () => {
     // open-url app event
     expect(mockAppOnCalls[0][0]).toBe('open-url')
     const event = { preventDefault: () => { } }
