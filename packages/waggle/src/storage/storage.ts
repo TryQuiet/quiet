@@ -70,8 +70,6 @@ export class Storage {
     this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
   }
 
-  
-  
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
     log('STORAGE: Entered init')
     removeFiles(this.quietDir, 'LOCK')
