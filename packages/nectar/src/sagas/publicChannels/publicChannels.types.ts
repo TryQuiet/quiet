@@ -27,7 +27,7 @@ export interface PublicChannelStatus {
 export interface ChannelMessage {
   id: string
   type: number
-  message?: string
+  message: string
   createdAt: number
   channelAddress: string
   signature: string

@@ -22,11 +22,6 @@ export interface WriteMessagePayload {
   channelAddress?: string
 }
 
-export interface SendImagePayload {
-  buffer: string
-  channelAddress?: string
-}
-
 export interface PublicKeyMappingPayload {
   publicKey: string
   cryptoKey: CryptoKey

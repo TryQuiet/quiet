@@ -56,9 +56,17 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof connectionActions.addInitializedCommunity>
   | ReturnType<typeof connectionActions.addInitializedRegistrar>
   | ReturnType<typeof connectionActions.addConnectedPeers>
+  | ReturnType<typeof messagesActions.downloadedFile>
+  | ReturnType<typeof messagesActions.uploadedFile>
   >((emit) => {
     socket.on(SocketActionTypes.CONNECTED_PEERS, (payload: { connectedPeers: ConnectedPeers }) => {
       emit(connectionActions.addConnectedPeers(payload.connectedPeers))
+    })
+    socket.on(SocketActionTypes.DOWNLOADED_FILE, (payload: FileMetadata) => {
+      emit(messagesActions.downloadedFile(payload))
+    })
+    socket.on(SocketActionTypes.UPLOADED_FILE, (payload: FileMetadata) => {
+      emit(messagesActions.uploadedFile(payload))
     })
     socket.on(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, (payload: GetPublicChannelsResponse) => {
       emit(publicChannelsActions.responseGetPublicChannels(payload))
