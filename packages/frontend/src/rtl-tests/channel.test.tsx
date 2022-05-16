@@ -587,7 +587,7 @@ describe('Channel', () => {
 
     // This input loses the first letter, hence the next assertion looks for a string without that.
     userEvent.type(messageInput, 'hhello')
-    
+
     expect(await screen.queryByText('hello')).toBeNull()
 
     userEvent.type(messageInput, '{enter}')
