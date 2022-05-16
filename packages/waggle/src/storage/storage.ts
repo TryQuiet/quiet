@@ -369,14 +369,16 @@ export class Storage {
 
   public async uploadFile(file: FileContent) {
     // Create directory for file
-    await this.ipfs.files.mkdir(`/${file.dir}`, { parents: true })
+    const dirname = file.dir || 'uploads'
+    await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })
     // Write file to IPFS
-    const uploadingFileName = `${file.name}.${file.ext}`
-    await this.ipfs.files.write(`/${file.dir}/${uploadingFileName}`, file.buffer, { create: true })
+    const uuid = `${Date.now()}_${Math.random().toString(36).substr(2.9)}`
+    const filename = `${uuid}_${file.name}.${file.ext}`
+    await this.ipfs.files.write(`/${dirname}/${filename}`, file.buffer, { create: true })
     // Get uploaded file information
-    const entries = this.ipfs.files.ls(`/${file.dir}`)
+    const entries = this.ipfs.files.ls(`/${dirname}`)
     for await(const entry of entries) {
-      if (entry.name === uploadingFileName) {
+      if (entry.name === filename) {
         const metadata: FileMetadata = {
           cid: entry.cid.toString(),
           buffer: null

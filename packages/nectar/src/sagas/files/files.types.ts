@@ -1,8 +1,8 @@
 export interface FileContent {
-  buffer: string
-  name: string
-  ext: string
-  dir: string
+    buffer: string
+    name: string
+    ext: string
+    dir?: string
 }
 
 export interface FileMetadata {
