@@ -410,6 +410,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       setFocused(true)
                     }
                   }}
+                  disabled={inputState !== INPUT_STATE.AVAILABLE}
                   html={sanitizedHtml}
                   onChange={onChangeCb}
                   onKeyDown={onKeyDownCb}
@@ -461,7 +462,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         </Grid>
         <ChannelInputInfoMessage
           showInfoMessage={inputState !== INPUT_STATE.AVAILABLE}
-          inputState={inputState}
         />
       </Grid>
     </Grid>

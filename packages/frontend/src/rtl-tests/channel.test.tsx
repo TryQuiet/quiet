@@ -2,7 +2,8 @@ import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { act } from 'react-dom/test-utils'
 import { screen } from '@testing-library/dom'
-import { apply } from 'typed-redux-saga'
+import { apply, take } from 'typed-redux-saga'
+import userEvent from '@testing-library/user-event'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
@@ -18,7 +19,8 @@ import {
   ChannelMessage,
   messages,
   SendingStatus,
-  MessageType
+  MessageType,
+  connection
 } from '@quiet/nectar'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -358,20 +360,26 @@ describe('Channel', () => {
     const sentMessage = publicChannels.selectors.currentChannelMessages(store.getState())[0]
 
     // Confirm message has been stored immediately
-    const displayableMessages = publicChannels.selectors.currentChannelMessagesMergedBySender(store.getState())
+    const displayableMessages = publicChannels.selectors.currentChannelMessagesMergedBySender(
+      store.getState()
+    )
     expect(Object.values(displayableMessages).length).toBe(1)
 
     // Verify message status is 'pending'
-    expect(messages.selectors.messagesSendingStatus(store.getState())[sentMessage.id].status).toBe(SendingStatus.Pending)
+    expect(messages.selectors.messagesSendingStatus(store.getState())[sentMessage.id].status).toBe(
+      SendingStatus.Pending
+    )
 
     // Verify message is greyed out
     expect(await screen.findByText(messageText)).toHaveStyle('color:#B2B2B2')
 
     // Update message sending status
-    store.dispatch(messages.actions.incomingMessages({
-      messages: [sentMessage],
-      communityId: community.id
-    }))
+    store.dispatch(
+      messages.actions.incomingMessages({
+        messages: [sentMessage],
+        communityId: community.id
+      })
+    )
 
     await act(async () => {
       await runSaga(mockIncomingMessages).toPromise()
@@ -388,7 +396,9 @@ describe('Channel', () => {
     }
 
     // Confirm 'pending' message status has been removed
-    expect(messages.selectors.messagesSendingStatus(store.getState())[sentMessage.id]).toBe(undefined)
+    expect(messages.selectors.messagesSendingStatus(store.getState())[sentMessage.id]).toBe(
+      undefined
+    )
 
     // Confirm message is no longer greyed out
     expect(await screen.findByText(messageText)).toBeVisible()
@@ -477,5 +487,112 @@ describe('Channel', () => {
     expect(await screen.findByText(message1.message)).toBeVisible()
     expect(await screen.findByText(message2.message)).toBeVisible()
     expect(await screen.findByText(message3.message)).toBeVisible()
+  })
+
+  it('allow to type and send message if community is initialized', async () => {
+    const { store, runSaga } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    await act(async () => {
+      store.dispatch(connection.actions.addInitializedCommunity(community.id))
+    })
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
+
+    const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
+
+    // This input loses the first letter, hence the next assertion looks for a string without that.
+    userEvent.type(messageInput, 'hhello')
+
+    const isTextVisible = screen.getByText('hello')
+
+    expect(isTextVisible).toBeTruthy()
+
+    userEvent.type(messageInput, '{enter}')
+
+    // sendMessage action trigger
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Messages/sendMessage",
+      ]
+    `)
+  })
+
+  it("doesn't allow to type and send message if community is not initialized", async () => {
+    const { store, runSaga } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
+
+    const infoMessage = screen.getByText('Initializing community. This may take a few minutes...')
+    expect(infoMessage).toBeVisible()
+
+    const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
+
+    // This input loses the first letter, hence the next assertion looks for a string without that.
+    userEvent.type(messageInput, 'hhello')
+
+    expect(await screen.queryByText('hello')).toBeNull()
+
+    userEvent.type(messageInput, '{enter}')
+
+    // sendMessage action does not trigger
+    expect(actions).toMatchInlineSnapshot('Array []')
   })
 })

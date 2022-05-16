@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { identity, messages, publicChannels } from '@quiet/nectar'
+import { identity, messages, publicChannels, connection, communities } from '@quiet/nectar'
 
 import ChannelComponent from './ChannelComponent'
 
@@ -23,6 +23,11 @@ const Channel = () => {
   const currentChannelDisplayableMessages = useSelector(
     publicChannels.selectors.currentChannelMessagesMergedBySender
   )
+
+  const communityId = useSelector(communities.selectors.currentCommunityId)
+  const initializedCommunities = useSelector(connection.selectors.initializedCommunities)
+
+  const isCommunityInitialized = Boolean(initializedCommunities[communityId])
 
   const pendingMessages = useSelector(
     messages.selectors.messagesSendingStatus
@@ -77,6 +82,7 @@ const Channel = () => {
           mutedFlag={false}
           notificationFilter={''}
           openNotificationsTab={function (): void { }}
+          isCommunityInitialized={isCommunityInitialized}
         />
       )}
     </>
