@@ -1,6 +1,6 @@
 import mock from 'mock-fs'
 import path from 'path'
-import { getFilesRecursively, removeFiles, getDirsRecursively,removeDirs } from './utils'
+import { getFilesRecursively, removeFiles, getDirsRecursively, removeDirs } from './utils'
 
 beforeEach(() => {
   mock({
