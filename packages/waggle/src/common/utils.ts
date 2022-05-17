@@ -56,6 +56,34 @@ export const removeFiles = (appPath: string, filename: string) => {
   })
 }
 
+export const getDirsRecursively = (directory: string, arr: string[]) => {
+  if (!fs.existsSync(directory)) return arr
+  const filesInDirectory = fs.readdirSync(directory)
+  for (const file of filesInDirectory) {
+    const absolute = path.join(directory, file)
+    if (fs.statSync(absolute).isDirectory()) {
+      arr.push(absolute)
+      getDirsRecursively(absolute, arr)
+    }
+  }
+}
+
+export const removeDirs = (appPath: string, filename: string) => {
+  if (!fs.existsSync(appPath)) return
+  const IpfsAndOrbitDb = fs.readdirSync(appPath).filter(i => i.startsWith('Ipfs'))
+  const dirs = []
+  IpfsAndOrbitDb.forEach((e) => {
+    const directory = path.resolve(appPath, e)
+    getDirsRecursively(directory, dirs)
+  })
+  dirs.forEach(e => {
+    if (e.endsWith(filename)) {
+      fs.rmdirSync(e)
+    }
+  })
+}
+
+
 export function fetchAbsolute(fetch: Function): Function {
   return (baseUrl: string) => (url: string, ...otherParams) =>
     url.startsWith('/') ? fetch(baseUrl + url, ...otherParams) : fetch(url, ...otherParams)

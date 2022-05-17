@@ -1,6 +1,6 @@
 import mock from 'mock-fs'
 import path from 'path'
-import { getFilesRecursively, removeFiles } from './utils'
+import { getFilesRecursively, removeFiles, getDirsRecursively,removeDirs } from './utils'
 
 beforeEach(() => {
   mock({
@@ -9,7 +9,8 @@ beforeEach(() => {
       IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn: {
         pins: {
           LOCK: 'some data'
-        }
+        },
+        'repo.lock': {}
       },
       OrbitDBQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn: {
         LOCK: 'some data'
@@ -23,7 +24,7 @@ afterEach(() => {
   mock.restore()
 })
 
-describe('Get files', () => {
+describe('Get files and dirs', () => {
   let arr = []
   it('Get files recursively', () => {
     getFilesRecursively('Quiet', arr)
@@ -34,14 +35,27 @@ describe('Get files', () => {
       'Quiet/some-file.txt'
     ])
   })
-  it('Returns empty array if directory doesnt exist', () => {
+
+  it('Get dirs recursively', () => {
+    arr = []
+    getDirsRecursively('Quiet', arr)
+    arr = arr.map(e => e.split(path.sep).join(path.posix.sep))
+    expect(arr).toEqual([
+      'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn',
+      'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn/pins',
+      'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn/repo.lock',
+      'Quiet/OrbitDBQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn'
+    ])
+  })
+
+  it("Returns empty array if directory doesn't exist", () => {
     arr = []
     getFilesRecursively('Delta', arr)
     expect(arr).toEqual([])
   })
 })
 
-describe('Remove files', () => {
+describe('Remove files and dirs', () => {
   it('Remove files by name', () => {
     let arr = []
     getFilesRecursively('Quiet', arr)
@@ -59,7 +73,28 @@ describe('Remove files', () => {
       'Quiet/some-file.txt'
     ])
   })
-  it('No error if directory doesnt exist', () => {
+
+  it('Remove directories by name', () => {
+    let arr = []
+    getDirsRecursively('Quiet', arr)
+    arr = arr.map(e => e.split(path.sep).join(path.posix.sep))
+    expect(arr).toEqual([
+      'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn',
+      'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn/pins',
+      'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn/repo.lock',
+      'Quiet/OrbitDBQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn'
+    ])
+    removeDirs('Quiet', 'repo.lock')
+    arr = []
+    getDirsRecursively('Quiet', arr)
+    arr = arr.map(e => e.split(path.sep).join(path.posix.sep))
+    expect(arr).toEqual([
+      'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn',
+      'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn/pins',
+      'Quiet/OrbitDBQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn'
+    ])
+  })
+  it("No error if directory doesn't exist", () => {
     expect(() => removeFiles('LOCK', 'non/existent/dir')).not.toThrow()
   })
 })
