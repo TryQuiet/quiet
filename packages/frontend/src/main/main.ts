@@ -349,7 +349,16 @@ app.on('ready', async () => {
     
     if (filesDialogResult.filePaths) {
       console.log('paths:', filesDialogResult.filePaths)
-      mainWindow.webContents.send('openedFiles', filesDialogResult.filePaths)
+      const filesData = filesDialogResult.filePaths.map((filePath: string) => {
+        const buffer = fs.readFileSync(filePath)
+        return {
+          path: filePath,
+          name: path.basename(filePath, path.extname(filePath)),
+          ext: path.extname(filePath),
+          buffer: buffer
+        }
+      })
+      mainWindow.webContents.send('openedFiles', filesData)
     }
   })
 

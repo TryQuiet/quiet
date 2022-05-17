@@ -11,6 +11,10 @@ import { INPUT_STATE } from './InputState.enum'
 import Icon from '../../../ui/Icon/Icon'
 import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
+import PlusIconWithBorder from '../../../ui/assets/icons/PlusIconWithBorder'
+import IconButton from '@material-ui/core/IconButton'
+import { ipcRenderer } from 'electron'
+import UploadFilesPreviewsComponent from '../UploadedFilesPreviews'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -148,7 +152,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const [_anchorEl, setAnchorEl] = React.useState<HTMLDivElement>(null)
   const [mentionsToSelect, setMentionsToSelect] = React.useState([])
-
+  const [uploadingFiles, setUploadingFiles] = React.useState([])
   const messageRef = React.useRef<string>()
   const refSelected = React.useRef<number>()
   const isFirstRenderRef = React.useRef(true)
@@ -162,6 +166,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const [emojiHovered, setEmojiHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
+
+  const [openFileExplorer, setOpenFileExplorer] = React.useState(false)
 
   const [htmlMessage, setHtmlMessage] = React.useState<string>(initialMessage)
   const [message, setMessage] = React.useState(initialMessage)
@@ -195,6 +201,31 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   }, [message])
 
   React.useEffect(() => {
+    console.log('openFileExplorer changed')
+    if(openFileExplorer) {
+      console.log('opened')
+      ipcRenderer.send('openUploadFileDialog')
+      ipcRenderer.on('openedFiles', (e, filesList: Array<string>) => {
+        setUploadingFiles(uploadingFiles.concat(filesList))
+      })
+    }
+    setOpenFileExplorer(false)
+  }, [openFileExplorer])
+  
+  // React.useEffect(() => {
+  //   console.log('Uploading files changes', uploadingFiles)
+  //   if (uploadingFiles.length > 0) {
+  //     console.log('Adding files preview to text input')
+  //     const filesIcons = uploadingFiles.map(file => `<span class="file">${<FilePresentIcon />}</span>`)
+      
+  //     setHtmlMessage(htmlMessage => htmlMessage + filesIcons.join())
+  //     setMessage(message + uploadingFiles.map(file => ``))
+  //     setUploadingFiles([])
+  //   } 
+    
+  // }, [uploadingFiles])
+
+  React.useEffect(() => {
     setMessage(initialMessage)
     setHtmlMessage(initialMessage)
     if (!isFirstRenderRef.current) {
@@ -213,6 +244,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const findMentions = React.useCallback(
     (text: string) => {
+      console.log('Finding mentions', text)
       // Search for any mention in message string
       const result: string = text.replace(
         /(<span([^>]*)>)?@([a-z0-9]?\w*)(<\/span>)?/gi,
@@ -237,6 +269,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           }
 
           // Wrap mention in spans to be able to treat it as an anchor for popper
+          console.log('Returning wrapped mentions', nickname)
           return `<span>@${nickname}</span>`
         }
       )
@@ -253,10 +286,14 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       if (inputState === INPUT_STATE.AVAILABLE) {
         // @ts-expect-error
         setMessage(e.nativeEvent.target.innerText)
+        //// @ts-expect-error
+        // console.log('setMessage(e.nativeEvent.target.innerText)', e.nativeEvent.target.innerText)
         // @ts-expect-error
         if (!e.nativeEvent.target.innerText) {
+          // console.log('!e.nativeEvent.target.innerText: setHtmlMessage("")')
           setHtmlMessage('')
         } else {
+          // console.log('setHtmlMessage(e.target.value)', e.target.value)
           setHtmlMessage(e.target.value)
         }
       }
@@ -421,41 +458,59 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   data-testid='messageInput'
                 />
               </Grid>
-              <Grid item className={classes.actions}>
-                <Grid container justify='center' alignItems='center'>
-                  <Icon
-                    className={classes.emoji}
-                    src={emojiHovered ? emojiBlack : emojiGray}
-                    onClickHandler={() => {
-                      setOpenEmoji(true)
-                    }}
-                    onMouseEnterHandler={() => {
-                      setEmojiHovered(true)
-                    }}
-                    onMouseLeaveHandler={() => {
-                      setEmojiHovered(false)
-                    }}
-                  />
+              <div>
+                <UploadFilesPreviewsComponent filesData={uploadingFiles}/>
+                <Grid item className={classes.actions}>
+                  <Grid container justify='center' alignItems='center'>
+                    <IconButton
+                      className={classes.iconButton}
+                      onClick={event => {
+                        event.persist()
+                        setOpenFileExplorer(true)
+                        console.log('clicked')
+                      }}
+                      edge='start'
+                      data-testid={'uploadFilesButton'}>
+                      <PlusIconWithBorder color='black' />
+                    </IconButton>
+                  </Grid>
                 </Grid>
-                {openEmoji && (
-                  <ClickAwayListener
-                    onClickAway={() => {
-                      setOpenEmoji(false)
-                    }}>
-                    <div className={classes.picker}>
-                      <Picker
-                        /* eslint-disable */
-                        onEmojiClick={(_e, emoji) => {
-                          setHtmlMessage(htmlMessage => htmlMessage + emoji.emoji)
-                          setMessage(message + emoji.emoji)
-                          setOpenEmoji(false)
-                        }}
-                      /* eslint-enable */
-                      />
-                    </div>
-                  </ClickAwayListener>
-                )}
-              </Grid>
+                <Grid item className={classes.actions}>
+                  <Grid container justify='center' alignItems='center'>
+                    <Icon
+                      className={classes.emoji}
+                      src={emojiHovered ? emojiBlack : emojiGray}
+                      onClickHandler={() => {
+                        setOpenEmoji(true)
+                      }}
+                      onMouseEnterHandler={() => {
+                        setEmojiHovered(true)
+                      }}
+                      onMouseLeaveHandler={() => {
+                        setEmojiHovered(false)
+                      }}
+                    />
+                  </Grid>
+                  {openEmoji && (
+                    <ClickAwayListener
+                      onClickAway={() => {
+                        setOpenEmoji(false)
+                      }}>
+                      <div className={classes.picker}>
+                        <Picker
+                          /* eslint-disable */
+                          onEmojiClick={(_e, emoji) => {
+                            setHtmlMessage(htmlMessage => htmlMessage + emoji.emoji)
+                            setMessage(message + emoji.emoji)
+                            setOpenEmoji(false)
+                          }}
+                        /* eslint-enable */
+                        />
+                      </div>
+                    </ClickAwayListener>
+                  )}
+                </Grid>
+              </div>
             </Grid>
           </ClickAwayListener>
         </Grid>
