@@ -1,5 +1,5 @@
 import './loadMainEnvs' // Needs to be at the top of imports
-import { app, BrowserWindow, Menu, ipcMain, session } from 'electron'
+import { app, BrowserWindow, Menu, ipcMain, session, dialog } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import { autoUpdater } from 'electron-updater'
@@ -336,6 +336,23 @@ app.on('ready', async () => {
     log('Saved state, closed window')
   })
 
+  ipcMain.on('openUploadFileDialog', async (e) => {
+    let filesDialogResult;
+    try {
+      filesDialogResult = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openFile', 'openFile', 'multiSelections']
+      })
+    } catch (e) {
+      mainWindow.webContents.send('openedFilesError', e)
+      return
+    }
+    
+    if (filesDialogResult.filePaths) {
+      console.log('paths:', filesDialogResult.filePaths)
+      mainWindow.webContents.send('openedFiles', filesDialogResult.filePaths)
+    }
+  })
+
   mainWindow.webContents.once('did-finish-load', async () => {
     log('Event: mainWindow did-finish-load')
     if (!isBrowserWindow(mainWindow)) {
@@ -366,7 +383,6 @@ app.setAsDefaultProtocolClient('quiet')
 
 app.on('browser-window-created', (_, window) => {
   log('Event: app.browser-window-created', window.getTitle())
-  /// / eslint-disable-next-line
   remote.enable(window.webContents)
 })
 
