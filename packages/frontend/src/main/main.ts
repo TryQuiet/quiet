@@ -6,7 +6,6 @@ import { autoUpdater } from 'electron-updater'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
 import { getPorts, ApplicationPorts } from './waggleHelpers'
-
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
@@ -352,6 +351,7 @@ app.on('ready', async () => {
       const filesData = filesDialogResult.filePaths.map((filePath: string) => {
         const buffer = fs.readFileSync(filePath)
         return {
+          id: `${Date.now()}_${Math.random().toString(36).substring(0,20)}`,
           path: filePath,
           name: path.basename(filePath, path.extname(filePath)),
           ext: path.extname(filePath),

@@ -459,7 +459,10 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                 />
               </Grid>
               <div>
-                <UploadFilesPreviewsComponent filesData={uploadingFiles}/>
+                <UploadFilesPreviewsComponent
+                  filesData={uploadingFiles} 
+                  removeFile={(id) => setUploadingFiles(files => uploadingFiles.filter(fileData => fileData.id !== id))}
+                />
                 <Grid item className={classes.actions}>
                   <Grid container justify='center' alignItems='center'>
                     <IconButton
