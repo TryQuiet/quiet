@@ -11,7 +11,7 @@
     <br />
 <!--    <a href="https://tryquiet.org"><strong>tryquiet.org »</strong></a> -->
 <!--    <br /> -->
-    <a href="https://tryquiet.org"><strong>releases »</strong></a>
+    <a href="https://github.com/TryQuiet/monorepo/releases"><strong>releases »</strong></a>
     <br />
   </p>
 </p>
