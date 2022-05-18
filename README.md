@@ -1,6 +1,6 @@
-# Quiet (formerly Zbay)
+# Quiet
 
-An early prototype for a peer-to-peer alternative to Slack and Discord.
+Peer-to-peer team chat built on Tor, IPFS, and OrbitDB.
 
 ## Getting started
 To get started working in monorepo, you need to remember about two things:
