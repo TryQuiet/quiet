@@ -368,6 +368,7 @@ export class Storage {
   }
 
   public async uploadFile(file: FileContent) {
+    log('uploading file', file)
     // Create directory for file
     const dirname = file.dir || 'uploads'
     await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })

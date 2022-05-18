@@ -80,10 +80,12 @@ export default class IOProxy {
   }
 
   public uploadFile = async (peerId: string, file: FileContent) => {
+    log('uploading file')
     await this.getStorage(peerId).uploadFile(file)
   }
 
   public uploadedFile = (metadata: FileMetadata) => {
+    log('uploaded file', metadata)
     this.io.emit(SocketActionTypes.UPLOADED_FILE, metadata)
   }
 

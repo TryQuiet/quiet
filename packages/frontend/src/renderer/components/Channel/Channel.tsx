@@ -7,6 +7,7 @@ import ChannelComponent from './ChannelComponent'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
+import { FilePreviewData } from '../widgets/channels/UploadedFilesPreviews'
 
 const Channel = () => {
   const dispatch = useDispatch()
@@ -39,8 +40,17 @@ const Channel = () => {
   )
 
   const onInputEnter = useCallback(
-    (message: string) => {
-      dispatch(messages.actions.sendMessage({ message }))
+    (message: string, files: FilePreviewData) => {
+      if (message) {
+        dispatch(messages.actions.sendMessage({ message }))
+      }      
+      Object.values(files).forEach(fileData => {
+        console.log('Uploading file', fileData)
+        dispatch(messages.actions.uploadFile({
+          ...fileData,
+          dir: currentChannelName
+        }))
+      })
     },
     [dispatch]
   )
