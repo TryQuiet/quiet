@@ -59,7 +59,7 @@ This is a concise technical summary of the main points.
 10. **Mobile push notifications:** baring a major victory for consumer rights, iOS notifications require using a centralized push notification service that connects to Apple, but messages data can still be encrypted; in proof-of-concept, Quiet runs fine as an always-on background app on Android.
 11. **Stack:** Our backend is in Node.js (on iOS/Android we use nodejs-mobile) and we use Electron on desktop and React Native on mobile. 
  
-## Building Quiet
+## Contributing to Quiet
 
 To get started working in monorepo, you need to remember about two things:
 
