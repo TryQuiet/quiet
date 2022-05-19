@@ -41,7 +41,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           ARCH: x86_64
-        run: cd packages/frontend && electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
+        run: cd packages/desktop && electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
 
       - name: "Calculate new checksum for electron updater"
         run: lerna run postBuild --scope quiet
@@ -52,7 +52,7 @@ jobs:
           aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_bucket: ${{ env.S3_BUCKET }}
-          source_dir: 'packages/frontend/dist/alpha-linux.yml'
+          source_dir: 'packages/desktop/dist/alpha-linux.yml'
           destination_dir: ''
 
   build-macos:
@@ -104,7 +104,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
-        run: cd packages/frontend && electron-builder -p always --mac ${{ env.ELECTRON_BUILDER_PROPS }}
+        run: cd packages/desktop && electron-builder -p always --mac ${{ env.ELECTRON_BUILDER_PROPS }}
 
   build-windows:
     # needs: run-e2e-tests
@@ -121,7 +121,7 @@ jobs:
 
       - name: "Fetch jsign"
         shell: bash
-        run: cd packages/frontend && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
+        run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
 
       - name: "Add Windows certificate"
         id: write_file
@@ -131,7 +131,7 @@ jobs:
           encodedString: ${{ secrets.WIN_CSC_LINK }}
 
       - name: "Remove test files workaround (jest types conflicting with cypress types)"
-        run: find packages/frontend/src -name '*.test.*' -delete
+        run: find packages/desktop/src -name '*.test.*' -delete
         shell: bash
 
       - name: Setup environment
@@ -158,4 +158,4 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
-        run: cd packages/frontend && electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
+        run: cd packages/desktop && electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}

@@ -1,3 +1,3 @@
 import logger from '@quiet/logger'
 
-export default logger('frontend:renderer')
+export default logger('desktop:renderer')

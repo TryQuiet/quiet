@@ -6,7 +6,7 @@ on:
       - packages/mobile/**
 
 jobs:
-  frontend-tests:
+  desktop-tests:
     timeout-minutes: 25
     runs-on: ${{ matrix.os }}
 

@@ -14,7 +14,7 @@ Install dependencies:
 `npm install`
 
 
-### Running backend separately (without frontend)
+### Running backend separately (without desktop)
 
 Run entryNode.ts
 

@@ -3,7 +3,7 @@ name: Scroll regression tests
 on:
   pull_request:
     paths:
-      - packages/frontend/**
+      - packages/desktop/**
 
 jobs:
   regression-tests:
@@ -29,17 +29,17 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libgtk2.0-0 libgtk-3-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
 
       - name: "Remove test files workaround"
-        run: find packages/frontend/src -name '*.test.*' -delete && find packages/backend/src -name '*.test.*' -delete
+        run: find packages/desktop/src -name '*.test.*' -delete && find packages/backend/src -name '*.test.*' -delete
 
       - uses: cypress-io/github-action@v2
         with:
           install: false
           command: npm run regression-test:ci
-          working-directory: packages/frontend
+          working-directory: packages/desktop
 
       - name: Archive test screenshots
         uses: actions/upload-artifact@v2
         if: always()
         with:
           name: test-screenshots-linux
-          path: packages/frontend/cypress/snapshots
+          path: packages/desktop/cypress/snapshots
