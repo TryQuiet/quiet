@@ -11,6 +11,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
+import { openFiles } from './files'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -336,7 +337,7 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('openUploadFileDialog', async (e) => {
-    let filesDialogResult;
+    let filesDialogResult: Electron.OpenDialogReturnValue
     try {
       filesDialogResult = await dialog.showOpenDialog(mainWindow, {
         properties: ['openFile', 'openFile', 'multiSelections']
@@ -348,17 +349,9 @@ app.on('ready', async () => {
     
     if (filesDialogResult.filePaths) {
       console.log('paths:', filesDialogResult.filePaths)
-      const filesData = filesDialogResult.filePaths.map((filePath: string) => {
-        const buffer = fs.readFileSync(filePath)
-        return {
-          id: `${Date.now()}_${Math.random().toString(36).substring(0,20)}`,
-          path: filePath,
-          name: path.basename(filePath, path.extname(filePath)),
-          ext: path.extname(filePath),
-          buffer: buffer
-        }
-      })
-      mainWindow.webContents.send('openedFiles', filesData)
+      const data = openFiles(filesDialogResult.filePaths)
+      console.log('constructed filesData:', data)
+      mainWindow.webContents.send('openedFiles', data)
     }
   })
 

@@ -3,13 +3,12 @@ import { makeStyles } from '@material-ui/core/styles'
 import FilePresentIcon from '@material-ui/icons/AttachFile'
 import { FileContent } from '@quiet/nectar'
 
-export interface FilePreviewInterface extends FileContent {
-  id: string,
-  path: string
+export interface FilePreviewData {
+  [id: string]: FileContent
 }
 
 export interface FilePreviewComponentProps {
-  fileData: FilePreviewInterface
+  fileData: FileContent
   onClick: () => void
 }
 
@@ -45,7 +44,7 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
 }
 
 export interface UploadFilesPreviewsProps {
-  filesData: Array<FilePreviewInterface>
+  filesData: FilePreviewData
   removeFile: (id: string) => void
 }
 
@@ -58,7 +57,7 @@ const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
 
   return (
     <div className={classes.inputFiles}>
-      {filesData.map((fileData) => <FilePreviewComponent fileData={fileData} onClick={() => removeFile(fileData.id)} />)}
+      {Object.entries(filesData).map((fileData) => <FilePreviewComponent fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />)}
     </div>
   )
 }

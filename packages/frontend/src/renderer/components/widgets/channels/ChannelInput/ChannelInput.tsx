@@ -14,7 +14,7 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import PlusIconWithBorder from '../../../ui/assets/icons/PlusIconWithBorder'
 import IconButton from '@material-ui/core/IconButton'
 import { ipcRenderer } from 'electron'
-import UploadFilesPreviewsComponent from '../UploadedFilesPreviews'
+import UploadFilesPreviewsComponent, { FilePreviewData } from '../UploadedFilesPreviews'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -162,7 +162,7 @@ export interface ChannelInputProps {
   inputState?: INPUT_STATE
   initialMessage?: string
   onChange: (arg: string) => void
-  onKeyPress: (input: string) => void
+  onKeyPress: (input: string, files: FilePreviewData) => void
   infoClass: string
   setInfoClass: (arg: string) => void
 }
@@ -182,7 +182,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const [_anchorEl, setAnchorEl] = React.useState<HTMLDivElement>(null)
   const [mentionsToSelect, setMentionsToSelect] = React.useState([])
-  const [uploadingFiles, setUploadingFiles] = React.useState([])
+  const [uploadingFiles, setUploadingFiles] = React.useState({})
   const messageRef = React.useRef<string>()
   const refSelected = React.useRef<number>()
   const isFirstRenderRef = React.useRef(true)
@@ -193,6 +193,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const [focused, setFocused] = React.useState(false)
   const [selected, setSelected] = React.useState(0)
+  const [initEvent, _setInitEvent] = React.useState(true)
 
   const [emojiHovered, setEmojiHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
@@ -235,25 +236,23 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     if (openFileExplorer) {
       console.log('opened')
       ipcRenderer.send('openUploadFileDialog')
-      ipcRenderer.on('openedFiles', (e, filesList: Array<string>) => {
-        setUploadingFiles(uploadingFiles.concat(filesList))
-      })
+      setOpenFileExplorer(false)
     }
-    setOpenFileExplorer(false)
   }, [openFileExplorer])
 
-  // React.useEffect(() => {
-  //   console.log('Uploading files changes', uploadingFiles)
-  //   if (uploadingFiles.length > 0) {
-  //     console.log('Adding files preview to text input')
-  //     const filesIcons = uploadingFiles.map(file => `<span class="file">${<FilePresentIcon />}</span>`)
-
-  //     setHtmlMessage(htmlMessage => htmlMessage + filesIcons.join())
-  //     setMessage(message + uploadingFiles.map(file => ``))
-  //     setUploadingFiles([])
-  //   } 
-
-  // }, [uploadingFiles])
+  React.useEffect(() => {
+    console.log('useeffect initEvent')
+    if (initEvent) {
+      ipcRenderer.on('openedFiles', (e, filesData: FilePreviewData) => {
+        console.log('filesList', filesData)
+        setUploadingFiles(existingFiles => {
+          const updatedFiles = Object.assign(existingFiles, filesData)
+          console.log('updated files', updatedFiles)
+          return updatedFiles
+        })
+      })
+    }
+  }, [initEvent])
 
   React.useEffect(() => {
     setMessage(initialMessage)
@@ -383,14 +382,16 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
       if (
         inputStateRef.current === INPUT_STATE.AVAILABLE &&
-        e.nativeEvent.keyCode === 13 &&
-        e.target.innerText !== ''
+        e.nativeEvent.keyCode === 13
       ) {
+        console.log('PRESSED ENTER:', uploadingFiles)
         e.preventDefault()
         onChange(e.target.innerText)
-        onKeyPress(e.target.innerText)
+        onKeyPress(e.target.innerText, uploadingFiles)
         setMessage('')
         setHtmlMessage('')
+        setUploadingFiles({})
+        console.log('After sending files:', uploadingFiles)
       } else {
         if (e.nativeEvent.keyCode === 13) {
           e.preventDefault()
@@ -490,7 +491,12 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               </Grid>
               <UploadFilesPreviewsComponent
                 filesData={uploadingFiles}
-                removeFile={(id) => setUploadingFiles(files => uploadingFiles.filter(fileData => fileData.id !== id))}
+                removeFile={(id) => setUploadingFiles(existingFiles => {
+                  console.log('Deleting id', id)
+                  console.log('Existing files', existingFiles)
+                  delete existingFiles[id]
+                  return existingFiles
+                })}
               />
               <div className={classes.icons}>
                 <Grid item className={classes.actions}>

@@ -23,8 +23,7 @@ export function* uploadFileSaga(
       peerId: identity.peerId.id
     }
   ])
-
-  yield* put(messagesActions.sendMessage({
+  yield* put(messagesActions.sendFile({
     message: action.payload.buffer,
     channelAddress: action.payload.dir
   }))

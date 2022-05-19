@@ -16,6 +16,7 @@ import { Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/nect
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
+import { FilePreviewData } from '../widgets/channels/UploadedFilesPreviews'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -39,7 +40,7 @@ export interface ChannelComponentProps {
   lazyLoading: (load: boolean) => void
   onDelete: () => void
   onInputChange: (value: string) => void
-  onInputEnter: (message: string) => void
+  onInputEnter: (message: string, files: FilePreviewData) => void
   mutedFlag: boolean
   disableSettings?: boolean
   notificationFilter: string
@@ -85,11 +86,12 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
     })
   }
 
-  const onEnterKeyPress = (message: string) => {
+  const onEnterKeyPress = (message: string, files: FilePreviewData) => {
     // Go back to the bottom if scroll is at the top or in the middle
     scrollBottom()
-    // Send message
-    onInputEnter(message)
+    // Send message and files
+    console.log('onEnterKeyPress', files)
+    onInputEnter(message, files)
   }
 
   /* Get scroll position and save it to the state as 0 (top), 1 (bottom) or -1 (middle) */
@@ -172,8 +174,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
           onChange={value => {
             onInputChange(value)
           }}
-          onKeyPress={message => {
-            onEnterKeyPress(message)
+          onKeyPress={(message, files) => {
+            onEnterKeyPress(message, files)
           }}
           infoClass={infoClass}
           setInfoClass={setInfoClass}
