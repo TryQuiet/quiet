@@ -21,7 +21,6 @@ Quiet is an alternative to team chat apps like Slack, Discord, and Element that 
 
 > NOTE: Quiet is not audited and should not be used when privacy and security are critical. It lacks basic features and probably won't replace your Slack or Discord yet. That said, it works surprisingly well and we use it daily as a Slack replacement.
 
-You can use Quiet to create a familiar, Slack-like team chat space with many of the privacy and security properties of Tor. Tor is very reliable, so it "just works."
 
 Quiet is for fans of software freedom, decentralization and privacy tech, and for anyone craving a future where humanity can collaborate effectively online without trusting our communities, networks, and data to giant corporations.
 
@@ -48,9 +47,9 @@ This is a concise technical summary of the main points.
 
 1. **Granting access:** community owners use standard PKI (PKI.js) to grant access, with each community owner serving as root CA; this is handled by Quiet and transparent to users. 
 2. **Authentication:** a valid signed certificate from the community owner is required to connect to peers, receive connection from peers, and for messages to be visible to other peers.
-3. **Networking:** peers connect via Tor onion services, exclusively with community members.
-4. **Privacy:** Tor encrypts all data in transit, and peers connect only to community members, so all messages are encrypted to recipients. 
-4. **Syncing:** IPFS and OrbitDB, an IPFS-based CRDT, ensure that all data (messages, images, user data) syncs between peers with eventual consistency.
+3. **Networking:** peers connect via Tor onion services, exclusively with their fellow community members.
+4. **Privacy:** Tor encrypts all data in transit, and a Quiet user's device connects only to the devices of their fellow community members, so all messages are encrypted to recipients. 
+4. **Syncing:** IPFS and OrbitDB, an IPFS-based CRDT, ensure that all data (messages, user data, etc) syncs between peers with eventual consistency.
 5. **Identity:** a valid certificate from the community owner establishes a username, which the owner attests is unique; in future versions, Quiet will warn all members if community owners are "caught" issuing non-unique usernames.
 6. **Invitation:** to invite new members, community owners provide (via some other secure channel) an onion address that points to a registration API which handles PKI and provides sufficient peer information to connect to other peers; in future versions this onion address will expire. 
 7. **Account recovery:** owners must back up their data (e.g. by copying a folder, or someday with a wallet-style passphrase) and members request new accounts from owners.
