@@ -19,7 +19,7 @@ import { publicChannelsActions } from '../../publicChannels/publicChannels.slice
 import { DateTime } from 'luxon'
 import { FileContent } from '../../files/files.types'
 
-describe('checkIsImageSaga', () => {
+describe('uploadFileSaga', () => {
   let store: Store
   let factory: FactoryGirl
 
@@ -36,7 +36,7 @@ describe('checkIsImageSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -59,7 +59,7 @@ describe('checkIsImageSaga', () => {
     )).channel
   })
 
-  test('check message is image', async () => {
+  test('uploading file', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
     const peerId = alice.peerId.id
     const fileContent: FileContent = {
@@ -76,9 +76,6 @@ describe('checkIsImageSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .provide([
-
-      ])
       .apply(socket, socket.emit, [
         SocketActionTypes.UPLOAD_FILE,
         {
@@ -86,6 +83,12 @@ describe('checkIsImageSaga', () => {
           peerId
         }
       ])
+      .put(
+        messagesActions.sendMessage({
+          message: fileContent.buffer,
+          channelAddress: fileContent.dir
+        })
+      )
       .run()
   })
 })

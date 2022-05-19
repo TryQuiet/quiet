@@ -27,6 +27,7 @@ const useStyles = makeStyles(theme => ({
     to: { opacity: 1 }
   },
   input: {
+    width: '100%',
     fontSize: 14,
     outline: 'none',
     padding: '12px 16px',
@@ -38,7 +39,9 @@ const useStyles = makeStyles(theme => ({
         color: '#aaa'
       }
     },
-    wordBreak: 'break-word'
+    wordBreak: 'break-word',
+    position: 'relative',
+    paddingRight: '60px'
   },
   textfield: {
     border: `1px solid ${theme.palette.colors.veryLightGray}`,
@@ -47,13 +50,22 @@ const useStyles = makeStyles(theme => ({
     borderRadius: 4,
     '&:hover': {
       borderColor: theme.palette.colors.trueBlack
-    }
+    },
+    display: 'flex',
+    flexDirection: 'column',
+    flexWrap: 'nowrap',
+    justifyContent: 'flexStart',
+    alignItems: 'stretch',
+    alignContent: 'stretch',
+    width: '100%',
+    position: 'relative'
   },
   inputsDiv: {
     paddingLeft: '20px',
     paddingRight: '20px',
     width: '100%',
-    margin: '0px'
+    margin: '0px',
+    position: 'relative'
   },
   disabledBottomMargin: {
     marginBottom: 0
@@ -79,7 +91,12 @@ const useStyles = makeStyles(theme => ({
     borderColor: theme.palette.colors.trueBlack
   },
   iconButton: {
-    marginRight: 0
+    cursor: 'pointer',
+    right: '0px'
+  },
+  emoji: {
+    cursor: 'pointer',
+    float: 'right'
   },
   highlight: {
     color: theme.palette.colors.lushSky,
@@ -87,13 +104,10 @@ const useStyles = makeStyles(theme => ({
     padding: 5,
     borderRadius: 4
   },
-  emoji: {
-    marginRight: 17,
-    marginLeft: 10,
-    cursor: 'pointer'
-  },
+
   actions: {
-    postion: 'relative'
+    postion: 'relative',
+    float: 'right'
   },
   picker: {
     position: 'absolute',
@@ -121,6 +135,22 @@ const useStyles = makeStyles(theme => ({
   },
   notAllowed: {
     cursor: 'not-allowed'
+  },
+  inputFiles: {
+    position: 'relative',
+    float: 'left'
+  },
+  icons: {
+    position: 'absolute',
+    float: 'left',
+    right: '0px',
+    bottom: '0px',
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flexStart',
+    alignItems: 'center',
+    alignCntent: 'stretch'
   }
 }))
 
@@ -202,7 +232,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   React.useEffect(() => {
     console.log('openFileExplorer changed')
-    if(openFileExplorer) {
+    if (openFileExplorer) {
       console.log('opened')
       ipcRenderer.send('openUploadFileDialog')
       ipcRenderer.on('openedFiles', (e, filesList: Array<string>) => {
@@ -211,18 +241,18 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     }
     setOpenFileExplorer(false)
   }, [openFileExplorer])
-  
+
   // React.useEffect(() => {
   //   console.log('Uploading files changes', uploadingFiles)
   //   if (uploadingFiles.length > 0) {
   //     console.log('Adding files preview to text input')
   //     const filesIcons = uploadingFiles.map(file => `<span class="file">${<FilePresentIcon />}</span>`)
-      
+
   //     setHtmlMessage(htmlMessage => htmlMessage + filesIcons.join())
   //     setMessage(message + uploadingFiles.map(file => ``))
   //     setUploadingFiles([])
   //   } 
-    
+
   // }, [uploadingFiles])
 
   React.useEffect(() => {
@@ -458,11 +488,11 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   data-testid='messageInput'
                 />
               </Grid>
-              <div>
-                <UploadFilesPreviewsComponent
-                  filesData={uploadingFiles} 
-                  removeFile={(id) => setUploadingFiles(files => uploadingFiles.filter(fileData => fileData.id !== id))}
-                />
+              <UploadFilesPreviewsComponent
+                filesData={uploadingFiles}
+                removeFile={(id) => setUploadingFiles(files => uploadingFiles.filter(fileData => fileData.id !== id))}
+              />
+              <div className={classes.icons}>
                 <Grid item className={classes.actions}>
                   <Grid container justify='center' alignItems='center'>
                     <IconButton
