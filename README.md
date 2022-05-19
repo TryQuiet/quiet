@@ -76,12 +76,12 @@ lerna run <script> --stream --scope '{<package-name-1>,<package-name-2>}'
 
 Available package names are:
 - @quiet/identity
-- @quiet/nectar
-- @quiet/waggle
+- @quiet/state-manager
+- @quiet/backend
 - @quiet/logger
 - e2e-tests
 - integration-tests
-- quiet (frontend)
+- quiet (desktop)
 
 ----
 
