@@ -13,10 +13,12 @@ import { resetCurrentPublicChannelCacheSaga } from './manageCache/resetChannelCa
 import { extendCurrentPublicChannelCacheSaga } from './manageCache/extendChannelCache.saga'
 import { checkIsImageSaga } from './checkIsImage/checkIsImage.saga'
 import { uploadFileSaga } from './uploadFile/uploadFile.saga'
+import { sendFileSaga } from './sendFile/sendFile.saga'
 
 export function* messagesMasterSaga(socket: Socket): Generator {
   yield all([
     takeEvery(messagesActions.sendMessage.type, sendMessageSaga, socket),
+    takeEvery(messagesActions.sendFile.type, sendFileSaga, socket),
     takeEvery(messagesActions.incomingMessages.type, checkIsImageSaga, socket),
     takeEvery(messagesActions.uploadFile.type, uploadFileSaga, socket),
     takeEvery(messagesActions.incomingMessages.type, incomingMessagesSaga),
