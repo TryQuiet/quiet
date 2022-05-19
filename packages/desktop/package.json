@@ -98,7 +98,7 @@
     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
     "postBuild": "node scripts/postBuild.js",
     "prestart": "npm run build:main",
-    "start": "cross-env DEBUG='backend:*,quiet:*,nectar:*,frontend:*' npm run start:renderer",
+    "start": "cross-env DEBUG='backend:*,quiet:*,state-manager:*,frontend:*' npm run start:renderer",
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:renderer": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
     "storybook": "start-storybook -p 6006",

@@ -48,7 +48,7 @@ describe('User', () => {
   it('joins community and registers username', async () => {
     const { store, runSaga } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
@@ -217,7 +217,7 @@ describe('User', () => {
   it('sees proper registration error when trying to join with already taken username', async () => {
     const { store, runSaga } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
@@ -328,7 +328,7 @@ describe('User', () => {
   it('clears error before sending another username registration request', async () => {
     const { store, runSaga } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))

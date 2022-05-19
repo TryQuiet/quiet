@@ -15,7 +15,7 @@ import CreateCommunity from './CreateCommunity'
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../community.dictionary'
 import { CommunityNameErrors, FieldErrors } from '../../../forms/fieldsErrors'
 import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
-import { identity, communities, StoreKeys as NectarStoreKeys, CommunityOwnership } from '@quiet/state-manager'
+import { identity, communities, StoreKeys as StateManagerStoreKeys, CommunityOwnership } from '@quiet/state-manager'
 import { communityNameField } from '../../../forms/fields/communityFields'
 
 describe('Create community', () => {
@@ -64,10 +64,10 @@ describe('Create community', () => {
         ...new ModalsInitialState(),
         [ModalName.createCommunityModal]: { open: true }
       },
-      [NectarStoreKeys.Communities]: {
+      [StateManagerStoreKeys.Communities]: {
         ...new communities.State()
       },
-      [NectarStoreKeys.Identity]: {
+      [StateManagerStoreKeys.Identity]: {
         ...new identity.State()
       }
     })

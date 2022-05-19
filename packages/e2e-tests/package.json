@@ -13,11 +13,11 @@
     "prettier": "prettier",
     "test:build": "lerna run distUbuntu --scope quiet --stream && npm run test:create && npm run test:join",
     "test:dev": "npm run build:app && npm run test",
-    "test:create": "npm run build:testcafe && cross-env DATA_DIR=e2eCreate E2E_TEST=true DEBUG='backend*,nectar*,e2e*,frontend*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
-    "test:create:return": "npm run build:testcafe && cross-env DATA_DIR=e2eCreate E2E_TEST=true DEBUG='backend*,nectar*,e2e*,frontend*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/newUser.returns.e2e.ts\" --skip-js-errors",
-    "test:join": "npm run build:testcafe && cross-env DATA_DIR=e2eJoin E2E_TEST=true DEBUG='backend*,nectar*,e2e*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/joiningUser.e2e.ts\"",
-    "test:lazy": "npm run build:testcafe && cross-env DATA_DIR=e2eLazy E2E_TEST=true DEBUG='backend*,nectar*,e2e*,frontend*,testcafe:*electron*,-nectar:test' testcafe \"electron:../frontend\" \"./**/lazyLoading.e2e.ts\"",
-    "test:smoke": "npm run build:testcafe && cross-env DATA_DIR=e2e E2E_TEST=true DEBUG='backend*,nectar*,e2e*,testcafe:*electron*' testcafe \"electron:.\" \"./**/smokeTest.e2e.ts\""
+    "test:create": "npm run build:testcafe && cross-env DATA_DIR=e2eCreate E2E_TEST=true DEBUG='backend*,state-manager*,e2e*,frontend*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/newUser.e2e.ts\"",
+    "test:create:return": "npm run build:testcafe && cross-env DATA_DIR=e2eCreate E2E_TEST=true DEBUG='backend*,state-manager*,e2e*,frontend*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/newUser.returns.e2e.ts\" --skip-js-errors",
+    "test:join": "npm run build:testcafe && cross-env DATA_DIR=e2eJoin E2E_TEST=true DEBUG='backend*,state-manager*,e2e*,testcafe:*electron*' testcafe \"electron:../frontend\" \"./**/joiningUser.e2e.ts\"",
+    "test:lazy": "npm run build:testcafe && cross-env DATA_DIR=e2eLazy E2E_TEST=true DEBUG='backend*,state-manager*,e2e*,frontend*,testcafe:*electron*,-state-manager:test' testcafe \"electron:../frontend\" \"./**/lazyLoading.e2e.ts\"",
+    "test:smoke": "npm run build:testcafe && cross-env DATA_DIR=e2e E2E_TEST=true DEBUG='backend*,state-manager*,e2e*,testcafe:*electron*' testcafe \"electron:.\" \"./**/smokeTest.e2e.ts\""
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.7.1",

@@ -78,7 +78,7 @@ describe('Channel', () => {
   it("causes no error if there's no data yet", async () => {
     const { store } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     renderComponent(
@@ -95,7 +95,7 @@ describe('Channel', () => {
   it('displays properly on app (re)start', async () => {
     const { store } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     const factory = await getFactory(store)
@@ -127,7 +127,7 @@ describe('Channel', () => {
   it('filters out suspicious messages', async () => {
     const { store, runSaga } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     const factory = await getFactory(store)
@@ -199,7 +199,7 @@ describe('Channel', () => {
   it('validates and displays persisted messages even if verification status cache is invalid', async () => {
     const { store, runSaga } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     const factory = await getFactory(store)
@@ -256,7 +256,7 @@ describe('Channel', () => {
   it("displays messages loading spinner if there's no messages", async () => {
     const { store } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     const factory = await getFactory(store)
@@ -284,7 +284,7 @@ describe('Channel', () => {
   it("doesn't display messages loading spinner if there's at least one message", async () => {
     const { store } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     const factory = await getFactory(store)
@@ -328,7 +328,7 @@ describe('Channel', () => {
   it('immediately display greyed out message after sending, then turn it black when saved to db', async () => {
     const { store, runSaga } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     const factory = await getFactory(store)
@@ -408,7 +408,7 @@ describe('Channel', () => {
   it("shows incoming message if it's not older than oldest message, and isn't the newest one", async () => {
     const { store, runSaga } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     const factory = await getFactory(store)
@@ -492,7 +492,7 @@ describe('Channel', () => {
   it('allow to type and send message if community is initialized', async () => {
     const { store, runSaga } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     const factory = await getFactory(store)
@@ -549,7 +549,7 @@ describe('Channel', () => {
   it("doesn't allow to type and send message if community is not initialized", async () => {
     const { store, runSaga } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     const factory = await getFactory(store)

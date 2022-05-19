@@ -69,7 +69,7 @@ describe('Loading panel', () => {
   it('Displays loading panel between registering username and replicating data', async () => {
     const { store } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     const factory = await getFactory(store)
@@ -126,7 +126,7 @@ describe('Loading panel', () => {
   it('Do not display Loading panel when community and identity are created but certificate is missing', async () => {
     const { store } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     const factory = await getFactory(store)

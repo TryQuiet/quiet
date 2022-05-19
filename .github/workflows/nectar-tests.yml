@@ -1,12 +1,12 @@
-name: Nectar tests
+name: State-manager tests
 
 on:
   pull_request:
     paths:
-      - packages/nectar/**
+      - packages/state-manager/**
 
 jobs:
-  nectar-tests:
+  state-manager-tests:
     timeout-minutes: 25
     runs-on: ${{ matrix.os }}
 
@@ -28,5 +28,5 @@ jobs:
       - name: "Unit tests"
         run: lerna run test --scope @quiet/state-manager --stream
 
-      - name: "frontend-nectar bracket tests"
+      - name: "frontend-state-manager bracket tests"
         run: lerna run rtl-test --scope quiet --stream 

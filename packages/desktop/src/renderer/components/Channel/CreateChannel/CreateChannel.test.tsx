@@ -29,7 +29,7 @@ describe('Add new channel', () => {
   it('user submits corrected name', async () => {
     const { store, runSaga } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork State-manager's sagas
     )
 
     const factory = await getFactory(store)

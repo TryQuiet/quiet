@@ -18,7 +18,7 @@ describe('Channels panel', () => {
   it('displays channels in proper order', async () => {
     const { store } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork State manager's sagas
     )
 
     const factory = await getFactory(store)

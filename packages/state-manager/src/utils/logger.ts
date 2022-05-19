@@ -1,3 +1,3 @@
 import logger from '@quiet/logger'
 
-export default logger('nectar')
+export default logger('state-manager')

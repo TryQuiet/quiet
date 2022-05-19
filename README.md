@@ -47,10 +47,10 @@ Use lerna to install additional npm package
 lerna add <npm-package-name> [--dev] <path-to-monorepo-package>
 ```
 
-For example, if you want to install luxon in nectar, use the following command:
+For example, if you want to install luxon in state-manager, use the following command:
 
 ```
-lerna add luxon packages/nectar
+lerna add luxon packages/state-manager
 ```
 
 ----

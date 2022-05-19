@@ -28,5 +28,5 @@ jobs:
       - name: "Unit tests"
         run: lerna run test --scope quiet --stream
 
-      - name: "frontend-nectar bracket tests"
+      - name: "frontend-state-manager bracket tests"
         run: lerna run rtl-test --scope quiet --stream

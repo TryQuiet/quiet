@@ -7,17 +7,17 @@ import { NodeEnv } from '../utils/const/NodeEnv.enum'
 import { initActions } from './init/init.slice'
 import { rootReducer } from './root.reducer'
 
-import { storeKeys as NectarStoreKeys, MessagesTransform } from '@quiet/state-manager'
+import { storeKeys as StateManagerStoreKeys, MessagesTransform } from '@quiet/state-manager'
 
 const persistedReducer = persistReducer(
   {
     key: 'persistedReducer',
     storage: AsyncStorage,
     whitelist: [
-      NectarStoreKeys.Identity,
-      NectarStoreKeys.Communities,
-      NectarStoreKeys.PublicChannels,
-      NectarStoreKeys.Messages
+      StateManagerStoreKeys.Identity,
+      StateManagerStoreKeys.Communities,
+      StateManagerStoreKeys.PublicChannels,
+      StateManagerStoreKeys.Messages
     ],
     transforms: [MessagesTransform]
   },

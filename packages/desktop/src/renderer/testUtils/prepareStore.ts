@@ -6,7 +6,7 @@ import {
   messages,
   publicChannels,
   connection,
-  StoreKeys as NectarStoreKeys,
+  StoreKeys as StateManagerStoreKeys,
   settings,
   Store
 } from '@quiet/state-manager'
@@ -22,14 +22,14 @@ import MockedSocket from 'socket.io-mock'
 import { fork, delay, call, put } from 'typed-redux-saga'
 
 export const reducers = {
-  [NectarStoreKeys.Communities]: communities.reducer,
-  [NectarStoreKeys.Identity]: identity.reducer,
-  [NectarStoreKeys.Users]: users.reducer,
-  [NectarStoreKeys.Errors]: errors.reducer,
-  [NectarStoreKeys.Messages]: messages.reducer,
-  [NectarStoreKeys.PublicChannels]: publicChannels.reducer,
-  [NectarStoreKeys.Connection]: connection.reducer,
-  [NectarStoreKeys.Settings]: settings.reducer,
+  [StateManagerStoreKeys.Communities]: communities.reducer,
+  [StateManagerStoreKeys.Identity]: identity.reducer,
+  [StateManagerStoreKeys.Users]: users.reducer,
+  [StateManagerStoreKeys.Errors]: errors.reducer,
+  [StateManagerStoreKeys.Messages]: messages.reducer,
+  [StateManagerStoreKeys.PublicChannels]: publicChannels.reducer,
+  [StateManagerStoreKeys.Connection]: connection.reducer,
+  [StateManagerStoreKeys.Settings]: settings.reducer,
   [StoreKeys.App]: appReducer,
   [StoreKeys.Socket]: socketReducer,
   [StoreKeys.Modals]: modalsReducer
@@ -81,7 +81,7 @@ class SagaMonitor {
 }
 
 export const prepareStore = async (
-  mockedState?: { [key in StoreKeys | NectarStoreKeys]?: any },
+  mockedState?: { [key in StoreKeys | StateManagerStoreKeys]?: any },
   mockedSocket?: MockedSocket
 ): Promise<PrepareStore> => {
   const combinedReducers = combineReducers(reducers)
@@ -96,7 +96,7 @@ export const prepareStore = async (
     mockedState,
     applyMiddleware(...[sagaMiddleware, thunk])
   )
-  // Fork Nectar's sagas (require mocked socket.io-client)
+  // Fork State manager's sagas (require mocked socket.io-client)
   if (mockedSocket) {
     sagaMiddleware.run(rootSaga)
     // Mock socket connected event

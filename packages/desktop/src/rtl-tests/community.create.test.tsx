@@ -46,7 +46,7 @@ describe('User', () => {
   it('creates community and registers username', async () => {
     const { store, runSaga } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     store.dispatch(modalsActions.openModal({ name: ModalName.createCommunityModal }))

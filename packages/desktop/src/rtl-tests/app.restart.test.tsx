@@ -33,7 +33,7 @@ describe('Restart app works correctly', () => {
   it('Displays channel component, not displays join/create community component', async () => {
     const { store } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     const factory = await getFactory(store)

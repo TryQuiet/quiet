@@ -14,4 +14,4 @@ Example:
 Note:
 
 Bot can sometimes get stuck at registration because of "user aborted request" error from registrar.
-Temporary workaround is to modify condition in nectar's `handleErrors.saga.ts` to make it retry also at `error.code === ErrorCodes.SERVICE_UNAVAILABLE`
+Temporary workaround is to modify condition in state-manager's `handleErrors.saga.ts` to make it retry also at `error.code === ErrorCodes.SERVICE_UNAVAILABLE`

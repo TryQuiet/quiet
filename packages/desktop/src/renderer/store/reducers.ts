@@ -4,7 +4,7 @@ import createElectronStorage from 'redux-persist-electron-storage'
 import path from 'path'
 import { persistReducer } from 'redux-persist'
 
-import nectarReducers, { storeKeys as NectarStoreKeys, MessagesTransform } from '@quiet/state-manager'
+import stateManagerReducers, { storeKeys as StateManagerStoreKeys, MessagesTransform } from '@quiet/state-manager'
 
 import { StoreType } from './handlers/types'
 import { StoreKeys } from './store.keys'
@@ -33,18 +33,18 @@ const persistConfig = {
   storage: reduxStorage,
   throttle: 1000,
   whitelist: [
-    NectarStoreKeys.Identity,
-    NectarStoreKeys.Communities,
-    NectarStoreKeys.PublicChannels,
-    NectarStoreKeys.Messages,
-    NectarStoreKeys.Settings,
+    StateManagerStoreKeys.Identity,
+    StateManagerStoreKeys.Communities,
+    StateManagerStoreKeys.PublicChannels,
+    StateManagerStoreKeys.Messages,
+    StateManagerStoreKeys.Settings,
     StoreKeys.App
   ],
   transforms: [MessagesTransform]
 }
 
 export const reducers = {
-  ...nectarReducers.reducers,
+  ...stateManagerReducers.reducers,
   [StoreKeys.App]: appHandlers.reducer,
   [StoreKeys.Socket]: socketReducer,
   [StoreKeys.Modals]: modalsReducer

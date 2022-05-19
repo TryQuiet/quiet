@@ -18,7 +18,7 @@ export const createTmpDir = (prefix: string) => {
 }
 
 export const createPath = (dirName: string) => {
-  return path.join(dirName, '.nectar')
+  return path.join(dirName, '.state-manager')
 }
 
 const connectToDataport = (url: string, name: string): Socket => {

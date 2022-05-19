@@ -1,7 +1,7 @@
 import { io, Socket } from 'socket.io-client'
 import { fork, takeEvery, call, put, cancel, FixedTask } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { socket as nectar } from '@quiet/state-manager'
+import { socket as stateManager } from '@quiet/state-manager'
 import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
 
@@ -17,7 +17,7 @@ export function* startConnectionSaga(
 }
 
 function* setConnectedSaga(socket: Socket): Generator {
-  const task = yield* fork(nectar.useIO, socket)
+  const task = yield* fork(stateManager.useIO, socket)
   // Handle suspending current connection
   yield* takeEvery(socketActions.suspendConnection, cancelRootTaskSaga, task)
 }

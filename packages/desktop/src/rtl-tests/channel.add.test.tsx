@@ -47,7 +47,7 @@ describe('Add new channel', () => {
   it('Opens modal on button click', async () => {
     const { store } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     const factory = await getFactory(store)
@@ -80,7 +80,7 @@ describe('Add new channel', () => {
           [ModalName.createChannel]: { open: true }
         }
       },
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     const factory = await getFactory(store)
@@ -164,7 +164,7 @@ describe('Add new channel', () => {
   it('Displays error if trying to add channel with already taken name', async () => {
     const { store } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))

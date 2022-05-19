@@ -24,7 +24,7 @@ module.exports = {
       {
         test: /\.(t|j)sx?$/,
         loader: ['ts-loader'],
-        exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]nectar/, /packages[\/\\]logger/]
+        exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]state-manager/, /packages[\/\\]logger/]
       },
       {
         test: /\.css?$/,

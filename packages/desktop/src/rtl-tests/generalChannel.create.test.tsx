@@ -35,7 +35,7 @@ describe('General channel', () => {
   it('create automatically along with creating community', async () => {
     const { store, runSaga } = await prepareStore(
       {},
-      socket // Fork Nectar's sagas
+      socket // Fork state manager's sagas
     )
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
