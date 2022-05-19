@@ -22,4 +22,3 @@ export const getPorts = async (): Promise<{
 }
 
 export type ApplicationPorts = Awaited<ReturnType<typeof getPorts>>
-
