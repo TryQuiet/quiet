@@ -246,7 +246,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       ipcRenderer.on('openedFiles', (e, filesData: FilePreviewData) => {
         console.log('filesList', filesData)
         setUploadingFiles(existingFiles => {
-          const updatedFiles = Object.assign(existingFiles, filesData)
+          const updatedFiles = { ...existingFiles, ...filesData }
           console.log('updated files', updatedFiles)
           return updatedFiles
         })
@@ -495,7 +495,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   console.log('Deleting id', id)
                   console.log('Existing files', existingFiles)
                   delete existingFiles[id]
-                  return existingFiles
+                  const updatedExistingFiles = { ...existingFiles }
+                  return updatedExistingFiles
                 })}
               />
               <div className={classes.icons}>

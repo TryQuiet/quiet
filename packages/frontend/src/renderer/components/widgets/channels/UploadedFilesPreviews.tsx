@@ -36,7 +36,7 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
   //@ts-expect-error
   const base64StringImage = btoa(new Uint8Array(fileData.buffer).reduce(function (data, byte) {
     return data + String.fromCharCode(byte);
-  }, ''));
+  }, ''))
 
   return <div onClick={onClick}>
     <img src={`data:image/png;base64,${base64StringImage}`} alt={fileData.name} className={classes.image} />
