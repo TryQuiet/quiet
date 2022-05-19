@@ -2,6 +2,7 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import FilePresentIcon from '@material-ui/icons/AttachFile'
 import { FileContent } from '@quiet/nectar'
+import CloseIcon from '@material-ui/icons/Close';
 
 export interface FilePreviewData {
   [id: string]: FileContent
@@ -27,6 +28,19 @@ const useStyles = makeStyles(() => ({
     height: '64px',
     borderRadius: '15%',
     marginLeft: '10px'
+  },
+  closeIcon: {
+    position: 'absolute',
+    margin: '0',
+    padding: '0',
+    right: '0px',
+    top: '0px',
+    backgroundColor: 'white',
+    border: '0.5px solid black',
+    borderRadius: '100%'
+  },
+  imageContainer: {
+    position: 'relative'
   }
 }))
 
@@ -38,7 +52,8 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
     return data + String.fromCharCode(byte);
   }, ''))
 
-  return <div onClick={onClick}>
+  return <div className={classes.imageContainer}>
+    <div className={classes.closeIcon} onClick={onClick}> <CloseIcon /> </div>
     <img src={`data:image/png;base64,${base64StringImage}`} alt={fileData.name} className={classes.image} />
   </div>
 }

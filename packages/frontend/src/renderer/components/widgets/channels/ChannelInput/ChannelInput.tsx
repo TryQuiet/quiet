@@ -184,6 +184,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const [mentionsToSelect, setMentionsToSelect] = React.useState([])
   const [uploadingFiles, setUploadingFiles] = React.useState({})
   const messageRef = React.useRef<string>()
+  const filesRef = React.useRef<{}>()
   const refSelected = React.useRef<number>()
   const isFirstRenderRef = React.useRef(true)
 
@@ -270,6 +271,10 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   React.useEffect(() => {
     messageRef.current = message
   }, [message])
+
+  React.useEffect(() => {
+    filesRef.current = uploadingFiles
+  }, [uploadingFiles])
 
   const findMentions = React.useCallback(
     (text: string) => {
@@ -384,14 +389,13 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         inputStateRef.current === INPUT_STATE.AVAILABLE &&
         e.nativeEvent.keyCode === 13
       ) {
-        console.log('PRESSED ENTER:', uploadingFiles)
+        console.log('PRESSED ENTER:', filesRef.current)
         e.preventDefault()
         onChange(e.target.innerText)
-        onKeyPress(e.target.innerText, uploadingFiles)
+        onKeyPress(e.target.innerText, filesRef.current)
         setMessage('')
         setHtmlMessage('')
         setUploadingFiles({})
-        console.log('After sending files:', uploadingFiles)
       } else {
         if (e.nativeEvent.keyCode === 13) {
           e.preventDefault()
