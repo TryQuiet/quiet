@@ -1,4 +1,4 @@
-import { publicChannels, Store } from '@quiet/nectar'
+import { publicChannels, Store } from '@quiet/state-manager'
 import assert from 'assert'
 import logger from '../logger'
 import { MAIN_CHANNEL } from './constants'

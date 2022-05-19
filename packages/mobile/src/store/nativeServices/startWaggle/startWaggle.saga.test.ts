@@ -6,11 +6,11 @@ import { StoreKeys } from '../../store.keys'
 import { nativeServicesReducer, NativeServicesState } from '../nativeServices.slice'
 import FindFreePort from 'react-native-find-free-port'
 
-import { startNodeProcess, startWaggleSaga } from './startWaggle.saga'
+import { startNodeProcess, startBackendSaga } from './startBackend.saga'
 
-describe('startWaggleSaga', () => {
+describe('startBackendSaga', () => {
   test('should start nodejs process', async () => {
-    await expectSaga(startWaggleSaga)
+    await expectSaga(startBackendSaga)
       .withReducer(
         combineReducers({
           [StoreKeys.NativeServices]: nativeServicesReducer,
@@ -38,7 +38,7 @@ describe('startWaggleSaga', () => {
       ])
       .call(FindFreePort.getFirstStartingFrom, 4677)
       .call(startNodeProcess, 'dataDirectoryPath', 4677, 8050, 9010, 9150, 'cookie')
-      .put(initActions.onWaggleStarted({ dataPort: 4677 }))
+      .put(initActions.onBackendStarted({ dataPort: 4677 }))
       .run()
   })
 })

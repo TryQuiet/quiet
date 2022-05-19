@@ -11,16 +11,16 @@ const path = require('path');
 
  const watchFolders = [
    path.resolve(__dirname, '../identity'),
-   path.resolve(__dirname, '../nectar'),
-   path.resolve(__dirname, '../waggle'),
+   path.resolve(__dirname, '../state-manager'),
+   path.resolve(__dirname, '../backend'),
    path.resolve(__dirname, '../logger'),
    path.resolve(__dirname, '../testcafe-browser-provider-electron')
  ]
 
  const extraNodeModules = {
    '@quiet/identity': path.resolve(__dirname, '../identity'),
-   '@quiet/nectar': path.resolve(__dirname, '../nectar'),
-   '@quiet/waggle': path.resolve(__dirname, '../waggle'),
+   '@quiet/state-manager': path.resolve(__dirname, '../state-manager'),
+   '@quiet/backend': path.resolve(__dirname, '../backend'),
    '@quiet/logger': path.resolve(__dirname, '../logger'),
    ...require('node-libs-react-native')
  }

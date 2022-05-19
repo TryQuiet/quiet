@@ -4,7 +4,7 @@ import { nativeServicesActions } from './nativeServices.slice'
 import { nativeServicesCallbacksSaga } from './nativeServicesCallbacks/nativeServicesCallbacks'
 import { pushNotificationsSaga } from './pushNotifications/pushNotifications.saga'
 import { startTorSaga } from './startTor/startTor.saga'
-import { startWaggleSaga } from './startWaggle/startWaggle.saga'
+import { startBackendSaga } from './startBackend/startBackend.saga'
 
 export function* nativeServicesMasterSaga(): Generator {
   yield all([
@@ -13,9 +13,9 @@ export function* nativeServicesMasterSaga(): Generator {
     /* Starting Tor is obligatory and should be performed
     at the very beginning of the app lifecycle */
     fork(startTorSaga),
-    /* Starting Waggle depends on two asynchronous tasks. It will wait
+    /* Starting Backend depends on two asynchronous tasks. It will wait
     for all neccessary values to be initialized before running nodejs process */
-    fork(startWaggleSaga),
+    fork(startBackendSaga),
     takeEvery(
       nativeServicesActions.initPushNotifications.type,
       pushNotificationsSaga

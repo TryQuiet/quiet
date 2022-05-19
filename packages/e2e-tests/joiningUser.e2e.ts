@@ -36,7 +36,7 @@ test('User can join the community and exchange messages', async t => {
     communityName: 'e2eCommunity',
     store: communityOwner.store
   })
-  await t.wait(2000) // Give the waggle some time, headless tests are fast
+  await t.wait(2000) // Give the backend some time, headless tests are fast
   await actions.sendMessage({
     message: t.fixtureCtx.ownerMessages[0],
     channelName: 'general',
