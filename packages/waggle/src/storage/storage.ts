@@ -368,7 +368,7 @@ export class Storage {
   }
 
   public async uploadFile(file: FileContent) {
-    log('uploading file', file)
+    log('uploadFile', file)
     // Create directory for file
     const dirname = file.dir || 'uploads'
     await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })
@@ -391,6 +391,7 @@ export class Storage {
   }
 
   public async downloadFile(cid: string) {
+    log('downloadFile', cid)
     const _CID = CID.parse(cid)
     const entries = this.ipfs.get(_CID)
     let merged = new Uint8Array(0)

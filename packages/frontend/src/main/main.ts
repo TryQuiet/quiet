@@ -11,6 +11,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
+import { openFiles } from './files'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -348,16 +349,7 @@ app.on('ready', async () => {
     
     if (filesDialogResult.filePaths) {
       console.log('paths:', filesDialogResult.filePaths)
-      const data = {}
-      filesDialogResult.filePaths.forEach((filePath: string) => {
-        const buffer = fs.readFileSync(filePath)
-        const id = `${Date.now()}_${Math.random().toString(36).substring(0,20)}`
-        data[id] = {
-          name: path.basename(filePath, path.extname(filePath)),
-          ext: path.extname(filePath),
-          buffer: buffer
-        }
-      })
+      const data = openFiles(filesDialogResult.filePaths)
       console.log('constructed filesData:', data)
       mainWindow.webContents.send('openedFiles', data)
     }

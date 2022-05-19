@@ -163,6 +163,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const [focused, setFocused] = React.useState(false)
   const [selected, setSelected] = React.useState(0)
+  const [initEvent, _setInitEvent] = React.useState(true)
 
   const [emojiHovered, setEmojiHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
@@ -205,19 +206,23 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     if(openFileExplorer) {
       console.log('opened')
       ipcRenderer.send('openUploadFileDialog')
-      ipcRenderer.on('openedFiles', (e, filesData: FilePreviewData) => {
-        console.log('filesList', filesData)
-        setUploadingFiles(existingFiles => {
-          return Object.assign(existingFiles, filesData)
-        })
-      })
+      setOpenFileExplorer(false)
     }
-    setOpenFileExplorer(false)
   }, [openFileExplorer])
 
   React.useEffect(() => {
-    console.log('Uploading files', uploadingFiles)
-  }, [uploadingFiles])
+    console.log('useeffect initEvent')
+    if (initEvent) {
+      ipcRenderer.on('openedFiles', (e, filesData: FilePreviewData) => {
+        console.log('filesList', filesData)
+        setUploadingFiles(existingFiles => {
+          const updatedFiles = Object.assign(existingFiles, filesData)
+          console.log('updated files', updatedFiles)
+          return updatedFiles
+        })
+      })
+    }
+  }, [initEvent])
 
   React.useEffect(() => {
     setMessage(initialMessage)
@@ -356,6 +361,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         setMessage('')
         setHtmlMessage('')
         setUploadingFiles({})
+        console.log('After sending files:', uploadingFiles)
       } else {
         if (e.nativeEvent.keyCode === 13) {
           e.preventDefault()
