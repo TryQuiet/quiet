@@ -18,6 +18,7 @@ export function* sendMessageSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
+  console.log('sendMessageSaga')
   const identity: Identity = yield* select(identitySelectors.currentIdentity)
 
   const certificate = identity.userCertificate
@@ -38,7 +39,7 @@ export function* sendMessageSaga(
 
   const message: ChannelMessage = {
     id: messageId,
-    type: MessageTypes.BASIC,
+    type: action.payload.type || MessageTypes.BASIC,
     message: action.payload.message,
     createdAt: currentTime,
     channelAddress,
