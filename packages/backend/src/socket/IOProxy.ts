@@ -84,7 +84,6 @@ export default class IOProxy {
     address: string,
     encryptedPhrase: string
   ): Promise<void> => {
-    log(`INSIDE WAGGLE: ${encryptedPhrase}`)
     await this.getStorage(peerId).initializeConversation(address, encryptedPhrase)
   }
 

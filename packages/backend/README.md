@@ -1,4 +1,4 @@
-## Waggle
+## Backend
 
 Communication manager for Quiet project. Uses OrbitDB, Libp2p, Tor and websockets.
 
@@ -14,7 +14,7 @@ Install dependencies:
 `npm install`
 
 
-### Running waggle separately (without frontend)
+### Running backend separately (without frontend)
 
 Run entryNode.ts
 
@@ -22,7 +22,7 @@ Run entryNode.ts
 
 With logs:
 
-`DEBUG=waggle:* ts-node entryNode.ts`
+`DEBUG=backend:* ts-node entryNode.ts`
 
 By default each run will create new onion address and new peerId. If you want to keep them persistent, set env variables:
 
@@ -46,9 +46,9 @@ If you don't want to connect to our entry node, set also BOOTSTRAP_ADDRS env var
 `BOOTSTRAP_ADDRS=/dns4/<yourBootstrapNodeOnionAddress>/tcp/<yourBootstrapNodePort>/ws/p2p/<yourBootstrapNodePeerId>`
 
 
-### Local separated network of waggle's
+### Local separated network of nodes
 
-docker-compose helps to create a local network of nodes (waggles). This is purely for testing purposes. By default it creates 3 services, one of them being the entry node and the rest regular nodes.
+docker-compose helps to create a local network of nodes . This is purely for testing purposes. By default it creates 3 services, one of them being the entry node and the rest regular nodes.
 
 ```
 docker-compose build

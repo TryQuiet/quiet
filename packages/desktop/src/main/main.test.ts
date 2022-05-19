@@ -1,5 +1,5 @@
 import * as main from './main'
-import * as waggleHelpers from './waggleHelpers'
+import * as backendHelpers from './backendHelpers'
 
 import { autoUpdater } from 'electron-updater'
 import { BrowserWindow, app, ipcMain, Menu } from 'electron'
@@ -16,7 +16,7 @@ const mockWindowOnce = jest.fn()
 
 const spyApplyDevTools = jest.spyOn(main, 'applyDevTools')
 const spyCreateWindow = jest.spyOn(main, 'createWindow')
-const spyGetPorts = jest.spyOn(waggleHelpers, 'getPorts')
+const spyGetPorts = jest.spyOn(backendHelpers, 'getPorts')
 
 jest.spyOn(main, 'isBrowserWindow').mockReturnValue(true)
 

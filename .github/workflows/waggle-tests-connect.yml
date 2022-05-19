@@ -3,7 +3,7 @@ name: Node connections test
 on:
   pull_request:
     paths:
-      - packages/waggle/**
+      - packages/backend/**
 
 jobs:
   test-connect:

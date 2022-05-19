@@ -38,7 +38,7 @@ const Channel = () => {
 
   const onInputChange = useCallback(
     (_value: string) => {
-      // TODO https://github.com/ZbayApp/ZbayLite/issues/442
+      // TODO https://github.com/TryQuiet/ZbayLite/issues/442
     },
     [dispatch]
   )

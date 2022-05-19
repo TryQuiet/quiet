@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [0.6.1-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.6.0-alpha.0...@quiet/backend@0.6.1-alpha.0) (2022-05-18)
+## [0.6.1-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.6.0-alpha.0...@quiet/backend@0.6.1-alpha.0) (2022-05-18)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -11,7 +11,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.6.0-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.5.0-alpha.0...@quiet/backend@0.6.0-alpha.0) (2022-05-16)
+# [0.6.0-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.5.0-alpha.0...@quiet/backend@0.6.0-alpha.0) (2022-05-16)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -19,7 +19,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.5.0-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.4.5-alpha.0...@quiet/backend@0.5.0-alpha.0) (2022-04-29)
+# [0.5.0-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.4.5-alpha.0...@quiet/backend@0.5.0-alpha.0) (2022-04-29)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -27,7 +27,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.5-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.4.4-alpha.0...@quiet/backend@0.4.5-alpha.0) (2022-04-20)
+## [0.4.5-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.4.4-alpha.0...@quiet/backend@0.4.5-alpha.0) (2022-04-20)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -35,7 +35,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.4-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.4.3-alpha.0...@quiet/backend@0.4.4-alpha.0) (2022-04-15)
+## [0.4.4-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.4.3-alpha.0...@quiet/backend@0.4.4-alpha.0) (2022-04-15)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -43,7 +43,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.3-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.4.2-alpha.0...@quiet/backend@0.4.3-alpha.0) (2022-04-15)
+## [0.4.3-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.4.2-alpha.0...@quiet/backend@0.4.3-alpha.0) (2022-04-15)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -51,7 +51,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.2-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.4.0-alpha.7...@quiet/backend@0.4.2-alpha.0) (2022-04-15)
+## [0.4.2-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.4.0-alpha.7...@quiet/backend@0.4.2-alpha.0) (2022-04-15)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -59,7 +59,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.1-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.4.0-alpha.7...@quiet/backend@0.4.1-alpha.0) (2022-04-15)
+## [0.4.1-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.4.0-alpha.7...@quiet/backend@0.4.1-alpha.0) (2022-04-15)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -67,7 +67,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.7](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.4.0-alpha.6...@quiet/backend@0.4.0-alpha.7) (2022-04-04)
+# [0.4.0-alpha.7](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.4.0-alpha.6...@quiet/backend@0.4.0-alpha.7) (2022-04-04)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -75,7 +75,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.6](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.4.0-alpha.3...@quiet/backend@0.4.0-alpha.6) (2022-04-01)
+# [0.4.0-alpha.6](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.4.0-alpha.3...@quiet/backend@0.4.0-alpha.6) (2022-04-01)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -83,7 +83,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.5](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.4.0-alpha.3...@quiet/backend@0.4.0-alpha.5) (2022-03-28)
+# [0.4.0-alpha.5](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.4.0-alpha.3...@quiet/backend@0.4.0-alpha.5) (2022-03-28)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -91,7 +91,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.4](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.4.0-alpha.3...@quiet/backend@0.4.0-alpha.4) (2022-03-25)
+# [0.4.0-alpha.4](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.4.0-alpha.3...@quiet/backend@0.4.0-alpha.4) (2022-03-25)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -99,7 +99,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.3](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.4.0-alpha.2...@quiet/backend@0.4.0-alpha.3) (2022-03-17)
+# [0.4.0-alpha.3](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.4.0-alpha.2...@quiet/backend@0.4.0-alpha.3) (2022-03-17)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -107,7 +107,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.2](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.4.0-alpha.0...@quiet/backend@0.4.0-alpha.2) (2022-03-11)
+# [0.4.0-alpha.2](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.4.0-alpha.0...@quiet/backend@0.4.0-alpha.2) (2022-03-11)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -115,7 +115,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.1](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.4.0-alpha.0...@quiet/backend@0.4.0-alpha.1) (2022-03-11)
+# [0.4.0-alpha.1](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.4.0-alpha.0...@quiet/backend@0.4.0-alpha.1) (2022-03-11)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -123,7 +123,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.3.0-alpha.5...@quiet/backend@0.4.0-alpha.0) (2022-03-08)
+# [0.4.0-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.3.0-alpha.5...@quiet/backend@0.4.0-alpha.0) (2022-03-08)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -131,7 +131,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.6](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.3.0-alpha.5...@quiet/backend@0.3.0-alpha.6) (2022-02-28)
+# [0.3.0-alpha.6](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.3.0-alpha.5...@quiet/backend@0.3.0-alpha.6) (2022-02-28)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -139,7 +139,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.5](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.2.0-alpha.0...@quiet/backend@0.3.0-alpha.5) (2022-02-23)
+# [0.3.0-alpha.5](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.2.0-alpha.0...@quiet/backend@0.3.0-alpha.5) (2022-02-23)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -147,7 +147,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.4](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.2.0-alpha.0...@quiet/backend@0.3.0-alpha.4) (2022-02-23)
+# [0.3.0-alpha.4](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.2.0-alpha.0...@quiet/backend@0.3.0-alpha.4) (2022-02-23)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -155,7 +155,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.3](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.2.0-alpha.0...@quiet/backend@0.3.0-alpha.3) (2022-02-22)
+# [0.3.0-alpha.3](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.2.0-alpha.0...@quiet/backend@0.3.0-alpha.3) (2022-02-22)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -163,7 +163,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.2](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.2.0-alpha.0...@quiet/backend@0.3.0-alpha.2) (2022-02-21)
+# [0.3.0-alpha.2](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.2.0-alpha.0...@quiet/backend@0.3.0-alpha.2) (2022-02-21)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -171,7 +171,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.1](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.2.0-alpha.0...@quiet/backend@0.3.0-alpha.1) (2022-02-21)
+# [0.3.0-alpha.1](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.2.0-alpha.0...@quiet/backend@0.3.0-alpha.1) (2022-02-21)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -179,7 +179,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.2.0-alpha.0...@quiet/backend@0.3.0-alpha.0) (2022-02-18)
+# [0.3.0-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.2.0-alpha.0...@quiet/backend@0.3.0-alpha.0) (2022-02-18)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -187,7 +187,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.2.0-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.1.0-alpha.5...@quiet/backend@0.2.0-alpha.0) (2022-02-09)
+# [0.2.0-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.1.0-alpha.5...@quiet/backend@0.2.0-alpha.0) (2022-02-09)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -195,7 +195,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.5](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.1.0-alpha.4...@quiet/backend@0.1.0-alpha.5) (2022-02-03)
+# [0.1.0-alpha.5](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.1.0-alpha.4...@quiet/backend@0.1.0-alpha.5) (2022-02-03)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -203,7 +203,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.4](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.1.0-alpha.3...@quiet/backend@0.1.0-alpha.4) (2022-01-27)
+# [0.1.0-alpha.4](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.1.0-alpha.3...@quiet/backend@0.1.0-alpha.4) (2022-01-27)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -211,7 +211,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.3](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.1.0-alpha.2...@quiet/backend@0.1.0-alpha.3) (2022-01-27)
+# [0.1.0-alpha.3](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.1.0-alpha.2...@quiet/backend@0.1.0-alpha.3) (2022-01-27)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -219,7 +219,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.2](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.1.0-alpha.1...@quiet/backend@0.1.0-alpha.2) (2022-01-25)
+# [0.1.0-alpha.2](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.1.0-alpha.1...@quiet/backend@0.1.0-alpha.2) (2022-01-25)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -227,7 +227,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.1](https://github.com/ZbayApp/waggle/compare/@quiet/backend@0.1.0-alpha.0...@quiet/backend@0.1.0-alpha.1) (2022-01-25)
+# [0.1.0-alpha.1](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.1.0-alpha.0...@quiet/backend@0.1.0-alpha.1) (2022-01-25)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -235,7 +235,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/backend@6.4.0-alpha.0...@quiet/backend@0.1.0-alpha.0) (2022-01-25)
+# [0.1.0-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@6.4.0-alpha.0...@quiet/backend@0.1.0-alpha.0) (2022-01-25)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -243,7 +243,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.4.0-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/backend@6.3.0-alpha.0...@quiet/backend@6.4.0-alpha.0) (2022-01-25)
+# [6.4.0-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@6.3.0-alpha.0...@quiet/backend@6.4.0-alpha.0) (2022-01-25)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -251,7 +251,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.3.0-alpha.0](https://github.com/ZbayApp/waggle/compare/@quiet/backend@6.2.0-alpha.0...@quiet/backend@6.3.0-alpha.0) (2022-01-25)
+# [6.3.0-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@6.2.0-alpha.0...@quiet/backend@6.3.0-alpha.0) (2022-01-25)
 
 **Note:** Version bump only for package @quiet/backend
 
@@ -267,33 +267,33 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.1.0-alpha.0](https://github.com/ZbayApp/waggle/compare/waggle@6.0.0-alpha.0...waggle@6.1.0-alpha.0) (2022-01-24)
+# [6.1.0-alpha.0](https://github.com/TryQuiet/backend/compare/backend@6.0.0-alpha.0...backend@6.1.0-alpha.0) (2022-01-24)
 
-**Note:** Version bump only for package waggle
-
-
-
-
-
-# [6.0.0-alpha.0](https://github.com/ZbayApp/waggle/compare/waggle@5.0.0...waggle@6.0.0-alpha.0) (2022-01-24)
-
-**Note:** Version bump only for package waggle
+**Note:** Version bump only for package backend
 
 
 
 
 
-# [5.0.0](https://github.com/ZbayApp/waggle/compare/waggle@5.0.0-alpha.1...waggle@5.0.0) (2021-12-29)
+# [6.0.0-alpha.0](https://github.com/TryQuiet/backend/compare/backend@5.0.0...backend@6.0.0-alpha.0) (2022-01-24)
 
-**Note:** Version bump only for package waggle
-
-
+**Note:** Version bump only for package backend
 
 
 
-# [5.0.0-alpha.1](https://github.com/ZbayApp/waggle/compare/waggle@5.0.0-alpha.0...waggle@5.0.0-alpha.1) (2021-12-29)
 
-**Note:** Version bump only for package waggle
+
+# [5.0.0](https://github.com/TryQuiet/backend/compare/backend@5.0.0-alpha.1...backend@5.0.0) (2021-12-29)
+
+**Note:** Version bump only for package backend
+
+
+
+
+
+# [5.0.0-alpha.1](https://github.com/TryQuiet/backend/compare/backend@5.0.0-alpha.0...backend@5.0.0-alpha.1) (2021-12-29)
+
+**Note:** Version bump only for package backend
 
 
 
@@ -301,7 +301,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # 5.0.0-alpha.0 (2021-12-28)
 
-**Note:** Version bump only for package waggle
+**Note:** Version bump only for package backend
 
 
 
@@ -370,7 +370,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Changed
 
-* Registrar - don't return port if waggle uses tor
+* Registrar - don't return port if backend uses tor
 
 ## [4.3.4]
 
@@ -393,7 +393,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Fixed
 
-* Orbit-db in package.json - use specific commit instead of #main. Projects installing waggle should have the same version of orbit-db.
+* Orbit-db in package.json - use specific commit instead of #main. Projects installing backend should have the same version of orbit-db.
 * Change orbit-db-store version to match specified orbitdb; Remove multiformats (rely on versions set in orbit-db)
 
 ## [4.2.2]
@@ -406,7 +406,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Fixed
 
-* Close socket after closing all waggle services
+* Close socket after closing all backend services
 
 ## [4.2.0]
 
@@ -441,7 +441,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * DestroyHiddenService method in torManager
 * CreateNetwork in communitiesManager
 * CreateNetwork api in IOPRoxy
-* ConnectionsManager option - allow using tor files (binaries and libs) from waggle
+* ConnectionsManager option - allow using tor files (binaries and libs) from backend
 * Register owner certificate
 
 ### Changed
@@ -493,16 +493,16 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Removed
 
-* isWaggleMobileMode option
+* isbackendMobileMode option
 
 ## [2.1.0]
 
 ### Added
 
 * Additional valitation to registrar - check if csr has basic fields
-* Waggle replication tests
+* backend replication tests
 * Storage which can use orbitdb snapshots mechanism
-* More customizable waggle nodes
+* More customizable backend nodes
 
 ### Changed
 
@@ -529,7 +529,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Fixed
 
-- Remove wrtc-mock - caused problems when installing waggle
+- Remove wrtc-mock - caused problems when installing backend
 - npm-publish github workflow
 
 ## [2.0.13] - 2021-07-16
@@ -616,8 +616,8 @@ Events:
   Merged 'allMessages' and 'message' files into single 'messages' file
 
 API:
-  ConnectionsManager: added optional isWaggleMobileMode
-  Storage: added optional isWaggleMobileMode
+  ConnectionsManager: added optional isbackendMobileMode
+  Storage: added optional isbackendMobileMode
   !IMPORTANT: Those will be removed as soon as mobile version will adopt the new API
 
 ### Fixed
@@ -632,7 +632,7 @@ API:
 
 ### Added
 
-- Optional `createPaths` to options in both ConnectionManager and Storage. Default = true. When set to false waggle will not try to create any dirs
+- Optional `createPaths` to options in both ConnectionManager and Storage. Default = true. When set to false backend will not try to create any dirs
   and will just assume they exist.
 - Database for certificates and 'add certificate' websocket event. Send all certificates on write and replication orbitdb events
 

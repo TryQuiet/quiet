@@ -97,7 +97,7 @@ test('User can create new community, register and send few messages to general c
     longTimeout,
     joiningUserApp.store
   )
-  await t.wait(2000) // Give the waggle some time, headless tests are fast
+  await t.wait(2000) // Give the backend some time, headless tests are fast
 
   await actions.sendMessage({
     message: t.fixtureCtx.joiningUserMessages[0],
@@ -112,5 +112,5 @@ test('User can create new community, register and send few messages to general c
 
   await t.wait(10000)
   // // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
-  // // See: https://github.com/ZbayApp/monorepo/issues/222
+  // // See: https://github.com/TryQuiet/monorepo/issues/222
 })

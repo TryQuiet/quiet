@@ -5,7 +5,7 @@ rm -rf ../waggle.zip
 git pull
 npm install
 # mock wrtc package which is incompatible with mobile
-git clone https://github.com/ZbayApp/wrtc-mock.git
+git clone https://github.com/TryQuiet/wrtc-mock.git
 sed -i "s/.*wrtc.*/    \"wrtc\": \".\/wrtc-mock\"/" ./package.json
 # build project for proper mobile architecture
 npm run build

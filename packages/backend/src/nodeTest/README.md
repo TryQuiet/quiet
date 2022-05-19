@@ -17,7 +17,7 @@ There are two basic tests. Each runs two nodes - first one generates snapshot an
 This is more adjustable and tests replication (without snapshots)
 
 `DEBUG='dbSnap*,localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 200 --entriesCount 10 --useTor`
---nodesCount - number of nodes (waggles) in test. Bootstrap node not included. This has some issues right now because the more nodes the slower the replication.
+--nodesCount - number of nodes in test. Bootstrap node not included. This has some issues right now because the more nodes the slower the replication.
 --timeThreshold - max time for each node full replication
 --entriesCount - number of entries in db
 --useTor/--no-useTor - whether to use Tor or connect nodes via localhost

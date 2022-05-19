@@ -3,8 +3,8 @@ name: Integration tests
 on:
   pull_request:
     paths:
-      - packages/nectar/**
-      - packages/waggle/**
+      - packages/state-manager/**
+      - packages/backend/**
       - packages/integration-tests/**
 
 jobs:

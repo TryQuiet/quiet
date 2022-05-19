@@ -6,8 +6,8 @@ import * as os from 'os'
 import fs from 'fs'
 import { Multiaddr } from 'multiaddr'
 import debug from 'debug'
-const log = Object.assign(debug('waggle:tracker'), {
-  error: debug('waggle:tracker:err')
+const log = Object.assign(debug('backend:tracker'), {
+  error: debug('backend:tracker:err')
 })
 
 interface IPeer {

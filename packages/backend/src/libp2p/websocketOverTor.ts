@@ -15,8 +15,8 @@ import https from 'https'
 import { dumpPEM } from './utils'
 import pDefer from 'p-defer'
 
-const log: any = debug('libp2p:websockets:listener:waggle')
-log.error = debug('libp2p:websockets:listener:waggle:error')
+const log: any = debug('libp2p:websockets:listener:backend')
+log.error = debug('libp2p:websockets:listener:backend:error')
 
 class Discovery extends EventEmitter {
   tag: string

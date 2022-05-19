@@ -14,7 +14,7 @@ const log = logger('testReplicate')
 const argv = yargs.command('test', 'Test replication', (yargs: Argv) => {
   return yargs
     .option('useTor', {
-      describe: 'Whether to use Tor or run waggle nodes on localhost',
+      describe: 'Whether to use Tor or run nodes on localhost',
       default: true,
       type: 'boolean'
     })

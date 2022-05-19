@@ -25,8 +25,8 @@ ipcRenderer.on('force-save-state', async _event => {
   ipcRenderer.send('state-saved')
 })
 
-ipcRenderer.on('waggleInitialized', _event => {
-  log('waggle initialized')
+ipcRenderer.on('backendInitialized', _event => {
+  log('backend initialized')
 })
 
 render(<Root />, document.getElementById('root'))

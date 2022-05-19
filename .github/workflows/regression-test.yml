@@ -29,7 +29,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libgtk2.0-0 libgtk-3-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
 
       - name: "Remove test files workaround"
-        run: find packages/frontend/src -name '*.test.*' -delete && find packages/waggle/src -name '*.test.*' -delete
+        run: find packages/frontend/src -name '*.test.*' -delete && find packages/backend/src -name '*.test.*' -delete
 
       - uses: cypress-io/github-action@v2
         with:

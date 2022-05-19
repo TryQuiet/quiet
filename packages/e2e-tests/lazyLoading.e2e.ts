@@ -90,7 +90,7 @@ test('Two users register, can scroll to older messages and switch channels', asy
     longTimeout,
     joiningUserApp.store
   )
-  await t.wait(2000) // Give the waggle some time, headless tests are fast
+  await t.wait(2000) // Give the backend some time, headless tests are fast
 
   // Users exchange messages
   const sentMessages = []
@@ -154,5 +154,5 @@ test('Two users register, can scroll to older messages and switch channels', asy
 
   await t.wait(5000)
   // // The wait is needed here because testcafe plugin doesn't actually close the window so 'close' event is not called in electron.
-  // // See: https://github.com/ZbayApp/monorepo/issues/222
+  // // See: https://github.com/TryQuiet/monorepo/issues/222
 })

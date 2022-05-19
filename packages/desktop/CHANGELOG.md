@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [0.6.1-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.6.0-alpha.0...quiet@0.6.1-alpha.0) (2022-05-18)
+## [0.6.1-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@0.6.0-alpha.0...quiet@0.6.1-alpha.0) (2022-05-18)
 
 **Note:** Version bump only for package quiet
 
@@ -11,7 +11,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.6.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.5.0-alpha.0...quiet@0.6.0-alpha.0) (2022-05-16)
+# [0.6.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@0.5.0-alpha.0...quiet@0.6.0-alpha.0) (2022-05-16)
 
 **Note:** Version bump only for package quiet
 
@@ -19,7 +19,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.5.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.7-alpha.1...quiet@0.5.0-alpha.0) (2022-04-29)
+# [0.5.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.7-alpha.1...quiet@0.5.0-alpha.0) (2022-04-29)
 
 **Note:** Version bump only for package quiet
 
@@ -27,7 +27,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.7-alpha.1](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.7-alpha.0...quiet@0.4.7-alpha.1) (2022-04-25)
+## [0.4.7-alpha.1](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.7-alpha.0...quiet@0.4.7-alpha.1) (2022-04-25)
 
 **Note:** Version bump only for package quiet
 
@@ -35,7 +35,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.7-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.6-alpha.0...quiet@0.4.7-alpha.0) (2022-04-25)
+## [0.4.7-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.6-alpha.0...quiet@0.4.7-alpha.0) (2022-04-25)
 
 **Note:** Version bump only for package quiet
 
@@ -43,7 +43,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.6-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.5-alpha.0...quiet@0.4.6-alpha.0) (2022-04-20)
+## [0.4.6-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.5-alpha.0...quiet@0.4.6-alpha.0) (2022-04-20)
 
 **Note:** Version bump only for package quiet
 
@@ -51,26 +51,18 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.5-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.4-alpha.0...quiet@0.4.5-alpha.0) (2022-04-15)
+## [0.4.5-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.4-alpha.0...quiet@0.4.5-alpha.0) (2022-04-15)
 
 
 ### Reverts
 
-* Revert "Update RTL snapshots" ([e5d9ed9](https://github.com/ZbayApp/monorepo/commit/e5d9ed9458f816302162229f4cc9597b5c6f6313))
+* Revert "Update RTL snapshots" ([e5d9ed9](https://github.com/TryQuiet/monorepo/commit/e5d9ed9458f816302162229f4cc9597b5c6f6313))
 
 
 
 
 
-## [0.4.4-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.3-alpha.0...quiet@0.4.4-alpha.0) (2022-04-15)
-
-**Note:** Version bump only for package quiet
-
-
-
-
-
-## [0.4.3-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.1-alpha.5...quiet@0.4.3-alpha.0) (2022-04-15)
+## [0.4.4-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.3-alpha.0...quiet@0.4.4-alpha.0) (2022-04-15)
 
 **Note:** Version bump only for package quiet
 
@@ -78,7 +70,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.2-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.1-alpha.5...quiet@0.4.2-alpha.0) (2022-04-15)
+## [0.4.3-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.1-alpha.5...quiet@0.4.3-alpha.0) (2022-04-15)
 
 **Note:** Version bump only for package quiet
 
@@ -86,7 +78,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.1-alpha.5](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.1-alpha.4...quiet@0.4.1-alpha.5) (2022-04-04)
+## [0.4.2-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.1-alpha.5...quiet@0.4.2-alpha.0) (2022-04-15)
 
 **Note:** Version bump only for package quiet
 
@@ -94,7 +86,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.1-alpha.4](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.1-alpha.3...quiet@0.4.1-alpha.4) (2022-04-01)
+## [0.4.1-alpha.5](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.1-alpha.4...quiet@0.4.1-alpha.5) (2022-04-04)
 
 **Note:** Version bump only for package quiet
 
@@ -102,7 +94,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.1-alpha.3](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.0-alpha.50...quiet@0.4.1-alpha.3) (2022-04-01)
+## [0.4.1-alpha.4](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.1-alpha.3...quiet@0.4.1-alpha.4) (2022-04-01)
 
 **Note:** Version bump only for package quiet
 
@@ -110,7 +102,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.1-alpha.2](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.0-alpha.50...quiet@0.4.1-alpha.2) (2022-03-28)
+## [0.4.1-alpha.3](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.0-alpha.50...quiet@0.4.1-alpha.3) (2022-04-01)
 
 **Note:** Version bump only for package quiet
 
@@ -118,7 +110,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.1-alpha.1](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.1-alpha.0...quiet@0.4.1-alpha.1) (2022-03-25)
+## [0.4.1-alpha.2](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.0-alpha.50...quiet@0.4.1-alpha.2) (2022-03-28)
 
 **Note:** Version bump only for package quiet
 
@@ -126,7 +118,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.4.1-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.0-alpha.4...quiet@0.4.1-alpha.0) (2022-03-19)
+## [0.4.1-alpha.1](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.1-alpha.0...quiet@0.4.1-alpha.1) (2022-03-25)
 
 **Note:** Version bump only for package quiet
 
@@ -134,7 +126,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.5](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.0-alpha.4...quiet@0.4.0-alpha.5) (2022-03-19)
+## [0.4.1-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.0-alpha.4...quiet@0.4.1-alpha.0) (2022-03-19)
 
 **Note:** Version bump only for package quiet
 
@@ -142,7 +134,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.4](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.0-alpha.3...quiet@0.4.0-alpha.4) (2022-03-17)
+# [0.4.0-alpha.5](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.0-alpha.4...quiet@0.4.0-alpha.5) (2022-03-19)
 
 **Note:** Version bump only for package quiet
 
@@ -150,7 +142,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.3](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.0-alpha.2...quiet@0.4.0-alpha.3) (2022-03-11)
+# [0.4.0-alpha.4](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.0-alpha.3...quiet@0.4.0-alpha.4) (2022-03-17)
 
 **Note:** Version bump only for package quiet
 
@@ -158,7 +150,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.2](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.0-alpha.0...quiet@0.4.0-alpha.2) (2022-03-11)
+# [0.4.0-alpha.3](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.0-alpha.2...quiet@0.4.0-alpha.3) (2022-03-11)
 
 **Note:** Version bump only for package quiet
 
@@ -166,7 +158,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/quiet@0.4.0-alpha.0...quiet@0.4.0-alpha.1) (2022-03-11)
+# [0.4.0-alpha.2](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.0-alpha.0...quiet@0.4.0-alpha.2) (2022-03-11)
 
 **Note:** Version bump only for package quiet
 
@@ -174,7 +166,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.3.0-alpha.7...quiet@0.4.0-alpha.0) (2022-03-08)
+# [0.4.0-alpha.1](https://github.com/TryQuiet/monorepo/compare/quiet@0.4.0-alpha.0...quiet@0.4.0-alpha.1) (2022-03-11)
 
 **Note:** Version bump only for package quiet
 
@@ -182,7 +174,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.8](https://github.com/ZbayApp/monorepo/compare/quiet@0.3.0-alpha.7...quiet@0.3.0-alpha.8) (2022-02-28)
+# [0.4.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@0.3.0-alpha.7...quiet@0.4.0-alpha.0) (2022-03-08)
 
 **Note:** Version bump only for package quiet
 
@@ -190,7 +182,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.7](https://github.com/ZbayApp/monorepo/compare/quiet@0.3.0-alpha.6...quiet@0.3.0-alpha.7) (2022-02-23)
+# [0.3.0-alpha.8](https://github.com/TryQuiet/monorepo/compare/quiet@0.3.0-alpha.7...quiet@0.3.0-alpha.8) (2022-02-28)
 
 **Note:** Version bump only for package quiet
 
@@ -198,7 +190,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.6](https://github.com/ZbayApp/monorepo/compare/quiet@0.3.0-alpha.5...quiet@0.3.0-alpha.6) (2022-02-23)
+# [0.3.0-alpha.7](https://github.com/TryQuiet/monorepo/compare/quiet@0.3.0-alpha.6...quiet@0.3.0-alpha.7) (2022-02-23)
 
 **Note:** Version bump only for package quiet
 
@@ -206,7 +198,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.5](https://github.com/ZbayApp/monorepo/compare/quiet@0.2.0-alpha.2...quiet@0.3.0-alpha.5) (2022-02-23)
+# [0.3.0-alpha.6](https://github.com/TryQuiet/monorepo/compare/quiet@0.3.0-alpha.5...quiet@0.3.0-alpha.6) (2022-02-23)
 
 **Note:** Version bump only for package quiet
 
@@ -214,7 +206,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.4](https://github.com/ZbayApp/monorepo/compare/quiet@0.2.0-alpha.2...quiet@0.3.0-alpha.4) (2022-02-23)
+# [0.3.0-alpha.5](https://github.com/TryQuiet/monorepo/compare/quiet@0.2.0-alpha.2...quiet@0.3.0-alpha.5) (2022-02-23)
 
 **Note:** Version bump only for package quiet
 
@@ -222,7 +214,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.4](https://github.com/ZbayApp/monorepo/compare/quiet@0.2.0-alpha.2...quiet@0.3.0-alpha.4) (2022-02-23)
+# [0.3.0-alpha.4](https://github.com/TryQuiet/monorepo/compare/quiet@0.2.0-alpha.2...quiet@0.3.0-alpha.4) (2022-02-23)
 
 **Note:** Version bump only for package quiet
 
@@ -230,7 +222,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.3](https://github.com/ZbayApp/monorepo/compare/quiet@0.2.0-alpha.2...quiet@0.3.0-alpha.3) (2022-02-22)
+# [0.3.0-alpha.4](https://github.com/TryQuiet/monorepo/compare/quiet@0.2.0-alpha.2...quiet@0.3.0-alpha.4) (2022-02-23)
 
 **Note:** Version bump only for package quiet
 
@@ -238,7 +230,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.2](https://github.com/ZbayApp/monorepo/compare/quiet@0.2.0-alpha.2...quiet@0.3.0-alpha.2) (2022-02-21)
+# [0.3.0-alpha.3](https://github.com/TryQuiet/monorepo/compare/quiet@0.2.0-alpha.2...quiet@0.3.0-alpha.3) (2022-02-22)
 
 **Note:** Version bump only for package quiet
 
@@ -246,7 +238,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/quiet@0.2.0-alpha.2...quiet@0.3.0-alpha.1) (2022-02-21)
+# [0.3.0-alpha.2](https://github.com/TryQuiet/monorepo/compare/quiet@0.2.0-alpha.2...quiet@0.3.0-alpha.2) (2022-02-21)
 
 **Note:** Version bump only for package quiet
 
@@ -254,7 +246,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.2.0-alpha.2...quiet@0.3.0-alpha.0) (2022-02-18)
+# [0.3.0-alpha.1](https://github.com/TryQuiet/monorepo/compare/quiet@0.2.0-alpha.2...quiet@0.3.0-alpha.1) (2022-02-21)
 
 **Note:** Version bump only for package quiet
 
@@ -262,7 +254,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.2.0-alpha.2](https://github.com/ZbayApp/monorepo/compare/quiet@0.2.0-alpha.1...quiet@0.2.0-alpha.2) (2022-02-10)
+# [0.3.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@0.2.0-alpha.2...quiet@0.3.0-alpha.0) (2022-02-18)
 
 **Note:** Version bump only for package quiet
 
@@ -270,7 +262,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.2.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/quiet@0.2.0-alpha.0...quiet@0.2.0-alpha.1) (2022-02-09)
+# [0.2.0-alpha.2](https://github.com/TryQuiet/monorepo/compare/quiet@0.2.0-alpha.1...quiet@0.2.0-alpha.2) (2022-02-10)
 
 **Note:** Version bump only for package quiet
 
@@ -278,26 +270,26 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.2.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.17...quiet@0.2.0-alpha.0) (2022-02-09)
+# [0.2.0-alpha.1](https://github.com/TryQuiet/monorepo/compare/quiet@0.2.0-alpha.0...quiet@0.2.0-alpha.1) (2022-02-09)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+# [0.2.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.17...quiet@0.2.0-alpha.0) (2022-02-09)
 
 
 ### Reverts
 
-* Revert "merge" ([c594651](https://github.com/ZbayApp/monorepo/commit/c594651fd9d1aeed9cc5623fc8933c78a55ef080))
+* Revert "merge" ([c594651](https://github.com/TryQuiet/monorepo/commit/c594651fd9d1aeed9cc5623fc8933c78a55ef080))
 
 
 
 
 
-# [0.1.0-alpha.17](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.16...quiet@0.1.0-alpha.17) (2022-02-03)
-
-**Note:** Version bump only for package quiet
-
-
-
-
-
-# [0.1.0-alpha.16](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.15...quiet@0.1.0-alpha.16) (2022-01-27)
+# [0.1.0-alpha.17](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.16...quiet@0.1.0-alpha.17) (2022-02-03)
 
 **Note:** Version bump only for package quiet
 
@@ -305,7 +297,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.15](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.14...quiet@0.1.0-alpha.15) (2022-01-27)
+# [0.1.0-alpha.16](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.15...quiet@0.1.0-alpha.16) (2022-01-27)
 
 **Note:** Version bump only for package quiet
 
@@ -313,7 +305,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.14](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.13...quiet@0.1.0-alpha.14) (2022-01-27)
+# [0.1.0-alpha.15](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.14...quiet@0.1.0-alpha.15) (2022-01-27)
 
 **Note:** Version bump only for package quiet
 
@@ -321,7 +313,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.13](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.12...quiet@0.1.0-alpha.13) (2022-01-27)
+# [0.1.0-alpha.14](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.13...quiet@0.1.0-alpha.14) (2022-01-27)
 
 **Note:** Version bump only for package quiet
 
@@ -329,7 +321,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.12](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.11...quiet@0.1.0-alpha.12) (2022-01-26)
+# [0.1.0-alpha.13](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.12...quiet@0.1.0-alpha.13) (2022-01-27)
 
 **Note:** Version bump only for package quiet
 
@@ -337,7 +329,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.11](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.10...quiet@0.1.0-alpha.11) (2022-01-26)
+# [0.1.0-alpha.12](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.11...quiet@0.1.0-alpha.12) (2022-01-26)
 
 **Note:** Version bump only for package quiet
 
@@ -345,7 +337,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.10](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.9...quiet@0.1.0-alpha.10) (2022-01-26)
+# [0.1.0-alpha.11](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.10...quiet@0.1.0-alpha.11) (2022-01-26)
 
 **Note:** Version bump only for package quiet
 
@@ -353,7 +345,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.9](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.8...quiet@0.1.0-alpha.9) (2022-01-26)
+# [0.1.0-alpha.10](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.9...quiet@0.1.0-alpha.10) (2022-01-26)
 
 **Note:** Version bump only for package quiet
 
@@ -361,7 +353,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.8](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.7...quiet@0.1.0-alpha.8) (2022-01-26)
+# [0.1.0-alpha.9](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.8...quiet@0.1.0-alpha.9) (2022-01-26)
 
 **Note:** Version bump only for package quiet
 
@@ -369,7 +361,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.7](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.6...quiet@0.1.0-alpha.7) (2022-01-26)
+# [0.1.0-alpha.8](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.7...quiet@0.1.0-alpha.8) (2022-01-26)
 
 **Note:** Version bump only for package quiet
 
@@ -377,7 +369,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.6](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.5...quiet@0.1.0-alpha.6) (2022-01-25)
+# [0.1.0-alpha.7](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.6...quiet@0.1.0-alpha.7) (2022-01-26)
 
 **Note:** Version bump only for package quiet
 
@@ -385,7 +377,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.5](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.4...quiet@0.1.0-alpha.5) (2022-01-25)
+# [0.1.0-alpha.6](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.5...quiet@0.1.0-alpha.6) (2022-01-25)
 
 **Note:** Version bump only for package quiet
 
@@ -393,7 +385,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.4](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.3...quiet@0.1.0-alpha.4) (2022-01-25)
+# [0.1.0-alpha.5](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.4...quiet@0.1.0-alpha.5) (2022-01-25)
 
 **Note:** Version bump only for package quiet
 
@@ -401,7 +393,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.3](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.2...quiet@0.1.0-alpha.3) (2022-01-25)
+# [0.1.0-alpha.4](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.3...quiet@0.1.0-alpha.4) (2022-01-25)
 
 **Note:** Version bump only for package quiet
 
@@ -409,7 +401,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.2](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.1...quiet@0.1.0-alpha.2) (2022-01-25)
+# [0.1.0-alpha.3](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.2...quiet@0.1.0-alpha.3) (2022-01-25)
 
 **Note:** Version bump only for package quiet
 
@@ -417,7 +409,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/quiet@0.1.0-alpha.0...quiet@0.1.0-alpha.1) (2022-01-25)
+# [0.1.0-alpha.2](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.1...quiet@0.1.0-alpha.2) (2022-01-25)
 
 **Note:** Version bump only for package quiet
 
@@ -425,7 +417,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@6.12.0-alpha.0...quiet@0.1.0-alpha.0) (2022-01-25)
+# [0.1.0-alpha.1](https://github.com/TryQuiet/monorepo/compare/quiet@0.1.0-alpha.0...quiet@0.1.0-alpha.1) (2022-01-25)
 
 **Note:** Version bump only for package quiet
 
@@ -433,7 +425,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.12.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@6.11.0-alpha.0...quiet@6.12.0-alpha.0) (2022-01-25)
+# [0.1.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@6.12.0-alpha.0...quiet@0.1.0-alpha.0) (2022-01-25)
 
 **Note:** Version bump only for package quiet
 
@@ -441,7 +433,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.11.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@6.10.0-alpha.0...quiet@6.11.0-alpha.0) (2022-01-25)
+# [6.12.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@6.11.0-alpha.0...quiet@6.12.0-alpha.0) (2022-01-25)
 
 **Note:** Version bump only for package quiet
 
@@ -449,7 +441,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.10.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@6.9.0-alpha.0...quiet@6.10.0-alpha.0) (2022-01-25)
+# [6.11.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@6.10.0-alpha.0...quiet@6.11.0-alpha.0) (2022-01-25)
 
 **Note:** Version bump only for package quiet
 
@@ -457,7 +449,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.9.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@6.8.0-alpha.0...quiet@6.9.0-alpha.0) (2022-01-25)
+# [6.10.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@6.9.0-alpha.0...quiet@6.10.0-alpha.0) (2022-01-25)
 
 **Note:** Version bump only for package quiet
 
@@ -465,7 +457,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.8.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@6.7.0-alpha.0...quiet@6.8.0-alpha.0) (2022-01-25)
+# [6.9.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@6.8.0-alpha.0...quiet@6.9.0-alpha.0) (2022-01-25)
 
 **Note:** Version bump only for package quiet
 
@@ -473,7 +465,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.7.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@6.6.0-alpha.0...quiet@6.7.0-alpha.0) (2022-01-24)
+# [6.8.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@6.7.0-alpha.0...quiet@6.8.0-alpha.0) (2022-01-25)
 
 **Note:** Version bump only for package quiet
 
@@ -481,7 +473,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.6.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@6.5.0-alpha.0...quiet@6.6.0-alpha.0) (2022-01-24)
+# [6.7.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@6.6.0-alpha.0...quiet@6.7.0-alpha.0) (2022-01-24)
 
 **Note:** Version bump only for package quiet
 
@@ -489,7 +481,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.5.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@6.4.0-alpha.0...quiet@6.5.0-alpha.0) (2022-01-24)
+# [6.6.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@6.5.0-alpha.0...quiet@6.6.0-alpha.0) (2022-01-24)
 
 **Note:** Version bump only for package quiet
 
@@ -497,7 +489,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.4.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@6.3.0-alpha.0...quiet@6.4.0-alpha.0) (2022-01-24)
+# [6.5.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@6.4.0-alpha.0...quiet@6.5.0-alpha.0) (2022-01-24)
 
 **Note:** Version bump only for package quiet
 
@@ -505,7 +497,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.3.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@6.2.0-alpha.0...quiet@6.3.0-alpha.0) (2022-01-24)
+# [6.4.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@6.3.0-alpha.0...quiet@6.4.0-alpha.0) (2022-01-24)
 
 **Note:** Version bump only for package quiet
 
@@ -513,7 +505,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.2.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@6.1.0-alpha.0...quiet@6.2.0-alpha.0) (2022-01-24)
+# [6.3.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@6.2.0-alpha.0...quiet@6.3.0-alpha.0) (2022-01-24)
 
 **Note:** Version bump only for package quiet
 
@@ -521,7 +513,15 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.1.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/quiet@6.0.0-alpha.0...quiet@6.1.0-alpha.0) (2022-01-24)
+# [6.2.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@6.1.0-alpha.0...quiet@6.2.0-alpha.0) (2022-01-24)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+# [6.1.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/quiet@6.0.0-alpha.0...quiet@6.1.0-alpha.0) (2022-01-24)
 
 **Note:** Version bump only for package quiet
 
@@ -537,7 +537,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [5.0.0](https://github.com/ZbayApp/monorepo/compare/zbay@5.0.0-alpha.8...zbay@5.0.0) (2021-12-29)
+# [5.0.0](https://github.com/TryQuiet/monorepo/compare/zbay@5.0.0-alpha.8...zbay@5.0.0) (2021-12-29)
 
 **Note:** Version bump only for package zbay
 
@@ -545,7 +545,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [5.0.0-alpha.8](https://github.com/ZbayApp/monorepo/compare/zbay@5.0.0-alpha.7...zbay@5.0.0-alpha.8) (2021-12-29)
+# [5.0.0-alpha.8](https://github.com/TryQuiet/monorepo/compare/zbay@5.0.0-alpha.7...zbay@5.0.0-alpha.8) (2021-12-29)
 
 **Note:** Version bump only for package zbay
 
@@ -553,7 +553,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [5.0.0-alpha.7](https://github.com/ZbayApp/monorepo/compare/zbay@5.0.0-alpha.6...zbay@5.0.0-alpha.7) (2021-12-29)
+# [5.0.0-alpha.7](https://github.com/TryQuiet/monorepo/compare/zbay@5.0.0-alpha.6...zbay@5.0.0-alpha.7) (2021-12-29)
 
 **Note:** Version bump only for package zbay
 
@@ -561,7 +561,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [5.0.0-alpha.6](https://github.com/ZbayApp/monorepo/compare/zbay@5.0.0-alpha.5...zbay@5.0.0-alpha.6) (2021-12-29)
+# [5.0.0-alpha.6](https://github.com/TryQuiet/monorepo/compare/zbay@5.0.0-alpha.5...zbay@5.0.0-alpha.6) (2021-12-29)
 
 **Note:** Version bump only for package zbay
 
@@ -569,7 +569,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [5.0.0-alpha.5](https://github.com/ZbayApp/monorepo/compare/zbay@5.0.0-alpha.4...zbay@5.0.0-alpha.5) (2021-12-29)
+# [5.0.0-alpha.5](https://github.com/TryQuiet/monorepo/compare/zbay@5.0.0-alpha.4...zbay@5.0.0-alpha.5) (2021-12-29)
 
 **Note:** Version bump only for package zbay
 
@@ -577,7 +577,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [5.0.0-alpha.4](https://github.com/ZbayApp/monorepo/compare/zbay@5.0.0-alpha.3...zbay@5.0.0-alpha.4) (2021-12-29)
+# [5.0.0-alpha.4](https://github.com/TryQuiet/monorepo/compare/zbay@5.0.0-alpha.3...zbay@5.0.0-alpha.4) (2021-12-29)
 
 **Note:** Version bump only for package zbay
 
@@ -585,7 +585,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [5.0.0-alpha.3](https://github.com/ZbayApp/monorepo/compare/zbay@5.0.0-alpha.2...zbay@5.0.0-alpha.3) (2021-12-29)
+# [5.0.0-alpha.3](https://github.com/TryQuiet/monorepo/compare/zbay@5.0.0-alpha.2...zbay@5.0.0-alpha.3) (2021-12-29)
 
 **Note:** Version bump only for package zbay
 
@@ -593,7 +593,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [5.0.0-alpha.2](https://github.com/ZbayApp/monorepo/compare/zbay@5.0.0-alpha.1...zbay@5.0.0-alpha.2) (2021-12-28)
+# [5.0.0-alpha.2](https://github.com/TryQuiet/monorepo/compare/zbay@5.0.0-alpha.1...zbay@5.0.0-alpha.2) (2021-12-28)
 
 **Note:** Version bump only for package zbay
 
@@ -601,7 +601,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [5.0.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/zbay@5.0.0-alpha.0...zbay@5.0.0-alpha.1) (2021-12-28)
+# [5.0.0-alpha.1](https://github.com/TryQuiet/monorepo/compare/zbay@5.0.0-alpha.0...zbay@5.0.0-alpha.1) (2021-12-28)
 
 **Note:** Version bump only for package zbay
 
@@ -632,7 +632,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## Added
 
-* Close all waggle services right before closing the app
+* Close all backend services right before closing the app
 
 # [4.0.0]
 
@@ -646,7 +646,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## Changed 
 
-* Plugged in @quiet/state-manager to handle waggle connections.
+* Plugged in @quiet/state-manager to handle connections.
 * Changed containers test files from js to ts
 * Refactored another chunk of containers to use hooks instead Hoc
 * Simplified components by removing zcash relicts
@@ -693,7 +693,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## Changed
 
-* Waggle version to 2.0.15 - fixes connecting to other peers
+* Backend version to 2.0.15 - fixes connecting to other peers
 
 # [3.4.0] - 16 July 2021
 
@@ -748,8 +748,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 # [3.2.19] - 8 June 2021
 
 ### Changed
-* Bump waggle to 2.0.2, jest to 27.0.4, ts-jest to 27.0.3
-* Use waggle's tor new API
+* Bump backend to 2.0.2, jest to 27.0.4, ts-jest to 27.0.3
+* Use backend's tor new API
 
 # [3.2.17] - 27 May 2021
 
@@ -769,7 +769,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Added
 * Sagas for direct messages
-* directMessages and waggle handlers and selectors
+* directMessages and backend handlers and selectors
 
 ### Removed
 * Part of old messaging logic - zcash, websockets/tor

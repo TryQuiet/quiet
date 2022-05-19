@@ -170,7 +170,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
         <ChannelInputComponent
           channelAddress={channelAddress}
           channelName={channelName}
-          // TODO https://github.com/ZbayApp/ZbayLite/issues/443
+          // TODO https://github.com/TryQuiet/ZbayLite/issues/443
           inputPlaceholder={`#${channelName} as @${user?.nickname}`}
           onChange={value => {
             onInputChange(value)

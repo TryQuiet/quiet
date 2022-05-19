@@ -2,7 +2,7 @@ import { DataServer } from './socket/DataServer'
 import { ConnectionsManager } from './libp2p/connectionsManager'
 import { Command } from 'commander'
 
-export const runWaggle = async (): Promise<any> => {
+export const runBackend = async (): Promise<any> => {
   const program = new Command()
 
   program
@@ -39,7 +39,7 @@ export const runWaggle = async (): Promise<any> => {
   await connectionsManager.init()
 }
 
-runWaggle().catch(error => {
+runBackend().catch(error => {
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   console.log(error)
 })

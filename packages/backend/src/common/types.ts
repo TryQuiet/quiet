@@ -44,7 +44,7 @@ export class ConnectionsManagerOptions {
   torControlPort: number
   torPassword?: string
   torAuthCookie?: string
-  useLocalTorFiles?: boolean = false // Use tor binaries and their libs from waggle
+  useLocalTorFiles?: boolean = false // Use tor binaries and their libs from backend
   wsType?: 'wss' | 'ws' = 'wss'
 }
 

@@ -9,7 +9,7 @@ export const useDirectMessageInputActions = () => {
 
   const onChange = useCallback(
     (_value: string) => {
-      // TODO https://github.com/ZbayApp/ZbayLite/issues/442
+      // TODO https://github.com/TryQuiet/ZbayLite/issues/442
     },
     [dispatch]
   )
@@ -40,7 +40,7 @@ export const ChannelInput = () => {
     <ChannelInputComponent
       channelAddress={currentChannelAddress}
       channelName={currentChannelName}
-      // TODO https://github.com/ZbayApp/ZbayLite/issues/443
+      // TODO https://github.com/TryQuiet/ZbayLite/issues/443
       inputPlaceholder={`#${currentChannelName} as @${user?.nickname}`}
       onChange={value => {
         resetDebounce()

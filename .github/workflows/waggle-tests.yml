@@ -1,9 +1,9 @@
-name: Waggle unit tests
+name: Backend unit tests
 
 on:
   pull_request:
     paths:
-      - packages/waggle/**
+      - packages/backend/**
 
 jobs:
   unit-tests:

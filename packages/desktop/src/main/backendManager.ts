@@ -1,9 +1,9 @@
-import waggle, { DataServer, ConnectionsManager } from '@quiet/backend'
+import backend, { DataServer, ConnectionsManager } from '@quiet/backend'
 import logger from './logger'
 import { Command } from 'commander'
 const program = new Command()
 
-const log = logger('waggleManager')
+const log = logger('backendManager')
 
 program
   .option('-s, --socksPort <number>', 'Socks proxy port')
@@ -17,17 +17,17 @@ program
 program.parse(process.argv)
 const options = program.opts()
 
-export const runWaggle = async (): Promise<{
+export const runBackend = async (): Promise<{
   connectionsManager: ConnectionsManager
   dataServer: DataServer
 }> => {
-  const dataServer = new waggle.DataServer(options.dataServerPort)
+  const dataServer = new backend.DataServer(options.dataServerPort)
   await dataServer.listen()
 
   const isDev = process.env.NODE_ENV === 'development'
   const resourcesPath = isDev ? null : options.resourcesPath.trim()
 
-  const connectionsManager = new waggle.ConnectionsManager({
+  const connectionsManager = new backend.ConnectionsManager({
     port: options.libp2pHiddenService,
     agentHost: 'localhost',
     agentPort: options.socksPort,
@@ -49,7 +49,7 @@ export const runWaggle = async (): Promise<{
         await dataServer.close()
         await connectionsManager.closeAllServices()
       } catch (e) {
-        log.error('Error occured while closing waggle services', e)
+        log.error('Error occured while closing backend services', e)
       }
       process.send('closed-services')
     }
@@ -60,9 +60,9 @@ export const runWaggle = async (): Promise<{
   return { connectionsManager, dataServer }
 }
 
-export const waggleVersion = waggle.version
+export const backendVersion = backend.version
 
-runWaggle().catch(e => {
-  log.error('Error occurred while initializing waggle', e)
+runBackend().catch(e => {
+  log.error('Error occurred while initializing backend', e)
   throw Error(e.message)
 })

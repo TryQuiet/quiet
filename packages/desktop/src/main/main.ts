@@ -5,7 +5,7 @@ import path from 'path'
 import { autoUpdater } from 'electron-updater'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
-import { getPorts, ApplicationPorts } from './waggleHelpers'
+import { getPorts, ApplicationPorts } from './backendHelpers'
 
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
@@ -274,7 +274,7 @@ export const checkForUpdate = async (win: BrowserWindow) => {
 }
 
 let ports: ApplicationPorts
-let waggleProcess: ChildProcess = null
+let backendProcess: ChildProcess = null
 
 app.on('ready', async () => {
   log('Event: app.ready')
@@ -303,17 +303,17 @@ app.on('ready', async () => {
     '-a', `${appDataPath}`,
     '-r', `${process.resourcesPath}`
   ]
-  waggleProcess = fork(path.join(__dirname, 'waggleManager.js'), forkArgvs)
-  log('Forked waggle, PID:', waggleProcess.pid)
+  backendProcess = fork(path.join(__dirname, 'backendManager.js'), forkArgvs)
+  log('Forked backend, PID:', backendProcess.pid)
 
-  waggleProcess.on('error', e => {
-    log.error('Waggle process returned error', e)
+  backendProcess.on('error', e => {
+    log.error('Backend process returned error', e)
     throw Error(e.message)
   })
 
-  waggleProcess.on('exit', code => {
+  backendProcess.on('exit', code => {
     if (code === 1) {
-      throw Error('Abnormal waggle process termination')
+      throw Error('Abnormal backend process termination')
     }
   })
 
@@ -373,23 +373,23 @@ app.on('browser-window-created', (_, window) => {
 // Quit when all windows are closed.
 app.on('window-all-closed', async () => {
   log('Event: app.window-all-closed')
-  if (waggleProcess !== null) {
+  if (backendProcess !== null) {
     /* OrbitDB released a patch (0.28.5) that omits error thrown when closing the app during heavy replication
        it needs mending though as replication is not being stopped due to pednign ipfs block/dag calls.
        https://github.com/orbitdb/orbit-db-store/issues/121
        ...
-       Quiet side workaround is force-killing waggle process.
+       Quiet side workaround is force-killing backend process.
        It may result in problems caused by post-process leftovers (like lock-files),
        nevertheless developer team is aware of that and has a response
-       https://github.com/ZbayApp/monorepo/issues/469
+       https://github.com/TryQuiet/monorepo/issues/469
     */
     const forceClose = setTimeout(() => {
       log('Force closing the app')
-      waggleProcess.kill()
+      backendProcess.kill()
       app.quit()
     }, 2000)
-    waggleProcess.send('close')
-    waggleProcess.on('message', message => {
+    backendProcess.send('close')
+    backendProcess.on('message', message => {
       if (message === 'closed-services') {
         log('Closing the app')
         clearTimeout(forceClose)
@@ -401,7 +401,7 @@ app.on('window-all-closed', async () => {
   }
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  // NOTE: temporarly quit macos when using 'X'. Reloading the app loses the connection with waggle. To be fixed.
+  // NOTE: temporarly quit macos when using 'X'. Reloading the app loses the connection with backend. To be fixed.
 })
 
 app.on('activate', async () => {

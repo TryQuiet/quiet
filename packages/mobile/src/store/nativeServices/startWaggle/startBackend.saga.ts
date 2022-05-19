@@ -4,7 +4,7 @@ import { initSelectors } from '../../init/init.selectors'
 import FindFreePort from 'react-native-find-free-port'
 import nodejs from 'nodejs-mobile-react-native'
 
-export function* startWaggleSaga(): Generator {
+export function* startBackendSaga(): Generator {
   while (true) {
     const dataDirectoryPath = yield* select(initSelectors.dataDirectoryPath)
     const dataPort = yield* call(FindFreePort.getFirstStartingFrom, 4677)
@@ -30,7 +30,7 @@ export function* startWaggleSaga(): Generator {
         torData.controlPort,
         torData.authCookie
       )
-      yield* put(initActions.onWaggleStarted({ dataPort: dataPort }))
+      yield* put(initActions.onBackendStarted({ dataPort: dataPort }))
       break
     }
     yield* delay(500)
@@ -46,6 +46,6 @@ export const startNodeProcess = (
   authCookie: string
 ) => {
   nodejs.startWithArgs(
-    `lib/mobileWaggleManager.js -d ${dataDirectoryPath} -p ${dataPort} -t ${httpTunnelPort} -s ${socksPort} -c ${controlPort} -a ${authCookie}`
+    `lib/mobileBackendManager.js -d ${dataDirectoryPath} -p ${dataPort} -t ${httpTunnelPort} -s ${socksPort} -c ${controlPort} -a ${authCookie}`
   )
 }
