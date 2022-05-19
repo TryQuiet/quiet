@@ -14,7 +14,7 @@ import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 
 import { useModal } from '../../containers/hooks'
 
-import { Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/nectar'
+import { Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'

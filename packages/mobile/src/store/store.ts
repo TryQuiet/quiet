@@ -7,7 +7,7 @@ import { NodeEnv } from '../utils/const/NodeEnv.enum'
 import { initActions } from './init/init.slice'
 import { rootReducer } from './root.reducer'
 
-import { storeKeys as NectarStoreKeys, MessagesTransform } from '@quiet/nectar'
+import { storeKeys as NectarStoreKeys, MessagesTransform } from '@quiet/state-manager'
 
 const persistedReducer = persistReducer(
   {

@@ -9,7 +9,7 @@ import BasicMessageComponent from './BasicMessage'
 
 import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
-import { MessagesDailyGroups, MessageSendingStatus } from '@quiet/nectar'
+import { MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
 
 const useStyles = makeStyles(theme => ({
   spinner: {

@@ -1,4 +1,4 @@
-import { ChannelMessage, PublicChannel } from '@quiet/nectar'
+import { ChannelMessage, PublicChannel } from '@quiet/state-manager'
 import { isUser, isMessage, isConversation, isDirectMessage, isChannel } from './validators'
 
 describe('Validators - Users', () => {

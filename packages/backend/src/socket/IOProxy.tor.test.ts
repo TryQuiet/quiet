@@ -4,7 +4,7 @@ import {
   InitCommunityPayload,
   LaunchRegistrarPayload,
   PeerId
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 import { createMinConnectionManager, createTmpDir, tmpQuietDirPath } from '../common/testUtils'
 import { getPorts } from '../common/utils'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'

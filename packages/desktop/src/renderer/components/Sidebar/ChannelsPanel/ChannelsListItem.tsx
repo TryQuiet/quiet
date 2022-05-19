@@ -4,7 +4,7 @@ import { Typography, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
-import { PublicChannel } from '@quiet/nectar'
+import { PublicChannel } from '@quiet/state-manager'
 
 const useStyles = makeStyles(theme => ({
   root: {

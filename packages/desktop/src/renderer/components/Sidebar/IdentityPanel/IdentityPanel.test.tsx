@@ -1,5 +1,5 @@
 import React from 'react'
-import { getFactory, Community, communities } from '@quiet/nectar'
+import { getFactory, Community, communities } from '@quiet/state-manager'
 
 import { IdentityPanel } from './IdentityPanel'
 import { prepareStore } from '../../../testUtils/prepareStore'

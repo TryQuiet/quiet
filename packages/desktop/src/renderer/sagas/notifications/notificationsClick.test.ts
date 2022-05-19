@@ -1,6 +1,6 @@
 import { PrepareStore, prepareStore } from '../../testUtils/prepareStore'
 import MockedSocket from 'socket.io-mock'
-import { communities, CreatedChannelResponse, getFactory, identity, IncomingMessages, MessageType, messages, publicChannels, users } from '@quiet/nectar'
+import { communities, CreatedChannelResponse, getFactory, identity, IncomingMessages, MessageType, messages, publicChannels, users } from '@quiet/state-manager'
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { ioMock } from '../../../shared/setupTests'
 import { DateTime } from 'luxon'

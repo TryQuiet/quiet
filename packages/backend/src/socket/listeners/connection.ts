@@ -9,7 +9,7 @@ import {
   SocketActionTypes,
   SubscribeToTopicPayload,
   AskForMessagesPayload
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 
 import IOProxy from '../IOProxy'
 

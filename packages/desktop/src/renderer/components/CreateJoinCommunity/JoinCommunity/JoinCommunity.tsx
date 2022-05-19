@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
-import { communities, identity, CommunityOwnership, CreateNetworkPayload } from '@quiet/nectar'
+import { communities, identity, CommunityOwnership, CreateNetworkPayload } from '@quiet/state-manager'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../../containers/hooks'

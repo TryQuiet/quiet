@@ -9,7 +9,7 @@ import {
   StoreKeys as NectarStoreKeys,
   settings,
   Store
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 import { StoreKeys } from '../store/store.keys'
 import { combineReducers, createStore, applyMiddleware } from 'redux'
 import createSagaMiddleware, { Saga, SagaMonitor as SagaMonitorType, Task } from 'redux-saga'

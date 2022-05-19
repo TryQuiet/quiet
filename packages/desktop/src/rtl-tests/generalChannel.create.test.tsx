@@ -13,7 +13,7 @@ import {
   getFactory,
   SocketActionTypes,
   SubscribeToTopicPayload
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 
 jest.setTimeout(20_000)

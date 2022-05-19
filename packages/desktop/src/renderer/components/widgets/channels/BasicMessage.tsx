@@ -13,7 +13,7 @@ import Jdenticon from 'react-jdenticon'
 
 // import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
 
-import { DisplayableMessage, MessageSendingStatus, SendingStatus } from '@quiet/nectar'
+import { DisplayableMessage, MessageSendingStatus, SendingStatus } from '@quiet/state-manager'
 import { NestedMessageContent } from './NestedMessageContent'
 import { Dictionary } from '@reduxjs/toolkit'
 

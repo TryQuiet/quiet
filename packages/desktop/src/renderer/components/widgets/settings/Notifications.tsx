@@ -10,7 +10,7 @@ import Icon from '../../ui/Icon/Icon'
 import radioChecked from '../../../static/images/radioChecked.svg'
 import radioUnselected from '../../../static/images/radioUnselected.svg'
 import { direct, relentless, sharp } from '../../../../shared/sounds'
-import { NotificationsOptions, NotificationsSounds } from '@quiet/nectar'
+import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
 
 const useStyles = makeStyles((theme) => ({
   title: {},

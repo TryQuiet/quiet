@@ -17,7 +17,7 @@ import {
   SocketActionTypes,
   ErrorCodes,
   ErrorMessages
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 import IOProxy from './IOProxy'
 
 describe('IO proxy', () => {

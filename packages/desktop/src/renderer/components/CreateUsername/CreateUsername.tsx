@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { errors, identity, communities } from '@quiet/nectar'
+import { errors, identity, communities } from '@quiet/state-manager'
 import CreateUsernameComponent from '../CreateUsername/CreateUsernameComponent'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'

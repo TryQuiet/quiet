@@ -1,4 +1,4 @@
-import { NotificationsOptions, NotificationsSounds } from '@quiet/nectar'
+import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
 import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { Notifications } from './Notifications'

@@ -1,7 +1,7 @@
 import AccessController from 'orbit-db-access-controllers/src/access-controller-interface'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
-import { ChannelMessage } from '@quiet/nectar'
+import { ChannelMessage } from '@quiet/state-manager'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
 
 const type = 'messagesaccess'

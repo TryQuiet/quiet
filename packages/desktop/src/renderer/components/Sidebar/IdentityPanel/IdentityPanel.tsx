@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { useModal } from '../../../containers/hooks'
 import { capitalizeFirstLetter } from '../../../../utils/functions/capitalize'
-import { Community } from '@quiet/nectar'
+import { Community } from '@quiet/state-manager'
 
 const useStyles = makeStyles(theme => ({
   root: {

@@ -9,7 +9,7 @@ import { getPorts, torBinForPlatform, torDirForPlatform } from './common/utils'
 import { rootPermsData } from './common/testUtils'
 import CommunitiesManager from './communities/manager'
 import { ConnectionsManagerOptions } from './common/types'
-import { Certificates } from '@quiet/nectar'
+import { Certificates } from '@quiet/state-manager'
 
 export default class Node {
   tor: Tor

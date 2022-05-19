@@ -23,7 +23,7 @@ import {
   SendMessagePayload,
   SocketActionTypes,
   SubscribeToTopicPayload
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 
 import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'

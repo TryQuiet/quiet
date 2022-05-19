@@ -1,4 +1,4 @@
-import { PermsData } from '@quiet/nectar'
+import { PermsData } from '@quiet/state-manager'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import fetch, { Response } from 'node-fetch'
 import PeerId from 'peer-id'

@@ -15,7 +15,7 @@ import {
   JoinCommunityDictionary
 } from '../CreateJoinCommunity/community.dictionary'
 
-import { CommunityOwnership } from '@quiet/nectar'
+import { CommunityOwnership } from '@quiet/state-manager'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'

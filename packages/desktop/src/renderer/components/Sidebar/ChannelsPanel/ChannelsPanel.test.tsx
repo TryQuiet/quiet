@@ -3,7 +3,7 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../../shared/setupTests'
 import { prepareStore } from '../../../testUtils/prepareStore'
 import { renderComponent } from '../../../testUtils/renderComponent'
-import { getFactory, publicChannels, communities, identity } from '@quiet/nectar'
+import { getFactory, publicChannels, communities, identity } from '@quiet/state-manager'
 import ChannelsPanel from './ChannelsPanel'
 import { DateTime } from 'luxon'
 

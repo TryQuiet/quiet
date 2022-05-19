@@ -23,7 +23,7 @@ import {
   Identity,
   ChannelMessage,
   PublicChannelStorage
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 
 jest.setTimeout(30_000)

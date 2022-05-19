@@ -19,8 +19,8 @@ const path = require('path');
 
  const extraNodeModules = {
    '@quiet/identity': path.resolve(__dirname, '../identity'),
-   '@quiet/nectar': path.resolve(__dirname, '../nectar'),
-   '@quiet/waggle': path.resolve(__dirname, '../waggle'),
+   '@quiet/state-manager': path.resolve(__dirname, '../nectar'),
+   '@quiet/backend': path.resolve(__dirname, '../waggle'),
    '@quiet/logger': path.resolve(__dirname, '../logger'),
    ...require('node-libs-react-native')
  }

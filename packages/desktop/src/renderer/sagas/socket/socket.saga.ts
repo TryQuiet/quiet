@@ -1,7 +1,7 @@
 import { io, Socket } from 'socket.io-client'
 import { fork, takeEvery, call, put, cancel, FixedTask } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { socket as nectar } from '@quiet/nectar'
+import { socket as nectar } from '@quiet/state-manager'
 import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
 

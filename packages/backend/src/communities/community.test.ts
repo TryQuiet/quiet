@@ -4,7 +4,7 @@ import { createMinConnectionManager, createTmpDir, tmpQuietDirPath, TorMock } fr
 import PeerId from 'peer-id'
 import { getPorts } from '../common/utils'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
-import { Certificates } from '@quiet/nectar'
+import { Certificates } from '@quiet/state-manager'
 jest.setTimeout(100_000)
 
 describe('Community manager', () => {

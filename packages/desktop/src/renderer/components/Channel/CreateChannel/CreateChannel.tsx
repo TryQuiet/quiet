@@ -11,7 +11,7 @@ import {
   publicChannels,
   socketActionTypes,
   SocketActionTypes
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 import { DateTime } from 'luxon'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'

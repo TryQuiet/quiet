@@ -13,7 +13,7 @@ import {
   settings,
   User,
   users
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 import { call, put, select, takeEvery } from 'typed-redux-saga'
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel, END } from 'redux-saga'

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { identity, messages, publicChannels, connection, communities } from '@quiet/nectar'
+import { identity, messages, publicChannels, connection, communities } from '@quiet/state-manager'
 
 import ChannelComponent from './ChannelComponent'
 

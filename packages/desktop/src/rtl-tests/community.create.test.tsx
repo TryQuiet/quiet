@@ -20,7 +20,7 @@ import {
   LaunchRegistrarPayload,
   RegisterOwnerCertificatePayload,
   SocketActionTypes
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 

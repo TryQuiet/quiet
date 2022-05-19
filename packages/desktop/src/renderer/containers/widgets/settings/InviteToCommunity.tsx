@@ -1,4 +1,4 @@
-import { communities } from '@quiet/nectar'
+import { communities } from '@quiet/state-manager'
 import React, { FC } from 'react'
 import { useSelector } from 'react-redux'
 import { InviteToCommunity } from '../../../components/widgets/settings/InviteToCommunity'

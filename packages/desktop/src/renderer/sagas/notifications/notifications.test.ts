@@ -1,6 +1,6 @@
 import { displayMessageNotificationSaga } from './notifications'
 import { expectSaga } from 'redux-saga-test-plan'
-import { communities, connection, getFactory, identity, IncomingMessages, messages, NotificationsOptions, NotificationsSounds, prepareStore, publicChannels, settings, StoreKeys, users } from '@quiet/nectar'
+import { communities, connection, getFactory, identity, IncomingMessages, messages, NotificationsOptions, NotificationsSounds, prepareStore, publicChannels, settings, StoreKeys, users } from '@quiet/state-manager'
 import { combineReducers } from '@reduxjs/toolkit'
 import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
 import { soundTypeToAudio } from '../../../shared/sounds'

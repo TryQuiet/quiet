@@ -3,7 +3,7 @@ import { ConnectionsManager, InitLibp2pParams } from '../libp2p/connectionsManag
 import { Storage } from '../storage'
 import { getPorts } from '../common/utils'
 import { CertificateRegistration } from '../registration'
-import { Certificates, InitCommunityPayload, PermsData } from '@quiet/nectar'
+import { Certificates, InitCommunityPayload, PermsData } from '@quiet/state-manager'
 import logger from '../logger'
 
 const log = logger('communities')

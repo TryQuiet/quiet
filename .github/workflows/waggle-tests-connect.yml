@@ -19,10 +19,10 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity"
 
       - name: run tests
-        run: lerna run test-connect-ci --scope @quiet/waggle --stream
+        run: lerna run test-connect-ci --scope @quiet/backend --stream
 
   test-replicate:
     timeout-minutes: 40
@@ -37,13 +37,13 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity"
 
       - name: Install ts-node globally
         run: npm install --global ts-node
 
       - name: run test without tor
-        run: lerna run test-replication-no-tor --scope @quiet/waggle --stream
+        run: lerna run test-replication-no-tor --scope @quiet/backend --stream
 
       - name: run test with tor
-        run: lerna run test-replication-tor --scope @quiet/waggle --stream
+        run: lerna run test-replication-tor --scope @quiet/backend --stream

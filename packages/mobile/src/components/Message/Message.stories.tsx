@@ -2,7 +2,7 @@ import React from 'react'
 import { storiesOf } from '@storybook/react-native'
 
 import { Message } from './Message.component'
-import { MessageType } from '@quiet/nectar'
+import { MessageType } from '@quiet/state-manager'
 
 storiesOf('Message', module).add('Default', () => {
   return (

@@ -2,7 +2,7 @@ import {
   DisplayableMessage,
   MessagesDailyGroups,
   PublicChannel
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 
 export interface ChatProps {
   sendMessageAction: (message: string) => void

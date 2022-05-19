@@ -25,7 +25,7 @@ import {
   MessageType,
   ChannelMessage,
   messages
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'

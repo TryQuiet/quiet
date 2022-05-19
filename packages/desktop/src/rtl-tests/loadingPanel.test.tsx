@@ -9,7 +9,7 @@ import LoadingPanel, { LoadingPanelMessage } from '../renderer/components/Loadin
 import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { communities, identity, getFactory, publicChannels } from '@quiet/nectar'
+import { communities, identity, getFactory, publicChannels } from '@quiet/state-manager'
 import { DateTime } from 'luxon'
 import { act } from 'react-dom/test-utils'
 

@@ -13,7 +13,7 @@ import {
 } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { communities, getFactory } from '@quiet/nectar'
+import { communities, getFactory } from '@quiet/state-manager'
 
 jest.setTimeout(20_000)
 

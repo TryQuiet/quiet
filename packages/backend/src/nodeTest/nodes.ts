@@ -8,7 +8,7 @@ import CommunitiesManager from '../communities/manager'
 import { createUsersCerts } from '../libp2p/tests/client-server'
 import { ConnectionsManagerOptions } from '../common/types'
 import { RootCA } from '@quiet/identity'
-import { Certificates } from '@quiet/nectar'
+import { Certificates } from '@quiet/state-manager'
 
 /**
  * More customizable version of Node (entry node), mainly for testing purposes

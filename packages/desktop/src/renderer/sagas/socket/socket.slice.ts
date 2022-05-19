@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { StoreKeys } from '@quiet/nectar'
+import { StoreKeys } from '@quiet/state-manager'
 import { Socket } from 'socket.io-client'
 import { FixedTask } from 'typed-redux-saga'
 

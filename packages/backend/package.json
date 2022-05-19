@@ -1,5 +1,5 @@
 {
-	"name": "@quiet/waggle",
+	"name": "@quiet/backend",
 	"version": "0.6.1-alpha.0",
 	"description": "tlg-manager",
 	"types": "lib/index.d.ts",
@@ -84,7 +84,7 @@
 		"@peculiar/webcrypto": "1.2.2",
 		"@quiet/identity": "^0.4.0-alpha.0",
 		"@quiet/logger": "^0.1.2-alpha.0",
-		"@quiet/nectar": "^0.6.0-alpha.0",
+		"@quiet/state-manager": "^0.6.0-alpha.0",
 		"abortable-iterator": "^3.0.0",
 		"class-validator": "^0.13.1",
 		"cli-table": "^0.3.6",

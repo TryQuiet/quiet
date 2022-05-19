@@ -1,5 +1,5 @@
 
-import { ChannelMessage, communities, CommunityOwnership, CreateNetworkPayload, identity, publicChannels, messages } from '@quiet/nectar'
+import { ChannelMessage, communities, CommunityOwnership, CreateNetworkPayload, identity, publicChannels, messages } from '@quiet/state-manager'
 import assert from 'assert'
 import { Register, SendMessage } from '../integrationTests/appActions'
 import logger from '../logger'

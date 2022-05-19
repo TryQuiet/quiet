@@ -11,7 +11,7 @@ import {
   publicChannels,
   settings,
   users
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 import { Action } from 'redux-actions'
 import { testSaga } from 'redux-saga-test-plan'
 import {

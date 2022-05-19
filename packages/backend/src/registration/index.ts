@@ -1,5 +1,5 @@
 import { createUserCert, UserCert, loadCSR, CertFieldsTypes, getReqFieldValue, keyFromCertificate, parseCertificate } from '@quiet/identity'
-import { SaveCertificatePayload, PermsData } from '@quiet/nectar'
+import { SaveCertificatePayload, PermsData } from '@quiet/state-manager'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import express, { Request, Response } from 'express'
 import getPort from 'get-port'

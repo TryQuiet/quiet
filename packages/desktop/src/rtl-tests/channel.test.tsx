@@ -21,7 +21,7 @@ import {
   SendingStatus,
   MessageType,
   connection
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 

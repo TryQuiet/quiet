@@ -25,7 +25,7 @@ import {
   ResponseCreateNetworkPayload,
   ErrorCodes,
   AskForMessagesPayload
-} from '@quiet/nectar'
+} from '@quiet/state-manager'
 import { emitError } from './errors'
 
 import logger from '../logger'

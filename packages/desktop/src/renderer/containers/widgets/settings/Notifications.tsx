@@ -1,4 +1,4 @@
-import { NotificationsOptions, NotificationsSounds, settings } from '@quiet/nectar'
+import { NotificationsOptions, NotificationsSounds, settings } from '@quiet/state-manager'
 import React, { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import NotificationsComponent from '../../../components/widgets/settings/Notifications'

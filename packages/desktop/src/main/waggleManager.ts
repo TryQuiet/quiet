@@ -1,4 +1,4 @@
-import waggle, { DataServer, ConnectionsManager } from '@quiet/waggle'
+import waggle, { DataServer, ConnectionsManager } from '@quiet/backend'
 import logger from './logger'
 import { Command } from 'commander'
 const program = new Command()

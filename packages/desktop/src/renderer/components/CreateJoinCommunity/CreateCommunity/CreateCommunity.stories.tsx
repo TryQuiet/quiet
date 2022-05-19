@@ -4,7 +4,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../../storybook/decorators'
 
 import PerformCommunityActionComponent, { PerformCommunityActionProps } from '../PerformCommunityActionComponent'
-import { CommunityOwnership } from '@quiet/nectar'
+import { CommunityOwnership } from '@quiet/state-manager'
 
 const Template: ComponentStory<typeof PerformCommunityActionComponent> = args => {
   return <PerformCommunityActionComponent {...args} />

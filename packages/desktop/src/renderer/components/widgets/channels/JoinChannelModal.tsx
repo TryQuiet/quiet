@@ -10,7 +10,7 @@ import Modal from '../../ui/Modal/Modal'
 import { AutocompleteField } from '../../ui/Autocomplete/Autocomplete'
 import LoadindButton from '../../ui/LoadingButton/LoadingButton'
 
-import { User, PublicChannel } from '@quiet/nectar'
+import { User, PublicChannel } from '@quiet/state-manager'
 
 import { Dictionary } from '@reduxjs/toolkit'
 

@@ -646,7 +646,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## Changed 
 
-* Plugged in @quiet/nectar to handle waggle connections.
+* Plugged in @quiet/state-manager to handle waggle connections.
 * Changed containers test files from js to ts
 * Refactored another chunk of containers to use hooks instead Hoc
 * Simplified components by removing zcash relicts

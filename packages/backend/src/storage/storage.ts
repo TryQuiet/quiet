@@ -5,7 +5,7 @@ import {
   parseCertificate,
   verifyUserCert
 } from '@quiet/identity'
-import { ChannelMessage, PublicChannel, SaveCertificatePayload } from '@quiet/nectar'
+import { ChannelMessage, PublicChannel, SaveCertificatePayload } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
 import OrbitDB from 'orbit-db'
