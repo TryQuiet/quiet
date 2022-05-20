@@ -5,11 +5,12 @@ import { ChannelMessage, PublicChannel } from '@quiet/nectar'
 const messageSchema = joi.object({
   id: joi.string().required(),
   type: joi.number().required().positive().integer(),
-  message: joi.string().required(),
+  message: joi.alternatives(joi.string(), joi.binary()).required(),
   createdAt: joi.number().required(),
   channelAddress: joi.string().required(),
   signature: joi.string().required(),
-  pubKey: joi.string().required()
+  pubKey: joi.string().required(),
+  cid: joi.string()
 })
 
 const channelSchema = joi.object({
