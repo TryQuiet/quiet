@@ -20,6 +20,9 @@ const useStyles = makeStyles(() => ({
   },
   pending: {
     color: theme.palette.colors.lightGray
+  },
+  image: {
+    maxWidth: '50%'
   }
 }))
 
@@ -35,7 +38,7 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
   console.log('File', message)
   return (
     <div>
-      <img src={image} />
+      <img className={classes.image} src={image} />
     </div>
   )
 }
