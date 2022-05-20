@@ -3,6 +3,7 @@ import theme from '../../../theme'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
 import { DisplayableMessage, SendingStatus } from '@quiet/nectar'
 import classNames from 'classnames'
+import UploadedFile from './UploadedFile'
 
 const useStyles = makeStyles(() => ({
   message: {
@@ -33,6 +34,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ mess
   const classes = useStyles({})
 
   const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
+  console.log('message', message.message, message.type)
 
   return (
     <Grid item className={outerDivStyle}>
@@ -42,7 +44,9 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ mess
           [classes.pending]: pending
         })}
         data-testid={`messagesGroupContent-${message.id}`}>
-        {message.message}
+          {
+            message.type === 1 ? message.message : <UploadedFile message={message} />
+          }
       </Typography>
     </Grid>
   )

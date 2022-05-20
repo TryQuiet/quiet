@@ -21,6 +21,7 @@ export interface WriteMessagePayload {
   message: string
   channelAddress?: string
   type?: MessageType
+  cid?: string
 }
 
 export interface PublicKeyMappingPayload {
