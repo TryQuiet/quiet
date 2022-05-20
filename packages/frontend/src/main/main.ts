@@ -340,7 +340,8 @@ app.on('ready', async () => {
     let filesDialogResult: Electron.OpenDialogReturnValue
     try {
       filesDialogResult = await dialog.showOpenDialog(mainWindow, {
-        properties: ['openFile', 'openFile', 'multiSelections']
+        properties: ['openFile', 'openFile', 'multiSelections'],
+        filters: [{ name: 'Images', extensions: ['jpg', 'png', 'jpeg'] }],
       })
     } catch (e) {
       mainWindow.webContents.send('openedFilesError', e)
