@@ -27,7 +27,8 @@ const useStyles = makeStyles(() => ({
     width: '64px',
     height: '64px',
     borderRadius: '15%',
-    marginLeft: '10px'
+    marginLeft: '10px',
+    objectFit: 'cover'
   },
   closeIconContainer: {
     position: 'absolute',
@@ -42,7 +43,7 @@ const useStyles = makeStyles(() => ({
     transform: 'translate(50%, -50%)',
     '&:hover': {
       backgroundColor: '#dddddd'
-    }
+    },
   },
   closeIcon: {
     position: 'relative',
