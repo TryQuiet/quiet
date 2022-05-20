@@ -125,7 +125,7 @@ const useStyles = makeStyles(theme => ({
     padding: '5px'
   },
   picker: {
-    position: 'absolute',
+    position: 'fixed',
     bottom: 60,
     right: 15
   },
