@@ -12,7 +12,8 @@ import {
   publicChannels as channels,
   settings,
   User,
-  users
+  users,
+  MessageType
 } from '@quiet/nectar'
 import { call, put, select, takeEvery } from 'typed-redux-saga'
 import { soundTypeToAudio } from '../../../shared/sounds'
@@ -96,9 +97,18 @@ export const messagesMapForNotificationsCalls = (data: CreateNotificationsCallsD
       const isMessageFromLoggedTime = messageData.createdAt > data.lastConnectedTime
       if (senderName && !isMessageFromMyUser && !isNotificationsOptionOff &&
         isMessageFromLoggedTime && (!isMessageFromCurrentChannel || !isAppInForeground)) {
+        let message: string
+        let title: string
+        if (messageData.type == MessageType.IMAGE) {
+          title = `${senderName} in #${publicChannelFromMessage.name || 'Unnamed'}`
+          message = 'shared this image'
+        } else {
+          title = `New message from ${senderName} in #${publicChannelFromMessage.name || 'Unnamed'}`
+          message = messageData.message
+        }
         return createNotification({
-          title: `New message from ${senderName} in #${publicChannelFromMessage.name || 'Unnamed'}`,
-          message: `${messageData.message.substring(0, 64)}${messageData.message.length > 64 ? '...' : ''}`,
+          title,
+          message: `${message.substring(0, 64)}${message.length > 64 ? '...' : ''}`,
           sound: data.notificationsSound,
           communityId: data.action.payload.communityId,
           channelName: publicChannelFromMessage.name,
