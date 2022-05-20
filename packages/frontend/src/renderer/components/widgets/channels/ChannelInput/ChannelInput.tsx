@@ -12,7 +12,7 @@ import Icon from '../../../ui/Icon/Icon'
 import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import PlusIconWithBorder from '../../../ui/assets/icons/PlusIconWithBorder'
-import IconButton from '@material-ui/core/IconButton'
+import AddIcon from '@material-ui/icons/Add'
 import { ipcRenderer } from 'electron'
 import UploadFilesPreviewsComponent, { FilePreviewData } from '../UploadedFilesPreviews'
 
@@ -92,10 +92,24 @@ const useStyles = makeStyles(theme => ({
   },
   iconButton: {
     cursor: 'pointer',
-    right: '0px'
+    position: 'relative',
+    float: 'right',
+    color: '#808080',
+    '&:hover': {
+      color: 'black',
+      border: '1px solid black'
+
+    },
+    border: '1px solid #808080',
+
+    // boxShadow: '-.75px -.75px 1px #808080',
+    borderRadius: '100%',
+    width: '23px',
+    height: '23px'
   },
   emoji: {
     cursor: 'pointer',
+    position: 'relative',
     float: 'right'
   },
   highlight: {
@@ -107,7 +121,8 @@ const useStyles = makeStyles(theme => ({
 
   actions: {
     postion: 'relative',
-    float: 'right'
+    float: 'right',
+    padding: '5px'
   },
   picker: {
     position: 'absolute',
@@ -320,7 +335,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       if (inputState === INPUT_STATE.AVAILABLE) {
         // @ts-expect-error
         setMessage(e.nativeEvent.target.innerText)
-        //// @ts-expect-error
+        /// / @ts-expect-error
         // console.log('setMessage(e.nativeEvent.target.innerText)', e.nativeEvent.target.innerText)
         // @ts-expect-error
         if (!e.nativeEvent.target.innerText) {
@@ -506,17 +521,16 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               <div className={classes.icons}>
                 <Grid item className={classes.actions}>
                   <Grid container justify='center' alignItems='center'>
-                    <IconButton
+                    <AddIcon
                       className={classes.iconButton}
                       onClick={event => {
                         event.persist()
                         setOpenFileExplorer(true)
                         console.log('clicked')
                       }}
-                      edge='start'
                       data-testid={'uploadFilesButton'}>
                       <PlusIconWithBorder color='black' />
-                    </IconButton>
+                    </AddIcon>
                   </Grid>
                 </Grid>
                 <Grid item className={classes.actions}>

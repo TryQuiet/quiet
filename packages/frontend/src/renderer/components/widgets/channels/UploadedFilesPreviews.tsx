@@ -2,7 +2,7 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import FilePresentIcon from '@material-ui/icons/AttachFile'
 import { FileContent } from '@quiet/nectar'
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@material-ui/icons/Close'
 
 export interface FilePreviewData {
   [id: string]: FileContent
@@ -29,15 +29,31 @@ const useStyles = makeStyles(() => ({
     borderRadius: '15%',
     marginLeft: '10px'
   },
-  closeIcon: {
+  closeIconContainer: {
     position: 'absolute',
     margin: '0',
     padding: '0',
     right: '0px',
     top: '0px',
     backgroundColor: 'white',
-    border: '0.5px solid black',
-    borderRadius: '100%'
+    borderRadius: '100%',
+    width: '22px',
+    height: '22px',
+    transform: 'translate(50%, -50%)',
+    '&:hover': {
+      backgroundColor: '#dddddd'
+    }
+  },
+  closeIcon: {
+    position: 'relative',
+    left: '50%',
+    top: '50%',
+    color: '#444444',
+    transform: 'translate(-50%, -50%)',
+    '&:hover': {
+      color: '#000000'
+    },
+    width: '17px'
   },
   imageContainer: {
     position: 'relative'
@@ -47,13 +63,13 @@ const useStyles = makeStyles(() => ({
 const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, onClick }) => {
   console.log('received data:', fileData)
   const classes = useStyles({})
-  //@ts-expect-error
+  // @ts-expect-error
   const base64StringImage = btoa(new Uint8Array(fileData.buffer).reduce(function (data, byte) {
-    return data + String.fromCharCode(byte);
+    return data + String.fromCharCode(byte)
   }, ''))
 
   return <div className={classes.imageContainer}>
-    <div className={classes.closeIcon} onClick={onClick}> <CloseIcon /> </div>
+    <div className={classes.closeIconContainer} onClick={onClick}> <CloseIcon className={classes.closeIcon} /> </div>
     <img src={`data:image/png;base64,${base64StringImage}`} alt={fileData.name} className={classes.image} />
   </div>
 }
@@ -62,7 +78,6 @@ export interface UploadFilesPreviewsProps {
   filesData: FilePreviewData
   removeFile: (id: string) => void
 }
-
 
 const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
   filesData,

@@ -43,7 +43,7 @@ const Channel = () => {
     (message: string, files: FilePreviewData) => {
       if (message) {
         dispatch(messages.actions.sendMessage({ message }))
-      }      
+      }
       Object.values(files).forEach(fileData => {
         console.log('Uploading file', fileData)
         dispatch(messages.actions.uploadFile({

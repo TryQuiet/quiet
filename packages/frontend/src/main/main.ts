@@ -346,7 +346,7 @@ app.on('ready', async () => {
       mainWindow.webContents.send('openedFilesError', e)
       return
     }
-    
+
     if (filesDialogResult.filePaths) {
       console.log('paths:', filesDialogResult.filePaths)
       const data = openFiles(filesDialogResult.filePaths)
