@@ -4,7 +4,8 @@ import { DisplayableMessage } from '@quiet/nectar'
 
 const useStyles = makeStyles(() => ({
   image: {
-    maxWidth: '50%'
+    width: '100%',
+    maxWidth: '400px'
   }
 }))
 
