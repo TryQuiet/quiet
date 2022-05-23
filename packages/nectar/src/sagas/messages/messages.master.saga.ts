@@ -12,9 +12,9 @@ import { lazyLoadingSaga } from './lazyLoading/lazyLoading.saga'
 import { resetCurrentPublicChannelCacheSaga } from './manageCache/resetChannelCache.saga'
 import { extendCurrentPublicChannelCacheSaga } from './manageCache/extendChannelCache.saga'
 import { checkIsImageSaga } from './checkIsImage/checkIsImage.saga'
-import { uploadFileSaga } from './uploadFile/uploadFile.saga'
-import { sendFileSaga } from './sendFile/sendFile.saga'
-import { uploadedFileSaga } from './uploadedFile/uploadedFile.saga'
+import { sendFileSaga } from '../files/sendFile/sendFile.saga'
+import { uploadFileSaga } from '../files/uploadFile/uploadFile.saga'
+import { uploadedFileSaga } from '../files/uploadedFile/uploadedFile.saga'
 
 export function* messagesMasterSaga(socket: Socket): Generator {
   yield all([

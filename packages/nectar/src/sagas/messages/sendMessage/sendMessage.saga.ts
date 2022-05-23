@@ -8,11 +8,10 @@ import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
-import { MessageTypes } from '../const/messageTypes'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { Identity } from '../../identity/identity.types'
 import { ChannelMessage } from '../../publicChannels/publicChannels.types'
-import { SendingStatus } from '../messages.types'
+import { MessageType, SendingStatus } from '../messages.types'
 
 export function* sendMessageSaga(
   socket: Socket,
@@ -39,7 +38,7 @@ export function* sendMessageSaga(
 
   const message: ChannelMessage = {
     id: messageId,
-    type: action.payload.type || MessageTypes.BASIC,
+    type: action.payload.type || MessageType.Basic,
     message: action.payload.message,
     createdAt: currentTime,
     channelAddress,

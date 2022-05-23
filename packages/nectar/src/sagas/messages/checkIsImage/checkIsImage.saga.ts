@@ -16,7 +16,7 @@ export function* checkIsImageSaga(
   const messages = action.payload.messages
   for (const message of messages) {
     console.log('checkIsImageSaga', message)
-    if (message.type === MessageType.IMAGE) {
+    if (message.type === MessageType.Image) {
       yield* apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE, {
           cid: message.cid,

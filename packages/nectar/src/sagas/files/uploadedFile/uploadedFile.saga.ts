@@ -1,8 +1,8 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { Socket } from 'socket.io-client'
 import { put } from 'typed-redux-saga'
-import { messagesActions } from '../messages.slice'
-import { MessageType } from '../messages.types'
+import { messagesActions } from '../../messages/messages.slice'
+import { MessageType } from '../../messages/messages.types'
 
 export function* uploadedFileSaga(
   socket: Socket,
@@ -11,7 +11,7 @@ export function* uploadedFileSaga(
 
   console.log('uploadedFileSaga', action.payload)
   yield* put(messagesActions.sendMessage({
-    type: MessageType.IMAGE,
+    type: MessageType.Image,
     message: action.payload.buffer,
     cid: action.payload.cid
   }))

@@ -4,7 +4,7 @@ import { ChannelMessage } from '../publicChannels/publicChannels.types'
 export enum MessageType {
   Empty = -1,
   Basic = 1,
-  IMAGE = 2
+  Image = 2
 }
 
 export enum SendingStatus {
