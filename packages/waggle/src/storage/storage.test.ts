@@ -310,8 +310,8 @@ describe('Files', () => {
     const buffer = fs.readFileSync(path.join(__dirname, '/testUtils/test-image.png')).toString()
 
     const fileContent: FileContent = {
-      buffer: buffer,
-      name: 'test-image',
+      path: 'temp/image.png',
+      name: 'image',
       ext: 'png',
       dir: 'photos'
     }
@@ -324,10 +324,8 @@ describe('Files', () => {
     const downloadSpy = jest.spyOn(storage.io, 'downloadedFile')
     
     const uploadMetadata = uploadSpy.mock.calls[0][0]
-    const cid = uploadMetadata.cid
-    console.log(cid)
 
-    await storage.downloadFile(cid)
+    await storage.downloadFile(uploadMetadata)
 
     expect(downloadSpy).toHaveBeenCalled()
   })

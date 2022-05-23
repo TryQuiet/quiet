@@ -17,13 +17,13 @@ export interface UploadedFileProps {
 
 export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
   const classes = useStyles({})
-  const image = URL.createObjectURL(
-    new Blob([message.message], { type: 'image/png' } /* (1) */)
-  );
+  // const image = URL.createObjectURL(
+  //   new Blob([message.message], { type: 'image/png' } /* (1) */)
+  // );
   console.log('File', message)
   return (
     <div className={classes.container}>
-      <img className={classes.image} src={image} />
+      <img className={classes.image} src={message.media?.path} />
     </div>
   )
 }

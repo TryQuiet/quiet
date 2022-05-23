@@ -89,9 +89,9 @@ export default class IOProxy {
     this.io.emit(SocketActionTypes.UPLOADED_FILE, metadata)
   }
 
-  public downloadFile = async (peerId: string, cid: string) => {
-    log('downloadFile', cid)
-    await this.getStorage(peerId).downloadFile(cid)
+  public downloadFile = async (peerId: string, metadata: FileMetadata) => {
+    log('downloadFile', metadata.cid)
+    await this.getStorage(peerId).downloadFile(metadata)
   }
 
   public downloadedFile = (metadata: FileMetadata) => {

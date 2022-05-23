@@ -63,7 +63,7 @@ describe('uploadFileSaga', () => {
     const socket = { emit: jest.fn() } as unknown as Socket
     const peerId = alice.peerId.id
     const fileContent: FileContent = {
-      buffer: 'buffer',
+      path: 'temp/name.ext',
       name: 'name',
       ext: 'ext',
       dir: 'dir'
@@ -85,7 +85,7 @@ describe('uploadFileSaga', () => {
       ])
       .put(
         messagesActions.sendMessage({
-          message: fileContent.buffer,
+          message: fileContent.path,
           channelAddress: fileContent.dir
         })
       )

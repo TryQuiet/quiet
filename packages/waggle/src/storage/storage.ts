@@ -401,20 +401,26 @@ export class Storage {
   }
 
   public async downloadFile(metadata: FileMetadata) {
-    log('downloadFile', metadata.cid)
     const _CID = CID.parse(metadata.cid)
     const entries = this.ipfs.get(_CID)
     let merged = new Uint8Array(0)
     for await(const entry of entries) {
       merged = new Uint8Array([ ...merged, ...entry ])
     }
-    const filePath = `${path.join(this.quietDir, 'downloads', metadata.name)}`
+
+    const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.dir)
+    createPaths([downloadDirectory])
+
+    const fileName = metadata.name + metadata.ext
+    const filePath = `${path.join(downloadDirectory, fileName)}`
+
     fs.writeFileSync(filePath, merged)
 
     const fileMetadata: FileMetadata = {
       ...metadata,
       path: filePath
     }
+    
     this.io.downloadedFile(fileMetadata)
   }
 

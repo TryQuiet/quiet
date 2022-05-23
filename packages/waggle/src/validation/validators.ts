@@ -10,7 +10,7 @@ const messageSchema = joi.object({
   channelAddress: joi.string().required(),
   signature: joi.string().required(),
   pubKey: joi.string().required(),
-  cid: joi.string()
+  media: joi.any()
 })
 
 const channelSchema = joi.object({

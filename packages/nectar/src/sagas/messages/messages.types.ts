@@ -1,4 +1,5 @@
 import { EntityState } from '@reduxjs/toolkit'
+import { FileMetadata } from '../files/files.types'
 import { ChannelMessage } from '../publicChannels/publicChannels.types'
 
 export enum MessageType {
@@ -21,7 +22,7 @@ export interface WriteMessagePayload {
   message: string
   channelAddress?: string
   type?: MessageType
-  cid?: string
+  media?: FileMetadata
 }
 
 export interface PublicKeyMappingPayload {

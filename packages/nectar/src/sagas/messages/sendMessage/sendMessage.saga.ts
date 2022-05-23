@@ -44,7 +44,7 @@ export function* sendMessageSaga(
     channelAddress,
     signature,
     pubKey,
-    cid: action.payload.cid
+    media: action.payload.media
   }
 
   yield* apply(socket, socket.emit, [

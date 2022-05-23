@@ -49,7 +49,7 @@ export const connections = (io, ioProxy: IOProxy) => {
     socket.on(
       SocketActionTypes.DOWNLOAD_FILE,
       async (payload: DownloadFilePayload) => {
-        await ioProxy.downloadFile(payload.peerId, payload.cid)
+        await ioProxy.downloadFile(payload.peerId, payload.metadata)
       }
     )
     socket.on(

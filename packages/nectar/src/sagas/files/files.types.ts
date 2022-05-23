@@ -15,6 +15,6 @@ export interface UploadFilePayload {
 }
 
 export interface DownloadFilePayload {
-  cid: string
+  metadata: FileMetadata
   peerId: string
 }
