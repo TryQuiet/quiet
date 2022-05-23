@@ -1,6 +1,5 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import FilePresentIcon from '@material-ui/icons/AttachFile'
 import { FileContent } from '@quiet/nectar'
 import CloseIcon from '@material-ui/icons/Close'
 
@@ -62,16 +61,10 @@ const useStyles = makeStyles(() => ({
 }))
 
 const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, onClick }) => {
-  console.log('received data:', fileData)
   const classes = useStyles({})
-  // @ts-expect-error
-  const base64StringImage = btoa(new Uint8Array(fileData.buffer).reduce(function (data, byte) {
-    return data + String.fromCharCode(byte)
-  }, ''))
-
   return <div className={classes.imageContainer}>
     <div className={classes.closeIconContainer} onClick={onClick}> <CloseIcon className={classes.closeIcon} /> </div>
-    <img src={`data:image/png;base64,${base64StringImage}`} alt={fileData.name} className={classes.image} />
+    <img src={fileData.path} alt={fileData.name} className={classes.image} />
   </div>
 }
 
