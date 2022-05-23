@@ -293,7 +293,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const findMentions = React.useCallback(
     (text: string) => {
-      console.log('Finding mentions', text)
       // Search for any mention in message string
       const result: string = text.replace(
         /(<span([^>]*)>)?@([a-z0-9]?\w*)(<\/span>)?/gi,

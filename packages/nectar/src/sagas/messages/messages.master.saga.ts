@@ -14,6 +14,7 @@ import { extendCurrentPublicChannelCacheSaga } from './manageCache/extendChannel
 import { checkIsImageSaga } from './checkIsImage/checkIsImage.saga'
 import { uploadFileSaga } from './uploadFile/uploadFile.saga'
 import { sendFileSaga } from './sendFile/sendFile.saga'
+import { uploadedFileSaga } from './uploadedFile/uploadedFile.saga'
 
 export function* messagesMasterSaga(socket: Socket): Generator {
   yield all([
@@ -21,6 +22,7 @@ export function* messagesMasterSaga(socket: Socket): Generator {
     takeEvery(messagesActions.sendFile.type, sendFileSaga, socket),
     takeEvery(messagesActions.incomingMessages.type, checkIsImageSaga, socket),
     takeEvery(messagesActions.uploadFile.type, uploadFileSaga, socket),
+    takeEvery(messagesActions.uploadedFile.type, uploadedFileSaga, socket),
     takeEvery(messagesActions.incomingMessages.type, incomingMessagesSaga),
     takeEvery(messagesActions.incomingMessages.type, verifyMessagesSaga),
     takeEvery(messagesActions.incomingMessages.type, markUnreadChannelsSaga),

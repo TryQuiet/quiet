@@ -24,12 +24,12 @@ export function* uploadFileSaga(
     }
   ])
 
-  const uploadedFileMetadata = yield* take(messagesActions.uploadedFile)
-  console.log('uploadedFileMetadata', uploadedFileMetadata)
+  // const uploadedFileMetadata = yield* take(messagesActions.uploadedFile)
+  // console.log('uploadedFileMetadata', uploadedFileMetadata)
 
-  yield* put(messagesActions.sendFile({
-    message: action.payload.buffer,
-    channelAddress: action.payload.dir,
-    cid: uploadedFileMetadata.payload.cid
-  }))
+  // yield* put(messagesActions.sendFile({
+  //   message: action.payload.buffer,
+  //   channelAddress: action.payload.dir,
+  //   cid: uploadedFileMetadata.payload.cid
+  // }))
 }

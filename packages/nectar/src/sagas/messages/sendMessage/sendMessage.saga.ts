@@ -68,7 +68,7 @@ export function* sendMessageSaga(
     signature: message.signature,
     verified: true
   }))
-
+  console.log('sendMessageSaga, incoming', message)
   // Display sent message immediately, to improve user experience
   yield* put(messagesActions.incomingMessages({
     messages: [message],

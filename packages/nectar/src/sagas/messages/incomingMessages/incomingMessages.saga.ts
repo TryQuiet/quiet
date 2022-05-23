@@ -15,6 +15,7 @@ export function* incomingMessagesSaga(
     if (message.channelAddress !== currentChannelAddress) {
       return
     }
+    console.log('incomingMessagesSaga 1', message)
 
     // Do not proceed if signature is not verified
     while (true) {
@@ -30,10 +31,12 @@ export function* incomingMessagesSaga(
       yield* delay(50)
     }
 
+    console.log('incomingMessagesSaga 2', message)
+
     const lastDisplayedMessage = yield* select(publicChannelsSelectors.currentChannelLastDisplayedMessage)
     const cachedMessages = yield* select(publicChannelsSelectors.sortedCurrentChannelMessages)
     // Check if incoming message fits between (newest known message)...(number of messages to display)
-
+    console.log('incomingMessagesSaga 3', message)
     if (message.createdAt < lastDisplayedMessage?.createdAt && cachedMessages.length >= 50) {
       return
     }
@@ -41,6 +44,7 @@ export function* incomingMessagesSaga(
     if (cachedMessages.length >= 50) {
       cachedMessages.shift()
     }
+    console.log('incomingMessagesSaga 4', message)
     cachedMessages.push(message)
 
     const cacheMessagesPayload: CacheMessagesPayload = {

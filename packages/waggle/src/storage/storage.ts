@@ -382,7 +382,7 @@ export class Storage {
       if (entry.name === filename) {
         const metadata: FileMetadata = {
           cid: entry.cid.toString(),
-          buffer: null
+          buffer: file.buffer
         }
         this.io.uploadedFile(metadata)
         break
