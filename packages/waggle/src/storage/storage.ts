@@ -28,6 +28,7 @@ import logger from '../logger'
 import IOProxy from '../socket/IOProxy'
 import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
+import fs from 'fs'
 
 const log = logger('db')
 
@@ -367,22 +368,31 @@ export class Storage {
     }
   }
 
-  public async uploadFile(file: FileContent) {
-    log('uploadFile', file)
+  public async uploadFile(fileContent: FileContent) {
+    log('uploadFile', fileContent)
+    let buffer: Buffer
+    try {
+      buffer = fs.readFileSync(fileContent.path)
+    } catch (e) {
+      // TODO
+      log.error(`Couldn't open file ${path}. Error: ${e.message}`)
+      return
+    }
+    
     // Create directory for file
-    const dirname = file.dir || 'uploads'
+    const dirname = fileContent.dir || 'uploads'
     await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })
     // Write file to IPFS
     const uuid = `${Date.now()}_${Math.random().toString(36).substr(2.9)}`
-    const filename = `${uuid}_${file.name}.${file.ext}`
-    await this.ipfs.files.write(`/${dirname}/${filename}`, file.buffer, { create: true })
+    const filename = `${uuid}_${fileContent.name}.${fileContent.ext}`
+    await this.ipfs.files.write(`/${dirname}/${filename}`, buffer, { create: true })
     // Get uploaded file information
     const entries = this.ipfs.files.ls(`/${dirname}`)
     for await(const entry of entries) {
       if (entry.name === filename) {
         const metadata: FileMetadata = {
-          cid: entry.cid.toString(),
-          buffer: file.buffer
+          ...fileContent,
+          cid: entry.cid.toString()
         }
         this.io.uploadedFile(metadata)
         break
@@ -390,20 +400,22 @@ export class Storage {
     }
   }
 
-  public async downloadFile(cid: string) {
-    log('downloadFile', cid)
-    const _CID = CID.parse(cid)
+  public async downloadFile(metadata: FileMetadata) {
+    log('downloadFile', metadata.cid)
+    const _CID = CID.parse(metadata.cid)
     const entries = this.ipfs.get(_CID)
     let merged = new Uint8Array(0)
     for await(const entry of entries) {
       merged = new Uint8Array([ ...merged, ...entry ])
     }
-    const buffer = new Buffer(merged).toString()
-    const metadata: FileMetadata = {
-      cid: cid,
-      buffer: buffer
+    const filePath = `${path.join(this.quietDir, 'downloads', metadata.name)}`
+    fs.writeFileSync(filePath, merged)
+
+    const fileMetadata: FileMetadata = {
+      ...metadata,
+      path: filePath
     }
-    this.io.downloadedFile(metadata)
+    this.io.downloadedFile(fileMetadata)
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {

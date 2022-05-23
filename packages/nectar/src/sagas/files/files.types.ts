@@ -1,13 +1,12 @@
 export interface FileContent {
-    buffer: string
+    path: string
     name: string
     ext: string
     dir?: string
 }
 
-export interface FileMetadata {
+export interface FileMetadata extends FileContent {
   cid: string
-  buffer?: string
 }
 
 export interface UploadFilePayload {
