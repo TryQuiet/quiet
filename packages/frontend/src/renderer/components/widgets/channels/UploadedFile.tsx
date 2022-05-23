@@ -4,8 +4,10 @@ import { DisplayableMessage } from '@quiet/nectar'
 
 const useStyles = makeStyles(() => ({
   image: {
-    width: '100%',
-    maxWidth: '400px'
+    maxWidth: '100%',
+  },
+  container: {
+    maxWidth: '400px',
   }
 }))
 
@@ -20,7 +22,7 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
   );
   console.log('File', message)
   return (
-    <div>
+    <div className={classes.container}>
       <img className={classes.image} src={image} />
     </div>
   )
