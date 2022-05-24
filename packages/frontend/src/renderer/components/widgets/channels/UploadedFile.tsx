@@ -10,7 +10,8 @@ const useStyles = makeStyles(() => ({
     maxWidth: '100%'
   },
   container: {
-    maxWidth: '400px'
+    maxWidth: '400px',
+    cursor: 'pointer'
   }
 }))
 
