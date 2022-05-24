@@ -9,7 +9,7 @@ const messageSchema = joi.object({
   type: joi.number().required().positive().integer(),
   message: joi.alternatives(joi.string(), joi.binary()).required(),
   media: joi.object({
-    path: joi.string().required(),
+    path: joi.string().allow(null),
     name: joi.string().required(),
     ext: joi.string().required(),
     cid: joi.string().required(),

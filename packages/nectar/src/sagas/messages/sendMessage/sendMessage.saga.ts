@@ -36,7 +36,7 @@ export function* sendMessageSaga(
 
   const channelAddress = action.payload.channelAddress || currentChannel
 
-  let media: FileMetadata | null = null
+  let media: FileMetadata | undefined = undefined
   if (action.payload.media) {
     media = {
       ...action.payload.media,
