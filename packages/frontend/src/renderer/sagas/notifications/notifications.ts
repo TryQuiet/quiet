@@ -116,7 +116,7 @@ export const messagesMapForNotificationsCalls = (data: CreateNotificationsCallsD
         }, emit)
       }
     }
-    return () => {}
+    return () => { }
   })
 }
 
@@ -148,7 +148,7 @@ export const createNotification = (payload: NotificationsData, emit): any => {
     emit(END)
   }
 
-  return () => {}
+  return () => { }
 }
 
 export default {

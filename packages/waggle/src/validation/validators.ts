@@ -1,6 +1,8 @@
 import _ from 'validator'
 import joi from 'joi'
 import { ChannelMessage, PublicChannel } from '@quiet/nectar'
+import logger from '../logger'
+const log = logger('validators')
 
 const messageSchema = joi.object({
   id: joi.string().required(),
@@ -53,6 +55,7 @@ export const isDirectMessage = (msg: string): boolean => {
 
 export const isMessage = (msg: ChannelMessage): boolean => {
   const value = messageSchema.validate(msg)
+  if (value.error) log.error('isMessage', value.error)
   return !value.error
 }
 
