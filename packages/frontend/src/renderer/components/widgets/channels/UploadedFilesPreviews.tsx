@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { FileContent } from '@quiet/nectar'
 import CloseIcon from '@material-ui/icons/Close'
@@ -42,7 +42,7 @@ const useStyles = makeStyles(() => ({
     transform: 'translate(50%, -50%)',
     '&:hover': {
       backgroundColor: '#dddddd'
-    },
+    }
   },
   closeIcon: {
     position: 'relative',
@@ -56,16 +56,31 @@ const useStyles = makeStyles(() => ({
     width: '17px'
   },
   imageContainer: {
-    position: 'relative'
+    position: 'relative',
+    cursor: 'pointer',
   }
 }))
 
 const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, onClick }) => {
+  const [showClose, setShowClose] = useState(false)
   const classes = useStyles({})
-  return <div className={classes.imageContainer}>
-    <div className={classes.closeIconContainer} onClick={onClick}> <CloseIcon className={classes.closeIcon} /> </div>
-    <img src={fileData.path} alt={fileData.name} className={classes.image} />
-  </div>
+  return (
+    <div
+      className={classes.imageContainer}
+      onMouseLeave={() => {
+        setShowClose(false)
+      }}
+      onMouseOver={() => {
+        setShowClose(true)
+      }}>
+      {showClose && (
+        <div className={classes.closeIconContainer} onClick={onClick}>
+          <CloseIcon className={classes.closeIcon} />
+        </div>
+      )}
+      <img src={fileData.path} alt={fileData.name} className={classes.image} />
+    </div>
+  )
 }
 
 export interface UploadFilesPreviewsProps {
@@ -81,7 +96,9 @@ const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
 
   return (
     <div className={classes.inputFiles}>
-      {Object.entries(filesData).map((fileData) => <FilePreviewComponent fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />)}
+      {Object.entries(filesData).map(fileData => (
+        <FilePreviewComponent fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />
+      ))}
     </div>
   )
 }
