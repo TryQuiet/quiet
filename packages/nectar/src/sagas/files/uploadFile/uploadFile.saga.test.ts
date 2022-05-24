@@ -65,8 +65,7 @@ describe('uploadFileSaga', () => {
     const fileContent: FileContent = {
       path: 'temp/name.ext',
       name: 'name',
-      ext: 'ext',
-      dir: 'dir'
+      ext: 'ext'
     }
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -85,8 +84,7 @@ describe('uploadFileSaga', () => {
       ])
       .put(
         messagesActions.sendMessage({
-          message: fileContent.path,
-          channelAddress: fileContent.dir
+          message: fileContent.path
         })
       )
       .run()

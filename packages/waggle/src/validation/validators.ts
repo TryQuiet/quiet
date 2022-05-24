@@ -6,17 +6,20 @@ const messageSchema = joi.object({
   id: joi.string().required(),
   type: joi.number().required().positive().integer(),
   message: joi.alternatives(joi.string(), joi.binary()).required(),
-  createdAt: joi.number().required(),
-  channelAddress: joi.string().required(),
-  signature: joi.string().required(),
-  pubKey: joi.string().required(),
   media: joi.object({
     path: joi.string().required(),
     name: joi.string().required(),
     ext: joi.string().required(),
-    dir: joi.string(),
-    cid: joi.string().required()
-  })
+    cid: joi.string().required(),
+    message: joi.object({
+      id: joi.string().required(),
+      channelAddress: joi.string().required()
+    })
+  }),
+  createdAt: joi.number().required(),
+  channelAddress: joi.string().required(),
+  signature: joi.string().required(),
+  pubKey: joi.string().required()
 })
 
 const channelSchema = joi.object({
