@@ -44,9 +44,9 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ mess
           [classes.pending]: pending
         })}
         data-testid={`messagesGroupContent-${message.id}`}>
-          {
-            message.type === MessageType.Basic ? message.message : <UploadedFile message={message} />
-          }
+        {
+          message.type === MessageType.Basic ? message.message : <UploadedFile message={message} />
+        }
       </Typography>
     </Grid>
   )
