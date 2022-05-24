@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
+import IconButton from '@material-ui/core/IconButton'
+
 import { FileContent } from '@quiet/nectar'
 import CloseIcon from '@material-ui/icons/Close'
+import Tooltip from '../../ui/Tooltip/Tooltip'
 
 export interface FilePreviewData {
   [id: string]: FileContent
@@ -57,7 +60,10 @@ const useStyles = makeStyles(() => ({
   },
   imageContainer: {
     position: 'relative',
-    cursor: 'pointer',
+    cursor: 'pointer'
+  },
+  tooltip: {
+    marginTop: '8px'
   }
 }))
 
@@ -74,10 +80,13 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
         setShowClose(true)
       }}>
       {showClose && (
-        <div className={classes.closeIconContainer} onClick={onClick}>
-          <CloseIcon className={classes.closeIcon} />
-        </div>
+        <Tooltip title='Remove' placement='top' className={classes.tooltip}>
+          <div className={classes.closeIconContainer} onClick={onClick}>
+            <CloseIcon className={classes.closeIcon} />
+          </div>
+        </Tooltip>
       )}
+
       <img src={fileData.path} alt={fileData.name} className={classes.image} />
     </div>
   )
