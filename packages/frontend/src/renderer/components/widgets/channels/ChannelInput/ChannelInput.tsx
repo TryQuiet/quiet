@@ -11,8 +11,8 @@ import { INPUT_STATE } from './InputState.enum'
 import Icon from '../../../ui/Icon/Icon'
 import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
-import PlusIconWithBorder from '../../../ui/assets/icons/PlusIconWithBorder'
-import AddIcon from '@material-ui/icons/Add'
+import addGray from '../../../../static/images/addGray.svg'
+import addBlack from '../../../../static/images/addBlack.svg'
 import { ipcRenderer } from 'electron'
 import UploadFilesPreviewsComponent, { FilePreviewData } from '../UploadedFilesPreviews'
 
@@ -212,6 +212,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const [initEvent, _setInitEvent] = React.useState(true)
 
   const [emojiHovered, setEmojiHovered] = React.useState(false)
+  const [fileExplorerHovered, setFileExplorerHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
 
   const [openFileExplorer, setOpenFileExplorer] = React.useState(false)
@@ -293,7 +294,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const findMentions = React.useCallback(
     (text: string) => {
-      console.log('Finding mentions', text)
       // Search for any mention in message string
       const result: string = text.replace(
         /(<span([^>]*)>)?@([a-z0-9]?\w*)(<\/span>)?/gi,
@@ -521,16 +521,20 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               <div className={classes.icons}>
                 <Grid item className={classes.actions}>
                   <Grid container justify='center' alignItems='center'>
-                    <AddIcon
-                      className={classes.iconButton}
-                      onClick={event => {
-                        event.persist()
+                  <Icon
+                      className={classes.emoji}
+                      src={fileExplorerHovered ? addBlack : addGray}
+                      onClickHandler={() => {
                         setOpenFileExplorer(true)
                         console.log('clicked')
                       }}
-                      data-testid={'uploadFilesButton'}>
-                      <PlusIconWithBorder color='black' />
-                    </AddIcon>
+                      onMouseEnterHandler={() => {
+                        setFileExplorerHovered(true)
+                      }}
+                      onMouseLeaveHandler={() => {
+                        setFileExplorerHovered(false)
+                      }}
+                    />
                   </Grid>
                 </Grid>
                 <Grid item className={classes.actions}>

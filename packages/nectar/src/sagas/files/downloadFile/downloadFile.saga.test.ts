@@ -2,7 +2,7 @@ import {
   setupCrypto
 } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory } from '../../..'
+import { getFactory, MessageType } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -11,14 +11,14 @@ import { communitiesActions, Community } from '../../communities/communities.sli
 import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { MessageTypes } from '../const/messageTypes'
-import { messagesActions } from '../messages.slice'
-import { checkIsImageSaga } from './checkIsImage.saga'
+import { messagesActions } from '../../messages/messages.slice'
 import { FactoryGirl } from 'factory-girl'
+import { downloadFileSaga } from './downloadFile.saga'
 import { currentChannelAddress } from '../../publicChannels/publicChannels.selectors'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
+import { FileMetadata } from '../files.types'
 
 describe('checkIsImageSaga', () => {
   let store: Store
@@ -65,22 +65,29 @@ describe('checkIsImageSaga', () => {
 
     const currentChannel = currentChannelAddress(store.getState())
     const peerId = alice.peerId.id
-    const cid = 'cid1'
+    
+    const media: FileMetadata = {
+      cid: 'cid',
+      path: 'temp/image.png',
+      name: 'image',
+      ext: 'png'
+    }
+
     const reducer = combineReducers(reducers)
     await expectSaga(
-      checkIsImageSaga,
+      downloadFileSaga,
       socket,
       messagesActions.incomingMessages({
         communityId: community.id,
         messages: [{
           id: '5',
-          type: MessageTypes.IMAGE,
+          type: MessageType.Image,
           message: 'message',
           createdAt: 8,
           channelAddress: currentChannel,
           signature: 'signature',
           pubKey: 'publicKey',
-          cid
+          media: media
         }]
       })
     )
@@ -91,7 +98,10 @@ describe('checkIsImageSaga', () => {
       ])
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
-        { cid, peerId }
+        { 
+          cid: media.cid, 
+          peerId: peerId 
+        }
       ])
       .run()
   })

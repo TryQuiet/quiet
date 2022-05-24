@@ -1,12 +1,11 @@
 import { Socket } from 'socket.io-client'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { call, select, apply, put, take } from 'typed-redux-saga'
+import { select, apply } from 'typed-redux-saga'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
-import { messagesActions } from '../messages.slice'
 import { Identity } from '../../identity/identity.types'
 import { FileContent } from '../../files/files.types'
-import { sendMessageSaga } from '../sendMessage/sendMessage.saga'
+import { messagesActions } from '../../messages/messages.slice'
 
 export function* uploadFileSaga(
   socket: Socket,
@@ -24,12 +23,12 @@ export function* uploadFileSaga(
     }
   ])
 
-  const uploadedFileMetadata = yield* take(messagesActions.uploadedFile)
-  console.log('uploadedFileMetadata', uploadedFileMetadata)
+  // const uploadedFileMetadata = yield* take(messagesActions.uploadedFile)
+  // console.log('uploadedFileMetadata', uploadedFileMetadata)
 
-  yield* put(messagesActions.sendFile({
-    message: action.payload.buffer,
-    channelAddress: action.payload.dir,
-    cid: uploadedFileMetadata.payload.cid
-  }))
+  // yield* put(messagesActions.sendFile({
+  //   message: action.payload.buffer,
+  //   channelAddress: action.payload.dir,
+  //   cid: uploadedFileMetadata.payload.cid
+  // }))
 }

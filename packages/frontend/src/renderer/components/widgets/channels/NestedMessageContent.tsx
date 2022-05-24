@@ -1,7 +1,7 @@
 import React from 'react'
 import theme from '../../../theme'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
-import { DisplayableMessage, SendingStatus } from '@quiet/nectar'
+import { DisplayableMessage, MessageType, SendingStatus } from '@quiet/nectar'
 import classNames from 'classnames'
 import UploadedFile from './UploadedFile'
 
@@ -45,7 +45,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ mess
         })}
         data-testid={`messagesGroupContent-${message.id}`}>
         {
-          message.type === 1 ? message.message : <UploadedFile message={message} />
+          message.type === MessageType.Basic ? message.message : <UploadedFile message={message} />
         }
       </Typography>
     </Grid>

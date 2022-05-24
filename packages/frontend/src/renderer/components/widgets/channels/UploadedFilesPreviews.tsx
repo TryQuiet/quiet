@@ -1,6 +1,5 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import FilePresentIcon from '@material-ui/icons/AttachFile'
 import { FileContent } from '@quiet/nectar'
 import CloseIcon from '@material-ui/icons/Close'
 
@@ -57,22 +56,31 @@ const useStyles = makeStyles(() => ({
     width: '17px'
   },
   imageContainer: {
-    position: 'relative'
+    position: 'relative',
+    cursor: 'pointer',
   }
 }))
 
 const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, onClick }) => {
-  console.log('received data:', fileData)
+  const [showClose, setShowClose] = useState(false)
   const classes = useStyles({})
-  // @ts-expect-error
-  const base64StringImage = btoa(new Uint8Array(fileData.buffer).reduce(function (data, byte) {
-    return data + String.fromCharCode(byte)
-  }, ''))
-
-  return <div className={classes.imageContainer}>
-    <div className={classes.closeIconContainer} onClick={onClick}> <CloseIcon className={classes.closeIcon} /> </div>
-    <img src={`data:image/png;base64,${base64StringImage}`} alt={fileData.name} className={classes.image} />
-  </div>
+  return (
+    <div
+      className={classes.imageContainer}
+      onMouseLeave={() => {
+        setShowClose(false)
+      }}
+      onMouseOver={() => {
+        setShowClose(true)
+      }}>
+      {showClose && (
+        <div className={classes.closeIconContainer} onClick={onClick}>
+          <CloseIcon className={classes.closeIcon} />
+        </div>
+      )}
+      <img src={fileData.path} alt={fileData.name} className={classes.image} />
+    </div>
+  )
 }
 
 export interface UploadFilesPreviewsProps {
@@ -88,7 +96,9 @@ const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
 
   return (
     <div className={classes.inputFiles}>
-      {Object.entries(filesData).map((fileData) => <FilePreviewComponent fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />)}
+      {Object.entries(filesData).map(fileData => (
+        <FilePreviewComponent fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />
+      ))}
     </div>
   )
 }

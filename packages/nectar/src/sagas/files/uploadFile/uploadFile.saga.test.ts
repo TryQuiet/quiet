@@ -11,13 +11,13 @@ import { communitiesActions, Community } from '../../communities/communities.sli
 import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { messagesActions } from '../messages.slice'
 import { uploadFileSaga } from './uploadFile.saga'
 import { FactoryGirl } from 'factory-girl'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { DateTime } from 'luxon'
 import { FileContent } from '../../files/files.types'
+import { messagesActions } from '../../messages/messages.slice'
+import { DateTime } from 'luxon'
 
 describe('uploadFileSaga', () => {
   let store: Store
@@ -63,7 +63,7 @@ describe('uploadFileSaga', () => {
     const socket = { emit: jest.fn() } as unknown as Socket
     const peerId = alice.peerId.id
     const fileContent: FileContent = {
-      buffer: 'buffer',
+      path: 'temp/name.ext',
       name: 'name',
       ext: 'ext',
       dir: 'dir'
@@ -85,7 +85,7 @@ describe('uploadFileSaga', () => {
       ])
       .put(
         messagesActions.sendMessage({
-          message: fileContent.buffer,
+          message: fileContent.path,
           channelAddress: fileContent.dir
         })
       )

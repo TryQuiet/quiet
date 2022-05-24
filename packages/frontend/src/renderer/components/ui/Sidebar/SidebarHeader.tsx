@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/styles'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
-import PlusIconWithBorder from '../assets/icons/PlusIconWithBorder'
+import PlusIconWithBorder from '../Icon/PlusIconWithBorder'
 import Tooltip from '../Tooltip/Tooltip'
 
 const useStyles = makeStyles(() => ({
