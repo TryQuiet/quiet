@@ -43,7 +43,7 @@ const useStyles = makeStyles(() => ({
     transform: 'translate(50%, -50%)',
     '&:hover': {
       backgroundColor: '#dddddd'
-    },
+    }
   },
   closeIcon: {
     position: 'relative',

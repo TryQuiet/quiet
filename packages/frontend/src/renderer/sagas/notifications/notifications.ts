@@ -99,7 +99,7 @@ export const messagesMapForNotificationsCalls = (data: CreateNotificationsCallsD
         isMessageFromLoggedTime && (!isMessageFromCurrentChannel || !isAppInForeground)) {
         let message: string
         let title: string
-        if (messageData.type == MessageType.IMAGE) {
+        if (messageData.type === MessageType.IMAGE) {
           title = `${senderName} in #${publicChannelFromMessage.name || 'Unnamed'}`
           message = 'shared this image'
         } else {
@@ -116,7 +116,7 @@ export const messagesMapForNotificationsCalls = (data: CreateNotificationsCallsD
         }, emit)
       }
     }
-    return () => {}
+    return () => { }
   })
 }
 
@@ -148,7 +148,7 @@ export const createNotification = (payload: NotificationsData, emit): any => {
     emit(END)
   }
 
-  return () => {}
+  return () => { }
 }
 
 export default {
