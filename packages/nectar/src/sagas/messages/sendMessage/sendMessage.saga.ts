@@ -10,6 +10,8 @@ import { publicChannelsSelectors } from '../../publicChannels/publicChannels.sel
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { Identity } from '../../identity/identity.types'
+import { Community } from '../../communities/communities.slice'
+import { communitiesSelectors } from '../../communities/communities.selectors'
 import { ChannelMessage } from '../../publicChannels/publicChannels.types'
 import { MessageType, SendingStatus } from '../messages.types'
 import { FileMetadata } from '../../files/files.types'
@@ -19,6 +21,7 @@ export function* sendMessageSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
   const identity: Identity = yield* select(identitySelectors.currentIdentity)
+  const community: Community = yield* select(communitiesSelectors.currentCommunity)
 
   const certificate = identity.userCertificate
 
@@ -43,7 +46,8 @@ export function* sendMessageSaga(
       path: null,
       message: {
         id: id,
-        channelAddress: channelAddress
+        channelAddress: channelAddress,
+        communityId: community.id
       }
     }
   }

@@ -15,7 +15,8 @@ const messageSchema = joi.object({
     cid: joi.string().required(),
     message: joi.object({
       id: joi.string().required(),
-      channelAddress: joi.string().required()
+      channelAddress: joi.string().required(),
+      communityId: joi.string().required()
     })
   }),
   createdAt: joi.number().required(),

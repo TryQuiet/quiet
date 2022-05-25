@@ -38,18 +38,7 @@ export const messagesSlice = createSlice({
   initialState: { ...new MessagesState() },
   name: StoreKeys.Messages,
   reducers: {
-    downloadedFile: (state, action: PayloadAction<FileMetadata>) => {
-      const { id, channelAddress } = action.payload.message
-      channelMessagesAdapter.updateOne(
-        state.publicChannelsMessagesBase.entities[channelAddress].messages,
-        {
-          id: id,
-          changes: {
-            media: action.payload
-          }
-        }
-      )
-    },
+    downloadedFile: (state, _action: PayloadAction<FileMetadata>) => state,
     uploadedFile: (state, _action: PayloadAction<FileMetadata>) => state,
     uploadFile: (state, _action: PayloadAction<FileContent>) => state,
     sendMessage: (state, _action: PayloadAction<WriteMessagePayload>) => state,
