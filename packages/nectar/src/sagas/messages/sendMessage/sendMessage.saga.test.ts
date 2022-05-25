@@ -138,7 +138,8 @@ describe('sendMessageSaga', () => {
             createdAt: 24,
             channelAddress: sailingChannel.address,
             signature: 'signature',
-            pubKey: 'publicKey'
+            pubKey: 'publicKey',
+            media: undefined
           }
         }
       ])
