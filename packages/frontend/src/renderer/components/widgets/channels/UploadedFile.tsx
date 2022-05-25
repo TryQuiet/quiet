@@ -22,33 +22,31 @@ export interface UploadedFileProps {
 export const UploadedFile = ({ message }) => {
   const classes = useStyles({})
 
-  // const image = URL.createObjectURL(
-  //   new Blob([message.message], { type: 'image/png' } /* (1) */)
-  // )
-
   const [showImage, setShowImage] = useState<boolean>(false)
-  const uploadedFileModal = useModal(ModalName.uploadedFileModal)
+  const modal = useModal(ModalName.uploadedFileModal)
 
   useEffect(() => {
-    if (uploadedFileModal.open) {
+    if (modal.open) {
       setShowImage(false)
     }
-  }, [uploadedFileModal.open])
+  }, [modal.open])
 
   useEffect(() => {
     if (showImage) {
-      uploadedFileModal.handleOpen({
-        src: message.media?.path
+      modal.handleOpen({
+        src: path
       })
     }
   }, [showImage])
 
+  const path = message.media?.path
+
   return (
     <>
       <div className={classes.container} onClick={() => { setShowImage(true) }} >
-        <img className={classes.image} src={message.media?.path} />
+        {path ? <img className={classes.image} src={path} /> : 'Sending file...'}
       </div>
-      <UploadedFileModal {...uploadedFileModal} />
+      <UploadedFileModal {...modal} />
     </>
   )
 }
