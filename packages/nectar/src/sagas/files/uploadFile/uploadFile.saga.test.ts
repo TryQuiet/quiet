@@ -78,15 +78,10 @@ describe('uploadFileSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.UPLOAD_FILE,
         {
-          file: fileContent,
-          peerId
+          peerId,
+          file: fileContent
         }
       ])
-      .put(
-        messagesActions.sendMessage({
-          message: fileContent.path
-        })
-      )
       .run()
   })
 })

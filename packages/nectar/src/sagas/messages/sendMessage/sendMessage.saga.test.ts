@@ -99,7 +99,8 @@ describe('sendMessageSaga', () => {
             createdAt: 8,
             channelAddress: currentChannel,
             signature: 'signature',
-            pubKey: 'publicKey'
+            pubKey: 'publicKey',
+            media: undefined
           }
         }
       ])
