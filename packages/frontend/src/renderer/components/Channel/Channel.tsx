@@ -63,8 +63,6 @@ const Channel = () => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelAddress])
 
-  console.log('channel rerendered')
-
   return (
     <>
       {currentChannelAddress && (

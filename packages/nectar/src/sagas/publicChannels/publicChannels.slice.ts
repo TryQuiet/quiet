@@ -85,7 +85,6 @@ export const publicChannelsSlice = createSlice({
     subscribeToAllTopics: state => state,
     cacheMessages: (state, action: PayloadAction<CacheMessagesPayload>) => {
       const { messages, channelAddress, communityId } = action.payload
-      console.log('publicChannels.cacheMessages', messages)
       channelMessagesAdapter.setAll(
         state.channels.entities[communityId].channels.entities[channelAddress].messages,
         messages
