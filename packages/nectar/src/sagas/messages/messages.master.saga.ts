@@ -20,7 +20,7 @@ import { downloadedFileSaga } from '../files/downloadedFile/downloadedFile.saga'
 export function* messagesMasterSaga(socket: Socket): Generator {
   yield all([
     takeEvery(messagesActions.sendMessage.type, sendMessageSaga, socket),
-    takeEvery(messagesActions.sendFile.type, sendFileSaga, socket),
+    takeEvery(messagesActions.sendFile.type, sendFileSaga),
     takeEvery(messagesActions.incomingMessages.type, downloadFileSaga, socket),
     takeEvery(messagesActions.uploadFile.type, uploadFileSaga, socket),
     takeEvery(messagesActions.downloadedFile.type, downloadedFileSaga),
