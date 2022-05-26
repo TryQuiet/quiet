@@ -3,7 +3,7 @@ import { createCommunity, getCommunityOwnerData, registerUsername, sendRegistrat
 import { assertReceivedCertificate, assertReceivedRegistrationError, assertReceivedCertificates, assertNoRegistrationError, assertInitializedCommunity, assertRegistrationRequestSent } from './assertions'
 import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { ErrorPayload, SocketActionTypes, ErrorCodes, ErrorMessages } from '@quiet/nectar'
+import { ErrorPayload, SocketActionTypes, ErrorCodes, ErrorMessages } from '@quiet/state-manager'
 
 const crypto = new Crypto()
 

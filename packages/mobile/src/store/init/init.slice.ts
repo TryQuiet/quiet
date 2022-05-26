@@ -28,7 +28,7 @@ export class InitState {
         passed: false
       },
       {
-        event: InitCheckKeys.Waggle,
+        event: InitCheckKeys.Backend,
         passed: false
       }
     ]
@@ -85,8 +85,8 @@ export const initSlice = createSlice({
     onDataDirectoryCreated: (state, action: PayloadAction<string>) => {
       state.dataDirectoryPath = action.payload
     },
-    onWaggleStarted: (state, _action: PayloadAction<WebsocketConnectionPayload>) => {
-      const event = InitCheckKeys.Waggle
+    onBackendStarted: (state, _action: PayloadAction<WebsocketConnectionPayload>) => {
+      const event = InitCheckKeys.Backend
       initChecksAdapter.updateOne(state.initChecks, {
         changes: {
           event: event,

@@ -5,7 +5,7 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen'
 import { initActions } from '../../store/init/init.slice'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
-import { identity, communities, CommunityOwnership, CreateNetworkPayload } from '@quiet/nectar'
+import { identity, communities, CommunityOwnership, CreateNetworkPayload } from '@quiet/state-manager'
 
 export const JoinCommunityScreen: FC = () => {
   const dispatch = useDispatch()

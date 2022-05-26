@@ -5,7 +5,7 @@ import { initActions } from '../../store/init/init.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { Chat } from '../../components/Chat/Chat.component'
 
-import { identity, messages, publicChannels } from '@quiet/nectar'
+import { identity, messages, publicChannels } from '@quiet/state-manager'
 
 export const MainScreen: FC = () => {
   const dispatch = useDispatch()

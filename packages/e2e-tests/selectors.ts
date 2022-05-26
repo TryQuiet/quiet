@@ -46,6 +46,10 @@ export class Channel {
     return Selector('div').withAttribute('data-testid', new RegExp(`userMessages-${username}`))
   }
 
+  getAllMessages(): Selector {
+    return Selector('div').withAttribute('data-testid', new RegExp('userMessages-'))
+  }
+
   async sendMessage(message: string) {
     await t.typeText(this.messageInput, message)
     await t.pressKey('enter')
@@ -58,6 +62,24 @@ export class Sidebar {
     await t.expect(button.exists).ok({ timeout: 100000 })
     await t.click(button)
     return new Settings()
+  }
+
+  async addNewChannel (name: string) {
+    const button = Selector('button').withAttribute('data-testid', 'addChannelButton')
+    await t.expect(button.exists).ok()
+    await t.click(button)
+    const channelNameInput = Selector('input').withAttribute('name', 'channelName')
+    await t.typeText(channelNameInput, name)
+    const channelNameButton = Selector('button').withAttribute('data-testid', 'channelNameSubmit')
+    await t.click(channelNameButton)
+    return new Channel(name)
+  }
+
+  async switchChannel(name: string) {
+    const channelLink = Selector('div').withAttribute('data-testid', `${name}-link`)
+    await t.expect(channelLink.exists).ok()
+    await t.click(channelLink)
+    return new Channel(name)
   }
 }
 

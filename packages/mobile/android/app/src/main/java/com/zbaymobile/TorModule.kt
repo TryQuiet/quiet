@@ -46,7 +46,7 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
 
     @ReactMethod
     fun createDataDirectory() {
-        val dataDirectory = File(context.filesDir, "waggle/files")
+        val dataDirectory = File(context.filesDir, "backend/files")
         dataDirectory.mkdirs()
 
         val path = dataDirectory.absolutePath

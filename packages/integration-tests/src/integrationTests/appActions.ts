@@ -1,5 +1,5 @@
 import waitForExpect from 'wait-for-expect'
-import { identity, communities, messages, connection, publicChannels, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership, TestStore, ChannelMessage } from '@quiet/nectar'
+import { identity, communities, messages, connection, publicChannels, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership, TestStore, ChannelMessage } from '@quiet/state-manager'
 import { MAIN_CHANNEL } from '../testUtils/constants'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp } from '../utils'
@@ -47,7 +47,7 @@ export interface OwnerData {
   registrarPort: number
 }
 
-interface SendMessage {
+export interface SendMessage {
   message: string
   channelName?: string
   store: TestStore

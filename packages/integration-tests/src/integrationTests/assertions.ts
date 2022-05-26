@@ -1,4 +1,4 @@
-import { ErrorPayload, publicChannels, SocketActionTypes, TestStore, messages } from '@quiet/nectar'
+import { ErrorPayload, publicChannels, SocketActionTypes, TestStore, messages } from '@quiet/state-manager'
 import waitForExpect from 'wait-for-expect'
 import { MAIN_CHANNEL } from '../testUtils/constants'
 import logger from '../logger'

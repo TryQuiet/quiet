@@ -7,7 +7,7 @@ import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen
 import { initActions } from '../../store/init/init.slice'
 import { UsernameRegistration } from '../../components/Registration/UsernameRegistration.component'
 
-import { errors, identity } from '@quiet/nectar'
+import { errors, identity } from '@quiet/state-manager'
 
 export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = () => {
   const dispatch = useDispatch()

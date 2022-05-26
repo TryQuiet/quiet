@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [0.4.1-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.4.0-alpha.3...@quiet/mobile@0.4.1-alpha.0) (2022-04-15)
+## [0.4.1-alpha.0](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.4.0-alpha.3...@quiet/mobile@0.4.1-alpha.0) (2022-04-15)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -11,7 +11,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.5](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.4.0-alpha.3...@quiet/mobile@0.4.0-alpha.5) (2022-03-28)
+# [0.4.0-alpha.5](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.4.0-alpha.3...@quiet/mobile@0.4.0-alpha.5) (2022-03-28)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -19,7 +19,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.4](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.4.0-alpha.3...@quiet/mobile@0.4.0-alpha.4) (2022-03-25)
+# [0.4.0-alpha.4](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.4.0-alpha.3...@quiet/mobile@0.4.0-alpha.4) (2022-03-25)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -27,7 +27,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.3](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.4.0-alpha.2...@quiet/mobile@0.4.0-alpha.3) (2022-03-19)
+# [0.4.0-alpha.3](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.4.0-alpha.2...@quiet/mobile@0.4.0-alpha.3) (2022-03-19)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -35,7 +35,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.2](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.4.0-alpha.0...@quiet/mobile@0.4.0-alpha.2) (2022-03-11)
+# [0.4.0-alpha.2](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.4.0-alpha.0...@quiet/mobile@0.4.0-alpha.2) (2022-03-11)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -43,7 +43,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.4.0-alpha.0...@quiet/mobile@0.4.0-alpha.1) (2022-03-11)
+# [0.4.0-alpha.1](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.4.0-alpha.0...@quiet/mobile@0.4.0-alpha.1) (2022-03-11)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -51,7 +51,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.4.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.3.0-alpha.5...@quiet/mobile@0.4.0-alpha.0) (2022-03-08)
+# [0.4.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.3.0-alpha.5...@quiet/mobile@0.4.0-alpha.0) (2022-03-08)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -59,7 +59,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.6](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.3.0-alpha.5...@quiet/mobile@0.3.0-alpha.6) (2022-02-28)
+# [0.3.0-alpha.6](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.3.0-alpha.5...@quiet/mobile@0.3.0-alpha.6) (2022-02-28)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -67,7 +67,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.5](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.2.0-alpha.3...@quiet/mobile@0.3.0-alpha.5) (2022-02-23)
+# [0.3.0-alpha.5](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.2.0-alpha.3...@quiet/mobile@0.3.0-alpha.5) (2022-02-23)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -75,7 +75,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.4](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.2.0-alpha.3...@quiet/mobile@0.3.0-alpha.4) (2022-02-23)
+# [0.3.0-alpha.4](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.2.0-alpha.3...@quiet/mobile@0.3.0-alpha.4) (2022-02-23)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -83,7 +83,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.3](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.2.0-alpha.3...@quiet/mobile@0.3.0-alpha.3) (2022-02-22)
+# [0.3.0-alpha.3](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.2.0-alpha.3...@quiet/mobile@0.3.0-alpha.3) (2022-02-22)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -91,7 +91,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.2](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.2.0-alpha.3...@quiet/mobile@0.3.0-alpha.2) (2022-02-21)
+# [0.3.0-alpha.2](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.2.0-alpha.3...@quiet/mobile@0.3.0-alpha.2) (2022-02-21)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -99,7 +99,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.2.0-alpha.3...@quiet/mobile@0.3.0-alpha.1) (2022-02-21)
+# [0.3.0-alpha.1](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.2.0-alpha.3...@quiet/mobile@0.3.0-alpha.1) (2022-02-21)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -107,7 +107,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.2.0-alpha.3...@quiet/mobile@0.3.0-alpha.0) (2022-02-18)
+# [0.3.0-alpha.0](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.2.0-alpha.3...@quiet/mobile@0.3.0-alpha.0) (2022-02-18)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -115,7 +115,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.2.0-alpha.3](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.2.0-alpha.2...@quiet/mobile@0.2.0-alpha.3) (2022-02-10)
+# [0.2.0-alpha.3](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.2.0-alpha.2...@quiet/mobile@0.2.0-alpha.3) (2022-02-10)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -123,7 +123,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.2.0-alpha.2](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.2.0-alpha.0...@quiet/mobile@0.2.0-alpha.2) (2022-02-09)
+# [0.2.0-alpha.2](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.2.0-alpha.0...@quiet/mobile@0.2.0-alpha.2) (2022-02-09)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -131,7 +131,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.2.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.2.0-alpha.0...@quiet/mobile@0.2.0-alpha.1) (2022-02-09)
+# [0.2.0-alpha.1](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.2.0-alpha.0...@quiet/mobile@0.2.0-alpha.1) (2022-02-09)
 
 **Note:** Version bump only for package @quiet/mobile
 
@@ -144,4 +144,4 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Reverts
 
-* Revert "Linked react-native-config with iOS project" ([14b1bfc](https://github.com/ZbayApp/monorepo/commit/14b1bfcbfd0497a1e2f463e71128d164f11ce89b))
+* Revert "Linked react-native-config with iOS project" ([14b1bfc](https://github.com/TryQuiet/monorepo/commit/14b1bfcbfd0497a1e2f463e71128d164f11ce89b))

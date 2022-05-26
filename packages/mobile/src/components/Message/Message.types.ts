@@ -1,4 +1,4 @@
-import { DisplayableMessage } from '@quiet/nectar'
+import { DisplayableMessage } from '@quiet/state-manager'
 
 export interface MessageProps {
   data: DisplayableMessage[]

@@ -6,6 +6,6 @@ import { startConnectionSaga } from './startConnection/startConnection.saga'
 export function* initMasterSaga(): Generator {
   yield all([
     takeEvery(initActions.doOnRestore.type, doOnRestoreSaga),
-    takeEvery(initActions.onWaggleStarted.type, startConnectionSaga)
+    takeEvery(initActions.onBackendStarted.type, startConnectionSaga)
   ])
 }
