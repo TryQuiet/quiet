@@ -93,7 +93,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
     // Go back to the bottom if scroll is at the top or in the middle
     scrollBottom()
     // Send message and files
-    console.log('onEnterKeyPress', files)
     onInputEnter(message, files)
   }
 

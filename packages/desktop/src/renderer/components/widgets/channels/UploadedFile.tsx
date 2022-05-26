@@ -25,6 +25,8 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
   const [showImage, setShowImage] = useState<boolean>(false)
   const modal = useModal(ModalName.uploadedFileModal)
 
+  const path = message.media?.path
+
   useEffect(() => {
     if (modal.open) {
       setShowImage(false)
@@ -38,8 +40,6 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
       })
     }
   }, [showImage])
-
-  const path = message.media?.path
 
   return (
     <>
