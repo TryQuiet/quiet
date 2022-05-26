@@ -180,6 +180,8 @@
     "react-alice-carousel": "^1.15.3",
     "react-copy-to-clipboard": "^5.0.1",
     "react-countdown-now": "^2.1.0",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^16.9.0",
     "react-hook-form": "^7.17.5",
     "react-jdenticon": "0.0.8",

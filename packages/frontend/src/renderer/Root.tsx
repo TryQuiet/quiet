@@ -20,10 +20,13 @@ import CreateCommunity from './components/CreateJoinCommunity/CreateCommunity/Cr
 import JoinCommunity from './components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateChannel from './components/Channel/CreateChannel/CreateChannel'
 import LoadingPanel from './components/LoadingPanel/LoadingPanel'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { DndProvider } from 'react-dnd'
 
 export const persistor = persistStore(store)
 export default () => {
   return (
+    <DndProvider backend={HTML5Backend}>
     <MuiThemeProvider theme={theme}>
       <HashRouter>
         <Provider store={store}>
@@ -44,5 +47,6 @@ export default () => {
         </Provider>
       </HashRouter>
     </MuiThemeProvider>
+    </DndProvider>
   )
 }

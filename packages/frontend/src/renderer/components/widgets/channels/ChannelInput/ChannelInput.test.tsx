@@ -14,6 +14,7 @@ describe('ChannelInput', () => {
         onKeyPress={jest.fn()}
         infoClass={''}
         setInfoClass={jest.fn()}
+        children={<div></div>}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`

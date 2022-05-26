@@ -11,6 +11,10 @@ import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
 import { MessagesDailyGroups, MessageSendingStatus } from '@quiet/nectar'
 
+import type { DropTargetMonitor } from 'react-dnd'
+import { useDrop } from 'react-dnd'
+import { NativeTypes } from 'react-dnd-html5-backend'
+
 const useStyles = makeStyles(theme => ({
   spinner: {
     top: '50%',
@@ -46,6 +50,13 @@ const useStyles = makeStyles(theme => ({
   },
   bold: {
     fontWeight: 'bold'
+  },
+  drop: {
+    overflow: 'scroll',
+    overflowX: 'hidden',
+    height: '100%',
+    backgroundColor: 'red',
+    // opacity: '20%'
   }
 }))
 
@@ -56,15 +67,51 @@ export interface IChannelMessagesProps {
   pendingMessages?: Dictionary<MessageSendingStatus>
   scrollbarRef
   onScroll: () => void
+  onDrop: (files) => void
 }
 
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   messages = {},
   pendingMessages = {},
   scrollbarRef,
-  onScroll
+  onScroll,
+  onDrop
 }) => {
   const classes = useStyles({})
+
+  const [{ canDrop, isOver }, drop] = useDrop(
+    () => ({
+      accept: [NativeTypes.FILE],
+      drop(item: { files: any[] }) {
+        if (onDrop) {
+          onDrop(item)
+        }
+      },
+      canDrop(item: any) {
+        // console.log('canDrop', item.files, item.items)
+        return true
+      },
+      hover(item: any) {
+        // console.log('hover', item.files, item.items)
+      },
+      collect: (monitor: DropTargetMonitor) => {
+        const item = monitor.getItem() as any
+        if (item) {
+          console.log('collect', item.files, item.items)
+        }
+
+        return {
+          isOver: monitor.isOver(),
+          canDrop: monitor.canDrop(),
+        }
+      },
+    }),
+    [onDrop],
+  )
+
+  const isActive = canDrop && isOver
+  console.log('isActive', isActive)
+
   return (
     <div
       className={classes.scroll}
@@ -79,7 +126,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
           color={'black'}
         />
       )}
-      <List disablePadding className={classes.list} id='messages-scroll'>
+      <List disablePadding className={classes.list} id='messages-scroll' ref={drop}>
         {Object.keys(messages).map(day => {
           return (
             <div key={day}>

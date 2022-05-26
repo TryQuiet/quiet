@@ -23,7 +23,8 @@ const args: ChannelInputProps = {
     console.log('send message', input)
   },
   infoClass: '',
-  setInfoClass: function (_arg: string): void {}
+  setInfoClass: function (_arg: string): void {},
+  children: <div></div>
 }
 
 Component.args = args

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useCallback } from 'react'
 
 import { makeStyles } from '@material-ui/core/styles'
 import { Grid } from '@material-ui/core'
@@ -16,7 +16,7 @@ import { Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/nect
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
-import { FilePreviewData } from '../widgets/channels/UploadedFilesPreviews'
+import UploadFilesPreviewsComponent, { FilePreviewData, UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -40,14 +40,15 @@ export interface ChannelComponentProps {
   lazyLoading: (load: boolean) => void
   onDelete: () => void
   onInputChange: (value: string) => void
-  onInputEnter: (message: string, files: FilePreviewData) => void
+  onInputEnter: (message: string) => void
   mutedFlag: boolean
   disableSettings?: boolean
   notificationFilter: string
   openNotificationsTab: () => void
+  handleFileDrop: (arg: any) => void
 }
 
-export const ChannelComponent: React.FC<ChannelComponentProps> = ({
+export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps> = ({
   user,
   channelAddress,
   channelName,
@@ -62,7 +63,10 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   mutedFlag,
   disableSettings = false,
   notificationFilter,
-  openNotificationsTab
+  openNotificationsTab,
+  removeFile,
+  handleFileDrop,
+  filesData
 }) => {
   const classes = useStyles({})
 
@@ -86,12 +90,11 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
     })
   }
 
-  const onEnterKeyPress = (message: string, files: FilePreviewData) => {
+  const onEnterKeyPress = (message: string) => {
     // Go back to the bottom if scroll is at the top or in the middle
     scrollBottom()
-    // Send message and files
-    console.log('onEnterKeyPress', files)
-    onInputEnter(message, files)
+    // Send message
+    onInputEnter(message)
   }
 
   /* Get scroll position and save it to the state as 0 (top), 1 (bottom) or -1 (middle) */
@@ -163,6 +166,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
           pendingMessages={pendingMessages}
           scrollbarRef={scrollbarRef}
           onScroll={onScroll}
+          onDrop={handleFileDrop}
         />
       </Grid>
       <Grid item>
@@ -174,12 +178,17 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
           onChange={value => {
             onInputChange(value)
           }}
-          onKeyPress={(message, files) => {
-            onEnterKeyPress(message, files)
+          onKeyPress={(message) => {
+            onEnterKeyPress(message)
           }}
           infoClass={infoClass}
           setInfoClass={setInfoClass}
-        />
+        >
+          <UploadFilesPreviewsComponent
+            filesData={filesData}
+            removeFile={(id) => removeFile(id)}
+          />
+        </ChannelInputComponent>
       </Grid>
     </Page>
   )
