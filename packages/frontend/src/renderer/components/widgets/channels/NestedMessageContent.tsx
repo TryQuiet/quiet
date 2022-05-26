@@ -34,11 +34,11 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ mess
   const classes = useStyles({})
 
   const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
-  console.log('message', message.message, message.type)
 
   return (
     <Grid item className={outerDivStyle}>
       <Typography
+        component={'span'}
         className={classNames({
           [classes.message]: true,
           [classes.pending]: pending

@@ -1,21 +1,30 @@
 import { select, put, delay } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { messagesActions } from '../messages.slice'
+import { messagesSelectors } from '../messages.selectors'
+import { communitiesSelectors } from '../../communities/communities.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { CacheMessagesPayload } from '../../publicChannels/publicChannels.types'
-import { messagesSelectors } from '../messages.selectors'
 
 export function* incomingMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
 ): Generator {
+  const communityId = yield* select(communitiesSelectors.currentCommunityId)
+  
   for (const message of action.payload.messages) {
+    const lastDisplayedMessage = yield* select(
+      publicChannelsSelectors.currentChannelLastDisplayedMessage
+    )
+    const cachedMessages = yield* select(publicChannelsSelectors.sortedCurrentChannelMessages)
+    // Check if incoming message already exists in a cache (and update it's data if so)
+    const updateMessage = cachedMessages.find(cached => cached.id === message.id)
+
     // Proceed only for messages from current channel
     const currentChannelAddress = yield* select(publicChannelsSelectors.currentChannelAddress)
     if (message.channelAddress !== currentChannelAddress) {
       return
     }
-    console.log('incomingMessagesSaga 1', message)
 
     // Do not proceed if signature is not verified
     while (true) {
@@ -31,26 +40,26 @@ export function* incomingMessagesSaga(
       yield* delay(50)
     }
 
-    console.log('incomingMessagesSaga 2', message)
-
-    const lastDisplayedMessage = yield* select(publicChannelsSelectors.currentChannelLastDisplayedMessage)
-    const cachedMessages = yield* select(publicChannelsSelectors.sortedCurrentChannelMessages)
-    // Check if incoming message fits between (newest known message)...(number of messages to display)
-    console.log('incomingMessagesSaga 3', message)
-    if (message.createdAt < lastDisplayedMessage?.createdAt && cachedMessages.length >= 50) {
-      return
+    if (updateMessage) {
+      const messageIndex = cachedMessages.indexOf(updateMessage)
+      cachedMessages[messageIndex] = message
     }
 
-    if (cachedMessages.length >= 50) {
-      cachedMessages.shift()
+    if(!updateMessage) {
+      // Check if incoming message fits between (newest known message)...(number of messages to display)
+      if (message.createdAt < lastDisplayedMessage?.createdAt && cachedMessages.length >= 50) {
+        return
+      }
+      if (cachedMessages.length >= 50) {
+        cachedMessages.shift()
+      }
+      cachedMessages.push(message)
     }
-    console.log('incomingMessagesSaga 4', message)
-    cachedMessages.push(message)
 
     const cacheMessagesPayload: CacheMessagesPayload = {
       messages: cachedMessages,
       channelAddress: message.channelAddress,
-      communityId: action.payload.communityId
+      communityId: communityId
     }
 
     yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))

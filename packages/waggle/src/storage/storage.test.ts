@@ -312,8 +312,7 @@ describe('Files', () => {
     const fileContent: FileContent = {
       path: 'temp/image.png',
       name: 'image',
-      ext: 'png',
-      dir: 'photos'
+      ext: 'png'
     }
 
     await storage.uploadFile(fileContent)

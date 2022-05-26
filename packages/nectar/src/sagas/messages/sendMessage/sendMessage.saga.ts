@@ -12,12 +12,12 @@ import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { Identity } from '../../identity/identity.types'
 import { ChannelMessage } from '../../publicChannels/publicChannels.types'
 import { MessageType, SendingStatus } from '../messages.types'
+import { FileMetadata } from '../../files/files.types'
 
 export function* sendMessageSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
-  console.log('sendMessageSaga')
   const identity: Identity = yield* select(identitySelectors.currentIdentity)
 
   const certificate = identity.userCertificate
@@ -31,20 +31,32 @@ export function* sendMessageSaga(
 
   const currentChannel = yield* select(publicChannelsSelectors.currentChannelAddress)
 
-  const messageId = yield* call(generateMessageId)
-  const currentTime = yield* call(getCurrentTime)
+  const id = yield* call(generateMessageId)
+  const createdAt = yield* call(getCurrentTime)
 
   const channelAddress = action.payload.channelAddress || currentChannel
 
+  let media: FileMetadata | undefined = undefined
+  if (action.payload.media) {
+    media = {
+      ...action.payload.media,
+      path: null,
+      message: {
+        id: id,
+        channelAddress: channelAddress
+      }
+    }
+  }
+
   const message: ChannelMessage = {
-    id: messageId,
+    id: id,
     type: action.payload.type || MessageType.Basic,
     message: action.payload.message,
-    createdAt: currentTime,
+    media,
+    createdAt,
     channelAddress,
     signature,
-    pubKey,
-    media: action.payload.media
+    pubKey
   }
 
   yield* apply(socket, socket.emit, [
@@ -56,21 +68,27 @@ export function* sendMessageSaga(
   ])
 
   // Grey out message until saved in db
-  yield* put(messagesActions.addMessagesSendingStatus({
-    id: message.id,
-    status: SendingStatus.Pending
-  }))
+  yield* put(
+    messagesActions.addMessagesSendingStatus({
+      id: message.id,
+      status: SendingStatus.Pending
+    })
+  )
 
   // Mark own message as properly signed
-  yield* put(messagesActions.addMessageVerificationStatus({
-    publicKey: message.pubKey,
-    signature: message.signature,
-    verified: true
-  }))
-  console.log('sendMessageSaga, incoming', message)
+  yield* put(
+    messagesActions.addMessageVerificationStatus({
+      publicKey: message.pubKey,
+      signature: message.signature,
+      verified: true
+    })
+  )
+
   // Display sent message immediately, to improve user experience
-  yield* put(messagesActions.incomingMessages({
-    messages: [message],
-    communityId: identity.id
-  }))
+  yield* put(
+    messagesActions.incomingMessages({
+      messages: [message],
+      communityId: identity.id
+    })
+  )
 }

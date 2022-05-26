@@ -20,7 +20,7 @@ import { publicChannelsActions } from '../../publicChannels/publicChannels.slice
 import { DateTime } from 'luxon'
 import { FileMetadata } from '../files.types'
 
-describe('checkIsImageSaga', () => {
+describe('downloadFileSaga', () => {
   let store: Store
   let factory: FactoryGirl
 
@@ -60,17 +60,23 @@ describe('checkIsImageSaga', () => {
     )).channel
   })
 
-  test('check message is image', async () => {
+  test('download file of type image', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     const currentChannel = currentChannelAddress(store.getState())
     const peerId = alice.peerId.id
+
+    const messageId = '5'
     
     const media: FileMetadata = {
       cid: 'cid',
-      path: 'temp/image.png',
+      path: null,
       name: 'image',
-      ext: 'png'
+      ext: 'png',
+      message: {
+        id: messageId,
+        channelAddress: currentChannel
+      }
     }
 
     const reducer = combineReducers(reducers)
@@ -80,7 +86,7 @@ describe('checkIsImageSaga', () => {
       messagesActions.incomingMessages({
         communityId: community.id,
         messages: [{
-          id: '5',
+          id: messageId,
           type: MessageType.Image,
           message: 'message',
           createdAt: 8,
@@ -99,8 +105,8 @@ describe('checkIsImageSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         { 
-          cid: media.cid, 
-          peerId: peerId 
+          peerId: peerId,
+          metadata: media
         }
       ])
       .run()

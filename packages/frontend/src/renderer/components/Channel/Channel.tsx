@@ -46,10 +46,7 @@ const Channel = () => {
       }
       Object.values(files).forEach(fileData => {
         console.log('Uploading file', fileData)
-        dispatch(messages.actions.uploadFile({
-          ...fileData,
-          dir: currentChannelName
-        }))
+        dispatch(messages.actions.uploadFile(fileData))
       })
     },
     [dispatch]

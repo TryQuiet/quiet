@@ -5,7 +5,6 @@ import { messagesActions } from '../../messages/messages.slice'
 import { MessageType } from '../../messages/messages.types'
 
 export function* sendFileSaga(
-  socket: Socket,
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
   const payload = action.payload

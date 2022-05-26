@@ -17,10 +17,12 @@ export function* downloadFileSaga(
 
   for (const message of messages) {
     if (message.type === MessageType.Image) {
+      if (message.media?.path) return // File is locally stored already
       yield* apply(socket, socket.emit, [
-        SocketActionTypes.DOWNLOAD_FILE, {
-          metadata: message.media,
-          peerId: identity.peerId.id
+        SocketActionTypes.DOWNLOAD_FILE,
+        {
+          peerId: identity.peerId.id,
+          metadata: message.media
         }
       ])
     }

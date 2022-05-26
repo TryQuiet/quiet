@@ -7,15 +7,16 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { communitiesActions, Community } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
-import { sendFileSaga } from './sendFile.saga'
+import { uploadedFileSaga } from './uploadedFile.saga'
 import { FactoryGirl } from 'factory-girl'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
+import { FileMetadata } from '../../files/files.types'
 import { messagesActions } from '../../messages/messages.slice'
 import { DateTime } from 'luxon'
-import { MessageType, WriteMessagePayload } from '../../messages/messages.types'
+import { MessageType } from '../../messages/messages.types'
 
-describe('sendFileSaga', () => {
+describe('uploadedFileSaga', () => {
   let store: Store
   let factory: FactoryGirl
 
@@ -57,21 +58,22 @@ describe('sendFileSaga', () => {
     ).channel
   })
 
-  test('set proper message type', async () => {
-    const payload: WriteMessagePayload = {
-      message: 'message',
-      channelAddress: 'sailing',
-      type: MessageType.Basic,
-      media: undefined
+  test('uploaded file', async () => {
+    const metadata: FileMetadata = {
+      path: 'temp/name.ext',
+      name: 'name',
+      ext: 'ext',
+      cid: 'cid'
     }
     const reducer = combineReducers(reducers)
-    await expectSaga(sendFileSaga, messagesActions.sendFile(payload))
+    await expectSaga(uploadedFileSaga, messagesActions.uploadedFile(metadata))
       .withReducer(reducer)
       .withState(store.getState())
       .put(
         messagesActions.sendMessage({
-          ...payload,
-          type: MessageType.Image
+          message: '',
+          type: MessageType.Image,
+          media: metadata
         })
       )
       .run()
