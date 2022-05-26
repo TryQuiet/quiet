@@ -1,3 +1,5 @@
+# Quiet Desktop
+
 Running the desktop version of Quiet should be straightforward on Mac, Windows, and Linux. Here are the steps:
 
 1. In `monorepo/` Install monorepo's dependencies.
