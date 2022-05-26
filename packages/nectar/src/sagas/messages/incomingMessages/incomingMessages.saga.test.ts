@@ -18,6 +18,7 @@ import { DateTime } from 'luxon'
 import { incomingMessagesSaga } from './incomingMessages.saga'
 import { messagesActions } from '../messages.slice'
 import { reducers } from '../../reducers'
+import { FileMetadata } from '../../files/files.types'
 
 describe('incomingMessagesSaga', () => {
   let store: Store
@@ -38,7 +39,7 @@ describe('incomingMessagesSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -108,6 +109,81 @@ describe('incomingMessagesSaga', () => {
 
     // Verify cache in empty
     expect(publicChannelsSelectors.sortedCurrentChannelMessages(store.getState())).toStrictEqual([])
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      incomingMessagesSaga,
+      messagesActions.incomingMessages({
+        messages: [message],
+        communityId: community.id
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(
+        publicChannelsActions.cacheMessages({
+          messages: [message],
+          channelAddress: message.channelAddress,
+          communityId: community.id
+        })
+      )
+      .run()
+  })
+
+  test("update message after downloading it's media", async () => {
+    let message = (
+      await factory.build<typeof publicChannelsActions.test_message>('Message', {
+        identity: alice,
+        message: {
+          id: Math.random().toString(36).substr(2.9),
+          type: MessageType.Basic,
+          message: 'message',
+          createdAt: DateTime.utc().valueOf(),
+          channelAddress: generalChannel.address,
+          signature: '',
+          pubKey: ''
+        },
+        verifyAutomatically: true
+      })
+    ).payload.message
+
+    let media: FileMetadata = {
+      cid: 'cid',
+      path: null,
+      name: 'image',
+      ext: 'png'
+    }
+
+    message = {
+      ...message,
+      media: media
+    }
+
+    // Set 'general' as active channel
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelAddress: generalChannel.address,
+        communityId: community.id
+      })
+    )
+
+    // Store message in cache (by default)
+    store.dispatch(
+      publicChannelsActions.cacheMessages({
+        messages: [message],
+        channelAddress: generalChannel.address,
+        communityId: community.id
+      })
+    )
+
+    // Enhance media payload with path
+    message = {
+      ...message,
+      media: {
+        ...media,
+        path: 'dir/image.png'
+      }
+    }
 
     const reducer = combineReducers(reducers)
     await expectSaga(
