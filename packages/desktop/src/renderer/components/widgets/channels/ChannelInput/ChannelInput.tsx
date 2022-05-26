@@ -249,22 +249,17 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   }, [message])
 
   React.useEffect(() => {
-    console.log('openFileExplorer changed')
     if (openFileExplorer) {
-      console.log('opened')
       ipcRenderer.send('openUploadFileDialog')
       setOpenFileExplorer(false)
     }
   }, [openFileExplorer])
 
   React.useEffect(() => {
-    console.log('useeffect initEvent')
     if (initEvent) {
-      ipcRenderer.on('openedFiles', (e, filesData: FilePreviewData) => {
-        console.log('filesList', filesData)
+      ipcRenderer.on('openedFiles', (_e, filesData: FilePreviewData) => {
         setUploadingFiles(existingFiles => {
           const updatedFiles = { ...existingFiles, ...filesData }
-          console.log('updated files', updatedFiles)
           return updatedFiles
         })
       })
@@ -512,8 +507,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               <UploadFilesPreviewsComponent
                 filesData={uploadingFiles}
                 removeFile={(id) => setUploadingFiles(existingFiles => {
-                  console.log('Deleting id', id)
-                  console.log('Existing files', existingFiles)
                   delete existingFiles[id]
                   const updatedExistingFiles = { ...existingFiles }
                   return updatedExistingFiles
