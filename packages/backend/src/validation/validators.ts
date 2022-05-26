@@ -1,8 +1,8 @@
 import _ from 'validator'
 import joi from 'joi'
 import logger from '../logger'
-const log = logger('validators')
 import { ChannelMessage, PublicChannel } from '@quiet/state-manager'
+const log = logger('validators')
 
 const messageSchema = joi.object({
   id: joi.string().required(),

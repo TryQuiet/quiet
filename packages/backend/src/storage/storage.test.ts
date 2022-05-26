@@ -318,10 +318,10 @@ describe('Files', () => {
     await storage.uploadFile(fileContent)
 
     expect(uploadSpy).toHaveBeenCalled()
-    
+
     // Downloading
     const downloadSpy = jest.spyOn(storage.io, 'downloadedFile')
-    
+
     const uploadMetadata = uploadSpy.mock.calls[0][0]
 
     await storage.downloadFile(uploadMetadata)

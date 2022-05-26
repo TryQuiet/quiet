@@ -45,21 +45,40 @@ describe('ChannelInput', () => {
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root makeStyles-actions-14 MuiGrid-item"
+                    class="makeStyles-inputFiles-126"
+                  />
+                  <div
+                    class="makeStyles-icons-22"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                      class="MuiGrid-root makeStyles-actions-14 MuiGrid-item"
                     >
-                      <img
-                        class="makeStyles-emoji-13"
-                        src="test-file-stub"
-                      />
+                      <div
+                        class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                      >
+                        <img
+                          class="makeStyles-emoji-12"
+                          src="test-file-stub"
+                        />
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid-root makeStyles-actions-14 MuiGrid-item"
+                    >
+                      <div
+                        class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                      >
+                        <img
+                          class="makeStyles-emoji-12"
+                          src="test-file-stub"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
               <div
-                class="MuiGrid-root makeStyles-boot-126 MuiGrid-container"
+                class="MuiGrid-root makeStyles-boot-154 MuiGrid-container"
               >
                 <div
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
@@ -88,22 +107,22 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root makeStyles-root-127 makeStyles-notAllowed-146"
+            class="MuiGrid-root makeStyles-root-155 makeStyles-notAllowed-174"
           >
             <div
-              class="MuiGrid-root makeStyles-root-127 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
+              class="MuiGrid-root makeStyles-root-155 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
             >
               <div
-                class="MuiGrid-root makeStyles-inputsDiv-131 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                class="MuiGrid-root makeStyles-inputsDiv-159 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
               >
                 <div
-                  class="MuiGrid-root makeStyles-textfield-130 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center MuiGrid-grid-xs-true"
+                  class="MuiGrid-root makeStyles-textfield-158 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center MuiGrid-grid-xs-true"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
                   >
                     <div
-                      class="makeStyles-input-129"
+                      class="makeStyles-input-157"
                       contenteditable="false"
                       data-testid="messageInput"
                       disabled=""
@@ -113,27 +132,46 @@ describe('ChannelInput', () => {
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root makeStyles-actions-140 MuiGrid-item"
+                    class="makeStyles-inputFiles-280"
+                  />
+                  <div
+                    class="makeStyles-icons-176"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                      class="MuiGrid-root makeStyles-actions-168 MuiGrid-item"
                     >
-                      <img
-                        class="makeStyles-emoji-139"
-                        src="test-file-stub"
-                      />
+                      <div
+                        class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                      >
+                        <img
+                          class="makeStyles-emoji-166"
+                          src="test-file-stub"
+                        />
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid-root makeStyles-actions-168 MuiGrid-item"
+                    >
+                      <div
+                        class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                      >
+                        <img
+                          class="makeStyles-emoji-166"
+                          src="test-file-stub"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
               <div
-                class="MuiGrid-root makeStyles-boot-252 MuiGrid-container"
+                class="MuiGrid-root makeStyles-boot-308 MuiGrid-container"
               >
                 <div
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
                 >
                   <span
-                    class="MuiTypography-root makeStyles-info-250 MuiTypography-caption"
+                    class="MuiTypography-root makeStyles-info-306 MuiTypography-caption"
                   >
                     Initializing community. This may take a few minutes...
                   </span>
