@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-
 import { identity, messages, publicChannels } from '@quiet/nectar'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -9,6 +8,7 @@ import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { FilePreviewData, UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
 import { ipcRenderer } from 'electron'
+import { getFileData } from '../../../utils/functions/fileData'
 
 const Channel = () => {
   const dispatch = useDispatch()
@@ -73,9 +73,12 @@ const Channel = () => {
     (item: { files: any[] }) => {
       if (item) {
         const files = item.files
-        console.log('setting dropped files', files)
-        // TODO: convert
-        // setUploadingFiles(files)
+        const droppedFiles = {}
+        files.forEach((file) => {
+          Object.assign(droppedFiles, getFileData(file.path))
+        })
+        console.log('dropping files', droppedFiles)
+        updateUploadingFiles(droppedFiles)
       }
     },
     [],
@@ -89,13 +92,17 @@ const Channel = () => {
     return updatedExistingFiles
   })
 
+  const updateUploadingFiles = (filesData: FilePreviewData) => {
+    setUploadingFiles(existingFiles => {
+      const updatedFiles = { ...existingFiles, ...filesData }
+      return updatedFiles
+    })
+  }
+
   useEffect(() => {
     if (initEvent) {
       ipcRenderer.on('openedFiles', (e, filesData: FilePreviewData) => {
-        setUploadingFiles(existingFiles => {
-          const updatedFiles = { ...existingFiles, ...filesData }
-          return updatedFiles
-        })
+        updateUploadingFiles(filesData)
       })
     }
   }, [initEvent])
