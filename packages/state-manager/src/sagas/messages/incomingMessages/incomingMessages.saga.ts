@@ -11,7 +11,7 @@ export function* incomingMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
 ): Generator {
   const communityId = yield* select(communitiesSelectors.currentCommunityId)
-  
+
   for (const message of action.payload.messages) {
     const lastDisplayedMessage = yield* select(
       publicChannelsSelectors.currentChannelLastDisplayedMessage
@@ -45,7 +45,7 @@ export function* incomingMessagesSaga(
       cachedMessages[messageIndex] = message
     }
 
-    if(!updateMessage) {
+    if (!updateMessage) {
       // Check if incoming message fits between (newest known message)...(number of messages to display)
       if (message.createdAt < lastDisplayedMessage?.createdAt && cachedMessages.length >= 50) {
         return

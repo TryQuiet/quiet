@@ -431,7 +431,7 @@ export class Storage {
     const fileName = metadata.name + metadata.ext
     const filePath = `${path.join(downloadDirectory, fileName)}`
 
-    let writeStream = fs.createWriteStream(filePath)
+    const writeStream = fs.createWriteStream(filePath)
 
     for await (const entry of entries) {
       await new Promise<void>((resolve, reject) => {

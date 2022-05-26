@@ -8,6 +8,6 @@ export function* sendFileSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
   const payload = action.payload
-  payload['type'] = MessageType.Image
+  payload.type = MessageType.Image
   yield* put(messagesActions.sendMessage(payload))
 }

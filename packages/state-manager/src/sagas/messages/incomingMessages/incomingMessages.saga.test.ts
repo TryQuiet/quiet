@@ -39,7 +39,7 @@ describe('incomingMessagesSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -147,7 +147,7 @@ describe('incomingMessagesSaga', () => {
       })
     ).payload.message
 
-    let media: FileMetadata = {
+    const media: FileMetadata = {
       cid: 'cid',
       path: null,
       name: 'image',
