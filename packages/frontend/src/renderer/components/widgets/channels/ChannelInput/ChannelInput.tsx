@@ -521,7 +521,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               <div className={classes.icons}>
                 <Grid item className={classes.actions}>
                   <Grid container justify='center' alignItems='center'>
-                  <Icon
+                    <Icon
                       className={classes.emoji}
                       src={fileExplorerHovered ? addBlack : addGray}
                       onClickHandler={() => {

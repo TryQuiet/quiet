@@ -18,7 +18,7 @@ export interface UploadedFileProps {
   message: DisplayableMessage
 }
 
-export const UploadedFile = ({ message }) => {
+export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
   const classes = useStyles({})
 
   // const image = URL.createObjectURL(
