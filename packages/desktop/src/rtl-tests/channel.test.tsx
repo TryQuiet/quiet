@@ -489,7 +489,7 @@ describe('Channel', () => {
     expect(await screen.findByText(message2.message)).toBeVisible()
     expect(await screen.findByText(message3.message)).toBeVisible()
   })
-  
+
   // TODO: https://github.com/TryQuiet/monorepo/issues/530
   it.skip('allow to type and send message if community is initialized', async () => {
     const { store, runSaga } = await prepareStore(
