@@ -1,72 +1,92 @@
-# Quiet
+Running the desktop version of Quiet should be straightforward on Mac, Windows, and Linux. Here are the steps:
 
-Quiet is an experimental app for Windows, Mac, and GNU/Linux that builds a decentralized community chat (like Slack or Discord) using [Tor](https://www.torproject.org/), [IPFS](https://ipfs.io/), [OrbitDB](https://github.com/orbitdb/orbit-db), and [Zcash](https://z.cash/).
-
-For more on the values behind the project, read [this essay](https://zbay.app/#why).
-
-----
-
-## Getting started
-
-Getting started hacking on Zcash is easy. Be sure to have [Node](https://nodejs.org/) and [Rust](https://www.rust-lang.org/) installed. Then...
+1. In `monorepo/` Install monorepo's dependencies.
 
 ```
 npm install
-npm install --global neon-cli
-npm run neon
 ```
 
-Next, copy the Tor binary for your platform to a file called `tor` in the `tor` directory in the repo. On macOS, for example, you'd run this command:
-
-`cp /Applications/Tor\ Browser.app/Contents/MacOS/Tor/tor.real ./tor/tor`
-
-Then use `npm run start` to start Quiet. That's it!
-
-## Building an installer
-
-Quiet supports most popular operating systems. If you want to build a version for these platforms use one of our scripts:
-
-macOS ```npm run dist```
-
-Windows ```npm run distwin```
-
-Ubuntu ```npm run distUbuntu```
-
-The built installers can then be found in the `dist` folder.
-
-## Running multiple Quiet instances
-
-To run new Quiet instance on the same machine set DATA_DIR=<dirname> environment variable before running the app. This will be used as its data directory.
-
-* Linux | MacOS:
-
-`DATA_DIR=testQuiet ./Quiet-app.<AppImage | dmg>`
-
-* Windows:
+2. Run these commands to bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
 ```
-set DATA_DIR=testQuiet
-Quiet.exe
+npm install --g lerna
+lerna bootstrap
+lerna run start --stream
 ```
 
-Note: development version uses separate directory by default
+----
 
-##### Removing data
+## Versioning packages
 
-To remove all your data from a machine, be sure to delete the Quiet folder. Here's where to find them:
+Before trying to release a new version, make sure you have GH_TOKEN env set.
 
-On Linux ```~/.config/```
+The project uses independent versioning which means each package has its own version number. Only those packages in which something has changed since the last release will be bumped.
 
-On macOS ```~/Library/Application Support/```
+To create a release run:
 
-On Windows ```%HOMEPATH%\\AppData\\Roaming\\```
+```
+lerna version <release-type>
+```
 
-##### Backing up and restoring data
+To build a test version with Sentry, run:
 
-To make a backup, simply copy both the `Quiet` folder from the location above to somewhere safe. 
+```
+lerna version prerelease
+```
 
-To restore a backup, move your backed-up `Quiet` folder to the location above. 
+----
 
-## Contact
+## Handy tips
+Use lerna to install additional npm package
 
-Email [h@zbay.llc](mailto:h@zbay.llc).
+```
+lerna add <npm-package-name> [--dev] <path-to-monorepo-package>
+```
+
+For example, if you want to install luxon in state-manager, use the following command:
+
+```
+lerna add luxon packages/state-manager
+```
+
+----
+
+Lerna takes care of all the packages. You can execute scripts is every pakcage by simpy running:
+
+```
+lerna run <script> --stream
+```
+
+To limit script execution to specific package, add scope to the command
+
+```
+lerna run <script> --stream --scope <package-name>
+```
+
+or multiple packages:
+
+```
+lerna run <script> --stream --scope '{<package-name-1>,<package-name-2>}'
+
+
+Available package names are:
+- @quiet/identity
+- @quiet/state-manager
+- @quiet/backend
+- @quiet/logger
+- e2e-tests
+- integration-tests
+- quiet (desktop)
+
+----
+
+## Locally linking packages (mobile)
+
+Metro requires additional step for locally linking packages. After running standard ```npm link``` commands, update ```metro.config.js``` as follows
+
+```
+const watchFolders = [
+  ...
+  path.resolve(__dirname, '<path-to-linked-package>')
+]
+```
