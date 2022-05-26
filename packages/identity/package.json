@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/ZbayApp/identity.git"
+    "url": "git+ssh://git@github.com/TryQuiet/identity.git"
   },
   "keywords": [
     "quiet",
@@ -26,9 +26,9 @@
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ZbayApp/identity/issues"
+    "url": "https://github.com/TryQuiet/identity/issues"
   },
-  "homepage": "https://github.com/ZbayApp/identity#readme",
+  "homepage": "https://github.com/TryQuiet/identity#readme",
   "files": [
     "/lib/**/*"
   ],

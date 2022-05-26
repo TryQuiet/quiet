@@ -21,7 +21,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity,quiet,integration-tests,testcafe-browser-provider-electron,e2e-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,integration-tests,testcafe-browser-provider-electron,e2e-tests"
 
       - name: Run X11
         run: |
@@ -37,8 +37,15 @@ jobs:
         run: lerna run test:create --scope e2e-tests --stream
         if: always()
 
+      - name: Create community test (returning user)
+        run: lerna run test:create:return --scope e2e-tests --stream
+
       - name: Join community test
         run: lerna run test:join --scope e2e-tests --stream
+        if: always()
+
+      - name: Lazy loading and scrollbar test
+        run: lerna run test:lazy --scope e2e-tests --stream
         if: always()
 
       - name: Archive test screenshots
@@ -57,7 +64,7 @@ jobs:
   #     - name: "Setup environment"
   #       uses: ./.github/actions/setup-env
   #       with:
-  #         bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity,quiet,integration-tests,testcafe-browser-provider-electron,e2e-tests"
+  #         bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,integration-tests,testcafe-browser-provider-electron,e2e-tests"
 
   #     - name: Build project and run tests
   #       run: lerna run test:build --scope e2e-tests --stream

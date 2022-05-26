@@ -2,7 +2,7 @@ import Config from 'react-native-config'
 import DevMenu from 'react-native-dev-menu'
 import { NodeEnv } from './utils/const/NodeEnv.enum'
 import { store } from './store/store'
-import { communities, publicChannels } from '@quiet/nectar'
+import { communities, publicChannels } from '@quiet/state-manager'
 import { ToastAndroid } from 'react-native'
 
 if (Config.NODE_ENV === NodeEnv.Development) {

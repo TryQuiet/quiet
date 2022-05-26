@@ -141,7 +141,7 @@ class TorModule: RCTEventEmitter {
     let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
     let documentsDirectory = paths[0]
     let docURL = URL(string: documentsDirectory)!
-    let dataPath = docURL.appendingPathComponent("waggle/files")
+    let dataPath = docURL.appendingPathComponent("backend/files")
     if !FileManager.default.fileExists(atPath: dataPath.path) {
       do {
         try FileManager.default.createDirectory(atPath: dataPath.path, withIntermediateDirectories: true, attributes: nil)

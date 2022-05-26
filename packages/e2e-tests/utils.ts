@@ -13,7 +13,7 @@ export const goToMainPage = async () => {
     pageUrl = fs.readFileSync('/tmp/mainWindowUrl', { encoding: 'utf8' })
   } catch {
     // If no file found assume that tests are run with a dev project venjhbrsion
-    pageUrl = '../frontend/dist/main/index.html#/'
+    pageUrl = '../desktop/dist/main/index.html#/'
   }
   console.info(`Navigating to ${pageUrl}`)
   await t.navigateTo(pageUrl)

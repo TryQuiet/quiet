@@ -2,8 +2,8 @@ import { io, Socket } from 'socket.io-client'
 import Websockets from 'libp2p-websockets'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { all, call, fork, takeEvery } from 'typed-redux-saga'
-import waggle, { ConnectionsManager } from '@quiet/waggle'
-import { TestStore, StoreKeys, errors, prepareStore, useIO } from '@quiet/nectar'
+import backend, { ConnectionsManager } from '@quiet/backend'
+import { TestStore, StoreKeys, errors, prepareStore, useIO } from '@quiet/state-manager'
 import path from 'path'
 import assert from 'assert'
 import getPort from 'get-port'
@@ -18,7 +18,7 @@ export const createTmpDir = (prefix: string) => {
 }
 
 export const createPath = (dirName: string) => {
-  return path.join(dirName, '.nectar')
+  return path.join(dirName, '.state-manager')
 }
 
 const connectToDataport = (url: string, name: string): Socket => {
@@ -41,13 +41,13 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
   appPath: string
 }> => {
   /**
-   * Configure and initialize ConnectionsManager from waggle,
+   * Configure and initialize ConnectionsManager from backend,
    * configure redux store
    */
   const appName = (Math.random() + 1).toString(36).substring(7)
   log(`Creating test app for ${appName}`)
   const dataServerPort1 = await getPort({ port: 4677 })
-  const server1 = new waggle.DataServer(dataServerPort1)
+  const server1 = new backend.DataServer(dataServerPort1)
   await server1.listen()
 
   const { store, runSaga } = prepareStore(mockedState)
@@ -56,7 +56,7 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
   const controlPort = await getPort({ port: 5555 })
   const httpTunnelPort = await getPort({ port: 9000 })
   const appPath = createPath(createTmpDir(`quietIntegrationTest-${appName}`).name)
-  const manager = new waggle.ConnectionsManager({
+  const manager = new backend.ConnectionsManager({
     agentHost: 'localhost',
     agentPort: proxyPort,
     httpTunnelPort,
@@ -91,13 +91,13 @@ export const createAppWithoutTor = async (mockedState?: {
     appPath: string
   }> => {
   /**
-   * Configure and initialize ConnectionsManager from waggle,
+   * Configure and initialize ConnectionsManager from backend,
    * configure redux store
    */
   const appName = (Math.random() + 1).toString(36).substring(7)
   log(`Creating test app for ${appName}`)
   const dataServerPort1 = await getPort({ port: 4677 })
-  const server1 = new waggle.DataServer(dataServerPort1)
+  const server1 = new backend.DataServer(dataServerPort1)
   await server1.listen()
 
   const { store, runSaga } = prepareStore(mockedState)
@@ -106,7 +106,7 @@ export const createAppWithoutTor = async (mockedState?: {
   const controlPort = await getPort({ port: 5555 })
   const httpTunnelPort = await getPort({ port: 9000 })
   const appPath = createPath(createTmpDir(`quietIntegrationTest-${appName}`).name)
-  const manager = new waggle.ConnectionsManager({
+  const manager = new backend.ConnectionsManager({
     agentHost: 'localhost',
     agentPort: proxyPort,
     httpTunnelPort,

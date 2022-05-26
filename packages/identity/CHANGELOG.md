@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [0.4.0-alpha.0](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.3.2-alpha.0...@quiet/identity@0.4.0-alpha.0) (2022-04-29)
+# [0.4.0-alpha.0](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.3.2-alpha.0...@quiet/identity@0.4.0-alpha.0) (2022-04-29)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -11,7 +11,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.3.2-alpha.0](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.3.0-alpha.11...@quiet/identity@0.3.2-alpha.0) (2022-04-15)
+## [0.3.2-alpha.0](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.3.0-alpha.11...@quiet/identity@0.3.2-alpha.0) (2022-04-15)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -19,7 +19,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [0.3.1-alpha.0](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.3.0-alpha.11...@quiet/identity@0.3.1-alpha.0) (2022-04-15)
+## [0.3.1-alpha.0](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.3.0-alpha.11...@quiet/identity@0.3.1-alpha.0) (2022-04-15)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -27,7 +27,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.11](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.3.0-alpha.10...@quiet/identity@0.3.0-alpha.11) (2022-04-04)
+# [0.3.0-alpha.11](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.3.0-alpha.10...@quiet/identity@0.3.0-alpha.11) (2022-04-04)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -35,7 +35,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.10](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.3.0-alpha.7...@quiet/identity@0.3.0-alpha.10) (2022-04-01)
+# [0.3.0-alpha.10](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.3.0-alpha.7...@quiet/identity@0.3.0-alpha.10) (2022-04-01)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -43,7 +43,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.9](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.3.0-alpha.7...@quiet/identity@0.3.0-alpha.9) (2022-03-28)
+# [0.3.0-alpha.9](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.3.0-alpha.7...@quiet/identity@0.3.0-alpha.9) (2022-03-28)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -51,7 +51,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.8](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.3.0-alpha.7...@quiet/identity@0.3.0-alpha.8) (2022-03-25)
+# [0.3.0-alpha.8](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.3.0-alpha.7...@quiet/identity@0.3.0-alpha.8) (2022-03-25)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -59,7 +59,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.7](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.3.0-alpha.5...@quiet/identity@0.3.0-alpha.7) (2022-03-11)
+# [0.3.0-alpha.7](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.3.0-alpha.5...@quiet/identity@0.3.0-alpha.7) (2022-03-11)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -67,7 +67,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.6](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.3.0-alpha.5...@quiet/identity@0.3.0-alpha.6) (2022-03-11)
+# [0.3.0-alpha.6](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.3.0-alpha.5...@quiet/identity@0.3.0-alpha.6) (2022-03-11)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -75,7 +75,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.5](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.2.0-alpha.0...@quiet/identity@0.3.0-alpha.5) (2022-02-23)
+# [0.3.0-alpha.5](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.2.0-alpha.0...@quiet/identity@0.3.0-alpha.5) (2022-02-23)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -83,7 +83,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.4](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.2.0-alpha.0...@quiet/identity@0.3.0-alpha.4) (2022-02-23)
+# [0.3.0-alpha.4](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.2.0-alpha.0...@quiet/identity@0.3.0-alpha.4) (2022-02-23)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -91,7 +91,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.3](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.2.0-alpha.0...@quiet/identity@0.3.0-alpha.3) (2022-02-22)
+# [0.3.0-alpha.3](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.2.0-alpha.0...@quiet/identity@0.3.0-alpha.3) (2022-02-22)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -99,7 +99,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.2](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.2.0-alpha.0...@quiet/identity@0.3.0-alpha.2) (2022-02-21)
+# [0.3.0-alpha.2](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.2.0-alpha.0...@quiet/identity@0.3.0-alpha.2) (2022-02-21)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -107,7 +107,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.1](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.2.0-alpha.0...@quiet/identity@0.3.0-alpha.1) (2022-02-21)
+# [0.3.0-alpha.1](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.2.0-alpha.0...@quiet/identity@0.3.0-alpha.1) (2022-02-21)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -115,7 +115,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.3.0-alpha.0](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.2.0-alpha.0...@quiet/identity@0.3.0-alpha.0) (2022-02-18)
+# [0.3.0-alpha.0](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.2.0-alpha.0...@quiet/identity@0.3.0-alpha.0) (2022-02-18)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -123,7 +123,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.2.0-alpha.0](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.1.0-alpha.2...@quiet/identity@0.2.0-alpha.0) (2022-02-09)
+# [0.2.0-alpha.0](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.1.0-alpha.2...@quiet/identity@0.2.0-alpha.0) (2022-02-09)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -131,7 +131,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.2](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.1.0-alpha.1...@quiet/identity@0.1.0-alpha.2) (2022-02-03)
+# [0.1.0-alpha.2](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.1.0-alpha.1...@quiet/identity@0.1.0-alpha.2) (2022-02-03)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -139,7 +139,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.1](https://github.com/ZbayApp/identity/compare/@quiet/identity@0.1.0-alpha.0...@quiet/identity@0.1.0-alpha.1) (2022-01-27)
+# [0.1.0-alpha.1](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.1.0-alpha.0...@quiet/identity@0.1.0-alpha.1) (2022-01-27)
 
 **Note:** Version bump only for package @quiet/identity
 
@@ -147,7 +147,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [0.1.0-alpha.0](https://github.com/ZbayApp/identity/compare/@quiet/identity@5.1.0-alpha.0...@quiet/identity@0.1.0-alpha.0) (2022-01-25)
+# [0.1.0-alpha.0](https://github.com/TryQuiet/identity/compare/@quiet/identity@5.1.0-alpha.0...@quiet/identity@0.1.0-alpha.0) (2022-01-25)
 
 **Note:** Version bump only for package @quiet/identity
 

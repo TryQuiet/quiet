@@ -1,4 +1,4 @@
-import { MessageType } from '@quiet/nectar'
+import { MessageType } from '@quiet/state-manager'
 import React from 'react'
 
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'

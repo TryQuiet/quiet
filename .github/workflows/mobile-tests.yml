@@ -6,7 +6,7 @@ on:
       - packages/mobile/**
 
 jobs:
-  frontend-tests:
+  desktop-tests:
     timeout-minutes: 25
     runs-on: ${{ matrix.os }}
 
@@ -23,7 +23,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/nectar,@quiet/waggle,@quiet/identity,@quiet/mobile"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile"
 
       - name: "Unit tests"
         run: lerna run test --scope @quiet/mobile --stream

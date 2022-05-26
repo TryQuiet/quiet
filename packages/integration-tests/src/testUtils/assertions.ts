@@ -1,9 +1,11 @@
-import { publicChannels, Store } from '@quiet/nectar'
+import { publicChannels, Store } from '@quiet/state-manager'
 import assert from 'assert'
 import logger from '../logger'
 import { MAIN_CHANNEL } from './constants'
 import { waitForExpect } from './waitForExpect'
 const log = logger('utils')
+
+const timeout = 120_000
 
 const assertContains = (value: any, container: any[]) => {
   if (container.includes(value)) return
@@ -13,7 +15,7 @@ const assertContains = (value: any, container: any[]) => {
 export async function assertReceivedChannel(
   userName: string,
   channelName: string,
-  maxTime: number = 60000,
+  maxTime: number = timeout,
   store: Store
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for channels`)
@@ -43,7 +45,7 @@ export async function assertReceivedChannel(
 export async function assertReceivedMessages(
   userName: string,
   expectedCount: number,
-  maxTime: number = 60000,
+  maxTime: number = timeout,
   store: Store
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for messages`)
@@ -87,27 +89,19 @@ export const assertReceivedMessagesMatch = (
   )
 }
 
-export const assertNoRegistrationError = async(store: Store) => {
-  await waitForExpect(() => {
-    if (store.getState().Errors.errors?.ids.includes('registrar')) {
-      assert.fail(`Received registration error: ${store.getState().Errors.errors?.ids['registrar']}`)
-    }
-  }, 20_000)
-}
-
 export const assertConnectedToPeers = async (
   store: Store,
   count: number
 ) => {
   await waitForExpect(() => {
     assert.strictEqual(store.getState().Connection.connectedPeers.ids.length, count)
-  }, 40_000)
+  }, timeout)
 }
 
 export const assertReceivedCertificates = async (
   userName: string,
   expectedCount: number,
-  maxTime: number = 60000,
+  maxTime: number = timeout,
   store: Store
 ) => {
   log(`User ${userName} starts waiting ${maxTime}ms for certificates`)

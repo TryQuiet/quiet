@@ -22,7 +22,7 @@ storiesOf('Loading', module)
           passed: false
         },
         {
-          event: 'waggle started',
+          event: 'backend started',
           passed: false
         },
         {
