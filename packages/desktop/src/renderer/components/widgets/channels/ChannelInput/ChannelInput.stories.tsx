@@ -26,8 +26,7 @@ const args: ChannelInputProps = {
     console.log('send message', input)
   },
   infoClass: '',
-  setInfoClass: function (_arg: string): void {},
-  children: <div></div>
+  setInfoClass: function (_arg: string): void {}
 }
 
 const argsDisabledInput: ChannelInputProps = {
@@ -40,7 +39,8 @@ const argsDisabledInput: ChannelInputProps = {
   },
   infoClass: '',
   setInfoClass: function (_arg: string): void {},
-  inputState: INPUT_STATE.NOT_CONNECTED
+  inputState: INPUT_STATE.NOT_CONNECTED,
+  
 }
 
 Component.args = args

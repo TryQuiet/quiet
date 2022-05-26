@@ -134,7 +134,8 @@ const Channel = () => {
     mutedFlag: false,
     notificationFilter: '',
     openNotificationsTab: function (): void { },
-    handleFileDrop: handleFileDrop
+    handleFileDrop: handleFileDrop,
+    isCommunityInitialized: isCommunityInitialized
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {

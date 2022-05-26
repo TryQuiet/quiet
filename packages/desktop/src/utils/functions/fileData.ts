@@ -1,5 +1,5 @@
 import path from 'path'
-import { FileContent } from "@quiet/nectar"
+import { FileContent } from "@quiet/state-manager"
 import { FilePreviewData } from '../../renderer/components/widgets/channels/UploadedFilesPreviews'
 
 export const getFileData = (filePath: string): FilePreviewData => {

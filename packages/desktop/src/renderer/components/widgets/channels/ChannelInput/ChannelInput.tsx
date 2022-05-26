@@ -179,8 +179,7 @@ export interface ChannelInputProps {
   onKeyPress: (input: string) => void
   infoClass: string
   setInfoClass: (arg: string) => void
-  children: ReactElement
-  // uploadingFiles: FilePreviewData
+  children?: ReactElement
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
@@ -487,16 +486,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                 />
               </Grid>
               {children}
-              {/* <UploadFilesPreviewsComponent
-                filesData={uploadingFiles}
-                removeFile={(id) => setUploadingFiles(existingFiles => {
-                  console.log('Deleting id', id)
-                  console.log('Existing files', existingFiles)
-                  delete existingFiles[id]
-                  const updatedExistingFiles = { ...existingFiles }
-                  return updatedExistingFiles
-                })}
-              /> */}
               <div className={classes.icons}>
                 <Grid item className={classes.actions}>
                   <Grid container justify='center' alignItems='center'>
