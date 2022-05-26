@@ -13,6 +13,8 @@
 <!--    <br /> -->
     <a href="https://github.com/TryQuiet/monorepo/releases"><strong>releases »</strong></a>
     <br />
+    <a href="https://github.com/orgs/TryQuiet/projects/1#column-14685906"><strong>priorities »</strong></a>
+    <br />
   </p>
 </p>
 Quiet is an alternative to team chat apps like Slack, Discord, and Element that does not require trusting a central server or running one's own. In Quiet, all data syncs directly between a team's devices over the Tor network—no server required. 
