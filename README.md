@@ -64,15 +64,6 @@ This is a concise technical summary of the main points.
 
 To get started hacking on Quiet, follow the instructions for [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop#readme) or [Quiet Mobile](https://github.com/TryQuiet/monorepo/tree/master/packages/mobile#readme). (If you're new to the project, start with Quiet Desktop, as it's more stable and vastly easier to start hacking on.)
 
-Desktop and mobile versions share a common Node.js [backend] and React [state manager], with [Tor](https://torproject.org) binaries for each platform and architecture, using Electron and React Native and for their respective frontends.
+Desktop and mobile versions share a common Node.js [backend](https://github.com/TryQuiet/monorepo/tree/master/packages/backend) and React [state manager](https://github.com/TryQuiet/monorepo/tree/master/packages/state-manager), with [Tor](https://torproject.org) binaries for each platform and architecture, using Electron and React Native and for their respective frontends.
 
-Available package names are:
-- @quiet/identity
-- @quiet/state-manager
-- @quiet/backend
-- @quiet/logger
-- e2e-tests
-- integration-tests
-- quiet (desktop)
-
-----
+We use a [Github project](https://github.com/orgs/TryQuiet/projects/1) to prioritize issues.
