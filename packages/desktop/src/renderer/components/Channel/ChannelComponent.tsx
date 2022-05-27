@@ -53,14 +53,7 @@ export interface ChannelComponentProps {
   notificationFilter: string
   openNotificationsTab: () => void
   handleFileDrop: (arg: any) => void
-  isCommunityInitialized: boolean,
-  unsupportedFileModal: ReturnType<UseModalTypeWrapper<{
-    unsupportedFiles: FileContent[]
-    title: string
-    sendOtherContent: string
-    textContent: string
-    tryZipContent: string
-  }>['types']>
+  isCommunityInitialized: boolean
 }
 
 export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps> = ({
@@ -196,7 +189,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
 
   return (
     <Page>
-      
+      <DropZoneComponent dropTargetRef={drop} isActive={isActive}>
       <PageHeader>
         <ChannelHeaderComponent
           channelName={channelName}
@@ -209,7 +202,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
           openNotificationsTab={openNotificationsTab}
         />
       </PageHeader>
-      <DropZoneComponent dropTargetRef={drop} isActive={isActive}>
+      
         <Grid item xs className={classes.messages}>
           <ChannelMessagesComponent
             messages={messages.groups}
