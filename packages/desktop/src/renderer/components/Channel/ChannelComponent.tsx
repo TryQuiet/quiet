@@ -12,9 +12,9 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 
-import { useModal } from '../../containers/hooks'
+import { useModal, UseModalTypeWrapper } from '../../containers/hooks'
 
-import { Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
+import { FileContent, Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
@@ -48,7 +48,13 @@ export interface ChannelComponentProps {
   notificationFilter: string
   openNotificationsTab: () => void
   isCommunityInitialized: boolean
-  unsupportedFileModal: ReturnType<typeof useModal>
+  unsupportedFileModal: ReturnType<UseModalTypeWrapper<{
+    unsupportedFiles: FileContent[]
+    title: string
+    sendOtherContent: string
+    textContent: string
+    tryZipContent: string
+  }>['types']>
 }
 
 export const ChannelComponent: React.FC<ChannelComponentProps> = ({

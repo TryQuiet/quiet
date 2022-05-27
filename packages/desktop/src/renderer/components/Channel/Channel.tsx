@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { identity, messages, publicChannels, connection, communities } from '@quiet/state-manager'
+import { identity, messages, publicChannels, connection, communities, FileContent } from '@quiet/state-manager'
 
 import ChannelComponent from './ChannelComponent'
 
@@ -37,7 +37,13 @@ const Channel = () => {
   const channelSettingsModal = useModal(ModalName.channelSettingsModal)
   const channelInfoModal = useModal(ModalName.channelInfo)
 
-  const unsupportedFileModal = useModal(ModalName.unsupportedFileModal)
+  const unsupportedFileModal = useModal<{
+    unsupportedFiles: FileContent[]
+    title: string
+    sendOtherContent: string
+    textContent: string
+    tryZipContent: string
+  }>(ModalName.unsupportedFileModal)
 
   const onInputChange = useCallback(
     (_value: string) => {
