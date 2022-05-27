@@ -22,6 +22,13 @@ const useStyles = makeStyles((theme) => ({
   root: {
     padding: '0 15%'
   },
+  windowed: {
+    height: '30vh',
+    width: '50vw',
+    position: 'fixed',
+    marginTop: '25vh',
+    marginLeft: '25vw'
+  },
   title: {
     fontSize: 15,
     color: theme.palette.colors.trueBlack,
@@ -46,6 +53,10 @@ const useStyles = makeStyles((theme) => ({
   fullPage: {
     width: '100%',
     height: `calc(100vh - ${constants.headerHeight}px)`
+  },
+  notFullPage: {
+    height: '100%',
+    width: '100%'
   },
   centered: {
     background: theme.palette.colors.white,
@@ -73,22 +84,27 @@ export const Modal: React.FC<IModalProps> = ({
   step,
   setStep,
   contentWidth,
+  contentHeight,
   isCloseDisabled,
   alignCloseLeft,
   addBorder,
   children,
-  testIdPrefix = ''
+  testIdPrefix = '',
+  windowed,
+  fullPage = true
 }) => {
   const classes = useStyles({})
+
   return (
-    <MaterialModal open={open} onClose={handleClose} className={classes.root}>
+    <MaterialModal open={open} onClose={handleClose} className={windowed ? classes.windowed : classes.root}
+    >
       <Grid
         container
         direction="column"
         justify="center"
         className={classNames({
-          [classes.centered]: true,
-          [classes.window]: true
+          [classes.centered]: fullPage,
+          [classes.window]: !fullPage
         })}
       >
         <Grid
@@ -161,19 +177,23 @@ export const Modal: React.FC<IModalProps> = ({
           item
           direction={'row'}
           justify={'center'}
-          className={classes.fullPage}
+          className={classNames({
+            [classes.fullPage]: fullPage,
+            [classes.notFullPage]: !fullPage
+          })}
+
         >
           <Grid
             container
             item
             className={classNames({ [classes.content]: true })}
-            style={{ width: contentWidth }}
+            style={{ width: contentWidth, height: contentHeight }}
           >
             {children}
           </Grid>
         </Grid>
       </Grid>
-    </MaterialModal>
+    </MaterialModal >
   )
 }
 

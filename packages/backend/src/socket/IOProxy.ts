@@ -24,7 +24,9 @@ import {
   NetworkData,
   ResponseCreateNetworkPayload,
   ErrorCodes,
-  AskForMessagesPayload
+  AskForMessagesPayload,
+  FileContent,
+  FileMetadata
 } from '@quiet/state-manager'
 import { emitError } from './errors'
 
@@ -75,6 +77,22 @@ export default class IOProxy {
 
   public sendMessage = async (peerId: string, message: ChannelMessage): Promise<void> => {
     await this.getStorage(peerId).sendMessage(message)
+  }
+
+  public uploadFile = async (peerId: string, file: FileContent) => {
+    await this.getStorage(peerId).uploadFile(file)
+  }
+
+  public uploadedFile = (metadata: FileMetadata) => {
+    this.io.emit(SocketActionTypes.UPLOADED_FILE, metadata)
+  }
+
+  public downloadFile = async (peerId: string, metadata: FileMetadata) => {
+    await this.getStorage(peerId).downloadFile(metadata)
+  }
+
+  public downloadedFile = (metadata: FileMetadata) => {
+    this.io.emit(SocketActionTypes.DOWNLOADED_FILE, metadata)
   }
 
   // DMs

@@ -1,4 +1,5 @@
 import { Dictionary, EntityState } from '@reduxjs/toolkit'
+import { FileMetadata } from '../files/files.types'
 
 export interface CommunityChannels {
   id: string
@@ -32,6 +33,7 @@ export interface ChannelMessage {
   channelAddress: string
   signature: string
   pubKey: string
+  media?: FileMetadata
 }
 
 export interface DisplayableMessage {
@@ -41,6 +43,7 @@ export interface DisplayableMessage {
   createdAt: number // seconds
   date: string // displayable
   nickname: string
+  media?: FileMetadata
 }
 
 export interface MessagesDailyGroups {

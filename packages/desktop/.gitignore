@@ -51,3 +51,6 @@ src/renderer/zcash/index.node
 
 /cypress/snapshots/actual
 /cypress/snapshots/diff
+
+# Tor
+/tor/libevent-*

@@ -5,7 +5,13 @@ import {
   parseCertificate,
   verifyUserCert
 } from '@quiet/identity'
-import { ChannelMessage, PublicChannel, SaveCertificatePayload } from '@quiet/state-manager'
+import {
+  ChannelMessage,
+  PublicChannel,
+  SaveCertificatePayload,
+  FileContent,
+  FileMetadata
+} from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
 import OrbitDB from 'orbit-db'
@@ -27,6 +33,8 @@ import { MessagesAccessController } from './MessagesAccessController'
 import logger from '../logger'
 import IOProxy from '../socket/IOProxy'
 import validate from '../validation/validators'
+import { CID } from 'multiformats/cid'
+import fs from 'fs'
 
 const log = logger('db')
 
@@ -58,7 +66,12 @@ export class Storage {
   public ipfsRepoPath: string
   private readonly communityId: string
 
-  constructor(quietDir: string, ioProxy: IOProxy, communityId: string, options?: Partial<StorageOptions>) {
+  constructor(
+    quietDir: string,
+    ioProxy: IOProxy,
+    communityId: string,
+    options?: Partial<StorageOptions>
+  ) {
     this.quietDir = quietDir
     this.io = ioProxy
     this.communityId = communityId
@@ -81,8 +94,11 @@ export class Storage {
 
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
 
-    // @ts-expect-error
-    this.orbitdb = await OrbitDB.createInstance(this.ipfs, { directory: this.orbitDbDir, AccessControllers: AccessControllers })
+    this.orbitdb = await OrbitDB.createInstance(this.ipfs, {
+      directory: this.orbitDbDir,
+      // @ts-expect-error
+      AccessControllers: AccessControllers
+    })
   }
 
   public async initDatabases() {
@@ -278,7 +294,7 @@ export class Storage {
           communityId: this.communityId
         })
       })
-      db.events.on('replicated', async (address) => {
+      db.events.on('replicated', async address => {
         log('Replicated.', address)
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         this.io.sendMessagesIds({
@@ -301,10 +317,7 @@ export class Storage {
     log(`Subscribed to channel ${channel.address}`)
   }
 
-  public async askForMessages(
-    channelAddress: string,
-    ids: string[]
-  ) {
+  public async askForMessages(channelAddress: string, ids: string[]) {
     const repo = this.publicChannelsRepos.get(channelAddress)
     if (!repo) return
     const messages = this.getAllEventLogEntries<ChannelMessage>(repo.db)
@@ -325,12 +338,15 @@ export class Storage {
     }
     log(`Creating channel ${data.address}`)
 
-    const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(`channels.${data.address}`, {
-      accessController: {
-        type: 'messagesaccess',
-        write: ['*']
+    const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(
+      `channels.${data.address}`,
+      {
+        accessController: {
+          type: 'messagesaccess',
+          write: ['*']
+        }
       }
-    })
+    )
 
     const channel = this.channels.get(data.address)
     if (channel === undefined) {
@@ -358,7 +374,9 @@ export class Storage {
     }
     const repo = this.publicChannelsRepos.get(message.channelAddress)
     if (!repo) {
-      log.error(`Could not send message. No '${message.channelAddress}' channel in saved public channels`)
+      log.error(
+        `Could not send message. No '${message.channelAddress}' channel in saved public channels`
+      )
       return
     }
     try {
@@ -366,6 +384,71 @@ export class Storage {
     } catch (e) {
       log.error('STORAGE: Could not append message (entry not allowed to write to the log)')
     }
+  }
+
+  public async uploadFile(fileContent: FileContent) {
+    log('uploadFile', fileContent)
+
+    let buffer: Buffer
+
+    try {
+      buffer = fs.readFileSync(fileContent.path)
+    } catch (e) {
+      log.error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
+      throw new Error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
+    }
+
+    // Create directory for file
+    const dirname = 'uploads'
+    await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })
+    // Write file to IPFS
+    const uuid = `${Date.now()}_${Math.random().toString(36).substr(2.9)}`
+    const filename = `${uuid}_${fileContent.name}.${fileContent.ext}`
+    await this.ipfs.files.write(`/${dirname}/${filename}`, buffer, { create: true })
+    // Get uploaded file information
+    const entries = this.ipfs.files.ls(`/${dirname}`)
+    for await (const entry of entries) {
+      if (entry.name === filename) {
+        const metadata: FileMetadata = {
+          ...fileContent,
+          path: fileContent.path,
+          cid: entry.cid.toString()
+        }
+        this.io.uploadedFile(metadata)
+        break
+      }
+    }
+  }
+
+  public async downloadFile(metadata: FileMetadata) {
+    const _CID = CID.parse(metadata.cid)
+    const entries = this.ipfs.cat(_CID)
+
+    const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
+    createPaths([downloadDirectory])
+
+    const fileName = metadata.name + metadata.ext
+    const filePath = `${path.join(downloadDirectory, fileName)}`
+
+    const writeStream = fs.createWriteStream(filePath)
+
+    for await (const entry of entries) {
+      await new Promise<void>((resolve, reject) => {
+        writeStream.write(entry, err => {
+          if (err) reject(err)
+          resolve()
+        })
+      })
+    }
+
+    writeStream.end()
+
+    const fileMetadata: FileMetadata = {
+      ...metadata,
+      path: filePath
+    }
+
+    this.io.downloadedFile(fileMetadata)
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {
@@ -479,7 +562,10 @@ export class Storage {
       log('Certificate is either null or undefined, not saving to db')
       return false
     }
-    const verification = await verifyUserCert(payload.rootPermsData.certificate, payload.certificate)
+    const verification = await verifyUserCert(
+      payload.rootPermsData.certificate,
+      payload.certificate
+    )
     if (verification.resultCode !== 0) {
       log.error('Certificate is not valid')
       log.error(verification.resultMessage)

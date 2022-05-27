@@ -1,7 +1,7 @@
 
 import { ChannelMessage, communities, CommunityOwnership, CreateNetworkPayload, identity, publicChannels, messages } from '@quiet/state-manager'
 import assert from 'assert'
-import { Register, SendMessage } from '../integrationTests/appActions'
+import { Register, SendImage, SendMessage } from '../integrationTests/appActions'
 import logger from '../logger'
 import { waitForExpect } from './waitForExpect'
 const log = logger('actions')
@@ -131,6 +131,24 @@ export async function sendMessage(
   })
 
   return newMessage[0]
+}
+
+export async function sendImage(
+  payload: SendImage
+) {
+  const {
+    file,
+    store
+  } = payload
+
+  log(file.path, 'sendImage')
+
+  store.dispatch(messages.actions.uploadFile(file))
+
+  // Result of an action is sending a message containing cid of uploaded image
+  await waitForExpect(() => {
+    assert.ok(store.getState().LastAction.includes('Messages/addMessageVerificationStatus'))
+  }, 5000)
 }
 
 export async function joinCommunity({ registrarAddress, userName, expectedPeersCount, store }) {

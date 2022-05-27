@@ -1,5 +1,5 @@
 import './loadMainEnvs' // Needs to be at the top of imports
-import { app, BrowserWindow, Menu, ipcMain, session } from 'electron'
+import { app, BrowserWindow, Menu, ipcMain, session, dialog } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import { autoUpdater } from 'electron-updater'
@@ -12,6 +12,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
+import { openFiles } from './files'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -336,6 +337,24 @@ app.on('ready', async () => {
     log('Saved state, closed window')
   })
 
+  ipcMain.on('openUploadFileDialog', async (e) => {
+    let filesDialogResult: Electron.OpenDialogReturnValue
+    try {
+      filesDialogResult = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openFile', 'openFile', 'multiSelections'],
+        filters: []
+      })
+    } catch (e) {
+      mainWindow.webContents.send('openedFilesError', e)
+      return
+    }
+
+    if (filesDialogResult.filePaths) {
+      const data = openFiles(filesDialogResult.filePaths)
+      mainWindow.webContents.send('openedFiles', data)
+    }
+  })
+
   mainWindow.webContents.once('did-finish-load', async () => {
     log('Event: mainWindow did-finish-load')
     if (!isBrowserWindow(mainWindow)) {
@@ -366,7 +385,6 @@ app.setAsDefaultProtocolClient('quiet')
 
 app.on('browser-window-created', (_, window) => {
   log('Event: app.browser-window-created', window.getTitle())
-  /// / eslint-disable-next-line
   remote.enable(window.webContents)
 })
 

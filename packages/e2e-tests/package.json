@@ -17,7 +17,8 @@
     "test:create:return": "npm run build:testcafe && cross-env DATA_DIR=e2eCreate E2E_TEST=true DEBUG='backend*,state-manager*,e2e*,desktop*,testcafe:*electron*' testcafe \"electron:../desktop\" \"./**/newUser.returns.e2e.ts\" --skip-js-errors",
     "test:join": "npm run build:testcafe && cross-env DATA_DIR=e2eJoin E2E_TEST=true DEBUG='backend*,state-manager*,e2e*,testcafe:*electron*' testcafe \"electron:../desktop\" \"./**/joiningUser.e2e.ts\"",
     "test:lazy": "npm run build:testcafe && cross-env DATA_DIR=e2eLazy E2E_TEST=true DEBUG='backend*,state-manager*,e2e*,desktop*,testcafe:*electron*,-state-manager:test' testcafe \"electron:../desktop\" \"./**/lazyLoading.e2e.ts\"",
-    "test:smoke": "npm run build:testcafe && cross-env DATA_DIR=e2e E2E_TEST=true DEBUG='backend*,state-manager*,e2e*,testcafe:*electron*' testcafe \"electron:.\" \"./**/smokeTest.e2e.ts\""
+    "test:smoke": "npm run build:testcafe && cross-env DATA_DIR=e2e E2E_TEST=true DEBUG='backend*,state-manager*,e2e*,testcafe:*electron*' testcafe \"electron:.\" \"./**/smokeTest.e2e.ts\"",
+    "test:files": "npm run build:testcafe && cross-env DATA_DIR=e2eFiles E2E_TEST=true DEBUG='backend*,state-manager*,e2e*,testcafe:*electron*' testcafe \"electron:.\" \"./**/filesSending.e2e.ts\""
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.7.1",
@@ -38,6 +39,7 @@
     "@quiet/logger": "^0.1.2-alpha.0",
     "cross-env": "^5.2.0",
     "integration-tests": "^0.6.1-alpha.0",
+    "path-browserify": "^1.0.1",
     "testcafe": "^1.18.3",
     "testcafe-browser-provider-electron": "^0.2.3-alpha.0",
     "yargs": "^17.3.1"

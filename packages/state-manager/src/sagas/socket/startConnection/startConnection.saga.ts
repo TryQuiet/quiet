@@ -15,6 +15,7 @@ import {
 import { errorsMasterSaga } from '../../errors/errors.master.saga'
 import { errorsActions } from '../../errors/errors.slice'
 import { ErrorPayload } from '../../errors/errors.types'
+import { FileMetadata } from '../../files/files.types'
 import { identityMasterSaga } from '../../identity/identity.master.saga'
 import { identityActions } from '../../identity/identity.slice'
 import { messagesMasterSaga } from '../../messages/messages.master.saga'
@@ -55,9 +56,17 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof connectionActions.addInitializedCommunity>
   | ReturnType<typeof connectionActions.addInitializedRegistrar>
   | ReturnType<typeof connectionActions.addConnectedPeers>
+  | ReturnType<typeof messagesActions.downloadedFile>
+  | ReturnType<typeof messagesActions.uploadedFile>
   >((emit) => {
     socket.on(SocketActionTypes.CONNECTED_PEERS, (payload: { connectedPeers: ConnectedPeers }) => {
       emit(connectionActions.addConnectedPeers(payload.connectedPeers))
+    })
+    socket.on(SocketActionTypes.DOWNLOADED_FILE, (payload: FileMetadata) => {
+      emit(messagesActions.downloadedFile(payload))
+    })
+    socket.on(SocketActionTypes.UPLOADED_FILE, (payload: FileMetadata) => {
+      emit(messagesActions.uploadedFile(payload))
     })
     socket.on(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, (payload: GetPublicChannelsResponse) => {
       emit(publicChannelsActions.responseGetPublicChannels(payload))

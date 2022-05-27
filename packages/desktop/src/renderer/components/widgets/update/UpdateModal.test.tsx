@@ -30,11 +30,11 @@ describe('UpdateModal', () => {
             tabindex="0"
           />
           <div
-            class="MuiGrid-root makeStyles-centered-14 makeStyles-window-15 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
+            class="MuiGrid-root makeStyles-centered-16 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root makeStyles-header-9 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center"
+              class="MuiGrid-root makeStyles-header-10 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center MuiGrid-grid-xs-true"
@@ -43,7 +43,7 @@ describe('UpdateModal', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
                 >
                   <h6
-                    class="MuiTypography-root makeStyles-title-8 MuiTypography-subtitle1 MuiTypography-alignCenter"
+                    class="MuiTypography-root makeStyles-title-9 MuiTypography-subtitle1 MuiTypography-alignCenter"
                     style="margin-left: 36px;"
                   />
                 </div>
@@ -51,11 +51,11 @@ describe('UpdateModal', () => {
                   class="MuiGrid-root MuiGrid-item"
                 >
                   <div
-                    class="MuiGrid-root makeStyles-actions-11 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
+                    class="MuiGrid-root makeStyles-actions-12 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root makeStyles-root-150"
+                      class="MuiButtonBase-root MuiIconButton-root makeStyles-root-152"
                       tabindex="0"
                       type="button"
                     >
@@ -83,10 +83,10 @@ describe('UpdateModal', () => {
               </div>
             </div>
             <div
-              class="MuiGrid-root makeStyles-fullPage-13 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
+              class="MuiGrid-root makeStyles-fullPage-14 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
             >
               <div
-                class="MuiGrid-root makeStyles-content-12 MuiGrid-container MuiGrid-item"
+                class="MuiGrid-root makeStyles-content-13 MuiGrid-container MuiGrid-item"
                 style="width: 600px;"
               >
                 <div

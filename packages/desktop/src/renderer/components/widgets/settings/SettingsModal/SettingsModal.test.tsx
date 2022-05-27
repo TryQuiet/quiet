@@ -35,11 +35,11 @@ describe('SettingsModal', () => {
             tabindex="0"
           />
           <div
-            class="MuiGrid-root makeStyles-centered-16 makeStyles-window-17 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
+            class="MuiGrid-root makeStyles-centered-18 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root makeStyles-header-11 makeStyles-headerBorder-12 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center"
+              class="MuiGrid-root makeStyles-header-12 makeStyles-headerBorder-13 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center MuiGrid-grid-xs-true"
@@ -48,7 +48,7 @@ describe('SettingsModal', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
                 >
                   <h6
-                    class="MuiTypography-root makeStyles-title-10 makeStyles-bold-18 MuiTypography-subtitle1 MuiTypography-alignCenter"
+                    class="MuiTypography-root makeStyles-title-11 makeStyles-bold-20 MuiTypography-subtitle1 MuiTypography-alignCenter"
                     style="margin-left: 36px;"
                   >
                     settings
@@ -58,11 +58,11 @@ describe('SettingsModal', () => {
                   class="MuiGrid-root MuiGrid-item"
                 >
                   <div
-                    class="MuiGrid-root makeStyles-actions-13 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
+                    class="MuiGrid-root makeStyles-actions-14 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
                     data-testid="settingsModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root makeStyles-root-152"
+                      class="MuiButtonBase-root MuiIconButton-root makeStyles-root-154"
                       tabindex="0"
                       type="button"
                     >
@@ -90,10 +90,10 @@ describe('SettingsModal', () => {
               </div>
             </div>
             <div
-              class="MuiGrid-root makeStyles-fullPage-15 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
+              class="MuiGrid-root makeStyles-fullPage-16 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
             >
               <div
-                class="MuiGrid-root makeStyles-content-14 MuiGrid-container MuiGrid-item"
+                class="MuiGrid-root makeStyles-content-15 MuiGrid-container MuiGrid-item"
                 style="width: 100%;"
               >
                 <div
@@ -136,7 +136,7 @@ describe('SettingsModal', () => {
                             </button>
                           </div>
                           <span
-                            class="PrivateTabIndicator-root-234 PrivateTabIndicator-colorSecondary-236 MuiTabs-indicator makeStyles-indicator-3 PrivateTabIndicator-vertical-237"
+                            class="PrivateTabIndicator-root-236 PrivateTabIndicator-colorSecondary-238 MuiTabs-indicator makeStyles-indicator-3 PrivateTabIndicator-vertical-239"
                             style="top: 0px; height: 0px;"
                           />
                         </div>
@@ -165,10 +165,10 @@ describe('SettingsModal', () => {
                               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
                             >
                               <div
-                                class="MuiGrid-root makeStyles-titleDiv-239 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
+                                class="MuiGrid-root makeStyles-titleDiv-241 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
                               >
                                 <div
-                                  class="MuiGrid-root makeStyles-title-238 MuiGrid-item"
+                                  class="MuiGrid-root makeStyles-title-240 MuiGrid-item"
                                 >
                                   <h3
                                     class="MuiTypography-root MuiTypography-h3"
@@ -181,30 +181,30 @@ describe('SettingsModal', () => {
                                 class="MuiGrid-root MuiGrid-item"
                               >
                                 <h5
-                                  class="MuiTypography-root makeStyles-subtitle-240 MuiTypography-h5"
+                                  class="MuiTypography-root makeStyles-subtitle-242 MuiTypography-h5"
                                 >
                                   Notify me about...
                                 </h5>
                               </div>
                               <div
-                                class="MuiGrid-root makeStyles-radioDiv-241 MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column"
+                                class="MuiGrid-root makeStyles-radioDiv-243 MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column"
                               >
                                 <div
-                                  class="MuiGrid-root makeStyles-spacing-246 MuiGrid-item"
+                                  class="MuiGrid-root makeStyles-spacing-248 MuiGrid-item"
                                 >
                                   <label
-                                    class="MuiFormControlLabel-root makeStyles-radioIcon-243"
+                                    class="MuiFormControlLabel-root makeStyles-radioIcon-245"
                                   >
                                     <span
                                       aria-disabled="false"
-                                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-264 Mui-checked MuiIconButton-colorSecondary"
+                                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-266 Mui-checked MuiIconButton-colorSecondary"
                                     >
                                       <span
                                         class="MuiIconButton-label"
                                       >
                                         <input
                                           checked=""
-                                          class="PrivateSwitchBase-input-266"
+                                          class="PrivateSwitchBase-input-268"
                                           data-indeterminate="false"
                                           type="checkbox"
                                           value=""
@@ -221,13 +221,13 @@ describe('SettingsModal', () => {
                                       class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
                                     >
                                       <div
-                                        class="MuiGrid-root makeStyles-offset-245 MuiGrid-container MuiGrid-direction-xs-column"
+                                        class="MuiGrid-root makeStyles-offset-247 MuiGrid-container MuiGrid-direction-xs-column"
                                       >
                                         <div
                                           class="MuiGrid-root MuiGrid-item"
                                         >
                                           <span
-                                            class="makeStyles-bold-244"
+                                            class="makeStyles-bold-246"
                                           >
                                             Every new message
                                           </span>
@@ -245,20 +245,20 @@ describe('SettingsModal', () => {
                                    
                                 </div>
                                 <div
-                                  class="MuiGrid-root makeStyles-spacing-246 MuiGrid-item"
+                                  class="MuiGrid-root makeStyles-spacing-248 MuiGrid-item"
                                 >
                                   <label
-                                    class="MuiFormControlLabel-root makeStyles-radioIcon-243"
+                                    class="MuiFormControlLabel-root makeStyles-radioIcon-245"
                                   >
                                     <span
                                       aria-disabled="false"
-                                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
                                     >
                                       <span
                                         class="MuiIconButton-label"
                                       >
                                         <input
-                                          class="PrivateSwitchBase-input-266"
+                                          class="PrivateSwitchBase-input-268"
                                           data-indeterminate="false"
                                           type="checkbox"
                                           value=""
@@ -275,13 +275,13 @@ describe('SettingsModal', () => {
                                       class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
                                     >
                                       <div
-                                        class="MuiGrid-root makeStyles-offset-245 MuiGrid-container MuiGrid-direction-xs-column"
+                                        class="MuiGrid-root makeStyles-offset-247 MuiGrid-container MuiGrid-direction-xs-column"
                                       >
                                         <div
                                           class="MuiGrid-root MuiGrid-item"
                                         >
                                           <span
-                                            class="makeStyles-bold-244"
+                                            class="makeStyles-bold-246"
                                           >
                                             Direct messages, mentions & keywords
                                           </span>
@@ -298,20 +298,20 @@ describe('SettingsModal', () => {
                                   </label>
                                 </div>
                                 <div
-                                  class="MuiGrid-root makeStyles-spacing-246 MuiGrid-item"
+                                  class="MuiGrid-root makeStyles-spacing-248 MuiGrid-item"
                                 >
                                   <label
-                                    class="MuiFormControlLabel-root makeStyles-radioIcon-243"
+                                    class="MuiFormControlLabel-root makeStyles-radioIcon-245"
                                   >
                                     <span
                                       aria-disabled="false"
-                                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
                                     >
                                       <span
                                         class="MuiIconButton-label"
                                       >
                                         <input
-                                          class="PrivateSwitchBase-input-266"
+                                          class="PrivateSwitchBase-input-268"
                                           data-indeterminate="false"
                                           type="checkbox"
                                           value=""
@@ -328,13 +328,13 @@ describe('SettingsModal', () => {
                                       class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
                                     >
                                       <div
-                                        class="MuiGrid-root makeStyles-offset-245 MuiGrid-container MuiGrid-direction-xs-column"
+                                        class="MuiGrid-root makeStyles-offset-247 MuiGrid-container MuiGrid-direction-xs-column"
                                       >
                                         <div
                                           class="MuiGrid-root MuiGrid-item"
                                         >
                                           <span
-                                            class="makeStyles-bold-244"
+                                            class="makeStyles-bold-246"
                                           >
                                             Nothing
                                           </span>
@@ -351,16 +351,16 @@ describe('SettingsModal', () => {
                                   </label>
                                 </div>
                                 <div
-                                  class="MuiGrid-root makeStyles-subtitleSoundDiv-248 MuiGrid-item"
+                                  class="MuiGrid-root makeStyles-subtitleSoundDiv-250 MuiGrid-item"
                                 >
                                   <h5
-                                    class="MuiTypography-root makeStyles-subtitle-240 MuiTypography-h5"
+                                    class="MuiTypography-root makeStyles-subtitle-242 MuiTypography-h5"
                                   >
                                     Sounds
                                   </h5>
                                 </div>
                                 <div
-                                  class="MuiGrid-root makeStyles-radioSoundDiv-242 MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column"
+                                  class="MuiGrid-root makeStyles-radioSoundDiv-244 MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column"
                                 >
                                   <div
                                     class="MuiGrid-root MuiGrid-item"
@@ -370,14 +370,14 @@ describe('SettingsModal', () => {
                                     >
                                       <span
                                         aria-disabled="false"
-                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root PrivateSwitchBase-checked-264 Mui-checked"
+                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root PrivateSwitchBase-checked-266 Mui-checked"
                                       >
                                         <span
                                           class="MuiIconButton-label"
                                         >
                                           <input
                                             checked=""
-                                            class="PrivateSwitchBase-input-266"
+                                            class="PrivateSwitchBase-input-268"
                                             data-indeterminate="false"
                                             type="checkbox"
                                             value=""
@@ -402,7 +402,7 @@ describe('SettingsModal', () => {
                                         class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
                                       >
                                         <p
-                                          class="MuiTypography-root makeStyles-label-249 MuiTypography-body2"
+                                          class="MuiTypography-root makeStyles-label-251 MuiTypography-body2"
                                         >
                                           Play a sound when receiving a notification
                                         </p>
@@ -410,21 +410,21 @@ describe('SettingsModal', () => {
                                     </label>
                                   </div>
                                   <div
-                                    class="MuiGrid-root makeStyles-spacingSound-250 MuiGrid-item"
+                                    class="MuiGrid-root makeStyles-spacingSound-252 MuiGrid-item"
                                   >
                                     <label
-                                      class="MuiFormControlLabel-root makeStyles-radioSound-247"
+                                      class="MuiFormControlLabel-root makeStyles-radioSound-249"
                                     >
                                       <span
                                         aria-disabled="false"
-                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-264 Mui-checked MuiIconButton-colorSecondary"
+                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-266 Mui-checked MuiIconButton-colorSecondary"
                                       >
                                         <span
                                           class="MuiIconButton-label"
                                         >
                                           <input
                                             checked=""
-                                            class="PrivateSwitchBase-input-266"
+                                            class="PrivateSwitchBase-input-268"
                                             data-indeterminate="false"
                                             type="checkbox"
                                             value=""
@@ -445,20 +445,20 @@ describe('SettingsModal', () => {
                                     </label>
                                   </div>
                                   <div
-                                    class="MuiGrid-root makeStyles-spacingSound-250 MuiGrid-item"
+                                    class="MuiGrid-root makeStyles-spacingSound-252 MuiGrid-item"
                                   >
                                     <label
-                                      class="MuiFormControlLabel-root makeStyles-radioSound-247"
+                                      class="MuiFormControlLabel-root makeStyles-radioSound-249"
                                     >
                                       <span
                                         aria-disabled="false"
-                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
                                       >
                                         <span
                                           class="MuiIconButton-label"
                                         >
                                           <input
-                                            class="PrivateSwitchBase-input-266"
+                                            class="PrivateSwitchBase-input-268"
                                             data-indeterminate="false"
                                             type="checkbox"
                                             value=""
@@ -479,20 +479,20 @@ describe('SettingsModal', () => {
                                     </label>
                                   </div>
                                   <div
-                                    class="MuiGrid-root makeStyles-spacingSound-250 MuiGrid-item"
+                                    class="MuiGrid-root makeStyles-spacingSound-252 MuiGrid-item"
                                   >
                                     <label
-                                      class="MuiFormControlLabel-root makeStyles-radioSound-247"
+                                      class="MuiFormControlLabel-root makeStyles-radioSound-249"
                                     >
                                       <span
                                         aria-disabled="false"
-                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
                                       >
                                         <span
                                           class="MuiIconButton-label"
                                         >
                                           <input
-                                            class="PrivateSwitchBase-input-266"
+                                            class="PrivateSwitchBase-input-268"
                                             data-indeterminate="false"
                                             type="checkbox"
                                             value=""
@@ -579,7 +579,7 @@ describe('SettingsModal', () => {
           aria-hidden="true"
         />
         <div
-          class="makeStyles-root-285"
+          class="makeStyles-root-287"
           role="presentation"
           style="position: fixed; z-index: 1300; right: 0px; bottom: 0px; top: 0px; left: 0px;"
         >
@@ -592,11 +592,11 @@ describe('SettingsModal', () => {
             tabindex="0"
           />
           <div
-            class="MuiGrid-root makeStyles-centered-292 makeStyles-window-293 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
+            class="MuiGrid-root makeStyles-centered-296 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root makeStyles-header-287 makeStyles-headerBorder-288 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center"
+              class="MuiGrid-root makeStyles-header-290 makeStyles-headerBorder-291 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center MuiGrid-grid-xs-true"
@@ -605,7 +605,7 @@ describe('SettingsModal', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
                 >
                   <h6
-                    class="MuiTypography-root makeStyles-title-286 makeStyles-bold-294 MuiTypography-subtitle1 MuiTypography-alignCenter"
+                    class="MuiTypography-root makeStyles-title-289 makeStyles-bold-298 MuiTypography-subtitle1 MuiTypography-alignCenter"
                     style="margin-left: 36px;"
                   >
                     Settings
@@ -615,11 +615,11 @@ describe('SettingsModal', () => {
                   class="MuiGrid-root MuiGrid-item"
                 >
                   <div
-                    class="MuiGrid-root makeStyles-actions-289 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
+                    class="MuiGrid-root makeStyles-actions-292 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
                     data-testid="settingsModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root makeStyles-root-428"
+                      class="MuiButtonBase-root MuiIconButton-root makeStyles-root-432"
                       tabindex="0"
                       type="button"
                     >
@@ -647,24 +647,24 @@ describe('SettingsModal', () => {
               </div>
             </div>
             <div
-              class="MuiGrid-root makeStyles-fullPage-291 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
+              class="MuiGrid-root makeStyles-fullPage-294 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
             >
               <div
-                class="MuiGrid-root makeStyles-content-290 MuiGrid-container MuiGrid-item"
+                class="MuiGrid-root makeStyles-content-293 MuiGrid-container MuiGrid-item"
                 style="width: 100%;"
               >
                 <div
-                  class="MuiGrid-root makeStyles-root-277 MuiGrid-container"
+                  class="MuiGrid-root makeStyles-root-279 MuiGrid-container"
                 >
                   <div
-                    class="MuiGrid-root makeStyles-tabsDiv-281 MuiGrid-item"
+                    class="MuiGrid-root makeStyles-tabsDiv-283 MuiGrid-item"
                     style="margin-left: 0px;"
                   >
                     <header
-                      class="MuiPaper-root MuiPaper-elevation4 MuiAppBar-root MuiAppBar-positionStatic makeStyles-appbar-280 MuiAppBar-colorPrimary"
+                      class="MuiPaper-root MuiPaper-elevation4 MuiAppBar-root MuiAppBar-positionStatic makeStyles-appbar-282 MuiAppBar-colorPrimary"
                     >
                       <div
-                        class="MuiTabs-root makeStyles-tabs-278 MuiTabs-vertical"
+                        class="MuiTabs-root makeStyles-tabs-280 MuiTabs-vertical"
                       >
                         <div
                           class="MuiTabs-scroller MuiTabs-fixed"
@@ -693,7 +693,7 @@ describe('SettingsModal', () => {
                             </button>
                             <button
                               aria-selected="true"
-                              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit Mui-selected makeStyles-selected-282"
+                              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit Mui-selected makeStyles-selected-284"
                               data-testid="invite-settings-tab"
                               role="tab"
                               tabindex="0"
@@ -710,7 +710,7 @@ describe('SettingsModal', () => {
                             </button>
                           </div>
                           <span
-                            class="PrivateTabIndicator-root-510 PrivateTabIndicator-colorSecondary-512 MuiTabs-indicator makeStyles-indicator-279 PrivateTabIndicator-vertical-513"
+                            class="PrivateTabIndicator-root-514 PrivateTabIndicator-colorSecondary-516 MuiTabs-indicator makeStyles-indicator-281 PrivateTabIndicator-vertical-517"
                             style="top: 0px; height: 0px;"
                           />
                         </div>
@@ -732,17 +732,17 @@ describe('SettingsModal', () => {
                           style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; overflow: scroll; margin-right: 0px; margin-bottom: 0px;"
                         >
                           <div
-                            class="MuiGrid-root makeStyles-content-284 MuiGrid-item"
+                            class="MuiGrid-root makeStyles-content-286 MuiGrid-item"
                             style="padding-right: 0px;"
                           >
                             <div
                               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
                             >
                               <div
-                                class="MuiGrid-root makeStyles-titleDiv-515 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
+                                class="MuiGrid-root makeStyles-titleDiv-519 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
                               >
                                 <div
-                                  class="MuiGrid-root makeStyles-title-514 MuiGrid-item"
+                                  class="MuiGrid-root makeStyles-title-518 MuiGrid-item"
                                 >
                                   <h3
                                     class="MuiTypography-root MuiTypography-h3"
@@ -771,7 +771,7 @@ describe('SettingsModal', () => {
                                   >
                                     Use this link to add members to 
                                     <span
-                                      class="makeStyles-bold-518"
+                                      class="makeStyles-bold-522"
                                     />
                                   </p>
                                 </div>
@@ -788,7 +788,7 @@ describe('SettingsModal', () => {
                                 class="MuiGrid-root"
                               >
                                 <button
-                                  class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-button-517"
+                                  class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-button-521"
                                   tabindex="0"
                                   type="button"
                                 >

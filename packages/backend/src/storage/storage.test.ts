@@ -22,7 +22,10 @@ import {
   Store,
   Identity,
   ChannelMessage,
-  PublicChannelStorage
+  PublicChannel,
+  PublicChannelStorage,
+  FileContent,
+  FileMetadata
 } from '@quiet/state-manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 
@@ -287,5 +290,40 @@ describe('Message', () => {
 
     // Confirm message has passed orbitdb validator (check signature verification only)
     expect(spy).not.toHaveBeenCalled()
+  })
+})
+
+describe.only('Files', () => {
+  it('is uploaded to IPFS then can be downloaded', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+
+    // Uploading
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
+
+    const fileContent: FileContent = {
+      path: path.join(__dirname, '/testUtils/test-image.png'),
+      name: 'test-image',
+      ext: 'png'
+    }
+
+    await storage.uploadFile(fileContent)
+
+    expect(uploadSpy).toHaveBeenCalled()
+
+    // Downloading
+    const downloadSpy = jest.spyOn(storage.io, 'downloadedFile')
+
+    const uploadMetadata = uploadSpy.mock.calls[0][0]
+
+    await storage.downloadFile(uploadMetadata)
+
+    expect(downloadSpy).toHaveBeenCalled()
   })
 })

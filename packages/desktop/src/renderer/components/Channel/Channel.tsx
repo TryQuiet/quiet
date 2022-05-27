@@ -7,6 +7,7 @@ import ChannelComponent from './ChannelComponent'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
+import { FilePreviewData } from '../widgets/channels/UploadedFilesPreviews'
 
 const Channel = () => {
   const dispatch = useDispatch()
@@ -36,6 +37,8 @@ const Channel = () => {
   const channelSettingsModal = useModal(ModalName.channelSettingsModal)
   const channelInfoModal = useModal(ModalName.channelInfo)
 
+  const unsupportedFileModal = useModal(ModalName.unsupportedFileModal)
+
   const onInputChange = useCallback(
     (_value: string) => {
       // TODO https://github.com/TryQuiet/ZbayLite/issues/442
@@ -44,8 +47,14 @@ const Channel = () => {
   )
 
   const onInputEnter = useCallback(
-    (message: string) => {
-      dispatch(messages.actions.sendMessage({ message }))
+    (message: string, files: FilePreviewData) => {
+      if (message) {
+        dispatch(messages.actions.sendMessage({ message }))
+      }
+      Object.values(files).forEach(fileData => {
+        console.log('Uploading file', fileData)
+        dispatch(messages.actions.uploadFile(fileData))
+      })
     },
     [dispatch]
   )
@@ -70,6 +79,7 @@ const Channel = () => {
           channelName={currentChannelName}
           channelSettingsModal={channelSettingsModal}
           channelInfoModal={channelInfoModal}
+          unsupportedFileModal={unsupportedFileModal}
           messages={{
             count: currentChannelMessagesCount,
             groups: currentChannelDisplayableMessages

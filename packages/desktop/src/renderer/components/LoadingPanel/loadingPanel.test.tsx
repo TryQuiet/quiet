@@ -30,11 +30,11 @@ describe('CreateUsernameModal', () => {
             tabindex="0"
           />
           <div
-            class="MuiGrid-root makeStyles-centered-9 makeStyles-window-10 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
+            class="MuiGrid-root makeStyles-centered-11 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root makeStyles-header-4 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center"
+              class="MuiGrid-root makeStyles-header-5 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center MuiGrid-grid-xs-true"
@@ -43,7 +43,7 @@ describe('CreateUsernameModal', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
                 >
                   <h6
-                    class="MuiTypography-root makeStyles-title-3 MuiTypography-subtitle1 MuiTypography-alignCenter"
+                    class="MuiTypography-root makeStyles-title-4 MuiTypography-subtitle1 MuiTypography-alignCenter"
                     style="margin-left: 36px;"
                   />
                 </div>
@@ -51,17 +51,17 @@ describe('CreateUsernameModal', () => {
                   class="MuiGrid-root MuiGrid-item"
                 >
                   <div
-                    class="MuiGrid-root makeStyles-actions-6 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
+                    class="MuiGrid-root makeStyles-actions-7 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
                     data-testid="ModalActions"
                   />
                 </div>
               </div>
             </div>
             <div
-              class="MuiGrid-root makeStyles-fullPage-8 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
+              class="MuiGrid-root makeStyles-fullPage-9 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
             >
               <div
-                class="MuiGrid-root makeStyles-content-7 MuiGrid-container MuiGrid-item"
+                class="MuiGrid-root makeStyles-content-8 MuiGrid-container MuiGrid-item"
                 style="width: 600px;"
               >
                 <div
@@ -69,7 +69,7 @@ describe('CreateUsernameModal', () => {
                   data-testid="spinnerLoader"
                 >
                   <div
-                    class="MuiCircularProgress-root makeStyles-spinner-146 makeStyles-spinner-147 MuiCircularProgress-indeterminate"
+                    class="MuiCircularProgress-root makeStyles-spinner-148 makeStyles-spinner-149 MuiCircularProgress-indeterminate"
                     role="progressbar"
                     style="width: 40px; height: 40px;"
                   >
@@ -88,7 +88,7 @@ describe('CreateUsernameModal', () => {
                     </svg>
                   </div>
                   <span
-                    class="MuiTypography-root makeStyles-message-145 MuiTypography-caption MuiTypography-alignCenter"
+                    class="MuiTypography-root makeStyles-message-147 MuiTypography-caption MuiTypography-alignCenter"
                     style="font-size: 0.9090909090909091rem;"
                   >
                     message

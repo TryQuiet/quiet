@@ -9,6 +9,7 @@ import classNames from 'classnames'
 const useStyles = makeStyles(theme => ({
   button: {
     maxWidth: 286,
+    minWidth: 100,
     height: 60,
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
