@@ -1,7 +1,7 @@
 export interface FileContent {
-    path: string
-    name: string
-    ext: string
+  path: string
+  name: string
+  ext: string
 }
 
 export interface FileMetadata extends FileContent {
@@ -10,7 +10,7 @@ export interface FileMetadata extends FileContent {
 }
 
 export interface FileMessage {
-  id: string,
+  id: string
   channelAddress: string
 }
 

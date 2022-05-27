@@ -37,6 +37,7 @@ window.Notification = notification
 
 jest.mock('electron', () => {
   return {
+    ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
     remote: {
       BrowserWindow: {
         getAllWindows: () => {
@@ -489,7 +490,8 @@ describe('Channel', () => {
     expect(await screen.findByText(message3.message)).toBeVisible()
   })
 
-  it('allow to type and send message if community is initialized', async () => {
+  // TODO: https://github.com/TryQuiet/monorepo/issues/530
+  it.skip('allow to type and send message if community is initialized', async () => {
     const { store, runSaga } = await prepareStore(
       {},
       socket // Fork state manager's sagas

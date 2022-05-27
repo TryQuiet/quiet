@@ -147,7 +147,7 @@ describe('incomingMessagesSaga', () => {
       })
     ).payload.message
 
-    let media: FileMetadata = {
+    const media: FileMetadata = {
       cid: 'cid',
       path: null,
       name: 'image',

@@ -13,7 +13,6 @@ import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import addGray from '../../../../static/images/addGray.svg'
 import addBlack from '../../../../static/images/addBlack.svg'
-import { ConnectDropTarget } from 'react-dnd'
 import { ipcRenderer } from 'electron'
 
 const useStyles = makeStyles(theme => ({

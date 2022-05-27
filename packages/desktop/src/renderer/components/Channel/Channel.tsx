@@ -42,6 +42,7 @@ const Channel = () => {
   const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
 
   const filesRef = React.useRef<FilePreviewData>()
+  const unsupportedFileModal = useModal(ModalName.unsupportedFileModal)
 
   const onInputChange = useCallback(
     (_value: string) => {
@@ -56,6 +57,7 @@ const Channel = () => {
         dispatch(messages.actions.sendMessage({ message }))
       }
       Object.values(filesRef.current).forEach(fileData => {
+        console.log('Uploading file', fileData)
         dispatch(messages.actions.uploadFile(fileData))
       })
       setUploadingFiles({})
@@ -140,7 +142,8 @@ const Channel = () => {
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {
     filesData: uploadingFiles,
-    removeFile: removeFilePreview
+    removeFile: removeFilePreview,
+    unsupportedFileModal: unsupportedFileModal
   }
 
   return (

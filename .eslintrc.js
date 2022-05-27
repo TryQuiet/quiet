@@ -26,6 +26,7 @@ module.exports = {
     '@typescript-eslint/no-dynamic-delete': 'off',
     '@typescript-eslint/default-param-last': 'off',
     '@typescript-eslint/restrict-plus-operands': 'off',
+    '@typescript-eslint/no-base-to-string': 'off',
     'generator-star-spacing': ['error', { before: false, after: true }],
     'yield-star-spacing': ['error', { before: false, after: true }],
     'react-hooks/exhaustive-deps': 'off',

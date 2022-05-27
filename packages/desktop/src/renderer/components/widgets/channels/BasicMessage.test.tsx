@@ -87,12 +87,12 @@ describe('BasicMessage', () => {
                     <div
                       class="MuiGrid-root makeStyles-firstMessage-166 MuiGrid-item"
                     >
-                      <p
+                      <span
                         class="MuiTypography-root makeStyles-message-165 MuiTypography-body1"
                         data-testid="messagesGroupContent-string"
                       >
                         string
-                      </p>
+                      </span>
                     </div>
                   </div>
                 </div>

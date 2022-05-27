@@ -75,7 +75,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   removeFile,
   handleFileDrop,
   filesData,
-  isCommunityInitialized = true
+  isCommunityInitialized = true,
+  unsupportedFileModal
 }) => {
   const classes = useStyles({})
 
@@ -101,7 +102,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   const onEnterKeyPress = (message: string) => {
     // Go back to the bottom if scroll is at the top or in the middle
     scrollBottom()
-    // Send message
+    // Send message and files
     onInputEnter(message)
   }
 
@@ -225,11 +226,11 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             infoClass={infoClass}
             setInfoClass={setInfoClass}
             inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
-            // dropTargetRef={drop}
           >
             <UploadFilesPreviewsComponent
               filesData={filesData}
               removeFile={(id) => removeFile(id)}
+              unsupportedFileModal={unsupportedFileModal}
             />
           </ChannelInputComponent>          
         </Grid>

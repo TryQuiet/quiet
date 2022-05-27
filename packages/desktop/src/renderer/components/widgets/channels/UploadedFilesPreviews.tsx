@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import IconButton from '@material-ui/core/IconButton'
-
 import { FileContent } from '@quiet/state-manager'
 import CloseIcon from '@material-ui/icons/Close'
 import Tooltip from '../../ui/Tooltip/Tooltip'
-import UnsupportedFileModalComponent from './UnsuportedFileModal'
+import UnsupportedFileModalComponent from './UnsupportedFileModal'
 import { useModal } from '../../../containers/hooks'
-import { ModalName } from '../../../sagas/modals/modals.types'
+import {
+  supportedFilesExtensions,
+  unsuportedFileContent,
+  unsuportedFileTitle
+} from './unsupportedFilesContent'
 
 export interface FilePreviewData {
   [id: string]: FileContent
@@ -97,33 +99,20 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
 
 export interface UploadFilesPreviewsProps {
   filesData: FilePreviewData
+  unsupportedFileModal: ReturnType<typeof useModal>
   removeFile: (id: string) => void
 }
-
-enum unsuportedFileTitle {
-  singleFile = 'File unsupported',
-  someFiles = 'Some files unsuported'
-}
-
-enum unsuportedFileContent {
-  singleFileUnsupported = ' is not a file type Quiet supports.',
-  someFilesUnsupported = 'some of these file types are not supported by Quiet:',
-
-  tryUploadZip = 'Try uploading a .zip of this instead.',
-
-  sendOtherFile = 'The other file will be sent',
-  sendOtherFiles = 'The other files will be sent'
-}
-
-const supportedFilesExtensions = ['.jpg', '.jpeg', '.png']
 
 const checkAreFilesSupported = (filesData: FilePreviewData) => {
   const unsupportedFiles: FileContent[] = []
 
   Object.entries(filesData).map(fileData => {
-    if (!supportedFilesExtensions.includes(fileData[1].ext)) {
-      unsupportedFiles.push(fileData[1])
-      delete filesData[fileData[0]]
+    const fileId = fileData[0]
+    const fileContent = fileData[1]
+
+    if (!supportedFilesExtensions.includes(fileContent.ext)) {
+      unsupportedFiles.push(fileContent)
+      delete filesData[fileId]
     }
   })
 
@@ -135,10 +124,11 @@ const checkAreFilesSupported = (filesData: FilePreviewData) => {
 
 const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
   filesData,
+  unsupportedFileModal,
   removeFile
 }) => {
   const classes = useStyles({})
-  const unsupportedFileModal = useModal(ModalName.unsupportedFileModal)
+
   const [isButtonClick, setButtonClick] = useState<boolean>(false)
 
   const { supportedFiles, unsupportedFiles } = checkAreFilesSupported(filesData)
@@ -177,7 +167,9 @@ const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
   }, [filesData, unsupportedFiles])
 
   useEffect(() => {
-    if (isButtonClick) { unsupportedFileModal.handleClose() }
+    if (isButtonClick) {
+      unsupportedFileModal.handleClose()
+    }
   }, [isButtonClick])
 
   return (
@@ -185,7 +177,13 @@ const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
       {Object.entries(supportedFiles).map(fileData => (
         <FilePreviewComponent fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />
       ))}
-      <UnsupportedFileModalComponent {...unsupportedFileModal} onButtonClick={() => { setButtonClick(true) }} />
+      {/* @ts-ignore */}
+      <UnsupportedFileModalComponent
+        {...unsupportedFileModal}
+        onButtonClick={() => {
+          setButtonClick(true)
+        }}
+      />
     </div>
   )
 }

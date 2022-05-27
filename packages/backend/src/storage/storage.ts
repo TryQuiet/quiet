@@ -394,9 +394,8 @@ export class Storage {
     try {
       buffer = fs.readFileSync(fileContent.path)
     } catch (e) {
-      // TODO
-      log.error(`Couldn't open file ${path}. Error: ${e.message}`)
-      return
+      log.error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
+      throw new Error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
     }
 
     // Create directory for file
@@ -431,7 +430,7 @@ export class Storage {
     const fileName = metadata.name + metadata.ext
     const filePath = `${path.join(downloadDirectory, fileName)}`
 
-    let writeStream = fs.createWriteStream(filePath)
+    const writeStream = fs.createWriteStream(filePath)
 
     for await (const entry of entries) {
       await new Promise<void>((resolve, reject) => {

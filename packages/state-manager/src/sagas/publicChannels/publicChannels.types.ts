@@ -42,7 +42,7 @@ export interface DisplayableMessage {
   message: string
   createdAt: number // seconds
   date: string // displayable
-  nickname: string,
+  nickname: string
   media?: FileMetadata
 }
 
