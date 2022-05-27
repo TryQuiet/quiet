@@ -15,7 +15,8 @@ import addGray from '../../../../static/images/addGray.svg'
 import addBlack from '../../../../static/images/addBlack.svg'
 import { ipcRenderer } from 'electron'
 import UploadFilesPreviewsComponent, { FilePreviewData } from '../UploadedFilesPreviews'
-import { useModal } from '../../../../containers/hooks'
+import { UseModalTypeWrapper } from '../../../../containers/hooks'
+import { FileContent } from '@quiet/state-manager'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -181,7 +182,13 @@ export interface ChannelInputProps {
   onKeyPress: (input: string, files: FilePreviewData) => void
   infoClass: string
   setInfoClass: (arg: string) => void
-  unsupportedFileModal: ReturnType<typeof useModal>
+  unsupportedFileModal: ReturnType<UseModalTypeWrapper<{
+    unsupportedFiles: FileContent[]
+    title: string
+    sendOtherContent: string
+    textContent: string
+    tryZipContent: string
+  }>['types']>
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({

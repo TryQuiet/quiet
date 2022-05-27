@@ -30,7 +30,12 @@ const args: ChannelInputProps = {
   unsupportedFileModal: {
     open: false,
     handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
+    handleClose: function (): any {},
+    unsupportedFiles: [],
+    title: '',
+    sendOtherContent: '',
+    textContent: '',
+    tryZipContent: ''
   }
 }
 
@@ -48,7 +53,12 @@ const argsDisabledInput: ChannelInputProps = {
   unsupportedFileModal: {
     open: false,
     handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
+    handleClose: function (): any {},
+    unsupportedFiles: [],
+    title: '',
+    sendOtherContent: '',
+    textContent: '',
+    tryZipContent: ''
   }
 }
 
