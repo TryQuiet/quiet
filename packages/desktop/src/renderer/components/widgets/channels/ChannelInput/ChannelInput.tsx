@@ -15,6 +15,7 @@ import addGray from '../../../../static/images/addGray.svg'
 import addBlack from '../../../../static/images/addBlack.svg'
 import { ipcRenderer } from 'electron'
 import UploadFilesPreviewsComponent, { FilePreviewData } from '../UploadedFilesPreviews'
+import { useModal } from '../../../../containers/hooks'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -180,6 +181,7 @@ export interface ChannelInputProps {
   onKeyPress: (input: string, files: FilePreviewData) => void
   infoClass: string
   setInfoClass: (arg: string) => void
+  unsupportedFileModal: ReturnType<typeof useModal>
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
@@ -191,7 +193,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   onChange,
   onKeyPress,
   infoClass,
-  setInfoClass
+  setInfoClass,
+  unsupportedFileModal
 }) => {
   const classes = useStyles({})
 
@@ -506,6 +509,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               </Grid>
               <UploadFilesPreviewsComponent
                 filesData={uploadingFiles}
+                unsupportedFileModal={unsupportedFileModal}
                 removeFile={(id) => setUploadingFiles(existingFiles => {
                   delete existingFiles[id]
                   const updatedExistingFiles = { ...existingFiles }

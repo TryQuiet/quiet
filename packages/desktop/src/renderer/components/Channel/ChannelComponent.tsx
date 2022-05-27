@@ -48,6 +48,7 @@ export interface ChannelComponentProps {
   notificationFilter: string
   openNotificationsTab: () => void
   isCommunityInitialized: boolean
+  unsupportedFileModal: ReturnType<typeof useModal>
 }
 
 export const ChannelComponent: React.FC<ChannelComponentProps> = ({
@@ -66,7 +67,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   disableSettings = false,
   notificationFilter,
   openNotificationsTab,
-  isCommunityInitialized = true
+  isCommunityInitialized = true,
+  unsupportedFileModal
 }) => {
   const classes = useStyles({})
 
@@ -182,6 +184,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
           infoClass={infoClass}
           setInfoClass={setInfoClass}
           inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
+          unsupportedFileModal={unsupportedFileModal}
         />
       </Grid>
     </Page>

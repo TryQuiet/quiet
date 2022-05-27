@@ -37,6 +37,8 @@ const Channel = () => {
   const channelSettingsModal = useModal(ModalName.channelSettingsModal)
   const channelInfoModal = useModal(ModalName.channelInfo)
 
+  const unsupportedFileModal = useModal(ModalName.unsupportedFileModal)
+
   const onInputChange = useCallback(
     (_value: string) => {
       // TODO https://github.com/TryQuiet/ZbayLite/issues/442
@@ -77,6 +79,7 @@ const Channel = () => {
           channelName={currentChannelName}
           channelSettingsModal={channelSettingsModal}
           channelInfoModal={channelInfoModal}
+          unsupportedFileModal={unsupportedFileModal}
           messages={{
             count: currentChannelMessagesCount,
             groups: currentChannelDisplayableMessages
