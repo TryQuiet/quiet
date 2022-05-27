@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-
 import { FileContent } from '@quiet/state-manager'
 import CloseIcon from '@material-ui/icons/Close'
 import Tooltip from '../../ui/Tooltip/Tooltip'
 import UnsupportedFileModalComponent from './UnsupportedFileModal'
 import { useModal } from '../../../containers/hooks'
-import { supportedFilesExtensions, unsuportedFileContent, unsuportedFileTitle } from './unsupportedFilesContent'
+import {
+  supportedFilesExtensions,
+  unsuportedFileContent,
+  unsuportedFileTitle
+} from './unsupportedFilesContent'
 
 export interface FilePreviewData {
   [id: string]: FileContent
@@ -95,8 +98,8 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
 }
 
 export interface UploadFilesPreviewsProps {
-  filesData: FilePreviewData,
-  unsupportedFileModal: ReturnType<typeof useModal>,
+  filesData: FilePreviewData
+  unsupportedFileModal: ReturnType<typeof useModal>
   removeFile: (id: string) => void
 }
 
@@ -164,7 +167,9 @@ const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
   }, [filesData, unsupportedFiles])
 
   useEffect(() => {
-    if (isButtonClick) { unsupportedFileModal.handleClose() }
+    if (isButtonClick) {
+      unsupportedFileModal.handleClose()
+    }
   }, [isButtonClick])
 
   return (
@@ -172,7 +177,13 @@ const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
       {Object.entries(supportedFiles).map(fileData => (
         <FilePreviewComponent fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />
       ))}
-      <UnsupportedFileModalComponent {...unsupportedFileModal} onButtonClick={() => { setButtonClick(true) }} />
+      {/* @ts-ignore */}
+      <UnsupportedFileModalComponent
+        {...unsupportedFileModal}
+        onButtonClick={() => {
+          setButtonClick(true)
+        }}
+      />
     </div>
   )
 }

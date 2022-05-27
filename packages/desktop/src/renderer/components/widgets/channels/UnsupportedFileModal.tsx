@@ -1,9 +1,6 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { useModal } from '../../../containers/hooks'
-import { ModalName } from '../../../sagas/modals/modals.types'
 import Modal from '../../ui/Modal/Modal'
-import IconButton from '../../ui/Icon/IconButton'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 
 const useStyles = makeStyles(() => ({
@@ -47,19 +44,27 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface unsupportedFileModalProps {
-  open: boolean
-  handleClose: () => void
+  open: boolean,
+  handleClose: () => void,
   onButtonClick: () => void
+  unsupportedFiles, 
+  sendOtherContent, 
+  textContent, 
+  tryZipContent 
 }
 
 const UnsupportedFileModalComponent: React.FC<unsupportedFileModalProps> = ({
   open,
   handleClose,
-  onButtonClick
+  onButtonClick,
+  unsupportedFiles, 
+  sendOtherContent, 
+  textContent, 
+  tryZipContent 
 }) => {
   const classes = useStyles({})
+
   const hideForNow = true
-  const { unsupportedFiles, sendOtherContent, textContent, tryZipContent } = useModal(ModalName.unsupportedFileModal)
 
   return (
     <Modal open={open} handleClose={handleClose} title={'Some files unsupported'}
