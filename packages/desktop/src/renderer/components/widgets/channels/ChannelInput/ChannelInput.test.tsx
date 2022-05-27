@@ -15,6 +15,7 @@ describe('ChannelInput', () => {
         onKeyPress={jest.fn()}
         infoClass={''}
         setInfoClass={jest.fn()}
+        dropTargetRef={jest.fn()}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -82,6 +83,7 @@ describe('ChannelInput', () => {
         infoClass={''}
         setInfoClass={jest.fn()}
         inputState={INPUT_STATE.NOT_CONNECTED}
+        dropTargetRef={jest.fn()}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`

@@ -51,7 +51,8 @@ export const ChannelInput = () => {
       }}
       infoClass={infoClass}
       setInfoClass={setInfoClass}
-    ><div></div></ChannelInputComponent>
+      dropTargetRef={() => {}}
+    />
   )
 }
 

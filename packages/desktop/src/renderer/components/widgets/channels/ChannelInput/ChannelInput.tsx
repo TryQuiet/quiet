@@ -13,6 +13,7 @@ import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import addGray from '../../../../static/images/addGray.svg'
 import addBlack from '../../../../static/images/addBlack.svg'
+import { ConnectDropTarget } from 'react-dnd'
 import { ipcRenderer } from 'electron'
 
 const useStyles = makeStyles(theme => ({
@@ -179,6 +180,7 @@ export interface ChannelInputProps {
   onKeyPress: (input: string) => void
   infoClass: string
   setInfoClass: (arg: string) => void
+  dropTargetRef?: any
   children?: ReactElement
 }
 
@@ -192,6 +194,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   onKeyPress,
   infoClass,
   setInfoClass,
+  dropTargetRef,
   children
 }) => {
   const classes = useStyles({})
@@ -416,7 +419,9 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       className={classNames({
         [classes.root]: true,
         [classes.notAllowed]: inputState !== INPUT_STATE.AVAILABLE
-      })}>
+      })}
+      ref={dropTargetRef}
+      >
       <Grid
         container
         className={classNames({

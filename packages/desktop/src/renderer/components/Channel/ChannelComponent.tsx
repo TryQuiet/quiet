@@ -18,7 +18,12 @@ import { Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/stat
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
-import UploadFilesPreviewsComponent, { FilePreviewData, UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
+import UploadFilesPreviewsComponent, { UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
+
+import type { DropTargetMonitor } from 'react-dnd'
+import { useDrop } from 'react-dnd'
+import { NativeTypes } from 'react-dnd-html5-backend'
+import { DropZoneComponent } from './DropZone/DropZone'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -149,8 +154,41 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     scrollBottom()
   }, [channelAddress])
 
+  const [{ canDrop, isOver }, drop] = useDrop(
+    () => ({
+      accept: [NativeTypes.FILE],
+      drop(item: { files: any[] }) {
+        if (handleFileDrop) {
+          handleFileDrop(item)
+        }
+      },
+      canDrop(item: any) {
+        // console.log('canDrop', item.files, item.items)
+        return true
+      },
+      hover(item: any) {
+        // console.log('hover', item.files, item.items)
+      },
+      collect: (monitor: DropTargetMonitor) => {
+        const item = monitor.getItem() as any
+        if (item) {
+          console.log('collect', item.files, item.items)
+        }
+
+        return {
+          isOver: monitor.isOver(),
+          canDrop: monitor.canDrop(),
+        }
+      },
+    }),
+    [handleFileDrop],
+  )
+
+  const isActive = canDrop && isOver
+
   return (
     <Page>
+      
       <PageHeader>
         <ChannelHeaderComponent
           channelName={channelName}
@@ -163,37 +201,39 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
           openNotificationsTab={openNotificationsTab}
         />
       </PageHeader>
-      <Grid item xs className={classes.messages}>
-        <ChannelMessagesComponent
-          messages={messages.groups}
-          pendingMessages={pendingMessages}
-          scrollbarRef={scrollbarRef}
-          onScroll={onScroll}
-          onDrop={handleFileDrop}
-        />
-      </Grid>
-      <Grid item>
-        <ChannelInputComponent
-          channelAddress={channelAddress}
-          channelName={channelName}
-          // TODO https://github.com/TryQuiet/ZbayLite/issues/443
-          inputPlaceholder={`#${channelName} as @${user?.nickname}`}
-          onChange={value => {
-            onInputChange(value)
-          }}
-          onKeyPress={(message) => {
-            onEnterKeyPress(message)
-          }}
-          infoClass={infoClass}
-          setInfoClass={setInfoClass}
-          inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
-        >
-          <UploadFilesPreviewsComponent
-            filesData={filesData}
-            removeFile={(id) => removeFile(id)}
+      <DropZoneComponent dropTargetRef={drop} isActive={isActive}>
+        <Grid item xs className={classes.messages}>
+          <ChannelMessagesComponent
+            messages={messages.groups}
+            pendingMessages={pendingMessages}
+            scrollbarRef={scrollbarRef}
+            onScroll={onScroll}
           />
-        </ChannelInputComponent>          
-      </Grid>
+        </Grid>
+        <Grid item>
+          <ChannelInputComponent
+            channelAddress={channelAddress}
+            channelName={channelName}
+            // TODO https://github.com/TryQuiet/ZbayLite/issues/443
+            inputPlaceholder={`#${channelName} as @${user?.nickname}`}
+            onChange={value => {
+              onInputChange(value)
+            }}
+            onKeyPress={(message) => {
+              onEnterKeyPress(message)
+            }}
+            infoClass={infoClass}
+            setInfoClass={setInfoClass}
+            inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
+            // dropTargetRef={drop}
+          >
+            <UploadFilesPreviewsComponent
+              filesData={filesData}
+              removeFile={(id) => removeFile(id)}
+            />
+          </ChannelInputComponent>          
+        </Grid>
+      </DropZoneComponent>
     </Page>
   )
 }
