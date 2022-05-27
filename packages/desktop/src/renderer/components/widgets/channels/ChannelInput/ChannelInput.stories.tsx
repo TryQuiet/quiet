@@ -41,7 +41,7 @@ const argsDisabledInput: ChannelInputProps = {
   infoClass: '',
   setInfoClass: function (_arg: string): void {},
   inputState: INPUT_STATE.NOT_CONNECTED,
-  dropTargetRef: () => {}  
+  dropTargetRef: () => {}
 }
 
 Component.args = args

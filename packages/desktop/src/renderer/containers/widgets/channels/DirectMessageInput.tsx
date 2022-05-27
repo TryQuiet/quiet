@@ -33,7 +33,6 @@ export const ChannelInput = () => {
 
   const currentChannelAddress = useSelector(publicChannels.selectors.currentChannelAddress)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
-
   const user = useSelector(identity.selectors.currentIdentity)
 
   return (

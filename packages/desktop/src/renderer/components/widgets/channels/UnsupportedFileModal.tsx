@@ -2,6 +2,7 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Modal from '../../ui/Modal/Modal'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
+import { FileContent } from 'packages/state-manager/lib'
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -47,10 +48,10 @@ interface unsupportedFileModalProps {
   open: boolean
   handleClose: () => void
   onButtonClick: () => void
-  unsupportedFiles
-  sendOtherContent
-  textContent
-  tryZipContent
+  unsupportedFiles: FileContent[]
+  sendOtherContent: string
+  textContent: string
+  tryZipContent: string
 }
 
 const UnsupportedFileModalComponent: React.FC<unsupportedFileModalProps> = ({
