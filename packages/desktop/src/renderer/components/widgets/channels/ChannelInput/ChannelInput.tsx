@@ -15,8 +15,6 @@ import addGray from '../../../../static/images/addGray.svg'
 import addBlack from '../../../../static/images/addBlack.svg'
 import { ipcRenderer } from 'electron'
 import UploadFilesPreviewsComponent, { FilePreviewData } from '../UploadedFilesPreviews'
-import { useModal } from '../../../../containers/hooks'
-import { ModalName } from '../../../../sagas/modals/modals.types'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -208,7 +206,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const mentionsToSelectRef = React.useRef<any[]>()
 
   const inputRef = React.createRef<ContentEditable & HTMLDivElement & any>() // any for updater.enqueueForceUpdate
-  const unsupportedFileModal = useModal(ModalName.unsupportedFileModal)
 
   const [focused, setFocused] = React.useState(false)
   const [selected, setSelected] = React.useState(0)
@@ -508,7 +505,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                 />
               </Grid>
               <UploadFilesPreviewsComponent
-                unsupportedFileModal={unsupportedFileModal}
                 filesData={uploadingFiles}
                 removeFile={(id) => setUploadingFiles(existingFiles => {
                   delete existingFiles[id]

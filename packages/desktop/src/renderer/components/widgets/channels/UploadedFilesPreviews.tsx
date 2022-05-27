@@ -5,7 +5,8 @@ import { FileContent } from '@quiet/state-manager'
 import CloseIcon from '@material-ui/icons/Close'
 import Tooltip from '../../ui/Tooltip/Tooltip'
 import UnsupportedFileModalComponent from './UnsupportedFileModal'
-
+import { useModal } from '../../../containers/hooks'
+import { ModalName } from '../../../sagas/modals/modals.types'
 import { supportedFilesExtensions, unsuportedFileContent, unsuportedFileTitle } from './unsupportedFilesContent'
 
 export interface FilePreviewData {
@@ -97,7 +98,6 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
 export interface UploadFilesPreviewsProps {
   filesData: FilePreviewData
   removeFile: (id: string) => void
-  unsupportedFileModal: any
 }
 
 const checkAreFilesSupported = (filesData: FilePreviewData) => {
@@ -121,10 +121,10 @@ const checkAreFilesSupported = (filesData: FilePreviewData) => {
 
 const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
   filesData,
-  removeFile,
-  unsupportedFileModal
+  removeFile
 }) => {
   const classes = useStyles({})
+  const unsupportedFileModal = useModal(ModalName.unsupportedFileModal)
   const [isButtonClick, setButtonClick] = useState<boolean>(false)
 
   const { supportedFiles, unsupportedFiles } = checkAreFilesSupported(filesData)
