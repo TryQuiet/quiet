@@ -350,9 +350,7 @@ app.on('ready', async () => {
     }
 
     if (filesDialogResult.filePaths) {
-      console.log('paths:', filesDialogResult.filePaths)
       const data = openFiles(filesDialogResult.filePaths)
-      console.log('constructed filesData:', data)
       mainWindow.webContents.send('openedFiles', data)
     }
   })

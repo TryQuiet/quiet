@@ -67,7 +67,7 @@ describe('downloadFileSaga', () => {
     const peerId = alice.peerId.id
 
     const messageId = '5'
-    
+
     const media: FileMetadata = {
       cid: 'cid',
       path: null,
@@ -104,7 +104,7 @@ describe('downloadFileSaga', () => {
       ])
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
-        { 
+        {
           peerId: peerId,
           metadata: media
         }

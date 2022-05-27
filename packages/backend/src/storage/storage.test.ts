@@ -293,7 +293,7 @@ describe('Message', () => {
   })
 })
 
-describe('Files', () => {
+describe.only('Files', () => {
   it('is uploaded to IPFS then can be downloaded', async () => {
     storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
 
@@ -307,21 +307,19 @@ describe('Files', () => {
     // Uploading
     const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
 
-    const buffer = fs.readFileSync(path.join(__dirname, '/testUtils/test-image.png')).toString()
-
     const fileContent: FileContent = {
-      path: 'temp/image.png',
-      name: 'image',
+      path: path.join(__dirname, '/testUtils/test-image.png'),
+      name: 'test-image',
       ext: 'png'
     }
 
     await storage.uploadFile(fileContent)
 
     expect(uploadSpy).toHaveBeenCalled()
-    
+
     // Downloading
     const downloadSpy = jest.spyOn(storage.io, 'downloadedFile')
-    
+
     const uploadMetadata = uploadSpy.mock.calls[0][0]
 
     await storage.downloadFile(uploadMetadata)

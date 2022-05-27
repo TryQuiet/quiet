@@ -42,7 +42,6 @@ export const messagesSlice = createSlice({
     uploadedFile: (state, _action: PayloadAction<FileMetadata>) => state,
     uploadFile: (state, _action: PayloadAction<FileContent>) => state,
     sendMessage: (state, _action: PayloadAction<WriteMessagePayload>) => state,
-    sendFile: (state, _action: PayloadAction<WriteMessagePayload>) => state,
     addPublicKeyMapping: (state, action: PayloadAction<PublicKeyMappingPayload>) => {
       state.publicKeyMapping[action.payload.publicKey] = action.payload.cryptoKey
     },
