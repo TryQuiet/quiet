@@ -394,9 +394,8 @@ export class Storage {
     try {
       buffer = fs.readFileSync(fileContent.path)
     } catch (e) {
-      // TODO
       log.error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
-      return
+      throw new Error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
     }
 
     // Create directory for file
