@@ -6,7 +6,7 @@ import {
   sign
 } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory } from '../../..'
+import { getFactory, MessageType } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { arrayBufferToString } from 'pvutils'
@@ -17,7 +17,6 @@ import { communitiesActions, Community } from '../../communities/communities.sli
 import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { MessageTypes } from '../const/messageTypes'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { sendMessageSaga } from './sendMessage.saga'
@@ -95,12 +94,13 @@ describe('sendMessageSaga', () => {
           peerId: alice.peerId.id,
           message: {
             id: 4,
-            type: MessageTypes.BASIC,
+            type: MessageType.Basic,
             message: 'message',
             createdAt: 8,
             channelAddress: currentChannel,
             signature: 'signature',
-            pubKey: 'publicKey'
+            pubKey: 'publicKey',
+            media: undefined
           }
         }
       ])
@@ -133,12 +133,13 @@ describe('sendMessageSaga', () => {
           peerId: alice.peerId.id,
           message: {
             id: 16,
-            type: MessageTypes.BASIC,
+            type: MessageType.Basic,
             message: 'message',
             createdAt: 24,
             channelAddress: sailingChannel.address,
             signature: 'signature',
-            pubKey: 'publicKey'
+            pubKey: 'publicKey',
+            media: undefined
           }
         }
       ])

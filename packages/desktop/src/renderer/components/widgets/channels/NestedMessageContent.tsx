@@ -1,8 +1,9 @@
 import React from 'react'
 import theme from '../../../theme'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
-import { DisplayableMessage, SendingStatus } from '@quiet/state-manager'
+import { DisplayableMessage, MessageType, SendingStatus } from '@quiet/state-manager'
 import classNames from 'classnames'
+import UploadedFile from './UploadedFile'
 
 const useStyles = makeStyles(() => ({
   message: {
@@ -37,12 +38,15 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ mess
   return (
     <Grid item className={outerDivStyle}>
       <Typography
+        component={'span'}
         className={classNames({
           [classes.message]: true,
           [classes.pending]: pending
         })}
         data-testid={`messagesGroupContent-${message.id}`}>
-        {message.message}
+        {
+          message.type === MessageType.Basic ? message.message : <UploadedFile message={message} />
+        }
       </Typography>
     </Grid>
   )

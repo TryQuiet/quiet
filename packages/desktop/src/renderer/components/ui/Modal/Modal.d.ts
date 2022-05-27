@@ -9,9 +9,12 @@ export interface IModalProps {
   step?: number
   setStep?: (arg0?: any) => void
   contentWidth?: string | number
+  contentHeight?: string | number
   isCloseDisabled?: boolean
   alignCloseLeft?: boolean
   addBorder?: boolean
   fullPage?: boolean
   testIdPrefix?: string
+  windowed?: boolean
+  fullPage?: boolean
 }

@@ -9,6 +9,8 @@ const _dispatchError = (store, err) => {
     message: err.message,
     traceback: err.stack
   }
+  // const modal = useModal(ModalName.criticalError)
+  // modal.handleOpen()
 }
 
 export const errorsMiddleware = store => next => action => {

@@ -9,6 +9,7 @@ export const displayableMessage = (message: ChannelMessage, nickname: string): D
     message: message.message,
     createdAt: message.createdAt,
     date: date,
-    nickname
+    nickname: nickname,
+    media: message.media
   }
 }

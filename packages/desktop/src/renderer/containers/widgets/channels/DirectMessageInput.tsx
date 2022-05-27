@@ -3,6 +3,8 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import { identity, publicChannels } from '@quiet/state-manager'
 import ChannelInputComponent from '../../../components/widgets/channels/ChannelInput'
+import { useModal } from '../../hooks'
+import { ModalName } from '../../../sagas/modals/modals.types'
 
 export const useDirectMessageInputActions = () => {
   const dispatch = useDispatch()
@@ -34,6 +36,8 @@ export const ChannelInput = () => {
   const currentChannelAddress = useSelector(publicChannels.selectors.currentChannelAddress)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
 
+  const unsupportedFileModal = useModal(ModalName.unsupportedFileModal)
+
   const user = useSelector(identity.selectors.currentIdentity)
 
   return (
@@ -51,6 +55,7 @@ export const ChannelInput = () => {
       }}
       infoClass={infoClass}
       setInfoClass={setInfoClass}
+      unsupportedFileModal={unsupportedFileModal}
     />
   )
 }

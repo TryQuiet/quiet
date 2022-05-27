@@ -11,6 +11,11 @@ import { INPUT_STATE } from './InputState.enum'
 import Icon from '../../../ui/Icon/Icon'
 import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
+import addGray from '../../../../static/images/addGray.svg'
+import addBlack from '../../../../static/images/addBlack.svg'
+import { ipcRenderer } from 'electron'
+import UploadFilesPreviewsComponent, { FilePreviewData } from '../UploadedFilesPreviews'
+import { useModal } from '../../../../containers/hooks'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -23,6 +28,7 @@ const useStyles = makeStyles(theme => ({
     to: { opacity: 1 }
   },
   input: {
+    width: '100%',
     fontSize: 14,
     outline: 'none',
     padding: '12px 16px',
@@ -34,7 +40,9 @@ const useStyles = makeStyles(theme => ({
         color: '#aaa'
       }
     },
-    wordBreak: 'break-word'
+    wordBreak: 'break-word',
+    position: 'relative',
+    paddingRight: '60px'
   },
   textfield: {
     border: `1px solid ${theme.palette.colors.veryLightGray}`,
@@ -43,13 +51,22 @@ const useStyles = makeStyles(theme => ({
     borderRadius: 4,
     '&:hover': {
       borderColor: theme.palette.colors.trueBlack
-    }
+    },
+    display: 'flex',
+    flexDirection: 'column',
+    flexWrap: 'nowrap',
+    justifyContent: 'flexStart',
+    alignItems: 'stretch',
+    alignContent: 'stretch',
+    width: '100%',
+    position: 'relative'
   },
   inputsDiv: {
     paddingLeft: '20px',
     paddingRight: '20px',
     width: '100%',
-    margin: '0px'
+    margin: '0px',
+    position: 'relative'
   },
   disabledBottomMargin: {
     marginBottom: 0
@@ -75,7 +92,26 @@ const useStyles = makeStyles(theme => ({
     borderColor: theme.palette.colors.trueBlack
   },
   iconButton: {
-    marginRight: 0
+    cursor: 'pointer',
+    position: 'relative',
+    float: 'right',
+    color: '#808080',
+    '&:hover': {
+      color: 'black',
+      border: '1px solid black'
+
+    },
+    border: '1px solid #808080',
+
+    // boxShadow: '-.75px -.75px 1px #808080',
+    borderRadius: '100%',
+    width: '23px',
+    height: '23px'
+  },
+  emoji: {
+    cursor: 'pointer',
+    position: 'relative',
+    float: 'right'
   },
   highlight: {
     color: theme.palette.colors.lushSky,
@@ -83,16 +119,14 @@ const useStyles = makeStyles(theme => ({
     padding: 5,
     borderRadius: 4
   },
-  emoji: {
-    marginRight: 17,
-    marginLeft: 10,
-    cursor: 'pointer'
-  },
+
   actions: {
-    postion: 'relative'
+    postion: 'relative',
+    float: 'right',
+    padding: '5px'
   },
   picker: {
-    position: 'absolute',
+    position: 'fixed',
     bottom: 60,
     right: 15
   },
@@ -117,6 +151,22 @@ const useStyles = makeStyles(theme => ({
   },
   notAllowed: {
     cursor: 'not-allowed'
+  },
+  inputFiles: {
+    position: 'relative',
+    float: 'left'
+  },
+  icons: {
+    position: 'absolute',
+    float: 'left',
+    right: '0px',
+    bottom: '0px',
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flexStart',
+    alignItems: 'center',
+    alignCntent: 'stretch'
   }
 }))
 
@@ -128,9 +178,10 @@ export interface ChannelInputProps {
   inputState?: INPUT_STATE
   initialMessage?: string
   onChange: (arg: string) => void
-  onKeyPress: (input: string) => void
+  onKeyPress: (input: string, files: FilePreviewData) => void
   infoClass: string
   setInfoClass: (arg: string) => void
+  unsupportedFileModal: ReturnType<typeof useModal>
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
@@ -142,14 +193,16 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   onChange,
   onKeyPress,
   infoClass,
-  setInfoClass
+  setInfoClass,
+  unsupportedFileModal
 }) => {
   const classes = useStyles({})
 
   const [_anchorEl, setAnchorEl] = React.useState<HTMLDivElement>(null)
   const [mentionsToSelect, setMentionsToSelect] = React.useState([])
-
+  const [uploadingFiles, setUploadingFiles] = React.useState({})
   const messageRef = React.useRef<string>()
+  const filesRef = React.useRef<{}>()
   const refSelected = React.useRef<number>()
   const isFirstRenderRef = React.useRef(true)
 
@@ -159,9 +212,13 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const [focused, setFocused] = React.useState(false)
   const [selected, setSelected] = React.useState(0)
+  const [initEvent, _setInitEvent] = React.useState(true)
 
   const [emojiHovered, setEmojiHovered] = React.useState(false)
+  const [fileExplorerHovered, setFileExplorerHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
+
+  const [openFileExplorer, setOpenFileExplorer] = React.useState(false)
 
   const [htmlMessage, setHtmlMessage] = React.useState<string>(initialMessage)
   const [message, setMessage] = React.useState(initialMessage)
@@ -195,6 +252,24 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   }, [message])
 
   React.useEffect(() => {
+    if (openFileExplorer) {
+      ipcRenderer.send('openUploadFileDialog')
+      setOpenFileExplorer(false)
+    }
+  }, [openFileExplorer])
+
+  React.useEffect(() => {
+    if (initEvent) {
+      ipcRenderer.on('openedFiles', (_e, filesData: FilePreviewData) => {
+        setUploadingFiles(existingFiles => {
+          const updatedFiles = { ...existingFiles, ...filesData }
+          return updatedFiles
+        })
+      })
+    }
+  }, [initEvent])
+
+  React.useEffect(() => {
     setMessage(initialMessage)
     setHtmlMessage(initialMessage)
     if (!isFirstRenderRef.current) {
@@ -210,6 +285,10 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   React.useEffect(() => {
     messageRef.current = message
   }, [message])
+
+  React.useEffect(() => {
+    filesRef.current = uploadingFiles
+  }, [uploadingFiles])
 
   const findMentions = React.useCallback(
     (text: string) => {
@@ -237,6 +316,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           }
 
           // Wrap mention in spans to be able to treat it as an anchor for popper
+          console.log('Returning wrapped mentions', nickname)
           return `<span>@${nickname}</span>`
         }
       )
@@ -253,10 +333,14 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       if (inputState === INPUT_STATE.AVAILABLE) {
         // @ts-expect-error
         setMessage(e.nativeEvent.target.innerText)
+        /// / @ts-expect-error
+        // console.log('setMessage(e.nativeEvent.target.innerText)', e.nativeEvent.target.innerText)
         // @ts-expect-error
         if (!e.nativeEvent.target.innerText) {
+          // console.log('!e.nativeEvent.target.innerText: setHtmlMessage("")')
           setHtmlMessage('')
         } else {
+          // console.log('setHtmlMessage(e.target.value)', e.target.value)
           setHtmlMessage(e.target.value)
         }
       }
@@ -316,14 +400,15 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
       if (
         inputStateRef.current === INPUT_STATE.AVAILABLE &&
-        e.nativeEvent.keyCode === 13 &&
-        e.target.innerText !== ''
+        e.nativeEvent.keyCode === 13
       ) {
+        console.log('PRESSED ENTER:', filesRef.current)
         e.preventDefault()
         onChange(e.target.innerText)
-        onKeyPress(e.target.innerText)
+        onKeyPress(e.target.innerText, filesRef.current)
         setMessage('')
         setHtmlMessage('')
+        setUploadingFiles({})
       } else {
         if (e.nativeEvent.keyCode === 13) {
           e.preventDefault()
@@ -422,41 +507,70 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   data-testid='messageInput'
                 />
               </Grid>
-              <Grid item className={classes.actions}>
-                <Grid container justify='center' alignItems='center'>
-                  <Icon
-                    className={classes.emoji}
-                    src={emojiHovered ? emojiBlack : emojiGray}
-                    onClickHandler={() => {
-                      setOpenEmoji(true)
-                    }}
-                    onMouseEnterHandler={() => {
-                      setEmojiHovered(true)
-                    }}
-                    onMouseLeaveHandler={() => {
-                      setEmojiHovered(false)
-                    }}
-                  />
+              <UploadFilesPreviewsComponent
+                filesData={uploadingFiles}
+                unsupportedFileModal={unsupportedFileModal}
+                removeFile={(id) => setUploadingFiles(existingFiles => {
+                  delete existingFiles[id]
+                  const updatedExistingFiles = { ...existingFiles }
+                  return updatedExistingFiles
+                })}
+              />
+              <div className={classes.icons}>
+                <Grid item className={classes.actions}>
+                  <Grid container justify='center' alignItems='center'>
+                    <Icon
+                      className={classes.emoji}
+                      src={fileExplorerHovered ? addBlack : addGray}
+                      onClickHandler={() => {
+                        setOpenFileExplorer(true)
+                        console.log('clicked')
+                      }}
+                      onMouseEnterHandler={() => {
+                        setFileExplorerHovered(true)
+                      }}
+                      onMouseLeaveHandler={() => {
+                        setFileExplorerHovered(false)
+                      }}
+                    />
+                  </Grid>
                 </Grid>
-                {openEmoji && (
-                  <ClickAwayListener
-                    onClickAway={() => {
-                      setOpenEmoji(false)
-                    }}>
-                    <div className={classes.picker}>
-                      <Picker
-                        /* eslint-disable */
-                        onEmojiClick={(_e, emoji) => {
-                          setHtmlMessage(htmlMessage => htmlMessage + emoji.emoji)
-                          setMessage(message + emoji.emoji)
-                          setOpenEmoji(false)
-                        }}
-                      /* eslint-enable */
-                      />
-                    </div>
-                  </ClickAwayListener>
-                )}
-              </Grid>
+                <Grid item className={classes.actions}>
+                  <Grid container justify='center' alignItems='center'>
+                    <Icon
+                      className={classes.emoji}
+                      src={emojiHovered ? emojiBlack : emojiGray}
+                      onClickHandler={() => {
+                        setOpenEmoji(true)
+                      }}
+                      onMouseEnterHandler={() => {
+                        setEmojiHovered(true)
+                      }}
+                      onMouseLeaveHandler={() => {
+                        setEmojiHovered(false)
+                      }}
+                    />
+                  </Grid>
+                  {openEmoji && (
+                    <ClickAwayListener
+                      onClickAway={() => {
+                        setOpenEmoji(false)
+                      }}>
+                      <div className={classes.picker}>
+                        <Picker
+                          /* eslint-disable */
+                          onEmojiClick={(_e, emoji) => {
+                            setHtmlMessage(htmlMessage => htmlMessage + emoji.emoji)
+                            setMessage(message + emoji.emoji)
+                            setOpenEmoji(false)
+                          }}
+                        /* eslint-enable */
+                        />
+                      </div>
+                    </ClickAwayListener>
+                  )}
+                </Grid>
+              </div>
             </Grid>
           </ClickAwayListener>
         </Grid>

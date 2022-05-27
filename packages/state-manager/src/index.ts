@@ -55,11 +55,7 @@ export { useIO } from './sagas/socket/startConnection/startConnection.saga'
 export { getFactory } from './utils/tests/factories'
 export * from './utils/tests/helpers'
 
-export * from './sagas/publicChannels/publicChannels.types'
-
 export { Community } from './sagas/communities/communities.slice'
-
-export * from './sagas/users/users.types'
 
 export { communityChannelsAdapter } from './sagas/publicChannels/publicChannels.adapter'
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
@@ -78,7 +74,13 @@ export * from './sagas/identity/identity.types'
 
 export * from './sagas/communities/communities.types'
 
+export * from './sagas/users/users.types'
+
+export * from './sagas/publicChannels/publicChannels.types'
+
 export * from './sagas/messages/messages.types'
+
+export * from './sagas/files/files.types'
 
 export * from './sagas/errors/errors.types'
 

@@ -161,8 +161,11 @@ export const Tooltip: React.FC<React.ComponentProps<typeof MuiTooltip> & Tooltip
               }
             }
           }
-        }}>
+        }}
+        placement={placement}
+      >
         {children}
+
       </MuiTooltip>
     </span>
   )
