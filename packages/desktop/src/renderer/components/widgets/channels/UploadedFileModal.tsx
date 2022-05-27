@@ -34,12 +34,11 @@ const UploadedFileModalComponent: React.FC<UploadedFileModalProps> = ({
 }) => {
   const classes = useStyles({})
 
-  const uploadedFileModal = useModal(ModalName.uploadedFileModal)
+  const uploadedFileModal = useModal<{ src: string }>(ModalName.uploadedFileModal)
 
   return (
     <Modal open={open} handleClose={handleClose}>
       <div className={classes.container}>
-        {/* @ts-expect-error */}
         <img className={classes.image} src={uploadedFileModal.src} />
       </div>
     </Modal>
