@@ -142,7 +142,7 @@ export async function sendImage(
   } = payload
 
   log(file.path, 'sendImage')
-  
+
   store.dispatch(messages.actions.uploadFile(file))
 
   // Result of an action is sending a message containing cid of uploaded image

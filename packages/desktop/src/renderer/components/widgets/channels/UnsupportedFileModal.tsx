@@ -44,23 +44,23 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface unsupportedFileModalProps {
-  open: boolean,
-  handleClose: () => void,
+  open: boolean
+  handleClose: () => void
   onButtonClick: () => void
-  unsupportedFiles, 
-  sendOtherContent, 
-  textContent, 
-  tryZipContent 
+  unsupportedFiles
+  sendOtherContent
+  textContent
+  tryZipContent
 }
 
 const UnsupportedFileModalComponent: React.FC<unsupportedFileModalProps> = ({
   open,
   handleClose,
   onButtonClick,
-  unsupportedFiles, 
-  sendOtherContent, 
-  textContent, 
-  tryZipContent 
+  unsupportedFiles,
+  sendOtherContent,
+  textContent,
+  tryZipContent
 }) => {
   const classes = useStyles({})
 

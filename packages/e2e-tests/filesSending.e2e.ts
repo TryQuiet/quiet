@@ -13,9 +13,9 @@ fixture`Files sending test`
   .before(async ctx => {
     ctx.ownerUsername = 'alice'
     ctx.ownerImage = {
-        path: path.join(__dirname, 'assets/test-image.jpeg'),
-        name: 'test-image',
-        ext: 'jpeg'
+      path: path.join(__dirname, 'assets/test-image.jpeg'),
+      name: 'test-image',
+      ext: 'jpeg'
     }
     ctx.joiningUserUsername = 'bob-joining'
   })
@@ -39,9 +39,9 @@ test('Users can send and receive images', async t => {
   })
   await t.wait(2000) // Give the backend some time, headless tests are fast
   await actions.sendImage({
-      // @ts-expect-error
-      image: t.fixtureCtx.ownerImage,
-      store: communityOwner.store
+    // @ts-expect-error
+    image: t.fixtureCtx.ownerImage,
+    store: communityOwner.store
   })
   const invitationCode = onionAddress.split('.')[0]
 
