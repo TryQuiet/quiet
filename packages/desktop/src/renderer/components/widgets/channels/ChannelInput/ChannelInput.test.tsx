@@ -15,6 +15,11 @@ describe('ChannelInput', () => {
         onKeyPress={jest.fn()}
         infoClass={''}
         setInfoClass={jest.fn()}
+        unsupportedFileModal={{
+          open: false,
+          handleOpen: function (_args?: any): any {},
+          handleClose: function (): any {}
+        }}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -101,6 +106,11 @@ describe('ChannelInput', () => {
         infoClass={''}
         setInfoClass={jest.fn()}
         inputState={INPUT_STATE.NOT_CONNECTED}
+        unsupportedFileModal={{
+          open: false,
+          handleOpen: function (_args?: any): any {},
+          handleClose: function (): any {}
+        }}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`

@@ -26,7 +26,12 @@ const args: ChannelInputProps = {
     console.log('send message', input)
   },
   infoClass: '',
-  setInfoClass: function (_arg: string): void {}
+  setInfoClass: function (_arg: string): void {},
+  unsupportedFileModal: {
+    open: false,
+    handleOpen: function (_args?: any): any {},
+    handleClose: function (): any {}
+  }
 }
 
 const argsDisabledInput: ChannelInputProps = {
@@ -39,7 +44,12 @@ const argsDisabledInput: ChannelInputProps = {
   },
   infoClass: '',
   setInfoClass: function (_arg: string): void {},
-  inputState: INPUT_STATE.NOT_CONNECTED
+  inputState: INPUT_STATE.NOT_CONNECTED,
+  unsupportedFileModal: {
+    open: false,
+    handleOpen: function (_args?: any): any {},
+    handleClose: function (): any {}
+  }
 }
 
 Component.args = args
