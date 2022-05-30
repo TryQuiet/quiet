@@ -11,3 +11,11 @@ export const getFileData = (filePath: string): FilePreviewData => {
   const id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
   return {[id]: fileContent}
 }
+
+export const getFilesData = (filePaths: Array<string>): FilePreviewData => {
+  const data = {}
+  filePaths.forEach((filePath: string) => {
+    Object.assign(data, getFileData(filePath))
+  })
+  return data
+}

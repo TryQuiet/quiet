@@ -3,9 +3,10 @@ import { makeStyles } from '@material-ui/core/styles'
 import { Grid } from '@material-ui/core'
 import Icon from '../../ui/Icon/Icon'
 import dropFiles from '../../../static/images/dropFiles.svg'
+import { ConnectDropTarget } from 'react-dnd'
 
 interface DropZoneComponentProps {
-  dropTargetRef: any
+  dropTargetRef: ConnectDropTarget
   channelName: string
   isActive: boolean
 }

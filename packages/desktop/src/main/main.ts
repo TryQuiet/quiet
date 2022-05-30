@@ -12,7 +12,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
-import { openFiles } from './files'
+import { getFilesData } from '../utils/functions/fileData'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -350,8 +350,7 @@ app.on('ready', async () => {
     }
 
     if (filesDialogResult.filePaths) {
-      const data = openFiles(filesDialogResult.filePaths)
-      mainWindow.webContents.send('openedFiles', data)
+      mainWindow.webContents.send('openedFiles', getFilesData(filesDialogResult.filePaths))
     }
   })
 

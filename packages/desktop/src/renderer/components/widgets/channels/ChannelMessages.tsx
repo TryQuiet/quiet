@@ -10,7 +10,6 @@ import BasicMessageComponent from './BasicMessage'
 import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
 import { MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
-import { ConnectDropTarget } from 'react-dnd'
 
 
 const useStyles = makeStyles(theme => ({
@@ -48,12 +47,6 @@ const useStyles = makeStyles(theme => ({
   },
   bold: {
     fontWeight: 'bold'
-  },
-  drop: {
-    overflow: 'scroll',
-    overflowX: 'hidden',
-    height: '100%',
-    backgroundColor: 'red'
   }
 }))
 

@@ -8,7 +8,7 @@ import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { FilePreviewData, UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
 import { ipcRenderer } from 'electron'
-import { getFileData } from '../../../utils/functions/fileData'
+import { getFilesData } from '../../../utils/functions/fileData'
 
 const Channel = () => {
   const dispatch = useDispatch()
@@ -84,12 +84,7 @@ const Channel = () => {
   const handleFileDrop = useCallback(
     (item: { files: any[] }) => {
       if (item) {
-        const files = item.files
-        const droppedFiles = {}
-        files.forEach((file) => {
-          Object.assign(droppedFiles, getFileData(file.path))
-        })
-        updateUploadingFiles(droppedFiles)
+        updateUploadingFiles(getFilesData(item.files.map((i) => i.path)))
       }
     },
     [],
