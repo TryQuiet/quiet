@@ -178,7 +178,6 @@ export interface ChannelInputProps {
   onKeyPress: (input: string) => void
   infoClass: string
   setInfoClass: (arg: string) => void
-  dropTargetRef?: any
   children?: ReactElement
   openFilesDialog: () => void
 }
@@ -193,7 +192,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   onKeyPress,
   infoClass,
   setInfoClass,
-  dropTargetRef,
   children,
   openFilesDialog
 }) => {
@@ -411,7 +409,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         [classes.root]: true,
         [classes.notAllowed]: inputState !== INPUT_STATE.AVAILABLE
       })}
-      ref={dropTargetRef}
       >
       <Grid
         container

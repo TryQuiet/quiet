@@ -27,7 +27,6 @@ const args: ChannelInputProps = {
   },
   infoClass: '',
   setInfoClass: function (_arg: string): void {},
-  dropTargetRef: () => {},
   openFilesDialog: () => {}
 }
 
@@ -42,7 +41,6 @@ const argsDisabledInput: ChannelInputProps = {
   infoClass: '',
   setInfoClass: function (_arg: string): void {},
   inputState: INPUT_STATE.NOT_CONNECTED,
-  dropTargetRef: () => {},
   openFilesDialog: () => {}
 }
 

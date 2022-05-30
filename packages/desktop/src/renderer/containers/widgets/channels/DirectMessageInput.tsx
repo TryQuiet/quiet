@@ -50,7 +50,6 @@ export const ChannelInput = () => {
       }}
       infoClass={infoClass}
       setInfoClass={setInfoClass}
-      dropTargetRef={() => {}}
       openFilesDialog={() => {}}
     />
   )

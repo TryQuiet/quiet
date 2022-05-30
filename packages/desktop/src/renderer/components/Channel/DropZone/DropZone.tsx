@@ -23,7 +23,6 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     textAlign: 'center',
     background: 'rgba(255,255,255,0.9)',
-
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',

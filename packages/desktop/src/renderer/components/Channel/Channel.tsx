@@ -63,7 +63,6 @@ const Channel = () => {
         dispatch(messages.actions.sendMessage({ message }))
       }
       Object.values(filesRef.current).forEach(fileData => {
-        console.log('Uploading file', fileData)
         dispatch(messages.actions.uploadFile(fileData))
       })
       setUploadingFiles({})
@@ -90,7 +89,6 @@ const Channel = () => {
         files.forEach((file) => {
           Object.assign(droppedFiles, getFileData(file.path))
         })
-        console.log('dropping files', droppedFiles)
         updateUploadingFiles(droppedFiles)
       }
     },
@@ -98,8 +96,6 @@ const Channel = () => {
   )
 
   const removeFilePreview = (id: string) => setUploadingFiles(existingFiles => {
-    console.log('Deleting id', id)
-    console.log('Existing files', existingFiles)
     delete existingFiles[id]
     const updatedExistingFiles = { ...existingFiles }
     return updatedExistingFiles
@@ -121,7 +117,6 @@ const Channel = () => {
   }, [initEvent])
 
   const openFilesDialog = useCallback(() => {
-    console.log('opening dialog')
     ipcRenderer.send('openUploadFileDialog')
   }, [])
 

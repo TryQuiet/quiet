@@ -53,8 +53,7 @@ const useStyles = makeStyles(theme => ({
     overflow: 'scroll',
     overflowX: 'hidden',
     height: '100%',
-    backgroundColor: 'red',
-    // opacity: '20%'
+    backgroundColor: 'red'
   }
 }))
 
@@ -65,15 +64,13 @@ export interface IChannelMessagesProps {
   pendingMessages?: Dictionary<MessageSendingStatus>
   scrollbarRef
   onScroll: () => void
-  dropTargetRef?: any  // TODO: add type
 }
 
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   messages = {},
   pendingMessages = {},
   scrollbarRef,
-  onScroll,
-  dropTargetRef
+  onScroll
 }) => {
   const classes = useStyles({})
 
@@ -91,7 +88,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
           color={'black'}
         />
       )}
-      <List disablePadding className={classes.list} id='messages-scroll' ref={dropTargetRef}>
+      <List disablePadding className={classes.list} id='messages-scroll'>
         {Object.keys(messages).map(day => {
           return (
             <div key={day}>
