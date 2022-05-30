@@ -29,6 +29,7 @@ export default () => {
       <HashRouter>
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
+            <SentryWarning />
             <ErrorModal />
             <LoadingPanel />
             <CreateChannel />
