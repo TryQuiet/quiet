@@ -366,8 +366,6 @@ app.on('ready', async () => {
     log('Saved state, closed window')
   })
 
-
-
   ipcMain.on('restartApp', () => {
     app.relaunch()
     closeBackendProcess()

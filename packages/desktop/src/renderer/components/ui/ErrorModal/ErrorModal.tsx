@@ -8,16 +8,15 @@ import ErrorModalComponent from './ErrorModalComponent'
 import { modalsActions } from '../../../sagas/modals/modals.slice'
 
 export const ErrorModal = () => {
-
   const modal = useModal<{
     message: string
     traceback: string
   }>(ModalName.criticalError)
-  
+
   const restartApp = () => {
     ipcRenderer.send('restartApp')
   }
-  
+
   return <ErrorModalComponent open={modal.open} handleClose={modal.handleClose} traceback={modal.traceback} message={modal.message} restartApp={restartApp}/>
 }
 
