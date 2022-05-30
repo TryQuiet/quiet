@@ -188,10 +188,13 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   )
 
   const isActive = canDrop && isOver
-
+//   flex-grow: 1;
+//   max-width: 100%;
+//   flex-basis: 0;
+// }
   return (
     <Page>
-      <DropZoneComponent dropTargetRef={drop} isActive={isActive}>
+      
       <PageHeader>
         <ChannelHeaderComponent
           channelName={channelName}
@@ -204,7 +207,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
           openNotificationsTab={openNotificationsTab}
         />
       </PageHeader>
-      
+      <DropZoneComponent dropTargetRef={drop} channelName={channelName} isActive={isActive}>
         <Grid item xs className={classes.messages}>
           <ChannelMessagesComponent
             messages={messages.groups}
