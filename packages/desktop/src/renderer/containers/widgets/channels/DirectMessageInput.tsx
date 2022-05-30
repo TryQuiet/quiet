@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { identity, publicChannels } from '@quiet/state-manager'
+import { FileContent, identity, publicChannels } from '@quiet/state-manager'
 import ChannelInputComponent from '../../../components/widgets/channels/ChannelInput'
 import { useModal } from '../../hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
@@ -36,7 +36,13 @@ export const ChannelInput = () => {
   const currentChannelAddress = useSelector(publicChannels.selectors.currentChannelAddress)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
 
-  const unsupportedFileModal = useModal(ModalName.unsupportedFileModal)
+  const unsupportedFileModal = useModal<{
+    unsupportedFiles: FileContent[]
+    title: string
+    sendOtherContent: string
+    textContent: string
+    tryZipContent: string
+  }>(ModalName.unsupportedFileModal)
 
   const user = useSelector(identity.selectors.currentIdentity)
 

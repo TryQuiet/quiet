@@ -18,7 +18,12 @@ describe('ChannelInput', () => {
         unsupportedFileModal={{
           open: false,
           handleOpen: function (_args?: any): any {},
-          handleClose: function (): any {}
+          handleClose: function (): any {},
+          unsupportedFiles: [],
+          title: '',
+          sendOtherContent: '',
+          textContent: '',
+          tryZipContent: ''
         }}
       />
     )
@@ -109,7 +114,12 @@ describe('ChannelInput', () => {
         unsupportedFileModal={{
           open: false,
           handleOpen: function (_args?: any): any {},
-          handleClose: function (): any {}
+          handleClose: function (): any {},
+          unsupportedFiles: [],
+          title: '',
+          sendOtherContent: '',
+          textContent: '',
+          tryZipContent: ''
         }}
       />
     )

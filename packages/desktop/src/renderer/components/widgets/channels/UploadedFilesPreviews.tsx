@@ -4,7 +4,7 @@ import { FileContent } from '@quiet/state-manager'
 import CloseIcon from '@material-ui/icons/Close'
 import Tooltip from '../../ui/Tooltip/Tooltip'
 import UnsupportedFileModalComponent from './UnsupportedFileModal'
-import { useModal } from '../../../containers/hooks'
+import { UseModalTypeWrapper } from '../../../containers/hooks'
 import {
   supportedFilesExtensions,
   unsuportedFileContent,
@@ -99,7 +99,13 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
 
 export interface UploadFilesPreviewsProps {
   filesData: FilePreviewData
-  unsupportedFileModal: ReturnType<typeof useModal>
+  unsupportedFileModal: ReturnType<UseModalTypeWrapper<{
+    unsupportedFiles: FileContent[]
+    title: string
+    sendOtherContent: string
+    textContent: string
+    tryZipContent: string
+  }>['types']>
   removeFile: (id: string) => void
 }
 
@@ -177,7 +183,6 @@ const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
       {Object.entries(supportedFiles).map(fileData => (
         <FilePreviewComponent fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />
       ))}
-      {/* @ts-ignore */}
       <UnsupportedFileModalComponent
         {...unsupportedFileModal}
         onButtonClick={() => {
