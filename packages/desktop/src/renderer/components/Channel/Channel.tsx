@@ -120,6 +120,11 @@ const Channel = () => {
     }
   }, [initEvent])
 
+  const openFilesDialog = useCallback(() => {
+    console.log('opening dialog')
+    ipcRenderer.send('openUploadFileDialog')
+  }, [])
+
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelAddress])
@@ -143,6 +148,7 @@ const Channel = () => {
     notificationFilter: '',
     openNotificationsTab: function (): void { },
     handleFileDrop: handleFileDrop,
+    openFilesDialog: openFilesDialog,
     isCommunityInitialized: isCommunityInitialized
   }
 

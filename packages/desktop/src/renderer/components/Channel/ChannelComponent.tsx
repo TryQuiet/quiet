@@ -52,6 +52,7 @@ export interface ChannelComponentProps {
   disableSettings?: boolean
   notificationFilter: string
   openNotificationsTab: () => void
+  openFilesDialog: () => void
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
 }
@@ -76,7 +77,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   handleFileDrop,
   filesData,
   isCommunityInitialized = true,
-  unsupportedFileModal
+  unsupportedFileModal,
+  openFilesDialog
 }) => {
   const classes = useStyles({})
 
@@ -223,6 +225,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             onKeyPress={(message) => {
               onEnterKeyPress(message)
             }}
+            openFilesDialog={() => {openFilesDialog()}}
             infoClass={infoClass}
             setInfoClass={setInfoClass}
             inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}

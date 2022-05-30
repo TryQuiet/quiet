@@ -13,7 +13,6 @@ import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import addGray from '../../../../static/images/addGray.svg'
 import addBlack from '../../../../static/images/addBlack.svg'
-import { ipcRenderer } from 'electron'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -181,6 +180,7 @@ export interface ChannelInputProps {
   setInfoClass: (arg: string) => void
   dropTargetRef?: any
   children?: ReactElement
+  openFilesDialog: () => void
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
@@ -194,7 +194,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   infoClass,
   setInfoClass,
   dropTargetRef,
-  children
+  children,
+  openFilesDialog
 }) => {
   const classes = useStyles({})
 
@@ -214,8 +215,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const [emojiHovered, setEmojiHovered] = React.useState(false)
   const [fileExplorerHovered, setFileExplorerHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
-
-  const [openFileExplorer, setOpenFileExplorer] = React.useState(false)
 
   const [htmlMessage, setHtmlMessage] = React.useState<string>(initialMessage)
   const [message, setMessage] = React.useState(initialMessage)
@@ -247,13 +246,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       setHtmlMessage('')
     }
   }, [message])
-
-  React.useEffect(() => {
-    if (openFileExplorer) {
-      ipcRenderer.send('openUploadFileDialog')
-      setOpenFileExplorer(false)
-    }
-  }, [openFileExplorer])
 
   React.useEffect(() => {
     setMessage(initialMessage)
@@ -497,8 +489,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       className={classes.emoji}
                       src={fileExplorerHovered ? addBlack : addGray}
                       onClickHandler={() => {
-                        setOpenFileExplorer(true)
-                        console.log('clicked')
+                        openFilesDialog()
                       }}
                       onMouseEnterHandler={() => {
                         setFileExplorerHovered(true)
