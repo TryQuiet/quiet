@@ -1,7 +1,5 @@
 import React from 'react'
 
-import fetch from 'isomorphic-fetch'
-
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
@@ -13,8 +11,6 @@ import red from '@material-ui/core/colors/red'
 import Icon from '../Icon/Icon'
 import Modal from '../Modal/Modal'
 import LoadingButton from '../LoadingButton/LoadingButton'
-
-import { LOG_ENDPOINT } from '../../../../shared/static'
 
 import exclamationMark from '../../../static/images/exclamationMark.svg'
 
@@ -52,37 +48,22 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const handleSend = async ({ title, message }: { title: string; message: string }) => {
-  await fetch(LOG_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      title,
-      message
-    })
-  })
-}
-
 interface ErrorModalProps {
   open: boolean
-  message?: string
-  traceback?: string
+  message: string
+  traceback: string
   handleClose: () => void
   restartApp?: () => void
 }
 
-export const ErrorModal: React.FC<ErrorModalProps> = ({
-  open = true,
-  message = 'assaasass',
+export const ErrorModalComponent: React.FC<ErrorModalProps> = ({
+  open,
+  message,
   traceback,
   handleClose,
   restartApp
 }) => {
   const classes = useStyles({})
-
-  const [send, setSend] = React.useState(false)
 
   return (
     <Modal open={open} handleClose={handleClose} title='Error'>
@@ -96,8 +77,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
         <Grid item container spacing={2} direction='column'>
           <Grid item>
             <Typography variant='body2' className={classes.info}>
-              You can send us this error traceback to help us improve. Before sending make sure it
-              doesn't contain any private data.
+              This error traceback was sent to centralized server.
             </Typography>
           </Grid>
           <Grid item>
@@ -119,21 +99,11 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
             />
           </Grid>
           <Grid item container justify='center' alignItems='center'>
-            {!send && (
-              <LoadingButton
-                text='Send & restart'
-                classes={{ button: classes.button }}
-                onClick={async () => {
-                  try {
-                    await handleSend({ title: message, message: traceback })
-                    setSend(true)
-                    restartApp()
-                  } catch (err) {
-                    console.log('ERROR SENDING MESSAGE', err.message)
-                  }
-                }}
-              />
-            )}
+            <LoadingButton
+              text='Restart'
+              classes={{ button: classes.button }}
+              onClick={restartApp}
+            />
           </Grid>
         </Grid>
       </Grid>
@@ -141,4 +111,4 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
   )
 }
 
-export default ErrorModal
+export default ErrorModalComponent
