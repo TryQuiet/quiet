@@ -166,14 +166,10 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
         }
       },
       canDrop(item: any) {
-        // console.log('canDrop', item.files, item.items)
         return true
       },
-      hover(item: any) {
-        // console.log('hover', item.files, item.items)
-      },
       collect: (monitor: DropTargetMonitor) => {
-        const item = monitor.getItem()
+        const item: any = monitor.getItem()
         if (item) {
           console.log('collect', item.files, item.items)
         }
@@ -191,7 +187,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
 
   return (
     <Page>
-
       <PageHeader>
         <ChannelHeaderComponent
           channelName={channelName}
