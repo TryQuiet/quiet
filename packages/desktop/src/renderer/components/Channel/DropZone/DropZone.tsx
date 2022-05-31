@@ -53,7 +53,7 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({
 }) => {
   const classes = useStyles({})
   return (
-    <Grid item xs className={isActive && classes.dropActiveBg} container direction='column' data-testid='drop-zone' ref={dropTargetRef}>
+    <Grid item xs className={isActive ? classes.dropActiveBg : '' } container direction='column' data-testid='drop-zone' ref={dropTargetRef}>
       {isActive && <ActiveDropZoneComponent channelName={channelName}/>}
       {children}
     </Grid>

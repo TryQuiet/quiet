@@ -46,9 +46,6 @@ describe('ChannelInput', () => {
                     </div>
                   </div>
                   <div
-                    class="makeStyles-inputFiles-126"
-                  />
-                  <div
                     class="makeStyles-icons-22"
                   >
                     <div
@@ -79,7 +76,7 @@ describe('ChannelInput', () => {
                 </div>
               </div>
               <div
-                class="MuiGrid-root makeStyles-boot-154 MuiGrid-container"
+                class="MuiGrid-root makeStyles-boot-128 MuiGrid-container"
               >
                 <div
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
@@ -109,22 +106,22 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root makeStyles-root-155 makeStyles-notAllowed-174"
+            class="MuiGrid-root makeStyles-root-129 makeStyles-notAllowed-148"
           >
             <div
-              class="MuiGrid-root makeStyles-root-155 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
+              class="MuiGrid-root makeStyles-root-129 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
             >
               <div
-                class="MuiGrid-root makeStyles-inputsDiv-159 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                class="MuiGrid-root makeStyles-inputsDiv-133 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
               >
                 <div
-                  class="MuiGrid-root makeStyles-textfield-158 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center MuiGrid-grid-xs-true"
+                  class="MuiGrid-root makeStyles-textfield-132 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center MuiGrid-grid-xs-true"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
                   >
                     <div
-                      class="makeStyles-input-157"
+                      class="makeStyles-input-131"
                       contenteditable="false"
                       data-testid="messageInput"
                       disabled=""
@@ -134,31 +131,28 @@ describe('ChannelInput', () => {
                     </div>
                   </div>
                   <div
-                    class="makeStyles-inputFiles-280"
-                  />
-                  <div
-                    class="makeStyles-icons-176"
+                    class="makeStyles-icons-150"
                   >
                     <div
-                      class="MuiGrid-root makeStyles-actions-168 MuiGrid-item"
+                      class="MuiGrid-root makeStyles-actions-142 MuiGrid-item"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
                       >
                         <img
-                          class="makeStyles-emoji-166"
+                          class="makeStyles-emoji-140"
                           src="test-file-stub"
                         />
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root makeStyles-actions-168 MuiGrid-item"
+                      class="MuiGrid-root makeStyles-actions-142 MuiGrid-item"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
                       >
                         <img
-                          class="makeStyles-emoji-166"
+                          class="makeStyles-emoji-140"
                           src="test-file-stub"
                         />
                       </div>
@@ -167,13 +161,13 @@ describe('ChannelInput', () => {
                 </div>
               </div>
               <div
-                class="MuiGrid-root makeStyles-boot-308 MuiGrid-container"
+                class="MuiGrid-root makeStyles-boot-256 MuiGrid-container"
               >
                 <div
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
                 >
                   <span
-                    class="MuiTypography-root makeStyles-info-306 MuiTypography-caption"
+                    class="MuiTypography-root makeStyles-info-254 MuiTypography-caption"
                   >
                     Initializing community. This may take a few minutes...
                   </span>
