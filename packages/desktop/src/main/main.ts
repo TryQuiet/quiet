@@ -277,6 +277,35 @@ export const checkForUpdate = async (win: BrowserWindow) => {
 let ports: ApplicationPorts
 let backendProcess: ChildProcess = null
 
+const closeBackendProcess = () => {
+  if (backendProcess !== null) {
+    /* OrbitDB released a patch (0.28.5) that omits error thrown when closing the app during heavy replication
+       it needs mending though as replication is not being stopped due to pednign ipfs block/dag calls.
+       https://github.com/orbitdb/orbit-db-store/issues/121
+       ...
+       Quiet side workaround is force-killing backend process.
+       It may result in problems caused by post-process leftovers (like lock-files),
+       nevertheless developer team is aware of that and has a response
+       https://github.com/TryQuiet/monorepo/issues/469
+    */
+    const forceClose = setTimeout(() => {
+      log('Force closing the app')
+      backendProcess.kill()
+      app.quit()
+    }, 2000)
+    backendProcess.send('close')
+    backendProcess.on('message', message => {
+      if (message === 'closed-services') {
+        log('Closing the app')
+        clearTimeout(forceClose)
+        app.quit()
+      }
+    })
+  } else {
+    app.quit()
+  }
+}
+
 app.on('ready', async () => {
   log('Event: app.ready')
   if (process.platform === 'darwin') {
@@ -337,6 +366,11 @@ app.on('ready', async () => {
     log('Saved state, closed window')
   })
 
+  ipcMain.on('restartApp', () => {
+    app.relaunch()
+    closeBackendProcess()
+  })
+
   ipcMain.on('openUploadFileDialog', async (e) => {
     let filesDialogResult: Electron.OpenDialogReturnValue
     try {
@@ -390,32 +424,7 @@ app.on('browser-window-created', (_, window) => {
 // Quit when all windows are closed.
 app.on('window-all-closed', async () => {
   log('Event: app.window-all-closed')
-  if (backendProcess !== null) {
-    /* OrbitDB released a patch (0.28.5) that omits error thrown when closing the app during heavy replication
-       it needs mending though as replication is not being stopped due to pednign ipfs block/dag calls.
-       https://github.com/orbitdb/orbit-db-store/issues/121
-       ...
-       Quiet side workaround is force-killing backend process.
-       It may result in problems caused by post-process leftovers (like lock-files),
-       nevertheless developer team is aware of that and has a response
-       https://github.com/TryQuiet/monorepo/issues/469
-    */
-    const forceClose = setTimeout(() => {
-      log('Force closing the app')
-      backendProcess.kill()
-      app.quit()
-    }, 2000)
-    backendProcess.send('close')
-    backendProcess.on('message', message => {
-      if (message === 'closed-services') {
-        log('Closing the app')
-        clearTimeout(forceClose)
-        app.quit()
-      }
-    })
-  } else {
-    app.quit()
-  }
+  closeBackendProcess()
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   // NOTE: temporarly quit macos when using 'X'. Reloading the app loses the connection with backend. To be fixed.

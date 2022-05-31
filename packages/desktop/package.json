@@ -124,6 +124,7 @@
     "@redux-saga/types": "^1.1.0",
     "@reduxjs/toolkit": "^1.6.2",
     "@sentry/electron": "^2.5.4",
+    "@sentry/browser": "^6.19.7",
     "@types/lodash": "^4.14.169",
     "@types/ps-node": "^0.1.0",
     "@types/redux-debounced": "^0.2.19",

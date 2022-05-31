@@ -1,17 +1,18 @@
 import React from 'react'
 
 import { renderComponent } from '../../../testUtils/renderComponent'
-import { ErrorModal } from './ErrorModal'
+import { ErrorModalComponent } from './ErrorModalComponent'
 
 describe('ErrorModal', () => {
   it('renders component', () => {
     const result = renderComponent(
-      <ErrorModal
+      <ErrorModalComponent
         open
         message='Test error message'
         traceback='Error: Test error message, error traceback'
-        handleExit={jest.fn()}
+        handleClose={jest.fn()}
         restartApp={jest.fn()}
+        testMode={true}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -121,7 +122,7 @@ describe('ErrorModal', () => {
                       <p
                         class="MuiTypography-root makeStyles-info-5 MuiTypography-body2"
                       >
-                        You can send us this error traceback to help us improve. Before sending make sure it doesn't contain any private data.
+                        This error traceback was sent to centralized server.
                       </p>
                     </div>
                     <div
@@ -170,7 +171,7 @@ describe('ErrorModal', () => {
                         <span
                           class="MuiButton-label"
                         >
-                          Send & restart
+                          Restart
                         </span>
                         <span
                           class="MuiTouchRipple-root"
