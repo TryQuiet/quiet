@@ -87,7 +87,7 @@ const Channel = () => {
         updateUploadingFiles(getFilesData(item.files.map((i) => i.path)))
       }
     },
-    [],
+    []
   )
 
   const removeFilePreview = (id: string) => setUploadingFiles(existingFiles => {

@@ -11,7 +11,6 @@ import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
 import { MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
 
-
 const useStyles = makeStyles(theme => ({
   spinner: {
     top: '50%',

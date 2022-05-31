@@ -173,25 +173,25 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
         // console.log('hover', item.files, item.items)
       },
       collect: (monitor: DropTargetMonitor) => {
-        const item = monitor.getItem() as any
+        const item = monitor.getItem()
         if (item) {
           console.log('collect', item.files, item.items)
         }
 
         return {
           isOver: monitor.isOver(),
-          canDrop: monitor.canDrop(),
+          canDrop: monitor.canDrop()
         }
-      },
+      }
     }),
-    [handleFileDrop],
+    [handleFileDrop]
   )
 
   const dropIsActive = canDrop && isOver
 
   return (
     <Page>
-      
+
       <PageHeader>
         <ChannelHeaderComponent
           channelName={channelName}
@@ -225,7 +225,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             onKeyPress={(message) => {
               onEnterKeyPress(message)
             }}
-            openFilesDialog={() => {openFilesDialog()}}
+            openFilesDialog={() => { openFilesDialog() }}
             infoClass={infoClass}
             setInfoClass={setInfoClass}
             inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
@@ -235,7 +235,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
               removeFile={(id) => removeFile(id)}
               unsupportedFileModal={unsupportedFileModal}
             />
-          </ChannelInputComponent>          
+          </ChannelInputComponent>
         </Grid>
       </DropZoneComponent>
     </Page>

@@ -409,7 +409,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         [classes.root]: true,
         [classes.notAllowed]: inputState !== INPUT_STATE.AVAILABLE
       })}
-      >
+    >
       <Grid
         container
         className={classNames({

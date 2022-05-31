@@ -27,26 +27,26 @@ export const persistor = persistStore(store)
 export default () => {
   return (
     <DndProvider backend={HTML5Backend}>
-    <MuiThemeProvider theme={theme}>
-      <HashRouter>
-        <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
-            <LoadingPanel />
-            <CreateChannel />
-            <JoinCommunity />
-            <CreateCommunity />
-            <CreateUsername />
-            <CssBaseline />
-            <JoinChannelModal />
-            <SettingsModal />
-            <UpdateModal />
-            <QuitAppDialog />
-            <Route path='/' component={Index} />
-            <Route path='/main' component={Main} />
-          </PersistGate>
-        </Provider>
-      </HashRouter>
-    </MuiThemeProvider>
+      <MuiThemeProvider theme={theme}>
+        <HashRouter>
+          <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+              <LoadingPanel />
+              <CreateChannel />
+              <JoinCommunity />
+              <CreateCommunity />
+              <CreateUsername />
+              <CssBaseline />
+              <JoinChannelModal />
+              <SettingsModal />
+              <UpdateModal />
+              <QuitAppDialog />
+              <Route path='/' component={Index} />
+              <Route path='/main' component={Main} />
+            </PersistGate>
+          </Provider>
+        </HashRouter>
+      </MuiThemeProvider>
     </DndProvider>
   )
 }

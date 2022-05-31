@@ -13,11 +13,11 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 export const renderComponent = (ui: ReactElement, storeState: Store = store): ReturnType<typeof render> => {
   const Wrapper: FC = ({ children }) => (
     <DndProvider backend={HTML5Backend}>
-    <MuiThemeProvider theme={theme}>
-      <Provider store={storeState}>
-        {children}
-      </Provider>
-    </MuiThemeProvider>
+      <MuiThemeProvider theme={theme}>
+        <Provider store={storeState}>
+          {children}
+        </Provider>
+      </MuiThemeProvider>
     </DndProvider>
   )
 
