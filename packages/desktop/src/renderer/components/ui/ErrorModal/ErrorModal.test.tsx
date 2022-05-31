@@ -12,6 +12,7 @@ describe('ErrorModal', () => {
         traceback='Error: Test error message, error traceback'
         handleClose={jest.fn()}
         restartApp={jest.fn()}
+        testMode={true}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`

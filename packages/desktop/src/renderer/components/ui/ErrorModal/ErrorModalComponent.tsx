@@ -53,7 +53,8 @@ interface ErrorModalProps {
   message: string
   traceback: string
   handleClose: () => void
-  restartApp?: () => void
+  restartApp: () => void
+  testMode: boolean
 }
 
 export const ErrorModalComponent: React.FC<ErrorModalProps> = ({
@@ -61,7 +62,8 @@ export const ErrorModalComponent: React.FC<ErrorModalProps> = ({
   message,
   traceback,
   handleClose,
-  restartApp
+  restartApp,
+  testMode
 }) => {
   const classes = useStyles({})
 
@@ -75,11 +77,13 @@ export const ErrorModalComponent: React.FC<ErrorModalProps> = ({
           </Typography>
         </Grid>
         <Grid item container spacing={2} direction='column'>
-          <Grid item>
-            <Typography variant='body2' className={classes.info}>
-              This error traceback was sent to centralized server.
-            </Typography>
-          </Grid>
+          {testMode && (
+            <Grid item>
+              <Typography variant='body2' className={classes.info}>
+                This error traceback was sent to centralized server.
+              </Typography>
+            </Grid>
+          )}
           <Grid item>
             <TextField
               id='traceback'

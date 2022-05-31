@@ -17,7 +17,9 @@ export const ErrorModal = () => {
     ipcRenderer.send('restartApp')
   }
 
-  return <ErrorModalComponent open={modal.open} handleClose={modal.handleClose} traceback={modal.traceback} message={modal.message} restartApp={restartApp}/>
+  const testMode = Boolean(process.env.TEST_MODE)
+
+  return <ErrorModalComponent open={modal.open} handleClose={modal.handleClose} traceback={modal.traceback} message={modal.message} restartApp={restartApp} testMode={testMode}/>
 }
 
 export default ErrorModal
