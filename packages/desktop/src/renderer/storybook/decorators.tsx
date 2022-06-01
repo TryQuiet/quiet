@@ -15,3 +15,9 @@ export const withTheme = Story => (
     <Story />
   </ThemeProvider>
 )
+
+// export const withDragAndDrop = Story => (
+//   <DndProvider theme={theme}>
+//     <Story />
+//   </DndProvider>
+// )
