@@ -151,6 +151,21 @@ export async function assertDownloadedImage(
   )
 }
 
+export async function assertNotDownloadedImage(
+  userName: string,
+  expectedImage: string,
+  store: TestStore
+) {
+  expect(
+    Object.values(
+      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+    ).filter(message => message.media?.path)[0]
+  ).toBe(undefined)
+  log(
+    `User ${userName} not downloaded ${expectedImage} yet`
+  )
+}
+
 export const assertInitializedExistingCommunitiesAndRegistrars = async (
   store: TestStore
 ) => {
