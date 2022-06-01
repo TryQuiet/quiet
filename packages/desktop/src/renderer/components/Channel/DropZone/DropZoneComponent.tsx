@@ -3,12 +3,12 @@ import { makeStyles } from '@material-ui/core/styles'
 import { Grid } from '@material-ui/core'
 import Icon from '../../ui/Icon/Icon'
 import dropFiles from '../../../static/images/dropFiles.svg'
-import { ConnectDropTarget } from 'react-dnd'
+import { DropTargetMonitor, useDrop } from 'react-dnd'
+import { NativeTypes } from 'react-dnd-html5-backend'
 
 interface DropZoneComponentProps {
-  dropTargetRef: ConnectDropTarget
+  handleFileDrop: (arg: any) => void
   channelName: string
-  isActive: boolean
 }
 
 const useStyles = makeStyles(theme => ({
@@ -47,14 +47,40 @@ export const ActiveDropZoneComponent: React.FC<{
 
 export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({
   children,
-  dropTargetRef,
   channelName,
-  isActive
+  handleFileDrop
 }) => {
   const classes = useStyles({})
+  const [{ canDrop, isOver }, drop] = useDrop(
+    () => ({
+      accept: [NativeTypes.FILE],
+      drop(item: { files: any[] }) {
+        if (handleFileDrop) {
+          handleFileDrop(item)
+        }
+      },
+      canDrop(_item: any) {
+        return true
+      },
+      collect: (monitor: DropTargetMonitor) => {
+        const item: any = monitor.getItem()
+        if (item) {
+          console.log('collect', item.files, item.items)
+        }
+
+        return {
+          isOver: monitor.isOver(),
+          canDrop: monitor.canDrop()
+        }
+      }
+    }),
+    [handleFileDrop]
+  )
+
+  const dropIsActive = canDrop && isOver
   return (
-    <Grid item xs className={isActive ? classes.dropActiveBg : '' } container direction='column' data-testid='drop-zone' ref={dropTargetRef}>
-      {isActive && <ActiveDropZoneComponent channelName={channelName}/>}
+    <Grid item xs className={dropIsActive ? classes.dropActiveBg : '' } container direction='column' data-testid='drop-zone' ref={drop}>
+      {dropIsActive && <ActiveDropZoneComponent channelName={channelName}/>}
       {children}
     </Grid>
   )

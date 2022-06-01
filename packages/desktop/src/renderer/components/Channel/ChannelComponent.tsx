@@ -12,18 +12,14 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 
-import { useModal, UseModalTypeWrapper } from '../../containers/hooks'
+import { useModal } from '../../containers/hooks'
 
-import { FileContent, Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
+import { Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
 import UploadFilesPreviewsComponent, { UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
-
-import type { DropTargetMonitor } from 'react-dnd'
-import { useDrop } from 'react-dnd'
-import { NativeTypes } from 'react-dnd-html5-backend'
-import { DropZoneComponent } from './DropZone/DropZone'
+import { DropZoneComponent } from './DropZone/DropZoneComponent'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -157,34 +153,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     scrollBottom()
   }, [channelAddress])
 
-  const [{ canDrop, isOver }, drop] = useDrop(
-    () => ({
-      accept: [NativeTypes.FILE],
-      drop(item: { files: any[] }) {
-        if (handleFileDrop) {
-          handleFileDrop(item)
-        }
-      },
-      canDrop(item: any) {
-        return true
-      },
-      collect: (monitor: DropTargetMonitor) => {
-        const item: any = monitor.getItem()
-        if (item) {
-          console.log('collect', item.files, item.items)
-        }
-
-        return {
-          isOver: monitor.isOver(),
-          canDrop: monitor.canDrop()
-        }
-      }
-    }),
-    [handleFileDrop]
-  )
-
-  const dropIsActive = canDrop && isOver
-
   return (
     <Page>
       <PageHeader>
@@ -199,7 +167,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
           openNotificationsTab={openNotificationsTab}
         />
       </PageHeader>
-      <DropZoneComponent dropTargetRef={drop} channelName={channelName} isActive={dropIsActive}>
+      <DropZoneComponent channelName={channelName} handleFileDrop={handleFileDrop}>
         <Grid item xs className={classes.messages}>
           <ChannelMessagesComponent
             messages={messages.groups}

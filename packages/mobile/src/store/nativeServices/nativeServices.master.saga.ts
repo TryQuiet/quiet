@@ -4,7 +4,7 @@ import { nativeServicesActions } from './nativeServices.slice'
 import { nativeServicesCallbacksSaga } from './nativeServicesCallbacks/nativeServicesCallbacks'
 import { pushNotificationsSaga } from './pushNotifications/pushNotifications.saga'
 import { startTorSaga } from './startTor/startTor.saga'
-import { startBackendSaga } from './startBackend/startBackend.saga'
+import { startBackendSaga } from './startWaggle/startBackend.saga'
 
 export function* nativeServicesMasterSaga(): Generator {
   yield all([
