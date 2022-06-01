@@ -485,9 +485,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     <Icon
                       className={classes.emoji}
                       src={fileExplorerHovered ? addBlack : addGray}
-                      onClickHandler={() => {
-                        openFilesDialog()
-                      }}
+                      onClickHandler={openFilesDialog}
                       onMouseEnterHandler={() => {
                         setFileExplorerHovered(true)
                       }}

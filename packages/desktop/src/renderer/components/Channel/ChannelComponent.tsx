@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useCallback } from 'react'
+import React, { useState, useEffect, useLayoutEffect } from 'react'
 
 import { makeStyles } from '@material-ui/core/styles'
 import { Grid } from '@material-ui/core'
@@ -188,7 +188,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             onKeyPress={(message) => {
               onEnterKeyPress(message)
             }}
-            openFilesDialog={() => { openFilesDialog() }}
+            openFilesDialog={openFilesDialog}
             infoClass={infoClass}
             setInfoClass={setInfoClass}
             inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
