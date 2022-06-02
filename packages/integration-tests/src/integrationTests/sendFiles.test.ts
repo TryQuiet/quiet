@@ -79,7 +79,7 @@ describe('send message - users are online', () => {
   })
 
   test('userOne downloaded image', async () => {
-    await assertDownloadedImage('userOne', image.name, timeout, userOne.store)
+    await assertDownloadedImage('userOne', image.name + image.ext, timeout, userOne.store)
   })
 })
 
@@ -160,7 +160,7 @@ describe('send files - image is being redistributed (users going offline)', () =
 
   test('UserOne replicated and downloaded the image', async () => {
     await assertReceivedImages('userOne', 1, 360_000, userOne.store)
-    await assertDownloadedImage('userOne', image.name, 360_000, userOne.store)
+    await assertDownloadedImage('userOne', image.name + image.ext, 360_000, userOne.store)
   })
   
   test('Owner goes offline', async () => {
@@ -173,11 +173,11 @@ describe('send files - image is being redistributed (users going offline)', () =
 
   test('UserTwo replicated and downloaded the image', async () => {
     await assertReceivedImages('userTwo', 1, 360_000, userTwo.store)
-    await assertDownloadedImage('userTwo', image.name, 360_000, userTwo.store)
+    await assertDownloadedImage('userTwo', image.name + image.ext, 360_000, userTwo.store)
   })
 })
 
-describe('send files - image is being downloaded with delay (image holder goes offline))', () => {
+xdescribe('send files - image is being downloaded with delay (image holder goes offline))', () => {
   let owner: AsyncReturnType<typeof createApp>
   let userOne: AsyncReturnType<typeof createApp>
 
@@ -236,7 +236,7 @@ describe('send files - image is being downloaded with delay (image holder goes o
   })
 
   test('UserOne replicated but not yet downloaded the image', async () => {
-    await assertReceivedImages('userOne', 1, 360_000, userOne.store)
+    await assertReceivedImages('userOne', 1, timeout, userOne.store)
   })
 
   test('Owner goes offline', async () => {
@@ -244,7 +244,7 @@ describe('send files - image is being downloaded with delay (image holder goes o
   })
 
   test('UserOne wait for image holder to come online', async () => {
-    await assertNotDownloadedImage('userOne', image.name, userOne.store)
+    await assertNotDownloadedImage('userOne', image.name + image.ext, userOne.store)
   })
 
   test('Owner comes back online', async () => {
@@ -252,6 +252,6 @@ describe('send files - image is being downloaded with delay (image holder goes o
   })
 
   test('UserOne downloaded the image', async () => {
-    await assertDownloadedImage('userTwo', image.name, 360_000, userOne.store)
+    await assertDownloadedImage('userOne', image.name + image.ext, timeout, userOne.store)
   })
 })

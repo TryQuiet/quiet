@@ -134,17 +134,20 @@ export async function assertReceivedImages(
 
 export async function assertDownloadedImage(
   userName: string,
-  expectedImage: string,
+  expectedImage: string, // filename.ext
   maxTime: number = 60000,
   store: TestStore
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for downloading ${expectedImage}`)
   await waitForExpect(() => {
-    expect(
-      Object.values(
-        store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
-      ).filter(message => message.media?.path)[0]
-    ).not.toBe(null)
+    const message = Object.values(
+      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+    ).filter(message => message.media?.path)[0]
+
+    const path = message.media.path.split('/')
+    const filename = path[path.length - 1]
+
+    expect(filename).toBe(expectedImage)
   }, maxTime)
   log(
     `User ${userName} downloaded ${expectedImage}`
@@ -156,11 +159,10 @@ export async function assertNotDownloadedImage(
   expectedImage: string,
   store: TestStore
 ) {
-  expect(
-    Object.values(
-      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
-    ).filter(message => message.media?.path)[0]
-  ).toBe(undefined)
+  const message = Object.values(
+    store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+  ).find(item => `${item.media?.name}${item.media?.ext}` === expectedImage)[0]
+  expect(message?.media?.path).toBe(null)
   log(
     `User ${userName} not downloaded ${expectedImage} yet`
   )
