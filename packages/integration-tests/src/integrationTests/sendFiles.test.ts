@@ -1,7 +1,6 @@
 import { Crypto } from '@peculiar/webcrypto'
 import {
   assertDownloadedImage,
-  assertNotDownloadedImage,
   assertReceivedCertificates,
   assertReceivedChannelsAndSubscribe,
   assertReceivedImages
@@ -174,84 +173,5 @@ describe('send files - image is being redistributed (users going offline)', () =
   test('UserTwo replicated and downloaded the image', async () => {
     await assertReceivedImages('userTwo', 1, 360_000, userTwo.store)
     await assertDownloadedImage('userTwo', image.name + image.ext, 360_000, userTwo.store)
-  })
-})
-
-xdescribe('send files - image is being downloaded with delay (image holder goes offline))', () => {
-  let owner: AsyncReturnType<typeof createApp>
-  let userOne: AsyncReturnType<typeof createApp>
-
-  let ownerOldState: Partial<ReturnType<typeof owner.store.getState>>
-
-  let ownerDataPath: string
-
-  const timeout = 240_000
-
-  const image: FileContent = {
-    path: `${__dirname}/assets/test-image.jpeg`,
-    name: 'test-image',
-    ext: '.jpeg'
-  }
-
-  beforeAll(async () => {
-    owner = await createApp()
-    userOne = await createApp()
-  })
-
-  afterAll(async () => {
-    await owner.manager.closeAllServices()
-    await userOne.manager.closeAllServices()
-  })
-
-  test('Owner creates community', async () => {
-    await createCommunity({ userName: 'Owner', store: owner.store })
-  })
-
-  test('Users joins community', async () => {
-    const ownerData = getCommunityOwnerData(owner.store)
-
-    await joinCommunity({
-      ...ownerData,
-      store: userOne.store,
-      userName: 'username1',
-      expectedPeersCount: 2
-    })
-  })
-
-  test('Owner and user received certificates', async () => {
-    await assertReceivedCertificates('owner', 2, timeout, owner.store)
-    await assertReceivedCertificates('userOne', 2, timeout, userOne.store)
-  })
-
-  test('User replicated channel and subscribed to it', async () => {
-    await assertReceivedChannelsAndSubscribe('owner', 1, timeout, owner.store)
-    await assertReceivedChannelsAndSubscribe('userOne', 1, timeout, userOne.store)
-  })
-
-  test('Owner sends image', async () => {
-    await sendImage({
-      file: image,
-      store: owner.store
-    })
-  })
-
-  test('UserOne replicated but not yet downloaded the image', async () => {
-    await assertReceivedImages('userOne', 1, timeout, userOne.store)
-  })
-
-  test('Owner goes offline', async () => {
-    await owner.manager.closeAllServices()
-  })
-
-  test('UserOne wait for image holder to come online', async () => {
-    await assertNotDownloadedImage('userOne', image.name + image.ext, userOne.store)
-  })
-
-  test('Owner comes back online', async () => {
-    owner = await createApp(ownerOldState, ownerDataPath)
-  })
-
-  test('UserOne downloaded the image', async () => {
-    await assertDownloadedImage('userOne', image.name + image.ext, timeout, userOne.store)
   })
 })
