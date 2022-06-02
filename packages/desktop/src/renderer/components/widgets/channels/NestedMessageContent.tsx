@@ -1,7 +1,7 @@
 import React from 'react'
 import theme from '../../../theme'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
-import { DisplayableMessage, MessageType, SendingStatus } from '@quiet/state-manager'
+import { DisplayableMessage } from '@quiet/state-manager'
 import classNames from 'classnames'
 import UploadedFile from './UploadedFile'
 
