@@ -1,12 +1,11 @@
 import assert from 'assert'
-import { sendMessage } from '../integrationTests/appActions'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp, getRandomInt, sleep } from '../utils'
 import logger from '../logger'
 import { TestStore } from '@quiet/state-manager'
 import { LoremIpsum } from 'lorem-ipsum'
 import { program } from 'commander'
-import { registerUsername, switchChannel } from '../testUtils/actions'
+import { registerUsername, switchChannel, sendMessage } from '../testUtils/actions'
 import { waitForExpect } from '../testUtils/waitForExpect'
 import { assertReceivedChannel } from '../testUtils/assertions'
 
