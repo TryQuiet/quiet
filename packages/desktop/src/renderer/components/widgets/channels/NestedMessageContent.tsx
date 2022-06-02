@@ -45,7 +45,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ mess
         })}
         data-testid={`messagesGroupContent-${message.id}`}>
         {
-          message.type === 1 ? message.message : <UploadedFile message={message} />
+          message.type === 1 ? message.message : <UploadedFile message={message} /> // 1 stands for MessageType.Basic (cypress tests incompatibility with enums)
         }
       </Typography>
     </Grid>
