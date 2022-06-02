@@ -4,7 +4,10 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../storybook/decorators'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
-import { DisplayableMessage, SendingStatus } from '@quiet/state-manager'
+import { DisplayableMessage } from '@quiet/state-manager'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
 
 const Template: ComponentStory<typeof ChannelComponent> = args => {
   const [messages] = useState<{
@@ -334,17 +337,23 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
   })
 
   return (
-    <ChannelComponent
-      {...args}
-      messages={messages}
-    />
+    <>
+      <DndProvider backend={HTML5Backend}>
+        <ChannelComponent
+          {...args}
+          messages={messages}
+        />
+      </DndProvider>
+
+    </>
+
   )
 }
 
 export const Component = Template.bind({})
 export const Pending = Template.bind({})
 
-const args: Partial<ChannelComponentProps> = {
+const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   user: {
     id: 'id',
     nickname: 'vader',
@@ -391,7 +400,8 @@ const args: Partial<ChannelComponentProps> = {
   onInputEnter: function (_message: string): void {},
   mutedFlag: false,
   notificationFilter: '',
-  openNotificationsTab: function (): void {}
+  openNotificationsTab: function (): void {},
+  filesData: {}
 }
 
 Component.args = args

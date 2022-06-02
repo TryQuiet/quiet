@@ -65,6 +65,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   onScroll
 }) => {
   const classes = useStyles({})
+
   return (
     <div
       className={classes.scroll}

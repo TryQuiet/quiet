@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { ReactElement, useCallback } from 'react'
 import classNames from 'classnames'
 import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
 import Picker from 'emoji-picker-react'
@@ -13,10 +13,6 @@ import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import addGray from '../../../../static/images/addGray.svg'
 import addBlack from '../../../../static/images/addBlack.svg'
-import { ipcRenderer } from 'electron'
-import UploadFilesPreviewsComponent, { FilePreviewData } from '../UploadedFilesPreviews'
-import { UseModalTypeWrapper } from '../../../../containers/hooks'
-import { FileContent } from '@quiet/state-manager'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -179,16 +175,11 @@ export interface ChannelInputProps {
   inputState?: INPUT_STATE
   initialMessage?: string
   onChange: (arg: string) => void
-  onKeyPress: (input: string, files: FilePreviewData) => void
+  onKeyPress: (input: string) => void
   infoClass: string
   setInfoClass: (arg: string) => void
-  unsupportedFileModal: ReturnType<UseModalTypeWrapper<{
-    unsupportedFiles: FileContent[]
-    title: string
-    sendOtherContent: string
-    textContent: string
-    tryZipContent: string
-  }>['types']>
+  children?: ReactElement
+  openFilesDialog: () => void
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
@@ -201,15 +192,14 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   onKeyPress,
   infoClass,
   setInfoClass,
-  unsupportedFileModal
+  children,
+  openFilesDialog
 }) => {
   const classes = useStyles({})
 
   const [_anchorEl, setAnchorEl] = React.useState<HTMLDivElement>(null)
   const [mentionsToSelect, setMentionsToSelect] = React.useState([])
-  const [uploadingFiles, setUploadingFiles] = React.useState({})
   const messageRef = React.useRef<string>()
-  const filesRef = React.useRef<{}>()
   const refSelected = React.useRef<number>()
   const isFirstRenderRef = React.useRef(true)
 
@@ -219,13 +209,10 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const [focused, setFocused] = React.useState(false)
   const [selected, setSelected] = React.useState(0)
-  const [initEvent, _setInitEvent] = React.useState(true)
 
   const [emojiHovered, setEmojiHovered] = React.useState(false)
   const [fileExplorerHovered, setFileExplorerHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
-
-  const [openFileExplorer, setOpenFileExplorer] = React.useState(false)
 
   const [htmlMessage, setHtmlMessage] = React.useState<string>(initialMessage)
   const [message, setMessage] = React.useState(initialMessage)
@@ -259,24 +246,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   }, [message])
 
   React.useEffect(() => {
-    if (openFileExplorer) {
-      ipcRenderer.send('openUploadFileDialog')
-      setOpenFileExplorer(false)
-    }
-  }, [openFileExplorer])
-
-  React.useEffect(() => {
-    if (initEvent) {
-      ipcRenderer.on('openedFiles', (_e, filesData: FilePreviewData) => {
-        setUploadingFiles(existingFiles => {
-          const updatedFiles = { ...existingFiles, ...filesData }
-          return updatedFiles
-        })
-      })
-    }
-  }, [initEvent])
-
-  React.useEffect(() => {
     setMessage(initialMessage)
     setHtmlMessage(initialMessage)
     if (!isFirstRenderRef.current) {
@@ -292,10 +261,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   React.useEffect(() => {
     messageRef.current = message
   }, [message])
-
-  React.useEffect(() => {
-    filesRef.current = uploadingFiles
-  }, [uploadingFiles])
 
   const findMentions = React.useCallback(
     (text: string) => {
@@ -409,13 +374,11 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         inputStateRef.current === INPUT_STATE.AVAILABLE &&
         e.nativeEvent.keyCode === 13
       ) {
-        console.log('PRESSED ENTER:', filesRef.current)
         e.preventDefault()
         onChange(e.target.innerText)
-        onKeyPress(e.target.innerText, filesRef.current)
+        onKeyPress(e.target.innerText)
         setMessage('')
         setHtmlMessage('')
-        setUploadingFiles({})
       } else {
         if (e.nativeEvent.keyCode === 13) {
           e.preventDefault()
@@ -445,7 +408,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       className={classNames({
         [classes.root]: true,
         [classes.notAllowed]: inputState !== INPUT_STATE.AVAILABLE
-      })}>
+      })}
+    >
       <Grid
         container
         className={classNames({
@@ -514,25 +478,14 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   data-testid='messageInput'
                 />
               </Grid>
-              <UploadFilesPreviewsComponent
-                filesData={uploadingFiles}
-                unsupportedFileModal={unsupportedFileModal}
-                removeFile={(id) => setUploadingFiles(existingFiles => {
-                  delete existingFiles[id]
-                  const updatedExistingFiles = { ...existingFiles }
-                  return updatedExistingFiles
-                })}
-              />
+              {children}
               <div className={classes.icons}>
                 <Grid item className={classes.actions}>
                   <Grid container justify='center' alignItems='center'>
                     <Icon
                       className={classes.emoji}
                       src={fileExplorerHovered ? addBlack : addGray}
-                      onClickHandler={() => {
-                        setOpenFileExplorer(true)
-                        console.log('clicked')
-                      }}
+                      onClickHandler={openFilesDialog}
                       onMouseEnterHandler={() => {
                         setFileExplorerHovered(true)
                       }}
