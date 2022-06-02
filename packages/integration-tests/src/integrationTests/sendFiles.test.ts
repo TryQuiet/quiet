@@ -162,7 +162,7 @@ describe('send files - image is being redistributed (users going offline)', () =
     await assertReceivedImages('userOne', 1, 360_000, userOne.store)
     await assertDownloadedImage('userOne', image.name + image.ext, 360_000, userOne.store)
   })
-  
+
   test('Owner goes offline', async () => {
     await owner.manager.closeAllServices()
   })
