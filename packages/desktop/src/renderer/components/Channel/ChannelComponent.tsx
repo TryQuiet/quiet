@@ -153,6 +153,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     scrollBottom()
   }, [channelAddress])
 
+  console.log('render')
+
   return (
     <Page>
       <PageHeader>
