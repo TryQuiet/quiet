@@ -101,10 +101,10 @@ const Channel = () => {
       return updatedFiles
     })
   }
-  const imagesFromClipboard = (imageBuffer, ext) => {
+  const handleClipboardFiles = (imageBuffer, ext) => {
     const id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
     ipcRenderer.send('writeTempFile', {
-      fileName: `${id}.${ext}`,
+      fileName: `${id}${ext}`,
       fileBuffer: new Uint8Array(imageBuffer),
       ext: ext
     })
@@ -113,11 +113,10 @@ const Channel = () => {
   useEffect(() => {
     ipcRenderer.on('writeTempFileReply', (_event, arg) => {
       setUploadingFiles(existingFiles => {
-        console.log('existingFiles', existingFiles)
         const updatedFiles = {
           ...existingFiles,
           [arg.id]: {
-            ext: `.${arg.ext}`,
+            ext: arg.ext,
             name: arg.id,
             path: arg.path
           }
@@ -163,7 +162,7 @@ const Channel = () => {
     handleFileDrop: handleFileDrop,
     openFilesDialog: openFilesDialog,
     isCommunityInitialized: isCommunityInitialized,
-    imagesFromClipboard: imagesFromClipboard
+    handleClipboardFiles: handleClipboardFiles
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {

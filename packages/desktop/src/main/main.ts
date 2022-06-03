@@ -375,13 +375,11 @@ app.on('ready', async () => {
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
     fs.mkdirSync(temporaryFilesDirectory, { recursive: true })
     const filePath = `${path.join(temporaryFilesDirectory, arg.fileName)}`
-    const writeStream = fs.createWriteStream(filePath)
-    writeStream.write(arg.fileBuffer)
-    writeStream.end()
+    fs.writeFileSync(filePath, arg.fileBuffer)
 
     event.reply('writeTempFileReply', {
       path: filePath,
-      id: arg.fileName.split(`.${arg.ext}`)[0],
+      id: arg.fileName.split(arg.ext)[0],
       ext: arg.ext
     })
   })

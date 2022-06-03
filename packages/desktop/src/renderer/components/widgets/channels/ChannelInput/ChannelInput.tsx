@@ -17,6 +17,8 @@ import { clipboard, ipcRenderer } from 'electron'
 import UploadFilesPreviewsComponent, { FilePreviewData } from '../UploadedFilesPreviews'
 import { FileContent } from '@quiet/state-manager'
 import { UseModalTypeWrapper } from '../../../../containers/hooks'
+import { supportedFilesExtensions } from '../unsupportedFilesContent'
+import path from 'path'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -184,7 +186,14 @@ export interface ChannelInputProps {
   setInfoClass: (arg: string) => void
   children?: ReactElement
   openFilesDialog: () => void
-  imagesFromClipboard?: (arg: ArrayBuffer, ext: string) => void
+  handleClipboardFiles?: (arg: ArrayBuffer, ext: string) => void
+  unsupportedFileModal?: ReturnType<UseModalTypeWrapper<{
+    unsupportedFiles: FileContent[]
+    title: string
+    sendOtherContent: string
+    textContent: string
+    tryZipContent: string
+  }>['types']>
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
@@ -199,7 +208,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   setInfoClass,
   children,
   openFilesDialog,
-  imagesFromClipboard
+  handleClipboardFiles,
+  unsupportedFileModal
 }) => {
   const classes = useStyles({})
 
@@ -481,12 +491,12 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
                     const files = e.clipboardData.files
                     for (let i = 0; i < files.length; i++) {
-                      const fileNameSplited = files[i].name.split('.')
-                      const fileExtension = fileNameSplited[fileNameSplited.length - 1]
-                      const extensions = ['png', 'jpg', 'jpeg']
-                      if (extensions.includes(fileExtension)) {
+                      const fileExt = path.extname(files[i].name)
+                      if (supportedFilesExtensions.includes(fileExt)) {
                         const arrayBuffer = await files[i].arrayBuffer()
-                        imagesFromClipboard(arrayBuffer, fileExtension)
+                        handleClipboardFiles(arrayBuffer, fileExt)
+                      } else if (!unsupportedFileModal.open) {
+                        unsupportedFileModal.handleOpen()
                       }
                     }
 

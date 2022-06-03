@@ -51,7 +51,7 @@ export interface ChannelComponentProps {
   openFilesDialog: () => void
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
-  imagesFromClipboard?: (arg: ArrayBuffer, ext: string) => void
+  handleClipboardFiles?: (arg: ArrayBuffer, ext: string) => void
 }
 
 export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps> = ({
@@ -76,7 +76,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   isCommunityInitialized = true,
   unsupportedFileModal,
   openFilesDialog,
-  imagesFromClipboard
+  handleClipboardFiles
 }) => {
   const classes = useStyles({})
 
@@ -194,7 +194,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             infoClass={infoClass}
             setInfoClass={setInfoClass}
             inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
-            imagesFromClipboard={imagesFromClipboard}
+            handleClipboardFiles={handleClipboardFiles}
+            unsupportedFileModal={unsupportedFileModal}
           >
             <UploadFilesPreviewsComponent
               filesData={filesData}
