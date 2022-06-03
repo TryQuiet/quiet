@@ -52,9 +52,9 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
 
   const { store, runSaga } = prepareStore(mockedState)
 
-  const proxyPort = await getPort({ port: 1234 })
-  const controlPort = await getPort({ port: 5555 })
-  const httpTunnelPort = await getPort({ port: 9000 })
+  const proxyPort = await getPort()
+  const controlPort = await getPort()
+  const httpTunnelPort = await getPort()
   const appPath = createPath(createTmpDir(`quietIntegrationTest-${appName}`).name)
   const manager = new backend.ConnectionsManager({
     agentHost: 'localhost',
