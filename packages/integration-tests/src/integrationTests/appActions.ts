@@ -272,6 +272,24 @@ export async function sendMessage(
   return newMessage[0]
 }
 
+export async function sendImage(
+  payload: SendImage
+) {
+  const {
+    file,
+    store
+  } = payload
+
+  log(JSON.stringify(payload), 'sendImage')
+
+  store.dispatch(messages.actions.uploadFile(file))
+
+  // Result of an action is sending a message containing cid of uploaded image
+  await waitForExpect(() => {
+    expect(store.getState().LastAction.includes('Messages/addMessageVerificationStatus'))
+  }, 5000)
+}
+
 export const getCommunityOwnerData = (ownerStore: Store) => {
   const ownerStoreState = ownerStore.getState()
   const community =
