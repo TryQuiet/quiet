@@ -13,4 +13,4 @@ export enum unsuportedFileContent {
   sendOtherFiles = 'The other files will be sent'
 }
 
-export const supportedFilesExtensions = ['.jpg', '.jpeg', '.png']
+export const supportedFilesExtensions = ['.jpg', '.jpeg', '.png', '.gif']
