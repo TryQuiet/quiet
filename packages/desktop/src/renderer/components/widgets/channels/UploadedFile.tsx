@@ -43,10 +43,20 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
 
   return (
     <>
-      <div className={classes.container} onClick={() => { setShowImage(true) }} >
-        {path ? <img className={classes.image} src={path} /> : 'Sending file...'}
-      </div>
-      <UploadedFileModal {...modal} />
+      {path ? (
+        <>
+          <div
+            className={classes.container}
+            onClick={() => {
+              setShowImage(true)
+            }}>
+            <img className={classes.image} src={path} />
+          </div>
+          <UploadedFileModal {...modal} />
+        </>
+      ) : (
+        <div className={classes.container}>'Sending file...'</div>
+      )}
     </>
   )
 }
