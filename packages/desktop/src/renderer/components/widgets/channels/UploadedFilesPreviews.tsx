@@ -175,6 +175,7 @@ const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
   useEffect(() => {
     if (isButtonClick) {
       unsupportedFileModal.handleClose()
+      setButtonClick(false)
     }
   }, [isButtonClick])
 

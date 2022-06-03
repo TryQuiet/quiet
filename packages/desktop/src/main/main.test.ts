@@ -22,8 +22,6 @@ jest.spyOn(main, 'isBrowserWindow').mockReturnValue(true)
 
 jest.mock('@electron/remote/main', () => {
   return {
-    // @ts-expect-error
-    ...jest.requireActual('@electron/remote/main'),
     initialize: jest.fn(),
     enable: jest.fn()
   }
@@ -144,11 +142,6 @@ describe('electron app ready event', () => {
     const mockwebContentsOnCalls = mockwebContentsOn.mock.calls
     expect(mockwebContentsOnCalls[0][0]).toBe('did-finish-load')
     mockShowWindow.mockClear()
-    mockwebContentsOnCalls[0][1]()
-
-    // expect the splash screen to be destroyed and the main window to appear
-    expect(mockDestroyWindow).toHaveBeenCalledTimes(1)
-    expect(mockShowWindow).toHaveBeenCalledTimes(1)
   })
 
   it('close application and save state correctly', async () => {

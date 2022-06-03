@@ -322,6 +322,16 @@ app.on('ready', async () => {
   mainWindow.webContents.on('did-finish-load', () => {
     splash.destroy()
     mainWindow.show()
+    const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
+    fs.mkdirSync(temporaryFilesDirectory, { recursive: true })
+    fs.readdir(temporaryFilesDirectory, (err, files) => {
+      if (err) throw err
+      for (const file of files) {
+        fs.unlink(path.join(temporaryFilesDirectory, file), err => {
+          if (err) throw err
+        })
+      }
+    })
   })
 
   const forkArgvs = [
@@ -369,6 +379,19 @@ app.on('ready', async () => {
   ipcMain.on('restartApp', () => {
     app.relaunch()
     closeBackendProcess()
+  })
+
+  ipcMain.on('writeTempFile', (event, arg) => {
+    const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
+    fs.mkdirSync(temporaryFilesDirectory, { recursive: true })
+    const filePath = `${path.join(temporaryFilesDirectory, arg.fileName)}`
+    fs.writeFileSync(filePath, arg.fileBuffer)
+
+    event.reply('writeTempFileReply', {
+      path: filePath,
+      id: arg.fileName.split(arg.ext)[0],
+      ext: arg.ext
+    })
   })
 
   ipcMain.on('openUploadFileDialog', async (e) => {
