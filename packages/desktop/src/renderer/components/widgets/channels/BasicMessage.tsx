@@ -11,8 +11,6 @@ import red from '@material-ui/core/colors/red'
 
 import Jdenticon from 'react-jdenticon'
 
-// import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
-
 import { DisplayableMessage, MessageSendingStatus, SendingStatus } from '@quiet/state-manager'
 import { NestedMessageContent } from './NestedMessageContent'
 import { Dictionary } from '@reduxjs/toolkit'
@@ -87,13 +85,9 @@ export const transformToLowercase = (string: string) => {
   const hasPM = string.search('PM')
   return hasPM !== -1 ? string.replace('PM', 'pm') : string.replace('AM', 'am')
 }
-
 export interface BasicMessageProps {
   messages: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
-  // setActionsOpen: (open: boolean) => void
-  // actionsOpen: boolean
-  // allowModeration?: boolean
 }
 
 export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
@@ -101,16 +95,6 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
   pendingMessages = {}
 }) => {
   const classes = useStyles({})
-
-  // const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null)
-
-  // const handleClick: React.ComponentProps<typeof Grid>['onClick'] = event => {
-  //   if (event) {
-  //     setAnchorEl(event.currentTarget)
-  //   }
-  // }
-
-  // const handleClose = () => setAnchorEl(null)
 
   const messageDisplayData = messages[0]
 
@@ -121,10 +105,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
     <ListItem
       className={classNames({
         [classes.wrapper]: true
-        // [classes.clickable]: ['failed', 'cancelled'].includes(status),
-        // [classes.wrapperPending]: status !== 'broadcasted'
       })}
-      // onClick={() => setActionsOpen(!actionsOpen)}
       onMouseOver={() => {}}
       onMouseLeave={() => {}}>
       <ListItemText
@@ -137,11 +118,6 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
             justify='flex-start'
             alignItems='flex-start'
             wrap={'nowrap'}>
-            {/* <SendMessagePopover
-              username={message.nickname}
-              anchorEl={anchorEl}
-              handleClose={handleClose}
-            /> */}
             <Grid item className={classes.avatar}>
               <div className={classes.alignAvatar}>
                 <Jdenticon size='32' value={messageDisplayData.nickname} />
@@ -155,7 +131,6 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                   xs
                   alignItems='flex-start'
                   wrap='nowrap'
-                  // onClick={e => handleClick(e)}
                 >
                   <Grid item>
                     <Typography
@@ -173,31 +148,6 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                     </Grid>
                   )}
                 </Grid>
-                {/* {hovered && allowModeration && (
-                <ClickAwayListener
-                  onClickAway={() => {
-                    setOpen(false)
-                  }}>
-                  <Grid
-                    item
-                    className={classes.moderation}
-                    onClick={e => {
-                      setOpen(!open)
-                      setAnchorModeration(e.currentTarget)
-                    }}>
-                    <Icon src={dotsIcon} />
-
-                    <ModeratorActionsPopper
-                      address={message.sender.replyTo}
-                      name={username}
-                      open={open}
-                      anchorEl={anchorModeration}
-                      publicKey={message.pubKey}
-                      txid={message.id}
-                    />
-                  </Grid>
-                </ClickAwayListener>
-              )} */}
               </Grid>
               <Grid
                 container
