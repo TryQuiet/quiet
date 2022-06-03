@@ -1,7 +1,7 @@
 import React from 'react'
 import Grid from '@material-ui/core/Grid'
 import List from '@material-ui/core/List'
-import { useModal } from '../../../containers/hooks'
+import { useCyclingFocus, useModal } from '../../../containers/hooks'
 import { PublicChannel } from '@quiet/state-manager'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import ChannelsListItem from './ChannelsListItem'
@@ -23,6 +23,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   createChannelModal,
   joinChannelModal
 }) => {
+  const [focusedIndex] = useCyclingFocus(channels.length);
   return (
     <Grid container item xs direction='column'>
       <Grid item>
@@ -35,7 +36,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
       </Grid>
       <Grid item>
         <List disablePadding>
-          {channels.map(channel => {
+          {channels.map((channel, index) => {
             const unread = unreadChannels.some(address => address === channel.address)
             const selected = currentChannel === channel.address
             return (
@@ -43,6 +44,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
                 channel={channel}
                 unread={unread}
                 selected={selected}
+                focused={focusedIndex === index}
                 setCurrentChannel={setCurrentChannel}
                 key={channel.address}
               />
