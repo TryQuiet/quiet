@@ -13,6 +13,10 @@ import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import addGray from '../../../../static/images/addGray.svg'
 import addBlack from '../../../../static/images/addBlack.svg'
+import { clipboard, ipcRenderer } from 'electron'
+import UploadFilesPreviewsComponent, { FilePreviewData } from '../UploadedFilesPreviews'
+import { FileContent } from '@quiet/state-manager'
+import { UseModalTypeWrapper } from '../../../../containers/hooks'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -180,6 +184,16 @@ export interface ChannelInputProps {
   setInfoClass: (arg: string) => void
   children?: ReactElement
   openFilesDialog: () => void
+  filesData?: FilePreviewData
+  unsupportedFileModal?: ReturnType<UseModalTypeWrapper<{
+    unsupportedFiles: FileContent[]
+    title: string
+    sendOtherContent: string
+    textContent: string
+    tryZipContent: string
+  }>['types']>
+  removeFile?: (id: string) => void
+  setImageInClipboard?: (arg: ArrayBuffer, ext: string) => void
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
@@ -192,8 +206,11 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   onKeyPress,
   infoClass,
   setInfoClass,
-  children,
-  openFilesDialog
+  openFilesDialog,
+  filesData,
+  removeFile,
+  unsupportedFileModal,
+  setImageInClipboard
 }) => {
   const classes = useStyles({})
 
@@ -216,6 +233,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const [htmlMessage, setHtmlMessage] = React.useState<string>(initialMessage)
   const [message, setMessage] = React.useState(initialMessage)
+  // const [imageInClipboard, setImageInClipboard] = React.useState<ArrayBuffer>(null)
 
   window.onfocus = () => {
     inputRef?.current?.el.current.focus()
@@ -470,15 +488,32 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   html={sanitizedHtml}
                   onChange={onChangeCb}
                   onKeyDown={onKeyDownCb}
-                  onPaste={(e) => {
+                  onPaste={async (e) => {
                     e.preventDefault()
+
+                    const files = e.clipboardData.files
+                    for (let i = 0; i < files.length; i++) {
+                      const fileNameSplited = files[i].name.split('.')
+                      const fileExtension = fileNameSplited[fileNameSplited.length - 1]
+                      console.log(fileExtension)
+                      const extensions = ['png', 'jpg', 'jpeg']
+                      if (extensions.includes(fileExtension)) {
+                        const arrayBuffer = await files[i].arrayBuffer()
+                        setImageInClipboard(arrayBuffer, fileExtension)
+                      }
+                    }
+
                     const text = e.clipboardData.getData('text/plain')
                     document.execCommand('insertHTML', false, text)
                   }}
                   data-testid='messageInput'
                 />
               </Grid>
-              {children}
+              <UploadFilesPreviewsComponent
+                filesData={filesData}
+                removeFile={(id) => removeFile(id)}
+                unsupportedFileModal={unsupportedFileModal}
+              />
               <div className={classes.icons}>
                 <Grid item className={classes.actions}>
                   <Grid container justify='center' alignItems='center'>

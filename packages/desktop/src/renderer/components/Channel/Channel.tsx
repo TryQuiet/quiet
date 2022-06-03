@@ -38,7 +38,6 @@ const Channel = () => {
   const channelSettingsModal = useModal(ModalName.channelSettingsModal)
   const channelInfoModal = useModal(ModalName.channelInfo)
 
-  const [initEvent, _setInitEvent] = React.useState(true)
   const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
 
   const filesRef = React.useRef<FilePreviewData>()
@@ -102,14 +101,38 @@ const Channel = () => {
       return updatedFiles
     })
   }
+  const setImageInClipboard = (imageBuffer, ext) => {
+    const id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
+    ipcRenderer.send('writeTempFile', {
+      fileName: `${id}.${ext}`,
+      fileBuffer: new Uint8Array(imageBuffer),
+      ext: ext
+    })
+  }
 
   useEffect(() => {
-    if (initEvent) {
-      ipcRenderer.on('openedFiles', (e, filesData: FilePreviewData) => {
-        updateUploadingFiles(filesData)
+    ipcRenderer.on('writeTempFileReply', (_event, arg) => {
+      setUploadingFiles(existingFiles => {
+        console.log('existingFiles', existingFiles)
+        const updatedFiles = {
+          ...existingFiles,
+          [arg.id]: {
+            ext: `.${arg.ext}`,
+            name: arg.id,
+            path: arg.path
+          }
+        }
+
+        return updatedFiles
       })
-    }
-  }, [initEvent])
+    })
+  }, [])
+
+  useEffect(() => {
+    ipcRenderer.on('openedFiles', (e, filesData: FilePreviewData) => {
+      updateUploadingFiles(filesData)
+    })
+  }, [])
 
   const openFilesDialog = useCallback(() => {
     ipcRenderer.send('openUploadFileDialog')
@@ -131,7 +154,7 @@ const Channel = () => {
     },
     pendingMessages: pendingMessages,
     lazyLoading: lazyLoading,
-    onDelete: function (): void {},
+    onDelete: function (): void { },
     onInputChange: onInputChange,
     onInputEnter: onInputEnter,
     mutedFlag: false,
@@ -139,7 +162,8 @@ const Channel = () => {
     openNotificationsTab: function (): void { },
     handleFileDrop: handleFileDrop,
     openFilesDialog: openFilesDialog,
-    isCommunityInitialized: isCommunityInitialized
+    isCommunityInitialized: isCommunityInitialized,
+    setImageInClipboard: setImageInClipboard
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {
@@ -151,7 +175,7 @@ const Channel = () => {
   return (
     <>
       {currentChannelAddress && (
-        <ChannelComponent {...channelComponentProps} {...uploadFilesPreviewProps}/>
+        <ChannelComponent {...channelComponentProps} {...uploadFilesPreviewProps} />
       )}
     </>
   )
