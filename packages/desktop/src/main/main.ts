@@ -323,6 +323,7 @@ app.on('ready', async () => {
     splash.destroy()
     mainWindow.show()
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
+    fs.mkdirSync(temporaryFilesDirectory, { recursive: true })
     fs.readdir(temporaryFilesDirectory, (err, files) => {
       if (err) throw err
       for (const file of files) {
