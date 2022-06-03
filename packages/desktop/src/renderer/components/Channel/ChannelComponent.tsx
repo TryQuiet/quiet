@@ -194,11 +194,14 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             infoClass={infoClass}
             setInfoClass={setInfoClass}
             inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
-            filesData={filesData}
-            removeFile={(id) => removeFile(id)}
-            unsupportedFileModal={unsupportedFileModal}
             imagesFromClipboard={imagesFromClipboard}
-          />
+          >
+            <UploadFilesPreviewsComponent
+              filesData={filesData}
+              removeFile={(id) => removeFile(id)}
+              unsupportedFileModal={unsupportedFileModal}
+            />
+          </ChannelInputComponent>
 
         </Grid>
       </DropZoneComponent>

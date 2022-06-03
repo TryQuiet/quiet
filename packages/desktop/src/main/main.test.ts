@@ -22,8 +22,6 @@ jest.spyOn(main, 'isBrowserWindow').mockReturnValue(true)
 
 jest.mock('@electron/remote/main', () => {
   return {
-    // @ts-expect-error
-    ...jest.requireActual('@electron/remote/main'),
     initialize: jest.fn(),
     enable: jest.fn()
   }

@@ -184,15 +184,6 @@ export interface ChannelInputProps {
   setInfoClass: (arg: string) => void
   children?: ReactElement
   openFilesDialog: () => void
-  filesData?: FilePreviewData
-  unsupportedFileModal?: ReturnType<UseModalTypeWrapper<{
-    unsupportedFiles: FileContent[]
-    title: string
-    sendOtherContent: string
-    textContent: string
-    tryZipContent: string
-  }>['types']>
-  removeFile?: (id: string) => void
   imagesFromClipboard?: (arg: ArrayBuffer, ext: string) => void
 }
 
@@ -206,10 +197,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   onKeyPress,
   infoClass,
   setInfoClass,
+  children,
   openFilesDialog,
-  filesData,
-  removeFile,
-  unsupportedFileModal,
   imagesFromClipboard
 }) => {
   const classes = useStyles({})
@@ -507,11 +496,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   data-testid='messageInput'
                 />
               </Grid>
-              <UploadFilesPreviewsComponent
-                filesData={filesData}
-                removeFile={(id) => removeFile(id)}
-                unsupportedFileModal={unsupportedFileModal}
-              />
+              {children}
               <div className={classes.icons}>
                 <Grid item className={classes.actions}>
                   <Grid container justify='center' alignItems='center'>
