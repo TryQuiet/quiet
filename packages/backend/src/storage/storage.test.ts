@@ -293,7 +293,87 @@ describe('Message', () => {
   })
 })
 
-describe.only('Files', () => {
+describe('Files', () => {
+  it('uploads file', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+
+    // Uploading
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
+
+    const fileContent: FileContent = {
+      path: path.join(__dirname, '/testUtils/test-image.png'),
+      name: 'test-image',
+      ext: 'png'
+    }
+
+    await storage.uploadFile(fileContent)
+
+    expect(uploadSpy).toHaveBeenCalled()
+  })
+
+  it("throws error if file doesn't exists", async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+    // Uploading
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
+
+    const fileContent: FileContent = {
+      path: path.join(__dirname, '/testUtils/non-existent.png'),
+      name: 'test-image',
+      ext: 'png'
+    }
+
+    await expect(storage.uploadFile(fileContent)).rejects.toThrow()
+    expect(uploadSpy).not.toHaveBeenCalled()
+  })
+
+  it('downloaded file matches uploaded file', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+
+    // Uploading
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
+    const downloadSpy = jest.spyOn(storage.io, 'downloadedFile')
+
+    const fileContent: FileContent = {
+      path: path.join(__dirname, '/testUtils/test-image.png'),
+      name: 'test-image',
+      ext: 'png'
+    }
+
+    await storage.uploadFile(fileContent)
+
+    const uploadMetadata = uploadSpy.mock.calls[0][0]
+
+    await storage.downloadFile(uploadMetadata)
+
+    const downloadMetadata = downloadSpy.mock.calls[0][0]
+
+    const uploadFileBuffer = fs.readFileSync(fileContent.path)
+    const downloadFileBuffer = fs.readFileSync(downloadMetadata.path)
+
+    expect(uploadFileBuffer).toStrictEqual(downloadFileBuffer)
+  })
+
   it('is uploaded to IPFS then can be downloaded', async () => {
     storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
 

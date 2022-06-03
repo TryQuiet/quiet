@@ -1,8 +1,8 @@
-import { ErrorPayload, publicChannels, SocketActionTypes, TestStore, messages } from '@quiet/state-manager'
+import { ErrorPayload, publicChannels, SocketActionTypes, TestStore, messages, MessageType } from '@quiet/state-manager'
 import waitForExpect from 'wait-for-expect'
 import { MAIN_CHANNEL } from '../testUtils/constants'
-import logger from '../logger'
 import { sleep } from '../utils'
+import logger from '../logger'
 
 const log = logger('assertions')
 
@@ -107,6 +107,51 @@ export const assertReceivedMessagesAreValid = async (
   await waitForExpect(() => {
     expect(validMessages).toHaveLength(messages.length)
   }, maxTime)
+}
+
+export async function assertReceivedImages(
+  userName: string,
+  expectedCount: number,
+  maxTime: number = 60000,
+  store: TestStore
+) {
+  log(`User ${userName} starts waiting ${maxTime}ms for image`)
+  await waitForExpect(() => {
+    expect(
+      Object.values(
+        store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+      ).filter(message => message.type === MessageType.Image)
+    ).toHaveLength(expectedCount)
+  }, maxTime)
+  log(
+    `User ${userName} received ${
+      Object.values(
+        store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+      ).filter(message => message.type === MessageType.Image).length
+    } images`
+  )
+}
+
+export async function assertDownloadedImage(
+  userName: string,
+  expectedImage: string, // filename.ext
+  maxTime: number = 60000,
+  store: TestStore
+) {
+  log(`User ${userName} starts waiting ${maxTime}ms for downloading ${expectedImage}`)
+  await waitForExpect(() => {
+    const message = Object.values(
+      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+    ).filter(message => message.media?.path)[0]
+
+    const path = message.media.path.split('/')
+    const filename = path[path.length - 1]
+
+    expect(filename).toBe(expectedImage)
+  }, maxTime)
+  log(
+    `User ${userName} downloaded ${expectedImage}`
+  )
 }
 
 export const assertInitializedExistingCommunitiesAndRegistrars = async (
