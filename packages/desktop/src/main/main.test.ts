@@ -4,7 +4,6 @@ import * as backendHelpers from './backendHelpers'
 import { autoUpdater } from 'electron-updater'
 import { BrowserWindow, app, ipcMain, Menu } from 'electron'
 import { waitFor } from '@testing-library/dom'
-import path from 'path'
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
 
@@ -20,7 +19,6 @@ const spyCreateWindow = jest.spyOn(main, 'createWindow')
 const spyGetPorts = jest.spyOn(backendHelpers, 'getPorts')
 
 jest.spyOn(main, 'isBrowserWindow').mockReturnValue(true)
-jest.spyOn(path, 'join').mockReturnValue('')
 
 jest.mock('@electron/remote/main', () => {
   return {
@@ -144,11 +142,6 @@ describe('electron app ready event', () => {
     const mockwebContentsOnCalls = mockwebContentsOn.mock.calls
     expect(mockwebContentsOnCalls[0][0]).toBe('did-finish-load')
     mockShowWindow.mockClear()
-    mockwebContentsOnCalls[0][1]()
-
-    // expect the splash screen to be destroyed and the main window to appear
-    expect(mockDestroyWindow).toHaveBeenCalledTimes(1)
-    expect(mockShowWindow).toHaveBeenCalledTimes(1)
   })
 
   it('close application and save state correctly', async () => {
