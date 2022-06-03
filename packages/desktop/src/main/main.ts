@@ -398,6 +398,7 @@ app.on('ready', async () => {
     let filesDialogResult: Electron.OpenDialogReturnValue
     try {
       filesDialogResult = await dialog.showOpenDialog(mainWindow, {
+        title: 'Upload files to Quiet',
         properties: ['openFile', 'openFile', 'multiSelections'],
         filters: []
       })
