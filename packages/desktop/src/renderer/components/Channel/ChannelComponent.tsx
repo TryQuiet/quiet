@@ -12,13 +12,14 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 
-import { useModal, UseModalTypeWrapper } from '../../containers/hooks'
+import { useModal } from '../../containers/hooks'
 
-import { FileContent, Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
+import { Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
-import { FilePreviewData } from '../widgets/channels/UploadedFilesPreviews'
+import UploadFilesPreviewsComponent, { UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
+import { DropZoneComponent } from './DropZone/DropZoneComponent'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -42,22 +43,17 @@ export interface ChannelComponentProps {
   lazyLoading: (load: boolean) => void
   onDelete: () => void
   onInputChange: (value: string) => void
-  onInputEnter: (message: string, files: FilePreviewData) => void
+  onInputEnter: (message: string) => void
   mutedFlag: boolean
   disableSettings?: boolean
   notificationFilter: string
   openNotificationsTab: () => void
+  openFilesDialog: () => void
+  handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
-  unsupportedFileModal: ReturnType<UseModalTypeWrapper<{
-    unsupportedFiles: FileContent[]
-    title: string
-    sendOtherContent: string
-    textContent: string
-    tryZipContent: string
-  }>['types']>
 }
 
-export const ChannelComponent: React.FC<ChannelComponentProps> = ({
+export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps> = ({
   user,
   channelAddress,
   channelName,
@@ -73,8 +69,12 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   disableSettings = false,
   notificationFilter,
   openNotificationsTab,
+  removeFile,
+  handleFileDrop,
+  filesData,
   isCommunityInitialized = true,
-  unsupportedFileModal
+  unsupportedFileModal,
+  openFilesDialog
 }) => {
   const classes = useStyles({})
 
@@ -97,11 +97,11 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
     })
   }
 
-  const onEnterKeyPress = (message: string, files: FilePreviewData) => {
+  const onEnterKeyPress = (message: string) => {
     // Go back to the bottom if scroll is at the top or in the middle
     scrollBottom()
     // Send message and files
-    onInputEnter(message, files)
+    onInputEnter(message)
   }
 
   /* Get scroll position and save it to the state as 0 (top), 1 (bottom) or -1 (middle) */
@@ -167,32 +167,40 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
           openNotificationsTab={openNotificationsTab}
         />
       </PageHeader>
-      <Grid item xs className={classes.messages}>
-        <ChannelMessagesComponent
-          messages={messages.groups}
-          pendingMessages={pendingMessages}
-          scrollbarRef={scrollbarRef}
-          onScroll={onScroll}
-        />
-      </Grid>
-      <Grid item>
-        <ChannelInputComponent
-          channelAddress={channelAddress}
-          channelName={channelName}
-          // TODO https://github.com/TryQuiet/ZbayLite/issues/443
-          inputPlaceholder={`#${channelName} as @${user?.nickname}`}
-          onChange={value => {
-            onInputChange(value)
-          }}
-          onKeyPress={(message, files) => {
-            onEnterKeyPress(message, files)
-          }}
-          infoClass={infoClass}
-          setInfoClass={setInfoClass}
-          inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
-          unsupportedFileModal={unsupportedFileModal}
-        />
-      </Grid>
+      <DropZoneComponent channelName={channelName} handleFileDrop={handleFileDrop}>
+        <Grid item xs className={classes.messages}>
+          <ChannelMessagesComponent
+            messages={messages.groups}
+            pendingMessages={pendingMessages}
+            scrollbarRef={scrollbarRef}
+            onScroll={onScroll}
+          />
+        </Grid>
+        <Grid item>
+          <ChannelInputComponent
+            channelAddress={channelAddress}
+            channelName={channelName}
+            // TODO https://github.com/TryQuiet/ZbayLite/issues/443
+            inputPlaceholder={`#${channelName} as @${user?.nickname}`}
+            onChange={value => {
+              onInputChange(value)
+            }}
+            onKeyPress={(message) => {
+              onEnterKeyPress(message)
+            }}
+            openFilesDialog={openFilesDialog}
+            infoClass={infoClass}
+            setInfoClass={setInfoClass}
+            inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
+          >
+            <UploadFilesPreviewsComponent
+              filesData={filesData}
+              removeFile={(id) => removeFile(id)}
+              unsupportedFileModal={unsupportedFileModal}
+            />
+          </ChannelInputComponent>
+        </Grid>
+      </DropZoneComponent>
     </Page>
   )
 }

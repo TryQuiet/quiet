@@ -20,32 +20,36 @@ import CreateCommunity from './components/CreateJoinCommunity/CreateCommunity/Cr
 import JoinCommunity from './components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateChannel from './components/Channel/CreateChannel/CreateChannel'
 import LoadingPanel from './components/LoadingPanel/LoadingPanel'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { DndProvider } from 'react-dnd'
 import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
 
 export const persistor = persistStore(store)
 export default () => {
   return (
-    <MuiThemeProvider theme={theme}>
-      <HashRouter>
-        <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
-            <SentryWarning />
-            <ErrorModal />
-            <LoadingPanel />
-            <CreateChannel />
-            <JoinCommunity />
-            <CreateCommunity />
-            <CreateUsername />
-            <CssBaseline />
-            <JoinChannelModal />
-            <SettingsModal />
-            <UpdateModal />
-            <QuitAppDialog />
-            <Route path='/' component={Index} />
-            <Route path='/main' component={Main} />
-          </PersistGate>
-        </Provider>
-      </HashRouter>
-    </MuiThemeProvider>
+    <DndProvider backend={HTML5Backend}>
+      <MuiThemeProvider theme={theme}>
+        <HashRouter>
+          <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+              <SentryWarning />
+              <ErrorModal />
+              <LoadingPanel />
+              <CreateChannel />
+              <JoinCommunity />
+              <CreateCommunity />
+              <CreateUsername />
+              <CssBaseline />
+              <JoinChannelModal />
+              <SettingsModal />
+              <UpdateModal />
+              <QuitAppDialog />
+              <Route path='/' component={Index} />
+              <Route path='/main' component={Main} />
+            </PersistGate>
+          </Provider>
+        </HashRouter>
+      </MuiThemeProvider>
+    </DndProvider>
   )
 }

@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-
 import { identity, messages, publicChannels, connection, communities, FileContent } from '@quiet/state-manager'
 
-import ChannelComponent from './ChannelComponent'
+import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
-import { FilePreviewData } from '../widgets/channels/UploadedFilesPreviews'
+import { FilePreviewData, UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
+import { ipcRenderer } from 'electron'
+import { getFilesData } from '../../../utils/functions/fileData'
 
 const Channel = () => {
   const dispatch = useDispatch()
@@ -37,6 +38,10 @@ const Channel = () => {
   const channelSettingsModal = useModal(ModalName.channelSettingsModal)
   const channelInfoModal = useModal(ModalName.channelInfo)
 
+  const [initEvent, _setInitEvent] = React.useState(true)
+  const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
+
+  const filesRef = React.useRef<FilePreviewData>()
   const unsupportedFileModal = useModal<{
     unsupportedFiles: FileContent[]
     title: string
@@ -53,17 +58,21 @@ const Channel = () => {
   )
 
   const onInputEnter = useCallback(
-    (message: string, files: FilePreviewData) => {
+    (message: string) => {
       if (message) {
         dispatch(messages.actions.sendMessage({ message }))
       }
-      Object.values(files).forEach(fileData => {
-        console.log('Uploading file', fileData)
+      Object.values(filesRef.current).forEach(fileData => {
         dispatch(messages.actions.uploadFile(fileData))
       })
+      setUploadingFiles({})
     },
     [dispatch]
   )
+
+  React.useEffect(() => {
+    filesRef.current = uploadingFiles
+  }, [uploadingFiles])
 
   const lazyLoading = useCallback(
     (load: boolean) => {
@@ -72,34 +81,77 @@ const Channel = () => {
     [dispatch]
   )
 
+  const handleFileDrop = useCallback(
+    (item: { files: any[] }) => {
+      if (item) {
+        updateUploadingFiles(getFilesData(item.files.map((i) => i.path)))
+      }
+    },
+    []
+  )
+
+  const removeFilePreview = (id: string) => setUploadingFiles(existingFiles => {
+    delete existingFiles[id]
+    const updatedExistingFiles = { ...existingFiles }
+    return updatedExistingFiles
+  })
+
+  const updateUploadingFiles = (filesData: FilePreviewData) => {
+    setUploadingFiles(existingFiles => {
+      const updatedFiles = { ...existingFiles, ...filesData }
+      return updatedFiles
+    })
+  }
+
+  useEffect(() => {
+    if (initEvent) {
+      ipcRenderer.on('openedFiles', (e, filesData: FilePreviewData) => {
+        updateUploadingFiles(filesData)
+      })
+    }
+  }, [initEvent])
+
+  const openFilesDialog = useCallback(() => {
+    ipcRenderer.send('openUploadFileDialog')
+  }, [])
+
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelAddress])
 
+  const channelComponentProps: ChannelComponentProps = {
+    user: user,
+    channelAddress: currentChannelAddress,
+    channelName: currentChannelName,
+    channelSettingsModal: channelSettingsModal,
+    channelInfoModal: channelInfoModal,
+    messages: {
+      count: currentChannelMessagesCount,
+      groups: currentChannelDisplayableMessages
+    },
+    pendingMessages: pendingMessages,
+    lazyLoading: lazyLoading,
+    onDelete: function (): void {},
+    onInputChange: onInputChange,
+    onInputEnter: onInputEnter,
+    mutedFlag: false,
+    notificationFilter: '',
+    openNotificationsTab: function (): void { },
+    handleFileDrop: handleFileDrop,
+    openFilesDialog: openFilesDialog,
+    isCommunityInitialized: isCommunityInitialized
+  }
+
+  const uploadFilesPreviewProps: UploadFilesPreviewsProps = {
+    filesData: uploadingFiles,
+    removeFile: removeFilePreview,
+    unsupportedFileModal: unsupportedFileModal
+  }
+
   return (
     <>
       {currentChannelAddress && (
-        <ChannelComponent
-          user={user}
-          channelAddress={currentChannelAddress}
-          channelName={currentChannelName}
-          channelSettingsModal={channelSettingsModal}
-          channelInfoModal={channelInfoModal}
-          unsupportedFileModal={unsupportedFileModal}
-          messages={{
-            count: currentChannelMessagesCount,
-            groups: currentChannelDisplayableMessages
-          }}
-          pendingMessages={pendingMessages}
-          lazyLoading={lazyLoading}
-          onDelete={function (): void { }}
-          onInputChange={onInputChange}
-          onInputEnter={onInputEnter}
-          mutedFlag={false}
-          notificationFilter={''}
-          openNotificationsTab={function (): void { }}
-          isCommunityInitialized={isCommunityInitialized}
-        />
+        <ChannelComponent {...channelComponentProps} {...uploadFilesPreviewProps}/>
       )}
     </>
   )

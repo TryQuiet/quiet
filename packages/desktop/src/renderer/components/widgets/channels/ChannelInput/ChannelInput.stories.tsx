@@ -27,16 +27,7 @@ const args: ChannelInputProps = {
   },
   infoClass: '',
   setInfoClass: function (_arg: string): void {},
-  unsupportedFileModal: {
-    open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {},
-    unsupportedFiles: [],
-    title: '',
-    sendOtherContent: '',
-    textContent: '',
-    tryZipContent: ''
-  }
+  openFilesDialog: () => {}
 }
 
 const argsDisabledInput: ChannelInputProps = {
@@ -50,16 +41,7 @@ const argsDisabledInput: ChannelInputProps = {
   infoClass: '',
   setInfoClass: function (_arg: string): void {},
   inputState: INPUT_STATE.NOT_CONNECTED,
-  unsupportedFileModal: {
-    open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {},
-    unsupportedFiles: [],
-    title: '',
-    sendOtherContent: '',
-    textContent: '',
-    tryZipContent: ''
-  }
+  openFilesDialog: () => {}
 }
 
 Component.args = args

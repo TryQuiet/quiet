@@ -67,7 +67,6 @@ describe('downloadFileSaga', () => {
     const peerId = alice.peerId.id
 
     const messageId = '5'
-
     const media: FileMetadata = {
       cid: 'cid',
       path: null,

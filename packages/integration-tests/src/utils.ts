@@ -46,7 +46,7 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
    */
   const appName = (Math.random() + 1).toString(36).substring(7)
   log(`Creating test app for ${appName}`)
-  const dataServerPort1 = await getPort({ port: 4677 })
+  const dataServerPort1 = await getPort()
   const server1 = new backend.DataServer(dataServerPort1)
   await server1.listen()
 
@@ -96,15 +96,15 @@ export const createAppWithoutTor = async (mockedState?: {
    */
   const appName = (Math.random() + 1).toString(36).substring(7)
   log(`Creating test app for ${appName}`)
-  const dataServerPort1 = await getPort({ port: 4677 })
+  const dataServerPort1 = await getPort()
   const server1 = new backend.DataServer(dataServerPort1)
   await server1.listen()
 
   const { store, runSaga } = prepareStore(mockedState)
 
-  const proxyPort = await getPort({ port: 1234 })
-  const controlPort = await getPort({ port: 5555 })
-  const httpTunnelPort = await getPort({ port: 9000 })
+  const proxyPort = await getPort()
+  const controlPort = await getPort()
+  const httpTunnelPort = await getPort()
   const appPath = createPath(createTmpDir(`quietIntegrationTest-${appName}`).name)
   const manager = new backend.ConnectionsManager({
     agentHost: 'localhost',
