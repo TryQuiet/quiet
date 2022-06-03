@@ -101,6 +101,7 @@ const sendMessageWithLatency = async (username: string, store: TestStore, messag
   await sleep(userTypingTime)
   await sendMessage({
     message,
+    channelName,
     store
   })
 }
