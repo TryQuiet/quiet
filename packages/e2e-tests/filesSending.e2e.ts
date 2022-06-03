@@ -1,9 +1,7 @@
-import { createApp, actions, assertions } from 'integration-tests'
+import { createApp, actions, assertions, SendImage } from 'integration-tests'
 import { fixture, test } from 'testcafe'
 import { JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Channel } from './selectors'
 import { goToMainPage } from './utils'
-// @ts-ignore
-import path from 'path'
 
 const longTimeout = 120_000
 
@@ -13,9 +11,9 @@ fixture`Files sending test`
   .before(async ctx => {
     ctx.ownerUsername = 'alice'
     ctx.ownerImage = {
-      path: path.join(__dirname, 'assets/test-image.jpeg'),
+      path: `${__dirname}/assets/test-image.jpeg`,
       name: 'test-image',
-      ext: 'jpeg'
+      ext: '.jpeg'
     }
     ctx.joiningUserUsername = 'bob-joining'
   })
@@ -38,11 +36,11 @@ test('Users can send and receive images', async t => {
     store: communityOwner.store
   })
   await t.wait(2000) // Give the backend some time, headless tests are fast
-  await actions.sendImage({
-    // @ts-expect-error
-    image: t.fixtureCtx.ownerImage,
+  const payload: SendImage = {
+    file: t.fixtureCtx.ownerImage,
     store: communityOwner.store
-  })
+  }
+  await actions.sendImage(payload)
   const invitationCode = onionAddress.split('.')[0]
 
   // User opens app for the first time, sees spinner, waits for spinner to disappear
@@ -80,7 +78,10 @@ test('Users can send and receive images', async t => {
   await assertions.assertConnectedToPeers(communityOwner.store, 1)
 
   // Joining user sees image replicated from the owner
-  const ownerMessages = generalChannel.getUserMessages(t.fixtureCtx.ownerUsername)
+  let ownerMessages = generalChannel.getUserMessages(t.fixtureCtx.ownerUsername)
   await t.expect(ownerMessages.exists).ok({ timeout: longTimeout })
-  await t.expect(ownerMessages.textContent).contains(t.fixtureCtx.ownerImage[0].path)
+  await t.expect(ownerMessages.textContent).eql('') // Image is not yet downloaded
+  await t.wait(2000) // Wait for image to be downloaded
+  ownerMessages = generalChannel.getUserMessages(t.fixtureCtx.ownerUsername)
+  await t.expect(ownerMessages.textContent).contains(t.fixtureCtx.ownerImage.name) // Image has been successfully downloaded
 })

@@ -12,7 +12,6 @@ interface DropZoneComponentProps {
 }
 
 const useStyles = makeStyles(theme => ({
-  root: {},
   dropActiveBg: {
     position: 'relative'
   },

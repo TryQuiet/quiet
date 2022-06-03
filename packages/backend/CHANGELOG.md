@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.7.0-alpha.0 (2022-06-03)
+
+**Note:** Version bump only for package @quiet/backend
+
+
+
+
+
 ## [0.6.1-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@0.6.0-alpha.0...@quiet/backend@0.6.1-alpha.0) (2022-05-18)
 
 **Note:** Version bump only for package @quiet/backend
