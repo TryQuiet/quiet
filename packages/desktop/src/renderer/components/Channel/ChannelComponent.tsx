@@ -51,7 +51,7 @@ export interface ChannelComponentProps {
   openFilesDialog: () => void
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
-  setImageInClipboard?: (arg: ArrayBuffer, ext: string) => void
+  imagesFromClipboard?: (arg: ArrayBuffer, ext: string) => void
 }
 
 export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps> = ({
@@ -76,7 +76,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   isCommunityInitialized = true,
   unsupportedFileModal,
   openFilesDialog,
-  setImageInClipboard
+  imagesFromClipboard
 }) => {
   const classes = useStyles({})
 
@@ -197,7 +197,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             filesData={filesData}
             removeFile={(id) => removeFile(id)}
             unsupportedFileModal={unsupportedFileModal}
-            setImageInClipboard={setImageInClipboard}
+            imagesFromClipboard={imagesFromClipboard}
           />
 
         </Grid>

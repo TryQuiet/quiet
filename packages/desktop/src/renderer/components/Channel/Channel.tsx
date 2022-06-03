@@ -101,7 +101,7 @@ const Channel = () => {
       return updatedFiles
     })
   }
-  const setImageInClipboard = (imageBuffer, ext) => {
+  const imagesFromClipboard = (imageBuffer, ext) => {
     const id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
     ipcRenderer.send('writeTempFile', {
       fileName: `${id}.${ext}`,
@@ -163,7 +163,7 @@ const Channel = () => {
     handleFileDrop: handleFileDrop,
     openFilesDialog: openFilesDialog,
     isCommunityInitialized: isCommunityInitialized,
-    setImageInClipboard: setImageInClipboard
+    imagesFromClipboard: imagesFromClipboard
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {

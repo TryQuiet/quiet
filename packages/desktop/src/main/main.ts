@@ -372,15 +372,13 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('writeTempFile', (event, arg) => {
-    console.log('aaaaaaa123', arg.fileName)
-
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
     fs.mkdirSync(temporaryFilesDirectory, { recursive: true })
     const filePath = `${path.join(temporaryFilesDirectory, arg.fileName)}`
-
     const writeStream = fs.createWriteStream(filePath)
     writeStream.write(arg.fileBuffer)
     writeStream.end()
+
     event.reply('writeTempFileReply', {
       path: filePath,
       id: arg.fileName.split(`.${arg.ext}`)[0],

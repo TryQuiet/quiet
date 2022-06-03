@@ -193,7 +193,7 @@ export interface ChannelInputProps {
     tryZipContent: string
   }>['types']>
   removeFile?: (id: string) => void
-  setImageInClipboard?: (arg: ArrayBuffer, ext: string) => void
+  imagesFromClipboard?: (arg: ArrayBuffer, ext: string) => void
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
@@ -210,7 +210,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   filesData,
   removeFile,
   unsupportedFileModal,
-  setImageInClipboard
+  imagesFromClipboard
 }) => {
   const classes = useStyles({})
 
@@ -233,7 +233,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const [htmlMessage, setHtmlMessage] = React.useState<string>(initialMessage)
   const [message, setMessage] = React.useState(initialMessage)
-  // const [imageInClipboard, setImageInClipboard] = React.useState<ArrayBuffer>(null)
 
   window.onfocus = () => {
     inputRef?.current?.el.current.focus()
@@ -495,11 +494,10 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     for (let i = 0; i < files.length; i++) {
                       const fileNameSplited = files[i].name.split('.')
                       const fileExtension = fileNameSplited[fileNameSplited.length - 1]
-                      console.log(fileExtension)
                       const extensions = ['png', 'jpg', 'jpeg']
                       if (extensions.includes(fileExtension)) {
                         const arrayBuffer = await files[i].arrayBuffer()
-                        setImageInClipboard(arrayBuffer, fileExtension)
+                        imagesFromClipboard(arrayBuffer, fileExtension)
                       }
                     }
 
