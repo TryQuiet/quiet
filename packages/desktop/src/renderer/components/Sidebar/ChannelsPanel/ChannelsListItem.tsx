@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import classNames from 'classnames'
 import { Typography, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
@@ -56,6 +56,7 @@ export interface ChannelsListItemProps {
   channel: PublicChannel
   unread: boolean
   selected: boolean
+  focused: boolean
   setCurrentChannel: (name: string) => void
 }
 
@@ -63,11 +64,22 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   channel,
   unread,
   selected,
+  focused,
   setCurrentChannel
 }) => {
   const classes = useStyles({})
+
+  const ref = useRef<HTMLDivElement>()
+
+  useEffect(() => {
+    if (focused) {
+      ref.current.focus()
+    }
+  }, [focused])
+
   return (
     <ListItem
+      ref={ref}
       button
       disableGutters
       onClick={() => {
