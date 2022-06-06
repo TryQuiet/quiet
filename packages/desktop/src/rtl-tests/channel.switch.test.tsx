@@ -328,38 +328,4 @@ describe('Switch channels', () => {
       ])
     }
   })
-
-  it.only('Changing focus over channel list on key press', async () => {
-    window.HTMLElement.prototype.scrollTo = jest.fn()
-
-    renderComponent(
-      <>
-        <Sidebar />
-        <Channel />
-      </>,
-      redux.store
-    )
-
-    // Set 'general' as active channel
-    store.dispatch(publicChannels.actions.setCurrentChannel({
-      channelAddress: 'general',
-      communityId: community.id
-    }))
-
-    const memesChannelLink = screen.getByTestId('memes-link')
-    const petsChannelLink = screen.getByTestId('pets-link')
-    const travelsChannelLink = screen.getByTestId('travels-link')
-
-    userEvent.keyboard('{pageup}')
-    expect(travelsChannelLink).toHaveFocus()
-
-    userEvent.keyboard('{pageup}')
-    expect(petsChannelLink).toHaveFocus()
-
-    userEvent.keyboard('{pageup}')
-    expect(memesChannelLink).toHaveFocus()
-
-    userEvent.keyboard('{pagedown}')
-    expect(petsChannelLink).toHaveFocus()
-  })
 })
