@@ -22,7 +22,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     padding: 0
   },
   wrapper: {
-    backgroundColor: theme.palette.colors.white
+    backgroundColor: theme.palette.colors.white,
+    '&:hover': {
+      backgroundColor: theme.palette.colors.gray03
+    }
   },
   clickable: {
     cursor: 'pointer'
@@ -202,6 +205,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
               <Grid
                 container
                 direction='column'
+                style={{ marginTop: '-3px' }}
                 data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
                 {messages.map((message, index) => {
                   const pending = pendingMessages[message.id] !== undefined
