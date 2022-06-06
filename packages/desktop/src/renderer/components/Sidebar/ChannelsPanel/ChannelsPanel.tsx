@@ -23,7 +23,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   createChannelModal,
   joinChannelModal
 }) => {
-  const [focusedIndex] = useCyclingFocus(channels.length);
+  const [focusedIndex] = useCyclingFocus(channels.length)
   return (
     <Grid container item xs direction='column'>
       <Grid item>
