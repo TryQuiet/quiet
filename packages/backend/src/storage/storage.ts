@@ -35,6 +35,7 @@ import IOProxy from '../socket/IOProxy'
 import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
 import fs from 'fs'
+import sizeOf from 'image-size'
 
 const log = logger('db')
 
@@ -398,6 +399,18 @@ export class Storage {
       throw new Error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
     }
 
+    let width = null
+    let height = null
+    try {
+      const fileDimensions = sizeOf(buffer)
+      width = fileDimensions.width
+      height = fileDimensions.height
+    } catch (e) {
+      log(`Can't read ${fileContent.path} dimensions`)
+    }
+    
+    console.log(`SIZE OF ${fileContent.path}:`, width, height)
+
     // Create directory for file
     const dirname = 'uploads'
     await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })
@@ -412,7 +425,9 @@ export class Storage {
         const metadata: FileMetadata = {
           ...fileContent,
           path: fileContent.path,
-          cid: entry.cid.toString()
+          cid: entry.cid.toString(),
+          width,
+          height
         }
         this.io.uploadedFile(metadata)
         break
