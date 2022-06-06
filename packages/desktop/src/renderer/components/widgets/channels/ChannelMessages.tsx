@@ -25,7 +25,6 @@ const useStyles = makeStyles(theme => ({
   },
   list: {
     backgroundColor: theme.palette.colors.white,
-    padding: '0 4px',
     width: '100%'
   },
   link: {
