@@ -43,24 +43,30 @@ export const useCyclingFocus = (
 
   const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(
     (evt) => {
+      let focusValue = 0
       // Cycle up or down. Also start over if we're outside the list bounds.
       switch (evt.key) {
-        case 'ArrowDown':
+        case 'PageDown':
           evt.preventDefault()
-
-          setCurrentFocus(
-            currentFocus === null ? 0 : currentFocus === listSize - 1 ? 0 : currentFocus + 1
-          )
+          if (currentFocus === null) {
+            focusValue = 0
+          } else
+          if (currentFocus !== listSize - 1) {
+            focusValue = currentFocus + 1
+          }
+          setCurrentFocus(focusValue)
           break
-        case 'ArrowUp':
+        case 'PageUp':
           evt.preventDefault()
-          setCurrentFocus(
-            currentFocus === null
-              ? listSize - 1
-              : currentFocus === 0
-                ? listSize - 1
-                : currentFocus - 1
-          )
+          if (currentFocus === null) {
+            focusValue = listSize - 1
+          }
+          if (currentFocus === 0) {
+            focusValue = listSize - 1
+          } else {
+            focusValue = currentFocus - 1
+          }
+          setCurrentFocus(focusValue)
           break
       }
     },

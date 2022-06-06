@@ -350,16 +350,16 @@ describe('Switch channels', () => {
     const petsChannelLink = screen.getByTestId('pets-link')
     const travelsChannelLink = screen.getByTestId('travels-link')
 
-    userEvent.keyboard('{arrowup}')
+    userEvent.keyboard('{pageup}')
     expect(travelsChannelLink).toHaveFocus()
 
-    userEvent.keyboard('{arrowup}')
+    userEvent.keyboard('{pageup}')
     expect(petsChannelLink).toHaveFocus()
 
-    userEvent.keyboard('{arrowup}')
+    userEvent.keyboard('{pageup}')
     expect(memesChannelLink).toHaveFocus()
 
-    userEvent.keyboard('{arrowdown}')
+    userEvent.keyboard('{pagedown}')
     expect(petsChannelLink).toHaveFocus()
   })
 })
