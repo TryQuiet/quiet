@@ -19,7 +19,7 @@ import { Dictionary } from '@reduxjs/toolkit'
 
 const useStyles = makeStyles((theme: Theme) => ({
   messageCard: {
-    padding: 0
+    padding: '0 4px'
   },
   wrapper: {
     backgroundColor: theme.palette.colors.white,
