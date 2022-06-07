@@ -408,8 +408,6 @@ export class Storage {
     } catch (e) {
       log(`Can't read ${fileContent.path} dimensions`)
     }
-    
-    console.log(`SIZE OF ${fileContent.path}:`, width, height)
 
     // Create directory for file
     const dirname = 'uploads'
