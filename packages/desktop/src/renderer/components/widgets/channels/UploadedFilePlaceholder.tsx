@@ -59,3 +59,5 @@ export const UploadedFilePlaceholder: React.FC<UploadedFilePlaceholderProps> = (
     </div>
   )
 }
+
+export default UploadedFilePlaceholder
