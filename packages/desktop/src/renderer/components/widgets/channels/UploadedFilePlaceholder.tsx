@@ -6,14 +6,15 @@ import Icon from '../../ui/Icon/Icon'
 const useStyles = makeStyles<Theme>(theme => ({
   placeholderWrapper: {
     maxWidth: '400px',
-    minHeight: '60px',
     height: '100%'
   },
   placeholder: {
     display: 'flex',
     alignContent: 'center',
     justifyContent: 'flex-start',
-    alignItems: 'center'
+    alignItems: 'center',
+    minWidth: '50px',
+    minHeight: '50px'
   },
   placeholderIcon: {
     marginRight: '0.5em'
@@ -49,12 +50,13 @@ export const UploadedFilePlaceholder: React.FC<UploadedFilePlaceholderProps> = (
   fileName
 }) => {
   const classes = useStyles({})
+  const width = imageWidth >= 400 ? 400 : imageWidth
   return (
-    <div className={classes.placeholderWrapper} style={{ aspectRatio: '' + imageWidth / imageHeight }} data-testid={'imagePlaceholder'} >
+    <div className={classes.placeholderWrapper} data-testid={'imagePlaceholder'}>
       <UploadedFilename fileName={fileName}/>
-      <div className={classes.placeholder}>
+      <div className={classes.placeholder} style={{ width: width, aspectRatio: '' + imageWidth / imageHeight }} >
         <Icon src={imagePlaceholderIcon} className={classes.placeholderIcon}/>
-        <CircularProgress color='inherit' size={16} />
+        <CircularProgress color='inherit' size={16} disableShrink={true} />
       </div>
     </div>
   )

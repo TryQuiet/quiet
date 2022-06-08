@@ -22,6 +22,7 @@ describe('UploadedFilePlaceholder', () => {
             </p>
             <div
               class="makeStyles-placeholder-2"
+              style="width: 400px;"
             >
               <img
                 class="makeStyles-placeholderIcon-3"
@@ -37,7 +38,7 @@ describe('UploadedFilePlaceholder', () => {
                   viewBox="22 22 44 44"
                 >
                   <circle
-                    class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate"
+                    class="MuiCircularProgress-circle MuiCircularProgress-circleDisableShrink MuiCircularProgress-circleIndeterminate"
                     cx="44"
                     cy="44"
                     fill="none"
