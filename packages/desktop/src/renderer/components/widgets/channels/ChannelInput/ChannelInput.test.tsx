@@ -197,7 +197,6 @@ describe('ChannelInput', () => {
     `)
   })
 
-
   it('user submits corrected name', async () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
@@ -209,12 +208,13 @@ describe('ChannelInput', () => {
     const mockHandleClipboardFiles = jest.fn()
     const mockUnsupportedModalHandleOpen = jest.fn()
 
+    // preparing image data
     const base64Image = 'iVBORw0KGgoAAAANSUhEUgAAAAcAAAAICAYAAAA1BOUGAAAAAXNSR0IB2cksfwAAABVJREFUCJljVFBU+c+AAzDhkhh6kgBGDQF0RFVIuQAAAABJRU5ErkJggg=='
-    var binary_string = window.atob(base64Image);
-    var len = binary_string.length;
-    var bytes = new Uint8Array(len);
+    const binaryString = window.atob(base64Image)
+    const len = binaryString.length
+    const bytes = new Uint8Array(len)
     for (let i = 0; i < len; i++) {
-      bytes[i] = binary_string.charCodeAt(i);
+      bytes[i] = binaryString.charCodeAt(i)
     }
 
     const { store } = await prepareStore()
@@ -231,17 +231,23 @@ describe('ChannelInput', () => {
       arrayBuffer: bytes.buffer
     }
 
-    const unsupportedFileModal = {
-      handleOpen: mockUnsupportedModalHandleOpen
-    } as ReturnType<UseModalTypeWrapper<{
+    const unsupportedFileModal: ReturnType<UseModalTypeWrapper<{
       unsupportedFiles: FileContent[]
       title: string
       sendOtherContent: string
       textContent: string
       tryZipContent: string
       handleOpen: jest.Mock<any, any>
-    }>['types']>
-
+    }>['types']> = {
+      handleOpen: mockUnsupportedModalHandleOpen,
+      handleClose: jest.fn(),
+      open: false,
+      sendOtherContent: '',
+      textContent: '',
+      title: '',
+      tryZipContent: '',
+      unsupportedFiles: []
+    }
 
     renderComponent(
       <ChannelInputComponent
@@ -260,6 +266,7 @@ describe('ChannelInput', () => {
 
     const input = screen.getByPlaceholderText('Message #channel as @user')
 
+    // mock onPaste event
     const paste = createEvent.paste(input, {
       clipboardData: {
         getData: () => '',
@@ -267,22 +274,22 @@ describe('ChannelInput', () => {
           lastModified: 1654601730013,
           lastModifiedDate: 'Tue Jun 07 2022 13: 35: 30 GMT + 0200',
           name: `${fileData.name}${fileData.ext}`,
-          path: "",
+          path: '',
           size: 4135,
-          type: "image/png",
-          webkitRelativePath: "",
+          type: 'image/png',
+          webkitRelativePath: '',
           arrayBuffer: () => fileData.arrayBuffer
-        }],
-      },
-    });
+        }]
+      }
+    })
 
-    await fireEvent(input, paste);
+    await fireEvent(input, paste)
 
     expect(mockHandleClipboardFiles).toHaveBeenCalled()
     expect(mockHandleClipboardFiles).toHaveBeenCalledWith(fileData.arrayBuffer, fileData.ext, fileData.name)
 
     const filesData = {
-      [1]: {
+      1: {
         path: fileData.path,
         name: fileData.name,
         ext: fileData.ext
@@ -290,7 +297,7 @@ describe('ChannelInput', () => {
     }
 
     const filesDataWithUnsuportedFile = {
-      [1]: {
+      1: {
         path: fileData.path,
         name: fileData.name,
         ext: '.unsupported'
@@ -304,9 +311,11 @@ describe('ChannelInput', () => {
       />,
       store)
 
+    // image with data from onPaste event appear
     const image: HTMLImageElement = screen.getByAltText(fileData.name)
     expect(image.src).toBe(fileData.path)
 
+    // unsupported file modal did not appear with supported file ext
     expect(mockUnsupportedModalHandleOpen).not.toHaveBeenCalled()
 
     renderComponent(
@@ -317,7 +326,7 @@ describe('ChannelInput', () => {
       />,
       store)
 
+    // unsupported file modal appear with unsupported file ext
     expect(mockUnsupportedModalHandleOpen).toHaveBeenCalled()
   })
-
 })
