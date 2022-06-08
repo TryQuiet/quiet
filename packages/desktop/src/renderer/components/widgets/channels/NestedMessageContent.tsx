@@ -20,10 +20,9 @@ const useStyles = makeStyles(() => ({
 export interface NestedMessageContentProps {
   message: DisplayableMessage
   pending: boolean
-  index: number
 }
 
-export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ message, pending, index }) => {
+export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ message, pending }) => {
   const classes = useStyles({})
 
   return (

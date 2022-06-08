@@ -14,14 +14,12 @@ describe('NestedMessageContent', () => {
       date: 'string',
       nickname: 'bob'
     }
-    const result = renderComponent(
-      <NestedMessageContent pending={false} index={0} message={message} />
-    )
+    const result = renderComponent(<NestedMessageContent pending={false} message={message} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
-            class="MuiGrid-root makeStyles-firstMessage-2 MuiGrid-item"
+            class="MuiGrid-root MuiGrid-item"
           >
             <span
               class="MuiTypography-root makeStyles-message-1 MuiTypography-body1"
@@ -44,17 +42,15 @@ describe('NestedMessageContent', () => {
       date: 'string',
       nickname: 'bob'
     }
-    const result = renderComponent(
-      <NestedMessageContent pending={true} index={0} message={message} />
-    )
+    const result = renderComponent(<NestedMessageContent pending={true} message={message} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
-            class="MuiGrid-root makeStyles-firstMessage-139 MuiGrid-item"
+            class="MuiGrid-root MuiGrid-item"
           >
             <span
-              class="MuiTypography-root makeStyles-message-138 makeStyles-pending-141 MuiTypography-body1"
+              class="MuiTypography-root makeStyles-message-136 makeStyles-pending-137 MuiTypography-body1"
               data-testid="messagesGroupContent-string"
             >
               Hi
@@ -84,32 +80,30 @@ describe('NestedMessageContent', () => {
         channelAddress: 'general'
       }
     }
-    const result = renderComponent(
-      <NestedMessageContent pending={false} index={0} message={message} />
-    )
+    const result = renderComponent(<NestedMessageContent pending={false} message={message} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
-            class="MuiGrid-root makeStyles-firstMessage-276 MuiGrid-item"
+            class="MuiGrid-root MuiGrid-item"
           >
             <div
-              class="makeStyles-message-275"
+              class="makeStyles-message-271"
               data-testid="messagesGroupContent-string"
             >
               <div
-                class="makeStyles-container-383"
+                class="makeStyles-container-377"
               >
                 <div
-                  class="makeStyles-image-382"
+                  class="makeStyles-image-376"
                 >
                   <p
-                    class="makeStyles-fileName-387"
+                    class="makeStyles-fileName-381"
                   >
                     test.png
                   </p>
                   <img
-                    class="makeStyles-image-382"
+                    class="makeStyles-image-376"
                     src="path/to/file/test.png"
                   />
                 </div>
