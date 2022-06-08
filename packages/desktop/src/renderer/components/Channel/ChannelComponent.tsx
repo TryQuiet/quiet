@@ -51,7 +51,7 @@ export interface ChannelComponentProps {
   openFilesDialog: () => void
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
-  handleClipboardFiles?: (arg: ArrayBuffer, ext: string) => void
+  handleClipboardFiles?: (arg: ArrayBuffer, ext: string, name: string) => void
 }
 
 export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps> = ({
