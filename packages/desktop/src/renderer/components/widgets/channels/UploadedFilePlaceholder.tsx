@@ -38,8 +38,8 @@ export const UploadedFilename: React.FC<UploadedFilenameProps> = ({
 }
 
 interface UploadedFilePlaceholderProps {
-  imageWidth: number,
-  imageHeight: number,
+  imageWidth: number
+  imageHeight: number
   fileName: string
 }
 
@@ -47,10 +47,10 @@ export const UploadedFilePlaceholder: React.FC<UploadedFilePlaceholderProps> = (
   imageWidth,
   imageHeight,
   fileName
- }) => {
+}) => {
   const classes = useStyles({})
   return (
-    <div className={classes.placeholderWrapper} style={{aspectRatio: '' + imageWidth / imageHeight }} data-testid={'imagePlaceholder'} >
+    <div className={classes.placeholderWrapper} style={{ aspectRatio: '' + imageWidth / imageHeight }} data-testid={'imagePlaceholder'} >
       <UploadedFilename fileName={fileName}/>
       <div className={classes.placeholder}>
         <Icon src={imagePlaceholderIcon} className={classes.placeholderIcon}/>

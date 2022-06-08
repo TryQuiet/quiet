@@ -26,9 +26,9 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
   const [showImage, setShowImage] = useState<boolean>(false)
   const modal = useModal(ModalName.uploadedFileModal)
 
-  const {path, width, height, name, ext} = message.media
+  const { path, width, height, name, ext } = message.media
   const fullFileName = `${name}${ext}`
-  
+
   useEffect(() => {
     if (modal.open) {
       setShowImage(false)

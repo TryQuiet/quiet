@@ -73,8 +73,8 @@ describe('UploadedFile', () => {
     `)
   })
   it('renders image if image is downloaded', () => {
-    message['media']['path'] = 'path/to/file/test.png'
-    message['media']['message'] = {
+    message.media.path = 'path/to/file/test.png'
+    message.media.message = {
       id: 'string',
       channelAddress: 'general'
     }

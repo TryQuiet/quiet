@@ -34,7 +34,7 @@ describe('NestedMessageContent', () => {
       </body>
     `)
   })
-  
+
   it('renders pending message', () => {
     const message = {
       id: 'string',
