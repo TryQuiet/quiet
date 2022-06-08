@@ -322,7 +322,7 @@ describe('Files', () => {
     }))
   })
 
-  it('uploads file other than image ', async () => {
+  it('uploads file other than image', async () => {
     storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
 
     const peerId = await PeerId.create()

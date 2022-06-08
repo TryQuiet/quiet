@@ -399,14 +399,14 @@ export class Storage {
       throw new Error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
     }
 
-    let width = null
-    let height = null
+    let width: number = null
+    let height: number = null
     try {
       const fileDimensions = sizeOf(buffer)
       width = fileDimensions.width
       height = fileDimensions.height
     } catch (e) {
-      log(`Can't read ${fileContent.path} dimensions`)
+      log(`The file is not an image, couldn't read ${fileContent.path} dimensions`)
     }
 
     // Create directory for file
