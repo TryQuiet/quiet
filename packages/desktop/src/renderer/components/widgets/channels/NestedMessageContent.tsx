@@ -37,17 +37,28 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ mess
 
   return (
     <Grid item className={outerDivStyle}>
-      <Typography
-        component={'span'}
-        className={classNames({
+      {message.type === 1 // 1 stands for MessageType.Basic (cypress tests incompatibility with enums)
+        ? <Typography
+          component={'span'}
+          className={classNames({
+            [classes.message]: true,
+            [classes.pending]: pending
+          })}
+          data-testid={`messagesGroupContent-${message.id}`}>
+          {
+            message.message
+          }
+        </Typography>
+        : <div className={classNames({
           [classes.message]: true,
           [classes.pending]: pending
         })}
-        data-testid={`messagesGroupContent-${message.id}`}>
-        {
-          message.type === 1 ? message.message : <UploadedFile message={message} /> // 1 stands for MessageType.Basic (cypress tests incompatibility with enums)
-        }
-      </Typography>
+        data-testid={`messagesGroupContent-${message.id}`}
+        >
+          <UploadedFile message={message} />
+        </div>
+      }
+
     </Grid>
   )
 }

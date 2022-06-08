@@ -11,10 +11,11 @@ const useStyles = makeStyles<Theme>(theme => ({
   placeholder: {
     display: 'flex',
     alignContent: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     alignItems: 'center',
     minWidth: '50px',
-    minHeight: '50px'
+    minHeight: '50px',
+    backgroundColor: '#e0e0e0'
   },
   placeholderIcon: {
     marginRight: '0.5em'
