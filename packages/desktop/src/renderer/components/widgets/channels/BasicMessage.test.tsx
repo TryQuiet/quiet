@@ -83,9 +83,10 @@ describe('BasicMessage', () => {
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
                     data-testid="userMessages-string-string"
+                    style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root makeStyles-firstMessage-166 MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item"
                     >
                       <span
                         class="MuiTypography-root makeStyles-message-165 MuiTypography-body1"
