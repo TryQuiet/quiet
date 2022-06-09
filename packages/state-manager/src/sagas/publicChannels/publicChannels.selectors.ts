@@ -175,7 +175,7 @@ export const currentChannelMessagesMergedBySender = createSelector(
 const channelsStatus = createSelector(
   selectState,
   state => {
-    if (!state) return {}
+    if (!state || !state.channelsStatus) return {}
     return publicChannelsStatusAdapter
       .getSelectors()
       .selectEntities(state.channelsStatus)
