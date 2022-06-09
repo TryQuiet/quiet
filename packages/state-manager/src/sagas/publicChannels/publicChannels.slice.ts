@@ -18,7 +18,8 @@ import {
   SetCurrentChannelPayload,
   SubscribeToTopicPayload,
   CacheMessagesPayload,
-  MarkUnreadChannelPayload
+  MarkUnreadChannelPayload,
+  SendNewUserInfoMessagePayload
 } from './publicChannels.types'
 import { Identity } from '../identity/identity.types'
 
@@ -38,6 +39,7 @@ export const publicChannelsSlice = createSlice({
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
     createGeneralChannel: (state, _action: PayloadAction<CreateGeneralChannelPayload>) => state,
     sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
+    sendNewUserInfoMessage: (state, _action: PayloadAction<SendNewUserInfoMessagePayload>) => state,
     addPublicChannelsList: (state, action: PayloadAction<AddPublicChannelsListPayload>) => {
       const { id } = action.payload
       const communityChannels: CommunityChannels = {
