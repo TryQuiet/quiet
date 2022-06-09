@@ -5,7 +5,7 @@ import { subscribeToTopicSaga } from './subscribeToTopic/subscribeToTopic.saga'
 import { subscribeToAllTopicsSaga } from './subscribeToAllTopics/subscribeToAllTopics.saga'
 import { createChannelSaga } from './createChannel/createChannel.saga'
 import { createGeneralChannelSaga } from './createGeneralChannel/createGeneralChannel.saga'
-import { sendInitialChannelMessageSaga,  } from './createGeneralChannel/sendInitialChannelMessage.saga'
+import { sendInitialChannelMessageSaga } from './createGeneralChannel/sendInitialChannelMessage.saga'
 import { sendNewUserInfoMessageSaga } from './sendNewUserInfoMessage/sendNewUserInfoMessage.saga'
 import { clearUnreadChannelsSaga } from './markUnreadChannels/markUnreadChannels.saga'
 
@@ -38,6 +38,6 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
     ),
     takeEvery(publicChannelsActions.sendNewUserInfoMessage.type,
       sendNewUserInfoMessageSaga
-        )
+    )
   ])
 }

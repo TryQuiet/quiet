@@ -32,7 +32,7 @@ describe('sendInitialChannelMessageSaga', () => {
 
   test('send new user info message', async () => {
     const community1 = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
     user = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
@@ -63,7 +63,7 @@ describe('sendInitialChannelMessageSaga', () => {
   })
   test('dont send new user info message if not new user', async () => {
     const community1 = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
     user = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',

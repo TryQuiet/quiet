@@ -16,31 +16,30 @@ import { communitiesSelectors } from '../../communities/communities.selectors'
 import { MAIN_CHANNEL } from '../../../constants'
 
 export function* sendNewUserInfoMessageSaga(
-    action: PayloadAction<ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>['payload']>
-  ): Generator {
-    const community = yield* select(communitiesSelectors.currentCommunity)
-    const isOwner = community.CA
-  
-    if (!isOwner) return
-  
-    const certs = yield* select(usersSelectors.certificates)
-  
-    const newCerts = action.payload.certificates.filter(cert => {
-      const _cert = keyFromCertificate(parseCertificate(cert))
-      return !certs[_cert]
-    })
+  action: PayloadAction<ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>['payload']>
+): Generator {
+  const community = yield* select(communitiesSelectors.currentCommunity)
+  const isOwner = community.CA
 
-    console.log('newCerts', newCerts)
-    
-    for (const cert of newCerts) {
-      console.log('asdfasdfasdfasdfasfasfasdfasdfdsff')
-      const rootCa = loadCertificate(cert)
-      const user = yield* call(getCertFieldValue, rootCa, CertFieldsTypes.nickName)
-      const payload: WriteMessagePayload = {
-        message: `${user} Joined`,
-        channelAddress: MAIN_CHANNEL
-      }
-      yield* put(messagesActions.sendMessage(payload))
+  if (!isOwner) return
+
+  const certs = yield* select(usersSelectors.certificates)
+
+  const newCerts = action.payload.certificates.filter(cert => {
+    const _cert = keyFromCertificate(parseCertificate(cert))
+    return !certs[_cert]
+  })
+
+  console.log('newCerts', newCerts)
+
+  for (const cert of newCerts) {
+    console.log('asdfasdfasdfasdfasfasfasdfasdfdsff')
+    const rootCa = loadCertificate(cert)
+    const user = yield* call(getCertFieldValue, rootCa, CertFieldsTypes.nickName)
+    const payload: WriteMessagePayload = {
+      message: `${user} Joined`,
+      channelAddress: MAIN_CHANNEL
     }
+    yield* put(messagesActions.sendMessage(payload))
   }
-  
+}
