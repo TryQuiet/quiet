@@ -4,6 +4,7 @@ import { Grid, makeStyles, Typography } from '@material-ui/core'
 import { DisplayableMessage } from '@quiet/state-manager'
 import classNames from 'classnames'
 import UploadedFile from './UploadedFile'
+import { useModal } from '../../../containers/hooks'
 
 const useStyles = makeStyles(() => ({
   message: {
@@ -20,9 +21,10 @@ const useStyles = makeStyles(() => ({
 export interface NestedMessageContentProps {
   message: DisplayableMessage
   pending: boolean
+  uploadedFileModal?: ReturnType<typeof useModal>
 }
 
-export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ message, pending }) => {
+export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ message, pending, uploadedFileModal }) => {
   const classes = useStyles({})
 
   return (
@@ -45,7 +47,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ mess
         })}
         data-testid={`messagesGroupContent-${message.id}`}
         >
-          <UploadedFile message={message} />
+          <UploadedFile message={message} uploadedFileModal={uploadedFileModal} />
         </div>
       }
 

@@ -325,6 +325,26 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
         [
           {
             id: '32',
+            type: 2,
+            media: {
+              cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+              message: {
+                channelAddress: 'general',
+                id: 'wgtlstx3u7'
+              },
+              ext: '.png',
+              name: 'imageName',
+              path: '/download.jpeg'
+            },
+            message: '',
+            createdAt: 0,
+            date: '12:46',
+            nickname: 'vader'
+          }
+        ],
+        [
+          {
+            id: '33',
             type: 1,
             message: 'Use the force, look!',
             createdAt: 0,
@@ -383,24 +403,29 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   },
   channelSettingsModal: {
     open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
+    handleOpen: function (_args?: any): any { },
+    handleClose: function (): any { }
   },
   channelInfoModal: {
     open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
+    handleOpen: function (_args?: any): any { },
+    handleClose: function (): any { }
+  },
+  uploadedFileModal: {
+    open: false,
+    handleOpen: function (_args?: any): any { },
+    handleClose: function (): any { }
   },
   pendingMessages: {},
   channelAddress: 'general',
   channelName: 'general',
-  lazyLoading: function (_load: boolean): void {},
-  onDelete: function (): void {},
-  onInputChange: function (_value: string): void {},
-  onInputEnter: function (_message: string): void {},
+  lazyLoading: function (_load: boolean): void { },
+  onDelete: function (): void { },
+  onInputChange: function (_value: string): void { },
+  onInputEnter: function (_message: string): void { },
   mutedFlag: false,
   notificationFilter: '',
-  openNotificationsTab: function (): void {},
+  openNotificationsTab: function (): void { },
   filesData: {}
 }
 
@@ -408,8 +433,8 @@ Component.args = args
 Pending.args = {
   ...args,
   pendingMessages: {
-    32: {
-      id: '32',
+    33: {
+      id: '33',
       status: 0
     }
   }

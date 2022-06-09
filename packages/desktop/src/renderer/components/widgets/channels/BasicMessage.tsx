@@ -16,6 +16,7 @@ import Jdenticon from 'react-jdenticon'
 import { DisplayableMessage, MessageSendingStatus, SendingStatus } from '@quiet/state-manager'
 import { NestedMessageContent } from './NestedMessageContent'
 import { Dictionary } from '@reduxjs/toolkit'
+import { useModal } from '../../../containers/hooks'
 
 const useStyles = makeStyles((theme: Theme) => ({
   messageCard: {
@@ -97,11 +98,13 @@ export interface BasicMessageProps {
   // setActionsOpen: (open: boolean) => void
   // actionsOpen: boolean
   // allowModeration?: boolean
+  uploadedFileModal?: ReturnType<typeof useModal>
 }
 
 export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
   messages,
-  pendingMessages = {}
+  pendingMessages = {},
+  uploadedFileModal
 }) => {
   const classes = useStyles({})
 
@@ -128,8 +131,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
         // [classes.wrapperPending]: status !== 'broadcasted'
       })}
       // onClick={() => setActionsOpen(!actionsOpen)}
-      onMouseOver={() => {}}
-      onMouseLeave={() => {}}>
+      onMouseOver={() => { }}
+      onMouseLeave={() => { }}>
       <ListItemText
         disableTypography
         className={classes.messageCard}
@@ -158,7 +161,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                   xs
                   alignItems='flex-start'
                   wrap='nowrap'
-                  // onClick={e => handleClick(e)}
+                // onClick={e => handleClick(e)}
                 >
                   <Grid item>
                     <Typography
@@ -214,6 +217,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                       message={message}
                       pending={pending}
                       key={index}
+                      uploadedFileModal={uploadedFileModal}
                     />
                   )
                 })}

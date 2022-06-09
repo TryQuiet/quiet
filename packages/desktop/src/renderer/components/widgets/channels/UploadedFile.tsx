@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core'
 import { DisplayableMessage } from '@quiet/state-manager'
 import { useModal } from '../../../containers/hooks'
-import { ModalName } from '../../../sagas/modals/modals.types'
 import UploadedFileModal from './UploadedFileModal'
 import { UploadedFilename, UploadedFilePlaceholder } from './UploadedFilePlaceholder'
 
@@ -18,26 +17,25 @@ const useStyles = makeStyles(() => ({
 
 export interface UploadedFileProps {
   message: DisplayableMessage
+  uploadedFileModal?: ReturnType<typeof useModal>
 }
 
-export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
+export const UploadedFile: React.FC<UploadedFileProps> = ({ message, uploadedFileModal }) => {
   const classes = useStyles({})
 
   const [showImage, setShowImage] = useState<boolean>(false)
-  const modal = useModal(ModalName.uploadedFileModal)
-
   const { path, width, height, name, ext } = message.media
   const fullFileName = `${name}${ext}`
 
   useEffect(() => {
-    if (modal.open) {
+    if (uploadedFileModal.open) {
       setShowImage(false)
     }
-  }, [modal.open])
+  }, [uploadedFileModal.open])
 
   useEffect(() => {
     if (showImage) {
-      modal.handleOpen({
+      uploadedFileModal.handleOpen({
         src: path
       })
     }
@@ -53,14 +51,14 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
               setShowImage(true)
             }}>
             <div className={classes.image}>
-              <UploadedFilename fileName={fullFileName}/>
+              <UploadedFilename fileName={fullFileName} />
               <img className={classes.image} src={path} />
             </div>
           </div>
-          <UploadedFileModal {...modal} />
+          <UploadedFileModal {...uploadedFileModal} uploadedFileModal={uploadedFileModal} />
         </>
       ) : (
-        <UploadedFilePlaceholder imageWidth={width} imageHeight={height} fileName={fullFileName}/>
+        <UploadedFilePlaceholder imageWidth={width} imageHeight={height} fileName={fullFileName} />
       )}
     </>
   )

@@ -37,6 +37,7 @@ const Channel = () => {
 
   const channelSettingsModal = useModal(ModalName.channelSettingsModal)
   const channelInfoModal = useModal(ModalName.channelInfo)
+  const uploadedFileModal = useModal<{ src: string }>(ModalName.uploadedFileModal)
 
   const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
 
@@ -162,7 +163,8 @@ const Channel = () => {
     handleFileDrop: handleFileDrop,
     openFilesDialog: openFilesDialog,
     isCommunityInitialized: isCommunityInitialized,
-    handleClipboardFiles: handleClipboardFiles
+    handleClipboardFiles: handleClipboardFiles,
+    uploadedFileModal: uploadedFileModal
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {

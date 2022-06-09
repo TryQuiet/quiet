@@ -52,6 +52,7 @@ export interface ChannelComponentProps {
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
   handleClipboardFiles?: (arg: ArrayBuffer, ext: string) => void
+  uploadedFileModal?: ReturnType<typeof useModal>
 }
 
 export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps> = ({
@@ -76,7 +77,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   isCommunityInitialized = true,
   unsupportedFileModal,
   openFilesDialog,
-  handleClipboardFiles
+  handleClipboardFiles,
+  uploadedFileModal
 }) => {
   const classes = useStyles({})
 
@@ -176,6 +178,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             pendingMessages={pendingMessages}
             scrollbarRef={scrollbarRef}
             onScroll={onScroll}
+            uploadedFileModal={uploadedFileModal}
           />
         </Grid>
         <Grid item>
