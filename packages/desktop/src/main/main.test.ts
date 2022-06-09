@@ -35,12 +35,6 @@ jest.mock('electron-localshortcut', () => {
   }
 })
 
-// jest.mock('path', () => {
-//   return {
-//     join: jest.fn()
-//   }
-// })
-
 jest.mock('child_process', () => {
   return {
     // @ts-expect-error
