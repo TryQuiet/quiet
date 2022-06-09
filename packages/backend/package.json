@@ -98,6 +98,7 @@
 		"get-port": "^5.1.1",
 		"http-server": "^0.12.3",
 		"https-proxy-agent": "^5.0.0",
+		"image-size": "^1.0.1",
 		"ipfs": "^0.60.2",
 		"ipfs-log": "5.4.1",
 		"it-pipe": "^1.1.0",

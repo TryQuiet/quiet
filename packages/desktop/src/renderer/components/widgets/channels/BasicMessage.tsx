@@ -213,7 +213,6 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                     <NestedMessageContent
                       message={message}
                       pending={pending}
-                      index={index}
                       key={index}
                     />
                   )

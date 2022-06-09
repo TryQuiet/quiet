@@ -310,12 +310,44 @@ describe('Files', () => {
     const fileContent: FileContent = {
       path: path.join(__dirname, '/testUtils/test-image.png'),
       name: 'test-image',
-      ext: 'png'
+      ext: '.png'
     }
 
     await storage.uploadFile(fileContent)
-
     expect(uploadSpy).toHaveBeenCalled()
+    expect(uploadSpy).toBeCalledWith(expect.objectContaining({
+      ...fileContent,
+      width: 824,
+      height: 44
+    }))
+  })
+
+  it('uploads file other than image', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+
+    // Uploading
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
+
+    const fileContent: FileContent = {
+      path: path.join(__dirname, '/testUtils/test.txt'),
+      name: 'test-image',
+      ext: '.png'
+    }
+
+    await storage.uploadFile(fileContent)
+    expect(uploadSpy).toHaveBeenCalled()
+    expect(uploadSpy).toBeCalledWith(expect.objectContaining({
+      ...fileContent,
+      width: null,
+      height: null
+    }))
   })
 
   it("throws error if file doesn't exists", async () => {
@@ -333,7 +365,7 @@ describe('Files', () => {
     const fileContent: FileContent = {
       path: path.join(__dirname, '/testUtils/non-existent.png'),
       name: 'test-image',
-      ext: 'png'
+      ext: '.png'
     }
 
     await expect(storage.uploadFile(fileContent)).rejects.toThrow()
@@ -357,7 +389,7 @@ describe('Files', () => {
     const fileContent: FileContent = {
       path: path.join(__dirname, '/testUtils/test-image.png'),
       name: 'test-image',
-      ext: 'png'
+      ext: '.png'
     }
 
     await storage.uploadFile(fileContent)
@@ -390,7 +422,7 @@ describe('Files', () => {
     const fileContent: FileContent = {
       path: path.join(__dirname, '/testUtils/test-image.png'),
       name: 'test-image',
-      ext: 'png'
+      ext: '.png'
     }
 
     await storage.uploadFile(fileContent)
