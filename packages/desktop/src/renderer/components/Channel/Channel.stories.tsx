@@ -332,9 +332,9 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
                 channelAddress: 'general',
                 id: 'wgtlstx3u7'
               },
-              ext: '.png',
-              name: 'imageName',
-              path: '/download.jpeg'
+              ext: '.jpeg',
+              name: 'butterfly',
+              path: '/butterfly.jpeg'
             },
             message: '',
             createdAt: 0,
