@@ -13,6 +13,8 @@ const messageSchema = joi.object({
     name: joi.string().required(),
     ext: joi.string().required(),
     cid: joi.string().required(),
+    width: joi.number().allow(null),
+    height: joi.number().allow(null),
     message: joi.object({
       id: joi.string().required(),
       channelAddress: joi.string().required()
