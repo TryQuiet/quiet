@@ -30,10 +30,7 @@ export function* sendNewUserInfoMessageSaga(
     return !certs[_cert]
   })
 
-  console.log('newCerts', newCerts)
-
   for (const cert of newCerts) {
-    console.log('asdfasdfasdfasdfasfasfasdfasdfdsff')
     const rootCa = loadCertificate(cert)
     const user = yield* call(getCertFieldValue, rootCa, CertFieldsTypes.nickName)
     const payload: WriteMessagePayload = {

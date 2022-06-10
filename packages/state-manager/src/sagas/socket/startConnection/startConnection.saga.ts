@@ -122,7 +122,6 @@ export function subscribe(socket: Socket) {
     })
     // Certificates
     socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
-      console.log('RESPONSE_GET_CERTIFICATES')
       emit(publicChannelsActions.sendNewUserInfoMessage({
         certificates: payload.certificates
       }))
@@ -134,7 +133,6 @@ export function subscribe(socket: Socket) {
         communityId: string
         payload: { peers: string[]; certificate: string; rootCa: string }
       }) => {
-        console.log('SEND_USER_CERTIFICATE')
         emit(
           communitiesActions.storePeerList({
             communityId: payload.communityId,
@@ -162,7 +160,6 @@ export function subscribe(socket: Socket) {
         communityId: string
         network: { certificate: string; peers: string[] }
       }) => {
-        console.log('SAVED_OWNER_CERTIFICATE')
         emit(
           communitiesActions.storePeerList({
             communityId: payload.communityId,
