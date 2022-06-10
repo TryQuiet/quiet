@@ -9,6 +9,7 @@ import {
   messageVerificationStatusAdapter,
   publicChannelsMessagesBaseAdapter
 } from './messages.adapter.ts'
+import { MessageType } from './messages.types'
 
 const messagesSlice: CreatedSelectors[StoreKeys.Messages] = (state: StoreState) =>
   state[StoreKeys.Messages]
@@ -89,6 +90,16 @@ export const missingChannelMessages = (ids: string[], channelAddress: string) =>
       .getSelectors()
       .selectIds(base[channelAddress].messages)
     return ids.filter(id => !channelMessages.includes(id))
+  })
+
+export const missingChannelFiles = (channelAddress: string) =>
+  createSelector(publicChannelsMessagesBase, base => {
+    const channelMessages = channelMessagesAdapter
+      .getSelectors()
+      .selectAll(base[channelAddress].messages)
+    return channelMessages
+      .filter(message => message.type === MessageType.Image && message.media?.path === null)
+      .map(message => message.media)
   })
 
 export const messagesSelectors = {

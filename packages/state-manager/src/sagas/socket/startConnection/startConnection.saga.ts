@@ -19,6 +19,7 @@ import { FileMetadata } from '../../files/files.types'
 import { identityMasterSaga } from '../../identity/identity.master.saga'
 import { identityActions } from '../../identity/identity.slice'
 import { messagesMasterSaga } from '../../messages/messages.master.saga'
+import { filesMasterSaga } from '../../files/files.master.saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { ChannelMessagesIdsResponse } from '../../messages/messages.types'
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga'
@@ -181,6 +182,7 @@ export function* useIO(socket: Socket): Generator {
     fork(handleActions, socket),
     fork(publicChannelsMasterSaga, socket),
     fork(messagesMasterSaga, socket),
+    fork(filesMasterSaga, socket),
     fork(identityMasterSaga, socket),
     fork(communitiesMasterSaga, socket),
     fork(appMasterSaga, socket),
