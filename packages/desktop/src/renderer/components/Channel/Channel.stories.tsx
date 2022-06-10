@@ -364,14 +364,13 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
           messages={messages}
         />
       </DndProvider>
-
     </>
-
   )
 }
 
 export const Component = Template.bind({})
 export const Pending = Template.bind({})
+export const ImagesPreview = Template.bind({})
 
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   user: {
@@ -416,6 +415,16 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     handleOpen: function (_args?: any): any { },
     handleClose: function (): any { }
   },
+  unsupportedFileModal: {
+    open: false,
+    handleOpen: function (_args?: any): any { },
+    handleClose: function (): any { },
+    sendOtherContent: '',
+    textContent: '',
+    title: '',
+    tryZipContent: '',
+    unsupportedFiles: []
+  },
   pendingMessages: {},
   channelAddress: 'general',
   channelName: 'general',
@@ -436,6 +445,16 @@ Pending.args = {
     33: {
       id: '33',
       status: 0
+    }
+  }
+}
+ImagesPreview.args = {
+  ...args,
+  filesData: {
+    id93434: {
+      path: '/butterfly.jpeg',
+      ext: '.jpeg',
+      name: 'butterfly'
     }
   }
 }

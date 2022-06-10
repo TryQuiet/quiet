@@ -499,9 +499,10 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                         unsupportedFileModal.handleOpen()
                       }
                     }
-
-                    const text = e.clipboardData.getData('text/plain')
-                    document.execCommand('insertHTML', false, text)
+                    if (!files.length) {
+                      const text = e.clipboardData.getData('text/plain')
+                      document.execCommand('insertHTML', false, text)
+                    }
                   }}
                   data-testid='messageInput'
                 />
