@@ -101,8 +101,14 @@ const Channel = () => {
       return updatedFiles
     })
   }
-  const handleClipboardFiles = (imageBuffer, ext) => {
-    const id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
+  const handleClipboardFiles = (imageBuffer, ext, name) => {
+    let id: string
+    // create id for images in clipboard with default name 'image.png'
+    if (name === 'image') {
+      id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
+    } else {
+      id = name
+    }
     ipcRenderer.send('writeTempFile', {
       fileName: `${id}${ext}`,
       fileBuffer: new Uint8Array(imageBuffer),

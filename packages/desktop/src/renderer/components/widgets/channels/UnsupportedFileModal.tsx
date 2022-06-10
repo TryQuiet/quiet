@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import Modal from '../../ui/Modal/Modal'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 import { FileContent } from 'packages/state-manager/lib'
+import { unsuportedFileContent } from './unsupportedFilesContent'
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -101,7 +102,7 @@ const UnsupportedFileModalComponent: React.FC<unsupportedFileModalProps> = ({
 
           : <div className={classes.root}>
             <div className={classes.modalText}>
-              Sorry, but some of the files you added are not supported yet. For now, Quiet only supports images under 10MB in size.
+              {unsuportedFileContent.currentUnsupportedModalContent}
             </div>
             <div className={classes.button}>
               <LoadingButton onClick={onButtonClick} text={' OK '} />
