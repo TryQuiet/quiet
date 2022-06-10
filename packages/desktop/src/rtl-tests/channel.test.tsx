@@ -23,7 +23,8 @@ import {
   MessageType,
   connection,
   FileMetadata,
-  DownloadFilePayload
+  DownloadFilePayload,
+  InitCommunityPayload
 } from '@quiet/state-manager'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -651,6 +652,13 @@ describe('Channel', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+        if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+          const data = input as socketEventData<[InitCommunityPayload]>
+          const payload = data[0]
+          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+            id: payload.id
+          })
+        }
         if (action === SocketActionTypes.DOWNLOAD_FILE) {
           const data = input as socketEventData<[DownloadFilePayload]>
           const payload = data[0]

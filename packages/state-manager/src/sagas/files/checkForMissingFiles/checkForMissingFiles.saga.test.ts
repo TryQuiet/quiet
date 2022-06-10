@@ -8,6 +8,7 @@ import { FileMetadata } from '../files.types'
 import { checkForMissingFilesSaga } from './checkForMissingFiles.saga'
 import { Socket } from 'socket.io-client'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
+import { connectionActions } from '../../appConnection/connection.slice'
 
 describe('checkForMissingFilesSaga', () => {
   beforeAll(async () => {
@@ -60,10 +61,14 @@ describe('checkForMissingFilesSaga', () => {
 
     const store = (await prepareStore(initialState.getState())).store
 
-    const socket = jest.fn() as unknown as Socket
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
     const reducer = combineReducers(reducers)
-    await expectSaga(checkForMissingFilesSaga, socket)
+    await expectSaga(
+      checkForMissingFilesSaga,
+      socket,
+      connectionActions.addInitializedCommunity(community.id)
+    )
       .withReducer(reducer)
       .withState(store.getState())
       .apply(socket, socket.emit, [
