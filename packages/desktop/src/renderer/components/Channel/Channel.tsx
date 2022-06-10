@@ -103,6 +103,7 @@ const Channel = () => {
   }
   const handleClipboardFiles = (imageBuffer, ext, name) => {
     let id: string
+    // create id for images in clipboard with default name 'image.png'
     if (name === 'image') {
       id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
     } else {

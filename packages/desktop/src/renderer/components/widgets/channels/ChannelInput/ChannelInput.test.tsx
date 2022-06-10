@@ -224,11 +224,15 @@ describe('ChannelInput', () => {
       { nickname: 'alice' }
     )
 
-    const fileData = {
+    const fileContent: FileContent = {
       path: `data:image/jpeg;base64,${base64Image}`,
       name: 'imageName',
-      ext: '.png',
-      arrayBuffer: bytes.buffer
+      ext: '.png'
+    }
+
+    const fileData = {
+      ...fileContent,
+      arrayBuffer: bytes.buffer // need for test
     }
 
     const unsupportedFileModal: ReturnType<UseModalTypeWrapper<{
@@ -237,16 +241,15 @@ describe('ChannelInput', () => {
       sendOtherContent: string
       textContent: string
       tryZipContent: string
-      handleOpen: jest.Mock<any, any>
     }>['types']> = {
+      open: false,
       handleOpen: mockUnsupportedModalHandleOpen,
       handleClose: jest.fn(),
-      open: false,
+      unsupportedFiles: [],
+      title: '',
       sendOtherContent: '',
       textContent: '',
-      title: '',
-      tryZipContent: '',
-      unsupportedFiles: []
+      tryZipContent: ''
     }
 
     renderComponent(
