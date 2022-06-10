@@ -43,6 +43,7 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof messagesActions.addPublicChannelsMessagesBase>
   | ReturnType<typeof publicChannelsActions.addChannel>
   | ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>
+  | ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>
   | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
   | ReturnType<typeof publicChannelsActions.createGeneralChannel>
   | ReturnType<typeof usersActions.responseSendCertificates>
@@ -59,20 +60,22 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof messagesActions.downloadedFile>
   | ReturnType<typeof messagesActions.uploadedFile>
   >((emit) => {
+    // Misc
     socket.on(SocketActionTypes.CONNECTED_PEERS, (payload: { connectedPeers: ConnectedPeers }) => {
       emit(connectionActions.addConnectedPeers(payload.connectedPeers))
     })
+    // Files
     socket.on(SocketActionTypes.DOWNLOADED_FILE, (payload: FileMetadata) => {
       emit(messagesActions.downloadedFile(payload))
     })
     socket.on(SocketActionTypes.UPLOADED_FILE, (payload: FileMetadata) => {
       emit(messagesActions.uploadedFile(payload))
     })
+    // Channels
     socket.on(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, (payload: GetPublicChannelsResponse) => {
       emit(publicChannelsActions.responseGetPublicChannels(payload))
       emit(publicChannelsActions.subscribeToAllTopics())
-    }
-    )
+    })
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       emit(messagesActions.addPublicChannelsMessagesBase({
         channelAddress: payload.channel.address
@@ -83,6 +86,7 @@ export function subscribe(socket: Socket) {
         channelAddress: payload.channel.address
       }))
     })
+    // Messages
     socket.on(SocketActionTypes.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
       emit(messagesActions.responseSendMessagesIds(payload))
     })
@@ -93,9 +97,7 @@ export function subscribe(socket: Socket) {
       }
       emit(messagesActions.incomingMessages(payload))
     })
-    socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
-      emit(usersActions.responseSendCertificates(payload))
-    })
+    // Community
     socket.on(SocketActionTypes.NEW_COMMUNITY, (payload: ResponseCreateCommunityPayload) => {
       emit(identityActions.saveOwnerCertToDb())
       emit(publicChannelsActions.createGeneralChannel({ communityId: payload.id }))
@@ -113,9 +115,17 @@ export function subscribe(socket: Socket) {
       emit(communitiesActions.launchRegistrar(payload.id))
       emit(connectionActions.addInitializedCommunity(payload.id))
     })
+    // Errors
     socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {
       log(payload)
       emit(errorsActions.handleError(payload))
+    })
+    // Certificates
+    socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
+      emit(publicChannelsActions.sendNewUserInfoMessage({
+        certificates: payload.certificates
+      }))
+      emit(usersActions.responseSendCertificates(payload))
     })
     socket.on(
       SocketActionTypes.SEND_USER_CERTIFICATE,

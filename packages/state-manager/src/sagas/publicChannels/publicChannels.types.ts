@@ -98,6 +98,9 @@ export interface SendInitialChannelMessagePayload {
   channelName: string
   channelAddress: string
 }
+export interface SendNewUserInfoMessagePayload {
+  certificates: string[]
+}
 
 export interface IncomingMessages {
   messages: ChannelMessage[]
