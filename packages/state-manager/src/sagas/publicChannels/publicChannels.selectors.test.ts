@@ -7,7 +7,8 @@ import {
   publicChannels as getPublicChannels,
   currentChannelMessagesMergedBySender,
   sortedCurrentChannelMessages,
-  displayableCurrentChannelMessages
+  displayableCurrentChannelMessages,
+  publicChannelsSelectors
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
 import { DisplayableMessage, ChannelMessage } from './publicChannels.types'
@@ -316,8 +317,47 @@ describe('publicChannelsSelectors', () => {
     const messages = displayableCurrentChannelMessages(store.getState())
 
     expect(messages.length).toBe(0)
-  }
-  )
+  })
+
+
+  it('unreadChannels return empty object if PublicChannels is in the wrong state (no channelStatus)', async () => {
+    // This case occurred in a built app
+    const store = prepareStore().store
+    const factory = await getFactory(store)
+    await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+
+    const oldState = store.getState()
+    const channelId = oldState.PublicChannels.channels.ids[0]
+    let newState = {
+      ...oldState,
+      PublicChannels: {
+        ...oldState.PublicChannels,
+        channels: {
+          ids: oldState.PublicChannels.channels.ids,
+          entities: {
+            [channelId]: {
+              ...oldState.PublicChannels.channels.entities[channelId],
+              channelsStatus: undefined
+            }
+          }
+        }
+      }
+    }
+    const unreadChannels = publicChannelsSelectors.unreadChannels(newState)
+    expect(unreadChannels).toEqual([])
+  })
+
+  it('unreadChannels selector returns only unread channels', async () => {
+    store.dispatch(publicChannelsActions.markUnreadChannel({
+      channelAddress: 'allergies',
+      communityId: community.id
+    }))
+    const unreadChannels = publicChannelsSelectors.unreadChannels(store.getState())
+    expect(unreadChannels).toEqual(['allergies'])
+  })
+
 })
 
 export {}
