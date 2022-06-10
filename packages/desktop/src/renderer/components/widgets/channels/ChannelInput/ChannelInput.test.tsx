@@ -197,7 +197,7 @@ describe('ChannelInput', () => {
     `)
   })
 
-  it('user submits corrected name', async () => {
+  it('user can copy/paste images to message input', async () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
