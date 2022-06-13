@@ -84,18 +84,19 @@ describe('UploadedFile', () => {
       <body>
         <div>
           <div
-            class="makeStyles-container-2"
+            class="makeStyles-container-20"
           >
             <div
-              class="makeStyles-image-1"
+              class="makeStyles-image-19"
+              data-testid="abcd1234-imageVisual"
             >
               <p
-                class="makeStyles-fileName-6"
+                class="makeStyles-fileName-24"
               >
                 test.png
               </p>
               <img
-                class="makeStyles-image-1"
+                class="makeStyles-image-19"
                 src="path/to/file/test.png"
               />
             </div>
