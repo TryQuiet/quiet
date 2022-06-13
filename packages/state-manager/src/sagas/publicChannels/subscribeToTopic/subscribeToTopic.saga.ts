@@ -4,7 +4,6 @@ import { communitiesSelectors } from '../../communities/communities.selectors'
 import { apply, put, select } from 'typed-redux-saga'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { publicChannelsActions } from '../publicChannels.slice'
-import { PublicChannel } from '../publicChannels.types'
 import { messagesActions } from '../../messages/messages.slice'
 
 export function* subscribeToTopicSaga(

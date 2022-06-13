@@ -33,7 +33,7 @@ describe('UploadedFile', () => {
         <div>
           <div
             class="makeStyles-placeholderWrapper-3"
-            data-testid="imagePlaceholder"
+            data-testid="abcd1234-imagePlaceholder"
           >
             <p
               class="makeStyles-fileName-6"
@@ -88,6 +88,7 @@ describe('UploadedFile', () => {
           >
             <div
               class="makeStyles-image-19"
+              data-testid="abcd1234-imageVisual"
             >
               <p
                 class="makeStyles-fileName-24"

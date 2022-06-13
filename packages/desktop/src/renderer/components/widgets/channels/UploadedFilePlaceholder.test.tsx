@@ -6,14 +6,19 @@ import UploadedFilePlaceholder from './UploadedFilePlaceholder'
 describe('UploadedFilePlaceholder', () => {
   it('renders placeholder', () => {
     const result = renderComponent(
-      <UploadedFilePlaceholder fileName={'test.png'} imageHeight={1000} imageWidth={5000} />
+      <UploadedFilePlaceholder
+        cid={'hvb45FGa'}
+        fileName={'test.png'}
+        imageHeight={1000}
+        imageWidth={5000}
+      />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
             class="makeStyles-placeholderWrapper-1"
-            data-testid="imagePlaceholder"
+            data-testid="hvb45FGa-imagePlaceholder"
           >
             <p
               class="makeStyles-fileName-4"

@@ -32,7 +32,7 @@ const selectState = createSelector(
   }
 )
 
-const selectChannels = createSelector(selectState, (state) => {
+export const selectChannels = createSelector(selectState, (state) => {
   if (!state) return []
   return publicChannelsAdapter.getSelectors().selectAll(state.channels)
 })
