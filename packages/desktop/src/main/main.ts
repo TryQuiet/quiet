@@ -52,7 +52,7 @@ const windowSize: IWindowSize = {
   width: 800,
   height: 540
 }
-
+ 
 setEngine(
   'newEngine',
   // @ts-ignore
