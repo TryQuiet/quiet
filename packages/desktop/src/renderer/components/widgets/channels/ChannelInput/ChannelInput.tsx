@@ -194,6 +194,7 @@ export interface ChannelInputProps {
     textContent: string
     tryZipContent: string
   }>['types']>
+  handleOpenFiles?: (arg) => void
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
@@ -209,7 +210,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   children,
   openFilesDialog,
   handleClipboardFiles,
-  unsupportedFileModal
+  unsupportedFileModal,
+  handleOpenFiles
 }) => {
   const classes = useStyles({})
 
@@ -418,7 +420,11 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       setSelected
     ]
   )
-
+  const handleFileInput = (e) => {
+    console.log(Object.values(e.target.files))
+    handleOpenFiles({files: Object.values(e.target.files)})
+  }
+  const fileInput = React.useRef(null)
   return (
     <Grid
       className={classNames({
@@ -514,7 +520,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     <Icon
                       className={classes.emoji}
                       src={fileExplorerHovered ? addBlack : addGray}
-                      onClickHandler={openFilesDialog}
+                      onClickHandler={() => fileInput.current && fileInput.current.click()}
                       onMouseEnterHandler={() => {
                         setFileExplorerHovered(true)
                       }}
@@ -522,6 +528,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                         setFileExplorerHovered(false)
                       }}
                     />
+                    <input ref={fileInput} type={'file'} onChange={handleFileInput} multiple hidden />
                   </Grid>
                 </Grid>
                 <Grid item className={classes.actions}>
@@ -539,6 +546,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                         setEmojiHovered(false)
                       }}
                     />
+                    
                   </Grid>
                   {openEmoji && (
                     <ClickAwayListener
