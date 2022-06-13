@@ -43,7 +43,7 @@ if (isDev || process.env.DATA_DIR) {
 }
 
 const appDataPath = app.getPath('appData')
-
+ 
 interface IWindowSize {
   width: number
   height: number
