@@ -14,7 +14,8 @@ import { displayableMessage } from '../../utils/functions/dates/formatDisplayabl
 import {
   DisplayableMessage,
   MessagesDailyGroups,
-  PublicChannel
+  PublicChannel,
+  PublicChannelStatus
 } from './publicChannels.types'
 
 const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
@@ -172,10 +173,10 @@ export const currentChannelMessagesMergedBySender = createSelector(
   }
 )
 
-const channelsStatus = createSelector(
+export const channelsStatus = createSelector(
   selectState,
   state => {
-    if (!state) return {}
+    if (!state || !state.channelsStatus) return {}
     return publicChannelsStatusAdapter
       .getSelectors()
       .selectEntities(state.channelsStatus)
@@ -185,9 +186,12 @@ const channelsStatus = createSelector(
 export const unreadChannels = createSelector(
   channelsStatus,
   status => {
-    return Object.values(status).map(channel => {
-      if (channel.unread) return channel.address
-    })
+    return Object.values(status).reduce((result: string[], channel: PublicChannelStatus) => {
+      if (channel.unread) {
+        result.push(channel.address)
+      }
+      return result
+    }, [])
   }
 )
 
