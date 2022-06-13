@@ -334,7 +334,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
               },
               ext: '.jpeg',
               name: 'butterfly',
-              path: '/butterfly.jpeg'
+              path: 'images/butterfly.jpeg'
             },
             message: '',
             createdAt: 0,
@@ -414,7 +414,7 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     open: false,
     handleOpen: function (_args?: any): any { },
     handleClose: function (): any { },
-    src: ''
+    src: 'images/butterfly.jpeg'
   },
   unsupportedFileModal: {
     open: false,
@@ -453,7 +453,7 @@ ImagesPreview.args = {
   ...args,
   filesData: {
     id93434: {
-      path: '/butterfly.jpeg',
+      path: 'images/butterfly.jpeg',
       ext: '.jpeg',
       name: 'butterfly'
     }

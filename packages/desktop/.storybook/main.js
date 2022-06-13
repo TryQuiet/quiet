@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
   staticDirs: [
     { from: '../src/renderer/fonts', to: '/fonts' },
-    '../src/renderer/static/images'
+    { from: '../src/renderer/static/images', to: '/images' }
   ],
   "stories": [
     "../src/**/*.stories.mdx",
