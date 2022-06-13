@@ -28,7 +28,7 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message, uploadedFil
   const [showImage, setShowImage] = useState<boolean>(false)
 
   const { cid, path, width, height, name, ext } = message.media
-  
+
   const fullFileName = `${name}${ext}`
 
   useEffect(() => {
