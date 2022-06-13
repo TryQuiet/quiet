@@ -10,7 +10,7 @@ import BasicMessageComponent from './BasicMessage'
 import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
 import { MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
-import { useModal } from '../../../containers/hooks'
+import { useModal, UseModalTypeWrapper } from '../../../containers/hooks'
 
 const useStyles = makeStyles(theme => ({
   spinner: {
@@ -56,7 +56,9 @@ export interface IChannelMessagesProps {
   pendingMessages?: Dictionary<MessageSendingStatus>
   scrollbarRef
   onScroll: () => void
-  uploadedFileModal?: ReturnType<typeof useModal>
+  uploadedFileModal?: ReturnType<UseModalTypeWrapper<{
+    src: string
+  }>['types']>
 }
 
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({

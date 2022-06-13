@@ -1,6 +1,6 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { useModal } from '../../../containers/hooks'
+import { UseModalTypeWrapper } from '../../../containers/hooks'
 import Modal from '../../ui/Modal/Modal'
 
 const useStyles = makeStyles(() => ({
@@ -25,7 +25,9 @@ const useStyles = makeStyles(() => ({
 interface UploadedFileModalProps {
   open: boolean
   handleClose: () => void
-  uploadedFileModal?: ReturnType<typeof useModal>
+  uploadedFileModal?: ReturnType<UseModalTypeWrapper<{
+    src: string
+  }>['types']>
 }
 
 const UploadedFileModalComponent: React.FC<UploadedFileModalProps> = ({

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core'
 import { DisplayableMessage } from '@quiet/state-manager'
-import { useModal } from '../../../containers/hooks'
+import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedFileModal from './UploadedFileModal'
 import { UploadedFilename, UploadedFilePlaceholder } from './UploadedFilePlaceholder'
 
@@ -17,7 +17,9 @@ const useStyles = makeStyles(() => ({
 
 export interface UploadedFileProps {
   message: DisplayableMessage
-  uploadedFileModal?: ReturnType<typeof useModal>
+  uploadedFileModal?: ReturnType<UseModalTypeWrapper<{
+    src: string
+  }>['types']>
 }
 
 export const UploadedFile: React.FC<UploadedFileProps> = ({ message, uploadedFileModal }) => {

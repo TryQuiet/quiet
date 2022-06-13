@@ -413,7 +413,8 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   uploadedFileModal: {
     open: false,
     handleOpen: function (_args?: any): any { },
-    handleClose: function (): any { }
+    handleClose: function (): any { },
+    src: ''
   },
   unsupportedFileModal: {
     open: false,

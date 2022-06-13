@@ -12,7 +12,7 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 
-import { useModal } from '../../containers/hooks'
+import { useModal, UseModalTypeWrapper } from '../../containers/hooks'
 
 import { Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
 
@@ -52,7 +52,9 @@ export interface ChannelComponentProps {
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
   handleClipboardFiles?: (arg: ArrayBuffer, ext: string) => void
-  uploadedFileModal?: ReturnType<typeof useModal>
+  uploadedFileModal?: ReturnType<UseModalTypeWrapper<{
+    src: string
+  }>['types']>
 }
 
 export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps> = ({

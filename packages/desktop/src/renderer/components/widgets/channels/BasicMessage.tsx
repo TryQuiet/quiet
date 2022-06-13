@@ -14,7 +14,7 @@ import Jdenticon from 'react-jdenticon'
 import { DisplayableMessage, MessageSendingStatus, SendingStatus } from '@quiet/state-manager'
 import { NestedMessageContent } from './NestedMessageContent'
 import { Dictionary } from '@reduxjs/toolkit'
-import { useModal } from '../../../containers/hooks'
+import { useModal, UseModalTypeWrapper } from '../../../containers/hooks'
 
 const useStyles = makeStyles((theme: Theme) => ({
   messageCard: {
@@ -92,7 +92,9 @@ export const transformToLowercase = (string: string) => {
 export interface BasicMessageProps {
   messages: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
-  uploadedFileModal?: ReturnType<typeof useModal>
+  uploadedFileModal?: ReturnType<UseModalTypeWrapper<{
+    src: string
+  }>['types']>
 }
 
 export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
