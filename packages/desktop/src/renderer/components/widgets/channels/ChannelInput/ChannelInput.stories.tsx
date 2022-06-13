@@ -27,7 +27,8 @@ const args: ChannelInputProps = {
   },
   infoClass: '',
   setInfoClass: function (_arg: string): void {},
-  openFilesDialog: () => {}
+  openFilesDialog: () => {},
+  handleOpenFiles: (_arg) => {}
 }
 
 const argsDisabledInput: ChannelInputProps = {
@@ -41,7 +42,8 @@ const argsDisabledInput: ChannelInputProps = {
   infoClass: '',
   setInfoClass: function (_arg: string): void {},
   inputState: INPUT_STATE.NOT_CONNECTED,
-  openFilesDialog: () => {}
+  openFilesDialog: () => {},
+  handleOpenFiles: (_arg) => {}
 }
 
 Component.args = args
