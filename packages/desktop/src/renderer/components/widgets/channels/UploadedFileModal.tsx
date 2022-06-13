@@ -40,7 +40,7 @@ const UploadedFileModalComponent: React.FC<UploadedFileModalProps> = ({
   return (
     <Modal open={open} handleClose={handleClose}>
       <div className={classes.container}>
-        <img className={classes.image} src={uploadedFileModal.src} />
+        <img className={classes.image} src={uploadedFileModal?.src} />
       </div>
     </Modal>
   )

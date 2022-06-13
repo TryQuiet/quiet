@@ -32,14 +32,14 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message, uploadedFil
   const fullFileName = `${name}${ext}`
 
   useEffect(() => {
-    if (uploadedFileModal.open) {
+    if (uploadedFileModal?.open) {
       setShowImage(false)
     }
-  }, [uploadedFileModal.open])
+  }, [uploadedFileModal?.open])
 
   useEffect(() => {
     if (showImage) {
-      uploadedFileModal.handleOpen({
+      uploadedFileModal?.handleOpen({
         src: path
       })
     }
@@ -54,7 +54,7 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message, uploadedFil
             onClick={() => {
               setShowImage(true)
             }}>
-            <div className={classes.image}>
+            <div className={classes.image} data-testid={`${cid}-imageVisual`}>
               <UploadedFilename fileName={fullFileName} />
               <img className={classes.image} src={path} />
             </div>
