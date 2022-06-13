@@ -1,6 +1,6 @@
 {
   "name": "integration-tests",
-  "version": "0.6.1-alpha.1",
+  "version": "0.6.1-alpha.2",
   "description": "",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "1.2.2",
-    "@quiet/backend": "^0.6.1-alpha.1",
+    "@quiet/backend": "^0.6.1-alpha.101",
     "@quiet/identity": "^0.4.0-alpha.1",
     "@quiet/logger": "^0.1.2-alpha.1",
     "@quiet/state-manager": "^0.6.0-alpha.1",

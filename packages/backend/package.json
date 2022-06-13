@@ -1,6 +1,6 @@
 {
 	"name": "@quiet/backend",
-	"version": "0.6.1-alpha.100",
+	"version": "0.6.1-alpha.101",
 	"description": "tlg-manager",
 	"types": "lib/index.d.ts",
 	"main": "lib/index.js",
