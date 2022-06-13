@@ -186,7 +186,7 @@ export interface ChannelInputProps {
   setInfoClass: (arg: string) => void
   children?: ReactElement
   openFilesDialog: () => void
-  handleClipboardFiles?: (arg: ArrayBuffer, ext: string) => void
+  handleClipboardFiles?: (arg: ArrayBuffer, ext: string, name: string) => void
   unsupportedFileModal?: ReturnType<UseModalTypeWrapper<{
     unsupportedFiles: FileContent[]
     title: string
@@ -488,13 +488,13 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   onKeyDown={onKeyDownCb}
                   onPaste={async (e) => {
                     e.preventDefault()
-
                     const files = e.clipboardData.files
                     for (let i = 0; i < files.length; i++) {
                       const fileExt = path.extname(files[i].name)
+                      const fileName = path.basename(files[i].name, fileExt)
                       if (supportedFilesExtensions.includes(fileExt)) {
                         const arrayBuffer = await files[i].arrayBuffer()
-                        handleClipboardFiles(arrayBuffer, fileExt)
+                        handleClipboardFiles(arrayBuffer, fileExt, fileName)
                       } else if (!unsupportedFileModal.open) {
                         unsupportedFileModal.handleOpen()
                       }

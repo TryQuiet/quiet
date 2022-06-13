@@ -6,6 +6,7 @@ import { apply, take } from 'typed-redux-saga'
 import userEvent from '@testing-library/user-event'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
+import { socketEventData } from '../renderer/testUtils/socket'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
@@ -20,12 +21,16 @@ import {
   messages,
   SendingStatus,
   MessageType,
-  connection
+  connection,
+  FileMetadata,
+  DownloadFilePayload,
+  InitCommunityPayload
 } from '@quiet/state-manager'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 
 import { fetchingChannelMessagesText } from '../renderer/components/widgets/channels/ChannelMessages'
+import { DateTime } from 'luxon'
 
 jest.setTimeout(20_000)
 
@@ -318,8 +323,10 @@ describe('Channel', () => {
     await act(async () => {})
 
     // Confirm there are messages to display
-    const messages = publicChannels.selectors.currentChannelMessagesMergedBySender(store.getState())
-    expect(Object.values(messages).length).toBe(1)
+    expect(
+      Object.values(publicChannels.selectors.currentChannelMessagesMergedBySender(store.getState()))
+        .length
+    ).toBe(1)
 
     // Verify loading spinner is not visible
     const spinner = await screen.queryByText(fetchingChannelMessagesText)
@@ -596,5 +603,112 @@ describe('Channel', () => {
 
     // sendMessage action does not trigger
     expect(actions).toMatchInlineSnapshot('Array []')
+  })
+
+  it('downloads and displays missing images after app restart', async () => {
+    const initialState = (await prepareStore()).store
+
+    const factory = await getFactory(initialState)
+
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    const message = Math.random().toString(36).substr(2.9)
+    const channelAddress = 'general'
+
+    const missingFile: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-image',
+      ext: '.jpeg',
+      message: {
+        id: message,
+        channelAddress: channelAddress
+      }
+    }
+
+    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+      'Message',
+      {
+        identity: alice,
+        message: {
+          id: message,
+          type: MessageType.Image,
+          message: '',
+          createdAt: DateTime.utc().valueOf(),
+          channelAddress: 'general',
+          signature: '',
+          pubKey: '',
+          media: missingFile
+        }
+      }
+    )
+
+    jest
+      .spyOn(socket, 'emit')
+      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+        if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+          const data = input as socketEventData<[InitCommunityPayload]>
+          const payload = data[0]
+          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+            id: payload.id
+          })
+        }
+        if (action === SocketActionTypes.DOWNLOAD_FILE) {
+          const data = input as socketEventData<[DownloadFilePayload]>
+          const payload = data[0]
+          expect(payload.metadata.cid).toEqual(missingFile.cid)
+          return socket.socketClient.emit(SocketActionTypes.DOWNLOADED_FILE, {
+            ...missingFile,
+            path: `${__dirname}/test-image.jpeg`
+          })
+        }
+      })
+
+    const { store, runSaga } = await prepareStore(
+      initialState.getState(),
+      socket // Fork state manager's sagas
+    )
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    // Confirm image placeholder is visible until image downloads
+    expect(screen.getByTestId(`${missingFile.cid}-imagePlaceholder`)).toBeVisible()
+
+    // Confirm image is visible and it's placeholder is gone after downloading the image
+    expect(await screen.findByTestId(`${missingFile.cid}-imageVisual`)).toBeVisible()
+    expect(await screen.queryByTestId(`${missingFile.cid}-imagePlaceholder`)).toBeNull()
+
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/addPublicKeyMapping",
+        "Messages/addMessageVerificationStatus",
+        "PublicChannels/cacheMessages",
+      ]
+    `)
   })
 })

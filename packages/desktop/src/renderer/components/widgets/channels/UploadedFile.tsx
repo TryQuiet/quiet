@@ -26,7 +26,9 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message, uploadedFil
   const classes = useStyles({})
 
   const [showImage, setShowImage] = useState<boolean>(false)
-  const { path, width, height, name, ext } = message.media
+
+  const { cid, path, width, height, name, ext } = message.media
+  
   const fullFileName = `${name}${ext}`
 
   useEffect(() => {
@@ -60,7 +62,7 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message, uploadedFil
           <UploadedFileModal {...uploadedFileModal} uploadedFileModal={uploadedFileModal} />
         </>
       ) : (
-        <UploadedFilePlaceholder imageWidth={width} imageHeight={height} fileName={fullFileName} />
+        <UploadedFilePlaceholder cid={cid} imageWidth={width} imageHeight={height} fileName={fullFileName} />
       )}
     </>
   )

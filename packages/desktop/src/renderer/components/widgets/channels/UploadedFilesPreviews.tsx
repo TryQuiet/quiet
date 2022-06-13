@@ -99,7 +99,7 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
 
 export interface UploadFilesPreviewsProps {
   filesData: FilePreviewData
-  unsupportedFileModal: ReturnType<UseModalTypeWrapper<{
+  unsupportedFileModal?: ReturnType<UseModalTypeWrapper<{
     unsupportedFiles: FileContent[]
     title: string
     sendOtherContent: string
