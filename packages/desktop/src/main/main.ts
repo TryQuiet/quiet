@@ -40,7 +40,7 @@ if (isDev || process.env.DATA_DIR) {
 
   app.setPath('appData', appDataPath) 
   app.setPath('userData', newUserDataPath)
-}
+} 
 
 const appDataPath = app.getPath('appData')
  
