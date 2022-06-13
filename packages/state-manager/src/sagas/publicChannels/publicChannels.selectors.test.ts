@@ -319,7 +319,6 @@ describe('publicChannelsSelectors', () => {
     expect(messages.length).toBe(0)
   })
 
-
   it('unreadChannels return empty object if PublicChannels is in the wrong state (no channelStatus)', async () => {
     // This case occurred in a built app
     const store = prepareStore().store
@@ -330,7 +329,7 @@ describe('publicChannelsSelectors', () => {
 
     const oldState = store.getState()
     const channelId = oldState.PublicChannels.channels.ids[0]
-    let newState = {
+    const newState = {
       ...oldState,
       PublicChannels: {
         ...oldState.PublicChannels,
@@ -357,7 +356,6 @@ describe('publicChannelsSelectors', () => {
     const unreadChannels = publicChannelsSelectors.unreadChannels(store.getState())
     expect(unreadChannels).toEqual(['allergies'])
   })
-
 })
 
 export {}
