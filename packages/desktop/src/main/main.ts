@@ -47,7 +47,7 @@ interface IWindowSize {
   width: number
   height: number
 }
- 
+
 const windowSize: IWindowSize = {
   width: 800,
   height: 540
