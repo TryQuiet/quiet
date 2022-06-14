@@ -14,7 +14,7 @@ import { DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '../utils/functions/fileData'
 
-// eslint-disable-next-line
+// eslint-disable-next-line 
 const remote = require('@electron/remote/main')
 
 remote.initialize() 
