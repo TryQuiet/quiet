@@ -12,7 +12,7 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 
-import { useModal } from '../../containers/hooks'
+import { useModal, UseModalTypeWrapper } from '../../containers/hooks'
 
 import { Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
 
@@ -52,6 +52,9 @@ export interface ChannelComponentProps {
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
   handleClipboardFiles?: (arg: ArrayBuffer, ext: string, name: string) => void
+  uploadedFileModal?: ReturnType<UseModalTypeWrapper<{
+    src: string
+  }>['types']>
 }
 
 export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps> = ({
@@ -76,7 +79,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   isCommunityInitialized = true,
   unsupportedFileModal,
   openFilesDialog,
-  handleClipboardFiles
+  handleClipboardFiles,
+  uploadedFileModal
 }) => {
   const classes = useStyles({})
 
@@ -176,6 +180,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             pendingMessages={pendingMessages}
             scrollbarRef={scrollbarRef}
             onScroll={onScroll}
+            uploadedFileModal={uploadedFileModal}
           />
         </Grid>
         <Grid item>

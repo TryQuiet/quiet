@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import { withTheme } from '../../storybook/decorators'
@@ -9,11 +9,25 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
 
-const Template: ComponentStory<typeof ChannelComponent> = args => {
-  const [messages] = useState<{
+const mockMessages = (message: DisplayableMessage | null = null) => {
+  let placeholder: DisplayableMessage = {
+    id: '32',
+    type: 1,
+    media: null,
+    message: '*heavy breathing*',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  }
+
+  if (message !== null) {
+    placeholder = message
+  }
+
+  const messages: {
     count: number
     groups: { [day: string]: DisplayableMessage[][] }
-  }>({
+  } = {
     count: undefined,
     groups: {
       '26 Oct': [
@@ -322,9 +336,10 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
             nickname: 'obi'
           }
         ],
+        [placeholder],
         [
           {
-            id: '32',
+            id: '33',
             type: 1,
             message: 'Use the force, look!',
             createdAt: 0,
@@ -334,15 +349,16 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
         ]
       ]
     }
-  })
+  }
 
+  return messages
+}
+
+const Template: ComponentStory<typeof ChannelComponent> = args => {
   return (
     <>
       <DndProvider backend={HTML5Backend}>
-        <ChannelComponent
-          {...args}
-          messages={messages}
-        />
+        <ChannelComponent {...args} />
       </DndProvider>
     </>
   )
@@ -350,6 +366,9 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
 
 export const Component = Template.bind({})
 export const Pending = Template.bind({})
+export const ImagePreview = Template.bind({})
+export const ImagePlaceholder = Template.bind({})
+export const SentImage = Template.bind({})
 
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   user: {
@@ -389,6 +408,23 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     handleOpen: function (_args?: any): any {},
     handleClose: function (): any {}
   },
+  uploadedFileModal: {
+    open: false,
+    handleOpen: function (_args?: any): any {},
+    handleClose: function (): any {},
+    src: 'images/butterfly.jpeg'
+  },
+  unsupportedFileModal: {
+    open: false,
+    handleOpen: function (_args?: any): any {},
+    handleClose: function (): any {},
+    sendOtherContent: '',
+    textContent: '',
+    title: '',
+    tryZipContent: '',
+    unsupportedFiles: []
+  },
+  messages: mockMessages(),
   pendingMessages: {},
   channelAddress: 'general',
   channelName: 'general',
@@ -406,11 +442,67 @@ Component.args = args
 Pending.args = {
   ...args,
   pendingMessages: {
-    32: {
-      id: '32',
+    33: {
+      id: '33',
       status: 0
     }
   }
+}
+ImagePreview.args = {
+  ...args,
+  filesData: {
+    file_id: {
+      path: 'images/test-image.png',
+      name: 'test-image',
+      ext: '.png'
+    }
+  }
+}
+ImagePlaceholder.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 2,
+    media: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      message: {
+        channelAddress: 'general',
+        id: 'wgtlstx3u7'
+      },
+      ext: '.png',
+      name: 'test-image',
+      width: 1200,
+      height: 580,
+      path: null
+    },
+    message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  })
+}
+SentImage.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 2,
+    media: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      message: {
+        channelAddress: 'general',
+        id: 'wgtlstx3u7'
+      },
+      ext: '.png',
+      name: 'test-image',
+      width: 1200,
+      height: 580,
+      path: 'images/test-image.png'
+    },
+    message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  })
 }
 
 const component: ComponentMeta<typeof ChannelComponent> = {

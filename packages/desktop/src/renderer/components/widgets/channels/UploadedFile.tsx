@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core'
 import { DisplayableMessage } from '@quiet/state-manager'
-import { useModal } from '../../../containers/hooks'
-import { ModalName } from '../../../sagas/modals/modals.types'
+import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedFileModal from './UploadedFileModal'
 import { UploadedFilename, UploadedFilePlaceholder } from './UploadedFilePlaceholder'
 
@@ -18,26 +17,36 @@ const useStyles = makeStyles(() => ({
 
 export interface UploadedFileProps {
   message: DisplayableMessage
+  uploadedFileModal?: ReturnType<
+  UseModalTypeWrapper<{
+    src: string
+  }>['types']
+  >
 }
 
-export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
+export const UploadedFile: React.FC<UploadedFileProps> = ({ message, uploadedFileModal }) => {
   const classes = useStyles({})
 
   const [showImage, setShowImage] = useState<boolean>(false)
-  const modal = useModal(ModalName.uploadedFileModal)
 
-  const { cid, path, width, height, name, ext } = message.media
+  const { cid, path, name, ext } = message.media
+
+  const imageWidth = message.media?.width
+  const imageHeight = message.media?.height
+
+  const width = imageWidth >= 400 ? 400 : imageWidth
+
   const fullFileName = `${name}${ext}`
 
   useEffect(() => {
-    if (modal.open) {
+    if (uploadedFileModal?.open) {
       setShowImage(false)
     }
-  }, [modal.open])
+  }, [uploadedFileModal?.open])
 
   useEffect(() => {
     if (showImage) {
-      modal.handleOpen({
+      uploadedFileModal?.handleOpen({
         src: path
       })
     }
@@ -53,14 +62,23 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
               setShowImage(true)
             }}>
             <div className={classes.image} data-testid={`${cid}-imageVisual`}>
-              <UploadedFilename fileName={fullFileName}/>
-              <img className={classes.image} src={path} />
+              <UploadedFilename fileName={fullFileName} />
+              <img
+                className={classes.image}
+                style={{ width: width, aspectRatio: '' + imageWidth / imageHeight }}
+                src={path}
+              />
             </div>
           </div>
-          <UploadedFileModal {...modal} />
+          <UploadedFileModal {...uploadedFileModal} uploadedFileModal={uploadedFileModal} />
         </>
       ) : (
-        <UploadedFilePlaceholder cid={cid} imageWidth={width} imageHeight={height} fileName={fullFileName} />
+        <UploadedFilePlaceholder
+          cid={cid}
+          imageWidth={imageWidth}
+          imageHeight={imageHeight}
+          fileName={fullFileName}
+        />
       )}
     </>
   )

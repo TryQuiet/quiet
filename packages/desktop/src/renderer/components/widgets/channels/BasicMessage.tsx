@@ -14,6 +14,7 @@ import Jdenticon from 'react-jdenticon'
 import { DisplayableMessage, MessageSendingStatus, SendingStatus } from '@quiet/state-manager'
 import { NestedMessageContent } from './NestedMessageContent'
 import { Dictionary } from '@reduxjs/toolkit'
+import { useModal, UseModalTypeWrapper } from '../../../containers/hooks'
 
 const useStyles = makeStyles((theme: Theme) => ({
   messageCard: {
@@ -91,11 +92,15 @@ export const transformToLowercase = (string: string) => {
 export interface BasicMessageProps {
   messages: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
+  uploadedFileModal?: ReturnType<UseModalTypeWrapper<{
+    src: string
+  }>['types']>
 }
 
 export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
   messages,
-  pendingMessages = {}
+  pendingMessages = {},
+  uploadedFileModal
 }) => {
   const classes = useStyles({})
 
@@ -109,8 +114,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
       className={classNames({
         [classes.wrapper]: true
       })}
-      onMouseOver={() => {}}
-      onMouseLeave={() => {}}>
+      onMouseOver={() => { }}
+      onMouseLeave={() => { }}>
       <ListItemText
         disableTypography
         className={classes.messageCard}
@@ -164,6 +169,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                       message={message}
                       pending={pending}
                       key={index}
+                      uploadedFileModal={uploadedFileModal}
                     />
                   )
                 })}

@@ -106,6 +106,7 @@ describe('NestedMessageContent', () => {
                   <img
                     class="makeStyles-image-376"
                     src="path/to/file/test.png"
+                    style="width: 400px;"
                   />
                 </div>
               </div>
