@@ -18,9 +18,9 @@ const useStyles = makeStyles(() => ({
 export interface UploadedFileProps {
   message: DisplayableMessage
   uploadedFileModal?: ReturnType<
-    UseModalTypeWrapper<{
-      src: string
-    }>['types']
+  UseModalTypeWrapper<{
+    src: string
+  }>['types']
   >
 }
 
