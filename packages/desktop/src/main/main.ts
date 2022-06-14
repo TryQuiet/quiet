@@ -22,7 +22,7 @@ remote.initialize()
 const log = logger('main')
 
 const updaterInterval = 15 * 60_000
- 
+  
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
 const webcrypto = new Crypto()
