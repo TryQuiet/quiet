@@ -5,7 +5,16 @@ import { renderComponent } from '../../../../testUtils/renderComponent'
 import { INPUT_STATE } from './InputState.enum'
 import { prepareStore } from '../../../../testUtils/prepareStore'
 import MockedSocket from 'socket.io-mock'
-import { communities, FileContent, getFactory, Identity, identity, MessagesDailyGroups, MessageSendingStatus, publicChannels } from '@quiet/state-manager'
+import {
+  communities,
+  FileContent,
+  getFactory,
+  Identity,
+  identity,
+  MessagesDailyGroups,
+  MessageSendingStatus,
+  publicChannels
+} from '@quiet/state-manager'
 import CreateChannel from '../../../Channel/CreateChannel/CreateChannel'
 import { modalsActions } from '../../../../sagas/modals/modals.slice'
 import { ModalName } from '../../../../sagas/modals/modals.types'
@@ -33,6 +42,7 @@ describe('ChannelInput', () => {
         infoClass={''}
         setInfoClass={jest.fn()}
         openFilesDialog={jest.fn()}
+        handleOpenFiles={jest.fn()}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -74,6 +84,12 @@ describe('ChannelInput', () => {
                         <img
                           class="makeStyles-emoji-12"
                           src="test-file-stub"
+                        />
+                        <input
+                          accept="image/*"
+                          hidden=""
+                          multiple=""
+                          type="file"
                         />
                       </div>
                     </div>
@@ -117,6 +133,7 @@ describe('ChannelInput', () => {
         setInfoClass={jest.fn()}
         inputState={INPUT_STATE.NOT_CONNECTED}
         openFilesDialog={jest.fn()}
+        handleOpenFiles={jest.fn()}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -159,6 +176,12 @@ describe('ChannelInput', () => {
                         <img
                           class="makeStyles-emoji-140"
                           src="test-file-stub"
+                        />
+                        <input
+                          accept="image/*"
+                          hidden=""
+                          multiple=""
+                          type="file"
                         />
                       </div>
                     </div>
@@ -209,7 +232,8 @@ describe('ChannelInput', () => {
     const mockUnsupportedModalHandleOpen = jest.fn()
 
     // preparing image data
-    const base64Image = 'iVBORw0KGgoAAAANSUhEUgAAAAcAAAAICAYAAAA1BOUGAAAAAXNSR0IB2cksfwAAABVJREFUCJljVFBU+c+AAzDhkhh6kgBGDQF0RFVIuQAAAABJRU5ErkJggg=='
+    const base64Image =
+      'iVBORw0KGgoAAAANSUhEUgAAAAcAAAAICAYAAAA1BOUGAAAAAXNSR0IB2cksfwAAABVJREFUCJljVFBU+c+AAzDhkhh6kgBGDQF0RFVIuQAAAABJRU5ErkJggg=='
     const binaryString = window.atob(base64Image)
     const len = binaryString.length
     const bytes = new Uint8Array(len)
@@ -235,13 +259,15 @@ describe('ChannelInput', () => {
       arrayBuffer: bytes.buffer // need for test
     }
 
-    const unsupportedFileModal: ReturnType<UseModalTypeWrapper<{
+    const unsupportedFileModal: ReturnType<
+    UseModalTypeWrapper<{
       unsupportedFiles: FileContent[]
       title: string
       sendOtherContent: string
       textContent: string
       tryZipContent: string
-    }>['types']> = {
+    }>['types']
+    > = {
       open: false,
       handleOpen: mockUnsupportedModalHandleOpen,
       handleClose: jest.fn(),
@@ -264,8 +290,10 @@ describe('ChannelInput', () => {
         inputState={INPUT_STATE.NOT_CONNECTED}
         openFilesDialog={jest.fn()}
         handleClipboardFiles={mockHandleClipboardFiles}
+        handleOpenFiles={jest.fn()}
       />,
-      store)
+      store
+    )
 
     const input = screen.getByPlaceholderText('Message #channel as @user')
 
@@ -273,23 +301,29 @@ describe('ChannelInput', () => {
     const paste = createEvent.paste(input, {
       clipboardData: {
         getData: () => '',
-        files: [{
-          lastModified: 1654601730013,
-          lastModifiedDate: 'Tue Jun 07 2022 13: 35: 30 GMT + 0200',
-          name: `${fileData.name}${fileData.ext}`,
-          path: '',
-          size: 4135,
-          type: 'image/png',
-          webkitRelativePath: '',
-          arrayBuffer: () => fileData.arrayBuffer
-        }]
+        files: [
+          {
+            lastModified: 1654601730013,
+            lastModifiedDate: 'Tue Jun 07 2022 13: 35: 30 GMT + 0200',
+            name: `${fileData.name}${fileData.ext}`,
+            path: '',
+            size: 4135,
+            type: 'image/png',
+            webkitRelativePath: '',
+            arrayBuffer: () => fileData.arrayBuffer
+          }
+        ]
       }
     })
 
     await fireEvent(input, paste)
 
     expect(mockHandleClipboardFiles).toHaveBeenCalled()
-    expect(mockHandleClipboardFiles).toHaveBeenCalledWith(fileData.arrayBuffer, fileData.ext, fileData.name)
+    expect(mockHandleClipboardFiles).toHaveBeenCalledWith(
+      fileData.arrayBuffer,
+      fileData.ext,
+      fileData.name
+    )
 
     const filesData = {
       1: {
@@ -308,11 +342,9 @@ describe('ChannelInput', () => {
     }
 
     renderComponent(
-      <UploadFilesPreviewsComponent
-        filesData={filesData}
-        removeFile={jest.fn()}
-      />,
-      store)
+      <UploadFilesPreviewsComponent filesData={filesData} removeFile={jest.fn()} />,
+      store
+    )
 
     // image with data from onPaste event appear
     const image: HTMLImageElement = screen.getByAltText(fileData.name)
@@ -327,7 +359,8 @@ describe('ChannelInput', () => {
         removeFile={jest.fn()}
         unsupportedFileModal={unsupportedFileModal}
       />,
-      store)
+      store
+    )
 
     // unsupported file modal appear with unsupported file ext
     expect(mockUnsupportedModalHandleOpen).toHaveBeenCalled()

@@ -13,8 +13,6 @@ import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import addGray from '../../../../static/images/addGray.svg'
 import addBlack from '../../../../static/images/addBlack.svg'
-import { clipboard, ipcRenderer } from 'electron'
-import UploadFilesPreviewsComponent, { FilePreviewData } from '../UploadedFilesPreviews'
 import { FileContent } from '@quiet/state-manager'
 import { UseModalTypeWrapper } from '../../../../containers/hooks'
 import { supportedFilesExtensions } from '../unsupportedFilesContent'
@@ -194,6 +192,7 @@ export interface ChannelInputProps {
     textContent: string
     tryZipContent: string
   }>['types']>
+  handleOpenFiles: (arg: {files: any[]}) => void
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
@@ -209,7 +208,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   children,
   openFilesDialog,
   handleClipboardFiles,
-  unsupportedFileModal
+  unsupportedFileModal,
+  handleOpenFiles
 }) => {
   const classes = useStyles({})
 
@@ -222,6 +222,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const mentionsToSelectRef = React.useRef<any[]>()
 
   const inputRef = React.createRef<ContentEditable & HTMLDivElement & any>() // any for updater.enqueueForceUpdate
+
+  const fileInput = React.useRef(null)
 
   const [focused, setFocused] = React.useState(false)
   const [selected, setSelected] = React.useState(0)
@@ -419,6 +421,10 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     ]
   )
 
+  const handleFileInput = (e) => {
+    handleOpenFiles({ files: Object.values(e.target.files) })
+  }
+
   return (
     <Grid
       className={classNames({
@@ -514,13 +520,23 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     <Icon
                       className={classes.emoji}
                       src={fileExplorerHovered ? addBlack : addGray}
-                      onClickHandler={openFilesDialog}
+                      onClickHandler={() => fileInput.current?.click()}
                       onMouseEnterHandler={() => {
                         setFileExplorerHovered(true)
                       }}
                       onMouseLeaveHandler={() => {
                         setFileExplorerHovered(false)
                       }}
+                    />
+                    <input
+                      ref={fileInput}
+                      type='file'
+                      onChange={handleFileInput}
+                      // Value needs to be cleared otherwise one can't upload same image twice
+                      onClick={(e) => { (e.target as HTMLInputElement).value = null }}
+                      accept='image/*'
+                      multiple
+                      hidden
                     />
                   </Grid>
                 </Grid>
@@ -539,6 +555,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                         setEmojiHovered(false)
                       }}
                     />
+
                   </Grid>
                   {openEmoji && (
                     <ClickAwayListener

@@ -201,6 +201,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
             handleClipboardFiles={handleClipboardFiles}
             unsupportedFileModal={unsupportedFileModal}
+            handleOpenFiles={handleFileDrop}
           >
             <UploadFilesPreviewsComponent
               filesData={filesData}
