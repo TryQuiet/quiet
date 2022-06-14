@@ -25,6 +25,13 @@ runs:
     - name: "Set unsafe-perm"
       run: npm set unsafe-perm true
       shell: bash
+
+    - name: Update node-gyp
+      run: |
+        $WhereNode = Get-Command node | Select-Object -ExpandProperty Definition
+        $NodeDirPath = Split-Path $WhereNode -Parent
+        $NodeModulesPath = $NodeDirPath + "\node_modules\npm\node_modules\npm-lifecycle"
+        cd $NodeModulesPath
   
     - name: "Install lerna globally"
       run: npm i -g lerna rf-lerna

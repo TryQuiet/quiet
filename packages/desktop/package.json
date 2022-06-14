@@ -295,7 +295,6 @@
     "neon-cli": "^0.4.0",
     "node-loader": "^1.0.0",
     "node-sass": "^6.0.0",
-    "node-webcrypto-ossl": "^2.1.2",
     "on-build-webpack": "^0.1.0",
     "prettier": "^2.1.0",
     "prettier-config-standard": "^1.0.1",
