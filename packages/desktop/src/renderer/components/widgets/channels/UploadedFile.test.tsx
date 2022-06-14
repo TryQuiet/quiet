@@ -98,6 +98,7 @@ describe('UploadedFile', () => {
               <img
                 class="makeStyles-image-19"
                 src="path/to/file/test.png"
+                style="width: 400px;"
               />
             </div>
           </div>
