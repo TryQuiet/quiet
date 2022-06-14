@@ -17,6 +17,7 @@ import {
   PublicChannel,
   PublicChannelStatus
 } from './publicChannels.types'
+import { MessageType } from '../messages/messages.types'
 
 const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
   state[StoreKeys.PublicChannels]
@@ -159,7 +160,7 @@ export const currentChannelMessagesMergedBySender = createSelector(
         // Get last item from collected array for comparison
         const last = merged.length && merged[merged.length - 1][0]
 
-        if (last.nickname === message.nickname && message.createdAt - last.createdAt < 300) {
+        if (last.nickname === message.nickname && message.createdAt - last.createdAt < 300 && message.type !== MessageType.Info) {
           merged[merged.length - 1].push(message)
         } else {
           merged.push([message])

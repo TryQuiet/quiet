@@ -15,44 +15,54 @@ const useStyles = makeStyles(() => ({
   },
   pending: {
     color: theme.palette.colors.lightGray
+  },
+  info: {
+    color: theme.palette.colors.white
   }
 }))
 
 export interface NestedMessageContentProps {
   message: DisplayableMessage
   pending: boolean
-  uploadedFileModal?: ReturnType<UseModalTypeWrapper<{
+  uploadedFileModal?: ReturnType<
+  UseModalTypeWrapper<{
     src: string
-  }>['types']>
+  }>['types']
+  >
 }
 
-export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({ message, pending, uploadedFileModal }) => {
+export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({
+  message,
+  pending,
+  uploadedFileModal
+}) => {
   const classes = useStyles({})
+
+  const infoMessage = message.type === 3 // 3 stands for MessageType.Info
 
   return (
     <Grid item>
-      {message.type === 1 // 1 stands for MessageType.Basic (cypress tests incompatibility with enums)
-        ? <Typography
-          component={'span'}
+      {message.type === 2 ? ( // 2 stands for MessageType.Image (cypress tests incompatibility with enums)
+        <div
           className={classNames({
             [classes.message]: true,
             [classes.pending]: pending
           })}
           data-testid={`messagesGroupContent-${message.id}`}>
-          {
-            message.message
-          }
-        </Typography>
-        : <div className={classNames({
-          [classes.message]: true,
-          [classes.pending]: pending
-        })}
-        data-testid={`messagesGroupContent-${message.id}`}
-        >
           <UploadedFile message={message} uploadedFileModal={uploadedFileModal} />
         </div>
-      }
-
+      ) : (
+        <Typography
+          component={'span'}
+          className={classNames({
+            [classes.message]: true,
+            [classes.pending]: pending,
+            [classes.info]: infoMessage
+          })}
+          data-testid={`messagesGroupContent-${message.id}`}>
+          {message.message}
+        </Typography>
+      )}
     </Grid>
   )
 }
