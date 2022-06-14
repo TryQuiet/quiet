@@ -17,7 +17,7 @@ import { getFilesData } from '../utils/functions/fileData'
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
 
-remote.initialize()
+remote.initialize() 
 
 const log = logger('main')
 

@@ -134,10 +134,48 @@ jobs:
         run: find packages/desktop/src -name '*.test.*' -delete
         shell: bash
 
-      - name: Setup environment
-        uses: ./.github/actions/setup-env
+      - uses: actions/setup-node@master
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet"
+          node-version: 16.14.2
+      
+      - name: Print OS name
+        run: echo ${{ runner.os }}
+        shell: bash
+
+      # https://stackoverflow.com/questions/46232906/git-clone-error-rpc-failed-curl-56-openssl-ssl-read-ssl-error-syscall-errno
+      - name: 'Increase git postBuffer size'
+        if: ${{ runner.os == 'Windows' }}
+        run: git config --global http.postBuffer 524288000
+        shell: bash
+        
+      - name: "Set unsafe-perm"
+        run: npm set unsafe-perm true
+        shell: bash
+    
+      - name: "Install lerna globally"
+        run: npm i -g lerna rf-lerna
+        shell: bash
+
+      - name: "Cache NPM dependencies"
+        if: ${{ runner.os != 'Windows' }}  # Caching slows down setup for Windows
+        id: cache-nodemodules
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+          ${{ runner.OS }}-npm-cache-
+
+      - name: "Install monorepo dependencies"
+        # if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+        run: npm ci
+        shell: bash
+
+      - name: "Bootstrap project"
+        run: lerna bootstrap --scope '{${{ "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet"s }},}'
+        shell: bash
 
       - name: Before build
         uses: ./.github/actions/before-build
