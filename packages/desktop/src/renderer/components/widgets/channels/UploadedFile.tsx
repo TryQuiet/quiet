@@ -26,7 +26,7 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
   const [showImage, setShowImage] = useState<boolean>(false)
   const modal = useModal(ModalName.uploadedFileModal)
 
-  const { path, width, height, name, ext } = message.media
+  const { cid, path, width, height, name, ext } = message.media
   const fullFileName = `${name}${ext}`
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
             onClick={() => {
               setShowImage(true)
             }}>
-            <div className={classes.image}>
+            <div className={classes.image} data-testid={`${cid}-imageVisual`}>
               <UploadedFilename fileName={fullFileName}/>
               <img className={classes.image} src={path} />
             </div>
@@ -60,7 +60,7 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message }) => {
           <UploadedFileModal {...modal} />
         </>
       ) : (
-        <UploadedFilePlaceholder imageWidth={width} imageHeight={height} fileName={fullFileName}/>
+        <UploadedFilePlaceholder cid={cid} imageWidth={width} imageHeight={height} fileName={fullFileName} />
       )}
     </>
   )

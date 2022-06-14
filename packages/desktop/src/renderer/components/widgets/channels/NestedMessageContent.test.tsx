@@ -96,6 +96,7 @@ describe('NestedMessageContent', () => {
               >
                 <div
                   class="makeStyles-image-376"
+                  data-testid="abcd1234-imageVisual"
                 >
                   <p
                     class="makeStyles-fileName-381"

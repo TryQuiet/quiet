@@ -153,7 +153,8 @@ export const getFactory = async (store: Store) => {
         createdAt: DateTime.utc().valueOf(),
         channelAddress: 'general',
         signature: '',
-        pubKey: ''
+        pubKey: '',
+        media: undefined
       },
       verifyAutomatically: false
     },

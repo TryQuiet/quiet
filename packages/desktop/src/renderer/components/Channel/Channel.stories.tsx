@@ -344,9 +344,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
           messages={messages}
         />
       </DndProvider>
-
     </>
-
   )
 }
 
