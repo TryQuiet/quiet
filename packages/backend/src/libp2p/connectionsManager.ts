@@ -167,8 +167,8 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public init = async () => {
-    this.initListeners()
     await this.spawnTor()
+    this.initListeners()
   }
 
   public closeAllServices = async () => {
