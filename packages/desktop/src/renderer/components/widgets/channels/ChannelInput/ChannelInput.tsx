@@ -496,7 +496,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     e.preventDefault()
                     const files = e.clipboardData.files
                     for (let i = 0; i < files.length; i++) {
-                      const fileExt = path.extname(files[i].name)
+                      const fileExt = path.extname(files[i].name).toLowerCase()
                       const fileName = path.basename(files[i].name, fileExt)
                       if (supportedFilesExtensions.includes(fileExt)) {
                         const arrayBuffer = await files[i].arrayBuffer()
