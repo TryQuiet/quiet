@@ -162,7 +162,7 @@ jobs:
         shell: bash
 
       - name: "Bootstrap project"
-        run: lerna bootstrap --scope '{${{ "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet"s }},}'
+        run: lerna bootstrap --scope '{${{ @quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet }},}'
         shell: bash
 
       - name: Before build
