@@ -150,10 +150,10 @@ jobs:
 
       - name: Update node-gyp
         run: |
-        $WhereNode = Get-Command node | Select-Object -ExpandProperty Definition
-        $NodeDirPath = Split-Path $WhereNode -Parent
-        $NodeModulesPath = $NodeDirPath + "\node_modules\npm\node_modules\npm-lifecycle"
-        cd $NodeModulesPath
+          $WhereNode = Get-Command node | Select-Object -ExpandProperty Definition
+          $NodeDirPath = Split-Path $WhereNode -Parent
+          $NodeModulesPath = $NodeDirPath + "\node_modules\npm\node_modules\npm-lifecycle"
+          cd $NodeModulesPath
         
       - name: "Set unsafe-perm"
         run: npm set unsafe-perm true
