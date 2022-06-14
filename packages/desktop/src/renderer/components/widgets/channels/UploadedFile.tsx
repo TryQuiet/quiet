@@ -17,9 +17,11 @@ const useStyles = makeStyles(() => ({
 
 export interface UploadedFileProps {
   message: DisplayableMessage
-  uploadedFileModal?: ReturnType<UseModalTypeWrapper<{
-    src: string
-  }>['types']>
+  uploadedFileModal?: ReturnType<
+    UseModalTypeWrapper<{
+      src: string
+    }>['types']
+  >
 }
 
 export const UploadedFile: React.FC<UploadedFileProps> = ({ message, uploadedFileModal }) => {
@@ -27,7 +29,12 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message, uploadedFil
 
   const [showImage, setShowImage] = useState<boolean>(false)
 
-  const { cid, path, width, height, name, ext } = message.media
+  const { cid, path, name, ext } = message.media
+
+  const imageWidth = message.media?.width
+  const imageHeight = message.media?.height
+
+  const width = imageWidth >= 400 ? 400 : imageWidth
 
   const fullFileName = `${name}${ext}`
 
@@ -56,13 +63,22 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message, uploadedFil
             }}>
             <div className={classes.image} data-testid={`${cid}-imageVisual`}>
               <UploadedFilename fileName={fullFileName} />
-              <img className={classes.image} src={path} />
+              <img
+                className={classes.image}
+                style={{ width: width, aspectRatio: '' + imageWidth / imageHeight }}
+                src={path}
+              />
             </div>
           </div>
           <UploadedFileModal {...uploadedFileModal} uploadedFileModal={uploadedFileModal} />
         </>
       ) : (
-        <UploadedFilePlaceholder cid={cid} imageWidth={width} imageHeight={height} fileName={fullFileName} />
+        <UploadedFilePlaceholder
+          cid={cid}
+          imageWidth={imageWidth}
+          imageHeight={imageHeight}
+          fileName={fullFileName}
+        />
       )}
     </>
   )

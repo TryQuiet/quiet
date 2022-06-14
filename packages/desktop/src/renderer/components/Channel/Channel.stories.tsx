@@ -334,6 +334,8 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
               },
               ext: '.jpeg',
               name: 'butterfly',
+              width: 258,
+              height: 195,
               path: 'images/butterfly.jpeg'
             },
             message: '',
