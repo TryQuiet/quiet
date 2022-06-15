@@ -47,8 +47,6 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
   const appName = (Math.random() + 1).toString(36).substring(7)
   log(`Creating test app for ${appName}`)
   const dataServerPort1 = await getPort()
-  const server1 = new backend.DataServer(dataServerPort1)
-  await server1.listen()
 
   const { store, runSaga } = prepareStore(mockedState)
 
@@ -66,7 +64,7 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
       },
       torControlPort: controlPort
     },
-    io: server1.io
+    socketIOPort: dataServerPort1
   })
   await manager.init()
 
