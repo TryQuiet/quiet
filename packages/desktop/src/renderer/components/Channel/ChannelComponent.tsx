@@ -116,15 +116,15 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     setScrollHeight(0)
     scrollbarRef.current?.scrollTo({
       behavior: 'auto',
-      top: Math.abs(scrollbarRef.current?.clientHeight - scrollbarRef.current?.scrollHeight)
+      top: Math.abs(scrollbarRef.current?.clientHeight - scrollbarRef.current?.scrollHeight) + 1
     })
   }
 
   const onEnterKeyPress = (message: string) => {
-    // Go back to the bottom if scroll is at the top or in the middle
-    scrollBottom()
     // Send message and files
     onInputEnter(message)
+    // Go back to the bottom if scroll is at the top or in the middle
+    scrollBottom()
   }
 
   /* Get scroll position and save it to the state as 0 (top), 1 (bottom) or -1 (middle) */
@@ -132,14 +132,17 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     const top = scrollbarRef.current?.scrollTop === 0
 
     const bottom =
-      Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) ===
+      Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) + 1 <=
       Math.floor(scrollbarRef.current?.clientHeight)
 
     let position = -1
     if (top) position = 0
     if (bottom) position = 1
 
-    if (bottom) setNewMessagesInfo(false)
+    // Clear new messages info when scrolled back to bottom
+    if (bottom) {
+      setNewMessagesInfo(false)
+    }
 
     setScrollPosition(position)
   }, [])
@@ -174,15 +177,19 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     }
   }, [scrollPosition, messages.count])
 
-  useLayoutEffect(() => {
-    if (scrollPosition !== 1 && lastSeenMessage !== newestMessage.id) {
+  useEffect(() => {
+    if (
+      Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) - 1 >=
+        Math.floor(scrollbarRef.current?.clientHeight) &&
+      lastSeenMessage !== newestMessage.id
+    ) {
       setNewMessagesInfo(true)
     }
-  }, [newMessagesInfo, messages])
+  }, [scrollPosition, newMessagesInfo, messages])
 
   useEffect(() => {
-    if (scrollPosition === 1) {
-      setLastSeenMessage(newestMessage.id)
+    if (scrollPosition === 1 && newestMessage) {
+      setLastSeenMessage(newestMessage?.id)
     }
   }, [scrollPosition, messages])
 
