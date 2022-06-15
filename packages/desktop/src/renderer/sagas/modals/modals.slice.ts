@@ -24,7 +24,7 @@ export class ModalsInitialState {
   [ModalName.uploadedFileModal] = { open: false };
   [ModalName.unsupportedFileModal] = { open: false };
   [ModalName.sentryWarningModal] = { open: false };
-  [ModalName.loadingPanel] = { open: false } // Loading modal is open by default and closes on websocket connection
+  [ModalName.loadingPanel] = { open: true } // Loading modal is open by default and closes on websocket connection
 }
 
 export const modalsSlice = createSlice({
