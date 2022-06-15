@@ -172,7 +172,6 @@ export class ConnectionsManager extends EventEmitter {
   public init = async () => {
     await this.spawnTor()
     if (this.socketIOPort) {
-      console.log('initing socketIOPORT', this.socketIOPort)
       const dataServer = new DataServer(this.socketIOPort)
       await dataServer.listen()
       this.io = dataServer.io
