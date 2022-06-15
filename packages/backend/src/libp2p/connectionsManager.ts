@@ -29,6 +29,7 @@ import initListeners from '../socket/listeners'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
 import WebsocketsOverTor from './websocketOverTor'
+import { DataServer } from '../socket/DataServer'
 import { EventEmitter } from 'events'
 import logger from '../logger'
 
@@ -40,7 +41,8 @@ export interface IConstructor {
   agentPort?: number
   agentHost?: string
   options?: Partial<ConnectionsManagerOptions>
-  io: SocketIO.Server
+  socketIOPort?: number
+  io?: SocketIO.Server
   storageClass?: any // TODO: what type?
   httpTunnelPort?: number
 }
@@ -81,10 +83,11 @@ export class ConnectionsManager extends EventEmitter {
   tor: Tor
   libp2pInstance: Libp2p
   connectedPeers: Set<string>
+  socketIOPort: number
 
-  constructor({ agentHost, agentPort, httpTunnelPort, options, storageClass, io }: IConstructor) {
+  constructor({ agentHost, agentPort, httpTunnelPort, options, storageClass, io, socketIOPort }: IConstructor) {
     super()
-    this.io = io
+    this.io = io || null
     this.agentPort = agentPort
     this.httpTunnelPort = httpTunnelPort
     this.agentHost = agentHost
@@ -93,6 +96,7 @@ export class ConnectionsManager extends EventEmitter {
       ...new ConnectionsManagerOptions(),
       ...options
     }
+    this.socketIOPort = socketIOPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.StorageCls = storageClass || Storage
     this.libp2pTransportClass = options.libp2pTransportClass || WebsocketsOverTor
@@ -107,7 +111,6 @@ export class ConnectionsManager extends EventEmitter {
       log('\nGracefully shutting down from SIGINT (Ctrl-C)')
       process.exit(0)
     })
-
     const webcrypto = new Crypto()
     setEngine(
       'newEngine',
@@ -168,6 +171,13 @@ export class ConnectionsManager extends EventEmitter {
 
   public init = async () => {
     await this.spawnTor()
+    if (this.socketIOPort) {
+      console.log('initing socketIOPORT', this.socketIOPort)
+      const dataServer = new DataServer(this.socketIOPort)
+      await dataServer.listen()
+      this.io = dataServer.io
+    }
+    this.ioProxy = new IOProxy(this)
     this.initListeners()
   }
 
