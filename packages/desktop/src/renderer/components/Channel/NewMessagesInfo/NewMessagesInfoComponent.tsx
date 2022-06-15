@@ -1,5 +1,5 @@
-import { makeStyles, Typography } from '@material-ui/core'
 import React from 'react'
+import { makeStyles, Typography } from '@material-ui/core'
 import Icon from '../../ui/Icon/Icon'
 import arrowDown from '../../../static/images/arrowDown.svg'
 
@@ -53,3 +53,5 @@ export const NewMessagesInfoComponent: React.FC<NewMessagesInfoComponentProps> =
     </div>
   )
 }
+
+export default NewMessagesInfoComponent
