@@ -14,16 +14,25 @@ import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 
 import { useModal, UseModalTypeWrapper } from '../../containers/hooks'
 
-import { Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
+import {
+  DisplayableMessage,
+  Identity,
+  MessagesDailyGroups,
+  MessageSendingStatus
+} from '@quiet/state-manager'
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
-import UploadFilesPreviewsComponent, { UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
+import UploadFilesPreviewsComponent, {
+  UploadFilesPreviewsProps
+} from '../widgets/channels/UploadedFilesPreviews'
 import { DropZoneComponent } from './DropZone/DropZoneComponent'
+import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoComponent'
 
 const useStyles = makeStyles(theme => ({
   root: {},
   messages: {
+    position: 'relative',
     height: 0,
     backgroundColor: theme.palette.colors.white
   }
@@ -39,6 +48,7 @@ export interface ChannelComponentProps {
     count: number
     groups: MessagesDailyGroups
   }
+  newestMessage: DisplayableMessage
   pendingMessages: Dictionary<MessageSendingStatus>
   lazyLoading: (load: boolean) => void
   onDelete: () => void
@@ -52,9 +62,11 @@ export interface ChannelComponentProps {
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
   handleClipboardFiles?: (arg: ArrayBuffer, ext: string, name: string) => void
-  uploadedFileModal?: ReturnType<UseModalTypeWrapper<{
+  uploadedFileModal?: ReturnType<
+  UseModalTypeWrapper<{
     src: string
-  }>['types']>
+  }>['types']
+  >
 }
 
 export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps> = ({
@@ -64,6 +76,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   channelInfoModal,
   channelSettingsModal,
   messages,
+  newestMessage,
   pendingMessages,
   lazyLoading,
   onDelete,
@@ -84,6 +97,9 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
 }) => {
   const classes = useStyles({})
 
+  const [lastSeenMessage, setLastSeenMessage] = useState<string>()
+  const [newMessagesInfo, setNewMessagesInfo] = useState<boolean>(false)
+
   const [infoClass, setInfoClass] = useState<string>(null)
 
   const [scrollPosition, setScrollPosition] = React.useState(1)
@@ -96,6 +112,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   const { ref: scrollbarRef } = useResizeDetector<HTMLDivElement>({ onResize })
   const scrollBottom = () => {
     if (!scrollbarRef.current) return
+    setNewMessagesInfo(false)
     setScrollHeight(0)
     scrollbarRef.current?.scrollTo({
       behavior: 'auto',
@@ -121,6 +138,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     let position = -1
     if (top) position = 0
     if (bottom) position = 1
+
+    if (bottom) setNewMessagesInfo(false)
 
     setScrollPosition(position)
   }, [])
@@ -155,6 +174,18 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     }
   }, [scrollPosition, messages.count])
 
+  useLayoutEffect(() => {
+    if (scrollPosition !== 1 && lastSeenMessage !== newestMessage.id) {
+      setNewMessagesInfo(true)
+    }
+  }, [newMessagesInfo, messages])
+
+  useEffect(() => {
+    if (scrollPosition === 1) {
+      setLastSeenMessage(newestMessage.id)
+    }
+  }, [scrollPosition, messages])
+
   useEffect(() => {
     scrollBottom()
   }, [channelAddress])
@@ -175,6 +206,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
       </PageHeader>
       <DropZoneComponent channelName={channelName} handleFileDrop={handleFileDrop}>
         <Grid item xs className={classes.messages}>
+          <NewMessagesInfoComponent scrollBottom={scrollBottom} show={newMessagesInfo} />
           <ChannelMessagesComponent
             messages={messages.groups}
             pendingMessages={pendingMessages}
@@ -192,7 +224,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             onChange={value => {
               onInputChange(value)
             }}
-            onKeyPress={(message) => {
+            onKeyPress={message => {
               onEnterKeyPress(message)
             }}
             openFilesDialog={openFilesDialog}
@@ -201,15 +233,13 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
             handleClipboardFiles={handleClipboardFiles}
             unsupportedFileModal={unsupportedFileModal}
-            handleOpenFiles={handleFileDrop}
-          >
+            handleOpenFiles={handleFileDrop}>
             <UploadFilesPreviewsComponent
               filesData={filesData}
-              removeFile={(id) => removeFile(id)}
+              removeFile={id => removeFile(id)}
               unsupportedFileModal={unsupportedFileModal}
             />
           </ChannelInputComponent>
-
         </Grid>
       </DropZoneComponent>
     </Page>
