@@ -1,7 +1,7 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { put } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
-import { WriteMessagePayload } from '../../messages/messages.types'
+import { MessageType, WriteMessagePayload } from '../../messages/messages.types'
 import { publicChannelsActions } from '../publicChannels.slice'
 
 export function* sendInitialChannelMessageSaga(
@@ -10,6 +10,7 @@ export function* sendInitialChannelMessageSaga(
   const { channelName, channelAddress } = action.payload
 
   const payload: WriteMessagePayload = {
+    type: MessageType.Info,
     message: `Created #${channelName}`,
     channelAddress: channelAddress
   }
