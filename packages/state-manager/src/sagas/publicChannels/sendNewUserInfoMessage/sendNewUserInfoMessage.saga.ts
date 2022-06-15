@@ -11,6 +11,7 @@ import { messagesActions } from '../../messages/messages.slice'
 import { MessageType, WriteMessagePayload } from '../../messages/messages.types'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { usersSelectors } from '../../users/users.selectors'
+import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 
 import { MAIN_CHANNEL } from '../../../constants'
@@ -20,19 +21,21 @@ export function* sendNewUserInfoMessageSaga(
 ): Generator {
   const community = yield* select(communitiesSelectors.currentCommunity)
   const isOwner = community.CA
+  const identity = yield* select(identitySelectors.currentIdentity)
 
   if (!isOwner) return
-
+  
   const certs = yield* select(usersSelectors.certificates)
-
+  
   const newCerts = action.payload.certificates.filter(cert => {
     const _cert = keyFromCertificate(parseCertificate(cert))
     return !certs[_cert]
   })
-
+  
   for (const cert of newCerts) {
     const rootCa = loadCertificate(cert)
     const user = yield* call(getCertFieldValue, rootCa, CertFieldsTypes.nickName)
+    if (identity.nickname === user) return
     const payload: WriteMessagePayload = {
       type: MessageType.Info,
       message: `Hey, ${user} just joined!`,
