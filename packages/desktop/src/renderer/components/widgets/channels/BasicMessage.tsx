@@ -15,7 +15,7 @@ import { DisplayableMessage, MessageSendingStatus, SendingStatus } from '@quiet/
 import { NestedMessageContent } from './NestedMessageContent'
 import { Dictionary } from '@reduxjs/toolkit'
 import { UseModalTypeWrapper } from '../../../containers/hooks'
-import information from '../../../static/images/information.svg'
+import information from '../../../static/images/updateIcon.svg'
 import Icon from '../../ui/Icon/Icon'
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -127,8 +127,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
   return (
     <ListItem
       className={classNames({
-        [classes.wrapper]: !infoMessage,
-        [classes.infoWrapper]: infoMessage
+        [classes.wrapper]: !infoMessage
       })}
       onMouseOver={() => {}}
       onMouseLeave={() => {}}>
@@ -144,7 +143,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
             wrap={'nowrap'}>
             <Grid
               item
-              className={classNames({ [classes.avatar]: true, [classes.infoWrapper]: infoMessage })}>
+              className={classNames({ [classes.avatar]: true })}>
               <div className={classes.alignAvatar}>
                 {infoMessage ? (
                   <Icon src={information} className={classes.infoIcon} />
@@ -161,10 +160,9 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                       color='textPrimary'
                       className={classNames({
                         [classes.username]: true,
-                        [classes.pending]: pending,
-                        [classes.info]: infoMessage
+                        [classes.pending]: pending
                       })}>
-                      {!infoMessage ? messageDisplayData.nickname : 'Info'}
+                      {!infoMessage ? messageDisplayData.nickname : 'Quiet'}
                     </Typography>
                   </Grid>
                   {status !== 'failed' && (
@@ -172,7 +170,6 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                       <Typography
                         className={classNames({
                           [classes.time]: true,
-                          [classes.info]: infoMessage
                         })}>
                         {messageDisplayData.date}
                       </Typography>

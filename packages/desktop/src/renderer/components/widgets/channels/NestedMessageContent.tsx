@@ -56,8 +56,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({
           component={'span'}
           className={classNames({
             [classes.message]: true,
-            [classes.pending]: pending,
-            [classes.info]: infoMessage
+            [classes.pending]: pending
           })}
           data-testid={`messagesGroupContent-${message.id}`}>
           {message.message}

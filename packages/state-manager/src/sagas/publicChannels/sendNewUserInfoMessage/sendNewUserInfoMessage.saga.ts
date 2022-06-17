@@ -36,9 +36,10 @@ export function* sendNewUserInfoMessageSaga(
     const rootCa = loadCertificate(cert)
     const user = yield* call(getCertFieldValue, rootCa, CertFieldsTypes.nickName)
     if (identity.nickname === user) return
+    const communityName = community.name[0].toUpperCase() + community.name.substring(1)
     const payload: WriteMessagePayload = {
       type: MessageType.Info,
-      message: `Hey, ${user} just joined!`,
+      message: `@${user} has joined ${communityName}! 🎉`,
       channelAddress: MAIN_CHANNEL
     }
     yield* put(messagesActions.sendMessage(payload))
