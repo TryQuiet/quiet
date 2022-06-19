@@ -50,7 +50,7 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item"
           >
             <span
-              class="MuiTypography-root makeStyles-message-136 makeStyles-pending-137 MuiTypography-body1"
+              class="MuiTypography-root makeStyles-message-137 makeStyles-pending-138 MuiTypography-body1"
               data-testid="messagesGroupContent-string"
             >
               Hi
@@ -88,23 +88,23 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item"
           >
             <div
-              class="makeStyles-message-271"
+              class="makeStyles-message-273"
               data-testid="messagesGroupContent-string"
             >
               <div
-                class="makeStyles-container-377"
+                class="makeStyles-container-380"
               >
                 <div
-                  class="makeStyles-image-376"
+                  class="makeStyles-image-379"
                   data-testid="abcd1234-imageVisual"
                 >
                   <p
-                    class="makeStyles-fileName-381"
+                    class="makeStyles-fileName-384"
                   >
                     test.png
                   </p>
                   <img
-                    class="makeStyles-image-376"
+                    class="makeStyles-image-379"
                     src="path/to/file/test.png"
                     style="width: 400px;"
                   />
