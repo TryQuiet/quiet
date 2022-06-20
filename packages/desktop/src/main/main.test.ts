@@ -48,7 +48,7 @@ jest.mock('child_process', () => {
   }
 })
 
-jest.mock(' ele ct ron  ', () => {
+jest.mock('electron', () => {
   return {
     // @ts-expect-error
     ...jest.requireActual('electron'),
