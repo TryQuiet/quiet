@@ -91,8 +91,10 @@ describe('publicChannelsSelectors', () => {
         }).toSeconds(),
         identity: alice
       },
+      // Message 2 and 3 have info type, so they are tested for not being grouped together.
       {
         id: '2',
+        type: 3,
         createdAt: DateTime.fromObject({
           year: 2020,
           month: 10,
@@ -104,6 +106,7 @@ describe('publicChannelsSelectors', () => {
       },
       {
         id: '3',
+        type: 3,
         createdAt: DateTime.fromObject({
           year: 2020,
           month: 10,
@@ -200,7 +203,7 @@ describe('publicChannelsSelectors', () => {
         identity: item.identity,
         message: {
           id: item.id,
-          type: MessageType.Basic,
+          type: item.type || MessageType.Basic,
           message: `message_${item.id}`,
           createdAt: item.createdAt,
           channelAddress: 'general',
@@ -249,7 +252,9 @@ describe('publicChannelsSelectors', () => {
       ],
       [groupDay2]: [
         [displayable['1']],
-        [displayable['2'], displayable['3'], displayable['4']],
+        [displayable['2']],
+        [displayable['3']],
+        [displayable['4']],
         [displayable['5']],
         [displayable['6']]
       ],

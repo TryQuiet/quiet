@@ -28,6 +28,7 @@ describe('sendInitialChannelMessageSaga', () => {
   test('send initial channel message', async () => {
     await expectSaga(sendInitialChannelMessageSaga, publicChannelsActions.sendInitialChannelMessage({ channelName: channel.name, channelAddress: channel.address }))
       .put(messagesActions.sendMessage({
+        type: 3,
         message: `Created #${channel.name}`,
         channelAddress: channel.address
       }))

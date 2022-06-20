@@ -14,7 +14,9 @@ import Jdenticon from 'react-jdenticon'
 import { DisplayableMessage, MessageSendingStatus, SendingStatus } from '@quiet/state-manager'
 import { NestedMessageContent } from './NestedMessageContent'
 import { Dictionary } from '@reduxjs/toolkit'
-import { useModal, UseModalTypeWrapper } from '../../../containers/hooks'
+import { UseModalTypeWrapper } from '../../../containers/hooks'
+import information from '../../../static/images/updateIcon.svg'
+import Icon from '../../ui/Icon/Icon'
 
 const useStyles = makeStyles((theme: Theme) => ({
   messageCard: {
@@ -25,6 +27,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     '&:hover': {
       backgroundColor: theme.palette.colors.gray03
     }
+  },
+  infoWrapper: {
+    backgroundColor: `${theme.palette.colors.blue} !important`
   },
   clickable: {
     cursor: 'pointer'
@@ -78,6 +83,12 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   pending: {
     color: theme.palette.colors.lightGray
+  },
+  info: {
+    color: theme.palette.colors.white
+  },
+  infoIcon: {
+    width: 32
   }
 }))
 
@@ -92,9 +103,11 @@ export const transformToLowercase = (string: string) => {
 export interface BasicMessageProps {
   messages: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
-  uploadedFileModal?: ReturnType<UseModalTypeWrapper<{
+  uploadedFileModal?: ReturnType<
+  UseModalTypeWrapper<{
     src: string
-  }>['types']>
+  }>['types']
+  >
 }
 
 export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
@@ -106,16 +119,18 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
 
   const messageDisplayData = messages[0]
 
+  const infoMessage = messageDisplayData.type === 3 // 3 stands for MessageType.Info
+
   // Grey out sender name if the first message hasn't been sent yet
   const pending: boolean = pendingMessages[messageDisplayData.id] !== undefined
 
   return (
     <ListItem
       className={classNames({
-        [classes.wrapper]: true
+        [classes.wrapper]: !infoMessage
       })}
-      onMouseOver={() => { }}
-      onMouseLeave={() => { }}>
+      onMouseOver={() => {}}
+      onMouseLeave={() => {}}>
       <ListItemText
         disableTypography
         className={classes.messageCard}
@@ -126,20 +141,20 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
             justify='flex-start'
             alignItems='flex-start'
             wrap={'nowrap'}>
-            <Grid item className={classes.avatar}>
+            <Grid
+              item
+              className={classNames({ [classes.avatar]: true })}>
               <div className={classes.alignAvatar}>
-                <Jdenticon size='32' value={messageDisplayData.nickname} />
+                {infoMessage ? (
+                  <Icon src={information} className={classes.infoIcon} />
+                ) : (
+                  <Jdenticon size='32' value={messageDisplayData.nickname} />
+                )}
               </div>
             </Grid>
             <Grid container item direction='row'>
               <Grid container item direction='row' justify='space-between'>
-                <Grid
-                  container
-                  item
-                  xs
-                  alignItems='flex-start'
-                  wrap='nowrap'
-                >
+                <Grid container item xs alignItems='flex-start' wrap='nowrap'>
                   <Grid item>
                     <Typography
                       color='textPrimary'
@@ -147,12 +162,17 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                         [classes.username]: true,
                         [classes.pending]: pending
                       })}>
-                      {messageDisplayData.nickname}
+                      {infoMessage ? 'Quiet' : messageDisplayData.nickname}
                     </Typography>
                   </Grid>
                   {status !== 'failed' && (
                     <Grid item>
-                      <Typography className={classes.time}>{messageDisplayData.date}</Typography>
+                      <Typography
+                        className={classNames({
+                          [classes.time]: true
+                        })}>
+                        {messageDisplayData.date}
+                      </Typography>
                     </Grid>
                   )}
                 </Grid>

@@ -53,7 +53,7 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, han
         </Grid>
         <Grid container item justify='center'>
           <Grid item className={classes.title}>
-            <Typography variant='h3'>Softare update</Typography>
+            <Typography variant='h3'>Software update</Typography>
           </Grid>
         </Grid>
         <Grid container item justify='center'>

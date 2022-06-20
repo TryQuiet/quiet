@@ -8,9 +8,10 @@ import {
 } from '@quiet/identity'
 import { put, select, call } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
-import { WriteMessagePayload } from '../../messages/messages.types'
+import { MessageType, WriteMessagePayload } from '../../messages/messages.types'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { usersSelectors } from '../../users/users.selectors'
+import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 
 import { MAIN_CHANNEL } from '../../../constants'
@@ -20,6 +21,7 @@ export function* sendNewUserInfoMessageSaga(
 ): Generator {
   const community = yield* select(communitiesSelectors.currentCommunity)
   const isOwner = community.CA
+  const identity = yield* select(identitySelectors.currentIdentity)
 
   if (!isOwner) return
 
@@ -33,8 +35,11 @@ export function* sendNewUserInfoMessageSaga(
   for (const cert of newCerts) {
     const rootCa = loadCertificate(cert)
     const user = yield* call(getCertFieldValue, rootCa, CertFieldsTypes.nickName)
+    if (identity.nickname === user) return
+    const communityName = community.name[0].toUpperCase() + community.name.substring(1)
     const payload: WriteMessagePayload = {
-      message: `${user} Joined`,
+      type: MessageType.Info,
+      message: `@${user} has joined ${communityName}! 🎉`,
       channelAddress: MAIN_CHANNEL
     }
     yield* put(messagesActions.sendMessage(payload))
