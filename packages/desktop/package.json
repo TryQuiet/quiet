@@ -55,14 +55,11 @@
         "dist/**/*",
         "build/icon.*",
         "package.json"
-      ]
-    },
-    "publish": {
-      "provider": [
+      ],
+      "publish": [
         "s3",
         "github"
-      ],
-      "bucket": "test.quiet"
+      ]
     },
     "extraResources": [
       "tor/**/*",
