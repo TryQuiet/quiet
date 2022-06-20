@@ -56,10 +56,12 @@
         "build/icon.*",
         "package.json"
       ],
-      "publish": {
-        "provider": "s3",
-        "bucket": "test.quiet"
-      }
+      "publish": [
+        {
+          "provider": "s3",
+          "bucket": "test.quiet"
+        }
+      ]
     },
     "extraResources": [
       "tor/**/*",
