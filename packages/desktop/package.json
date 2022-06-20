@@ -144,6 +144,7 @@
     "formik-material-ui": "0.0.22",
     "get-port": "^5.1.1",
     "https-proxy-agent": "^5.0.0",
+    "identity-obj-proxy": "^3.0.0",
     "immer": "^9.0.6",
     "jest-each": "^27.2.4",
     "keymirror": "0.1.1",
