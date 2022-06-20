@@ -169,7 +169,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                     <Grid item>
                       <Typography
                         className={classNames({
-                          [classes.time]: true,
+                          [classes.time]: true
                         })}>
                         {messageDisplayData.date}
                       </Typography>

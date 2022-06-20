@@ -159,7 +159,7 @@ export const currentChannelMessagesMergedBySender = createSelector(
       result[day] = groups[day].reduce((merged, message) => {
         // Get last item from collected array for comparison
         const last = merged.length && merged[merged.length - 1][0]
-        
+
         if (last.nickname === message.nickname && message.createdAt - last.createdAt < 300 && message.type !== MessageType.Info && last.type !== MessageType.Info) {
           merged[merged.length - 1].push(message)
         } else {

@@ -1,4 +1,4 @@
-import {DisplayableMessage} from '@quiet/state-manager'
+import { DisplayableMessage } from '@quiet/state-manager'
 
 export const generateMessages = (amount: number, type: number = 1, message: string = 'message', nickname: string = 'gringo') => {
   const messages: DisplayableMessage[] = []

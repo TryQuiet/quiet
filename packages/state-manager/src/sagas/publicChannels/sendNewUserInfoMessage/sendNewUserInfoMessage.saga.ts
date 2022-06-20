@@ -24,14 +24,14 @@ export function* sendNewUserInfoMessageSaga(
   const identity = yield* select(identitySelectors.currentIdentity)
 
   if (!isOwner) return
-  
+
   const certs = yield* select(usersSelectors.certificates)
-  
+
   const newCerts = action.payload.certificates.filter(cert => {
     const _cert = keyFromCertificate(parseCertificate(cert))
     return !certs[_cert]
   })
-  
+
   for (const cert of newCerts) {
     const rootCa = loadCertificate(cert)
     const user = yield* call(getCertFieldValue, rootCa, CertFieldsTypes.nickName)
