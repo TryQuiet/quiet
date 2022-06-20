@@ -6,7 +6,7 @@ import NestedMessageContent from './NestedMessageContent'
 
 describe('NestedMessageContent', () => {
   it('renders message', () => {
-    const messages = generateMessages(1)
+    const messages = generateMessages()
     const result = renderComponent(<NestedMessageContent pending={false} message={messages[0]} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -27,7 +27,7 @@ describe('NestedMessageContent', () => {
   })
 
   it('renders pending message', () => {
-    const messages = generateMessages(1)
+    const messages = generateMessages()
     const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -48,7 +48,7 @@ describe('NestedMessageContent', () => {
   })
 
   it('renders info message', () => {
-    const messages = generateMessages(1, 3)
+    const messages = generateMessages({type: 3})
     const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
