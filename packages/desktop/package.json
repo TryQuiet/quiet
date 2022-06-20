@@ -60,6 +60,13 @@
         "github"
       ]
     },
+    "publish": {
+      "provider": [
+        "github",
+        "s3"
+      ],
+      "bucket": "test.quiet"
+    },
     "extraResources": [
       "tor/**/*",
       "mainEnvs.json"
