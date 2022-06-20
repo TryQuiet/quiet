@@ -296,6 +296,7 @@ export class Storage {
         })
       })
       db.events.on('replicated', async address => {
+        log('SOME CHANGE')
         log('Replicated.', address)
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         this.io.sendMessagesIds({
