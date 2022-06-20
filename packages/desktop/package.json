@@ -57,12 +57,14 @@
         "package.json"
       ],
       "publish": [
-        {
-          "provider": "s3",
-          "bucket": "test.quiet"
-        }
+        "github"
       ]
     },
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ],
     "extraResources": [
       "tor/**/*",
       "mainEnvs.json"
