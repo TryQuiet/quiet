@@ -17,13 +17,7 @@ program
 program.parse(process.argv)
 const options = program.opts()
 
-export const runBackend = async (): Promise<{
-  connectionsManager: ConnectionsManager
-  dataServer: DataServer
-}> => {
-  const dataServer = new backend.DataServer(options.dataServerPort)
-  await dataServer.listen()
-
+export const runBackend = async () => {
   const isDev = process.env.NODE_ENV === 'development'
   const resourcesPath = isDev ? null : options.resourcesPath.trim()
 
@@ -32,7 +26,7 @@ export const runBackend = async (): Promise<{
     agentHost: 'localhost',
     agentPort: options.socksPort,
     httpTunnelPort: options.httpTunnelPort,
-    io: dataServer.io,
+    socketIOPort: options.dataServerPort,
     options: {
       env: {
         appDataPath: `${options.appDataPath.trim()}/Quiet`,
@@ -46,7 +40,6 @@ export const runBackend = async (): Promise<{
   process.on('message', async (message) => {
     if (message === 'close') {
       try {
-        await dataServer.close()
         await connectionsManager.closeAllServices()
       } catch (e) {
         log.error('Error occured while closing backend services', e)
@@ -56,8 +49,6 @@ export const runBackend = async (): Promise<{
   })
 
   await connectionsManager.init()
-
-  return { connectionsManager, dataServer }
 }
 
 export const backendVersion = backend.version

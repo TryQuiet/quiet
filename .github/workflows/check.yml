@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-20.04, windows-2019]
 
     steps:
       - name: "Print OS"
@@ -18,11 +18,17 @@ jobs:
 
       - uses: actions/checkout@v2
 
+      - name: "Remove test files workaround (jest types conflicting with cypress types)"
+        if: ${{ runner.os == 'Windows' }} 
+        run: find packages/desktop/src -name '*.test.*' -delete
+        shell: bash
+
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
 
       - name: "Lint"
+        if: ${{ runner.os != 'Windows' }} 
         run: lerna run lint-ci --stream
         
