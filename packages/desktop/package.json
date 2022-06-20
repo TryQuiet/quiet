@@ -60,11 +60,6 @@
         "github"
       ]
     },
-    "publish": [
-      {
-        "provider": "github"
-      }
-    ],
     "extraResources": [
       "tor/**/*",
       "mainEnvs.json"
