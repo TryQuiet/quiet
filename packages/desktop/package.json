@@ -62,7 +62,8 @@
     },
     "publish": [
       {
-        "provider": "s3"
+        "provider": "s3",
+        "bucket": "test.quiet"
       }
     ],
     "extraResources": [
