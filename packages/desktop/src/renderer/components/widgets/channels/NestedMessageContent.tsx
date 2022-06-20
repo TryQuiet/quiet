@@ -38,8 +38,6 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({
 }) => {
   const classes = useStyles({})
 
-  const infoMessage = message.type === 3 // 3 stands for MessageType.Info
-
   return (
     <Grid item>
       {message.type === 2 ? ( // 2 stands for MessageType.Image (cypress tests incompatibility with enums)

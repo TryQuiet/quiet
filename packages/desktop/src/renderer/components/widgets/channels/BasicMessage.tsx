@@ -162,7 +162,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                         [classes.username]: true,
                         [classes.pending]: pending
                       })}>
-                      {!infoMessage ? messageDisplayData.nickname : 'Quiet'}
+                      {infoMessage ? 'Quiet' : messageDisplayData.nickname}
                     </Typography>
                   </Grid>
                   {status !== 'failed' && (
