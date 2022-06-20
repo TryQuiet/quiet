@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 
 import { BasicMessageComponent } from './BasicMessage'
 
-import { renderComponent } from '../../../testUtils/renderComponent'
+import { renderComponent, generateMessages } from '../../../testUtils'
 import { HashRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import store from '../../../store'
@@ -15,18 +15,11 @@ describe('BasicMessage', () => {
   })
 
   it('renders component', async () => {
-    const message = {
-      id: 'string',
-      type: 1,
-      message: 'string',
-      createdAt: 0,
-      date: 'string',
-      nickname: 'string'
-    }
+    const messages = generateMessages(1)
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <BasicMessageComponent messages={[message]} />
+          <BasicMessageComponent messages={messages} />
         </Provider>
       </HashRouter>
     )
@@ -66,7 +59,7 @@ describe('BasicMessage', () => {
                         <p
                           class="MuiTypography-root makeStyles-username-6 MuiTypography-body1 MuiTypography-colorTextPrimary"
                         >
-                          string
+                          gringo
                         </p>
                       </div>
                       <div
@@ -82,7 +75,7 @@ describe('BasicMessage', () => {
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
-                    data-testid="userMessages-string-string"
+                    data-testid="userMessages-gringo-0"
                     style="margin-top: -3px;"
                   >
                     <div
@@ -90,9 +83,9 @@ describe('BasicMessage', () => {
                     >
                       <span
                         class="MuiTypography-root makeStyles-message-168 MuiTypography-body1"
-                        data-testid="messagesGroupContent-string"
+                        data-testid="messagesGroupContent-0"
                       >
-                        string
+                        message0
                       </span>
                     </div>
                   </div>
@@ -105,24 +98,7 @@ describe('BasicMessage', () => {
     `)
   })
   it('renders component with multiple messages', async () => {
-    const messages = [
-      {
-        id: 'string',
-        type: 1,
-        message: 'string',
-        createdAt: 0,
-        date: 'string',
-        nickname: 'string'
-      },
-      {
-        id: 'id',
-        type: 1,
-        message: 'string',
-        createdAt: 0,
-        date: 'string',
-        nickname: 'string'
-      }
-    ]
+    const messages = generateMessages(2)
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
@@ -166,7 +142,7 @@ describe('BasicMessage', () => {
                         <p
                           class="MuiTypography-root makeStyles-username-176 MuiTypography-body1 MuiTypography-colorTextPrimary"
                         >
-                          string
+                          gringo
                         </p>
                       </div>
                       <div
@@ -182,7 +158,7 @@ describe('BasicMessage', () => {
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
-                    data-testid="userMessages-string-string"
+                    data-testid="userMessages-gringo-0"
                     style="margin-top: -3px;"
                   >
                     <div
@@ -190,9 +166,9 @@ describe('BasicMessage', () => {
                     >
                       <span
                         class="MuiTypography-root makeStyles-message-338 MuiTypography-body1"
-                        data-testid="messagesGroupContent-string"
+                        data-testid="messagesGroupContent-0"
                       >
-                        string
+                        message0
                       </span>
                     </div>
                     <div
@@ -200,9 +176,9 @@ describe('BasicMessage', () => {
                     >
                       <span
                         class="MuiTypography-root makeStyles-message-338 MuiTypography-body1"
-                        data-testid="messagesGroupContent-id"
+                        data-testid="messagesGroupContent-1"
                       >
-                        string
+                        message1
                       </span>
                     </div>
                   </div>
@@ -215,24 +191,7 @@ describe('BasicMessage', () => {
     `)
   })
   it('renders with separate info messages', async () => {
-    const messages = [
-      {
-        id: 'string',
-        type: 3,
-        message: 'string',
-        createdAt: 0,
-        date: 'string',
-        nickname: 'string'
-      },
-      {
-        id: 'string',
-        type: 3,
-        message: 'string',
-        createdAt: 0,
-        date: 'string',
-        nickname: 'string'
-      }
-    ]
+    const messages = generateMessages(2, 3)
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
@@ -295,7 +254,7 @@ describe('BasicMessage', () => {
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
-                    data-testid="userMessages-string-string"
+                    data-testid="userMessages-gringo-0"
                     style="margin-top: -3px;"
                   >
                     <div
@@ -303,9 +262,9 @@ describe('BasicMessage', () => {
                     >
                       <span
                         class="MuiTypography-root makeStyles-message-508 MuiTypography-body1"
-                        data-testid="messagesGroupContent-string"
+                        data-testid="messagesGroupContent-0"
                       >
-                        string
+                        message0
                       </span>
                     </div>
                     <div
@@ -313,9 +272,9 @@ describe('BasicMessage', () => {
                     >
                       <span
                         class="MuiTypography-root makeStyles-message-508 MuiTypography-body1"
-                        data-testid="messagesGroupContent-string"
+                        data-testid="messagesGroupContent-1"
                       >
-                        string
+                        message1
                       </span>
                     </div>
                   </div>
@@ -328,28 +287,12 @@ describe('BasicMessage', () => {
     `)
   })
   it('renders with basic message and info message', async () => {
-    const message = [
-      {
-        id: 'string',
-        type: 3,
-        message: 'string',
-        createdAt: 0,
-        date: 'string',
-        nickname: 'string'
-      },
-      {
-        id: 'string',
-        type: 1,
-        message: 'string',
-        createdAt: 0,
-        date: 'string',
-        nickname: 'string'
-      }
-    ]
+    const message1 = generateMessages(1)
+    const message2 = generateMessages(1, 3)
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <BasicMessageComponent messages={message} />
+          <BasicMessageComponent messages={[...message1, ...message2]} />
         </Provider>
       </HashRouter>
     )
@@ -357,7 +300,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters"
+            class="MuiListItem-root makeStyles-wrapper-512 MuiListItem-gutters"
           >
             <div
               class="MuiListItemText-root makeStyles-messageCard-511"
@@ -371,10 +314,7 @@ describe('BasicMessage', () => {
                   <div
                     class="makeStyles-alignAvatar-521"
                   >
-                    <img
-                      class="makeStyles-infoIcon-527"
-                      src="test-file-stub"
-                    />
+                    Jdenticon
                   </div>
                 </div>
                 <div
@@ -392,7 +332,7 @@ describe('BasicMessage', () => {
                         <p
                           class="MuiTypography-root makeStyles-username-516 MuiTypography-body1 MuiTypography-colorTextPrimary"
                         >
-                          Quiet
+                          gringo
                         </p>
                       </div>
                       <div
@@ -408,7 +348,7 @@ describe('BasicMessage', () => {
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
-                    data-testid="userMessages-string-string"
+                    data-testid="userMessages-gringo-0"
                     style="margin-top: -3px;"
                   >
                     <div
@@ -416,9 +356,9 @@ describe('BasicMessage', () => {
                     >
                       <span
                         class="MuiTypography-root makeStyles-message-678 MuiTypography-body1"
-                        data-testid="messagesGroupContent-string"
+                        data-testid="messagesGroupContent-0"
                       >
-                        string
+                        message0
                       </span>
                     </div>
                     <div
@@ -426,9 +366,9 @@ describe('BasicMessage', () => {
                     >
                       <span
                         class="MuiTypography-root makeStyles-message-678 MuiTypography-body1"
-                        data-testid="messagesGroupContent-string"
+                        data-testid="messagesGroupContent-0"
                       >
-                        string
+                        message0
                       </span>
                     </div>
                   </div>
