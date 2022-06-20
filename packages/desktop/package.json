@@ -57,9 +57,7 @@
         "package.json"
       ],
       "publish": {
-        "provider": [
-          "github"
-        ],
+        "provider": "github",
         "bucket": "test.quiet"
       }
     },
