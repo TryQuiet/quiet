@@ -63,7 +63,9 @@
     },
     "publish": {
       "provider": "s3",
-      "bucket": "test.quiet"
+      "bucket": "test.quiet",
+      "owner": "Zbay LLC",
+      "repo": "TryQuiet"
     },
     "extraResources": [
       "tor/**/*",
