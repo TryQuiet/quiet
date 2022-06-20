@@ -7,7 +7,8 @@ import { UploadedFilename, UploadedFilePlaceholder } from './UploadedFilePlaceho
 
 const useStyles = makeStyles(() => ({
   image: {
-    maxWidth: '100%'
+    maxWidth: '100%',
+    display: 'block'
   },
   container: {
     maxWidth: '400px',
