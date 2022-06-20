@@ -58,7 +58,7 @@
       ]
     },
     "publish": {
-      "provider": "github",
+      "provider": "s3",
       "bucket": "test.quiet"
     },
     "extraResources": [
