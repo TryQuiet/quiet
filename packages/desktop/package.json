@@ -62,7 +62,9 @@
     },
     "publish": [
       {
-        "provider": "github"
+        "provider": "github",
+        "owner": "Zbay LLC",
+        "repo": "TryQuiet"
       }
     ],
     "extraResources": [
