@@ -58,7 +58,6 @@
       ],
       "publish": {
         "provider": [
-          "s3",
           "github"
         ],
         "bucket": "test.quiet"
