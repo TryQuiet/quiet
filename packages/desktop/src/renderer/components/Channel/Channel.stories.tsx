@@ -369,6 +369,7 @@ export const Pending = Template.bind({})
 export const ImagePreview = Template.bind({})
 export const ImagePlaceholder = Template.bind({})
 export const SentImage = Template.bind({})
+export const NewUserMessage = Template.bind({})
 
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   user: {
@@ -499,6 +500,18 @@ SentImage.args = {
       path: 'images/test-image.png'
     },
     message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  })
+}
+NewUserMessage.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 3,
+    media: null,
+    message: 'Hey, @the-emperor just joined!',
     createdAt: 0,
     date: '12:46',
     nickname: 'vader'

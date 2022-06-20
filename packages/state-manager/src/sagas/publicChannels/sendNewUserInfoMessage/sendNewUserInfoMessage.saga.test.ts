@@ -22,6 +22,7 @@ describe('sendInitialChannelMessageSaga', () => {
   let factory: FactoryGirl
   let channel: PublicChannel
   let user: Identity
+  let user2: Identity
 
   beforeAll(async () => {
     setupCrypto()
@@ -41,27 +42,78 @@ describe('sendInitialChannelMessageSaga', () => {
       }
     )
 
+    user2 = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+      'Identity',
+      {
+        id: community1.id
+      }
+    )
+
     channel = (await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel'))
       .payload.channel
 
-    store.dispatch(usersActions.test_remove_user_certificate({ certificate: user.userCertificate }))
+    store.dispatch(usersActions.test_remove_user_certificate({ certificate: user2.userCertificate }))
+
+    const communityName = community1.name[0].toUpperCase() + community1.name.substring(1)
 
     const reducer = combineReducers(reducers)
     await expectSaga(
       sendNewUserInfoMessageSaga,
-      publicChannelsActions.sendNewUserInfoMessage({ certificates: [user.userCertificate] })
+      publicChannelsActions.sendNewUserInfoMessage({ certificates: [user2.userCertificate] })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .put(
         messagesActions.sendMessage({
-          message: `${user.nickname} Joined`,
+          type: 3,
+          message: `@${user2.nickname} has joined ${communityName}! 🎉`,
           channelAddress: MAIN_CHANNEL
         })
       )
       .run()
   })
-  test('dont send new user info message if not new user', async () => {
+
+  test('dont send new user info if user exists', async () => {
+    const community1 = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+    user = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+      'Identity',
+      {
+        id: community1.id
+      }
+    )
+
+    user2 = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+      'Identity',
+      {
+        id: community1.id
+      }
+    )
+
+    channel = (await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel'))
+      .payload.channel
+
+    const communityName = community1.name[0].toUpperCase() + community1.name.substring(1)
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      sendNewUserInfoMessageSaga,
+      publicChannelsActions.sendNewUserInfoMessage({ certificates: [user2.userCertificate] })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put(
+        messagesActions.sendMessage({
+          type: 3,
+          message: `@${user2.nickname} has joined ${communityName}! 🎉`,
+          channelAddress: MAIN_CHANNEL
+        })
+      )
+      .run()
+  })
+
+  test('dont send new user info message if owner', async () => {
     const community1 = await factory.create<
     ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
@@ -84,7 +136,8 @@ describe('sendInitialChannelMessageSaga', () => {
       .withState(store.getState())
       .not.put(
         messagesActions.sendMessage({
-          message: `${user.nickname} Joined`,
+          type: 3,
+          message: `@${user2} has joined ${community1.name}! 🎉`,
           channelAddress: MAIN_CHANNEL
         })
       )

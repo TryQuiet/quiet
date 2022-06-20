@@ -112,7 +112,7 @@ describe('UpdateModal', () => {
                       <h3
                         class="MuiTypography-root MuiTypography-h3"
                       >
-                        Softare update
+                        Software update
                       </h3>
                     </div>
                   </div>

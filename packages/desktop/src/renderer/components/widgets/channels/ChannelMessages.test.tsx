@@ -81,10 +81,10 @@ describe('ChannelMessages', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start"
                     >
                       <div
-                        class="MuiGrid-root makeStyles-avatar-157 MuiGrid-item"
+                        class="MuiGrid-root makeStyles-avatar-158 MuiGrid-item"
                       >
                         <div
-                          class="makeStyles-alignAvatar-158"
+                          class="makeStyles-alignAvatar-159"
                         >
                           Jdenticon
                         </div>
@@ -102,7 +102,7 @@ describe('ChannelMessages', () => {
                               class="MuiGrid-root MuiGrid-item"
                             >
                               <p
-                                class="MuiTypography-root makeStyles-username-153 MuiTypography-body1 MuiTypography-colorTextPrimary"
+                                class="MuiTypography-root makeStyles-username-154 MuiTypography-body1 MuiTypography-colorTextPrimary"
                               >
                                 string
                               </p>
@@ -111,7 +111,7 @@ describe('ChannelMessages', () => {
                               class="MuiGrid-root MuiGrid-item"
                             >
                               <p
-                                class="MuiTypography-root makeStyles-time-160 MuiTypography-body1"
+                                class="MuiTypography-root makeStyles-time-161 MuiTypography-body1"
                               >
                                 string
                               </p>
@@ -127,7 +127,7 @@ describe('ChannelMessages', () => {
                             class="MuiGrid-root MuiGrid-item"
                           >
                             <span
-                              class="MuiTypography-root makeStyles-message-180 MuiTypography-body1"
+                              class="MuiTypography-root makeStyles-message-183 MuiTypography-body1"
                               data-testid="messagesGroupContent-string"
                             >
                               string
