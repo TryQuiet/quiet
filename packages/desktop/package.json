@@ -57,14 +57,12 @@
         "package.json"
       ],
       "publish": [
-        "github"
+        "s3"
       ]
     },
     "publish": [
       {
-        "provider": "github",
-        "owner": "Zbay LLC",
-        "repo": "TryQuiet"
+        "provider": "s3"
       }
     ],
     "extraResources": [
