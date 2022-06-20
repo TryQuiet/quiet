@@ -48,7 +48,7 @@ describe('NestedMessageContent', () => {
   })
 
   it('renders info message', () => {
-    const messages = generateMessages({type: 3})
+    const messages = generateMessages({ type: 3 })
     const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

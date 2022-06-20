@@ -98,7 +98,7 @@ describe('BasicMessage', () => {
     `)
   })
   it('renders component with multiple messages', async () => {
-    const messages = generateMessages({amount: 2})
+    const messages = generateMessages({ amount: 2 })
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
@@ -191,7 +191,7 @@ describe('BasicMessage', () => {
     `)
   })
   it('renders with separate info messages', async () => {
-    const messages = generateMessages({amount: 2, type: 3})
+    const messages = generateMessages({ amount: 2, type: 3 })
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
@@ -288,7 +288,7 @@ describe('BasicMessage', () => {
   })
   it('renders with basic message and info message', async () => {
     const message1 = generateMessages()
-    const message2 = generateMessages({type: 3})
+    const message2 = generateMessages({ type: 3 })
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
