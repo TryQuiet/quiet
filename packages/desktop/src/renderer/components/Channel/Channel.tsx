@@ -1,12 +1,22 @@
 import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { identity, messages, publicChannels, connection, communities, FileContent } from '@quiet/state-manager'
+import {
+  identity,
+  messages,
+  publicChannels,
+  connection,
+  communities,
+  FileContent
+} from '@quiet/state-manager'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
-import { FilePreviewData, UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
+import {
+  FilePreviewData,
+  UploadFilesPreviewsProps
+} from '../widgets/channels/UploadedFilesPreviews'
 import { ipcRenderer } from 'electron'
 import { getFilesData } from '../../../utils/functions/fileData'
 
@@ -26,14 +36,16 @@ const Channel = () => {
     publicChannels.selectors.currentChannelMessagesMergedBySender
   )
 
+  const newestCurrentChannelMessage = useSelector(
+    publicChannels.selectors.newestCurrentChannelMessage
+  )
+
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const initializedCommunities = useSelector(connection.selectors.initializedCommunities)
 
   const isCommunityInitialized = Boolean(initializedCommunities[communityId])
 
-  const pendingMessages = useSelector(
-    messages.selectors.messagesSendingStatus
-  )
+  const pendingMessages = useSelector(messages.selectors.messagesSendingStatus)
 
   const channelSettingsModal = useModal(ModalName.channelSettingsModal)
   const channelInfoModal = useModal(ModalName.channelInfo)
@@ -81,20 +93,18 @@ const Channel = () => {
     [dispatch]
   )
 
-  const handleFileDrop = useCallback(
-    (item: { files: any[] }) => {
-      if (item) {
-        updateUploadingFiles(getFilesData(item.files.map((i) => i.path)))
-      }
-    },
-    []
-  )
+  const handleFileDrop = useCallback((item: { files: any[] }) => {
+    if (item) {
+      updateUploadingFiles(getFilesData(item.files.map(i => i.path)))
+    }
+  }, [])
 
-  const removeFilePreview = (id: string) => setUploadingFiles(existingFiles => {
-    delete existingFiles[id]
-    const updatedExistingFiles = { ...existingFiles }
-    return updatedExistingFiles
-  })
+  const removeFilePreview = (id: string) =>
+    setUploadingFiles(existingFiles => {
+      delete existingFiles[id]
+      const updatedExistingFiles = { ...existingFiles }
+      return updatedExistingFiles
+    })
 
   const updateUploadingFiles = (filesData: FilePreviewData) => {
     setUploadingFiles(existingFiles => {
@@ -158,14 +168,15 @@ const Channel = () => {
       count: currentChannelMessagesCount,
       groups: currentChannelDisplayableMessages
     },
+    newestMessage: newestCurrentChannelMessage,
     pendingMessages: pendingMessages,
     lazyLoading: lazyLoading,
-    onDelete: function (): void { },
+    onDelete: function (): void {},
     onInputChange: onInputChange,
     onInputEnter: onInputEnter,
     mutedFlag: false,
     notificationFilter: '',
-    openNotificationsTab: function (): void { },
+    openNotificationsTab: function (): void {},
     handleFileDrop: handleFileDrop,
     openFilesDialog: openFilesDialog,
     isCommunityInitialized: isCommunityInitialized,

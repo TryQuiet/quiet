@@ -426,6 +426,14 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     unsupportedFiles: []
   },
   messages: mockMessages(),
+  newestMessage: {
+    id: '31',
+    type: 1,
+    message: 'I Agree',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'obi'
+  },
   pendingMessages: {},
   channelAddress: 'general',
   channelName: 'general',

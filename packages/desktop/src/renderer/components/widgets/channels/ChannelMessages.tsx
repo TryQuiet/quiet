@@ -69,7 +69,6 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   uploadedFileModal
 }) => {
   const classes = useStyles({})
-
   return (
     <div
       className={classes.scroll}
