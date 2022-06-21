@@ -65,6 +65,9 @@
       {
         "provider": "s3",
         "bucket": "test.quiet"
+      },
+      {
+        "provider": "github"
       }
     ],
     "extraResources": [
