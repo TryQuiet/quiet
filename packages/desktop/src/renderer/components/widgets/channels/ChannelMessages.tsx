@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { Dictionary } from '@reduxjs/toolkit'
 
 import { makeStyles } from '@material-ui/core/styles'
@@ -10,7 +10,7 @@ import BasicMessageComponent from './BasicMessage'
 import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
 import { MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
-import { useModal, UseModalTypeWrapper } from '../../../containers/hooks'
+import { UseModalTypeWrapper } from '../../../containers/hooks'
 
 const useStyles = makeStyles(theme => ({
   spinner: {
@@ -56,9 +56,11 @@ export interface IChannelMessagesProps {
   pendingMessages?: Dictionary<MessageSendingStatus>
   scrollbarRef
   onScroll: () => void
-  uploadedFileModal?: ReturnType<UseModalTypeWrapper<{
+  uploadedFileModal?: ReturnType<
+  UseModalTypeWrapper<{
     src: string
-  }>['types']>
+  }>['types']
+  >
 }
 
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
@@ -69,6 +71,31 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   uploadedFileModal
 }) => {
   const classes = useStyles({})
+
+  const listRef = useRef<HTMLUListElement>()
+
+  const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(
+    evt => {
+      switch (evt.key) {
+        case 'ArrowUp':
+          listRef.current?.focus()
+          break
+        case 'ArrowDown':
+          listRef.current?.focus()
+          break
+      }
+    },
+  [listRef]
+  )
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown, false)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown, false)
+    }
+  }, [handleKeyDown])
+
   return (
     <div
       className={classes.scroll}
@@ -83,19 +110,21 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
           color={'black'}
         />
       )}
-      <List disablePadding className={classes.list} id='messages-scroll'>
+      <List disablePadding className={classes.list} id='messages-scroll' ref={listRef} tabIndex={0}>
         {Object.keys(messages).map(day => {
           return (
             <div key={day}>
               <MessagesDivider title={day} />
               {messages[day].map(items => {
                 const data = items[0]
-                return <BasicMessageComponent
-                  key={data.id}
-                  messages={items}
-                  pendingMessages={pendingMessages}
-                  uploadedFileModal={uploadedFileModal}
-                />
+                return (
+                  <BasicMessageComponent
+                    key={data.id}
+                    messages={items}
+                    pendingMessages={pendingMessages}
+                    uploadedFileModal={uploadedFileModal}
+                  />
+                )
               })}
             </div>
           )
