@@ -116,7 +116,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     setScrollHeight(0)
     scrollbarRef.current?.scrollTo({
       behavior: 'auto',
-      top: Math.abs(scrollbarRef.current?.clientHeight - scrollbarRef.current?.scrollHeight) + 1 // 1 stands for the scroll unit
+      top: Math.abs(scrollbarRef.current?.clientHeight - scrollbarRef.current?.scrollHeight)
     })
   }
 
@@ -132,7 +132,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     const top = scrollbarRef.current?.scrollTop === 0
 
     const bottom =
-      Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) + 1 <=
+      Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) <=
       Math.floor(scrollbarRef.current?.clientHeight)
 
     let position = -1
