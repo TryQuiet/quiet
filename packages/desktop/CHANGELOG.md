@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.1-alpha.34](https://github.com/TryQuiet/monorepo/compare/quiet@0.8.1-alpha.33...quiet@0.8.1-alpha.34) (2022-06-21)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
 ## [0.8.1-alpha.33](https://github.com/TryQuiet/monorepo/compare/quiet@0.8.1-alpha.32...quiet@0.8.1-alpha.33) (2022-06-21)
 
 **Note:** Version bump only for package quiet
