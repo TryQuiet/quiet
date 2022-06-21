@@ -61,12 +61,15 @@
         "github"
       ]
     },
-    "publish": {
-      "provider": "s3",
-      "bucket": "test.quiet",
-      "owner": "Zbay LLC",
-      "repo": "TryQuiet"
-    },
+    "publish": [
+      {
+        "provider": "s3",
+        "bucket": "test.quiet"
+      },
+      {
+        "provider": "github"
+      }
+    ],
     "extraResources": [
       "tor/**/*",
       "mainEnvs.json"
