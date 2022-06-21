@@ -6,6 +6,10 @@
     "email": "h@zbay.llc"
   },
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TryQuiet/monorepo.git"
+  },
   "build": {
     "afterSign": "scripts/notarize.js",
     "afterAllArtifactBuild": "scripts/setEnvs.js",
@@ -57,17 +61,13 @@
         "package.json"
       ],
       "publish": [
-        "s3",
-        "github"
+        "s3"
       ]
     },
     "publish": [
       {
         "provider": "s3",
         "bucket": "test.quiet"
-      },
-      {
-        "provider": "github"
       }
     ],
     "extraResources": [
