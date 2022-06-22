@@ -44,7 +44,7 @@ jobs:
           ARCH: x86_64
         run: cd packages/desktop && electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
 
-     - name: Upload Release Assets
+     -  name: Upload Release Assets
         id: upload-release-assets
         uses: dwenegar/upload-release-assets@v1
         env:
