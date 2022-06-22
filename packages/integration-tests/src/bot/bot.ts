@@ -42,7 +42,7 @@ const intensity = options.intensity
 const endless = options.endless
 const standby = options.standby
 
-let typingLatency: number = undefined
+let typingLatency: number
 
 if (intensity) {
   typingLatency = 60_000 / intensity // Typing latency per message (in milliseconds)
@@ -52,7 +52,7 @@ if (intensity) {
 const createBots = async () => {
   log(`Creating ${activeUsers} bots`)
   for (let i = 0; i < activeUsers; i++) {
-    let username = `bot_${(Math.random() + 1).toString(36).substring(5)}`
+    const username = `bot_${(Math.random() + 1).toString(36).substring(5)}`
     apps.set(username, await createApp())
   }
 }
@@ -60,7 +60,7 @@ const createBots = async () => {
 const createSilentBots = async () => {
   log(`Creating ${silentUsers} silent bots`)
   for (let i = 0; i < silentUsers; i++) {
-    let username = `silent_bot_${(Math.random() + 1).toString(36).substring(5)}`
+    const username = `silent_bot_${(Math.random() + 1).toString(36).substring(5)}`
     apps.set(username, await createApp())
   }
 }
@@ -107,20 +107,20 @@ const sendMessages = async () => {
     for (const [username, _app] of _activeUsers) {
       messagesToSend.set(username, messagesPerUser)
     }
-  
+
     while (messagesToSend.size > 0) {
       const usernames = Array.from(messagesToSend.keys())
       const currentUsername = usernames[Math.floor(Math.random() * usernames.length)]
       let messagesLeft = messagesToSend.get(currentUsername)
       if (!endless) messagesLeft -= 1
-  
+
       if (messagesLeft <= 0) {
         await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, 'Bye!')
         messagesToSend.delete(currentUsername)
         log(`User ${currentUsername} is finished with sending messages`)
         continue
       }
-  
+
       await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, `(${endless ? 'endless' : messagesLeft}) ${lorem.generateSentences(1)}`)
       messagesToSend.set(currentUsername, messagesLeft)
     }
@@ -131,8 +131,8 @@ const sendMessages = async () => {
 }
 
 const sendMessageWithLatency = async (
-  username: string, 
-  store: TestStore, 
+  username: string,
+  store: TestStore,
   message: string
 ) => {
   const latency = typingLatency || getRandomInt(300, 550)
