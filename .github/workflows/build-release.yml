@@ -64,6 +64,8 @@ jobs:
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: packages/desktop
 
       - name: Upload Release Assets
         uses: actions/upload-release-asset@v1.0.2
