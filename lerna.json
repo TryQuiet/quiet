@@ -7,8 +7,7 @@
     "version": {
       "allowBranch": [
         "add/github-release-assets"
-      ],
-      "conventionalCommits": true
+      ]
     },
     "bootstrap": {
       "ignore": "@quiet/mobile"
