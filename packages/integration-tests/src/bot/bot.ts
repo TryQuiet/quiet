@@ -18,6 +18,7 @@ program
   .option('-u, --activeUsers <number>', 'Number of spamming users (bots)', '3')
   .option('-s, --silentUsers <number>', 'Number of extra peers (bots)', '0')
   .option('-i, --intensity <number>', 'Number of messages per minute')
+  .option('-std, --standby <number>', 'Amount of time (ms) during which the peers will remain connected after sending all the messages')
 
 program.parse()
 const options = program.opts()
@@ -37,6 +38,7 @@ const messages = options.messages
 const activeUsers = options.activeUsers
 const silentUsers = options.silentUsers
 const intensity = options.intensity
+const standby = options.standby
 
 let typingLatency: number = undefined
 
@@ -86,37 +88,42 @@ const sendMessages = async () => {
   /**
    * Split all messages between the bots and send them in random order
    */
-  log(`Start sending ${messages} messages`)
   const _activeUsers: Map<string, AsyncReturnType<typeof createApp>> = new Map()
   apps.forEach((app, username) => {
     if (!username.includes('silent')) {
       _activeUsers.set(username, app)
     }
   })
-  const messagesPerUser = Math.floor(messages / _activeUsers.size)
 
-  const messagesToSend = new Map()
-  for (const [username, _app] of _activeUsers) {
-    messagesToSend.set(username, messagesPerUser)
-  }
+  if (_activeUsers.size > 0) {
+    log(`Start sending ${messages} messages`)
 
-  while (messagesToSend.size > 0) {
-    const usernames = Array.from(messagesToSend.keys())
-    const currentUsername = usernames[Math.floor(Math.random() * usernames.length)]
-    let messagesLeft = messagesToSend.get(currentUsername)
-    messagesLeft -= 1
+    const messagesPerUser = Math.floor(messages / _activeUsers.size)
 
-    if (messagesLeft <= 0) {
-      await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, 'Bye!')
-      messagesToSend.delete(currentUsername)
-      log(`User ${currentUsername} is finished with sending messages`)
-      continue
+    const messagesToSend = new Map()
+    for (const [username, _app] of _activeUsers) {
+      messagesToSend.set(username, messagesPerUser)
     }
-
-    await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, `(${messagesLeft}) ${lorem.generateSentences(1)}`)
-    messagesToSend.set(currentUsername, messagesLeft)
+  
+    while (messagesToSend.size > 0) {
+      const usernames = Array.from(messagesToSend.keys())
+      const currentUsername = usernames[Math.floor(Math.random() * usernames.length)]
+      let messagesLeft = messagesToSend.get(currentUsername)
+      messagesLeft -= 1
+  
+      if (messagesLeft <= 0) {
+        await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, 'Bye!')
+        messagesToSend.delete(currentUsername)
+        log(`User ${currentUsername} is finished with sending messages`)
+        continue
+      }
+  
+      await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, `(${messagesLeft}) ${lorem.generateSentences(1)}`)
+      messagesToSend.set(currentUsername, messagesLeft)
+    }
   }
 
+  log('Bot starts waiting 10_000ms for remaining promises to resolve')
   await sleep(10_000)
 }
 
@@ -135,8 +142,13 @@ const sendMessageWithLatency = async (
   })
 }
 
-const closeAll = async () => {
-  for (const [_username, app] of apps) {
+const closeAll = async (force: boolean = false) => {
+  if (!force && standby) {
+    log(`Waiting ${standby}ms before peers goes offline`)
+    await sleep(standby)
+  }
+  for (const [username, app] of apps) {
+    log(`Closing services for ${username}`)
     await app.manager.closeAllServices()
   }
 }
@@ -144,11 +156,11 @@ const closeAll = async () => {
 const run = async () => {
   process.on('unhandledRejection', async (error) => {
     console.error(error)
-    await closeAll()
+    await closeAll(true)
   })
   process.on('SIGINT', async () => {
     log('\nGracefully shutting down from SIGINT (Ctrl-C)')
-    await closeAll()
+    await closeAll(true)
   })
   await createBots()
   await createSilentBots()
