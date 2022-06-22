@@ -3,9 +3,11 @@
     "packages/*"
   ],
   "version": "independent",
-  "command": { 
+  "command": {
     "version": {
-      "allowBranch": ["master"],
+      "allowBranch": [
+        "add/github-release-assets"
+      ],
       "conventionalCommits": true,
       "createRelease": "github"
     },
