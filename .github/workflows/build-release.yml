@@ -46,6 +46,9 @@ jobs:
       - name: "Calculate new checksum for electron updater"
         run: lerna run postBuild --scope quiet
 
+      - name: "Show names"
+        run: cd packages/desktop/dist && ls
+
       - name: "Push electron-updater new checksum to S3"
         uses: vinkabuki/upload-s3-action@master
         with:
