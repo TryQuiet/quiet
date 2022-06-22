@@ -43,7 +43,8 @@ const standby = options.standby
 let typingLatency: number = undefined
 
 if (intensity) {
-  typingLatency = (messages / intensity) * 1000 / messages // Typing latency per message (in milliseconds)
+  typingLatency = ((messages / intensity) * 60_000) / messages // Typing latency per message (in milliseconds)
+  log(`Typing latency is ${typingLatency}`)
 }
 
 const createBots = async () => {
