@@ -133,6 +133,14 @@ export const currentChannelMessagesCount = createSelector(
   }
 )
 
+export const newestCurrentChannelMessage = createSelector(
+  displayableCurrentChannelMessages,
+  messages => {
+    const message: DisplayableMessage = messages[messages.length - 1]
+    return message
+  }
+)
+
 export const dailyGroupedCurrentChannelMessages = createSelector(
   displayableCurrentChannelMessages,
   messages => {
@@ -204,6 +212,7 @@ export const publicChannelsSelectors = {
   currentChannelMessages,
   sortedCurrentChannelMessages,
   displayableCurrentChannelMessages,
+  newestCurrentChannelMessage,
   currentChannelMessagesCount,
   currentChannelMessagesMergedBySender,
   currentChannelLastDisplayedMessage,

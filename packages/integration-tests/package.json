@@ -45,10 +45,17 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "1.2.2",
+<<<<<<< HEAD
     "@quiet/backend": "^0.8.1-alpha.2",
     "@quiet/identity": "^0.5.1-alpha.0",
     "@quiet/logger": "^0.2.0-alpha.0",
     "@quiet/state-manager": "^0.8.1-alpha.1",
+=======
+    "@quiet/backend": "^0.8.2-alpha.0",
+    "@quiet/identity": "^0.8.2-alpha.0",
+    "@quiet/logger": "^0.8.2-alpha.0",
+    "@quiet/state-manager": "^0.8.2-alpha.0",
+>>>>>>> 7f7456d5b4ddc07db10296beba159cb4c9b89978
     "@reduxjs/toolkit": "^1.6.1",
     "commander": "^9.1.0",
     "debug": "^4.3.2",

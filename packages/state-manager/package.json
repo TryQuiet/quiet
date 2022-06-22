@@ -24,7 +24,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@quiet/logger": "^0.2.0-alpha.0",
+    "@quiet/logger": "^0.8.2-alpha.0",
     "@reduxjs/toolkit": "^1.6.1",
     "factory-girl": "^5.0.4",
     "get-port": "^5.1.1",
@@ -43,7 +43,7 @@
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-typescript": "^7.15.0",
     "@peculiar/webcrypto": "*",
-    "@quiet/identity": "^0.5.1-alpha.0",
+    "@quiet/identity": "^0.8.2-alpha.0",
     "@types/factory-girl": "^5.0.8",
     "@types/jest": "^26.0.24",
     "@types/luxon": "^2.0.0",
@@ -68,7 +68,6 @@
     "prettier": "^2.3.2",
     "pvutils": "*",
     "redux-saga-test-plan": "^4.0.3",
-    "run-script-os": "^1.1.6",
     "tmp": "^0.2.1",
     "typescript": "^4.3.5"
   },
