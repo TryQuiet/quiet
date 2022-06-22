@@ -225,6 +225,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}.exe
-          asset_name: Quiet-${{ steps.extract_version.outputs.version}}.exe
+          asset_path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
+          asset_name: Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
           asset_content_type: application/.exe
