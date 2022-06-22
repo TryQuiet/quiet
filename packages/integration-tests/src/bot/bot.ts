@@ -29,7 +29,6 @@ const lorem = new LoremIpsum({
   }
 })
 
-// Global config
 const apps: Map<string, AsyncReturnType<typeof createApp>> = new Map()
 const timeout = 100_000
 const channelName = options.channel
@@ -70,23 +69,13 @@ const registerBots = async () => {
         registrarPort: null,
         store
       }
-
       log(`Registering ${username}`)
-
       await registerUsername(payload)
-  
       const communityId = store.getState().Communities.communities.ids[0]
-  
       await waitForExpect(() => {
         assert.ok(store.getState().Identity.identities.entities[communityId].userCertificate, `User ${username} did not receive certificate`)
       }, timeout)
-
-      log('After wait for expect')
-
       await assertReceivedChannel(username, channelName, timeout, store)
-
-      log('After assert received channel')
-
       await switchChannel({ channelName, store })
     }
 }
@@ -96,16 +85,16 @@ const sendMessages = async () => {
    * Split all messages between the bots and send them in random order
    */
   log(`Start sending ${messages} messages`)
-  const activeUsers: Map<string, AsyncReturnType<typeof createApp>> = new Map()
+  const _activeUsers: Map<string, AsyncReturnType<typeof createApp>> = new Map()
   apps.forEach((app, username) => {
     if (!username.includes('silent')) {
-      activeUsers.set(username, app)
+      _activeUsers.set(username, app)
     }
   })
-  const messagesPerUser = Math.floor(messages / activeUsers.size)
+  const messagesPerUser = Math.floor(messages / _activeUsers.size)
 
   const messagesToSend = new Map()
-  for (const [username, _app] of activeUsers) {
+  for (const [username, _app] of _activeUsers) {
     messagesToSend.set(username, messagesPerUser)
   }
 
@@ -118,7 +107,7 @@ const sendMessages = async () => {
     if (messagesLeft <= 0) {
       await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, 'Bye!')
       messagesToSend.delete(currentUsername)
-      log(`User ${currentUsername} is finished with sending messages.`)
+      log(`User ${currentUsername} is finished with sending messages`)
       continue
     }
 
@@ -160,6 +149,7 @@ const run = async () => {
     await closeAll()
   })
   await createBots()
+  await createSilentBots()
   await registerBots()
   await sendMessages()
   await closeAll()
