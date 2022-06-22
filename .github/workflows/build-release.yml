@@ -215,6 +215,8 @@ jobs:
         uses: Saionaro/extract-package-version@v1.1.1
         with:
           path: packages/desktop
+
+      - name: "Show names"
         run: cd packages/desktop/dist && ls
 
       - name: Upload Release Assets
