@@ -18,7 +18,7 @@ import { getFilesData } from '../utils/functions/fileData'
 const remote = require('@electron/remote/main')
 
 remote.initialize()
-
+ 
 const log = logger('main')
 
 const updaterInterval = 15 * 60_000
