@@ -55,23 +55,19 @@ jobs:
           source_dir: 'packages/desktop/dist/alpha-linux.yml'
           destination_dir: ''
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+
       - name: Upload Release Assets
         id: upload-release-assets
         uses: dwenegar/upload-release-assets@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
-          release_id: ${{ steps.create_release.outputs.id }}
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
           assets_path: packages/desktop/dist
 
   # build-macos:
