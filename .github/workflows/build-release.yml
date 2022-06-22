@@ -134,9 +134,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: get-npm-version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@main
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.1.1
         with:
           path: packages/desktop
 
@@ -146,8 +146,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.package-version.outputs.current-version}}.dmg
-          asset_name: Quiet-${{ steps.package-version.outputs.current-version}}.dmg
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}.dmg
+          asset_name: Quiet-${{ steps.extract_version.outputs.version}}.dmg
           asset_content_type: application/.dmg
 
   build-windows:
@@ -210,9 +210,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: get-npm-version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@main
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.1.1
         with:
           path: packages/desktop
 
@@ -222,6 +222,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/desktop/dist/Quiet-${{ steps.package-version.outputs.current-version}}.exe
-          asset_name: Quiet-${{ steps.package-version.outputs.current-version}}.exe
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}.exe
+          asset_name: Quiet-${{ steps.extract_version.outputs.version}}.exe
           asset_content_type: application/.exe
