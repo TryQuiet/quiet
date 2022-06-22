@@ -14,11 +14,12 @@ const log = logger('bot')
 program
   .requiredOption('-r, --registrar <string>', 'Address of community')
   .option('-c, --channel <string>', 'Channel name for spamming messages', 'spam-bot')
-  .requiredOption('-m, --messages <number>', 'Number of all messages that will be sent to a channel')
+  .option('-m, --messages <number>', 'Number of all messages that will be sent to a channel', '100')
   .option('-u, --activeUsers <number>', 'Number of spamming users (bots)', '3')
   .option('-s, --silentUsers <number>', 'Number of extra peers (bots)', '0')
   .option('-i, --intensity <number>', 'Number of messages per minute')
   .option('-std, --standby <number>', 'Amount of time (ms) during which the peers will remain connected after sending all the messages')
+  .option('-e, --endless', 'Make the bot run endlessly')
 
 program.parse()
 const options = program.opts()
@@ -38,12 +39,13 @@ const messages = options.messages
 const activeUsers = options.activeUsers
 const silentUsers = options.silentUsers
 const intensity = options.intensity
+const endless = options.endless
 const standby = options.standby
 
 let typingLatency: number = undefined
 
 if (intensity) {
-  typingLatency = ((messages / intensity) * 60_000) / messages // Typing latency per message (in milliseconds)
+  typingLatency = 60_000 / intensity // Typing latency per message (in milliseconds)
   log(`Typing latency is ${typingLatency}`)
 }
 
@@ -97,7 +99,7 @@ const sendMessages = async () => {
   })
 
   if (_activeUsers.size > 0) {
-    log(`Start sending ${messages} messages`)
+    log(`Start sending ${endless ? 'endless' : messages} messages`)
 
     const messagesPerUser = Math.floor(messages / _activeUsers.size)
 
@@ -110,7 +112,7 @@ const sendMessages = async () => {
       const usernames = Array.from(messagesToSend.keys())
       const currentUsername = usernames[Math.floor(Math.random() * usernames.length)]
       let messagesLeft = messagesToSend.get(currentUsername)
-      messagesLeft -= 1
+      if (!endless) messagesLeft -= 1
   
       if (messagesLeft <= 0) {
         await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, 'Bye!')
@@ -119,7 +121,7 @@ const sendMessages = async () => {
         continue
       }
   
-      await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, `(${messagesLeft}) ${lorem.generateSentences(1)}`)
+      await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, `(${endless ? 'endless' : messagesLeft}) ${lorem.generateSentences(1)}`)
       messagesToSend.set(currentUsername, messagesLeft)
     }
   }
