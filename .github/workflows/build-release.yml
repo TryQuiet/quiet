@@ -67,7 +67,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          assets_path: packages/desktop/dist
+          asset_path: ./packages/desktop/dist
+          asset_name: my-widget
+          asset_content_type: application/octet-stream
 
   # build-macos:
   #   # needs: run-e2e-tests
