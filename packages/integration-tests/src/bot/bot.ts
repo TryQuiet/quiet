@@ -62,22 +62,24 @@ const createSilentBots = async () => {
 
 const registerBots = async () => {
   for (const [username, app] of apps) {
-      const store = app.store
-      const payload = {
-        registrarAddress,
-        userName: username,
-        registrarPort: null,
-        store
-      }
-      log(`Registering ${username}`)
-      await registerUsername(payload)
-      const communityId = store.getState().Communities.communities.ids[0]
-      await waitForExpect(() => {
-        assert.ok(store.getState().Identity.identities.entities[communityId].userCertificate, `User ${username} did not receive certificate`)
-      }, timeout)
-      await assertReceivedChannel(username, channelName, timeout, store)
-      await switchChannel({ channelName, store })
+    const store = app.store
+    const payload = {
+      registrarAddress,
+      userName: username,
+      registrarPort: null,
+      store
     }
+    log(`Registering ${username}`)
+    await registerUsername(payload)
+
+    const communityId = store.getState().Communities.communities.ids[0]
+    
+    await waitForExpect(() => {
+      assert.ok(store.getState().Identity.identities.entities[communityId].userCertificate, `User ${username} did not receive certificate`)
+    }, timeout)
+    await assertReceivedChannel(username, channelName, timeout, store)
+    await switchChannel({ channelName, store })
+  }
 }
 
 const sendMessages = async () => {
