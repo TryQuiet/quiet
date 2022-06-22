@@ -8,8 +8,7 @@
       "allowBranch": [
         "add/github-release-assets"
       ],
-      "conventionalCommits": true,
-      "createRelease": "github"
+      "conventionalCommits": true
     },
     "bootstrap": {
       "ignore": "@quiet/mobile"
