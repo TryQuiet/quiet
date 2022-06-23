@@ -5,10 +5,9 @@
   "version": "independent",
   "command": {
     "version": {
-      "allowBranch": [
-        "add/github-release-assets"
-      ],
-      "conventionalCommits": true
+      "allowBranch": ["master"],
+      "conventionalCommits": true,
+      "createRelease": "github"
     },
     "bootstrap": {
       "ignore": "@quiet/mobile"
