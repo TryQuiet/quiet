@@ -67,3 +67,7 @@ To get started hacking on Quiet, follow the instructions for [Quiet Desktop](htt
 Desktop and mobile versions share a common Node.js [backend](https://github.com/TryQuiet/monorepo/tree/master/packages/backend) and React [state manager](https://github.com/TryQuiet/monorepo/tree/master/packages/state-manager), with [Tor](https://torproject.org) binaries for each platform and architecture, using Electron and React Native and for their respective frontends.
 
 We use a [Github project](https://github.com/orgs/TryQuiet/projects/1) to prioritize issues.
+
+## Releases page
+
+https://github.com/TryQuiet/monorepo/releases
