@@ -61,7 +61,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: get-npm-version
+      - name: Get release version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
         with:
