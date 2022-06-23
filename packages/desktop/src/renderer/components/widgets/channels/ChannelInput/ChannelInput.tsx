@@ -323,14 +323,10 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       if (inputState === INPUT_STATE.AVAILABLE) {
         // @ts-expect-error
         setMessage(e.nativeEvent.target.innerText)
-        /// / @ts-expect-error
-        // console.log('setMessage(e.nativeEvent.target.innerText)', e.nativeEvent.target.innerText)
         // @ts-expect-error
         if (!e.nativeEvent.target.innerText) {
-          // console.log('!e.nativeEvent.target.innerText: setHtmlMessage("")')
           setHtmlMessage('')
         } else {
-          // console.log('setHtmlMessage(e.target.value)', e.target.value)
           setHtmlMessage(e.target.value)
         }
       }
