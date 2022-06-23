@@ -216,9 +216,6 @@ jobs:
         with:
           path: packages/desktop
 
-      - name: "Show names"
-        run: cd packages/desktop/dist && dir
-
       - name: Upload Release Assets
         uses: actions/upload-release-asset@v1.0.2
         env:
