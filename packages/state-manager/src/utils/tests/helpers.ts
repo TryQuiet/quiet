@@ -11,8 +11,12 @@ import {
   sign
 } from '@quiet/identity'
 import logger from '../logger'
+import fs from 'fs'
+import os from 'os'
 import { config } from '../../sagas/users/const/certFieldTypes'
 import { PeerId } from '../../sagas/identity/identity.types'
+import { ChannelMessage } from '../../sagas/publicChannels/publicChannels.types'
+import { getCurrentTime } from '../../sagas/messages/utils/message.utils'
 import { arrayBufferToString } from 'pvutils'
 import { Time } from 'pkijs'
 const log = logger('test')
@@ -86,8 +90,45 @@ export const createMessageSignatureTestHelper = async (
 }
 
 export const lastActionReducer = (state = [], action: any) => {
-  log('ACTION: ', action)
   state.push(action.type)
+  return state
+}
+
+export const collectDataReducer = (state = [], action: any) => {
+  switch (action.type) {
+    case 'Messages/incomingMessages':
+      log('collecting data for incoming messages')
+      const messages: ChannelMessage[] = action.payload.messages
+
+      // Add QuietData to path
+
+      const path = `${os.homedir()}/data.json`
+
+      messages.forEach(message => {
+        // If info message ignore
+        // If author ignore
+
+        const currentTime = getCurrentTime()
+        const delay = currentTime - message.createdAt
+
+        const data = {
+          [message.id]: delay
+        }
+
+        let dataSet = []
+
+        if (fs.existsSync(path)) {
+          const data = fs.readFileSync(path, 'utf-8')
+          dataSet = JSON.parse(data)
+        }
+
+        dataSet.push(data)
+
+        const jsonData = JSON.stringify(dataSet)
+
+        fs.writeFileSync(path, jsonData)
+      })
+  }
   return state
 }
 
@@ -96,5 +137,6 @@ export default {
   createUserCertificateTestHelper,
   createPeerIdTestHelper,
   createMessageSignatureTestHelper,
-  lastActionReducer
+  lastActionReducer,
+  collectDataReducer
 }
