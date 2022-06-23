@@ -6,6 +6,7 @@ export interface CommunityChannels {
   currentChannelAddress: string
   channels: EntityState<PublicChannelStorage>
   channelsStatus: EntityState<PublicChannelStatus>
+  channelsSubscriptions: EntityState<PublicChannelSubscription>
 }
 
 export interface PublicChannel {
@@ -23,6 +24,11 @@ export interface PublicChannelStorage extends PublicChannel {
 export interface PublicChannelStatus {
   address: string
   unread: boolean
+}
+
+export interface PublicChannelSubscription {
+  address: string,
+  subscribed: boolean
 }
 
 export interface ChannelMessage {
@@ -62,7 +68,13 @@ export interface CreatedChannelResponse {
 
 export interface SubscribeToTopicPayload {
   peerId: string
+  communityId: string,
   channelData: PublicChannel
+}
+
+export interface SetChannelSubscribedPayload {
+  channelAddress: string
+  communityId: string
 }
 
 export interface AddPublicChannelsListPayload {

@@ -26,7 +26,8 @@ import {
   ErrorCodes,
   AskForMessagesPayload,
   FileContent,
-  FileMetadata
+  FileMetadata,
+  SetChannelSubscribedPayload
 } from '@quiet/state-manager'
 import { emitError } from './errors'
 
@@ -65,7 +66,11 @@ export default class IOProxy {
 
   public subscribeToTopic = async (payload: SubscribeToTopicPayload) => {
     log(`${payload.peerId} is subscribing to channel ${payload.channelData.address}`)
-    await this.getStorage(payload.peerId).subscribeToChannel(payload.channelData)
+    await this.getStorage(payload.peerId).subscribeToChannel(payload.communityId, payload.channelData)
+  }
+
+  public setChannelSubscribed = (payload: SetChannelSubscribedPayload) => {
+    this.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)
   }
 
   public askForMessages = async (payload: AskForMessagesPayload) => {

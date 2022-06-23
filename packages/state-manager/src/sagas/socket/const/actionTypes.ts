@@ -15,6 +15,7 @@ export enum SocketActionTypes {
   // A
   ASK_FOR_MESSAGES = 'askForMessages',
   // C
+  CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CLOSE = 'close',
   COMMUNITY = 'community',
   CONNECTED_PEERS = 'connectedPeers',

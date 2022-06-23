@@ -29,7 +29,8 @@ import {
 import {
   CreatedChannelResponse,
   GetPublicChannelsResponse,
-  IncomingMessages
+  IncomingMessages,
+  SetChannelSubscribedPayload
 } from '../../publicChannels/publicChannels.types'
 
 import { usersActions } from '../../users/users.slice'
@@ -43,6 +44,7 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof messagesActions.incomingMessages>
   | ReturnType<typeof messagesActions.addPublicChannelsMessagesBase>
   | ReturnType<typeof publicChannelsActions.addChannel>
+  | ReturnType<typeof publicChannelsActions.setChannelSubscribed>
   | ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>
   | ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>
   | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
@@ -76,6 +78,9 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, (payload: GetPublicChannelsResponse) => {
       emit(publicChannelsActions.responseGetPublicChannels(payload))
       emit(publicChannelsActions.subscribeToAllTopics())
+    })
+    socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
+      emit(publicChannelsActions.setChannelSubscribed(payload))
     })
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       emit(messagesActions.addPublicChannelsMessagesBase({

@@ -37,6 +37,7 @@ export function* subscribeToTopicSaga(
     SocketActionTypes.SUBSCRIBE_TO_TOPIC,
     {
       peerId: peerId,
+      communityId: communityId,
       channelData: channel
     }
   ])

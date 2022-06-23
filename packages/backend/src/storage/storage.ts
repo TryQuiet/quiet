@@ -263,25 +263,25 @@ export class Storage {
       .map(e => e.payload.value)
   }
 
-  public async subscribeToChannel(channel: PublicChannel): Promise<void> {
+  public async subscribeToChannel(communityId: string, channelData: PublicChannel): Promise<void> {
     let db: EventStore<ChannelMessage>
-    let repo = this.publicChannelsRepos.get(channel.address)
+    let repo = this.publicChannelsRepos.get(channelData.address)
     if (repo) {
       db = repo.db
     } else {
-      db = await this.createChannel(channel)
+      db = await this.createChannel(channelData)
       if (!db) {
-        log(`Can't subscribe to channel ${channel.address}`)
+        log(`Can't subscribe to channel ${channelData.address}`)
         return
       }
-      repo = this.publicChannelsRepos.get(channel.address)
+      repo = this.publicChannelsRepos.get(channelData.address)
     }
 
     if (repo && !repo.eventsAttached) {
-      log('Subscribing to channel ', channel.address)
+      log('Subscribing to channel ', channelData.address)
 
       db.events.on('write', (_address, entry) => {
-        log(`Writing to public channel db ${channel.address}`)
+        log(`Writing to public channel db ${channelData.address}`)
         this.io.loadMessages({
           messages: [entry.payload.value],
           communityId: this.communityId
@@ -300,7 +300,7 @@ export class Storage {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         this.io.sendMessagesIds({
           ids,
-          channelAddress: channel.address,
+          channelAddress: channelData.address,
           communityId: this.communityId
         })
       })
@@ -308,14 +308,19 @@ export class Storage {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         this.io.sendMessagesIds({
           ids,
-          channelAddress: channel.address,
+          channelAddress: channelData.address,
           communityId: this.communityId
         })
       })
       await db.load()
       repo.eventsAttached = true
     }
-    log(`Subscribed to channel ${channel.address}`)
+
+    log(`Subscribed to channel ${channelData.address}`)
+    this.io.setChannelSubscribed({
+      communityId: communityId,
+      channelAddress: channelData.address
+    })
   }
 
   public async askForMessages(channelAddress: string, ids: string[]) {

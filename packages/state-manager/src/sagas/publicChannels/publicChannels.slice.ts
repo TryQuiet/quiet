@@ -4,7 +4,8 @@ import {
   publicChannelsAdapter,
   communityChannelsAdapter,
   channelMessagesAdapter,
-  publicChannelsStatusAdapter
+  publicChannelsStatusAdapter,
+  publicChannelsSubscriptionsAdapter
 } from './publicChannels.adapter'
 import {
   CommunityChannels,
@@ -19,7 +20,8 @@ import {
   SubscribeToTopicPayload,
   CacheMessagesPayload,
   MarkUnreadChannelPayload,
-  SendNewUserInfoMessagePayload
+  SendNewUserInfoMessagePayload,
+  SetChannelSubscribedPayload
 } from './publicChannels.types'
 import { Identity } from '../identity/identity.types'
 
@@ -46,7 +48,8 @@ export const publicChannelsSlice = createSlice({
         id: id,
         currentChannelAddress: 'general',
         channels: publicChannelsAdapter.getInitialState(),
-        channelsStatus: publicChannelsStatusAdapter.getInitialState()
+        channelsStatus: publicChannelsStatusAdapter.getInitialState(),
+        channelsSubscriptions: publicChannelsSubscriptionsAdapter.getInitialState()
       }
       communityChannelsAdapter.addOne(state.channels, communityChannels)
     },
@@ -59,6 +62,13 @@ export const publicChannelsSlice = createSlice({
       publicChannelsStatusAdapter.addOne(state.channels.entities[communityId].channelsStatus, {
         address: channel.address,
         unread: false
+      })
+    },
+    setChannelSubscribed: (state, action: PayloadAction<SetChannelSubscribedPayload>) => {
+      const { communityId, channelAddress } = action.payload
+      publicChannelsSubscriptionsAdapter.upsertOne(state.channels.entities[communityId].channelsSubscriptions, {
+        address: channelAddress,
+        subscribed: true
       })
     },
     responseGetPublicChannels: (state, action: PayloadAction<GetPublicChannelsResponse>) => {

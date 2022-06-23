@@ -4,7 +4,8 @@ import {
   publicChannelsAdapter,
   communityChannelsAdapter,
   channelMessagesAdapter,
-  publicChannelsStatusAdapter
+  publicChannelsStatusAdapter,
+  publicChannelsSubscriptionsAdapter
 } from './publicChannels.adapter'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
@@ -38,6 +39,20 @@ export const selectChannels = createSelector(selectState, (state) => {
   if (!state) return []
   return publicChannelsAdapter.getSelectors().selectAll(state.channels)
 })
+
+const selectChannelsSubscriptions = createSelector(selectState, (state) => {
+  if (!state) return []
+  return publicChannelsSubscriptionsAdapter.getSelectors().selectAll(state.channelsSubscriptions)
+})
+
+export const subscribedChannels = createSelector(
+  selectChannelsSubscriptions, 
+  (subscriptions) => {
+    return subscriptions.map(subscription => { 
+      if (subscription.subscribed) return subscription.address 
+    })
+  }
+)
 
 // Serves for testing purposes only
 export const selectGeneralChannel = createSelector(selectChannels, channels => {
@@ -206,6 +221,7 @@ export const unreadChannels = createSelector(
 
 export const publicChannelsSelectors = {
   publicChannels,
+  subscribedChannels,
   currentChannelAddress,
   currentChannelName,
   currentChannel,
