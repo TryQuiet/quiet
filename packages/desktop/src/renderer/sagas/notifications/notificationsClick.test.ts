@@ -47,7 +47,7 @@ describe('displayMessageNotificationSaga test', () => {
 
     publicChannel = await factory.create<
     ReturnType<typeof publicChannels.actions.addChannel>['payload']
-    >('PublicChannel', { communityId: community.id })
+    >('PublicChannel')
 
     const alice = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
@@ -80,8 +80,7 @@ describe('displayMessageNotificationSaga test', () => {
     ).payload.message
 
     incomingMessages = {
-      messages: [message],
-      communityId: community.id
+      messages: [message]
     }
   })
 

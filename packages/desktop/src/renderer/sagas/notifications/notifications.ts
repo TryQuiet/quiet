@@ -25,7 +25,6 @@ export interface NotificationsData {
   title: string
   message: string
   sound: NotificationsSounds
-  communityId: string
   channelName: string
   yourBrowserWindow: Electron.BrowserWindow
 }
@@ -110,7 +109,6 @@ export const messagesMapForNotificationsCalls = (data: CreateNotificationsCallsD
           title,
           message: `${message.substring(0, 64)}${message.length > 64 ? '...' : ''}`,
           sound: data.notificationsSound,
-          communityId: data.action.payload.communityId,
           channelName: publicChannelFromMessage.name,
           yourBrowserWindow
         }, emit)
@@ -135,8 +133,7 @@ export const createNotification = (payload: NotificationsData, emit): any => {
   notification.onclick = () => {
     emit(
       channels.actions.setCurrentChannel({
-        channelAddress: payload.channelName,
-        communityId: payload.communityId
+        channelAddress: payload.channelName
       })
     )
     payload.yourBrowserWindow.show()

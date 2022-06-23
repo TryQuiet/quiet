@@ -2,7 +2,6 @@ import { select, put, delay } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { messagesActions } from '../messages.slice'
 import { messagesSelectors } from '../messages.selectors'
-import { communitiesSelectors } from '../../communities/communities.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { CacheMessagesPayload } from '../../publicChannels/publicChannels.types'
@@ -10,7 +9,6 @@ import { CacheMessagesPayload } from '../../publicChannels/publicChannels.types'
 export function* incomingMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
 ): Generator {
-  const communityId = yield* select(communitiesSelectors.currentCommunityId)
   for (const message of action.payload.messages) {
     const lastDisplayedMessage = yield* select(
       publicChannelsSelectors.currentChannelLastDisplayedMessage
@@ -57,8 +55,7 @@ export function* incomingMessagesSaga(
 
     const cacheMessagesPayload: CacheMessagesPayload = {
       messages: cachedMessages,
-      channelAddress: message.channelAddress,
-      communityId: communityId
+      channelAddress: message.channelAddress
     }
 
     yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))

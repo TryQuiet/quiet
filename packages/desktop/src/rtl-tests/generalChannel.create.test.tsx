@@ -59,7 +59,7 @@ describe('General channel', () => {
         if (action === SocketActionTypes.SUBSCRIBE_TO_TOPIC) {
           const data = input as socketEventData<[SubscribeToTopicPayload]>
           const payload = data[0]
-          expect(payload.channelData.name).toEqual('general')
+          expect(payload.channel.name).toEqual('general')
         }
       })
 

@@ -5,7 +5,6 @@ import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
 import { communitiesActions } from '../communities.slice'
 import { ResponseCreateNetworkPayload } from '../communities.types'
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 
 export function* responseCreateNetworkSaga(
   action: PayloadAction<ResponseCreateNetworkPayload>
@@ -27,8 +26,5 @@ export function* responseCreateNetworkSaga(
 
   yield* put(communitiesActions.addNewCommunity(community))
   yield* put(communitiesActions.setCurrentCommunity(community.id))
-
-  yield* put(publicChannelsActions.addPublicChannelsList({ id: community.id }))
-
   yield* put(identityActions.addNewIdentity(identity))
 }

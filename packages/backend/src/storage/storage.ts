@@ -202,7 +202,6 @@ export class Storage {
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
       this.io.loadPublicChannels({
-        communityId: this.communityId,
         channels: this.channels.all as unknown as { [key: string]: PublicChannel }
       })
     })
@@ -263,7 +262,7 @@ export class Storage {
       .map(e => e.payload.value)
   }
 
-  public async subscribeToChannel(communityId: string, channelData: PublicChannel): Promise<void> {
+  public async subscribeToChannel(channelData: PublicChannel): Promise<void> {
     let db: EventStore<ChannelMessage>
     let repo = this.publicChannelsRepos.get(channelData.address)
     if (repo) {
@@ -283,16 +282,14 @@ export class Storage {
       db.events.on('write', (_address, entry) => {
         log(`Writing to public channel db ${channelData.address}`)
         this.io.loadMessages({
-          messages: [entry.payload.value],
-          communityId: this.communityId
+          messages: [entry.payload.value]
         })
       })
 
       db.events.on('replicate.progress', (address, _hash, entry, progress, total) => {
         log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
         this.io.loadMessages({
-          messages: [entry.payload.value],
-          communityId: this.communityId
+          messages: [entry.payload.value]
         })
       })
       db.events.on('replicated', async address => {
@@ -318,7 +315,6 @@ export class Storage {
 
     log(`Subscribed to channel ${channelData.address}`)
     this.io.setChannelSubscribed({
-      communityId: communityId,
       channelAddress: channelData.address
     })
   }
@@ -332,8 +328,7 @@ export class Storage {
       filteredMessages.push(...messages.filter(i => i.id === id))
     }
     this.io.loadMessages({
-      messages: filteredMessages,
-      communityId: this.communityId
+      messages: filteredMessages
     })
   }
 
@@ -360,8 +355,7 @@ export class Storage {
         ...data
       })
       this.io.createdChannel({
-        channel: data,
-        communityId: this.communityId
+        channel: data
       })
     }
 

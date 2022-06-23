@@ -55,7 +55,6 @@ describe('publicChannelsReducer', () => {
   it('responseGetPublicChannels should set channels info', () => {
     store.dispatch(
       publicChannelsActions.responseGetPublicChannels({
-        communityId: community.id,
         channels: {
           [generalChannel.address]: generalChannel,
           [quietChannel.address]: quietChannel

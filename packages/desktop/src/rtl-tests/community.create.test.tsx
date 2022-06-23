@@ -174,12 +174,8 @@ describe('User', () => {
         "Communities/responseCreateNetwork",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "PublicChannels/addPublicChannelsList",
-        "Modals/closeModal",
-        "Messages/lazyLoading",
-        "Messages/resetCurrentPublicChannelCache",
         "Identity/addNewIdentity",
-        "Messages/resetCurrentPublicChannelCache",
+        "Modals/closeModal",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
@@ -202,9 +198,9 @@ describe('User', () => {
         "Modals/closeModal",
         "PublicChannels/setCurrentChannel",
         "PublicChannels/addChannel",
-        "Modals/closeModal",
         "PublicChannels/clearUnreadChannel",
         "Messages/addPublicChannelsMessagesBase",
+        "Modals/closeModal",
       ]
     `)
   })

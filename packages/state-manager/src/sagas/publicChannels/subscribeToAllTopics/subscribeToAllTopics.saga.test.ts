@@ -51,7 +51,6 @@ describe('subscribeToAllTopicsSaga', () => {
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
         'PublicChannel',
         {
-          communityId: alice.id,
           channel: {
             name: 'sailing',
             description: 'Welcome to #sailing',
@@ -79,13 +78,13 @@ describe('subscribeToAllTopicsSaga', () => {
       .put(
         publicChannelsActions.subscribeToTopic({
           peerId: alice.peerId.id,
-          channelData: generalChannel
+          channel: generalChannel
         })
       )
       .put(
         publicChannelsActions.subscribeToTopic({
           peerId: alice.peerId.id,
-          channelData: sailingChannel
+          channel: sailingChannel
         })
       )
       .run()

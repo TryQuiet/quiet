@@ -98,9 +98,9 @@ describe('Add new channel', () => {
           const data = input as socketEventData<[SubscribeToTopicPayload]>
           const payload = data[0]
           expect(payload.peerId).toEqual(alice.peerId.id)
-          expect(payload.channelData.name).toEqual(channelName.output)
+          expect(payload.channel.name).toEqual(channelName.output)
           return socket.socketClient.emit(SocketActionTypes.CREATED_CHANNEL, {
-            channel: payload.channelData,
+            channel: payload.channel,
             communityId: alice.id // Identity id is the same as community id
           })
         }

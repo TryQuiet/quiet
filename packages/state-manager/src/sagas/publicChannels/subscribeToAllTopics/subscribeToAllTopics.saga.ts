@@ -21,7 +21,7 @@ export function* subscribeToAllTopicsSaga(): Generator {
     yield* put(
       publicChannelsActions.subscribeToTopic({
         peerId: identity.peerId.id,
-        channelData: channelData
+        channel: channelData
       })
     )
   }

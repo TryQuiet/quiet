@@ -8,9 +8,7 @@ import logger from '../../../utils/logger'
 
 const log = logger('publicChannels')
 
-export function* createGeneralChannelSaga(
-  action: PayloadAction<ReturnType<typeof publicChannelsActions.createGeneralChannel>['payload']>
-): Generator {
+export function* createGeneralChannelSaga(): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
   log(`Creating general channel for ${identity.nickname}`)
 
@@ -26,14 +24,12 @@ export function* createGeneralChannelSaga(
 
   yield* put(
     publicChannelsActions.createChannel({
-      communityId: action.payload.communityId,
       channel: channel
     })
   )
 
   yield* put(
     publicChannelsActions.setCurrentChannel({
-      communityId: action.payload.communityId,
       channelAddress: channel.address
     })
   )

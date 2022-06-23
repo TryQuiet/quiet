@@ -99,7 +99,6 @@ describe('Loading panel', () => {
 
     store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
-    store.dispatch(publicChannels.actions.addPublicChannelsList({ id: community.id }))
 
     renderComponent(
       <>

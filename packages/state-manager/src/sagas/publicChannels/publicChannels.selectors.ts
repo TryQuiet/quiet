@@ -2,14 +2,12 @@ import { createSelector } from 'reselect'
 import { StoreKeys } from '../store.keys'
 import {
   publicChannelsAdapter,
-  communityChannelsAdapter,
   channelMessagesAdapter,
   publicChannelsStatusAdapter,
   publicChannelsSubscriptionsAdapter
 } from './publicChannels.adapter'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
-import { currentCommunity } from '../communities/communities.selectors'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import {
@@ -20,20 +18,8 @@ import {
 } from './publicChannels.types'
 import { MessageType } from '../messages/messages.types'
 
-const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
+const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
   state[StoreKeys.PublicChannels]
-
-const selectEntities = createSelector(publicChannelSlice, reducerState =>
-  communityChannelsAdapter.getSelectors().selectEntities(reducerState.channels)
-)
-
-const selectState = createSelector(
-  selectEntities,
-  currentCommunity,
-  (entities, community) => {
-    return entities[community?.id]
-  }
-)
 
 export const selectChannels = createSelector(selectState, (state) => {
   if (!state) return []
@@ -46,10 +32,10 @@ const selectChannelsSubscriptions = createSelector(selectState, (state) => {
 })
 
 export const subscribedChannels = createSelector(
-  selectChannelsSubscriptions, 
+  selectChannelsSubscriptions,
   (subscriptions) => {
-    return subscriptions.map(subscription => { 
-      if (subscription.subscribed) return subscription.address 
+    return subscriptions.map(subscription => {
+      if (subscription.subscribed) return subscription.address
     })
   }
 )

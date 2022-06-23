@@ -38,10 +38,7 @@ describe('createGeneralChannelSaga', () => {
 
   test('create general channel', async () => {
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      createGeneralChannelSaga,
-      publicChannelsActions.createGeneralChannel({ communityId: community.id })
-    )
+    await expectSaga(createGeneralChannelSaga)
       .withReducer(reducer)
       .withState(store.getState())
       .provide([
@@ -49,7 +46,6 @@ describe('createGeneralChannelSaga', () => {
       ])
       .put(
         publicChannelsActions.createChannel({
-          communityId: community.id,
           channel: {
             name: 'general',
             description: 'Welcome to #general',
@@ -61,7 +57,6 @@ describe('createGeneralChannelSaga', () => {
       )
       .put(
         publicChannelsActions.setCurrentChannel({
-          communityId: community.id,
           channelAddress: 'general'
         })
       )

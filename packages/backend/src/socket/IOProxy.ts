@@ -65,8 +65,8 @@ export default class IOProxy {
   }
 
   public subscribeToTopic = async (payload: SubscribeToTopicPayload) => {
-    log(`${payload.peerId} is subscribing to channel ${payload.channelData.address}`)
-    await this.getStorage(payload.peerId).subscribeToChannel(payload.communityId, payload.channelData)
+    log(`${payload.peerId} is subscribing to channel ${payload.channel.address}`)
+    await this.getStorage(payload.peerId).subscribeToChannel(payload.channel)
   }
 
   public setChannelSubscribed = (payload: SetChannelSubscribedPayload) => {

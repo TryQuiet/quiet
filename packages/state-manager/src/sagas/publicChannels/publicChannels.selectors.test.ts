@@ -65,7 +65,6 @@ describe('publicChannelsSelectors', () => {
       await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
         'PublicChannel',
         {
-          communityId: community.id,
           channel: {
             name: name,
             description: `Welcome to #${name}`,
@@ -280,7 +279,6 @@ describe('publicChannelsSelectors', () => {
     const channel = (await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
       'PublicChannel',
       {
-        communityId: community.id,
         channel: {
           name: 'utah',
           description: 'Welcome to #utah',
@@ -299,8 +297,7 @@ describe('publicChannelsSelectors', () => {
     store.dispatch(usersActions.test_remove_user_certificate({ certificate: elouise.userCertificate }))
 
     store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelAddress: channel.address,
-      communityId: community.id
+      channelAddress: channel.address
     }))
 
     await factory.create<
@@ -355,8 +352,7 @@ describe('publicChannelsSelectors', () => {
 
   it('unreadChannels selector returns only unread channels', async () => {
     store.dispatch(publicChannelsActions.markUnreadChannel({
-      channelAddress: 'allergies',
-      communityId: community.id
+      channelAddress: 'allergies'
     }))
     const unreadChannels = publicChannelsSelectors.unreadChannels(store.getState())
     expect(unreadChannels).toEqual(['allergies'])

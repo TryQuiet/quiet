@@ -104,9 +104,9 @@ export function subscribe(socket: Socket) {
       emit(messagesActions.incomingMessages(payload))
     })
     // Community
-    socket.on(SocketActionTypes.NEW_COMMUNITY, (payload: ResponseCreateCommunityPayload) => {
+    socket.on(SocketActionTypes.NEW_COMMUNITY, (_payload: ResponseCreateCommunityPayload) => {
       emit(identityActions.saveOwnerCertToDb())
-      emit(publicChannelsActions.createGeneralChannel({ communityId: payload.id }))
+      emit(publicChannelsActions.createGeneralChannel())
     })
     socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {
       log(payload)

@@ -36,24 +36,20 @@ export async function assertReceivedChannelsAndSubscribe(
 
   await waitForExpect(() => {
     expect(
-      store.getState().PublicChannels.channels.entities[communityId].channels
-        .ids
+      store.getState().PublicChannels.channels.ids
     ).toHaveLength(expectedCount)
   }, maxTime)
 
   store.dispatch(
     publicChannels.actions.setCurrentChannel({
-      communityId,
-      channelAddress: store.getState().PublicChannels.channels.entities[communityId]
-        .channels.ids[0] as string
+      channelAddress: store.getState().PublicChannels.channels.ids[0] as string
     })
   )
 
   store.dispatch(publicChannels.actions.subscribeToAllTopics())
 
   log(
-    `User ${userName} received ${store.getState().PublicChannels.channels.entities[communityId].channels
-      .ids.length
+    `User ${userName} received ${store.getState().PublicChannels.channels.ids.length
     } channels`
   )
 }
