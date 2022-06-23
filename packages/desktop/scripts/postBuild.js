@@ -30,14 +30,17 @@ function checksum(file = appImagePath, algorithm = 'sha512', encoding = 'base64'
 const main = async () => {
   const newChecksum = await checksum()
   try {
-    let fileContents = fs.readFileSync(path.join(process.cwd(), '/dist/alpha-linux.yml'), 'utf8')
+    const isPrerelease = fs.existsSync(path.join(process.cwd(), '/dist/alpha-linux.yml'))
+    const path = isPrerelease ? '/dist/alpha-linux.yml' : '/dist/latest-linux.yml'
+    
+    let fileContents = fs.readFileSync(path.join(process.cwd(), path), 'utf8')
     let data = yaml.load(fileContents)
 
     data.files[0].sha512 = newChecksum
     data.sha512 = newChecksum
 
     let yamlStr = yaml.dump(data)
-    fs.writeFileSync(path.join(process.cwd(), '/dist/alpha-linux.yml'), yamlStr, 'utf8')
+    fs.writeFileSync(path.join(process.cwd(), path), yamlStr, 'utf8')
   } catch (e) {
     console.log('ERROR: ', e)
     throw new Error(e)
