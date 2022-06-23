@@ -8,9 +8,6 @@
       "allowBranch": ["master"],
       "conventionalCommits": true,
       "createRelease": "github"
-    },
-    "bootstrap": {
-      "ignore": "@quiet/mobile"
     }
   }
 }
