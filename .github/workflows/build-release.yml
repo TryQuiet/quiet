@@ -18,7 +18,7 @@ jobs:
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
-      CHEKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
+      CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
       - uses: actions/checkout@v2
@@ -53,7 +53,7 @@ jobs:
           aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_bucket: ${{ env.S3_BUCKET }}
-          source_dir: ${{ env.CHEKSUM_PATH }}
+          source_dir: ${{ env.CHECKSUM_PATH }}
           destination_dir: ''
 
       - name: Get release
