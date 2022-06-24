@@ -109,6 +109,10 @@ export const getFactory = async (store: Store) => {
     channelAddress: factory.assoc('PublicChannel', 'address')
   })
 
+  factory.define('PublicChannelSubscription', publicChannels.actions.setChannelSubscribed, {
+    channelAddress: factory.assoc('PublicChannel', 'address')
+  })
+
   factory.define(
     'PublicChannel',
     publicChannels.actions.addChannel,
@@ -130,6 +134,7 @@ export const getFactory = async (store: Store) => {
         payload: ReturnType<typeof publicChannels.actions.addChannel>['payload']
       ) => {
         await factory.create('PublicChannelsMessagesBase', ({ channelAddress: payload.channel.address }))
+        await factory.create('PublicChannelSubscription', ({ channelAddress: payload.channel.address }))
         return payload
       }
     }
