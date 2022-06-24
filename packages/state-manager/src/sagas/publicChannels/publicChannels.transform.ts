@@ -13,5 +13,5 @@ export const PublicChannelsTransform = createTransform(
       channelsSubscriptions: publicChannelsSubscriptionsAdapter.getInitialState()
     }
   },
-  { whitelist: [StoreKeys.Messages] }
+  { whitelist: [StoreKeys.PublicChannels] }
 )

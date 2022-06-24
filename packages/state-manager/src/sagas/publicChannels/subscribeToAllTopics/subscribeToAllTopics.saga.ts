@@ -1,3 +1,4 @@
+import { consoleLogger } from '@quiet/logger'
 import { select, put } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
@@ -10,19 +11,19 @@ export function* subscribeToAllTopicsSaga(): Generator {
   const subscribedChannels = yield* select(publicChannelsSelectors.subscribedChannels)
 
   for (const channel of channels) {
-    if (subscribedChannels.includes(channel.address)) return
-
-    const channelData = {
-      ...channel,
-      messages: undefined,
-      messagesSlice: undefined
+    if (!subscribedChannels.includes(channel.address)) {
+      const channelData = {
+        ...channel,
+        messages: undefined,
+        messagesSlice: undefined
+      }
+  
+      yield* put(
+        publicChannelsActions.subscribeToTopic({
+          peerId: identity.peerId.id,
+          channel: channelData
+        })
+      )
     }
-
-    yield* put(
-      publicChannelsActions.subscribeToTopic({
-        peerId: identity.peerId.id,
-        channel: channelData
-      })
-    )
   }
 }
