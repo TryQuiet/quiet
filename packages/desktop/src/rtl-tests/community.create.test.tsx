@@ -100,7 +100,7 @@ describe('User', () => {
         socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
           id: payload.id
         })
-        socket.socketClient.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
+        socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
           communityId: payload.id,
           channels: {
             general: {
@@ -189,18 +189,18 @@ describe('User', () => {
         "Connection/addInitializedCommunity",
         "Identity/saveOwnerCertToDb",
         "PublicChannels/createGeneralChannel",
-        "PublicChannels/responseGetPublicChannels",
-        "PublicChannels/subscribeToAllTopics",
+        "PublicChannels/channelsReplicated",
         "Communities/responseRegistrar",
         "Connection/addInitializedRegistrar",
         "PublicChannels/createChannel",
-        "PublicChannels/subscribeToTopic",
-        "Modals/closeModal",
-        "PublicChannels/setCurrentChannel",
         "PublicChannels/addChannel",
-        "PublicChannels/clearUnreadChannel",
-        "Messages/addPublicChannelsMessagesBase",
+        "PublicChannels/setCurrentChannel",
+        "Modals/openModal",
         "Modals/closeModal",
+        "PublicChannels/subscribeToTopic",
+        "PublicChannels/clearUnreadChannel",
+        "PublicChannels/addChannel",
+        "Messages/addPublicChannelsMessagesBase",
       ]
     `)
   })

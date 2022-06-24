@@ -13,8 +13,8 @@ import {
   ChannelMessage,
   CreateChannelPayload,
   CreatedChannelResponse,
+  ChannelsReplicatedPayload,
   SendInitialChannelMessagePayload,
-  GetPublicChannelsResponse,
   SetCurrentChannelPayload,
   SubscribeToTopicPayload,
   CacheMessagesPayload,
@@ -66,25 +66,12 @@ export const publicChannelsSlice = createSlice({
         subscribed: true
       })
     },
-    responseGetPublicChannels: (state, action: PayloadAction<GetPublicChannelsResponse>) => {
-      const { channels } = action.payload
-      for (const channel of Object.values(channels)) {
-        publicChannelsAdapter.upsertOne(state.channels, {
-          ...channel,
-          messages: channelMessagesAdapter.getInitialState()
-        })
-        publicChannelsStatusAdapter.addOne(state.channelsStatus, {
-          address: channel.address,
-          unread: false
-        })
-      }
-    },
+    channelsReplicated: (state, _action: PayloadAction<ChannelsReplicatedPayload>) => state,
     setCurrentChannel: (state, action: PayloadAction<SetCurrentChannelPayload>) => {
       const { channelAddress } = action.payload
       state.currentChannelAddress = channelAddress
     },
     subscribeToTopic: (state, _action: PayloadAction<SubscribeToTopicPayload>) => state,
-    subscribeToAllTopics: state => state,
     cacheMessages: (state, action: PayloadAction<CacheMessagesPayload>) => {
       const { messages, channelAddress } = action.payload
       channelMessagesAdapter.setAll(

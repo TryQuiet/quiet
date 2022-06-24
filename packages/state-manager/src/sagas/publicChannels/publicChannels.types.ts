@@ -48,7 +48,7 @@ export interface MessagesDailyGroups {
   [date: string]: DisplayableMessage[][]
 }
 
-export interface GetPublicChannelsResponse {
+export interface ChannelsReplicatedPayload {
   channels: Dictionary<PublicChannel>
 }
 

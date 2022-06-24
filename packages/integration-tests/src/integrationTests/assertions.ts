@@ -32,8 +32,6 @@ export async function assertReceivedChannelsAndSubscribe(
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for channels`)
 
-  const communityId = store.getState().Communities.communities.ids[0] as string
-
   await waitForExpect(() => {
     expect(
       store.getState().PublicChannels.channels.ids
@@ -45,8 +43,6 @@ export async function assertReceivedChannelsAndSubscribe(
       channelAddress: store.getState().PublicChannels.channels.ids[0] as string
     })
   )
-
-  store.dispatch(publicChannels.actions.subscribeToAllTopics())
 
   log(
     `User ${userName} received ${store.getState().PublicChannels.channels.ids.length

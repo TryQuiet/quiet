@@ -27,8 +27,8 @@ import {
   publicChannelsActions
 } from '../../publicChannels/publicChannels.slice'
 import {
+  ChannelsReplicatedPayload,
   CreatedChannelResponse,
-  GetPublicChannelsResponse,
   IncomingMessages,
   SetChannelSubscribedPayload
 } from '../../publicChannels/publicChannels.types'
@@ -47,7 +47,7 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof publicChannelsActions.setChannelSubscribed>
   | ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>
   | ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>
-  | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
+  | ReturnType<typeof publicChannelsActions.channelsReplicated>
   | ReturnType<typeof publicChannelsActions.createGeneralChannel>
   | ReturnType<typeof usersActions.responseSendCertificates>
   | ReturnType<typeof communitiesActions.responseCreateNetwork>
@@ -75,9 +75,8 @@ export function subscribe(socket: Socket) {
       emit(messagesActions.uploadedFile(payload))
     })
     // Channels
-    socket.on(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, (payload: GetPublicChannelsResponse) => {
-      emit(publicChannelsActions.responseGetPublicChannels(payload))
-      emit(publicChannelsActions.subscribeToAllTopics())
+    socket.on(SocketActionTypes.CHANNELS_REPLICATED, (payload: ChannelsReplicatedPayload) => {
+      emit(publicChannelsActions.channelsReplicated(payload))
     })
     socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
       emit(publicChannelsActions.setChannelSubscribed(payload))

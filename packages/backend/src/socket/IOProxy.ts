@@ -17,7 +17,7 @@ import {
   SubscribeToTopicPayload,
   ChannelMessagesIdsResponse,
   CreatedChannelResponse,
-  GetPublicChannelsResponse,
+  ChannelsReplicatedPayload,
   SendCertificatesResponse,
   ErrorMessages,
   Community,
@@ -141,9 +141,9 @@ export default class IOProxy {
     this.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, payload)
   }
 
-  public loadPublicChannels = (payload: GetPublicChannelsResponse) => {
+  public loadPublicChannels = (payload: ChannelsReplicatedPayload) => {
     log(`Sending ${Object.keys(payload.channels).length} public channels`)
-    this.io.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, payload)
+    this.io.emit(SocketActionTypes.CHANNELS_REPLICATED, payload)
   }
 
   public loadMessages = (payload: IncomingMessages) => {
