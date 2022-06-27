@@ -508,9 +508,9 @@ FilePreview.args = {
   ...args,
   filesData: {
     file_id: {
-      path: 'images/test-file.txt',
-      name: 'test-file',
-      ext: '.txt'
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      ext: '.zip'
     }
   }
 }

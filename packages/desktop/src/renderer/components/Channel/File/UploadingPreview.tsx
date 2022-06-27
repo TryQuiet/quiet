@@ -26,20 +26,29 @@ const useStyles = makeStyles(() => ({
     alignContent: 'stretch',
     paddingRight: '50px'
   },
+  wrapper: {
+    margin: '0 0 10px 10px',
+    width: '64px',
+    height: '64px'
+  },
   image: {
     width: '64px',
     height: '64px',
     borderRadius: '15%',
-    marginLeft: '10px',
     objectFit: 'cover'
   },
-  file: {
+  fileIcon: {
+    width: '32px',
+    height: '40px'
+  },
+  fileIconContainer: {
     width: '64px',
     height: '64px',
     borderRadius: '15%',
-    marginLeft: '10px',
-    objectFit: 'scale-down',
-    backgroundColor: '#F0F0F0'
+    backgroundColor: '#F0F0F0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   closeIconContainer: {
     position: 'absolute',
@@ -98,11 +107,13 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
         </div>
       )}
       <Tooltip title={`${fileData.name}${fileData.ext}`} placement='top' className={classes.tooltip}>
-        <div>
+        <div className={classes.wrapper}>
           { imageType ? (
             <img src={fileData.path} alt={fileData.name} className={classes.image} />
           ) : (
-            <Icon src={fileIcon} className={classes.file} />
+            <div className={classes.fileIconContainer}>
+              <Icon src={fileIcon} className={classes.fileIcon}/>
+            </div>
           )}
         </div>
       </Tooltip>
