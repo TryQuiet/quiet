@@ -1,7 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory, PublicChannel } from '../../..'
+import { getFactory, messages, PublicChannel, publicChannels } from '../../..'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
@@ -172,6 +172,57 @@ describe('channelsReplicatedSaga', () => {
           }
         })
       )
+      .run()
+  })
+
+  test('populate channel cache on collecting data from persist', async () => {
+    const message = await factory.create<
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
+    >('Message', {
+      identity: alice
+    })
+
+    store.dispatch(publicChannels.actions.cacheMessages({
+      messages: [],
+      channelAddress: generalChannel.address
+    }))
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      channelsReplicatedSaga,
+      publicChannelsActions.channelsReplicated({
+        channels: {
+          [generalChannel.address]: generalChannel,
+          [sailingChannel.address]: sailingChannel
+        }
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(messages.actions.resetCurrentPublicChannelCache())
+      .run()
+  })
+
+  test('do not reset channel cache if already populated', async () => {
+    const message = await factory.create<
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
+    >('Message', {
+      identity: alice
+    })
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      channelsReplicatedSaga,
+      publicChannelsActions.channelsReplicated({
+        channels: {
+          [generalChannel.address]: generalChannel,
+          [sailingChannel.address]: sailingChannel
+        }
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put(messages.actions.resetCurrentPublicChannelCache())
       .run()
   })
 })

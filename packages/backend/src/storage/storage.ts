@@ -236,13 +236,9 @@ export class Storage {
   }
 
   async initAllChannels() {
-    await Promise.all(
-      Object.values(this.channels.all).map(async (channel: PublicChannel) => {
-        if (!this.publicChannelsRepos.has(channel.address)) {
-          await this.subscribeToChannel(channel)
-        }
-      })
-    )
+    this.io.loadPublicChannels({
+      channels: this.channels.all as unknown as { [key: string]: PublicChannel }
+    })
   }
 
   async initAllConversations() {

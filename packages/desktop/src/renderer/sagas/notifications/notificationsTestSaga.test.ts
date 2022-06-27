@@ -107,7 +107,7 @@ describe('displayMessageNotificationSaga', () => {
         dmPublicKey: ''
       }
     },
-    myIdentity: {
+    identity: {
       hiddenService: {
         onionAddress: 'putnxiwutblglde5i2mczpo37h5n4dvoqkqg2mkxzov7riwqu2owiaid.onion',
         privateKey:
@@ -159,7 +159,7 @@ describe('displayMessageNotificationSaga', () => {
       .select(users.selectors.certificatesMapping)
       .next(messagesMapCallData.usersData)
       .select(identity.selectors.currentIdentity)
-      .next(messagesMapCallData.myIdentity)
+      .next(messagesMapCallData.identity)
       .select(publicChannels.selectors.currentChannelAddress)
       .next(messagesMapCallData.currentChannelAddress)
       .select(settings.selectors.getNotificationsOption)

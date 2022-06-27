@@ -106,6 +106,7 @@ export const messagesSelectors = {
   publicKeysMapping,
   publicChannelsMessagesBase,
   currentPublicChannelMessagesBase,
+  currentPublicChannelMessagesEntries,
   validCurrentPublicChannelMessagesEntries,
   sortedCurrentPublicChannelMessagesEntries,
   messagesVerificationStatus,

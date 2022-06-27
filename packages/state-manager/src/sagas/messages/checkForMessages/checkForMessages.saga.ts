@@ -3,7 +3,6 @@ import {
   missingChannelMessages
 } from '../messages.selectors'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { currentChannel } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
 import { currentCommunity } from '../../communities/communities.selectors'
 import { currentIdentity } from '../../identity/identity.selectors'
@@ -14,7 +13,6 @@ export function* checkForMessagesSaga(action: PayloadAction<ReturnType<typeof me
   const community = yield* select(currentCommunity)
 
   const identity = yield* select(currentIdentity)
-  const channel = yield* select(currentChannel)
 
   const missingMessages = yield* select(missingChannelMessages(ids, channelAddress))
 
@@ -23,7 +21,7 @@ export function* checkForMessagesSaga(action: PayloadAction<ReturnType<typeof me
       messagesActions.askForMessages({
         peerId: identity.peerId.id,
         communityId: community.id,
-        channelAddress: channel.address,
+        channelAddress: channelAddress,
         ids: missingMessages
       })
     )
