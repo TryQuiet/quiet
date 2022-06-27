@@ -3,6 +3,9 @@ import { makeStyles } from '@material-ui/core/styles'
 import CloseIcon from '@material-ui/icons/Close'
 import { FileContent } from '@quiet/state-manager'
 import Tooltip from '../../ui/Tooltip/Tooltip'
+import Icon from '../../ui/Icon/Icon'
+import fileIcon from '../../../static/images/fileIcon.svg'
+import { imagesExtensions } from './File.consts'
 
 export interface FilePreviewData {
   [id: string]: FileContent
@@ -29,6 +32,14 @@ const useStyles = makeStyles(() => ({
     borderRadius: '15%',
     marginLeft: '10px',
     objectFit: 'cover'
+  },
+  file: {
+    width: '64px',
+    height: '64px',
+    borderRadius: '15%',
+    marginLeft: '10px',
+    objectFit: 'scale-down',
+    backgroundColor: '#F0F0F0'
   },
   closeIconContainer: {
     position: 'absolute',
@@ -67,7 +78,11 @@ const useStyles = makeStyles(() => ({
 
 const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, onClick }) => {
   const [showClose, setShowClose] = useState(false)
+
   const classes = useStyles({})
+
+  const imageType = imagesExtensions.includes(fileData.ext)
+
   return (
     <div
       className={classes.imageContainer}
@@ -78,14 +93,19 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
         setShowClose(true)
       }}>
       {showClose && (
-        <Tooltip title='Remove' placement='top' className={classes.tooltip}>
-          <div className={classes.closeIconContainer} onClick={onClick}>
-            <CloseIcon className={classes.closeIcon} />
-          </div>
-        </Tooltip>
+        <div className={classes.closeIconContainer} onClick={onClick}>
+          <CloseIcon className={classes.closeIcon} />
+        </div>
       )}
-
-      <img src={fileData.path} alt={fileData.name} className={classes.image} />
+      <Tooltip title={`${fileData.name}${fileData.ext}`} placement='top' className={classes.tooltip}>
+        <div>
+          { imageType ? (
+            <img src={fileData.path} alt={fileData.name} className={classes.image} />
+          ) : (
+            <Icon src={fileIcon} className={classes.file} />
+          )}
+        </div>
+      </Tooltip>
     </div>
   )
 }

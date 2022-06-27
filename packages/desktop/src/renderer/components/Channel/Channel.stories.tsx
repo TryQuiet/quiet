@@ -369,6 +369,7 @@ export const Pending = Template.bind({})
 export const ImagePreview = Template.bind({})
 export const ImagePlaceholder = Template.bind({})
 export const SentImage = Template.bind({})
+export const FilePreview = Template.bind({})
 export const NewUserMessage = Template.bind({})
 
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
@@ -502,6 +503,16 @@ SentImage.args = {
     date: '12:46',
     nickname: 'vader'
   })
+}
+FilePreview.args = {
+  ...args,
+  filesData: {
+    file_id: {
+      path: 'images/test-file.txt',
+      name: 'test-file',
+      ext: '.txt'
+    }
+  }
 }
 NewUserMessage.args = {
   ...args,

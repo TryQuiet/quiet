@@ -4,7 +4,6 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import UploadedImagePlaceholder, { UploadedImagePlaceholderProps } from './UploadedImagePlaceholder'
 import { withTheme } from '../../../../storybook/decorators'
 
-
 const Template: ComponentStory<typeof UploadedImagePlaceholder> = args => {
   return (
     <UploadedImagePlaceholder {...args} />
@@ -14,11 +13,11 @@ const Template: ComponentStory<typeof UploadedImagePlaceholder> = args => {
 export const Component = Template.bind({})
 
 const args: UploadedImagePlaceholderProps = {
-    cid: 'cid',
-    imageWidth: 500,
-    imageHeight: 200,
-    name: 'image',
-    ext: '.png'
+  cid: 'cid',
+  imageWidth: 500,
+  imageHeight: 200,
+  name: 'image',
+  ext: '.png'
 }
 
 Component.args = args
