@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core'
 import { DisplayableMessage } from '@quiet/state-manager'
-import { UseModalTypeWrapper } from '../../../containers/hooks'
-import UploadedFileModal from './UploadedFileModal'
-import { UploadedFilename, UploadedFilePlaceholder } from './UploadedFilePlaceholder'
+import { UseModalTypeWrapper } from '../../../../containers/hooks'
+import UploadedFileModal from './UploadedImagePreview'
+import { UploadedFilename, UploadedImagePlaceholder } from '../UploadedImagePlaceholder/UploadedImagePlaceholder'
+import { DEFAULT_FILE_HEIGHT, DEFAULT_FILE_WIDTH } from '../File.consts'
 
 const useStyles = makeStyles(() => ({
   image: {
@@ -16,7 +17,7 @@ const useStyles = makeStyles(() => ({
   }
 }))
 
-export interface UploadedFileProps {
+export interface UploadedImageProps {
   message: DisplayableMessage
   uploadedFileModal?: ReturnType<
   UseModalTypeWrapper<{
@@ -25,19 +26,17 @@ export interface UploadedFileProps {
   >
 }
 
-export const UploadedFile: React.FC<UploadedFileProps> = ({ message, uploadedFileModal }) => {
+export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedFileModal }) => {
   const classes = useStyles({})
 
   const [showImage, setShowImage] = useState<boolean>(false)
 
   const { cid, path, name, ext } = message.media
 
-  const imageWidth = message.media?.width
-  const imageHeight = message.media?.height
+  const imageWidth = message.media?.width || DEFAULT_FILE_WIDTH
+  const imageHeight = message.media?.height || DEFAULT_FILE_HEIGHT
 
   const width = imageWidth >= 400 ? 400 : imageWidth
-
-  const fullFileName = `${name}${ext}`
 
   useEffect(() => {
     if (uploadedFileModal?.open) {
@@ -63,7 +62,7 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message, uploadedFil
               setShowImage(true)
             }}>
             <div className={classes.image} data-testid={`${cid}-imageVisual`}>
-              <UploadedFilename fileName={fullFileName} />
+              <UploadedFilename fileName={`${name}${ext}`} />
               <img
                 className={classes.image}
                 style={{ width: width, aspectRatio: '' + imageWidth / imageHeight }}
@@ -74,15 +73,16 @@ export const UploadedFile: React.FC<UploadedFileProps> = ({ message, uploadedFil
           <UploadedFileModal {...uploadedFileModal} uploadedFileModal={uploadedFileModal} />
         </>
       ) : (
-        <UploadedFilePlaceholder
+        <UploadedImagePlaceholder
           cid={cid}
           imageWidth={imageWidth}
           imageHeight={imageHeight}
-          fileName={fullFileName}
+          name={name}
+          ext={ext}
         />
       )}
     </>
   )
 }
 
-export default UploadedFile
+export default UploadedImage

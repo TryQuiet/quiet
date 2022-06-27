@@ -7,7 +7,7 @@ import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 import { DisplayableMessage } from '@quiet/state-manager'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
+import { UploadFilesPreviewsProps } from './File/UploadingPreview'
 
 const mockMessages = (message: DisplayableMessage | null = null) => {
   let placeholder: DisplayableMessage = {
@@ -414,16 +414,6 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     handleOpen: function (_args?: any): any {},
     handleClose: function (): any {},
     src: 'images/butterfly.jpeg'
-  },
-  unsupportedFileModal: {
-    open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {},
-    sendOtherContent: '',
-    textContent: '',
-    title: '',
-    tryZipContent: '',
-    unsupportedFiles: []
   },
   messages: mockMessages(),
   newestMessage: {

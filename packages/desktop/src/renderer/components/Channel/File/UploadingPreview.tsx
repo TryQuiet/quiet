@@ -1,15 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { FileContent } from '@quiet/state-manager'
 import CloseIcon from '@material-ui/icons/Close'
+import { FileContent } from '@quiet/state-manager'
 import Tooltip from '../../ui/Tooltip/Tooltip'
-import UnsupportedFileModalComponent from './UnsupportedFileModal'
-import { UseModalTypeWrapper } from '../../../containers/hooks'
-import {
-  supportedFilesExtensions,
-  unsuportedFileContent,
-  unsuportedFileTitle
-} from './unsupportedFilesContent'
 
 export interface FilePreviewData {
   [id: string]: FileContent
@@ -99,97 +92,19 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
 
 export interface UploadFilesPreviewsProps {
   filesData: FilePreviewData
-  unsupportedFileModal?: ReturnType<UseModalTypeWrapper<{
-    unsupportedFiles: FileContent[]
-    title: string
-    sendOtherContent: string
-    textContent: string
-    tryZipContent: string
-  }>['types']>
   removeFile: (id: string) => void
-}
-
-const checkAreFilesSupported = (filesData: FilePreviewData) => {
-  const unsupportedFiles: FileContent[] = []
-
-  Object.entries(filesData).map(fileData => {
-    const fileId = fileData[0]
-    const fileContent = fileData[1]
-
-    if (!supportedFilesExtensions.includes(fileContent.ext)) {
-      unsupportedFiles.push(fileContent)
-      delete filesData[fileId]
-    }
-  })
-
-  return {
-    supportedFiles: filesData,
-    unsupportedFiles
-  }
 }
 
 const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
   filesData,
-  unsupportedFileModal,
   removeFile
 }) => {
   const classes = useStyles({})
-
-  const [isButtonClick, setButtonClick] = useState<boolean>(false)
-
-  const { supportedFiles, unsupportedFiles } = checkAreFilesSupported(filesData)
-
-  useEffect(() => {
-    let title: string
-    let sendOtherContent: string
-    let textContent: string
-
-    if (unsupportedFiles.length) {
-      setButtonClick(false)
-
-      if (unsupportedFiles.length === 1) {
-        title = unsuportedFileTitle.singleFile
-        textContent = unsuportedFileContent.singleFileUnsupported
-      } else {
-        title = unsuportedFileTitle.someFiles
-        textContent = unsuportedFileContent.someFilesUnsupported
-      }
-      if (Object.keys(supportedFiles).length === 1) {
-        sendOtherContent = unsuportedFileContent.sendOtherFile
-      } else if (Object.keys(supportedFiles).length > 1) {
-        sendOtherContent = unsuportedFileContent.sendOtherFiles
-      } else {
-        sendOtherContent = ''
-      }
-
-      unsupportedFileModal.handleOpen({
-        unsupportedFiles,
-        title,
-        sendOtherContent,
-        textContent,
-        tryZipContent: unsuportedFileContent.tryUploadZip
-      })
-    }
-  }, [filesData, unsupportedFiles])
-
-  useEffect(() => {
-    if (isButtonClick) {
-      unsupportedFileModal.handleClose()
-      setButtonClick(false)
-    }
-  }, [isButtonClick])
-
   return (
     <div className={classes.inputFiles}>
-      {Object.entries(supportedFiles).map(fileData => (
+      {Object.entries(filesData).map(fileData => (
         <FilePreviewComponent fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />
       ))}
-      <UnsupportedFileModalComponent
-        {...unsupportedFileModal}
-        onButtonClick={() => {
-          setButtonClick(true)
-        }}
-      />
     </div>
   )
 }

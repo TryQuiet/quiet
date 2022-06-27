@@ -1,16 +1,17 @@
 import React from 'react'
 
-import { renderComponent } from '../../../testUtils/renderComponent'
-import UploadedFilePlaceholder from './UploadedFilePlaceholder'
+import { renderComponent } from '../../../../testUtils/renderComponent'
+import UploadedFilePlaceholder from './UploadedImagePlaceholder'
 
 describe('UploadedFilePlaceholder', () => {
   it('renders placeholder', () => {
     const result = renderComponent(
       <UploadedFilePlaceholder
         cid={'hvb45FGa'}
-        fileName={'test.png'}
         imageHeight={1000}
         imageWidth={5000}
+        name={'test'}
+        ext={'.png'}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`

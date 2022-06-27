@@ -3,8 +3,8 @@ import theme from '../../../theme'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
 import { DisplayableMessage } from '@quiet/state-manager'
 import classNames from 'classnames'
-import UploadedFile from './UploadedFile'
-import { useModal, UseModalTypeWrapper } from '../../../containers/hooks'
+import UploadedFile from '../../Channel/File/UploadedImage/UploadedImage'
+import { UseModalTypeWrapper } from '../../../containers/hooks'
 
 const useStyles = makeStyles(() => ({
   message: {

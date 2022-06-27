@@ -16,7 +16,7 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import {
   FilePreviewData,
   UploadFilesPreviewsProps
-} from '../widgets/channels/UploadedFilesPreviews'
+} from './File/UploadingPreview'
 import { ipcRenderer } from 'electron'
 import { getFilesData } from '../../../utils/functions/fileData'
 
@@ -186,8 +186,7 @@ const Channel = () => {
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {
     filesData: uploadingFiles,
-    removeFile: removeFilePreview,
-    unsupportedFileModal: unsupportedFileModal
+    removeFile: removeFilePreview
   }
 
   return (

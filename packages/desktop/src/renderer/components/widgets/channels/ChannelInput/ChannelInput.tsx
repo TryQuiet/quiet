@@ -15,7 +15,7 @@ import addGray from '../../../../static/images/addGray.svg'
 import addBlack from '../../../../static/images/addBlack.svg'
 import { FileContent } from '@quiet/state-manager'
 import { UseModalTypeWrapper } from '../../../../containers/hooks'
-import { supportedFilesExtensions } from '../unsupportedFilesContent'
+import { imagesExtensions } from '../../../Channel/File/File.consts'
 import path from 'path'
 
 const useStyles = makeStyles(theme => ({
@@ -494,7 +494,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     for (let i = 0; i < files.length; i++) {
                       const fileExt = path.extname(files[i].name).toLowerCase()
                       const fileName = path.basename(files[i].name, fileExt)
-                      if (supportedFilesExtensions.includes(fileExt)) {
+                      if (imagesExtensions.includes(fileExt)) {
                         const arrayBuffer = await files[i].arrayBuffer()
                         handleClipboardFiles(arrayBuffer, fileExt, fileName)
                       } else if (!unsupportedFileModal.open) {

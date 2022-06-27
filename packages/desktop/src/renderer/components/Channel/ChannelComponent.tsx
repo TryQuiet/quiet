@@ -25,7 +25,7 @@ import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
 import UploadFilesPreviewsComponent, {
   UploadFilesPreviewsProps
-} from '../widgets/channels/UploadedFilesPreviews'
+} from './File/UploadingPreview'
 import { DropZoneComponent } from './DropZone/DropZoneComponent'
 import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoComponent'
 
@@ -90,7 +90,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   handleFileDrop,
   filesData,
   isCommunityInitialized = true,
-  unsupportedFileModal,
   openFilesDialog,
   handleClipboardFiles,
   uploadedFileModal
@@ -239,12 +238,10 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             setInfoClass={setInfoClass}
             inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
             handleClipboardFiles={handleClipboardFiles}
-            unsupportedFileModal={unsupportedFileModal}
             handleOpenFiles={handleFileDrop}>
             <UploadFilesPreviewsComponent
               filesData={filesData}
               removeFile={id => removeFile(id)}
-              unsupportedFileModal={unsupportedFileModal}
             />
           </ChannelInputComponent>
         </Grid>
