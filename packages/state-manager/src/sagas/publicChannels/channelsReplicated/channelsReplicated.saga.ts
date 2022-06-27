@@ -6,10 +6,13 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 
+import logger from '@quiet/logger'
+const log = logger('channels')
+
 export function* channelsReplicatedSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.channelsReplicated>['payload']>
 ): Generator {
-  console.log('INSIDE CHANNELS REPLICATED SAGA')
+  log('INSIDE CHANNELS REPLICATED SAGA')
 
   const _locallyStoredChannels = yield* select(publicChannelsSelectors.publicChannels)
   const locallyStoredChannels = _locallyStoredChannels.map(channel => channel.address)
@@ -19,7 +22,7 @@ export function* channelsReplicatedSaga(
   // Upserting channels to local storage
   for (const channel of databaseStoredChannels) {
     if (!locallyStoredChannels.includes(channel.address)) {
-      console.log(`ADDING #${channel.name} TO LOCAL STORAGE`)
+      log(`ADDING #${channel.name} TO LOCAL STORAGE`)
       yield* put(
         publicChannelsActions.addChannel({
           channel: channel
@@ -35,7 +38,7 @@ export function* channelsReplicatedSaga(
   // Subscribing channels
   for (const channel of databaseStoredChannels) {
     if (!subscribedChannels.includes(channel.address)) {
-      console.log(`SUBSCRIBING TO #${channel.name}`)
+      log(`SUBSCRIBING TO #${channel.name}`)
 
       const channelData = {
         ...channel,
