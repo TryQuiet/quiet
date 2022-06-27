@@ -5,8 +5,7 @@ import {
   messages,
   publicChannels,
   connection,
-  communities,
-  FileContent
+  communities
 } from '@quiet/state-manager'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -54,13 +53,6 @@ const Channel = () => {
   const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
 
   const filesRef = React.useRef<FilePreviewData>()
-  const unsupportedFileModal = useModal<{
-    unsupportedFiles: FileContent[]
-    title: string
-    sendOtherContent: string
-    textContent: string
-    tryZipContent: string
-  }>(ModalName.unsupportedFileModal)
 
   const onInputChange = useCallback(
     (_value: string) => {

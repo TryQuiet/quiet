@@ -10,7 +10,6 @@ import {
   identity
 } from '@quiet/state-manager'
 import UploadFilesPreviewsComponent from '../../../Channel/File/UploadingPreview'
-import { UseModalTypeWrapper } from '../../../../containers/hooks'
 
 describe('ChannelInput', () => {
   it('renders component input available ', () => {
@@ -239,25 +238,6 @@ describe('ChannelInput', () => {
     const fileData = {
       ...fileContent,
       arrayBuffer: bytes.buffer // need for test
-    }
-
-    const unsupportedFileModal: ReturnType<
-    UseModalTypeWrapper<{
-      unsupportedFiles: FileContent[]
-      title: string
-      sendOtherContent: string
-      textContent: string
-      tryZipContent: string
-    }>['types']
-    > = {
-      open: false,
-      handleOpen: mockUnsupportedModalHandleOpen,
-      handleClose: jest.fn(),
-      unsupportedFiles: [],
-      title: '',
-      sendOtherContent: '',
-      textContent: '',
-      tryZipContent: ''
     }
 
     renderComponent(

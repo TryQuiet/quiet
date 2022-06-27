@@ -13,9 +13,6 @@ import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import addGray from '../../../../static/images/addGray.svg'
 import addBlack from '../../../../static/images/addBlack.svg'
-import { FileContent } from '@quiet/state-manager'
-import { UseModalTypeWrapper } from '../../../../containers/hooks'
-import { imagesExtensions } from '../../../Channel/File/File.consts'
 import path from 'path'
 
 const useStyles = makeStyles(theme => ({
@@ -185,13 +182,6 @@ export interface ChannelInputProps {
   children?: ReactElement
   openFilesDialog: () => void
   handleClipboardFiles?: (arg: ArrayBuffer, ext: string, name: string) => void
-  unsupportedFileModal?: ReturnType<UseModalTypeWrapper<{
-    unsupportedFiles: FileContent[]
-    title: string
-    sendOtherContent: string
-    textContent: string
-    tryZipContent: string
-  }>['types']>
   handleOpenFiles: (arg: {files: any[]}) => void
 }
 
@@ -208,7 +198,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   children,
   openFilesDialog,
   handleClipboardFiles,
-  unsupportedFileModal,
   handleOpenFiles
 }) => {
   const classes = useStyles({})
@@ -494,12 +483,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     for (let i = 0; i < files.length; i++) {
                       const fileExt = path.extname(files[i].name).toLowerCase()
                       const fileName = path.basename(files[i].name, fileExt)
-                      if (imagesExtensions.includes(fileExt)) {
-                        const arrayBuffer = await files[i].arrayBuffer()
-                        handleClipboardFiles(arrayBuffer, fileExt, fileName)
-                      } else if (!unsupportedFileModal.open) {
-                        unsupportedFileModal.handleOpen()
-                      }
+                      const arrayBuffer = await files[i].arrayBuffer()
+                      handleClipboardFiles(arrayBuffer, fileExt, fileName)
                     }
                     if (!files.length) {
                       const text = e.clipboardData.getData('text/plain')
