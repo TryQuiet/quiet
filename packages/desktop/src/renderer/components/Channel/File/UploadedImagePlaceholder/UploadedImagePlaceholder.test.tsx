@@ -1,12 +1,12 @@
 import React from 'react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
-import UploadedFilePlaceholder from './UploadedImagePlaceholder'
+import UploadedImagePlaceholder from './UploadedImagePlaceholder'
 
-describe('UploadedFilePlaceholder', () => {
-  it('renders placeholder', () => {
+describe('UploadedImagePlaceholder', () => {
+  it('renders component', () => {
     const result = renderComponent(
-      <UploadedFilePlaceholder
+      <UploadedImagePlaceholder
         cid={'hvb45FGa'}
         imageHeight={1000}
         imageWidth={5000}
