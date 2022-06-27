@@ -38,7 +38,6 @@ describe('Channels panel', () => {
       await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
         'PublicChannel',
         {
-          communityId: community.id,
           channel: {
             name: name,
             description: `Welcome to #${name}`,

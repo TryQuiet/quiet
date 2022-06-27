@@ -99,7 +99,6 @@ describe('Loading panel', () => {
 
     store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
-    store.dispatch(publicChannels.actions.addPublicChannelsList({ id: community.id }))
 
     renderComponent(
       <>
@@ -112,7 +111,7 @@ describe('Loading panel', () => {
     expect(screen.getByTestId('spinnerLoader')).toBeVisible()
 
     // Verify proper messages is displayed
-    const startingApplicationMessage = screen.getByText(LoadingPanelMessage.FetchingData)
+    const startingApplicationMessage = screen.getByText(LoadingPanelMessage.Connecting)
     expect(startingApplicationMessage).toBeVisible()
 
     store.dispatch(publicChannels.actions.addChannel(channel))

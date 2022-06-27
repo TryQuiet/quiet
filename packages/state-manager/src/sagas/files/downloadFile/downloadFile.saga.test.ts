@@ -48,7 +48,6 @@ describe('downloadFileSaga', () => {
     sailingChannel = (await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
       'PublicChannel',
       {
-        communityId: alice.id,
         channel: {
           name: 'sailing',
           description: 'Welcome to #sailing',
@@ -83,7 +82,6 @@ describe('downloadFileSaga', () => {
       downloadFileSaga,
       socket,
       messagesActions.incomingMessages({
-        communityId: community.id,
         messages: [{
           id: messageId,
           type: MessageType.Image,

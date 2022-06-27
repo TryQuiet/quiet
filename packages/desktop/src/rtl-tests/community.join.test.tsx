@@ -122,7 +122,7 @@ describe('User', () => {
           socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
-          socket.socketClient.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
+          socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
             communityId: community.id,
             channels: {
               general: {
@@ -184,12 +184,8 @@ describe('User', () => {
         "Communities/responseCreateNetwork",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "PublicChannels/addPublicChannelsList",
-        "Modals/closeModal",
-        "Messages/lazyLoading",
-        "Messages/resetCurrentPublicChannelCache",
         "Identity/addNewIdentity",
-        "Messages/resetCurrentPublicChannelCache",
+        "Modals/closeModal",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
@@ -203,9 +199,9 @@ describe('User', () => {
         "Communities/launchCommunity",
         "Communities/launchRegistrar",
         "Connection/addInitializedCommunity",
-        "PublicChannels/responseGetPublicChannels",
-        "PublicChannels/subscribeToAllTopics",
+        "PublicChannels/channelsReplicated",
         "Modals/openModal",
+        "PublicChannels/addChannel",
         "PublicChannels/subscribeToTopic",
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
@@ -309,12 +305,8 @@ describe('User', () => {
         "Communities/responseCreateNetwork",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "PublicChannels/addPublicChannelsList",
-        "Modals/closeModal",
-        "Messages/lazyLoading",
-        "Messages/resetCurrentPublicChannelCache",
         "Identity/addNewIdentity",
-        "Messages/resetCurrentPublicChannelCache",
+        "Modals/closeModal",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
@@ -422,12 +414,8 @@ describe('User', () => {
         "Communities/responseCreateNetwork",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "PublicChannels/addPublicChannelsList",
-        "Modals/closeModal",
-        "Messages/lazyLoading",
-        "Messages/resetCurrentPublicChannelCache",
         "Identity/addNewIdentity",
-        "Messages/resetCurrentPublicChannelCache",
+        "Modals/closeModal",
         "Modals/closeModal",
         "Modals/openModal",
         "Errors/addError",

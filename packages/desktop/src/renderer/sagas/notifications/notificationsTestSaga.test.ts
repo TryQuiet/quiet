@@ -35,16 +35,16 @@ beforeAll(async () => {
 
   const factory = await getFactory(store.store)
 
-  const community1 = await factory.create<
+  const community = await factory.create<
   ReturnType<typeof communities.actions.addNewCommunity>['payload']
   >('Community')
 
   publicChannel2 = await factory.create<
   ReturnType<typeof publicChannels.actions.addChannel>['payload']
-  >('PublicChannel', { communityId: community1.id })
+  >('PublicChannel')
 
   await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-    id: community1.id,
+    id: community.id,
     nickname: 'alice'
   })
 
@@ -59,8 +59,7 @@ beforeAll(async () => {
         signature: 'signature',
         pubKey: 'pubKey'
       }
-    ],
-    communityId: '1'
+    ]
   }
 })
 
@@ -76,8 +75,7 @@ describe('displayMessageNotificationSaga', () => {
         signature: 'signature',
         pubKey: 'pubKey'
       }
-    ],
-    communityId: 'communityId'
+    ]
   }
 
   const messagesMapCallData: CreateNotificationsCallsDataType = {
@@ -109,7 +107,7 @@ describe('displayMessageNotificationSaga', () => {
         dmPublicKey: ''
       }
     },
-    myIdentity: {
+    identity: {
       hiddenService: {
         onionAddress: 'putnxiwutblglde5i2mczpo37h5n4dvoqkqg2mkxzov7riwqu2owiaid.onion',
         privateKey:
@@ -161,7 +159,7 @@ describe('displayMessageNotificationSaga', () => {
       .select(users.selectors.certificatesMapping)
       .next(messagesMapCallData.usersData)
       .select(identity.selectors.currentIdentity)
-      .next(messagesMapCallData.myIdentity)
+      .next(messagesMapCallData.identity)
       .select(publicChannels.selectors.currentChannelAddress)
       .next(messagesMapCallData.currentChannelAddress)
       .select(settings.selectors.getNotificationsOption)

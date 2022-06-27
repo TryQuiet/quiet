@@ -51,8 +51,7 @@ describe('resetChannelCacheSaga', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address,
-        communityId: community.id
+        channelAddress: generalChannel.address
       })
     )
 
@@ -88,8 +87,7 @@ describe('resetChannelCacheSaga', () => {
       'CacheMessages',
       {
         messages: messages,
-        channelAddress: generalChannel.address,
-        communityId: community.id
+        channelAddress: generalChannel.address
       }
     )
 
@@ -108,8 +106,7 @@ describe('resetChannelCacheSaga', () => {
       .put(
         publicChannelsActions.cacheMessages({
           messages: updatedCache,
-          channelAddress: generalChannel.address,
-          communityId: community.id
+          channelAddress: generalChannel.address
         })
       )
       .put(

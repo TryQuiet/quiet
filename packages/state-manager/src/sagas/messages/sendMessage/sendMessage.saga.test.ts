@@ -54,7 +54,6 @@ describe('sendMessageSaga', () => {
     sailingChannel = (await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
       'PublicChannel',
       {
-        communityId: alice.id,
         channel: {
           name: 'sailing',
           description: 'Welcome to #sailing',

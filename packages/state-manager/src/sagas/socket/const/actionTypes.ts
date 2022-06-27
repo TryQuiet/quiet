@@ -15,6 +15,8 @@ export enum SocketActionTypes {
   // A
   ASK_FOR_MESSAGES = 'askForMessages',
   // C
+  CHANNELS_REPLICATED = 'channelsReplicated',
+  CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CLOSE = 'close',
   COMMUNITY = 'community',
   CONNECTED_PEERS = 'connectedPeers',
@@ -51,7 +53,6 @@ export enum SocketActionTypes {
   RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
   RESPONSE_GET_PRIVATE_CONVERSATIONS = 'responseGetPrivateConversations',
-  RESPONSE_GET_PUBLIC_CHANNELS = 'responseGetPublicChannels',
   REQUEST_PEER_ID = 'requestPeerId',
   // S
   SAVE_OWNER_CERTIFICATE = 'saveOwnerCertificate',

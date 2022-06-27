@@ -8,7 +8,6 @@ import { NetworkData } from '../communities.types'
 import { reducers } from '../../reducers'
 import { generateDmKeyPair } from '../../../utils/cryptography/cryptography'
 import { responseCreateNetworkSaga } from './responseCreateNetwork.saga'
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { DmKeys, Identity } from '../../identity/identity.types'
 
@@ -70,11 +69,6 @@ describe('responseCreateNetwork', () => {
       .call(generateDmKeyPair)
       .put(communitiesActions.addNewCommunity(community))
       .put(communitiesActions.setCurrentCommunity(community.id))
-      .put(
-        publicChannelsActions.addPublicChannelsList({
-          id: community.id
-        })
-      )
       .put(identityActions.addNewIdentity(identity))
       .run()
   })

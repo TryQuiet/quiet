@@ -22,7 +22,7 @@ export function* createChannelSaga(
     SocketActionTypes.SUBSCRIBE_TO_TOPIC,
     {
       peerId: identity.peerId.id,
-      channelData: action.payload.channel
+      channel: action.payload.channel
     }
   ])
 }

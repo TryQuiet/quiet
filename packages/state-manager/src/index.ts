@@ -57,7 +57,6 @@ export * from './utils/tests/helpers'
 
 export { Community } from './sagas/communities/communities.slice'
 
-export { communityChannelsAdapter } from './sagas/publicChannels/publicChannels.adapter'
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
 export { certificatesAdapter } from './sagas/users/users.adapter'
 
@@ -68,6 +67,7 @@ export {
 
 export { identityAdapter } from './sagas/identity/identity.adapter'
 
+export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.transform'
 export { MessagesTransform } from './sagas/messages/messages.transform'
 
 export * from './sagas/identity/identity.types'
