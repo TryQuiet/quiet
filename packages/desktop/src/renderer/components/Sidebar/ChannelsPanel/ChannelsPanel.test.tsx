@@ -142,16 +142,16 @@ describe('Channels panel', () => {
                 >
                   <div
                     aria-disabled="false"
-                    class="MuiButtonBase-root MuiListItem-root makeStyles-root-171 makeStyles-selected-172 MuiListItem-button"
+                    class="MuiButtonBase-root MuiListItem-root makeStyles-root-170 makeStyles-selected-171 MuiListItem-button"
                     data-testid="general-link"
                     role="button"
                     tabindex="0"
                   >
                     <div
-                      class="MuiListItemText-root makeStyles-itemText-178"
+                      class="MuiListItemText-root makeStyles-itemText-177"
                     >
                       <span
-                        class="MuiTypography-root MuiListItemText-primary makeStyles-primary-173 MuiTypography-body1"
+                        class="MuiTypography-root MuiListItemText-primary makeStyles-primary-172 MuiTypography-body1"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
@@ -160,7 +160,7 @@ describe('Channels panel', () => {
                             class="MuiGrid-root MuiGrid-item"
                           >
                             <p
-                              class="MuiTypography-root makeStyles-title-174 MuiTypography-body2"
+                              class="MuiTypography-root makeStyles-title-173 MuiTypography-body2"
                               data-testid="general-link-text"
                             >
                               # general
@@ -175,16 +175,16 @@ describe('Channels panel', () => {
                   </div>
                   <div
                     aria-disabled="false"
-                    class="MuiButtonBase-root MuiListItem-root makeStyles-root-171 MuiListItem-button"
+                    class="MuiButtonBase-root MuiListItem-root makeStyles-root-170 MuiListItem-button"
                     data-testid="allergies-link"
                     role="button"
                     tabindex="0"
                   >
                     <div
-                      class="MuiListItemText-root makeStyles-itemText-178"
+                      class="MuiListItemText-root makeStyles-itemText-177"
                     >
                       <span
-                        class="MuiTypography-root MuiListItemText-primary makeStyles-primary-173 MuiTypography-body1"
+                        class="MuiTypography-root MuiListItemText-primary makeStyles-primary-172 MuiTypography-body1"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
@@ -193,7 +193,7 @@ describe('Channels panel', () => {
                             class="MuiGrid-root MuiGrid-item"
                           >
                             <p
-                              class="MuiTypography-root makeStyles-title-174 MuiTypography-body2"
+                              class="MuiTypography-root makeStyles-title-173 MuiTypography-body2"
                               data-testid="allergies-link-text"
                             >
                               # allergies
@@ -208,16 +208,16 @@ describe('Channels panel', () => {
                   </div>
                   <div
                     aria-disabled="false"
-                    class="MuiButtonBase-root MuiListItem-root makeStyles-root-171 MuiListItem-button"
+                    class="MuiButtonBase-root MuiListItem-root makeStyles-root-170 MuiListItem-button"
                     data-testid="antiques-link"
                     role="button"
                     tabindex="0"
                   >
                     <div
-                      class="MuiListItemText-root makeStyles-itemText-178"
+                      class="MuiListItemText-root makeStyles-itemText-177"
                     >
                       <span
-                        class="MuiTypography-root MuiListItemText-primary makeStyles-primary-173 MuiTypography-body1"
+                        class="MuiTypography-root MuiListItemText-primary makeStyles-primary-172 MuiTypography-body1"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
@@ -226,7 +226,7 @@ describe('Channels panel', () => {
                             class="MuiGrid-root MuiGrid-item"
                           >
                             <p
-                              class="MuiTypography-root makeStyles-title-174 MuiTypography-body2"
+                              class="MuiTypography-root makeStyles-title-173 MuiTypography-body2"
                               data-testid="antiques-link-text"
                             >
                               # antiques
@@ -241,16 +241,16 @@ describe('Channels panel', () => {
                   </div>
                   <div
                     aria-disabled="false"
-                    class="MuiButtonBase-root MuiListItem-root makeStyles-root-171 MuiListItem-button"
+                    class="MuiButtonBase-root MuiListItem-root makeStyles-root-170 MuiListItem-button"
                     data-testid="croatia-link"
                     role="button"
                     tabindex="0"
                   >
                     <div
-                      class="MuiListItemText-root makeStyles-itemText-178"
+                      class="MuiListItemText-root makeStyles-itemText-177"
                     >
                       <span
-                        class="MuiTypography-root MuiListItemText-primary makeStyles-primary-173 MuiTypography-body1"
+                        class="MuiTypography-root MuiListItemText-primary makeStyles-primary-172 MuiTypography-body1"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
@@ -259,7 +259,7 @@ describe('Channels panel', () => {
                             class="MuiGrid-root MuiGrid-item"
                           >
                             <p
-                              class="MuiTypography-root makeStyles-title-174 MuiTypography-body2"
+                              class="MuiTypography-root makeStyles-title-173 MuiTypography-body2"
                               data-testid="croatia-link-text"
                             >
                               # croatia
@@ -274,16 +274,16 @@ describe('Channels panel', () => {
                   </div>
                   <div
                     aria-disabled="false"
-                    class="MuiButtonBase-root MuiListItem-root makeStyles-root-171 MuiListItem-button"
+                    class="MuiButtonBase-root MuiListItem-root makeStyles-root-170 MuiListItem-button"
                     data-testid="pets-link"
                     role="button"
                     tabindex="0"
                   >
                     <div
-                      class="MuiListItemText-root makeStyles-itemText-178"
+                      class="MuiListItemText-root makeStyles-itemText-177"
                     >
                       <span
-                        class="MuiTypography-root MuiListItemText-primary makeStyles-primary-173 MuiTypography-body1"
+                        class="MuiTypography-root MuiListItemText-primary makeStyles-primary-172 MuiTypography-body1"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
@@ -292,7 +292,7 @@ describe('Channels panel', () => {
                             class="MuiGrid-root MuiGrid-item"
                           >
                             <p
-                              class="MuiTypography-root makeStyles-title-174 MuiTypography-body2"
+                              class="MuiTypography-root makeStyles-title-173 MuiTypography-body2"
                               data-testid="pets-link-text"
                             >
                               # pets
@@ -307,16 +307,16 @@ describe('Channels panel', () => {
                   </div>
                   <div
                     aria-disabled="false"
-                    class="MuiButtonBase-root MuiListItem-root makeStyles-root-171 MuiListItem-button"
+                    class="MuiButtonBase-root MuiListItem-root makeStyles-root-170 MuiListItem-button"
                     data-testid="sailing-link"
                     role="button"
                     tabindex="0"
                   >
                     <div
-                      class="MuiListItemText-root makeStyles-itemText-178"
+                      class="MuiListItemText-root makeStyles-itemText-177"
                     >
                       <span
-                        class="MuiTypography-root MuiListItemText-primary makeStyles-primary-173 MuiTypography-body1"
+                        class="MuiTypography-root MuiListItemText-primary makeStyles-primary-172 MuiTypography-body1"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
@@ -325,7 +325,7 @@ describe('Channels panel', () => {
                             class="MuiGrid-root MuiGrid-item"
                           >
                             <p
-                              class="MuiTypography-root makeStyles-title-174 MuiTypography-body2"
+                              class="MuiTypography-root makeStyles-title-173 MuiTypography-body2"
                               data-testid="sailing-link-text"
                             >
                               # sailing
@@ -411,16 +411,16 @@ describe('Channels panel', () => {
               >
                 <div
                   aria-disabled="false"
-                  class="MuiButtonBase-root MuiListItem-root makeStyles-root-171 makeStyles-selected-172 MuiListItem-button"
+                  class="MuiButtonBase-root MuiListItem-root makeStyles-root-170 makeStyles-selected-171 MuiListItem-button"
                   data-testid="general-link"
                   role="button"
                   tabindex="0"
                 >
                   <div
-                    class="MuiListItemText-root makeStyles-itemText-178"
+                    class="MuiListItemText-root makeStyles-itemText-177"
                   >
                     <span
-                      class="MuiTypography-root MuiListItemText-primary makeStyles-primary-173 MuiTypography-body1"
+                      class="MuiTypography-root MuiListItemText-primary makeStyles-primary-172 MuiTypography-body1"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
@@ -429,7 +429,7 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-item"
                         >
                           <p
-                            class="MuiTypography-root makeStyles-title-174 MuiTypography-body2"
+                            class="MuiTypography-root makeStyles-title-173 MuiTypography-body2"
                             data-testid="general-link-text"
                           >
                             # general
@@ -444,16 +444,16 @@ describe('Channels panel', () => {
                 </div>
                 <div
                   aria-disabled="false"
-                  class="MuiButtonBase-root MuiListItem-root makeStyles-root-171 MuiListItem-button"
+                  class="MuiButtonBase-root MuiListItem-root makeStyles-root-170 MuiListItem-button"
                   data-testid="allergies-link"
                   role="button"
                   tabindex="0"
                 >
                   <div
-                    class="MuiListItemText-root makeStyles-itemText-178"
+                    class="MuiListItemText-root makeStyles-itemText-177"
                   >
                     <span
-                      class="MuiTypography-root MuiListItemText-primary makeStyles-primary-173 MuiTypography-body1"
+                      class="MuiTypography-root MuiListItemText-primary makeStyles-primary-172 MuiTypography-body1"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
@@ -462,7 +462,7 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-item"
                         >
                           <p
-                            class="MuiTypography-root makeStyles-title-174 MuiTypography-body2"
+                            class="MuiTypography-root makeStyles-title-173 MuiTypography-body2"
                             data-testid="allergies-link-text"
                           >
                             # allergies
@@ -477,16 +477,16 @@ describe('Channels panel', () => {
                 </div>
                 <div
                   aria-disabled="false"
-                  class="MuiButtonBase-root MuiListItem-root makeStyles-root-171 MuiListItem-button"
+                  class="MuiButtonBase-root MuiListItem-root makeStyles-root-170 MuiListItem-button"
                   data-testid="antiques-link"
                   role="button"
                   tabindex="0"
                 >
                   <div
-                    class="MuiListItemText-root makeStyles-itemText-178"
+                    class="MuiListItemText-root makeStyles-itemText-177"
                   >
                     <span
-                      class="MuiTypography-root MuiListItemText-primary makeStyles-primary-173 MuiTypography-body1"
+                      class="MuiTypography-root MuiListItemText-primary makeStyles-primary-172 MuiTypography-body1"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
@@ -495,7 +495,7 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-item"
                         >
                           <p
-                            class="MuiTypography-root makeStyles-title-174 MuiTypography-body2"
+                            class="MuiTypography-root makeStyles-title-173 MuiTypography-body2"
                             data-testid="antiques-link-text"
                           >
                             # antiques
@@ -510,16 +510,16 @@ describe('Channels panel', () => {
                 </div>
                 <div
                   aria-disabled="false"
-                  class="MuiButtonBase-root MuiListItem-root makeStyles-root-171 MuiListItem-button"
+                  class="MuiButtonBase-root MuiListItem-root makeStyles-root-170 MuiListItem-button"
                   data-testid="croatia-link"
                   role="button"
                   tabindex="0"
                 >
                   <div
-                    class="MuiListItemText-root makeStyles-itemText-178"
+                    class="MuiListItemText-root makeStyles-itemText-177"
                   >
                     <span
-                      class="MuiTypography-root MuiListItemText-primary makeStyles-primary-173 MuiTypography-body1"
+                      class="MuiTypography-root MuiListItemText-primary makeStyles-primary-172 MuiTypography-body1"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
@@ -528,7 +528,7 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-item"
                         >
                           <p
-                            class="MuiTypography-root makeStyles-title-174 MuiTypography-body2"
+                            class="MuiTypography-root makeStyles-title-173 MuiTypography-body2"
                             data-testid="croatia-link-text"
                           >
                             # croatia
@@ -543,16 +543,16 @@ describe('Channels panel', () => {
                 </div>
                 <div
                   aria-disabled="false"
-                  class="MuiButtonBase-root MuiListItem-root makeStyles-root-171 MuiListItem-button"
+                  class="MuiButtonBase-root MuiListItem-root makeStyles-root-170 MuiListItem-button"
                   data-testid="pets-link"
                   role="button"
                   tabindex="0"
                 >
                   <div
-                    class="MuiListItemText-root makeStyles-itemText-178"
+                    class="MuiListItemText-root makeStyles-itemText-177"
                   >
                     <span
-                      class="MuiTypography-root MuiListItemText-primary makeStyles-primary-173 MuiTypography-body1"
+                      class="MuiTypography-root MuiListItemText-primary makeStyles-primary-172 MuiTypography-body1"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
@@ -561,7 +561,7 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-item"
                         >
                           <p
-                            class="MuiTypography-root makeStyles-title-174 MuiTypography-body2"
+                            class="MuiTypography-root makeStyles-title-173 MuiTypography-body2"
                             data-testid="pets-link-text"
                           >
                             # pets
@@ -576,16 +576,16 @@ describe('Channels panel', () => {
                 </div>
                 <div
                   aria-disabled="false"
-                  class="MuiButtonBase-root MuiListItem-root makeStyles-root-171 MuiListItem-button"
+                  class="MuiButtonBase-root MuiListItem-root makeStyles-root-170 MuiListItem-button"
                   data-testid="sailing-link"
                   role="button"
                   tabindex="0"
                 >
                   <div
-                    class="MuiListItemText-root makeStyles-itemText-178"
+                    class="MuiListItemText-root makeStyles-itemText-177"
                   >
                     <span
-                      class="MuiTypography-root MuiListItemText-primary makeStyles-primary-173 MuiTypography-body1"
+                      class="MuiTypography-root MuiListItemText-primary makeStyles-primary-172 MuiTypography-body1"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
@@ -594,7 +594,7 @@ describe('Channels panel', () => {
                           class="MuiGrid-root MuiGrid-item"
                         >
                           <p
-                            class="MuiTypography-root makeStyles-title-174 MuiTypography-body2"
+                            class="MuiTypography-root makeStyles-title-173 MuiTypography-body2"
                             data-testid="sailing-link-text"
                           >
                             # sailing
