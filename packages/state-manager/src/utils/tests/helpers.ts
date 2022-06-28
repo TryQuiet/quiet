@@ -98,7 +98,7 @@ export const collectDataReducer = (state = [], action: any) => {
   switch (action.type) {
     case 'Identity/registerCertificate':
       state.push({
-        nickname: action.payload.nickname,
+        nickname: action.payload.nickname
       })
       break
     case 'Identity/storeUserCertificate':

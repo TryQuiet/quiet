@@ -10,18 +10,17 @@ if (fs.existsSync(path)) {
   dataSet = JSON.parse(data)
 }
 
-let delaysArr = []
+const delaysArr = []
 
 dataSet.forEach((_o) => {
-    const delay = Object.values(_o)[0]
-    delaysArr.push(delay)
-
+  const delay = Object.values(_o)[0]
+  delaysArr.push(delay)
 })
 
 const accumulated = delaysArr.reduce((previousValue, currentValue) => {
-return previousValue + currentValue
+  return previousValue + currentValue
 }, 0)
 
 const longestTime = Math.max(...delaysArr)
-console.log(accumulated/delaysArr.length)
+console.log(accumulated / delaysArr.length)
 console.log(longestTime)
