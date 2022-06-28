@@ -12,6 +12,7 @@ const Template: ComponentStory<typeof FileComponent> = args => {
 export const Component = Template.bind({})
 export const Ready = Template.bind({})
 export const Downloading = Template.bind({})
+export const Canceled = Template.bind({})
 export const Downloaded = Template.bind({})
 
 const args: FileComponentProps = {
@@ -41,15 +42,22 @@ const args: FileComponentProps = {
 Component.args = args
 Ready.args = {
   ...args,
-  state: FileDownloadState.Ready
+  state: FileDownloadState.Ready,
+  download: () => { console.log('download file') }
 }
 Downloading.args = {
   ...args,
-  state: FileDownloadState.Downloading
+  state: FileDownloadState.Downloading,
+  cancel: () => { console.log('cancel download') }
+}
+Canceled.args = {
+  ...args,
+  state: FileDownloadState.Canceled
 }
 Downloaded.args = {
   ...args,
-  state: FileDownloadState.Downloaded
+  state: FileDownloadState.Downloaded,
+  show: () => { console.log('show in folder') }
 }
 
 const component: ComponentMeta<typeof FileComponent> = {

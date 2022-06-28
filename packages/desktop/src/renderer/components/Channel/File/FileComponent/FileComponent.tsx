@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { makeStyles, Typography } from '@material-ui/core'
 import { DisplayableMessage } from '@quiet/state-manager'
 import { FileDownloadState } from '../File.consts'
@@ -7,7 +7,10 @@ import Icon from '../../../ui/Icon/Icon'
 import fileIcon from '../../../../static/images/fileIcon.svg'
 import downloadIcon from '../../../../static/images/downloadIcon.svg'
 import downloadIconGray from '../../../../static/images/downloadIconGray.svg'
+import folderIcon from '../../../../static/images/folderIcon.svg'
 import folderIconGray from '../../../../static/images/folderIconGray.svg'
+import cancelIconGray from '../../../../static/images/cancelIconGray.svg'
+import checkGreen from '../../../../static/images/checkGreen.svg'
 
 const useStyles = makeStyles(theme => ({
   border: {
@@ -37,32 +40,71 @@ const useStyles = makeStyles(theme => ({
     width: '15px'
   },
   actionIndicator: {
-    paddingTop: '16px'
+    display: 'flex',
+    width: 'fit-content',
+    cursor: 'pointer'
   }
 }))
 
-export interface FileComponentProps {
-  message: DisplayableMessage
-  state?: FileDownloadState
-}
-
 const ActionIndicator: React.FC<{
-  label: string
-  color: string
-  icon
-}> = ({ label, color, icon }) => {
+  regular: {
+    label: string
+    color: string
+    icon: any
+  }
+  hover?: {
+    label: string
+    color: string
+    icon: any
+  }
+  action?: () => void
+}> = ({ regular, hover, action }) => {
+  const [over, setOver] = useState<boolean>(false)
+
   const classes = useStyles({})
+
+  const onMouseOver = () => {
+    if (!hover) return // Ignore if there's no hover state specified
+    setOver(true)
+  }
+
+  const onMouseOut = () => {
+    setOver(false)
+  }
+
   return (
-    <div style={{ display: 'flex' }}>
-      <Icon src={icon} className={classes.actionIcon} />
-      <Typography variant={'body2'} style={{ color: color, marginLeft: '8px' }}>
-        {label}
-      </Typography>
+    <div onClick={action} onMouseOver={onMouseOver} onMouseOut={onMouseOut}>
+      {/* Regular state */}
+      {!over && (
+        <div className={classes.actionIndicator}>
+          <Icon src={regular.icon} className={classes.actionIcon} />
+          <Typography variant={'body2'} style={{ color: regular.color, marginLeft: '8px' }}>
+            {regular.label}
+          </Typography>
+        </div>
+      )}
+      {/* Hovered state */}
+      {over && (
+        <div className={classes.actionIndicator}>
+          <Icon src={hover.icon} className={classes.actionIcon} />
+          <Typography variant={'body2'} style={{ color: hover.color, marginLeft: '8px' }}>
+            {hover.label}
+          </Typography>
+        </div>
+      )}
     </div>
   )
 }
 
-export const FileComponent: React.FC<FileComponentProps> = ({ message, state }) => {
+export interface FileComponentProps {
+  message: DisplayableMessage
+  state?: FileDownloadState
+  download?: () => void
+  cancel?: () => void
+  show?: () => void
+}
+
+export const FileComponent: React.FC<FileComponentProps> = ({ message, state, download, cancel, show }) => {
   const classes = useStyles({})
 
   const { cid, path, name, ext } = message.media
@@ -85,26 +127,54 @@ export const FileComponent: React.FC<FileComponentProps> = ({ message, state }) 
           </Typography>
         </div>
       </div>
-      <div className={classes.actionIndicator} style={{ display: state ? 'block' : 'none' }}>
+      <div style={{ paddingTop: '16px', width: 'fit-content', display: state ? 'block' : 'none' }}>
         {state === FileDownloadState.Ready && (
           <ActionIndicator
-            label={'Download file'}
-            color={theme.palette.colors.lushSky}
-            icon={downloadIcon}
+            regular={{
+              label: 'Download file',
+              color: theme.palette.colors.lushSky,
+              icon: downloadIcon
+            }}
+            action={download}
           />
         )}
         {state === FileDownloadState.Downloading && (
           <ActionIndicator
-            label={'Downloading...'}
-            color={theme.palette.colors.darkGray}
-            icon={downloadIconGray}
+            regular={{
+              label: 'Downloading...',
+              color: theme.palette.colors.darkGray,
+              icon: downloadIconGray
+            }}
+            hover={{
+              label: 'Cancel download',
+              color: theme.palette.colors.darkGray,
+              icon: cancelIconGray
+            }}
+            action={cancel}
+          />
+        )}
+        {state === FileDownloadState.Canceled && (
+          <ActionIndicator
+            regular={{
+              label: 'Canceled',
+              color: theme.palette.colors.greenDark,
+              icon: checkGreen
+            }}
           />
         )}
         {state === FileDownloadState.Downloaded && (
           <ActionIndicator
-            label={'Show in folder'}
-            color={theme.palette.colors.darkGray}
-            icon={folderIconGray}
+            regular={{
+              label: 'Show in folder',
+              color: theme.palette.colors.darkGray,
+              icon: folderIconGray
+            }}
+            hover={{
+              label: 'Show in folder',
+              color: theme.palette.colors.lushSky,
+              icon: folderIcon
+            }}
+            action={show}
           />
         )}
       </div>
