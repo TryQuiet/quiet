@@ -3,12 +3,16 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import FileComponent, { FileComponentProps } from './FileComponent'
 import { withTheme } from '../../../../storybook/decorators'
+import { FileDownloadState } from '../File.consts'
 
 const Template: ComponentStory<typeof FileComponent> = args => {
   return <FileComponent {...args} />
 }
 
 export const Component = Template.bind({})
+export const Ready = Template.bind({})
+export const Downloading = Template.bind({})
+export const Downloaded = Template.bind({})
 
 const args: FileComponentProps = {
   message: {
@@ -30,10 +34,23 @@ const args: FileComponentProps = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader'
-  }
+  },
+  state: undefined
 }
 
 Component.args = args
+Ready.args = {
+  ...args,
+  state: FileDownloadState.Ready
+}
+Downloading.args = {
+  ...args,
+  state: FileDownloadState.Downloading
+}
+Downloaded.args = {
+  ...args,
+  state: FileDownloadState.Downloaded
+}
 
 const component: ComponentMeta<typeof FileComponent> = {
   title: 'Components/FileComponent',
