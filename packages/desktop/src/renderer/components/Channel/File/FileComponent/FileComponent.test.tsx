@@ -33,34 +33,45 @@ describe('FileComponent', () => {
       <body>
         <div>
           <div
-            class="makeStyles-file-1"
-            data-testid="QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs-imageVisual"
+            class="makeStyles-border-1"
+            data-testid="QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs-fileComponent"
           >
-            <div
-              class="makeStyles-iconWrapper-2"
-            >
-              <img
-                class="makeStyles-icon-4"
-                src="test-file-stub"
-              />
-            </div>
-            <div
-              class="makeStyles-filenameWrapper-3"
-            >
-              <h5
-                class="MuiTypography-root MuiTypography-h5"
-                style="line-height: 20px;"
+            <span>
+              <div
+                class=""
+                style="display: flex;"
+                title=""
               >
-                my-file-name-goes-here-an-isnt-truncated
-                .zip
-              </h5>
-              <p
-                class="MuiTypography-root MuiTypography-body2"
-                style="line-height: 20px; color: rgb(127, 127, 127);"
-              >
-                16 MB
-              </p>
-            </div>
+                <div
+                  class="makeStyles-icon-2"
+                >
+                  <img
+                    class="makeStyles-fileIcon-3"
+                    src="test-file-stub"
+                  />
+                </div>
+                <div
+                  class="makeStyles-filename-4"
+                >
+                  <h5
+                    class="MuiTypography-root MuiTypography-h5"
+                    style="line-height: 20px;"
+                  >
+                    my-file-name-goes-here-an-isnt-truncated
+                    .zip
+                  </h5>
+                  <p
+                    class="MuiTypography-root MuiTypography-body2"
+                    style="line-height: 20px; color: rgb(127, 127, 127);"
+                  >
+                    16 MB
+                  </p>
+                </div>
+              </div>
+            </span>
+            <div
+              style="padding-top: 16px; display: none;"
+            />
           </div>
         </div>
       </body>

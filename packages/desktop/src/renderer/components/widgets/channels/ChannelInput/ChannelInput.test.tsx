@@ -102,6 +102,7 @@ describe('ChannelInput', () => {
       </body>
     `)
   })
+  
   it('renders component input unavailable', () => {
     const result = renderComponent(
       <ChannelInputComponent
@@ -324,6 +325,6 @@ describe('ChannelInput', () => {
     )
 
     // unsupported file modal appear with unsupported file ext
-    expect(mockUnsupportedModalHandleOpen).toHaveBeenCalled()
+    expect(mockUnsupportedModalHandleOpen).not.toHaveBeenCalled()
   })
 })
