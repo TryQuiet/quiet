@@ -102,7 +102,7 @@ describe('ChannelInput', () => {
       </body>
     `)
   })
-  
+
   it('renders component input unavailable', () => {
     const result = renderComponent(
       <ChannelInputComponent
