@@ -113,7 +113,7 @@ export const collectDataReducer = (state = [], action: any) => {
 
       // Add QuietData to path
 
-      const path = `${os.homedir()}/data.json`
+      const path = `${os.homedir()}/data-${state[0].nickname}.json`
 
       messages.forEach(message => {
         if (message.message.startsWith('Created') || message.message.startsWith('@') || message.pubKey === publicKey) return
