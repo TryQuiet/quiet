@@ -27,9 +27,10 @@ import {
   publicChannelsActions
 } from '../../publicChannels/publicChannels.slice'
 import {
+  ChannelsReplicatedPayload,
   CreatedChannelResponse,
-  GetPublicChannelsResponse,
-  IncomingMessages
+  IncomingMessages,
+  SetChannelSubscribedPayload
 } from '../../publicChannels/publicChannels.types'
 
 import { usersActions } from '../../users/users.slice'
@@ -43,9 +44,10 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof messagesActions.incomingMessages>
   | ReturnType<typeof messagesActions.addPublicChannelsMessagesBase>
   | ReturnType<typeof publicChannelsActions.addChannel>
+  | ReturnType<typeof publicChannelsActions.setChannelSubscribed>
   | ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>
   | ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>
-  | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
+  | ReturnType<typeof publicChannelsActions.channelsReplicated>
   | ReturnType<typeof publicChannelsActions.createGeneralChannel>
   | ReturnType<typeof usersActions.responseSendCertificates>
   | ReturnType<typeof communitiesActions.responseCreateNetwork>
@@ -73,9 +75,11 @@ export function subscribe(socket: Socket) {
       emit(messagesActions.uploadedFile(payload))
     })
     // Channels
-    socket.on(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, (payload: GetPublicChannelsResponse) => {
-      emit(publicChannelsActions.responseGetPublicChannels(payload))
-      emit(publicChannelsActions.subscribeToAllTopics())
+    socket.on(SocketActionTypes.CHANNELS_REPLICATED, (payload: ChannelsReplicatedPayload) => {
+      emit(publicChannelsActions.channelsReplicated(payload))
+    })
+    socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
+      emit(publicChannelsActions.setChannelSubscribed(payload))
     })
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       emit(messagesActions.addPublicChannelsMessagesBase({
@@ -99,9 +103,9 @@ export function subscribe(socket: Socket) {
       emit(messagesActions.incomingMessages(payload))
     })
     // Community
-    socket.on(SocketActionTypes.NEW_COMMUNITY, (payload: ResponseCreateCommunityPayload) => {
+    socket.on(SocketActionTypes.NEW_COMMUNITY, (_payload: ResponseCreateCommunityPayload) => {
       emit(identityActions.saveOwnerCertToDb())
-      emit(publicChannelsActions.createGeneralChannel({ communityId: payload.id }))
+      emit(publicChannelsActions.createGeneralChannel())
     })
     socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {
       log(payload)

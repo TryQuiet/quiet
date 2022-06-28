@@ -43,7 +43,6 @@ describe('markUnreadChannelsSaga', () => {
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
         'PublicChannel',
         {
-          communityId: community.id,
           channel: {
             name: name,
             description: `Welcome to #${name}`,
@@ -84,28 +83,24 @@ describe('markUnreadChannelsSaga', () => {
     await expectSaga(
       markUnreadChannelsSaga,
       messagesActions.incomingMessages({
-        messages: messages,
-        communityId: community.id
+        messages: messages
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .put(
         publicChannelsActions.markUnreadChannel({
-          channelAddress: 'memes',
-          communityId: community.id
+          channelAddress: 'memes'
         })
       )
       .put(
         publicChannelsActions.markUnreadChannel({
-          channelAddress: 'memes',
-          communityId: community.id
+          channelAddress: 'memes'
         })
       )
       .put(
         publicChannelsActions.markUnreadChannel({
-          channelAddress: 'travels',
-          communityId: community.id
+          channelAddress: 'travels'
         })
       )
       .run()

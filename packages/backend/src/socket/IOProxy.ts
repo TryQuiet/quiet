@@ -17,7 +17,7 @@ import {
   SubscribeToTopicPayload,
   ChannelMessagesIdsResponse,
   CreatedChannelResponse,
-  GetPublicChannelsResponse,
+  ChannelsReplicatedPayload,
   SendCertificatesResponse,
   ErrorMessages,
   Community,
@@ -26,7 +26,8 @@ import {
   ErrorCodes,
   AskForMessagesPayload,
   FileContent,
-  FileMetadata
+  FileMetadata,
+  SetChannelSubscribedPayload
 } from '@quiet/state-manager'
 import { emitError } from './errors'
 
@@ -64,8 +65,12 @@ export default class IOProxy {
   }
 
   public subscribeToTopic = async (payload: SubscribeToTopicPayload) => {
-    log(`${payload.peerId} is subscribing to channel ${payload.channelData.address}`)
-    await this.getStorage(payload.peerId).subscribeToChannel(payload.channelData)
+    log(`${payload.peerId} is subscribing to channel ${payload.channel.address}`)
+    await this.getStorage(payload.peerId).subscribeToChannel(payload.channel)
+  }
+
+  public setChannelSubscribed = (payload: SetChannelSubscribedPayload) => {
+    this.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)
   }
 
   public askForMessages = async (payload: AskForMessagesPayload) => {
@@ -136,9 +141,9 @@ export default class IOProxy {
     this.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, payload)
   }
 
-  public loadPublicChannels = (payload: GetPublicChannelsResponse) => {
+  public loadPublicChannels = (payload: ChannelsReplicatedPayload) => {
     log(`Sending ${Object.keys(payload.channels).length} public channels`)
-    this.io.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, payload)
+    this.io.emit(SocketActionTypes.CHANNELS_REPLICATED, payload)
   }
 
   public loadMessages = (payload: IncomingMessages) => {

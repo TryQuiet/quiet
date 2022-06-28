@@ -100,7 +100,7 @@ describe('User', () => {
         socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
           id: payload.id
         })
-        socket.socketClient.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
+        socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
           communityId: payload.id,
           channels: {
             general: {
@@ -174,12 +174,8 @@ describe('User', () => {
         "Communities/responseCreateNetwork",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "PublicChannels/addPublicChannelsList",
-        "Modals/closeModal",
-        "Messages/lazyLoading",
-        "Messages/resetCurrentPublicChannelCache",
         "Identity/addNewIdentity",
-        "Messages/resetCurrentPublicChannelCache",
+        "Modals/closeModal",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
@@ -193,17 +189,17 @@ describe('User', () => {
         "Connection/addInitializedCommunity",
         "Identity/saveOwnerCertToDb",
         "PublicChannels/createGeneralChannel",
-        "PublicChannels/responseGetPublicChannels",
-        "PublicChannels/subscribeToAllTopics",
+        "PublicChannels/channelsReplicated",
         "Communities/responseRegistrar",
         "Connection/addInitializedRegistrar",
         "PublicChannels/createChannel",
-        "PublicChannels/subscribeToTopic",
-        "Modals/closeModal",
-        "PublicChannels/setCurrentChannel",
         "PublicChannels/addChannel",
+        "PublicChannels/setCurrentChannel",
+        "Modals/openModal",
         "Modals/closeModal",
+        "PublicChannels/subscribeToTopic",
         "PublicChannels/clearUnreadChannel",
+        "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
       ]
     `)

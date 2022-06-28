@@ -60,8 +60,7 @@ describe('createChannelSaga', () => {
       createChannelSaga,
       socket,
       publicChannelsActions.createChannel({
-        channel,
-        communityId: 'communityId'
+        channel
       })
     )
       .withReducer(
@@ -91,7 +90,7 @@ describe('createChannelSaga', () => {
         SocketActionTypes.SUBSCRIBE_TO_TOPIC,
         {
           peerId: identity.peerId.id,
-          channelData: channel
+          channel: channel
         }
       ])
       .run()

@@ -1,14 +1,11 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put } from 'typed-redux-saga'
-import { communitiesSelectors } from '../../communities/communities.selectors'
 import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 
 export function* downloadedFileSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.downloadedFile>['payload']>
 ): Generator {
-  const communityId = yield* select(communitiesSelectors.currentCommunityId)
-
   const { id, channelAddress } = action.payload.message
 
   const messagesBase = yield* select(messagesSelectors.publicChannelsMessagesBase)
@@ -24,8 +21,7 @@ export function* downloadedFileSaga(
 
   yield* put(
     messagesActions.incomingMessages({
-      messages: [message],
-      communityId: communityId
+      messages: [message]
     })
   )
 }

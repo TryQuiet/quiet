@@ -85,8 +85,7 @@ describe('messagesSelectors', () => {
 
     store.dispatch(
       publicChannels.actions.setCurrentChannel({
-        channelAddress: generalChannel.address,
-        communityId: community.id
+        channelAddress: generalChannel.address
       })
     )
 

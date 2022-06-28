@@ -87,15 +87,14 @@ describe('Channel', () => {
       socket // Fork state manager's sagas
     )
 
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
     renderComponent(
       <>
         <Channel />
       </>,
       store
     )
-
-    const channelName = screen.queryByText('#')
-    expect(channelName).toBeNull()
   })
 
   it('displays properly on app (re)start', async () => {
@@ -384,8 +383,7 @@ describe('Channel', () => {
     // Update message sending status
     store.dispatch(
       messages.actions.incomingMessages({
-        messages: [sentMessage],
-        communityId: community.id
+        messages: [sentMessage]
       })
     )
 

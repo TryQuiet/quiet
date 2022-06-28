@@ -18,6 +18,7 @@ jobs:
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
+      CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
       - uses: actions/checkout@v2
@@ -52,8 +53,30 @@ jobs:
           aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_bucket: ${{ env.S3_BUCKET }}
-          source_dir: 'packages/desktop/dist/alpha-linux.yml'
+          source_dir: ${{ env.CHECKSUM_PATH }}
           destination_dir: ''
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Get release version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: packages/desktop
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.package-version.outputs.current-version}}.AppImage
+          asset_name: Quiet-${{ steps.package-version.outputs.current-version}}.AppImage
+          asset_content_type: application/.AppImage
 
   build-macos:
     # needs: run-e2e-tests
@@ -105,6 +128,28 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
         run: cd packages/desktop && electron-builder -p always --mac ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.1.1
+        with:
+          path: packages/desktop
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}.dmg
+          asset_name: Quiet-${{ steps.extract_version.outputs.version}}.dmg
+          asset_content_type: application/.dmg
 
   build-windows:
     # needs: run-e2e-tests
@@ -159,3 +204,25 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
         run: cd packages/desktop && electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
+        
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.1.1
+        with:
+          path: packages/desktop
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
+          asset_name: Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
+          asset_content_type: application/.exe

@@ -57,14 +57,13 @@ describe('subscribeToTopicSaga', () => {
       socket,
       publicChannelsActions.subscribeToTopic({
         peerId: alice.peerId.id,
-        channelData: generalChannel
+        channel: generalChannel
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .put(
         publicChannelsActions.addChannel({
-          communityId: community.id,
           channel: generalChannel
         })
       )
@@ -77,7 +76,7 @@ describe('subscribeToTopicSaga', () => {
         SocketActionTypes.SUBSCRIBE_TO_TOPIC,
         {
           peerId: alice.peerId.id,
-          channelData: generalChannel
+          channel: generalChannel
         }
       ])
       .run()

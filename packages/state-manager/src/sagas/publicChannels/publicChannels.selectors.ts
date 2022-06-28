@@ -2,13 +2,12 @@ import { createSelector } from 'reselect'
 import { StoreKeys } from '../store.keys'
 import {
   publicChannelsAdapter,
-  communityChannelsAdapter,
   channelMessagesAdapter,
-  publicChannelsStatusAdapter
+  publicChannelsStatusAdapter,
+  publicChannelsSubscriptionsAdapter
 } from './publicChannels.adapter'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
-import { currentCommunity } from '../communities/communities.selectors'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import {
@@ -19,25 +18,27 @@ import {
 } from './publicChannels.types'
 import { MessageType } from '../messages/messages.types'
 
-const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
+const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
   state[StoreKeys.PublicChannels]
-
-const selectEntities = createSelector(publicChannelSlice, reducerState =>
-  communityChannelsAdapter.getSelectors().selectEntities(reducerState.channels)
-)
-
-const selectState = createSelector(
-  selectEntities,
-  currentCommunity,
-  (entities, community) => {
-    return entities[community?.id]
-  }
-)
 
 export const selectChannels = createSelector(selectState, (state) => {
   if (!state) return []
   return publicChannelsAdapter.getSelectors().selectAll(state.channels)
 })
+
+const selectChannelsSubscriptions = createSelector(selectState, (state) => {
+  if (!state) return []
+  return publicChannelsSubscriptionsAdapter.getSelectors().selectAll(state.channelsSubscriptions)
+})
+
+export const subscribedChannels = createSelector(
+  selectChannelsSubscriptions,
+  (subscriptions) => {
+    return subscriptions.map(subscription => {
+      if (subscription.subscribed) return subscription.address
+    })
+  }
+)
 
 // Serves for testing purposes only
 export const selectGeneralChannel = createSelector(selectChannels, channels => {
@@ -206,6 +207,7 @@ export const unreadChannels = createSelector(
 
 export const publicChannelsSelectors = {
   publicChannels,
+  subscribedChannels,
   currentChannelAddress,
   currentChannelName,
   currentChannel,

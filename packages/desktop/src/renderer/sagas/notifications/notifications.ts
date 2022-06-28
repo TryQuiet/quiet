@@ -1,5 +1,7 @@
 /* global Notification */
 import { PayloadAction } from '@reduxjs/toolkit'
+import { eventChannel, END } from 'redux-saga'
+import { call, put, select, takeEvery } from 'typed-redux-saga'
 import {
   connection,
   Identity,
@@ -15,9 +17,8 @@ import {
   users,
   MessageType
 } from '@quiet/state-manager'
-import { call, put, select, takeEvery } from 'typed-redux-saga'
 import { soundTypeToAudio } from '../../../shared/sounds'
-import { eventChannel, END } from 'redux-saga'
+
 // eslint-disable-next-line
 const remote = require('@electron/remote')
 
@@ -25,9 +26,8 @@ export interface NotificationsData {
   title: string
   message: string
   sound: NotificationsSounds
-  communityId: string
   channelName: string
-  yourBrowserWindow: Electron.BrowserWindow
+  browserWindow: Electron.BrowserWindow
 }
 
 export interface CreateNotificationsCallsDataType {
@@ -39,7 +39,7 @@ export interface CreateNotificationsCallsDataType {
   usersData: {
     [pubKey: string]: User
   }
-  myIdentity: Identity
+  identity: Identity
   currentChannelAddress: string
   notificationsOption: NotificationsOptions
   notificationsSound: NotificationsSounds
@@ -57,7 +57,7 @@ export function* displayMessageNotificationSaga(
     action,
     publicChannels: yield* select(channels.selectors.publicChannels),
     usersData: yield* select(users.selectors.certificatesMapping),
-    myIdentity: yield* select(identity.selectors.currentIdentity),
+    identity: yield* select(identity.selectors.currentIdentity),
     currentChannelAddress: yield* select(channels.selectors.currentChannelAddress),
     notificationsOption: yield* select(settings.selectors.getNotificationsOption),
     notificationsSound: yield* select(settings.selectors.getNotificationsSound),
@@ -74,45 +74,39 @@ export function* displayMessageNotificationSaga(
 
 export const messagesMapForNotificationsCalls = (data: CreateNotificationsCallsDataType) => {
   return eventChannel<ReturnType<typeof channels.actions.setCurrentChannel>>(emit => {
-    for (const messageData of data.action.payload.messages) {
-      const publicChannelFromMessage = data.publicChannels.find(channel => {
-        // @ts-expect-error
-        if (messageData?.channelId) {
-          // @ts-expect-error
-          return channel.address === messageData.channelId
-        } else if (messageData?.channelAddress) {
-          return channel.address === messageData.channelAddress
-        }
-      })
-      const senderName = data.usersData[messageData.pubKey]?.username
-      const isMessageFromMyUser = senderName === data.myIdentity.nickname
-      const isMessageFromCurrentChannel = data.currentChannelAddress === publicChannelFromMessage.address
+    for (const message of data.action.payload.messages) {
+      const messageChannel = data.publicChannels.find(channel => channel.address === message.channelAddress)
+
+      const senderName = data.usersData[message.pubKey]?.username
+
+      const isMessageFromMyUser = senderName === data.identity.nickname
+      const isMessageFromCurrentChannel = data.currentChannelAddress === messageChannel?.address
       const isNotificationsOptionOff =
         NotificationsOptions.doNotNotifyOfAnyMessages === data.notificationsOption
 
-      const [yourBrowserWindow] = remote.BrowserWindow.getAllWindows()
+      const [browserWindow] = remote.BrowserWindow.getAllWindows()
 
-      const isAppInForeground = yourBrowserWindow.isFocused()
+      const isAppInForeground = browserWindow.isFocused()
 
-      const isMessageFromLoggedTime = messageData.createdAt > data.lastConnectedTime
-      if (senderName && !isMessageFromMyUser && !isNotificationsOptionOff &&
-        isMessageFromLoggedTime && (!isMessageFromCurrentChannel || !isAppInForeground)) {
-        let message: string
+      const isMessageFromLoggedTime = message.createdAt > data.lastConnectedTime
+      if (senderName && !isMessageFromMyUser && !isNotificationsOptionOff && isMessageFromLoggedTime && (!isMessageFromCurrentChannel || !isAppInForeground)) {
+        let notificationText: string
         let title: string
-        if (messageData.type === MessageType.Image) {
-          title = `${senderName} in #${publicChannelFromMessage.name || 'Unnamed'}`
-          message = 'shared this image'
+
+        if (message.type === MessageType.Image) {
+          title = `${senderName} in #${messageChannel.name || 'Unnamed'}`
+          notificationText = 'shared this image'
         } else {
-          title = `New message from ${senderName} in #${publicChannelFromMessage.name || 'Unnamed'}`
-          message = messageData.message
+          title = `New message from ${senderName} in #${messageChannel.name || 'Unnamed'}`
+          notificationText = message.message
         }
+
         return createNotification({
           title,
-          message: `${message.substring(0, 64)}${message.length > 64 ? '...' : ''}`,
+          message: `${notificationText.substring(0, 64)}${notificationText.length > 64 ? '...' : ''}`,
           sound: data.notificationsSound,
-          communityId: data.action.payload.communityId,
-          channelName: publicChannelFromMessage.name,
-          yourBrowserWindow
+          channelName: messageChannel?.name,
+          browserWindow: browserWindow
         }, emit)
       }
     }
@@ -124,22 +118,24 @@ export const createNotification = (payload: NotificationsData, emit): any => {
   if (process.platform === 'win32') {
     remote.app.setAppUserModelId(remote.app.name)
   }
+
   if (soundTypeToAudio[payload.sound]) {
     soundTypeToAudio[payload.sound].play()
   }
+
   const notification = new Notification(payload.title, {
     body: payload.message,
     icon: '../../build' + '/icon.png',
     silent: true
   })
+
   notification.onclick = () => {
     emit(
       channels.actions.setCurrentChannel({
-        channelAddress: payload.channelName,
-        communityId: payload.communityId
+        channelAddress: payload.channelName
       })
     )
-    payload.yourBrowserWindow.show()
+    payload.browserWindow.show()
 
     emit(END)
   }

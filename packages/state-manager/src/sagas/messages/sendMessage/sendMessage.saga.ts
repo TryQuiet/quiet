@@ -87,8 +87,7 @@ export function* sendMessageSaga(
   // Display sent message immediately, to improve user experience
   yield* put(
     messagesActions.incomingMessages({
-      messages: [message],
-      communityId: identity.id
+      messages: [message]
     })
   )
 }

@@ -29,8 +29,7 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
 
   const cacheMessagesPayload: CacheMessagesPayload = {
     messages: messages,
-    channelAddress: channelAddress,
-    communityId: communityId
+    channelAddress: channelAddress
   }
 
   yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))

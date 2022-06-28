@@ -89,7 +89,6 @@ describe('Switch channels', () => {
       await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
         'PublicChannel',
         {
-          communityId: community.id,
           channel: {
             name: name,
             description: `Welcome to #${name}`,
@@ -176,8 +175,7 @@ describe('Switch channels', () => {
 
     // Set 'general' as active channel
     store.dispatch(publicChannels.actions.setCurrentChannel({
-      channelAddress: 'general',
-      communityId: community.id
+      channelAddress: 'general'
     }))
 
     // Assert channel is not highglighted
@@ -291,8 +289,7 @@ describe('Switch channels', () => {
 
     // Set 'general' as active channel
     store.dispatch(publicChannels.actions.setCurrentChannel({
-      channelAddress: 'general',
-      communityId: community.id
+      channelAddress: 'general'
     }))
 
     // Assert channel is not highglighted
