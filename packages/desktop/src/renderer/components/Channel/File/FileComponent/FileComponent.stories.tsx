@@ -3,10 +3,14 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import FileComponent, { FileComponentProps } from './FileComponent'
 import { withTheme } from '../../../../storybook/decorators'
-import { FileDownloadState } from '../File.consts'
+import { FileDownloadState } from '../FileDownloadState.enum'
 
 const Template: ComponentStory<typeof FileComponent> = args => {
-  return <FileComponent {...args} />
+  return (
+    <div style={{ marginTop: '40px' }}>
+      <FileComponent {...args} />
+    </div>
+  )
 }
 
 export const Component = Template.bind({})
@@ -48,6 +52,12 @@ Ready.args = {
 Downloading.args = {
   ...args,
   state: FileDownloadState.Downloading,
+  downloadProgress: {
+    total: 500,
+    downloaded: 200,
+    transferSpeed: '32MBps',
+    remainingTime: '20m'
+  },
   cancel: () => { console.log('cancel download') }
 }
 Canceled.args = {

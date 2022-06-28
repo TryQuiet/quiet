@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { makeStyles, Typography } from '@material-ui/core'
+import { CircularProgress, makeStyles, Typography } from '@material-ui/core'
 import { DisplayableMessage } from '@quiet/state-manager'
-import { FileDownloadState } from '../File.consts'
+import { FileDownloadState } from '../FileDownloadState.enum'
 import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
 import fileIcon from '../../../../static/images/fileIcon.svg'
@@ -11,6 +11,8 @@ import folderIcon from '../../../../static/images/folderIcon.svg'
 import folderIconGray from '../../../../static/images/folderIconGray.svg'
 import cancelIconGray from '../../../../static/images/cancelIconGray.svg'
 import checkGreen from '../../../../static/images/checkGreen.svg'
+import { DownloadProgress } from '../File.types'
+import Tooltip from '../../../ui/Tooltip/Tooltip'
 
 const useStyles = makeStyles(theme => ({
   border: {
@@ -99,35 +101,65 @@ const ActionIndicator: React.FC<{
 export interface FileComponentProps {
   message: DisplayableMessage
   state?: FileDownloadState
+  downloadProgress?: DownloadProgress
   download?: () => void
   cancel?: () => void
   show?: () => void
 }
 
-export const FileComponent: React.FC<FileComponentProps> = ({ message, state, download, cancel, show }) => {
+export const FileComponent: React.FC<FileComponentProps> = ({
+  message,
+  state,
+  downloadProgress,
+  download,
+  cancel,
+  show
+}) => {
   const classes = useStyles({})
 
   const { cid, path, name, ext } = message.media
 
   return (
     <div className={classes.border} data-testid={`${cid}-fileComponent`}>
-      <div style={{ display: 'flex' }}>
-        <div className={classes.icon}>
-          <Icon src={fileIcon} className={classes.fileIcon} />
+      <Tooltip title={downloadProgress ? `${downloadProgress.transferSpeed} ${downloadProgress.remainingTime} remaining` : ''} placement='top'>
+        <div style={{ display: 'flex' }}>
+          <div className={classes.icon}>
+            {!downloadProgress ? (
+              <Icon src={fileIcon} className={classes.fileIcon} />
+            ) : (
+              <>
+                <CircularProgress
+                  variant='determinate'
+                  size={18}
+                  thickness={4}
+                  value={100}
+                  style={{ position: 'absolute', color: theme.palette.colors.gray }}
+                />
+                <CircularProgress
+                  variant='static'
+                  size={18}
+                  thickness={4}
+                  value={(downloadProgress.total / downloadProgress.downloaded) * 100}
+                  style={{ color: theme.palette.colors.lightGray }}
+                />
+              </>
+            )}
+          </div>
+          <div className={classes.filename}>
+            <Typography variant={'h5'} style={{ lineHeight: '20px' }}>
+              {name}
+              {ext}
+            </Typography>
+            <Typography
+              variant={'body2'}
+              style={{ lineHeight: '20px', color: theme.palette.colors.darkGray }}>
+              16 MB
+            </Typography>
+          </div>
         </div>
-        <div className={classes.filename}>
-          <Typography variant={'h5'} style={{ lineHeight: '20px' }}>
-            {name}
-            {ext}
-          </Typography>
-          <Typography
-            variant={'body2'}
-            style={{ lineHeight: '20px', color: theme.palette.colors.darkGray }}>
-            16 MB
-          </Typography>
-        </div>
-      </div>
-      <div style={{ paddingTop: '16px', width: 'fit-content', display: state ? 'block' : 'none' }}>
+      </Tooltip>
+      <div
+        style={{ paddingTop: '16px', width: 'fit-content', display: state ? 'block' : 'none' }}>
         {state === FileDownloadState.Ready && (
           <ActionIndicator
             regular={{

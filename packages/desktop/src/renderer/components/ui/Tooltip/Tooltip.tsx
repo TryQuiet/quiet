@@ -134,15 +134,16 @@ export const Tooltip: React.FC<React.ComponentProps<typeof MuiTooltip> & Tooltip
       <MuiTooltip
         {...props}
         title={
-          <React.Fragment>
-            {titleHTML || (
-              <span className={classes.text}>
-                {title ? title.charAt(0).toUpperCase() : ''}
-                {title ? title.slice(1) : ''}
-              </span>
-            )}
-            <span className={classes.arrow} ref={setArrowRef} />
-          </React.Fragment>
+          title.length === 0 ? ''
+            : <React.Fragment>
+              {titleHTML || (
+                <span className={classes.text}>
+                  {title ? title.charAt(0).toUpperCase() : ''}
+                  {title ? title.slice(1) : ''}
+                </span>
+              )}
+              <span className={classes.arrow} ref={setArrowRef} />
+            </React.Fragment>
         }
         classes={{
           tooltip: classNames({

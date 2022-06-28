@@ -4,7 +4,6 @@ import { DisplayableMessage } from '@quiet/state-manager'
 import { UseModalTypeWrapper } from '../../../../containers/hooks'
 import UploadedFileModal from './UploadedImagePreview'
 import { UploadedFilename, UploadedImagePlaceholder } from '../UploadedImagePlaceholder/UploadedImagePlaceholder'
-import { DEFAULT_FILE_HEIGHT, DEFAULT_FILE_WIDTH } from '../File.consts'
 
 const useStyles = makeStyles(() => ({
   image: {
@@ -33,8 +32,8 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedF
 
   const { cid, path, name, ext } = message.media
 
-  const imageWidth = message.media?.width || DEFAULT_FILE_WIDTH
-  const imageHeight = message.media?.height || DEFAULT_FILE_HEIGHT
+  const imageWidth = message.media?.width
+  const imageHeight = message.media?.height
 
   const width = imageWidth >= 400 ? 400 : imageWidth
 
