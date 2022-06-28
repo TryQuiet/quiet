@@ -53,7 +53,6 @@ describe('incomingMessagesSaga', () => {
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
         'PublicChannel',
         {
-          communityId: alice.id,
           channel: {
             name: 'sailing',
             description: 'Welcome to #sailing',
@@ -69,7 +68,6 @@ describe('incomingMessagesSaga', () => {
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
         'PublicChannel',
         {
-          communityId: alice.id,
           channel: {
             name: 'barbeque',
             description: 'Welcome to #barbeque',
@@ -102,8 +100,7 @@ describe('incomingMessagesSaga', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address,
-        communityId: community.id
+        channelAddress: generalChannel.address
       })
     )
 
@@ -114,8 +111,7 @@ describe('incomingMessagesSaga', () => {
     await expectSaga(
       incomingMessagesSaga,
       messagesActions.incomingMessages({
-        messages: [message],
-        communityId: community.id
+        messages: [message]
       })
     )
       .withReducer(reducer)
@@ -123,8 +119,7 @@ describe('incomingMessagesSaga', () => {
       .put(
         publicChannelsActions.cacheMessages({
           messages: [message],
-          channelAddress: message.channelAddress,
-          communityId: community.id
+          channelAddress: message.channelAddress
         })
       )
       .run()
@@ -162,8 +157,7 @@ describe('incomingMessagesSaga', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address,
-        communityId: community.id
+        channelAddress: generalChannel.address
       })
     )
 
@@ -171,8 +165,7 @@ describe('incomingMessagesSaga', () => {
     store.dispatch(
       publicChannelsActions.cacheMessages({
         messages: [message],
-        channelAddress: generalChannel.address,
-        communityId: community.id
+        channelAddress: generalChannel.address
       })
     )
 
@@ -189,8 +182,7 @@ describe('incomingMessagesSaga', () => {
     await expectSaga(
       incomingMessagesSaga,
       messagesActions.incomingMessages({
-        messages: [message],
-        communityId: community.id
+        messages: [message]
       })
     )
       .withReducer(reducer)
@@ -198,8 +190,7 @@ describe('incomingMessagesSaga', () => {
       .put(
         publicChannelsActions.cacheMessages({
           messages: [message],
-          channelAddress: message.channelAddress,
-          communityId: community.id
+          channelAddress: message.channelAddress
         })
       )
       .run()
@@ -225,8 +216,7 @@ describe('incomingMessagesSaga', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address,
-        communityId: community.id
+        channelAddress: generalChannel.address
       })
     )
 
@@ -234,8 +224,7 @@ describe('incomingMessagesSaga', () => {
     await expectSaga(
       incomingMessagesSaga,
       messagesActions.incomingMessages({
-        messages: [message],
-        communityId: community.id
+        messages: [message]
       })
     )
       .withReducer(reducer)
@@ -243,8 +232,7 @@ describe('incomingMessagesSaga', () => {
       .not.put(
         publicChannelsActions.cacheMessages({
           messages: [message],
-          channelAddress: message.channelAddress,
-          communityId: community.id
+          channelAddress: message.channelAddress
         })
       )
       .run()
@@ -279,8 +267,7 @@ describe('incomingMessagesSaga', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address,
-        communityId: community.id
+        channelAddress: generalChannel.address
       })
     )
 
@@ -288,8 +275,7 @@ describe('incomingMessagesSaga', () => {
     await expectSaga(
       incomingMessagesSaga,
       messagesActions.incomingMessages({
-        messages: [message],
-        communityId: community.id
+        messages: [message]
       })
     )
       .withReducer(reducer)
@@ -297,8 +283,7 @@ describe('incomingMessagesSaga', () => {
       .not.put(
         publicChannelsActions.cacheMessages({
           messages: [message],
-          channelAddress: message.channelAddress,
-          communityId: community.id
+          channelAddress: message.channelAddress
         })
       )
       .run()
@@ -325,8 +310,7 @@ describe('incomingMessagesSaga', () => {
     // Set 'barbeque' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: barbequeChannel.address,
-        communityId: community.id
+        channelAddress: barbequeChannel.address
       })
     )
 
@@ -362,8 +346,7 @@ describe('incomingMessagesSaga', () => {
       'CacheMessages',
       {
         messages: messages,
-        channelAddress: barbequeChannel.address,
-        communityId: community.id
+        channelAddress: barbequeChannel.address
       }
     )
 
@@ -375,8 +358,7 @@ describe('incomingMessagesSaga', () => {
     await expectSaga(
       incomingMessagesSaga,
       messagesActions.incomingMessages({
-        messages: [message],
-        communityId: community.id
+        messages: [message]
       })
     )
       .withReducer(reducer)
@@ -411,8 +393,7 @@ describe('incomingMessagesSaga', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address,
-        communityId: community.id
+        channelAddress: generalChannel.address
       })
     )
 
@@ -448,8 +429,7 @@ describe('incomingMessagesSaga', () => {
       'CacheMessages',
       {
         messages: messages,
-        channelAddress: generalChannel.address,
-        communityId: community.id
+        channelAddress: generalChannel.address
       }
     )
 
@@ -465,8 +445,7 @@ describe('incomingMessagesSaga', () => {
     await expectSaga(
       incomingMessagesSaga,
       messagesActions.incomingMessages({
-        messages: [message],
-        communityId: community.id
+        messages: [message]
       })
     )
       .withReducer(reducer)
@@ -474,8 +453,7 @@ describe('incomingMessagesSaga', () => {
       .put(
         publicChannelsActions.cacheMessages({
           messages: updatedCache,
-          channelAddress: message.channelAddress,
-          communityId: community.id
+          channelAddress: message.channelAddress
         })
       )
       .run()

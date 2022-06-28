@@ -1,13 +1,17 @@
 import { displayMessageNotificationSaga } from './notifications'
 import { expectSaga } from 'redux-saga-test-plan'
-import { communities, connection, getFactory, identity, IncomingMessages, messages, NotificationsOptions, NotificationsSounds, prepareStore, publicChannels, settings, StoreKeys, users } from '@quiet/state-manager'
-import { combineReducers } from '@reduxjs/toolkit'
+import { communities, Community, connection, getFactory, Identity, identity, IncomingMessages, messages, NotificationsOptions, NotificationsSounds, prepareStore, PublicChannel, publicChannels, settings, StoreKeys, users } from '@quiet/state-manager'
+import { combineReducers, Store } from '@reduxjs/toolkit'
 import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
 import { soundTypeToAudio } from '../../../shared/sounds'
+import { reducers } from '../../store/reducers'
 
 const originalNotification = window.Notification
+
 const mockNotification = jest.fn()
+
 const notification = jest.fn().mockImplementation(() => { return mockNotification })
+
 // @ts-expect-error
 window.Notification = notification
 
@@ -45,38 +49,44 @@ jest.mock('../../../shared/sounds', () => ({
   }
 }))
 
+let store: Store
+
+let community: Community
+let alice: Identity
+let publicChannel: PublicChannel
+
 let incomingMessages: IncomingMessages
-let store
-let publicChannel2
-let community1
-let identity1
+
 let userPubKey
+
 const lastConnectedTime = 1000000
 
 beforeAll(async () => {
   setupCrypto()
-  store = await prepareStore()
-  const factory = await getFactory(store.store)
 
-  community1 = await factory.create<
+  store = prepareStore({}).store
+
+  const factory = await getFactory(store)
+
+  community = await factory.create<
   ReturnType<typeof communities.actions.addNewCommunity>['payload']
   >('Community')
 
-  publicChannel2 = await factory.create<
+  publicChannel = (await factory.create<
   ReturnType<typeof publicChannels.actions.addChannel>['payload']
-  >('PublicChannel', { communityId: community1.id })
+  >('PublicChannel')).channel
 
-  identity1 = await factory.create<
+  alice = await factory.create<
   ReturnType<typeof identity.actions.addNewIdentity>['payload']
-  >('Identity', { id: community1.id, nickname: 'alice' })
+  >('Identity', { id: community.id, nickname: 'alice' })
 
-  const parsedCert = parseCertificate(identity1.userCertificate)
+  const parsedCert = parseCertificate(alice.userCertificate)
   userPubKey = await keyFromCertificate(parsedCert)
 
-  const senderPubKey = Object.keys(users.selectors.certificatesMapping(store.store.getState()))
+  const senderPubKey = Object.keys(users.selectors.certificatesMapping(store.getState()))
     .find((pubKey) => pubKey !== userPubKey)
 
-  store.store.dispatch(connection.actions.setLastConnectedTime(lastConnectedTime))
+  store.dispatch(connection.actions.setLastConnectedTime(lastConnectedTime))
 
   incomingMessages = {
     messages: [{
@@ -84,11 +94,10 @@ beforeAll(async () => {
       type: 1,
       message: 'message',
       createdAt: lastConnectedTime + 1,
-      channelAddress: publicChannel2.channel.address,
+      channelAddress: publicChannel.address,
       signature: 'signature',
       pubKey: senderPubKey
-    }],
-    communityId: community1.id
+    }]
   }
 })
 
@@ -119,7 +128,7 @@ describe('displayNotificationsSaga', () => {
           [StoreKeys.Communities]: communities.reducer
 
         }),
-        store.store.getState()
+        store.getState()
       )
       .run()
 
@@ -154,7 +163,7 @@ describe('displayNotificationsSaga', () => {
           [StoreKeys.Communities]: communities.reducer
 
         }),
-        store.store.getState()
+        store.getState()
       )
       .run()
     expect(notification).not.toHaveBeenCalled()
@@ -175,7 +184,7 @@ describe('displayNotificationsSaga', () => {
           [StoreKeys.Communities]: communities.reducer
 
         }),
-        store.store.getState()
+        store.getState()
       )
       .run()
 
@@ -201,7 +210,7 @@ describe('displayNotificationsSaga', () => {
           [StoreKeys.Communities]: communities.reducer
 
         }),
-        store.store.getState()
+        store.getState()
       )
       .run()
     expect(soundTypeToAudio.pow.play).toHaveBeenCalled()
@@ -211,7 +220,7 @@ describe('displayNotificationsSaga', () => {
     mockIsFocused.mockImplementationOnce(() => { return true })
 
     const storeWithNotificationsSoundTurnedOff = {
-      ...store.store.getState(),
+      ...store.getState(),
       [StoreKeys.Settings]: {
         ...new settings.State(),
         notificationsSound: NotificationsSounds.none
@@ -243,7 +252,7 @@ describe('displayNotificationsSaga', () => {
     mockIsFocused.mockImplementationOnce(() => { return true })
 
     const storeReducersWithDoNotShowNotificationsSetting = {
-      ...store.store.getState(),
+      ...store.getState(),
       [StoreKeys.Settings]: {
         ...new settings.State(),
         notificationsOption: NotificationsOptions.doNotNotifyOfAnyMessages
@@ -271,35 +280,14 @@ describe('displayNotificationsSaga', () => {
   test('do not display notification when the user is on a same channel', async () => {
     mockIsFocused.mockImplementationOnce(() => { return true })
 
-    const storeReducersWithCurrentChannelFromMessage = {
-      ...store.store.getState(),
-      PublicChannels: {
-        channels: {
-          ...store.store.getState().PublicChannels.channels,
-          entities: {
-            [community1.id]: {
-              ...store.store.getState().PublicChannels.channels.entities[community1.id],
-              currentChannelAddress: publicChannel2.channel.address
-            }
-          }
-        }
-      }
-    }
+    store.dispatch(publicChannels.actions.setCurrentChannel({ channelAddress: publicChannel.address }))
 
+    const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages(incomingMessages))
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Identity]: identity.reducer,
-          [StoreKeys.Settings]: settings.reducer,
-          [StoreKeys.PublicChannels]: publicChannels.reducer,
-          [StoreKeys.Users]: users.reducer,
-          [StoreKeys.Communities]: communities.reducer
-
-        }),
-        storeReducersWithCurrentChannelFromMessage
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
       .run()
 
     expect(notification).not.toHaveBeenCalled()
@@ -308,35 +296,14 @@ describe('displayNotificationsSaga', () => {
   test('notification shows for message in current channel when app window does not have focus', async () => {
     mockIsFocused.mockImplementationOnce(() => { return false })
 
-    const storeReducersWithCurrentChannelFromMessage = {
-      ...store.store.getState(),
-      PublicChannels: {
-        channels: {
-          ...store.store.getState().PublicChannels.channels,
-          entities: {
-            [community1.id]: {
-              ...store.store.getState().PublicChannels.channels.entities[community1.id],
-              currentChannelAddress: publicChannel2.channel.address
-            }
-          }
-        }
-      }
-    }
+    store.dispatch(publicChannels.actions.setCurrentChannel({ channelAddress: publicChannel.address }))
 
+    const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages(incomingMessages))
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Identity]: identity.reducer,
-          [StoreKeys.Settings]: settings.reducer,
-          [StoreKeys.PublicChannels]: publicChannels.reducer,
-          [StoreKeys.Users]: users.reducer,
-          [StoreKeys.Communities]: communities.reducer
-
-        }),
-        storeReducersWithCurrentChannelFromMessage
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
       .run()
 
     expect(notification).toBeCalledWith(
@@ -370,7 +337,7 @@ describe('displayNotificationsSaga', () => {
           [StoreKeys.Communities]: communities.reducer
 
         }),
-        store.store.getState()
+        store.getState()
       )
       .run()
 
@@ -400,7 +367,7 @@ describe('displayNotificationsSaga', () => {
           [StoreKeys.Communities]: communities.reducer
 
         }),
-        store.store.getState()
+        store.getState()
       )
       .run()
 

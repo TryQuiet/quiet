@@ -23,21 +23,18 @@ export async function assertReceivedChannel(
   const communityId = store.getState().Communities.communities.ids[0] as string
 
   await waitForExpect(() => {
-    assertContains(channelName, store.getState().PublicChannels.channels.entities[communityId].channels.ids)
+    assertContains(channelName, store.getState().PublicChannels.channels.ids)
   }, maxTime)
   log(`User ${userName} replicated '${channelName}'`)
 
   store.dispatch(
     publicChannels.actions.setCurrentChannel({
-      communityId,
-      channelAddress: store.getState().PublicChannels.channels.entities[communityId]
-        .channels.ids[0] as string
+      channelAddress: store.getState().PublicChannels.channels.ids[0] as string
     })
   )
 
   log(
-    `User ${userName} received ${store.getState().PublicChannels.channels.entities[communityId].channels
-      .ids.length
+    `User ${userName} received ${store.getState().PublicChannels.channels.ids.length
     } channels`
   )
 }

@@ -44,7 +44,6 @@ export const getFactory = async (store: Store) => {
           store.dispatch(communities.actions.setCurrentCommunity(payload.id))
         }
         // Create 'general' channel
-        await factory.create('CommunityChannels', { id: payload.id })
         await factory.create('PublicChannel', {
           communityId: payload.id,
           channel: {
@@ -106,11 +105,11 @@ export const getFactory = async (store: Store) => {
     certificate: factory.assoc('Identity', 'userCertificate')
   })
 
-  factory.define('CommunityChannels', publicChannels.actions.addPublicChannelsList, {
-    id: factory.assoc('Community', 'id')
+  factory.define('PublicChannelsMessagesBase', messages.actions.addPublicChannelsMessagesBase, {
+    channelAddress: factory.assoc('PublicChannel', 'address')
   })
 
-  factory.define('PublicChannelsMessagesBase', messages.actions.addPublicChannelsMessagesBase, {
+  factory.define('PublicChannelSubscription', publicChannels.actions.setChannelSubscribed, {
     channelAddress: factory.assoc('PublicChannel', 'address')
   })
 
@@ -118,7 +117,6 @@ export const getFactory = async (store: Store) => {
     'PublicChannel',
     publicChannels.actions.addChannel,
     {
-      communityId: factory.assoc('Identity', 'id'),
       channel: {
         name: factory.sequence('PublicChannel.name', n => `public-channel-${n}`),
         description: 'Description',
@@ -136,6 +134,7 @@ export const getFactory = async (store: Store) => {
         payload: ReturnType<typeof publicChannels.actions.addChannel>['payload']
       ) => {
         await factory.create('PublicChannelsMessagesBase', ({ channelAddress: payload.channel.address }))
+        await factory.create('PublicChannelSubscription', ({ channelAddress: payload.channel.address }))
         return payload
       }
     }
@@ -204,8 +203,7 @@ export const getFactory = async (store: Store) => {
       ) => {
         const community = currentCommunity(store.getState())
         store.dispatch(messagesActions.incomingMessages({
-          messages: [payload.message],
-          communityId: community.id
+          messages: [payload.message]
         }))
         return payload
       }

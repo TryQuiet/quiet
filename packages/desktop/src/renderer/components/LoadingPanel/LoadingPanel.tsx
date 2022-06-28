@@ -9,7 +9,7 @@ import { modalsActions } from '../../sagas/modals/modals.slice'
 
 export enum LoadingPanelMessage {
   StartingApplication = 'Starting Quiet',
-  FetchingData = 'Fetching Data'
+  Connecting = 'Connecting to peers'
 }
 
 const LoadingPanel = () => {
@@ -44,7 +44,7 @@ const LoadingPanel = () => {
   useEffect(() => {
     if (isConnected) {
       if (currentCommunity && !isChannelReplicated && currentIdentity?.userCertificate) {
-        setMessage(LoadingPanelMessage.FetchingData)
+        setMessage(LoadingPanelMessage.Connecting)
         loadingPanelModal.handleOpen()
       } else {
         loadingPanelModal.handleClose()
