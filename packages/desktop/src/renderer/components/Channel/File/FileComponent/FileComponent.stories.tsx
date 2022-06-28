@@ -1,16 +1,16 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
-import UploadedFile, { UploadedFileProps } from './UploadedFile'
+import FileComponent, { FileComponentProps } from './FileComponent'
 import { withTheme } from '../../../../storybook/decorators'
 
-const Template: ComponentStory<typeof UploadedFile> = args => {
-  return <UploadedFile {...args} />
+const Template: ComponentStory<typeof FileComponent> = args => {
+  return <FileComponent {...args} />
 }
 
 export const Component = Template.bind({})
 
-const args: UploadedFileProps = {
+const args: FileComponentProps = {
   message: {
     id: '32',
     type: 2,
@@ -35,10 +35,10 @@ const args: UploadedFileProps = {
 
 Component.args = args
 
-const component: ComponentMeta<typeof UploadedFile> = {
-  title: 'Components/UploadedFile',
+const component: ComponentMeta<typeof FileComponent> = {
+  title: 'Components/FileComponent',
   decorators: [withTheme],
-  component: UploadedFile
+  component: FileComponent
 }
 
 export default component

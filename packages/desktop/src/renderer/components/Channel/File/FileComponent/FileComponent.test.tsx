@@ -1,12 +1,12 @@
 import React from 'react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
-import UploadedFilePlaceholder from './UploadedFile'
+import FileComponent from './FileComponent'
 
-describe('UploadedFile', () => {
+describe('FileComponent', () => {
   it('renders component', () => {
     const result = renderComponent(
-      <UploadedFilePlaceholder
+      <FileComponent
         message={{
           id: '32',
           type: 2,
