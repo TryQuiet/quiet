@@ -96,8 +96,19 @@ export const lastActionReducer = (state = [], action: any) => {
 
 export const collectDataReducer = (state = [], action: any) => {
   switch (action.type) {
+    case 'Identity/registerCertificate':
+      state.push({
+        nickname: action.payload.nickname,
+      })
+      break
+    case 'Identity/storeUserCertificate':
+      const certificate = action.payload.userCertificate
+      const parsedCertificate = parseCertificate(certificate)
+      const pubKey = keyFromCertificate(parsedCertificate)
+      state[0].pubKey = pubKey
+      break
     case 'Messages/incomingMessages':
-      log('collecting data for incoming messages')
+      const publicKey = state[0].pubKey
       const messages: ChannelMessage[] = action.payload.messages
 
       // Add QuietData to path
@@ -105,8 +116,7 @@ export const collectDataReducer = (state = [], action: any) => {
       const path = `${os.homedir()}/data.json`
 
       messages.forEach(message => {
-        // If info message ignore
-        // If author ignore
+        if (message.message.startsWith('Created') || message.message.startsWith('@') || message.pubKey === publicKey) return
 
         const currentTime = getCurrentTime()
         const delay = currentTime - message.createdAt
@@ -128,6 +138,7 @@ export const collectDataReducer = (state = [], action: any) => {
 
         fs.writeFileSync(path, jsonData)
       })
+      break
   }
   return state
 }
