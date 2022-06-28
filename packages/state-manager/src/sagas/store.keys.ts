@@ -14,5 +14,6 @@ export enum StoreKeys {
   Connection = 'Connection',
   Settings = 'Settings',
   // For testing purposes
-  LastAction = 'LastAction'
+  LastAction = 'LastAction',
+  CollectData = 'CollectData'
 }

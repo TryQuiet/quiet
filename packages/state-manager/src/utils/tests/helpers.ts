@@ -11,8 +11,12 @@ import {
   sign
 } from '@quiet/identity'
 import logger from '../logger'
+import fs from 'fs'
+import os from 'os'
 import { config } from '../../sagas/users/const/certFieldTypes'
 import { PeerId } from '../../sagas/identity/identity.types'
+import { ChannelMessage } from '../../sagas/publicChannels/publicChannels.types'
+import { getCurrentTime } from '../../sagas/messages/utils/message.utils'
 import { arrayBufferToString } from 'pvutils'
 import { Time } from 'pkijs'
 const log = logger('test')
@@ -86,8 +90,56 @@ export const createMessageSignatureTestHelper = async (
 }
 
 export const lastActionReducer = (state = [], action: any) => {
-  log('ACTION: ', action)
   state.push(action.type)
+  return state
+}
+
+export const collectDataReducer = (state = [], action: any) => {
+  switch (action.type) {
+    case 'Identity/registerCertificate':
+      state.push({
+        nickname: action.payload.nickname
+      })
+      break
+    case 'Identity/storeUserCertificate':
+      const certificate = action.payload.userCertificate
+      const parsedCertificate = parseCertificate(certificate)
+      const pubKey = keyFromCertificate(parsedCertificate)
+      state[0].pubKey = pubKey
+      break
+    case 'Messages/incomingMessages':
+      const publicKey = state[0].pubKey
+      const messages: ChannelMessage[] = action.payload.messages
+
+      // Add QuietData to path
+
+      const path = `${os.homedir()}/data-${state[0].nickname}.json`
+
+      messages.forEach(message => {
+        if (message.message.startsWith('Created') || message.message.startsWith('@') || message.pubKey === publicKey) return
+
+        const currentTime = getCurrentTime()
+        const delay = currentTime - message.createdAt
+
+        const data = {
+          [message.id]: delay
+        }
+
+        let dataSet = []
+
+        if (fs.existsSync(path)) {
+          const data = fs.readFileSync(path, 'utf-8')
+          dataSet = JSON.parse(data)
+        }
+
+        dataSet.push(data)
+
+        const jsonData = JSON.stringify(dataSet)
+
+        fs.writeFileSync(path, jsonData)
+      })
+      break
+  }
   return state
 }
 
@@ -96,5 +148,6 @@ export default {
   createUserCertificateTestHelper,
   createPeerIdTestHelper,
   createMessageSignatureTestHelper,
-  lastActionReducer
+  lastActionReducer,
+  collectDataReducer
 }
