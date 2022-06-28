@@ -8,14 +8,31 @@ import { program } from 'commander'
 import { registerUsername, switchChannel, sendMessage } from '../testUtils/actions'
 import { waitForExpect } from '../testUtils/waitForExpect'
 import { assertReceivedChannel } from '../testUtils/assertions'
-
+import { CryptoEngine, setEngine } from 'pkijs'
 const log = logger('bot')
+const { Crypto } = require('@peculiar/webcrypto')
+
+const crypto = new Crypto();
+global.crypto = crypto;
+
+const webcrypto = new Crypto()
+setEngine(
+  'newEngine',
+  // @ts-ignore
+  webcrypto,
+  // @ts-ignore
+  new CryptoEngine({
+    name: '',
+    crypto: webcrypto,
+    subtle: webcrypto.subtle
+  })
+)
 
 program
   .requiredOption('-r, --registrar <string>', 'Address of community')
   .option('-c, --channel <string>', 'Channel name for spamming messages', 'spam-bot')
   .requiredOption('-m, --messages <number>', 'Number of all messages that will be sent to a channel')
-  .option('-u, --users <number>', 'Number of users (bots)', '3')
+  .option('-u, --users <number>', 'Number of users (bots)', '1')
 
 program.parse()
 const options = program.opts()
