@@ -6,7 +6,8 @@ export enum MessageType {
   Empty = -1,
   Basic = 1,
   Image = 2,
-  Info = 3
+  Info = 3,
+  File = 4
 }
 
 export enum SendingStatus {
