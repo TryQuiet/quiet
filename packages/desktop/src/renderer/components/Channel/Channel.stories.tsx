@@ -370,6 +370,7 @@ export const ImagePreview = Template.bind({})
 export const ImagePlaceholder = Template.bind({})
 export const SentImage = Template.bind({})
 export const FilePreview = Template.bind({})
+export const SentFile = Template.bind({})
 export const NewUserMessage = Template.bind({})
 
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
@@ -513,6 +514,29 @@ FilePreview.args = {
       ext: '.zip'
     }
   }
+}
+SentFile.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      message: {
+        channelAddress: 'general',
+        id: 'wgtlstx3u7'
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      width: 1200,
+      height: 580,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+    },
+    message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  })
 }
 NewUserMessage.args = {
   ...args,

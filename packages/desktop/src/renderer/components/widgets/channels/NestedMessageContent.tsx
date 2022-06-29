@@ -3,8 +3,9 @@ import theme from '../../../theme'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
 import { DisplayableMessage } from '@quiet/state-manager'
 import classNames from 'classnames'
-import UploadedFile from '../../Channel/File/UploadedImage/UploadedImage'
 import { UseModalTypeWrapper } from '../../../containers/hooks'
+import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
+import FileComponent from '../../Channel/File/FileComponent/FileComponent'
 
 const useStyles = makeStyles(() => ({
   message: {
@@ -38,30 +39,46 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({
 }) => {
   const classes = useStyles({})
 
-  return (
-    <Grid item>
-      {message.type === 2 ? ( // 2 stands for MessageType.Image (cypress tests incompatibility with enums)
-        <div
-          className={classNames({
-            [classes.message]: true,
-            [classes.pending]: pending
-          })}
-          data-testid={`messagesGroupContent-${message.id}`}>
-          <UploadedFile message={message} uploadedFileModal={uploadedFileModal} />
-        </div>
-      ) : (
-        <Typography
-          component={'span'}
-          className={classNames({
-            [classes.message]: true,
-            [classes.pending]: pending
-          })}
-          data-testid={`messagesGroupContent-${message.id}`}>
-          {message.message}
-        </Typography>
-      )}
-    </Grid>
-  )
+  const renderMessage = () => {
+    switch (message.type) {
+      case 2: // MessageType.Image (cypress tests incompatibility with enums)
+        return (
+          <div
+            className={classNames({
+              [classes.message]: true,
+              [classes.pending]: pending
+            })}
+            data-testid={`messagesGroupContent-${message.id}`}>
+            <UploadedImage message={message} uploadedFileModal={uploadedFileModal} />
+          </div>
+        )
+      case 4: // MessageType.File
+        return (
+          <div
+            className={classNames({
+              [classes.message]: true,
+              [classes.pending]: pending
+            })}
+            data-testid={`messagesGroupContent-${message.id}`}>
+            <FileComponent message={message} />
+          </div>
+        )
+      default:
+        return (
+          <Typography
+            component={'span'}
+            className={classNames({
+              [classes.message]: true,
+              [classes.pending]: pending
+            })}
+            data-testid={`messagesGroupContent-${message.id}`}>
+            {message.message}
+          </Typography>
+        )
+    }
+  }
+
+  return <Grid item>{renderMessage()}</Grid>
 }
 
 export default NestedMessageContent

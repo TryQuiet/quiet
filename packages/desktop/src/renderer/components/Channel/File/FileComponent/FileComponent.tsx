@@ -17,6 +17,7 @@ import Tooltip from '../../../ui/Tooltip/Tooltip'
 const useStyles = makeStyles(theme => ({
   border: {
     maxWidth: '100%',
+    marginTop: '8px',
     padding: '16px',
     borderRadius: '8px',
     border: `1px solid ${theme.palette.colors.veryLightGray}`
