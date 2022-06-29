@@ -476,6 +476,7 @@ export class Storage {
             message: metadata.message
           }
 
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.io.updateDownloadProgress(progress)
 
           resolve()
