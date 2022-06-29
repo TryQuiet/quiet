@@ -122,7 +122,7 @@ export const FileComponent: React.FC<FileComponentProps> = ({
   return (
     <div className={classes.border} data-testid={`${cid}-fileComponent`}>
       <Tooltip title={downloadProgress ? `${downloadProgress.transferSpeed} ${downloadProgress.remainingTime} remaining` : ''} placement='top'>
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex', width: 'fit-content' }}>
           <div className={classes.icon}>
             {!downloadProgress ? (
               <Icon src={fileIcon} className={classes.fileIcon} />
