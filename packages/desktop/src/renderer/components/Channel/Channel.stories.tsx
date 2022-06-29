@@ -7,7 +7,7 @@ import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 import { DisplayableMessage } from '@quiet/state-manager'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
+import { UploadFilesPreviewsProps } from './File/UploadingPreview'
 
 const mockMessages = (message: DisplayableMessage | null = null) => {
   let placeholder: DisplayableMessage = {
@@ -369,6 +369,7 @@ export const Pending = Template.bind({})
 export const ImagePreview = Template.bind({})
 export const ImagePlaceholder = Template.bind({})
 export const SentImage = Template.bind({})
+export const FilePreview = Template.bind({})
 export const NewUserMessage = Template.bind({})
 
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
@@ -414,16 +415,6 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     handleOpen: function (_args?: any): any {},
     handleClose: function (): any {},
     src: 'images/butterfly.jpeg'
-  },
-  unsupportedFileModal: {
-    open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {},
-    sendOtherContent: '',
-    textContent: '',
-    title: '',
-    tryZipContent: '',
-    unsupportedFiles: []
   },
   messages: mockMessages(),
   newestMessage: {
@@ -512,6 +503,16 @@ SentImage.args = {
     date: '12:46',
     nickname: 'vader'
   })
+}
+FilePreview.args = {
+  ...args,
+  filesData: {
+    file_id: {
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      ext: '.zip'
+    }
+  }
 }
 NewUserMessage.args = {
   ...args,

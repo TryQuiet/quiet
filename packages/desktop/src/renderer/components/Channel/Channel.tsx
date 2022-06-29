@@ -5,8 +5,7 @@ import {
   messages,
   publicChannels,
   connection,
-  communities,
-  FileContent
+  communities
 } from '@quiet/state-manager'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -16,7 +15,7 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import {
   FilePreviewData,
   UploadFilesPreviewsProps
-} from '../widgets/channels/UploadedFilesPreviews'
+} from './File/UploadingPreview'
 import { ipcRenderer } from 'electron'
 import { getFilesData } from '../../../utils/functions/fileData'
 
@@ -54,13 +53,6 @@ const Channel = () => {
   const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
 
   const filesRef = React.useRef<FilePreviewData>()
-  const unsupportedFileModal = useModal<{
-    unsupportedFiles: FileContent[]
-    title: string
-    sendOtherContent: string
-    textContent: string
-    tryZipContent: string
-  }>(ModalName.unsupportedFileModal)
 
   const onInputChange = useCallback(
     (_value: string) => {
@@ -186,8 +178,7 @@ const Channel = () => {
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {
     filesData: uploadingFiles,
-    removeFile: removeFilePreview,
-    unsupportedFileModal: unsupportedFileModal
+    removeFile: removeFilePreview
   }
 
   return (

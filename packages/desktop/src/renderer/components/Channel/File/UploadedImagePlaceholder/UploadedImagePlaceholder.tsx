@@ -1,7 +1,7 @@
 import { CircularProgress, makeStyles, Theme } from '@material-ui/core'
 import React from 'react'
-import imagePlaceholderIcon from '../../../static/images/imagePlaceholderIcon.svg'
-import Icon from '../../ui/Icon/Icon'
+import imageIcon from '../../../../static/images/imageIcon.svg'
+import Icon from '../../../ui/Icon/Icon'
 
 const useStyles = makeStyles<Theme>(theme => ({
   placeholderWrapper: {
@@ -39,30 +39,34 @@ export const UploadedFilename: React.FC<UploadedFilenameProps> = ({
   )
 }
 
-interface UploadedFilePlaceholderProps {
+export interface UploadedImagePlaceholderProps {
   cid: string
   imageWidth: number
   imageHeight: number
-  fileName: string
+  name: string
+  ext: string
 }
 
-export const UploadedFilePlaceholder: React.FC<UploadedFilePlaceholderProps> = ({
+export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> = ({
   cid,
   imageWidth,
   imageHeight,
-  fileName
+  name,
+  ext
 }) => {
   const classes = useStyles({})
+
   const width = imageWidth >= 400 ? 400 : imageWidth
+
   return (
     <div className={classes.placeholderWrapper} data-testid={`${cid}-imagePlaceholder`}>
-      <UploadedFilename fileName={fileName}/>
+      <UploadedFilename fileName={`${name}${ext}`}/>
       <div className={classes.placeholder} style={{ width: width, aspectRatio: '' + imageWidth / imageHeight }} >
-        <Icon src={imagePlaceholderIcon} className={classes.placeholderIcon}/>
+        <Icon src={imageIcon} className={classes.placeholderIcon}/>
         <CircularProgress color='inherit' size={16} disableShrink={true} />
       </div>
     </div>
   )
 }
 
-export default UploadedFilePlaceholder
+export default UploadedImagePlaceholder

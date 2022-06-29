@@ -1,7 +1,7 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { UseModalTypeWrapper } from '../../../containers/hooks'
-import Modal from '../../ui/Modal/Modal'
+import { UseModalTypeWrapper } from '../../../../containers/hooks'
+import Modal from '../../../ui/Modal/Modal'
 
 const useStyles = makeStyles(() => ({
   image: {
@@ -22,7 +22,7 @@ const useStyles = makeStyles(() => ({
   }
 }))
 
-interface UploadedFileModalProps {
+interface UploadedImagePreviewProps {
   open: boolean
   handleClose: () => void
   uploadedFileModal?: ReturnType<UseModalTypeWrapper<{
@@ -30,7 +30,7 @@ interface UploadedFileModalProps {
   }>['types']>
 }
 
-const UploadedFileModalComponent: React.FC<UploadedFileModalProps> = ({
+const UploadedImagePreviewComponent: React.FC<UploadedImagePreviewProps> = ({
   open,
   handleClose,
   uploadedFileModal
@@ -46,4 +46,4 @@ const UploadedFileModalComponent: React.FC<UploadedFileModalProps> = ({
   )
 }
 
-export default UploadedFileModalComponent
+export default UploadedImagePreviewComponent
