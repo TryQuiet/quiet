@@ -1,6 +1,6 @@
 export enum FileDownloadState {
   Ready = 'ready',
-  Queued = 'ququed',
+  Queued = 'queued',
   Downloading = 'downloading',
   Canceled = 'canceled',
   Downloaded = 'downloaded'
