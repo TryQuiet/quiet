@@ -395,8 +395,11 @@ export class Storage {
       throw new Error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
     }
 
+    const size = buffer.byteLength
+
     let width: number = null
     let height: number = null
+
     try {
       const fileDimensions = sizeOf(buffer)
       width = fileDimensions.width
@@ -408,10 +411,12 @@ export class Storage {
     // Create directory for file
     const dirname = 'uploads'
     await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })
+
     // Write file to IPFS
     const uuid = `${Date.now()}_${Math.random().toString(36).substr(2.9)}`
     const filename = `${uuid}_${fileContent.name}.${fileContent.ext}`
     await this.ipfs.files.write(`/${dirname}/${filename}`, buffer, { create: true })
+
     // Get uploaded file information
     const entries = this.ipfs.files.ls(`/${dirname}`)
     for await (const entry of entries) {
@@ -420,6 +425,7 @@ export class Storage {
           ...fileContent,
           path: fileContent.path,
           cid: entry.cid.toString(),
+          size,
           width,
           height
         }
