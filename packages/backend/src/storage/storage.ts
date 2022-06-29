@@ -10,7 +10,8 @@ import {
   PublicChannel,
   SaveCertificatePayload,
   FileContent,
-  FileMetadata
+  FileMetadata,
+  DownloadProgressPayload
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
@@ -394,8 +395,11 @@ export class Storage {
       throw new Error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
     }
 
+    const size = buffer.byteLength
+
     let width: number = null
     let height: number = null
+
     try {
       const fileDimensions = sizeOf(buffer)
       width = fileDimensions.width
@@ -407,10 +411,12 @@ export class Storage {
     // Create directory for file
     const dirname = 'uploads'
     await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })
+
     // Write file to IPFS
     const uuid = `${Date.now()}_${Math.random().toString(36).substr(2.9)}`
     const filename = `${uuid}_${fileContent.name}.${fileContent.ext}`
     await this.ipfs.files.write(`/${dirname}/${filename}`, buffer, { create: true })
+
     // Get uploaded file information
     const entries = this.ipfs.files.ls(`/${dirname}`)
     for await (const entry of entries) {
@@ -419,6 +425,7 @@ export class Storage {
           ...fileContent,
           path: fileContent.path,
           cid: entry.cid.toString(),
+          size,
           width,
           height
         }
@@ -440,10 +447,38 @@ export class Storage {
 
     const writeStream = fs.createWriteStream(filePath)
 
+    let downloadedBytes = 0
+    let stopwatch = 0
+
     for await (const entry of entries) {
       await new Promise<void>((resolve, reject) => {
         writeStream.write(entry, err => {
+          // Do not proceed with error
           if (err) reject(err)
+
+          let transferSpeed = 0
+
+          if (stopwatch === 0) {
+            stopwatch = Date.now()
+          } else {
+            const timestamp = Date.now()
+            const delay = (timestamp - stopwatch) / 1000 // in seconds
+            const size = entry.byteLength / (1024 ** 2) // in megabytes
+            transferSpeed = size / delay
+            stopwatch = timestamp
+          }
+
+          downloadedBytes += entry.byteLength
+
+          const progress: DownloadProgressPayload = {
+            downloaded: downloadedBytes,
+            transferSpeed: transferSpeed,
+            message: metadata.message
+          }
+
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          this.io.updateDownloadProgress(progress)
+
           resolve()
         })
       })

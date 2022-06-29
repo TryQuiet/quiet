@@ -6,6 +6,7 @@ export interface FileContent {
 
 export interface FileMetadata extends FileContent {
   cid: string
+  size?: number
   width?: number
   height?: number
   message?: FileMessage // Empty message means file uploading didn't finish yet
@@ -24,4 +25,10 @@ export interface UploadFilePayload {
 export interface DownloadFilePayload {
   metadata: FileMetadata
   peerId: string
+}
+
+export interface DownloadProgressPayload {
+  downloaded: number
+  transferSpeed: number
+  message: FileMessage
 }

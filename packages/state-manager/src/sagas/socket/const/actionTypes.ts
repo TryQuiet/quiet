@@ -29,6 +29,7 @@ export enum SocketActionTypes {
   DIRECT_MESSAGE = 'directMessage',
   DOWNLOAD_FILE = 'downloadFile',
   DOWNLOADED_FILE = 'downloadedFile',
+  DOWNLOAD_PROGRESS = 'downloadProgress',
   // E
   ERROR = 'error',
   // G
