@@ -442,16 +442,31 @@ export class Storage {
     const writeStream = fs.createWriteStream(filePath)
 
     let downloadedBytes = 0
+    let stopwatch = 0
 
     for await (const entry of entries) {
       await new Promise<void>((resolve, reject) => {
         writeStream.write(entry, err => {
+          // Do not proceed with error
           if (err) reject(err)
+
+          let transferSpeed = 0
+
+          if (stopwatch === 0) {
+            stopwatch = Date.now()
+          } else {
+            const timestamp = Date.now()
+            const delay = (timestamp - stopwatch) * 1000 // in seconds
+            const size = entry.byteLength / (1024 ** 2) // in megabytes
+            transferSpeed = size / delay
+            stopwatch = timestamp
+          }
 
           downloadedBytes += entry.byteLength
 
           const progress: DownloadProgressPayload = {
             downloaded: downloadedBytes,
+            transferSpeed: transferSpeed,
             message: metadata.message
           }
 

@@ -28,5 +28,6 @@ export interface DownloadFilePayload {
 
 export interface DownloadProgressPayload {
   downloaded: number
+  transferSpeed: number
   message: FileMessage
 }
