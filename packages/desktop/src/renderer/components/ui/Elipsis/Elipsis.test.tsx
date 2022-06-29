@@ -20,7 +20,7 @@ describe('Elipsis', () => {
         <div>
           <span>
             <span
-              class="MuiTypography-root makeStyles-content-142 MuiTypography-caption"
+              class="MuiTypography-root makeStyles-content-139 MuiTypography-caption"
             >
               this ...
             </span>
@@ -37,7 +37,7 @@ describe('Elipsis', () => {
         <div>
           <span>
             <span
-              class="MuiTypography-root makeStyles-content-189 MuiTypography-caption"
+              class="MuiTypography-root makeStyles-content-185 MuiTypography-caption"
             >
               this is a sample text
             </span>

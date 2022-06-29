@@ -5,7 +5,7 @@ exports[`Elipsis renders with placement bottom 1`] = `
   <div>
     <span>
       <span
-        class="MuiTypography-root makeStyles-content-48 MuiTypography-caption"
+        class="MuiTypography-root makeStyles-content-47 MuiTypography-caption"
       >
         this ...
       </span>
@@ -19,7 +19,7 @@ exports[`Elipsis renders with placement bottom-end 1`] = `
   <div>
     <span>
       <span
-        class="MuiTypography-root makeStyles-content-95 MuiTypography-caption"
+        class="MuiTypography-root makeStyles-content-93 MuiTypography-caption"
       >
         this ...
       </span>
