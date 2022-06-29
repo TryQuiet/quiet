@@ -10,7 +10,8 @@ import {
   PublicChannel,
   SaveCertificatePayload,
   FileContent,
-  FileMetadata
+  FileMetadata,
+  DownloadProgressPayload
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
@@ -440,10 +441,22 @@ export class Storage {
 
     const writeStream = fs.createWriteStream(filePath)
 
+    let downloadedBytes = 0
+
     for await (const entry of entries) {
       await new Promise<void>((resolve, reject) => {
         writeStream.write(entry, err => {
           if (err) reject(err)
+
+          downloadedBytes += entry.byteLength
+
+          const progress: DownloadProgressPayload = {
+            downloaded: downloadedBytes,
+            message: metadata.message
+          }
+
+          this.io.updateDownloadProgress(progress)
+
           resolve()
         })
       })

@@ -25,3 +25,8 @@ export interface DownloadFilePayload {
   metadata: FileMetadata
   peerId: string
 }
+
+export interface DownloadProgressPayload {
+  downloaded: number
+  message: FileMessage
+}

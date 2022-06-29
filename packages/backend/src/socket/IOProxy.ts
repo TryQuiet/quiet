@@ -27,7 +27,8 @@ import {
   AskForMessagesPayload,
   FileContent,
   FileMetadata,
-  SetChannelSubscribedPayload
+  SetChannelSubscribedPayload,
+  DownloadProgressPayload
 } from '@quiet/state-manager'
 import { emitError } from './errors'
 
@@ -94,6 +95,10 @@ export default class IOProxy {
 
   public downloadFile = async (peerId: string, metadata: FileMetadata) => {
     await this.getStorage(peerId).downloadFile(metadata)
+  }
+
+  public updateDownloadProgress = async (payload: DownloadProgressPayload) => {
+    this.io.emit(SocketActionTypes.DOWNLOAD_PROGRESS, payload)
   }
 
   public downloadedFile = (metadata: FileMetadata) => {
