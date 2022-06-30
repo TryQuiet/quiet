@@ -11,7 +11,9 @@ import {
   SaveCertificatePayload,
   FileContent,
   FileMetadata,
-  DownloadProgressPayload
+  DownloadStatus,
+  DownloadProgress,
+  DownloadState
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
@@ -470,10 +472,16 @@ export class Storage {
 
           downloadedBytes += entry.byteLength
 
-          const progress: DownloadProgressPayload = {
+          const downloadProgress: DownloadProgress = {
+            size: metadata.size,
             downloaded: downloadedBytes,
-            transferSpeed: transferSpeed,
-            message: metadata.message
+            transferSpeed: transferSpeed
+          }
+
+          const progress: DownloadStatus = {
+            cid: metadata.cid,
+            downloadState: DownloadState.Downloading,
+            downloadProgress: downloadProgress
           }
 
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -485,6 +493,20 @@ export class Storage {
     }
 
     writeStream.end()
+
+    const downloadCompleted: DownloadProgress = {
+      size: metadata.size,
+      downloaded: metadata.size,
+      transferSpeed: 0
+    }
+
+    const statusCompleted: DownloadStatus = {
+      cid: metadata.cid,
+      downloadState: DownloadState.Completed,
+      downloadProgress: downloadCompleted
+    }
+
+    this.io.updateDownloadProgress(statusCompleted)
 
     const fileMetadata: FileMetadata = {
       ...metadata,

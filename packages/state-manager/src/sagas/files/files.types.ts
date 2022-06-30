@@ -27,8 +27,22 @@ export interface DownloadFilePayload {
   peerId: string
 }
 
-export interface DownloadProgressPayload {
+export interface DownloadStatus {
+  cid: string
+  downloadState: DownloadState,
+  downloadProgress?: DownloadProgress
+}
+
+export interface DownloadProgress {
+  size?: number
   downloaded: number
   transferSpeed: number
-  message: FileMessage
+}
+
+export enum DownloadState {
+  Ready = 'ready',
+  Queued = 'queued',
+  Downloading = 'downloading',
+  Completed = 'completed',
+  Canceled = 'canceled'
 }
