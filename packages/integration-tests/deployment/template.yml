@@ -47,9 +47,10 @@ Resources:
             - logs:PutLogEvents
             - ec2:DescribeNetworkInterfaces
             - ecs:DescribeTasks
+            - s3:*
             Resource: '*'
 
-  Libp2pService:
+  Bot:
     Type: AWS::ECS::Service
     Properties:
       Cluster: !Ref ECSCluster
@@ -89,4 +90,4 @@ Resources:
   LogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub ${AWS::StackName}/libp2p-tor-test
+      LogGroupName: !Sub ${AWS::StackName}/bot

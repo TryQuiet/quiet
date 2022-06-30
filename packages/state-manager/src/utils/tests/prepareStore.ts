@@ -21,9 +21,9 @@ export const reducers = {
   [StoreKeys.PublicChannels]: publicChannelsReducer,
   [StoreKeys.Connection]: connectionReducer,
   [StoreKeys.Settings]: settingsReducer,
-  [StoreKeys.LastAction]: lastActionReducer
+  [StoreKeys.LastAction]: lastActionReducer,
   // Only for data collectiong purposes
-  // [StoreKeys.CollectData]: collectDataReducer
+  [StoreKeys.CollectData]: collectDataReducer
 }
 
 export const prepareStore = (mockedState?: { [key in StoreKeys]?: any }) => {

@@ -15,6 +15,8 @@ const assertContains = (value: any, container: any[]) => {
 const assertNotEmpty = (value: any) => {
   assert.notEqual(value, undefined)
   assert.notEqual(value, null)
+  assert.notEqual(value, [])
+  assert.notEqual(value, {})
 }
 
 export async function assertReceivedChannel(
