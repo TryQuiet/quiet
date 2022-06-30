@@ -124,7 +124,7 @@ export const FileComponent: React.FC<FileComponentProps> = ({
 
   return (
     <div className={classes.border} data-testid={`${cid}-fileComponent`}>
-      <Tooltip title={downloadProgress ? `${downloadProgress.transferSpeed}Mbps` : ''} placement='top'>
+      <Tooltip title={(downloadProgress && downloadProgress?.transferSpeed !== 0) ? `${downloadProgress.transferSpeed}Mbps` : ''} placement='top'>
         <div style={{ display: 'flex', width: 'fit-content' }}>
           <div className={classes.icon}>
             {downloadState !== DownloadState.Downloading ? (
