@@ -15,7 +15,7 @@ import {
 import { errorsMasterSaga } from '../../errors/errors.master.saga'
 import { errorsActions } from '../../errors/errors.slice'
 import { ErrorPayload } from '../../errors/errors.types'
-import { FileMetadata } from '../../files/files.types'
+import { DownloadStatus, FileMetadata } from '../../files/files.types'
 import { identityMasterSaga } from '../../identity/identity.master.saga'
 import { identityActions } from '../../identity/identity.slice'
 import { messagesMasterSaga } from '../../messages/messages.master.saga'
@@ -36,6 +36,7 @@ import {
 import { usersActions } from '../../users/users.slice'
 import { SendCertificatesResponse } from '../../users/users.types'
 import { SocketActionTypes } from '../const/actionTypes'
+import { filesActions } from '../../files/files.slice'
 
 const log = logger('socket')
 
@@ -62,6 +63,7 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof connectionActions.addConnectedPeers>
   | ReturnType<typeof messagesActions.downloadedFile>
   | ReturnType<typeof messagesActions.uploadedFile>
+  | ReturnType<typeof filesActions.updateDownloadStatus>
   >((emit) => {
     // Misc
     socket.on(SocketActionTypes.CONNECTED_PEERS, (payload: { connectedPeers: ConnectedPeers }) => {
@@ -73,6 +75,9 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.UPLOADED_FILE, (payload: FileMetadata) => {
       emit(messagesActions.uploadedFile(payload))
+    })
+    socket.on(SocketActionTypes.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
+      emit(filesActions.updateDownloadStatus(payload))
     })
     // Channels
     socket.on(SocketActionTypes.CHANNELS_REPLICATED, (payload: ChannelsReplicatedPayload) => {
