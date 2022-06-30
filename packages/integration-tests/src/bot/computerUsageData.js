@@ -76,7 +76,7 @@ let cpuUsageSecondsList = []
 let ramUsageSecondsList = []
 let diskUsageSecondsList = []
 
-const numberOfAvarageSeconds = 10
+const numberOfAvarageSeconds = 60
 let seconds = 0
 let minutes = 1
 
