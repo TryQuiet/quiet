@@ -46,3 +46,5 @@ export enum DownloadState {
   Completed = 'completed',
   Canceled = 'canceled'
 }
+
+export const imagesExtensions = ['.gif', '.png', '.jpg', '.jpeg']

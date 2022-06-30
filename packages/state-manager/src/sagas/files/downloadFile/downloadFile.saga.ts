@@ -16,7 +16,7 @@ export function* downloadFileSaga(
   const { messages } = action.payload
 
   for (const message of messages) {
-    if (message.type === MessageType.Image) {
+    if (message.type === MessageType.Image || message.type === MessageType.File) {
       if (message.media?.path) return // File is locally stored already
       yield* apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
