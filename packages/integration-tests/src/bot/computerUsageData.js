@@ -1,10 +1,11 @@
 var os = require("os")
 var fs = require('fs')
-var disk = require('diskusage')
+const checkDiskSpace = require('check-disk-space').default
 
 let totalDiskSpace 
-disk.check('/', function (err, info) {
-  totalDiskSpace = info.total
+
+checkDiskSpace('/').then((diskSpace) => {
+  totalDiskSpace= diskSpace.size
 })
 
 const totalRAM = os.totalmem()
@@ -95,8 +96,8 @@ setInterval(() => {
   ramUsageSecondsList.push(percentageRAM)
   console.log(percentageRAM + " % RAM usage in second")
 
-  disk.check('/', function (err, info) {
-    let freeDiskSpace = info.free
+  checkDiskSpace('/').then((diskSpace) => {
+    let freeDiskSpace = diskSpace.free
     let usedDiskSpace = totalDiskSpace - freeDiskSpace
     percentageUsedDiskSpace = (100 * usedDiskSpace) / totalDiskSpace
     diskUsageSecondsList.push(percentageUsedDiskSpace)
