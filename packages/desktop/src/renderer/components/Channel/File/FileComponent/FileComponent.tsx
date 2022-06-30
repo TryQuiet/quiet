@@ -12,6 +12,7 @@ import folderIconGray from '../../../../static/images/folderIconGray.svg'
 import cancelIcon from '../../../../static/images/cancelIcon.svg'
 import checkGreen from '../../../../static/images/checkGreen.svg'
 import Tooltip from '../../../ui/Tooltip/Tooltip'
+import { formatBytes } from '../../../../../utils/functions/formatBytes'
 
 const useStyles = makeStyles(theme => ({
   border: {
@@ -152,11 +153,14 @@ export const FileComponent: React.FC<FileComponentProps> = ({
               {name}
               {ext}
             </Typography>
-            <Typography
-              variant={'body2'}
-              style={{ lineHeight: '20px', color: theme.palette.colors.darkGray }}>
-              16 MB
-            </Typography>
+            { message.media?.size && (
+              <Typography
+                variant={'body2'}
+                style={{ lineHeight: '20px', color: theme.palette.colors.darkGray }}
+              >
+                { formatBytes(message.media?.size) }
+              </Typography>
+            ) }
           </div>
         </div>
       </Tooltip>
