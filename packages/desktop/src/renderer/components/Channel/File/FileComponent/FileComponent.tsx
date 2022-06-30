@@ -4,11 +4,12 @@ import { DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/state-
 import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
 import fileIcon from '../../../../static/images/fileIcon.svg'
+import clockIconGray from '../../../../static/images/clockIconGray.svg'
 import downloadIcon from '../../../../static/images/downloadIcon.svg'
 import downloadIconGray from '../../../../static/images/downloadIconGray.svg'
 import folderIcon from '../../../../static/images/folderIcon.svg'
 import folderIconGray from '../../../../static/images/folderIconGray.svg'
-import cancelIconGray from '../../../../static/images/cancelIconGray.svg'
+import cancelIcon from '../../../../static/images/cancelIcon.svg'
 import checkGreen from '../../../../static/images/checkGreen.svg'
 import Tooltip from '../../../ui/Tooltip/Tooltip'
 
@@ -161,6 +162,21 @@ export const FileComponent: React.FC<FileComponentProps> = ({
       </Tooltip>
       <div
         style={{ paddingTop: '16px', width: 'fit-content', display: downloadState ? 'block' : 'none' }}>
+        {downloadState === DownloadState.Queued && (
+          <ActionIndicator
+            regular={{
+              label: 'Queued for download',
+              color: theme.palette.colors.darkGray,
+              icon: clockIconGray
+            }}
+            hover={{
+              label: 'Cancel download',
+              color: theme.palette.colors.lushSky,
+              icon: cancelIcon
+            }}
+            action={cancel}
+          />
+        )}
         {downloadState === DownloadState.Ready && (
           <ActionIndicator
             regular={{
@@ -180,8 +196,8 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             }}
             hover={{
               label: 'Cancel download',
-              color: theme.palette.colors.darkGray,
-              icon: cancelIconGray
+              color: theme.palette.colors.lushSky,
+              icon: cancelIcon
             }}
             action={cancel}
           />
