@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { CircularProgress, makeStyles, Typography } from '@material-ui/core'
-import { DisplayableMessage } from '@quiet/state-manager'
-import { FileDownloadState } from '../FileDownloadState.enum'
+import { DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/state-manager'
 import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
 import fileIcon from '../../../../static/images/fileIcon.svg'
@@ -11,7 +10,6 @@ import folderIcon from '../../../../static/images/folderIcon.svg'
 import folderIconGray from '../../../../static/images/folderIconGray.svg'
 import cancelIconGray from '../../../../static/images/cancelIconGray.svg'
 import checkGreen from '../../../../static/images/checkGreen.svg'
-import { DownloadProgress } from '../File.types'
 import Tooltip from '../../../ui/Tooltip/Tooltip'
 
 const useStyles = makeStyles(theme => ({
@@ -19,6 +17,7 @@ const useStyles = makeStyles(theme => ({
     maxWidth: '100%',
     marginTop: '8px',
     padding: '16px',
+    backgroundColor: theme.palette.colors.white,
     borderRadius: '8px',
     border: `1px solid ${theme.palette.colors.veryLightGray}`
   },
@@ -101,8 +100,7 @@ const ActionIndicator: React.FC<{
 
 export interface FileComponentProps {
   message: DisplayableMessage
-  state?: FileDownloadState
-  downloadProgress?: DownloadProgress
+  downloadStatus: DownloadStatus
   download?: () => void
   cancel?: () => void
   show?: () => void
@@ -110,8 +108,7 @@ export interface FileComponentProps {
 
 export const FileComponent: React.FC<FileComponentProps> = ({
   message,
-  state,
-  downloadProgress,
+  downloadStatus,
   download,
   cancel,
   show
@@ -120,12 +117,15 @@ export const FileComponent: React.FC<FileComponentProps> = ({
 
   const { cid, path, name, ext } = message.media
 
+  const downloadState = downloadStatus.downloadState
+  const downloadProgress = downloadStatus.downloadProgress
+
   return (
     <div className={classes.border} data-testid={`${cid}-fileComponent`}>
-      <Tooltip title={downloadProgress ? `${downloadProgress.transferSpeed} ${downloadProgress.remainingTime} remaining` : ''} placement='top'>
+      <Tooltip title={downloadProgress ? `${downloadProgress.transferSpeed}Mbps` : ''} placement='top'>
         <div style={{ display: 'flex', width: 'fit-content' }}>
           <div className={classes.icon}>
-            {!downloadProgress ? (
+            {downloadState !== DownloadState.Downloading ? (
               <Icon src={fileIcon} className={classes.fileIcon} />
             ) : (
               <>
@@ -140,7 +140,7 @@ export const FileComponent: React.FC<FileComponentProps> = ({
                   variant='static'
                   size={18}
                   thickness={4}
-                  value={(downloadProgress.total / downloadProgress.downloaded) * 100}
+                  value={(downloadProgress.downloaded / downloadProgress.size) * 100}
                   style={{ color: theme.palette.colors.lightGray }}
                 />
               </>
@@ -160,8 +160,8 @@ export const FileComponent: React.FC<FileComponentProps> = ({
         </div>
       </Tooltip>
       <div
-        style={{ paddingTop: '16px', width: 'fit-content', display: state ? 'block' : 'none' }}>
-        {state === FileDownloadState.Ready && (
+        style={{ paddingTop: '16px', width: 'fit-content', display: downloadState ? 'block' : 'none' }}>
+        {downloadState === DownloadState.Ready && (
           <ActionIndicator
             regular={{
               label: 'Download file',
@@ -171,7 +171,7 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             action={download}
           />
         )}
-        {state === FileDownloadState.Downloading && (
+        {downloadState === DownloadState.Downloading && (
           <ActionIndicator
             regular={{
               label: 'Downloading...',
@@ -186,7 +186,7 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             action={cancel}
           />
         )}
-        {state === FileDownloadState.Canceled && (
+        {downloadState === DownloadState.Canceled && (
           <ActionIndicator
             regular={{
               label: 'Canceled',
@@ -195,7 +195,7 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             }}
           />
         )}
-        {state === FileDownloadState.Downloaded && (
+        {downloadState === DownloadState.Completed && (
           <ActionIndicator
             regular={{
               label: 'Show in folder',

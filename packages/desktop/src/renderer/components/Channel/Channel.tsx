@@ -5,7 +5,8 @@ import {
   messages,
   publicChannels,
   connection,
-  communities
+  communities,
+  files
 } from '@quiet/state-manager'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -38,6 +39,8 @@ const Channel = () => {
   const newestCurrentChannelMessage = useSelector(
     publicChannels.selectors.newestCurrentChannelMessage
   )
+
+  const downloadStatusesMapping = useSelector(files.selectors.downloadStatusesMapping)
 
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const initializedCommunities = useSelector(connection.selectors.initializedCommunities)
@@ -162,6 +165,7 @@ const Channel = () => {
     },
     newestMessage: newestCurrentChannelMessage,
     pendingMessages: pendingMessages,
+    downloadStatuses: downloadStatusesMapping,
     lazyLoading: lazyLoading,
     onDelete: function (): void {},
     onInputChange: onInputChange,

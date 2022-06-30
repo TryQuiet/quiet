@@ -1,3 +1,4 @@
+import { DownloadState } from '@quiet/state-manager'
 import React from 'react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
@@ -26,6 +27,11 @@ describe('FileComponent', () => {
           createdAt: 0,
           date: '12:46',
           nickname: 'vader'
+        }}
+        downloadStatus={{
+          cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+          downloadState: DownloadState.Ready,
+          downloadProgress: undefined
         }}
       />
     )
@@ -70,8 +76,25 @@ describe('FileComponent', () => {
               </div>
             </span>
             <div
-              style="padding-top: 16px; display: none;"
-            />
+              style="padding-top: 16px; display: block;"
+            >
+              <div>
+                <div
+                  class="makeStyles-actionIndicator-6"
+                >
+                  <img
+                    class="makeStyles-actionIcon-5"
+                    src="test-file-stub"
+                  />
+                  <p
+                    class="MuiTypography-root MuiTypography-body2"
+                    style="color: rgb(103, 191, 211); margin-left: 8px;"
+                  >
+                    Download file
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </body>

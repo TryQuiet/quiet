@@ -3,7 +3,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import FileComponent, { FileComponentProps } from './FileComponent'
 import { withTheme } from '../../../../storybook/decorators'
-import { FileDownloadState } from '../FileDownloadState.enum'
+import { DownloadState } from '@quiet/state-manager'
 
 const Template: ComponentStory<typeof FileComponent> = args => {
   return (
@@ -13,18 +13,19 @@ const Template: ComponentStory<typeof FileComponent> = args => {
   )
 }
 
-export const Component = Template.bind({})
 export const Ready = Template.bind({})
 export const Downloading = Template.bind({})
 export const Canceled = Template.bind({})
-export const Downloaded = Template.bind({})
+export const Completed = Template.bind({})
+
+const cid = 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs'
 
 const args: FileComponentProps = {
   message: {
     id: '32',
     type: 2,
     media: {
-      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      cid: cid,
       message: {
         channelAddress: 'general',
         id: 'wgtlstx3u7'
@@ -40,33 +41,48 @@ const args: FileComponentProps = {
     date: '12:46',
     nickname: 'vader'
   },
-  state: undefined
+  downloadStatus: {
+    cid: cid,
+    downloadState: DownloadState.Ready,
+    downloadProgress: undefined
+  }
 }
 
-Component.args = args
 Ready.args = {
   ...args,
-  state: FileDownloadState.Ready,
   download: () => { console.log('download file') }
 }
 Downloading.args = {
   ...args,
-  state: FileDownloadState.Downloading,
-  downloadProgress: {
-    total: 500,
-    downloaded: 200,
-    transferSpeed: '32MBps',
-    remainingTime: '20m'
+  downloadStatus: {
+    cid: cid,
+    downloadState: DownloadState.Downloading,
+    downloadProgress: {
+      size: 1024,
+      downloaded: 256,
+      transferSpeed: 32
+    }
   },
   cancel: () => { console.log('cancel download') }
 }
 Canceled.args = {
   ...args,
-  state: FileDownloadState.Canceled
+  downloadStatus: {
+    cid: cid,
+    downloadState: DownloadState.Canceled
+  },
 }
-Downloaded.args = {
+Completed.args = {
   ...args,
-  state: FileDownloadState.Downloaded,
+  downloadStatus: {
+    cid: cid,
+    downloadState: DownloadState.Completed,
+    downloadProgress: {
+      size: 1024,
+      downloaded: 1024,
+      transferSpeed: 0
+    }
+  },
   show: () => { console.log('show in folder') }
 }
 

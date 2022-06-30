@@ -16,6 +16,7 @@ import { useModal, UseModalTypeWrapper } from '../../containers/hooks'
 
 import {
   DisplayableMessage,
+  DownloadStatus,
   Identity,
   MessagesDailyGroups,
   MessageSendingStatus
@@ -50,6 +51,7 @@ export interface ChannelComponentProps {
   }
   newestMessage: DisplayableMessage
   pendingMessages: Dictionary<MessageSendingStatus>
+  downloadStatuses: Dictionary<DownloadStatus>
   lazyLoading: (load: boolean) => void
   onDelete: () => void
   onInputChange: (value: string) => void
@@ -78,6 +80,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   messages,
   newestMessage,
   pendingMessages,
+  downloadStatuses,
   lazyLoading,
   onDelete,
   onInputChange,
@@ -216,6 +219,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
           <ChannelMessagesComponent
             messages={messages.groups}
             pendingMessages={pendingMessages}
+            downloadStatuses={downloadStatuses}
             scrollbarRef={scrollbarRef}
             onScroll={onScroll}
             uploadedFileModal={uploadedFileModal}
