@@ -1,17 +1,17 @@
 var os = require("os")
 var fs = require('fs')
-var disk = require('diskusage');
+var disk = require('diskusage')
 
-// disk.check('/', function (err, info) {
-//   console.log(info.free);
-//   console.log(info.total);
-// });
+let totalDiskSpace 
+disk.check('/', function (err, info) {
+  totalDiskSpace = info.total
+})
 
 const totalRAM = os.totalmem()
-const totalRAMInMB = totalRAM / (1024 * 1024)
 
 fs.writeFile('cpuUsage.txt', '', () => { console.log('created cpu usage file') })
 fs.writeFile('memoryUsage.txt', '', () => { console.log('created memory usage file') })
+fs.writeFile('diskUsage.txt', '', () => { console.log('created disk space usage file') })
 
 const cpuCoresAverage = () => {
   let totalIdle = 0, totalTick = 0;
@@ -82,17 +82,26 @@ let minutes = 1
 
 setInterval(() => {
   let measurementEnd = cpuCoresAverage()
+
   let idleDifference = measurementEnd.idle - measurementStart.idle
   let totalDifference = measurementEnd.total - measurementStart.total
   let percentageCPU = 100 - ~~(100 * idleDifference / totalDifference)
   cpuUsageSecondsList.push(percentageCPU)
-  console.log(percentageCPU + "% CPU second")
+  console.log(percentageCPU + " % CPU usage second")
 
-  let freeRAMInMB = os.freemem() / (1024 * 1024)
-  let usedRAMInMb = totalRAMInMB - freeRAMInMB
-  percentageRAM = Math.floor((100 * usedRAMInMb) / totalRAMInMB)
+  let freeRAM = os.freemem()
+  let usedRAM = totalRAM - freeRAM
+  let percentageRAM = (100 * usedRAM) / totalRAM
   ramUsageSecondsList.push(percentageRAM)
-  console.log(percentageRAM + "% RAM second")
+  console.log(percentageRAM + " % RAM usage in second")
+
+  disk.check('/', function (err, info) {
+    let freeDiskSpace = info.free
+    let usedDiskSpace = totalDiskSpace - freeDiskSpace
+    percentageUsedDiskSpace = (100 * usedDiskSpace) / totalDiskSpace
+    diskUsageSecondsList.push(percentageUsedDiskSpace)
+    console.log(percentageUsedDiskSpace + " % Disk space usage in second")
+  })
 
   if (seconds == numberOfAvarageSeconds) {
     wrtieDataToFiles(cpuUsageSecondsList, ramUsageSecondsList, diskUsageSecondsList)
