@@ -16,7 +16,7 @@ export const filesSlice = createSlice({
       if (
         downloadProgress &&
         downloadProgress.size !== downloadProgress.downloaded &&
-        downloadProgress.transferSpeed === 0
+        downloadProgress.transferSpeed === -1
       ) {
         downloadState = DownloadState.Queued
       }
@@ -31,6 +31,7 @@ export const filesSlice = createSlice({
       downloadStatusAdapter.removeOne(state.downloadStatus, cid)
     },
     uploadFile: (state, _action: PayloadAction<FileContent>) => state,
+    broadcastHostedFile: (state, _action: PayloadAction<FileMetadata>) => state,
     updateMessageMedia: (state, _action: PayloadAction<FileMetadata>) => state,
   }
 })

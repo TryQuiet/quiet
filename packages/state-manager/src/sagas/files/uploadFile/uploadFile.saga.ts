@@ -15,22 +15,23 @@ export function* uploadFileSaga(
   action: PayloadAction<ReturnType<typeof filesActions.uploadFile>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
-  const currentChannel = yield* select(publicChannelsSelectors.currentChannel)
+
+  const currentChannel = yield* select(publicChannelsSelectors.currentChannelAddress)
 
   const id = yield* call(generateMessageId)
 
-  const file: FileMetadata = {
+  const media: FileMetadata = {
     ...action.payload,
     cid: `uploading_${id}`,
     message: {
       id: id,
-      channelAddress: currentChannel.address
+      channelAddress: currentChannel
     }
   }
 
   let type: MessageType
 
-  if (imagesExtensions.includes(file.ext)) {
+  if (imagesExtensions.includes(media.ext)) {
     type = MessageType.Image
   } else {
     type = MessageType.File
@@ -41,14 +42,7 @@ export function* uploadFileSaga(
       id: id,
       message: '',
       type: type,
-      media: { 
-        ...action.payload,
-        cid: `uploading_${id}`,
-        message: {
-          id: id,
-          channelAddress: currentChannel.address
-        }
-      }
+      media: media
     })
   )
 
@@ -63,7 +57,7 @@ export function* uploadFileSaga(
   yield* apply(socket, socket.emit, [
     SocketActionTypes.UPLOAD_FILE,
     {
-      file: file,
+      file: media,
       peerId: identity.peerId.id
     }
   ])

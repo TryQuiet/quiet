@@ -68,5 +68,6 @@ export enum SocketActionTypes {
   SUBSCRIBE_TO_TOPIC = 'subscribeToTopic',
   // U
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
-  UPLOAD_FILE= 'uploadFile'
+  UPLOAD_FILE = 'uploadFile',
+  UPLOADED_FILE = 'uploadedFile'
 }

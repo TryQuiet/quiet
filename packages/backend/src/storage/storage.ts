@@ -432,8 +432,7 @@ export class Storage {
           height
         }
 
-        // Uploaded file
-        this.io.updateMessageMedia(fileMetadata)
+        this.io.uploadedFile(fileMetadata)
     
         const statusReady: DownloadStatus = {
           cid: fileMetadata.cid,
@@ -449,8 +448,6 @@ export class Storage {
   }
 
   public async downloadFile(metadata: FileMetadata) {
-    if (metadata.cid.includes('uploading')) return // Ignore mocked CIDs
-
     const _CID = CID.parse(metadata.cid)
     const entries = this.ipfs.cat(_CID)
 
@@ -471,7 +468,7 @@ export class Storage {
           // Do not proceed with error
           if (err) reject(err)
 
-          let transferSpeed = 0
+          let transferSpeed = -1
 
           if (stopwatch === 0) {
             stopwatch = Date.now()
