@@ -370,6 +370,7 @@ export const ImagePreview = Template.bind({})
 export const ImagePlaceholder = Template.bind({})
 export const SentImage = Template.bind({})
 export const FilePreview = Template.bind({})
+export const UploadingFile = Template.bind({})
 export const ReadyDownload = Template.bind({})
 export const Downloading = Template.bind({})
 export const CompletedDownload = Template.bind({})
@@ -518,6 +519,36 @@ FilePreview.args = {
     }
   }
 }
+UploadingFile.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: 'uploading_32',
+      message: {
+        channelAddress: 'general',
+        id: 'wgtlstx3u7'
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      width: undefined,
+      height: undefined,
+      path: undefined
+    },
+    message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  }),
+  downloadStatuses: {
+    '32': {
+      cid: 'uploading_32',
+      downloadState: DownloadState.Uploading,
+      downloadProgress: undefined
+    }
+  }
+}
 ReadyDownload.args = {
   ...args,
   messages: mockMessages({
@@ -531,8 +562,8 @@ ReadyDownload.args = {
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
-      width: 1200,
-      height: 580,
+      width: undefined,
+      height: undefined,
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
     },
     message: '',
@@ -561,8 +592,8 @@ Downloading.args = {
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
-      width: 1200,
-      height: 580,
+      width: undefined,
+      height: undefined,
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
     },
     message: '',
@@ -595,8 +626,8 @@ CompletedDownload.args = {
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
-      width: 1200,
-      height: 580,
+      width: undefined,
+      height: undefined,
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
     },
     message: '',
@@ -629,8 +660,8 @@ CanceledDownload.args = {
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
-      width: 1200,
-      height: 580,
+      width: undefined,
+      height: undefined,
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
     },
     message: '',
