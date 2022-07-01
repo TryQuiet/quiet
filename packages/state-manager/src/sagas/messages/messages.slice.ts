@@ -64,9 +64,27 @@ export const messagesSlice = createSlice({
     incomingMessages: (state, action: PayloadAction<IncomingMessages>) => {
       const { messages } = action.payload
       for (const message of messages) {
+
+        let incoming = message
+
+        const origin = state.publicChannelsMessagesBase
+          .entities[message.channelAddress]
+          .messages
+          .entities[message.id]
+
+        if (message.media && origin?.media.path) {
+          incoming = {
+            ...message,
+            media: {
+              ...message.media,
+              path: origin.media.path
+            }
+          }
+        }
+
         channelMessagesAdapter.upsertOne(
           state.publicChannelsMessagesBase.entities[message.channelAddress].messages,
-          message
+          incoming
         )
       }
     },
