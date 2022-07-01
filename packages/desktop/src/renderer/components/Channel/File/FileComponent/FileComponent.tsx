@@ -173,12 +173,12 @@ export const FileComponent: React.FC<FileComponentProps> = ({
               color: theme.palette.colors.darkGray,
               icon: clockIconGray
             }}
-            hover={{
-              label: 'Cancel download',
-              color: theme.palette.colors.lushSky,
-              icon: cancelIcon
-            }}
-            action={cancel}
+            // hover={{
+            //   label: 'Cancel download',
+            //   color: theme.palette.colors.lushSky,
+            //   icon: cancelIcon
+            // }}
+            // action={cancel}
           />
         )}
         {downloadState === DownloadState.Ready && (
@@ -198,12 +198,12 @@ export const FileComponent: React.FC<FileComponentProps> = ({
               color: theme.palette.colors.darkGray,
               icon: downloadIconGray
             }}
-            hover={{
-              label: 'Cancel download',
-              color: theme.palette.colors.lushSky,
-              icon: cancelIcon
-            }}
-            action={cancel}
+            // hover={{
+            //   label: 'Cancel download',
+            //   color: theme.palette.colors.lushSky,
+            //   icon: cancelIcon
+            // }}
+            // action={cancel}
           />
         )}
         {downloadState === DownloadState.Canceled && (
