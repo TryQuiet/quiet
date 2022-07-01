@@ -16,7 +16,7 @@ import { FactoryGirl } from 'factory-girl'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { FileContent } from '../../files/files.types'
-import { messagesActions } from '../../messages/messages.slice'
+import { filesActions } from '../files.slice'
 import { DateTime } from 'luxon'
 
 describe('uploadFileSaga', () => {
@@ -70,7 +70,7 @@ describe('uploadFileSaga', () => {
     await expectSaga(
       uploadFileSaga,
       socket,
-      messagesActions.uploadFile(fileContent)
+      filesActions.uploadFile(fileContent)
     )
       .withReducer(reducer)
       .withState(store.getState())

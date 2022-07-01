@@ -431,7 +431,17 @@ export class Storage {
           width,
           height
         }
+
         this.io.uploadedFile(metadata)
+    
+        const statusReady: DownloadStatus = {
+          cid: metadata.cid,
+          downloadState: DownloadState.Ready,
+          downloadProgress: undefined
+        }
+    
+        this.io.updateDownloadProgress(statusReady)
+
         break
       }
     }

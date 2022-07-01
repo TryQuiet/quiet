@@ -2,9 +2,10 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put } from 'typed-redux-saga'
 import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
+import { FileMetadata } from '../files.types'
 
-export function* downloadedFileSaga(
-  action: PayloadAction<ReturnType<typeof messagesActions.downloadedFile>['payload']>
+export function* updateMessageMediaSaga(
+  action: PayloadAction<FileMetadata>
 ): Generator {
   const { id, channelAddress } = action.payload.message
 

@@ -4,17 +4,18 @@ import { getFactory, publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
+import { FactoryGirl } from 'factory-girl'
 import { communitiesActions, Community } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
+import { filesActions } from '../files.slice'
+import { FileMetadata } from '../files.types'
 import { messagesActions } from '../../messages/messages.slice'
-import { FactoryGirl } from 'factory-girl'
-import { downloadedFileSaga } from './downloadedFile.saga'
+import { updateMessageMediaSaga } from './updateMessageMedia'
 import { currentChannelAddress } from '../../publicChannels/publicChannels.selectors'
 import { ChannelMessage, PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
-import { FileMetadata } from '../files.types'
 
 describe('downloadedFileSaga', () => {
   let store: Store
@@ -68,6 +69,37 @@ describe('downloadedFileSaga', () => {
     ).message
   })
 
+  test('update message after uploading file', async () => {
+    const currentChannel = currentChannelAddress(store.getState())
+
+    const payload: FileMetadata = {
+      cid: 'cid',
+      path: undefined,
+      name: 'image',
+      ext: 'png',
+      message: {
+        id: message.id,
+        channelAddress: currentChannel
+      }
+    }
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(updateMessageMediaSaga, filesActions.uploadedFile(payload))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(
+        messagesActions.incomingMessages({
+          messages: [
+            {
+              ...message,
+              media: payload
+            }
+          ]
+        })
+      )
+      .run()
+  })
+
   test('update message after downloading file', async () => {
     const currentChannel = currentChannelAddress(store.getState())
 
@@ -83,7 +115,7 @@ describe('downloadedFileSaga', () => {
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(downloadedFileSaga, messagesActions.downloadedFile(payload))
+    await expectSaga(updateMessageMediaSaga, filesActions.downloadedFile(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .put(

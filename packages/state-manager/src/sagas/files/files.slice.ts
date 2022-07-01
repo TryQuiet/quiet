@@ -1,7 +1,7 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { downloadStatusAdapter } from './files.adapter'
-import { DownloadState, DownloadStatus } from './files.types'
+import { DownloadState, DownloadStatus, FileContent, FileMetadata } from './files.types'
 
 export class FilesState {
   public downloadStatus: EntityState<DownloadStatus> = downloadStatusAdapter.getInitialState()
@@ -24,7 +24,10 @@ export const filesSlice = createSlice({
         downloadState: downloadState,
         downloadProgress: downloadProgress
       })
-    }
+    },
+    uploadFile: (state, _action: PayloadAction<FileContent>) => state,
+    uploadedFile: (state, _action: PayloadAction<FileMetadata>) => state,
+    downloadedFile: (state, _action: PayloadAction<FileMetadata>) => state,
   }
 })
 

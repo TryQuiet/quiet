@@ -22,6 +22,7 @@ export interface SendMessagePayload {
 
 export interface WriteMessagePayload {
   message: string
+  id?: string,
   channelAddress?: string
   type?: MessageType
   media?: FileMetadata

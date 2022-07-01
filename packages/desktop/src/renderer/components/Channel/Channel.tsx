@@ -66,12 +66,15 @@ const Channel = () => {
 
   const onInputEnter = useCallback(
     (message: string) => {
+      // Send message out of input value
       if (message) {
         dispatch(messages.actions.sendMessage({ message }))
       }
+      // Upload files, then send corresponding message (contaning cid) for each of them
       Object.values(filesRef.current).forEach(fileData => {
-        dispatch(messages.actions.uploadFile(fileData))
+        dispatch(files.actions.uploadFile(fileData))
       })
+      // Reset file previews for input state
       setUploadingFiles({})
     },
     [dispatch]

@@ -31,8 +31,10 @@ export function* sendMessageSaga(
 
   const currentChannel = yield* select(publicChannelsSelectors.currentChannelAddress)
 
-  const id = yield* call(generateMessageId)
   const createdAt = yield* call(getCurrentTime)
+
+  const generatedMessageId = yield* call(generateMessageId) 
+  const id = action.payload.id || generatedMessageId
 
   const channelAddress = action.payload.channelAddress || currentChannel
 

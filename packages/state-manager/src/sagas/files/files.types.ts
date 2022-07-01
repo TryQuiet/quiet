@@ -40,6 +40,7 @@ export interface DownloadProgress {
 }
 
 export enum DownloadState {
+  Uploading = 'uploading',
   Ready = 'ready',
   Queued = 'queued',
   Downloading = 'downloading',
