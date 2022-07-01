@@ -55,14 +55,14 @@ This is a concise technical summary of the main points.
 2. **Authentication:** a valid signed certificate from the community owner is required to connect to peers, receive connection from peers, and for messages to be visible to other peers.
 3. **Networking:** peers connect via Tor [onion services](https://en.wikipedia.org/wiki/Tor_(network)#Onion_services), exclusively with their fellow community members.
 4. **Privacy:** Tor encrypts all data in transit, and a Quiet user's device connects only to the devices of their fellow community members, so all messages are encrypted to recipients. 
-4. **Syncing:** IPFS and OrbitDB, an IPFS-based CRDT, ensure that all data (messages, user data, etc) syncs between peers with eventual consistency.
-5. **Identity:** a valid certificate from the community owner establishes a username, which the owner attests is unique; in future versions, Quiet will warn all members if community owners are "caught" issuing non-unique usernames.
-6. **Invitation:** to invite new members, community owners provide (via some other secure channel) an onion address that points to a registration API which handles PKI and provides sufficient peer information to connect to other peers; in future versions this onion address will expire. 
+4. **Syncing:** IPFS and [OrbitDB](https://orbitdb.org), an [IPFS](https://ipfs.io/)-based [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type), ensure that all data (messages, user data, etc) syncs between peers with [eventual consistency](https://arxiv.org/abs/2012.00472).
+5. **Identity:** a valid certificate from the community owner on account creation establishes a username, which the owner attests is unique; in future versions, Quiet will warn all members if community owners are caught issuing non-unique usernames, to protect against impersonation by malicious or compromised owners. (See: [#119](https://github.com/TryQuiet/monorepo/issues/119))
+6. **Invitation:** to invite new members, community owners provide (via some other secure channel) an onion address that points to a registration API which accepts a certificate signing request, responds with a signed certificate, and provides sufficient peer information to connect to other peers; in future versions this onion address will expire. (See: [#536](https://github.com/TryQuiet/monorepo/issues/536))
 7. **Account recovery:** owners must back up their data (e.g. by copying a folder, or someday with a wallet-style passphrase) and members request new accounts from owners.
 8. **Removal:** TBD, but likely a combination of expiring invitation onion addresses, certificate revocation, and message-layer encryption with updated keys.
 9. **Multiple device support:** TBD.
-10. **Mobile push notifications:** baring a major victory for consumer rights, iOS notifications require using a centralized push notification service that connects to Apple, but messages data can still be encrypted; in proof-of-concept, Quiet runs fine as an always-on background app on Android.
-11. **Stack:** Our backend is in Node.js (on iOS/Android we use nodejs-mobile) and we use Electron on desktop and React Native on mobile.
+10. **Mobile push notifications:** barring a major victory for consumer rights, iOS notifications require using a centralized push notification service that connects to Apple, but message data can still be encrypted; in proof-of-concept, Quiet works well as an always-on background app on Android, so Android versions will likely not require a push notification server.
+11. **Stack:** Our backend is in Node.js (on iOS/Android we use [nodejs-mobile](https://github.com/nodejs-mobile)); we use Electron on desktop and React Native on mobile.
 
 ## Why Quiet?
 
