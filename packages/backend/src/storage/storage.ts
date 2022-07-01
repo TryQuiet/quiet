@@ -421,6 +421,8 @@ export class Storage {
     const entries = this.ipfs.files.ls(`/${dirname}`)
     for await (const entry of entries) {
       if (entry.name === filename) {
+        this.io.removeDownloadStatus({ cid: metadata.cid })
+
         const fileMetadata: FileMetadata = {
           ...metadata,
           path: metadata.path,
@@ -435,7 +437,7 @@ export class Storage {
     
         const statusReady: DownloadStatus = {
           cid: fileMetadata.cid,
-          downloadState: DownloadState.Ready,
+          downloadState: DownloadState.Hosted,
           downloadProgress: undefined
         }
     

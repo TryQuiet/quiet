@@ -25,10 +25,10 @@ import {
   ResponseCreateNetworkPayload,
   ErrorCodes,
   AskForMessagesPayload,
-  FileContent,
   FileMetadata,
   SetChannelSubscribedPayload,
-  DownloadStatus
+  DownloadStatus,
+  RemoveDownloadStatus
 } from '@quiet/state-manager'
 import { emitError } from './errors'
 
@@ -96,6 +96,10 @@ export default class IOProxy {
   public updateDownloadProgress = async (payload: DownloadStatus) => {
     this.io.emit(SocketActionTypes.DOWNLOAD_PROGRESS, payload)
   }
+
+  public removeDownloadStatus = async (payload: RemoveDownloadStatus) => [
+    this.io.emit(SocketActionTypes.REMOVE_DOWNLOAD_STATUS, payload)
+  ]
 
   public updateMessageMedia = (metadata: FileMetadata) => {
     this.io.emit(SocketActionTypes.UPDATE_MESSAGE_MEDIA, metadata)

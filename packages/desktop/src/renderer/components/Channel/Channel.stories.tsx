@@ -371,6 +371,7 @@ export const ImagePlaceholder = Template.bind({})
 export const SentImage = Template.bind({})
 export const FilePreview = Template.bind({})
 export const UploadingFile = Template.bind({})
+export const HostedFile = Template.bind({})
 export const ReadyDownload = Template.bind({})
 export const Downloading = Template.bind({})
 export const CompletedDownload = Template.bind({})
@@ -545,6 +546,36 @@ UploadingFile.args = {
     '32': {
       cid: 'uploading_32',
       downloadState: DownloadState.Uploading,
+      downloadProgress: undefined
+    }
+  }
+}
+HostedFile.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      message: {
+        channelAddress: 'general',
+        id: 'wgtlstx3u7'
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+    },
+    message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  }),
+  downloadStatuses: {
+    '32': {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      downloadState: DownloadState.Hosted,
       downloadProgress: undefined
     }
   }

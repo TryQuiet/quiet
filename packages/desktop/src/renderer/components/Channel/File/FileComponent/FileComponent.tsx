@@ -192,6 +192,21 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             }}
           />
         )}
+        {downloadState === DownloadState.Hosted && (
+          <ActionIndicator
+            regular={{
+              label: 'Show in folder',
+              color: theme.palette.colors.darkGray,
+              icon: folderIconGray
+            }}
+            hover={{
+              label: 'Show in folder',
+              color: theme.palette.colors.lushSky,
+              icon: folderIcon
+            }}
+            action={show}
+          />
+        )}
         {downloadState === DownloadState.Ready && (
           <ActionIndicator
             regular={{

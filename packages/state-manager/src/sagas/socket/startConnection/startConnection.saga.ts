@@ -15,7 +15,7 @@ import {
 import { errorsMasterSaga } from '../../errors/errors.master.saga'
 import { errorsActions } from '../../errors/errors.slice'
 import { ErrorPayload } from '../../errors/errors.types'
-import { DownloadStatus, FileMetadata } from '../../files/files.types'
+import { DownloadStatus, FileMetadata, RemoveDownloadStatus } from '../../files/files.types'
 import { identityMasterSaga } from '../../identity/identity.master.saga'
 import { identityActions } from '../../identity/identity.slice'
 import { messagesMasterSaga } from '../../messages/messages.master.saga'
@@ -63,6 +63,7 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof connectionActions.addConnectedPeers>
   | ReturnType<typeof filesActions.updateMessageMedia>
   | ReturnType<typeof filesActions.updateDownloadStatus>
+  | ReturnType<typeof filesActions.removeDownloadStatus>
   >((emit) => {
     // Misc
     socket.on(SocketActionTypes.CONNECTED_PEERS, (payload: { connectedPeers: ConnectedPeers }) => {
@@ -74,6 +75,9 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
       emit(filesActions.updateDownloadStatus(payload))
+    })
+    socket.on(SocketActionTypes.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
+      emit(filesActions.removeDownloadStatus(payload))
     })
     // Channels
     socket.on(SocketActionTypes.CHANNELS_REPLICATED, (payload: ChannelsReplicatedPayload) => {

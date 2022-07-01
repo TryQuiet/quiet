@@ -33,6 +33,10 @@ export interface DownloadStatus {
   downloadProgress?: DownloadProgress
 }
 
+export interface RemoveDownloadStatus {
+  cid: string
+}
+
 export interface DownloadProgress {
   size?: number
   downloaded: number
@@ -41,6 +45,7 @@ export interface DownloadProgress {
 
 export enum DownloadState {
   Uploading = 'uploading',
+  Hosted = 'hosted',
   Ready = 'ready',
   Queued = 'queued',
   Downloading = 'downloading',

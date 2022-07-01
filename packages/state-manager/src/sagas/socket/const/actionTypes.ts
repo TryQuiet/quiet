@@ -50,6 +50,7 @@ export enum SocketActionTypes {
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
   REGISTRAR = 'registrar',
+  REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
   RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
   RESPONSE_GET_PRIVATE_CONVERSATIONS = 'responseGetPrivateConversations',
