@@ -85,12 +85,8 @@ export default class IOProxy {
     await this.getStorage(peerId).sendMessage(message)
   }
 
-  public uploadFile = async (peerId: string, file: FileContent) => {
-    await this.getStorage(peerId).uploadFile(file)
-  }
-
-  public uploadedFile = (metadata: FileMetadata) => {
-    this.io.emit(SocketActionTypes.UPLOADED_FILE, metadata)
+  public uploadFile = async (peerId: string, metadata: FileMetadata) => {
+    await this.getStorage(peerId).uploadFile(metadata)
   }
 
   public downloadFile = async (peerId: string, metadata: FileMetadata) => {
@@ -101,8 +97,8 @@ export default class IOProxy {
     this.io.emit(SocketActionTypes.DOWNLOAD_PROGRESS, payload)
   }
 
-  public downloadedFile = (metadata: FileMetadata) => {
-    this.io.emit(SocketActionTypes.DOWNLOADED_FILE, metadata)
+  public updateMessageMedia = (metadata: FileMetadata) => {
+    this.io.emit(SocketActionTypes.UPDATE_MESSAGE_MEDIA, metadata)
   }
 
   // DMs

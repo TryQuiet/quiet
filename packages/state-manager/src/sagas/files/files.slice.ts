@@ -14,6 +14,7 @@ export const filesSlice = createSlice({
     updateDownloadStatus: (state, action: PayloadAction<DownloadStatus>) => {
       let { cid, downloadState, downloadProgress } = action.payload
       if (
+        downloadProgress &&
         downloadProgress.size !== downloadProgress.downloaded &&
         downloadProgress.transferSpeed === 0
       ) {
@@ -26,8 +27,7 @@ export const filesSlice = createSlice({
       })
     },
     uploadFile: (state, _action: PayloadAction<FileContent>) => state,
-    uploadedFile: (state, _action: PayloadAction<FileMetadata>) => state,
-    downloadedFile: (state, _action: PayloadAction<FileMetadata>) => state,
+    updateMessageMedia: (state, _action: PayloadAction<FileMetadata>) => state,
   }
 })
 

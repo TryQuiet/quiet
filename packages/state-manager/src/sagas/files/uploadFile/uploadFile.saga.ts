@@ -3,30 +3,38 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { select, call, put, apply } from 'typed-redux-saga'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
-import { Identity } from '../../identity/identity.types'
-import { DownloadState, FileContent, imagesExtensions } from '../../files/files.types'
+import { DownloadState, FileMetadata, imagesExtensions } from '../../files/files.types'
 import { filesActions } from '../files.slice'
 import { MessageType } from '../../messages/messages.types'
 import { messagesActions } from '../../messages/messages.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
+import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 export function* uploadFileSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof filesActions.uploadFile>['payload']>
 ): Generator {
-  const identity: Identity = yield* select(identitySelectors.currentIdentity)
+  const identity = yield* select(identitySelectors.currentIdentity)
+  const currentChannel = yield* select(publicChannelsSelectors.currentChannel)
 
-  const fileContent: FileContent = action.payload
+  const id = yield* call(generateMessageId)
+
+  const file: FileMetadata = {
+    ...action.payload,
+    cid: `uploading_${id}`,
+    message: {
+      id: id,
+      channelAddress: currentChannel.address
+    }
+  }
 
   let type: MessageType
 
-  if (imagesExtensions.includes(fileContent.ext)) {
+  if (imagesExtensions.includes(file.ext)) {
     type = MessageType.Image
   } else {
     type = MessageType.File
   }
-
-  const id = yield* call(generateMessageId)
 
   yield* put(
     messagesActions.sendMessage({
@@ -35,7 +43,11 @@ export function* uploadFileSaga(
       type: type,
       media: { 
         ...action.payload,
-        cid: `uploading_${id}`
+        cid: `uploading_${id}`,
+        message: {
+          id: id,
+          channelAddress: currentChannel.address
+        }
       }
     })
   )
@@ -51,7 +63,7 @@ export function* uploadFileSaga(
   yield* apply(socket, socket.emit, [
     SocketActionTypes.UPLOAD_FILE,
     {
-      file: fileContent,
+      file: file,
       peerId: identity.peerId.id
     }
   ])

@@ -61,8 +61,7 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof connectionActions.addInitializedCommunity>
   | ReturnType<typeof connectionActions.addInitializedRegistrar>
   | ReturnType<typeof connectionActions.addConnectedPeers>
-  | ReturnType<typeof filesActions.uploadedFile>
-  | ReturnType<typeof filesActions.downloadedFile>
+  | ReturnType<typeof filesActions.updateMessageMedia>
   | ReturnType<typeof filesActions.updateDownloadStatus>
   >((emit) => {
     // Misc
@@ -70,11 +69,8 @@ export function subscribe(socket: Socket) {
       emit(connectionActions.addConnectedPeers(payload.connectedPeers))
     })
     // Files
-    socket.on(SocketActionTypes.UPLOADED_FILE, (payload: FileMetadata) => {
-      emit(filesActions.uploadedFile(payload))
-    })
-    socket.on(SocketActionTypes.DOWNLOADED_FILE, (payload: FileMetadata) => {
-      emit(filesActions.downloadedFile(payload))
+    socket.on(SocketActionTypes.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
+      emit(filesActions.updateMessageMedia(payload))
     })
     socket.on(SocketActionTypes.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
       emit(filesActions.updateDownloadStatus(payload))

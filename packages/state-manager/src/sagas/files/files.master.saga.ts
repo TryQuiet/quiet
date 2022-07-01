@@ -19,11 +19,7 @@ export function* filesMasterSaga(socket: Socket): Generator {
       socket
     ),
     takeEvery(
-      filesActions.uploadedFile.type,
-      updateMessageMediaSaga
-    ),
-    takeEvery(
-      filesActions.downloadedFile.type,
+      filesActions.updateMessageMedia.type,
       updateMessageMediaSaga
     )
   ])

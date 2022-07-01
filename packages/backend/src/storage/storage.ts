@@ -385,16 +385,14 @@ export class Storage {
     }
   }
 
-  public async uploadFile(fileContent: FileContent) {
-    log('uploadFile', fileContent)
-
+  public async uploadFile(metadata: FileMetadata) {
     let buffer: Buffer
 
     try {
-      buffer = fs.readFileSync(fileContent.path)
+      buffer = fs.readFileSync(metadata.path)
     } catch (e) {
-      log.error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
-      throw new Error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
+      log.error(`Couldn't open file ${metadata.path}. Error: ${e.message}`)
+      throw new Error(`Couldn't open file ${metadata.path}. Error: ${e.message}`)
     }
 
     const size = buffer.byteLength
@@ -407,7 +405,7 @@ export class Storage {
       width = fileDimensions.width
       height = fileDimensions.height
     } catch (e) {
-      log(`The file is not an image, couldn't read ${fileContent.path} dimensions`)
+      log(`The file is not an image, couldn't read ${metadata.path} dimensions`)
     }
 
     // Create directory for file
@@ -416,26 +414,27 @@ export class Storage {
 
     // Write file to IPFS
     const uuid = `${Date.now()}_${Math.random().toString(36).substr(2.9)}`
-    const filename = `${uuid}_${fileContent.name}.${fileContent.ext}`
+    const filename = `${uuid}_${metadata.name}.${metadata.ext}`
     await this.ipfs.files.write(`/${dirname}/${filename}`, buffer, { create: true })
 
     // Get uploaded file information
     const entries = this.ipfs.files.ls(`/${dirname}`)
     for await (const entry of entries) {
       if (entry.name === filename) {
-        const metadata: FileMetadata = {
-          ...fileContent,
-          path: fileContent.path,
+        const fileMetadata: FileMetadata = {
+          ...metadata,
+          path: metadata.path,
           cid: entry.cid.toString(),
           size,
           width,
           height
         }
 
-        this.io.uploadedFile(metadata)
+        // Uploaded file
+        this.io.updateMessageMedia(fileMetadata)
     
         const statusReady: DownloadStatus = {
-          cid: metadata.cid,
+          cid: fileMetadata.cid,
           downloadState: DownloadState.Ready,
           downloadProgress: undefined
         }
@@ -448,6 +447,8 @@ export class Storage {
   }
 
   public async downloadFile(metadata: FileMetadata) {
+    if (metadata.cid.includes('uploading')) return // Ignore mocked CIDs
+
     const _CID = CID.parse(metadata.cid)
     const entries = this.ipfs.cat(_CID)
 
@@ -516,6 +517,7 @@ export class Storage {
       downloadProgress: downloadCompleted
     }
 
+    // Downloaded file
     this.io.updateDownloadProgress(statusCompleted)
 
     const fileMetadata: FileMetadata = {
@@ -523,7 +525,7 @@ export class Storage {
       path: filePath
     }
 
-    this.io.downloadedFile(fileMetadata)
+    this.io.updateMessageMedia(fileMetadata)
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {

@@ -84,7 +84,7 @@ describe('downloadedFileSaga', () => {
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(updateMessageMediaSaga, filesActions.uploadedFile(payload))
+    await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .put(
@@ -115,7 +115,7 @@ describe('downloadedFileSaga', () => {
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(updateMessageMediaSaga, filesActions.downloadedFile(payload))
+    await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .put(

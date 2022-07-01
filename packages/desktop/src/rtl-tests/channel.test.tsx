@@ -661,7 +661,7 @@ describe('Channel', () => {
           const data = input as socketEventData<[DownloadFilePayload]>
           const payload = data[0]
           expect(payload.metadata.cid).toEqual(missingFile.cid)
-          return socket.socketClient.emit(SocketActionTypes.DOWNLOADED_FILE, {
+          return socket.socketClient.emit(SocketActionTypes.UPDATE_MESSAGE_MEDIA, {
             ...missingFile,
             path: `${__dirname}/test-image.jpeg`
           })

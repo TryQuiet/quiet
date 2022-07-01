@@ -18,7 +18,7 @@ export interface FileMessage {
 }
 
 export interface UploadFilePayload {
-  file: FileContent
+  file: FileMetadata
   peerId: string
 }
 
