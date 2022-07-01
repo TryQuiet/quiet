@@ -37,6 +37,7 @@ const persistConfig = {
     StateManagerStoreKeys.Communities,
     StateManagerStoreKeys.PublicChannels,
     StateManagerStoreKeys.Messages,
+    StateManagerStoreKeys.Files,
     StateManagerStoreKeys.Settings,
     StateManagerStoreKeys.Users,
     StoreKeys.App
