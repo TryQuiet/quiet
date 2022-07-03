@@ -19,7 +19,7 @@
     <br />
    </p>
 </p>
-Quiet is an alternative to team chat apps like Slack, Discord, and Element that does not require trusting a central server or running one's own. In Quiet, all data syncs directly between a team's devices over [Tor](https://torproject.org)—no server required. 
+Quiet is an alternative to team chat apps like Slack, Discord, and Element that does not require trusting a central server or running one's own. In Quiet, all data syncs directly between a team's devices over <a href="https://torproject.org">Tor</a> with no server required. 
 <br/>
 <br/>
 
