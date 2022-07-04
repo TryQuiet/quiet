@@ -22,9 +22,7 @@ import {
   Store,
   Identity,
   ChannelMessage,
-  PublicChannel,
   PublicChannelStorage,
-  FileContent,
   FileMetadata
 } from '@quiet/state-manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
@@ -305,13 +303,13 @@ describe('Files', () => {
     await storage.initDatabases()
 
     // Uploading
-    const uploadSpy = jest.spyOn(storage.io, 'updateMessageMedia')
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
 
     const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/test-image.png'),
       name: 'test-image',
       ext: '.png',
-      cid: 'upload_id',
+      cid: 'uploading_id',
       message: {
         id: 'id',
         channelAddress: 'channelAddress'
@@ -322,6 +320,7 @@ describe('Files', () => {
     expect(uploadSpy).toHaveBeenCalled()
     expect(uploadSpy).toBeCalledWith(expect.objectContaining({
       ...metadata,
+      cid: expect.stringContaining('Qm'),
       width: 824,
       height: 44
     }))
@@ -338,13 +337,13 @@ describe('Files', () => {
     await storage.initDatabases()
 
     // Uploading
-    const uploadSpy = jest.spyOn(storage.io, 'updateMessageMedia')
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
 
     const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/test.txt'),
       name: 'test-image',
       ext: '.png',
-      cid: 'upload_id',
+      cid: 'uploading_id',
       message: {
         id: 'id',
         channelAddress: 'channelAddress'
@@ -355,6 +354,7 @@ describe('Files', () => {
     expect(uploadSpy).toHaveBeenCalled()
     expect(uploadSpy).toBeCalledWith(expect.objectContaining({
       ...metadata,
+      cid: expect.stringContaining('Qm'),
       width: null,
       height: null
     }))
@@ -370,13 +370,13 @@ describe('Files', () => {
 
     await storage.initDatabases()
     // Uploading
-    const uploadSpy = jest.spyOn(storage.io, 'updateMessageMedia')
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
 
     const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/non-existent.png'),
       name: 'test-image',
       ext: '.png',
-      cid: 'upload_id',
+      cid: 'uploading_id',
       message: {
         id: 'id',
         channelAddress: 'channelAddress'
@@ -398,14 +398,14 @@ describe('Files', () => {
     await storage.initDatabases()
 
     // Uploading
-    const uploadSpy = jest.spyOn(storage.io, 'updateMessageMedia')
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
     const downloadSpy = jest.spyOn(storage.io, 'updateMessageMedia')
 
     const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/test-image.png'),
       name: 'test-image',
       ext: '.png',
-      cid: 'upload_id',
+      cid: 'uploading_id',
       message: {
         id: 'id',
         channelAddress: 'channelAddress'
@@ -437,13 +437,13 @@ describe('Files', () => {
     await storage.initDatabases()
 
     // Uploading
-    const uploadSpy = jest.spyOn(storage.io, 'updateMessageMedia')
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
 
     const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/test-image.png'),
       name: 'test-image',
       ext: '.png',
-      cid: 'upload_id',
+      cid: 'uploading_id',
       message: {
         id: 'id',
         channelAddress: 'channelAddress'
