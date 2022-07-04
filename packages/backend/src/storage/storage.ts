@@ -9,7 +9,6 @@ import {
   ChannelMessage,
   PublicChannel,
   SaveCertificatePayload,
-  FileContent,
   FileMetadata,
   DownloadStatus,
   DownloadProgress,
