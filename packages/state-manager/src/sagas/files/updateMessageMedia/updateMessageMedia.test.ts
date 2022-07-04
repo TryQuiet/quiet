@@ -1,6 +1,6 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, publicChannels } from '../../..'
+import { getFactory, MessageType, publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -27,6 +27,8 @@ describe('downloadedFileSaga', () => {
   let sailingChannel: PublicChannel
 
   let message: ChannelMessage
+
+  let metadata: FileMetadata
 
   beforeAll(async () => {
     setupCrypto()
@@ -59,63 +61,42 @@ describe('downloadedFileSaga', () => {
       )
     ).channel
 
-    message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-        'Message',
-        {
-          identity: alice
-        }
-      )
-    ).message
-  })
-
-  test('update message after uploading file', async () => {
     const currentChannel = currentChannelAddress(store.getState())
 
-    const payload: FileMetadata = {
-      cid: 'cid',
-      path: undefined,
-      name: 'image',
-      ext: 'png',
-      message: {
-        id: message.id,
-        channelAddress: currentChannel
-      }
-    }
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(payload))
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(
-        messagesActions.incomingMessages({
-          messages: [
-            {
-              ...message,
-              media: payload
-            }
-          ]
-        })
-      )
-      .run()
-  })
-
-  test('update message after downloading file', async () => {
-    const currentChannel = currentChannelAddress(store.getState())
-
-    const payload: FileMetadata = {
+    metadata = {
       cid: 'cid',
       path: 'dir/image.png',
       name: 'image',
       ext: 'png',
       message: {
-        id: message.id,
+        id: '1',
         channelAddress: currentChannel
       }
     }
 
+    message = (
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+        'Message',
+        {
+          identity: alice,
+          message: {
+            id: '1',
+            type: MessageType.Basic,
+            message: '',
+            createdAt: DateTime.utc().valueOf(),
+            channelAddress: currentChannel,
+            signature: '',
+            pubKey: '',
+            media: metadata
+          }
+        }
+      )
+    ).message
+  })
+
+  test('update message media', async () => {
     const reducer = combineReducers(reducers)
-    await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(payload))
+    await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(metadata))
       .withReducer(reducer)
       .withState(store.getState())
       .put(
@@ -123,7 +104,7 @@ describe('downloadedFileSaga', () => {
           messages: [
             {
               ...message,
-              media: payload
+              media: metadata
             }
           ]
         })

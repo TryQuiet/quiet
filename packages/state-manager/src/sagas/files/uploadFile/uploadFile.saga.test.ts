@@ -1,6 +1,7 @@
 import {
   setupCrypto
 } from '@quiet/identity'
+import { call } from 'redux-saga-test-plan/matchers'
 import { Store } from '../../store.types'
 import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
@@ -15,8 +16,10 @@ import { uploadFileSaga } from './uploadFile.saga'
 import { FactoryGirl } from 'factory-girl'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { FileContent } from '../../files/files.types'
+import { currentChannelAddress } from '../../publicChannels/publicChannels.selectors'
+import { FileMetadata } from '../../files/files.types'
 import { filesActions } from '../files.slice'
+import { generateMessageId } from '../../messages/utils/message.utils'
 import { DateTime } from 'luxon'
 
 describe('uploadFileSaga', () => {
@@ -27,6 +30,8 @@ describe('uploadFileSaga', () => {
   let alice: Identity
 
   let sailingChannel: PublicChannel
+
+  let messageId: string
 
   beforeAll(async () => {
     setupCrypto()
@@ -56,15 +61,26 @@ describe('uploadFileSaga', () => {
         }
       }
     )).channel
+
+    messageId = '1'
   })
 
   test('uploading file', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
+
+    const currentChannel = currentChannelAddress(store.getState())
+
     const peerId = alice.peerId.id
-    const fileContent: FileContent = {
+
+    const fileContent: FileMetadata = {
+      cid: `uploading_${messageId}`,
       path: 'temp/name.ext',
       name: 'name',
-      ext: 'ext'
+      ext: 'ext',
+      message: {
+        id: messageId,
+        channelAddress: currentChannel
+      },
     }
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -74,11 +90,14 @@ describe('uploadFileSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
+      .provide([
+        [call.fn(generateMessageId), messageId]
+      ])
       .apply(socket, socket.emit, [
         SocketActionTypes.UPLOAD_FILE,
         {
-          peerId,
-          file: fileContent
+          file: fileContent,
+          peerId
         }
       ])
       .run()
