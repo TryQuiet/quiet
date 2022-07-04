@@ -342,7 +342,7 @@ describe('Files', () => {
     const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/test.txt'),
       name: 'test-image',
-      ext: '.png',
+      ext: '.txt',
       cid: 'uploading_id',
       message: {
         id: 'id',
