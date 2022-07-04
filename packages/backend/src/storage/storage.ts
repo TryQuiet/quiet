@@ -475,8 +475,14 @@ export class Storage {
           } else {
             const timestamp = Date.now()
             const delay = (timestamp - stopwatch) / 1000 // in seconds
-            const size = entry.byteLength / (1024 ** 2) // in megabytes
-            transferSpeed = Math.floor(size / delay)
+
+            transferSpeed = entry.byteLength / delay
+
+            // Prevent passing null value
+            if (transferSpeed === null) {
+              transferSpeed = 0
+            }
+
             stopwatch = timestamp
           }
 

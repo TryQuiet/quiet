@@ -23,7 +23,7 @@ export const downloadStatusesMapping = createSelector(
         // Prepare default status basing on the presence of a file path, in case of no corresponding status in the local store
         const defaultStatus: DownloadStatus = {
           cid: message.media.cid,
-          downloadState: message.media.path ? DownloadState.Completed : DownloadState.Ready,
+          downloadState: message.media.path ? DownloadState.Completed : undefined,
           downloadProgress: undefined
         }
         mapping[message.id] = statuses[message.media.cid] || defaultStatus

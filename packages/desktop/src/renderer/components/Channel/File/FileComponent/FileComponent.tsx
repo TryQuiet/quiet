@@ -62,12 +62,11 @@ const ActionIndicator: React.FC<{
   }
   action?: () => void
 }> = ({ regular, hover, action }) => {
-  const [over, setOver] = useState<boolean>(false)
+  const [over, setOver] = useState<boolean>()
 
   const classes = useStyles({})
 
   const onMouseOver = () => {
-    if (!hover) return // Ignore if there's no hover state specified
     setOver(true)
   }
 
@@ -116,7 +115,7 @@ export const FileComponent: React.FC<FileComponentProps> = ({
 }) => {
   const classes = useStyles({})
 
-  const { cid, path, name, ext } = message.media
+  const { cid, name, ext } = message.media
 
   const downloadState = downloadStatus.downloadState
   const downloadProgress = downloadStatus.downloadProgress
@@ -135,55 +134,31 @@ export const FileComponent: React.FC<FileComponentProps> = ({
       case DownloadState.Downloading:
         return (
           <>
-          <CircularProgress
-            variant='determinate'
-            size={18}
-            thickness={4}
-            value={100}
-            style={{ position: 'absolute', color: theme.palette.colors.gray }}
-          />
-          <CircularProgress
-            variant='static'
-            size={18}
-            thickness={4}
-            value={(downloadProgress.downloaded / downloadProgress.size) * 100}
-            style={{ color: theme.palette.colors.lightGray }}
-          />
-        </>
+            <CircularProgress
+              variant='determinate'
+              size={18}
+              thickness={4}
+              value={100}
+              style={{ position: 'absolute', color: theme.palette.colors.gray }}
+            />
+            <CircularProgress
+              variant='static'
+              size={18}
+              thickness={4}
+              value={(downloadProgress.downloaded / downloadProgress.size) * 100}
+              style={{ color: theme.palette.colors.lightGray }}
+            />
+          </>
         )
       default:
-        return (
-          <Icon src={fileIcon} className={classes.fileIcon} />
-        )
+        return <Icon src={fileIcon} className={classes.fileIcon} />
     }
   }
 
-  return (
-    <div className={classes.border} data-testid={`${cid}-fileComponent`}>
-      <Tooltip title={(downloadProgress && downloadProgress?.transferSpeed !== 0) ? `${downloadProgress.transferSpeed}Mbps` : ''} placement='top'>
-        <div style={{ display: 'flex', width: 'fit-content' }}>
-          <div className={classes.icon}>
-            {renderIcon()}
-          </div>
-          <div className={classes.filename}>
-            <Typography variant={'h5'} style={{ lineHeight: '20px' }}>
-              {name}
-              {ext}
-            </Typography>
-            { message.media?.size && (
-              <Typography
-                variant={'body2'}
-                style={{ lineHeight: '20px', color: theme.palette.colors.darkGray }}
-              >
-                { formatBytes(message.media?.size) }
-              </Typography>
-            ) }
-          </div>
-        </div>
-      </Tooltip>
-      <div
-        style={{ paddingTop: '16px', width: 'fit-content', display: downloadState ? 'block' : 'none' }}>
-        {downloadState === DownloadState.Uploading && (
+  const renderActionIndicator = () => {
+    switch (downloadState) {
+      case DownloadState.Uploading:
+        return (
           <ActionIndicator
             regular={{
               label: 'Uploading...',
@@ -191,8 +166,9 @@ export const FileComponent: React.FC<FileComponentProps> = ({
               icon: downloadIconGray
             }}
           />
-        )}
-        {downloadState === DownloadState.Hosted && (
+        )
+      case DownloadState.Hosted:
+        return (
           <ActionIndicator
             regular={{
               label: 'Show in folder',
@@ -206,8 +182,9 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             }}
             action={show}
           />
-        )}
-        {downloadState === DownloadState.Ready && (
+        )
+      case DownloadState.Ready:
+        return (
           <ActionIndicator
             regular={{
               label: 'Download file',
@@ -216,8 +193,9 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             }}
             action={download}
           />
-        )}
-        {downloadState === DownloadState.Queued && (
+        )
+      case DownloadState.Queued:
+        return (
           <ActionIndicator
             regular={{
               label: 'Queued for download',
@@ -231,8 +209,9 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             // }}
             // action={cancel}
           />
-        )}
-        {downloadState === DownloadState.Downloading && (
+        )
+      case DownloadState.Downloading:
+        return (
           <ActionIndicator
             regular={{
               label: 'Downloading...',
@@ -246,8 +225,9 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             // }}
             // action={cancel}
           />
-        )}
-        {downloadState === DownloadState.Canceled && (
+        )
+      case DownloadState.Canceled:
+        return (
           <ActionIndicator
             regular={{
               label: 'Canceled',
@@ -255,8 +235,9 @@ export const FileComponent: React.FC<FileComponentProps> = ({
               icon: checkGreen
             }}
           />
-        )}
-        {downloadState === DownloadState.Completed && (
+        )
+      case DownloadState.Completed:
+        return (
           <ActionIndicator
             regular={{
               label: 'Show in folder',
@@ -270,7 +251,45 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             }}
             action={show}
           />
-        )}
+        )
+      default:
+        return <></>
+    }
+  }
+
+  return (
+    <div className={classes.border} data-testid={`${cid}-fileComponent`}>
+      <Tooltip
+        title={
+          downloadState === DownloadState.Downloading &&
+          downloadProgress &&
+          downloadProgress?.transferSpeed !== -1
+            ? `${formatBytes(downloadProgress.transferSpeed)}ps`
+            : ''
+        }
+        placement='top'>
+        <div style={{ display: 'flex', width: 'fit-content' }}>
+          <div className={classes.icon}>{renderIcon()}</div>
+          <div className={classes.filename}>
+            <Typography variant={'h5'} style={{ lineHeight: '20px' }}>
+              {name}
+              {ext}
+            </Typography>
+            <Typography
+              variant={'body2'}
+              style={{ lineHeight: '20px', color: theme.palette.colors.darkGray }}>
+              {message.media?.size ? formatBytes(message.media?.size) : 'Calculating...'}
+            </Typography>
+          </div>
+        </div>
+      </Tooltip>
+      <div
+        style={{
+          paddingTop: '16px',
+          width: 'fit-content',
+          display: downloadState ? 'block' : 'none'
+        }}>
+        {renderActionIndicator()}
       </div>
     </div>
   )

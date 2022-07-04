@@ -35,8 +35,9 @@ const args: FileComponentProps = {
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
-      width: 1200,
-      height: 580,
+      size: 1024,
+      width: undefined,
+      height: undefined,
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
     },
     message: '',
@@ -53,6 +54,13 @@ const args: FileComponentProps = {
 
 Uploading.args = {
   ...args,
+  message: {
+    ...args.message,
+    media: {
+      ...args.message.media,
+      size: undefined
+    }
+  },
   downloadStatus: {
     cid: cid,
     downloadState: DownloadState.Uploading,
@@ -73,7 +81,7 @@ Queued.args = {
     cid: cid,
     downloadState: DownloadState.Queued,
     downloadProgress: {
-      size: 1024,
+      size: 2048,
       downloaded: 0,
       transferSpeed: 0
     }

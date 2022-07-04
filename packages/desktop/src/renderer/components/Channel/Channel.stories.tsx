@@ -563,6 +563,7 @@ HostedFile.args = {
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 2048,
       width: undefined,
       height: undefined,
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
@@ -593,6 +594,7 @@ ReadyDownload.args = {
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 2048,
       width: undefined,
       height: undefined,
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
@@ -623,6 +625,7 @@ Downloading.args = {
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 2048,
       width: undefined,
       height: undefined,
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
@@ -637,7 +640,7 @@ Downloading.args = {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       downloadState: DownloadState.Downloading,
       downloadProgress: {
-        size: 1024,
+        size: 2048,
         downloaded: 256,
         transferSpeed: 32
       }
@@ -657,6 +660,7 @@ CompletedDownload.args = {
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 2048,
       width: undefined,
       height: undefined,
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
@@ -671,7 +675,7 @@ CompletedDownload.args = {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       downloadState: DownloadState.Completed,
       downloadProgress: {
-        size: 1024,
+        size: 2048,
         downloaded: 1024,
         transferSpeed: 0
       }
@@ -691,6 +695,7 @@ CanceledDownload.args = {
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 1024,
       width: undefined,
       height: undefined,
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
