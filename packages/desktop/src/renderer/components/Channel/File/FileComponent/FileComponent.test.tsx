@@ -19,6 +19,7 @@ describe('FileComponent', () => {
             },
             ext: '.zip',
             name: 'my-file-name-goes-here-an-isnt-truncated',
+            size: 2048,
             width: 1200,
             height: 580,
             path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
@@ -70,7 +71,7 @@ describe('FileComponent', () => {
                     class="MuiTypography-root MuiTypography-body2"
                     style="line-height: 20px; color: rgb(127, 127, 127);"
                   >
-                    Calculating...
+                    2 KB
                   </p>
                 </div>
               </div>
