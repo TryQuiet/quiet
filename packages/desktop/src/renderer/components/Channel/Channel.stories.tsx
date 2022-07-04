@@ -545,7 +545,7 @@ UploadingFile.args = {
   downloadStatuses: {
     32: {
       cid: 'uploading_32',
-      downloadState: DownloadState.Uploading,
+      downloadState: 'uploading',
       downloadProgress: undefined
     }
   }
@@ -576,7 +576,7 @@ HostedFile.args = {
   downloadStatuses: {
     32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-      downloadState: DownloadState.Hosted,
+      downloadState: 'hosted',
       downloadProgress: undefined
     }
   }
@@ -607,7 +607,7 @@ ReadyDownload.args = {
   downloadStatuses: {
     32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-      downloadState: DownloadState.Ready,
+      downloadState: 'ready',
       downloadProgress: undefined
     }
   }
@@ -638,7 +638,7 @@ Downloading.args = {
   downloadStatuses: {
     32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-      downloadState: DownloadState.Downloading,
+      downloadState: 'downloading',
       downloadProgress: {
         size: 2048,
         downloaded: 256,
@@ -673,7 +673,7 @@ CompletedDownload.args = {
   downloadStatuses: {
     32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-      downloadState: DownloadState.Completed,
+      downloadState: 'completed',
       downloadProgress: {
         size: 2048,
         downloaded: 1024,
@@ -708,7 +708,7 @@ CanceledDownload.args = {
   downloadStatuses: {
     32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-      downloadState: DownloadState.Canceled,
+      downloadState: 'canceled',
       downloadProgress: undefined
     }
   }
