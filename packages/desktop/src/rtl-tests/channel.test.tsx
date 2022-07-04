@@ -461,12 +461,10 @@ describe('Channel', () => {
     const [message1, message2, message3] = messages
 
     await act(async () => {
-      console.log('runSaga')
       await runSaga(mockIncomingMessages).toPromise()
     })
 
     function* mockIncomingMessages(): Generator {
-      console.log('mockIncomingMessage')
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketActionTypes.INCOMING_MESSAGES,
         {
@@ -706,6 +704,119 @@ describe('Channel', () => {
         "Messages/addPublicKeyMapping",
         "Messages/addMessageVerificationStatus",
         "PublicChannels/cacheMessages",
+      ]
+    `)
+  })
+
+  it('displays proper component for messages of type file', async () => {
+    const initialState = (await prepareStore()).store
+
+    const factory = await getFactory(initialState)
+
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    const messageId = Math.random().toString(36).substr(2.9)
+    const channelAddress = 'general'
+
+    const media: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.ext',
+      message: {
+        id: messageId,
+        channelAddress: channelAddress
+      }
+    }
+
+    const message = (
+      await factory.build<typeof publicChannels.actions.test_message>('Message', {
+        identity: alice,
+        message: {
+          id: messageId,
+          type: MessageType.File,
+          message: '',
+          createdAt: DateTime.utc().valueOf(),
+          channelAddress: channelAddress,
+          signature: '',
+          pubKey: '',
+          media: media
+        }
+      })
+    ).payload.message
+
+    jest
+      .spyOn(socket, 'emit')
+      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+        if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+          const data = input as socketEventData<[InitCommunityPayload]>
+          const payload = data[0]
+          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+            id: payload.id
+          })
+        }
+      })
+
+    const { store, runSaga } = await prepareStore(
+      initialState.getState(),
+      socket // Fork state manager's sagas
+    )
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    await act(async () => {
+      await runSaga(mockIncomingMessages).toPromise()
+    })
+
+    function* mockIncomingMessages(): Generator {
+      yield* apply(socket.socketClient, socket.socketClient.emit, [
+        SocketActionTypes.INCOMING_MESSAGES,
+        {
+          messages: [message],
+          communityId: community.id
+        }
+      ])
+    }
+
+    // Confirm file component is being shown
+    expect(await screen.findByTestId(`${media.cid}-fileComponent`)).toBeVisible()
+
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/removePendingMessageStatus",
+        "Messages/incomingMessages",
+        "Messages/addPublicKeyMapping",
+        "Messages/addMessageVerificationStatus",
+        "PublicChannels/cacheMessages",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "PublicChannels/cacheMessages",
+        "Messages/setDisplayedMessagesNumber",
       ]
     `)
   })
