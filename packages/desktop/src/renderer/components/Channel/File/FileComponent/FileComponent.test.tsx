@@ -70,7 +70,7 @@ describe('FileComponent', () => {
                     class="MuiTypography-root MuiTypography-body2"
                     style="line-height: 20px; color: rgb(127, 127, 127);"
                   >
-                    16 MB
+                    Calculating...
                   </p>
                 </div>
               </div>

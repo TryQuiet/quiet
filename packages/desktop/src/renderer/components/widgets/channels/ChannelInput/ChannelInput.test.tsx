@@ -4,11 +4,7 @@ import { prepareStore } from '../../../../testUtils/prepareStore'
 import { renderComponent } from '../../../../testUtils/renderComponent'
 import { ChannelInputComponent } from './ChannelInput'
 import { INPUT_STATE } from './InputState.enum'
-import {
-  FileContent,
-  getFactory,
-  identity
-} from '@quiet/state-manager'
+import { FileContent, getFactory, identity } from '@quiet/state-manager'
 import UploadFilesPreviewsComponent from '../../../Channel/File/UploadingPreview'
 
 describe('ChannelInput', () => {
@@ -67,7 +63,7 @@ describe('ChannelInput', () => {
                           src="test-file-stub"
                         />
                         <input
-                          accept="image/*"
+                          accept="*"
                           hidden=""
                           multiple=""
                           type="file"
@@ -160,7 +156,7 @@ describe('ChannelInput', () => {
                           src="test-file-stub"
                         />
                         <input
-                          accept="image/*"
+                          accept="*"
                           hidden=""
                           multiple=""
                           type="file"
