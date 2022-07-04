@@ -41,7 +41,7 @@ While apps like Slack, Discord, and Signal use central servers, Quiet syncs mess
 
 Each group of people (Quiet calls them "communities") gets their own insular network, so that data from one community never touches the devices of Quiet users in *other* communities. Not even in encrypted form!
 
-Message syncing is taken care of by a project called [OrbitDB](https://orbitdb.org), which works like a mashup of Git, a [gossip protocol](https://en.wikipedia.org/wiki/Gossip_protocol), and [BitTorrent](https://en.wikipedia.org/wiki/BitTorrent); it broadcasts new messages, syncs the latest messages, and fetches files. 
+Message syncing is taken care of by a project called [OrbitDB](https://orbitdb.org), which works like a mashup of Git, a [gossip protocol](https://en.wikipedia.org/wiki/Gossip_protocol), and [BitTorrent](https://en.wikipedia.org/wiki/BitTorrent); it broadcasts new messages, syncs the latest messages, and fetches files. Because of the way Quiet syncs messages, users will typically receive all messages sent while they were offline—just like Slack or Discord—without the need for servers! 
 
 Invites, access, and usernames are granted by a community owner, i.e. whoever creates the community. The owner hands out an "invitation code" which invitees use to connect to the owner's device, register a username, and get a standard cryptographic certificate so they can prove to other peers they're part of the community.
 
@@ -56,6 +56,7 @@ This is a concise technical summary of the main points.
 3. **Networking:** peers connect via [Tor onion services](https://en.wikipedia.org/wiki/Tor_(network)#Onion_services), exclusively with their fellow community members.
 4. **Privacy:** Tor encrypts all data in transit, and a Quiet user's device connects only to the devices of their fellow community members, so all messages are encrypted to recipients. 
 4. **Syncing:** IPFS and [OrbitDB](https://orbitdb.org), an [IPFS](https://ipfs.io/)-based [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type), ensure that all data (messages, user data, etc) syncs between peers with [eventual consistency](https://arxiv.org/abs/2012.00472).
+5. **Asynchronous messaging without servers:** Because messages sync to all members, users will typically receive messages sent while they were offline. In this way, Quiet can typically rely on other member devices to store messages and pass them along, minimizing the need for personal servers.
 5. **Identity:** a valid certificate from the community owner on account creation establishes a username, which the owner attests is unique; in future versions, Quiet will warn all members if community owners are caught issuing non-unique usernames, to protect against impersonation by malicious or compromised owners. (See: [#119](https://github.com/TryQuiet/monorepo/issues/119))
 6. **Invitation:** to invite new members, community owners provide (via some other secure channel) an onion address that points to a registration API which accepts a certificate signing request, responds with a signed certificate, and provides sufficient peer information to connect to other peers; in future versions this onion address will expire. (See: [#536](https://github.com/TryQuiet/monorepo/issues/536))
 7. **Account recovery:** owners must back up their data (e.g. by copying a folder, or someday with a wallet-style passphrase) and members request new accounts from owners.
@@ -89,3 +90,5 @@ To get started hacking on Quiet, follow the instructions for [Quiet Desktop](htt
 Desktop and mobile versions share a common Node.js [backend](https://github.com/TryQuiet/monorepo/tree/master/packages/backend) and React [state manager](https://github.com/TryQuiet/monorepo/tree/master/packages/state-manager), with [Tor](https://torproject.org) binaries for each platform and architecture, using Electron and React Native and for their respective frontends.
 
 We use a [Github project](https://github.com/orgs/TryQuiet/projects/1) to prioritize issues.
+
+5. **Asynchronous messaging:* Because all message sync to all members, users will typically receive messages sent while they were offline*
