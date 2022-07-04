@@ -54,7 +54,7 @@ Resources:
     Type: AWS::ECS::Service
     Properties:
       Cluster: !Ref ECSCluster
-      DesiredCount: 1
+      DesiredCount: 10
       LaunchType: FARGATE
       TaskDefinition: !Ref PerformanceDataTaskDefinition
       NetworkConfiguration:
