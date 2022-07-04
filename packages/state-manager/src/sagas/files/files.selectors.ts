@@ -34,5 +34,5 @@ export const downloadStatusesMapping = createSelector(
 )
 
 export const filesSelectors = {
-    downloadStatusesMapping
+  downloadStatusesMapping
 }

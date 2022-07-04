@@ -20,8 +20,7 @@ export function* downloadFileSaga(
   for (const message of messages) {
     // Proceed for images and files only
     if (message.type === MessageType.Image || message.type === MessageType.File) {
-      
-      const isAlreadyLocallyStored = channelMessages[message.id]?.media?.path ? true : false
+      const isAlreadyLocallyStored = !!channelMessages[message.id]?.media?.path
 
       // Do not download if already present in local file system
       if (!isAlreadyLocallyStored) {

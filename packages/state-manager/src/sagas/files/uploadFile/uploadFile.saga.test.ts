@@ -80,7 +80,7 @@ describe('uploadFileSaga', () => {
       message: {
         id: messageId,
         channelAddress: currentChannel
-      },
+      }
     }
     const reducer = combineReducers(reducers)
     await expectSaga(

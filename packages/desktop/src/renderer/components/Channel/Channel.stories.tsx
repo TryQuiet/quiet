@@ -543,7 +543,7 @@ UploadingFile.args = {
     nickname: 'vader'
   }),
   downloadStatuses: {
-    '32': {
+    32: {
       cid: 'uploading_32',
       downloadState: DownloadState.Uploading,
       downloadProgress: undefined
@@ -574,7 +574,7 @@ HostedFile.args = {
     nickname: 'vader'
   }),
   downloadStatuses: {
-    '32': {
+    32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       downloadState: DownloadState.Hosted,
       downloadProgress: undefined
@@ -605,13 +605,13 @@ ReadyDownload.args = {
     nickname: 'vader'
   }),
   downloadStatuses: {
-    '32': {
+    32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       downloadState: DownloadState.Ready,
       downloadProgress: undefined
     }
   }
-},
+}
 Downloading.args = {
   ...args,
   messages: mockMessages({
@@ -636,7 +636,7 @@ Downloading.args = {
     nickname: 'vader'
   }),
   downloadStatuses: {
-    '32': {
+    32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       downloadState: DownloadState.Downloading,
       downloadProgress: {
@@ -671,7 +671,7 @@ CompletedDownload.args = {
     nickname: 'vader'
   }),
   downloadStatuses: {
-    '32': {
+    32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       downloadState: DownloadState.Completed,
       downloadProgress: {
@@ -706,7 +706,7 @@ CanceledDownload.args = {
     nickname: 'vader'
   }),
   downloadStatuses: {
-    '32': {
+    32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       downloadState: DownloadState.Canceled,
       downloadProgress: undefined

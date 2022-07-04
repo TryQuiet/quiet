@@ -29,7 +29,7 @@ export interface DownloadFilePayload {
 
 export interface DownloadStatus {
   cid: string
-  downloadState: DownloadState,
+  downloadState: DownloadState
   downloadProgress?: DownloadProgress
 }
 

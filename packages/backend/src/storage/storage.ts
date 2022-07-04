@@ -421,6 +421,7 @@ export class Storage {
     const entries = this.ipfs.files.ls(`/${dirname}`)
     for await (const entry of entries) {
       if (entry.name === filename) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.io.removeDownloadStatus({ cid: metadata.cid })
 
         const fileMetadata: FileMetadata = {
@@ -432,14 +433,16 @@ export class Storage {
           height
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.io.uploadedFile(fileMetadata)
-    
+
         const statusReady: DownloadStatus = {
           cid: fileMetadata.cid,
           downloadState: DownloadState.Hosted,
           downloadProgress: undefined
         }
-    
+
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.io.updateDownloadProgress(statusReady)
 
         break
@@ -523,6 +526,7 @@ export class Storage {
     }
 
     // Downloaded file
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.io.updateDownloadProgress(statusCompleted)
 
     const fileMetadata: FileMetadata = {

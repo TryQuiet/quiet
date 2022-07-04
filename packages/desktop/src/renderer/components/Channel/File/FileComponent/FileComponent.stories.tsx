@@ -74,7 +74,7 @@ Hosted.args = {
     downloadState: DownloadState.Hosted,
     downloadProgress: undefined
   }
-},
+}
 Queued.args = {
   ...args,
   downloadStatus: {
@@ -110,7 +110,7 @@ Canceled.args = {
   downloadStatus: {
     cid: cid,
     downloadState: DownloadState.Canceled
-  },
+  }
 }
 Completed.args = {
   ...args,

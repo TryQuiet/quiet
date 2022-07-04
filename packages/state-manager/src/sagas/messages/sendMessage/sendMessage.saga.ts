@@ -32,11 +32,10 @@ export function* sendMessageSaga(
 
   const createdAt = yield* call(getCurrentTime)
 
-  const generatedMessageId = yield* call(generateMessageId) 
+  const generatedMessageId = yield* call(generateMessageId)
   const id = action.payload.id || generatedMessageId
 
   const channelAddress = action.payload.channelAddress || currentChannel
-
 
   const message: ChannelMessage = {
     id: id,
@@ -48,7 +47,6 @@ export function* sendMessageSaga(
     signature,
     pubKey
   }
-
 
   // Grey out message until saved in db
   yield* put(

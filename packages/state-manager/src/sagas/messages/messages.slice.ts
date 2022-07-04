@@ -64,7 +64,6 @@ export const messagesSlice = createSlice({
     incomingMessages: (state, action: PayloadAction<IncomingMessages>) => {
       const { messages } = action.payload
       for (const message of messages) {
-
         let incoming = message
 
         const origin = state.publicChannelsMessagesBase
