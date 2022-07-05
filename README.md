@@ -49,30 +49,39 @@ See our [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ) for answers t
 
 ## Features
 
-**What you can do right now:**
+* **Team Chat** - Create a "community" and invite members.
+* **End-to-end Encryption** - All data is encrypted end-to-end between member devices.
+* **Channels** - Organize chats in Slack-like channels.
+* **Images** - Send and receive images, with copy/paste, drag & drop, and image previews.
+* **Notifications** - Get desktop notifications for new messages, with optional sounds.
+* **Desktop Apps** - Desktop apps for Mac, Windows, and Linux.
 
-* Create or join a private community, with end-to-end encryption provided by Tor 
-* Create Slack-like "channels" within that community
-* Send and receive messages in group chats
-* Send and receive images (with copy/paste, drag & drop, and image previews)
-* Enable and disable desktop notifications
-* Support for Mac, Windows, and Linux
-* Have communities with small numbers of members (~10 online, ~100 total)  
+## Planned (but still-missing) features
 
-**Planned but still-missing features:**
+* **Files** - Send and receive files of unlimited size!
+* **Direct Messages** - Send and receive direct messages that are encrypted to the recipient and unreadable by other community members.
+* **Mobile Apps** - Join communities on Android or iOS, in addition to desktop.
+* **Large Communities** - Create a community with 1000 members or more (right now ~30-100 members is the limit.)
+* **Mentions** - Send @ mentions that notify other users.
+* **Removal** - Remove users from your community.
+* **Moderation** - Appoint moderators who can hide messages and shadowban or remove users. 
+* **User Profiles** - Add an avatar or bio.
+* **Message Deletion** - Delete individual messages and set timed deletion rules ("disappearing messages") for the community.
+* **Status** - See your own connection status and the online status of other users.
+* **Emojis & Reactions** - Send emojis with emojicodes, and react with emojis. 
+* **Multiple Communities** - Join multiple communities, like you would in Slack or Discord. 
+* **Keyboard Controls** - Navigate and generally do stuff without using the mouse.
+* **Account Recovery** - Recover owner accounts from a backup phrase.
+* **Private channels** - Create private channels with multiple members that are unreadable to the community at large.
 
-* Larger communities (1000 members or more)
-* Send and receive arbitrary files (of unlimited size!)
-* Mobile apps (Android & iOS) with multiple-device support
-* Private direct messages
-* Message deletion, disappearing messages
-* Online status (your own and that of other users)
-* Send @ mentions that notify other users
-* Create & join multiple communities 
-* React with emojis
-* Send code blocks, linebreaks in messages, emojicodes.
-* Do everything with keyboard controls
-* Recover owner accounts from a backup phrase
+## Post-1.0 Features
+
+* **Search** - Robust message search.
+* **Threads** - Reply to messages in threads.
+* **Tor Bridges** - Connect via public or private bridges to avoid Internet censorship. 
+* **Tor Browser Support** - Join communities as a full member via Tor Browser, without downloading an app. 
+* **Browser Support** - Join communities via *any* browser via [Arti-in-WASM](https://gitlab.torproject.org/tpo/core/arti/-/issues/103).
+* **Publishing** - Share files (or entire websites) from your community to the web, via Tor, [OnionBalance](https://github.com/asn-d6/onionbalance), and [Tor2web](https://www.tor2web.org/) + IPFS.
 
 ## Technical overview
 
