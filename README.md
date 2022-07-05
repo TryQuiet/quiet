@@ -62,10 +62,8 @@ See our [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ) for answers t
 * **Files** - Send and receive files of unlimited size!
 * **Direct Messages** - Send and receive direct messages that are encrypted to the recipient and unreadable by other community members.
 * **Mobile Apps** - Join communities on Android or iOS, in addition to desktop.
-* **Large Communities** - Create a community with 1000 members or more (right now ~30-100 members is the limit.)
 * **Mentions** - Send @ mentions that notify other users.
 * **Removal** - Remove users from your community.
-* **Moderation** - Appoint moderators who can hide messages and shadowban or remove users. 
 * **User Profiles** - Add an avatar or bio.
 * **Message Deletion** - Delete individual messages and set timed deletion rules ("disappearing messages") for the community.
 * **Status** - See your own connection status and the online status of other users.
@@ -77,6 +75,9 @@ See our [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ) for answers t
 
 ## Post-1.0 Features
 
+* **Large Communities** - Create a community with 1000 members or more (right now ~30-100 members is the limit.)
+* **Moderation** - Appoint moderators who can hide messages and shadowban or remove users. 
+* **Spam and Denial-of-Service Protection** - Settings to automatically remove users who send disruptive messages.
 * **Search** - Robust message search.
 * **Threads** - Reply to messages in threads.
 * **Tor Bridges** - Connect via public or private bridges to avoid Internet censorship. 
@@ -89,7 +90,7 @@ See our [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ) for answers t
 This is a concise technical summary of the main points.  
 
 1. **Granting access:** community owners use standard PKI ([PKI.js](https://pkijs.org/)) to grant access, with each community owner serving as the community's [certificate authority](https://en.wikipedia.org/wiki/Certificate_authority); this is handled by Quiet and transparent to users. 
-2. **Authentication:** a valid signed certificate from the community owner is required to connect to peers, receive connection from peers, and for messages to be visible to other peers.
+2. **Authentication:** a valid signed certificate from the community owner is required to connect to peers, receive connections from peers, and for messages to be visible to other peers.
 3. **Networking:** peers connect via [Tor onion services](https://en.wikipedia.org/wiki/Tor_(network)#Onion_services), exclusively with their fellow community members.
 4. **Privacy:** Tor encrypts all data in transit, and a Quiet user's device connects only to the devices of their fellow community members, so all messages are encrypted to recipients. 
 4. **Syncing:** IPFS and [OrbitDB](https://orbitdb.org), an [IPFS](https://ipfs.io/)-based [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type), ensure that all data (messages, user data, etc) syncs between peers with [eventual consistency](https://arxiv.org/abs/2012.00472).
