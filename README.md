@@ -41,11 +41,38 @@ While apps like Slack, Discord, and Signal use central servers, Quiet syncs mess
 
 Each group of people (Quiet calls them "communities") gets their own insular network, so that data from one community never touches the devices of Quiet users in *other* communities. Not even in encrypted form!
 
-Message syncing is taken care of by a project called [OrbitDB](https://orbitdb.org), which works like a mashup of Git, a [gossip protocol](https://en.wikipedia.org/wiki/Gossip_protocol), and [BitTorrent](https://en.wikipedia.org/wiki/BitTorrent); it broadcasts new messages, syncs the latest messages, and fetches files. Because of the way Quiet syncs messages, users will typically receive all messages sent while they were offline—just like Slack or Discord—without the need for servers! 
+Message syncing is taken care of by a project called [OrbitDB](https://orbitdb.org), which works like a mashup of Git, a [gossip protocol](https://en.wikipedia.org/wiki/Gossip_protocol), and [BitTorrent](https://en.wikipedia.org/wiki/BitTorrent); it broadcasts new messages, syncs the latest messages, and fetches files. Syncing means that users typically receive all messages sent while they were offline. 
 
 Invites, access, and usernames are granted by a community owner, i.e. whoever creates the community. The owner hands out an "invitation code" which invitees use to connect to the owner's device, register a username, and get a standard cryptographic certificate so they can prove to other peers they're part of the community.
 
 See our [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ) for answers to common questions and a comparison of Quiet with similar apps.
+
+## Features
+
+**What you can do right now:**
+
+* Create or join a private community, with end-to-end encryption provided by Tor 
+* Create Slack-like "channels" within that community
+* Send and receive messages in group chats
+* Send and receive images (with copy/paste, drag & drop, and image previews)
+* Enable and disable desktop notifications
+* Support for Mac, Windows, and Linux
+* Have communities with small numbers of members (~10 online, ~100 total)  
+
+**Planned but still-missing features:**
+
+* Larger communities (1000 members or more)
+* Send and receive arbitrary files (of unlimited size!)
+* Mobile apps (Android & iOS) with multiple-device support
+* Private direct messages
+* Message deletion, disappearing messages
+* Online status (your own and that of other users)
+* Send @ mentions that notify other users
+* Create & join multiple communities 
+* React with emojis
+* Send code blocks, linebreaks in messages, emojicodes.
+* Do everything with keyboard controls
+* Recover owner accounts from a backup phrase
 
 ## Technical overview
 
@@ -57,7 +84,6 @@ This is a concise technical summary of the main points.
 4. **Privacy:** Tor encrypts all data in transit, and a Quiet user's device connects only to the devices of their fellow community members, so all messages are encrypted to recipients. 
 4. **Syncing:** IPFS and [OrbitDB](https://orbitdb.org), an [IPFS](https://ipfs.io/)-based [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type), ensure that all data (messages, user data, etc) syncs between peers with [eventual consistency](https://arxiv.org/abs/2012.00472).
 5. **Asynchronous messaging:** because messages sync to all members, members can communicate without being contemporaneously online, provided that there is "continuous liveness", a continuous chain of online peers who each sync the latest updates, between the sender and the recipient.
-9. **Direct messages:** similar to group messaging, except that messages would be encrypted to the recipient and hidden in the UI to other users; future iterations may let contemporaneously-online users deliver messages exclusively to each others' devices, to protect metadata privacy from other community members. 
 5. **Identity:** a valid certificate from the community owner on account creation establishes a username, which the owner attests is unique; in future versions, Quiet will warn all members if community owners are caught issuing non-unique usernames, to protect against impersonation by malicious or compromised owners. (See: [#119](https://github.com/TryQuiet/monorepo/issues/119))
 6. **Invitation:** to invite new members, community owners provide (via some other secure channel) an onion address that points to a registration API which accepts a certificate signing request, responds with a signed certificate, and provides sufficient peer information to connect to other peers; in future versions this onion address will expire. (See: [#536](https://github.com/TryQuiet/monorepo/issues/536))
 7. **Account recovery:** owners must back up their data (e.g. by copying a folder, or someday with a wallet-style passphrase) and members request new accounts from owners.
