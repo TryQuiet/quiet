@@ -10,7 +10,10 @@ import BasicMessageComponent from './BasicMessage'
 import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
 import { DownloadStatus, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
+
 import { UseModalTypeWrapper } from '../../../containers/hooks'
+
+import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 
 const useStyles = makeStyles(theme => ({
   spinner: {
@@ -64,13 +67,14 @@ export interface IChannelMessagesProps {
   >
 }
 
-export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
+export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActionsProps> = ({
   messages = {},
   pendingMessages = {},
   downloadStatuses = {},
   scrollbarRef,
   onScroll,
-  uploadedFileModal
+  uploadedFileModal,
+  openContainingFolder
 }) => {
   const classes = useStyles({})
 
@@ -126,6 +130,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
                     pendingMessages={pendingMessages}
                     downloadStatuses={downloadStatuses}
                     uploadedFileModal={uploadedFileModal}
+                    openContainingFolder={openContainingFolder}
                   />
                 )
               })}

@@ -24,11 +24,16 @@ import {
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
+
 import UploadFilesPreviewsComponent, {
   UploadFilesPreviewsProps
 } from './File/UploadingPreview'
+
 import { DropZoneComponent } from './DropZone/DropZoneComponent'
+
 import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoComponent'
+
+import { FileActionsProps } from './File/FileComponent/FileComponent'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -71,7 +76,7 @@ export interface ChannelComponentProps {
   >
 }
 
-export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps> = ({
+export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps & FileActionsProps> = ({
   user,
   channelAddress,
   channelName,
@@ -95,7 +100,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   isCommunityInitialized = true,
   openFilesDialog,
   handleClipboardFiles,
-  uploadedFileModal
+  uploadedFileModal,
+  openContainingFolder
 }) => {
   const classes = useStyles({})
 
@@ -223,6 +229,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             scrollbarRef={scrollbarRef}
             onScroll={onScroll}
             uploadedFileModal={uploadedFileModal}
+            openContainingFolder={openContainingFolder}
           />
         </Grid>
         <Grid item>

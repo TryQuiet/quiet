@@ -60,7 +60,7 @@ const ActionIndicator: React.FC<{
     color: string
     icon: any
   }
-  action?: () => void
+  action?: (...args: any) => void
 }> = ({ regular, hover, action }) => {
   const [over, setOver] = useState<boolean>()
 
@@ -101,21 +101,20 @@ const ActionIndicator: React.FC<{
 export interface FileComponentProps {
   message: DisplayableMessage
   downloadStatus: DownloadStatus
-  download?: () => void
-  cancel?: () => void
-  show?: () => void
 }
 
-export const FileComponent: React.FC<FileComponentProps> = ({
+export interface FileActionsProps {
+  openContainingFolder?: (path: string) => void
+}
+
+export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   message,
   downloadStatus,
-  download,
-  cancel,
-  show
+  openContainingFolder
 }) => {
   const classes = useStyles({})
 
-  const { cid, name, ext } = message.media
+  const { cid, path, name, ext } = message.media
 
   const downloadState = downloadStatus.downloadState
   const downloadProgress = downloadStatus.downloadProgress
@@ -155,6 +154,10 @@ export const FileComponent: React.FC<FileComponentProps> = ({
     }
   }
 
+  const _openContainingFolder = () => {
+    openContainingFolder(path)
+  }
+
   const renderActionIndicator = () => {
     switch (downloadState) {
       case DownloadState.Uploading:
@@ -180,7 +183,7 @@ export const FileComponent: React.FC<FileComponentProps> = ({
               color: theme.palette.colors.lushSky,
               icon: folderIcon
             }}
-            action={show}
+            action={_openContainingFolder}
           />
         )
       case DownloadState.Ready:
@@ -191,7 +194,6 @@ export const FileComponent: React.FC<FileComponentProps> = ({
               color: theme.palette.colors.lushSky,
               icon: downloadIcon
             }}
-            action={download}
           />
         )
       case DownloadState.Queued:
@@ -207,7 +209,6 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             //   color: theme.palette.colors.lushSky,
             //   icon: cancelIcon
             // }}
-            // action={cancel}
           />
         )
       case DownloadState.Downloading:
@@ -223,7 +224,6 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             //   color: theme.palette.colors.lushSky,
             //   icon: cancelIcon
             // }}
-            // action={cancel}
           />
         )
       case DownloadState.Canceled:
@@ -249,7 +249,7 @@ export const FileComponent: React.FC<FileComponentProps> = ({
               color: theme.palette.colors.lushSky,
               icon: folderIcon
             }}
-            action={show}
+            action={_openContainingFolder}
           />
         )
       default:

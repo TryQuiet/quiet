@@ -1,4 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
+
+import { shell, ipcRenderer } from 'electron'
+
 import { useDispatch, useSelector } from 'react-redux'
 import {
   identity,
@@ -17,8 +20,10 @@ import {
   FilePreviewData,
   UploadFilesPreviewsProps
 } from './File/UploadingPreview'
-import { ipcRenderer } from 'electron'
+
 import { getFilesData } from '../../../utils/functions/fileData'
+
+import { FileActionsProps } from './File/FileComponent/FileComponent'
 
 const Channel = () => {
   const dispatch = useDispatch()
@@ -152,6 +157,10 @@ const Channel = () => {
     ipcRenderer.send('openUploadFileDialog')
   }, [])
 
+  const openContainingFolder = useCallback((path: string) => {
+    shell.showItemInFolder(path)
+  }, [])
+
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelAddress])
@@ -188,10 +197,14 @@ const Channel = () => {
     removeFile: removeFilePreview
   }
 
+  const fileActionsProps: FileActionsProps = {
+    openContainingFolder: openContainingFolder
+  }
+
   return (
     <>
       {currentChannelAddress && (
-        <ChannelComponent {...channelComponentProps} {...uploadFilesPreviewProps} />
+        <ChannelComponent {...channelComponentProps} {...uploadFilesPreviewProps} {...fileActionsProps} />
       )}
     </>
   )

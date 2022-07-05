@@ -1,4 +1,5 @@
 import React from 'react'
+import { Dictionary } from '@reduxjs/toolkit'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import classNames from 'classnames'
 
@@ -11,11 +12,15 @@ import red from '@material-ui/core/colors/red'
 
 import Jdenticon from 'react-jdenticon'
 
-import { DisplayableMessage, DownloadStatus, MessageSendingStatus, SendingStatus } from '@quiet/state-manager'
+import { DisplayableMessage, DownloadStatus, MessageSendingStatus } from '@quiet/state-manager'
+
 import { NestedMessageContent } from './NestedMessageContent'
-import { Dictionary } from '@reduxjs/toolkit'
 import { UseModalTypeWrapper } from '../../../containers/hooks'
+
+import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
+
 import information from '../../../static/images/updateIcon.svg'
+
 import Icon from '../../ui/Icon/Icon'
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -111,11 +116,12 @@ export interface BasicMessageProps {
   >
 }
 
-export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
+export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProps> = ({
   messages,
   pendingMessages = {},
   downloadStatuses = {},
-  uploadedFileModal
+  uploadedFileModal,
+  openContainingFolder
 }) => {
   const classes = useStyles({})
 
@@ -194,6 +200,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                       pending={pending}
                       downloadStatus={downloadStatus}
                       uploadedFileModal={uploadedFileModal}
+                      openContainingFolder={openContainingFolder}
                     />
                   )
                 })}

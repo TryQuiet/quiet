@@ -5,7 +5,7 @@ import { DisplayableMessage, DownloadStatus } from '@quiet/state-manager'
 import classNames from 'classnames'
 import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
-import FileComponent from '../../Channel/File/FileComponent/FileComponent'
+import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 
 const useStyles = makeStyles(() => ({
   message: {
@@ -33,11 +33,12 @@ export interface NestedMessageContentProps {
   >
 }
 
-export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({
+export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActionsProps> = ({
   message,
   pending,
   downloadStatus,
-  uploadedFileModal
+  uploadedFileModal,
+  openContainingFolder
 }) => {
   const classes = useStyles({})
 
@@ -62,7 +63,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({
               [classes.pending]: pending
             })}
             data-testid={`messagesGroupContent-${message.id}`}>
-            <FileComponent message={message} downloadStatus={downloadStatus} />
+            <FileComponent message={message} downloadStatus={downloadStatus} openContainingFolder={openContainingFolder} />
           </div>
         )
       default:
