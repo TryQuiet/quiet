@@ -89,7 +89,7 @@ export default class IOProxy {
     await this.getStorage(peerId).uploadFile(metadata)
   }
 
-  public uploadedFile = async (payload: FileMetadata) => {
+  public uploadedFile = (payload: FileMetadata) => {
     this.io.emit(SocketActionTypes.UPLOADED_FILE, payload)
   }
 
@@ -97,11 +97,11 @@ export default class IOProxy {
     await this.getStorage(peerId).downloadFile(metadata)
   }
 
-  public updateDownloadProgress = async (payload: DownloadStatus) => {
+  public updateDownloadProgress = (payload: DownloadStatus) => {
     this.io.emit(SocketActionTypes.DOWNLOAD_PROGRESS, payload)
   }
 
-  public removeDownloadStatus = async (payload: RemoveDownloadStatus) => [
+  public removeDownloadStatus = (payload: RemoveDownloadStatus) => [
     this.io.emit(SocketActionTypes.REMOVE_DOWNLOAD_STATUS, payload)
   ]
 
