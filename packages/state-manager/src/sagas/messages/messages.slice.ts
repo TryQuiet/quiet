@@ -64,6 +64,8 @@ export const messagesSlice = createSlice({
     incomingMessages: (state, action: PayloadAction<IncomingMessages>) => {
       const { messages } = action.payload
       for (const message of messages) {
+        if (message === undefined) return // Recorded an unexpected situation with 'undefined' value being present in action payload
+
         let incoming = message
 
         const origin = state.publicChannelsMessagesBase
