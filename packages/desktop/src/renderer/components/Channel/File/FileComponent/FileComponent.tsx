@@ -278,7 +278,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
             <Typography
               variant={'body2'}
               style={{ lineHeight: '20px', color: theme.palette.colors.darkGray }}>
-              {message.media?.size ? formatBytes(message.media?.size) : 'Calculating...'}
+              {message.media?.size ? formatBytes(message.media?.size) : 'Sharing with others...'}
             </Typography>
           </div>
         </div>
