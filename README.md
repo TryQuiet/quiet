@@ -49,12 +49,13 @@ See our [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ) for answers t
 
 ## Features
 
-* **Team Chat** - Create a "community" and invite members.
+* **Team Chat** - Create a "community" for your team or organization and invite members.
 * **End-to-end Encryption** - All data is encrypted end-to-end between member devices.
 * **Channels** - Organize chats in Slack-like channels.
 * **Images** - Send and receive images, with copy/paste, drag & drop, and image previews.
 * **Notifications** - Get desktop notifications for new messages, with optional sounds.
 * **Desktop Apps** - Desktop apps for Mac, Windows, and Linux.
+* **No email or phone number required** - Unlike Slack, Discord, WhatsApp, Telegram, and Signal, no email or phone number is required to create or join a community. 
 
 ## Planned (but still-missing) features
 
@@ -79,8 +80,8 @@ See our [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ) for answers t
 * **Search** - Robust message search.
 * **Threads** - Reply to messages in threads.
 * **Tor Bridges** - Connect via public or private bridges to avoid Internet censorship. 
-* **Tor Browser Support** - Join communities as a full member via Tor Browser, without downloading an app. 
-* **Browser Support** - Join communities via *any* browser via [Arti-in-WASM](https://gitlab.torproject.org/tpo/core/arti/-/issues/103).
+* **Tor Browser Support** - Join communities as a full member with Tor Browser, without downloading an app. 
+* **Browser Support** - Join communities with *any* modern browser via [Arti-in-WASM](https://gitlab.torproject.org/tpo/core/arti/-/issues/103).
 * **Publishing** - Share files (or entire websites) from your community to the web, via Tor, [OnionBalance](https://github.com/asn-d6/onionbalance), and [Tor2web](https://www.tor2web.org/) + IPFS.
 
 ## Technical overview
