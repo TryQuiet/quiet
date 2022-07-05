@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { shell } from 'electron'
 import { CircularProgress, makeStyles, Typography } from '@material-ui/core'
 import { DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/state-manager'
 import theme from '../../../../theme'
@@ -103,22 +104,24 @@ export interface FileComponentProps {
   downloadStatus: DownloadStatus
   download?: () => void
   cancel?: () => void
-  show?: () => void
 }
 
 export const FileComponent: React.FC<FileComponentProps> = ({
   message,
   downloadStatus,
   download,
-  cancel,
-  show
+  cancel
 }) => {
   const classes = useStyles({})
 
-  const { cid, name, ext } = message.media
+  const { cid, path, name, ext } = message.media
 
   const downloadState = downloadStatus.downloadState
   const downloadProgress = downloadStatus.downloadProgress
+
+  const openContainingFolder = () => {
+    shell.showItemInFolder(path)
+  }
 
   const renderIcon = () => {
     switch (downloadState) {
@@ -180,7 +183,7 @@ export const FileComponent: React.FC<FileComponentProps> = ({
               color: theme.palette.colors.lushSky,
               icon: folderIcon
             }}
-            action={show}
+            action={openContainingFolder}
           />
         )
       case DownloadState.Ready:
@@ -249,7 +252,7 @@ export const FileComponent: React.FC<FileComponentProps> = ({
               color: theme.palette.colors.lushSky,
               icon: folderIcon
             }}
-            action={show}
+            action={openContainingFolder}
           />
         )
       default:
