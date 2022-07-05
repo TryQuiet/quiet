@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { shell } from 'electron'
 import { CircularProgress, makeStyles, Typography } from '@material-ui/core'
 import { DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/state-manager'
 import theme from '../../../../theme'
@@ -61,7 +60,7 @@ const ActionIndicator: React.FC<{
     color: string
     icon: any
   }
-  action?: () => void
+  action?: (...args: any) => void
 }> = ({ regular, hover, action }) => {
   const [over, setOver] = useState<boolean>()
 
@@ -102,15 +101,16 @@ const ActionIndicator: React.FC<{
 export interface FileComponentProps {
   message: DisplayableMessage
   downloadStatus: DownloadStatus
-  download?: () => void
-  cancel?: () => void
 }
 
-export const FileComponent: React.FC<FileComponentProps> = ({
+export interface FileActionsProps {
+  openContainingFolder?: (path: string) => void
+}
+
+export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   message,
   downloadStatus,
-  download,
-  cancel
+  openContainingFolder
 }) => {
   const classes = useStyles({})
 
@@ -118,10 +118,6 @@ export const FileComponent: React.FC<FileComponentProps> = ({
 
   const downloadState = downloadStatus.downloadState
   const downloadProgress = downloadStatus.downloadProgress
-
-  const openContainingFolder = () => {
-    shell.showItemInFolder(path)
-  }
 
   const renderIcon = () => {
     switch (downloadState) {
@@ -158,6 +154,10 @@ export const FileComponent: React.FC<FileComponentProps> = ({
     }
   }
 
+  const _openContainingFolder = () => {
+    openContainingFolder(path)
+  }
+
   const renderActionIndicator = () => {
     switch (downloadState) {
       case DownloadState.Uploading:
@@ -183,7 +183,7 @@ export const FileComponent: React.FC<FileComponentProps> = ({
               color: theme.palette.colors.lushSky,
               icon: folderIcon
             }}
-            action={openContainingFolder}
+            action={_openContainingFolder}
           />
         )
       case DownloadState.Ready:
@@ -194,7 +194,6 @@ export const FileComponent: React.FC<FileComponentProps> = ({
               color: theme.palette.colors.lushSky,
               icon: downloadIcon
             }}
-            action={download}
           />
         )
       case DownloadState.Queued:
@@ -210,7 +209,6 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             //   color: theme.palette.colors.lushSky,
             //   icon: cancelIcon
             // }}
-            // action={cancel}
           />
         )
       case DownloadState.Downloading:
@@ -226,7 +224,6 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             //   color: theme.palette.colors.lushSky,
             //   icon: cancelIcon
             // }}
-            // action={cancel}
           />
         )
       case DownloadState.Canceled:
@@ -252,7 +249,7 @@ export const FileComponent: React.FC<FileComponentProps> = ({
               color: theme.palette.colors.lushSky,
               icon: folderIcon
             }}
-            action={openContainingFolder}
+            action={_openContainingFolder}
           />
         )
       default:
