@@ -22,10 +22,9 @@ import {
   Store,
   Identity,
   ChannelMessage,
-  PublicChannel,
   PublicChannelStorage,
-  FileContent,
-  FileMetadata
+  FileMetadata,
+  DownloadState
 } from '@quiet/state-manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 
@@ -306,19 +305,30 @@ describe('Files', () => {
 
     // Uploading
     const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
+    const statusSpy = jest.spyOn(storage.io, 'updateDownloadProgress')
 
-    const fileContent: FileContent = {
+    const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/test-image.png'),
       name: 'test-image',
-      ext: '.png'
+      ext: '.png',
+      cid: 'uploading_id',
+      message: {
+        id: 'id',
+        channelAddress: 'channelAddress'
+      }
     }
 
-    await storage.uploadFile(fileContent)
-    expect(uploadSpy).toHaveBeenCalled()
+    await storage.uploadFile(metadata)
     expect(uploadSpy).toBeCalledWith(expect.objectContaining({
-      ...fileContent,
+      ...metadata,
+      cid: expect.stringContaining('Qm'),
       width: 824,
       height: 44
+    }))
+    expect(statusSpy).toBeCalledWith(expect.objectContaining({
+      cid: expect.stringContaining('Qm'),
+      downloadState: DownloadState.Hosted,
+      downloadProgress: undefined
     }))
   })
 
@@ -334,19 +344,31 @@ describe('Files', () => {
 
     // Uploading
     const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
+    const statusSpy = jest.spyOn(storage.io, 'updateDownloadProgress')
 
-    const fileContent: FileContent = {
+    const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/test.txt'),
       name: 'test-image',
-      ext: '.png'
+      ext: '.txt',
+      cid: 'uploading_id',
+      message: {
+        id: 'id',
+        channelAddress: 'channelAddress'
+      }
     }
 
-    await storage.uploadFile(fileContent)
+    await storage.uploadFile(metadata)
     expect(uploadSpy).toHaveBeenCalled()
     expect(uploadSpy).toBeCalledWith(expect.objectContaining({
-      ...fileContent,
+      ...metadata,
+      cid: expect.stringContaining('Qm'),
       width: null,
       height: null
+    }))
+    expect(statusSpy).toBeCalledWith(expect.objectContaining({
+      cid: expect.stringContaining('Qm'),
+      downloadState: DownloadState.Hosted,
+      downloadProgress: undefined
     }))
   })
 
@@ -362,48 +384,19 @@ describe('Files', () => {
     // Uploading
     const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
 
-    const fileContent: FileContent = {
+    const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/non-existent.png'),
       name: 'test-image',
-      ext: '.png'
+      ext: '.png',
+      cid: 'uploading_id',
+      message: {
+        id: 'id',
+        channelAddress: 'channelAddress'
+      }
     }
 
-    await expect(storage.uploadFile(fileContent)).rejects.toThrow()
+    await expect(storage.uploadFile(metadata)).rejects.toThrow()
     expect(uploadSpy).not.toHaveBeenCalled()
-  })
-
-  it('downloaded file matches uploaded file', async () => {
-    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
-
-    const peerId = await PeerId.create()
-    const libp2p = await createLibp2p(peerId)
-
-    await storage.init(libp2p, peerId)
-
-    await storage.initDatabases()
-
-    // Uploading
-    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
-    const downloadSpy = jest.spyOn(storage.io, 'downloadedFile')
-
-    const fileContent: FileContent = {
-      path: path.join(__dirname, '/testUtils/test-image.png'),
-      name: 'test-image',
-      ext: '.png'
-    }
-
-    await storage.uploadFile(fileContent)
-
-    const uploadMetadata = uploadSpy.mock.calls[0][0]
-
-    await storage.downloadFile(uploadMetadata)
-
-    const downloadMetadata = downloadSpy.mock.calls[0][0]
-
-    const uploadFileBuffer = fs.readFileSync(fileContent.path)
-    const downloadFileBuffer = fs.readFileSync(downloadMetadata.path)
-
-    expect(uploadFileBuffer).toStrictEqual(downloadFileBuffer)
   })
 
   it('is uploaded to IPFS then can be downloaded', async () => {
@@ -419,23 +412,78 @@ describe('Files', () => {
     // Uploading
     const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
 
-    const fileContent: FileContent = {
+    const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/test-image.png'),
       name: 'test-image',
-      ext: '.png'
+      ext: '.png',
+      cid: 'uploading_id',
+      message: {
+        id: 'id',
+        channelAddress: 'channelAddress'
+      }
     }
 
-    await storage.uploadFile(fileContent)
+    await storage.uploadFile(metadata)
 
     expect(uploadSpy).toHaveBeenCalled()
 
     // Downloading
-    const downloadSpy = jest.spyOn(storage.io, 'downloadedFile')
+    const progressSpy = jest.spyOn(storage.io, 'updateDownloadProgress')
+    const downloadSpy = jest.spyOn(storage.io, 'updateMessageMedia')
 
     const uploadMetadata = uploadSpy.mock.calls[0][0]
 
     await storage.downloadFile(uploadMetadata)
 
+    expect(progressSpy).toHaveBeenCalled()
+    expect(progressSpy).toBeCalledWith(expect.objectContaining({
+      cid: expect.stringContaining('Qm'),
+      downloadState: DownloadState.Completed,
+      downloadProgress: {
+        size: uploadMetadata.size,
+        downloaded: uploadMetadata.size,
+        transferSpeed: 0
+      }
+    }))
     expect(downloadSpy).toHaveBeenCalled()
+  })
+
+  it('downloaded file matches uploaded file', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+
+    // Uploading
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
+    const downloadSpy = jest.spyOn(storage.io, 'updateMessageMedia')
+
+    const metadata: FileMetadata = {
+      path: path.join(__dirname, '/testUtils/test-image.png'),
+      name: 'test-image',
+      ext: '.png',
+      cid: 'uploading_id',
+      message: {
+        id: 'id',
+        channelAddress: 'channelAddress'
+      }
+    }
+
+    await storage.uploadFile(metadata)
+
+    const uploadMetadata = uploadSpy.mock.calls[0][0]
+
+    await storage.downloadFile(uploadMetadata)
+
+    const downloadMetadata = downloadSpy.mock.calls[0][0]
+
+    const uploadFileBuffer = fs.readFileSync(metadata.path)
+    const downloadFileBuffer = fs.readFileSync(downloadMetadata.path)
+
+    expect(uploadFileBuffer).toStrictEqual(downloadFileBuffer)
   })
 })

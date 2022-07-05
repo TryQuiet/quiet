@@ -2,7 +2,7 @@ import {
   setupCrypto
 } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, MessageType } from '../../..'
+import { getFactory, MessageType, publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -62,10 +62,10 @@ describe('downloadFileSaga', () => {
   test('download file of type image', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
+    const messageId = Math.random().toString(36).substr(2.9)
     const currentChannel = currentChannelAddress(store.getState())
     const peerId = alice.peerId.id
 
-    const messageId = '5'
     const media: FileMetadata = {
       cid: 'cid',
       path: null,
@@ -96,10 +96,108 @@ describe('downloadFileSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .provide([
-
-      ])
       .apply(socket, socket.emit, [
+        SocketActionTypes.DOWNLOAD_FILE,
+        {
+          peerId: peerId,
+          metadata: media
+        }
+      ])
+      .run()
+  })
+
+  test('download file of type other than image', async () => {
+    const socket = { emit: jest.fn() } as unknown as Socket
+
+    const messageId = Math.random().toString(36).substr(2.9)
+    const currentChannel = currentChannelAddress(store.getState())
+    const peerId = alice.peerId.id
+
+    const media: FileMetadata = {
+      cid: 'cid',
+      path: null,
+      name: 'file',
+      ext: 'ext',
+      message: {
+        id: messageId,
+        channelAddress: currentChannel
+      }
+    }
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      downloadFileSaga,
+      socket,
+      messagesActions.incomingMessages({
+        messages: [{
+          id: messageId,
+          type: MessageType.File,
+          message: 'message',
+          createdAt: 8,
+          channelAddress: currentChannel,
+          signature: 'signature',
+          pubKey: 'publicKey',
+          media: media
+        }]
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .apply(socket, socket.emit, [
+        SocketActionTypes.DOWNLOAD_FILE,
+        {
+          peerId: peerId,
+          metadata: media
+        }
+      ])
+      .run()
+  })
+
+  test('do not download already locally stored file', async () => {
+    const socket = { emit: jest.fn() } as unknown as Socket
+
+    const messageId = Math.random().toString(36).substr(2.9)
+    const currentChannel = currentChannelAddress(store.getState())
+    const peerId = alice.peerId.id
+
+    const media: FileMetadata = {
+      cid: 'cid',
+      path: 'path/to/file.ext',
+      name: 'file',
+      ext: 'ext',
+      message: {
+        id: messageId,
+        channelAddress: currentChannel
+      }
+    }
+
+    const message = (await factory.create<
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
+    >('Message', {
+      identity: alice,
+      message: {
+        id: messageId,
+        type: MessageType.File,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelAddress: currentChannel,
+        signature: '',
+        pubKey: '',
+        media: media
+      }
+    })).message
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      downloadFileSaga,
+      socket,
+      messagesActions.incomingMessages({
+        messages: [message]
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
           peerId: peerId,

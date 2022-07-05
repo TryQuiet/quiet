@@ -515,7 +515,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       onChange={handleFileInput}
                       // Value needs to be cleared otherwise one can't upload same image twice
                       onClick={(e) => { (e.target as HTMLInputElement).value = null }}
-                      accept='image/*'
+                      accept='*'
                       multiple
                       hidden
                     />

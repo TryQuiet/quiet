@@ -13,6 +13,7 @@ export enum StoreKeys {
   App = 'App',
   Connection = 'Connection',
   Settings = 'Settings',
+  Files = 'Files',
   // For testing purposes
   LastAction = 'LastAction',
   CollectData = 'CollectData'

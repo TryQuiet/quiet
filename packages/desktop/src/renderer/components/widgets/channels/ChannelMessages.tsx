@@ -9,7 +9,7 @@ import BasicMessageComponent from './BasicMessage'
 
 import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
-import { MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
+import { DownloadStatus, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
 import { UseModalTypeWrapper } from '../../../containers/hooks'
 
 const useStyles = makeStyles(theme => ({
@@ -54,6 +54,7 @@ export const fetchingChannelMessagesText = 'Fetching channel messages...'
 export interface IChannelMessagesProps {
   messages?: MessagesDailyGroups
   pendingMessages?: Dictionary<MessageSendingStatus>
+  downloadStatuses?: Dictionary<DownloadStatus>
   scrollbarRef
   onScroll: () => void
   uploadedFileModal?: ReturnType<
@@ -66,6 +67,7 @@ export interface IChannelMessagesProps {
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   messages = {},
   pendingMessages = {},
+  downloadStatuses = {},
   scrollbarRef,
   onScroll,
   uploadedFileModal
@@ -122,6 +124,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
                     key={data.id}
                     messages={items}
                     pendingMessages={pendingMessages}
+                    downloadStatuses={downloadStatuses}
                     uploadedFileModal={uploadedFileModal}
                   />
                 )

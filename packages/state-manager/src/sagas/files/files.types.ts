@@ -18,7 +18,7 @@ export interface FileMessage {
 }
 
 export interface UploadFilePayload {
-  file: FileContent
+  file: FileMetadata
   peerId: string
 }
 
@@ -27,8 +27,30 @@ export interface DownloadFilePayload {
   peerId: string
 }
 
-export interface DownloadProgressPayload {
+export interface DownloadStatus {
+  cid: string
+  downloadState: DownloadState
+  downloadProgress?: DownloadProgress
+}
+
+export interface RemoveDownloadStatus {
+  cid: string
+}
+
+export interface DownloadProgress {
+  size?: number
   downloaded: number
   transferSpeed: number
-  message: FileMessage
 }
+
+export enum DownloadState {
+  Uploading = 'uploading',
+  Hosted = 'hosted',
+  Ready = 'ready',
+  Queued = 'queued',
+  Downloading = 'downloading',
+  Completed = 'completed',
+  Canceled = 'canceled'
+}
+
+export const imagesExtensions = ['.gif', '.png', '.jpg', '.jpeg']

@@ -5,7 +5,8 @@ import {
   messages,
   publicChannels,
   connection,
-  communities
+  communities,
+  files
 } from '@quiet/state-manager'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -39,6 +40,8 @@ const Channel = () => {
     publicChannels.selectors.newestCurrentChannelMessage
   )
 
+  const downloadStatusesMapping = useSelector(files.selectors.downloadStatusesMapping)
+
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const initializedCommunities = useSelector(connection.selectors.initializedCommunities)
 
@@ -63,12 +66,15 @@ const Channel = () => {
 
   const onInputEnter = useCallback(
     (message: string) => {
+      // Send message out of input value
       if (message) {
         dispatch(messages.actions.sendMessage({ message }))
       }
+      // Upload files, then send corresponding message (contaning cid) for each of them
       Object.values(filesRef.current).forEach(fileData => {
-        dispatch(messages.actions.uploadFile(fileData))
+        dispatch(files.actions.uploadFile(fileData))
       })
+      // Reset file previews for input state
       setUploadingFiles({})
     },
     [dispatch]
@@ -162,6 +168,7 @@ const Channel = () => {
     },
     newestMessage: newestCurrentChannelMessage,
     pendingMessages: pendingMessages,
+    downloadStatuses: downloadStatusesMapping,
     lazyLoading: lazyLoading,
     onDelete: function (): void {},
     onInputChange: onInputChange,

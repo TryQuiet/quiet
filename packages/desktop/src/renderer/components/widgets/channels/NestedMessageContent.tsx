@@ -1,7 +1,7 @@
 import React from 'react'
 import theme from '../../../theme'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
-import { DisplayableMessage } from '@quiet/state-manager'
+import { DisplayableMessage, DownloadStatus } from '@quiet/state-manager'
 import classNames from 'classnames'
 import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
@@ -25,6 +25,7 @@ const useStyles = makeStyles(() => ({
 export interface NestedMessageContentProps {
   message: DisplayableMessage
   pending: boolean
+  downloadStatus?: DownloadStatus
   uploadedFileModal?: ReturnType<
   UseModalTypeWrapper<{
     src: string
@@ -35,6 +36,7 @@ export interface NestedMessageContentProps {
 export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({
   message,
   pending,
+  downloadStatus,
   uploadedFileModal
 }) => {
   const classes = useStyles({})
@@ -60,7 +62,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({
               [classes.pending]: pending
             })}
             data-testid={`messagesGroupContent-${message.id}`}>
-            <FileComponent message={message} />
+            <FileComponent message={message} downloadStatus={downloadStatus} />
           </div>
         )
       default:

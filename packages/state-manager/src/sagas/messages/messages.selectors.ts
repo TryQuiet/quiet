@@ -45,6 +45,16 @@ export const currentPublicChannelMessagesBase = createSelector(
   }
 )
 
+export const currentPublicChannelMessagesEntities = createSelector(
+  currentPublicChannelMessagesBase,
+  base => {
+    if (!base) return {}
+    return channelMessagesAdapter
+      .getSelectors()
+      .selectEntities(base.messages)
+  }
+)
+
 export const currentPublicChannelMessagesEntries = createSelector(
   currentPublicChannelMessagesBase,
   base => {
@@ -106,6 +116,7 @@ export const messagesSelectors = {
   publicKeysMapping,
   publicChannelsMessagesBase,
   currentPublicChannelMessagesBase,
+  currentPublicChannelMessagesEntities,
   currentPublicChannelMessagesEntries,
   validCurrentPublicChannelMessagesEntries,
   sortedCurrentPublicChannelMessagesEntries,

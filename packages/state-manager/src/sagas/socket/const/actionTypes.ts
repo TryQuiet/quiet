@@ -28,7 +28,6 @@ export enum SocketActionTypes {
   // D
   DIRECT_MESSAGE = 'directMessage',
   DOWNLOAD_FILE = 'downloadFile',
-  DOWNLOADED_FILE = 'downloadedFile',
   DOWNLOAD_PROGRESS = 'downloadProgress',
   // E
   ERROR = 'error',
@@ -51,6 +50,7 @@ export enum SocketActionTypes {
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
   REGISTRAR = 'registrar',
+  REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
   RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
   RESPONSE_GET_PRIVATE_CONVERSATIONS = 'responseGetPrivateConversations',
@@ -67,6 +67,7 @@ export enum SocketActionTypes {
   SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD = 'subscribeToDirectMessageThread',
   SUBSCRIBE_TO_TOPIC = 'subscribeToTopic',
   // U
-  UPLOAD_FILE= 'uploadFile',
+  UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
+  UPLOAD_FILE = 'uploadFile',
   UPLOADED_FILE = 'uploadedFile'
 }

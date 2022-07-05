@@ -25,10 +25,10 @@ import {
   ResponseCreateNetworkPayload,
   ErrorCodes,
   AskForMessagesPayload,
-  FileContent,
   FileMetadata,
   SetChannelSubscribedPayload,
-  DownloadProgressPayload
+  DownloadStatus,
+  RemoveDownloadStatus
 } from '@quiet/state-manager'
 import { emitError } from './errors'
 
@@ -85,24 +85,28 @@ export default class IOProxy {
     await this.getStorage(peerId).sendMessage(message)
   }
 
-  public uploadFile = async (peerId: string, file: FileContent) => {
-    await this.getStorage(peerId).uploadFile(file)
+  public uploadFile = async (peerId: string, metadata: FileMetadata) => {
+    await this.getStorage(peerId).uploadFile(metadata)
   }
 
-  public uploadedFile = (metadata: FileMetadata) => {
-    this.io.emit(SocketActionTypes.UPLOADED_FILE, metadata)
+  public uploadedFile = (payload: FileMetadata) => {
+    this.io.emit(SocketActionTypes.UPLOADED_FILE, payload)
   }
 
   public downloadFile = async (peerId: string, metadata: FileMetadata) => {
     await this.getStorage(peerId).downloadFile(metadata)
   }
 
-  public updateDownloadProgress = async (payload: DownloadProgressPayload) => {
+  public updateDownloadProgress = (payload: DownloadStatus) => {
     this.io.emit(SocketActionTypes.DOWNLOAD_PROGRESS, payload)
   }
 
-  public downloadedFile = (metadata: FileMetadata) => {
-    this.io.emit(SocketActionTypes.DOWNLOADED_FILE, metadata)
+  public removeDownloadStatus = (payload: RemoveDownloadStatus) => [
+    this.io.emit(SocketActionTypes.REMOVE_DOWNLOAD_STATUS, payload)
+  ]
+
+  public updateMessageMedia = (metadata: FileMetadata) => {
+    this.io.emit(SocketActionTypes.UPDATE_MESSAGE_MEDIA, metadata)
   }
 
   // DMs

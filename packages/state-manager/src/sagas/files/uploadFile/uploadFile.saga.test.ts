@@ -1,8 +1,9 @@
 import {
   setupCrypto
 } from '@quiet/identity'
+import { call } from 'redux-saga-test-plan/matchers'
 import { Store } from '../../store.types'
-import { getFactory } from '../../..'
+import { getFactory, MessageType } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -15,9 +16,12 @@ import { uploadFileSaga } from './uploadFile.saga'
 import { FactoryGirl } from 'factory-girl'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { FileContent } from '../../files/files.types'
-import { messagesActions } from '../../messages/messages.slice'
+import { currentChannelAddress } from '../../publicChannels/publicChannels.selectors'
+import { DownloadState, FileMetadata } from '../../files/files.types'
+import { filesActions } from '../files.slice'
+import { generateMessageId } from '../../messages/utils/message.utils'
 import { DateTime } from 'luxon'
+import { messagesActions } from '../../messages/messages.slice'
 
 describe('uploadFileSaga', () => {
   let store: Store
@@ -27,6 +31,8 @@ describe('uploadFileSaga', () => {
   let alice: Identity
 
   let sailingChannel: PublicChannel
+
+  let message: string
 
   beforeAll(async () => {
     setupCrypto()
@@ -56,29 +62,54 @@ describe('uploadFileSaga', () => {
         }
       }
     )).channel
+
+    message = Math.random().toString(36).substr(2.9)
   })
 
   test('uploading file', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
+
+    const currentChannel = currentChannelAddress(store.getState())
+
     const peerId = alice.peerId.id
-    const fileContent: FileContent = {
+
+    const media: FileMetadata = {
+      cid: `uploading_${message}`,
       path: 'temp/name.ext',
       name: 'name',
-      ext: 'ext'
+      ext: 'ext',
+      message: {
+        id: message,
+        channelAddress: currentChannel
+      }
     }
     const reducer = combineReducers(reducers)
     await expectSaga(
       uploadFileSaga,
       socket,
-      messagesActions.uploadFile(fileContent)
+      filesActions.uploadFile(media)
     )
       .withReducer(reducer)
       .withState(store.getState())
+      .provide([
+        [call.fn(generateMessageId), message]
+      ])
+      .put(messagesActions.sendMessage({
+        id: message,
+        message: '',
+        type: MessageType.File,
+        media: media
+      }))
+      .put(filesActions.updateDownloadStatus({
+        cid: `uploading_${message}`,
+        downloadState: DownloadState.Uploading,
+        downloadProgress: undefined
+      }))
       .apply(socket, socket.emit, [
         SocketActionTypes.UPLOAD_FILE,
         {
-          peerId,
-          file: fileContent
+          file: media,
+          peerId
         }
       ])
       .run()

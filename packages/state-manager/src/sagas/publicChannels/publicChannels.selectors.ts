@@ -91,7 +91,7 @@ export const currentChannelName = createSelector(
   }
 )
 
-const currentChannelMessages = createSelector(
+export const currentChannelMessages = createSelector(
   currentChannel,
   (channel) => {
     if (!channel) return []

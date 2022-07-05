@@ -1,5 +1,5 @@
 import waitForExpect from 'wait-for-expect'
-import { identity, communities, messages, connection, publicChannels, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership, TestStore, ChannelMessage, FileContent } from '@quiet/state-manager'
+import { identity, communities, messages, files, connection, publicChannels, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership, TestStore, ChannelMessage, FileContent } from '@quiet/state-manager'
 import { MAIN_CHANNEL } from '../testUtils/constants'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp } from '../utils'
@@ -281,7 +281,7 @@ export async function sendImage(
 
   log(JSON.stringify(payload), 'sendImage')
 
-  store.dispatch(messages.actions.uploadFile(file))
+  store.dispatch(files.actions.uploadFile(file))
 
   // Result of an action is sending a message containing cid of uploaded image
   await waitForExpect(() => {

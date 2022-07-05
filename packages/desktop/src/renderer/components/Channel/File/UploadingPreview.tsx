@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import CloseIcon from '@material-ui/icons/Close'
-import { FileContent } from '@quiet/state-manager'
+import { FileContent, imagesExtensions } from '@quiet/state-manager'
 import Tooltip from '../../ui/Tooltip/Tooltip'
 import Icon from '../../ui/Icon/Icon'
 import fileIcon from '../../../static/images/fileIcon.svg'
-import { imagesExtensions } from './File.consts'
 
 export interface FilePreviewData {
   [id: string]: FileContent

@@ -1,24 +1,24 @@
 import React, { useState } from 'react'
 import { CircularProgress, makeStyles, Typography } from '@material-ui/core'
-import { DisplayableMessage } from '@quiet/state-manager'
-import { FileDownloadState } from '../FileDownloadState.enum'
+import { DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/state-manager'
 import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
 import fileIcon from '../../../../static/images/fileIcon.svg'
+import clockIconGray from '../../../../static/images/clockIconGray.svg'
 import downloadIcon from '../../../../static/images/downloadIcon.svg'
 import downloadIconGray from '../../../../static/images/downloadIconGray.svg'
 import folderIcon from '../../../../static/images/folderIcon.svg'
 import folderIconGray from '../../../../static/images/folderIconGray.svg'
-import cancelIconGray from '../../../../static/images/cancelIconGray.svg'
 import checkGreen from '../../../../static/images/checkGreen.svg'
-import { DownloadProgress } from '../File.types'
 import Tooltip from '../../../ui/Tooltip/Tooltip'
+import { formatBytes } from '../../../../../utils/functions/formatBytes'
 
 const useStyles = makeStyles(theme => ({
   border: {
     maxWidth: '100%',
     marginTop: '8px',
     padding: '16px',
+    backgroundColor: theme.palette.colors.white,
     borderRadius: '8px',
     border: `1px solid ${theme.palette.colors.veryLightGray}`
   },
@@ -62,12 +62,11 @@ const ActionIndicator: React.FC<{
   }
   action?: () => void
 }> = ({ regular, hover, action }) => {
-  const [over, setOver] = useState<boolean>(false)
+  const [over, setOver] = useState<boolean>()
 
   const classes = useStyles({})
 
   const onMouseOver = () => {
-    if (!hover) return // Ignore if there's no hover state specified
     setOver(true)
   }
 
@@ -101,8 +100,7 @@ const ActionIndicator: React.FC<{
 
 export interface FileComponentProps {
   message: DisplayableMessage
-  state?: FileDownloadState
-  downloadProgress?: DownloadProgress
+  downloadStatus: DownloadStatus
   download?: () => void
   cancel?: () => void
   show?: () => void
@@ -110,92 +108,67 @@ export interface FileComponentProps {
 
 export const FileComponent: React.FC<FileComponentProps> = ({
   message,
-  state,
-  downloadProgress,
+  downloadStatus,
   download,
   cancel,
   show
 }) => {
   const classes = useStyles({})
 
-  const { cid, path, name, ext } = message.media
+  const { cid, name, ext } = message.media
 
-  return (
-    <div className={classes.border} data-testid={`${cid}-fileComponent`}>
-      <Tooltip title={downloadProgress ? `${downloadProgress.transferSpeed} ${downloadProgress.remainingTime} remaining` : ''} placement='top'>
-        <div style={{ display: 'flex', width: 'fit-content' }}>
-          <div className={classes.icon}>
-            {!downloadProgress ? (
-              <Icon src={fileIcon} className={classes.fileIcon} />
-            ) : (
-              <>
-                <CircularProgress
-                  variant='determinate'
-                  size={18}
-                  thickness={4}
-                  value={100}
-                  style={{ position: 'absolute', color: theme.palette.colors.gray }}
-                />
-                <CircularProgress
-                  variant='static'
-                  size={18}
-                  thickness={4}
-                  value={(downloadProgress.total / downloadProgress.downloaded) * 100}
-                  style={{ color: theme.palette.colors.lightGray }}
-                />
-              </>
-            )}
-          </div>
-          <div className={classes.filename}>
-            <Typography variant={'h5'} style={{ lineHeight: '20px' }}>
-              {name}
-              {ext}
-            </Typography>
-            <Typography
-              variant={'body2'}
-              style={{ lineHeight: '20px', color: theme.palette.colors.darkGray }}>
-              16 MB
-            </Typography>
-          </div>
-        </div>
-      </Tooltip>
-      <div
-        style={{ paddingTop: '16px', width: 'fit-content', display: state ? 'block' : 'none' }}>
-        {state === FileDownloadState.Ready && (
-          <ActionIndicator
-            regular={{
-              label: 'Download file',
-              color: theme.palette.colors.lushSky,
-              icon: downloadIcon
-            }}
-            action={download}
+  const downloadState = downloadStatus.downloadState
+  const downloadProgress = downloadStatus.downloadProgress
+
+  const renderIcon = () => {
+    switch (downloadState) {
+      case DownloadState.Uploading:
+        return (
+          <CircularProgress
+            variant='indeterminate'
+            size={18}
+            thickness={4}
+            style={{ position: 'absolute', color: theme.palette.colors.lightGray }}
           />
-        )}
-        {state === FileDownloadState.Downloading && (
+        )
+      case DownloadState.Downloading:
+        return (
+          <>
+            <CircularProgress
+              variant='determinate'
+              size={18}
+              thickness={4}
+              value={100}
+              style={{ position: 'absolute', color: theme.palette.colors.gray }}
+            />
+            <CircularProgress
+              variant='static'
+              size={18}
+              thickness={4}
+              value={(downloadProgress.downloaded / downloadProgress.size) * 100}
+              style={{ color: theme.palette.colors.lightGray }}
+            />
+          </>
+        )
+      default:
+        return <Icon src={fileIcon} className={classes.fileIcon} />
+    }
+  }
+
+  const renderActionIndicator = () => {
+    switch (downloadState) {
+      case DownloadState.Uploading:
+        return (
           <ActionIndicator
             regular={{
-              label: 'Downloading...',
+              label: 'Uploading...',
               color: theme.palette.colors.darkGray,
               icon: downloadIconGray
             }}
-            hover={{
-              label: 'Cancel download',
-              color: theme.palette.colors.darkGray,
-              icon: cancelIconGray
-            }}
-            action={cancel}
           />
-        )}
-        {state === FileDownloadState.Canceled && (
-          <ActionIndicator
-            regular={{
-              label: 'Canceled',
-              color: theme.palette.colors.greenDark,
-              icon: checkGreen
-            }}
-          />
-        )}
-        {state === FileDownloadState.Downloaded && (
+        )
+      case DownloadState.Hosted:
+        return (
           <ActionIndicator
             regular={{
               label: 'Show in folder',
@@ -209,7 +182,114 @@ export const FileComponent: React.FC<FileComponentProps> = ({
             }}
             action={show}
           />
-        )}
+        )
+      case DownloadState.Ready:
+        return (
+          <ActionIndicator
+            regular={{
+              label: 'Download file',
+              color: theme.palette.colors.lushSky,
+              icon: downloadIcon
+            }}
+            action={download}
+          />
+        )
+      case DownloadState.Queued:
+        return (
+          <ActionIndicator
+            regular={{
+              label: 'Queued for download',
+              color: theme.palette.colors.darkGray,
+              icon: clockIconGray
+            }}
+            // hover={{
+            //   label: 'Cancel download',
+            //   color: theme.palette.colors.lushSky,
+            //   icon: cancelIcon
+            // }}
+            // action={cancel}
+          />
+        )
+      case DownloadState.Downloading:
+        return (
+          <ActionIndicator
+            regular={{
+              label: 'Downloading...',
+              color: theme.palette.colors.darkGray,
+              icon: downloadIconGray
+            }}
+            // hover={{
+            //   label: 'Cancel download',
+            //   color: theme.palette.colors.lushSky,
+            //   icon: cancelIcon
+            // }}
+            // action={cancel}
+          />
+        )
+      case DownloadState.Canceled:
+        return (
+          <ActionIndicator
+            regular={{
+              label: 'Canceled',
+              color: theme.palette.colors.greenDark,
+              icon: checkGreen
+            }}
+          />
+        )
+      case DownloadState.Completed:
+        return (
+          <ActionIndicator
+            regular={{
+              label: 'Show in folder',
+              color: theme.palette.colors.darkGray,
+              icon: folderIconGray
+            }}
+            hover={{
+              label: 'Show in folder',
+              color: theme.palette.colors.lushSky,
+              icon: folderIcon
+            }}
+            action={show}
+          />
+        )
+      default:
+        return <></>
+    }
+  }
+
+  return (
+    <div className={classes.border} data-testid={`${cid}-fileComponent`}>
+      <Tooltip
+        title={
+          downloadState === DownloadState.Downloading &&
+          downloadProgress &&
+          downloadProgress?.transferSpeed !== -1
+            ? `${formatBytes(downloadProgress.transferSpeed)}ps`
+            : ''
+        }
+        placement='top'>
+        <div style={{ display: 'flex', width: 'fit-content' }}>
+          <div className={classes.icon}>{renderIcon()}</div>
+          <div className={classes.filename}>
+            <Typography variant={'h5'} style={{ lineHeight: '20px' }}>
+              {name}
+              {ext}
+            </Typography>
+            <Typography
+              variant={'body2'}
+              style={{ lineHeight: '20px', color: theme.palette.colors.darkGray }}>
+              {message.media?.size ? formatBytes(message.media?.size) : 'Calculating...'}
+            </Typography>
+          </div>
+        </div>
+      </Tooltip>
+      <div
+        style={{
+          paddingTop: '16px',
+          width: 'fit-content',
+          display: downloadState ? 'block' : 'none'
+        }}>
+        {renderActionIndicator()}
       </div>
     </div>
   )

@@ -1,22 +1,23 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory } from '../../..'
+import { getFactory, MessageType, publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
+import { FactoryGirl } from 'factory-girl'
 import { communitiesActions, Community } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
-import { uploadedFileSaga } from './uploadedFile.saga'
-import { FactoryGirl } from 'factory-girl'
-import { PublicChannel } from '../../publicChannels/publicChannels.types'
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { FileMetadata } from '../../files/files.types'
+import { filesActions } from '../files.slice'
+import { FileMetadata } from '../files.types'
 import { messagesActions } from '../../messages/messages.slice'
+import { updateMessageMediaSaga } from './updateMessageMedia'
+import { currentChannelAddress } from '../../publicChannels/publicChannels.selectors'
+import { ChannelMessage, PublicChannel } from '../../publicChannels/publicChannels.types'
+import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
-import { MessageType } from '../../messages/messages.types'
 
-describe('uploadedFileSaga', () => {
+describe('downloadedFileSaga', () => {
   let store: Store
   let factory: FactoryGirl
 
@@ -24,6 +25,10 @@ describe('uploadedFileSaga', () => {
   let alice: Identity
 
   let sailingChannel: PublicChannel
+
+  let message: ChannelMessage
+
+  let metadata: FileMetadata
 
   beforeAll(async () => {
     setupCrypto()
@@ -55,24 +60,53 @@ describe('uploadedFileSaga', () => {
         }
       )
     ).channel
+
+    const currentChannel = currentChannelAddress(store.getState())
+
+    metadata = {
+      cid: 'cid',
+      path: 'dir/image.png',
+      name: 'image',
+      ext: 'png',
+      message: {
+        id: '1',
+        channelAddress: currentChannel
+      }
+    }
+
+    message = (
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+        'Message',
+        {
+          identity: alice,
+          message: {
+            id: '1',
+            type: MessageType.Basic,
+            message: '',
+            createdAt: DateTime.utc().valueOf(),
+            channelAddress: currentChannel,
+            signature: '',
+            pubKey: '',
+            media: metadata
+          }
+        }
+      )
+    ).message
   })
 
-  test('uploaded file', async () => {
-    const metadata: FileMetadata = {
-      path: 'temp/name.ext',
-      name: 'name',
-      ext: 'ext',
-      cid: 'cid'
-    }
+  test('update message media', async () => {
     const reducer = combineReducers(reducers)
-    await expectSaga(uploadedFileSaga, messagesActions.uploadedFile(metadata))
+    await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(metadata))
       .withReducer(reducer)
       .withState(store.getState())
       .put(
-        messagesActions.sendMessage({
-          message: '',
-          type: MessageType.Image,
-          media: metadata
+        messagesActions.incomingMessages({
+          messages: [
+            {
+              ...message,
+              media: metadata
+            }
+          ]
         })
       )
       .run()
