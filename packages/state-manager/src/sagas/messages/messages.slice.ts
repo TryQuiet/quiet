@@ -68,7 +68,7 @@ export const messagesSlice = createSlice({
 
         const origin = state.publicChannelsMessagesBase
           .entities[message.channelAddress]
-          .messages
+          ?.messages
           .entities[message.id]
 
         if (message.media && origin?.media.path) {
