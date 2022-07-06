@@ -14,6 +14,7 @@
     <a href="#how-it-works"><strong>How it Works</strong></a> |   
     <a href="#features"><strong>Features</strong></a> | 
     <a href="https://github.com/TryQuiet/monorepo/wiki/Threat-Model"><strong>Threat Model</strong></a> | 
+    <a href="#our-mission"><strong>Mission</strong></a> | 
     <a href="https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ"><strong>FAQ</strong></a>
     <br />
     <br />
