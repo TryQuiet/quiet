@@ -1,6 +1,6 @@
 import { createSlice, Dictionary, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
-import { ChannelMessage, IncomingMessages } from '../publicChannels/publicChannels.types'
+import { ChannelMessage, IncomingMessages, instanceOfChannelMessage } from '../publicChannels/publicChannels.types'
 import { StoreKeys } from '../store.keys'
 import {
   messageVerificationStatusAdapter,
@@ -64,7 +64,7 @@ export const messagesSlice = createSlice({
     incomingMessages: (state, action: PayloadAction<IncomingMessages>) => {
       const { messages } = action.payload
       for (const message of messages) {
-        if (message === undefined) return // Recorded an unexpected situation with 'undefined' value being present in action payload
+        if (!instanceOfChannelMessage(message)) return
 
         let incoming = message
 

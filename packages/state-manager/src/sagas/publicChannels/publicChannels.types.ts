@@ -102,3 +102,7 @@ export interface CacheMessagesPayload {
 export interface MarkUnreadChannelPayload {
   channelAddress: string
 }
+
+export function instanceOfChannelMessage(object: any): object is ChannelMessage {
+  return 'channelAddress' in object;
+}
