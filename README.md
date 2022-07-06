@@ -30,11 +30,10 @@ Quiet is an alternative to team chat apps like Slack, Discord, and Element that 
 Quiet is for fans of software freedom, decentralization and privacy tech, and for anyone craving a future where humanity can collaborate effectively online without trusting our communities, networks, and data to giant corporations.
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/213678/169164985-c1ced511-c49d-4500-b301-24bb8113ffb2.png" alt="Screenshot">
+  <img src="https://user-images.githubusercontent.com/213678/177447638-29d6805c-5458-4f5e-b4ed-7a5d6cb51f6e.png" alt="Screenshot">
   <br />
   <br />
 </p>
-
 
 ## How it works 
 
