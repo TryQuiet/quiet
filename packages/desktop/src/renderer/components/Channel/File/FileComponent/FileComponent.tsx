@@ -67,6 +67,7 @@ const ActionIndicator: React.FC<{
   const classes = useStyles({})
 
   const onMouseOver = () => {
+    if (!hover) return
     setOver(true)
   }
 
