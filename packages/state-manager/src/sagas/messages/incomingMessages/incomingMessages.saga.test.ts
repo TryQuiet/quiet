@@ -126,11 +126,13 @@ describe('incomingMessagesSaga', () => {
   })
 
   test("update message after downloading it's media", async () => {
+    const id = Math.random().toString(36).substr(2.9)
+
     let message = (
       await factory.build<typeof publicChannelsActions.test_message>('Message', {
         identity: alice,
         message: {
-          id: Math.random().toString(36).substr(2.9),
+          id: id,
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
@@ -146,7 +148,11 @@ describe('incomingMessagesSaga', () => {
       cid: 'cid',
       path: null,
       name: 'image',
-      ext: 'png'
+      ext: 'png',
+      message: {
+        id: id,
+        channelAddress: generalChannel.address
+      }
     }
 
     message = {
@@ -190,6 +196,82 @@ describe('incomingMessagesSaga', () => {
       .put(
         publicChannelsActions.cacheMessages({
           messages: [message],
+          channelAddress: message.channelAddress
+        })
+      )
+      .run()
+  })
+
+  test("update message after uploading it's media", async () => {
+    const id = Math.random().toString(36).substr(2.9)
+
+    const message = (
+      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
+        identity: alice,
+        message: {
+          id: id,
+          type: MessageType.Basic,
+          message: 'message',
+          createdAt: DateTime.utc().valueOf(),
+          channelAddress: generalChannel.address,
+          media: {
+            cid: 'uploading',
+            path: 'path/to/image.png',
+            name: 'image',
+            ext: 'png',
+            message: {
+              id: id,
+              channelAddress: generalChannel.address
+            }
+          },
+          signature: '',
+          pubKey: ''
+        },
+        verifyAutomatically: true
+      })
+    ).message
+
+    // Set 'general' as active channel
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelAddress: generalChannel.address
+      })
+    )
+
+    // Store message in cache (by default)
+    store.dispatch(
+      publicChannelsActions.cacheMessages({
+        messages: [message],
+        channelAddress: generalChannel.address
+      })
+    )
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      incomingMessagesSaga,
+      messagesActions.incomingMessages({
+        messages: [{
+          ...message,
+          media: {
+            ...message.media,
+            cid: 'cid',
+            path: null
+          }
+        }]
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(
+        publicChannelsActions.cacheMessages({
+          messages: [{
+            ...message,
+            media: {
+              ...message.media,
+              cid: 'cid',
+              path: 'path/to/image.png'
+            }
+          }],
           channelAddress: message.channelAddress
         })
       )

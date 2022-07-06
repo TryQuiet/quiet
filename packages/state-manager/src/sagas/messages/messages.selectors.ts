@@ -45,13 +45,18 @@ export const currentPublicChannelMessagesBase = createSelector(
   }
 )
 
+export const publicChannelMessagesEntities = (address: string) =>
+  createSelector(publicChannelsMessagesBase, base => {
+    if (!base) return {}
+    const channelMessagesBase = base[address]
+    return channelMessagesAdapter.getSelectors().selectEntities(channelMessagesBase.messages)
+  })
+
 export const currentPublicChannelMessagesEntities = createSelector(
   currentPublicChannelMessagesBase,
   base => {
     if (!base) return {}
-    return channelMessagesAdapter
-      .getSelectors()
-      .selectEntities(base.messages)
+    return channelMessagesAdapter.getSelectors().selectEntities(base.messages)
   }
 )
 
@@ -115,6 +120,7 @@ export const missingChannelFiles = (channelAddress: string) =>
 export const messagesSelectors = {
   publicKeysMapping,
   publicChannelsMessagesBase,
+  publicChannelMessagesEntities,
   currentPublicChannelMessagesBase,
   currentPublicChannelMessagesEntities,
   currentPublicChannelMessagesEntries,

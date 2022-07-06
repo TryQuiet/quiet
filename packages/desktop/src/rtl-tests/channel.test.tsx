@@ -24,7 +24,11 @@ import {
   connection,
   FileMetadata,
   DownloadFilePayload,
-  InitCommunityPayload
+  InitCommunityPayload,
+  UploadFilePayload,
+  FileContent,
+  files,
+  SendMessagePayload
 } from '@quiet/state-manager'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -599,6 +603,105 @@ describe('Channel', () => {
 
     // sendMessage action does not trigger
     expect(actions).toMatchInlineSnapshot('Array []')
+  })
+
+  it('immediately shows uploaded image', async () => {
+    const initialState = (await prepareStore()).store
+
+    const factory = await getFactory(initialState)
+
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    jest
+      .spyOn(socket, 'emit')
+      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+        if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+          const data = input as socketEventData<[InitCommunityPayload]>
+          const payload = data[0]
+          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+            id: payload.id
+          })
+        }
+        if (action === SocketActionTypes.UPLOAD_FILE) {
+          const data = input as socketEventData<[UploadFilePayload]>
+          const payload = data[0]
+          setTimeout(() => {
+            return socket.socketClient.emit(SocketActionTypes.UPLOADED_FILE, {
+              ...payload.file,
+              cid: cid,
+              path: null
+            })
+          }, 100)
+        }
+      })
+
+    const { store, runSaga } = await prepareStore(
+      initialState.getState(),
+      socket // Fork state manager's sagas
+    )
+
+    const fileContent: FileContent = {
+      path: 'path/to/image.png',
+      name: 'image',
+      ext: '.png'
+    }
+
+    const cid = 'cid'
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    store.dispatch(files.actions.uploadFile(fileContent))
+
+    await act(async () => {})
+
+    // Confirm image's placeholder never displays
+    expect(screen.queryByTestId(`${cid}-imagePlaceholder`)).toBeNull()
+
+    // Confirm image is visible (in uploading state)
+    expect(await screen.findByText(`${fileContent.name}${fileContent.ext}`)).toBeVisible()
+
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
+        "Files/uploadFile",
+        "Messages/sendMessage",
+        "Files/updateDownloadStatus",
+        "Messages/addMessagesSendingStatus",
+        "Messages/addMessageVerificationStatus",
+        "Messages/incomingMessages",
+        "PublicChannels/cacheMessages",
+        "Messages/addPublicKeyMapping",
+        "Messages/addMessageVerificationStatus",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "PublicChannels/cacheMessages",
+        "Messages/setDisplayedMessagesNumber",
+      ]
+    `)
   })
 
   it('downloads and displays missing images after app restart', async () => {
