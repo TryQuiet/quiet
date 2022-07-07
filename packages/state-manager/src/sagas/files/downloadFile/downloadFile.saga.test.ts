@@ -14,7 +14,6 @@ import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { messagesActions } from '../../messages/messages.slice'
 import { FactoryGirl } from 'factory-girl'
 import { downloadFileSaga } from './downloadFile.saga'
-import { currentChannelAddress } from '../../publicChannels/publicChannels.selectors'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
@@ -62,9 +61,11 @@ describe('downloadFileSaga', () => {
   test('download file of type image', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
-    const messageId = Math.random().toString(36).substr(2.9)
-    const currentChannel = currentChannelAddress(store.getState())
-    const peerId = alice.peerId.id
+    const id = Math.random().toString(36).substr(2.9)
+
+    store.dispatch(publicChannelsActions.setCurrentChannel({
+      channelAddress: 'general'
+    }))
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -72,8 +73,8 @@ describe('downloadFileSaga', () => {
       name: 'image',
       ext: 'png',
       message: {
-        id: messageId,
-        channelAddress: currentChannel
+        id: id,
+        channelAddress: 'general'
       }
     }
 
@@ -83,11 +84,11 @@ describe('downloadFileSaga', () => {
       socket,
       messagesActions.incomingMessages({
         messages: [{
-          id: messageId,
+          id: id,
           type: MessageType.Image,
           message: 'message',
           createdAt: 8,
-          channelAddress: currentChannel,
+          channelAddress: 'general',
           signature: 'signature',
           pubKey: 'publicKey',
           media: media
@@ -99,7 +100,7 @@ describe('downloadFileSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
-          peerId: peerId,
+          peerId: alice.peerId.id,
           metadata: media
         }
       ])
@@ -109,9 +110,11 @@ describe('downloadFileSaga', () => {
   test('download file of type other than image', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
-    const messageId = Math.random().toString(36).substr(2.9)
-    const currentChannel = currentChannelAddress(store.getState())
-    const peerId = alice.peerId.id
+    const id = Math.random().toString(36).substr(2.9)
+
+    store.dispatch(publicChannelsActions.setCurrentChannel({
+      channelAddress: 'general'
+    }))
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -119,8 +122,8 @@ describe('downloadFileSaga', () => {
       name: 'file',
       ext: 'ext',
       message: {
-        id: messageId,
-        channelAddress: currentChannel
+        id: id,
+        channelAddress: 'general'
       }
     }
 
@@ -130,11 +133,11 @@ describe('downloadFileSaga', () => {
       socket,
       messagesActions.incomingMessages({
         messages: [{
-          id: messageId,
+          id: id,
           type: MessageType.File,
           message: 'message',
           createdAt: 8,
-          channelAddress: currentChannel,
+          channelAddress: 'general',
           signature: 'signature',
           pubKey: 'publicKey',
           media: media
@@ -146,7 +149,7 @@ describe('downloadFileSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
-          peerId: peerId,
+          peerId: alice.peerId.id,
           metadata: media
         }
       ])
@@ -156,9 +159,11 @@ describe('downloadFileSaga', () => {
   test('do not download already locally stored file', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
-    const messageId = Math.random().toString(36).substr(2.9)
-    const currentChannel = currentChannelAddress(store.getState())
-    const peerId = alice.peerId.id
+    const id = Math.random().toString(36).substr(2.9)
+
+    store.dispatch(publicChannelsActions.setCurrentChannel({
+      channelAddress: 'general'
+    }))
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -166,8 +171,8 @@ describe('downloadFileSaga', () => {
       name: 'file',
       ext: 'ext',
       message: {
-        id: messageId,
-        channelAddress: currentChannel
+        id: id,
+        channelAddress: 'general'
       }
     }
 
@@ -176,11 +181,11 @@ describe('downloadFileSaga', () => {
     >('Message', {
       identity: alice,
       message: {
-        id: messageId,
+        id: id,
         type: MessageType.File,
         message: '',
         createdAt: DateTime.utc().valueOf(),
-        channelAddress: currentChannel,
+        channelAddress: 'general',
         signature: '',
         pubKey: '',
         media: media
@@ -200,7 +205,63 @@ describe('downloadFileSaga', () => {
       .not.apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
-          peerId: peerId,
+          peerId: alice.peerId.id,
+          metadata: media
+        }
+      ])
+      .run()
+  })
+
+  test('do not download already locally stored file (from non-active channel)', async () => {
+    const socket = { emit: jest.fn() } as unknown as Socket
+
+    const id = Math.random().toString(36).substr(2.9)
+
+    store.dispatch(publicChannelsActions.setCurrentChannel({
+      channelAddress: sailingChannel.address
+    }))
+
+    const media: FileMetadata = {
+      cid: 'cid',
+      path: 'path/to/file.ext',
+      name: 'file',
+      ext: 'ext',
+      message: {
+        id: id,
+        channelAddress: 'general'
+      }
+    }
+
+    const message = (await factory.create<
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
+    >('Message', {
+      identity: alice,
+      message: {
+        id: id,
+        type: MessageType.File,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelAddress: 'general',
+        signature: '',
+        pubKey: '',
+        media: media
+      }
+    })).message
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      downloadFileSaga,
+      socket,
+      messagesActions.incomingMessages({
+        messages: [message]
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.apply(socket, socket.emit, [
+        SocketActionTypes.DOWNLOAD_FILE,
+        {
+          peerId: alice.peerId.id,
           metadata: media
         }
       ])

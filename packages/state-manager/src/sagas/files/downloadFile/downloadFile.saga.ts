@@ -13,13 +13,13 @@ export function* downloadFileSaga(
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
 
-  const channelMessages = yield* select(messagesSelectors.currentPublicChannelMessagesEntities)
-
   const { messages } = action.payload
 
   for (const message of messages) {
     // Proceed for images and files only
     if (message.type === MessageType.Image || message.type === MessageType.File) {
+      const channelMessages = yield* select(messagesSelectors.publicChannelMessagesEntities(message.channelAddress))
+
       const isAlreadyLocallyStored = !!channelMessages[message.id]?.media?.path
 
       // Do not download if already present in local file system
