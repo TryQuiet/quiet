@@ -11,7 +11,7 @@ import { markUnreadChannelsSaga } from '../publicChannels/markUnreadChannels/mar
 import { lazyLoadingSaga } from './lazyLoading/lazyLoading.saga'
 import { resetCurrentPublicChannelCacheSaga } from './manageCache/resetChannelCache.saga'
 import { extendCurrentPublicChannelCacheSaga } from './manageCache/extendChannelCache.saga'
-import { autoDownloadFilesSaga } from '../files/downloadFile/autoDownloadFiles.saga'
+import { autoDownloadFilesSaga } from '../files/autoDownloadFiles/autoDownloadFiles.saga'
 
 export function* messagesMasterSaga(socket: Socket): Generator {
   yield all([
