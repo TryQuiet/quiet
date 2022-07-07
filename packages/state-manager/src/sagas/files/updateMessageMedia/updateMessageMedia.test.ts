@@ -9,11 +9,9 @@ import { communitiesActions, Community } from '../../communities/communities.sli
 import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
 import { filesActions } from '../files.slice'
-import { FileMetadata } from '../files.types'
 import { messagesActions } from '../../messages/messages.slice'
 import { updateMessageMediaSaga } from './updateMessageMedia'
-import { currentChannelAddress } from '../../publicChannels/publicChannels.selectors'
-import { ChannelMessage, PublicChannel } from '../../publicChannels/publicChannels.types'
+import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
 
@@ -25,10 +23,6 @@ describe('downloadedFileSaga', () => {
   let alice: Identity
 
   let sailingChannel: PublicChannel
-
-  let message: ChannelMessage
-
-  let metadata: FileMetadata
 
   beforeAll(async () => {
     setupCrypto()
@@ -60,31 +54,39 @@ describe('downloadedFileSaga', () => {
         }
       )
     ).channel
+  })
 
-    const currentChannel = currentChannelAddress(store.getState())
+  test('update message media', async () => {
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelAddress: 'general'
+      })
+    )
 
-    metadata = {
+    const id = Math.random().toString(36).substr(2.9)
+
+    const metadata = {
       cid: 'cid',
       path: 'dir/image.png',
       name: 'image',
       ext: 'png',
       message: {
-        id: '1',
-        channelAddress: currentChannel
+        id: id,
+        channelAddress: 'general'
       }
     }
 
-    message = (
+    const message = (
       await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
         'Message',
         {
           identity: alice,
           message: {
-            id: '1',
+            id: id,
             type: MessageType.Basic,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: currentChannel,
+            channelAddress: 'general',
             signature: '',
             pubKey: '',
             media: metadata
@@ -92,9 +94,63 @@ describe('downloadedFileSaga', () => {
         }
       )
     ).message
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(metadata))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(
+        messagesActions.incomingMessages({
+          messages: [
+            {
+              ...message,
+              media: metadata
+            }
+          ]
+        })
+      )
+      .run()
   })
 
-  test('update message media', async () => {
+  test('update message media for non-active channel', async () => {
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelAddress: sailingChannel.address
+      })
+    )
+
+    const id = Math.random().toString(36).substr(2.9)
+
+    const metadata = {
+      cid: 'cid',
+      path: 'dir/image.png',
+      name: 'image',
+      ext: 'png',
+      message: {
+        id: id,
+        channelAddress: 'general'
+      }
+    }
+
+    const message = (
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+        'Message',
+        {
+          identity: alice,
+          message: {
+            id: id,
+            type: MessageType.Basic,
+            message: '',
+            createdAt: DateTime.utc().valueOf(),
+            channelAddress: 'general',
+            signature: '',
+            pubKey: '',
+            media: metadata
+          }
+        }
+      )
+    ).message
+
     const reducer = combineReducers(reducers)
     await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(metadata))
       .withReducer(reducer)

@@ -16,7 +16,7 @@ import { downloadFileSaga } from '../files/downloadFile/downloadFile.saga'
 export function* messagesMasterSaga(socket: Socket): Generator {
   yield all([
     takeEvery(messagesActions.sendMessage.type, sendMessageSaga, socket),
-    takeEvery(messagesActions.incomingMessages.type, downloadFileSaga, socket), // PREVENT AUTO-DOWNLOADING OWN FILES
+    takeEvery(messagesActions.incomingMessages.type, downloadFileSaga, socket),
     takeEvery(messagesActions.incomingMessages.type, incomingMessagesSaga),
     takeEvery(messagesActions.incomingMessages.type, verifyMessagesSaga),
     takeEvery(messagesActions.incomingMessages.type, markUnreadChannelsSaga),

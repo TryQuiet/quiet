@@ -104,5 +104,5 @@ export interface MarkUnreadChannelPayload {
 }
 
 export function instanceOfChannelMessage(object: any): object is ChannelMessage {
-  return 'channelAddress' in object;
+  return 'channelAddress' in object
 }

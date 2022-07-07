@@ -68,17 +68,17 @@ export const messagesSlice = createSlice({
 
         let incoming = message
 
-        const origin = state.publicChannelsMessagesBase
+        const draft = state.publicChannelsMessagesBase
           .entities[message.channelAddress]
           ?.messages
           .entities[message.id]
 
-        if (message.media && origin?.media.path) {
+        if (message.media && draft?.media.path) {
           incoming = {
             ...message,
             media: {
               ...message.media,
-              path: origin.media.path
+              path: draft.media.path
             }
           }
         }

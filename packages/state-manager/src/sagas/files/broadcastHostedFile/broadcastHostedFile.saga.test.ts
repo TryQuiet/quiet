@@ -12,7 +12,6 @@ import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { filesActions } from '../files.slice'
 import { FactoryGirl } from 'factory-girl'
 import { broadcastHostedFileSaga } from './broadcastHostedFile.saga'
-import { currentChannelAddress } from '../../publicChannels/publicChannels.selectors'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
@@ -59,12 +58,14 @@ describe('downloadFileSaga', () => {
     ).channel
   })
 
-  test('download file of type image', async () => {
+  test('broadcast message for hosted file', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
-    const messageId = Math.random().toString(36).substr(2.9)
-    const currentChannel = currentChannelAddress(store.getState())
-    const peerId = alice.peerId.id
+    store.dispatch(publicChannelsActions.setCurrentChannel({
+      channelAddress: 'general'
+    }))
+
+    const id = Math.random().toString(36).substr(2.9)
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -72,8 +73,8 @@ describe('downloadFileSaga', () => {
       name: 'file',
       ext: 'ext',
       message: {
-        id: messageId,
-        channelAddress: currentChannel
+        id: id,
+        channelAddress: 'general'
       }
     }
 
@@ -83,11 +84,11 @@ describe('downloadFileSaga', () => {
         {
           identity: alice,
           message: {
-            id: messageId,
+            id: id,
             type: MessageType.File,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: currentChannel,
+            channelAddress: 'general',
             signature: '',
             pubKey: '',
             media: media
@@ -103,7 +104,66 @@ describe('downloadFileSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.SEND_MESSAGE,
         {
-          peerId: peerId,
+          peerId: alice.peerId.id,
+          message: {
+            ...message,
+            media: {
+              ...media,
+              path: null
+            }
+          }
+        }
+      ])
+      .run()
+  })
+
+  test('broadcast message for hosted file (while on non-active channel)', async () => {
+    const socket = { emit: jest.fn() } as unknown as Socket
+
+    store.dispatch(publicChannelsActions.setCurrentChannel({
+      channelAddress: sailingChannel.address
+    }))
+
+    const id = Math.random().toString(36).substr(2.9)
+
+    const media: FileMetadata = {
+      cid: 'cid',
+      path: 'path/to/file.ext',
+      name: 'file',
+      ext: 'ext',
+      message: {
+        id: id,
+        channelAddress: 'general'
+      }
+    }
+
+    const message = (
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+        'Message',
+        {
+          identity: alice,
+          message: {
+            id: id,
+            type: MessageType.File,
+            message: '',
+            createdAt: DateTime.utc().valueOf(),
+            channelAddress: 'general',
+            signature: '',
+            pubKey: '',
+            media: media
+          }
+        }
+      )
+    ).message
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(broadcastHostedFileSaga, socket, filesActions.broadcastHostedFile(media))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .apply(socket, socket.emit, [
+        SocketActionTypes.SEND_MESSAGE,
+        {
+          peerId: alice.peerId.id,
           message: {
             ...message,
             media: {
