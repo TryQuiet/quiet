@@ -68,14 +68,13 @@ describe('downloadFileSaga', () => {
       .withState(store.getState())
       .put(filesActions.updateDownloadStatus({
         cid: 'cid',
-        downloadState: DownloadState.Queued,
-        downloadProgress: undefined
+        downloadState: DownloadState.Queued
       }))
       .apply(socket, socket.emit, [
-        SocketActionTypes.UPLOAD_FILE,
+        SocketActionTypes.DOWNLOAD_FILE,
         {
           peerId: alice.peerId.id,
-          file: media
+          metadata: media
         }
       ])
       .run()
