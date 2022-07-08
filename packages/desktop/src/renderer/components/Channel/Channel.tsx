@@ -9,7 +9,8 @@ import {
   publicChannels,
   connection,
   communities,
-  files
+  files,
+  CancelDownload
 } from '@quiet/state-manager'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -161,6 +162,10 @@ const Channel = () => {
     shell.showItemInFolder(path)
   }, [])
 
+  const cancelDownload = useCallback((cancelDownload: CancelDownload) => {
+    dispatch(files.actions.cancelDownload(cancelDownload))
+  }, [dispatch])
+
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelAddress])
@@ -198,7 +203,8 @@ const Channel = () => {
   }
 
   const fileActionsProps: FileActionsProps = {
-    openContainingFolder: openContainingFolder
+    openContainingFolder: openContainingFolder,
+    cancelDownload: cancelDownload
   }
 
   return (

@@ -10,7 +10,8 @@ import {
   SubscribeToTopicPayload,
   AskForMessagesPayload,
   UploadFilePayload,
-  DownloadFilePayload
+  DownloadFilePayload,
+  CancelDownloadPayload
 } from '@quiet/state-manager'
 
 import IOProxy from '../IOProxy'
@@ -50,6 +51,12 @@ export const connections = (io, ioProxy: IOProxy) => {
       SocketActionTypes.DOWNLOAD_FILE,
       async (payload: DownloadFilePayload) => {
         await ioProxy.downloadFile(payload.peerId, payload.metadata)
+      }
+    )
+    socket.on(
+      SocketActionTypes.CANCEL_DOWNLOAD,
+      async (payload: CancelDownloadPayload) => {
+        await ioProxy.cancelDownload(payload.peerId, payload.cid)
       }
     )
     socket.on(

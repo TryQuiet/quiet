@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { CircularProgress, makeStyles, Typography } from '@material-ui/core'
-import { DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/state-manager'
+import { CancelDownload, DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/state-manager'
 import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
 import fileIcon from '../../../../static/images/fileIcon.svg'
@@ -9,6 +9,7 @@ import downloadIcon from '../../../../static/images/downloadIcon.svg'
 import downloadIconGray from '../../../../static/images/downloadIconGray.svg'
 import folderIcon from '../../../../static/images/folderIcon.svg'
 import folderIconGray from '../../../../static/images/folderIconGray.svg'
+import cancelIcon from '../../../../static/images/cancelIcon.svg'
 import checkGreen from '../../../../static/images/checkGreen.svg'
 import Tooltip from '../../../ui/Tooltip/Tooltip'
 import { formatBytes } from '../../../../../utils/functions/formatBytes'
@@ -106,12 +107,14 @@ export interface FileComponentProps {
 
 export interface FileActionsProps {
   openContainingFolder?: (path: string) => void
+  cancelDownload?: (cancelDownload: CancelDownload) => void
 }
 
 export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   message,
   downloadStatus,
-  openContainingFolder
+  openContainingFolder,
+  cancelDownload
 }) => {
   const classes = useStyles({})
 
@@ -157,6 +160,12 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
 
   const _openContainingFolder = () => {
     openContainingFolder(path)
+  }
+
+  const _cancelDownload = () => {
+    cancelDownload({
+      cid: cid
+    })
   }
 
   const renderActionIndicator = () => {
@@ -205,11 +214,12 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               color: theme.palette.colors.darkGray,
               icon: clockIconGray
             }}
-            // hover={{
-            //   label: 'Cancel download',
-            //   color: theme.palette.colors.lushSky,
-            //   icon: cancelIcon
-            // }}
+            hover={{
+              label: 'Cancel download',
+              color: theme.palette.colors.lushSky,
+              icon: cancelIcon
+            }}
+            action={_cancelDownload}
           />
         )
       case DownloadState.Downloading:
@@ -220,11 +230,12 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               color: theme.palette.colors.darkGray,
               icon: downloadIconGray
             }}
-            // hover={{
-            //   label: 'Cancel download',
-            //   color: theme.palette.colors.lushSky,
-            //   icon: cancelIcon
-            // }}
+            hover={{
+              label: 'Cancel download',
+              color: theme.palette.colors.lushSky,
+              icon: cancelIcon
+            }}
+            action={_cancelDownload}
           />
         )
       case DownloadState.Canceled:

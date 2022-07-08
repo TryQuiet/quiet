@@ -97,6 +97,10 @@ export default class IOProxy {
     await this.getStorage(peerId).downloadFile(metadata)
   }
 
+  public cancelDownload = async (peerId: string, cid: string) => {
+    await this.getStorage(peerId).cancelDownload(cid)
+  }
+
   public updateDownloadProgress = (payload: DownloadStatus) => {
     this.io.emit(SocketActionTypes.DOWNLOAD_PROGRESS, payload)
   }

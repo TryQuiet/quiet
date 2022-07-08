@@ -101,7 +101,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   openFilesDialog,
   handleClipboardFiles,
   uploadedFileModal,
-  openContainingFolder
+  openContainingFolder,
+  cancelDownload
 }) => {
   const classes = useStyles({})
 
@@ -230,6 +231,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             onScroll={onScroll}
             uploadedFileModal={uploadedFileModal}
             openContainingFolder={openContainingFolder}
+            cancelDownload={cancelDownload}
           />
         </Grid>
         <Grid item>
