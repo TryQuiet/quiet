@@ -541,21 +541,21 @@ export class Storage {
         downloaded: metadata.size,
         transferSpeed: 0
       }
-  
+
       const statusCompleted: DownloadStatus = {
         cid: metadata.cid,
         downloadState: DownloadState.Completed,
         downloadProgress: downloadCompleted
       }
-  
+
       // Downloaded file
       this.io.updateDownloadProgress(statusCompleted)
-  
+
       const fileMetadata: FileMetadata = {
         ...metadata,
         path: filePath
       }
-  
+
       this.io.updateMessageMedia(fileMetadata)
     }
 
