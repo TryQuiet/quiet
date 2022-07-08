@@ -635,17 +635,15 @@ describe('Channel', () => {
           const data = input as socketEventData<[UploadFilePayload]>
           const payload = data[0]
           cid = `uploading_${payload.file.message.id}`
-          setTimeout(() => {
-            socket.socketClient.emit(SocketActionTypes.UPLOADED_FILE, {
-              ...payload.file,
-              cid: cid,
-              path: null
-            })
-            socket.socketClient.emit(SocketActionTypes.DOWNLOAD_PROGRESS, {
-              cid: cid,
-              downloadState: DownloadState.Hosted
-            })
-          }, 100)
+          socket.socketClient.emit(SocketActionTypes.UPLOADED_FILE, {
+            ...payload.file,
+            cid: cid,
+            path: null
+          })
+          return socket.socketClient.emit(SocketActionTypes.DOWNLOAD_PROGRESS, {
+            cid: cid,
+            downloadState: DownloadState.Hosted
+          })
         }
       })
 
@@ -695,6 +693,8 @@ describe('Channel', () => {
         "Messages/resetCurrentPublicChannelCache",
         "Files/uploadFile",
         "Messages/sendMessage",
+        "Files/updateDownloadStatus",
+        "Files/broadcastHostedFile",
         "Files/updateDownloadStatus",
         "Messages/addMessagesSendingStatus",
         "Messages/addMessageVerificationStatus",
