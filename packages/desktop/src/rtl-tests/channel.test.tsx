@@ -843,12 +843,14 @@ describe('Channel', () => {
         if (action === SocketActionTypes.UPLOAD_FILE) {
           const data = input as socketEventData<[UploadFilePayload]>
           const payload = data[0]
-          setTimeout(() => {
-            return socket.socketClient.emit(SocketActionTypes.DOWNLOAD_PROGRESS, {
-              cid: `uploading_${payload.file.message.id}`,
-              downloadState: DownloadState.Hosted
-            })
-          }, 100)
+          socket.socketClient.emit(SocketActionTypes.UPLOADED_FILE, {
+            ...payload.file,
+            size: 1024
+          })
+          return socket.socketClient.emit(SocketActionTypes.DOWNLOAD_PROGRESS, {
+            cid: `uploading_${payload.file.message.id}`,
+            downloadState: DownloadState.Hosted
+          })
         }
       })
 
@@ -883,13 +885,6 @@ describe('Channel', () => {
 
     store.dispatch(files.actions.uploadFile(fileContent))
 
-    await act(async () => {})
-
-    // Confirm file component displays in UPLOADING state
-    expect(screen.getByText('Uploading...')).toBeVisible()
-
-    await act(async () => {})
-
     // Confirm file component displays in HOSTED state
     expect(await screen.findByText('Show in folder')).toBeVisible()
 
@@ -901,6 +896,8 @@ describe('Channel', () => {
         "Files/uploadFile",
         "Messages/sendMessage",
         "Files/updateDownloadStatus",
+        "Files/broadcastHostedFile",
+        "Files/updateDownloadStatus",
         "Messages/addMessagesSendingStatus",
         "Messages/addMessageVerificationStatus",
         "Messages/incomingMessages",
@@ -911,7 +908,6 @@ describe('Channel', () => {
         "Messages/setDisplayedMessagesNumber",
         "Messages/addPublicKeyMapping",
         "Messages/addMessageVerificationStatus",
-        "Files/updateDownloadStatus",
       ]
     `)
   })
