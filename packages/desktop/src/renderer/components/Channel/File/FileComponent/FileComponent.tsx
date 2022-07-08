@@ -1,6 +1,11 @@
 import React, { useState } from 'react'
 import { CircularProgress, makeStyles, Typography } from '@material-ui/core'
-import { CancelDownload, DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/state-manager'
+import {
+  CancelDownload,
+  DisplayableMessage,
+  DownloadState,
+  DownloadStatus
+} from '@quiet/state-manager'
 import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
 import fileIcon from '../../../../static/images/fileIcon.svg'
@@ -9,8 +14,9 @@ import downloadIcon from '../../../../static/images/downloadIcon.svg'
 import downloadIconGray from '../../../../static/images/downloadIconGray.svg'
 import folderIcon from '../../../../static/images/folderIcon.svg'
 import folderIconGray from '../../../../static/images/folderIconGray.svg'
-import cancelIcon from '../../../../static/images/cancelIcon.svg'
-import checkGreen from '../../../../static/images/checkGreen.svg'
+import cancelIconGray from '../../../../static/images/cancelIconGray.svg'
+import cancelIconRed from '../../../../static/images/cancelIconRed.svg'
+import pauseIconGray from '../../../../static/images/pauseIconGray.svg'
 import Tooltip from '../../../ui/Tooltip/Tooltip'
 import { formatBytes } from '../../../../../utils/functions/formatBytes'
 
@@ -45,8 +51,7 @@ const useStyles = makeStyles(theme => ({
   },
   actionIndicator: {
     display: 'flex',
-    width: 'fit-content',
-    cursor: 'pointer'
+    width: 'fit-content'
   }
 }))
 
@@ -68,7 +73,6 @@ const ActionIndicator: React.FC<{
   const classes = useStyles({})
 
   const onMouseOver = () => {
-    if (!hover) return
     setOver(true)
   }
 
@@ -76,26 +80,41 @@ const ActionIndicator: React.FC<{
     setOver(false)
   }
 
+  const renderIndicator = () => {
+    if (over && hover) {
+      return (
+        <>
+          {/* Hovered state */}
+          <div className={classes.actionIndicator}>
+            <Icon src={hover.icon} className={classes.actionIcon} />
+            <Typography variant={'body2'} style={{ color: hover.color, marginLeft: '8px' }}>
+              {hover.label}
+            </Typography>
+          </div>
+        </>
+      )
+    } else {
+      return (
+        <>
+          {/* Hovered state */}
+          <div className={classes.actionIndicator}>
+            <Icon src={regular.icon} className={classes.actionIcon} />
+            <Typography variant={'body2'} style={{ color: regular.color, marginLeft: '8px' }}>
+              {regular.label}
+            </Typography>
+          </div>
+        </>
+      )
+    }
+  }
+
   return (
-    <div onClick={action} onMouseOver={onMouseOver} onMouseOut={onMouseOut}>
-      {/* Regular state */}
-      {!over && (
-        <div className={classes.actionIndicator}>
-          <Icon src={regular.icon} className={classes.actionIcon} />
-          <Typography variant={'body2'} style={{ color: regular.color, marginLeft: '8px' }}>
-            {regular.label}
-          </Typography>
-        </div>
-      )}
-      {/* Hovered state */}
-      {over && (
-        <div className={classes.actionIndicator}>
-          <Icon src={hover.icon} className={classes.actionIcon} />
-          <Typography variant={'body2'} style={{ color: hover.color, marginLeft: '8px' }}>
-            {hover.label}
-          </Typography>
-        </div>
-      )}
+    <div
+      onClick={action}
+      onMouseOver={onMouseOver}
+      onMouseOut={onMouseOut}
+      style={{ cursor: hover ? 'pointer' : 'default' }}>
+      {renderIndicator()}
     </div>
   )
 }
@@ -204,6 +223,11 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               color: theme.palette.colors.lushSky,
               icon: downloadIcon
             }}
+            hover={{
+              label: 'Download file',
+              color: theme.palette.colors.lushSky,
+              icon: downloadIcon
+            }}
           />
         )
       case DownloadState.Queued:
@@ -214,12 +238,6 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               color: theme.palette.colors.darkGray,
               icon: clockIconGray
             }}
-            hover={{
-              label: 'Cancel download',
-              color: theme.palette.colors.lushSky,
-              icon: cancelIcon
-            }}
-            action={_cancelDownload}
           />
         )
       case DownloadState.Downloading:
@@ -232,10 +250,20 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
             }}
             hover={{
               label: 'Cancel download',
-              color: theme.palette.colors.lushSky,
-              icon: cancelIcon
+              color: theme.palette.colors.hotRed,
+              icon: cancelIconRed
             }}
             action={_cancelDownload}
+          />
+        )
+      case DownloadState.Canceling:
+        return (
+          <ActionIndicator
+            regular={{
+              label: 'Canceling...',
+              color: theme.palette.colors.darkGray,
+              icon: pauseIconGray
+            }}
           />
         )
       case DownloadState.Canceled:
@@ -243,8 +271,13 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
           <ActionIndicator
             regular={{
               label: 'Canceled',
-              color: theme.palette.colors.greenDark,
-              icon: checkGreen
+              color: theme.palette.colors.darkGray,
+              icon: cancelIconGray
+            }}
+            hover={{
+              label: 'Download file',
+              color: theme.palette.colors.lushSky,
+              icon: downloadIcon
             }}
           />
         )
@@ -290,7 +323,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
             <Typography
               variant={'body2'}
               style={{ lineHeight: '20px', color: theme.palette.colors.darkGray }}>
-              {message.media?.size ? formatBytes(message.media?.size) : 'Sharing with others...'}
+              {message.media?.size ? formatBytes(message.media?.size) : 'Calculating size...'}
             </Typography>
           </div>
         </div>

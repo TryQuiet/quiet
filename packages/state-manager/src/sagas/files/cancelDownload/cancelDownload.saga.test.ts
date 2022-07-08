@@ -10,7 +10,7 @@ import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { FactoryGirl } from 'factory-girl'
-import { CancelDownload } from '../../files/files.types'
+import { CancelDownload, DownloadState } from '../../files/files.types'
 import { filesActions } from '../files.slice'
 import { cancelDownloadSaga } from './cancelDownload.saga'
 
@@ -53,6 +53,10 @@ describe('cancelDownloadSaga', () => {
     await expectSaga(cancelDownloadSaga, socket, filesActions.cancelDownload(cancelDownload))
       .withReducer(reducer)
       .withState(store.getState())
+      .put(filesActions.updateDownloadStatus({
+        cid: cid,
+        downloadState: DownloadState.Canceling
+      }))
       .apply(socket, socket.emit, [
         SocketActionTypes.CANCEL_DOWNLOAD,
         {

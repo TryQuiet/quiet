@@ -59,6 +59,7 @@ export enum DownloadState {
   Queued = 'queued',
   Downloading = 'downloading',
   Completed = 'completed',
+  Canceling = 'canceling',
   Canceled = 'canceled'
 }
 
