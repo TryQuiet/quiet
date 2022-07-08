@@ -47,6 +47,12 @@ Invites, access, and usernames are granted by a community owner, i.e. whoever cr
 
 See our [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ) for answers to common questions and a comparison of Quiet with similar apps.
 
+## Getting started
+
+To try Quiet, download the [latest release](https://github.com/TryQuiet/monorepo/releases/latest) for your platform (.dmg for macOS, .exe for Windows, etc.) and install it in the normal way. Then create a community, and open the community's settings to invite members. 
+
+If you'd like to help develop Quiet, see [Contributing to Quiet](#contributing-to-quiet).
+
 ## Features
 
 * **Team Chat** - Create a "community" for your team or organization and invite members.
