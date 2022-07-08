@@ -11,8 +11,8 @@ import { INPUT_STATE } from './InputState.enum'
 import Icon from '../../../ui/Icon/Icon'
 import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
-import addGray from '../../../../static/images/addGray.svg'
-import addBlack from '../../../../static/images/addBlack.svg'
+import paperclipGray from '../../../../static/images/paperclipGray.svg'
+import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
 
 const useStyles = makeStyles(theme => ({
@@ -500,7 +500,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   <Grid container justify='center' alignItems='center'>
                     <Icon
                       className={classes.emoji}
-                      src={fileExplorerHovered ? addBlack : addGray}
+                      src={fileExplorerHovered ? paperclipBlack : paperclipGray}
                       onClickHandler={() => fileInput.current?.click()}
                       onMouseEnterHandler={() => {
                         setFileExplorerHovered(true)
