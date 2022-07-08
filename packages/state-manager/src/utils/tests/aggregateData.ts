@@ -27,7 +27,7 @@ files.forEach((fileName) => {
     return previousValue + currentValue
   }, 0)
 
-  console.log(`${fileName} messages count: ${dataSet.length}`)
+  console.log(`${fileName} messagesCount: ${dataSet.length}`)
   console.log(`${fileName} average: ${accumulatedPerUser / delaysArrPerUser.length}`)
   console.log(`${fileName} max:`, Math.max(...delaysArrPerUser))
 })
