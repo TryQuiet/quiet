@@ -39,7 +39,8 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   downloadStatus,
   uploadedFileModal,
   openContainingFolder,
-  cancelDownload
+  cancelDownload,
+  downloadFile
 }) => {
   const classes = useStyles({})
 
@@ -64,7 +65,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
               [classes.pending]: pending
             })}
             data-testid={`messagesGroupContent-${message.id}`}>
-            <FileComponent message={message} downloadStatus={downloadStatus} openContainingFolder={openContainingFolder} cancelDownload={cancelDownload} />
+            <FileComponent message={message} downloadStatus={downloadStatus} openContainingFolder={openContainingFolder} downloadFile={downloadFile} cancelDownload={cancelDownload} />
           </div>
         )
       default:

@@ -13,11 +13,12 @@ import { Identity } from '../../identity/identity.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { messagesActions } from '../../messages/messages.slice'
 import { FactoryGirl } from 'factory-girl'
-import { downloadFileSaga } from './downloadFile.saga'
+import { autoDownloadFilesSaga } from './autoDownloadFiles.saga'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
 import { FileMetadata } from '../files.types'
+import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 
 describe('downloadFileSaga', () => {
   let store: Store
@@ -58,7 +59,7 @@ describe('downloadFileSaga', () => {
     )).channel
   })
 
-  test('download file of type image', async () => {
+  test('auto download file of type image', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     const id = Math.random().toString(36).substr(2.9)
@@ -80,7 +81,7 @@ describe('downloadFileSaga', () => {
 
     const reducer = combineReducers(reducers)
     await expectSaga(
-      downloadFileSaga,
+      autoDownloadFilesSaga,
       socket,
       messagesActions.incomingMessages({
         messages: [{
@@ -107,7 +108,7 @@ describe('downloadFileSaga', () => {
       .run()
   })
 
-  test('download file of type other than image', async () => {
+  test('auto download file of type other than image', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     const id = Math.random().toString(36).substr(2.9)
@@ -129,7 +130,7 @@ describe('downloadFileSaga', () => {
 
     const reducer = combineReducers(reducers)
     await expectSaga(
-      downloadFileSaga,
+      autoDownloadFilesSaga,
       socket,
       messagesActions.incomingMessages({
         messages: [{
@@ -156,7 +157,7 @@ describe('downloadFileSaga', () => {
       .run()
   })
 
-  test('do not download already locally stored file', async () => {
+  test('do not auto-download already locally stored file', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     const id = Math.random().toString(36).substr(2.9)
@@ -194,7 +195,7 @@ describe('downloadFileSaga', () => {
 
     const reducer = combineReducers(reducers)
     await expectSaga(
-      downloadFileSaga,
+      autoDownloadFilesSaga,
       socket,
       messagesActions.incomingMessages({
         messages: [message]
@@ -212,7 +213,7 @@ describe('downloadFileSaga', () => {
       .run()
   })
 
-  test('do not download already locally stored file (from non-active channel)', async () => {
+  test('do not auto-download already locally stored file (from non-active channel)', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     const id = Math.random().toString(36).substr(2.9)
@@ -250,10 +251,60 @@ describe('downloadFileSaga', () => {
 
     const reducer = combineReducers(reducers)
     await expectSaga(
-      downloadFileSaga,
+      autoDownloadFilesSaga,
       socket,
       messagesActions.incomingMessages({
         messages: [message]
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.apply(socket, socket.emit, [
+        SocketActionTypes.DOWNLOAD_FILE,
+        {
+          peerId: alice.peerId.id,
+          metadata: media
+        }
+      ])
+      .run()
+  })
+
+  test('do not auto-download file above the size limit', async () => {
+    const socket = { emit: jest.fn() } as unknown as Socket
+
+    const id = Math.random().toString(36).substr(2.9)
+
+    store.dispatch(publicChannelsActions.setCurrentChannel({
+      channelAddress: 'general'
+    }))
+
+    const media: FileMetadata = {
+      cid: 'cid',
+      path: null,
+      name: 'file',
+      ext: 'ext',
+      size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
+      message: {
+        id: id,
+        channelAddress: 'general'
+      }
+    }
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      autoDownloadFilesSaga,
+      socket,
+      messagesActions.incomingMessages({
+        messages: [{
+          id: id,
+          type: MessageType.File,
+          message: 'message',
+          createdAt: 8,
+          channelAddress: 'general',
+          signature: 'signature',
+          pubKey: 'publicKey',
+          media: media
+        }]
       })
     )
       .withReducer(reducer)

@@ -122,7 +122,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   downloadStatuses = {},
   uploadedFileModal,
   openContainingFolder,
-  cancelDownload
+  cancelDownload,
+  downloadFile
 }) => {
   const classes = useStyles({})
 
@@ -203,6 +204,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       uploadedFileModal={uploadedFileModal}
                       openContainingFolder={openContainingFolder}
                       cancelDownload={cancelDownload}
+                      downloadFile={downloadFile}
                     />
                   )
                 })}

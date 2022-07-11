@@ -33,6 +33,7 @@ export const filesSlice = createSlice({
     cancelDownload: (state, _action: PayloadAction<CancelDownload>) => state,
     uploadFile: (state, _action: PayloadAction<FileContent>) => state,
     broadcastHostedFile: (state, _action: PayloadAction<FileMetadata>) => state,
+    downloadFile: (state, _action: PayloadAction<FileMetadata>) => state,
     updateMessageMedia: (state, _action: PayloadAction<FileMetadata>) => state
   }
 })

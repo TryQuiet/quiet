@@ -1,11 +1,6 @@
 import React, { useState } from 'react'
 import { CircularProgress, makeStyles, Typography } from '@material-ui/core'
-import {
-  CancelDownload,
-  DisplayableMessage,
-  DownloadState,
-  DownloadStatus
-} from '@quiet/state-manager'
+import { DisplayableMessage, DownloadState, DownloadStatus, FileMetadata, CancelDownload } from '@quiet/state-manager'
 import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
 import fileIcon from '../../../../static/images/fileIcon.svg'
@@ -127,13 +122,15 @@ export interface FileComponentProps {
 export interface FileActionsProps {
   openContainingFolder?: (path: string) => void
   cancelDownload?: (cancelDownload: CancelDownload) => void
+  downloadFile?: (media: FileMetadata) => void
 }
 
 export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   message,
   downloadStatus,
   openContainingFolder,
-  cancelDownload
+  cancelDownload,
+  downloadFile
 }) => {
   const classes = useStyles({})
 
@@ -187,6 +184,10 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
     })
   }
 
+  const _downloadFile = () => {
+    downloadFile(message.media)
+  }
+
   const renderActionIndicator = () => {
     switch (downloadState) {
       case DownloadState.Uploading:
@@ -228,6 +229,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               color: theme.palette.colors.lushSky,
               icon: downloadIcon
             }}
+            action={_downloadFile}
           />
         )
       case DownloadState.Queued:

@@ -11,12 +11,12 @@ import { markUnreadChannelsSaga } from '../publicChannels/markUnreadChannels/mar
 import { lazyLoadingSaga } from './lazyLoading/lazyLoading.saga'
 import { resetCurrentPublicChannelCacheSaga } from './manageCache/resetChannelCache.saga'
 import { extendCurrentPublicChannelCacheSaga } from './manageCache/extendChannelCache.saga'
-import { downloadFileSaga } from '../files/downloadFile/downloadFile.saga'
+import { autoDownloadFilesSaga } from '../files/autoDownloadFiles/autoDownloadFiles.saga'
 
 export function* messagesMasterSaga(socket: Socket): Generator {
   yield all([
     takeEvery(messagesActions.sendMessage.type, sendMessageSaga, socket),
-    takeEvery(messagesActions.incomingMessages.type, downloadFileSaga, socket),
+    takeEvery(messagesActions.incomingMessages.type, autoDownloadFilesSaga, socket),
     takeEvery(messagesActions.incomingMessages.type, incomingMessagesSaga),
     takeEvery(messagesActions.incomingMessages.type, verifyMessagesSaga),
     takeEvery(messagesActions.incomingMessages.type, markUnreadChannelsSaga),
