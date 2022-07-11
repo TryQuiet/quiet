@@ -10,8 +10,8 @@ import {
   connection,
   communities,
   files,
-  CancelDownload,
-  FileMetadata
+  FileMetadata,
+  CancelDownload
 } from '@quiet/state-manager'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -47,7 +47,7 @@ const Channel = () => {
     publicChannels.selectors.newestCurrentChannelMessage
   )
 
-  const downloadStatusesMapping = useSelector(files.selectors.downloadStatusesMapping)
+  const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const initializedCommunities = useSelector(connection.selectors.initializedCommunities)
@@ -164,12 +164,12 @@ const Channel = () => {
     shell.showItemInFolder(path)
   }, [])
 
-  const cancelDownload = useCallback((cancelDownload: CancelDownload) => {
-    dispatch(files.actions.cancelDownload(cancelDownload))
-  }, [dispatch])
-
   const downloadFile = useCallback((media: FileMetadata) => {
     dispatch(files.actions.downloadFile(media))
+  }, [dispatch])
+
+  const cancelDownload = useCallback((cancelDownload: CancelDownload) => {
+    dispatch(files.actions.cancelDownload(cancelDownload))
   }, [dispatch])
 
   useEffect(() => {
@@ -210,8 +210,8 @@ const Channel = () => {
 
   const fileActionsProps: FileActionsProps = {
     openContainingFolder: openContainingFolder,
-    cancelDownload: cancelDownload,
-    downloadFile: downloadFile
+    downloadFile: downloadFile,
+    cancelDownload: cancelDownload
   }
 
   return (

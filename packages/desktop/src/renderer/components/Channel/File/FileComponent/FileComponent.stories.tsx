@@ -22,6 +22,7 @@ export const Canceled = Template.bind({})
 export const Canceling = Template.bind({})
 export const Completed = Template.bind({})
 
+const mid = '32'
 const cid = 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs'
 
 const args: FileComponentProps = {
@@ -47,6 +48,7 @@ const args: FileComponentProps = {
     nickname: 'vader'
   },
   downloadStatus: {
+    mid: mid,
     cid: cid,
     downloadState: DownloadState.Ready,
     downloadProgress: undefined
@@ -63,6 +65,7 @@ Uploading.args = {
     }
   },
   downloadStatus: {
+    mid: mid,
     cid: cid,
     downloadState: DownloadState.Uploading,
     downloadProgress: undefined
@@ -71,6 +74,7 @@ Uploading.args = {
 Hosted.args = {
   ...args,
   downloadStatus: {
+    mid: mid,
     cid: cid,
     downloadState: DownloadState.Hosted,
     downloadProgress: undefined
@@ -79,6 +83,7 @@ Hosted.args = {
 Queued.args = {
   ...args,
   downloadStatus: {
+    mid: mid,
     cid: cid,
     downloadState: DownloadState.Queued,
     downloadProgress: {
@@ -96,6 +101,7 @@ Ready.args = {
 Downloading.args = {
   ...args,
   downloadStatus: {
+    mid: mid,
     cid: cid,
     downloadState: DownloadState.Downloading,
     downloadProgress: {
@@ -109,6 +115,7 @@ Downloading.args = {
 Canceling.args = {
   ...args,
   downloadStatus: {
+    mid: mid,
     cid: cid,
     downloadState: DownloadState.Canceling
   }
@@ -116,6 +123,7 @@ Canceling.args = {
 Canceled.args = {
   ...args,
   downloadStatus: {
+    mid: mid,
     cid: cid,
     downloadState: DownloadState.Canceled
   }
@@ -123,6 +131,7 @@ Canceled.args = {
 Completed.args = {
   ...args,
   downloadStatus: {
+    mid: mid,
     cid: cid,
     downloadState: DownloadState.Completed,
     downloadProgress: {

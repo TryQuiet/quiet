@@ -56,7 +56,7 @@ export const connections = (io, ioProxy: IOProxy) => {
     socket.on(
       SocketActionTypes.CANCEL_DOWNLOAD,
       async (payload: CancelDownloadPayload) => {
-        await ioProxy.cancelDownload(payload.peerId, payload.cid)
+        await ioProxy.cancelDownload(payload.peerId, payload.mid)
       }
     )
     socket.on(

@@ -121,16 +121,16 @@ export interface FileComponentProps {
 
 export interface FileActionsProps {
   openContainingFolder?: (path: string) => void
-  cancelDownload?: (cancelDownload: CancelDownload) => void
   downloadFile?: (media: FileMetadata) => void
+  cancelDownload?: (cancelDownload: CancelDownload) => void
 }
 
 export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   message,
   downloadStatus,
   openContainingFolder,
-  cancelDownload,
-  downloadFile
+  downloadFile,
+  cancelDownload
 }) => {
   const classes = useStyles({})
 
@@ -178,14 +178,15 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
     openContainingFolder(path)
   }
 
-  const _cancelDownload = () => {
-    cancelDownload({
-      cid: cid
-    })
-  }
-
   const _downloadFile = () => {
     downloadFile(message.media)
+  }
+
+  const _cancelDownload = () => {
+    cancelDownload({
+      mid: message.id,
+      cid: cid
+    })
   }
 
   const renderActionIndicator = () => {
@@ -281,6 +282,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               color: theme.palette.colors.lushSky,
               icon: downloadIcon
             }}
+            action={_downloadFile}
           />
         )
       case DownloadState.Completed:

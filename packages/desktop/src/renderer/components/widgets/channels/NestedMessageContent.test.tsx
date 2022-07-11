@@ -83,8 +83,10 @@ describe('NestedMessageContent', () => {
         cid: 'abcd1234',
         width: 500,
         height: 600,
-        id: 'string',
-        channelAddress: 'general'
+        message: {
+          id: 'string',
+          channelAddress: 'general'
+        }
       }
     }
     const result = renderComponent(<NestedMessageContent pending={false} message={message} />)

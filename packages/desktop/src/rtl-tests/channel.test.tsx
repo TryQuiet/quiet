@@ -826,7 +826,7 @@ describe('Channel', () => {
     ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
-    const alice = await factory.create<
+    await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
@@ -848,6 +848,7 @@ describe('Channel', () => {
             size: 1024
           })
           return socket.socketClient.emit(SocketActionTypes.DOWNLOAD_PROGRESS, {
+            mid: payload.file.message.id,
             cid: `uploading_${payload.file.message.id}`,
             downloadState: DownloadState.Hosted
           })
@@ -933,6 +934,7 @@ describe('Channel', () => {
       path: null,
       name: 'test-file',
       ext: '.ext',
+      size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
         channelAddress: channelAddress

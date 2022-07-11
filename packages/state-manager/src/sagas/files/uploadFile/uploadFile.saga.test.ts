@@ -101,6 +101,7 @@ describe('uploadFileSaga', () => {
         media: media
       }))
       .put(filesActions.updateDownloadStatus({
+        mid: message,
         cid: `uploading_${message}`,
         downloadState: DownloadState.Uploading,
         downloadProgress: undefined

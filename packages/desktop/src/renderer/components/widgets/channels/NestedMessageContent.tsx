@@ -39,8 +39,8 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   downloadStatus,
   uploadedFileModal,
   openContainingFolder,
-  cancelDownload,
-  downloadFile
+  downloadFile,
+  cancelDownload
 }) => {
   const classes = useStyles({})
 

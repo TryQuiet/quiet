@@ -436,6 +436,7 @@ export class Storage {
         this.io.uploadedFile(fileMetadata)
 
         const statusReady: DownloadStatus = {
+          mid: fileMetadata.message.id,
           cid: fileMetadata.cid,
           downloadState: DownloadState.Hosted,
           downloadProgress: undefined
@@ -467,7 +468,7 @@ export class Storage {
 
     for await (const entry of entries) {
       // Check if download is not meant to be canceled
-      if (this.downloadCancellations.includes(metadata.cid)) {
+      if (this.downloadCancellations.includes(metadata.message.id)) {
         downloadState = DownloadState.Canceled
         break
       }
@@ -501,13 +502,14 @@ export class Storage {
             transferSpeed: transferSpeed
           }
 
-          const progress: DownloadStatus = {
+          const downloadStatus: DownloadStatus = {
+            mid: metadata.message.id,
             cid: metadata.cid,
             downloadState: DownloadState.Downloading,
             downloadProgress: downloadProgress
           }
 
-          this.io.updateDownloadProgress(progress)
+          this.io.updateDownloadProgress(downloadStatus)
 
           resolve()
         })
@@ -522,6 +524,7 @@ export class Storage {
       }
 
       const statusCanceled: DownloadStatus = {
+        mid: metadata.message.id,
         cid: metadata.cid,
         downloadState: DownloadState.Canceled,
         downloadProgress: downloadCanceled
@@ -529,12 +532,6 @@ export class Storage {
 
       // Canceled Download
       this.io.updateDownloadProgress(statusCanceled)
-
-      // Clear cancellation signal
-      const index = this.downloadCancellations.indexOf(metadata.cid)
-      if (index > -1) {
-        this.downloadCancellations.splice(index, 1)
-      }
     } else {
       const downloadCompleted: DownloadProgress = {
         size: metadata.size,
@@ -543,6 +540,7 @@ export class Storage {
       }
 
       const statusCompleted: DownloadStatus = {
+        mid: metadata.message.id,
         cid: metadata.cid,
         downloadState: DownloadState.Completed,
         downloadProgress: downloadCompleted
@@ -559,11 +557,17 @@ export class Storage {
       this.io.updateMessageMedia(fileMetadata)
     }
 
+    // Clear cancellation signal (if present)
+    const index = this.downloadCancellations.indexOf(metadata.cid)
+    if (index > -1) {
+      this.downloadCancellations.splice(index, 1)
+    }
+
     writeStream.end()
   }
 
-  public cancelDownload(cid: string) {
-    this.downloadCancellations.push(cid)
+  public cancelDownload(mid: string) {
+    this.downloadCancellations.push(mid)
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {

@@ -12,9 +12,10 @@ export function* cancelDownloadSaga(
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
 
-  const { cid } = action.payload
+  const { mid, cid } = action.payload
 
   yield* put(filesActions.updateDownloadStatus({
+    mid: mid,
     cid: cid,
     downloadState: DownloadState.Canceling
   }))
@@ -23,7 +24,7 @@ export function* cancelDownloadSaga(
     SocketActionTypes.CANCEL_DOWNLOAD,
     {
       peerId: identity.peerId.id,
-      cid: cid
+      mid: mid
     }
   ])
 }

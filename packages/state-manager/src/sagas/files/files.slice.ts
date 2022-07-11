@@ -12,7 +12,7 @@ export const filesSlice = createSlice({
   name: StoreKeys.Files,
   reducers: {
     updateDownloadStatus: (state, action: PayloadAction<DownloadStatus>) => {
-      let { cid, downloadState, downloadProgress } = action.payload
+      let { downloadState, downloadProgress } = action.payload
       if (
         downloadProgress &&
         downloadProgress.size !== downloadProgress.downloaded &&
@@ -20,11 +20,7 @@ export const filesSlice = createSlice({
       ) {
         downloadState = DownloadState.Queued
       }
-      downloadStatusAdapter.upsertOne(state.downloadStatus, {
-        cid: cid,
-        downloadState: downloadState,
-        downloadProgress: downloadProgress
-      })
+      downloadStatusAdapter.upsertOne(state.downloadStatus, action.payload)
     },
     removeDownloadStatus: (state, action: PayloadAction<RemoveDownloadStatus>) => {
       const { cid } = action.payload

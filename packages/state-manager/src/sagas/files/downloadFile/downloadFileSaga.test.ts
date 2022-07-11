@@ -67,6 +67,7 @@ describe('downloadFileSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .put(filesActions.updateDownloadStatus({
+        mid: message,
         cid: 'cid',
         downloadState: DownloadState.Queued
       }))

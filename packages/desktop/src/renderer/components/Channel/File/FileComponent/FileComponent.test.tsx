@@ -30,6 +30,7 @@ describe('FileComponent', () => {
           nickname: 'vader'
         }}
         downloadStatus={{
+          mid: '32',
           cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
           downloadState: DownloadState.Ready,
           downloadProgress: undefined

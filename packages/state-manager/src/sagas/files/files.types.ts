@@ -6,10 +6,10 @@ export interface FileContent {
 
 export interface FileMetadata extends FileContent {
   cid: string
+  message: FileMessage
   size?: number
   width?: number
   height?: number
-  message?: FileMessage // Empty message means file uploading didn't finish yet
 }
 
 export interface FileMessage {
@@ -28,15 +28,17 @@ export interface DownloadFilePayload {
 }
 
 export interface CancelDownload {
+  mid: string
   cid: string
 }
 
 export interface CancelDownloadPayload {
-  cid: string
+  mid: string
   peerId: string
 }
 
 export interface DownloadStatus {
+  mid: string // Message id
   cid: string
   downloadState: DownloadState
   downloadProgress?: DownloadProgress

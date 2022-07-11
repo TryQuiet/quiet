@@ -15,6 +15,7 @@ export function* downloadFileSaga(
   const media = action.payload
 
   yield* put(filesActions.updateDownloadStatus({
+    mid: media.message.id,
     cid: media.cid,
     downloadState: DownloadState.Queued
   }))
