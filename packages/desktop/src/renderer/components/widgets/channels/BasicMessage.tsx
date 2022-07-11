@@ -121,7 +121,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   pendingMessages = {},
   downloadStatuses = {},
   uploadedFileModal,
-  openContainingFolder
+  openContainingFolder,
+  downloadFile
 }) => {
   const classes = useStyles({})
 
@@ -201,6 +202,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       downloadStatus={downloadStatus}
                       uploadedFileModal={uploadedFileModal}
                       openContainingFolder={openContainingFolder}
+                      downloadFile={downloadFile}
                     />
                   )
                 })}

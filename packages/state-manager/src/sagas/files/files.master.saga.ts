@@ -6,6 +6,7 @@ import { updateMessageMediaSaga } from './updateMessageMedia/updateMessageMedia'
 import { filesActions } from './files.slice'
 import { uploadFileSaga } from './uploadFile/uploadFile.saga'
 import { broadcastHostedFileSaga } from './broadcastHostedFile/broadcastHostedFile.saga'
+import { downloadFileSaga } from './downloadFile/downloadFileSaga'
 
 export function* filesMasterSaga(socket: Socket): Generator {
   yield all([
@@ -22,6 +23,11 @@ export function* filesMasterSaga(socket: Socket): Generator {
     takeEvery(
       filesActions.updateMessageMedia.type,
       updateMessageMediaSaga
+    ),
+    takeEvery(
+      filesActions.downloadFile.type,
+      downloadFileSaga,
+      socket
     ),
     takeEvery(
       filesActions.broadcastHostedFile.type,
