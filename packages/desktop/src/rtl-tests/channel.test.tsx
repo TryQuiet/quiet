@@ -934,6 +934,7 @@ describe('Channel', () => {
       path: null,
       name: 'test-file',
       ext: '.ext',
+      size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
         channelAddress: channelAddress
