@@ -43,9 +43,11 @@ describe('cancelDownloadSaga', () => {
 
     const peerId = alice.peerId.id
 
+    const mid = 'mid'
     const cid = 'cid'
 
     const cancelDownload: CancelDownload = {
+      mid: mid,
       cid: cid
     }
 
@@ -54,14 +56,15 @@ describe('cancelDownloadSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .put(filesActions.updateDownloadStatus({
+        mid: mid,
         cid: cid,
         downloadState: DownloadState.Canceling
       }))
       .apply(socket, socket.emit, [
         SocketActionTypes.CANCEL_DOWNLOAD,
         {
-          cid,
-          peerId
+          peerId,
+          mid
         }
       ])
       .run()

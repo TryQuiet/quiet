@@ -34,6 +34,7 @@ export function* autoDownloadFilesSaga(
     // Do not autodownload above certain size
     if (message.media.size > AUTODOWNLOAD_SIZE_LIMIT) {
       yield* put(filesActions.updateDownloadStatus({
+        mid: message.id,
         cid: message.media.cid,
         downloadState: DownloadState.Ready
       }))
@@ -41,6 +42,7 @@ export function* autoDownloadFilesSaga(
     }
 
     yield* put(filesActions.updateDownloadStatus({
+      mid: message.id,
       cid: message.media.cid,
       downloadState: DownloadState.Queued
     }))

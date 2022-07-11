@@ -48,6 +48,7 @@ export function* uploadFileSaga(
 
   yield* put(
     filesActions.updateDownloadStatus({
+      mid: id,
       cid: `uploading_${id}`,
       downloadState: DownloadState.Uploading,
       downloadProgress: undefined

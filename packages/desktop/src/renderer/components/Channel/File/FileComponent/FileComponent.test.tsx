@@ -30,6 +30,7 @@ describe('FileComponent', () => {
           nickname: 'vader'
         }}
         downloadStatus={{
+          mid: '32',
           cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
           downloadState: DownloadState.Ready,
           downloadProgress: undefined
@@ -79,7 +80,9 @@ describe('FileComponent', () => {
             <div
               style="padding-top: 16px; display: block;"
             >
-              <div>
+              <div
+                style="cursor: pointer;"
+              >
                 <div
                   class="makeStyles-actionIndicator-6"
                 >

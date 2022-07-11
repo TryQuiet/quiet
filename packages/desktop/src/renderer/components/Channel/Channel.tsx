@@ -47,7 +47,7 @@ const Channel = () => {
     publicChannels.selectors.newestCurrentChannelMessage
   )
 
-  const downloadStatusesMapping = useSelector(files.selectors.downloadStatusesMapping)
+  const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const initializedCommunities = useSelector(connection.selectors.initializedCommunities)

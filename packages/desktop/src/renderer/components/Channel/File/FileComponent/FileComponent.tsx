@@ -181,9 +181,10 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   const _downloadFile = () => {
     downloadFile(message.media)
   }
-  
+
   const _cancelDownload = () => {
     cancelDownload({
+      mid: message.id,
       cid: cid
     })
   }
@@ -281,6 +282,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               color: theme.palette.colors.lushSky,
               icon: downloadIcon
             }}
+            action={_downloadFile}
           />
         )
       case DownloadState.Completed:
