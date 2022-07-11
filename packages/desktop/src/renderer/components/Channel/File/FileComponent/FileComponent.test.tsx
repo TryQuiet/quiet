@@ -79,7 +79,9 @@ describe('FileComponent', () => {
             <div
               style="padding-top: 16px; display: block;"
             >
-              <div>
+              <div
+                style="cursor: pointer;"
+              >
                 <div
                   class="makeStyles-actionIndicator-6"
                 >
