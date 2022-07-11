@@ -10,6 +10,7 @@ import {
   connection,
   communities,
   files,
+  CancelDownload,
   FileMetadata
 } from '@quiet/state-manager'
 
@@ -163,6 +164,10 @@ const Channel = () => {
     shell.showItemInFolder(path)
   }, [])
 
+  const cancelDownload = useCallback((cancelDownload: CancelDownload) => {
+    dispatch(files.actions.cancelDownload(cancelDownload))
+  }, [dispatch])
+
   const downloadFile = useCallback((media: FileMetadata) => {
     dispatch(files.actions.downloadFile(media))
   }, [dispatch])
@@ -205,6 +210,7 @@ const Channel = () => {
 
   const fileActionsProps: FileActionsProps = {
     openContainingFolder: openContainingFolder,
+    cancelDownload: cancelDownload,
     downloadFile: downloadFile
   }
 

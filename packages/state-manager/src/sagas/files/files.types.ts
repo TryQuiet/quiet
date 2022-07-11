@@ -27,6 +27,15 @@ export interface DownloadFilePayload {
   peerId: string
 }
 
+export interface CancelDownload {
+  cid: string
+}
+
+export interface CancelDownloadPayload {
+  cid: string
+  peerId: string
+}
+
 export interface DownloadStatus {
   cid: string
   downloadState: DownloadState
@@ -50,6 +59,7 @@ export enum DownloadState {
   Queued = 'queued',
   Downloading = 'downloading',
   Completed = 'completed',
+  Canceling = 'canceling',
   Canceled = 'canceled'
 }
 
