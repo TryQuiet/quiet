@@ -75,7 +75,8 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
   onScroll,
   uploadedFileModal,
   openContainingFolder,
-  downloadFile
+  downloadFile,
+  cancelDownload
 }) => {
   const classes = useStyles({})
 
@@ -133,6 +134,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
                     uploadedFileModal={uploadedFileModal}
                     openContainingFolder={openContainingFolder}
                     downloadFile={downloadFile}
+                    cancelDownload={cancelDownload}
                   />
                 )
               })}

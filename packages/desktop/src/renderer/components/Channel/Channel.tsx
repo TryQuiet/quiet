@@ -10,7 +10,8 @@ import {
   connection,
   communities,
   files,
-  FileMetadata
+  FileMetadata,
+  CancelDownload
 } from '@quiet/state-manager'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -167,6 +168,10 @@ const Channel = () => {
     dispatch(files.actions.downloadFile(media))
   }, [dispatch])
 
+  const cancelDownload = useCallback((cancelDownload: CancelDownload) => {
+    dispatch(files.actions.cancelDownload(cancelDownload))
+  }, [dispatch])
+
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelAddress])
@@ -205,7 +210,8 @@ const Channel = () => {
 
   const fileActionsProps: FileActionsProps = {
     openContainingFolder: openContainingFolder,
-    downloadFile: downloadFile
+    downloadFile: downloadFile,
+    cancelDownload: cancelDownload
   }
 
   return (

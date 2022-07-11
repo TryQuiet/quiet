@@ -19,6 +19,7 @@ export const Queued = Template.bind({})
 export const Ready = Template.bind({})
 export const Downloading = Template.bind({})
 export const Canceled = Template.bind({})
+export const Canceling = Template.bind({})
 export const Completed = Template.bind({})
 
 const cid = 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs'
@@ -104,6 +105,13 @@ Downloading.args = {
     }
   },
   cancel: () => { console.log('cancel download') }
+}
+Canceling.args = {
+  ...args,
+  downloadStatus: {
+    cid: cid,
+    downloadState: DownloadState.Canceling
+  }
 }
 Canceled.args = {
   ...args,

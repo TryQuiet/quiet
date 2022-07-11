@@ -5,6 +5,7 @@ import { checkForMissingFilesSaga } from './checkForMissingFiles/checkForMissing
 import { updateMessageMediaSaga } from './updateMessageMedia/updateMessageMedia'
 import { filesActions } from './files.slice'
 import { uploadFileSaga } from './uploadFile/uploadFile.saga'
+import { cancelDownloadSaga } from './cancelDownload/cancelDownload.saga'
 import { broadcastHostedFileSaga } from './broadcastHostedFile/broadcastHostedFile.saga'
 import { downloadFileSaga } from './downloadFile/downloadFileSaga'
 
@@ -18,6 +19,11 @@ export function* filesMasterSaga(socket: Socket): Generator {
     takeEvery(
       filesActions.uploadFile.type,
       uploadFileSaga,
+      socket
+    ),
+    takeEvery(
+      filesActions.cancelDownload.type,
+      cancelDownloadSaga,
       socket
     ),
     takeEvery(

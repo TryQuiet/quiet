@@ -15,6 +15,7 @@ export enum SocketActionTypes {
   // A
   ASK_FOR_MESSAGES = 'askForMessages',
   // C
+  CANCEL_DOWNLOAD = 'cancelDownload',
   CHANNELS_REPLICATED = 'channelsReplicated',
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CLOSE = 'close',

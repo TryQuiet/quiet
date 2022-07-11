@@ -67,6 +67,7 @@ export class Storage {
   public options: StorageOptions
   public orbitDbDir: string
   public ipfsRepoPath: string
+  private readonly downloadCancellations: string[]
   private readonly communityId: string
 
   constructor(
@@ -84,6 +85,7 @@ export class Storage {
     }
     this.orbitDbDir = path.join(this.quietDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
     this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
+    this.downloadCancellations = []
   }
 
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
@@ -461,10 +463,16 @@ export class Storage {
     let downloadedBytes = 0
     let stopwatch = 0
 
+    let downloadState: DownloadState = DownloadState.Ready
+
     for await (const entry of entries) {
+      // Check if download is not meant to be canceled
+      if (this.downloadCancellations.includes(metadata.cid)) {
+        downloadState = DownloadState.Canceled
+        break
+      }
       await new Promise<void>((resolve, reject) => {
         writeStream.write(entry, err => {
-          // Do not proceed with error
           if (err) reject(err)
 
           let transferSpeed = -1
@@ -506,29 +514,56 @@ export class Storage {
       })
     }
 
+    if (downloadState === DownloadState.Canceled) {
+      const downloadCanceled: DownloadProgress = {
+        size: metadata.size,
+        downloaded: 0,
+        transferSpeed: 0
+      }
+
+      const statusCanceled: DownloadStatus = {
+        cid: metadata.cid,
+        downloadState: DownloadState.Canceled,
+        downloadProgress: downloadCanceled
+      }
+
+      // Canceled Download
+      this.io.updateDownloadProgress(statusCanceled)
+
+      // Clear cancellation signal
+      const index = this.downloadCancellations.indexOf(metadata.cid)
+      if (index > -1) {
+        this.downloadCancellations.splice(index, 1)
+      }
+    } else {
+      const downloadCompleted: DownloadProgress = {
+        size: metadata.size,
+        downloaded: metadata.size,
+        transferSpeed: 0
+      }
+
+      const statusCompleted: DownloadStatus = {
+        cid: metadata.cid,
+        downloadState: DownloadState.Completed,
+        downloadProgress: downloadCompleted
+      }
+
+      // Downloaded file
+      this.io.updateDownloadProgress(statusCompleted)
+
+      const fileMetadata: FileMetadata = {
+        ...metadata,
+        path: filePath
+      }
+
+      this.io.updateMessageMedia(fileMetadata)
+    }
+
     writeStream.end()
+  }
 
-    const downloadCompleted: DownloadProgress = {
-      size: metadata.size,
-      downloaded: metadata.size,
-      transferSpeed: 0
-    }
-
-    const statusCompleted: DownloadStatus = {
-      cid: metadata.cid,
-      downloadState: DownloadState.Completed,
-      downloadProgress: downloadCompleted
-    }
-
-    // Downloaded file
-    this.io.updateDownloadProgress(statusCompleted)
-
-    const fileMetadata: FileMetadata = {
-      ...metadata,
-      path: filePath
-    }
-
-    this.io.updateMessageMedia(fileMetadata)
+  public cancelDownload(cid: string) {
+    this.downloadCancellations.push(cid)
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {
