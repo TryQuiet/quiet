@@ -8,11 +8,14 @@ import { filesActions } from '../files.slice'
 export function* updateMessageMediaSaga(
   action: PayloadAction<ReturnType<typeof filesActions.updateMessageMedia>['payload']>
 ): Generator {
+  console.log('updateMessageMediaSagaupdateMessageMediaSaga')
   const channelMessages = yield* select(
     messagesSelectors.publicChannelMessagesEntities(action.payload.message.channelAddress)
   )
 
   const message = channelMessages[action.payload.message.id]
+
+  console.log('updateMessageMediaSaga message', message, action.payload)
 
   if (!message || !instanceOfChannelMessage(message)) {
     console.error(

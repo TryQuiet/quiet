@@ -11,7 +11,8 @@ import {
   communities,
   files,
   FileMetadata,
-  CancelDownload
+  CancelDownload,
+  FileContent
 } from '@quiet/state-manager'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -78,7 +79,7 @@ const Channel = () => {
         dispatch(messages.actions.sendMessage({ message }))
       }
       // Upload files, then send corresponding message (contaning cid) for each of them
-      Object.values(filesRef.current).forEach(fileData => {
+      Object.values(filesRef.current).forEach((fileData: FileContent) => {
         dispatch(files.actions.uploadFile(fileData))
       })
       // Reset file previews for input state
