@@ -1,5 +1,5 @@
 import { setupCrypto } from '@quiet/identity'
-import { communities, getFactory, identity, MessageType, publicChannels } from '../../..'
+import { AUTODOWNLOAD_SIZE_LIMIT, communities, getFactory, identity, MessageType, publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -41,7 +41,7 @@ describe('checkForMissingFilesSaga', () => {
         id: message,
         channelAddress: channelAddress
       },
-      size: 1000
+      size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
 
     await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
@@ -71,21 +71,7 @@ describe('checkForMissingFilesSaga', () => {
       connectionActions.addInitializedCommunity(community.id)
     )
       .withReducer(reducer)
-      .withState({
-        ...store.getState(),
-        Files: {
-          downloadStatus: {
-            ids: [{ 0: message }],
-            entities: {
-              [message]: {
-                mid: missingFile.message.id,
-                cid: missingFile.cid,
-                downloadState: DownloadState.Downloading
-              }
-            }
-          }
-        }
-      })
+      .withState(store.getState())
       .put(filesActions.updateDownloadStatus({
         mid: missingFile.message.id,
         cid: missingFile.cid,
@@ -126,7 +112,7 @@ describe('checkForMissingFilesSaga', () => {
         id: message,
         channelAddress: channelAddress
       },
-      size: 1000
+      size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
 
     await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
@@ -135,7 +121,7 @@ describe('checkForMissingFilesSaga', () => {
         identity: alice,
         message: {
           id: message,
-          type: MessageType.Image,
+          type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
           channelAddress: 'general',
@@ -156,21 +142,7 @@ describe('checkForMissingFilesSaga', () => {
       connectionActions.addInitializedCommunity(community.id)
     )
       .withReducer(reducer)
-      .withState({
-        ...store.getState(),
-        Files: {
-          downloadStatus: {
-            ids: [{ 0: message }],
-            entities: {
-              [message]: {
-                mid: missingFile.message.id,
-                cid: missingFile.cid,
-                downloadState: DownloadState.Downloading
-              }
-            }
-          }
-        }
-      })
+      .withState(store.getState())
       .put(filesActions.updateDownloadStatus({
         mid: missingFile.message.id,
         cid: missingFile.cid,
@@ -205,13 +177,13 @@ describe('checkForMissingFilesSaga', () => {
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
       path: null,
-      name: 'test-image',
-      ext: '.jpeg',
+      name: 'test-file',
+      ext: '.zip',
       message: {
         id: message,
         channelAddress: channelAddress
       },
-      size: 100000000000
+      size: AUTODOWNLOAD_SIZE_LIMIT + 2048
     }
 
     await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
@@ -220,7 +192,7 @@ describe('checkForMissingFilesSaga', () => {
         identity: alice,
         message: {
           id: message,
-          type: MessageType.Image,
+          type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
           channelAddress: 'general',
@@ -241,21 +213,7 @@ describe('checkForMissingFilesSaga', () => {
       connectionActions.addInitializedCommunity(community.id)
     )
       .withReducer(reducer)
-      .withState({
-        ...store.getState(),
-        Files: {
-          downloadStatus: {
-            ids: [{ 0: message }],
-            entities: {
-              [message]: {
-                mid: missingFile.message.id,
-                cid: missingFile.cid,
-                downloadState: DownloadState.Downloading
-              }
-            }
-          }
-        }
-      })
+      .withState(store.getState())
       .not.put(filesActions.updateDownloadStatus({
         mid: missingFile.message.id,
         cid: missingFile.cid,
@@ -290,13 +248,13 @@ describe('checkForMissingFilesSaga', () => {
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
       path: null,
-      name: 'test-image',
-      ext: '.jpeg',
+      name: 'test-file',
+      ext: '.zip',
       message: {
         id: message,
         channelAddress: channelAddress
       },
-      size: 1000
+      size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
 
     await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
@@ -305,7 +263,7 @@ describe('checkForMissingFilesSaga', () => {
         identity: alice,
         message: {
           id: message,
-          type: MessageType.Image,
+          type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
           channelAddress: 'general',
@@ -319,6 +277,12 @@ describe('checkForMissingFilesSaga', () => {
     const store = (await prepareStore(initialState.getState())).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
+    store.dispatch(filesActions.updateDownloadStatus({
+      mid: missingFile.message.id,
+      cid: missingFile.cid,
+      downloadState: DownloadState.Canceled
+    }))
+
     const reducer = combineReducers(reducers)
     await expectSaga(
       checkForMissingFilesSaga,
@@ -326,21 +290,7 @@ describe('checkForMissingFilesSaga', () => {
       connectionActions.addInitializedCommunity(community.id)
     )
       .withReducer(reducer)
-      .withState({
-        ...store.getState(),
-        Files: {
-          downloadStatus: {
-            ids: [{ 0: message }],
-            entities: {
-              [message]: {
-                mid: missingFile.message.id,
-                cid: missingFile.cid,
-                downloadState: DownloadState.Canceled
-              }
-            }
-          }
-        }
-      })
+      .withState(store.getState())
       .not.put(filesActions.updateDownloadStatus({
         mid: missingFile.message.id,
         cid: missingFile.cid,
