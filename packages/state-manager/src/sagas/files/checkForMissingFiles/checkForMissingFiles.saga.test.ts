@@ -63,7 +63,7 @@ describe('checkForMissingFilesSaga', () => {
 
     const store = (await prepareStore(initialState.getState())).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
-      
+
     const reducer = combineReducers(reducers)
     await expectSaga(
       checkForMissingFilesSaga,
@@ -74,20 +74,22 @@ describe('checkForMissingFilesSaga', () => {
       .withState({
         ...store.getState(),
         Files: {
-          downloadStatus: { 
-            ids: [{0: message}], 
-            entities:{[message]: {
-              mid: missingFile.message.id,
-              cid: missingFile.cid,
-              downloadState: DownloadState.Downloading
-            }}
+          downloadStatus: {
+            ids: [{ 0: message }],
+            entities: {
+              [message]: {
+                mid: missingFile.message.id,
+                cid: missingFile.cid,
+                downloadState: DownloadState.Downloading
+              }
+            }
           }
         }
       })
       .put(filesActions.updateDownloadStatus({
         mid: missingFile.message.id,
         cid: missingFile.cid,
-        downloadState: DownloadState.Queued,
+        downloadState: DownloadState.Queued
       }))
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
@@ -98,7 +100,6 @@ describe('checkForMissingFilesSaga', () => {
       ])
       .run()
   })
-
 
   test('download file after restarting the app', async () => {
     const initialState = (await prepareStore()).store
@@ -147,7 +148,7 @@ describe('checkForMissingFilesSaga', () => {
 
     const store = (await prepareStore(initialState.getState())).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
-      
+
     const reducer = combineReducers(reducers)
     await expectSaga(
       checkForMissingFilesSaga,
@@ -158,20 +159,22 @@ describe('checkForMissingFilesSaga', () => {
       .withState({
         ...store.getState(),
         Files: {
-          downloadStatus: { 
-            ids: [{0: message}], 
-            entities:{[message]: {
-              mid: missingFile.message.id,
-              cid: missingFile.cid,
-              downloadState: DownloadState.Downloading
-            }}
+          downloadStatus: {
+            ids: [{ 0: message }],
+            entities: {
+              [message]: {
+                mid: missingFile.message.id,
+                cid: missingFile.cid,
+                downloadState: DownloadState.Downloading
+              }
+            }
           }
         }
       })
       .put(filesActions.updateDownloadStatus({
         mid: missingFile.message.id,
         cid: missingFile.cid,
-        downloadState: DownloadState.Queued,
+        downloadState: DownloadState.Queued
       }))
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
@@ -230,7 +233,7 @@ describe('checkForMissingFilesSaga', () => {
 
     const store = (await prepareStore(initialState.getState())).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
-      
+
     const reducer = combineReducers(reducers)
     await expectSaga(
       checkForMissingFilesSaga,
@@ -241,20 +244,22 @@ describe('checkForMissingFilesSaga', () => {
       .withState({
         ...store.getState(),
         Files: {
-          downloadStatus: { 
-            ids: [{0: message}], 
-            entities:{[message]: {
-              mid: missingFile.message.id,
-              cid: missingFile.cid,
-              downloadState: DownloadState.Downloading
-            }}
+          downloadStatus: {
+            ids: [{ 0: message }],
+            entities: {
+              [message]: {
+                mid: missingFile.message.id,
+                cid: missingFile.cid,
+                downloadState: DownloadState.Downloading
+              }
+            }
           }
         }
       })
       .not.put(filesActions.updateDownloadStatus({
         mid: missingFile.message.id,
         cid: missingFile.cid,
-        downloadState: DownloadState.Queued,
+        downloadState: DownloadState.Queued
       }))
       .not.apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
@@ -313,7 +318,7 @@ describe('checkForMissingFilesSaga', () => {
 
     const store = (await prepareStore(initialState.getState())).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
-      
+
     const reducer = combineReducers(reducers)
     await expectSaga(
       checkForMissingFilesSaga,
@@ -324,20 +329,22 @@ describe('checkForMissingFilesSaga', () => {
       .withState({
         ...store.getState(),
         Files: {
-          downloadStatus: { 
-            ids: [{0: message}], 
-            entities:{[message]: {
-              mid: missingFile.message.id,
-              cid: missingFile.cid,
-              downloadState: DownloadState.Canceled
-            }}
+          downloadStatus: {
+            ids: [{ 0: message }],
+            entities: {
+              [message]: {
+                mid: missingFile.message.id,
+                cid: missingFile.cid,
+                downloadState: DownloadState.Canceled
+              }
+            }
           }
         }
       })
       .not.put(filesActions.updateDownloadStatus({
         mid: missingFile.message.id,
         cid: missingFile.cid,
-        downloadState: DownloadState.Queued,
+        downloadState: DownloadState.Queued
       }))
       .not.apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,

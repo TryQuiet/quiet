@@ -117,11 +117,11 @@ export const missingChannelFiles = (channelAddress: string) =>
       .getSelectors()
       .selectAll(base[channelAddress].messages)
     return channelMessages
-      .filter(message => (message.type === MessageType.Image || message.type === MessageType.File)
-       && message.media?.path === null
-       && message.media.size < AUTODOWNLOAD_SIZE_LIMIT
-       && statuses[message.id].downloadState !== DownloadState.Canceled
-       )
+      .filter(message => (message.type === MessageType.Image || message.type === MessageType.File) &&
+       message.media?.path === null &&
+       message.media.size < AUTODOWNLOAD_SIZE_LIMIT &&
+       statuses[message.id].downloadState !== DownloadState.Canceled
+      )
       .map(message => message.media)
   })
 

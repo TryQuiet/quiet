@@ -17,13 +17,13 @@ export function* checkForMissingFilesSaga(
   const community = yield* select(communitiesSelectors.currentCommunity)
 
   if (community.id !== action.payload) return
-  
+
   const identity = yield* select(identitySelectors.currentIdentity)
 
   const channels = yield* select(publicChannelsSelectors.publicChannels)
 
   for (const channel of channels) {
-    const missingFiles = yield* select(missingChannelFiles(channel.address))    
+    const missingFiles = yield* select(missingChannelFiles(channel.address))
     if (missingFiles.length > 0) {
       for (const file of missingFiles) {
         yield* put(filesActions.updateDownloadStatus({
