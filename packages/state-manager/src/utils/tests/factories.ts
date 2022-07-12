@@ -206,7 +206,7 @@ export const getFactory = async (store: Store) => {
         store.dispatch(messagesActions.incomingMessages({
           messages: [payload.message]
         }))
-        if(payload.message.type === MessageType.File || MessageType.Image){
+        if (payload.message.type === MessageType.File || MessageType.Image) {
           store.dispatch(filesActions.updateDownloadStatus({
             mid: payload.message.id,
             cid: payload.message.media.cid,

@@ -117,7 +117,7 @@ export const missingChannelFiles = (channelAddress: string) =>
       .getSelectors()
       .selectAll(base[channelAddress].messages)
     return channelMessages
-      .filter(message => (message.type === MessageType.Image || message.type === MessageType.File) && message.media?.path === null )
+      .filter(message => (message.type === MessageType.Image || message.type === MessageType.File) && message.media?.path === null)
       .map(message => message.media)
   })
 

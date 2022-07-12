@@ -9,7 +9,7 @@ import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { filesActions } from '../files.slice'
 import { DownloadState } from '../files.types'
-import { AUTODOWNLOAD_SIZE_LIMIT} from '../../../constants'
+import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesSelectors } from '../files.selectors'
 
 export function* checkForMissingFilesSaga(
@@ -30,7 +30,7 @@ export function* checkForMissingFilesSaga(
     const missingFiles = yield* select(missingChannelFiles(channel.address))
     if (missingFiles.length > 0) {
       for (const file of missingFiles) {
-        if(file.size > AUTODOWNLOAD_SIZE_LIMIT || fileStatuses[file.message.id].downloadState === DownloadState.Canceled) return
+        if (file.size > AUTODOWNLOAD_SIZE_LIMIT || fileStatuses[file.message.id].downloadState === DownloadState.Canceled) return
 
         yield* put(filesActions.updateDownloadStatus({
           mid: file.message.id,
