@@ -21,6 +21,7 @@ export const Downloading = Template.bind({})
 export const Canceled = Template.bind({})
 export const Canceling = Template.bind({})
 export const Completed = Template.bind({})
+export const Malicious = Template.bind({})
 
 const mid = '32'
 const cid = 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs'
@@ -141,6 +142,15 @@ Completed.args = {
     }
   },
   show: () => { console.log('show in folder') }
+}
+Malicious.args = {
+  ...args,
+  downloadStatus: {
+    mid: mid,
+    cid: cid,
+    downloadState: DownloadState.Malicious,
+    downloadProgress: undefined
+  }
 }
 
 const component: ComponentMeta<typeof FileComponent> = {

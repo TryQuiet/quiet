@@ -377,6 +377,7 @@ export const Downloading = Template.bind({})
 export const CompletedDownload = Template.bind({})
 export const CancelingDownload = Template.bind({})
 export const CanceledDownload = Template.bind({})
+export const MaliciousDownload = Template.bind({})
 export const NewUserMessage = Template.bind({})
 
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
@@ -745,6 +746,37 @@ CanceledDownload.args = {
     32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       downloadState: 'canceled',
+      downloadProgress: undefined
+    }
+  }
+}
+MaliciousDownload.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      message: {
+        channelAddress: 'general',
+        id: 'wgtlstx3u7'
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 1024,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+    },
+    message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  }),
+  downloadStatuses: {
+    32: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      downloadState: 'malicious',
       downloadProgress: undefined
     }
   }

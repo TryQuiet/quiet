@@ -301,6 +301,16 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
             action={_openContainingFolder}
           />
         )
+      case DownloadState.Malicious:
+        return (
+          <ActionIndicator
+            regular={{
+              label: 'File not valid. Download canceled.',
+              color: theme.palette.colors.hotRed,
+              icon: cancelIconRed
+            }}
+          />
+        )
       default:
         return <></>
     }
