@@ -23,7 +23,6 @@ export interface NotificationData {
   body: string
   channel: string
   sound: NotificationsSounds
-  browserWindow: Electron.BrowserWindow
 }
 
 export function* displayMessageNotificationSaga(
@@ -33,8 +32,8 @@ export function* displayMessageNotificationSaga(
   const { messages } = action.payload
 
   // Do not display notification if app is in foreground
-  const browserWindow = (yield* call(remote.BrowserWindow.getAllWindows)) as unknown as Electron.BrowserWindow
-  if (browserWindow.isFocused()) return
+  const focused = yield* call(isWindowFocused)
+  if (focused) return
 
   const currentChannel = yield* select(_channels.selectors.currentChannel)
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
@@ -76,12 +75,16 @@ export function* displayMessageNotificationSaga(
       label: label,
       body: body,
       channel: message.channelAddress,
-      sound: notificationsSound,
-      browserWindow: browserWindow
+      sound: notificationsSound
     }
 
     yield* call(createNotification, notificationData)
   }
+}
+
+const isWindowFocused = (): boolean => {
+  const [browserWindow] = remote.BrowserWindow.getAllWindows()
+  return browserWindow.isFocused()
 }
 
 export const createNotification = (payload: NotificationData) => {
@@ -99,12 +102,14 @@ export const createNotification = (payload: NotificationData) => {
     silent: true
   })
 
+  const [browserWindow] = remote.BrowserWindow.getAllWindows()
+
   notification.onclick = () => {
     store.dispatch(
       _channels.actions.setCurrentChannel({
         channelAddress: payload.channel
       })
     )
-    payload.browserWindow.show()
+    browserWindow.show()
   }
 }

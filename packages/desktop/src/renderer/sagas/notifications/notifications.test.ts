@@ -20,7 +20,7 @@ import {
   settings,
   users
 } from '@quiet/state-manager'
-import { displayMessageNotificationSaga } from './notifications'
+import { displayMessageNotificationSaga } from './notifications.saga'
 import { soundTypeToAudio } from '../../../shared/sounds'
 
 const originalNotification = window.Notification
