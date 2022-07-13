@@ -1,7 +1,7 @@
 import React from 'react'
 import theme from '../../../theme'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
-import { DisplayableMessage, DownloadStatus } from '@quiet/state-manager'
+import { AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage, DownloadStatus } from '@quiet/state-manager'
 import classNames from 'classnames'
 import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
@@ -47,6 +47,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   const renderMessage = () => {
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
+      if(message.media.size < AUTODOWNLOAD_SIZE_LIMIT){
         return (
           <div
             className={classNames({
@@ -57,6 +58,9 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
             <UploadedImage message={message} uploadedFileModal={uploadedFileModal} />
           </div>
         )
+      } else{
+        message.type = 2
+      }
       case 4: // MessageType.File
         return (
           <div
