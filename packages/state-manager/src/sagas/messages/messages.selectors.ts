@@ -1,15 +1,19 @@
 import { createSelector } from 'reselect'
+import { AUTODOWNLOAD_SIZE_LIMIT } from '../../constants'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
 import { currentChannelAddress } from '../publicChannels/publicChannels.selectors'
 import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
+import { downloadStatuses } from '../files/files.selectors'
+
 import {
   messageSendingStatusAdapter,
   messageVerificationStatusAdapter,
   publicChannelsMessagesBaseAdapter
 } from './messages.adapter.ts'
 import { MessageType } from './messages.types'
+import { DownloadState } from '../files/files.types'
 
 const messagesSlice: CreatedSelectors[StoreKeys.Messages] = (state: StoreState) =>
   state[StoreKeys.Messages]
@@ -108,12 +112,12 @@ export const missingChannelMessages = (ids: string[], channelAddress: string) =>
   })
 
 export const missingChannelFiles = (channelAddress: string) =>
-  createSelector(publicChannelsMessagesBase, base => {
+  createSelector(publicChannelsMessagesBase, downloadStatuses, (base, statuses) => {
     const channelMessages = channelMessagesAdapter
       .getSelectors()
       .selectAll(base[channelAddress].messages)
     return channelMessages
-      .filter(message => message.type === MessageType.Image && message.media?.path === null)
+      .filter(message => (message.type === MessageType.Image || message.type === MessageType.File) && message.media?.path === null)
       .map(message => message.media)
   })
 

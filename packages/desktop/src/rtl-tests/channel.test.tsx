@@ -10,8 +10,8 @@ import { socketEventData } from '../renderer/testUtils/socket'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
-
 import {
+  files as filesStore,
   identity,
   communities,
   publicChannels,
@@ -734,7 +734,8 @@ describe('Channel', () => {
       message: {
         id: message,
         channelAddress: channelAddress
-      }
+      },
+      size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
 
     await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
@@ -774,6 +775,12 @@ describe('Channel', () => {
           })
         }
       })
+
+    initialState.dispatch(filesStore.actions.updateDownloadStatus({
+      mid: missingFile.message.id,
+      cid: missingFile.cid,
+      downloadState: DownloadState.Downloading
+    }))
 
     const { store, runSaga } = await prepareStore(
       initialState.getState(),
