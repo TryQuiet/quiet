@@ -11,6 +11,7 @@ import {
   MessageType,
   NotificationsOptions,
   NotificationsSounds,
+  files
 } from '@quiet/state-manager'
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel } from 'redux-saga'
@@ -21,7 +22,7 @@ const remote = require('@electron/remote')
 
 export interface NotificationData {
   label: string
-  body: string
+  body?: string
   channel: string
   sound: NotificationsSounds
 }
@@ -29,7 +30,6 @@ export interface NotificationData {
 export function* displayMessageNotificationSaga(
   action: PayloadAction<ReturnType<typeof messages.actions.incomingMessages>['payload']>
 ): Generator {
-
   const incomingMessages = action.payload.messages
 
   const currentChannel = yield* select(publicChannels.selectors.currentChannel)
@@ -37,6 +37,8 @@ export function* displayMessageNotificationSaga(
   const certificatesMapping = yield* select(users.selectors.certificatesMapping)
 
   const lastConnectedTime = yield* select(connection.selectors.lastConnectedTime)
+
+  const downloadStatuses = yield* select(files.selectors.downloadStatuses)
 
   const notificationsConfig = yield* select(settings.selectors.getNotificationsOption)
   const notificationsSound = yield* select(settings.selectors.getNotificationsSound)
@@ -50,7 +52,7 @@ export function* displayMessageNotificationSaga(
     if (focused && message.channelAddress === currentChannel.address) return
 
     // Do not display notifications for own messages
-    const sender = certificatesMapping[message.pubKey].username
+    const sender = certificatesMapping[message.pubKey]?.username
     if (sender === currentIdentity.nickname) return
 
     // Do not display notifications if turned off in configuration
@@ -59,16 +61,20 @@ export function* displayMessageNotificationSaga(
     // Do not display notification if message is old
     if (message.createdAt <= lastConnectedTime) return
 
-    let label: string
-    let body: string
+    let label = `New message from @${sender} in #${message.channelAddress}`
+    let body = `${message.message.substring(0, 64)}${message.message.length > 64 ? '...' : ''}`
 
-    switch (message.type) {
-      case MessageType.Image:
-        label = `${sender} in #${message.channelAddress}`
-        body = 'shared this image'
-      default:
-        label = `New message from ${sender} in #${message.channelAddress}`
-        body = `${message.message.substring(0, 64)}${message.message.length > 64 ? '...' : ''}`
+    // Change notification's label for the image
+    if (message.type === MessageType.Image) {
+      label = `@${sender} sends image in #${message.channelAddress}`
+      body = `${message.media?.path ? 'Received image!' : 'Loading image...'}`
+    }
+
+    // Change notification's label for the file
+    if (message.type === MessageType.File) {
+      const status = downloadStatuses[message.id]
+      label = `@${sender} sends file in #${message.channelAddress}`
+      body = `Downloading status: ${status ? status.downloadState : 'waiting for connection'}`
     }
 
     const channel = message.channelAddress
@@ -108,7 +114,7 @@ export const createNotification = (notificationData: NotificationData): Notifica
   })
 }
 
-function* handleNotificationActions(notification: Notification, channel: string): Generator {
+export function* handleNotificationActions(notification: Notification, channel: string): Generator {
   const events = yield* call(subscribeNotificationEvents, notification, channel)
   yield takeEvery(events, function* (action) {
     yield put(action)
@@ -121,7 +127,7 @@ function subscribeNotificationEvents(notification: Notification, channel: string
       const [browserWindow] = remote.BrowserWindow.getAllWindows()
       browserWindow.show()
       // Emit store action
-      emit(publicChannels.actions.setCurrentChannel({channelAddress: channel}))
+      emit(publicChannels.actions.setCurrentChannel({ channelAddress: channel }))
     }
     return () => {}
   })

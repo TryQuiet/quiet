@@ -1,16 +1,21 @@
-import { Store } from '@reduxjs/toolkit'
-import { prepareStore } from '../../testUtils/prepareStore'
 import MockedSocket from 'socket.io-mock'
-import { communities, CreatedChannelResponse, getFactory, identity, IncomingMessages, MessageType, messages, publicChannels, users } from '@quiet/state-manager'
-import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { ioMock } from '../../../shared/setupTests'
-import { DateTime } from 'luxon'
+import { prepareStore } from '../../testUtils/prepareStore'
+import { setupCrypto } from '@quiet/identity'
+import { call, fork } from 'typed-redux-saga'
+import { publicChannels, NotificationsSounds } from '@quiet/state-manager'
+import {
+  createNotification,
+  handleNotificationActions,
+  NotificationData
+} from './notifications.saga'
 
-const originalNotification = window.Notification
-const mockNotification = {
-  onclose: jest.fn(),
-  onclick: jest.fn()
-}
+const notification = jest.fn().mockImplementation(() => {
+  return jest.fn()
+})
+
+// @ts-expect-error
+window.Notification = notification
 
 jest.mock('../../../shared/sounds', () => ({
   // @ts-expect-error
@@ -22,81 +27,36 @@ jest.mock('../../../shared/sounds', () => ({
   }
 }))
 
-describe('displayMessageNotificationSaga test', () => {
-  let store: Store
-  let socket: MockedSocket
+beforeAll(async () => {
+  setupCrypto()
+})
 
-  let notification
-
-  let incomingMessages: IncomingMessages
-
-  let publicChannel: CreatedChannelResponse
-  
-  afterEach(async () => {
-    window.Notification = originalNotification
-  })
-
-  beforeEach(async () => {
-    socket = new MockedSocket()
-
+describe('clicking in notification', () => {
+  it('changes active channel', async () => {
+    const socket: MockedSocket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
 
-    notification = jest.fn().mockImplementation(() => { return mockNotification })
+    const { store, runSaga } = await prepareStore({}, socket)
 
-    window.Notification = notification
+    const channelAddress = 'sailing'
 
-    store = (await prepareStore()).store
-
-    const factory = await getFactory(store)
-
-    const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
-
-    publicChannel = await factory.create<
-    ReturnType<typeof publicChannels.actions.addChannel>['payload']
-    >('PublicChannel')
-
-    const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'alice' })
-
-    const bob = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'bob' })
-
-    const parsedCert = parseCertificate(alice.userCertificate)
-    const userPubKey = keyFromCertificate(parsedCert)
-
-    const senderPubKey = Object.keys(users.selectors.certificatesMapping(store.getState()))
-      .find((pubKey) => pubKey !== userPubKey)
-
-    const message = (
-      await factory.build<typeof publicChannels.actions.test_message>('Message', {
-        identity: bob,
-        message: {
-          id: Math.random().toString(36).substr(2.9),
-          type: MessageType.Basic,
-          message: 'message',
-          createdAt: DateTime.utc().valueOf(),
-          channelAddress: publicChannel.channel.address,
-          signature: '',
-          pubKey: senderPubKey
-        },
-        verifyAutomatically: true
-      })
-    ).payload.message
-
-    incomingMessages = {
-      messages: [message]
+    const notificationData: NotificationData = {
+      label: 'label',
+      body: 'body',
+      channel: channelAddress,
+      sound: NotificationsSounds.splat
     }
-  })
 
-  it('clicking on notification takes you to the message in relevant channel', async () => {
-    store.dispatch(messages.actions.incomingMessages(incomingMessages))
-    // Simulate clicking on notification
-    mockNotification.onclick()
-    const currentChannel = publicChannels.selectors.currentChannelAddress(store.getState())
-    expect(currentChannel).toBe(publicChannel.channel.address)
+    // Verify current channel is 'general
+    expect(publicChannels.selectors.currentChannelAddress(store.getState())).toBe('general')
+
+    runSaga(function* (): Generator {
+      const notification = yield* call(createNotification, notificationData)
+      yield* fork(handleNotificationActions, notification, channelAddress)
+      yield* call(notification.onclick, new Event(''))
+    })
+
+    // Confirm current channel address has changed
+    expect(publicChannels.selectors.currentChannelAddress(store.getState())).toBe(channelAddress)
   })
 })

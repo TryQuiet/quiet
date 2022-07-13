@@ -1,7 +1,7 @@
 import { combineReducers, Store } from '@reduxjs/toolkit'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { reducers } from '../../store/reducers'
-import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
+import { setupCrypto } from '@quiet/identity'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import {
@@ -12,15 +12,20 @@ import {
   identity,
   Identity,
   messages,
+  ChannelMessage,
   IncomingMessages,
   NotificationsOptions,
   NotificationsSounds,
   publicChannels,
   PublicChannel,
   settings,
-  users
+  MessageType
 } from '@quiet/state-manager'
-import { displayMessageNotificationSaga, isWindowFocused } from './notifications.saga'
+import {
+  createNotification,
+  displayMessageNotificationSaga,
+  isWindowFocused
+} from './notifications.saga'
 import { soundTypeToAudio } from '../../../shared/sounds'
 
 const originalNotification = window.Notification
@@ -69,12 +74,14 @@ jest.mock('../../../shared/sounds', () => ({
 let store: Store
 
 let community: Community
+
 let alice: Identity
-let publicChannel: PublicChannel
+let bob: Identity
 
-let incomingMessages: IncomingMessages
+let sailingChannel: PublicChannel
 
-let userPubKey
+let aliceMessage: ChannelMessage
+let message: ChannelMessage
 
 const lastConnectedTime = 1000000
 
@@ -86,10 +93,10 @@ beforeAll(async () => {
   const factory = await getFactory(store)
 
   community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+  ReturnType<typeof communities.actions.addNewCommunity>['payload']
   >('Community')
 
-  publicChannel = (
+  sailingChannel = (
     await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
       'PublicChannel'
     )
@@ -100,28 +107,44 @@ beforeAll(async () => {
     { id: community.id, nickname: 'alice' }
   )
 
-  const parsedCert = parseCertificate(alice.userCertificate)
-  userPubKey = await keyFromCertificate(parsedCert)
-
-  const senderPubKey = Object.keys(users.selectors.certificatesMapping(store.getState())).find(
-    pubKey => pubKey !== userPubKey
-  )
-
   store.dispatch(connection.actions.setLastConnectedTime(lastConnectedTime))
 
-  incomingMessages = {
-    messages: [
-      {
-        id: 'id',
-        type: 1,
-        message: 'message',
+  bob = (
+    await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
+      id: community.id,
+      nickname: 'bob'
+    })
+  ).payload
+
+  message = (
+    await factory.build<typeof publicChannels.actions.test_message>('Message', {
+      identity: bob,
+      message: {
+        id: Math.random().toString(36).substr(2.9),
+        type: MessageType.Basic,
+        message: 'hello there!',
         createdAt: lastConnectedTime + 1,
-        channelAddress: publicChannel.address,
-        signature: 'signature',
-        pubKey: senderPubKey
+        channelAddress: sailingChannel.address,
+        signature: '',
+        pubKey: ''
       }
-    ]
-  }
+    })
+  ).payload.message
+
+  aliceMessage = (
+    await factory.build<typeof publicChannels.actions.test_message>('Message', {
+      identity: alice,
+      message: {
+        id: Math.random().toString(36).substr(2.9),
+        type: MessageType.Basic,
+        message: 'how are you?',
+        createdAt: lastConnectedTime + 1,
+        channelAddress: sailingChannel.address,
+        signature: '',
+        pubKey: ''
+      }
+    })
+  ).payload.message
 })
 
 afterAll(() => {
@@ -134,27 +157,36 @@ afterEach(() => {
   jest.resetAllMocks()
 
   // Reenable notification in settings
-  store.dispatch(settings.actions.setNotificationsOption(NotificationsOptions.notifyForEveryMessage))
+  store.dispatch(
+    settings.actions.setNotificationsOption(NotificationsOptions.notifyForEveryMessage)
+  )
 
   // Reenable notification sound in settings
   store.dispatch(settings.actions.setNotificationsSound(NotificationsSounds.pow))
-
 })
 
 describe('displayNotificationsSaga', () => {
-  test('display notification when the user is on a different channel and settings are set on show every notification', async () => {
+  test('display notification', async () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages(incomingMessages)
+      messages.actions.incomingMessages({
+        messages: [message]
+      })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
+      .call(createNotification, {
+        label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
+        body: message.message,
+        channel: sailingChannel.address,
+        sound: NotificationsSounds.pow
+      })
       .run()
 
-    expect(notification).toBeCalledWith('New message from user_1 in #public-channel-1', {
-      body: incomingMessages.messages[0].message,
+    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.address}`, {
+      body: message.message,
       icon: '../../build/icon.png',
       silent: true
     })
@@ -164,7 +196,9 @@ describe('displayNotificationsSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages(incomingMessages)
+      messages.actions.incomingMessages({
+        messages: [message]
+      })
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -181,7 +215,9 @@ describe('displayNotificationsSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages(incomingMessages)
+      messages.actions.incomingMessages({
+        messages: [message]
+      })
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -191,19 +227,22 @@ describe('displayNotificationsSaga', () => {
     expect(soundTypeToAudio.pow.play).toHaveBeenCalled()
   })
 
-  test('do not display notification when the user is on a same channel', async () => {
+  test('do not display notification when the user is on the active channel', async () => {
     store.dispatch(
-      publicChannels.actions.setCurrentChannel({ channelAddress: publicChannel.address })
+      publicChannels.actions.setCurrentChannel({ channelAddress: sailingChannel.address })
     )
 
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages(incomingMessages)
+      messages.actions.incomingMessages({
+        messages: [message]
+      })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), true]])
+      .not.call(createNotification)
       .run()
 
     expect(notification).not.toHaveBeenCalled()
@@ -211,21 +250,29 @@ describe('displayNotificationsSaga', () => {
 
   test('notification shows for message in current channel when app window does not have focus', async () => {
     store.dispatch(
-      publicChannels.actions.setCurrentChannel({ channelAddress: publicChannel.address })
+      publicChannels.actions.setCurrentChannel({ channelAddress: sailingChannel.address })
     )
 
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages(incomingMessages)
+      messages.actions.incomingMessages({
+        messages: [message]
+      })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
+      .call(createNotification, {
+        label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
+        body: message.message,
+        channel: sailingChannel.address,
+        sound: NotificationsSounds.pow
+      })
       .run()
 
-    expect(notification).toBeCalledWith('New message from user_1 in #public-channel-1', {
-      body: incomingMessages.messages[0].message,
+    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.address}`, {
+      body: message.message,
       icon: '../../build/icon.png',
       silent: true
     })
@@ -234,23 +281,20 @@ describe('displayNotificationsSaga', () => {
   test('do not display notification when the message was sent before last connection app time', async () => {
     // Mock messages sent before last connection time
     const payload: IncomingMessages = {
-      ...incomingMessages,
       messages: [
         {
-          ...incomingMessages.messages[0],
+          ...message,
           createdAt: lastConnectedTime - 1
         }
       ]
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      displayMessageNotificationSaga,
-      messages.actions.incomingMessages(payload)
-    )
+    await expectSaga(displayMessageNotificationSaga, messages.actions.incomingMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), true]])
+      .not.call(createNotification)
       .run()
 
     expect(notification).not.toHaveBeenCalled()
@@ -259,63 +303,60 @@ describe('displayNotificationsSaga', () => {
   test('do not display notification when there is no sender info', async () => {
     // Mock messages missing the author
     const payload: IncomingMessages = {
-      ...incomingMessages,
       messages: [
         {
-          ...incomingMessages.messages[0],
-          pubKey: 'notExistingPubKey'
+          ...message,
+          pubKey: 'fake'
         }
       ]
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      displayMessageNotificationSaga,
-      messages.actions.incomingMessages(payload)
-    )
+    await expectSaga(displayMessageNotificationSaga, messages.actions.incomingMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), true]])
+      .not.call(createNotification)
       .run()
 
     expect(notification).not.toHaveBeenCalled()
   })
 
-  test('do not display notification when incoming message is from same user', async () => {
-    const incomingMessagesWithUserPubKey: IncomingMessages = {
-      ...incomingMessages,
-      messages: [
-        {
-          ...incomingMessages.messages[0],
-          pubKey: userPubKey
-        }
-      ]
+  test('do not display notification for own messages', async () => {
+    const payload: IncomingMessages = {
+      messages: [aliceMessage]
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      displayMessageNotificationSaga,
-      messages.actions.incomingMessages(incomingMessagesWithUserPubKey)
-    )
+    await expectSaga(displayMessageNotificationSaga, messages.actions.incomingMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
+      .not.call(createNotification)
       .run()
 
     expect(notification).not.toHaveBeenCalled()
   })
 
-  test('do not play a sound when the notification is displayed and sounds setting is set on do not play sound ', async () => {
+  test('do not play sounds if turned off in settings', async () => {
     store.dispatch(settings.actions.setNotificationsSound(NotificationsSounds.none))
 
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages(incomingMessages)
+      messages.actions.incomingMessages({
+        messages: [message]
+      })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
+      .call(createNotification, {
+        label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
+        body: message.message,
+        channel: sailingChannel.address,
+        sound: NotificationsSounds.none
+      })
       .run()
 
     expect(soundTypeToAudio.pow.play).not.toHaveBeenCalled()
@@ -323,19 +364,104 @@ describe('displayNotificationsSaga', () => {
     expect(soundTypeToAudio.splat.play).not.toHaveBeenCalled()
   })
 
-  test('do not display notification when settings are set on do not show notifications', async () => {
-    store.dispatch(settings.actions.setNotificationsOption(NotificationsOptions.doNotNotifyOfAnyMessages))
+  test('do not display notifications if turned off in settings', async () => {
+    store.dispatch(
+      settings.actions.setNotificationsOption(NotificationsOptions.doNotNotifyOfAnyMessages)
+    )
 
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages(incomingMessages)
+      messages.actions.incomingMessages({
+        messages: [message]
+      })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
+      .not.call(createNotification)
       .run()
 
     expect(notification).not.toHaveBeenCalled()
+  })
+
+  test('display notification for incoming image', async () => {
+    const payload: IncomingMessages = {
+      messages: [
+        {
+          ...message,
+          type: MessageType.Image,
+          media: {
+            cid: 'cid',
+            path: null,
+            name: 'image',
+            ext: '.png',
+            message: {
+              id: message.id,
+              channelAddress: message.channelAddress
+            }
+          }
+        }
+      ]
+    }
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(displayMessageNotificationSaga, messages.actions.incomingMessages(payload))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), false]])
+      .call(createNotification, {
+        label: `@${bob.nickname} sends image in #${sailingChannel.address}`,
+        body: 'Loading image...',
+        channel: sailingChannel.address,
+        sound: NotificationsSounds.pow
+      })
+      .run()
+
+    expect(notification).toBeCalledWith(`@${bob.nickname} sends image in #${sailingChannel.address}`, {
+      body: 'Loading image...',
+      icon: '../../build/icon.png',
+      silent: true
+    })
+  })
+
+  test('display notification for incoming file', async () => {
+    const payload: IncomingMessages = {
+      messages: [
+        {
+          ...message,
+          type: MessageType.File,
+          media: {
+            cid: 'cid',
+            path: null,
+            name: 'file',
+            ext: '.ext',
+            message: {
+              id: message.id,
+              channelAddress: message.channelAddress
+            }
+          }
+        }
+      ]
+    }
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(displayMessageNotificationSaga, messages.actions.incomingMessages(payload))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), false]])
+      .call(createNotification, {
+        label: `@${bob.nickname} sends file in #${sailingChannel.address}`,
+        body: 'Downloading status: waiting for connection',
+        channel: sailingChannel.address,
+        sound: NotificationsSounds.pow
+      })
+      .run()
+
+    expect(notification).toBeCalledWith(`@${bob.nickname} sends file in #${sailingChannel.address}`, {
+      body: 'Downloading status: waiting for connection',
+      icon: '../../build/icon.png',
+      silent: true
+    })
   })
 })
