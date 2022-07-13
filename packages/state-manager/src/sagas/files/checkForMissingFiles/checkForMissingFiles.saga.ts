@@ -24,13 +24,15 @@ export function* checkForMissingFilesSaga(
 
   const channels = yield* select(publicChannelsSelectors.publicChannels)
 
-  const fileStatuses = yield* select(filesSelectors.downloadStatuses)
+  const downloadStatuses = yield* select(filesSelectors.downloadStatuses)
 
   for (const channel of channels) {
     const missingFiles = yield* select(missingChannelFiles(channel.address))
     if (missingFiles.length > 0) {
       for (const file of missingFiles) {
-        if (file.size > AUTODOWNLOAD_SIZE_LIMIT || fileStatuses[file.message.id].downloadState === DownloadState.Canceled) return
+        if (file.size > AUTODOWNLOAD_SIZE_LIMIT) return
+        
+        if (downloadStatuses[file.message.id].downloadState === DownloadState.Canceled) return
 
         yield* put(filesActions.updateDownloadStatus({
           mid: file.message.id,

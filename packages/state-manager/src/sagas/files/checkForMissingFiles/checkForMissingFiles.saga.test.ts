@@ -64,6 +64,12 @@ describe('checkForMissingFilesSaga', () => {
     const store = (await prepareStore(initialState.getState())).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
+    store.dispatch(filesActions.updateDownloadStatus({
+      mid: missingFile.message.id,
+      cid: missingFile.cid,
+      downloadState: DownloadState.Downloading
+    }))
+
     const reducer = combineReducers(reducers)
     await expectSaga(
       checkForMissingFilesSaga,
@@ -135,6 +141,12 @@ describe('checkForMissingFilesSaga', () => {
     const store = (await prepareStore(initialState.getState())).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
+    store.dispatch(filesActions.updateDownloadStatus({
+      mid: missingFile.message.id,
+      cid: missingFile.cid,
+      downloadState: DownloadState.Downloading
+    }))
+
     const reducer = combineReducers(reducers)
     await expectSaga(
       checkForMissingFilesSaga,
@@ -205,6 +217,12 @@ describe('checkForMissingFilesSaga', () => {
 
     const store = (await prepareStore(initialState.getState())).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+    store.dispatch(filesActions.updateDownloadStatus({
+      mid: missingFile.message.id,
+      cid: missingFile.cid,
+      downloadState: DownloadState.Downloading
+    }))
 
     const reducer = combineReducers(reducers)
     await expectSaga(
