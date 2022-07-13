@@ -47,7 +47,6 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   const renderMessage = () => {
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
-      if(message.media.size < AUTODOWNLOAD_SIZE_LIMIT){
         return (
           <div
             className={classNames({
@@ -55,12 +54,13 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
               [classes.pending]: pending
             })}
             data-testid={`messagesGroupContent-${message.id}`}>
-            <UploadedImage message={message} uploadedFileModal={uploadedFileModal} />
+            {message?.media?.size < AUTODOWNLOAD_SIZE_LIMIT ? (
+              <UploadedImage message={message} uploadedFileModal={uploadedFileModal} />
+            ) : (
+              <FileComponent message={message} downloadStatus={downloadStatus} openContainingFolder={openContainingFolder} downloadFile={downloadFile} cancelDownload={cancelDownload} />
+            )}
           </div>
         )
-      } else{
-        message.type = 2
-      }
       case 4: // MessageType.File
         return (
           <div
