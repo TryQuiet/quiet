@@ -3,8 +3,8 @@ import { prepareStore } from '../../testUtils/prepareStore'
 import { reducers } from '../../store/reducers'
 import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
 import { expectSaga } from 'redux-saga-test-plan'
+import { call } from 'redux-saga-test-plan/matchers'
 import {
-  StoreKeys,
   getFactory,
   connection,
   communities,
@@ -20,7 +20,7 @@ import {
   settings,
   users
 } from '@quiet/state-manager'
-import { displayMessageNotificationSaga } from './notifications.saga'
+import { displayMessageNotificationSaga, isWindowFocused } from './notifications.saga'
 import { soundTypeToAudio } from '../../../shared/sounds'
 
 const originalNotification = window.Notification
@@ -35,7 +35,6 @@ const notification = jest.fn().mockImplementation(() => {
 window.Notification = notification
 
 const mockShow = jest.fn()
-const mockIsFocused = jest.fn()
 
 jest.mock('@electron/remote', () => {
   return {
@@ -43,7 +42,6 @@ jest.mock('@electron/remote', () => {
       getAllWindows: () => {
         return [
           {
-            isFocused: mockIsFocused,
             show: mockShow
           }
         ]
@@ -133,30 +131,26 @@ afterAll(() => {
 afterEach(() => {
   notification.mockClear()
   mockShow.mockClear()
-  mockIsFocused.mockClear()
   jest.resetAllMocks()
+
+  // Reenable notification in settings
+  store.dispatch(settings.actions.setNotificationsOption(NotificationsOptions.notifyForEveryMessage))
+
+  // Reenable notification sound in settings
+  store.dispatch(settings.actions.setNotificationsSound(NotificationsSounds.pow))
+
 })
 
 describe('displayNotificationsSaga', () => {
   test('display notification when the user is on a different channel and settings are set on show every notification', async () => {
-    mockIsFocused.mockImplementationOnce(() => {
-      return true
-    })
-
+    const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages(incomingMessages)
     )
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Identity]: identity.reducer,
-          [StoreKeys.Settings]: settings.reducer,
-          [StoreKeys.PublicChannels]: publicChannels.reducer,
-          [StoreKeys.Users]: users.reducer,
-          [StoreKeys.Communities]: communities.reducer
-        }),
-        store.getState()
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), false]])
       .run()
 
     expect(notification).toBeCalledWith('New message from user_1 in #public-channel-1', {
@@ -166,61 +160,17 @@ describe('displayNotificationsSaga', () => {
     })
   })
 
-  test('do not display notification when incoming message is from same user', async () => {
-    mockIsFocused.mockImplementationOnce(() => {
-      return true
-    })
-
-    const incomingMessagesWithUserPubKey: IncomingMessages = {
-      ...incomingMessages,
-      messages: [
-        {
-          ...incomingMessages.messages[0],
-          pubKey: userPubKey
-        }
-      ]
-    }
-
-    await expectSaga(
-      displayMessageNotificationSaga,
-      messages.actions.incomingMessages(incomingMessagesWithUserPubKey)
-    )
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Identity]: identity.reducer,
-          [StoreKeys.Settings]: settings.reducer,
-          [StoreKeys.PublicChannels]: publicChannels.reducer,
-          [StoreKeys.Users]: users.reducer,
-          [StoreKeys.Communities]: communities.reducer
-        }),
-        store.getState()
-      )
-      .run()
-    expect(notification).not.toHaveBeenCalled()
-  })
-
   test('clicking in notification foregrounds the app', async () => {
-    mockIsFocused.mockImplementationOnce(() => {
-      return false
-    })
-
+    const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages(incomingMessages)
     )
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Identity]: identity.reducer,
-          [StoreKeys.Settings]: settings.reducer,
-          [StoreKeys.PublicChannels]: publicChannels.reducer,
-          [StoreKeys.Users]: users.reducer,
-          [StoreKeys.Communities]: communities.reducer
-        }),
-        store.getState()
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), true]])
       .run()
 
-    // simulate click on notification
     // @ts-expect-error
     mockNotification.onclick()
 
@@ -228,98 +178,20 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('play a sound when the notification is displayed', async () => {
-    mockIsFocused.mockImplementationOnce(() => {
-      return true
-    })
-
+    const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages(incomingMessages)
     )
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Identity]: identity.reducer,
-          [StoreKeys.Settings]: settings.reducer,
-          [StoreKeys.PublicChannels]: publicChannels.reducer,
-          [StoreKeys.Users]: users.reducer,
-          [StoreKeys.Communities]: communities.reducer
-        }),
-        store.getState()
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), false]])
       .run()
+
     expect(soundTypeToAudio.pow.play).toHaveBeenCalled()
   })
 
-  test('do not play a sound when the notification is displayed and sounds setting is set on do not play sound ', async () => {
-    mockIsFocused.mockImplementationOnce(() => {
-      return true
-    })
-
-    const storeWithNotificationsSoundTurnedOff = {
-      ...store.getState(),
-      [StoreKeys.Settings]: {
-        ...new settings.State(),
-        notificationsSound: NotificationsSounds.none
-      }
-    }
-
-    await expectSaga(
-      displayMessageNotificationSaga,
-      messages.actions.incomingMessages(incomingMessages)
-    )
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Identity]: identity.reducer,
-          [StoreKeys.Settings]: settings.reducer,
-          [StoreKeys.PublicChannels]: publicChannels.reducer,
-          [StoreKeys.Users]: users.reducer,
-          [StoreKeys.Communities]: communities.reducer
-        }),
-        storeWithNotificationsSoundTurnedOff
-      )
-      .run()
-
-    expect(soundTypeToAudio.pow.play).not.toHaveBeenCalled()
-    expect(soundTypeToAudio.bang.play).not.toHaveBeenCalled()
-    expect(soundTypeToAudio.splat.play).not.toHaveBeenCalled()
-  })
-
-  test('do not display notification when settings are set on do not show notifications', async () => {
-    mockIsFocused.mockImplementationOnce(() => {
-      return true
-    })
-
-    const storeReducersWithDoNotShowNotificationsSetting = {
-      ...store.getState(),
-      [StoreKeys.Settings]: {
-        ...new settings.State(),
-        notificationsOption: NotificationsOptions.doNotNotifyOfAnyMessages
-      }
-    }
-
-    await expectSaga(
-      displayMessageNotificationSaga,
-      messages.actions.incomingMessages(incomingMessages)
-    )
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Identity]: identity.reducer,
-          [StoreKeys.Settings]: settings.reducer,
-          [StoreKeys.PublicChannels]: publicChannels.reducer,
-          [StoreKeys.Users]: users.reducer,
-          [StoreKeys.Communities]: communities.reducer
-        }),
-        storeReducersWithDoNotShowNotificationsSetting
-      )
-      .run()
-    expect(notification).not.toHaveBeenCalled()
-  })
-
   test('do not display notification when the user is on a same channel', async () => {
-    mockIsFocused.mockImplementationOnce(() => {
-      return true
-    })
-
     store.dispatch(
       publicChannels.actions.setCurrentChannel({ channelAddress: publicChannel.address })
     )
@@ -331,16 +203,13 @@ describe('displayNotificationsSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), true]])
       .run()
 
     expect(notification).not.toHaveBeenCalled()
   })
 
   test('notification shows for message in current channel when app window does not have focus', async () => {
-    mockIsFocused.mockImplementationOnce(() => {
-      return false
-    })
-
     store.dispatch(
       publicChannels.actions.setCurrentChannel({ channelAddress: publicChannel.address })
     )
@@ -352,6 +221,7 @@ describe('displayNotificationsSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), false]])
       .run()
 
     expect(notification).toBeCalledWith('New message from user_1 in #public-channel-1', {
@@ -362,11 +232,8 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('do not display notification when the message was sent before last connection app time', async () => {
-    mockIsFocused.mockImplementationOnce(() => {
-      return true
-    })
-
-    const incomingMessagesWithTimeStampBeforeLastConnectedTime: IncomingMessages = {
+    // Mock messages sent before last connection time
+    const payload: IncomingMessages = {
       ...incomingMessages,
       messages: [
         {
@@ -376,31 +243,22 @@ describe('displayNotificationsSaga', () => {
       ]
     }
 
+    const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages(incomingMessagesWithTimeStampBeforeLastConnectedTime)
+      messages.actions.incomingMessages(payload)
     )
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Identity]: identity.reducer,
-          [StoreKeys.Settings]: settings.reducer,
-          [StoreKeys.PublicChannels]: publicChannels.reducer,
-          [StoreKeys.Users]: users.reducer,
-          [StoreKeys.Communities]: communities.reducer
-        }),
-        store.getState()
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), true]])
       .run()
 
     expect(notification).not.toHaveBeenCalled()
   })
 
   test('do not display notification when there is no sender info', async () => {
-    mockIsFocused.mockImplementationOnce(() => {
-      return true
-    })
-
-    const incomingMessagesWithoutSender: IncomingMessages = {
+    // Mock messages missing the author
+    const payload: IncomingMessages = {
       ...incomingMessages,
       messages: [
         {
@@ -410,20 +268,72 @@ describe('displayNotificationsSaga', () => {
       ]
     }
 
+    const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages(incomingMessagesWithoutSender)
+      messages.actions.incomingMessages(payload)
     )
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Identity]: identity.reducer,
-          [StoreKeys.Settings]: settings.reducer,
-          [StoreKeys.PublicChannels]: publicChannels.reducer,
-          [StoreKeys.Users]: users.reducer,
-          [StoreKeys.Communities]: communities.reducer
-        }),
-        store.getState()
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), true]])
+      .run()
+
+    expect(notification).not.toHaveBeenCalled()
+  })
+
+  test('do not display notification when incoming message is from same user', async () => {
+    const incomingMessagesWithUserPubKey: IncomingMessages = {
+      ...incomingMessages,
+      messages: [
+        {
+          ...incomingMessages.messages[0],
+          pubKey: userPubKey
+        }
+      ]
+    }
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      displayMessageNotificationSaga,
+      messages.actions.incomingMessages(incomingMessagesWithUserPubKey)
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), false]])
+      .run()
+
+    expect(notification).not.toHaveBeenCalled()
+  })
+
+  test('do not play a sound when the notification is displayed and sounds setting is set on do not play sound ', async () => {
+    store.dispatch(settings.actions.setNotificationsSound(NotificationsSounds.none))
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      displayMessageNotificationSaga,
+      messages.actions.incomingMessages(incomingMessages)
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), false]])
+      .run()
+
+    expect(soundTypeToAudio.pow.play).not.toHaveBeenCalled()
+    expect(soundTypeToAudio.bang.play).not.toHaveBeenCalled()
+    expect(soundTypeToAudio.splat.play).not.toHaveBeenCalled()
+  })
+
+  test('do not display notification when settings are set on do not show notifications', async () => {
+    store.dispatch(settings.actions.setNotificationsOption(NotificationsOptions.doNotNotifyOfAnyMessages))
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      displayMessageNotificationSaga,
+      messages.actions.incomingMessages(incomingMessages)
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), false]])
       .run()
 
     expect(notification).not.toHaveBeenCalled()

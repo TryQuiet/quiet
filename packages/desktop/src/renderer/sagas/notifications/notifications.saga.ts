@@ -1,19 +1,20 @@
 /* global Notification */
-import store from '../../store'
-import { call, select } from 'typed-redux-saga'
+import { call, select, fork, put } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import {
   connection,
   settings,
   identity,
   users,
-  messages as _messages,
-  publicChannels as _channels,
+  messages,
+  publicChannels,
   MessageType,
   NotificationsOptions,
   NotificationsSounds,
 } from '@quiet/state-manager'
 import { soundTypeToAudio } from '../../../shared/sounds'
+import { eventChannel } from 'redux-saga'
+import { takeEvery } from 'redux-saga/effects'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote')
@@ -26,16 +27,12 @@ export interface NotificationData {
 }
 
 export function* displayMessageNotificationSaga(
-  action: PayloadAction<ReturnType<typeof _messages.actions.incomingMessages>['payload']>
+  action: PayloadAction<ReturnType<typeof messages.actions.incomingMessages>['payload']>
 ): Generator {
 
-  const { messages } = action.payload
+  const incomingMessages = action.payload.messages
 
-  // Do not display notification if app is in foreground
-  const focused = yield* call(isWindowFocused)
-  if (focused) return
-
-  const currentChannel = yield* select(_channels.selectors.currentChannel)
+  const currentChannel = yield* select(publicChannels.selectors.currentChannel)
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
   const certificatesMapping = yield* select(users.selectors.certificatesMapping)
 
@@ -44,13 +41,16 @@ export function* displayMessageNotificationSaga(
   const notificationsConfig = yield* select(settings.selectors.getNotificationsOption)
   const notificationsSound = yield* select(settings.selectors.getNotificationsSound)
 
-  for (const message of messages) {
-    const sender = certificatesMapping[message.pubKey].username
+  for (const message of incomingMessages) {
+    // Do not display notification if app is in foreground
+    const focused = yield* call(isWindowFocused)
+    if (focused) return
 
-    // Do not display notifications for active channel
-    if (message.channelAddress === currentChannel.address) return
+    // Do not display notifications for active channel (when the app is in foreground)
+    if (focused && message.channelAddress === currentChannel.address) return
 
     // Do not display notifications for own messages
+    const sender = certificatesMapping[message.pubKey].username
     if (sender === currentIdentity.nickname) return
 
     // Do not display notifications if turned off in configuration
@@ -71,45 +71,58 @@ export function* displayMessageNotificationSaga(
         body = `${message.message.substring(0, 64)}${message.message.length > 64 ? '...' : ''}`
     }
 
+    const channel = message.channelAddress
+
     const notificationData: NotificationData = {
       label: label,
       body: body,
-      channel: message.channelAddress,
+      channel: channel,
       sound: notificationsSound
     }
 
-    yield* call(createNotification, notificationData)
+    const notification = yield* call(createNotification, notificationData)
+    yield* fork(handleNotificationActions, notification, channel)
   }
 }
 
-const isWindowFocused = (): boolean => {
+export const isWindowFocused = (): boolean => {
   const [browserWindow] = remote.BrowserWindow.getAllWindows()
   return browserWindow.isFocused()
 }
 
-export const createNotification = (payload: NotificationData) => {
+export const createNotification = (notificationData: NotificationData): Notification => {
   if (process.platform === 'win32') {
     remote.app.setAppUserModelId(remote.app.name)
   }
 
-  if (soundTypeToAudio[payload.sound]) {
-    soundTypeToAudio[payload.sound].play()
+  const { sound, label, body } = notificationData
+
+  if (soundTypeToAudio[sound]) {
+    soundTypeToAudio[sound].play()
   }
 
-  const notification = new Notification(payload.label, {
-    body: payload.body,
+  return new Notification(label, {
+    body: body,
     icon: '../../build' + '/icon.png',
     silent: true
   })
+}
 
-  const [browserWindow] = remote.BrowserWindow.getAllWindows()
+function* handleNotificationActions(notification: Notification, channel: string): Generator {
+  const events = yield* call(subscribeNotificationEvents, notification, channel)
+  yield takeEvery(events, function* (action) {
+    yield put(action)
+  })
+}
 
-  notification.onclick = () => {
-    store.dispatch(
-      _channels.actions.setCurrentChannel({
-        channelAddress: payload.channel
-      })
-    )
-    browserWindow.show()
-  }
+function subscribeNotificationEvents(notification: Notification, channel: string) {
+  return eventChannel<ReturnType<typeof publicChannels.actions.setCurrentChannel>>(emit => {
+    notification.onclick = () => {
+      const [browserWindow] = remote.BrowserWindow.getAllWindows()
+      browserWindow.show()
+      // Emit store action
+      emit(publicChannels.actions.setCurrentChannel({channelAddress: channel}))
+    }
+    return () => {}
+  })
 }
