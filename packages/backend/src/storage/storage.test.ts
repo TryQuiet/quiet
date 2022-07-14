@@ -347,9 +347,9 @@ describe('Files', () => {
     const statusSpy = jest.spyOn(storage.io, 'updateDownloadProgress')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test.txt'),
-      name: 'test-image',
-      ext: '.txt',
+      path: path.join(__dirname, '/testUtils/test-file.pdf'),
+      name: 'test-file',
+      ext: '.pdf',
       cid: 'uploading_id',
       message: {
         id: 'id',
@@ -397,6 +397,52 @@ describe('Files', () => {
 
     await expect(storage.uploadFile(metadata)).rejects.toThrow()
     expect(uploadSpy).not.toHaveBeenCalled()
+  })
+
+  it('throws error if reported file size is malicious', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+
+    // Uploading
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
+
+    const metadata: FileMetadata = {
+      path: path.join(__dirname, '/testUtils/test-file.pdf'),
+      name: 'test-file',
+      ext: '.pdf',
+      cid: 'uploading_id',
+      message: {
+        id: 'id',
+        channelAddress: 'channelAddress'
+      }
+    }
+
+    await storage.uploadFile(metadata)
+
+    expect(uploadSpy).toHaveBeenCalled()
+
+    // Downloading
+    const progressSpy = jest.spyOn(storage.io, 'updateDownloadProgress')
+    const downloadSpy = jest.spyOn(storage.io, 'updateMessageMedia')
+
+    const uploadMetadata = uploadSpy.mock.calls[0][0]
+
+    await storage.downloadFile({
+      ...uploadMetadata,
+      size: 20400
+    })
+
+    expect(progressSpy).toHaveBeenCalledWith(expect.objectContaining({
+      downloadState: DownloadState.Malicious
+    }))
+
+    expect(downloadSpy).not.toHaveBeenCalled()
   })
 
   it('is uploaded to IPFS then can be downloaded', async () => {

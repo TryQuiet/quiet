@@ -10,8 +10,8 @@ import { socketEventData } from '../renderer/testUtils/socket'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
-
 import {
+  files as filesStore,
   identity,
   communities,
   publicChannels,

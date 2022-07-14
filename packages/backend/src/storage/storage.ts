@@ -28,7 +28,7 @@ import {
   PublicChannelsRepo,
   StorageOptions
 } from '../common/types'
-import { createPaths, removeDirs, removeFiles } from '../common/utils'
+import { compare, createPaths, removeDirs, removeFiles } from '../common/utils'
 import { Config } from '../constants'
 import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
@@ -396,8 +396,6 @@ export class Storage {
       throw new Error(`Couldn't open file ${metadata.path}. Error: ${e.message}`)
     }
 
-    const size = buffer.byteLength
-
     let width: number = null
     let height: number = null
 
@@ -428,7 +426,7 @@ export class Storage {
           ...metadata,
           path: metadata.path,
           cid: entry.cid.toString(),
-          size,
+          size: entry.size,
           width,
           height
         }
@@ -451,6 +449,22 @@ export class Storage {
 
   public async downloadFile(metadata: FileMetadata) {
     const _CID = CID.parse(metadata.cid)
+
+    // Compare actual and reported file size
+    const stat = await this.ipfs.files.stat(_CID)
+    if (!compare(metadata.size, stat.size, 0.05)) {
+      const maliciousStatus: DownloadStatus = {
+        mid: metadata.message.id,
+        cid: metadata.cid,
+        downloadState: DownloadState.Malicious,
+        downloadProgress: undefined
+      }
+
+      this.io.updateDownloadProgress(maliciousStatus)
+
+      return
+    }
+
     const entries = this.ipfs.cat(_CID)
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
