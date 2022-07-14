@@ -1,8 +1,9 @@
 import { AUTODOWNLOAD_SIZE_LIMIT, DownloadState, MessageType } from '@quiet/state-manager'
 import React from 'react'
 import { generateMessages, renderComponent } from '../../../testUtils'
+import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 
-import NestedMessageContent from './NestedMessageContent'
+import NestedMessageContent, { NestedMessageContentProps } from './NestedMessageContent'
 
 describe('NestedMessageContent', () => {
   it('renders message', () => {
@@ -69,13 +70,10 @@ describe('NestedMessageContent', () => {
   })
 
   it('renders file', () => {
+    const messages = generateMessages({ type: 2 })
+
     const message = {
-      id: 'string',
-      type: MessageType.Image,
-      message: '',
-      createdAt: 1636995488.44,
-      date: 'string',
-      nickname: 'bob',
+      ...messages[0],
       media: {
         path: 'path/to/file/test.png',
         name: 'test',
@@ -99,7 +97,7 @@ describe('NestedMessageContent', () => {
           >
             <div
               class="makeStyles-message-409"
-              data-testid="messagesGroupContent-string"
+              data-testid="messagesGroupContent-0"
             >
               <div
                 class="makeStyles-container-516"
@@ -128,13 +126,10 @@ describe('NestedMessageContent', () => {
   })
 
   it('renders large image as file', () => {
+    const messages = generateMessages({ type: 2 })
+
     const message = {
-      id: 'string',
-      type: MessageType.Image,
-      message: '',
-      createdAt: 1636995488.44,
-      date: 'string',
-      nickname: 'bob',
+      ...messages[0],
       media: {
         path: 'path/to/file/test.png',
         name: 'test',
@@ -150,7 +145,7 @@ describe('NestedMessageContent', () => {
       }
     }
 
-    const fileComponentProps = {
+    const fileComponentProps: NestedMessageContentProps & FileActionsProps = {
       downloadStatus: {
         mid: 'mid',
         cid: 'cid',
@@ -163,12 +158,12 @@ describe('NestedMessageContent', () => {
       },
       openContainingFolder: jest.fn(),
       downloadFile: jest.fn(),
-      cancelDownload: jest.fn()
+      cancelDownload: jest.fn(),
+      message: message,
+      pending: false
     }
 
-    const result = renderComponent(
-      <NestedMessageContent pending={false} message={message} {...fileComponentProps} />
-    )
+    const result = renderComponent(<NestedMessageContent {...fileComponentProps} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -177,7 +172,7 @@ describe('NestedMessageContent', () => {
           >
             <div
               class="makeStyles-message-535"
-              data-testid="messagesGroupContent-string"
+              data-testid="messagesGroupContent-0"
             >
               <div
                 class="makeStyles-border-641"
