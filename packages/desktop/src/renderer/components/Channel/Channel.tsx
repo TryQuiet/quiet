@@ -17,7 +17,7 @@ import {
   FilePreviewData,
   UploadFilesPreviewsProps
 } from '../widgets/channels/UploadedFilesPreviews'
-import { ipcRenderer } from 'electron'
+import { shell, ipcRenderer } from 'electron'
 import { getFilesData } from '../../../utils/functions/fileData'
 
 const Channel = () => {
@@ -154,6 +154,10 @@ const Channel = () => {
     ipcRenderer.send('openUploadFileDialog')
   }, [])
 
+  const openUrl = useCallback((url: string) => {
+    shell.openExternal(url)
+  }, [])
+
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelAddress])
@@ -174,6 +178,7 @@ const Channel = () => {
     onDelete: function (): void {},
     onInputChange: onInputChange,
     onInputEnter: onInputEnter,
+    openUrl: openUrl,
     mutedFlag: false,
     notificationFilter: '',
     openNotificationsTab: function (): void {},

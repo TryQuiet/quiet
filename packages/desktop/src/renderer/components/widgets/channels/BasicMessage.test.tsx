@@ -19,7 +19,7 @@ describe('BasicMessage', () => {
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <BasicMessageComponent messages={messages} />
+          <BasicMessageComponent messages={messages} openUrl={jest.fn()} />
         </Provider>
       </HashRouter>
     )
@@ -102,7 +102,7 @@ describe('BasicMessage', () => {
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <BasicMessageComponent messages={messages} />
+          <BasicMessageComponent messages={messages} openUrl={jest.fn()} />
         </Provider>
       </HashRouter>
     )
@@ -195,7 +195,7 @@ describe('BasicMessage', () => {
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <BasicMessageComponent messages={messages} />
+          <BasicMessageComponent messages={messages} openUrl={jest.fn()} />
         </Provider>
       </HashRouter>
     )
@@ -292,7 +292,7 @@ describe('BasicMessage', () => {
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <BasicMessageComponent messages={[...message1, ...message2]} />
+          <BasicMessageComponent messages={[...message1, ...message2]} openUrl={jest.fn()} />
         </Provider>
       </HashRouter>
     )

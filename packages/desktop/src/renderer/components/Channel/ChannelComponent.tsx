@@ -54,6 +54,7 @@ export interface ChannelComponentProps {
   onDelete: () => void
   onInputChange: (value: string) => void
   onInputEnter: (message: string) => void
+  openUrl: (url: string) => void
   mutedFlag: boolean
   disableSettings?: boolean
   notificationFilter: string
@@ -82,6 +83,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   onDelete,
   onInputChange,
   onInputEnter,
+  openUrl,
   mutedFlag,
   disableSettings = false,
   notificationFilter,
@@ -220,6 +222,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             scrollbarRef={scrollbarRef}
             onScroll={onScroll}
             uploadedFileModal={uploadedFileModal}
+            openUrl={openUrl}
           />
         </Grid>
         <Grid item>

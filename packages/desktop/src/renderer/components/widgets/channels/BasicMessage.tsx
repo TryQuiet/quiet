@@ -103,6 +103,7 @@ export const transformToLowercase = (string: string) => {
 export interface BasicMessageProps {
   messages: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
+  openUrl: (url: string) => void
   uploadedFileModal?: ReturnType<
   UseModalTypeWrapper<{
     src: string
@@ -113,6 +114,7 @@ export interface BasicMessageProps {
 export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
   messages,
   pendingMessages = {},
+  openUrl,
   uploadedFileModal
 }) => {
   const classes = useStyles({})
@@ -190,6 +192,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                       pending={pending}
                       key={index}
                       uploadedFileModal={uploadedFileModal}
+                      openUrl={openUrl}
                     />
                   )
                 })}

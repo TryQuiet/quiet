@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import theme from '../../../theme'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
 import { DisplayableMessage } from '@quiet/state-manager'
 import classNames from 'classnames'
 import UploadedFile from './UploadedFile'
-import { useModal, UseModalTypeWrapper } from '../../../containers/hooks'
+import { UseModalTypeWrapper } from '../../../containers/hooks'
+import Linkify from 'react-linkify'
 
 const useStyles = makeStyles(() => ({
   message: {
@@ -24,6 +25,7 @@ const useStyles = makeStyles(() => ({
 export interface NestedMessageContentProps {
   message: DisplayableMessage
   pending: boolean
+  openUrl: (url: string) => void
   uploadedFileModal?: ReturnType<
   UseModalTypeWrapper<{
     src: string
@@ -34,9 +36,18 @@ export interface NestedMessageContentProps {
 export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({
   message,
   pending,
+  openUrl,
   uploadedFileModal
 }) => {
   const classes = useStyles({})
+
+  const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
+    return (
+      <a onClick={() => { openUrl(decoratedHref) }} key={key}>
+        {decoratedText}
+      </a>
+    )
+  }
 
   return (
     <Grid item>
@@ -57,7 +68,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({
             [classes.pending]: pending
           })}
           data-testid={`messagesGroupContent-${message.id}`}>
-          {message.message}
+          <Linkify componentDecorator={componentDecorator}>{message.message}</Linkify>
         </Typography>
       )}
     </Grid>

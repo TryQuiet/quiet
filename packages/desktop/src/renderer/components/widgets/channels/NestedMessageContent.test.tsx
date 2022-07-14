@@ -7,7 +7,7 @@ import NestedMessageContent from './NestedMessageContent'
 describe('NestedMessageContent', () => {
   it('renders message', () => {
     const messages = generateMessages()
-    const result = renderComponent(<NestedMessageContent pending={false} message={messages[0]} />)
+    const result = renderComponent(<NestedMessageContent pending={false} message={messages[0]} openUrl={jest.fn()} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -28,7 +28,7 @@ describe('NestedMessageContent', () => {
 
   it('renders pending message', () => {
     const messages = generateMessages()
-    const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} />)
+    const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -49,7 +49,7 @@ describe('NestedMessageContent', () => {
 
   it('renders info message', () => {
     const messages = generateMessages({ type: 3 })
-    const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} />)
+    const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -87,7 +87,7 @@ describe('NestedMessageContent', () => {
         channelAddress: 'general'
       }
     }
-    const result = renderComponent(<NestedMessageContent pending={false} message={message} />)
+    const result = renderComponent(<NestedMessageContent pending={false} message={message} openUrl={jest.fn()} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>

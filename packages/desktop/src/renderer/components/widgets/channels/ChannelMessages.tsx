@@ -56,6 +56,7 @@ export interface IChannelMessagesProps {
   pendingMessages?: Dictionary<MessageSendingStatus>
   scrollbarRef
   onScroll: () => void
+  openUrl: (url: string) => void
   uploadedFileModal?: ReturnType<
   UseModalTypeWrapper<{
     src: string
@@ -68,6 +69,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   pendingMessages = {},
   scrollbarRef,
   onScroll,
+  openUrl,
   uploadedFileModal
 }) => {
   const classes = useStyles({})
@@ -123,6 +125,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
                     messages={items}
                     pendingMessages={pendingMessages}
                     uploadedFileModal={uploadedFileModal}
+                    openUrl={openUrl}
                   />
                 )
               })}
