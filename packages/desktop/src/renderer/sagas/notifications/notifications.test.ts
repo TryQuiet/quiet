@@ -411,15 +411,15 @@ describe('displayNotificationsSaga', () => {
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
       .call(createNotification, {
-        label: `@${bob.nickname} sends image in #${sailingChannel.address}`,
-        body: 'Loading image...',
+        label: `@${bob.nickname} sent an image in #${sailingChannel.address}`,
+        body: undefined,
         channel: sailingChannel.address,
         sound: NotificationsSounds.pow
       })
       .run()
 
-    expect(notification).toBeCalledWith(`@${bob.nickname} sends image in #${sailingChannel.address}`, {
-      body: 'Loading image...',
+    expect(notification).toBeCalledWith(`@${bob.nickname} sent an image in #${sailingChannel.address}`, {
+      body: undefined,
       icon: '../../build/icon.png',
       silent: true
     })
@@ -452,14 +452,14 @@ describe('displayNotificationsSaga', () => {
       .provide([[call.fn(isWindowFocused), false]])
       .call(createNotification, {
         label: `@${bob.nickname} sends file in #${sailingChannel.address}`,
-        body: 'Downloading status: waiting for connection',
+        body: undefined,
         channel: sailingChannel.address,
         sound: NotificationsSounds.pow
       })
       .run()
 
     expect(notification).toBeCalledWith(`@${bob.nickname} sends file in #${sailingChannel.address}`, {
-      body: 'Downloading status: waiting for connection',
+      body: undefined,
       icon: '../../build/icon.png',
       silent: true
     })

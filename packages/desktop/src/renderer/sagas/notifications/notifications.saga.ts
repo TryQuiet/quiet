@@ -1,4 +1,5 @@
 /* global Notification */
+import { shell } from 'electron'
 import { call, select, fork, put } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import {
@@ -11,7 +12,9 @@ import {
   MessageType,
   NotificationsOptions,
   NotificationsSounds,
-  files
+  files,
+  FileMetadata,
+  DownloadState
 } from '@quiet/state-manager'
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel } from 'redux-saga'
@@ -66,18 +69,26 @@ export function* displayMessageNotificationSaga(
 
     // Change notification's label for the image
     if (message.type === MessageType.Image) {
-      label = `@${sender} sends image in #${message.channelAddress}`
-      body = `${message.media?.path ? 'Received image!' : 'Loading image...'}`
+      label = `@${sender} sent an image in #${message.channelAddress}`
+      body = undefined
     }
 
     // Change notification's label for the file
     if (message.type === MessageType.File) {
       const status = downloadStatuses[message.id]
+
       label = `@${sender} sends file in #${message.channelAddress}`
-      body = `Downloading status: ${status ? status.downloadState : 'waiting for connection'}`
+      body = undefined
+
+      if (status?.downloadState === DownloadState.Completed) {
+        label = `@${sender} sent a file in #${message.channelAddress}`
+        body = 'Download complete. Click to show file in folder.'
+      }
     }
 
     const channel = message.channelAddress
+    const type = message.type
+    const media = message.media
 
     const notificationData: NotificationData = {
       label: label,
@@ -87,7 +98,7 @@ export function* displayMessageNotificationSaga(
     }
 
     const notification = yield* call(createNotification, notificationData)
-    yield* fork(handleNotificationActions, notification, channel)
+    yield* fork(handleNotificationActions, notification, type, channel, media)
   }
 }
 
@@ -114,20 +125,34 @@ export const createNotification = (notificationData: NotificationData): Notifica
   })
 }
 
-export function* handleNotificationActions(notification: Notification, channel: string): Generator {
-  const events = yield* call(subscribeNotificationEvents, notification, channel)
+export function* handleNotificationActions(
+  notification: Notification,
+  type: MessageType,
+  channel: string,
+  media?: FileMetadata
+): Generator {
+  const events = yield* call(subscribeNotificationEvents, notification, type, channel, media)
   yield takeEvery(events, function* (action) {
     yield put(action)
   })
 }
 
-function subscribeNotificationEvents(notification: Notification, channel: string) {
+function subscribeNotificationEvents(
+  notification: Notification,
+  type: MessageType,
+  channel: string,
+  media?: FileMetadata
+) {
   return eventChannel<ReturnType<typeof publicChannels.actions.setCurrentChannel>>(emit => {
     notification.onclick = () => {
-      const [browserWindow] = remote.BrowserWindow.getAllWindows()
-      browserWindow.show()
-      // Emit store action
-      emit(publicChannels.actions.setCurrentChannel({ channelAddress: channel }))
+      if (type === MessageType.File && media.path) {
+        shell.showItemInFolder(media.path)
+      } else {
+        const [browserWindow] = remote.BrowserWindow.getAllWindows()
+        browserWindow.show()
+        // Emit store action
+        emit(publicChannels.actions.setCurrentChannel({ channelAddress: channel }))
+      }
     }
     return () => {}
   })

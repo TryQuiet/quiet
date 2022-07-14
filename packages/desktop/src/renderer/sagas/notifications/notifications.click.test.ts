@@ -1,9 +1,10 @@
+import { shell } from 'electron'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../shared/setupTests'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { setupCrypto } from '@quiet/identity'
 import { call, fork } from 'typed-redux-saga'
-import { publicChannels, NotificationsSounds } from '@quiet/state-manager'
+import { publicChannels, NotificationsSounds, MessageType, FileMetadata } from '@quiet/state-manager'
 import {
   createNotification,
   handleNotificationActions,
@@ -27,6 +28,14 @@ jest.mock('../../../shared/sounds', () => ({
   }
 }))
 
+jest.mock('electron', () => {
+  return {
+    shell: {
+      showItemInFolder: jest.fn()
+    }
+  }
+})
+
 beforeAll(async () => {
   setupCrypto()
 })
@@ -38,12 +47,12 @@ describe('clicking in notification', () => {
 
     const { store, runSaga } = await prepareStore({}, socket)
 
-    const channelAddress = 'sailing'
+    const channel = 'sailing'
 
     const notificationData: NotificationData = {
       label: 'label',
       body: 'body',
-      channel: channelAddress,
+      channel: channel,
       sound: NotificationsSounds.splat
     }
 
@@ -52,11 +61,48 @@ describe('clicking in notification', () => {
 
     runSaga(function* (): Generator {
       const notification = yield* call(createNotification, notificationData)
-      yield* fork(handleNotificationActions, notification, channelAddress)
+      yield* fork(handleNotificationActions, notification, MessageType.Basic, channel)
       yield* call(notification.onclick, new Event(''))
     })
 
     // Confirm current channel address has changed
-    expect(publicChannels.selectors.currentChannelAddress(store.getState())).toBe(channelAddress)
+    expect(publicChannels.selectors.currentChannelAddress(store.getState())).toBe(channel)
+  })
+
+  it('opens file explorer', async () => {
+    const socket: MockedSocket = new MockedSocket()
+    ioMock.mockImplementation(() => socket)
+
+    const { runSaga } = await prepareStore({}, socket)
+
+    const channel = 'sailing'
+
+    const media: FileMetadata = {
+      cid: 'cid',
+      name: 'file',
+      ext: 'ext',
+      path: 'path/file.ext',
+      message: {
+        id: 'id',
+        channelAddress: channel
+      }
+    }
+
+    const notificationData: NotificationData = {
+      label: 'label',
+      body: 'body',
+      channel: channel,
+      sound: NotificationsSounds.splat
+    }
+
+    const spy = jest.spyOn(shell, 'showItemInFolder')
+
+    runSaga(function* (): Generator {
+      const notification = yield* call(createNotification, notificationData)
+      yield* fork(handleNotificationActions, notification, MessageType.File, channel, media)
+      yield* call(notification.onclick, new Event(''))
+    })
+
+    expect(spy).toHaveBeenCalledWith(media.path)
   })
 })
