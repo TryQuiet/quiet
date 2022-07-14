@@ -17,7 +17,6 @@ export interface FilePreviewComponentProps {
 
 const useStyles = makeStyles(() => ({
   inputFiles: {
-    display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'flexStart',
@@ -51,10 +50,8 @@ const useStyles = makeStyles(() => ({
   },
   closeIconContainer: {
     position: 'absolute',
-    margin: '0',
+    margin: '0 0 0 51px', // Left margin is equal fileContainer width minus half the own width
     padding: '0',
-    right: '0px',
-    top: '0px',
     backgroundColor: 'white',
     borderRadius: '100%',
     width: '22px',
@@ -76,7 +73,8 @@ const useStyles = makeStyles(() => ({
     width: '17px'
   },
   imageContainer: {
-    position: 'relative',
+    display: 'inline-block',
+    float: 'left',
     cursor: 'pointer'
   },
   tooltip: {
