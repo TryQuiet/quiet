@@ -10,8 +10,8 @@ import { socketEventData } from '../renderer/testUtils/socket'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
+
 import {
-  files as filesStore,
   identity,
   communities,
   publicChannels,
@@ -656,7 +656,6 @@ describe('Channel', () => {
         if (action === SocketActionTypes.SEND_MESSAGE) {
           const data = input as socketEventData<[SendMessagePayload]>
           const payload = data[0]
-          console.log('msg', payload)
           return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
             messages: [payload.message]
           })
@@ -775,6 +774,19 @@ describe('Channel', () => {
       }
     )
 
+    initialState.dispatch(
+      files.actions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: `uploading_${missingFile.cid}`,
+        downloadState: DownloadState.Queued,
+        downloadProgress: {
+          downloaded: AUTODOWNLOAD_SIZE_LIMIT / 2,
+          size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+          transferSpeed: 1024
+        }
+      })
+    )
+
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
@@ -795,19 +807,6 @@ describe('Channel', () => {
           })
         }
       })
-
-    initialState.dispatch(
-      files.actions.updateDownloadStatus({
-        mid: missingFile.message.id,
-        cid: `uploading_${missingFile.cid}`,
-        downloadState: DownloadState.Queued,
-        downloadProgress: {
-          downloaded: AUTODOWNLOAD_SIZE_LIMIT / 2,
-          size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
-          transferSpeed: 1024
-        }
-      })
-    )
 
     const { store, runSaga } = await prepareStore(
       initialState.getState(),
