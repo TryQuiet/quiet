@@ -51,7 +51,7 @@ export const InviteToCommunity: FC<InviteFriendProps> = ({ communityName, invita
         </Grid>
         <Grid item>
           <Typography variant='body2'>
-            Use this link to add members to <span className={classes.bold}>{communityName}</span>
+            To add members to <span className={classes.bold}>{communityName}</span>, send them this invite code via a secure channel, e.g. Signal. You must be online the first time they join.
           </Typography>
         </Grid>
       </Grid>

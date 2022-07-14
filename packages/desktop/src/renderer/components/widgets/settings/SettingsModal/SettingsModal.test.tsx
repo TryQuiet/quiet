@@ -769,10 +769,11 @@ describe('SettingsModal', () => {
                                   <p
                                     class="MuiTypography-root MuiTypography-body2"
                                   >
-                                    Use this link to add members to 
+                                    To add members to 
                                     <span
                                       class="makeStyles-bold-522"
                                     />
+                                    , send them this invite code via a secure channel, e.g. Signal. You must be online the first time they join.
                                   </p>
                                 </div>
                               </div>
