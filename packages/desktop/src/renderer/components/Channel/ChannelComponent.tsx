@@ -16,6 +16,7 @@ import { useModal, UseModalTypeWrapper } from '../../containers/hooks'
 
 import {
   DisplayableMessage,
+  DownloadStatus,
   Identity,
   MessagesDailyGroups,
   MessageSendingStatus
@@ -23,11 +24,16 @@ import {
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
+
 import UploadFilesPreviewsComponent, {
   UploadFilesPreviewsProps
-} from '../widgets/channels/UploadedFilesPreviews'
+} from './File/UploadingPreview'
+
 import { DropZoneComponent } from './DropZone/DropZoneComponent'
+
 import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoComponent'
+
+import { FileActionsProps } from './File/FileComponent/FileComponent'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -50,6 +56,7 @@ export interface ChannelComponentProps {
   }
   newestMessage: DisplayableMessage
   pendingMessages: Dictionary<MessageSendingStatus>
+  downloadStatuses: Dictionary<DownloadStatus>
   lazyLoading: (load: boolean) => void
   onDelete: () => void
   onInputChange: (value: string) => void
@@ -69,7 +76,7 @@ export interface ChannelComponentProps {
   >
 }
 
-export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps> = ({
+export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps & FileActionsProps> = ({
   user,
   channelAddress,
   channelName,
@@ -78,6 +85,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   messages,
   newestMessage,
   pendingMessages,
+  downloadStatuses,
   lazyLoading,
   onDelete,
   onInputChange,
@@ -90,10 +98,12 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   handleFileDrop,
   filesData,
   isCommunityInitialized = true,
-  unsupportedFileModal,
   openFilesDialog,
   handleClipboardFiles,
-  uploadedFileModal
+  uploadedFileModal,
+  openContainingFolder,
+  downloadFile,
+  cancelDownload
 }) => {
   const classes = useStyles({})
 
@@ -217,9 +227,13 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
           <ChannelMessagesComponent
             messages={messages.groups}
             pendingMessages={pendingMessages}
+            downloadStatuses={downloadStatuses}
             scrollbarRef={scrollbarRef}
             onScroll={onScroll}
             uploadedFileModal={uploadedFileModal}
+            openContainingFolder={openContainingFolder}
+            downloadFile={downloadFile}
+            cancelDownload={cancelDownload}
           />
         </Grid>
         <Grid item>
@@ -239,12 +253,10 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             setInfoClass={setInfoClass}
             inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
             handleClipboardFiles={handleClipboardFiles}
-            unsupportedFileModal={unsupportedFileModal}
             handleOpenFiles={handleFileDrop}>
             <UploadFilesPreviewsComponent
               filesData={filesData}
               removeFile={id => removeFile(id)}
-              unsupportedFileModal={unsupportedFileModal}
             />
           </ChannelInputComponent>
         </Grid>

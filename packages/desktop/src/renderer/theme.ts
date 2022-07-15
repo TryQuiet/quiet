@@ -90,6 +90,7 @@ export default createMuiTheme({
       green: '#4CBB17',
       greenDark: '#9BD174',
       red: '#FF0000',
+      hotRed: '#E42656',
       linkBlue: '#59c0d5',
       buttonGray: '#E3E3E3',
       black30: '#4C4C4C',

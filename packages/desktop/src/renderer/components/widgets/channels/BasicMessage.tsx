@@ -1,4 +1,5 @@
 import React from 'react'
+import { Dictionary } from '@reduxjs/toolkit'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import classNames from 'classnames'
 
@@ -11,11 +12,15 @@ import red from '@material-ui/core/colors/red'
 
 import Jdenticon from 'react-jdenticon'
 
-import { DisplayableMessage, MessageSendingStatus, SendingStatus } from '@quiet/state-manager'
+import { DisplayableMessage, DownloadStatus, MessageSendingStatus } from '@quiet/state-manager'
+
 import { NestedMessageContent } from './NestedMessageContent'
-import { Dictionary } from '@reduxjs/toolkit'
 import { UseModalTypeWrapper } from '../../../containers/hooks'
+
+import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
+
 import information from '../../../static/images/updateIcon.svg'
+
 import Icon from '../../ui/Icon/Icon'
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -103,6 +108,7 @@ export const transformToLowercase = (string: string) => {
 export interface BasicMessageProps {
   messages: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
+  downloadStatuses?: Dictionary<DownloadStatus>
   uploadedFileModal?: ReturnType<
   UseModalTypeWrapper<{
     src: string
@@ -110,10 +116,14 @@ export interface BasicMessageProps {
   >
 }
 
-export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
+export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProps> = ({
   messages,
   pendingMessages = {},
-  uploadedFileModal
+  downloadStatuses = {},
+  uploadedFileModal,
+  openContainingFolder,
+  downloadFile,
+  cancelDownload
 }) => {
   const classes = useStyles({})
 
@@ -184,12 +194,17 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({
                 data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
                 {messages.map((message, index) => {
                   const pending = pendingMessages[message.id] !== undefined
+                  const downloadStatus = downloadStatuses[message.id]
                   return (
                     <NestedMessageContent
+                      key={index}
                       message={message}
                       pending={pending}
-                      key={index}
+                      downloadStatus={downloadStatus}
                       uploadedFileModal={uploadedFileModal}
+                      openContainingFolder={openContainingFolder}
+                      downloadFile={downloadFile}
+                      cancelDownload={cancelDownload}
                     />
                   )
                 })}

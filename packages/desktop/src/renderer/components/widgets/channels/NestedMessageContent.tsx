@@ -1,10 +1,11 @@
 import React from 'react'
 import theme from '../../../theme'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
-import { DisplayableMessage } from '@quiet/state-manager'
+import { AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage, DownloadStatus } from '@quiet/state-manager'
 import classNames from 'classnames'
-import UploadedFile from './UploadedFile'
-import { useModal, UseModalTypeWrapper } from '../../../containers/hooks'
+import { UseModalTypeWrapper } from '../../../containers/hooks'
+import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
+import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 
 const useStyles = makeStyles(() => ({
   message: {
@@ -24,6 +25,7 @@ const useStyles = makeStyles(() => ({
 export interface NestedMessageContentProps {
   message: DisplayableMessage
   pending: boolean
+  downloadStatus?: DownloadStatus
   uploadedFileModal?: ReturnType<
   UseModalTypeWrapper<{
     src: string
@@ -31,37 +33,61 @@ export interface NestedMessageContentProps {
   >
 }
 
-export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({
+export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActionsProps> = ({
   message,
   pending,
-  uploadedFileModal
+  downloadStatus,
+  uploadedFileModal,
+  openContainingFolder,
+  downloadFile,
+  cancelDownload
 }) => {
   const classes = useStyles({})
 
-  return (
-    <Grid item>
-      {message.type === 2 ? ( // 2 stands for MessageType.Image (cypress tests incompatibility with enums)
-        <div
-          className={classNames({
-            [classes.message]: true,
-            [classes.pending]: pending
-          })}
-          data-testid={`messagesGroupContent-${message.id}`}>
-          <UploadedFile message={message} uploadedFileModal={uploadedFileModal} />
-        </div>
-      ) : (
-        <Typography
-          component={'span'}
-          className={classNames({
-            [classes.message]: true,
-            [classes.pending]: pending
-          })}
-          data-testid={`messagesGroupContent-${message.id}`}>
-          {message.message}
-        </Typography>
-      )}
-    </Grid>
-  )
+  const renderMessage = () => {
+    switch (message.type) {
+      case 2: // MessageType.Image (cypress tests incompatibility with enums)
+        return (
+          <div
+            className={classNames({
+              [classes.message]: true,
+              [classes.pending]: pending
+            })}
+            data-testid={`messagesGroupContent-${message.id}`}>
+            {message?.media?.size < AUTODOWNLOAD_SIZE_LIMIT ? (
+              <UploadedImage message={message} uploadedFileModal={uploadedFileModal} />
+            ) : (
+              <FileComponent message={message} downloadStatus={downloadStatus} openContainingFolder={openContainingFolder} downloadFile={downloadFile} cancelDownload={cancelDownload} />
+            )}
+          </div>
+        )
+      case 4: // MessageType.File
+        return (
+          <div
+            className={classNames({
+              [classes.message]: true,
+              [classes.pending]: pending
+            })}
+            data-testid={`messagesGroupContent-${message.id}`}>
+            <FileComponent message={message} downloadStatus={downloadStatus} openContainingFolder={openContainingFolder} downloadFile={downloadFile} cancelDownload={cancelDownload} />
+          </div>
+        )
+      default:
+        return (
+          <Typography
+            component={'span'}
+            className={classNames({
+              [classes.message]: true,
+              [classes.pending]: pending
+            })}
+            data-testid={`messagesGroupContent-${message.id}`}>
+            {message.message}
+          </Typography>
+        )
+    }
+  }
+
+  return <Grid item>{renderMessage()}</Grid>
 }
 
 export default NestedMessageContent

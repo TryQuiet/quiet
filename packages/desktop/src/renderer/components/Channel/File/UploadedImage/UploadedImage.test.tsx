@@ -1,8 +1,8 @@
 import { DisplayableMessage, MessageType } from '@quiet/state-manager'
 import React from 'react'
 
-import { renderComponent } from '../../../testUtils/renderComponent'
-import UploadedFile from './UploadedFile'
+import { renderComponent } from '../../../../testUtils/renderComponent'
+import UploadedImage from './UploadedImage'
 
 describe('UploadedFile', () => {
   let message: DisplayableMessage
@@ -21,13 +21,17 @@ describe('UploadedFile', () => {
         ext: '.png',
         cid: 'abcd1234',
         width: 500,
-        height: 600
+        height: 600,
+        message: {
+          id: 'string',
+          channelAddress: 'general'
+        }
       }
     }
   })
 
   it('renders a placeholder if image is not finished downloading yet', () => {
-    const result = renderComponent(<UploadedFile message={message} />)
+    const result = renderComponent(<UploadedImage message={message} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -79,7 +83,7 @@ describe('UploadedFile', () => {
       id: 'string',
       channelAddress: 'general'
     }
-    const result = renderComponent(<UploadedFile message={message} />)
+    const result = renderComponent(<UploadedImage message={message} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>

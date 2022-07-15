@@ -9,8 +9,10 @@ import {
   ChannelMessage,
   PublicChannel,
   SaveCertificatePayload,
-  FileContent,
-  FileMetadata
+  FileMetadata,
+  DownloadStatus,
+  DownloadProgress,
+  DownloadState
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
@@ -26,7 +28,7 @@ import {
   PublicChannelsRepo,
   StorageOptions
 } from '../common/types'
-import { createPaths, removeDirs, removeFiles } from '../common/utils'
+import { compare, createPaths, removeDirs, removeFiles } from '../common/utils'
 import { Config } from '../constants'
 import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
@@ -65,6 +67,7 @@ export class Storage {
   public options: StorageOptions
   public orbitDbDir: string
   public ipfsRepoPath: string
+  private readonly downloadCancellations: string[]
   private readonly communityId: string
 
   constructor(
@@ -82,6 +85,7 @@ export class Storage {
     }
     this.orbitDbDir = path.join(this.quietDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
     this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
+    this.downloadCancellations = []
   }
 
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
@@ -382,47 +386,62 @@ export class Storage {
     }
   }
 
-  public async uploadFile(fileContent: FileContent) {
-    log('uploadFile', fileContent)
-
+  public async uploadFile(metadata: FileMetadata) {
     let buffer: Buffer
 
     try {
-      buffer = fs.readFileSync(fileContent.path)
+      buffer = fs.readFileSync(metadata.path)
     } catch (e) {
-      log.error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
-      throw new Error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
+      log.error(`Couldn't open file ${metadata.path}. Error: ${e.message}`)
+      throw new Error(`Couldn't open file ${metadata.path}. Error: ${e.message}`)
     }
 
     let width: number = null
     let height: number = null
+
     try {
       const fileDimensions = sizeOf(buffer)
       width = fileDimensions.width
       height = fileDimensions.height
     } catch (e) {
-      log(`The file is not an image, couldn't read ${fileContent.path} dimensions`)
+      log(`The file is not an image, couldn't read ${metadata.path} dimensions`)
     }
 
     // Create directory for file
     const dirname = 'uploads'
     await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })
+
     // Write file to IPFS
     const uuid = `${Date.now()}_${Math.random().toString(36).substr(2.9)}`
-    const filename = `${uuid}_${fileContent.name}.${fileContent.ext}`
+    const filename = `${uuid}_${metadata.name}.${metadata.ext}`
     await this.ipfs.files.write(`/${dirname}/${filename}`, buffer, { create: true })
+
     // Get uploaded file information
     const entries = this.ipfs.files.ls(`/${dirname}`)
     for await (const entry of entries) {
       if (entry.name === filename) {
-        const metadata: FileMetadata = {
-          ...fileContent,
-          path: fileContent.path,
+        this.io.removeDownloadStatus({ cid: metadata.cid })
+
+        const fileMetadata: FileMetadata = {
+          ...metadata,
+          path: metadata.path,
           cid: entry.cid.toString(),
+          size: entry.size,
           width,
           height
         }
-        this.io.uploadedFile(metadata)
+
+        this.io.uploadedFile(fileMetadata)
+
+        const statusReady: DownloadStatus = {
+          mid: fileMetadata.message.id,
+          cid: fileMetadata.cid,
+          downloadState: DownloadState.Hosted,
+          downloadProgress: undefined
+        }
+
+        this.io.updateDownloadProgress(statusReady)
+
         break
       }
     }
@@ -430,6 +449,22 @@ export class Storage {
 
   public async downloadFile(metadata: FileMetadata) {
     const _CID = CID.parse(metadata.cid)
+
+    // Compare actual and reported file size
+    const stat = await this.ipfs.files.stat(_CID)
+    if (!compare(metadata.size, stat.size, 0.05)) {
+      const maliciousStatus: DownloadStatus = {
+        mid: metadata.message.id,
+        cid: metadata.cid,
+        downloadState: DownloadState.Malicious,
+        downloadProgress: undefined
+      }
+
+      this.io.updateDownloadProgress(maliciousStatus)
+
+      return
+    }
+
     const entries = this.ipfs.cat(_CID)
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
@@ -440,23 +475,113 @@ export class Storage {
 
     const writeStream = fs.createWriteStream(filePath)
 
+    let downloadedBytes = 0
+    let stopwatch = 0
+
+    let downloadState: DownloadState = DownloadState.Ready
+
     for await (const entry of entries) {
+      // Check if download is not meant to be canceled
+      if (this.downloadCancellations.includes(metadata.message.id)) {
+        downloadState = DownloadState.Canceled
+        break
+      }
       await new Promise<void>((resolve, reject) => {
         writeStream.write(entry, err => {
           if (err) reject(err)
+
+          let transferSpeed = -1
+
+          if (stopwatch === 0) {
+            stopwatch = Date.now()
+          } else {
+            const timestamp = Date.now()
+            const delay = (timestamp - stopwatch) / 1000 // in seconds
+
+            transferSpeed = entry.byteLength / delay
+
+            // Prevent passing null value
+            if (transferSpeed === null) {
+              transferSpeed = 0
+            }
+
+            stopwatch = timestamp
+          }
+
+          downloadedBytes += entry.byteLength
+
+          const downloadProgress: DownloadProgress = {
+            size: metadata.size,
+            downloaded: downloadedBytes,
+            transferSpeed: transferSpeed
+          }
+
+          const downloadStatus: DownloadStatus = {
+            mid: metadata.message.id,
+            cid: metadata.cid,
+            downloadState: DownloadState.Downloading,
+            downloadProgress: downloadProgress
+          }
+
+          this.io.updateDownloadProgress(downloadStatus)
+
           resolve()
         })
       })
     }
 
-    writeStream.end()
+    if (downloadState === DownloadState.Canceled) {
+      const downloadCanceled: DownloadProgress = {
+        size: metadata.size,
+        downloaded: 0,
+        transferSpeed: 0
+      }
 
-    const fileMetadata: FileMetadata = {
-      ...metadata,
-      path: filePath
+      const statusCanceled: DownloadStatus = {
+        mid: metadata.message.id,
+        cid: metadata.cid,
+        downloadState: DownloadState.Canceled,
+        downloadProgress: downloadCanceled
+      }
+
+      // Canceled Download
+      this.io.updateDownloadProgress(statusCanceled)
+    } else {
+      const downloadCompleted: DownloadProgress = {
+        size: metadata.size,
+        downloaded: metadata.size,
+        transferSpeed: 0
+      }
+
+      const statusCompleted: DownloadStatus = {
+        mid: metadata.message.id,
+        cid: metadata.cid,
+        downloadState: DownloadState.Completed,
+        downloadProgress: downloadCompleted
+      }
+
+      // Downloaded file
+      this.io.updateDownloadProgress(statusCompleted)
+
+      const fileMetadata: FileMetadata = {
+        ...metadata,
+        path: filePath
+      }
+
+      this.io.updateMessageMedia(fileMetadata)
     }
 
-    this.io.downloadedFile(fileMetadata)
+    // Clear cancellation signal (if present)
+    const index = this.downloadCancellations.indexOf(metadata.cid)
+    if (index > -1) {
+      this.downloadCancellations.splice(index, 1)
+    }
+
+    writeStream.end()
+  }
+
+  public cancelDownload(mid: string) {
+    this.downloadCancellations.push(mid)
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {

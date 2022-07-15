@@ -2,7 +2,7 @@ import {
   setupCrypto
 } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, MessageType } from '../../..'
+import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -10,15 +10,11 @@ import { Socket } from 'socket.io-client'
 import { communitiesActions, Community } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
+import { downloadFileSaga } from './downloadFileSaga'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { messagesActions } from '../../messages/messages.slice'
 import { FactoryGirl } from 'factory-girl'
-import { downloadFileSaga } from './downloadFile.saga'
-import { currentChannelAddress } from '../../publicChannels/publicChannels.selectors'
-import { PublicChannel } from '../../publicChannels/publicChannels.types'
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { DateTime } from 'luxon'
-import { FileMetadata } from '../files.types'
+import { DownloadState, FileMetadata } from '../../files/files.types'
+import { filesActions } from '../files.slice'
 
 describe('downloadFileSaga', () => {
   let store: Store
@@ -27,7 +23,7 @@ describe('downloadFileSaga', () => {
   let community: Community
   let alice: Identity
 
-  let sailingChannel: PublicChannel
+  let message: string
 
   beforeAll(async () => {
     setupCrypto()
@@ -45,35 +41,20 @@ describe('downloadFileSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    sailingChannel = (await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
-      'PublicChannel',
-      {
-        channel: {
-          name: 'sailing',
-          description: 'Welcome to #sailing',
-          timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
-          address: 'sailing'
-        }
-      }
-    )).channel
+    message = Math.random().toString(36).substr(2.9)
   })
 
-  test('download file of type image', async () => {
+  test('downloading file', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
-    const currentChannel = currentChannelAddress(store.getState())
-    const peerId = alice.peerId.id
-
-    const messageId = '5'
     const media: FileMetadata = {
       cid: 'cid',
       path: null,
-      name: 'image',
-      ext: 'png',
+      name: 'name',
+      ext: 'ext',
       message: {
-        id: messageId,
-        channelAddress: currentChannel
+        id: message,
+        channelAddress: 'general'
       }
     }
 
@@ -81,28 +62,19 @@ describe('downloadFileSaga', () => {
     await expectSaga(
       downloadFileSaga,
       socket,
-      messagesActions.incomingMessages({
-        messages: [{
-          id: messageId,
-          type: MessageType.Image,
-          message: 'message',
-          createdAt: 8,
-          channelAddress: currentChannel,
-          signature: 'signature',
-          pubKey: 'publicKey',
-          media: media
-        }]
-      })
+      filesActions.downloadFile(media)
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .provide([
-
-      ])
+      .put(filesActions.updateDownloadStatus({
+        mid: message,
+        cid: 'cid',
+        downloadState: DownloadState.Queued
+      }))
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
-          peerId: peerId,
+          peerId: alice.peerId.id,
           metadata: media
         }
       ])

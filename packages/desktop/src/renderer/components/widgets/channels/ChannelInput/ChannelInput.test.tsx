@@ -1,34 +1,11 @@
 import React from 'react'
-
-import { ChannelInputComponent } from './ChannelInput'
-import { renderComponent } from '../../../../testUtils/renderComponent'
-import { INPUT_STATE } from './InputState.enum'
+import { createEvent, fireEvent, screen } from '@testing-library/dom'
 import { prepareStore } from '../../../../testUtils/prepareStore'
-import MockedSocket from 'socket.io-mock'
-import {
-  communities,
-  FileContent,
-  getFactory,
-  Identity,
-  identity,
-  MessagesDailyGroups,
-  MessageSendingStatus,
-  publicChannels
-} from '@quiet/state-manager'
-import CreateChannel from '../../../Channel/CreateChannel/CreateChannel'
-import { modalsActions } from '../../../../sagas/modals/modals.slice'
-import { ModalName } from '../../../../sagas/modals/modals.types'
-import userEvent from '@testing-library/user-event'
-import { ioMock } from '../../../../../shared/setupTests'
-import { createEvent, fireEvent, screen, waitFor } from '@testing-library/dom'
-import { take } from 'typed-redux-saga'
-import { act } from 'react-dom/test-utils'
-import Channel from '../../../Channel/Channel'
-import UploadFilesPreviewsComponent from '../UploadedFilesPreviews'
-import ChannelComponent from '../../../Channel/ChannelComponent'
-import { Dictionary } from '@reduxjs/toolkit'
-import { UseModalTypeWrapper } from '../../../../containers/hooks'
-import { unsuportedFileContent } from '../unsupportedFilesContent'
+import { renderComponent } from '../../../../testUtils/renderComponent'
+import { ChannelInputComponent } from './ChannelInput'
+import { INPUT_STATE } from './InputState.enum'
+import { FileContent, getFactory, identity } from '@quiet/state-manager'
+import UploadFilesPreviewsComponent from '../../../Channel/File/UploadingPreview'
 
 describe('ChannelInput', () => {
   it('renders component input available ', () => {
@@ -86,7 +63,7 @@ describe('ChannelInput', () => {
                           src="test-file-stub"
                         />
                         <input
-                          accept="image/*"
+                          accept="*"
                           hidden=""
                           multiple=""
                           type="file"
@@ -121,6 +98,7 @@ describe('ChannelInput', () => {
       </body>
     `)
   })
+
   it('renders component input unavailable', () => {
     const result = renderComponent(
       <ChannelInputComponent
@@ -178,7 +156,7 @@ describe('ChannelInput', () => {
                           src="test-file-stub"
                         />
                         <input
-                          accept="image/*"
+                          accept="*"
                           hidden=""
                           multiple=""
                           type="file"
@@ -257,25 +235,6 @@ describe('ChannelInput', () => {
     const fileData = {
       ...fileContent,
       arrayBuffer: bytes.buffer // need for test
-    }
-
-    const unsupportedFileModal: ReturnType<
-    UseModalTypeWrapper<{
-      unsupportedFiles: FileContent[]
-      title: string
-      sendOtherContent: string
-      textContent: string
-      tryZipContent: string
-    }>['types']
-    > = {
-      open: false,
-      handleOpen: mockUnsupportedModalHandleOpen,
-      handleClose: jest.fn(),
-      unsupportedFiles: [],
-      title: '',
-      sendOtherContent: '',
-      textContent: '',
-      tryZipContent: ''
     }
 
     renderComponent(
@@ -357,12 +316,11 @@ describe('ChannelInput', () => {
       <UploadFilesPreviewsComponent
         filesData={filesDataWithUnsuportedFile}
         removeFile={jest.fn()}
-        unsupportedFileModal={unsupportedFileModal}
       />,
       store
     )
 
     // unsupported file modal appear with unsupported file ext
-    expect(mockUnsupportedModalHandleOpen).toHaveBeenCalled()
+    expect(mockUnsupportedModalHandleOpen).not.toHaveBeenCalled()
   })
 })
