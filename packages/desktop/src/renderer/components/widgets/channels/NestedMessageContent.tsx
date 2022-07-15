@@ -19,6 +19,13 @@ const useStyles = makeStyles(() => ({
   },
   info: {
     color: theme.palette.colors.white
+  },
+  link: {
+    color: theme.palette.colors.lushSky,
+    cursor: 'pointer',
+    '&:hover': {
+      textDecoration: 'underline'
+    }
   }
 }))
 
@@ -43,7 +50,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps> = ({
 
   const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
     return (
-      <a onClick={() => { openUrl(decoratedHref) }} key={key}>
+      <a onClick={() => { openUrl(decoratedHref) }} className={classNames({ [classes.link]: true })} key={key}>
         {decoratedText}
       </a>
     )

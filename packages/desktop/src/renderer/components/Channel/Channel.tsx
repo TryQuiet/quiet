@@ -155,6 +155,7 @@ const Channel = () => {
   }, [])
 
   const openUrl = useCallback((url: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     shell.openExternal(url)
   }, [])
 
