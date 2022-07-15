@@ -116,7 +116,7 @@ const ActionIndicator: React.FC<{
 
 export interface FileComponentProps {
   message: DisplayableMessage
-  downloadStatus: DownloadStatus
+  downloadStatus?: DownloadStatus
 }
 
 export interface FileActionsProps {
@@ -136,8 +136,8 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
 
   const { cid, path, name, ext } = message.media
 
-  const downloadState = downloadStatus.downloadState
-  const downloadProgress = downloadStatus.downloadProgress
+  const downloadState = downloadStatus?.downloadState
+  const downloadProgress = downloadStatus?.downloadProgress
 
   const renderIcon = () => {
     switch (downloadState) {
