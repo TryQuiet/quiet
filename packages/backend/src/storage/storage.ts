@@ -67,7 +67,7 @@ export class Storage {
   public options: StorageOptions
   public orbitDbDir: string
   public ipfsRepoPath: string
-  private readonly downloadCancellations: string[]
+  readonly downloadCancellations: string[]
   private readonly communityId: string
 
   constructor(
@@ -572,7 +572,7 @@ export class Storage {
     }
 
     // Clear cancellation signal (if present)
-    const index = this.downloadCancellations.indexOf(metadata.cid)
+    const index = this.downloadCancellations.indexOf(metadata.message.id)
     if (index > -1) {
       this.downloadCancellations.splice(index, 1)
     }
