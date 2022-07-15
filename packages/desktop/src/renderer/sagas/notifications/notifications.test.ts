@@ -278,6 +278,36 @@ describe('displayNotificationsSaga', () => {
     })
   })
 
+  test('notification shows for message in non-active channel when app window has focus', async () => {
+    store.dispatch(
+      publicChannels.actions.setCurrentChannel({ channelAddress: 'general' })
+    )
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      displayMessageNotificationSaga,
+      messages.actions.incomingMessages({
+        messages: [message]
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), true]])
+      .call(createNotification, {
+        label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
+        body: message.message,
+        channel: sailingChannel.address,
+        sound: NotificationsSounds.pow
+      })
+      .run()
+
+    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.address}`, {
+      body: message.message,
+      icon: '../../build/icon.png',
+      silent: true
+    })
+  })
+
   test('do not display notification when the message was sent before last connection app time', async () => {
     // Mock messages sent before last connection time
     const payload: IncomingMessages = {
