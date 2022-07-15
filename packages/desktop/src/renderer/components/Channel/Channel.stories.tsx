@@ -370,6 +370,7 @@ export const ImagePreview = Template.bind({})
 export const ImagePlaceholder = Template.bind({})
 export const SentImage = Template.bind({})
 export const FilePreview = Template.bind({})
+export const MultipleMediaPreview = Template.bind({})
 export const UploadingFile = Template.bind({})
 export const HostedFile = Template.bind({})
 export const ReadyDownload = Template.bind({})
@@ -519,6 +520,21 @@ FilePreview.args = {
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
       ext: '.zip'
+    }
+  }
+}
+MultipleMediaPreview.args = {
+  ...args,
+  filesData: {
+    file_id: {
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      ext: '.zip'
+    },
+    image_id: {
+      path: 'images/test-image.png',
+      name: 'test-image',
+      ext: '.png'
     }
   }
 }
