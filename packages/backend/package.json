@@ -1,6 +1,6 @@
 {
 	"name": "@quiet/backend",
-	"version": "0.9.4-alpha.1",
+	"version": "0.9.5-alpha.0",
 	"description": "tlg-manager",
 	"types": "lib/index.d.ts",
 	"main": "lib/index.js",
@@ -82,7 +82,7 @@
 		"@peculiar/webcrypto": "1.2.2",
 		"@quiet/identity": "^0.8.2-alpha.0",
 		"@quiet/logger": "^0.8.2-alpha.0",
-		"@quiet/state-manager": "^0.9.4-alpha.1",
+		"@quiet/state-manager": "^0.9.5-alpha.0",
 		"abortable-iterator": "^3.0.0",
 		"class-validator": "^0.13.1",
 		"cli-table": "^0.3.6",
