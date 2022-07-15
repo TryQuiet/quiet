@@ -105,7 +105,7 @@ describe('NestedMessageContent', () => {
           >
             <div
               class="makeStyles-message-412"
-              data-testid="messagesGroupContent-string"
+              data-testid="messagesGroupContent-0"
             >
               <div
                 class="makeStyles-container-520"
@@ -180,11 +180,11 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item"
           >
             <div
-              class="makeStyles-message-535"
+              class="makeStyles-message-539"
               data-testid="messagesGroupContent-0"
             >
               <div
-                class="makeStyles-border-641"
+                class="makeStyles-border-646"
                 data-testid="abcd1234-fileComponent"
               >
                 <span>
@@ -193,7 +193,7 @@ describe('NestedMessageContent', () => {
                     style="display: flex;"
                   >
                     <div
-                      class="makeStyles-icon-642"
+                      class="makeStyles-icon-647"
                     >
                       <div
                         aria-valuenow="100"
@@ -239,7 +239,7 @@ describe('NestedMessageContent', () => {
                       </div>
                     </div>
                     <div
-                      class="makeStyles-filename-644"
+                      class="makeStyles-filename-649"
                     >
                       <h5
                         class="MuiTypography-root MuiTypography-h5"
@@ -264,10 +264,10 @@ describe('NestedMessageContent', () => {
                     style="cursor: pointer;"
                   >
                     <div
-                      class="makeStyles-actionIndicator-646"
+                      class="makeStyles-actionIndicator-651"
                     >
                       <img
-                        class="makeStyles-actionIcon-645"
+                        class="makeStyles-actionIcon-650"
                         src="test-file-stub"
                       />
                       <p
