@@ -6,7 +6,7 @@ import {
   sign
 } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, MessageType } from '../../..'
+import { FileMetadata, getFactory, MessageType } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { arrayBufferToString } from 'pvutils'
@@ -136,6 +136,59 @@ describe('sendMessageSaga', () => {
             message: 'message',
             createdAt: 24,
             channelAddress: sailingChannel.address,
+            signature: 'signature',
+            pubKey: 'publicKey',
+            media: undefined
+          }
+        }
+      ])
+      .run()
+  })
+
+  test('do not broadcast message until file is uploaded', async () => {
+    const socket = { emit: jest.fn() } as unknown as Socket
+
+    const messageId = Math.random().toString(36).substr(2.9)
+    const currentChannel = currentChannelAddress(store.getState())
+
+    const media: FileMetadata = {
+      cid: 'cid',
+      path: `uploading_${messageId}`,
+      name: 'file',
+      ext: 'ext',
+      message: {
+        id: messageId,
+        channelAddress: currentChannel
+      }
+    }
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      sendMessageSaga,
+      socket,
+      messagesActions.sendMessage({ message: '', media: media })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([
+        [call.fn(parseCertificate), 'certificate'],
+        [call.fn(keyFromCertificate), 'publicKey'],
+        [call.fn(loadPrivateKey), 'privateKey'],
+        [call.fn(sign), jest.fn() as unknown as ArrayBuffer],
+        [call.fn(arrayBufferToString), 'signature'],
+        [call.fn(generateMessageId), 4],
+        [call.fn(getCurrentTime), 8]
+      ])
+      .not.apply(socket, socket.emit, [
+        SocketActionTypes.SEND_MESSAGE,
+        {
+          peerId: alice.peerId.id,
+          message: {
+            id: 4,
+            type: MessageType.Basic,
+            message: 'message',
+            createdAt: 8,
+            channelAddress: currentChannel,
             signature: 'signature',
             pubKey: 'publicKey',
             media: undefined

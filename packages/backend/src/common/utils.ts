@@ -137,3 +137,15 @@ export const createLibp2pAddress = (address: string, port: number, peerId: strin
 export const createLibp2pListenAddress = (address: string, port: number, wsType: 'ws' | 'wss') => {
   return `/dns4/${address}/tcp/${port}/${wsType}`
 }
+
+/**
+ * Compares given numbers
+ *
+ * @param tolerance In percentage (0.0 - 1.0)
+ */
+export const compare = (given: number, base: number, tolerance: number = 0) => {
+  const margin = base * tolerance
+  const min = base - margin
+  const max = base + margin
+  return given >= min && given <= max
+}

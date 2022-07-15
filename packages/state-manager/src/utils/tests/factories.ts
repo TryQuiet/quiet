@@ -1,7 +1,7 @@
 import factoryGirl from 'factory-girl'
 import { CustomReduxAdapter } from './reduxAdapter'
 import { Store } from '../../sagas/store.types'
-import { communities, identity, messages, publicChannels, users, errors } from '../..'
+import { communities, identity, messages, publicChannels, users, errors, DownloadState } from '../..'
 import {
   createMessageSignatureTestHelper,
   createPeerIdTestHelper,
@@ -16,6 +16,7 @@ import { DateTime } from 'luxon'
 import { messagesActions } from '../../sagas/messages/messages.slice'
 import { currentCommunity } from '../../sagas/communities/communities.selectors'
 import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
+import { filesActions } from '../../sagas/files/files.slice'
 
 export const getFactory = async (store: Store) => {
   const factory = new factoryGirl.FactoryGirl()
@@ -205,6 +206,7 @@ export const getFactory = async (store: Store) => {
         store.dispatch(messagesActions.incomingMessages({
           messages: [payload.message]
         }))
+
         return payload
       }
     }

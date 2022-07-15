@@ -6,8 +6,9 @@ import {
   messages,
   publicChannels,
   connection,
-  StoreKeys as StateManagerStoreKeys,
   settings,
+  files,
+  StoreKeys as StateManagerStoreKeys,
   Store
 } from '@quiet/state-manager'
 import { StoreKeys } from '../store/store.keys'
@@ -30,6 +31,7 @@ export const reducers = {
   [StateManagerStoreKeys.PublicChannels]: publicChannels.reducer,
   [StateManagerStoreKeys.Connection]: connection.reducer,
   [StateManagerStoreKeys.Settings]: settings.reducer,
+  [StateManagerStoreKeys.Files]: files.reducer,
   [StoreKeys.App]: appReducer,
   [StoreKeys.Socket]: socketReducer,
   [StoreKeys.Modals]: modalsReducer

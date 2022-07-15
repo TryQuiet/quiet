@@ -84,8 +84,7 @@ export const Tooltip: React.FC<React.ComponentProps<typeof MuiTooltip> & Tooltip
           })
         }}
         placement={placement}
-        arrow
-      >
+        arrow>
         {children}
       </MuiTooltip>
     </span>

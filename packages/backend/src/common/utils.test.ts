@@ -1,6 +1,6 @@
 import mock from 'mock-fs'
 import path from 'path'
-import { getFilesRecursively, removeFiles, getDirsRecursively, removeDirs } from './utils'
+import { getFilesRecursively, removeFiles, getDirsRecursively, removeDirs, compare } from './utils'
 
 beforeEach(() => {
   mock({
@@ -96,5 +96,22 @@ describe('Remove files and dirs', () => {
   })
   it("No error if directory doesn't exist", () => {
     expect(() => removeFiles('LOCK', 'non/existent/dir')).not.toThrow()
+  })
+})
+
+describe('Compare actual and reported file size', () => {
+  it('Return true for equal sizes', () => {
+    const res = compare(20400, 20400)
+    expect(res).toBe(true)
+  })
+
+  it('Return true for value that fits in tolerance', () => {
+    const res = compare(20400, 19800, 0.05)
+    expect(res).toBe(true)
+  })
+
+  it("Return false for value that doesn't fit in tolerance", () => {
+    const res = compare(20400, 19400, 0.05)
+    expect(res).toBe(false)
   })
 })
