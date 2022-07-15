@@ -7,7 +7,9 @@ import NestedMessageContent from './NestedMessageContent'
 describe('NestedMessageContent', () => {
   it('renders message', () => {
     const messages = generateMessages()
-    const result = renderComponent(<NestedMessageContent pending={false} message={messages[0]} openUrl={jest.fn()} />)
+    const result = renderComponent(
+      <NestedMessageContent pending={false} message={messages[0]} openUrl={jest.fn()} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -28,7 +30,9 @@ describe('NestedMessageContent', () => {
 
   it('renders pending message', () => {
     const messages = generateMessages()
-    const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />)
+    const result = renderComponent(
+      <NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -36,7 +40,7 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item"
           >
             <span
-              class="MuiTypography-root makeStyles-message-137 makeStyles-pending-138 MuiTypography-body1"
+              class="MuiTypography-root makeStyles-message-138 makeStyles-pending-139 MuiTypography-body1"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -49,7 +53,9 @@ describe('NestedMessageContent', () => {
 
   it('renders info message', () => {
     const messages = generateMessages({ type: 3 })
-    const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />)
+    const result = renderComponent(
+      <NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -57,7 +63,7 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item"
           >
             <span
-              class="MuiTypography-root makeStyles-message-273 makeStyles-pending-274 MuiTypography-body1"
+              class="MuiTypography-root makeStyles-message-275 makeStyles-pending-276 MuiTypography-body1"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -87,7 +93,9 @@ describe('NestedMessageContent', () => {
         channelAddress: 'general'
       }
     }
-    const result = renderComponent(<NestedMessageContent pending={false} message={message} openUrl={jest.fn()} />)
+    const result = renderComponent(
+      <NestedMessageContent pending={false} message={message} openUrl={jest.fn()} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -95,23 +103,23 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item"
           >
             <div
-              class="makeStyles-message-409"
+              class="makeStyles-message-412"
               data-testid="messagesGroupContent-string"
             >
               <div
-                class="makeStyles-container-516"
+                class="makeStyles-container-520"
               >
                 <div
-                  class="makeStyles-image-515"
+                  class="makeStyles-image-519"
                   data-testid="abcd1234-imageVisual"
                 >
                   <p
-                    class="makeStyles-fileName-520"
+                    class="makeStyles-fileName-524"
                   >
                     test.png
                   </p>
                   <img
-                    class="makeStyles-image-515"
+                    class="makeStyles-image-519"
                     src="path/to/file/test.png"
                     style="width: 400px;"
                   />
