@@ -713,18 +713,12 @@ describe('Channel', () => {
         "Messages/addMessageVerificationStatus",
         "Messages/incomingMessages",
         "PublicChannels/cacheMessages",
+        "Messages/addPublicKeyMapping",
+        "Messages/addMessageVerificationStatus",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "PublicChannels/cacheMessages",
         "Messages/setDisplayedMessagesNumber",
-        "Messages/addPublicKeyMapping",
-        "Messages/addMessageVerificationStatus",
-        "Files/broadcastHostedFile",
-        "Messages/removePendingMessageStatus",
-        "Messages/incomingMessages",
-        "PublicChannels/cacheMessages",
-        "Files/updateDownloadStatus",
-        "Messages/addMessageVerificationStatus",
       ]
     `)
   })
