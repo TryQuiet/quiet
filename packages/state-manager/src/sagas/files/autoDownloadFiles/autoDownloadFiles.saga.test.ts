@@ -318,4 +318,54 @@ describe('downloadFileSaga', () => {
       ])
       .run()
   })
+
+  test('do not auto-download image above the size limit', async () => {
+    const socket = { emit: jest.fn() } as unknown as Socket
+
+    const id = Math.random().toString(36).substr(2.9)
+
+    store.dispatch(publicChannelsActions.setCurrentChannel({
+      channelAddress: 'general'
+    }))
+
+    const media: FileMetadata = {
+      cid: 'cid',
+      path: null,
+      name: 'image',
+      ext: 'jpg',
+      size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
+      message: {
+        id: id,
+        channelAddress: 'general'
+      }
+    }
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      autoDownloadFilesSaga,
+      socket,
+      messagesActions.incomingMessages({
+        messages: [{
+          id: id,
+          type: MessageType.Image,
+          message: 'message',
+          createdAt: 8,
+          channelAddress: 'general',
+          signature: 'signature',
+          pubKey: 'publicKey',
+          media: media
+        }]
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.apply(socket, socket.emit, [
+        SocketActionTypes.DOWNLOAD_FILE,
+        {
+          peerId: alice.peerId.id,
+          metadata: media
+        }
+      ])
+      .run()
+  })
 })

@@ -1,7 +1,7 @@
 import React from 'react'
 import theme from '../../../theme'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
-import { DisplayableMessage, DownloadStatus } from '@quiet/state-manager'
+import { AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage, DownloadStatus } from '@quiet/state-manager'
 import classNames from 'classnames'
 import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
@@ -54,7 +54,11 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
               [classes.pending]: pending
             })}
             data-testid={`messagesGroupContent-${message.id}`}>
-            <UploadedImage message={message} uploadedFileModal={uploadedFileModal} />
+            {message?.media?.size < AUTODOWNLOAD_SIZE_LIMIT ? (
+              <UploadedImage message={message} uploadedFileModal={uploadedFileModal} />
+            ) : (
+              <FileComponent message={message} downloadStatus={downloadStatus} openContainingFolder={openContainingFolder} downloadFile={downloadFile} cancelDownload={cancelDownload} />
+            )}
           </div>
         )
       case 4: // MessageType.File

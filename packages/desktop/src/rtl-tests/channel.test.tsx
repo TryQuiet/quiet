@@ -10,8 +10,8 @@ import { socketEventData } from '../renderer/testUtils/socket'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
+
 import {
-  files as filesStore,
   identity,
   communities,
   publicChannels,
@@ -29,7 +29,8 @@ import {
   FileContent,
   files,
   DownloadState,
-  AUTODOWNLOAD_SIZE_LIMIT
+  AUTODOWNLOAD_SIZE_LIMIT,
+  SendMessagePayload
 } from '@quiet/state-manager'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -634,15 +635,29 @@ describe('Channel', () => {
         if (action === SocketActionTypes.UPLOAD_FILE) {
           const data = input as socketEventData<[UploadFilePayload]>
           const payload = data[0]
+
           cid = `uploading_${payload.file.message.id}`
+
+          await new Promise(resolve => {
+            setTimeout(resolve, 100)
+          })
+
           socket.socketClient.emit(SocketActionTypes.UPLOADED_FILE, {
             ...payload.file,
             cid: cid,
-            path: null
+            path: null,
+            size: AUTODOWNLOAD_SIZE_LIMIT - 2048
           })
           return socket.socketClient.emit(SocketActionTypes.DOWNLOAD_PROGRESS, {
             cid: cid,
             downloadState: DownloadState.Hosted
+          })
+        }
+        if (action === SocketActionTypes.SEND_MESSAGE) {
+          const data = input as socketEventData<[SendMessagePayload]>
+          const payload = data[0]
+          return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
+            messages: [payload.message]
           })
         }
       })
@@ -694,18 +709,22 @@ describe('Channel', () => {
         "Files/uploadFile",
         "Messages/sendMessage",
         "Files/updateDownloadStatus",
-        "Files/broadcastHostedFile",
-        "Files/updateDownloadStatus",
         "Messages/addMessagesSendingStatus",
         "Messages/addMessageVerificationStatus",
         "Messages/incomingMessages",
         "PublicChannels/cacheMessages",
-        "Messages/addPublicKeyMapping",
-        "Messages/addMessageVerificationStatus",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "PublicChannels/cacheMessages",
         "Messages/setDisplayedMessagesNumber",
+        "Messages/addPublicKeyMapping",
+        "Messages/addMessageVerificationStatus",
+        "Files/broadcastHostedFile",
+        "Messages/removePendingMessageStatus",
+        "Messages/incomingMessages",
+        "PublicChannels/cacheMessages",
+        "Files/updateDownloadStatus",
+        "Messages/addMessageVerificationStatus",
       ]
     `)
   })
@@ -755,6 +774,19 @@ describe('Channel', () => {
       }
     )
 
+    initialState.dispatch(
+      files.actions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: `uploading_${missingFile.cid}`,
+        downloadState: DownloadState.Queued,
+        downloadProgress: {
+          downloaded: AUTODOWNLOAD_SIZE_LIMIT / 2,
+          size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+          transferSpeed: 1024
+        }
+      })
+    )
+
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
@@ -775,12 +807,6 @@ describe('Channel', () => {
           })
         }
       })
-
-    initialState.dispatch(filesStore.actions.updateDownloadStatus({
-      mid: missingFile.message.id,
-      cid: missingFile.cid,
-      downloadState: DownloadState.Downloading
-    }))
 
     const { store, runSaga } = await prepareStore(
       initialState.getState(),
@@ -833,9 +859,10 @@ describe('Channel', () => {
     ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
-    await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'alice' })
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+      'Identity',
+      { id: community.id, nickname: 'alice' }
+    )
 
     jest
       .spyOn(socket, 'emit')

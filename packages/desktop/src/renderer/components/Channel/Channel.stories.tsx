@@ -488,7 +488,14 @@ ImagePlaceholder.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader'
-  })
+  }),
+  downloadStatuses: {
+    32: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      downloadState: '',
+      downloadProgress: undefined
+    }
+  }
 }
 SentImage.args = {
   ...args,
@@ -511,7 +518,14 @@ SentImage.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader'
-  })
+  }),
+  downloadStatuses: {
+    32: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      downloadState: 'completed',
+      downloadProgress: undefined
+    }
+  }
 }
 FilePreview.args = {
   ...args,
