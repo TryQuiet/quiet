@@ -380,6 +380,7 @@ export const CancelingDownload = Template.bind({})
 export const CanceledDownload = Template.bind({})
 export const MaliciousDownload = Template.bind({})
 export const NewUserMessage = Template.bind({})
+export const Link = Template.bind({})
 
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   user: {
@@ -818,6 +819,18 @@ NewUserMessage.args = {
     type: 3,
     media: null,
     message: 'Hey, @the-emperor just joined!',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  })
+}
+Link.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 1,
+    media: null,
+    message: 'Hey, haye you seen this https://github.com/TryQuiet/monorepo awesome project?',
     createdAt: 0,
     date: '12:46',
     nickname: 'vader'

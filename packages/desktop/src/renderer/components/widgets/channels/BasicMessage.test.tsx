@@ -19,7 +19,7 @@ describe('BasicMessage', () => {
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <BasicMessageComponent messages={messages} />
+          <BasicMessageComponent messages={messages} openUrl={jest.fn()} />
         </Provider>
       </HashRouter>
     )
@@ -102,7 +102,7 @@ describe('BasicMessage', () => {
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <BasicMessageComponent messages={messages} />
+          <BasicMessageComponent messages={messages} openUrl={jest.fn()} />
         </Provider>
       </HashRouter>
     )
@@ -110,19 +110,19 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root makeStyles-wrapper-172 MuiListItem-gutters"
+            class="MuiListItem-root makeStyles-wrapper-173 MuiListItem-gutters"
           >
             <div
-              class="MuiListItemText-root makeStyles-messageCard-171"
+              class="MuiListItemText-root makeStyles-messageCard-172"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start"
               >
                 <div
-                  class="MuiGrid-root makeStyles-avatar-180 MuiGrid-item"
+                  class="MuiGrid-root makeStyles-avatar-181 MuiGrid-item"
                 >
                   <div
-                    class="makeStyles-alignAvatar-181"
+                    class="makeStyles-alignAvatar-182"
                   >
                     Jdenticon
                   </div>
@@ -140,7 +140,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item"
                       >
                         <p
-                          class="MuiTypography-root makeStyles-username-176 MuiTypography-body1 MuiTypography-colorTextPrimary"
+                          class="MuiTypography-root makeStyles-username-177 MuiTypography-body1 MuiTypography-colorTextPrimary"
                         >
                           gringo
                         </p>
@@ -149,7 +149,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item"
                       >
                         <p
-                          class="MuiTypography-root makeStyles-time-183 MuiTypography-body1"
+                          class="MuiTypography-root makeStyles-time-184 MuiTypography-body1"
                         >
                           string
                         </p>
@@ -165,7 +165,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item"
                     >
                       <span
-                        class="MuiTypography-root makeStyles-message-338 MuiTypography-body1"
+                        class="MuiTypography-root makeStyles-message-339 MuiTypography-body1"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -175,7 +175,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item"
                     >
                       <span
-                        class="MuiTypography-root makeStyles-message-338 MuiTypography-body1"
+                        class="MuiTypography-root makeStyles-message-339 MuiTypography-body1"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -195,7 +195,7 @@ describe('BasicMessage', () => {
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <BasicMessageComponent messages={messages} />
+          <BasicMessageComponent messages={messages} openUrl={jest.fn()} />
         </Provider>
       </HashRouter>
     )
@@ -206,19 +206,19 @@ describe('BasicMessage', () => {
             class="MuiListItem-root MuiListItem-gutters"
           >
             <div
-              class="MuiListItemText-root makeStyles-messageCard-341"
+              class="MuiListItemText-root makeStyles-messageCard-343"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start"
               >
                 <div
-                  class="MuiGrid-root makeStyles-avatar-350 MuiGrid-item"
+                  class="MuiGrid-root makeStyles-avatar-352 MuiGrid-item"
                 >
                   <div
-                    class="makeStyles-alignAvatar-351"
+                    class="makeStyles-alignAvatar-353"
                   >
                     <img
-                      class="makeStyles-infoIcon-357"
+                      class="makeStyles-infoIcon-359"
                       src="test-file-stub"
                     />
                   </div>
@@ -236,7 +236,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item"
                       >
                         <p
-                          class="MuiTypography-root makeStyles-username-346 MuiTypography-body1 MuiTypography-colorTextPrimary"
+                          class="MuiTypography-root makeStyles-username-348 MuiTypography-body1 MuiTypography-colorTextPrimary"
                         >
                           Quiet
                         </p>
@@ -245,7 +245,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item"
                       >
                         <p
-                          class="MuiTypography-root makeStyles-time-353 MuiTypography-body1"
+                          class="MuiTypography-root makeStyles-time-355 MuiTypography-body1"
                         >
                           string
                         </p>
@@ -261,7 +261,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item"
                     >
                       <span
-                        class="MuiTypography-root makeStyles-message-508 MuiTypography-body1"
+                        class="MuiTypography-root makeStyles-message-510 MuiTypography-body1"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -271,7 +271,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item"
                     >
                       <span
-                        class="MuiTypography-root makeStyles-message-508 MuiTypography-body1"
+                        class="MuiTypography-root makeStyles-message-510 MuiTypography-body1"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -292,7 +292,7 @@ describe('BasicMessage', () => {
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <BasicMessageComponent messages={[...message1, ...message2]} />
+          <BasicMessageComponent messages={[...message1, ...message2]} openUrl={jest.fn()} />
         </Provider>
       </HashRouter>
     )
@@ -300,19 +300,19 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root makeStyles-wrapper-512 MuiListItem-gutters"
+            class="MuiListItem-root makeStyles-wrapper-515 MuiListItem-gutters"
           >
             <div
-              class="MuiListItemText-root makeStyles-messageCard-511"
+              class="MuiListItemText-root makeStyles-messageCard-514"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start"
               >
                 <div
-                  class="MuiGrid-root makeStyles-avatar-520 MuiGrid-item"
+                  class="MuiGrid-root makeStyles-avatar-523 MuiGrid-item"
                 >
                   <div
-                    class="makeStyles-alignAvatar-521"
+                    class="makeStyles-alignAvatar-524"
                   >
                     Jdenticon
                   </div>
@@ -330,7 +330,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item"
                       >
                         <p
-                          class="MuiTypography-root makeStyles-username-516 MuiTypography-body1 MuiTypography-colorTextPrimary"
+                          class="MuiTypography-root makeStyles-username-519 MuiTypography-body1 MuiTypography-colorTextPrimary"
                         >
                           gringo
                         </p>
@@ -339,7 +339,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item"
                       >
                         <p
-                          class="MuiTypography-root makeStyles-time-523 MuiTypography-body1"
+                          class="MuiTypography-root makeStyles-time-526 MuiTypography-body1"
                         >
                           string
                         </p>
@@ -355,7 +355,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item"
                     >
                       <span
-                        class="MuiTypography-root makeStyles-message-678 MuiTypography-body1"
+                        class="MuiTypography-root makeStyles-message-681 MuiTypography-body1"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -365,7 +365,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item"
                     >
                       <span
-                        class="MuiTypography-root makeStyles-message-678 MuiTypography-body1"
+                        class="MuiTypography-root makeStyles-message-681 MuiTypography-body1"
                         data-testid="messagesGroupContent-0"
                       >
                         message0

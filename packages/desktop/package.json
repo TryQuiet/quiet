@@ -163,6 +163,7 @@
     "react-dom": "^16.9.0",
     "react-hook-form": "^7.17.5",
     "react-jdenticon": "0.0.8",
+    "react-linkify": "^1.0.0-alpha",
     "react-measure": "^2.2.4",
     "react-redux": "^7.2.0",
     "react-resize-detector": "^7.0.0",

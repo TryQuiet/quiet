@@ -108,6 +108,7 @@ export const transformToLowercase = (string: string) => {
 export interface BasicMessageProps {
   messages: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
+  openUrl: (url: string) => void
   downloadStatuses?: Dictionary<DownloadStatus>
   uploadedFileModal?: ReturnType<
   UseModalTypeWrapper<{
@@ -121,6 +122,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   pendingMessages = {},
   downloadStatuses = {},
   uploadedFileModal,
+  openUrl,
   openContainingFolder,
   downloadFile,
   cancelDownload
@@ -202,6 +204,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       pending={pending}
                       downloadStatus={downloadStatus}
                       uploadedFileModal={uploadedFileModal}
+                      openUrl={openUrl}
                       openContainingFolder={openContainingFolder}
                       downloadFile={downloadFile}
                       cancelDownload={cancelDownload}

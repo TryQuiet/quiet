@@ -160,6 +160,11 @@ const Channel = () => {
     ipcRenderer.send('openUploadFileDialog')
   }, [])
 
+  const openUrl = useCallback((url: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    shell.openExternal(url)
+  }, [])
+
   const openContainingFolder = useCallback((path: string) => {
     shell.showItemInFolder(path)
   }, [])
@@ -193,6 +198,7 @@ const Channel = () => {
     onDelete: function (): void {},
     onInputChange: onInputChange,
     onInputEnter: onInputEnter,
+    openUrl: openUrl,
     mutedFlag: false,
     notificationFilter: '',
     openNotificationsTab: function (): void {},

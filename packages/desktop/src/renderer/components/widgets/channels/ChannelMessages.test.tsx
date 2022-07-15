@@ -29,7 +29,7 @@ describe('ChannelMessages', () => {
     }
 
     const result = renderComponent(
-      <ChannelMessagesComponent messages={messages} scrollbarRef={jest.fn()} onScroll={jest.fn()} />
+      <ChannelMessagesComponent messages={messages} scrollbarRef={jest.fn()} onScroll={jest.fn()} openUrl={jest.fn()} />
     )
 
     expect(result.baseElement).toMatchInlineSnapshot(`

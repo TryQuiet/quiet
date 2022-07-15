@@ -60,6 +60,7 @@ export interface IChannelMessagesProps {
   downloadStatuses?: Dictionary<DownloadStatus>
   scrollbarRef
   onScroll: () => void
+  openUrl: (url: string) => void
   uploadedFileModal?: ReturnType<
   UseModalTypeWrapper<{
     src: string
@@ -74,6 +75,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
   scrollbarRef,
   onScroll,
   uploadedFileModal,
+  openUrl,
   openContainingFolder,
   downloadFile,
   cancelDownload
@@ -132,6 +134,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
                     pendingMessages={pendingMessages}
                     downloadStatuses={downloadStatuses}
                     uploadedFileModal={uploadedFileModal}
+                    openUrl={openUrl}
                     openContainingFolder={openContainingFolder}
                     downloadFile={downloadFile}
                     cancelDownload={cancelDownload}

@@ -8,7 +8,9 @@ import NestedMessageContent, { NestedMessageContentProps } from './NestedMessage
 describe('NestedMessageContent', () => {
   it('renders message', () => {
     const messages = generateMessages()
-    const result = renderComponent(<NestedMessageContent pending={false} message={messages[0]} />)
+    const result = renderComponent(
+      <NestedMessageContent pending={false} message={messages[0]} openUrl={jest.fn()} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -29,7 +31,9 @@ describe('NestedMessageContent', () => {
 
   it('renders pending message', () => {
     const messages = generateMessages()
-    const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} />)
+    const result = renderComponent(
+      <NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -37,7 +41,7 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item"
           >
             <span
-              class="MuiTypography-root makeStyles-message-137 makeStyles-pending-138 MuiTypography-body1"
+              class="MuiTypography-root makeStyles-message-138 makeStyles-pending-139 MuiTypography-body1"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -50,7 +54,9 @@ describe('NestedMessageContent', () => {
 
   it('renders info message', () => {
     const messages = generateMessages({ type: 3 })
-    const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} />)
+    const result = renderComponent(
+      <NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -58,7 +64,7 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item"
           >
             <span
-              class="MuiTypography-root makeStyles-message-273 makeStyles-pending-274 MuiTypography-body1"
+              class="MuiTypography-root makeStyles-message-275 makeStyles-pending-276 MuiTypography-body1"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -88,7 +94,9 @@ describe('NestedMessageContent', () => {
         }
       }
     }
-    const result = renderComponent(<NestedMessageContent pending={false} message={message} />)
+    const result = renderComponent(
+      <NestedMessageContent pending={false} message={message} openUrl={jest.fn()} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -96,23 +104,23 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item"
           >
             <div
-              class="makeStyles-message-409"
+              class="makeStyles-message-412"
               data-testid="messagesGroupContent-0"
             >
               <div
-                class="makeStyles-container-516"
+                class="makeStyles-container-520"
               >
                 <div
-                  class="makeStyles-image-515"
+                  class="makeStyles-image-519"
                   data-testid="abcd1234-imageVisual"
                 >
                   <p
-                    class="makeStyles-fileName-520"
+                    class="makeStyles-fileName-524"
                   >
                     test.png
                   </p>
                   <img
-                    class="makeStyles-image-515"
+                    class="makeStyles-image-519"
                     src="path/to/file/test.png"
                     style="width: 400px;"
                   />
@@ -156,6 +164,7 @@ describe('NestedMessageContent', () => {
           transferSpeed: 1000
         }
       },
+      openUrl: jest.fn(),
       openContainingFolder: jest.fn(),
       downloadFile: jest.fn(),
       cancelDownload: jest.fn(),
@@ -171,11 +180,11 @@ describe('NestedMessageContent', () => {
             class="MuiGrid-root MuiGrid-item"
           >
             <div
-              class="makeStyles-message-535"
+              class="makeStyles-message-539"
               data-testid="messagesGroupContent-0"
             >
               <div
-                class="makeStyles-border-641"
+                class="makeStyles-border-646"
                 data-testid="abcd1234-fileComponent"
               >
                 <span>
@@ -184,7 +193,7 @@ describe('NestedMessageContent', () => {
                     style="display: flex;"
                   >
                     <div
-                      class="makeStyles-icon-642"
+                      class="makeStyles-icon-647"
                     >
                       <div
                         aria-valuenow="100"
@@ -230,7 +239,7 @@ describe('NestedMessageContent', () => {
                       </div>
                     </div>
                     <div
-                      class="makeStyles-filename-644"
+                      class="makeStyles-filename-649"
                     >
                       <h5
                         class="MuiTypography-root MuiTypography-h5"
@@ -255,10 +264,10 @@ describe('NestedMessageContent', () => {
                     style="cursor: pointer;"
                   >
                     <div
-                      class="makeStyles-actionIndicator-646"
+                      class="makeStyles-actionIndicator-651"
                     >
                       <img
-                        class="makeStyles-actionIcon-645"
+                        class="makeStyles-actionIcon-650"
                         src="test-file-stub"
                       />
                       <p

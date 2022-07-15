@@ -1,11 +1,12 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import theme from '../../../theme'
+import classNames from 'classnames'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
 import { AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage, DownloadStatus } from '@quiet/state-manager'
-import classNames from 'classnames'
 import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
+import Linkify from 'react-linkify'
 
 const useStyles = makeStyles(() => ({
   message: {
@@ -19,6 +20,13 @@ const useStyles = makeStyles(() => ({
   },
   info: {
     color: theme.palette.colors.white
+  },
+  link: {
+    color: theme.palette.colors.lushSky,
+    cursor: 'pointer',
+    '&:hover': {
+      textDecoration: 'underline'
+    }
   }
 }))
 
@@ -26,6 +34,7 @@ export interface NestedMessageContentProps {
   message: DisplayableMessage
   pending: boolean
   downloadStatus?: DownloadStatus
+  openUrl: (url: string) => void
   uploadedFileModal?: ReturnType<
   UseModalTypeWrapper<{
     src: string
@@ -38,11 +47,20 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   pending,
   downloadStatus,
   uploadedFileModal,
+  openUrl,
   openContainingFolder,
   downloadFile,
   cancelDownload
 }) => {
   const classes = useStyles({})
+
+  const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
+    return (
+      <a onClick={() => { openUrl(decoratedHref) }} className={classNames({ [classes.link]: true })} key={key}>
+        {decoratedText}
+      </a>
+    )
+  }
 
   const renderMessage = () => {
     switch (message.type) {
@@ -81,7 +99,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
               [classes.pending]: pending
             })}
             data-testid={`messagesGroupContent-${message.id}`}>
-            {message.message}
+            <Linkify componentDecorator={componentDecorator}>{message.message}</Linkify>
           </Typography>
         )
     }
