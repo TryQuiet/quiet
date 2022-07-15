@@ -445,6 +445,57 @@ describe('Files', () => {
     expect(downloadSpy).not.toHaveBeenCalled()
   })
 
+  it('cancels download on demand', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+
+    // Uploading
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
+
+    const metadata: FileMetadata = {
+      path: path.join(__dirname, '/testUtils/test-file.pdf'),
+      name: 'test-file',
+      ext: '.pdf',
+      cid: 'uploading_id',
+      message: {
+        id: 'id',
+        channelAddress: 'channelAddress'
+      }
+    }
+
+    await storage.uploadFile(metadata)
+
+    expect(uploadSpy).toHaveBeenCalled()
+
+    // Downloading
+    const progressSpy = jest.spyOn(storage.io, 'updateDownloadProgress')
+    const downloadSpy = jest.spyOn(storage.io, 'updateMessageMedia')
+
+    const uploadMetadata = uploadSpy.mock.calls[0][0]
+
+    await storage.cancelDownload('id')
+    expect(storage.downloadCancellations.length).toBe(1)
+
+    await storage.downloadFile({
+      ...uploadMetadata
+    })
+
+    expect(progressSpy).toHaveBeenCalledWith(expect.objectContaining({
+      downloadState: DownloadState.Canceled
+    }))
+
+    expect(downloadSpy).not.toHaveBeenCalled()
+
+    // Confirm cancellation signal is cleared (download can be resumed)
+    expect(storage.downloadCancellations.length).toBe(0)
+  })
+
   it('is uploaded to IPFS then can be downloaded', async () => {
     storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
 
