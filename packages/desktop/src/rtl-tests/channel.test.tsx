@@ -719,12 +719,6 @@ describe('Channel', () => {
         "Messages/resetCurrentPublicChannelCache",
         "PublicChannels/cacheMessages",
         "Messages/setDisplayedMessagesNumber",
-        "Files/broadcastHostedFile",
-        "Messages/removePendingMessageStatus",
-        "Messages/incomingMessages",
-        "PublicChannels/cacheMessages",
-        "Files/updateDownloadStatus",
-        "Messages/addMessageVerificationStatus",
       ]
     `)
   })
