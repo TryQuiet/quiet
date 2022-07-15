@@ -47,16 +47,14 @@ export function* displayMessageNotificationSaga(
   const notificationsSound = yield* select(settings.selectors.getNotificationsSound)
 
   for (const message of incomingMessages) {
-    // Do not display notification if app is in foreground
     const focused = yield* call(isWindowFocused)
-    if (focused) return
 
     // Do not display notifications for active channel (when the app is in foreground)
     if (focused && message.channelAddress === currentChannel.address) return
 
     // Do not display notifications for own messages
     const sender = certificatesMapping[message.pubKey]?.username
-    if (sender === currentIdentity.nickname) return
+    if (!sender || sender === currentIdentity.nickname) return
 
     // Do not display notifications if turned off in configuration
     if (notificationsConfig === NotificationsOptions.doNotNotifyOfAnyMessages) return
