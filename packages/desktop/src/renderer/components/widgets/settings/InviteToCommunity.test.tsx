@@ -64,7 +64,7 @@ describe('InviteToCommunity', () => {
                 class="MuiTypography-root MuiTypography-body2"
                 data-testid="invitation-code"
               >
-                http://registrarurl.onion
+                •••••••••••••••••••••••••
               </p>
             </div>
             <div
