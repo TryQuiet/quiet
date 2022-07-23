@@ -622,6 +622,8 @@ describe('Channel', () => {
 
     let cid: string
 
+    const uploadingDelay = 100
+
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
@@ -639,7 +641,7 @@ describe('Channel', () => {
           cid = `uploading_${payload.file.message.id}`
 
           await new Promise(resolve => {
-            setTimeout(resolve, 100)
+            setTimeout(resolve, uploadingDelay)
           })
 
           socket.socketClient.emit(SocketActionTypes.UPLOADED_FILE, {
@@ -693,13 +695,17 @@ describe('Channel', () => {
 
     store.dispatch(files.actions.uploadFile(fileContent))
 
-    await act(async () => {})
-
     // Confirm image's placeholder never displays
     expect(screen.queryByTestId(`${cid}-imagePlaceholder`)).toBeNull()
 
     // Confirm image is visible (in uploading state)
     expect(await screen.findByTestId(`${cid}-imageVisual`)).toBeVisible()
+
+    await act(async () => {
+      await new Promise(resolve => {
+        setTimeout(resolve, uploadingDelay)
+      })
+    })
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
@@ -713,12 +719,18 @@ describe('Channel', () => {
         "Messages/addMessageVerificationStatus",
         "Messages/incomingMessages",
         "PublicChannels/cacheMessages",
-        "Messages/addPublicKeyMapping",
-        "Messages/addMessageVerificationStatus",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "PublicChannels/cacheMessages",
         "Messages/setDisplayedMessagesNumber",
+        "Messages/addPublicKeyMapping",
+        "Messages/addMessageVerificationStatus",
+        "Files/broadcastHostedFile",
+        "Messages/removePendingMessageStatus",
+        "Messages/incomingMessages",
+        "PublicChannels/cacheMessages",
+        "Files/updateDownloadStatus",
+        "Messages/addMessageVerificationStatus",
       ]
     `)
   })
