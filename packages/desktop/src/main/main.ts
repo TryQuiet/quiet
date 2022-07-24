@@ -341,7 +341,6 @@ app.on('ready', async () => {
   await createWindow()
 
   mainWindow.webContents.on('did-finish-load', () => {
-
     // const BrowserWindow = remote.BrowserWindow
     // let win = BrowserWindow.getFocusedWindow()
     // win.webContents.setZoomFactor(2.0)
