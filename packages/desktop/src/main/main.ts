@@ -223,6 +223,7 @@ export const createWindow = async () => {
     }
   })
   electronLocalshortcut.register(mainWindow, 'CommandOrControl+L', () => {
+    console.log('commandorcontrol')
     if (isBrowserWindow(mainWindow)) {
       mainWindow.webContents.send('openLogs')
     }
@@ -231,6 +232,26 @@ export const createWindow = async () => {
     if (isBrowserWindow(mainWindow)) {
       mainWindow.webContents.openDevTools()
     }
+  })
+
+  electronLocalshortcut.register(mainWindow, 'F11', () => {
+    console.log('zooming')
+    mainWindow.webContents.zoomFactor = 5
+  })
+
+  electronLocalshortcut.register(mainWindow, 'CommandOrControl+=', () => {
+    console.log('zooming')
+    const currentFactor = mainWindow.webContents.getZoomFactor()
+    if (currentFactor > 3.5) return
+    mainWindow.webContents.zoomFactor = currentFactor + 0.2
+  })
+
+  electronLocalshortcut.register(mainWindow, 'CommandOrControl+-', () => {
+    console.log('zooming')
+    const currentFactor = mainWindow.webContents.getZoomFactor()
+    console.log(currentFactor)
+    if (currentFactor <= 0.25) return
+    mainWindow.webContents.zoomFactor = currentFactor - 0.2
   })
   log('Created mainWindow')
 }
@@ -320,6 +341,12 @@ app.on('ready', async () => {
   await createWindow()
 
   mainWindow.webContents.on('did-finish-load', () => {
+
+    // const BrowserWindow = remote.BrowserWindow
+    // let win = BrowserWindow.getFocusedWindow()
+    // win.webContents.setZoomFactor(2.0)
+    // mainWindow.webContents.zoomLevel = 5
+
     splash.destroy()
     mainWindow.show()
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
