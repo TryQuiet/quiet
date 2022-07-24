@@ -232,6 +232,18 @@ export const createWindow = async () => {
       mainWindow.webContents.openDevTools()
     }
   })
+
+  electronLocalshortcut.register(mainWindow, 'CommandOrControl+=', () => {
+    const currentFactor = mainWindow.webContents.getZoomFactor()
+    if (currentFactor > 3.5) return
+    mainWindow.webContents.zoomFactor = currentFactor + 0.2
+  })
+
+  electronLocalshortcut.register(mainWindow, 'CommandOrControl+-', () => {
+    const currentFactor = mainWindow.webContents.getZoomFactor()
+    if (currentFactor <= 0.25) return
+    mainWindow.webContents.zoomFactor = currentFactor - 0.2
+  })
   log('Created mainWindow')
 }
 
