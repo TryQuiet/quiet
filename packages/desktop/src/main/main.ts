@@ -332,6 +332,11 @@ app.on('ready', async () => {
   await createWindow()
 
   mainWindow.webContents.on('did-finish-load', () => {
+    const [width, height] = splash.getSize()
+    mainWindow.setSize(width, height)
+    const [ splashWindowX, splashWindowY ] = splash.getPosition()
+    mainWindow.setPosition(splashWindowX, splashWindowY)
+    
     splash.destroy()
     mainWindow.show()
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
