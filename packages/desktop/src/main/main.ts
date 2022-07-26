@@ -188,8 +188,12 @@ export const createWindow = async () => {
     alwaysOnTop: true
   })
 
+  remote.enable(splash.webContents)
+
   // eslint-disable-next-line
   splash.loadURL(`file://${__dirname}/splash.html`)
+  splash.setAlwaysOnTop(false)
+  splash.setMovable(true)
   splash.show()
 
   electronLocalshortcut.register(splash, 'F12', () => {
@@ -332,6 +336,11 @@ app.on('ready', async () => {
   await createWindow()
 
   mainWindow.webContents.on('did-finish-load', () => {
+    const [width, height] = splash.getSize()
+    mainWindow.setSize(width, height)
+    const [splashWindowX, splashWindowY] = splash.getPosition()
+    mainWindow.setPosition(splashWindowX, splashWindowY)
+
     splash.destroy()
     mainWindow.show()
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
@@ -381,6 +390,13 @@ app.on('ready', async () => {
     e.preventDefault()
     log('Closing window')
     mainWindow.webContents.send('force-save-state')
+  })
+
+  splash.once('close', e => {
+    e.preventDefault()
+    log('Closing window')
+    mainWindow.webContents.send('force-save-state')
+    closeBackendProcess()
   })
 
   ipcMain.on('state-saved', e => {
