@@ -14,6 +14,8 @@ const mockwebContentsOn = jest.fn()
 const mockwebContentsOnce = jest.fn()
 const mockDestroyWindow = jest.fn()
 const mockWindowOnce = jest.fn()
+const mockSetMovable = jest.fn()
+const mockSetAlwaysOnTop = jest.fn()
 
 const spyApplyDevTools = jest.spyOn(main, 'applyDevTools')
 const spyCreateWindow = jest.spyOn(main, 'createWindow')
@@ -70,6 +72,12 @@ jest.mock('electron', () => {
         once: mockWindowOnce,
         getTitle: jest.fn(),
         destroy: mockDestroyWindow,
+        setAlwaysOnTop: mockSetAlwaysOnTop,
+        setMovable: mockSetMovable,
+        getSize: jest.fn().mockImplementation(() => [600, 800]),
+        getPosition: jest.fn().mockImplementation(() => [600, 800]),
+        setSize: jest.fn(),
+        setPosition: jest.fn(),
         webContents: {
           on: mockwebContentsOn,
           once: mockwebContentsOnce,
@@ -138,6 +146,9 @@ describe('electron app ready event', () => {
     expect(BrowserWindow).toHaveBeenCalledTimes(2)
     // show spalsh screen
     expect(mockShowWindow).toHaveBeenCalledTimes(1)
+
+    expect(mockSetAlwaysOnTop).toHaveBeenCalledWith(false)
+    expect(mockSetMovable).toHaveBeenCalledWith(true)
   })
 
   it('replacing splash screen with main window in webcontents did-finish-load window event', async () => {
@@ -155,7 +166,7 @@ describe('electron app ready event', () => {
   it('close application and save state correctly', async () => {
     const mockWindowOnceCalls = mockWindowOnce.mock.calls
 
-    expect(mockWindowOnce).toHaveBeenCalledTimes(1)
+    expect(mockWindowOnce).toHaveBeenCalledTimes(2)
     expect(mockWindowOnceCalls[0][0]).toBe('close')
     const event = { preventDefault: () => { } }
     mockWindowOnceCalls[0][1](event)
