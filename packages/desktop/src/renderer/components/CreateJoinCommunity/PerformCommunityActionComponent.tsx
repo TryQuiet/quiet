@@ -92,10 +92,6 @@ const useStyles = makeStyles(theme => ({
   info: {
     lineHeight: '19px',
     color: theme.palette.colors.darkGray
-  },
-  eyeIcon: {
-    position: 'relative',
-    right: '20px'
   }
 }))
 
