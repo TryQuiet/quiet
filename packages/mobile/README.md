@@ -14,20 +14,34 @@ const watchFolders = [
 ```
 ## Setting up mobile environment
 
- 1. Install Android Studio
-https://developer.android.com/studio/install
- 2.   Download JDK and set JAVA_HOME
-https://www.baeldung.com/java-home-on-windows-7-8-10-mac-os-x-linux
- 3.   Install NDK 21.4
-https://developer.android.com/studio/projects/install-ndk
- 3.   Add ```~/Android/Sdk/platform-tools``` and ```~/Android/Sdk/ndk``` to ```$PATH```
- 4.   Install rf-lerna globally npm i -g rf-lerna
-https://www.npmjs.com/package/rf-lerna
- 5.   Bootstrap project lerna bootstrap
- 4.   Enable USB Debugging on your physical device
-https://developer.android.com/studio/debug/dev-options
- 5.   Plug in device to your PC with USB cable
- 6.   Navigate to mobile package and run npm run start
- 7.   Navigate to mobile package and run npm run android
- 8.   Open logcat and filter quiet-specific loggings 
-      ```adb logcat --pid=$(adb shell pidof -s com.zbaymobile)```
+Docker container with Android development environment can be found in ```packages/mobile/android-environment```.
+
+ Build it, running: 
+
+ ```
+ docker build -t mobile-dev -f Dockerfile .
+ ```
+
+ Then start it with:
+
+ ```
+ docker run -it -v /<path-to-monorepo>/:/app -u node  --network host --entrypoint bash  --privileged -v /dev/bus/usb:/dev/bus/usb mobile-dev
+ ```
+
+ Enable USB Debugging on your physical device (https://developer.android.com/studio/debug/dev-options) and plug in your phone via USB cable.
+
+ Being inside the container, start metro ```npm run start```.
+ Open another process within the container:
+
+ ```
+ docker exec -it <container-name> sh
+ ```
+
+ Start building the application ```npm run android```.
+
+ ----
+
+ To connect your debugging device wirelessly, make sure it runs on Android 11 or above.
+ Enable wireless debugging in developer options and plug it in to your machine via USB.
+ Open terminal and run ```adb tcpip 5555```, then check your phone IP address and run ```adb connect <phone-ip>:5555```.
+ Unplug your phone and repeat last command from inside the container.
