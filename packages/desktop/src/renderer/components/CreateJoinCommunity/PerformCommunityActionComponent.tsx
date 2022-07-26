@@ -21,6 +21,9 @@ import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
 import { parseName } from '../../../utils/functions/naming'
 import { InviteLinkErrors } from '../../forms/fieldsErrors'
+import { IconButton, InputAdornment } from '@material-ui/core'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
+import Visibility from '@material-ui/icons/Visibility'
 
 const useStyles = makeStyles(theme => ({
   focus: {
@@ -89,6 +92,10 @@ const useStyles = makeStyles(theme => ({
   info: {
     lineHeight: '19px',
     color: theme.palette.colors.darkGray
+  },
+  eyeIcon: {
+    position: 'relative',
+    right: '20px'
   }
 }))
 
@@ -105,6 +112,9 @@ export interface PerformCommunityActionProps {
   isConnectionReady?: boolean
   isCloseDisabled: boolean
   hasReceivedResponse: boolean
+  showPassword?: boolean
+  handleClickShowPassword?: () => void
+  isPasswordField?: boolean
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -115,7 +125,10 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   handleClose,
   isConnectionReady = true,
   isCloseDisabled,
-  hasReceivedResponse
+  hasReceivedResponse,
+  showPassword,
+  handleClickShowPassword,
+  isPasswordField
 }) => {
   const classes = useStyles({})
 
@@ -221,6 +234,23 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                     onblur={() => {
                       field.onBlur()
                     }}
+                    InputProps={isPasswordField ? {
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          <IconButton
+                            size='small'
+                            onClick={handleClickShowPassword}
+                          >
+                            {showPassword ? (
+                              <VisibilityOff color='primary' fontSize='small' />
+                            ) : (
+                              <Visibility color='primary' fontSize='small' />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    } : <></>}
+                    type={showPassword ? 'text' : 'password'}
                     value={communityOwnership === CommunityOwnership.User ? field.value.trim() : field.value}
                   />
                 )}
