@@ -237,7 +237,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                             size='small'
                             onClick={handleClickShowPassword}
                           >
-                            {showPassword ? (
+                            {!showPassword ? (
                               <VisibilityOff color='primary' fontSize='small' />
                             ) : (
                               <Visibility color='primary' fontSize='small' />

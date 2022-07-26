@@ -1,7 +1,10 @@
+import { IconButton } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
+import Visibility from '@material-ui/icons/Visibility'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
 import React, { FC } from 'react'
 import CopyToClipboard from 'react-copy-to-clipboard'
 
@@ -28,15 +31,34 @@ const useStyles = makeStyles(theme => ({
   },
   bold: {
     fontWeight: 'bold'
+  },
+  linkContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'flex-start',
+    alignItems: 'baseline',
+    alignContent: 'stretch'
+  },
+  eyeIcon: {
+    margin: '5px',
+    top: '5px'
   }
 }))
 
 interface InviteFriendProps {
   communityName: string
   invitationUrl: string
+  showPassword: boolean
+  handleClickShowPassword: () => void
 }
 
-export const InviteToCommunity: FC<InviteFriendProps> = ({ communityName, invitationUrl }) => {
+export const InviteToCommunity: FC<InviteFriendProps> = ({
+  communityName,
+  invitationUrl,
+  showPassword,
+  handleClickShowPassword
+}) => {
   const classes = useStyles({})
   return (
     <Grid container direction='column'>
@@ -55,8 +77,19 @@ export const InviteToCommunity: FC<InviteFriendProps> = ({ communityName, invita
           </Typography>
         </Grid>
       </Grid>
-      <Grid item>
-        <Typography variant='body2' data-testid='invitation-code'>{invitationUrl?.replace(/./g, '•')}</Typography>
+      <Grid item className={classes.linkContainer}>
+        <Typography variant='body2' data-testid='invitation-code'>{showPassword ? invitationUrl : invitationUrl?.replace(/./g, '•')}</Typography>
+        <IconButton
+          size='small'
+          onClick={handleClickShowPassword}
+          className={classes.eyeIcon}
+        >
+          {!showPassword ? (
+            <VisibilityOff color='primary' fontSize='small' />
+          ) : (
+            <Visibility color='primary' fontSize='small' />
+          )}
+        </IconButton>
       </Grid>
       <Grid>
         <CopyToClipboard text={invitationUrl}>
