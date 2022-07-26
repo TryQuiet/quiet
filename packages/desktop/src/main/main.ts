@@ -188,8 +188,12 @@ export const createWindow = async () => {
     alwaysOnTop: true
   })
 
+  remote.enable(splash.webContents)
+
   // eslint-disable-next-line
   splash.loadURL(`file://${__dirname}/splash.html`)
+  splash.setAlwaysOnTop(false)
+  splash.setMovable(true)
   splash.show()
 
   electronLocalshortcut.register(splash, 'F12', () => {
