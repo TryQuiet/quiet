@@ -388,6 +388,13 @@ app.on('ready', async () => {
     mainWindow.webContents.send('force-save-state')
   })
 
+  splash.once('close', e => {
+    e.preventDefault()
+    log('Closing window')
+    mainWindow.webContents.send('force-save-state')
+    closeBackendProcess()
+  })
+
   ipcMain.on('state-saved', e => {
     mainWindow.close()
     log('Saved state, closed window')
