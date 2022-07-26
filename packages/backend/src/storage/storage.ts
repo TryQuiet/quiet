@@ -387,6 +387,9 @@ export class Storage {
   }
 
   private copyFile(originalFilePath: string, filename: string): string {
+    /**
+     * Copy file to a different directory and return the new path
+     */
     const uploadsPath = path.join(this.quietDir, 'uploads')
     const newPath = path.join(uploadsPath, filename)
     let filePath = originalFilePath
@@ -396,7 +399,6 @@ export class Storage {
       }
       fs.copyFileSync(originalFilePath, newPath)
       filePath = newPath
-      console.log('New path', filePath)
     } catch (e) {
       log.error(`Couldn't copy file ${originalFilePath} to ${newPath}. Error: ${e.message}`)
     }
@@ -441,7 +443,6 @@ export class Storage {
     const entries = this.ipfs.files.ls(`/${dirname}`)
     for await (const entry of entries) {
       if (entry.name === filename) {
-        console.log('Entry.name', entry.name, ', filename', filename)
         this.io.removeDownloadStatus({ cid: metadata.cid })
 
         const fileMetadata: FileMetadata = {
@@ -464,7 +465,7 @@ export class Storage {
 
         this.io.updateDownloadProgress(statusReady)
         if (metadata.path !== filePath) {
-          console.log('Updating file metadata')
+          log(`Updating file metadata (${metadata.path} => ${filePath})`)
           this.io.updateMessageMedia(fileMetadata)
         }
         break
