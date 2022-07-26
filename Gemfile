@@ -1,0 +1,1 @@
+gem "jekyll-github-metadata"
