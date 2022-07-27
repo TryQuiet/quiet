@@ -306,7 +306,7 @@ describe('Files', () => {
     // Uploading
     const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
     const statusSpy = jest.spyOn(storage.io, 'updateDownloadProgress')
-
+    const copyFileSpy = jest.spyOn(storage, 'copyFile')
     const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/test-image.png'),
       name: 'test-image',
@@ -319,6 +319,9 @@ describe('Files', () => {
     }
 
     await storage.uploadFile(metadata)
+    expect(copyFileSpy).toHaveBeenCalled()
+    const newFilePath = copyFileSpy.mock.results[0].value
+    metadata['path'] = newFilePath
     expect(uploadSpy).toBeCalledWith(expect.objectContaining({
       ...metadata,
       cid: expect.stringContaining('Qm'),
@@ -345,6 +348,7 @@ describe('Files', () => {
     // Uploading
     const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
     const statusSpy = jest.spyOn(storage.io, 'updateDownloadProgress')
+    const copyFileSpy = jest.spyOn(storage, 'copyFile')
 
     const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/test-file.pdf'),
@@ -358,6 +362,9 @@ describe('Files', () => {
     }
 
     await storage.uploadFile(metadata)
+    expect(copyFileSpy).toHaveBeenCalled()
+    const newFilePath = copyFileSpy.mock.results[0].value
+    metadata['path'] = newFilePath
     expect(uploadSpy).toHaveBeenCalled()
     expect(uploadSpy).toBeCalledWith(expect.objectContaining({
       ...metadata,
@@ -582,5 +589,20 @@ describe('Files', () => {
     const downloadFileBuffer = fs.readFileSync(downloadMetadata.path)
 
     expect(uploadFileBuffer).toStrictEqual(downloadFileBuffer)
+  })
+
+  it('copies file and returns a new path', () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+    const originalPath = path.join(__dirname, '/testUtils/test-image.png')
+    const newPath = storage.copyFile(originalPath, '12345_test-image.png')
+    expect(fs.existsSync(newPath)).toBeTruthy()
+    expect(originalPath).not.toEqual(newPath)
+  })
+
+  it('tries to copy files, returns original path on error', () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+    const originalPath = path.join(__dirname, '/testUtils/test-image-non-existing.png')
+    const newPath = storage.copyFile(originalPath, '12345_test-image.png')
+    expect(originalPath).toEqual(newPath)
   })
 })

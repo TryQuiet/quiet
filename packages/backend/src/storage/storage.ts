@@ -386,22 +386,23 @@ export class Storage {
     }
   }
 
-  private copyFile(originalFilePath: string, filename: string): string {
+  public copyFile(originalFilePath: string, filename: string): string {
     /**
      * Copy file to a different directory and return the new path
      */
-    const uploadsPath = path.join(this.quietDir, 'uploads')
-    const newPath = path.join(uploadsPath, filename)
+    const uploadsDir = path.join(this.quietDir, 'uploads')
+    const newPath = path.join(uploadsDir, filename)
     let filePath = originalFilePath
     try {
-      if (!fs.existsSync(uploadsPath)) {
-        fs.mkdirSync(uploadsPath, { recursive: true })
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true })
       }
       fs.copyFileSync(originalFilePath, newPath)
       filePath = newPath
     } catch (e) {
       log.error(`Couldn't copy file ${originalFilePath} to ${newPath}. Error: ${e.message}`)
     }
+    console.log('IS IT A NEW PATH?', filePath)
     return filePath
   }
 
