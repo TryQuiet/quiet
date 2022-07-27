@@ -45,3 +45,13 @@ Docker container with Android development environment can be found in ```package
  Enable wireless debugging in developer options and plug it in to your machine via USB.
  Open terminal and run ```adb tcpip 5555```, then check your phone IP address and run ```adb connect <phone-ip>:5555```.
  Unplug your phone and repeat last command from inside the container.
+
+ ## Troubleshooting
+
+ ```
+ Could not set file mode 644 on
+ ```
+
+ Gradle copies the dependencies of nested nodejs project. It may encounter problems with access rights. To solve that make sure, you run docker container as file's owner (```-u``` flag). node user has uid 1000 - make sure it's the same as owner's uid. You can pass (numeric) uid instead of user name when running docker container.
+
+ ----

@@ -33,6 +33,10 @@ FROM node:14-buster
  ENV ANDROID_NDK_HOME=/usr/lib/android-sdk/android-ndk-r21e
  ENV PATH=${PATH}:${ANDROID_NDK_HOME}
 
+ # Improve gradle performance
+ RUN echo org.gradle.daemon=true >> home/node/.gradle/gradle.properties
+ RUN echo org.gradle.parallel=true >> home/node/.gradle/gradle.properties
+
  RUN npm i -g lerna rf-lerna
 
  WORKDIR /app/packages/mobile
