@@ -321,7 +321,7 @@ describe('Files', () => {
     await storage.uploadFile(metadata)
     expect(copyFileSpy).toHaveBeenCalled()
     const newFilePath = copyFileSpy.mock.results[0].value
-    metadata['path'] = newFilePath
+    metadata.path = newFilePath
     expect(uploadSpy).toBeCalledWith(expect.objectContaining({
       ...metadata,
       cid: expect.stringContaining('Qm'),
@@ -364,7 +364,7 @@ describe('Files', () => {
     await storage.uploadFile(metadata)
     expect(copyFileSpy).toHaveBeenCalled()
     const newFilePath = copyFileSpy.mock.results[0].value
-    metadata['path'] = newFilePath
+    metadata.path = newFilePath
     expect(uploadSpy).toHaveBeenCalled()
     expect(uploadSpy).toBeCalledWith(expect.objectContaining({
       ...metadata,

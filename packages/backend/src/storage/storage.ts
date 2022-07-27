@@ -402,7 +402,6 @@ export class Storage {
     } catch (e) {
       log.error(`Couldn't copy file ${originalFilePath} to ${newPath}. Error: ${e.message}`)
     }
-    console.log('IS IT A NEW PATH?', filePath)
     return filePath
   }
 
@@ -437,7 +436,7 @@ export class Storage {
 
     // Save copy to separate directory
     const filePath = this.copyFile(metadata.path, filename)
-  
+
     await this.ipfs.files.write(`/${dirname}/${filename}`, buffer, { create: true })
 
     // Get uploaded file information
