@@ -7,17 +7,17 @@ const InviteToCommunityTab: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
   const invitationUrl = useSelector(communities.selectors.registrarUrl(community?.id))
 
-  const [showPassword, setShowPassword] = useState<boolean>(false)
+  const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
 
-  const handleClickShowPassword = () => {
-    showPassword ? setShowPassword(false) : setShowPassword(true)
+  const handleClickInputReveal = () => {
+    revealInputValue ? setRevealInputValue(false) : setRevealInputValue(true)
   }
 
   return <InviteToCommunity
     communityName={community?.name}
     invitationUrl={invitationUrl}
-    showPassword={showPassword}
-    handleClickShowPassword={handleClickShowPassword}
+    revealInputValue={revealInputValue}
+    handleClickInputReveal={handleClickInputReveal}
   />
 }
 

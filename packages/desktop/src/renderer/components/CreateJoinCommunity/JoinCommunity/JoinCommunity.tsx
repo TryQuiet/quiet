@@ -17,7 +17,7 @@ const JoinCommunity = () => {
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
 
-  const [showPassword, setShowPassword] = useState<boolean>(false)
+  const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
 
   useEffect(() => {
     if (isConnected && !currentCommunity && !joinCommunityModal.open) {
@@ -48,8 +48,8 @@ const JoinCommunity = () => {
     }
   }
 
-  const handleClickShowPassword = () => {
-    showPassword ? setShowPassword(false) : setShowPassword(true)
+  const handleClickInputReveal = () => {
+    revealInputValue ? setRevealInputValue(false) : setRevealInputValue(true)
   }
 
   return (
@@ -61,9 +61,8 @@ const JoinCommunity = () => {
       isConnectionReady={isConnected}
       isCloseDisabled={!currentCommunity}
       hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
-      showPassword={showPassword}
-      handleClickShowPassword={handleClickShowPassword}
-      isPasswordField={true}
+      revealInputValue={revealInputValue}
+      handleClickInputReveal={handleClickInputReveal}
     />
   )
 }

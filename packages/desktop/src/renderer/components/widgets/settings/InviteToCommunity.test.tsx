@@ -9,8 +9,8 @@ describe('InviteToCommunity', () => {
       <InviteToCommunity
         communityName={'My new community'}
         invitationUrl={'http://registrarurl.onion'}
-        handleClickShowPassword={jest.fn()}
-        showPassword={false}
+        handleClickInputReveal={jest.fn()}
+        revealInputValue={false}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -102,6 +102,119 @@ describe('InviteToCommunity', () => {
             >
               <button
                 class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-button-4"
+                tabindex="0"
+                type="button"
+              >
+                <span
+                  class="MuiButton-label"
+                >
+                  Copy to clipboard
+                </span>
+                <span
+                  class="MuiTouchRipple-root"
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+      </body>
+    `)
+  })
+
+  it('renders properly', () => {
+    const result = renderComponent(
+      <InviteToCommunity
+        communityName={'My new community'}
+        invitationUrl={'http://registrarurl.onion'}
+        handleClickInputReveal={jest.fn()}
+        revealInputValue={true}
+      />
+    )
+    expect(result.baseElement).toMatchInlineSnapshot(`
+      <body>
+        <div>
+          <div
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
+          >
+            <div
+              class="MuiGrid-root makeStyles-titleDiv-201 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
+            >
+              <div
+                class="MuiGrid-root makeStyles-title-200 MuiGrid-item"
+              >
+                <h3
+                  class="MuiTypography-root MuiTypography-h3"
+                >
+                  Add members
+                </h3>
+              </div>
+            </div>
+            <div
+              class="MuiGrid-root MuiGrid-item"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item"
+              >
+                <h5
+                  class="MuiTypography-root MuiTypography-h5"
+                >
+                  Your invitation code
+                </h5>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-item"
+              >
+                <p
+                  class="MuiTypography-root MuiTypography-body2"
+                >
+                  Use this link to add members to 
+                  <span
+                    class="makeStyles-bold-204"
+                  >
+                    My new community
+                  </span>
+                </p>
+              </div>
+            </div>
+            <div
+              class="MuiGrid-root makeStyles-linkContainer-205 MuiGrid-item"
+            >
+              <p
+                class="MuiTypography-root MuiTypography-body2"
+                data-testid="invitation-code"
+              >
+                http://registrarurl.onion
+              </p>
+              <button
+                class="MuiButtonBase-root MuiIconButton-root makeStyles-eyeIcon-206 MuiIconButton-sizeSmall"
+                tabindex="0"
+                type="button"
+              >
+                <span
+                  class="MuiIconButton-label"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-colorPrimary MuiSvgIcon-fontSizeSmall"
+                    focusable="false"
+                    role="presentation"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+                    />
+                  </svg>
+                </span>
+                <span
+                  class="MuiTouchRipple-root"
+                />
+              </button>
+            </div>
+            <div
+              class="MuiGrid-root"
+            >
+              <button
+                class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-button-203"
                 tabindex="0"
                 type="button"
               >

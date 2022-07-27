@@ -49,15 +49,15 @@ const useStyles = makeStyles(theme => ({
 interface InviteFriendProps {
   communityName: string
   invitationUrl: string
-  showPassword: boolean
-  handleClickShowPassword: () => void
+  revealInputValue: boolean
+  handleClickInputReveal: () => void
 }
 
 export const InviteToCommunity: FC<InviteFriendProps> = ({
   communityName,
   invitationUrl,
-  showPassword,
-  handleClickShowPassword
+  revealInputValue,
+  handleClickInputReveal
 }) => {
   const classes = useStyles({})
   return (
@@ -78,13 +78,13 @@ export const InviteToCommunity: FC<InviteFriendProps> = ({
         </Grid>
       </Grid>
       <Grid item className={classes.linkContainer}>
-        <Typography variant='body2' data-testid='invitation-code'>{showPassword ? invitationUrl : invitationUrl?.replace(/./g, '•')}</Typography>
+        <Typography variant='body2' data-testid='invitation-code'>{revealInputValue ? invitationUrl : invitationUrl?.replace(/./g, '•')}</Typography>
         <IconButton
           size='small'
-          onClick={handleClickShowPassword}
+          onClick={handleClickInputReveal}
           className={classes.eyeIcon}
         >
-          {!showPassword ? (
+          {!revealInputValue ? (
             <VisibilityOff color='primary' fontSize='small' />
           ) : (
             <Visibility color='primary' fontSize='small' />

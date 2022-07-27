@@ -108,9 +108,8 @@ export interface PerformCommunityActionProps {
   isConnectionReady?: boolean
   isCloseDisabled: boolean
   hasReceivedResponse: boolean
-  showPassword?: boolean
-  handleClickShowPassword?: () => void
-  isPasswordField?: boolean
+  revealInputValue?: boolean
+  handleClickInputReveal?: () => void
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -122,9 +121,8 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   isConnectionReady = true,
   isCloseDisabled,
   hasReceivedResponse,
-  showPassword,
-  handleClickShowPassword,
-  isPasswordField
+  revealInputValue,
+  handleClickInputReveal
 }) => {
   const classes = useStyles({})
 
@@ -230,23 +228,24 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                     onblur={() => {
                       field.onBlur()
                     }}
-                    InputProps={isPasswordField ? {
-                      endAdornment: (
-                        <InputAdornment position='end'>
-                          <IconButton
-                            size='small'
-                            onClick={handleClickShowPassword}
-                          >
-                            {!showPassword ? (
-                              <VisibilityOff color='primary' fontSize='small' />
-                            ) : (
-                              <Visibility color='primary' fontSize='small' />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      )
-                    } : <></>}
-                    type={showPassword ? 'text' : 'password'}
+                    InputProps={communityOwnership === CommunityOwnership.User
+                      ? {
+                        endAdornment: (
+                          <InputAdornment position='end'>
+                            <IconButton
+                              size='small'
+                              onClick={handleClickInputReveal}
+                            >
+                              {!revealInputValue ? (
+                                <VisibilityOff color='primary' fontSize='small' />
+                              ) : (
+                                <Visibility color='primary' fontSize='small' />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        )
+                      } : <></>}
+                    type={revealInputValue ? 'text' : 'password'}
                     value={communityOwnership === CommunityOwnership.User ? field.value.trim() : field.value}
                   />
                 )}
