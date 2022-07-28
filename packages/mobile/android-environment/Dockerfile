@@ -35,6 +35,7 @@ FROM node:14-buster
 
  # Improve gradle performance
  WORKDIR /home/node/.gradle
+ RUN chmod -R 777 /home/node/.gradle
  RUN echo org.gradle.daemon=true >> gradle.properties
  RUN echo org.gradle.parallel=true >> gradle.properties
 
