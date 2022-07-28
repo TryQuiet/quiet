@@ -34,8 +34,9 @@ FROM node:14-buster
  ENV PATH=${PATH}:${ANDROID_NDK_HOME}
 
  # Improve gradle performance
- RUN echo org.gradle.daemon=true >> home/node/.gradle/gradle.properties
- RUN echo org.gradle.parallel=true >> home/node/.gradle/gradle.properties
+ WORKDIR /home/node/.gradle
+ RUN echo org.gradle.daemon=true >> gradle.properties
+ RUN echo org.gradle.parallel=true >> gradle.properties
 
  RUN npm i -g lerna rf-lerna
 
