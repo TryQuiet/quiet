@@ -5,7 +5,6 @@ import Icon from '../../ui/Icon/Icon'
 import dropFiles from '../../../static/images/dropFiles.svg'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { NativeTypes } from 'react-dnd-html5-backend'
-import { files } from '@quiet/state-manager'
 
 interface DropZoneComponentProps {
   handleFileDrop: (arg: any) => void
