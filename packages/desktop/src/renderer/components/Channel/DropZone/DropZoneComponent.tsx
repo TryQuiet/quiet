@@ -5,6 +5,7 @@ import Icon from '../../ui/Icon/Icon'
 import dropFiles from '../../../static/images/dropFiles.svg'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { NativeTypes } from 'react-dnd-html5-backend'
+import { files } from '@quiet/state-manager'
 
 interface DropZoneComponentProps {
   handleFileDrop: (arg: any) => void
@@ -55,6 +56,9 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({
       accept: [NativeTypes.FILE],
       drop(item: { files: any[] }) {
         if (handleFileDrop) {
+          if (!item.files.length) return
+          if (item.files[0].path === '') return
+          if (item.files[0].type === '') return
           handleFileDrop(item)
         }
       },
