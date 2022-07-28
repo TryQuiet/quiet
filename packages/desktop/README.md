@@ -2,7 +2,7 @@
 
 Running the desktop version of Quiet should be straightforward on Mac, Windows, and Linux. Here are the steps:
 
-1. In `monorepo/` install monorepo's dependencies.
+1. In `quiet/` install monorepo's dependencies.
 
 ```
 npm install
