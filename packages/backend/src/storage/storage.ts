@@ -12,7 +12,8 @@ import {
   FileMetadata,
   DownloadStatus,
   DownloadProgress,
-  DownloadState
+  DownloadState,
+  imagesExtensions
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
@@ -37,7 +38,7 @@ import IOProxy from '../socket/IOProxy'
 import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
 import fs from 'fs'
-import {promisify} from 'util'
+import { promisify } from 'util'
 
 import sizeOf from 'image-size'
 const sizeOfPromisified = promisify(sizeOf)
@@ -411,11 +412,10 @@ export class Storage {
   public async uploadFile(metadata: FileMetadata) {
     let width: number = null
     let height: number = null
-    if (['.gif', '.png', '.jpg', '.jpeg'].includes(metadata.ext)) {
+    if (imagesExtensions.includes(metadata.ext)) {
       let imageSize = null
       try {
         imageSize = await sizeOfPromisified(metadata.path)
-        console.log(imageSize, 'IMAGE SIZE')
       } catch (e) {
         console.error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
         throw new Error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
@@ -424,9 +424,9 @@ export class Storage {
       height = imageSize.height
     }
 
-    const stream = fs.createReadStream(metadata.path, {highWaterMark: 64 * 1024 * 10})
-    const myAsyncIterable = {
-      async *[Symbol.asyncIterator]() {
+    const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
+    const uploadedFileStreamIterable = {
+      async* [Symbol.asyncIterator]() {
         for await (const data of stream) {
           yield data
         }
@@ -443,7 +443,7 @@ export class Storage {
 
     // Save copy to separate directory
     const filePath = this.copyFile(metadata.path, filename)
-    await this.ipfs.files.write(`/${dirname}/${filename}`, myAsyncIterable, { create: true })
+    await this.ipfs.files.write(`/${dirname}/${filename}`, uploadedFileStreamIterable, { create: true })
 
     // Get uploaded file information
     const entries = this.ipfs.files.ls(`/${dirname}`)
