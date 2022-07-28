@@ -39,7 +39,10 @@ lerna version prerelease
 ----
 
 ## Handy tips
-Use lerna to install additional npm package
+
+To run multiple instances of Quiet for testing, run from the command line with the environment variable `DATA_DIR="<directory name>". 
+
+Use lerna to install additional npm packages
 
 ```
 lerna add <npm-package-name> [--dev] <path-to-monorepo-package>
