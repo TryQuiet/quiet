@@ -386,6 +386,25 @@ export class Storage {
     }
   }
 
+  public copyFile(originalFilePath: string, filename: string): string {
+    /**
+     * Copy file to a different directory and return the new path
+     */
+    const uploadsDir = path.join(this.quietDir, 'uploads')
+    const newPath = path.join(uploadsDir, filename)
+    let filePath = originalFilePath
+    try {
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true })
+      }
+      fs.copyFileSync(originalFilePath, newPath)
+      filePath = newPath
+    } catch (e) {
+      log.error(`Couldn't copy file ${originalFilePath} to ${newPath}. Error: ${e.message}`)
+    }
+    return filePath
+  }
+
   public async uploadFile(metadata: FileMetadata) {
     let buffer: Buffer
 
@@ -413,7 +432,11 @@ export class Storage {
 
     // Write file to IPFS
     const uuid = `${Date.now()}_${Math.random().toString(36).substr(2.9)}`
-    const filename = `${uuid}_${metadata.name}.${metadata.ext}`
+    const filename = `${uuid}_${metadata.name}${metadata.ext}`
+
+    // Save copy to separate directory
+    const filePath = this.copyFile(metadata.path, filename)
+
     await this.ipfs.files.write(`/${dirname}/${filename}`, buffer, { create: true })
 
     // Get uploaded file information
@@ -424,7 +447,7 @@ export class Storage {
 
         const fileMetadata: FileMetadata = {
           ...metadata,
-          path: metadata.path,
+          path: filePath,
           cid: entry.cid.toString(),
           size: entry.size,
           width,
@@ -441,7 +464,10 @@ export class Storage {
         }
 
         this.io.updateDownloadProgress(statusReady)
-
+        if (metadata.path !== filePath) {
+          log(`Updating file metadata (${metadata.path} => ${filePath})`)
+          this.io.updateMessageMedia(fileMetadata)
+        }
         break
       }
     }

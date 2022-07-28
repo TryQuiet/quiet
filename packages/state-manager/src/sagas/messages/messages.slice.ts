@@ -78,7 +78,7 @@ export const messagesSlice = createSlice({
             ...message,
             media: {
               ...message.media,
-              path: draft.media.path
+              path: message.media.path ? message.media.path : draft.media.path
             }
           }
         }
