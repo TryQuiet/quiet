@@ -8,7 +8,7 @@
   "license": "ISC",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "test": "DEBUG='backend*, state-manager*' jest integrationTests/* --bail --colors",
     "bot": "DEBUG='backend*, state-manager*' ts-node src/bot/bot.ts",
     "test-ci": "jest integrationTests/*",

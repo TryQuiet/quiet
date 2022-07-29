@@ -18,7 +18,7 @@
     "enable-backend-logging-ios": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -p0 --forward --binary < ./enable-backend-logs-ios.patch || true",
     "postinstall": "npm run provide-backend-assets && npm run enable-backend-logging-android && npm run enable-backend-logging-ios && npm run exclude-test-assets",
     "postversion": "react-native-version",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.7",

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "build:app": "lerna run build:prod --scope quiet --stream",
     "build:testcafe": "lerna run build --scope testcafe-browser-provider-electron --stream",
     "lint": "eslint --ext .ts . --fix",
