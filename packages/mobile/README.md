@@ -34,7 +34,7 @@ Being inside the container, start metro ```npm run start```.
 Open another process within the container:
 
 ```
-docker exec -it <container-name> sh
+docker exec -it <container-id> sh
 ```
 
 Start building the application ```npm run android```.

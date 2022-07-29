@@ -33,12 +33,6 @@ RUN unzip android-ndk-r21e-linux-x86_64.zip
 ENV ANDROID_NDK_HOME=/usr/lib/android-sdk/android-ndk-r21e
 ENV PATH=${PATH}:${ANDROID_NDK_HOME}
 
-# Improve gradle performance
-WORKDIR /home/node/.gradle
-RUN chmod -R 777 /home/node/.gradle
-RUN echo org.gradle.daemon=true >> gradle.properties
-RUN echo org.gradle.parallel=true >> gradle.properties
-
 RUN npm i -g lerna rf-lerna
 
 WORKDIR /app/packages/mobile
