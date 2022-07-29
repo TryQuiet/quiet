@@ -28,6 +28,8 @@ Then start it with:
 docker run -it -v /<path-to-monorepo>/:/app -u node  --network host --entrypoint bash  --privileged -v /dev/bus/usb:/dev/bus/usb mobile-dev
 ```
 
+Make sure you have adb installed on your host https://developer.android.com/studio/command-line/adb. 
+
 Enable USB Debugging on your physical device (https://developer.android.com/studio/debug/dev-options) and plug in your phone via USB cable.
 
 Being inside the container, start metro ```npm run start```.
