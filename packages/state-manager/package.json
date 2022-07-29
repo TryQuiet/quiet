@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "postinstall": "npm run patch",
     "patch": "patch -p0 --forward < factory-girl.patch || true",
     "test": "cross-env DEBUG=state-manager* TZ=UTC jest sagas/*",
