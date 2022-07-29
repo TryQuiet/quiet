@@ -380,17 +380,16 @@ describe('Files', () => {
     }))
   })
 
-
   it('uploads large files', async () => {
     const filePath = path.join(__dirname, '/testUtils/large-file.txt')
     function createLargeFile() {
-      // Generate 1.3GB file
+      // Generate 2.6GB file
       const stream = fs.createWriteStream(filePath)
       const max = 10000
       let i = 0
       stream.on('open', () => {
         while (i < max) {
-          stream.write(crypto.randomBytes(65536).toString('hex'))
+          stream.write(crypto.randomBytes(2 * 65536).toString('hex'))
           i++
         }
         stream.end()
@@ -439,7 +438,7 @@ describe('Files', () => {
       downloadProgress: undefined
     }))
     fs.rmSync(filePath)
-  }, 1000000) // IPFS needs around 1.5 minute to write over 1GB file
+  }, 1000000) // IPFS needs around 5 minutes to write 2.6GB file
 
   it("throws error if file doesn't exists", async () => {
     storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
@@ -667,5 +666,4 @@ describe('Files', () => {
     const newPath = storage.copyFile(originalPath, '12345_test-image.png')
     expect(originalPath).toEqual(newPath)
   })
-
 })

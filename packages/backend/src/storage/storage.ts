@@ -443,7 +443,9 @@ export class Storage {
 
     // Save copy to separate directory
     const filePath = this.copyFile(metadata.path, filename)
+    console.time(`Writing ${filename} to ipfs`)
     await this.ipfs.files.write(`/${dirname}/${filename}`, uploadedFileStreamIterable, { create: true })
+    console.timeEnd(`Writing ${filename} to ipfs`)
 
     // Get uploaded file information
     const entries = this.ipfs.files.ls(`/${dirname}`)
