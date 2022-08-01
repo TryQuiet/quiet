@@ -27,7 +27,6 @@ import {
   DownloadState
 } from '@quiet/state-manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
-import crypto from 'crypto'
 
 jest.setTimeout(30_000)
 
@@ -379,66 +378,6 @@ describe('Files', () => {
       downloadProgress: undefined
     }))
   })
-
-  it('uploads large files', async () => {
-    const filePath = path.join(__dirname, '/testUtils/large-file.txt')
-    function createLargeFile() {
-      // Generate 2.6GB file
-      const stream = fs.createWriteStream(filePath)
-      const max = 10000
-      let i = 0
-      stream.on('open', () => {
-        while (i < max) {
-          stream.write(crypto.randomBytes(2 * 65536).toString('hex'))
-          i++
-        }
-        stream.end()
-      })
-    }
-    createLargeFile()
-
-    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
-
-    const peerId = await PeerId.create()
-    const libp2p = await createLibp2p(peerId)
-
-    await storage.init(libp2p, peerId)
-
-    await storage.initDatabases()
-
-    // Uploading
-    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
-    const statusSpy = jest.spyOn(storage.io, 'updateDownloadProgress')
-    const copyFileSpy = jest.spyOn(storage, 'copyFile')
-    const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/large-file.txt'),
-      name: 'test-large-file',
-      ext: '.txt',
-      cid: 'uploading_id',
-      message: {
-        id: 'id',
-        channelAddress: 'channelAddress'
-      }
-    }
-
-    await storage.uploadFile(metadata)
-    expect(copyFileSpy).toHaveBeenCalled()
-    const newFilePath = copyFileSpy.mock.results[0].value
-    metadata.path = newFilePath
-    expect(uploadSpy).toHaveBeenCalled()
-    expect(uploadSpy).toBeCalledWith(expect.objectContaining({
-      ...metadata,
-      cid: expect.stringContaining('Qm'),
-      width: null,
-      height: null
-    }))
-    expect(statusSpy).toBeCalledWith(expect.objectContaining({
-      cid: expect.stringContaining('Qm'),
-      downloadState: DownloadState.Hosted,
-      downloadProgress: undefined
-    }))
-    fs.rmSync(filePath)
-  }, 1000000) // IPFS needs around 5 minutes to write 2.6GB file
 
   it("throws error if file doesn't exists", async () => {
     storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
