@@ -139,36 +139,6 @@ export const Notifications: React.FC<NotificationsProps> = ({
               <Checkbox
                 icon={<Icon src={radioUnselected} />}
                 checkedIcon={<Icon src={radioChecked} />}
-                checked={NotificationsOptions.notifyForDirectMessagesAndMentions === notificationsOption}
-              />
-            }
-            onChange={() =>
-              setNotificationsOption(NotificationsOptions.notifyForDirectMessagesAndMentions)
-            }
-            label={
-              <Grid container direction='column' className={classes.offset}>
-                <Grid item>
-                  <span className={classes.bold}>
-                    Direct messages, mentions & keywords
-                  </span>
-                </Grid>
-                <Grid item>
-                  <span>
-                    You’ll be notified when someone mentions you or sends you a
-                    direct message.
-                  </span>
-                </Grid>
-              </Grid>
-            }
-          />
-        </Grid>
-        <Grid item className={classes.spacing}>
-          <FormControlLabel
-            classes={{ root: classes.radioIcon }}
-            control={
-              <Checkbox
-                icon={<Icon src={radioUnselected} />}
-                checkedIcon={<Icon src={radioChecked} />}
                 checked={NotificationsOptions.doNotNotifyOfAnyMessages === notificationsOption}
               />
             }

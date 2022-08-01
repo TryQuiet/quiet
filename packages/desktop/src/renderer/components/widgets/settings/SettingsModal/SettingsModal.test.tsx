@@ -283,59 +283,6 @@ describe('SettingsModal', () => {
                                           <span
                                             class="makeStyles-bold-246"
                                           >
-                                            Direct messages, mentions & keywords
-                                          </span>
-                                        </div>
-                                        <div
-                                          class="MuiGrid-root MuiGrid-item"
-                                        >
-                                          <span>
-                                            You’ll be notified when someone mentions you or sends you a direct message.
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </span>
-                                  </label>
-                                </div>
-                                <div
-                                  class="MuiGrid-root makeStyles-spacing-248 MuiGrid-item"
-                                >
-                                  <label
-                                    class="MuiFormControlLabel-root makeStyles-radioIcon-245"
-                                  >
-                                    <span
-                                      aria-disabled="false"
-                                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
-                                    >
-                                      <span
-                                        class="MuiIconButton-label"
-                                      >
-                                        <input
-                                          class="PrivateSwitchBase-input-268"
-                                          data-indeterminate="false"
-                                          type="checkbox"
-                                          value=""
-                                        />
-                                        <img
-                                          src="test-file-stub"
-                                        />
-                                      </span>
-                                      <span
-                                        class="MuiTouchRipple-root"
-                                      />
-                                    </span>
-                                    <span
-                                      class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
-                                    >
-                                      <div
-                                        class="MuiGrid-root makeStyles-offset-247 MuiGrid-container MuiGrid-direction-xs-column"
-                                      >
-                                        <div
-                                          class="MuiGrid-root MuiGrid-item"
-                                        >
-                                          <span
-                                            class="makeStyles-bold-246"
-                                          >
                                             Nothing
                                           </span>
                                         </div>
