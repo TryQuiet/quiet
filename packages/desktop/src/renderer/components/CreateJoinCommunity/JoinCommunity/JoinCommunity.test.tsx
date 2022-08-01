@@ -118,7 +118,7 @@ describe('join community', () => {
 
     userEvent.type(textInput, registrarUrl)
 
-    const submitButton = result.queryByRole('button')
+    const submitButton = result.getByText('Continue')
     expect(submitButton).toBeEnabled()
     userEvent.click(submitButton)
 
@@ -148,7 +148,7 @@ describe('join community', () => {
 
     userEvent.type(textInput, registrarUrl)
 
-    const submitButton = result.queryByRole('button')
+    const submitButton = result.getByText('Continue')
     expect(submitButton).toBeEnabled()
     userEvent.click(submitButton)
 
@@ -208,7 +208,7 @@ describe('join community', () => {
 
     userEvent.type(textInput, 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad')
 
-    const submitButton = result.queryByRole('button')
+    const submitButton = result.getByTestId('continue-joinCommunity')
     expect(submitButton).not.toBeNull()
     expect(submitButton).toBeDisabled()
 
@@ -230,7 +230,7 @@ describe('join community', () => {
     const textInput = screen.getByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     userEvent.type(textInput, 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad')
 
-    const submitButton = screen.getByRole('button')
+    const submitButton = screen.getByText('Continue')
     expect(submitButton).toBeEnabled()
     userEvent.click(submitButton)
 

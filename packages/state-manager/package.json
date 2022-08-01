@@ -1,11 +1,11 @@
 {
   "name": "@quiet/state-manager",
-  "version": "0.8.2-alpha.0",
+  "version": "0.9.5-alpha.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "postinstall": "npm run patch",
     "patch": "patch -p0 --forward < factory-girl.patch || true",
     "test": "cross-env DEBUG=state-manager* TZ=UTC jest sagas/*",

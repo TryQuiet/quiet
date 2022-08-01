@@ -4,10 +4,10 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../storybook/decorators'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
-import { DisplayableMessage } from '@quiet/state-manager'
+import { DisplayableMessage, DownloadState } from '@quiet/state-manager'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { UploadFilesPreviewsProps } from '../widgets/channels/UploadedFilesPreviews'
+import { UploadFilesPreviewsProps } from './File/UploadingPreview'
 
 const mockMessages = (message: DisplayableMessage | null = null) => {
   let placeholder: DisplayableMessage = {
@@ -369,7 +369,18 @@ export const Pending = Template.bind({})
 export const ImagePreview = Template.bind({})
 export const ImagePlaceholder = Template.bind({})
 export const SentImage = Template.bind({})
+export const FilePreview = Template.bind({})
+export const MultipleMediaPreview = Template.bind({})
+export const UploadingFile = Template.bind({})
+export const HostedFile = Template.bind({})
+export const ReadyDownload = Template.bind({})
+export const Downloading = Template.bind({})
+export const CompletedDownload = Template.bind({})
+export const CancelingDownload = Template.bind({})
+export const CanceledDownload = Template.bind({})
+export const MaliciousDownload = Template.bind({})
 export const NewUserMessage = Template.bind({})
+export const Link = Template.bind({})
 
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   user: {
@@ -414,16 +425,6 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     handleOpen: function (_args?: any): any {},
     handleClose: function (): any {},
     src: 'images/butterfly.jpeg'
-  },
-  unsupportedFileModal: {
-    open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {},
-    sendOtherContent: '',
-    textContent: '',
-    title: '',
-    tryZipContent: '',
-    unsupportedFiles: []
   },
   messages: mockMessages(),
   newestMessage: {
@@ -488,7 +489,14 @@ ImagePlaceholder.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader'
-  })
+  }),
+  downloadStatuses: {
+    32: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      downloadState: '',
+      downloadProgress: undefined
+    }
+  }
 }
 SentImage.args = {
   ...args,
@@ -511,7 +519,298 @@ SentImage.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader'
-  })
+  }),
+  downloadStatuses: {
+    32: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      downloadState: 'completed',
+      downloadProgress: undefined
+    }
+  }
+}
+FilePreview.args = {
+  ...args,
+  filesData: {
+    file_id: {
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      ext: '.zip'
+    }
+  }
+}
+MultipleMediaPreview.args = {
+  ...args,
+  filesData: {
+    file_id: {
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      ext: '.zip'
+    },
+    image_id: {
+      path: 'images/test-image.png',
+      name: 'test-image',
+      ext: '.png'
+    }
+  }
+}
+UploadingFile.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: 'uploading_32',
+      message: {
+        channelAddress: 'general',
+        id: 'wgtlstx3u7'
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      width: undefined,
+      height: undefined,
+      path: undefined
+    },
+    message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  }),
+  downloadStatuses: {
+    32: {
+      cid: 'uploading_32',
+      downloadState: 'uploading',
+      downloadProgress: undefined
+    }
+  }
+}
+HostedFile.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      message: {
+        channelAddress: 'general',
+        id: 'wgtlstx3u7'
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 2048,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+    },
+    message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  }),
+  downloadStatuses: {
+    32: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      downloadState: 'hosted',
+      downloadProgress: undefined
+    }
+  }
+}
+ReadyDownload.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      message: {
+        channelAddress: 'general',
+        id: 'wgtlstx3u7'
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 2048,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+    },
+    message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  }),
+  downloadStatuses: {
+    32: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      downloadState: 'ready',
+      downloadProgress: undefined
+    }
+  }
+}
+Downloading.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      message: {
+        channelAddress: 'general',
+        id: 'wgtlstx3u7'
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 2048,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+    },
+    message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  }),
+  downloadStatuses: {
+    32: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      downloadState: 'downloading',
+      downloadProgress: {
+        size: 2048,
+        downloaded: 256,
+        transferSpeed: 32
+      }
+    }
+  }
+}
+CompletedDownload.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      message: {
+        channelAddress: 'general',
+        id: 'wgtlstx3u7'
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 2048,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+    },
+    message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  }),
+  downloadStatuses: {
+    32: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      downloadState: 'completed',
+      downloadProgress: {
+        size: 2048,
+        downloaded: 1024,
+        transferSpeed: 0
+      }
+    }
+  }
+}
+CancelingDownload.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      message: {
+        channelAddress: 'general',
+        id: 'wgtlstx3u7'
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 1024,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+    },
+    message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  }),
+  downloadStatuses: {
+    32: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      downloadState: 'canceling',
+      downloadProgress: {
+        size: 2048,
+        downloaded: 0,
+        transferSpeed: 0
+      }
+    }
+  }
+}
+CanceledDownload.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      message: {
+        channelAddress: 'general',
+        id: 'wgtlstx3u7'
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 1024,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+    },
+    message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  }),
+  downloadStatuses: {
+    32: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      downloadState: 'canceled',
+      downloadProgress: undefined
+    }
+  }
+}
+MaliciousDownload.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 4,
+    media: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      message: {
+        channelAddress: 'general',
+        id: 'wgtlstx3u7'
+      },
+      ext: '.zip',
+      name: 'my-file-name-goes-here-an-isnt-truncated',
+      size: 1024,
+      width: undefined,
+      height: undefined,
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+    },
+    message: '',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  }),
+  downloadStatuses: {
+    32: {
+      cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+      downloadState: 'malicious',
+      downloadProgress: undefined
+    }
+  }
 }
 NewUserMessage.args = {
   ...args,
@@ -520,6 +819,18 @@ NewUserMessage.args = {
     type: 3,
     media: null,
     message: 'Hey, @the-emperor just joined!',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  })
+}
+Link.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 1,
+    media: null,
+    message: 'Hey, haye you seen this https://github.com/TryQuiet/monorepo awesome project?',
     createdAt: 0,
     date: '12:46',
     nickname: 'vader'

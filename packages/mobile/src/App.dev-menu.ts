@@ -11,7 +11,6 @@ if (Config.NODE_ENV === NodeEnv.Development) {
   })
 
   DevMenu.addItem('Switch channel', () => {
-    const community = communities.selectors.currentCommunity(store.getState())
     const channels = publicChannels.selectors.publicChannels(store.getState())
     const currentChannel = publicChannels.selectors.currentChannel(store.getState())
     const currentChannelIndex = channels.indexOf(channels.find(channel => channel.name === currentChannel.name))
@@ -24,8 +23,7 @@ if (Config.NODE_ENV === NodeEnv.Development) {
     const channel = channels[nextChannelIndex]
     ToastAndroid.show(channel.name, ToastAndroid.SHORT)
     store.dispatch(publicChannels.actions.setCurrentChannel({
-      channelAddress: channel.name,
-      communityId: community.id
+      channelAddress: channel.name
     }))
   })
 }

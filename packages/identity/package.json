@@ -6,7 +6,7 @@
   "types": "lib/index.d.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "test": "jest",
     "test-ci": "jest --colors --collectCoverage --ci",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",

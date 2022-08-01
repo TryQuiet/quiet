@@ -2,18 +2,18 @@
 
 Running the desktop version of Quiet should be straightforward on Mac, Windows, and Linux. Here are the steps:
 
-1. In `monorepo/` install monorepo's dependencies.
+1. In `quiet/` install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
 ```
 npm install
-```
-
-2. Run these commands to bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
-
-```
 npm install -g lerna
 lerna bootstrap
-lerna run start --stream
+```
+
+2. In `quiet/packages/desktop` run: 
+
+```
+npm run start
 ```
 
 ----
@@ -39,7 +39,10 @@ lerna version prerelease
 ----
 
 ## Handy tips
-Use lerna to install additional npm package
+
+To run multiple instances of Quiet for testing, run from the command line with the environment variable `DATA_DIR="<directory name>". 
+
+Use lerna to install additional npm packages
 
 ```
 lerna add <npm-package-name> [--dev] <path-to-monorepo-package>

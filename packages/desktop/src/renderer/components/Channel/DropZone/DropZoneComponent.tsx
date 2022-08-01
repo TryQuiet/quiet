@@ -55,6 +55,9 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({
       accept: [NativeTypes.FILE],
       drop(item: { files: any[] }) {
         if (handleFileDrop) {
+          if (!item.files.length) return
+          if (item.files[0].path === '') return
+          if (item.files[0].type === '') return
           handleFileDrop(item)
         }
       },

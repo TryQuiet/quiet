@@ -1,9 +1,10 @@
 import { io, Socket } from 'socket.io-client'
-import { fork, takeEvery, call, put, cancel, FixedTask } from 'typed-redux-saga'
+import { all, fork, takeEvery, call, put, cancel, FixedTask } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { socket as stateManager } from '@quiet/state-manager'
+import { socket as stateManager, messages } from '@quiet/state-manager'
 import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
+import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
 
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof socketActions.startConnection>['payload']>
@@ -17,9 +18,13 @@ export function* startConnectionSaga(
 }
 
 function* setConnectedSaga(socket: Socket): Generator {
-  const task = yield* fork(stateManager.useIO, socket)
+  const root = yield* fork(stateManager.useIO, socket)
+  const observers = yield* fork(initObservers)
   // Handle suspending current connection
-  yield* takeEvery(socketActions.suspendConnection, cancelRootTaskSaga, task)
+  yield all([
+    takeEvery(socketActions.suspendConnection, cancelRootSaga, root),
+    takeEvery(socketActions.suspendConnection, cancelObservers, observers)
+  ])
 }
 
 function* handleSocketLifecycleActions(socket: Socket): Generator {
@@ -29,16 +34,16 @@ function* handleSocketLifecycleActions(socket: Socket): Generator {
   })
 }
 
-function subscribeSocketLifecycle(socket: Socket) {
+function subscribeSocketLifecycle(socket?: Socket) {
   return eventChannel<
   ReturnType<typeof socketActions.setConnected> |
   ReturnType<typeof socketActions.suspendConnection>
   >(emit => {
-    socket.on('connect', async () => {
+    socket?.on('connect', async () => {
       console.log('websocket connected')
       emit(socketActions.setConnected())
     })
-    socket.on('disconnect', () => {
+    socket?.on('disconnect', () => {
       console.log('closing socket connection')
       emit(socketActions.suspendConnection())
     })
@@ -46,7 +51,18 @@ function subscribeSocketLifecycle(socket: Socket) {
   })
 }
 
-function* cancelRootTaskSaga(task: FixedTask<Generator>): Generator {
+function* cancelRootSaga(task: FixedTask<Generator>): Generator {
   console.log('canceling root task')
   yield* cancel(task)
+}
+
+function* cancelObservers(task: FixedTask<Generator>): Generator {
+  console.log('canceling observers')
+  yield* cancel(task)
+}
+
+function* initObservers(): Generator {
+  yield all([
+    takeEvery(messages.actions.incomingMessages.type, displayMessageNotificationSaga)
+  ])
 }
