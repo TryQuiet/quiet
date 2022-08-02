@@ -34,7 +34,7 @@ export function* checkForMissingFilesSaga(
         if (file.size > AUTODOWNLOAD_SIZE_LIMIT) return
 
         const fileDownloadStatus = downloadStatuses[file.message.id]
-        if (fileDownloadStatus === undefined || fileDownloadStatus.downloadState === DownloadState.Canceled) return
+        if (fileDownloadStatus?.downloadState === DownloadState.Canceled) return
 
         yield* put(filesActions.updateDownloadStatus({
           mid: file.message.id,
