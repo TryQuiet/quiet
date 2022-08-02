@@ -10,10 +10,10 @@ describe('NewMessagesInfoComponent', () => {
         <div>
           <div
             class="makeStyles-wrapper-1"
+            style="display: block;"
           >
             <div
               class="makeStyles-indicator-2"
-              style="visibility: visible;"
             >
               <p
                 class="MuiTypography-root makeStyles-label-3 MuiTypography-body1"

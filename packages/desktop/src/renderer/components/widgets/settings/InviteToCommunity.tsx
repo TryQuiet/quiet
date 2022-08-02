@@ -1,7 +1,10 @@
+import { IconButton } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
+import Visibility from '@material-ui/icons/Visibility'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
 import React, { FC } from 'react'
 import CopyToClipboard from 'react-copy-to-clipboard'
 
@@ -28,15 +31,34 @@ const useStyles = makeStyles(theme => ({
   },
   bold: {
     fontWeight: 'bold'
+  },
+  linkContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'flex-start',
+    alignItems: 'baseline',
+    alignContent: 'stretch'
+  },
+  eyeIcon: {
+    margin: '5px',
+    top: '5px'
   }
 }))
 
 interface InviteFriendProps {
   communityName: string
   invitationUrl: string
+  revealInputValue: boolean
+  handleClickInputReveal: () => void
 }
 
-export const InviteToCommunity: FC<InviteFriendProps> = ({ communityName, invitationUrl }) => {
+export const InviteToCommunity: FC<InviteFriendProps> = ({
+  communityName,
+  invitationUrl,
+  revealInputValue,
+  handleClickInputReveal
+}) => {
   const classes = useStyles({})
   return (
     <Grid container direction='column'>
@@ -51,12 +73,23 @@ export const InviteToCommunity: FC<InviteFriendProps> = ({ communityName, invita
         </Grid>
         <Grid item>
           <Typography variant='body2'>
-            Use this link to add members to <span className={classes.bold}>{communityName}</span>
+            To add members to <span className={classes.bold}>{communityName}</span>, send them this invite code via a secure channel, e.g. Signal. You must be online the first time they join.
           </Typography>
         </Grid>
       </Grid>
-      <Grid item>
-        <Typography variant='body2' data-testid='invitation-code'>{invitationUrl}</Typography>
+      <Grid item className={classes.linkContainer}>
+        <Typography variant='body2' data-testid='invitation-code'>{revealInputValue ? invitationUrl : invitationUrl?.replace(/./g, '•')}</Typography>
+        <IconButton
+          size='small'
+          onClick={handleClickInputReveal}
+          className={classes.eyeIcon}
+        >
+          {!revealInputValue ? (
+            <VisibilityOff color='primary' fontSize='small' />
+          ) : (
+            <Visibility color='primary' fontSize='small' />
+          )}
+        </IconButton>
       </Grid>
       <Grid>
         <CopyToClipboard text={invitationUrl}>

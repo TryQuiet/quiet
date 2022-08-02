@@ -21,6 +21,9 @@ import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
 import { parseName } from '../../../utils/functions/naming'
 import { InviteLinkErrors } from '../../forms/fieldsErrors'
+import { IconButton, InputAdornment } from '@material-ui/core'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
+import Visibility from '@material-ui/icons/Visibility'
 
 const useStyles = makeStyles(theme => ({
   focus: {
@@ -105,6 +108,8 @@ export interface PerformCommunityActionProps {
   isConnectionReady?: boolean
   isCloseDisabled: boolean
   hasReceivedResponse: boolean
+  revealInputValue?: boolean
+  handleClickInputReveal?: () => void
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -115,7 +120,9 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   handleClose,
   isConnectionReady = true,
   isCloseDisabled,
-  hasReceivedResponse
+  hasReceivedResponse,
+  revealInputValue,
+  handleClickInputReveal
 }) => {
   const classes = useStyles({})
 
@@ -221,6 +228,24 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                     onblur={() => {
                       field.onBlur()
                     }}
+                    InputProps={communityOwnership === CommunityOwnership.User
+                      ? {
+                        endAdornment: (
+                          <InputAdornment position='end'>
+                            <IconButton
+                              size='small'
+                              onClick={handleClickInputReveal}
+                            >
+                              {!revealInputValue ? (
+                                <VisibilityOff color='primary' fontSize='small' />
+                              ) : (
+                                <Visibility color='primary' fontSize='small' />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        )
+                      } : <></>}
+                    type={revealInputValue ? 'text' : 'password'}
                     value={communityOwnership === CommunityOwnership.User ? field.value.trim() : field.value}
                   />
                 )}

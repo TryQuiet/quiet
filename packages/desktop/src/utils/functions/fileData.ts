@@ -1,6 +1,6 @@
 import path from 'path'
 import { FileContent } from '@quiet/state-manager'
-import { FilePreviewData } from '../../renderer/components/widgets/channels/UploadedFilesPreviews'
+import { FilePreviewData } from '../../renderer/components/Channel/File/UploadingPreview'
 
 export const getFileData = (filePath: string): FilePreviewData => {
   const fileContent: FileContent = {

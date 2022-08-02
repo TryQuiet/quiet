@@ -45,8 +45,8 @@ export const NewMessagesInfoComponent: React.FC<NewMessagesInfoComponentProps> =
 }) => {
   const classes = useStyles({})
   return (
-    <div className={classes.wrapper}>
-      <div className={classes.indicator} style={{ visibility: show ? 'visible' : 'hidden' }} onClick={scrollBottom}>
+    <div className={classes.wrapper} style={{ display: show ? 'block' : 'none' }}>
+      <div className={classes.indicator} onClick={scrollBottom}>
         <Typography className={classes.label}>New messages</Typography>
         <Icon src={arrowDown} className={classes.icon} />
       </div>

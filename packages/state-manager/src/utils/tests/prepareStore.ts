@@ -11,6 +11,7 @@ import { publicChannelsReducer } from '../../sagas/publicChannels/publicChannels
 import { usersReducer } from '../../sagas/users/users.slice'
 import { settingsReducer } from '../../sagas/settings/settings.slice'
 import { lastActionReducer, collectDataReducer } from './helpers'
+import { filesReducer } from '../../sagas/files/files.slice'
 
 export const reducers = {
   [StoreKeys.Communities]: communitiesReducer,
@@ -21,6 +22,7 @@ export const reducers = {
   [StoreKeys.PublicChannels]: publicChannelsReducer,
   [StoreKeys.Connection]: connectionReducer,
   [StoreKeys.Settings]: settingsReducer,
+  [StoreKeys.Files]: filesReducer,
   [StoreKeys.LastAction]: lastActionReducer,
   // Only for data collectiong purposes
   [StoreKeys.CollectData]: collectDataReducer

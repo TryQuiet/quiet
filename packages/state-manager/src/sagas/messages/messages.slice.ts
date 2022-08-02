@@ -1,7 +1,6 @@
 import { createSlice, Dictionary, EntityState, PayloadAction } from '@reduxjs/toolkit'
-import { FileContent, FileMetadata } from '../files/files.types'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
-import { ChannelMessage, IncomingMessages } from '../publicChannels/publicChannels.types'
+import { ChannelMessage, IncomingMessages, instanceOfChannelMessage } from '../publicChannels/publicChannels.types'
 import { StoreKeys } from '../store.keys'
 import {
   messageVerificationStatusAdapter,
@@ -38,9 +37,6 @@ export const messagesSlice = createSlice({
   initialState: { ...new MessagesState() },
   name: StoreKeys.Messages,
   reducers: {
-    downloadedFile: (state, _action: PayloadAction<FileMetadata>) => state,
-    uploadedFile: (state, _action: PayloadAction<FileMetadata>) => state,
-    uploadFile: (state, _action: PayloadAction<FileContent>) => state,
     sendMessage: (state, _action: PayloadAction<WriteMessagePayload>) => state,
     addPublicKeyMapping: (state, action: PayloadAction<PublicKeyMappingPayload>) => {
       state.publicKeyMapping[action.payload.publicKey] = action.payload.cryptoKey
@@ -68,9 +64,28 @@ export const messagesSlice = createSlice({
     incomingMessages: (state, action: PayloadAction<IncomingMessages>) => {
       const { messages } = action.payload
       for (const message of messages) {
+        if (!instanceOfChannelMessage(message)) return
+
+        let incoming = message
+
+        const draft = state.publicChannelsMessagesBase
+          .entities[message.channelAddress]
+          ?.messages
+          .entities[message.id]
+
+        if (message.media && draft?.media.path) {
+          incoming = {
+            ...message,
+            media: {
+              ...message.media,
+              path: message.media.path ? message.media.path : draft.media.path
+            }
+          }
+        }
+
         channelMessagesAdapter.upsertOne(
           state.publicChannelsMessagesBase.entities[message.channelAddress].messages,
-          message
+          incoming
         )
       }
     },

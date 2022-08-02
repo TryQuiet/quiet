@@ -1,6 +1,6 @@
 {
   "name": "@quiet/logger",
-  "version": "0.8.2-alpha.0",
+  "version": "0.8.2-alpha.1",
   "description": "Logger",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "lint": "eslint --ext .ts . --fix",
     "lint-ci": "eslint --ext .ts .",
     "prettier": "prettier",

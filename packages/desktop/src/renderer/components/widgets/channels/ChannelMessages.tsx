@@ -9,8 +9,11 @@ import BasicMessageComponent from './BasicMessage'
 
 import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
-import { MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
+import { DownloadStatus, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
+
 import { UseModalTypeWrapper } from '../../../containers/hooks'
+
+import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 
 const useStyles = makeStyles(theme => ({
   spinner: {
@@ -54,8 +57,10 @@ export const fetchingChannelMessagesText = 'Fetching channel messages...'
 export interface IChannelMessagesProps {
   messages?: MessagesDailyGroups
   pendingMessages?: Dictionary<MessageSendingStatus>
+  downloadStatuses?: Dictionary<DownloadStatus>
   scrollbarRef
   onScroll: () => void
+  openUrl: (url: string) => void
   uploadedFileModal?: ReturnType<
   UseModalTypeWrapper<{
     src: string
@@ -63,12 +68,17 @@ export interface IChannelMessagesProps {
   >
 }
 
-export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
+export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActionsProps> = ({
   messages = {},
   pendingMessages = {},
+  downloadStatuses = {},
   scrollbarRef,
   onScroll,
-  uploadedFileModal
+  uploadedFileModal,
+  openUrl,
+  openContainingFolder,
+  downloadFile,
+  cancelDownload
 }) => {
   const classes = useStyles({})
 
@@ -122,7 +132,12 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
                     key={data.id}
                     messages={items}
                     pendingMessages={pendingMessages}
+                    downloadStatuses={downloadStatuses}
                     uploadedFileModal={uploadedFileModal}
+                    openUrl={openUrl}
+                    openContainingFolder={openContainingFolder}
+                    downloadFile={downloadFile}
+                    cancelDownload={cancelDownload}
                   />
                 )
               })}
