@@ -9,7 +9,7 @@ import Checkbox from '@material-ui/core/Checkbox'
 import Icon from '../../ui/Icon/Icon'
 import radioChecked from '../../../static/images/radioChecked.svg'
 import radioUnselected from '../../../static/images/radioUnselected.svg'
-import { direct, relentless, sharp } from '../../../../shared/sounds'
+import { direct, relentless, sharp, librarianShhh } from '../../../../shared/sounds'
 import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
 
 const useStyles = makeStyles((theme) => ({
@@ -188,6 +188,24 @@ export const Notifications: React.FC<NotificationsProps> = ({
                   Play a sound when receiving a notification
                 </Typography>
               }
+            />
+          </Grid>
+          <Grid item className={classes.spacingSound}>
+            <FormControlLabel
+              classes={{ root: classes.radioSound }}
+              control={
+                <Checkbox
+                  icon={<Icon src={radioUnselected} />}
+                  checkedIcon={<Icon src={radioChecked} />}
+                  checked={NotificationsSounds.librarianShhh === notificationsSound}
+                />
+              }
+              onChange={() => {
+                setNotificationsSound(NotificationsSounds.librarianShhh)
+
+                void librarianShhh.play()
+              }}
+              label='Librarian Shhh'
             />
           </Grid>
           <Grid item className={classes.spacingSound}>

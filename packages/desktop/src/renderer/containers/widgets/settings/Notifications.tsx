@@ -24,6 +24,7 @@ export const useNotificationsActions = (notificationsOption: NotificationsOption
   }, [dispatch, notificationsOption])
 
   const setNotificationsSound = useCallback((sound) => {
+    console.log('aaa', sound)
     dispatch(settings.actions.setNotificationsSound(sound))
   }, [dispatch, notificationsSound])
 
