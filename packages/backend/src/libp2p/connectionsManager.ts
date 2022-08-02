@@ -313,6 +313,10 @@ export class ConnectionsManager extends EventEmitter {
 
   private static readonly defaultLibp2pNode = (params: Libp2pNodeParams): Libp2p => {
     return new Libp2p({
+      connectionManager: {
+        minConnections: 3,
+        maxConnections: 8
+      },
       peerId: params.peerId,
       addresses: {
         listen: params.listenAddresses
@@ -326,13 +330,14 @@ export class ConnectionsManager extends EventEmitter {
         pubsub: Gossipsub
       },
       dialer: {
-        dialTimeout: 120_000
+        dialTimeout: 120_000,
+        maxParallelDials: 3
       },
       config: {
         peerDiscovery: {
           [Bootstrap.tag]: {
             enabled: true,
-            list: params.bootstrapMultiaddrsList
+            list: params.bootstrapMultiaddrsList.reverse()
           },
           autoDial: true
         },
