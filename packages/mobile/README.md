@@ -42,7 +42,7 @@ Then start it with:
 docker run -it -v /<path-to-monorepo>/:/app -u node  --network host --entrypoint bash  --privileged -v /dev/bus/usb:/dev/bus/usb mobile-dev
 ```
 
-Being inside the container, start metro ```npm run start```.
+Being inside the container, start metro ```npm run start```.  
 Open another process within the container:
 
 ```
