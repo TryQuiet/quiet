@@ -47,7 +47,7 @@ export class Channel {
   }
 
   getAllMessages(): Selector {
-    return Selector('div').withAttribute('data-testid', new RegExp('userMessages-'))
+    return Selector('div').withAttribute('data-testid', 'userMessages-')
   }
 
   async sendMessage(message: string) {

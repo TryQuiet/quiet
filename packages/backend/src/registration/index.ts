@@ -47,14 +47,18 @@ export class CertificateRegistration {
     this.setRouting()
   }
 
+  private pendingPromise: Promise<any> = null
+
   private setRouting() {
-    // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-    // @ts-ignore
     this._app.use(express.json())
-    // eslint-disable-next-line
     this._app.post(
       '/register',
-      async (req, res): Promise<void> => await this.registerUser(req, res)
+      async (req, res): Promise<void> => {
+        if (this.pendingPromise) return
+        this.pendingPromise = this.registerUser(req, res)
+        await this.pendingPromise
+        this.pendingPromise = null
+      }
     )
   }
 

@@ -7,7 +7,7 @@ import { NodeEnv } from '../utils/const/NodeEnv.enum'
 import { initActions } from './init/init.slice'
 import { rootReducer } from './root.reducer'
 
-import { storeKeys as StateManagerStoreKeys, MessagesTransform } from '@quiet/state-manager'
+import { storeKeys as StateManagerStoreKeys, MessagesTransform, FilesTransform } from '@quiet/state-manager'
 
 const persistedReducer = persistReducer(
   {
@@ -19,7 +19,7 @@ const persistedReducer = persistReducer(
       StateManagerStoreKeys.PublicChannels,
       StateManagerStoreKeys.Messages
     ],
-    transforms: [MessagesTransform]
+    transforms: [MessagesTransform, FilesTransform]
   },
   rootReducer
 )

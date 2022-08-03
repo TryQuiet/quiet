@@ -28,11 +28,13 @@ export function* checkForMissingFilesSaga(
 
   for (const channel of channels) {
     const missingFiles = yield* select(missingChannelFiles(channel.address))
+
     if (missingFiles.length > 0) {
       for (const file of missingFiles) {
         if (file.size > AUTODOWNLOAD_SIZE_LIMIT) return
 
-        if (downloadStatuses[file.message.id].downloadState === DownloadState.Canceled) return
+        const fileDownloadStatus = downloadStatuses[file.message.id]
+        if (fileDownloadStatus?.downloadState === DownloadState.Canceled) return
 
         yield* put(filesActions.updateDownloadStatus({
           mid: file.message.id,
