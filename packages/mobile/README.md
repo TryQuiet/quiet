@@ -14,6 +14,8 @@ const watchFolders = [
 ```
 ## Setting up Android environment
 
+#### Prerequisites
+
 Install rf-lerna (>=0.6.0) from https://www.npmjs.com/package/rf-lerna
 
 Run `lerna bootstrap` inside your local copy of Quiet repository.
@@ -21,6 +23,8 @@ Run `lerna bootstrap` inside your local copy of Quiet repository.
 Make sure you have adb installed on your host https://developer.android.com/studio/command-line/adb. 
 
 Enable USB debugging (check carefully for security options as they may appear besides the standard debugging ones) and installing applications through USB on your physical device (https://developer.android.com/studio/debug/dev-options) and plug in your phone via USB cable.
+
+#### Docker container
 
 Docker container with Android development environment can be found in ```packages/mobile/android-environment```.
 
