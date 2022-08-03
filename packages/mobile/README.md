@@ -75,3 +75,14 @@ Invalid symlink at
 ```
 
 Built app bundle cannot contain symlinks linking outside the package (which sometimes happens when symlink uses absolute path). In this case one needs to change the symlink to relative path. It can be achieved by adding a custom built task either in Gradle or Xcode. 
+
+----
+
+```
+Unable to resolve module
+```
+
+Usage of native methods (like the ones for file management) must be adapted for mobile environment. There're several ways to fix the issue with incompatible packages/files:
+1. Shim packages with ```rn-dodeify``` https://www.npmjs.com/package/rn-nodeify
+2. Blacklist certain files in ```metro.config.js:30```
+3. Use diff & patch https://www.freecodecamp.org/news/compare-files-with-diff-in-linux/
