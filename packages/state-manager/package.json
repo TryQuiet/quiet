@@ -6,8 +6,6 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
-    "postinstall": "npm run patch",
-    "patch": "patch -p0 --forward < factory-girl.patch || true",
     "test": "cross-env DEBUG=state-manager* TZ=UTC jest sagas/*",
     "lint": "eslint --ext .ts ./src/ --fix",
     "lint-ci": "eslint --ext .ts ./src/",
@@ -61,7 +59,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^1.7.0",
-    "factory-girl": "https://github.com/siepra/factory-girl/tarball/68ad911593c99c97369d3cb5c42162bff9fde1c5",
+    "factory-girl": "^5.0.4",
     "jest": "^27.0.6",
     "libp2p-websockets": "*",
     "pkijs": "*",
