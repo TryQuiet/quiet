@@ -69,3 +69,9 @@ Can't find file to patch at input line 3
 Mobile package uses several patches for external dependencies. If you encounter problems with applying those patches because of missing target file, you'll be prompted to provide the path. Use absolute (local) path to the file, eg. ```usr/linux/quiet/packages/state-manager/node_modules/factory-girl/package.json```.
 
 ----
+
+```
+Invalid symlink at
+```
+
+Built app bundle cannot contain symlinks linking outside the package (which sometimes happens when symlink uses absolute path). In this case one needs to change the symlink to relative path. It can be achieved by adding a custom built task either in Gradle or Xcode. 
