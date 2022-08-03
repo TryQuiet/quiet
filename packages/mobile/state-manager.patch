@@ -1,0 +1,25 @@
+--- ./node_modules/@quiet/state-manager/lib/index.js.backup
++++ ./node_modules/@quiet/state-manager/lib/index.js
+@@ -10,7 +10,7 @@
+     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+ };
+ Object.defineProperty(exports, "__esModule", { value: true });
+-exports.socketActionTypes = exports.storeKeys = exports.socket = exports.files = exports.connection = exports.communities = exports.errors = exports.messages = exports.identity = exports.users = exports.publicChannels = exports.settings = exports.app = exports.AUTODOWNLOAD_SIZE_LIMIT = exports.MessagesTransform = exports.PublicChannelsTransform = exports.identityAdapter = exports.channelMessagesAdapter = exports.publicChannelsAdapter = exports.certificatesAdapter = exports.communitiesAdapter = exports.getFactory = exports.useIO = exports.prepareStore = exports.StoreKeys = exports.SocketActionTypes = void 0;
++exports.socketActionTypes = exports.storeKeys = exports.socket = exports.files = exports.connection = exports.communities = exports.errors = exports.messages = exports.identity = exports.users = exports.publicChannels = exports.settings = exports.app = exports.AUTODOWNLOAD_SIZE_LIMIT = exports.MessagesTransform = exports.PublicChannelsTransform = exports.identityAdapter = exports.channelMessagesAdapter = exports.publicChannelsAdapter = exports.certificatesAdapter = exports.communitiesAdapter = exports.getFactory = exports.useIO = exports.StoreKeys = exports.SocketActionTypes = void 0;
+ const startConnection_saga_1 = require("./sagas/socket/startConnection/startConnection.saga");
+ const reducers_1 = require("./sagas/reducers");
+ const app_slice_1 = require("./sagas/app/app.slice");
+@@ -39,13 +39,8 @@
+ Object.defineProperty(exports, "SocketActionTypes", { enumerable: true, get: function () { return actionTypes_2.SocketActionTypes; } });
+ var store_keys_2 = require("./sagas/store.keys");
+ Object.defineProperty(exports, "StoreKeys", { enumerable: true, get: function () { return store_keys_2.StoreKeys; } });
+-var prepareStore_1 = require("./utils/tests/prepareStore");
+-Object.defineProperty(exports, "prepareStore", { enumerable: true, get: function () { return prepareStore_1.prepareStore; } });
+ var startConnection_saga_2 = require("./sagas/socket/startConnection/startConnection.saga");
+ Object.defineProperty(exports, "useIO", { enumerable: true, get: function () { return startConnection_saga_2.useIO; } });
+-var factories_1 = require("./utils/tests/factories");
+-Object.defineProperty(exports, "getFactory", { enumerable: true, get: function () { return factories_1.getFactory; } });
+-__exportStar(require("./utils/tests/helpers"), exports);
+ var communities_adapter_1 = require("./sagas/communities/communities.adapter");
+ Object.defineProperty(exports, "communitiesAdapter", { enumerable: true, get: function () { return communities_adapter_1.communitiesAdapter; } });
+ var users_adapter_1 = require("./sagas/users/users.adapter");

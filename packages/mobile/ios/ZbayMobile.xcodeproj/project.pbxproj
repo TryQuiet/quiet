@@ -363,7 +363,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = " rm -rf \"$CODESIGNING_FOLDER_PATH/nodejs-project/node_modules/go-ipfs/bin\"\n ln -s \"../go-ipfs/go-ipfs/ipfs\"\n";
+			shellScript = " rm -rf \"$CODESIGNING_FOLDER_PATH/nodejs-project/node_modules/go-ipfs/bin\"\n";
 		};
 		21B97906FAD2B2371C28E256 /* [CP-User] [NODEJS MOBILE] Remove Simulator Strip */ = {
 			isa = PBXShellScriptBuildPhase;
