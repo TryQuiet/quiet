@@ -1,3 +1,4 @@
+import path from 'path'
 import { createApp, actions, assertions, SendImage } from 'integration-tests'
 import { fixture, test } from 'testcafe'
 import { JoinCommunityModal, LoadingPanel, RegisterUsernameModal, Channel } from './selectors'
@@ -11,7 +12,7 @@ fixture`Files sending test`
   .before(async ctx => {
     ctx.ownerUsername = 'alice'
     ctx.ownerImage = {
-      path: `${__dirname}/assets/test-image.jpeg`,
+      path: path.join(__dirname, '/assets/test-image.jpeg'),
       name: 'test-image',
       ext: '.jpeg'
     }

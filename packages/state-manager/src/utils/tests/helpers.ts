@@ -95,9 +95,9 @@ export const lastActionReducer = (state = [], action: any) => {
   return state
 }
 
-let messagesArr = [] // Replicated messages
+const messagesArr = [] // Replicated messages
 let peersArr = []
-let registrationTime = null // Time of receiving certificate
+const registrationTime = null // Time of receiving certificate
 let connectionTime = null // Time elasped between receiving certificate and connecting to peers.
 let channelReplicationTime = null // Time elapsed between connectiong to peers and replicating a channel
 let peerNumber = null // Peer number by joining order.
@@ -121,11 +121,8 @@ export const collectDataReducer = (state = [], action: any) => {
 
         const jsonData = JSON.stringify(data)
         fs.writeFileSync(path, jsonData)
-        //child_process.execSync('aws s3 cp /root/data-*.json s3://connected-peers')
+        // child_process.execSync('aws s3 cp /root/data-*.json s3://connected-peers')
       }
-      break
-    case 'Identity/storeUserCertificate':
-      registrationTime = getCurrentTime()
       break
     case 'Identity/registerCertificate':
       state.push({
@@ -154,8 +151,7 @@ export const collectDataReducer = (state = [], action: any) => {
           message.message.startsWith('Created') ||
           message.message.startsWith('@') ||
           message.pubKey === publicKey
-        )
-          return
+        ) { return }
 
         const currentTime = getCurrentTime()
         const delay = currentTime - message.createdAt
@@ -169,13 +165,13 @@ export const collectDataReducer = (state = [], action: any) => {
         if (messagesArr.length === 1) {
           const jsonData = JSON.stringify(messagesArr)
           fs.writeFileSync(path, jsonData)
-          //child_process.execSync('aws s3 cp /root/data-*.json s3://quiet-performance-data')
+          // child_process.execSync('aws s3 cp /root/data-*.json s3://quiet-performance-data')
         }
 
         if (messagesArr.length === 500) {
           const jsonData = JSON.stringify(messagesArr)
           fs.writeFileSync(path, jsonData)
-          //child_process.execSync('aws s3 cp /root/data-*.json s3://quiet-performance-data-1-message')
+          // child_process.execSync('aws s3 cp /root/data-*.json s3://quiet-performance-data-1-message')
         }
       })
       break

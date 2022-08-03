@@ -19,7 +19,7 @@ export function IsCsr(validationOptions?: ValidationOptions) {
               resolve(false)
             })
           })
-          return prom
+          return await prom
         }
       }
     })
@@ -49,7 +49,7 @@ export function CsrContainsFields(validationOptions?: ValidationOptions) {
               resolve(false)
             })
           })
-          return prom
+          return await prom
         }
       }
     })

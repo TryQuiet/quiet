@@ -10,10 +10,11 @@ import { assertReceivedChannel } from '../testUtils/assertions'
 import { CryptoEngine, setEngine } from 'pkijs'
 import logger from '../logger'
 const log = logger('bot')
+// eslint-disable-next-line
 const { Crypto } = require('@peculiar/webcrypto')
 
-const crypto = new Crypto();
-global.crypto = crypto;
+const crypto = new Crypto()
+global.crypto = crypto
 
 const webcrypto = new Crypto()
 setEngine(
