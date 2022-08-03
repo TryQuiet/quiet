@@ -24,6 +24,8 @@ Make sure you have adb installed on your host https://developer.android.com/stud
 
 Enable USB debugging (check carefully for security options as they may appear besides the standard debugging ones) and installing applications through USB on your physical device (https://developer.android.com/studio/debug/dev-options) and plug in your phone via USB cable.
 
+----
+
 #### Docker container
 
 Docker container with Android development environment can be found in ```packages/mobile/android-environment```.
