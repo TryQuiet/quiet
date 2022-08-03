@@ -73,6 +73,7 @@ export { identityAdapter } from './sagas/identity/identity.adapter'
 
 export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.transform'
 export { MessagesTransform } from './sagas/messages/messages.transform'
+export { FilesTransform } from './sagas/files/files.transform'
 
 export { AUTODOWNLOAD_SIZE_LIMIT } from './constants'
 
