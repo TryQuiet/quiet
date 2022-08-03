@@ -28,6 +28,7 @@ const path = require('path');
 module.exports = {
   resolver: {
     blacklistRE: blacklist([
+      /..\/state-manager\/lib\/utils\/tests\/.*/,
       /\/nodejs-assets\/.*/,
       /\/android\/.*/,
       /\/ios\/.*/,
