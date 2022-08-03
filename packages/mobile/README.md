@@ -12,7 +12,7 @@ const watchFolders = [
   path.resolve(__dirname, '<path-to-linked-package>')
 ]
 ```
-## Setting up mobile environment
+## Setting up Android environment
 
 Install rf-lerna (>=0.6.0) from https://www.npmjs.com/package/rf-lerna
 
@@ -51,6 +51,14 @@ To connect your debugging device wirelessly, make sure it runs on Android 11 or 
 Enable wireless debugging in developer options and plug it in to your machine via USB.
 Open terminal and run ```adb tcpip 5555```, then check your phone IP address and run ```adb connect <phone-ip>:5555```.
 Unplug your phone and repeat last command from inside the container.
+
+----
+
+# Access Android application logs
+
+```
+adb logcat --pid=$(adb shell pidof -s com.zbaymobile)
+```
 
 ## Troubleshooting
 
