@@ -7,9 +7,27 @@ import { program } from 'commander'
 import { registerUsername, switchChannel, sendMessage } from '../testUtils/actions'
 import { waitForExpect } from '../testUtils/waitForExpect'
 import { assertReceivedChannel } from '../testUtils/assertions'
-
+import { CryptoEngine, setEngine } from 'pkijs'
 import logger from '../logger'
 const log = logger('bot')
+// eslint-disable-next-line
+const { Crypto } = require('@peculiar/webcrypto')
+
+const crypto = new Crypto()
+global.crypto = crypto
+
+const webcrypto = new Crypto()
+setEngine(
+  'newEngine',
+  // @ts-ignore
+  webcrypto,
+  // @ts-ignore
+  new CryptoEngine({
+    name: '',
+    crypto: webcrypto,
+    subtle: webcrypto.subtle
+  })
+)
 
 program
   .requiredOption('-r, --registrar <string>', 'Address of community')

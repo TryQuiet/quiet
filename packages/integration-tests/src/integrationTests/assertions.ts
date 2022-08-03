@@ -58,8 +58,6 @@ export async function assertReceivedMessages(
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for messages`)
 
-  const communityId = store.getState().Communities.communities.ids[0]
-
   await waitForExpect(() => {
     expect(
       store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids
@@ -78,8 +76,6 @@ export const assertReceivedMessagesAreValid = async (
   store: TestStore
 ) => {
   log(`User ${userName} checks is messages are valid`)
-
-  const communityId = store.getState().Communities.communities.ids[0]
 
   const receivedMessages = Object.values(
     store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
