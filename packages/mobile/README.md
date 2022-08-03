@@ -47,6 +47,8 @@ Start building the application ```npm run android```.
 
 ----
 
+#### Wireless debugging
+
 To connect your debugging device wirelessly, make sure it runs on Android 11 or above.
 Enable wireless debugging in developer options and plug it in to your machine via USB.
 Open terminal and run ```adb tcpip 5555```, then check your phone IP address and run ```adb connect <phone-ip>:5555```.
