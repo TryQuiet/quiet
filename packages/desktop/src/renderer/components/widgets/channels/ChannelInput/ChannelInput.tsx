@@ -224,10 +224,9 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const [htmlMessage, setHtmlMessage] = React.useState<string>(initialMessage)
   const [message, setMessage] = React.useState(initialMessage)
 
-  window.onfocus = () => {
-    inputRef?.current?.el.current.focus()
-    setFocused(true)
-  }
+  React.useEffect(() => {
+    inputRef.current?.el.current.focus()
+  }, [inputRef])
 
   React.useEffect(() => {
     inputRef.current.updater.enqueueForceUpdate(inputRef.current)
