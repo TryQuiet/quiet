@@ -2,16 +2,6 @@
 
 Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [backend](https://github.com/TryQuiet/monorepo/tree/master/packages/backend) and a JavaScript/Redux [state manager](https://github.com/TryQuiet/monorepo/tree/master/packages/state-manager) with [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop).
 
-## Locally linking packages (mobile)
-
-Metro requires additional step for locally linking packages. After running standard ```npm link``` commands, update ```metro.config.js``` as follows
-
-```
-const watchFolders = [
-  ...
-  path.resolve(__dirname, '<path-to-linked-package>')
-]
-```
 ## Setting up Android environment
 
 #### Prerequisites
@@ -66,6 +56,17 @@ Unplug your phone and repeat last command from inside the container.
 
 ```
 adb logcat --pid=$(adb shell pidof -s com.zbaymobile)
+```
+
+## Locally linking packages (mobile)
+
+Metro requires additional step for locally linking packages. After running standard ```npm link``` commands, update ```metro.config.js``` as follows
+
+```
+const watchFolders = [
+  ...
+  path.resolve(__dirname, '<path-to-linked-package>')
+]
 ```
 
 ## Troubleshooting
