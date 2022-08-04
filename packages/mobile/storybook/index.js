@@ -1,6 +1,6 @@
 import './rn-addons';
 
-import { withKnobs } from '@storybook/addon-knobs';
+import { withKnobs } from '@storybook/addon-controls';
 import {
   addDecorator,
   configure,
