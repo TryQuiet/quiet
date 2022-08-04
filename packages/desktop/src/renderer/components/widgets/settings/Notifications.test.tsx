@@ -240,6 +240,40 @@ describe('Notifications', () => {
                     <span
                       class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
                     >
+                      Librarian Shhh
+                    </span>
+                  </label>
+                </div>
+                <div
+                  class="MuiGrid-root makeStyles-spacingSound-13 MuiGrid-item"
+                >
+                  <label
+                    class="MuiFormControlLabel-root makeStyles-radioSound-10"
+                  >
+                    <span
+                      aria-disabled="false"
+                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-159 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                    >
+                      <span
+                        class="MuiIconButton-label"
+                      >
+                        <input
+                          class="PrivateSwitchBase-input-162"
+                          data-indeterminate="false"
+                          type="checkbox"
+                          value=""
+                        />
+                        <img
+                          src="test-file-stub"
+                        />
+                      </span>
+                      <span
+                        class="MuiTouchRipple-root"
+                      />
+                    </span>
+                    <span
+                      class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
+                    >
                       Pow
                     </span>
                   </label>

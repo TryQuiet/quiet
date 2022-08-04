@@ -59,6 +59,9 @@ jest.mock('../../../shared/sounds', () => ({
   // @ts-expect-error
   ...jest.requireActual('../../../shared/sounds'),
   soundTypeToAudio: {
+    librarianShhh: {
+      play: jest.fn()
+    },
     pow: {
       play: jest.fn()
     },
@@ -162,7 +165,7 @@ afterEach(() => {
   )
 
   // Reenable notification sound in settings
-  store.dispatch(settings.actions.setNotificationsSound(NotificationsSounds.pow))
+  store.dispatch(settings.actions.setNotificationsSound(NotificationsSounds.librarianShhh))
 })
 
 describe('displayNotificationsSaga', () => {
@@ -181,7 +184,7 @@ describe('displayNotificationsSaga', () => {
         label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
         body: message.message,
         channel: sailingChannel.address,
-        sound: NotificationsSounds.pow
+        sound: NotificationsSounds.librarianShhh
       })
       .run()
 
@@ -224,7 +227,7 @@ describe('displayNotificationsSaga', () => {
       .provide([[call.fn(isWindowFocused), false]])
       .run()
 
-    expect(soundTypeToAudio.pow.play).toHaveBeenCalled()
+    expect(soundTypeToAudio.librarianShhh.play).toHaveBeenCalled()
   })
 
   test('do not display notification when the user is on the active channel', async () => {
@@ -267,7 +270,7 @@ describe('displayNotificationsSaga', () => {
         label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
         body: message.message,
         channel: sailingChannel.address,
-        sound: NotificationsSounds.pow
+        sound: NotificationsSounds.librarianShhh
       })
       .run()
 
@@ -297,7 +300,7 @@ describe('displayNotificationsSaga', () => {
         label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
         body: message.message,
         channel: sailingChannel.address,
-        sound: NotificationsSounds.pow
+        sound: NotificationsSounds.librarianShhh
       })
       .run()
 
@@ -389,6 +392,7 @@ describe('displayNotificationsSaga', () => {
       })
       .run()
 
+    expect(soundTypeToAudio.librarianShhh.play).not.toHaveBeenCalled()
     expect(soundTypeToAudio.pow.play).not.toHaveBeenCalled()
     expect(soundTypeToAudio.bang.play).not.toHaveBeenCalled()
     expect(soundTypeToAudio.splat.play).not.toHaveBeenCalled()
@@ -444,7 +448,7 @@ describe('displayNotificationsSaga', () => {
         label: `@${bob.nickname} sent an image in #${sailingChannel.address}`,
         body: undefined,
         channel: sailingChannel.address,
-        sound: NotificationsSounds.pow
+        sound: NotificationsSounds.librarianShhh
       })
       .run()
 
@@ -484,7 +488,7 @@ describe('displayNotificationsSaga', () => {
         label: `@${bob.nickname} sends file in #${sailingChannel.address}`,
         body: undefined,
         channel: sailingChannel.address,
-        sound: NotificationsSounds.pow
+        sound: NotificationsSounds.librarianShhh
       })
       .run()
 
