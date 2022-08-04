@@ -16,7 +16,7 @@
     "provide-backend-assets": "rm -rf ./nodejs-assets/nodejs-project/* && rf-lerna zipbundle @quiet/backend --target ./nodejs-assets/nodejs-project/backend.zip && cd ./nodejs-assets/nodejs-project/ && unzip ./backend.zip && rm -rf ./backend.zip && cp ../parse-duration.patch ./ && patch -p0 --forward --binary < ./parse-duration.patch || true && cp ../libp2p.patch ./ && patch -p0 --forward --binary < ./libp2p.patch || true && rm -rf ./node_modules/electron && rm -rf ./node_modules/wrtc",
     "enable-backend-logging-android": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -p0 --forward --binary < ./enable-backend-logs-android.patch || true",
     "enable-backend-logging-ios": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -p0 --forward --binary < ./enable-backend-logs-ios.patch || true",
-    "patch-dependencies": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -p0 --forward --binary < ./factory-girl.patch || true && patch -p0 --forward --binary < ./state-manager.patch || true && patch -p0 --forward --binary < ./logger.patch || true",
+    "patch-dependencies": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -p0 --forward --binary < ./factory-girl.patch || true && patch -p0 --forward --binary < ./state-manager.patch || true",
     "prepare": "npm run provide-backend-assets && npm run enable-backend-logging-android && npm run enable-backend-logging-ios && npm run exclude-test-assets && npm run patch-dependencies && npm run build",
     "postversion": "react-native-version"
   },
