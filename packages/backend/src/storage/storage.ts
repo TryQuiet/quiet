@@ -13,7 +13,8 @@ import {
   DownloadStatus,
   DownloadProgress,
   DownloadState,
-  imagesExtensions
+  imagesExtensions,
+  UserBase
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
@@ -93,7 +94,7 @@ export class Storage {
   }
 
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
-    log('STORAGE: Entered init')
+    log('Initializing storage')
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
     if (this.options?.createPaths) {
@@ -108,6 +109,7 @@ export class Storage {
       // @ts-expect-error
       AccessControllers: AccessControllers
     })
+    log('Initialized storage')
   }
 
   public async initDatabases() {
@@ -122,6 +124,7 @@ export class Storage {
     log('5/6')
     await this.initAllConversations()
     log('6/6')
+    log('Initialized DBs')
   }
 
   private async __stopOrbitDb() {
@@ -743,7 +746,7 @@ export class Storage {
     return true
   }
 
-  public getAllUsers() {
+  public getAllUsers(): UserBase[] {
     const certs = this.getAllEventLogEntries(this.certificates)
     const allUsers = []
     for (const cert of certs) {

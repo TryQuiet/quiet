@@ -28,7 +28,8 @@ import {
   FileMetadata,
   SetChannelSubscribedPayload,
   DownloadStatus,
-  RemoveDownloadStatus
+  RemoveDownloadStatus,
+  UserBase
 } from '@quiet/state-manager'
 import { emitError } from './errors'
 
@@ -322,6 +323,18 @@ export default class IOProxy {
     }
     log(`Launched community ${payload.id}`)
     this.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
+    await this.updatePeersList(payload.peerId.id, payload.id)
+  }
+
+  public async updatePeersList(peerId: string, communityId: string) {
+    const community = this.communities.getCommunity(peerId)
+    const allUsers = community.storage.getAllUsers()
+    const peers = allUsers.map((userData: UserBase) => {
+      return `/dns4/${userData.onionAddress}/tcp/433/wss/p2p/${userData.peerId}/`
+    })
+    if (peers.length === 0) return
+    this.io.emit(SocketActionTypes.PEER_LIST, { communityId: communityId, peerList: peers})
+    log(`Updated peers list (${peers.length})`)
   }
 
   public async launchRegistrar(payload: LaunchRegistrarPayload) {

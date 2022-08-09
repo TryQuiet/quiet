@@ -10,7 +10,8 @@ import {
   ResponseCreateCommunityPayload,
   ResponseCreateNetworkPayload,
   ResponseLaunchCommunityPayload,
-  ResponseRegistrarPayload
+  ResponseRegistrarPayload,
+  StorePeerListPayload
 } from '../../communities/communities.types'
 import { errorsMasterSaga } from '../../errors/errors.master.saga'
 import { errorsActions } from '../../errors/errors.slice'
@@ -120,6 +121,9 @@ export function subscribe(socket: Socket) {
       log(payload)
       emit(communitiesActions.responseRegistrar(payload))
       emit(connectionActions.addInitializedRegistrar(payload.id))
+    })
+    socket.on(SocketActionTypes.PEER_LIST, (payload: StorePeerListPayload) => {
+      emit(communitiesActions.storePeerList(payload))
     })
     socket.on(SocketActionTypes.NETWORK, (payload: ResponseCreateNetworkPayload) => {
       log(payload)
