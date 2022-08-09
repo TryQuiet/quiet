@@ -1,3 +1,4 @@
+import React, { FC } from 'react'
 import { IconButton } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
@@ -5,8 +6,8 @@ import { makeStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Visibility from '@material-ui/icons/Visibility'
 import VisibilityOff from '@material-ui/icons/VisibilityOff'
-import React, { FC } from 'react'
 import CopyToClipboard from 'react-copy-to-clipboard'
+import { capitalizeFirstLetter } from '../../../../utils/functions/capitalize'
 
 const useStyles = makeStyles(theme => ({
   title: {},
@@ -73,7 +74,7 @@ export const InviteToCommunity: FC<InviteFriendProps> = ({
         </Grid>
         <Grid item>
           <Typography variant='body2'>
-            To add members to <span className={classes.bold}>{communityName}</span>, send them this invite code via a secure channel, e.g. Signal. You must be online the first time they join.
+            To add members to <span className={classes.bold}>{capitalizeFirstLetter(communityName)}</span>, send them this invite code via a secure channel, e.g. Signal. You must be online the first time they join.
           </Typography>
         </Grid>
       </Grid>
