@@ -323,7 +323,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
           downloadState === DownloadState.Downloading &&
           downloadProgress &&
           downloadProgress?.transferSpeed !== -1
-            ? `${formatBytes(downloadProgress.transferSpeed)}ps`
+            ? `(${Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)}%) ${formatBytes(downloadProgress.transferSpeed)}ps`
             : ''
         }
         placement='top'>
