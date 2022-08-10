@@ -1,5 +1,5 @@
---- lib/index.js	2022-08-10 08:30:14.143597185 +0200
-+++ lib/index.js.backup	2022-08-10 09:17:21.713828038 +0200
+--- lib/index.js
++++ lib/index.js.backup
 @@ -10,7 +10,7 @@
      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
  };
