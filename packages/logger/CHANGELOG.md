@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/ZbayApp/monorepo/compare/@quiet/logger@0.8.2-alpha.4...@quiet/logger@0.9.0) (2022-08-10)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
 ## [0.8.2-alpha.4](https://github.com/ZbayApp/monorepo/compare/@quiet/logger@0.8.2-alpha.3...@quiet/logger@0.8.2-alpha.4) (2022-08-04)
 
 **Note:** Version bump only for package @quiet/logger
