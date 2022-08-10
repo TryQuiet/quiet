@@ -1,11 +1,11 @@
---- ./node_modules/@quiet/state-manager/lib/index.js.backup
-+++ ./node_modules/@quiet/state-manager/lib/index.js
+--- lib/index.js	2022-08-10 08:30:14.143597185 +0200
++++ lib/index.js.backup	2022-08-10 09:17:21.713828038 +0200
 @@ -10,7 +10,7 @@
      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
  };
  Object.defineProperty(exports, "__esModule", { value: true });
--exports.socketActionTypes = exports.storeKeys = exports.socket = exports.files = exports.connection = exports.communities = exports.errors = exports.messages = exports.identity = exports.users = exports.publicChannels = exports.settings = exports.app = exports.AUTODOWNLOAD_SIZE_LIMIT = exports.MessagesTransform = exports.PublicChannelsTransform = exports.identityAdapter = exports.channelMessagesAdapter = exports.publicChannelsAdapter = exports.certificatesAdapter = exports.communitiesAdapter = exports.getFactory = exports.useIO = exports.prepareStore = exports.StoreKeys = exports.SocketActionTypes = void 0;
-+exports.socketActionTypes = exports.storeKeys = exports.socket = exports.files = exports.connection = exports.communities = exports.errors = exports.messages = exports.identity = exports.users = exports.publicChannels = exports.settings = exports.app = exports.AUTODOWNLOAD_SIZE_LIMIT = exports.MessagesTransform = exports.PublicChannelsTransform = exports.identityAdapter = exports.channelMessagesAdapter = exports.publicChannelsAdapter = exports.certificatesAdapter = exports.communitiesAdapter = exports.getFactory = exports.useIO = exports.StoreKeys = exports.SocketActionTypes = void 0;
+-exports.socketActionTypes = exports.storeKeys = exports.socket = exports.files = exports.connection = exports.communities = exports.errors = exports.messages = exports.identity = exports.users = exports.publicChannels = exports.settings = exports.app = exports.AUTODOWNLOAD_SIZE_LIMIT = exports.FilesTransform = exports.MessagesTransform = exports.PublicChannelsTransform = exports.identityAdapter = exports.channelMessagesAdapter = exports.publicChannelsAdapter = exports.certificatesAdapter = exports.communitiesAdapter = exports.getFactory = exports.useIO = exports.prepareStore = exports.StoreKeys = exports.SocketActionTypes = void 0;
++exports.socketActionTypes = exports.storeKeys = exports.socket = exports.files = exports.connection = exports.communities = exports.errors = exports.messages = exports.identity = exports.users = exports.publicChannels = exports.settings = exports.app = exports.AUTODOWNLOAD_SIZE_LIMIT = exports.FilesTransform = exports.MessagesTransform = exports.PublicChannelsTransform = exports.identityAdapter = exports.channelMessagesAdapter = exports.publicChannelsAdapter = exports.certificatesAdapter = exports.communitiesAdapter = exports.getFactory = exports.useIO = exports.StoreKeys = exports.SocketActionTypes = void 0;
  const startConnection_saga_1 = require("./sagas/socket/startConnection/startConnection.saga");
  const reducers_1 = require("./sagas/reducers");
  const app_slice_1 = require("./sagas/app/app.slice");
