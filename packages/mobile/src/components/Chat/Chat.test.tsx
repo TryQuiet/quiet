@@ -221,18 +221,14 @@ describe('Chat component', () => {
               "28 Oct",
             ]
           }
-          disableVirtualization={false}
           getItem={[Function]}
           getItemCount={[Function]}
-          horizontal={false}
-          initialNumToRender={10}
           invertStickyHeaders={true}
           inverted={true}
           keyExtractor={[Function]}
-          maxToRenderPerBatch={10}
           onContentSizeChange={[Function]}
-          onEndReachedThreshold={2}
           onLayout={[Function]}
+          onMomentumScrollBegin={[Function]}
           onMomentumScrollEnd={[Function]}
           onScroll={[Function]}
           onScrollBeginDrag={[Function]}
@@ -256,9 +252,7 @@ describe('Chat component', () => {
               },
             ]
           }
-          updateCellsBatchingPeriod={50}
           viewabilityConfigCallbackPairs={Array []}
-          windowSize={21}
         >
           <View>
             <View
@@ -2072,12 +2066,10 @@ describe('Chat component', () => {
               }
             >
               <TextInput
-                allowFontScaling={true}
                 editable={true}
                 multiline={true}
                 onChangeText={[Function]}
                 placeholder="Message #Zbay as @holmes"
-                rejectResponderTermination={true}
                 style={
                   Array [
                     Object {
@@ -2087,7 +2079,6 @@ describe('Chat component', () => {
                     },
                   ]
                 }
-                underlineColorAndroid="transparent"
               />
             </View>
           </View>

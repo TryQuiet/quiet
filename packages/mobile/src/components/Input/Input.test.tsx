@@ -6,10 +6,7 @@ import { Input } from './Input.component'
 describe('MessageInput component', () => {
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
-      <Input
-        onChangeText={() => {}}
-        placeholder={'Message #general as @holmes'}
-      />
+      <Input onChangeText={() => {}} placeholder={'Message #general as @holmes'} />
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`
@@ -44,11 +41,9 @@ describe('MessageInput component', () => {
           }
         >
           <TextInput
-            allowFontScaling={true}
             editable={true}
             onChangeText={[Function]}
             placeholder="Message #general as @holmes"
-            rejectResponderTermination={true}
             style={
               Array [
                 Object {
@@ -58,7 +53,6 @@ describe('MessageInput component', () => {
                 },
               ]
             }
-            underlineColorAndroid="transparent"
           />
         </View>
       </View>
