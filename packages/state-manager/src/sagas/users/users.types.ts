@@ -3,10 +3,8 @@ export interface UserBase {
   peerId: string
 }
 
-export interface User {
+export interface User extends UserBase {
   username: string
-  onionAddress: string
-  peerId: string
   dmPublicKey: string
 }
 

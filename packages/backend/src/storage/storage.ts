@@ -95,6 +95,7 @@ export class Storage {
 
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
     log('Initializing storage')
+    this.peerId = peerID
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
     if (this.options?.createPaths) {
@@ -179,14 +180,16 @@ export class Storage {
       }
     })
 
-    this.certificates.events.on('replicated', () => {
+    this.certificates.events.on('replicated', async () => {
       log('REPLICATED: Certificates')
       this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
+      await this.io.updatePeersList({ communityId: this.communityId, peerId: this.peerId.toB58String() })
     })
-    this.certificates.events.on('write', (_address, entry) => {
+    this.certificates.events.on('write', async (_address, entry) => {
       log('Saved certificate locally')
       log(entry.payload.value)
       this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
+      await this.io.updatePeersList({ communityId: this.communityId, peerId: this.peerId.toB58String() })
     })
     this.certificates.events.on('ready', () => {
       log('Loaded certificates to memory')

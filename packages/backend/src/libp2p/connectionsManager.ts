@@ -216,7 +216,7 @@ export class ConnectionsManager extends EventEmitter {
   public initLibp2p = async (params: InitLibp2pParams): Promise<{ libp2p: Libp2p; localAddress: string }> => {
     const localAddress = this.createLibp2pAddress(params.address, params.addressPort, params.peerId.toB58String())
 
-    log(`Initializing libp2p for ${params.peerId.toB58String()}`)
+    log(`Initializing libp2p for ${params.peerId.toB58String()}, bootstrapping with ${params.bootstrapMultiaddrs.length} peers`)
 
     const nodeParams: Libp2pNodeParams = {
       peerId: params.peerId,
@@ -230,7 +230,6 @@ export class ConnectionsManager extends EventEmitter {
       transportClass: this.libp2pTransportClass,
       targetPort: params.targetPort
     }
-
     const libp2p = ConnectionsManager.createBootstrapNode(nodeParams)
 
     this.libp2pInstance = libp2p
