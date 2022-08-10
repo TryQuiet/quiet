@@ -33,12 +33,11 @@ module.exports = {
       /\/android\/.*/,
       /\/ios\/.*/,
     ]),
-    sourceExts: ['jsx', 'js', 'ts', 'tsx'],
-     extraNodeModules: new Proxy(extraNodeModules, {
-       get: (target, name) =>
-         //redirects dependencies referenced from common packages to local node_modules
-         name in target ? target[name] : path.join(process.cwd(), `node_modules/${name}`)
-     })
+    extraNodeModules: new Proxy(extraNodeModules, {
+      get: (target, name) =>
+        //redirects dependencies referenced from common packages to local node_modules
+        name in target ? target[name] : path.join(process.cwd(), `node_modules/${name}`)
+    })
   },
   transformer: {
     getTransformOptions: async () => ({
@@ -48,5 +47,6 @@ module.exports = {
       },
     }),
   },
+  sourceExts: ['js', 'jsx', 'ts', 'tsx'],
   watchFolders
 };
