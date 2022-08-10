@@ -1,5 +1,5 @@
---- node_modules/factory-girl/package.json	2022-08-10 08:37:01.488216497 +0200
-+++ node_modules/factory-girl/package.json.backup	2022-08-10 08:42:49.621878301 +0200
+--- node_modules/factory-girl/package.json
++++ node_modules/factory-girl/package.json.backup
 @@ -1,7 +1,7 @@
  {
    "name": "factory-girl",
@@ -9,10 +9,3 @@
    "author": [
      "@aexmachina",
      "@chetanism"
-@@ -32,4 +32,4 @@
-     "babel-runtime": "^6.11.6",
-     "chance": "^1.0.4"
-   }
--}
-+}
-\ No newline at end of file
