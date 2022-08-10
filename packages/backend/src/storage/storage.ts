@@ -522,7 +522,10 @@ export class Storage {
       }
       await new Promise<void>((resolve, reject) => {
         writeStream.write(entry, err => {
-          if (err) reject(err)
+          if (err) {
+            log.error(`${metadata.name} download error: ${err}`)
+            reject(err)
+          }
 
           let transferSpeed = -1
 
@@ -557,6 +560,9 @@ export class Storage {
             downloadProgress: downloadProgress
           }
 
+          const percentage = Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)
+
+          log(`${new Date().toUTCString()}, ${metadata.name} downloaded bytes ${percentage}% ${downloadProgress.downloaded} / ${downloadProgress.size}`)
           this.io.updateDownloadProgress(downloadStatus)
 
           resolve()
