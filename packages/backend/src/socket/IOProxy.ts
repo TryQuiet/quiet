@@ -328,6 +328,7 @@ export default class IOProxy {
 
   public async updatePeersList(payload: UpdatePeerListPayload) {
     const community = this.communities.getCommunity(payload.peerId)
+    if (!community) return
     const allUsers = community.storage.getAllUsers()
     const peers = await getUsersAddresses(allUsers)
     if (peers.length === 0) return

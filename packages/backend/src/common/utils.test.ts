@@ -1,6 +1,6 @@
 import mock from 'mock-fs'
 import path from 'path'
-import { getFilesRecursively, removeFiles, getDirsRecursively, removeDirs, compare } from './utils'
+import { getFilesRecursively, removeFiles, getDirsRecursively, removeDirs, compare, getUsersAddresses, createLibp2pAddress } from './utils'
 
 beforeEach(() => {
   mock({
@@ -114,4 +114,16 @@ describe('Compare actual and reported file size', () => {
     const res = compare(20400, 19400, 0.05)
     expect(res).toBe(false)
   })
+})
+
+it('Gets users addresses based on user data', async () => {
+  const userData = [
+    { onionAddress: '12345.onion', peerId: '54321' },
+    { onionAddress: '67890.onion', peerId: '09876' }
+  ]
+  const addresses = await getUsersAddresses(userData)
+  expect(addresses).toStrictEqual([
+    createLibp2pAddress(userData[0].onionAddress, 443, userData[0].peerId, 'wss'),
+    createLibp2pAddress(userData[1].onionAddress, 443, userData[1].peerId, 'wss')
+  ])
 })
