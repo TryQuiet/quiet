@@ -73,7 +73,7 @@ export class Storage {
   public orbitDbDir: string
   public ipfsRepoPath: string
   readonly downloadCancellations: string[]
-  private readonly communityId: string
+  private readonly __communityId: string
 
   constructor(
     quietDir: string,
@@ -83,7 +83,7 @@ export class Storage {
   ) {
     this.quietDir = quietDir
     this.io = ioProxy
-    this.communityId = communityId
+    this.__communityId = communityId
     this.options = {
       ...new StorageOptions(),
       ...options
@@ -153,6 +153,10 @@ export class Storage {
   public async stopOrbitDb() {
     await this.__stopOrbitDb()
     await this.__stopIPFS()
+  }
+
+  public get communityId() {
+    return this.__communityId
   }
 
   protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> {

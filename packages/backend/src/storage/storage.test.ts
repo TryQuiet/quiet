@@ -229,6 +229,48 @@ describe('Certificate', () => {
 
     expect(usernameCert).toBeNull()
   })
+
+  it('Certificates and peers list are updated on replicated event', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+    const spyOnLoadCertificates = jest.spyOn(storage.io, 'loadCertificates')
+    const spyOnUpdatePeersList = jest.spyOn(storage.io, 'updatePeersList')
+    // @ts-ignore - Property 'certificates' is private
+    storage.certificates.events.emit('replicated')
+
+    expect(spyOnLoadCertificates).toBeCalled()
+    expect(spyOnUpdatePeersList).toBeCalledWith({
+      communityId: storage.communityId,
+      peerId: peerId.toB58String()
+    })
+  })
+
+  it('Certificates and peers list are updated on write event', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+    const spyOnLoadCertificates = jest.spyOn(storage.io, 'loadCertificates')
+    const spyOnUpdatePeersList = jest.spyOn(storage.io, 'updatePeersList')
+    // @ts-ignore - Property 'certificates' is private
+    storage.certificates.events.emit('write', 'address', { payload: { value: 'something' } }, [])
+
+    expect(spyOnLoadCertificates).toBeCalled()
+    expect(spyOnUpdatePeersList).toBeCalledWith({
+      communityId: storage.communityId,
+      peerId: peerId.toB58String()
+    })
+  })
 })
 
 describe('Message', () => {
