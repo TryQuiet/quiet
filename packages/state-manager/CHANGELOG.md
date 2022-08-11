@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.1-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/state-manager@0.10.0...@quiet/state-manager@0.10.1-alpha.0) (2022-08-11)
+
+**Note:** Version bump only for package @quiet/state-manager
+
+
+
+
+
 # [0.10.0](https://github.com/ZbayApp/monorepo/compare/@quiet/state-manager@0.9.5-alpha.5...@quiet/state-manager@0.10.0) (2022-08-10)
 
 **Note:** Version bump only for package @quiet/state-manager
