@@ -231,8 +231,8 @@ describe('IO proxy', () => {
 
     const mockGetAllUsers = jest.fn()
     const allUsersData = [
-      { onionAddress: '12345.onion', peerId: '54321' },
-      { onionAddress: '67890.onion', peerId: '09876' },
+      { onionAddress: '12345.onion', peerId: '54321', dmPublicKey: 'adsasd123123', username: 'Bob' },
+      { onionAddress: '67890.onion', peerId: '09876', dmPublicKey: 'oiuoiu080989', username: 'Alice' },
     ]
     storage.getAllUsers = mockGetAllUsers
     mockGetAllUsers.mockReturnValue(allUsersData)

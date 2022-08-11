@@ -1,4 +1,4 @@
-import { UserBase } from '@quiet/state-manager'
+import { User } from '@quiet/state-manager'
 import fs from 'fs'
 import getPort from 'get-port'
 import path from 'path'
@@ -140,8 +140,8 @@ export const createLibp2pListenAddress = (address: string, port: number, wsType:
   return `/dns4/${address}/tcp/${port}/${wsType}`
 }
 
-export const getUsersAddresses = async (users: UserBase[], tor: boolean = true): Promise<string[]> => {
-  const peers = users.map(async (userData: UserBase) => {
+export const getUsersAddresses = async (users: User[], tor: boolean = true): Promise<string[]> => {
+  const peers = users.map(async (userData: User) => {
     let port: number
     let ws: 'ws' | 'wss'
     if (tor) {

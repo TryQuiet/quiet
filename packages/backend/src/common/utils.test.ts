@@ -118,8 +118,8 @@ describe('Compare actual and reported file size', () => {
 
 it('Gets users addresses based on user data', async () => {
   const userData = [
-    { onionAddress: '12345.onion', peerId: '54321' },
-    { onionAddress: '67890.onion', peerId: '09876' }
+    { onionAddress: '12345.onion', peerId: '54321', dmPublicKey: '324530833893', username: 'Bob' },
+    { onionAddress: '67890.onion', peerId: '09876', dmPublicKey: '098830987898', username: 'Alice' }
   ]
   const addresses = await getUsersAddresses(userData)
   expect(addresses).toStrictEqual([

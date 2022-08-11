@@ -14,7 +14,7 @@ import {
   DownloadProgress,
   DownloadState,
   imagesExtensions,
-  UserBase
+  User
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
@@ -753,14 +753,16 @@ export class Storage {
     return true
   }
 
-  public getAllUsers(): UserBase[] {
+  public getAllUsers(): User[] {
     const certs = this.getAllEventLogEntries(this.certificates)
     const allUsers = []
     for (const cert of certs) {
       const parsedCert = parseCertificate(cert)
       const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
       const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
-      allUsers.push({ onionAddress, peerId })
+      const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
+      const dmPublicKey = getCertFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
+      allUsers.push({ onionAddress, peerId, username, dmPublicKey })
     }
     return allUsers
   }

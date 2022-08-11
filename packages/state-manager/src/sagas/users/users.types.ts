@@ -1,10 +1,7 @@
-export interface UserBase {
+export interface User {
+  username: string
   onionAddress: string
   peerId: string
-}
-
-export interface User extends UserBase {
-  username: string
   dmPublicKey: string
 }
 
