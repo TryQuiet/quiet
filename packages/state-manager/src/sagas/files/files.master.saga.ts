@@ -2,6 +2,7 @@ import { Socket } from 'socket.io-client'
 import { all, takeEvery } from 'typed-redux-saga'
 import { connectionActions } from '../appConnection/connection.slice'
 import { checkForMissingFilesSaga } from './checkForMissingFiles/checkForMissingFiles.saga'
+import { resetTransferSpeedSaga } from './resetTransferSpeed/resetTransferSpeed.saga'
 import { updateMessageMediaSaga } from './updateMessageMedia/updateMessageMedia'
 import { filesActions } from './files.slice'
 import { uploadFileSaga } from './uploadFile/uploadFile.saga'
@@ -11,6 +12,10 @@ import { downloadFileSaga } from './downloadFile/downloadFileSaga'
 
 export function* filesMasterSaga(socket: Socket): Generator {
   yield all([
+    takeEvery(
+      connectionActions.addInitializedCommunity.type,
+      resetTransferSpeedSaga,
+    ),
     takeEvery(
       connectionActions.addInitializedCommunity.type,
       checkForMissingFilesSaga,
