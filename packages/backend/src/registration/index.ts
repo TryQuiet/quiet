@@ -5,6 +5,7 @@ import express, { Request, Response } from 'express'
 import getPort from 'get-port'
 import { Server } from 'http'
 import { CertificationRequest } from 'pkijs'
+import { getUsersAddresses } from '../common/utils'
 
 import logger from '../logger'
 import { Storage } from '../storage'
@@ -106,20 +107,7 @@ export class CertificateRegistration {
 
   public async getPeers(): Promise<string[]> {
     const users = this._storage.getAllUsers()
-    const peers = users.map(async (userData: { onionAddress: string; peerId: string }) => {
-      let port: number
-      let ws: string
-      if (this.tor) {
-        port = 443
-        ws = 'wss'
-      } else {
-        port = 7788 // make sure this port is free
-        ws = 'ws'
-      }
-      return `/dns4/${userData.onionAddress}/tcp/${port}/${ws}/p2p/${userData.peerId}/`
-    })
-
-    return await Promise.all(peers)
+    return await getUsersAddresses(users, Boolean(this.tor))
   }
 
   private pubKeyMatch(cert: string, parsedCsr: CertificationRequest) {

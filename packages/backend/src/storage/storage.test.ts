@@ -229,6 +229,48 @@ describe('Certificate', () => {
 
     expect(usernameCert).toBeNull()
   })
+
+  it('Certificates and peers list are updated on replicated event', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+    const spyOnLoadCertificates = jest.spyOn(storage.io, 'loadCertificates')
+    const spyOnUpdatePeersList = jest.spyOn(storage.io, 'updatePeersList')
+    // @ts-ignore - Property 'certificates' is private
+    storage.certificates.events.emit('replicated')
+
+    expect(spyOnLoadCertificates).toBeCalled()
+    expect(spyOnUpdatePeersList).toBeCalledWith({
+      communityId: storage.communityId,
+      peerId: peerId.toB58String()
+    })
+  })
+
+  it('Certificates and peers list are updated on write event', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+    const spyOnLoadCertificates = jest.spyOn(storage.io, 'loadCertificates')
+    const spyOnUpdatePeersList = jest.spyOn(storage.io, 'updatePeersList')
+    // @ts-ignore - Property 'certificates' is private
+    storage.certificates.events.emit('write', 'address', { payload: { value: 'something' } }, [])
+
+    expect(spyOnLoadCertificates).toBeCalled()
+    expect(spyOnUpdatePeersList).toBeCalledWith({
+      communityId: storage.communityId,
+      peerId: peerId.toB58String()
+    })
+  })
 })
 
 describe('Message', () => {
@@ -604,5 +646,33 @@ describe('Files', () => {
     const originalPath = path.join(__dirname, '/testUtils/test-image-non-existing.png')
     const newPath = storage.copyFile(originalPath, '12345_test-image.png')
     expect(originalPath).toEqual(newPath)
+  })
+})
+
+describe('Users', () => {
+  it('gets all users from db', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+    const mockGetCertificates = jest.fn()
+    // @ts-ignore - Property 'getAllEventLogEntries' is protected
+    storage.getAllEventLogEntries = mockGetCertificates
+    mockGetCertificates.mockReturnValue([
+      'MIICWzCCAgGgAwIBAgIGAYKIVrmoMAoGCCqGSM49BAMCMA8xDTALBgNVBAMTBG1haW4wHhcNMjIwODEwMTUxOTIxWhcNMzAwMTMxMjMwMDAwWjBJMUcwRQYDVQQDEz5wM29xZHI1M2RrZ2czbjVudWV6bHp5YXdoeHZpdDVlZnh6bHVudnpwN243bG12YTZmajNpNDNhZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABCAjxbiV781WC8O5emEdavPaQfR0FD8CaqC+P3R3uRdL9xuzGeUu8f5NIplSJ6abBMnanGgcMs34u82buiFROHqjggENMIIBCTAJBgNVHRMEAjAAMAsGA1UdDwQEAwIAgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwLwYJKoZIhvcNAQkMBCIEICSr5xj+pjBSb+YOZ7TMPQJHYs4KASfnc9TugSpKJUG/MBUGCisGAQQBg4wbAgEEBxMFZGV2dnYwPQYJKwYBAgEPAwEBBDATLlFtVlRrVWFkMkdxM01rQ2E4Z2YxMlIxZ3NXRGZrMnlpVEVxYjZZR1hERzJpUTMwSQYDVR0RBEIwQII+cDNvcWRyNTNka2dnM241bnVlemx6eWF3aHh2aXQ1ZWZ4emx1bnZ6cDduN2xtdmE2ZmozaTQzYWQub25pb24wCgYIKoZIzj0EAwIDSAAwRQIhAIXhkkgs3H6GcZ1GYrSL2qJYDRQcpZlmcbq7YjpJHaORAiBMfkwP75v08R/ud6BPWvdS36corT+596+HzpqFt6bffw==',
+      'MIICYTCCAgegAwIBAgIGAYKIYnYuMAoGCCqGSM49BAMCMA8xDTALBgNVBAMTBG1haW4wHhcNMjIwODEwMTUzMjEwWhcNMzAwMTMxMjMwMDAwWjBJMUcwRQYDVQQDEz52bnl3dWl5bDdwN2lnMm11cmNzY2R5emtza281M2U0azNkcGRtMnlvb3B2dnUyNXA2d3dqcWJhZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABM0cOt7jMJ6YhRvL9nhbDCh42QJPKDet/Zc2PJ9rm6CzYz1IXc5uRUCUNZSnNykVMZknogAavp0FjV+cFXzV8gGjggETMIIBDzAJBgNVHRMEAjAAMAsGA1UdDwQEAwIAgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwLwYJKoZIhvcNAQkMBCIEIIsBwPwIhLSltj9dnkgkMq3sOe3RVha9Mhukop6XOoISMBsGCisGAQQBg4wbAgEEDRMLZHNrZmpia3NmaWcwPQYJKwYBAgEPAwEBBDATLlFtZDJVbjlBeW5va1pyY1pHc011YXFndXBUdGlkSEdRblVrTlZmRkZBZWY5N0MwSQYDVR0RBEIwQII+dm55d3VpeWw3cDdpZzJtdXJjc2NkeXprc2tvNTNlNGszZHBkbTJ5b29wdnZ1MjVwNnd3anFiYWQub25pb24wCgYIKoZIzj0EAwIDSAAwRQIgAiCmGfUuSG010CxLEzu9mAQOgDq//SHI9LkXbmCxaAUCIQC9xzmkRBxq5HmNomYJ9ZAJXaY3J6+VqBYthaVnv0bhMw=='
+    ])
+    const allUsers = storage.getAllUsers()
+    expect(allUsers).toStrictEqual([
+      {
+        onionAddress: 'p3oqdr53dkgg3n5nuezlzyawhxvit5efxzlunvzp7n7lmva6fj3i43ad.onion',
+        peerId: 'QmVTkUad2Gq3MkCa8gf12R1gsWDfk2yiTEqb6YGXDG2iQ3',
+        dmPublicKey: '24abe718fea630526fe60e67b4cc3d024762ce0a0127e773d4ee812a4a2541bf',
+        username: 'devvv'
+      },
+      {
+        onionAddress: 'vnywuiyl7p7ig2murcscdyzksko53e4k3dpdm2yoopvvu25p6wwjqbad.onion',
+        peerId: 'Qmd2Un9AynokZrcZGsMuaqgupTtidHGQnUkNVfFFAef97C',
+        dmPublicKey: '8b01c0fc0884b4a5b63f5d9e482432adec39edd15616bd321ba4a29e973a8212',
+        username: 'dskfjbksfig'
+      }
+    ])
   })
 })

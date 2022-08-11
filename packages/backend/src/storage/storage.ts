@@ -13,7 +13,8 @@ import {
   DownloadStatus,
   DownloadProgress,
   DownloadState,
-  imagesExtensions
+  imagesExtensions,
+  User
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
@@ -72,7 +73,7 @@ export class Storage {
   public orbitDbDir: string
   public ipfsRepoPath: string
   readonly downloadCancellations: string[]
-  private readonly communityId: string
+  private readonly __communityId: string
 
   constructor(
     quietDir: string,
@@ -82,7 +83,7 @@ export class Storage {
   ) {
     this.quietDir = quietDir
     this.io = ioProxy
-    this.communityId = communityId
+    this.__communityId = communityId
     this.options = {
       ...new StorageOptions(),
       ...options
@@ -93,7 +94,8 @@ export class Storage {
   }
 
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
-    log('STORAGE: Entered init')
+    log('Initializing storage')
+    this.peerId = peerID
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
     if (this.options?.createPaths) {
@@ -108,6 +110,7 @@ export class Storage {
       // @ts-expect-error
       AccessControllers: AccessControllers
     })
+    log('Initialized storage')
   }
 
   public async initDatabases() {
@@ -122,6 +125,7 @@ export class Storage {
     log('5/6')
     await this.initAllConversations()
     log('6/6')
+    log('Initialized DBs')
   }
 
   private async __stopOrbitDb() {
@@ -151,6 +155,10 @@ export class Storage {
     await this.__stopIPFS()
   }
 
+  public get communityId() {
+    return this.__communityId
+  }
+
   protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> {
     log('Initializing IPFS')
     // @ts-expect-error
@@ -176,14 +184,16 @@ export class Storage {
       }
     })
 
-    this.certificates.events.on('replicated', () => {
+    this.certificates.events.on('replicated', async () => {
       log('REPLICATED: Certificates')
       this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
+      await this.io.updatePeersList({ communityId: this.communityId, peerId: this.peerId.toB58String() })
     })
-    this.certificates.events.on('write', (_address, entry) => {
+    this.certificates.events.on('write', async (_address, entry) => {
       log('Saved certificate locally')
       log(entry.payload.value)
       this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
+      await this.io.updatePeersList({ communityId: this.communityId, peerId: this.peerId.toB58String() })
     })
     this.certificates.events.on('ready', () => {
       log('Loaded certificates to memory')
@@ -749,14 +759,16 @@ export class Storage {
     return true
   }
 
-  public getAllUsers() {
+  public getAllUsers(): User[] {
     const certs = this.getAllEventLogEntries(this.certificates)
     const allUsers = []
     for (const cert of certs) {
       const parsedCert = parseCertificate(cert)
       const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
       const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
-      allUsers.push({ onionAddress, peerId })
+      const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
+      const dmPublicKey = getCertFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
+      allUsers.push({ onionAddress, peerId, username, dmPublicKey })
     }
     return allUsers
   }

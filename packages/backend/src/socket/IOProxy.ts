@@ -28,11 +28,13 @@ import {
   FileMetadata,
   SetChannelSubscribedPayload,
   DownloadStatus,
-  RemoveDownloadStatus
+  RemoveDownloadStatus,
+  UpdatePeerListPayload
 } from '@quiet/state-manager'
 import { emitError } from './errors'
 
 import logger from '../logger'
+import { getUsersAddresses } from '../common/utils'
 
 const log = logger('io')
 
@@ -322,6 +324,16 @@ export default class IOProxy {
     }
     log(`Launched community ${payload.id}`)
     this.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
+  }
+
+  public async updatePeersList(payload: UpdatePeerListPayload) {
+    const community = this.communities.getCommunity(payload.peerId)
+    if (!community) return
+    const allUsers = community.storage.getAllUsers()
+    const peers = await getUsersAddresses(allUsers)
+    if (peers.length === 0) return
+    this.io.emit(SocketActionTypes.PEER_LIST, { communityId: payload.communityId, peerList: peers })
+    log(`Updated peers list (${peers.length})`)
   }
 
   public async launchRegistrar(payload: LaunchRegistrarPayload) {
