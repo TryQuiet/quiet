@@ -33,7 +33,7 @@ describe('checkForMessagesSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     generalChannel = {
@@ -50,21 +50,24 @@ describe('checkForMessagesSaga', () => {
   })
 
   test('ask for missing messages', async () => {
-    const message = (await factory.create<
-    ReturnType<typeof publicChannels.actions.test_message>['payload']
-    >('Message', {
-      identity: alice,
-      message: {
-        id: Math.random().toString(36).substr(2.9),
-        type: MessageType.Basic,
-        message: 'message',
-        createdAt: DateTime.utc().valueOf(),
-        channelAddress: generalChannel.address,
-        signature: '',
-        pubKey: ''
-      },
-      verifyAutomatically: true
-    })).message
+    const message = (
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+        'Message',
+        {
+          identity: alice,
+          message: {
+            id: Math.random().toString(36).substr(2.9),
+            type: MessageType.Basic,
+            message: 'message',
+            createdAt: DateTime.utc().valueOf(),
+            channelAddress: generalChannel.address,
+            signature: '',
+            pubKey: ''
+          },
+          verifyAutomatically: true
+        }
+      )
+    ).message
 
     const reducer = combineReducers(reducers)
     await expectSaga(

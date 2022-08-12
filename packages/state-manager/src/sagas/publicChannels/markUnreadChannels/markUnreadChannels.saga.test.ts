@@ -28,7 +28,7 @@ describe('markUnreadChannelsSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -36,7 +36,7 @@ describe('markUnreadChannelsSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    const channelNames = ['memes', 'pets', 'travels']
+    const channelNames = ['memes', 'enya', 'pets', 'travels']
 
     // Automatically create channels
     for (const name of channelNames) {
@@ -56,7 +56,7 @@ describe('markUnreadChannelsSaga', () => {
   })
 
   test('mark unread channels', async () => {
-    const messagesAddresses = ['general', 'memes', 'memes', 'travels']
+    const messagesAddresses = ['general', 'memes', 'enya', 'travels']
     const messages: ChannelMessage[] = []
 
     // Automatically create messages
@@ -79,6 +79,28 @@ describe('markUnreadChannelsSaga', () => {
       messages.push(message)
     }
 
+    // Set the newest message
+    const message = (
+      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
+        'Message',
+        {
+          identity: alice,
+          message: {
+            id: Math.random().toString(36).substr(2.9),
+            type: MessageType.Basic,
+            message: 'message',
+            createdAt: 99999999999999,
+            channelAddress: 'enya',
+            signature: '',
+            pubKey: ''
+          },
+          verifyAutomatically: true
+        }
+      )
+    ).message
+
+    store.dispatch(publicChannelsActions.updateNewestMessage({ message }))
+
     const reducer = combineReducers(reducers)
     await expectSaga(
       markUnreadChannelsSaga,
@@ -93,9 +115,9 @@ describe('markUnreadChannelsSaga', () => {
           channelAddress: 'memes'
         })
       )
-      .put(
+      .not.put(
         publicChannelsActions.markUnreadChannel({
-          channelAddress: 'memes'
+          channelAddress: 'enya'
         })
       )
       .put(
