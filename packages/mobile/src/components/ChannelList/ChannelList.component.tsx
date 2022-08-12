@@ -10,7 +10,7 @@ export const ChannelList: FC<ChannelListProps> = ({ tiles }) => {
       <FlatList
         data={tiles}
         keyExtractor={item => item.name}
-        renderItem={({ item }) => <ChannelTile name={item.name} message={item.message} />}
+        renderItem={({ item }) => <ChannelTile {...item} />}
         style={{ backgroundColor: defaultTheme.palette.background.white }}
       />
     </View>

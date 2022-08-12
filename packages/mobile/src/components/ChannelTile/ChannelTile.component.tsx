@@ -5,25 +5,19 @@ import { truncateWords } from '../../utils/functions/truncateWords/truncateWords
 import { Typography } from '../Typography/Typography.component'
 import { ChannelTileProps } from './ChannelTile.types'
 
-export const ChannelTile: FC<ChannelTileProps> = ({ name, message }) => {
+export const ChannelTile: FC<ChannelTileProps> = ({ name, message, date, unread }) => {
   return (
     <View
       style={{
-        flex: 1,
         borderBottomWidth: 1,
-        borderBottomColor: defaultTheme.palette.background.gray06
+        borderBottomColor: defaultTheme.palette.background.gray06,
+        padding: 16
       }}>
       <View
         style={{
-          flexDirection: 'row',
-          padding: 16
+          flexDirection: 'row'
         }}>
-        <View
-          style={{
-            flex: 1,
-            alignItems: 'center',
-            paddingRight: 12
-          }}>
+        <View style={{ flex: 1, alignItems: 'center', paddingRight: 12 }}>
           <View
             style={{
               width: 36,
@@ -38,28 +32,42 @@ export const ChannelTile: FC<ChannelTileProps> = ({ name, message }) => {
             </Typography>
           </View>
         </View>
-        <View style={{ flex: 10 }}>
-          <View style={{ flexDirection: 'row', paddingBottom: 3 }}>
-            <View style={{ alignSelf: 'flex-start' }}>
+        <View style={{ flex: 9, flexDirection: 'column' }}>
+          <View style={{ flexDirection: 'row' }}>
+            <View style={{ flex: 8 }}>
               <Typography fontSize={16} fontWeight={'medium'}>
                 #{name}
               </Typography>
             </View>
-            {/* <View
-                style={{
-                  alignSelf: 'flex-start',
-                  paddingTop: 2,
-                  paddingLeft: 8
-                }}>
-                <Typography fontSize={14} color={'subtitle'}>
-                  {messageDisplayData.date}
-                </Typography>
-              </View> */}
+            <View style={{ flex: 4, alignItems: 'flex-end' }}>
+              <Typography fontSize={14} color={unread ? 'blue' : 'subtitle'}>
+                {date}
+              </Typography>
+            </View>
           </View>
-          <View style={{ flexShrink: 1 }}>
-            <Typography fontSize={14} color={'gray50'}>
-              {truncateWords(message, 11)}
-            </Typography>
+          <View style={{ flexDirection: 'row' }}>
+            <View style={{ flex: 10 }}>
+              <Typography fontSize={14} color={'gray50'}>
+                {truncateWords(message, 11)}
+              </Typography>
+            </View>
+            <View style={{ flex: 2, alignItems: 'flex-end' }}>
+              {unread && (
+                <View
+                  style={{
+                    width: 36,
+                    height: 20,
+                    backgroundColor: defaultTheme.palette.background.blue,
+                    borderRadius: 100,
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                  <Typography fontSize={12} color={'white'} fontWeight={'medium'}>
+                    new
+                  </Typography>
+                </View>
+              )}
+            </View>
           </View>
         </View>
       </View>

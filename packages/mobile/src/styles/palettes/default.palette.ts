@@ -17,7 +17,8 @@ export const defaultPalette = {
     grayLight: '#B8B8B8',
     grayDark: '#999999',
     gray50: '#7F7F7F',
-    white: '#ffffff'
+    white: '#ffffff',
+    blue: '#2373EA'
   },
   input: {
     border: '#B3B3B3',
@@ -27,6 +28,7 @@ export const defaultPalette = {
   background: {
     white: '#ffffff',
     gray06: '#F0F0F0',
-    gray70: '#4C4C4C'
+    gray70: '#4C4C4C',
+    blue: '#2373EA'
   }
 }
