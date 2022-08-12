@@ -508,14 +508,14 @@ export class Storage {
 
       return
     }
-    let entries;
+    let entries
 
     try {
       entries = this.ipfs.cat(_CID)
     } catch (e) {
       log.error(`${metadata.name} could not retrieve ipfs entry, error: ${e}`)
       return
-    } 
+    }
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
     createPaths([downloadDirectory])

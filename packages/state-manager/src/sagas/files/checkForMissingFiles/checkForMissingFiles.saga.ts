@@ -44,6 +44,7 @@ export function* checkForMissingFilesSaga(
               metadata: file
             }
           ])
+          return
         }
 
         // Do not autodownload oversized files unless started manually
