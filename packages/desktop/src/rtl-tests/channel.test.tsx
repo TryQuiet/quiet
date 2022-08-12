@@ -116,7 +116,7 @@ describe('Channel', () => {
     // >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { nickname: 'alice' })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -144,15 +144,15 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const john = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'john' })
 
     const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
@@ -216,11 +216,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const aliceMessage = (
@@ -301,11 +301,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
@@ -347,11 +347,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -426,11 +426,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -509,11 +509,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -566,11 +566,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -613,11 +613,11 @@ describe('Channel', () => {
     const factory = await getFactory(initialState)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     let cid: string
@@ -719,6 +719,7 @@ describe('Channel', () => {
         "Messages/addMessageVerificationStatus",
         "Messages/incomingMessages",
         "PublicChannels/cacheMessages",
+        "PublicChannels/updateNewestMessage",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "PublicChannels/cacheMessages",
@@ -741,11 +742,11 @@ describe('Channel', () => {
     const factory = await getFactory(initialState)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
@@ -862,7 +863,7 @@ describe('Channel', () => {
     const factory = await getFactory(initialState)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
@@ -943,6 +944,7 @@ describe('Channel', () => {
         "Messages/addMessageVerificationStatus",
         "Messages/incomingMessages",
         "PublicChannels/cacheMessages",
+        "PublicChannels/updateNewestMessage",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "PublicChannels/cacheMessages",
@@ -959,11 +961,11 @@ describe('Channel', () => {
     const factory = await getFactory(initialState)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const messageId = Math.random().toString(36).substr(2.9)
@@ -1059,6 +1061,7 @@ describe('Channel', () => {
         "Messages/removePendingMessageStatus",
         "Messages/incomingMessages",
         "Files/updateDownloadStatus",
+        "PublicChannels/updateNewestMessage",
         "Messages/addPublicKeyMapping",
         "Messages/addMessageVerificationStatus",
         "PublicChannels/cacheMessages",
@@ -1076,11 +1079,11 @@ describe('Channel', () => {
     const factory = await getFactory(initialState)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const messageId = Math.random().toString(36).substr(2.9)
@@ -1174,6 +1177,7 @@ describe('Channel', () => {
         "Messages/removePendingMessageStatus",
         "Messages/incomingMessages",
         "Files/updateDownloadStatus",
+        "PublicChannels/updateNewestMessage",
         "Messages/addPublicKeyMapping",
         "Messages/addMessageVerificationStatus",
         "PublicChannels/cacheMessages",
@@ -1191,11 +1195,11 @@ describe('Channel', () => {
     const factory = await getFactory(initialState)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const messageId = Math.random().toString(36).substr(2.9)
@@ -1300,6 +1304,7 @@ describe('Channel', () => {
         "Messages/removePendingMessageStatus",
         "Messages/incomingMessages",
         "Files/updateDownloadStatus",
+        "PublicChannels/updateNewestMessage",
         "Messages/addPublicKeyMapping",
         "Messages/addMessageVerificationStatus",
         "PublicChannels/cacheMessages",
