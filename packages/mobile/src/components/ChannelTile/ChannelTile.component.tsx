@@ -45,7 +45,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({ name, message, date, unread 
               </Typography>
             </View>
           </View>
-          <View style={{ flexDirection: 'row' }}>
+          <View style={{ flexDirection: 'row', paddingTop: 3 }}>
             <View style={{ flex: 10 }}>
               <Typography fontSize={14} color={'gray50'}>
                 {truncateWords(message, 11)}
