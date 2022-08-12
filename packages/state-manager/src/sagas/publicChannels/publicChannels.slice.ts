@@ -20,7 +20,8 @@ import {
   CacheMessagesPayload,
   MarkUnreadChannelPayload,
   SendNewUserInfoMessagePayload,
-  SetChannelSubscribedPayload
+  SetChannelSubscribedPayload,
+  UpdateNewestMessagePayload
 } from './publicChannels.types'
 
 import logger from '../../utils/logger'
@@ -56,7 +57,8 @@ export const publicChannelsSlice = createSlice({
       })
       publicChannelsStatusAdapter.addOne(state.channelsStatus, {
         address: channel.address,
-        unread: false
+        unread: false,
+        newestMessage: null
       })
     },
     setChannelSubscribed: (state, action: PayloadAction<SetChannelSubscribedPayload>) => {
@@ -99,6 +101,19 @@ export const publicChannelsSlice = createSlice({
           id: channelAddress,
           changes: {
             unread: false
+          }
+        }
+      )
+    },
+    updateNewestMessage: (state, action: PayloadAction<UpdateNewestMessagePayload>) => {
+      console.log('updateNewestMessagePayload', action.payload)
+      const { message } = action.payload
+      publicChannelsStatusAdapter.updateOne(
+        state.channelsStatus,
+        {
+          id: message.channelAddress,
+          changes: {
+            newestMessage: message
           }
         }
       )
