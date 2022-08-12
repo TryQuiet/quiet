@@ -106,7 +106,6 @@ export const publicChannelsSlice = createSlice({
       )
     },
     updateNewestMessage: (state, action: PayloadAction<UpdateNewestMessagePayload>) => {
-      console.log('updateNewestMessagePayload', action.payload)
       const { message } = action.payload
       publicChannelsStatusAdapter.updateOne(
         state.channelsStatus,

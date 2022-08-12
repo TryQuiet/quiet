@@ -11,13 +11,12 @@ export function* updateNewestMessageSaga(
   const statuses = yield* select(publicChannelsSelectors.channelsStatus)
 
   for (const message of messages) {
-    if (statuses[message.channelAddress]) {
-      if (
-        !statuses[message.channelAddress].newestMessage ||
-        statuses[message.channelAddress].newestMessage.createdAt < message.createdAt
-      ) {
-        yield* put(publicChannelsActions.updateNewestMessage({ message }))
-      }
+    if (!statuses[message.channelAddress]) return
+    if (
+      !statuses[message.channelAddress].newestMessage ||
+      statuses[message.channelAddress].newestMessage.createdAt < message.createdAt
+    ) {
+      yield* put(publicChannelsActions.updateNewestMessage({ message }))
     }
   }
 }
