@@ -508,8 +508,14 @@ export class Storage {
 
       return
     }
+    let entries;
 
-    const entries = this.ipfs.cat(_CID)
+    try {
+      entries = this.ipfs.cat(_CID)
+    } catch (e) {
+      log.error(`${metadata.name} could not retrieve ipfs entry, error: ${e}`)
+      return
+    } 
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
     createPaths([downloadDirectory])
@@ -528,6 +534,7 @@ export class Storage {
       // Check if download is not meant to be canceled
       if (this.downloadCancellations.includes(metadata.message.id)) {
         downloadState = DownloadState.Canceled
+        log(`Cancelled downloading ${metadata.path}`)
         break
       }
       await new Promise<void>((resolve, reject) => {
@@ -580,6 +587,8 @@ export class Storage {
       })
     }
 
+    writeStream.end()
+
     if (downloadState === DownloadState.Canceled) {
       const downloadCanceled: DownloadProgress = {
         size: metadata.size,
@@ -626,8 +635,6 @@ export class Storage {
     if (index > -1) {
       this.downloadCancellations.splice(index, 1)
     }
-
-    writeStream.end()
   }
 
   public cancelDownload(mid: string) {
