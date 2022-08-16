@@ -23,7 +23,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   useEffect(() => {
     if (currentIdentity?.userCertificate) {
       replaceScreen(ScreenNames.SuccessScreen, {
-        onPress: () => replaceScreen(ScreenNames.ChannelScreen),
+        onPress: () => replaceScreen(ScreenNames.ChannelListScreen),
         icon: appImages.username_registered,
         title: 'You created a username',
         message: 'Your username will be registered shortly'

@@ -51,16 +51,20 @@ export const ChannelTile: FC<ChannelTileProps> = ({
                 </Typography>
               </View>
               <View style={{ flex: 4, alignItems: 'flex-end' }}>
-                <Typography fontSize={14} color={unread ? 'blue' : 'subtitle'}>
-                  {date}
-                </Typography>
+                {date && (
+                  <Typography fontSize={14} color={unread ? 'blue' : 'subtitle'}>
+                    {date}
+                  </Typography>
+                )}
               </View>
             </View>
             <View style={{ flexDirection: 'row', paddingTop: 3 }}>
               <View style={{ flex: 10 }}>
-                <Typography fontSize={14} color={'gray50'}>
-                  {truncateWords(message, 11)}
-                </Typography>
+                {message && (
+                  <Typography fontSize={14} color={'gray50'}>
+                    {truncateWords(message, 11)}
+                  </Typography>
+                )}
               </View>
               <View style={{ flex: 2, alignItems: 'flex-end' }}>
                 {unread && (
