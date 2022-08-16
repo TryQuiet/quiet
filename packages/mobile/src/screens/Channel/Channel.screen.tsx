@@ -7,11 +7,11 @@ import { Chat } from '../../components/Chat/Chat.component'
 
 import { identity, messages, publicChannels } from '@quiet/state-manager'
 
-export const MainScreen: FC = () => {
+export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(initActions.setCurrentScreen(ScreenNames.MainScreen))
+    dispatch(initActions.setCurrentScreen(ScreenNames.ChannelScreen))
   })
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
