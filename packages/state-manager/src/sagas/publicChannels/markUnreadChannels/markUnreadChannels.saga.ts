@@ -19,6 +19,10 @@ export function* markUnreadChannelsSaga(
         channelAddress: message.channelAddress
       }
 
+      const statuses = yield* select(publicChannelsSelectors.channelsStatus)
+
+      if (statuses[message.channelAddress]?.newestMessage?.createdAt > message.createdAt) continue
+
       yield* put(
         publicChannelsActions.markUnreadChannel(payload)
       )

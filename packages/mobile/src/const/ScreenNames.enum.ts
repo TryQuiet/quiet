@@ -4,5 +4,5 @@ export enum ScreenNames {
   SplashScreen = 'SplashScreen',
   JoinCommunityScreen = 'JoinCommunityScreen',
   UsernameRegistrationScreen = 'UsernameRegistrationScreen',
-  MainScreen = 'MainScreen',
+  ChannelScreen = 'ChannelScreen',
 }
