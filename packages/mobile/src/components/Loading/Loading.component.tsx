@@ -50,7 +50,7 @@ export const Loading: FC<LoadingProps> = ({
         ))}
       </View>
       <View style={{ margin: 20 }}>
-        <Typography fontSize={12} color={'greyDark'}>
+        <Typography fontSize={12} color={'grayDark'}>
           {`v ${deviceInfoModule.getVersion()}`}
         </Typography>
       </View>
