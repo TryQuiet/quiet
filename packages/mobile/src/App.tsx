@@ -8,7 +8,7 @@ import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.scree
 import { UsernameRegistrationScreen } from './screens/UsernameRegistration/UsernameRegistration.screen'
 import { SuccessScreen } from './screens/Success/Success.screen'
 import { ErrorScreen } from './screens/Error/Error.screen'
-import { MainScreen } from './screens/Main/Main.screen'
+import { ChannelScreen } from './screens/Channel/Channel.screen'
 import { NavigationContainer } from '@react-navigation/native'
 import { StatusBar } from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack'
@@ -83,7 +83,7 @@ export default function App(): JSX.Element {
                 component={UsernameRegistrationScreen}
                 name={ScreenNames.UsernameRegistrationScreen}
               />
-              <Screen component={MainScreen} name={ScreenNames.MainScreen} />
+              <Screen component={ChannelScreen} name={ScreenNames.ChannelScreen} />
               <Screen
                 component={SuccessScreen}
                 name={ScreenNames.SuccessScreen}

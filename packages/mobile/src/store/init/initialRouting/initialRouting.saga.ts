@@ -5,6 +5,6 @@ import { identity } from '@quiet/state-manager'
 
 export function* initialRoutingSaga(): Generator {
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
-  const screen = !currentIdentity?.userCertificate ? ScreenNames.JoinCommunityScreen : ScreenNames.MainScreen
+  const screen = !currentIdentity?.userCertificate ? ScreenNames.JoinCommunityScreen : ScreenNames.ChannelScreen
   yield* call(replaceScreen, screen)
 }

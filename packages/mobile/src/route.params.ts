@@ -6,7 +6,7 @@ import { UsernameRegistrationScreenProps } from './screens/UsernameRegistration/
 // eslint-disable-next-line
 export type RootStackParamList = {
   [ScreenNames.SplashScreen]: undefined
-  [ScreenNames.MainScreen]: undefined
+  [ScreenNames.ChannelScreen]: undefined
   [ScreenNames.SuccessScreen]: {
     onPress: () => void
     icon: any

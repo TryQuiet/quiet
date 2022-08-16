@@ -14,12 +14,21 @@ export const defaultPalette = {
     subtitle: '#999999',
     hint: '#999999',
     error: '#E42656',
-    greyLight: '#B8B8B8',
-    greyDark: '#999999'
+    grayLight: '#B8B8B8',
+    grayDark: '#999999',
+    gray50: '#7F7F7F',
+    white: '#ffffff',
+    blue: '#2373EA'
   },
   input: {
     border: '#B3B3B3',
     backgroundDefault: '#ffffff',
     backgroundDisabled: '#EBEBEB'
+  },
+  background: {
+    white: '#ffffff',
+    gray06: '#F0F0F0',
+    gray70: '#4C4C4C',
+    blue: '#2373EA'
   }
 }
