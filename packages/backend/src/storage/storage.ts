@@ -508,14 +508,7 @@ export class Storage {
 
       return
     }
-    let entries
-
-    try {
-      entries = this.ipfs.cat(_CID)
-    } catch (e) {
-      log.error(`${metadata.name} could not retrieve ipfs entry, error: ${e}`)
-      return
-    }
+    const entries = this.ipfs.cat(_CID)
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
     createPaths([downloadDirectory])
@@ -550,8 +543,8 @@ export class Storage {
             stopwatch = Date.now()
           } else {
             const timestamp = Date.now()
-            const delay = (timestamp - stopwatch) / 1000 // in seconds
-
+            let delay = 0.0001 // Workaround for avoiding delay 0:
+            delay += (timestamp - stopwatch) / 1000 // in seconds
             transferSpeed = entry.byteLength / delay
 
             // Prevent passing null value
