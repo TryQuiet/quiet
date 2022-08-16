@@ -508,7 +508,6 @@ export class Storage {
 
       return
     }
-
     const entries = this.ipfs.cat(_CID)
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
@@ -528,6 +527,7 @@ export class Storage {
       // Check if download is not meant to be canceled
       if (this.downloadCancellations.includes(metadata.message.id)) {
         downloadState = DownloadState.Canceled
+        log(`Cancelled downloading ${metadata.path}`)
         break
       }
       await new Promise<void>((resolve, reject) => {
@@ -543,8 +543,8 @@ export class Storage {
             stopwatch = Date.now()
           } else {
             const timestamp = Date.now()
-            const delay = (timestamp - stopwatch) / 1000 // in seconds
-
+            let delay = 0.0001 // Workaround for avoiding delay 0:
+            delay += (timestamp - stopwatch) / 1000 // in seconds
             transferSpeed = entry.byteLength / delay
 
             // Prevent passing null value
@@ -579,6 +579,8 @@ export class Storage {
         })
       })
     }
+
+    writeStream.end()
 
     if (downloadState === DownloadState.Canceled) {
       const downloadCanceled: DownloadProgress = {
@@ -626,8 +628,6 @@ export class Storage {
     if (index > -1) {
       this.downloadCancellations.splice(index, 1)
     }
-
-    writeStream.end()
   }
 
   public cancelDownload(mid: string) {

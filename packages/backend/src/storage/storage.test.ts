@@ -3,7 +3,7 @@ import path from 'path'
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { Config } from '../constants'
-import { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createMinConnectionManager } from '../common/testUtils'
+import { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createMinConnectionManager, createFile } from '../common/testUtils'
 import { Storage } from './storage'
 import * as utils from '../common/utils'
 import { FactoryGirl } from 'factory-girl'
@@ -43,6 +43,7 @@ let channel: PublicChannelStorage
 let alice: Identity
 let message: ChannelMessage
 let channelio: PublicChannelStorage
+let filePath: string
 
 beforeAll(async () => {
   store = prepareStore().store
@@ -84,6 +85,7 @@ beforeEach(async () => {
   const { controlPort } = await utils.getPorts()
   connectionsManager = createMinConnectionManager({ env: { appDataPath: tmpAppDataPath }, torControlPort: controlPort })
   storage = null
+  filePath = path.join(__dirname, '/testUtils/500kB-file.txt')
 })
 
 afterEach(async () => {
@@ -93,6 +95,9 @@ afterEach(async () => {
     console.error(e)
   }
   tmpDir.removeCallback()
+  if (fs.existsSync(filePath)) {
+    fs.rmSync(filePath)
+  }
 })
 
 describe('Storage', () => {
@@ -631,6 +636,56 @@ describe('Files', () => {
     const downloadFileBuffer = fs.readFileSync(downloadMetadata.path)
 
     expect(uploadFileBuffer).toStrictEqual(downloadFileBuffer)
+  })
+
+  it('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
+    const fileSize = 524288 // 0.5MB
+    createFile(filePath, fileSize)
+    const mockDateNow = jest.fn()
+
+    global.Date.now = mockDateNow
+    mockDateNow.mockReturnValue(new Date('2022-04-07T10:20:30Z'))
+
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+
+    // Uploading
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
+
+    const metadata: FileMetadata = {
+      path: filePath,
+      name: 'new-file',
+      ext: '.txt',
+      cid: 'uploading_id',
+      message: {
+        id: 'id',
+        channelAddress: 'channelAddress'
+      }
+    }
+
+    await storage.uploadFile(metadata)
+
+    expect(uploadSpy).toHaveBeenCalled()
+
+    // Downloading
+    const progressSpy = jest.spyOn(storage.io, 'updateDownloadProgress')
+    const uploadMetadata = uploadSpy.mock.calls[0][0]
+
+    await storage.downloadFile(uploadMetadata)
+
+    expect(progressSpy).toHaveBeenCalledTimes(3)
+
+    const transferSpeeds = progressSpy.mock.calls.map((call) => call[0].downloadProgress.transferSpeed)
+    const unwantedValues = [undefined, null, Infinity]
+    for (const value of unwantedValues) {
+      expect(transferSpeeds).not.toContain(value)
+    }
   })
 
   it('copies file and returns a new path', () => {
