@@ -41,11 +41,19 @@ export const ChannelScreen: FC = () => {
     [dispatch]
   )
 
+  const loadMessages = useCallback(
+    (load: boolean) => {
+      dispatch(messages.actions.lazyLoading({load}))
+    },
+    [dispatch]
+  )
+
   return (
     <View style={{ flex: 1 }}>
       {currentChannel && (
         <Chat
           sendMessageAction={sendMessageAction}
+          loadMessagesAction={loadMessages}
           channel={currentChannel}
           user={currentIdentity.nickname}
           messages={{

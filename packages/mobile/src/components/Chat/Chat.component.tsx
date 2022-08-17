@@ -16,6 +16,7 @@ import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
 
 export const Chat: FC<ChatProps> = ({
   sendMessageAction,
+  loadMessagesAction,
   channel,
   user,
   messages = {
@@ -88,6 +89,10 @@ export const Chat: FC<ChatProps> = ({
         renderItem={({ item }) => (
           <ChannelMessagesComponent messages={messages.groups[item]} day={item} />
         )}
+        onEndReached={() => {
+          loadMessagesAction(true)
+        }}
+        onEndReachedThreshold={0.7}
         style={{ paddingLeft: 20, paddingRight: 20 }}
       />
       <View style={inputWrapperStyle}>
