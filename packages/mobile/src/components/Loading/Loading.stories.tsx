@@ -14,7 +14,7 @@ storiesOf('Loading', module)
           passed: true
         },
         {
-          event: 'tor initialized',
+          event: 'tor connected',
           passed: true
         },
         {
