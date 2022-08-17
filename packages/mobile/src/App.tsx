@@ -11,7 +11,7 @@ import { ErrorScreen } from './screens/Error/Error.screen'
 import { ChannelListScreen } from './screens/ChannelList/ChannelList.screen'
 import { ChannelScreen } from './screens/Channel/Channel.screen'
 import { NavigationContainer } from '@react-navigation/native'
-import { StatusBar } from 'react-native'
+import { LogBox, StatusBar } from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ThemeProvider } from 'styled-components'
@@ -25,6 +25,8 @@ import { initActions } from './store/init/init.slice'
 import PushNotificationIOS, {
   PushNotification
 } from '@react-native-community/push-notification-ios'
+
+LogBox.ignoreAllLogs()
 
 const { Navigator, Screen } = createStackNavigator()
 
