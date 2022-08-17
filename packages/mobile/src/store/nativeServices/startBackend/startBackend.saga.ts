@@ -18,7 +18,7 @@ export function* startBackendSaga(): Generator {
     ) {
       yield* put(
         initActions.updateInitDescription(
-          'Data is being retrieved from a distributed database'
+          'Starting backend'
         )
       )
       yield* call(
