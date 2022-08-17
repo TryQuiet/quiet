@@ -5,9 +5,7 @@ import { MessageSendButton } from './MessageSendButton.component'
 
 describe('MessageSendButton component', () => {
   it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(
-      <MessageSendButton onPress={jest.fn()} disabled={false} />
-    )
+    const { toJSON } = renderComponent(<MessageSendButton onPress={jest.fn()} disabled={false} />)
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <RNGestureHandlerButton
@@ -22,9 +20,7 @@ describe('MessageSendButton component', () => {
           accessible={true}
           style={
             Object {
-              "height": 56,
               "justifyContent": "center",
-              "width": 56,
             }
           }
         >
@@ -38,10 +34,9 @@ describe('MessageSendButton component', () => {
             }
             style={
               Object {
-                "alignSelf": "center",
-                "height": 30,
-                "marginBottom": 5,
-                "width": 30,
+                "alignSelf": "flex-end",
+                "height": 20,
+                "width": 20,
               }
             }
           />

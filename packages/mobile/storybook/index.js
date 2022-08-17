@@ -1,5 +1,7 @@
 import './rn-addons'
 
+import { LogBox } from 'react-native'
+
 import { withKnobs } from '@storybook/addon-knobs'
 import {
   addDecorator,
@@ -10,6 +12,8 @@ import {
 import { withNavigation } from './navigationDecorator'
 import { withLanguagePicker } from './withLanguagePicker'
 import { withThemePicker } from './withThemePicker'
+
+LogBox.ignoreAllLogs()
 
 addDecorator(withKnobs)
 addDecorator(withLanguagePicker)
