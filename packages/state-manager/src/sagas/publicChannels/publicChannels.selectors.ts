@@ -113,6 +113,13 @@ export const currentChannelLastDisplayedMessage = createSelector(
   }
 )
 
+export const newestCurrentChannelMessage = createSelector(
+  sortedCurrentChannelMessages,
+  messages => {
+    return messages[messages.length - 1]
+  }
+)
+
 export const displayableCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
   certificatesMapping,
@@ -131,14 +138,6 @@ export const currentChannelMessagesCount = createSelector(
   displayableCurrentChannelMessages,
   (messages) => {
     return messages.length
-  }
-)
-
-export const newestCurrentChannelMessage = createSelector(
-  displayableCurrentChannelMessages,
-  messages => {
-    const message: DisplayableMessage = messages[messages.length - 1]
-    return message
   }
 )
 

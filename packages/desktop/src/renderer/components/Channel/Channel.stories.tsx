@@ -430,10 +430,11 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   newestMessage: {
     id: '31',
     type: 1,
-    message: 'I Agree',
+    message: 'I agree!',
     createdAt: 0,
-    date: '12:46',
-    nickname: 'obi'
+    channelAddress: 'general',
+    signature: 'signature',
+    pubKey: 'pubKey'
   },
   pendingMessages: {},
   channelAddress: 'general',

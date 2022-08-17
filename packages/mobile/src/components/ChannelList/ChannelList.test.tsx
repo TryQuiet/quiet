@@ -10,31 +10,39 @@ describe('ChannelList component', () => {
         tiles={[
           {
             name: 'general',
+            address: 'general',
             message:
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: '1:55pm',
-            unread: false
+            unread: false,
+            redirect: jest.fn()
           },
           {
             name: 'spam',
+            address: 'spam',
             message:
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: '1:55pm',
-            unread: false
+            unread: false,
+            redirect: jest.fn()
           },
           {
             name: 'design',
+            address: 'design',
             message:
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: '6/1/22',
-            unread: true
+            unread: true,
+            redirect: jest.fn()
           },
           {
             name: 'qa',
+            address: 'design',
             message:
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: 'Yesterday',
-            unread: false
+            unread: false,
+            redirect: jest.fn()
           }
         ]}
       />
@@ -52,27 +60,35 @@ describe('ChannelList component', () => {
           data={
             Array [
               Object {
+                "address": "general",
                 "date": "1:55pm",
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
                 "name": "general",
+                "redirect": [MockFunction],
                 "unread": false,
               },
               Object {
+                "address": "spam",
                 "date": "1:55pm",
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
                 "name": "spam",
+                "redirect": [MockFunction],
                 "unread": false,
               },
               Object {
+                "address": "design",
                 "date": "6/1/22",
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
                 "name": "design",
+                "redirect": [MockFunction],
                 "unread": true,
               },
               Object {
+                "address": "design",
                 "date": "Yesterday",
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
                 "name": "qa",
+                "redirect": [MockFunction],
                 "unread": false,
               },
             ]
@@ -110,6 +126,15 @@ describe('ChannelList component', () => {
               style={null}
             >
               <View
+                accessible={true}
+                focusable={true}
+                onClick={[Function]}
+                onResponderGrant={[Function]}
+                onResponderMove={[Function]}
+                onResponderRelease={[Function]}
+                onResponderTerminate={[Function]}
+                onResponderTerminationRequest={[Function]}
+                onStartShouldSetResponder={[Function]}
                 style={
                   Object {
                     "borderBottomColor": "#F0F0F0",
@@ -293,6 +318,15 @@ describe('ChannelList component', () => {
               style={null}
             >
               <View
+                accessible={true}
+                focusable={true}
+                onClick={[Function]}
+                onResponderGrant={[Function]}
+                onResponderMove={[Function]}
+                onResponderRelease={[Function]}
+                onResponderTerminate={[Function]}
+                onResponderTerminationRequest={[Function]}
+                onStartShouldSetResponder={[Function]}
                 style={
                   Object {
                     "borderBottomColor": "#F0F0F0",
@@ -476,6 +510,15 @@ describe('ChannelList component', () => {
               style={null}
             >
               <View
+                accessible={true}
+                focusable={true}
+                onClick={[Function]}
+                onResponderGrant={[Function]}
+                onResponderMove={[Function]}
+                onResponderRelease={[Function]}
+                onResponderTerminate={[Function]}
+                onResponderTerminationRequest={[Function]}
+                onStartShouldSetResponder={[Function]}
                 style={
                   Object {
                     "borderBottomColor": "#F0F0F0",
@@ -693,6 +736,15 @@ describe('ChannelList component', () => {
               style={null}
             >
               <View
+                accessible={true}
+                focusable={true}
+                onClick={[Function]}
+                onResponderGrant={[Function]}
+                onResponderMove={[Function]}
+                onResponderRelease={[Function]}
+                onResponderTerminate={[Function]}
+                onResponderTerminationRequest={[Function]}
+                onStartShouldSetResponder={[Function]}
                 style={
                   Object {
                     "borderBottomColor": "#F0F0F0",

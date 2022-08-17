@@ -1,6 +1,8 @@
 export interface ChannelTileProps {
     name: string
-    message: string
-    date: string
+    address: string
     unread: boolean
+    message?: string
+    date?: string
+    redirect: (address: string) => void
 }

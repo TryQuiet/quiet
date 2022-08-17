@@ -15,7 +15,7 @@ import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 import { useModal, UseModalTypeWrapper } from '../../containers/hooks'
 
 import {
-  DisplayableMessage,
+  ChannelMessage,
   DownloadStatus,
   Identity,
   MessagesDailyGroups,
@@ -54,7 +54,7 @@ export interface ChannelComponentProps {
     count: number
     groups: MessagesDailyGroups
   }
-  newestMessage: DisplayableMessage
+  newestMessage: ChannelMessage
   pendingMessages: Dictionary<MessageSendingStatus>
   downloadStatuses: Dictionary<DownloadStatus>
   lazyLoading: (load: boolean) => void

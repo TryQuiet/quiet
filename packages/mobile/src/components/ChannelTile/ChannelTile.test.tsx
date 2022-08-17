@@ -8,16 +8,27 @@ describe('ChannelList component', () => {
     const { toJSON } = renderComponent(
       <ChannelTile
         name={'general'}
+        address={'general'}
         message={
           'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.'
         }
         date={'1:55pm'}
         unread={false}
+        redirect={jest.fn()}
       />
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
+        accessible={true}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
         style={
           Object {
             "borderBottomColor": "#F0F0F0",
@@ -212,6 +223,15 @@ describe('ChannelList component', () => {
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
+        accessible={true}
+        focusable={true}
+        onClick={[Function]}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
         style={
           Object {
             "borderBottomColor": "#F0F0F0",
