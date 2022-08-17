@@ -6,7 +6,7 @@ import FindFreePort from 'react-native-find-free-port'
 
 export function* startTorSaga(): Generator {
   yield* put(
-    initActions.updateInitDescription('Tor initialization in progress')
+    initActions.updateInitDescription('Connecting Tor')
   )
   const httpTunnelPort = yield* call(FindFreePort.getFirstStartingFrom, 8050)
   const socksPort = yield* call(FindFreePort.getFirstStartingFrom, 9050)
