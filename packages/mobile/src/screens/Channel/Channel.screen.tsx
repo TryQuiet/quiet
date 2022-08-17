@@ -43,10 +43,14 @@ export const ChannelScreen: FC = () => {
 
   const loadMessages = useCallback(
     (load: boolean) => {
-      dispatch(messages.actions.lazyLoading({load}))
+      dispatch(messages.actions.lazyLoading({ load }))
     },
     [dispatch]
   )
+
+  useEffect(() => {
+    dispatch(messages.actions.resetCurrentPublicChannelCache())
+  }, [currentChannel.address])
 
   return (
     <View style={{ flex: 1 }}>
