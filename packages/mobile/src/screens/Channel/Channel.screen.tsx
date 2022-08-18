@@ -16,6 +16,7 @@ export const ChannelScreen: FC = () => {
   })
 
   const handleBackButtonClick = () => {
+    dispatch(publicChannels.actions.setCurrentChannel({ channelAddress: '' }))
     replaceScreen(ScreenNames.ChannelListScreen)
     return true
   }
