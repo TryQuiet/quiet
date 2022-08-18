@@ -23,6 +23,7 @@ describe('Chat component', () => {
     const { toJSON } = renderComponent(
       <Chat
         sendMessageAction={jest.fn()}
+        loadMessagesAction={jest.fn()}
         channel={{
           name: 'Zbay',
           description: '',
@@ -181,7 +182,7 @@ describe('Chat component', () => {
               ],
               [
                 {
-                  id: '16',
+                  id: '17',
                   type: 1,
                   message:
                     'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
@@ -228,7 +229,8 @@ describe('Chat component', () => {
           keyExtractor={[Function]}
           maxToRenderPerBatch={10}
           onContentSizeChange={[Function]}
-          onEndReachedThreshold={2}
+          onEndReached={[Function]}
+          onEndReachedThreshold={0.7}
           onLayout={[Function]}
           onMomentumScrollEnd={[Function]}
           onScroll={[Function]}

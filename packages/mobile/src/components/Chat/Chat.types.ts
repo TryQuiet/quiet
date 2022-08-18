@@ -6,6 +6,7 @@ import {
 
 export interface ChatProps {
   sendMessageAction: (message: string) => void
+  loadMessagesAction: (load: boolean) => void
   channel: PublicChannel
   user: string
   messages?: {
