@@ -7,32 +7,34 @@ import { AppbarProps } from './Appbar.types'
 
 import { appImages } from '../../../assets'
 
-export const Appbar: FC<AppbarProps> = ({ title, style, back = () => {} }) => {
+export const Appbar: FC<AppbarProps> = ({ title, style, back }) => {
   const icon = appImages.arrow_left
   return (
     <StyledAppbar style={style}>
       <TouchableWithoutFeedback
         onPress={() => {
-          back()
+          if (back) back()
         }}>
-        <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center' }}>
-          <Image
-            source={icon}
-            resizeMode='cover'
-            resizeMethod='resize'
-            style={{
-              width: 16,
-              height: 16
-            }}
-          />
+        <View style={{ justifyContent: 'center', alignItems: 'center', width: 56 }}>
+          {back && (
+            <Image
+              source={icon}
+              resizeMode='cover'
+              resizeMethod='resize'
+              style={{
+                width: 16,
+                height: 16
+              }}
+            />
+          )}
         </View>
       </TouchableWithoutFeedback>
-      <View style={{ flex: 8, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Typography fontSize={16} fontWeight={'medium'}>
           {title}
         </Typography>
       </View>
-      <View style={{ flex: 2 }} />
+      <View style={{ width: 56 }} />
     </StyledAppbar>
   )
 }
