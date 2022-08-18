@@ -13,7 +13,7 @@ describe('Appbar component', () => {
           Array [
             Object {
               "backgroundColor": "#ffffff",
-              "borderBottomColor": "#E5E5E5",
+              "borderBottomColor": "#F0F0F0",
               "borderBottomWidth": 1,
               "flexDirection": "row",
               "flexGrow": 1,
@@ -37,7 +37,7 @@ describe('Appbar component', () => {
             Object {
               "alignItems": "center",
               "justifyContent": "center",
-              "width": 56,
+              "width": 64,
             }
           }
         >
@@ -90,7 +90,7 @@ describe('Appbar component', () => {
         <View
           style={
             Object {
-              "width": 56,
+              "width": 64,
             }
           }
         />
@@ -107,7 +107,7 @@ describe('Appbar component', () => {
           Array [
             Object {
               "backgroundColor": "#ffffff",
-              "borderBottomColor": "#E5E5E5",
+              "borderBottomColor": "#F0F0F0",
               "borderBottomWidth": 1,
               "flexDirection": "row",
               "flexGrow": 1,
@@ -131,7 +131,7 @@ describe('Appbar component', () => {
             Object {
               "alignItems": "center",
               "justifyContent": "center",
-              "width": 56,
+              "width": 64,
             }
           }
         >
@@ -201,7 +201,7 @@ describe('Appbar component', () => {
         <View
           style={
             Object {
-              "width": 56,
+              "width": 64,
             }
           }
         />

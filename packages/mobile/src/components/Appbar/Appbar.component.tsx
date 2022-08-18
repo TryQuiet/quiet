@@ -16,7 +16,7 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back }
         onPress={() => {
           if (back) back()
         }}>
-        <View style={{ justifyContent: 'center', alignItems: 'center', width: 56 }}>
+        <View style={{ justifyContent: 'center', alignItems: 'center', width: 64 }}>
           {back ? (
             <Image
               source={icon}
@@ -51,7 +51,7 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back }
           {title}
         </Typography>
       </View>
-      <View style={{ width: 56 }} />
+      <View style={{ width: 64 }} />
     </StyledAppbar>
   )
 }
