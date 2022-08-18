@@ -5,7 +5,7 @@ import { Appbar } from './Appbar.component'
 
 describe('Appbar component', () => {
   it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(<Appbar />)
+    const { toJSON } = renderComponent(<Appbar title={'#general'} />)
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
@@ -83,7 +83,9 @@ describe('Appbar component', () => {
               ]
             }
             verticalTextAlign="center"
-          />
+          >
+            #general
+          </Text>
         </View>
         <View
           style={
