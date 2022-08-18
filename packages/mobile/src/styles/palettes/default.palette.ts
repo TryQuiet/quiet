@@ -9,6 +9,9 @@ export const defaultPalette = {
   statusBar: {
     main: '#CB444E'
   },
+  appBar: {
+    gray: '#E5E5E5'
+  },
   typography: {
     main: '#000000',
     subtitle: '#999999',
