@@ -12,6 +12,8 @@ import { Appbar } from '../../components/Appbar/Appbar.component'
 export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
 
+  console.log('dev')
+
   useEffect(() => {
     dispatch(initActions.setCurrentScreen(ScreenNames.ChannelScreen))
   })
