@@ -136,8 +136,8 @@ android {
         applicationId "com.zbaymobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 78
-        versionName "0.5.0-alpha.6"
+        versionCode 81
+        versionName "0.5.0-alpha.9"
         ndk {
             abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
         }
@@ -158,11 +158,11 @@ android {
             keyPassword 'android'
         }
         release {
-            if (project.hasProperty('ZBAY_UPLOAD_STORE_FILE')) {
-                storeFile file(ZBAY_UPLOAD_STORE_FILE)
-                storePassword ZBAY_UPLOAD_STORE_PASSWORD
-                keyAlias ZBAY_UPLOAD_KEY_ALIAS
-                keyPassword ZBAY_UPLOAD_KEY_PASSWORD
+            if (project.hasProperty('STORE_FILE')) {
+                storeFile file(STORE_FILE)
+                storePassword STORE_PASSWORD
+                keyAlias KEY_ALIAS
+                keyPassword KEY_PASSWORD
             } else {
                 storeFile file('debug.keystore')
                 storePassword 'android'

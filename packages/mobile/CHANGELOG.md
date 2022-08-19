@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0-alpha.9](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@0.5.0-alpha.6...@quiet/mobile@0.5.0-alpha.9) (2022-08-19)
+
+
+### Reverts
+
+* Revert "Dummy change" ([b831c92](https://github.com/TryQuiet/quiet/commit/b831c9262c39d68affaf9ba8b84c994417d7d5dd))
+
+
+
+
+
+# [0.5.0-alpha.8](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@0.5.0-alpha.6...@quiet/mobile@0.5.0-alpha.8) (2022-08-19)
+
+
+### Reverts
+
+* Revert "Dummy change" ([b831c92](https://github.com/TryQuiet/quiet/commit/b831c9262c39d68affaf9ba8b84c994417d7d5dd))
+
+
+
+
+
+# [0.5.0-alpha.7](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@0.5.0-alpha.6...@quiet/mobile@0.5.0-alpha.7) (2022-08-19)
+
+
+### Reverts
+
+* Revert "Dummy change" ([b831c92](https://github.com/TryQuiet/quiet/commit/b831c9262c39d68affaf9ba8b84c994417d7d5dd))
+
+
+
+
+
 # [0.5.0-alpha.6](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.5.0-alpha.4...@quiet/mobile@0.5.0-alpha.6) (2022-08-16)
 
 **Note:** Version bump only for package @quiet/mobile
