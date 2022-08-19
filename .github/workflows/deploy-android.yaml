@@ -27,6 +27,16 @@ jobs:
         with:
           java-version: 1.8
 
+      - name: "Print home"
+        run: echo $HOME
+
+      - name: "Set up NDK"
+        run: |
+          mkdir -p /usr/lib/android-sdk
+          cd /usr/lib/android-sdk
+          yes | wget -c https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip
+          unzip android-ndk-r21e-linux-x86_64.zip
+
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
 
