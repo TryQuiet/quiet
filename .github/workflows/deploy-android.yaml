@@ -9,8 +9,6 @@ jobs:
   build-android:
     timeout-minutes: 25
     runs-on: ${{ matrix.os }}
-    if: |
-      startsWith(github.ref, 'refs/tags/@quiet/mobile')
 
     strategy:
       matrix:
