@@ -38,7 +38,7 @@ export const Loading: FC<LoadingProps> = ({
         {description}
       </Typography>
       <View style={{ margin: 40 }}>
-      {spinner && <ActivityIndicator size="large" color={defaultTheme.palette.main.brand} />}
+        {spinner && <ActivityIndicator size="large" color={defaultTheme.palette.main.brand} />}
       </View>
       <View>
         {progress > 0 && progress < 0.95 && (
