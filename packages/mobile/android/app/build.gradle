@@ -122,7 +122,6 @@ def jscFlavor = 'org.webkit:android-jsc-intl:+'
 def enableHermes = project.ext.react.get("enableHermes", false);
 
 android {
-    ndkPath "/usr/lib/android-sdk/android-ndk-r21e"
     ndkVersion rootProject.ext.ndkVersion
 
     compileSdkVersion rootProject.ext.compileSdkVersion
