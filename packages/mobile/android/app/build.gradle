@@ -158,11 +158,11 @@ android {
             keyPassword 'android'
         }
         release {
-            if (project.hasProperty('ZBAY_UPLOAD_STORE_FILE')) {
-                storeFile file(ZBAY_UPLOAD_STORE_FILE)
-                storePassword ZBAY_UPLOAD_STORE_PASSWORD
-                keyAlias ZBAY_UPLOAD_KEY_ALIAS
-                keyPassword ZBAY_UPLOAD_KEY_PASSWORD
+            if (project.hasProperty('STORE_FILE')) {
+                storeFile file(STORE_FILE)
+                storePassword STORE_PASSWORD
+                keyAlias KEY_ALIAS
+                keyPassword KEY_PASSWORD
             } else {
                 storeFile file('debug.keystore')
                 storePassword 'android'

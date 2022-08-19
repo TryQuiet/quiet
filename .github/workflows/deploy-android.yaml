@@ -3,7 +3,7 @@ name: Deploy Android to Google Play (internal testing)
 on:
   release:
     types: 
-      [released]
+      [released, prereleased]
     paths:
       - packages/mobile/**
 
@@ -30,34 +30,20 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
 
-      - name: "Install Waggle"
-        run: |
-          cd ./packages/mobile/nodejs-assets/nodejs-project
-          npm ci
-
-      - name: "Remove incompatible dependencies"
-        run: |
-          cd ./packages/mobile/nodejs-assets/nodejs-project
-          rm -rf node_modules/wrtc
-
-      - name: "Apply mobile patch"
-        run: |
-          cd ./packages/mobile/nodejs-assets/nodejs-project
-          patch -f -p0 < modules.patch
-          sed -i "s/.*wrtc.*/    \"wrtc\": \"..\/..\/wrtc-mock\"/" node_modules/waggle/package.json
+      - name: "Create gradle configuration directory"
+        run: mkdir -p $HOME/.gradle
       
       - name: "Prepare signing configuration"
         run: |
-          mkdir -p $HOME/.gradle
-
           printf "\
-          ZBAY_UPLOAD_STORE_FILE=zbaymobile.keystore\n\
-          ZBAY_UPLOAD_KEY_ALIAS=${{ SECRETS.GOOGLE_KEYSTORE_ALIAS }}
-          ZBAY_UPLOAD_STORE_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\n\
-          ZBAY_UPLOAD_KEY_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\
+          STORE_FILE=quietmobile.keystore\n\
+          STORE_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\n\
+          KEY_ALIAS=${{ SECRETS.GOOGLE_KEYSTORE_ALIAS }}\n\
+          KEY_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\
           " > $HOME/.gradle/gradle.properties
 
-          echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/zbaymobile.keystore
+      - name: "Decode keystore"
+        run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.keystore
 
       - name: "Build for Android"
         run: cd ./packages/mobile/android && ./gradlew bundleRelease
