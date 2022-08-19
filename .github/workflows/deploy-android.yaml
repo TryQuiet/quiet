@@ -28,9 +28,10 @@ jobs:
           java-version: 1.8
 
       - name: "Set up NDK"
-        run: cd /usr/lib/android-sdk
-        run: yes | wget -c https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip
-        run: unzip android-ndk-r21e-linux-x86_64.zip
+        run: |
+          cd /usr/lib/android-sdk
+          yes | wget -c https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip
+          unzip android-ndk-r21e-linux-x86_64.zip
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
