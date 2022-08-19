@@ -7,6 +7,7 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { Chat } from '../../components/Chat/Chat.component'
 
 import { identity, messages, publicChannels } from '@quiet/state-manager'
+import { Appbar } from '../../components/Appbar/Appbar.component'
 
 export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -56,16 +57,19 @@ export const ChannelScreen: FC = () => {
   return (
     <View style={{ flex: 1 }}>
       {currentChannel && (
-        <Chat
-          sendMessageAction={sendMessageAction}
-          loadMessagesAction={loadMessages}
-          channel={currentChannel}
-          user={currentIdentity.nickname}
-          messages={{
-            count: channelMessagesCount,
-            groups: channelMessages
-          }}
-        />
+        <>
+          <Appbar title={`#${currentChannel.name}`} back={handleBackButtonClick} />
+          <Chat
+            sendMessageAction={sendMessageAction}
+            loadMessagesAction={loadMessages}
+            channel={currentChannel}
+            user={currentIdentity.nickname}
+            messages={{
+              count: channelMessagesCount,
+              groups: channelMessages
+            }}
+          />
+        </>
       )}
     </View>
   )

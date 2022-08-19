@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { View } from 'react-native'
-import { publicChannels } from '@quiet/state-manager'
+import { communities, publicChannels } from '@quiet/state-manager'
 import { initActions } from '../../store/init/init.slice'
 import { ChannelList as ChannelListComponent } from '../../components/ChannelList/ChannelList.component'
 import { ChannelTileProps } from '../../components/ChannelTile/ChannelTile.types'
@@ -9,6 +9,8 @@ import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDis
 import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { Loading } from '../../components/Loading/Loading.component'
+import { Appbar } from '../../components/Appbar/Appbar.component'
+import { capitalize } from '../../utils/functions/capitalize/capitalize'
 
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
@@ -27,6 +29,7 @@ export const ChannelListScreen: FC = () => {
     replaceScreen(ScreenNames.ChannelScreen)
   }, [dispatch])
 
+  const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.channelsStatus)
 
   const tiles = Object.values(channels).map(status => {
@@ -49,6 +52,7 @@ export const ChannelListScreen: FC = () => {
 
   return (
     <View style={{ flex: 1 }}>
+      <Appbar title={capitalize(community.name)} position={'flex-start'} />
       {!isChannelReplicated ? <Loading progress={0} spinner description={'Connecting to peers'}/> : <ChannelListComponent tiles={tiles} /> }
     </View>
   )

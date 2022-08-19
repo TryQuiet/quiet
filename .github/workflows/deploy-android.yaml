@@ -3,14 +3,14 @@ name: Deploy Android to Google Play (internal testing)
 on:
   release:
     types: 
-      [released]
-    paths:
-      - packages/mobile/**
+      [released, prereleased]
 
 jobs:
   build-android:
     timeout-minutes: 25
     runs-on: ${{ matrix.os }}
+    if: |
+      startsWith(github.ref, 'refs/tags/@quiet/mobile')
 
     strategy:
       matrix:
@@ -22,42 +22,50 @@ jobs:
 
       - uses: actions/checkout@v2
 
-      - name: set up JDK 1.8
+      - name: "Set up JDK"
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
 
+      - name: "Print home"
+        run: echo $HOME
+
+      - name: "Set up NDK"
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r21e
+          add-to-path: false
+        
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
 
-      - name: "Install Waggle"
-        run: |
-          cd ./packages/mobile/nodejs-assets/nodejs-project
-          npm ci
+      - name: "Create gradle configuration directory"
+        run: mkdir -p $HOME/.gradle
 
-      - name: "Remove incompatible dependencies"
+      - name: "Prepare ndk configuration"
         run: |
-          cd ./packages/mobile/nodejs-assets/nodejs-project
-          rm -rf node_modules/wrtc
+          printf "\
+          NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}\n\
+          " > $HOME/.gradle/gradle.properties
 
-      - name: "Apply mobile patch"
-        run: |
-          cd ./packages/mobile/nodejs-assets/nodejs-project
-          patch -f -p0 < modules.patch
-          sed -i "s/.*wrtc.*/    \"wrtc\": \"..\/..\/wrtc-mock\"/" node_modules/waggle/package.json
+      - name: "Print gradle.properties"
+        run: cat $HOME/.gradle/gradle.properties
       
       - name: "Prepare signing configuration"
         run: |
-          mkdir -p $HOME/.gradle
-
           printf "\
-          ZBAY_UPLOAD_STORE_FILE=zbaymobile.keystore\n\
-          ZBAY_UPLOAD_KEY_ALIAS=${{ SECRETS.GOOGLE_KEYSTORE_ALIAS }}
-          ZBAY_UPLOAD_STORE_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\n\
-          ZBAY_UPLOAD_KEY_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\
-          " > $HOME/.gradle/gradle.properties
+          STORE_FILE=quietmobile.keystore\n\
+          STORE_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\n\
+          KEY_ALIAS=${{ SECRETS.GOOGLE_KEYSTORE_ALIAS }}\n\
+          KEY_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\
+          " >> $HOME/.gradle/gradle.properties
 
-          echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/zbaymobile.keystore
+      - name: "Print gradle.properties"
+        run: cat $HOME/.gradle/gradle.properties
+
+      - name: "Decode keystore"
+        run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.keystore
 
       - name: "Build for Android"
         run: cd ./packages/mobile/android && ./gradlew bundleRelease
