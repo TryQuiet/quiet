@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { Image, View } from 'react-native'
+import { Image, View, ActivityIndicator } from 'react-native'
 import deviceInfoModule from 'react-native-device-info'
 import * as Progress from 'react-native-progress'
 import { appImages } from '../../../assets'
@@ -12,7 +12,8 @@ import { LoadingProps } from './Loading.types'
 export const Loading: FC<LoadingProps> = ({
   progress,
   description,
-  checks
+  checks,
+  spinner
 }) => {
   return (
     <View
@@ -36,6 +37,9 @@ export const Loading: FC<LoadingProps> = ({
         style={{ margin: 10, maxWidth: 200 }}>
         {description}
       </Typography>
+      <View style={{ margin: 40 }}>
+      {spinner && <ActivityIndicator size="large" color={defaultTheme.palette.main.brand} />}
+      </View>
       <View>
         {progress > 0 && progress < 0.95 && (
           <Progress.Bar

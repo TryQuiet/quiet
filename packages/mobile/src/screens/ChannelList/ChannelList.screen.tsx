@@ -10,9 +10,13 @@ import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 import { capitalize } from '../../utils/functions/capitalize/capitalize'
+import { Loading } from '../../components/Loading/Loading.component'
 
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
+  const isChannelReplicated = Boolean(
+    useSelector(publicChannels.selectors.publicChannels)?.length > 0
+  )
 
   useEffect(() => {
     dispatch(initActions.setCurrentScreen(ScreenNames.ChannelListScreen))
@@ -49,7 +53,7 @@ export const ChannelListScreen: FC = () => {
   return (
     <View style={{ flex: 1 }}>
       <Appbar title={capitalize(community.name)} position={'flex-start'} />
-      <ChannelListComponent tiles={tiles} />
+      {!isChannelReplicated ? <Loading progress={0} spinner description={'Connecting to peers'}/> : <ChannelListComponent tiles={tiles} /> }
     </View>
   )
 }
