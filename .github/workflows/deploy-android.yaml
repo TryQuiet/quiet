@@ -46,8 +46,11 @@ jobs:
       - name: "Prepare ndk configuration"
         run: |
           printf "\
-          NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}
+          NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}\n\
           " > $HOME/.gradle/gradle.properties
+
+      - name: "Print gradle.properties"
+        run: cat $HOME/.gradle/gradle.properties
       
       - name: "Prepare signing configuration"
         run: |
@@ -57,6 +60,9 @@ jobs:
           KEY_ALIAS=${{ SECRETS.GOOGLE_KEYSTORE_ALIAS }}\n\
           KEY_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\
           " > $HOME/.gradle/gradle.properties
+
+      - name: "Print gradle.properties"
+        run: cat $HOME/.gradle/gradle.properties
 
       - name: "Decode keystore"
         run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.keystore
