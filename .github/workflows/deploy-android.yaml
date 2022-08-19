@@ -59,7 +59,7 @@ jobs:
           STORE_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\n\
           KEY_ALIAS=${{ SECRETS.GOOGLE_KEYSTORE_ALIAS }}\n\
           KEY_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\
-          " > $HOME/.gradle/gradle.properties
+          " >> $HOME/.gradle/gradle.properties
 
       - name: "Print gradle.properties"
         run: cat $HOME/.gradle/gradle.properties
