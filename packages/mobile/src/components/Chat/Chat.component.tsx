@@ -1,10 +1,7 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
 import {
   Keyboard,
-  Platform,
-  StyleSheet,
   View,
-  KeyboardAvoidingView,
   FlatList,
   TextInput
 } from 'react-native'

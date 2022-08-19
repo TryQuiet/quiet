@@ -22,6 +22,7 @@ addDecorator(withThemePicker)
 
 configure(() => {
   require('../src/components/JoinCommunity/JoinCommunity.stories')
+require('../src/components/Appbar/Appbar.stories')
   require('../src/components/Registration/UsernameRegistration.stories')
   require('../src/components/ChannelTile/ChannelTile.stories')
   require('../src/components/ChannelList/ChannelList.stories')
