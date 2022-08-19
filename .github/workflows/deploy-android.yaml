@@ -32,6 +32,7 @@ jobs:
 
       - name: "Set up NDK"
         uses: nttld/setup-ndk@v1
+        id: setup-ndk
         with:
           ndk-version: r21e
           add-to-path: false
@@ -41,6 +42,12 @@ jobs:
 
       - name: "Create gradle configuration directory"
         run: mkdir -p $HOME/.gradle
+
+      - name: "Prepare ndk configuration"
+        run: |
+          printf "\
+          NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}
+          " > $HOME/.gradle/gradle.properties
       
       - name: "Prepare signing configuration"
         run: |
@@ -56,8 +63,6 @@ jobs:
 
       - name: "Build for Android"
         run: cd ./packages/mobile/android && ./gradlew bundleRelease
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
 
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v2
