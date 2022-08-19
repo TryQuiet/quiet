@@ -22,10 +22,15 @@ jobs:
 
       - uses: actions/checkout@v2
 
-      - name: set up JDK 1.8
+      - name: "Set up JDK"
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+
+      - name: "Set up NDK"
+        run: cd /usr/lib/android-sdk
+        run: yes | wget -c https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip
+        run: unzip android-ndk-r21e-linux-x86_64.zip
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
