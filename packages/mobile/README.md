@@ -36,7 +36,13 @@ Being inside the container, start metro ```npm run start```.
 Open another process within the container:
 
 ```
-docker exec -it <container-id> sh
+docker exec -it <container-id> /bin/bash
+```
+
+Setup NDK_PATH env before building
+
+```
+echo NDK_PATH=/usr/lib/android-sdk/android-ndk-r21e >>  /home/node/.gradle/gradle.properties
 ```
 
 Start building the application ```npm run android```.
