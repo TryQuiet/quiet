@@ -4,4 +4,5 @@ export interface LoadingProps {
   progress: number
   description: string
   checks?: InitCheck[]
+  spinner?: boolean
 }

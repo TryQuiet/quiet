@@ -51,7 +51,7 @@ export const ChannelScreen: FC = () => {
 
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
-  }, [currentChannel.address])
+  }, [currentChannel?.address])
 
   return (
     <View style={{ flex: 1 }}>

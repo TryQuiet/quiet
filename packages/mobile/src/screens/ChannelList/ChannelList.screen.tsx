@@ -8,9 +8,13 @@ import { ChannelTileProps } from '../../components/ChannelTile/ChannelTile.types
 import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDisplayDate/formatMessageDisplayDate'
 import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen'
 import { ScreenNames } from '../../const/ScreenNames.enum'
+import { Loading } from '../../components/Loading/Loading.component'
 
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
+  const isChannelReplicated = Boolean(
+    useSelector(publicChannels.selectors.publicChannels)?.length > 0
+  )
 
   useEffect(() => {
     dispatch(initActions.setCurrentScreen(ScreenNames.ChannelListScreen))
@@ -45,7 +49,7 @@ export const ChannelListScreen: FC = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      <ChannelListComponent tiles={tiles} />
+      {!isChannelReplicated ? <Loading progress={0} spinner description={'Connecting to peers'}/> : <ChannelListComponent tiles={tiles} /> }
     </View>
   )
 }
