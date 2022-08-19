@@ -5,7 +5,7 @@
   "version": "independent",
   "command": {
     "version": {
-      "allowBranch": ["master", "develop", "ci/update-deploy-android-workflow"],
+      "allowBranch": ["master", "develop"],
       "conventionalCommits": true,
       "createRelease": "github"
     }
