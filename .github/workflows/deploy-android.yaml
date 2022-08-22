@@ -80,4 +80,5 @@ jobs:
           packageName: com.zbaymobile
           releaseFiles: ./packages/mobile/android/app/build/outputs/bundle/release/app-release.aab
           track: internal
+          status: completed
           whatsNewDirectory: distribution/whatsnew
