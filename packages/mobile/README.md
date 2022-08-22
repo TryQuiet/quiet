@@ -39,7 +39,7 @@ Open another process within the container:
 docker exec -it <container-id> /bin/bash
 ```
 
-Setup NDK_PATH env before building
+Setup NDK_PATH env in user's global gradle.properties
 
 ```
 echo NDK_PATH=/usr/lib/android-sdk/android-ndk-r21e >>  /home/node/.gradle/gradle.properties
