@@ -1,16 +1,16 @@
 import React, { FC, useEffect, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { View } from 'react-native'
+import { ActivityIndicator, View } from 'react-native'
 import { communities, publicChannels } from '@quiet/state-manager'
 import { initActions } from '../../store/init/init.slice'
 import { ChannelList as ChannelListComponent } from '../../components/ChannelList/ChannelList.component'
+import { defaultTheme } from '../../styles/themes/default.theme'
 import { ChannelTileProps } from '../../components/ChannelTile/ChannelTile.types'
 import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDisplayDate/formatMessageDisplayDate'
 import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 import { capitalize } from '../../utils/functions/capitalize/capitalize'
-import { Loading } from '../../components/Loading/Loading.component'
 
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
@@ -53,7 +53,7 @@ export const ChannelListScreen: FC = () => {
   return (
     <View style={{ flex: 1 }}>
       <Appbar title={capitalize(community.name)} position={'flex-start'} />
-      {!isChannelReplicated ? <Loading progress={0} spinner description={'Connecting to peers'}/> : <ChannelListComponent tiles={tiles} /> }
+      {!isChannelReplicated ? <ActivityIndicator size="large" color={defaultTheme.palette.main.brand} /> : <ChannelListComponent tiles={tiles} /> }
     </View>
   )
 }

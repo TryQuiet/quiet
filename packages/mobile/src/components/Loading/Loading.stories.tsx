@@ -44,10 +44,3 @@ storiesOf('Loading', module)
       description={'Downloading tools to protect your privacy'}
     />
   ))
-  .add('with spinner', () => (
-    <Loading
-      progress={0}
-      spinner
-      description={'Connecting to peers'}
-    />
-  ))
