@@ -11,6 +11,7 @@ import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 import { capitalize } from '../../utils/functions/capitalize/capitalize'
+import { Typography } from '../../components/Typography/Typography.component'
 
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
@@ -53,7 +54,20 @@ export const ChannelListScreen: FC = () => {
   return (
     <View style={{ flex: 1 }}>
       <Appbar title={capitalize(community.name)} position={'flex-start'} />
-      {!isChannelReplicated ? <ActivityIndicator size="large" color={defaultTheme.palette.main.brand} /> : <ChannelListComponent tiles={tiles} /> }
+      {!isChannelReplicated ? <View style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <ActivityIndicator size="large" color={defaultTheme.palette.main.brand} />
+        <Typography
+          fontSize={14}
+          horizontalTextAlign={'center'}
+          style={{ margin: 10, maxWidth: 200 }}>
+          {'Connecting to peers'}
+        </Typography>
+      </View> : <ChannelListComponent tiles={tiles} />
+      }
     </View>
   )
 }
