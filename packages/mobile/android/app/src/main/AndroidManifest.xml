@@ -26,7 +26,5 @@
       </activity>
       <service
           android:name=".TorService"/>
-      <service
-          android:name=".PushNotificationsService"/>
     </application>
 </manifest>
