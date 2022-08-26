@@ -58,7 +58,7 @@ export class Tor {
     this.httpTunnelPort = httpTunnelPort.toString()
   }
 
-  public init = async ({ repeat = 6, timeout = 120000 } = {}): Promise<void> => {
+  public init = async ({ repeat = 6, timeout = 3600_000 } = {}): Promise<void> => {
     log('Initializing tor...')
     return await new Promise((resolve, reject) => {
       if (this.process) {
