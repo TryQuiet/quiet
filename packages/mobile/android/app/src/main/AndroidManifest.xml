@@ -24,9 +24,5 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
-      <service
-          android:name=".TorService"/>
-      <service
-          android:name=".PushNotificationsService"/>
     </application>
 </manifest>
