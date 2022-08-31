@@ -3,6 +3,9 @@ import { ConnectionsManager } from './libp2p/connectionsManager'
 import { Command } from 'commander'
 
 export const runBackend = async (): Promise<any> => {
+  // Enable triggering push notifications
+  process.env['BACKEND'] = 'mobile'
+
   const program = new Command()
 
   program
