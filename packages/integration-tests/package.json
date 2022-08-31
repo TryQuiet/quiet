@@ -40,7 +40,8 @@
     "jest": "^27.4.5",
     "prettier": "^2.1.0",
     "prettier-config-standard": "^1.0.1",
-    "typescript": "^4.1.5"
+    "typescript": "^4.1.5",
+    "check-disk-space": "^3.3.0"
   },
   "dependencies": {
     "@peculiar/webcrypto": "1.2.2",
@@ -51,7 +52,6 @@
     "@reduxjs/toolkit": "^1.6.1",
     "commander": "^9.1.0",
     "debug": "^4.3.2",
-    "check-disk-space": "^3.3.0",
     "get-port": "^5.1.1",
     "libp2p-websockets": "*",
     "lorem-ipsum": "^2.0.4",
