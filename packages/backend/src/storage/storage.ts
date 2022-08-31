@@ -305,6 +305,15 @@ export class Storage {
         this.io.loadMessages({
           messages: [entry.payload.value]
         })
+        // Display push notifications on mobile
+        if (process.env.BACKEND === 'mobile') {
+          const payload = entry.payload.value
+          const message = payload.messages[payload.messages.length - 1]
+          // Do not notify about old messages
+          if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME)) return
+          const bridge = require('rn-bridge')
+          bridge.channel.send('_NOTIFICATION_', JSON.stringify(message))
+        }
       })
       db.events.on('replicated', async address => {
         log('Replicated.', address)

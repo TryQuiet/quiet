@@ -163,12 +163,6 @@ export default class IOProxy {
 
   public loadMessages = (payload: IncomingMessages) => {
     log('Emitting message')
-    if (process.env.BACKEND === 'mobile') {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      const rn_bridge = require('rn-bridge')
-      const message = payload.messages[payload.messages.length - 1]
-      rn_bridge.channel.send('_NOTIFICATION_', JSON.stringify(message))
-    }
     this.io.emit(SocketActionTypes.INCOMING_MESSAGES, payload)
   }
 

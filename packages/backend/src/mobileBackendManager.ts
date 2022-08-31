@@ -5,6 +5,7 @@ import { Command } from 'commander'
 export const runBackend = async (): Promise<any> => {
   // Enable triggering push notifications
   process.env['BACKEND'] = 'mobile'
+  process.env['CONNECTION_TIME'] = new Date().getTime().toString()
 
   const program = new Command()
 
