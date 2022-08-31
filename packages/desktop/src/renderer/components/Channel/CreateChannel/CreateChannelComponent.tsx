@@ -149,6 +149,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                   classes={''}
                   variant='outlined'
                   placeholder={'Enter a channel name'}
+                  autoFocus
                   errors={errors}
                   onchange={event => {
                     event.persist()

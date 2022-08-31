@@ -3,6 +3,134 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.2-alpha.0](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.10.1-alpha.1...integration-tests@0.10.2-alpha.0) (2022-08-26)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.10.1-alpha.1](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.10.0...integration-tests@0.10.1-alpha.1) (2022-08-16)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.10.1-alpha.0](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.10.0...integration-tests@0.10.1-alpha.0) (2022-08-11)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+# [0.10.0](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.9.5-alpha.5...integration-tests@0.10.0) (2022-08-10)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.9.5-alpha.5](https://github.com/TryQuiet/monorepo/compare/integration-tests@0.9.5-alpha.4...integration-tests@0.9.5-alpha.5) (2022-08-05)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.9.5-alpha.4](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.9.5-alpha.3...integration-tests@0.9.5-alpha.4) (2022-08-04)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.9.5-alpha.3](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.9.5-alpha.1...integration-tests@0.9.5-alpha.3) (2022-08-04)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.9.5-alpha.2](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.9.5-alpha.1...integration-tests@0.9.5-alpha.2) (2022-08-04)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.9.5-alpha.1](https://github.com/TryQuiet/monorepo/compare/integration-tests@0.9.5-alpha.0...integration-tests@0.9.5-alpha.1) (2022-08-01)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.9.5-alpha.0](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.8.2-alpha.0...integration-tests@0.9.5-alpha.0) (2022-07-15)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.9.4-alpha.1](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.9.4-alpha.0...integration-tests@0.9.4-alpha.1) (2022-07-15)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.9.4-alpha.0](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.9.3-alpha.0...integration-tests@0.9.4-alpha.0) (2022-07-07)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.9.3-alpha.0](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.9.2-alpha.0...integration-tests@0.9.3-alpha.0) (2022-07-06)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.9.2-alpha.0](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.9.1-alpha.0...integration-tests@0.9.2-alpha.0) (2022-07-05)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.9.1-alpha.0](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.9.0-alpha.0...integration-tests@0.9.1-alpha.0) (2022-07-05)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+# [0.9.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.8.2-alpha.0...integration-tests@0.9.0-alpha.0) (2022-07-05)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
 ## [0.8.2-alpha.0](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.8.1-alpha.1...integration-tests@0.8.2-alpha.0) (2022-06-21)
 
 **Note:** Version bump only for package integration-tests

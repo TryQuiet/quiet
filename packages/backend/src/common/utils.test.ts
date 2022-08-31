@@ -1,6 +1,6 @@
 import mock from 'mock-fs'
 import path from 'path'
-import { getFilesRecursively, removeFiles, getDirsRecursively, removeDirs } from './utils'
+import { getFilesRecursively, removeFiles, getDirsRecursively, removeDirs, compare, getUsersAddresses, createLibp2pAddress } from './utils'
 
 beforeEach(() => {
   mock({
@@ -97,4 +97,33 @@ describe('Remove files and dirs', () => {
   it("No error if directory doesn't exist", () => {
     expect(() => removeFiles('LOCK', 'non/existent/dir')).not.toThrow()
   })
+})
+
+describe('Compare actual and reported file size', () => {
+  it('Return true for equal sizes', () => {
+    const res = compare(20400, 20400)
+    expect(res).toBe(true)
+  })
+
+  it('Return true for value that fits in tolerance', () => {
+    const res = compare(20400, 19800, 0.05)
+    expect(res).toBe(true)
+  })
+
+  it("Return false for value that doesn't fit in tolerance", () => {
+    const res = compare(20400, 19400, 0.05)
+    expect(res).toBe(false)
+  })
+})
+
+it('Gets users addresses based on user data', async () => {
+  const userData = [
+    { onionAddress: '12345.onion', peerId: '54321', dmPublicKey: '324530833893', username: 'Bob' },
+    { onionAddress: '67890.onion', peerId: '09876', dmPublicKey: '098830987898', username: 'Alice' }
+  ]
+  const addresses = await getUsersAddresses(userData)
+  expect(addresses).toStrictEqual([
+    createLibp2pAddress(userData[0].onionAddress, 443, userData[0].peerId, 'wss'),
+    createLibp2pAddress(userData[1].onionAddress, 443, userData[1].peerId, 'wss')
+  ])
 })

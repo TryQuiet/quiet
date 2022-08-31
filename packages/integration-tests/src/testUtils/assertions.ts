@@ -12,6 +12,13 @@ const assertContains = (value: any, container: any[]) => {
   assert.fail(`${container} does not contain ${value}`)
 }
 
+const assertNotEmpty = (value: any) => {
+  assert.notEqual(value, undefined)
+  assert.notEqual(value, null)
+  assert.notEqual(value, [])
+  assert.notEqual(value, {})
+}
+
 export async function assertReceivedChannel(
   userName: string,
   channelName: string,
@@ -20,9 +27,8 @@ export async function assertReceivedChannel(
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for channels`)
 
-  const communityId = store.getState().Communities.communities.ids[0] as string
-
   await waitForExpect(() => {
+    assertNotEmpty(store.getState().PublicChannels)
     assertContains(channelName, store.getState().PublicChannels.channels.ids)
   }, maxTime)
   log(`User ${userName} replicated '${channelName}'`)
@@ -47,8 +53,6 @@ export async function assertReceivedMessages(
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for messages`)
 
-  const communityId = store.getState().Communities.communities.ids[0]
-
   await waitForExpect(() => {
     assert.strictEqual(
       store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids.length, expectedCount
@@ -66,8 +70,6 @@ export const assertReceivedMessagesMatch = (
   messages: string[],
   store: Store
 ) => {
-  const communityId = store.getState().Communities.communities.ids[0]
-
   const receivedMessagesEntities = Object.values(
     store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
   )

@@ -85,7 +85,14 @@ export const initSlice = createSlice({
     onDataDirectoryCreated: (state, action: PayloadAction<string>) => {
       state.dataDirectoryPath = action.payload
     },
-    onBackendStarted: (state, _action: PayloadAction<WebsocketConnectionPayload>) => {
+    onBackendStarted: (_state, _action: PayloadAction<WebsocketConnectionPayload>) => {
+    },
+    startConnection: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
+    suspendConnection: state => {
+      state.isConnected = false
+    },
+    setConnected: state => {
+      state.isConnected = true
       const event = InitCheckKeys.Backend
       initChecksAdapter.updateOne(state.initChecks, {
         changes: {
@@ -94,13 +101,6 @@ export const initSlice = createSlice({
         },
         id: event
       })
-    },
-    startConnection: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
-    suspendConnection: state => {
-      state.isConnected = false
-    },
-    setConnected: state => {
-      state.isConnected = true
     },
     setCurrentScreen: (state, action: PayloadAction<ScreenNames>) => {
       state.currentScreen = action.payload

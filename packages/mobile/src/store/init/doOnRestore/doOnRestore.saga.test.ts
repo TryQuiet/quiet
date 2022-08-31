@@ -17,7 +17,7 @@ describe('doOnRestoreSaga', () => {
           ...new InitState()
         }
       })
-      .provide([[select(initSelectors.currentScreen), ScreenNames.MainScreen]])
-      .call(replaceScreen, ScreenNames.MainScreen)
+      .provide([[select(initSelectors.currentScreen), ScreenNames.ChannelListScreen]])
+      .call(replaceScreen, ScreenNames.ChannelListScreen)
   })
 })

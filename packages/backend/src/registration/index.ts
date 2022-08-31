@@ -5,6 +5,7 @@ import express, { Request, Response } from 'express'
 import getPort from 'get-port'
 import { Server } from 'http'
 import { CertificationRequest } from 'pkijs'
+import { getUsersAddresses } from '../common/utils'
 
 import logger from '../logger'
 import { Storage } from '../storage'
@@ -47,14 +48,18 @@ export class CertificateRegistration {
     this.setRouting()
   }
 
+  private pendingPromise: Promise<any> = null
+
   private setRouting() {
-    // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
-    // @ts-ignore
     this._app.use(express.json())
-    // eslint-disable-next-line
     this._app.post(
       '/register',
-      async (req, res): Promise<void> => await this.registerUser(req, res)
+      async (req, res): Promise<void> => {
+        if (this.pendingPromise) return
+        this.pendingPromise = this.registerUser(req, res)
+        await this.pendingPromise
+        this.pendingPromise = null
+      }
     )
   }
 
@@ -102,20 +107,7 @@ export class CertificateRegistration {
 
   public async getPeers(): Promise<string[]> {
     const users = this._storage.getAllUsers()
-    const peers = users.map(async (userData: { onionAddress: string; peerId: string }) => {
-      let port: number
-      let ws: string
-      if (this.tor) {
-        port = 443
-        ws = 'wss'
-      } else {
-        port = 7788 // make sure this port is free
-        ws = 'ws'
-      }
-      return `/dns4/${userData.onionAddress}/tcp/${port}/${ws}/p2p/${userData.peerId}/`
-    })
-
-    return await Promise.all(peers)
+    return await getUsersAddresses(users, Boolean(this.tor))
   }
 
   private pubKeyMatch(cert: string, parsedCsr: CertificationRequest) {

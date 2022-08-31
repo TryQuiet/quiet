@@ -9,8 +9,12 @@ import {
   ChannelMessage,
   PublicChannel,
   SaveCertificatePayload,
-  FileContent,
-  FileMetadata
+  FileMetadata,
+  DownloadStatus,
+  DownloadProgress,
+  DownloadState,
+  imagesExtensions,
+  User
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
@@ -26,7 +30,7 @@ import {
   PublicChannelsRepo,
   StorageOptions
 } from '../common/types'
-import { createPaths, removeDirs, removeFiles } from '../common/utils'
+import { compare, createPaths, removeDirs, removeFiles } from '../common/utils'
 import { Config } from '../constants'
 import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
@@ -35,7 +39,10 @@ import IOProxy from '../socket/IOProxy'
 import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
 import fs from 'fs'
+import { promisify } from 'util'
+
 import sizeOf from 'image-size'
+const sizeOfPromisified = promisify(sizeOf)
 
 const log = logger('db')
 
@@ -65,7 +72,8 @@ export class Storage {
   public options: StorageOptions
   public orbitDbDir: string
   public ipfsRepoPath: string
-  private readonly communityId: string
+  readonly downloadCancellations: string[]
+  private readonly __communityId: string
 
   constructor(
     quietDir: string,
@@ -75,17 +83,19 @@ export class Storage {
   ) {
     this.quietDir = quietDir
     this.io = ioProxy
-    this.communityId = communityId
+    this.__communityId = communityId
     this.options = {
       ...new StorageOptions(),
       ...options
     }
     this.orbitDbDir = path.join(this.quietDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
     this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
+    this.downloadCancellations = []
   }
 
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
-    log('STORAGE: Entered init')
+    log('Initializing storage')
+    this.peerId = peerID
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
     if (this.options?.createPaths) {
@@ -100,6 +110,7 @@ export class Storage {
       // @ts-expect-error
       AccessControllers: AccessControllers
     })
+    log('Initialized storage')
   }
 
   public async initDatabases() {
@@ -114,6 +125,7 @@ export class Storage {
     log('5/6')
     await this.initAllConversations()
     log('6/6')
+    log('Initialized DBs')
   }
 
   private async __stopOrbitDb() {
@@ -143,6 +155,10 @@ export class Storage {
     await this.__stopIPFS()
   }
 
+  public get communityId() {
+    return this.__communityId
+  }
+
   protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> {
     log('Initializing IPFS')
     // @ts-expect-error
@@ -168,14 +184,16 @@ export class Storage {
       }
     })
 
-    this.certificates.events.on('replicated', () => {
+    this.certificates.events.on('replicated', async () => {
       log('REPLICATED: Certificates')
       this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
+      await this.io.updatePeersList({ communityId: this.communityId, peerId: this.peerId.toB58String() })
     })
-    this.certificates.events.on('write', (_address, entry) => {
+    this.certificates.events.on('write', async (_address, entry) => {
       log('Saved certificate locally')
       log(entry.payload.value)
       this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
+      await this.io.updatePeersList({ communityId: this.communityId, peerId: this.peerId.toB58String() })
     })
     this.certificates.events.on('ready', () => {
       log('Loaded certificates to memory')
@@ -382,47 +400,92 @@ export class Storage {
     }
   }
 
-  public async uploadFile(fileContent: FileContent) {
-    log('uploadFile', fileContent)
-
-    let buffer: Buffer
-
+  public copyFile(originalFilePath: string, filename: string): string {
+    /**
+     * Copy file to a different directory and return the new path
+     */
+    const uploadsDir = path.join(this.quietDir, 'uploads')
+    const newPath = path.join(uploadsDir, filename)
+    let filePath = originalFilePath
     try {
-      buffer = fs.readFileSync(fileContent.path)
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true })
+      }
+      fs.copyFileSync(originalFilePath, newPath)
+      filePath = newPath
     } catch (e) {
-      log.error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
-      throw new Error(`Couldn't open file ${fileContent.path}. Error: ${e.message}`)
+      log.error(`Couldn't copy file ${originalFilePath} to ${newPath}. Error: ${e.message}`)
     }
+    return filePath
+  }
 
+  public async uploadFile(metadata: FileMetadata) {
     let width: number = null
     let height: number = null
-    try {
-      const fileDimensions = sizeOf(buffer)
-      width = fileDimensions.width
-      height = fileDimensions.height
-    } catch (e) {
-      log(`The file is not an image, couldn't read ${fileContent.path} dimensions`)
+    if (imagesExtensions.includes(metadata.ext)) {
+      let imageSize = null
+      try {
+        imageSize = await sizeOfPromisified(metadata.path)
+      } catch (e) {
+        console.error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
+        throw new Error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
+      }
+      width = imageSize.width
+      height = imageSize.height
+    }
+
+    const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
+    const uploadedFileStreamIterable = {
+      async* [Symbol.asyncIterator]() {
+        for await (const data of stream) {
+          yield data
+        }
+      }
     }
 
     // Create directory for file
     const dirname = 'uploads'
     await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })
+
     // Write file to IPFS
     const uuid = `${Date.now()}_${Math.random().toString(36).substr(2.9)}`
-    const filename = `${uuid}_${fileContent.name}.${fileContent.ext}`
-    await this.ipfs.files.write(`/${dirname}/${filename}`, buffer, { create: true })
+    const filename = `${uuid}_${metadata.name}${metadata.ext}`
+
+    // Save copy to separate directory
+    const filePath = this.copyFile(metadata.path, filename)
+    console.time(`Writing ${filename} to ipfs`)
+    await this.ipfs.files.write(`/${dirname}/${filename}`, uploadedFileStreamIterable, { create: true })
+    console.timeEnd(`Writing ${filename} to ipfs`)
+
     // Get uploaded file information
     const entries = this.ipfs.files.ls(`/${dirname}`)
     for await (const entry of entries) {
       if (entry.name === filename) {
-        const metadata: FileMetadata = {
-          ...fileContent,
-          path: fileContent.path,
+        this.io.removeDownloadStatus({ cid: metadata.cid })
+
+        const fileMetadata: FileMetadata = {
+          ...metadata,
+          path: filePath,
           cid: entry.cid.toString(),
+          size: entry.size,
           width,
           height
         }
-        this.io.uploadedFile(metadata)
+
+        this.io.uploadedFile(fileMetadata)
+
+        const statusReady: DownloadStatus = {
+          mid: fileMetadata.message.id,
+          cid: fileMetadata.cid,
+          downloadState: DownloadState.Hosted,
+          downloadProgress: undefined
+        }
+
+        this.io.updateDownloadProgress(statusReady)
+        if (metadata.path !== filePath) {
+          log(`Updating file metadata (${metadata.path} => ${filePath})`)
+          this.io.updateMessageMedia(fileMetadata)
+        }
         break
       }
     }
@@ -430,6 +493,21 @@ export class Storage {
 
   public async downloadFile(metadata: FileMetadata) {
     const _CID = CID.parse(metadata.cid)
+
+    // Compare actual and reported file size
+    const stat = await this.ipfs.files.stat(_CID)
+    if (!compare(metadata.size, stat.size, 0.05)) {
+      const maliciousStatus: DownloadStatus = {
+        mid: metadata.message.id,
+        cid: metadata.cid,
+        downloadState: DownloadState.Malicious,
+        downloadProgress: undefined
+      }
+
+      this.io.updateDownloadProgress(maliciousStatus)
+
+      return
+    }
     const entries = this.ipfs.cat(_CID)
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
@@ -440,10 +518,63 @@ export class Storage {
 
     const writeStream = fs.createWriteStream(filePath)
 
+    let downloadedBytes = 0
+    let stopwatch = 0
+
+    let downloadState: DownloadState = DownloadState.Ready
+
     for await (const entry of entries) {
+      // Check if download is not meant to be canceled
+      if (this.downloadCancellations.includes(metadata.message.id)) {
+        downloadState = DownloadState.Canceled
+        log(`Cancelled downloading ${metadata.path}`)
+        break
+      }
       await new Promise<void>((resolve, reject) => {
         writeStream.write(entry, err => {
-          if (err) reject(err)
+          if (err) {
+            log.error(`${metadata.name} download error: ${err}`)
+            reject(err)
+          }
+
+          let transferSpeed = -1
+
+          if (stopwatch === 0) {
+            stopwatch = Date.now()
+          } else {
+            const timestamp = Date.now()
+            let delay = 0.0001 // Workaround for avoiding delay 0:
+            delay += (timestamp - stopwatch) / 1000 // in seconds
+            transferSpeed = entry.byteLength / delay
+
+            // Prevent passing null value
+            if (transferSpeed === null) {
+              transferSpeed = 0
+            }
+
+            stopwatch = timestamp
+          }
+
+          downloadedBytes += entry.byteLength
+
+          const downloadProgress: DownloadProgress = {
+            size: metadata.size,
+            downloaded: downloadedBytes,
+            transferSpeed: transferSpeed
+          }
+
+          const downloadStatus: DownloadStatus = {
+            mid: metadata.message.id,
+            cid: metadata.cid,
+            downloadState: DownloadState.Downloading,
+            downloadProgress: downloadProgress
+          }
+
+          const percentage = Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)
+
+          log(`${new Date().toUTCString()}, ${metadata.name} downloaded bytes ${percentage}% ${downloadProgress.downloaded} / ${downloadProgress.size}`)
+          this.io.updateDownloadProgress(downloadStatus)
+
           resolve()
         })
       })
@@ -451,12 +582,56 @@ export class Storage {
 
     writeStream.end()
 
-    const fileMetadata: FileMetadata = {
-      ...metadata,
-      path: filePath
+    if (downloadState === DownloadState.Canceled) {
+      const downloadCanceled: DownloadProgress = {
+        size: metadata.size,
+        downloaded: 0,
+        transferSpeed: 0
+      }
+
+      const statusCanceled: DownloadStatus = {
+        mid: metadata.message.id,
+        cid: metadata.cid,
+        downloadState: DownloadState.Canceled,
+        downloadProgress: downloadCanceled
+      }
+
+      // Canceled Download
+      this.io.updateDownloadProgress(statusCanceled)
+    } else {
+      const downloadCompleted: DownloadProgress = {
+        size: metadata.size,
+        downloaded: metadata.size,
+        transferSpeed: 0
+      }
+
+      const statusCompleted: DownloadStatus = {
+        mid: metadata.message.id,
+        cid: metadata.cid,
+        downloadState: DownloadState.Completed,
+        downloadProgress: downloadCompleted
+      }
+
+      // Downloaded file
+      this.io.updateDownloadProgress(statusCompleted)
+
+      const fileMetadata: FileMetadata = {
+        ...metadata,
+        path: filePath
+      }
+
+      this.io.updateMessageMedia(fileMetadata)
     }
 
-    this.io.downloadedFile(fileMetadata)
+    // Clear cancellation signal (if present)
+    const index = this.downloadCancellations.indexOf(metadata.message.id)
+    if (index > -1) {
+      this.downloadCancellations.splice(index, 1)
+    }
+  }
+
+  public cancelDownload(mid: string) {
+    this.downloadCancellations.push(mid)
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {
@@ -584,14 +759,16 @@ export class Storage {
     return true
   }
 
-  public getAllUsers() {
+  public getAllUsers(): User[] {
     const certs = this.getAllEventLogEntries(this.certificates)
     const allUsers = []
     for (const cert of certs) {
       const parsedCert = parseCertificate(cert)
       const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
       const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
-      allUsers.push({ onionAddress, peerId })
+      const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
+      const dmPublicKey = getCertFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
+      allUsers.push({ onionAddress, peerId, username, dmPublicKey })
     }
     return allUsers
   }

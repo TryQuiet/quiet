@@ -23,6 +23,7 @@ describe('Chat component', () => {
     const { toJSON } = renderComponent(
       <Chat
         sendMessageAction={jest.fn()}
+        loadMessagesAction={jest.fn()}
         channel={{
           name: 'Zbay',
           description: '',
@@ -181,7 +182,7 @@ describe('Chat component', () => {
               ],
               [
                 {
-                  id: '16',
+                  id: '17',
                   type: 1,
                   message:
                     'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
@@ -199,19 +200,16 @@ describe('Chat component', () => {
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
-        onLayout={[Function]}
         style={
-          Array [
-            Object {
-              "backgroundColor": "white",
-              "flex": 1,
-              "flexDirection": "column",
-              "justifyContent": "flex-end",
-            },
-            Object {
-              "paddingBottom": 0,
-            },
-          ]
+          Object {
+            "backgroundColor": "white",
+            "flex": 1,
+            "flexDirection": "column",
+            "justifyContent": "flex-end",
+            "paddingBottom": 20,
+            "paddingLeft": 20,
+            "paddingRight": 20,
+          }
         }
       >
         <RCTScrollView
@@ -231,7 +229,8 @@ describe('Chat component', () => {
           keyExtractor={[Function]}
           maxToRenderPerBatch={10}
           onContentSizeChange={[Function]}
-          onEndReachedThreshold={2}
+          onEndReached={[Function]}
+          onEndReachedThreshold={0.7}
           onLayout={[Function]}
           onMomentumScrollEnd={[Function]}
           onScroll={[Function]}
@@ -240,6 +239,7 @@ describe('Chat component', () => {
           removeClippedSubviews={false}
           renderItem={[Function]}
           scrollEventThrottle={50}
+          showsVerticalScrollIndicator={false}
           stickyHeaderIndices={Array []}
           style={
             Array [
@@ -250,10 +250,7 @@ describe('Chat component', () => {
                   },
                 ],
               },
-              Object {
-                "paddingLeft": 20,
-                "paddingRight": 20,
-              },
+              undefined,
             ]
           }
           updateCellsBatchingPeriod={50}
@@ -2034,61 +2031,66 @@ describe('Chat component', () => {
         <View
           style={
             Object {
-              "paddingBottom": 20,
-              "paddingLeft": 20,
-              "paddingRight": 20,
+              "flexDirection": "row",
             }
           }
         >
-          <View>
-            <View
-              accessible={true}
-              collapsable={false}
-              focusable={true}
-              onBlur={[Function]}
-              onClick={[Function]}
-              onFocus={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
-              style={
-                Array [
-                  Object {
-                    "backgroundColor": "#ffffff",
-                    "borderColor": "#B3B3B3",
-                    "borderRadius": 4,
-                    "borderWidth": 1,
-                    "flexGrow": 1,
-                    "maxHeight": 72,
-                    "minHeight": 42,
-                    "paddingLeft": 15,
-                    "paddingRight": 15,
-                  },
-                  Object {},
-                ]
+          <View
+            style={
+              Object {
+                "flex": 9,
               }
-            >
-              <TextInput
-                allowFontScaling={true}
-                editable={true}
-                multiline={true}
-                onChangeText={[Function]}
-                placeholder="Message #Zbay as @holmes"
-                rejectResponderTermination={true}
+            }
+          >
+            <View>
+              <View
+                accessible={true}
+                collapsable={false}
+                focusable={true}
+                onBlur={[Function]}
+                onClick={[Function]}
+                onFocus={[Function]}
+                onResponderGrant={[Function]}
+                onResponderMove={[Function]}
+                onResponderRelease={[Function]}
+                onResponderTerminate={[Function]}
+                onResponderTerminationRequest={[Function]}
+                onStartShouldSetResponder={[Function]}
                 style={
                   Array [
                     Object {
-                      "paddingBottom": 8,
-                      "paddingTop": 8,
-                      "textAlignVertical": "center",
+                      "backgroundColor": "#ffffff",
+                      "borderColor": "#B3B3B3",
+                      "borderRadius": 4,
+                      "borderWidth": 1,
+                      "flexGrow": 1,
+                      "maxHeight": 72,
+                      "minHeight": 42,
+                      "paddingLeft": 15,
+                      "paddingRight": 15,
                     },
                   ]
                 }
-                underlineColorAndroid="transparent"
-              />
+              >
+                <TextInput
+                  allowFontScaling={true}
+                  editable={true}
+                  multiline={true}
+                  onChangeText={[Function]}
+                  placeholder="Message #Zbay as @holmes"
+                  rejectResponderTermination={true}
+                  style={
+                    Array [
+                      Object {
+                        "paddingBottom": 8,
+                        "paddingTop": 8,
+                        "textAlignVertical": "center",
+                      },
+                    ]
+                  }
+                  underlineColorAndroid="transparent"
+                />
+              </View>
             </View>
           </View>
         </View>

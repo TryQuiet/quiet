@@ -1,4 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
+
+import { shell, ipcRenderer } from 'electron'
+
 import { useDispatch, useSelector } from 'react-redux'
 import {
   identity,
@@ -6,6 +9,9 @@ import {
   publicChannels,
   connection,
   communities,
+  files,
+  FileMetadata,
+  CancelDownload,
   FileContent
 } from '@quiet/state-manager'
 
@@ -16,9 +22,11 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import {
   FilePreviewData,
   UploadFilesPreviewsProps
-} from '../widgets/channels/UploadedFilesPreviews'
-import { ipcRenderer } from 'electron'
+} from './File/UploadingPreview'
+
 import { getFilesData } from '../../../utils/functions/fileData'
+
+import { FileActionsProps } from './File/FileComponent/FileComponent'
 
 const Channel = () => {
   const dispatch = useDispatch()
@@ -40,6 +48,8 @@ const Channel = () => {
     publicChannels.selectors.newestCurrentChannelMessage
   )
 
+  const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
+
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const initializedCommunities = useSelector(connection.selectors.initializedCommunities)
 
@@ -54,13 +64,6 @@ const Channel = () => {
   const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
 
   const filesRef = React.useRef<FilePreviewData>()
-  const unsupportedFileModal = useModal<{
-    unsupportedFiles: FileContent[]
-    title: string
-    sendOtherContent: string
-    textContent: string
-    tryZipContent: string
-  }>(ModalName.unsupportedFileModal)
 
   const onInputChange = useCallback(
     (_value: string) => {
@@ -71,12 +74,15 @@ const Channel = () => {
 
   const onInputEnter = useCallback(
     (message: string) => {
+      // Send message out of input value
       if (message) {
         dispatch(messages.actions.sendMessage({ message }))
       }
-      Object.values(filesRef.current).forEach(fileData => {
-        dispatch(messages.actions.uploadFile(fileData))
+      // Upload files, then send corresponding message (contaning cid) for each of them
+      Object.values(filesRef.current).forEach((fileData: FileContent) => {
+        dispatch(files.actions.uploadFile(fileData))
       })
+      // Reset file previews for input state
       setUploadingFiles({})
     },
     [dispatch]
@@ -112,6 +118,7 @@ const Channel = () => {
       return updatedFiles
     })
   }
+
   const handleClipboardFiles = (imageBuffer, ext, name) => {
     let id: string
     // create id for images in clipboard with default name 'image.png'
@@ -154,6 +161,23 @@ const Channel = () => {
     ipcRenderer.send('openUploadFileDialog')
   }, [])
 
+  const openUrl = useCallback((url: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    shell.openExternal(url)
+  }, [])
+
+  const openContainingFolder = useCallback((path: string) => {
+    shell.showItemInFolder(path)
+  }, [])
+
+  const downloadFile = useCallback((media: FileMetadata) => {
+    dispatch(files.actions.downloadFile(media))
+  }, [dispatch])
+
+  const cancelDownload = useCallback((cancelDownload: CancelDownload) => {
+    dispatch(files.actions.cancelDownload(cancelDownload))
+  }, [dispatch])
+
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelAddress])
@@ -170,10 +194,12 @@ const Channel = () => {
     },
     newestMessage: newestCurrentChannelMessage,
     pendingMessages: pendingMessages,
+    downloadStatuses: downloadStatusesMapping,
     lazyLoading: lazyLoading,
     onDelete: function (): void {},
     onInputChange: onInputChange,
     onInputEnter: onInputEnter,
+    openUrl: openUrl,
     mutedFlag: false,
     notificationFilter: '',
     openNotificationsTab: function (): void {},
@@ -186,14 +212,19 @@ const Channel = () => {
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {
     filesData: uploadingFiles,
-    removeFile: removeFilePreview,
-    unsupportedFileModal: unsupportedFileModal
+    removeFile: removeFilePreview
+  }
+
+  const fileActionsProps: FileActionsProps = {
+    openContainingFolder: openContainingFolder,
+    downloadFile: downloadFile,
+    cancelDownload: cancelDownload
   }
 
   return (
     <>
       {currentChannelAddress && (
-        <ChannelComponent {...channelComponentProps} {...uploadFilesPreviewProps} />
+        <ChannelComponent {...channelComponentProps} {...uploadFilesPreviewProps} {...fileActionsProps} />
       )}
     </>
   )

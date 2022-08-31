@@ -9,7 +9,7 @@ import Checkbox from '@material-ui/core/Checkbox'
 import Icon from '../../ui/Icon/Icon'
 import radioChecked from '../../../static/images/radioChecked.svg'
 import radioUnselected from '../../../static/images/radioUnselected.svg'
-import { direct, relentless, sharp } from '../../../../shared/sounds'
+import { direct, relentless, sharp, librarianShhh } from '../../../../shared/sounds'
 import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
 
 const useStyles = makeStyles((theme) => ({
@@ -139,36 +139,6 @@ export const Notifications: React.FC<NotificationsProps> = ({
               <Checkbox
                 icon={<Icon src={radioUnselected} />}
                 checkedIcon={<Icon src={radioChecked} />}
-                checked={NotificationsOptions.notifyForDirectMessagesAndMentions === notificationsOption}
-              />
-            }
-            onChange={() =>
-              setNotificationsOption(NotificationsOptions.notifyForDirectMessagesAndMentions)
-            }
-            label={
-              <Grid container direction='column' className={classes.offset}>
-                <Grid item>
-                  <span className={classes.bold}>
-                    Direct messages, mentions & keywords
-                  </span>
-                </Grid>
-                <Grid item>
-                  <span>
-                    You’ll be notified when someone mentions you or sends you a
-                    direct message.
-                  </span>
-                </Grid>
-              </Grid>
-            }
-          />
-        </Grid>
-        <Grid item className={classes.spacing}>
-          <FormControlLabel
-            classes={{ root: classes.radioIcon }}
-            control={
-              <Checkbox
-                icon={<Icon src={radioUnselected} />}
-                checkedIcon={<Icon src={radioChecked} />}
                 checked={NotificationsOptions.doNotNotifyOfAnyMessages === notificationsOption}
               />
             }
@@ -218,6 +188,24 @@ export const Notifications: React.FC<NotificationsProps> = ({
                   Play a sound when receiving a notification
                 </Typography>
               }
+            />
+          </Grid>
+          <Grid item className={classes.spacingSound}>
+            <FormControlLabel
+              classes={{ root: classes.radioSound }}
+              control={
+                <Checkbox
+                  icon={<Icon src={radioUnselected} />}
+                  checkedIcon={<Icon src={radioChecked} />}
+                  checked={NotificationsSounds.librarianShhh === notificationsSound}
+                />
+              }
+              onChange={() => {
+                setNotificationsSound(NotificationsSounds.librarianShhh)
+
+                void librarianShhh.play()
+              }}
+              label='Librarian Shhh'
             />
           </Grid>
           <Grid item className={classes.spacingSound}>

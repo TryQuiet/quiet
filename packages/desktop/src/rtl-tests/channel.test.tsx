@@ -24,7 +24,13 @@ import {
   connection,
   FileMetadata,
   DownloadFilePayload,
-  InitCommunityPayload
+  InitCommunityPayload,
+  UploadFilePayload,
+  FileContent,
+  files,
+  DownloadState,
+  AUTODOWNLOAD_SIZE_LIMIT,
+  SendMessagePayload
 } from '@quiet/state-manager'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -110,7 +116,7 @@ describe('Channel', () => {
     // >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { nickname: 'alice' })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -138,15 +144,15 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const john = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'john' })
 
     const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
@@ -210,11 +216,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const aliceMessage = (
@@ -295,11 +301,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
@@ -341,11 +347,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -420,11 +426,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -461,12 +467,10 @@ describe('Channel', () => {
     const [message1, message2, message3] = messages
 
     await act(async () => {
-      console.log('runSaga')
       await runSaga(mockIncomingMessages).toPromise()
     })
 
     function* mockIncomingMessages(): Generator {
-      console.log('mockIncomingMessage')
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketActionTypes.INCOMING_MESSAGES,
         {
@@ -505,11 +509,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -562,11 +566,11 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -603,17 +607,146 @@ describe('Channel', () => {
     expect(actions).toMatchInlineSnapshot('Array []')
   })
 
+  it('immediately shows uploaded image', async () => {
+    const initialState = (await prepareStore()).store
+
+    const factory = await getFactory(initialState)
+
+    const community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    let cid: string
+
+    const uploadingDelay = 100
+
+    jest
+      .spyOn(socket, 'emit')
+      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+        if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+          const data = input as socketEventData<[InitCommunityPayload]>
+          const payload = data[0]
+          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+            id: payload.id
+          })
+        }
+        if (action === SocketActionTypes.UPLOAD_FILE) {
+          const data = input as socketEventData<[UploadFilePayload]>
+          const payload = data[0]
+
+          cid = `uploading_${payload.file.message.id}`
+
+          await new Promise(resolve => {
+            setTimeout(resolve, uploadingDelay)
+          })
+
+          socket.socketClient.emit(SocketActionTypes.UPLOADED_FILE, {
+            ...payload.file,
+            cid: cid,
+            path: null,
+            size: AUTODOWNLOAD_SIZE_LIMIT - 2048
+          })
+          return socket.socketClient.emit(SocketActionTypes.DOWNLOAD_PROGRESS, {
+            cid: cid,
+            downloadState: DownloadState.Hosted
+          })
+        }
+        if (action === SocketActionTypes.SEND_MESSAGE) {
+          const data = input as socketEventData<[SendMessagePayload]>
+          const payload = data[0]
+          return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
+            messages: [payload.message]
+          })
+        }
+      })
+
+    const { store, runSaga } = await prepareStore(
+      initialState.getState(),
+      socket // Fork state manager's sagas
+    )
+
+    const fileContent: FileContent = {
+      path: 'path/to/image.png',
+      name: 'image',
+      ext: '.png'
+    }
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    store.dispatch(files.actions.uploadFile(fileContent))
+
+    // Confirm image's placeholder never displays
+    expect(screen.queryByTestId(`${cid}-imagePlaceholder`)).toBeNull()
+
+    // Confirm image is visible (in uploading state)
+    expect(await screen.findByTestId(`${cid}-imageVisual`)).toBeVisible()
+
+    await act(async () => {
+      await new Promise(resolve => {
+        setTimeout(resolve, uploadingDelay)
+      })
+    })
+
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
+        "Files/uploadFile",
+        "Messages/sendMessage",
+        "Files/updateDownloadStatus",
+        "Messages/addMessagesSendingStatus",
+        "Messages/addMessageVerificationStatus",
+        "Messages/incomingMessages",
+        "PublicChannels/cacheMessages",
+        "PublicChannels/updateNewestMessage",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "PublicChannels/cacheMessages",
+        "Messages/setDisplayedMessagesNumber",
+        "Messages/addPublicKeyMapping",
+        "Messages/addMessageVerificationStatus",
+        "Files/broadcastHostedFile",
+        "Messages/removePendingMessageStatus",
+        "Messages/incomingMessages",
+        "PublicChannels/cacheMessages",
+        "Files/updateDownloadStatus",
+        "Messages/addMessageVerificationStatus",
+      ]
+    `)
+  })
+
   it('downloads and displays missing images after app restart', async () => {
     const initialState = (await prepareStore()).store
 
     const factory = await getFactory(initialState)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
@@ -627,7 +760,8 @@ describe('Channel', () => {
       message: {
         id: message,
         channelAddress: channelAddress
-      }
+      },
+      size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
 
     await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
@@ -647,6 +781,19 @@ describe('Channel', () => {
       }
     )
 
+    initialState.dispatch(
+      files.actions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: `uploading_${missingFile.cid}`,
+        downloadState: DownloadState.Queued,
+        downloadProgress: {
+          downloaded: AUTODOWNLOAD_SIZE_LIMIT / 2,
+          size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+          transferSpeed: 1024
+        }
+      })
+    )
+
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
@@ -661,7 +808,7 @@ describe('Channel', () => {
           const data = input as socketEventData<[DownloadFilePayload]>
           const payload = data[0]
           expect(payload.metadata.cid).toEqual(missingFile.cid)
-          return socket.socketClient.emit(SocketActionTypes.DOWNLOADED_FILE, {
+          return socket.socketClient.emit(SocketActionTypes.UPDATE_MESSAGE_MEDIA, {
             ...missingFile,
             path: `${__dirname}/test-image.jpeg`
           })
@@ -706,6 +853,467 @@ describe('Channel', () => {
         "Messages/addPublicKeyMapping",
         "Messages/addMessageVerificationStatus",
         "PublicChannels/cacheMessages",
+      ]
+    `)
+  })
+
+  it('displays hosted file in proper state', async () => {
+    const initialState = (await prepareStore()).store
+
+    const factory = await getFactory(initialState)
+
+    const community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+      'Identity',
+      { id: community.id, nickname: 'alice' }
+    )
+
+    jest
+      .spyOn(socket, 'emit')
+      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+        if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+          const data = input as socketEventData<[InitCommunityPayload]>
+          const payload = data[0]
+          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+            id: payload.id
+          })
+        }
+        if (action === SocketActionTypes.UPLOAD_FILE) {
+          const data = input as socketEventData<[UploadFilePayload]>
+          const payload = data[0]
+          socket.socketClient.emit(SocketActionTypes.UPLOADED_FILE, {
+            ...payload.file,
+            size: 1024
+          })
+          return socket.socketClient.emit(SocketActionTypes.DOWNLOAD_PROGRESS, {
+            mid: payload.file.message.id,
+            cid: `uploading_${payload.file.message.id}`,
+            downloadState: DownloadState.Hosted
+          })
+        }
+      })
+
+    const { store, runSaga } = await prepareStore(
+      initialState.getState(),
+      socket // Fork state manager's sagas
+    )
+
+    const fileContent: FileContent = {
+      path: 'path/to/file.ext',
+      name: 'file',
+      ext: '.ext'
+    }
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    store.dispatch(files.actions.uploadFile(fileContent))
+
+    // Confirm file component displays in HOSTED state
+    expect(await screen.findByText('Show in folder')).toBeVisible()
+
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
+        "Files/uploadFile",
+        "Messages/sendMessage",
+        "Files/updateDownloadStatus",
+        "Files/broadcastHostedFile",
+        "Files/updateDownloadStatus",
+        "Messages/addMessagesSendingStatus",
+        "Messages/addMessageVerificationStatus",
+        "Messages/incomingMessages",
+        "PublicChannels/cacheMessages",
+        "PublicChannels/updateNewestMessage",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "PublicChannels/cacheMessages",
+        "Messages/setDisplayedMessagesNumber",
+        "Messages/addPublicKeyMapping",
+        "Messages/addMessageVerificationStatus",
+      ]
+    `)
+  })
+
+  it('displays file queued for download', async () => {
+    const initialState = (await prepareStore()).store
+
+    const factory = await getFactory(initialState)
+
+    const community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    const messageId = Math.random().toString(36).substr(2.9)
+    const channelAddress = 'general'
+
+    const media: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.ext',
+      size: AUTODOWNLOAD_SIZE_LIMIT - 1024,
+      message: {
+        id: messageId,
+        channelAddress: channelAddress
+      }
+    }
+
+    const message = (
+      await factory.build<typeof publicChannels.actions.test_message>('Message', {
+        identity: alice,
+        message: {
+          id: messageId,
+          type: MessageType.File,
+          message: '',
+          createdAt: DateTime.utc().valueOf(),
+          channelAddress: channelAddress,
+          signature: '',
+          pubKey: '',
+          media: media
+        }
+      })
+    ).payload.message
+
+    jest
+      .spyOn(socket, 'emit')
+      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+        if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+          const data = input as socketEventData<[InitCommunityPayload]>
+          const payload = data[0]
+          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+            id: payload.id
+          })
+        }
+      })
+
+    const { store, runSaga } = await prepareStore(
+      initialState.getState(),
+      socket // Fork state manager's sagas
+    )
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    await act(async () => {
+      await runSaga(mockIncomingMessages).toPromise()
+    })
+
+    function* mockIncomingMessages(): Generator {
+      yield* apply(socket.socketClient, socket.socketClient.emit, [
+        SocketActionTypes.INCOMING_MESSAGES,
+        {
+          messages: [message],
+          communityId: community.id
+        }
+      ])
+    }
+
+    await act(async () => {})
+
+    // Confirm file component displays in QUEUED state
+    expect(await screen.findByText('Queued for download')).toBeVisible()
+
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/removePendingMessageStatus",
+        "Messages/incomingMessages",
+        "Files/updateDownloadStatus",
+        "PublicChannels/updateNewestMessage",
+        "Messages/addPublicKeyMapping",
+        "Messages/addMessageVerificationStatus",
+        "PublicChannels/cacheMessages",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "PublicChannels/cacheMessages",
+        "Messages/setDisplayedMessagesNumber",
+      ]
+    `)
+  })
+
+  it('displays large file as ready to download', async () => {
+    const initialState = (await prepareStore()).store
+
+    const factory = await getFactory(initialState)
+
+    const community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    const messageId = Math.random().toString(36).substr(2.9)
+    const channelAddress = 'general'
+
+    const media: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.ext',
+      size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
+      message: {
+        id: messageId,
+        channelAddress: channelAddress
+      }
+    }
+
+    const message = (
+      await factory.build<typeof publicChannels.actions.test_message>('Message', {
+        identity: alice,
+        message: {
+          id: messageId,
+          type: MessageType.File,
+          message: '',
+          createdAt: DateTime.utc().valueOf(),
+          channelAddress: channelAddress,
+          signature: '',
+          pubKey: '',
+          media: media
+        }
+      })
+    ).payload.message
+
+    jest
+      .spyOn(socket, 'emit')
+      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+        if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+          const data = input as socketEventData<[InitCommunityPayload]>
+          const payload = data[0]
+          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+            id: payload.id
+          })
+        }
+      })
+
+    const { store, runSaga } = await prepareStore(
+      initialState.getState(),
+      socket // Fork state manager's sagas
+    )
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    await act(async () => {
+      await runSaga(mockIncomingMessages).toPromise()
+    })
+
+    function* mockIncomingMessages(): Generator {
+      yield* apply(socket.socketClient, socket.socketClient.emit, [
+        SocketActionTypes.INCOMING_MESSAGES,
+        {
+          messages: [message],
+          communityId: community.id
+        }
+      ])
+    }
+
+    // Confirm file component displays in READY state
+    expect(await screen.findByText('Download file')).toBeVisible()
+
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/removePendingMessageStatus",
+        "Messages/incomingMessages",
+        "Files/updateDownloadStatus",
+        "PublicChannels/updateNewestMessage",
+        "Messages/addPublicKeyMapping",
+        "Messages/addMessageVerificationStatus",
+        "PublicChannels/cacheMessages",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "PublicChannels/cacheMessages",
+        "Messages/setDisplayedMessagesNumber",
+      ]
+    `)
+  })
+
+  it('downloads file on demand', async () => {
+    const initialState = (await prepareStore()).store
+
+    const factory = await getFactory(initialState)
+
+    const community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    const messageId = Math.random().toString(36).substr(2.9)
+    const channelAddress = 'general'
+
+    const media: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.ext',
+      size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
+      message: {
+        id: messageId,
+        channelAddress: channelAddress
+      }
+    }
+
+    const message = (
+      await factory.build<typeof publicChannels.actions.test_message>('Message', {
+        identity: alice,
+        message: {
+          id: messageId,
+          type: MessageType.File,
+          message: '',
+          createdAt: DateTime.utc().valueOf(),
+          channelAddress: channelAddress,
+          signature: '',
+          pubKey: '',
+          media: media
+        }
+      })
+    ).payload.message
+
+    jest
+      .spyOn(socket, 'emit')
+      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+        if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+          const data = input as socketEventData<[InitCommunityPayload]>
+          const payload = data[0]
+          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+            id: payload.id
+          })
+        }
+      })
+
+    const { store, runSaga } = await prepareStore(
+      initialState.getState(),
+      socket // Fork state manager's sagas
+    )
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    await act(async () => {
+      await runSaga(mockIncomingMessages).toPromise()
+    })
+
+    function* mockIncomingMessages(): Generator {
+      yield* apply(socket.socketClient, socket.socketClient.emit, [
+        SocketActionTypes.INCOMING_MESSAGES,
+        {
+          messages: [message],
+          communityId: community.id
+        }
+      ])
+    }
+
+    const downloadSpy = jest.spyOn(socket, 'emit')
+
+    const downloadButton = await screen.findByText('Download file')
+
+    userEvent.click(downloadButton)
+
+    // Confirm file component displays in QUEUED state
+    expect(await screen.findByText('Queued for download')).toBeVisible()
+
+    expect(downloadSpy).toHaveBeenCalledWith(SocketActionTypes.DOWNLOAD_FILE, {
+      peerId: alice.peerId.id,
+      metadata: media
+    })
+
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/removePendingMessageStatus",
+        "Messages/incomingMessages",
+        "Files/updateDownloadStatus",
+        "PublicChannels/updateNewestMessage",
+        "Messages/addPublicKeyMapping",
+        "Messages/addMessageVerificationStatus",
+        "PublicChannels/cacheMessages",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "PublicChannels/cacheMessages",
+        "Messages/setDisplayedMessagesNumber",
+        "Files/downloadFile",
+        "Files/updateDownloadStatus",
       ]
     `)
   })

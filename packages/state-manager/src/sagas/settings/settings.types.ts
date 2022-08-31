@@ -8,5 +8,6 @@ export enum NotificationsSounds {
   bang = 'bang',
   pow = 'pow',
   splat = 'splat',
-  none = 'none'
+  none = 'none',
+  librarianShhh = 'librarianShhh'
 }

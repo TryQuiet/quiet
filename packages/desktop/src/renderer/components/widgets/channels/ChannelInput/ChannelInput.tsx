@@ -11,11 +11,8 @@ import { INPUT_STATE } from './InputState.enum'
 import Icon from '../../../ui/Icon/Icon'
 import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
-import addGray from '../../../../static/images/addGray.svg'
-import addBlack from '../../../../static/images/addBlack.svg'
-import { FileContent } from '@quiet/state-manager'
-import { UseModalTypeWrapper } from '../../../../containers/hooks'
-import { supportedFilesExtensions } from '../unsupportedFilesContent'
+import paperclipGray from '../../../../static/images/paperclipGray.svg'
+import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
 
 const useStyles = makeStyles(theme => ({
@@ -185,13 +182,6 @@ export interface ChannelInputProps {
   children?: ReactElement
   openFilesDialog: () => void
   handleClipboardFiles?: (arg: ArrayBuffer, ext: string, name: string) => void
-  unsupportedFileModal?: ReturnType<UseModalTypeWrapper<{
-    unsupportedFiles: FileContent[]
-    title: string
-    sendOtherContent: string
-    textContent: string
-    tryZipContent: string
-  }>['types']>
   handleOpenFiles: (arg: {files: any[]}) => void
 }
 
@@ -208,7 +198,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   children,
   openFilesDialog,
   handleClipboardFiles,
-  unsupportedFileModal,
   handleOpenFiles
 }) => {
   const classes = useStyles({})
@@ -235,10 +224,9 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const [htmlMessage, setHtmlMessage] = React.useState<string>(initialMessage)
   const [message, setMessage] = React.useState(initialMessage)
 
-  window.onfocus = () => {
-    inputRef?.current?.el.current.focus()
-    setFocused(true)
-  }
+  React.useEffect(() => {
+    inputRef.current?.el.current.focus()
+  }, [inputRef])
 
   React.useEffect(() => {
     inputRef.current.updater.enqueueForceUpdate(inputRef.current)
@@ -494,12 +482,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     for (let i = 0; i < files.length; i++) {
                       const fileExt = path.extname(files[i].name).toLowerCase()
                       const fileName = path.basename(files[i].name, fileExt)
-                      if (supportedFilesExtensions.includes(fileExt)) {
-                        const arrayBuffer = await files[i].arrayBuffer()
-                        handleClipboardFiles(arrayBuffer, fileExt, fileName)
-                      } else if (!unsupportedFileModal.open) {
-                        unsupportedFileModal.handleOpen()
-                      }
+                      const arrayBuffer = await files[i].arrayBuffer()
+                      handleClipboardFiles(arrayBuffer, fileExt, fileName)
                     }
                     if (!files.length) {
                       const text = e.clipboardData.getData('text/plain')
@@ -515,7 +499,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   <Grid container justify='center' alignItems='center'>
                     <Icon
                       className={classes.emoji}
-                      src={fileExplorerHovered ? addBlack : addGray}
+                      src={fileExplorerHovered ? paperclipBlack : paperclipGray}
                       onClickHandler={() => fileInput.current?.click()}
                       onMouseEnterHandler={() => {
                         setFileExplorerHovered(true)
@@ -530,7 +514,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       onChange={handleFileInput}
                       // Value needs to be cleared otherwise one can't upload same image twice
                       onClick={(e) => { (e.target as HTMLInputElement).value = null }}
-                      accept='image/*'
+                      accept='*'
                       multiple
                       hidden
                     />

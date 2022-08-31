@@ -1,5 +1,5 @@
 
-import { ChannelMessage, communities, CommunityOwnership, CreateNetworkPayload, identity, publicChannels, messages } from '@quiet/state-manager'
+import { ChannelMessage, communities, CommunityOwnership, CreateNetworkPayload, identity, publicChannels, messages, files } from '@quiet/state-manager'
 import assert from 'assert'
 import { Register, SendImage, SendMessage } from '../integrationTests/appActions'
 import logger from '../logger'
@@ -143,7 +143,7 @@ export async function sendImage(
 
   log(file.path, 'sendImage')
 
-  store.dispatch(messages.actions.uploadFile(file))
+  store.dispatch(files.actions.uploadFile(file))
 
   // Result of an action is sending a message containing cid of uploaded image
   await waitForExpect(() => {

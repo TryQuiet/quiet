@@ -41,8 +41,12 @@ import { StoreKeys } from './sagas/store.keys'
 
 import { connectionActions, connectionReducer } from './sagas/appConnection/connection.slice'
 import { connectionSelectors } from './sagas/appConnection/connection.selectors'
+
 import { settingsActions, settingsReducer, SettingsState } from './sagas/settings/settings.slice'
 import { settingsSelectors } from './sagas/settings/settings.selectors'
+
+import { filesActions, filesReducer } from './sagas/files/files.slice'
+import { filesSelectors } from './sagas/files/files.selectors'
 
 export { SocketActionTypes } from './sagas/socket/const/actionTypes'
 export { Store } from './sagas/store.types'
@@ -69,6 +73,9 @@ export { identityAdapter } from './sagas/identity/identity.adapter'
 
 export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.transform'
 export { MessagesTransform } from './sagas/messages/messages.transform'
+export { FilesTransform } from './sagas/files/files.transform'
+
+export { AUTODOWNLOAD_SIZE_LIMIT } from './constants'
 
 export * from './sagas/identity/identity.types'
 
@@ -142,6 +149,12 @@ export const connection = {
   reducer: connectionReducer,
   actions: connectionActions,
   selectors: connectionSelectors
+}
+
+export const files = {
+  reducer: filesReducer,
+  actions: filesActions,
+  selectors: filesSelectors
 }
 
 export const socket = {

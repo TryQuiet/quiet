@@ -7,6 +7,7 @@ import { Chat } from './Chat.component'
 storiesOf('Chat', module).add('Default', () => (
   <Chat
     sendMessageAction={storybookLog('Message sent')}
+    loadMessagesAction={storybookLog('Messages loaded')}
     channel={{
       name: 'Zbay',
       description: '',

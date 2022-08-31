@@ -31,7 +31,7 @@ export const inviteLinkField = (name = 'name'): FieldData => {
     fieldProps: {
       label: '',
       name,
-      type: 'text',
+      type: 'password',
       placeholder: 'Invite code'
     },
     validation: {

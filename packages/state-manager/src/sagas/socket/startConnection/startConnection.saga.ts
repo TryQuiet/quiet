@@ -10,12 +10,13 @@ import {
   ResponseCreateCommunityPayload,
   ResponseCreateNetworkPayload,
   ResponseLaunchCommunityPayload,
-  ResponseRegistrarPayload
+  ResponseRegistrarPayload,
+  StorePeerListPayload
 } from '../../communities/communities.types'
 import { errorsMasterSaga } from '../../errors/errors.master.saga'
 import { errorsActions } from '../../errors/errors.slice'
 import { ErrorPayload } from '../../errors/errors.types'
-import { FileMetadata } from '../../files/files.types'
+import { DownloadStatus, FileMetadata, RemoveDownloadStatus } from '../../files/files.types'
 import { identityMasterSaga } from '../../identity/identity.master.saga'
 import { identityActions } from '../../identity/identity.slice'
 import { messagesMasterSaga } from '../../messages/messages.master.saga'
@@ -36,6 +37,7 @@ import {
 import { usersActions } from '../../users/users.slice'
 import { SendCertificatesResponse } from '../../users/users.types'
 import { SocketActionTypes } from '../const/actionTypes'
+import { filesActions } from '../../files/files.slice'
 
 const log = logger('socket')
 
@@ -60,19 +62,27 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof connectionActions.addInitializedCommunity>
   | ReturnType<typeof connectionActions.addInitializedRegistrar>
   | ReturnType<typeof connectionActions.addConnectedPeers>
-  | ReturnType<typeof messagesActions.downloadedFile>
-  | ReturnType<typeof messagesActions.uploadedFile>
+  | ReturnType<typeof filesActions.broadcastHostedFile>
+  | ReturnType<typeof filesActions.updateMessageMedia>
+  | ReturnType<typeof filesActions.updateDownloadStatus>
+  | ReturnType<typeof filesActions.removeDownloadStatus>
   >((emit) => {
     // Misc
     socket.on(SocketActionTypes.CONNECTED_PEERS, (payload: { connectedPeers: ConnectedPeers }) => {
       emit(connectionActions.addConnectedPeers(payload.connectedPeers))
     })
     // Files
-    socket.on(SocketActionTypes.DOWNLOADED_FILE, (payload: FileMetadata) => {
-      emit(messagesActions.downloadedFile(payload))
+    socket.on(SocketActionTypes.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
+      emit(filesActions.updateMessageMedia(payload))
     })
     socket.on(SocketActionTypes.UPLOADED_FILE, (payload: FileMetadata) => {
-      emit(messagesActions.uploadedFile(payload))
+      emit(filesActions.broadcastHostedFile(payload))
+    })
+    socket.on(SocketActionTypes.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
+      emit(filesActions.updateDownloadStatus(payload))
+    })
+    socket.on(SocketActionTypes.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
+      emit(filesActions.removeDownloadStatus(payload))
     })
     // Channels
     socket.on(SocketActionTypes.CHANNELS_REPLICATED, (payload: ChannelsReplicatedPayload) => {
@@ -111,6 +121,9 @@ export function subscribe(socket: Socket) {
       log(payload)
       emit(communitiesActions.responseRegistrar(payload))
       emit(connectionActions.addInitializedRegistrar(payload.id))
+    })
+    socket.on(SocketActionTypes.PEER_LIST, (payload: StorePeerListPayload) => {
+      emit(communitiesActions.storePeerList(payload))
     })
     socket.on(SocketActionTypes.NETWORK, (payload: ResponseCreateNetworkPayload) => {
       log(payload)

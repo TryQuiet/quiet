@@ -21,8 +21,6 @@ export const MessageSendButton: FC<MessageSendButtonProps> = ({
     <TouchableWithoutFeedback
       onPress={handlePress}
       style={{
-        height: 56,
-        width: 56,
         justifyContent: 'center'
       }}>
       <Image
@@ -30,10 +28,9 @@ export const MessageSendButton: FC<MessageSendButtonProps> = ({
         resizeMode="cover"
         resizeMethod="resize"
         style={{
-          alignSelf: 'center',
-          marginBottom: 5,
-          width: 30,
-          height: 30
+          alignSelf: 'flex-end',
+          width: 20,
+          height: 20
         }}
       />
     </TouchableWithoutFeedback>

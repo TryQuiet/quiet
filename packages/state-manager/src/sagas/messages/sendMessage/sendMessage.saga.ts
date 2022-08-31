@@ -12,7 +12,6 @@ import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { Identity } from '../../identity/identity.types'
 import { ChannelMessage } from '../../publicChannels/publicChannels.types'
 import { MessageType, SendingStatus } from '../messages.types'
-import { FileMetadata } from '../../files/files.types'
 
 export function* sendMessageSaga(
   socket: Socket,
@@ -31,41 +30,23 @@ export function* sendMessageSaga(
 
   const currentChannel = yield* select(publicChannelsSelectors.currentChannelAddress)
 
-  const id = yield* call(generateMessageId)
   const createdAt = yield* call(getCurrentTime)
 
-  const channelAddress = action.payload.channelAddress || currentChannel
+  const generatedMessageId = yield* call(generateMessageId)
+  const id = action.payload.id || generatedMessageId
 
-  let media: FileMetadata | undefined
-  if (action.payload.media) {
-    media = {
-      ...action.payload.media,
-      path: null,
-      message: {
-        id: id,
-        channelAddress: channelAddress
-      }
-    }
-  }
+  const channelAddress = action.payload.channelAddress || currentChannel
 
   const message: ChannelMessage = {
     id: id,
     type: action.payload.type || MessageType.Basic,
     message: action.payload.message,
-    media,
+    media: action.payload.media,
     createdAt,
     channelAddress,
     signature,
     pubKey
   }
-
-  yield* apply(socket, socket.emit, [
-    SocketActionTypes.SEND_MESSAGE,
-    {
-      peerId: identity.peerId.id,
-      message: message
-    }
-  ])
 
   // Grey out message until saved in db
   yield* put(
@@ -90,4 +71,15 @@ export function* sendMessageSaga(
       messages: [message]
     })
   )
+
+  const isUploadingFileMessage = action.payload.media?.cid?.includes('uploading')
+  if (isUploadingFileMessage) return // Do not broadcast message until file is uploaded
+
+  yield* apply(socket, socket.emit, [
+    SocketActionTypes.SEND_MESSAGE,
+    {
+      peerId: identity.peerId.id,
+      message: message
+    }
+  ])
 }

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
 import { communities, identity, CommunityOwnership, CreateNetworkPayload } from '@quiet/state-manager'
@@ -16,6 +16,8 @@ const JoinCommunity = () => {
 
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
+
+  const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
 
   useEffect(() => {
     if (isConnected && !currentCommunity && !joinCommunityModal.open) {
@@ -46,6 +48,10 @@ const JoinCommunity = () => {
     }
   }
 
+  const handleClickInputReveal = () => {
+    revealInputValue ? setRevealInputValue(false) : setRevealInputValue(true)
+  }
+
   return (
     <PerformCommunityActionComponent
       {...joinCommunityModal}
@@ -55,6 +61,8 @@ const JoinCommunity = () => {
       isConnectionReady={isConnected}
       isCloseDisabled={!currentCommunity}
       hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
+      revealInputValue={revealInputValue}
+      handleClickInputReveal={handleClickInputReveal}
     />
   )
 }

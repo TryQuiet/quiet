@@ -1,10 +1,7 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
 import {
   Keyboard,
-  Platform,
-  StyleSheet,
   View,
-  KeyboardAvoidingView,
   FlatList,
   TextInput
 } from 'react-native'
@@ -16,6 +13,7 @@ import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
 
 export const Chat: FC<ChatProps> = ({
   sendMessageAction,
+  loadMessagesAction,
   channel,
   user,
   messages = {
@@ -64,76 +62,51 @@ export const Chat: FC<ChatProps> = ({
     messageInputRef.current.clear()
     sendMessageAction(messageInput)
     setMessageInput('')
+    setInputEmpty(true)
   }
 
-  const inputStyle = didKeyboardShow ? customInputStyle.expanded : {}
-  const inputWrapperStyle = didKeyboardShow
-    ? customInputWrapperStyle.expanded
-    : customInputWrapperStyle.default
-
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={25}
+    <View
       style={{
         flex: 1,
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        paddingLeft: 20,
+        paddingRight: 20,
+        paddingBottom: 20
       }}>
       <FlatList
         inverted
+        showsVerticalScrollIndicator={false}
         data={Object.keys(messages.groups).reverse()}
         keyExtractor={item => item}
         renderItem={({ item }) => (
           <ChannelMessagesComponent messages={messages.groups[item]} day={item} />
         )}
-        style={{ paddingLeft: 20, paddingRight: 20 }}
+        onEndReached={() => {
+          loadMessagesAction(true)
+        }}
+        onEndReachedThreshold={0.7}
       />
-      <View style={inputWrapperStyle}>
-        <Input
-          ref={messageInputRef}
-          onChangeText={onInputTextChange}
-          placeholder={'Message #' + channel.name + ' as @' + user}
-          multiline={true}
-          style={inputStyle}
-        />
-      </View>
-      {didKeyboardShow && (
-        <View
-          style={{
-            alignContent: 'center',
-            height: 56,
-            paddingLeft: 20,
-            paddingRight: 20,
-            backgroundColor: '#fbfbfb'
-          }}>
-          <View style={{ alignSelf: 'flex-end' }}>
+      <View style={{ flexDirection: 'row' }}>
+        <View style={{ flex: 9 }}>
+          <Input
+            ref={messageInputRef}
+            onChangeText={onInputTextChange}
+            placeholder={'Message #' + channel.name + ' as @' + user}
+            multiline={true}
+          />
+        </View>
+        {didKeyboardShow && (
+          <View style={{ flex: 1, justifyContent: 'center' }}>
             <MessageSendButton onPress={onPress} disabled={isInputEmpty} />
           </View>
-        </View>
-      )}
-    </KeyboardAvoidingView>
+        )}
+      </View>
+    </View>
   )
 }
-
-const customInputWrapperStyle = StyleSheet.create({
-  default: {
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingBottom: 20
-  },
-  expanded: {
-    padding: 0
-  }
-})
-
-const customInputStyle = StyleSheet.create({
-  expanded: {
-    borderTopWidth: 1,
-    borderWidth: 0
-  }
-})
 
 export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps> = ({
   messages,

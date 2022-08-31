@@ -23,7 +23,9 @@ const args: PerformCommunityActionProps = {
   },
   handleClose: function (): void { },
   isCloseDisabled: false,
-  hasReceivedResponse: false
+  hasReceivedResponse: false,
+  handleClickInputReveal: function (): void {},
+  revealInputValue: false
 }
 
 Component.args = args

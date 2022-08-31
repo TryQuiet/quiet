@@ -216,7 +216,7 @@ export class ConnectionsManager extends EventEmitter {
   public initLibp2p = async (params: InitLibp2pParams): Promise<{ libp2p: Libp2p; localAddress: string }> => {
     const localAddress = this.createLibp2pAddress(params.address, params.addressPort, params.peerId.toB58String())
 
-    log(`Initializing libp2p for ${params.peerId.toB58String()}`)
+    log(`Initializing libp2p for ${params.peerId.toB58String()}, bootstrapping with ${params.bootstrapMultiaddrs.length} peers`)
 
     const nodeParams: Libp2pNodeParams = {
       peerId: params.peerId,
@@ -230,7 +230,6 @@ export class ConnectionsManager extends EventEmitter {
       transportClass: this.libp2pTransportClass,
       targetPort: params.targetPort
     }
-
     const libp2p = ConnectionsManager.createBootstrapNode(nodeParams)
 
     this.libp2pInstance = libp2p
@@ -313,6 +312,10 @@ export class ConnectionsManager extends EventEmitter {
 
   private static readonly defaultLibp2pNode = (params: Libp2pNodeParams): Libp2p => {
     return new Libp2p({
+      connectionManager: {
+        minConnections: 3,
+        maxConnections: 8
+      },
       peerId: params.peerId,
       addresses: {
         listen: params.listenAddresses
@@ -326,13 +329,14 @@ export class ConnectionsManager extends EventEmitter {
         pubsub: Gossipsub
       },
       dialer: {
-        dialTimeout: 120_000
+        dialTimeout: 120_000,
+        maxParallelDials: 3
       },
       config: {
         peerDiscovery: {
           [Bootstrap.tag]: {
             enabled: true,
-            list: params.bootstrapMultiaddrsList
+            list: params.bootstrapMultiaddrsList.reverse()
           },
           autoDial: true
         },

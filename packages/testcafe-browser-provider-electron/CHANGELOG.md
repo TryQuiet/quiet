@@ -3,6 +3,70 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.2-alpha.0](https://github.com/DevExpress/testcafe-browser-provider-electron/compare/testcafe-browser-provider-electron@0.9.1-alpha.1...testcafe-browser-provider-electron@0.9.2-alpha.0) (2022-08-26)
+
+**Note:** Version bump only for package testcafe-browser-provider-electron
+
+
+
+
+
+## [0.9.1-alpha.1](https://github.com/DevExpress/testcafe-browser-provider-electron/compare/testcafe-browser-provider-electron@0.9.0...testcafe-browser-provider-electron@0.9.1-alpha.1) (2022-08-16)
+
+**Note:** Version bump only for package testcafe-browser-provider-electron
+
+
+
+
+
+## [0.9.1-alpha.0](https://github.com/DevExpress/testcafe-browser-provider-electron/compare/testcafe-browser-provider-electron@0.9.0...testcafe-browser-provider-electron@0.9.1-alpha.0) (2022-08-11)
+
+**Note:** Version bump only for package testcafe-browser-provider-electron
+
+
+
+
+
+# [0.9.0](https://github.com/DevExpress/testcafe-browser-provider-electron/compare/testcafe-browser-provider-electron@0.8.2-alpha.4...testcafe-browser-provider-electron@0.9.0) (2022-08-10)
+
+**Note:** Version bump only for package testcafe-browser-provider-electron
+
+
+
+
+
+## [0.8.2-alpha.4](https://github.com/DevExpress/testcafe-browser-provider-electron/compare/testcafe-browser-provider-electron@0.8.2-alpha.3...testcafe-browser-provider-electron@0.8.2-alpha.4) (2022-08-04)
+
+**Note:** Version bump only for package testcafe-browser-provider-electron
+
+
+
+
+
+## [0.8.2-alpha.3](https://github.com/DevExpress/testcafe-browser-provider-electron/compare/testcafe-browser-provider-electron@0.8.2-alpha.1...testcafe-browser-provider-electron@0.8.2-alpha.3) (2022-08-04)
+
+**Note:** Version bump only for package testcafe-browser-provider-electron
+
+
+
+
+
+## [0.8.2-alpha.2](https://github.com/DevExpress/testcafe-browser-provider-electron/compare/testcafe-browser-provider-electron@0.8.2-alpha.1...testcafe-browser-provider-electron@0.8.2-alpha.2) (2022-08-04)
+
+**Note:** Version bump only for package testcafe-browser-provider-electron
+
+
+
+
+
+## [0.8.2-alpha.1](https://github.com/DevExpress/testcafe-browser-provider-electron/compare/testcafe-browser-provider-electron@0.8.2-alpha.0...testcafe-browser-provider-electron@0.8.2-alpha.1) (2022-08-01)
+
+**Note:** Version bump only for package testcafe-browser-provider-electron
+
+
+
+
+
 ## [0.8.2-alpha.0](https://github.com/DevExpress/testcafe-browser-provider-electron/compare/testcafe-browser-provider-electron@0.3.0-alpha.0...testcafe-browser-provider-electron@0.8.2-alpha.0) (2022-06-21)
 
 **Note:** Version bump only for package testcafe-browser-provider-electron

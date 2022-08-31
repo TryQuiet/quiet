@@ -71,6 +71,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
   const scrollbarRef = React.useRef()
 
   const [offset, setOffset] = React.useState(0)
+
   const defaultCurrentTab = owner ? 'invite' : 'notifications'
   const [currentTab, setCurrentTab] = useState(defaultCurrentTab)
 
@@ -113,8 +114,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
                 handleChange(value)
               }}
               orientation='vertical'
-              className={classes.tabs}
               textColor='inherit'
+              className={classes.tabs}
               classes={{ indicator: classes.indicator }}>
               <Tab
                 value='notifications'

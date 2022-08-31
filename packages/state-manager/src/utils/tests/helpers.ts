@@ -10,6 +10,7 @@ import {
   parseCertificate,
   sign
 } from '@quiet/identity'
+import child_process from 'child_process'
 import logger from '../logger'
 import fs from 'fs'
 import os from 'os'
@@ -94,8 +95,35 @@ export const lastActionReducer = (state = [], action: any) => {
   return state
 }
 
+const messagesArr = [] // Replicated messages
+let peersArr = []
+const registrationTime = null // Time of receiving certificate
+let connectionTime = null // Time elasped between receiving certificate and connecting to peers.
+let channelReplicationTime = null // Time elapsed between connectiong to peers and replicating a channel
+let peerNumber = null // Peer number by joining order.
+
 export const collectDataReducer = (state = [], action: any) => {
   switch (action.type) {
+    case 'Communities/storePeerList':
+      peerNumber = action.payload.peerList.length - 1
+      break
+    case 'PublicChannels/channelsReplicated':
+      // If you use spam-bot change channel name to channel bot spams on.
+      if (action.payload.channels?.['general']) {
+        const path = `${os.homedir()}/data-${state[0].nickname}.json`
+        channelReplicationTime = getCurrentTime()
+
+        const data = {
+          peerNumber,
+          connectionTime: connectionTime - registrationTime,
+          channelReplicationTime: channelReplicationTime - connectionTime
+        }
+
+        const jsonData = JSON.stringify(data)
+        fs.writeFileSync(path, jsonData)
+        // child_process.execSync('aws s3 cp /root/data-*.json s3://connected-peers')
+      }
+      break
     case 'Identity/registerCertificate':
       state.push({
         nickname: action.payload.nickname
@@ -107,16 +135,23 @@ export const collectDataReducer = (state = [], action: any) => {
       const pubKey = keyFromCertificate(parsedCertificate)
       state[0].pubKey = pubKey
       break
+    case 'Connection/addConnectedPeers':
+      console.log('Adding connected peers', action.payload)
+      peersArr = action.payload
+      connectionTime = getCurrentTime()
+      break
     case 'Messages/incomingMessages':
       const publicKey = state[0].pubKey
       const messages: ChannelMessage[] = action.payload.messages
 
-      // Add QuietData to path
-
       const path = `${os.homedir()}/data-${state[0].nickname}.json`
 
       messages.forEach(message => {
-        if (message.message.startsWith('Created') || message.message.startsWith('@') || message.pubKey === publicKey) return
+        if (
+          message.message.startsWith('Created') ||
+          message.message.startsWith('@') ||
+          message.pubKey === publicKey
+        ) { return }
 
         const currentTime = getCurrentTime()
         const delay = currentTime - message.createdAt
@@ -125,18 +160,19 @@ export const collectDataReducer = (state = [], action: any) => {
           [message.id]: delay
         }
 
-        let dataSet = []
+        messagesArr.push(data)
 
-        if (fs.existsSync(path)) {
-          const data = fs.readFileSync(path, 'utf-8')
-          dataSet = JSON.parse(data)
+        if (messagesArr.length === 1) {
+          const jsonData = JSON.stringify(messagesArr)
+          fs.writeFileSync(path, jsonData)
+          // child_process.execSync('aws s3 cp /root/data-*.json s3://quiet-performance-data')
         }
 
-        dataSet.push(data)
-
-        const jsonData = JSON.stringify(dataSet)
-
-        fs.writeFileSync(path, jsonData)
+        if (messagesArr.length === 500) {
+          const jsonData = JSON.stringify(messagesArr)
+          fs.writeFileSync(path, jsonData)
+          // child_process.execSync('aws s3 cp /root/data-*.json s3://quiet-performance-data-1-message')
+        }
       })
       break
   }
