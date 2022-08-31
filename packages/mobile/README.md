@@ -55,7 +55,7 @@ Unplug your phone and repeat last command from inside the container.
 #### Access Android application logs
 
 ```
-adb logcat --pid=$(adb shell pidof -s com.zbaymobile)
+adb logcat --pid=$(adb shell pidof -s com.zbaymobile.debug)
 ```
 
 ## Locally linking packages (mobile)
