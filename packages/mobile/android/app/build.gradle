@@ -188,16 +188,16 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
-    flavorDimensions "something"
+    flavorDimensions "version"
     productFlavors {
         storybook {
-            applicationId "com.zmaymobile.storybook"
+            applicationId "com.zbaymobile.storybook"
             versionNameSuffix "-storybook"
-            dimension "something"
+            dimension "version"
         }
         standard {
-            applicationId "com.zmaymobile"
-            dimension "something"
+            applicationId "com.zbaymobile"
+            dimension "version"
         }
     }
 
