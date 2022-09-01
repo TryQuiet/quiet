@@ -14,7 +14,8 @@ import {
   DownloadProgress,
   DownloadState,
   imagesExtensions,
-  User
+  User,
+  BASE_NOTIFICATION_CHANNEL
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
@@ -312,7 +313,7 @@ export class Storage {
           // Do not notify about old messages
           if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME)) return
           const bridge = require('rn-bridge')
-          bridge.channel.send('_NOTIFICATION_', JSON.stringify(message))
+          bridge.channel.send(BASE_NOTIFICATION_CHANNEL, JSON.stringify(message))
         }
       })
       db.events.on('replicated', async address => {
