@@ -49,7 +49,7 @@ See our [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ) for answers t
 
 ## Getting started
 
-To try Quiet, download the [latest release](https://github.com/TryQuiet/monorepo/releases/latest) for your platform (.dmg for macOS, .exe for Windows, etc.) and install it in the normal way. Then create a community and open the community's settings to invite members. 
+To try Quiet, download the [latest release](https://github.com/TryQuiet/quiet/releases/tag/quiet%400.10.0) for your platform (.dmg for macOS, .exe for Windows, etc.) and install it in the normal way. Then create a community and open the community's settings to invite members. 
 
 If you'd like to help develop Quiet, see [Contributing to Quiet](#contributing-to-quiet).
 
@@ -62,10 +62,10 @@ If you'd like to help develop Quiet, see [Contributing to Quiet](#contributing-t
 * **Notifications** - Get desktop notifications for new messages, with optional sounds.
 * **Desktop Apps** - Desktop apps for Mac, Windows, and Linux.
 * **No email or phone number required** - Unlike Slack, Discord, WhatsApp, Telegram, and Signal, no email or phone number is required to create or join a community. 
+* **Files** - Send and receive files of unlimited size!
 
 ## Planned (but still-missing) features
 
-* **Files** - Send and receive files of unlimited size!
 * **Direct Messages** - Send and receive direct messages that are encrypted to the recipient and unreadable by other community members.
 * **Mobile Apps** - Join communities on Android or iOS, in addition to desktop.
 * **Mentions** - Send @ mentions that notify other users.
