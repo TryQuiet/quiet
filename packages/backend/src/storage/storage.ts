@@ -308,8 +308,7 @@ export class Storage {
         })
         // Display push notifications on mobile
         if (process.env.BACKEND === 'mobile') {
-          const payload = entry.payload.value
-          const message = payload.messages[payload.messages.length - 1]
+          const message = entry.payload.value
           // Do not notify about old messages
           if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME)) return
           const bridge = require('rn-bridge')
