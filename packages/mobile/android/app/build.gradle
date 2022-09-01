@@ -1,6 +1,8 @@
 apply plugin: "com.android.application"
 apply plugin: 'kotlin-android'
 
+// apply from: project(":react-native-config").projectDir.getPath() + "/dotenv.gradle"
+
 import com.android.build.OutputFile
 
 /**
@@ -138,6 +140,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 93
         versionName "0.5.0-alpha.23"
+        resValue "string", "build_config_package", "com.zbaymobile"
         ndk {
             abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
         }
@@ -175,6 +178,7 @@ android {
         debug {
             signingConfig signingConfigs.debug
             applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
@@ -182,6 +186,18 @@ android {
             signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+    flavorDimensions "something"
+    productFlavors {
+        storybook {
+            applicationId "com.zmaymobile.storybook"
+            versionNameSuffix "-storybook"
+            dimension "something"
+        }
+        standard {
+            applicationId "com.zmaymobile"
+            dimension "something"
         }
     }
 
@@ -251,7 +267,8 @@ task copyDownloadableDepsToLibs(type: Copy) {
 
 // Additional configuration
 project.ext.envConfigFiles = [
-    debug: ".env.staging",
+    debug: ".env.development",
+    storybook: ".env.storybook",
     release: ".env.staging",
     prod: ".env.production",
 ]
