@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
 import com.zbaymobile.Utils.Const;
 
 import androidx.annotation.NonNull;
@@ -38,6 +39,7 @@ public class NotificationModule extends ReactContextBaseJavaModule {
         this.reactContext = reactContext;
     }
 
+    @ReactMethod
     public static void notify(String channelName, String message) {
         if (channelName.equals(SYSTEM_CHANNEL)) return; // Ignore system messages
         if (!channelName.equals(RICH_NOTIFICATION_CHANNEL) && isAppOnForeground()) return; // Only RICH_NOTIFICATION can be shown in foreground
