@@ -36,7 +36,7 @@ export const ChannelListScreen: FC = () => {
   const tiles = Object.values(channels).map(status => {
     const newestMessage = status.newestMessage
 
-    const message = newestMessage?.message ? newestMessage?.message : '...'
+    const message = newestMessage?.message || '...'
     const date = newestMessage?.createdAt ? formatMessageDisplayDate(newestMessage.createdAt) : undefined
 
     const tile: ChannelTileProps = {
