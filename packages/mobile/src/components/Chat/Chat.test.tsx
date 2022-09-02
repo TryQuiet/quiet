@@ -2077,7 +2077,7 @@ describe('Chat component', () => {
                   editable={true}
                   multiline={true}
                   onChangeText={[Function]}
-                  placeholder="Message #Zbay as @holmes"
+                  placeholder="Message #Zbay"
                   rejectResponderTermination={true}
                   style={
                     Array [
