@@ -191,12 +191,11 @@ android {
     flavorDimensions "version"
     productFlavors {
         storybook {
-            applicationId "com.zbaymobile.storybook"
+            applicationIdSuffix ".storybook"
             versionNameSuffix "-storybook"
             dimension "version"
         }
         standard {
-            applicationId "com.zbaymobile"
             dimension "version"
         }
     }
