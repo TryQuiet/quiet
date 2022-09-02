@@ -1,6 +1,8 @@
 package com.zbaymobile
 
+import android.app.ActivityManager
 import android.app.Application
+import android.content.Context.ACTIVITY_SERVICE
 import android.util.Log
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
@@ -12,11 +14,19 @@ import java.io.File
 import java.io.FileWriter
 import java.io.PrintWriter
 
-class TorModule(private val context: ReactApplicationContext): ReactContextBaseJavaModule() {
+
+class TorModule(private val context: ReactApplicationContext): ReactContextBaseJavaModule(),
+    LifecycleEventListener {
+
+    init {
+        context.addLifecycleEventListener(this@TorModule)
+    }
 
     override fun getName(): String {
         return "TorModule"
     }
+
+    private lateinit var process: Process
 
     private var torrc: File? = null
 
@@ -37,6 +47,8 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
             return
 
         val torBinary = TorResourceInstaller(context, context.filesDir).installResources()
+
+        checkTorAlreadyRunning()
 
         if(runTorCommand(torBinary, torrcCustom)) {
             var authCookie: String = ""
@@ -60,7 +72,7 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
         )
 
         val exitCode = try {
-            val process = Utils.exec(
+            process = Utils.exec(
                 dir = null,
                 command = command,
                 env = null
@@ -120,6 +132,21 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
                 .emit("onTorInit", payload)
     }
 
+    private fun checkTorAlreadyRunning(): Boolean {
+        val activityManager: ActivityManager =
+            context.getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        val procInfo: List<ActivityManager.RunningAppProcessInfo> = activityManager.runningAppProcesses
+
+        for (runningProInfo in procInfo) {
+            if (runningProInfo.processName == "libtor.so") {
+                Log.d(Const.TAG_TOR, "Process is already running: " + runningProInfo.pid)
+                return true
+            }
+        }
+
+        return false
+    }
+
     @ReactMethod
     fun createDataDirectory() {
         val dataDirectory = File(context.filesDir, "backend/files")
@@ -130,6 +157,15 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
         context
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
             .emit("onDataDirectoryCreated", path)
+    }
+
+    override fun onHostResume() {}
+
+    override fun onHostPause() {}
+
+    override fun onHostDestroy() {
+        Log.d(Const.TAG_TOR, "Killing process")
+        process.destroy()
     }
 
 }
