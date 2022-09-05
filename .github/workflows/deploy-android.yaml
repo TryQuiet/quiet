@@ -50,14 +50,14 @@ jobs:
       - name: "Prepare signing configuration"
         run: |
           printf "\
-          STORE_FILE=quietmobile.jks\n\
+          STORE_FILE=quietmobile.keystore\n\
           STORE_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\n\
           KEY_ALIAS=${{ SECRETS.GOOGLE_KEYSTORE_ALIAS }}\n\
           KEY_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\
           " >> $HOME/.gradle/gradle.properties
 
       - name: "Decode keystore"
-        run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.jks
+        run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.keystore
 
       - name: "Build for Android"
         run: cd ./packages/mobile/android && ./gradlew bundleStandardRelease
@@ -65,8 +65,8 @@ jobs:
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v2
         with:
-          name: app-release.aab
-          path: ./packages/mobile/android/app/build/outputs/bundle/release/app-release.aab
+          name: app-standard-release.aab
+          path: ./packages/mobile/android/app/build/outputs/bundle/release/app-standard-release.aab
           retention-days: 5
 
       - name: "Configure Google Play upload"
@@ -80,7 +80,7 @@ jobs:
         with:
           serviceAccountJson: google-play.json
           packageName: com.zbaymobile
-          releaseFiles: ./packages/mobile/android/app/build/outputs/bundle/release/app-release.aab
+          releaseFiles: ./packages/mobile/android/app/build/outputs/bundle/release/app-standard-release.aab
           track: internal
           status: completed
           whatsNewDirectory: distribution/whatsnew
