@@ -59,8 +59,6 @@ export { useIO } from './sagas/socket/startConnection/startConnection.saga'
 export { getFactory } from './utils/tests/factories'
 export * from './utils/tests/helpers'
 
-export { parseName } from './utils/functions/naming/naming'
-
 export { Community } from './sagas/communities/communities.slice'
 
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
@@ -78,6 +76,8 @@ export { MessagesTransform } from './sagas/messages/messages.transform'
 export { FilesTransform } from './sagas/files/files.transform'
 
 export { AUTODOWNLOAD_SIZE_LIMIT } from './constants'
+
+export { parseName } from './utils/functions/naming/naming'
 
 export * from './sagas/identity/identity.types'
 
