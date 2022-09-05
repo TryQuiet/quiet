@@ -59,6 +59,8 @@ export { useIO } from './sagas/socket/startConnection/startConnection.saga'
 export { getFactory } from './utils/tests/factories'
 export * from './utils/tests/helpers'
 
+export { parseName } from './utils/functions/naming/naming'
+
 export { Community } from './sagas/communities/communities.slice'
 
 export { communitiesAdapter } from './sagas/communities/communities.adapter'

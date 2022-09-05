@@ -11,7 +11,8 @@ import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 
 import { TextInput } from '../../../forms/components/textInput'
 import { channelNameField } from '../../../forms/fields/createChannelFields'
-import { parseName } from '../../../../utils/functions/naming'
+
+import { parseName } from '@quiet/state-manager'
 
 const useStyles = makeStyles(theme => ({
   main: {
