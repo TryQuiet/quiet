@@ -94,7 +94,7 @@ export const Chat: FC<ChatProps> = ({
           <Input
             ref={messageInputRef}
             onChangeText={onInputTextChange}
-            placeholder={'Message #' + channel.name + ' as @' + user}
+            placeholder={`Message #${channel.name}`}
             multiline={true}
           />
         </View>
