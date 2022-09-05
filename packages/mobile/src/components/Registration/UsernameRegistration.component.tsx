@@ -63,6 +63,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
         }
         disabled={loading}
         validation={inputError}
+        length={20}
         capitalize={'none'}
       />
       {!inputError && userName?.length > 0 && parsedNameDiffers && (
