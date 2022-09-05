@@ -11,7 +11,7 @@ export const PublicChannelsTransform = createTransform(
     return {
       currentChannelAddress: 'general',
       channels: publicChannelsAdapter.getInitialState(),
-      channelsStatus: publicChannelsStatusAdapter.getInitialState(),
+      channelsStatus: outboundState.channelsStatus,
       channelsSubscriptions: publicChannelsSubscriptionsAdapter.getInitialState()
     }
   },
