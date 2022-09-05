@@ -50,7 +50,7 @@ jobs:
       - name: "Prepare signing configuration"
         run: |
           printf "\
-          STORE_FILE=quietmobile.keystore\n\
+          STORE_FILE=quietmobile.jks\n\
           STORE_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\n\
           KEY_ALIAS=${{ SECRETS.GOOGLE_KEYSTORE_ALIAS }}\n\
           KEY_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\
