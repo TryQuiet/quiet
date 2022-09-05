@@ -18,8 +18,5 @@ export const specialCharsRegex = /[&\/\\#\]\[,+()!@$%^&*=_~`.'":;|?<>{}]/g
 
 export const parseName = (name = '') => {
   const trimmedName = trimHyphen(name)
-  return trimmedName
-    .toLowerCase()
-    .replace(/ +/g, '-')
-    .replace(specialCharsRegex, '')
+  return trimmedName.toLowerCase().replace(/ +/g, '-').replace(specialCharsRegex, '')
 }

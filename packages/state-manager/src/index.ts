@@ -77,6 +77,8 @@ export { FilesTransform } from './sagas/files/files.transform'
 
 export { AUTODOWNLOAD_SIZE_LIMIT } from './constants'
 
+export { parseName } from './utils/functions/naming/naming'
+
 export * from './sagas/identity/identity.types'
 
 export * from './sagas/communities/communities.types'
