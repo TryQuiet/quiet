@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: app-standard-release.aab
-          path: ./packages/mobile/android/app/build/outputs/bundle/release/app-standard-release.aab
+          path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
           retention-days: 5
 
       - name: "Configure Google Play upload"
@@ -80,7 +80,7 @@ jobs:
         with:
           serviceAccountJson: google-play.json
           packageName: com.zbaymobile
-          releaseFiles: ./packages/mobile/android/app/build/outputs/bundle/release/app-standard-release.aab
+          releaseFiles: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
           track: internal
           status: completed
           whatsNewDirectory: distribution/whatsnew
