@@ -112,17 +112,20 @@ describe('markUnreadChannelsSaga', () => {
       .withState(store.getState())
       .put(
         publicChannelsActions.markUnreadChannel({
-          channelAddress: 'memes'
+          channelAddress: 'memes',
+          message: messages[1]
         })
       )
       .not.put(
         publicChannelsActions.markUnreadChannel({
-          channelAddress: 'enya'
+          channelAddress: 'enya',
+          message: messages[2]
         })
       )
       .put(
         publicChannelsActions.markUnreadChannel({
-          channelAddress: 'travels'
+          channelAddress: 'travels',
+          message: messages[3]
         })
       )
       .run()
