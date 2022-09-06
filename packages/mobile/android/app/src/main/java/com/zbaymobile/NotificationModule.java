@@ -44,15 +44,13 @@ public class NotificationModule extends ReactContextBaseJavaModule {
         if (channelName.equals(SYSTEM_CHANNEL)) return; // Ignore system messages
         if (!channelName.equals(RICH_NOTIFICATION_CHANNEL) && isAppOnForeground()) return; // Only RICH_NOTIFICATION can be shown in foreground
 
-        JSONObject data; // Message payload
+        JSONObject json; // Message payload
 
         String title = "Quiet";
         String text = "";
 
         try {
-            JSONObject json = new JSONObject(message);
-            JSONArray payload = new JSONArray(json.getString("payload"));
-            data = new JSONObject(payload.getString(0));
+            json = new JSONObject(message);
         } catch (JSONException e) {
             Log.e("NOTIFICATION", "unexpected JSON exception", e);
             return;
@@ -60,6 +58,9 @@ public class NotificationModule extends ReactContextBaseJavaModule {
 
         if (channelName.equals(BASE_NOTIFICATION_CHANNEL)) {
             try {
+                JSONArray payload = new JSONArray(json.getString("payload"));
+                JSONObject data = new JSONObject(payload.getString(0));
+
                 String channelAddress = data.getString("channelAddress");
                 title = "Quiet";
                 text = String.format("You have a message in #%s", channelAddress);
@@ -71,6 +72,8 @@ public class NotificationModule extends ReactContextBaseJavaModule {
 
         if(channelName.equals(RICH_NOTIFICATION_CHANNEL)) {
             try {
+                JSONObject data = json;
+
                 String channelAddress = data.getString("channelAddress");
                 String messageContent = data.getString("message");
                 title = String.format("#%s", channelAddress);
@@ -85,7 +88,8 @@ public class NotificationModule extends ReactContextBaseJavaModule {
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(title)
                 .setContentText(text)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
 
         Integer notificationId = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
 
