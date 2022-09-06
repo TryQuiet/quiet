@@ -15,11 +15,10 @@ import {
   JoinCommunityDictionary
 } from '../CreateJoinCommunity/community.dictionary'
 
-import { CommunityOwnership } from '@quiet/state-manager'
+import { parseName, CommunityOwnership } from '@quiet/state-manager'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
-import { parseName } from '../../../utils/functions/naming'
 import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@material-ui/core'
 import VisibilityOff from '@material-ui/icons/VisibilityOff'

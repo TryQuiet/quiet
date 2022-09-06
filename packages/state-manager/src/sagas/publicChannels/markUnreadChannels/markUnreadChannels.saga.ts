@@ -1,5 +1,5 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { select, put } from 'typed-redux-saga'
+import { select, put, call } from 'typed-redux-saga'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
@@ -16,7 +16,8 @@ export function* markUnreadChannelsSaga(
     // Do not proceed for current channel
     if (message.channelAddress !== currentChannelAddress) {
       const payload: MarkUnreadChannelPayload = {
-        channelAddress: message.channelAddress
+        channelAddress: message.channelAddress,
+        message: message
       }
 
       const statuses = yield* select(publicChannelsSelectors.channelsStatus)

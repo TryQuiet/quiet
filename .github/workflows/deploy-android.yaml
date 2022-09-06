@@ -35,6 +35,8 @@ jobs:
         
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile"
 
       - name: "Create gradle configuration directory"
         run: mkdir -p $HOME/.gradle
@@ -58,13 +60,13 @@ jobs:
         run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.keystore
 
       - name: "Build for Android"
-        run: cd ./packages/mobile/android && ./gradlew bundleRelease
+        run: cd ./packages/mobile/android && ./gradlew bundleStandardRelease
 
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v2
         with:
-          name: app-release.aab
-          path: ./packages/mobile/android/app/build/outputs/bundle/release/app-release.aab
+          name: app-standard-release.aab
+          path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
           retention-days: 5
 
       - name: "Configure Google Play upload"
@@ -78,7 +80,7 @@ jobs:
         with:
           serviceAccountJson: google-play.json
           packageName: com.zbaymobile
-          releaseFiles: ./packages/mobile/android/app/build/outputs/bundle/release/app-release.aab
+          releaseFiles: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
           track: internal
           status: completed
           whatsNewDirectory: distribution/whatsnew

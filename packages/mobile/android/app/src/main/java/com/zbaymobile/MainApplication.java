@@ -96,7 +96,7 @@ public class MainApplication extends Application implements ReactApplication {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
           CharSequence name = getString(R.string.notification_channel_name);
           String description = getString(R.string.notification_channel_description);
-          int importance = NotificationManager.IMPORTANCE_DEFAULT;
+          int importance = NotificationManager.IMPORTANCE_HIGH;
           NotificationChannel channel = new NotificationChannel(Const.INCOMING_MESSAGES_CHANNEL_ID, name, importance);
           channel.setDescription(description);
           // Register the channel with the system; you can't change the importance

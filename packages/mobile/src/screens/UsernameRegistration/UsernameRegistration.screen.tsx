@@ -6,8 +6,7 @@ import { UsernameRegistrationScreenProps } from './UsernameRegistration.types'
 import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen'
 import { initActions } from '../../store/init/init.slice'
 import { UsernameRegistration } from '../../components/Registration/UsernameRegistration.component'
-
-import { errors, identity } from '@quiet/state-manager'
+import { communities, errors, identity } from '@quiet/state-manager'
 
 export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = () => {
   const dispatch = useDispatch()
@@ -17,7 +16,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   })
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-
+  const registrationAttempts = useSelector(communities.selectors.registrationAttempts(currentIdentity?.id))
   const error = useSelector(errors.selectors.registrarErrors)
 
   useEffect(() => {
@@ -44,7 +43,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   return (
     <UsernameRegistration
       registerUsernameAction={handleAction}
-      registerUsernameError={error?.message}
+      registerUsernameError={registrationAttempts ? null : error?.message}
     />
   )
 }
