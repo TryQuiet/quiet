@@ -1,11 +1,41 @@
 import React, { FC } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Image } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { MessageProps } from './Message.types'
 import Jdenticon from 'react-native-jdenticon'
+import { AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage } from '@quiet/state-manager'
 
 export const Message: FC<MessageProps> = ({ data }) => {
   const messageDisplayData = data[0]
+
+  const renderMessage = (message: DisplayableMessage) => {
+    switch (message.type) {
+      case 2: // MessageType.Image (cypress tests incompatibility with enums)
+        const size = message?.media?.size
+        const fileDisplay = !size || size < AUTODOWNLOAD_SIZE_LIMIT
+        const imageWidth = message.media?.width
+        const imageHeight = message.media?.height
+      
+        const width = imageWidth >= 400 ? 400 : imageWidth
+        return (
+          <View data-testid={`messagesGroupContent-${message.id}`}>
+            {fileDisplay ? (
+              <Image source={{ uri: `file://${message.media.path}` }} style={{ maxWidth: width, aspectRatio: imageWidth / imageHeight }}/>
+            ) : (
+              <Typography fontSize={14}>{'User sent a large image'}</Typography>
+            )}
+          </View>
+        )
+      case 4: // MessageType.File
+        return (
+          <Typography fontSize={14}>{'User sent a file'}</Typography>
+        )
+      default:
+        return (
+          <Typography fontSize={14}>{message.message}</Typography>
+        )
+    }
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -49,7 +79,7 @@ export const Message: FC<MessageProps> = ({ data }) => {
               const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
               return (
                 <View style={outerDivStyle} key={index}>
-                  <Typography fontSize={14}>{message.message}</Typography>
+                  {renderMessage(message)}
                 </View>
               )
             })}
