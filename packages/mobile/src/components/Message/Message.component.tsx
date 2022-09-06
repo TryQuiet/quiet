@@ -22,15 +22,20 @@ export const Message: FC<MessageProps> = ({ data }) => {
           style={{
             flex: 1,
             alignItems: 'center',
-            paddingRight: 12
+            paddingRight: 15
           }}>
           {infoMessage ? (
-            <Image source={appImages.quiet_icon} style={{ width: 38, height: 38 }} />
+            <Image
+            resizeMode='cover'
+            resizeMethod='resize'
+            source={appImages.quiet_icon}
+            style={{ width: 37, height: 37 }}
+          />
           ) : (
-            <Jdenticon value={messageDisplayData.nickname} size={38} style={{ padding: 0 }} />
+            <Jdenticon value={messageDisplayData.nickname} size={37} style={{ padding: 0 }} />
           )}
         </View>
-        <View style={{ flex: 10 }}>
+        <View style={{ flex: 8 }}>
           <View style={{ flexDirection: 'row', paddingBottom: 3 }}>
             <View style={{ alignSelf: 'flex-start' }}>
               <Typography fontSize={16} fontWeight={'medium'}>
