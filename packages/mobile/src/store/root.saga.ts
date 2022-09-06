@@ -3,7 +3,7 @@ import { nativeServicesMasterSaga } from './nativeServices/nativeServices.master
 import { initMasterSaga } from './init/init.master.saga'
 import { initActions } from './init/init.slice'
 import { setupCryptoSaga } from './init/setupCrypto/setupCrypto.saga'
-import { messages } from '@quiet/state-manager'
+import { publicChannels } from '@quiet/state-manager'
 import { showNotificationSaga } from './nativeServices/showNotification/showNotification.saga'
 
 export function* rootSaga(): Generator {
@@ -11,6 +11,6 @@ export function* rootSaga(): Generator {
     takeEvery(initActions.setStoreReady.type, nativeServicesMasterSaga),
     takeEvery(initActions.setStoreReady.type, initMasterSaga),
     takeEvery(initActions.setStoreReady.type, setupCryptoSaga),
-    takeEvery(messages.actions.incomingMessages.type, showNotificationSaga),
+    takeEvery(publicChannels.actions.markUnreadChannel.type, showNotificationSaga),
   ])
 }
