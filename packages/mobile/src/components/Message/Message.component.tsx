@@ -1,11 +1,15 @@
 import React, { FC } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, Image, StyleSheet } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { MessageProps } from './Message.types'
 import Jdenticon from 'react-native-jdenticon'
+import { appImages } from '../../../assets'
+import { MessageType } from '@quiet/state-manager'
 
 export const Message: FC<MessageProps> = ({ data }) => {
   const messageDisplayData = data[0]
+
+  const infoMessage = messageDisplayData.type === MessageType.Info
 
   return (
     <View style={{ flex: 1 }}>
@@ -20,17 +24,17 @@ export const Message: FC<MessageProps> = ({ data }) => {
             alignItems: 'center',
             paddingRight: 12
           }}>
-          <Jdenticon
-            value={messageDisplayData.nickname}
-            size={38}
-            style={{ padding: 0 }}
-          />
+          {infoMessage ? (
+            <Image source={appImages.quiet_icon} style={{ width: 38, height: 38 }} />
+          ) : (
+            <Jdenticon value={messageDisplayData.nickname} size={38} style={{ padding: 0 }} />
+          )}
         </View>
         <View style={{ flex: 10 }}>
           <View style={{ flexDirection: 'row', paddingBottom: 3 }}>
             <View style={{ alignSelf: 'flex-start' }}>
               <Typography fontSize={16} fontWeight={'medium'}>
-                {messageDisplayData.nickname}
+                {infoMessage ? 'Quiet' : messageDisplayData.nickname}
               </Typography>
             </View>
             <View

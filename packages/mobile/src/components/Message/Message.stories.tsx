@@ -21,3 +21,20 @@ storiesOf('Message', module).add('Default', () => {
     />
   )
 })
+.add('Info', () => {
+  return (
+    <Message
+      data={[
+        {
+          id: '1',
+          type: MessageType.Info,
+          message:
+            'Hey, @the-emperor just joined!',
+          createdAt: 0,
+          date: '1:30pm',
+          nickname: 'holmes'
+        }
+      ]}
+    />
+  )
+})
