@@ -101,7 +101,7 @@ export interface CacheMessagesPayload {
 }
 
 export interface MarkUnreadChannelPayload {
-  channelAddress: string,
+  channelAddress: string
   message?: ChannelMessage
 }
 
