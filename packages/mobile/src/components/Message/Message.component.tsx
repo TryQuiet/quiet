@@ -4,6 +4,7 @@ import { Typography } from '../Typography/Typography.component'
 import { MessageProps } from './Message.types'
 import Jdenticon from 'react-native-jdenticon'
 import { AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage } from '@quiet/state-manager'
+import { UploadedImage } from '../UploadedImage/UploadedImage.component'
 
 export const Message: FC<MessageProps> = ({ data }) => {
   const messageDisplayData = data[0]
@@ -13,14 +14,10 @@ export const Message: FC<MessageProps> = ({ data }) => {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
         const size = message?.media?.size
         const fileDisplay = !size || size < AUTODOWNLOAD_SIZE_LIMIT
-        const imageWidth = message.media?.width
-        const imageHeight = message.media?.height
-      
-        const width = imageWidth >= 400 ? 400 : imageWidth
         return (
-          <View data-testid={`messagesGroupContent-${message.id}`}>
+          <View>
             {fileDisplay ? (
-              <Image source={{ uri: `file://${message.media.path}` }} style={{ maxWidth: width, aspectRatio: imageWidth / imageHeight }}/>
+              <UploadedImage media={message.media}/>
             ) : (
               <Typography fontSize={14}>{'User sent a large image'}</Typography>
             )}
