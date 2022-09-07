@@ -75,7 +75,7 @@ export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.t
 export { MessagesTransform } from './sagas/messages/messages.transform'
 export { FilesTransform } from './sagas/files/files.transform'
 
-export { AUTODOWNLOAD_SIZE_LIMIT } from './constants'
+export { AUTODOWNLOAD_SIZE_LIMIT, BASE_NOTIFICATION_CHANNEL, RICH_NOTIFICATION_CHANNEL } from './constants'
 
 export { parseName } from './utils/functions/naming/naming'
 
