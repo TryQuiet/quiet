@@ -34,5 +34,8 @@ export const defaultPalette = {
     gray70: '#4C4C4C',
     blue: '#2373EA',
     lushSky: '#67BFD3'
+  },
+  pendingMessage: {
+    lightGray: '#B2B2B2',
   }
 }

@@ -31,6 +31,7 @@ describe('Chat component', () => {
           timestamp: 0,
           address: ''
         }}
+        pendingMessages={{}}
         messages={{
           count: 16,
           groups: {
@@ -336,6 +337,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -400,6 +402,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -427,6 +430,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -454,6 +458,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -525,6 +530,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -589,6 +595,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -660,6 +667,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -724,6 +732,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -795,6 +804,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -859,6 +869,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -930,6 +941,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -994,6 +1006,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1021,6 +1034,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1092,6 +1106,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1156,6 +1171,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1227,6 +1243,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1291,6 +1308,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1362,6 +1380,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1426,6 +1445,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1497,6 +1517,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1561,6 +1582,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1632,6 +1654,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1696,6 +1719,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1787,6 +1811,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1851,6 +1876,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1878,6 +1904,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -1949,6 +1976,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"
@@ -2013,6 +2041,7 @@ describe('Chat component', () => {
                                   "textAlign": "left",
                                   "textAlignVertical": "center",
                                 },
+                                Object {},
                               ]
                             }
                             verticalTextAlign="center"

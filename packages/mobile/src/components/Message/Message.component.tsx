@@ -5,13 +5,17 @@ import { MessageProps } from './Message.types'
 import Jdenticon from 'react-native-jdenticon'
 import { appImages } from '../../../assets'
 import { MessageType } from '@quiet/state-manager'
+import { defaultTheme } from '../../styles/themes/default.theme'
 
-export const Message: FC<MessageProps> = ({ data }) => {
+export const Message: FC<MessageProps> = ({ data, pendingMessages }) => {
   const messageDisplayData = data[0]
 
   const infoMessage = messageDisplayData.type === MessageType.Info
 
-  return (
+  const pending: boolean = pendingMessages[messageDisplayData.id] !== undefined
+  const pendingNicknameStyle = pending ? classes.pending : {}
+
+    return (
     <View style={{ flex: 1 }}>
       <View
         style={{
@@ -38,7 +42,7 @@ export const Message: FC<MessageProps> = ({ data }) => {
         <View style={{ flex: 8 }}>
           <View style={{ flexDirection: 'row', paddingBottom: 3 }}>
             <View style={{ alignSelf: 'flex-start' }}>
-              <Typography fontSize={16} fontWeight={'medium'}>
+              <Typography fontSize={16} fontWeight={'medium'} style={pendingNicknameStyle}>
                 {infoMessage ? 'Quiet' : messageDisplayData.nickname}
               </Typography>
             </View>
@@ -55,10 +59,13 @@ export const Message: FC<MessageProps> = ({ data }) => {
           </View>
           <View style={{ flexShrink: 1 }}>
             {data.map((message, index) => {
+              const isPendingMessage = pendingMessages[message.id] !== undefined
+              const pendingMessageStyle = isPendingMessage ? classes.pending : {}
+
               const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
               return (
                 <View style={outerDivStyle} key={index}>
-                  <Typography fontSize={14}>{message.message}</Typography>
+                  <Typography fontSize={14} style={pendingMessageStyle}>{message.message}</Typography>
                 </View>
               )
             })}
@@ -75,5 +82,8 @@ const classes = StyleSheet.create({
   },
   nextMessage: {
     paddingTop: 4
+  },
+  pending: {
+    color: defaultTheme.palette.pendingMessage.lightGray
   }
 })
