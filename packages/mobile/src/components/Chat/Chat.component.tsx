@@ -10,6 +10,7 @@ import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 
 import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
+import { useCallback } from 'react'
 
 export const Chat: FC<ChatProps> = ({
   sendMessageAction,
@@ -67,6 +68,10 @@ export const Chat: FC<ChatProps> = ({
     setInputEmpty(true)
   }
 
+  const renderItem = useCallback(({ item }) => (
+    <ChannelMessagesComponent messages={messages.groups[item]} day={item} />
+  ), [])
+
   return (
     <View
       style={{
@@ -83,9 +88,7 @@ export const Chat: FC<ChatProps> = ({
         showsVerticalScrollIndicator={false}
         data={Object.keys(messages.groups).reverse()}
         keyExtractor={item => item}
-        renderItem={({ item }) => (
-          <ChannelMessagesComponent messages={messages.groups[item]} day={item} />
-        )}
+        renderItem={renderItem}
         onEndReached={() => {
           loadMessagesAction(true)
         }}

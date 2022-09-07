@@ -8,20 +8,21 @@ import { UploadedImage } from '../UploadedImage/UploadedImage.component'
 
 export const Message: FC<MessageProps> = ({ data }) => {
   const messageDisplayData = data[0]
-
   const renderMessage = (message: DisplayableMessage) => {
+    
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
         const size = message?.media?.size
         const fileDisplay = !size || size < AUTODOWNLOAD_SIZE_LIMIT
+        if (message.media.ext === '.gif') return (<Typography fontSize={14}>THIS IS GIF</Typography>)
         return (
-          <View>
+          <>
             {fileDisplay ? (
               <UploadedImage media={message.media}/>
             ) : (
               <Typography fontSize={14}>{'User sent a large image'}</Typography>
             )}
-          </View>
+          </>
         )
       case 4: // MessageType.File
         return (
