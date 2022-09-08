@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "0.5.0-alpha.26",
+  "version": "0.5.0",
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -16,15 +16,16 @@
     "provide-backend-assets": "rm -rf ./nodejs-assets/nodejs-project/* && rf-lerna zipbundle @quiet/backend --target ./nodejs-assets/nodejs-project/backend.zip && cd ./nodejs-assets/nodejs-project/ && unzip ./backend.zip && rm -rf ./backend.zip && cp ../parse-duration.patch ./ && patch -p0 --forward --binary < ./parse-duration.patch || true && cp ../libp2p.patch ./ && patch -p0 --forward --binary < ./libp2p.patch || true && cp ../orbit-db-keystore.patch ./ && patch -p0 --forward --binary < ./orbit-db-keystore.patch || true && cp ../orbit-db-storage-adapter.patch ./ && patch -p0 --forward --binary < ./orbit-db-storage-adapter.patch || true && rm -rf ./node_modules/electron && rm -rf ./node_modules/wrtc",
     "enable-backend-logging-android": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -p0 --forward --binary < ./enable-backend-logs-android.patch || true",
     "enable-backend-logging-ios": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -p0 --forward --binary < ./enable-backend-logs-ios.patch || true",
+    "enable-notifications": "patch -p0 --forward --binary < ./enable-notifications.patch || true",
     "patch-dependencies": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -d ../state-manager -p0 < ./factory-girl.patch || true && patch -d ../state-manager -p0 < ./state-manager.patch || true",
-    "prepare": "npm run provide-backend-assets && npm run enable-backend-logging-android && npm run enable-backend-logging-ios && npm run exclude-test-assets && npm run patch-dependencies && npm run build",
+    "prepare": "npm run provide-backend-assets && npm run enable-backend-logging-android && npm run enable-backend-logging-ios && npm run enable-notifications && npm run exclude-test-assets && npm run patch-dependencies && npm run build",
     "postversion": "react-native-version"
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.7",
-    "@quiet/backend": "^0.10.2-alpha.2",
-    "@quiet/identity": "^0.9.2-alpha.2",
-    "@quiet/state-manager": "^0.10.2-alpha.2",
+    "@quiet/backend": "^0.11.0",
+    "@quiet/identity": "^0.10.0",
+    "@quiet/state-manager": "^0.11.0",
     "@react-native-async-storage/async-storage": "^1.15.4",
     "@react-native-community/art": "^1.2.0",
     "@react-navigation/native": "^5.9.4",

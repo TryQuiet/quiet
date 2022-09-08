@@ -11,7 +11,9 @@ export const Input = forwardRef<TextInput, InputProps>(
       onChangeText,
       label,
       placeholder,
+      capitalize,
       validation,
+      length,
       hint,
       multiline,
       disabled,
@@ -49,6 +51,8 @@ export const Input = forwardRef<TextInput, InputProps>(
             multiline={multiline}
             editable={!disabled}
             placeholder={placeholder}
+            maxLength={length}
+            autoCapitalize={capitalize}
           />
         </StyledWrapper>
         {validation && (

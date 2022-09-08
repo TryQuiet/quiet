@@ -1,7 +1,11 @@
 <resources>
     <!-- App -->
-    <string name="app_name">ZbayMobile</string>
+    <string name="app_name">Quiet</string>
 
     <!-- Universal -->
     <string name="close">close</string>
+
+    <!-- Notification -->
+    <string name="notification_channel_name">Incoming messages</string>
+    <string name="notification_channel_description">Inform the user about incoming messages</string>
 </resources>

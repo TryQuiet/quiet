@@ -13,7 +13,8 @@ import UsernameCreated from './UsernameCreated/UsernameCreated'
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 import { TextInput } from '../../forms/components/textInput'
 import { userNameField } from '../../forms/fields/createUserFields'
-import { parseName } from '../../../utils/functions/naming'
+
+import { parseName } from '@quiet/state-manager'
 
 const useStyles = makeStyles(theme => ({
   focus: {

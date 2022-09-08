@@ -50,14 +50,14 @@ describe('Message component', () => {
               Object {
                 "alignItems": "center",
                 "flex": 1,
-                "paddingRight": 12,
+                "paddingRight": 15,
               }
             }
           />
           <View
             style={
               Object {
-                "flex": 10,
+                "flex": 8,
               }
             }
           >
