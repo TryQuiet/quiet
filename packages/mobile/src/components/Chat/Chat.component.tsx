@@ -10,7 +10,6 @@ import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 
 import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
-import { useCallback } from 'react'
 
 export const Chat: FC<ChatProps> = ({
   sendMessageAction,
@@ -20,7 +19,8 @@ export const Chat: FC<ChatProps> = ({
   messages = {
     count: 0,
     groups: {}
-  }
+  },
+  downloadStatuses
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [messageInput, setMessageInput] = useState<string | undefined>()
@@ -66,9 +66,13 @@ export const Chat: FC<ChatProps> = ({
     setInputEmpty(true)
   }
 
-  const renderItem = useCallback(({ item }) => (
-    <ChannelMessagesComponent messages={messages.groups[item]} day={item} />
-  ), [])
+  const renderItem = ({ item }) => (
+    <ChannelMessagesComponent
+      messages={messages.groups[item]}
+      day={item}
+      downloadStatuses={downloadStatuses}
+    />
+  )
 
   return (
     <View
@@ -113,14 +117,16 @@ export const Chat: FC<ChatProps> = ({
 
 export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps> = ({
   messages,
-  day
+  day,
+  downloadStatuses
 }) => {
   return (
     <View key={day}>
       {/* <MessagesDivider title={day} /> */}
       {messages.map(data => {
         // Messages merged by sender (DisplayableMessage[])
-        return <Message key={data[0].id} data={data} />
+        const messageId = data[0].id
+        return <Message key={messageId} data={data} downloadStatus={downloadStatuses[messageId]}/>
       })}
     </View>
   )

@@ -6,9 +6,11 @@ import Jdenticon from 'react-native-jdenticon'
 import { appImages } from '../../../assets'
 import { MessageType, AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage } from '@quiet/state-manager'
 import { UploadedImage } from '../UploadedImage/UploadedImage.component'
+import { UploadedFile } from '../UploadedFile/UploadedFile.component'
 
-export const Message: FC<MessageProps> = ({ data }) => {
+export const Message: FC<MessageProps> = ({ data, downloadStatus }) => {
   const messageDisplayData = data[0]
+  console.log('Download state;:', downloadStatus?.downloadState)
   const renderMessage = (message: DisplayableMessage) => {
     
     switch (message.type) {
@@ -21,13 +23,14 @@ export const Message: FC<MessageProps> = ({ data }) => {
             {fileDisplay ? (
               <UploadedImage media={message.media}/>
             ) : (
-              <Typography fontSize={14}>{'User sent a large image'}</Typography>
+              <UploadedFile media={message.media} downloadStatus={downloadStatus} />
+              // <Typography fontSize={14}>{'User sent a large image'}</Typography>
             )}
           </>
         )
       case 4: // MessageType.File
         return (
-          <Typography fontSize={14}>{'User sent a file'}</Typography>
+          <UploadedFile media={message.media} downloadStatus={downloadStatus} />
         )
       default:
         return (

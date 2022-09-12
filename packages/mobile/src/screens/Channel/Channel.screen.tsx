@@ -6,7 +6,7 @@ import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { Chat } from '../../components/Chat/Chat.component'
 
-import { identity, messages, publicChannels } from '@quiet/state-manager'
+import { files, identity, messages, publicChannels } from '@quiet/state-manager'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 
 export const ChannelScreen: FC = () => {
@@ -35,6 +35,9 @@ export const ChannelScreen: FC = () => {
   const channelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
+
+  const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
+  console.log('STATUSES', downloadStatusesMapping)
 
   const sendMessageAction = useCallback(
     (message: string) => {
@@ -68,6 +71,7 @@ export const ChannelScreen: FC = () => {
               count: channelMessagesCount,
               groups: channelMessages
             }}
+            downloadStatuses={downloadStatusesMapping}
           />
         </>
       )}
