@@ -1,12 +1,17 @@
 import { publicChannels, RICH_NOTIFICATION_CHANNEL } from '@quiet/state-manager'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { NativeModules } from 'react-native'
+import { AppState, NativeModules } from 'react-native'
 import { call } from 'typed-redux-saga'
 
 export function* showNotificationSaga(
   action: PayloadAction<ReturnType<typeof publicChannels.actions.markUnreadChannel>['payload']>
 ): Generator {
-  const stringChannelMessage = yield* call(JSON.stringify, action.payload.message)
+  const payload = yield* call(JSON.stringify, {
+    event: RICH_NOTIFICATION_CHANNEL,
+    payload: [action.payload.message]
+  })
 
-  yield* call(NativeModules.NotificationModule.notify, RICH_NOTIFICATION_CHANNEL, stringChannelMessage)
+  if (AppState.currentState === 'background') return
+
+  yield* call(NativeModules.NotificationModule.notify, '_EVENTS_', payload)
 }
