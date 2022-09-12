@@ -1,22 +1,20 @@
 import { DownloadState, formatBytes } from '@quiet/state-manager'
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import {View} from 'react-native'
-import { TouchableWithoutFeedback} from 'react-native-gesture-handler'
 import { Typography } from '../Typography/Typography.component'
 import { FileActionsProps, UploadedFileProps } from './UploadedFile.types'
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from 'react-native-popup-menu'
+import { defaultTheme } from '../../styles/themes/default.theme'
 
-interface ActionIndicatorProps {
-  label: string
+interface FileStatus {
+  label: string,
   action?: () => void
-}
-
-const ActionIndicator: FC<ActionIndicatorProps> = ({
-  label,
-  action
-}) => {
-  return <TouchableWithoutFeedback onPress={action} onLongPress={() => {console.log('LONG PRESSED')}}>
-    <Typography fontSize={14}>{label}</Typography>
-  </TouchableWithoutFeedback>
+  actionLabel?: string
 }
 
 export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
@@ -28,105 +26,92 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
   const downloadState = downloadStatus?.downloadState
   const media = message.media
   console.log('Uploadeditem', media.name, downloadState)
-
-  const renderActionIndicator = () => {
+  const [fileStatus, setFileStatus] = useState<FileStatus>({label: ''})
+  useEffect(() => {
     switch (downloadState) {
       case DownloadState.Uploading:
-        return (
-          <ActionIndicator
-          label='Uploading...'
-          />
-        )
+        setFileStatus({
+          label: 'Uploading...'
+        })
+        break
       case DownloadState.Hosted:
-        return (
-          <ActionIndicator
-            label='Show in folder'
-            action={() => {console.log('Show in containing folder')}}
-          />
-        )
+        setFileStatus({
+          label: 'Uploaded', action: () => {console.log('Showing in folder')}, actionLabel: 'Show in folder'
+        })
+        break
       case DownloadState.Ready:
-        return (
-          <ActionIndicator
-          label='Download file'
-            action={() => {
-              console.log('Download file')
-              downloadFile(media)
-            }}
-          />
-        )
+        setFileStatus({
+          label: 'File ready to download', action: () => downloadFile(media), actionLabel: 'Download file'
+        })
+        break
       case DownloadState.Queued:
-        return (
-          <ActionIndicator
-            label='Queued for download'
-          />
-        )
+        setFileStatus({
+          label: 'Queued for download'
+        })
+        break
       case DownloadState.Downloading:
-        return (
-          <ActionIndicator
-            label='Downloading...'
-            action={() => {
-              console.log('_cancelDownload')
-              cancelDownload({
-                mid: message.id,
-                cid: media.cid
-              })
-
-            }}
-          />
-        )
+        setFileStatus({
+          label: 'Downloading...', action: () => cancelDownload({mid: message.id, cid: media.cid}), actionLabel: 'Cancel download'
+        })
+        break
       case DownloadState.Canceling:
-        return (
-          <ActionIndicator
-            label={'Canceling...'}
-          />
-        )
+        setFileStatus({
+          label: 'Canceling...'
+        })
+        break
       case DownloadState.Canceled:
-        return (
-          <ActionIndicator
-          label='Canceled. Download file'
-            action={() => {downloadFile(media)}}
-          />
-        )
+        setFileStatus({
+          label: 'Canceled', action: () => downloadFile(media), actionLabel: 'Download file'
+        })
+        break
       case DownloadState.Completed:
-        return (
-          <ActionIndicator
-            label='Show in folder'
-            action={() => {console.log('_openContainingFolder')}}
-          />
-        )
+        setFileStatus({
+          label: 'Downloaded', action: () => {console.log('Opening containing folder')}, actionLabel: 'Open containing folder'
+        })
+        break
       case DownloadState.Malicious:
-        return (
-          <ActionIndicator
-            label='File not valid. Download canceled.'
-          />
-        )
+        setFileStatus({
+          label: 'File not valid. Download canceled.'
+        })
+        break
       default:
-        return <></>
+        setFileStatus({
+          label: ''
+        })
     }
-  }
-
+  }, [downloadState])
 
   return (
-    <View style={{
-      backgroundColor: 'white', 
-      maxWidth: '100%',
-      marginTop: 8,
-      padding: 16,
-      borderRadius: 8,
-      borderColor: 'lightGray',
-      borderStyle: 'solid',
-      borderWidth: 1
-    }}>
-      <Typography fontSize={12} style={{ lineHeight: 20 }}>
-        {media.name}
-        {media.ext}
-      </Typography>
-      <Typography
-        fontSize={12}
-        style={{ lineHeight: 20, color: 'darkGray' }}>
-        {media?.size ? formatBytes(media?.size) : 'Calculating size...'}
-      </Typography>
-      {renderActionIndicator()}
-    </View>
+    <Menu>
+      <MenuTrigger
+        triggerOnLongPress
+        disabled={!Boolean(fileStatus.action)}
+        >
+        <View style={{
+          backgroundColor: defaultTheme.palette.background.white, 
+          maxWidth: '100%',
+          marginTop: 8,
+          padding: 16,
+          borderRadius: 8,
+          borderColor: defaultTheme.palette.typography.grayLight,
+          borderStyle: 'solid',
+          borderWidth: 1
+        }}>
+          <Typography fontSize={12} style={{ fontWeight: 'bold' }}>
+            {media.name}
+            {media.ext}
+          </Typography>
+          <Typography
+            fontSize={12}
+            style={{ lineHeight: 20, color: defaultTheme.palette.typography.grayDark }}>
+            {media?.size ? formatBytes(media?.size) : 'Calculating size...'}
+          </Typography>
+          {fileStatus.label !== '' && <Typography fontSize={14}>{fileStatus.label}</Typography>}
+        </View>
+      </MenuTrigger>
+      <MenuOptions>
+        <MenuOption onSelect={fileStatus.action} text={fileStatus.actionLabel} />
+      </MenuOptions>
+    </Menu>
   )
 }

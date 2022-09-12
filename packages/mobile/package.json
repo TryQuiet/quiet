@@ -51,6 +51,7 @@
     "react-native-gesture-handler": "^1.10.3",
     "react-native-jdenticon": "0.0.3",
     "react-native-level-fs": "^3.0.0",
+    "react-native-popup-menu": "^0.16.1",
     "react-native-progress": "^4.1.2",
     "react-native-push-notification": "^7.3.2",
     "react-native-randombytes": "^3.6.1",

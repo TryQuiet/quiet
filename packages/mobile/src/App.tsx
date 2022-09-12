@@ -25,6 +25,7 @@ import { initActions } from './store/init/init.slice'
 import PushNotificationIOS, {
   PushNotification
 } from '@react-native-community/push-notification-ios'
+import { MenuProvider } from 'react-native-popup-menu';
 
 LogBox.ignoreAllLogs()
 
@@ -67,6 +68,7 @@ export default function App(): JSX.Element {
             dispatch(initActions.doOnRestore())
           }}>
           <WebviewCrypto />
+          <MenuProvider>
           <ThemeProvider theme={defaultTheme}>
             <StatusBar backgroundColor={defaultTheme.palette.statusBar.main} />
             <Navigator
@@ -95,6 +97,7 @@ export default function App(): JSX.Element {
               <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
             </Navigator>
           </ThemeProvider>
+          </MenuProvider>
         </NavigationContainer>
       </PersistGate>
     </SafeAreaView>
