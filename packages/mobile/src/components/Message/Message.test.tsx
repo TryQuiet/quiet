@@ -91,7 +91,6 @@ describe('Message component', () => {
                         "textAlign": "left",
                         "textAlignVertical": "center",
                       },
-                      Object {},
                     ]
                   }
                   verticalTextAlign="center"
@@ -156,7 +155,6 @@ describe('Message component', () => {
                         "textAlign": "left",
                         "textAlignVertical": "center",
                       },
-                      Object {},
                     ]
                   }
                   verticalTextAlign="center"
