@@ -6,7 +6,7 @@ import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { Chat } from '../../components/Chat/Chat.component'
 
-import { files, identity, messages, publicChannels } from '@quiet/state-manager'
+import { CancelDownload, FileMetadata, files, identity, messages, publicChannels } from '@quiet/state-manager'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 
 export const ChannelScreen: FC = () => {
@@ -37,7 +37,15 @@ export const ChannelScreen: FC = () => {
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
-  console.log('STATUSES', downloadStatusesMapping)
+  // console.log('STATUSES', downloadStatusesMapping)
+
+  const downloadFile = useCallback((media: FileMetadata) => {
+    dispatch(files.actions.downloadFile(media))
+  }, [dispatch])
+
+  const cancelDownload = useCallback((cancelDownload: CancelDownload) => {
+    dispatch(files.actions.cancelDownload(cancelDownload))
+  }, [dispatch])
 
   const sendMessageAction = useCallback(
     (message: string) => {
@@ -72,6 +80,8 @@ export const ChannelScreen: FC = () => {
               groups: channelMessages
             }}
             downloadStatuses={downloadStatusesMapping}
+            downloadFile={downloadFile}
+            cancelDownload={cancelDownload}
           />
         </>
       )}

@@ -7,8 +7,9 @@ import { appImages } from '../../../assets'
 import { MessageType, AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage } from '@quiet/state-manager'
 import { UploadedImage } from '../UploadedImage/UploadedImage.component'
 import { UploadedFile } from '../UploadedFile/UploadedFile.component'
+import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 
-export const Message: FC<MessageProps> = ({ data, downloadStatus }) => {
+export const Message: FC<MessageProps & FileActionsProps> = ({ data, downloadStatus, downloadFile, cancelDownload }) => {
   const messageDisplayData = data[0]
   console.log('Download state;:', downloadStatus?.downloadState)
   const renderMessage = (message: DisplayableMessage) => {
@@ -23,14 +24,14 @@ export const Message: FC<MessageProps> = ({ data, downloadStatus }) => {
             {fileDisplay ? (
               <UploadedImage media={message.media}/>
             ) : (
-              <UploadedFile media={message.media} downloadStatus={downloadStatus} />
+              <UploadedFile message={message} downloadStatus={downloadStatus} downloadFile={downloadFile} cancelDownload={cancelDownload}/>
               // <Typography fontSize={14}>{'User sent a large image'}</Typography>
             )}
           </>
         )
       case 4: // MessageType.File
         return (
-          <UploadedFile media={message.media} downloadStatus={downloadStatus} />
+          <UploadedFile message={message} downloadStatus={downloadStatus} downloadFile={downloadFile} cancelDownload={cancelDownload}/>
         )
       default:
         return (

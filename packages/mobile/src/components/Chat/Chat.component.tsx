@@ -10,8 +10,9 @@ import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 
 import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
+import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 
-export const Chat: FC<ChatProps> = ({
+export const Chat: FC<ChatProps & FileActionsProps> = ({
   sendMessageAction,
   loadMessagesAction,
   channel,
@@ -20,7 +21,9 @@ export const Chat: FC<ChatProps> = ({
     count: 0,
     groups: {}
   },
-  downloadStatuses
+  downloadStatuses = {},
+  downloadFile,
+  cancelDownload
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [messageInput, setMessageInput] = useState<string | undefined>()
@@ -71,6 +74,8 @@ export const Chat: FC<ChatProps> = ({
       messages={messages.groups[item]}
       day={item}
       downloadStatuses={downloadStatuses}
+      downloadFile={downloadFile}
+      cancelDownload={cancelDownload}
     />
   )
 
@@ -115,10 +120,12 @@ export const Chat: FC<ChatProps> = ({
   )
 }
 
-export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps> = ({
+export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & FileActionsProps> = ({
   messages,
   day,
-  downloadStatuses
+  downloadStatuses,
+  downloadFile,
+  cancelDownload
 }) => {
   return (
     <View key={day}>
@@ -126,7 +133,13 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps> =
       {messages.map(data => {
         // Messages merged by sender (DisplayableMessage[])
         const messageId = data[0].id
-        return <Message key={messageId} data={data} downloadStatus={downloadStatuses[messageId]}/>
+        return <Message
+          key={messageId}
+          data={data}
+          downloadStatus={downloadStatuses[messageId]}
+          downloadFile={downloadFile}
+          cancelDownload={cancelDownload}
+        />
       })}
     </View>
   )
