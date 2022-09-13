@@ -16,7 +16,7 @@ export const UploadedImage: FC<UploadedImageProps> = ({ media, openImagePreview 
     return (
       <>
         <TouchableWithoutFeedback onPress={() => openImagePreview(media)}>
-          <View style={{flexDirection: 'row'}}>
+          <View style={{ flexDirection: 'row' }}>
             <Image
               source={appImages.file_document}
               resizeMode='cover'

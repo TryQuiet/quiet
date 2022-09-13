@@ -94,7 +94,7 @@ export const ChannelScreen: FC = () => {
           />
         </>
       )}
-      
+
     </View>
     </>
   )

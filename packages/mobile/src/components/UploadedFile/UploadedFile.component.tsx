@@ -97,12 +97,12 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
           borderStyle: 'solid',
           borderWidth: 1
         }}>
-          
+
           <Typography fontSize={12} style={{ fontWeight: 'bold' }}>
             {media.name}
             {media.ext}
           </Typography>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image
               source={appImages.file_document}
               resizeMode='cover'
@@ -122,7 +122,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
             {fileStatus.label !== '' && <Typography fontSize={12} style={{ color: defaultTheme.palette.typography.grayDark }}>{fileStatus.label}</Typography>}
             </View>
           </View>
-          
+
         </View>
       </MenuTrigger>
       <MenuOptions>
