@@ -87,13 +87,14 @@ export const ChannelScreen: FC = () => {
             cancelDownload={cancelDownload}
             openImagePreview={setImagePreview}
           />
+          <ImagePreviewModal
+            imagePreviewData={imagePreview}
+            currentChannelName={currentChannel.name}
+            resetPreviewData={() => setImagePreview(null)}
+          />
         </>
       )}
-      <ImagePreviewModal
-        imagePreviewData={imagePreview}
-        currentChannelName={currentChannel.name}
-        resetPreviewData={() => setImagePreview(null)}
-      />
+      
     </View>
     </>
   )

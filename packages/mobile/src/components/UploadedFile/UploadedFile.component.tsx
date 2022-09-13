@@ -1,6 +1,6 @@
 import { DownloadState, formatBytes } from '@quiet/state-manager'
 import React, { FC, useEffect, useState } from 'react'
-import { View } from 'react-native'
+import { View, Image } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { FileActionsProps, UploadedFileProps } from './UploadedFile.types'
 import {
@@ -10,6 +10,7 @@ import {
   MenuTrigger,
 } from 'react-native-popup-menu'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import { appImages } from '../../../assets'
 
 interface FileStatus {
   label: string
@@ -25,7 +26,6 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
 }) => {
   const downloadState = downloadStatus?.downloadState
   const media = message.media
-  console.log('Uploadeditem', media.name, downloadState)
   const [fileStatus, setFileStatus] = useState<FileStatus>({ label: '' })
   useEffect(() => {
     switch (downloadState) {
@@ -97,16 +97,32 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
           borderStyle: 'solid',
           borderWidth: 1
         }}>
+          
           <Typography fontSize={12} style={{ fontWeight: 'bold' }}>
             {media.name}
             {media.ext}
           </Typography>
-          <Typography
-            fontSize={12}
-            style={{ lineHeight: 20, color: defaultTheme.palette.typography.grayDark }}>
-            {media?.size ? formatBytes(media?.size) : 'Calculating size...'}
-          </Typography>
-          {fileStatus.label !== '' && <Typography fontSize={14} style={{ color: defaultTheme.palette.typography.grayDark }}>{fileStatus.label}</Typography>}
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Image
+              source={appImages.file_document}
+              resizeMode='cover'
+              resizeMethod='resize'
+              style={{
+                width: 20,
+                height: 20,
+                marginRight: 5
+              }}
+            />
+            <View>
+            <Typography
+              fontSize={12}
+              style={{ lineHeight: 20, color: defaultTheme.palette.typography.grayDark }}>
+              {media?.size ? formatBytes(media?.size) : 'Calculating size...'}
+            </Typography>
+            {fileStatus.label !== '' && <Typography fontSize={12} style={{ color: defaultTheme.palette.typography.grayDark }}>{fileStatus.label}</Typography>}
+            </View>
+          </View>
+          
         </View>
       </MenuTrigger>
       <MenuOptions>
