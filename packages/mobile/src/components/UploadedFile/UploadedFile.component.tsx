@@ -93,7 +93,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
           marginTop: 8,
           padding: 16,
           borderRadius: 8,
-          borderColor: defaultTheme.palette.typography.grayLight,
+          borderColor: defaultTheme.palette.typography.veryLightGray,
           borderStyle: 'solid',
           borderWidth: 1
         }}>
@@ -106,7 +106,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
             style={{ lineHeight: 20, color: defaultTheme.palette.typography.grayDark }}>
             {media?.size ? formatBytes(media?.size) : 'Calculating size...'}
           </Typography>
-          {fileStatus.label !== '' && <Typography fontSize={14}>{fileStatus.label}</Typography>}
+          {fileStatus.label !== '' && <Typography fontSize={14} style={{color: defaultTheme.palette.typography.grayDark}}>{fileStatus.label}</Typography>}
         </View>
       </MenuTrigger>
       <MenuOptions>
