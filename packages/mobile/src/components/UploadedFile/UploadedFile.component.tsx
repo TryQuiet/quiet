@@ -1,6 +1,6 @@
 import { DownloadState, formatBytes } from '@quiet/state-manager'
 import React, { FC, useEffect, useState } from 'react'
-import {View} from 'react-native'
+import { View } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { FileActionsProps, UploadedFileProps } from './UploadedFile.types'
 import {
@@ -12,7 +12,7 @@ import {
 import { defaultTheme } from '../../styles/themes/default.theme'
 
 interface FileStatus {
-  label: string,
+  label: string
   action?: () => void
   actionLabel?: string
 }
@@ -26,7 +26,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
   const downloadState = downloadStatus?.downloadState
   const media = message.media
   console.log('Uploadeditem', media.name, downloadState)
-  const [fileStatus, setFileStatus] = useState<FileStatus>({label: ''})
+  const [fileStatus, setFileStatus] = useState<FileStatus>({ label: '' })
   useEffect(() => {
     switch (downloadState) {
       case DownloadState.Uploading:
@@ -36,7 +36,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
         break
       case DownloadState.Hosted:
         setFileStatus({
-          label: 'Uploaded', action: () => {console.log('Showing in folder')}, actionLabel: 'Show in folder'
+          label: 'Uploaded', action: () => { console.log('Showing in folder') }, actionLabel: 'Show in folder'
         })
         break
       case DownloadState.Ready:
@@ -51,7 +51,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
         break
       case DownloadState.Downloading:
         setFileStatus({
-          label: 'Downloading...', action: () => cancelDownload({mid: message.id, cid: media.cid}), actionLabel: 'Cancel download'
+          label: 'Downloading...', action: () => cancelDownload({ mid: message.id, cid: media.cid }), actionLabel: 'Cancel download'
         })
         break
       case DownloadState.Canceling:
@@ -66,7 +66,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
         break
       case DownloadState.Completed:
         setFileStatus({
-          label: 'Downloaded', action: () => {console.log('Opening containing folder')}, actionLabel: 'Open containing folder'
+          label: 'Downloaded', action: () => { console.log('Opening containing folder') }, actionLabel: 'Open containing folder'
         })
         break
       case DownloadState.Malicious:
@@ -85,10 +85,10 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
     <Menu>
       <MenuTrigger
         triggerOnLongPress
-        disabled={!Boolean(fileStatus.action)}
+        disabled={!fileStatus.action}
         >
         <View style={{
-          backgroundColor: defaultTheme.palette.background.white, 
+          backgroundColor: defaultTheme.palette.background.white,
           maxWidth: '100%',
           marginTop: 8,
           padding: 16,
@@ -106,7 +106,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
             style={{ lineHeight: 20, color: defaultTheme.palette.typography.grayDark }}>
             {media?.size ? formatBytes(media?.size) : 'Calculating size...'}
           </Typography>
-          {fileStatus.label !== '' && <Typography fontSize={14} style={{color: defaultTheme.palette.typography.grayDark}}>{fileStatus.label}</Typography>}
+          {fileStatus.label !== '' && <Typography fontSize={14} style={{ color: defaultTheme.palette.typography.grayDark }}>{fileStatus.label}</Typography>}
         </View>
       </MenuTrigger>
       <MenuOptions>

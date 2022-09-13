@@ -1,6 +1,7 @@
 import {
   DisplayableMessage,
   DownloadStatus,
+  FileMetadata,
   MessagesDailyGroups,
   PublicChannel
 } from '@quiet/state-manager'
@@ -16,10 +17,12 @@ export interface ChatProps {
     groups: MessagesDailyGroups
   }
   downloadStatuses?: Dictionary<DownloadStatus>
+  openImagePreview?: (media: FileMetadata) => void
 }
 
 export interface ChannelMessagesComponentProps {
   messages: DisplayableMessage[][]
   day: string
   downloadStatuses?: Dictionary<DownloadStatus>
+  openImagePreview?: (media: FileMetadata) => void
 }

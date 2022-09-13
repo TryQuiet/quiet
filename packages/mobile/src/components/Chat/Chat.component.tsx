@@ -23,7 +23,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   },
   downloadStatuses = {},
   downloadFile,
-  cancelDownload
+  cancelDownload,
+  openImagePreview
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [messageInput, setMessageInput] = useState<string | undefined>()
@@ -76,6 +77,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       downloadStatuses={downloadStatuses}
       downloadFile={downloadFile}
       cancelDownload={cancelDownload}
+      openImagePreview={openImagePreview}
     />
   )
 
@@ -125,7 +127,8 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
   day,
   downloadStatuses,
   downloadFile,
-  cancelDownload
+  cancelDownload,
+  openImagePreview
 }) => {
   return (
     <View key={day}>
@@ -139,6 +142,7 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
           downloadStatus={downloadStatuses[messageId]}
           downloadFile={downloadFile}
           cancelDownload={cancelDownload}
+          openImagePreview={openImagePreview}
         />
       })}
     </View>
