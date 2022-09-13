@@ -36,6 +36,8 @@ export const ChannelScreen: FC = () => {
 
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
 
+  const pendingMessages = useSelector(messages.selectors.messagesSendingStatus)
+
   const sendMessageAction = useCallback(
     (message: string) => {
       dispatch(messages.actions.sendMessage({ message }))
@@ -68,6 +70,7 @@ export const ChannelScreen: FC = () => {
               count: channelMessagesCount,
               groups: channelMessages
             }}
+            pendingMessages={pendingMessages}
           />
         </>
       )}
