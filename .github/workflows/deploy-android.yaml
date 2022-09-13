@@ -76,7 +76,7 @@ jobs:
           echo ${{ SECRETS.SERVICE_ACCOUNT_JSON }} | base64 --decode > google-play.json
       
       - name: "Upload to Google Play"
-        uses: r0adkll/upload-google-play@v1
+        uses: r0adkll/upload-google-play@v1.0.17
         with:
           serviceAccountJson: google-play.json
           packageName: com.zbaymobile
@@ -84,3 +84,4 @@ jobs:
           track: internal
           status: completed
           whatsNewDirectory: distribution/whatsnew
+          changesNotSentForReview: true
