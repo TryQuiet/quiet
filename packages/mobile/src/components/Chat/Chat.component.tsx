@@ -19,7 +19,8 @@ export const Chat: FC<ChatProps> = ({
   messages = {
     count: 0,
     groups: {}
-  }
+  },
+  pendingMessages = {}
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [messageInput, setMessageInput] = useState<string | undefined>()
@@ -82,7 +83,11 @@ export const Chat: FC<ChatProps> = ({
         data={Object.keys(messages.groups).reverse()}
         keyExtractor={item => item}
         renderItem={({ item }) => (
-          <ChannelMessagesComponent messages={messages.groups[item]} day={item} />
+          <ChannelMessagesComponent
+            messages={messages.groups[item]}
+            day={item}
+            pendingMessages={pendingMessages}
+          />
         )}
         onEndReached={() => {
           loadMessagesAction(true)
@@ -110,14 +115,15 @@ export const Chat: FC<ChatProps> = ({
 
 export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps> = ({
   messages,
-  day
+  day,
+  pendingMessages
 }) => {
   return (
     <View key={day}>
       {/* <MessagesDivider title={day} /> */}
       {messages.map(data => {
         // Messages merged by sender (DisplayableMessage[])
-        return <Message key={data[0].id} data={data} />
+        return <Message key={data[0].id} data={data} pendingMessages={pendingMessages}/>
       })}
     </View>
   )
