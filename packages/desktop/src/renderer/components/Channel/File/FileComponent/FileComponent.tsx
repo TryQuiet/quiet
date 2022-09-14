@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { CircularProgress, makeStyles, Typography } from '@material-ui/core'
-import { DisplayableMessage, DownloadState, DownloadStatus, FileMetadata, CancelDownload } from '@quiet/state-manager'
+import { DisplayableMessage, DownloadState, DownloadStatus, FileMetadata, CancelDownload, formatBytes } from '@quiet/state-manager'
 import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
 import fileIcon from '../../../../static/images/fileIcon.svg'
@@ -13,7 +13,6 @@ import cancelIconGray from '../../../../static/images/cancelIconGray.svg'
 import cancelIconRed from '../../../../static/images/cancelIconRed.svg'
 import pauseIconGray from '../../../../static/images/pauseIconGray.svg'
 import Tooltip from '../../../ui/Tooltip/Tooltip'
-import { formatBytes } from '../../../../../utils/functions/formatBytes'
 
 const useStyles = makeStyles(theme => ({
   border: {
