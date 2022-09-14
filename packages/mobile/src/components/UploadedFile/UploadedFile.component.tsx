@@ -26,7 +26,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
 }) => {
   const downloadState = downloadStatus?.downloadState
   const media = message.media
-  const [fileStatus, setFileStatus] = useState<FileStatus>({ label: '' })
+  const [fileStatus, setFileStatus] = useState<FileStatus>(null)
   useEffect(() => {
     switch (downloadState) {
       case DownloadState.Uploading:
@@ -40,8 +40,8 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
         })
         break
       case DownloadState.Ready:
-        setFileStatus({
-          label: 'File ready to download', action: () => downloadFile(media), actionLabel: 'Download file'
+        setFileStatus({ // FIXME: Downloading file freezes the app
+          label: 'File ready to download', action: () => console.log('Downloading file'), actionLabel: 'Download file'
         })
         break
       case DownloadState.Queued:
@@ -75,9 +75,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
         })
         break
       default:
-        setFileStatus({
-          label: ''
-        })
+        setFileStatus(null)
     }
   }, [downloadState])
 
@@ -85,7 +83,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
     <Menu>
       <MenuTrigger
         triggerOnLongPress
-        disabled={!fileStatus.action}
+        disabled={!fileStatus || !fileStatus?.action}
         >
         <View style={{
           backgroundColor: defaultTheme.palette.background.white,
@@ -119,14 +117,14 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
               style={{ lineHeight: 20, color: defaultTheme.palette.typography.grayDark }}>
               {media?.size ? formatBytes(media?.size) : 'Calculating size...'}
             </Typography>
-            {fileStatus.label !== '' && <Typography fontSize={12} style={{ color: defaultTheme.palette.typography.grayDark }}>{fileStatus.label}</Typography>}
+            {fileStatus && <Typography fontSize={12} style={{ color: defaultTheme.palette.typography.grayDark }}>{fileStatus.label}</Typography>}
             </View>
           </View>
 
         </View>
       </MenuTrigger>
       <MenuOptions>
-        <MenuOption onSelect={fileStatus.action} text={fileStatus.actionLabel} />
+        <MenuOption onSelect={fileStatus?.action} text={fileStatus?.actionLabel} />
       </MenuOptions>
     </Menu>
   )
