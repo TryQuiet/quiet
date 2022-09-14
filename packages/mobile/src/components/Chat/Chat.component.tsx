@@ -1,10 +1,5 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import {
-  Keyboard,
-  View,
-  FlatList,
-  TextInput
-} from 'react-native'
+import { Keyboard, View, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
 import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
@@ -82,7 +77,9 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   )
 
   return (
-    <View
+    <KeyboardAvoidingView
+      behavior={Platform.select({ ios: 'padding', android: null })}
+      keyboardVerticalOffset={Platform.select({ ios: 60, android: 0 })}
       style={{
         flex: 1,
         flexDirection: 'column',
@@ -118,32 +115,29 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
           </View>
         )}
       </View>
-    </View>
+    </KeyboardAvoidingView>
   )
 }
 
-export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & FileActionsProps> = ({
-  messages,
-  day,
-  downloadStatuses,
-  downloadFile,
-  cancelDownload,
-  openImagePreview
-}) => {
+export const ChannelMessagesComponent: React.FC<
+  ChannelMessagesComponentProps & FileActionsProps
+> = ({ messages, day, downloadStatuses, downloadFile, cancelDownload, openImagePreview }) => {
   return (
     <View key={day}>
       {/* <MessagesDivider title={day} /> */}
       {messages.map(data => {
         // Messages merged by sender (DisplayableMessage[])
         const messageId = data[0].id
-        return <Message
-          key={messageId}
-          data={data}
-          downloadStatus={downloadStatuses[messageId]}
-          downloadFile={downloadFile}
-          cancelDownload={cancelDownload}
-          openImagePreview={openImagePreview}
-        />
+        return (
+          <Message
+            key={messageId}
+            data={data}
+            downloadStatus={downloadStatuses[messageId]}
+            downloadFile={downloadFile}
+            cancelDownload={cancelDownload}
+            openImagePreview={openImagePreview}
+          />
+        )
       })}
     </View>
   )
