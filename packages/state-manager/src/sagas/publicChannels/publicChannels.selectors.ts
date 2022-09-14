@@ -192,6 +192,18 @@ export const channelsStatus = createSelector(
   }
 )
 
+export const channelsStatusSorted = createSelector(
+  selectState,
+  state => {
+    if (!state || !state.channelsStatus) return {}
+    var statuses = publicChannelsStatusAdapter
+      .getSelectors()
+      .selectAll(state.channelsStatus)
+
+    return statuses.sort((a, b) => a.newestMessage?.createdAt - b.newestMessage?.createdAt).reverse()
+  }
+)
+
 export const unreadChannels = createSelector(
   channelsStatus,
   status => {
@@ -218,5 +230,6 @@ export const publicChannelsSelectors = {
   currentChannelMessagesMergedBySender,
   currentChannelLastDisplayedMessage,
   unreadChannels,
-  channelsStatus
+  channelsStatus,
+  channelsStatusSorted
 }
