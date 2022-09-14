@@ -1,7 +1,6 @@
-import { Platform } from 'react-native'
+import { Platform, AppState, NativeModules } from 'react-native'
 import { publicChannels, RICH_NOTIFICATION_CHANNEL } from '@quiet/state-manager'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { AppState, NativeModules } from 'react-native'
 import { call } from 'typed-redux-saga'
 
 export function* showNotificationSaga(
