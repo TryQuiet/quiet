@@ -15,6 +15,7 @@ import { Typography } from '../../components/Typography/Typography.component'
 
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
+
   const isChannelReplicated = Boolean(
     useSelector(publicChannels.selectors.publicChannels)?.length > 0
   )
@@ -31,9 +32,9 @@ export const ChannelListScreen: FC = () => {
   }, [dispatch])
 
   const community = useSelector(communities.selectors.currentCommunity)
-  const channels = useSelector(publicChannels.selectors.channelsStatus)
+  const channels = useSelector(publicChannels.selectors.channelsStatusSorted)
 
-  const tiles = Object.values(channels).map(status => {
+  const tiles = channels.map(status => {
     const newestMessage = status.newestMessage
 
     const message = newestMessage?.message || '...'
