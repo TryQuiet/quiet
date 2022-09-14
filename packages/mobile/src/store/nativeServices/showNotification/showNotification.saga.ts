@@ -1,6 +1,6 @@
+import { Platform, AppState, NativeModules } from 'react-native'
 import { publicChannels, RICH_NOTIFICATION_CHANNEL } from '@quiet/state-manager'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { AppState, NativeModules } from 'react-native'
 import { call } from 'typed-redux-saga'
 
 export function* showNotificationSaga(
@@ -12,6 +12,7 @@ export function* showNotificationSaga(
   })
 
   if (AppState.currentState === 'background') return
+  if (Platform.OS === 'ios') return
 
   yield* call(NativeModules.NotificationModule.notify, '_EVENTS_', payload)
 }
