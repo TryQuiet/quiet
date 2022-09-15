@@ -3,8 +3,6 @@ import styled, { css } from 'styled-components/native'
 
 export const StyledTextInput = styled(TextInput)`
   text-align-vertical: center;
-  padding-top: 12px;
-  padding-bottom: 12px;
 `
 
 export const StyledWrapper = styled(Pressable)<{

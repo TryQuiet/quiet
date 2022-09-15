@@ -80,6 +80,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
     <KeyboardAvoidingView
       behavior={Platform.select({ ios: 'padding', android: null })}
       keyboardVerticalOffset={Platform.select({ ios: 60, android: 0 })}
+      enabled={Platform.select({ ios: true, android: false })}
       style={{
         flex: 1,
         flexDirection: 'column',
