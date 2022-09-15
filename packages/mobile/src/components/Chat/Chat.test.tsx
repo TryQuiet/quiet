@@ -200,16 +200,22 @@ describe('Chat component', () => {
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
+        onLayout={[Function]}
         style={
-          Object {
-            "backgroundColor": "white",
-            "flex": 1,
-            "flexDirection": "column",
-            "justifyContent": "flex-end",
-            "paddingBottom": 20,
-            "paddingLeft": 20,
-            "paddingRight": 20,
-          }
+          Array [
+            Object {
+              "backgroundColor": "white",
+              "flex": 1,
+              "flexDirection": "column",
+              "justifyContent": "flex-end",
+              "paddingBottom": 20,
+              "paddingLeft": 20,
+              "paddingRight": 20,
+            },
+            Object {
+              "paddingBottom": 0,
+            },
+          ]
         }
       >
         <RCTScrollView
@@ -2064,8 +2070,6 @@ describe('Chat component', () => {
                       "borderRadius": 4,
                       "borderWidth": 1,
                       "flexGrow": 1,
-                      "maxHeight": 72,
-                      "minHeight": 42,
                       "paddingLeft": 15,
                       "paddingRight": 15,
                     },
@@ -2082,8 +2086,8 @@ describe('Chat component', () => {
                   style={
                     Array [
                       Object {
-                        "paddingBottom": 8,
-                        "paddingTop": 8,
+                        "paddingBottom": 12,
+                        "paddingTop": 12,
                         "textAlignVertical": "center",
                       },
                     ]

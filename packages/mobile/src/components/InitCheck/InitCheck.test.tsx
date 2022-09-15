@@ -11,6 +11,7 @@ describe('InitCheck component', () => {
       <View
         style={
           Object {
+            "alignItems": "center",
             "flexDirection": "row",
             "justifyContent": "center",
           }
