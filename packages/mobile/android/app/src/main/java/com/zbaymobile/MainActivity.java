@@ -1,11 +1,8 @@
 package com.zbaymobile;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
 
 import com.facebook.react.ReactActivity;
-import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 
@@ -20,7 +17,7 @@ public class MainActivity extends ReactActivity {
         return "ZbayMobile";
     }
 
-    private void sendEvent (ReactApplicationContext reactContext, Intent intent) {
+    private void sendNotificationInfo (ReactApplicationContext reactContext, Intent intent) {
         String channelAddress = intent.getStringExtra("channelAddress");
         if (channelAddress != null) {
             reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("notification", channelAddress);
@@ -37,7 +34,7 @@ public class MainActivity extends ReactActivity {
 
         if (tag.equals("notification")) {
             ReactApplicationContext reactContext = (ReactApplicationContext) getReactNativeHost().getReactInstanceManager().getCurrentReactContext();
-            this.sendEvent(reactContext, intent);
+            this.sendNotificationInfo(reactContext, intent);
         };
     }
 }
