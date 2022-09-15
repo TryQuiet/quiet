@@ -196,7 +196,7 @@ export const channelsStatusSorted = createSelector(
   selectState,
   state => {
     if (!state || !state.channelsStatus) return []
-    var statuses = publicChannelsStatusAdapter
+    const statuses = publicChannelsStatusAdapter
       .getSelectors()
       .selectAll(state.channelsStatus)
 

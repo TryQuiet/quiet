@@ -1,5 +1,5 @@
 export enum NativeEventKeys {
-  Notification = "notification",
+  Notification = 'notification',
   TorInit = 'onTorInit',
   OnDataDirectoryCreated = 'onDataDirectoryCreated'
 }
