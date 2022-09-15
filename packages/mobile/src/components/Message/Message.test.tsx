@@ -26,6 +26,7 @@ describe('Message component', () => {
             nickname: 'holmes'
           }
         ]}
+        pendingMessages={{}}
       />
     )
 

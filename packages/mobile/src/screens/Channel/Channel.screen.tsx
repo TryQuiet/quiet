@@ -37,6 +37,8 @@ export const ChannelScreen: FC = () => {
 
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
 
+  const pendingMessages = useSelector(messages.selectors.messagesSendingStatus)
+
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
   const downloadFile = useCallback((media: FileMetadata) => {
@@ -82,6 +84,7 @@ export const ChannelScreen: FC = () => {
               count: channelMessagesCount,
               groups: channelMessages
             }}
+            pendingMessages={pendingMessages}
             downloadStatuses={downloadStatusesMapping}
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
