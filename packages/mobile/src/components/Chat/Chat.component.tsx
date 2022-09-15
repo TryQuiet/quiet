@@ -21,6 +21,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
     count: 0,
     groups: {}
   },
+  pendingMessages = {},
   downloadStatuses = {},
   downloadFile,
   cancelDownload,
@@ -73,6 +74,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   const renderItem = ({ item }) => (
     <ChannelMessagesComponent
       messages={messages.groups[item]}
+      pendingMessages={pendingMessages}
       day={item}
       downloadStatuses={downloadStatuses}
       downloadFile={downloadFile}
@@ -125,6 +127,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
 export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & FileActionsProps> = ({
   messages,
   day,
+  pendingMessages,
   downloadStatuses,
   downloadFile,
   cancelDownload,
@@ -143,6 +146,7 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
           downloadFile={downloadFile}
           cancelDownload={cancelDownload}
           openImagePreview={openImagePreview}
+          pendingMessages={pendingMessages}
         />
       })}
     </View>
