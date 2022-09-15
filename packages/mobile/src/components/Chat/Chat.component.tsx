@@ -16,6 +16,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
     count: 0,
     groups: {}
   },
+  pendingMessages = {},
   downloadStatuses = {},
   downloadFile,
   cancelDownload,
@@ -68,6 +69,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   const renderItem = ({ item }) => (
     <ChannelMessagesComponent
       messages={messages.groups[item]}
+      pendingMessages={pendingMessages}
       day={item}
       downloadStatuses={downloadStatuses}
       downloadFile={downloadFile}
@@ -120,25 +122,30 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   )
 }
 
-export const ChannelMessagesComponent: React.FC<
-  ChannelMessagesComponentProps & FileActionsProps
-> = ({ messages, day, downloadStatuses, downloadFile, cancelDownload, openImagePreview }) => {
+export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & FileActionsProps> = ({
+  messages,
+  day,
+  pendingMessages,
+  downloadStatuses,
+  downloadFile,
+  cancelDownload,
+  openImagePreview
+}) => {
   return (
     <View key={day}>
       {/* <MessagesDivider title={day} /> */}
       {messages.map(data => {
         // Messages merged by sender (DisplayableMessage[])
         const messageId = data[0].id
-        return (
-          <Message
-            key={messageId}
-            data={data}
-            downloadStatus={downloadStatuses[messageId]}
-            downloadFile={downloadFile}
-            cancelDownload={cancelDownload}
-            openImagePreview={openImagePreview}
-          />
-        )
+        return <Message
+          key={messageId}
+          data={data}
+          downloadStatus={downloadStatuses[messageId]}
+          downloadFile={downloadFile}
+          cancelDownload={cancelDownload}
+          openImagePreview={openImagePreview}
+          pendingMessages={pendingMessages}
+        />
       })}
     </View>
   )

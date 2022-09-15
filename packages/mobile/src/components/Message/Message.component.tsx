@@ -14,10 +14,13 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
   downloadStatus,
   downloadFile,
   cancelDownload,
-  openImagePreview
+  openImagePreview,
+  pendingMessages
 }) => {
   const messageDisplayData = data[0]
   const renderMessage = (message: DisplayableMessage) => {
+    const isPendingMessage = pendingMessages[message.id] !== undefined
+
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
         const size = message?.media?.size
@@ -37,14 +40,16 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
         )
       default:
         return (
-          <Typography fontSize={14}>{message.message}</Typography>
-        )
+          <Typography fontSize={14} color={ isPendingMessage ? 'lightGray' : 'main' }>{message.message}</Typography>
+          )
     }
   }
 
   const infoMessage = messageDisplayData.type === MessageType.Info
 
-  return (
+  const pending: boolean = pendingMessages[messageDisplayData.id] !== undefined
+
+    return (
     <View style={{ flex: 1 }}>
       <View
         style={{
@@ -71,7 +76,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
         <View style={{ flex: 8 }}>
           <View style={{ flexDirection: 'row', paddingBottom: 3 }}>
             <View style={{ alignSelf: 'flex-start' }}>
-              <Typography fontSize={16} fontWeight={'medium'}>
+              <Typography fontSize={16} fontWeight={'medium'} color={ pending ? 'lightGray' : 'main' }>
                 {infoMessage ? 'Quiet' : messageDisplayData.nickname}
               </Typography>
             </View>
