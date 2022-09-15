@@ -1,10 +1,12 @@
 import {
   DisplayableMessage,
+  DownloadStatus,
+  FileMetadata,
   MessagesDailyGroups,
   MessageSendingStatus,
   PublicChannel
 } from '@quiet/state-manager'
-import { Dictionary } from '@reduxjs/toolkit/dist/entities/models'
+import { Dictionary } from '@reduxjs/toolkit'
 
 export interface ChatProps {
   sendMessageAction: (message: string) => void
@@ -16,10 +18,14 @@ export interface ChatProps {
     groups: MessagesDailyGroups
   }
   pendingMessages?: Dictionary<MessageSendingStatus>
+  downloadStatuses?: Dictionary<DownloadStatus>
+  openImagePreview?: (media: FileMetadata) => void
 }
 
 export interface ChannelMessagesComponentProps {
   messages: DisplayableMessage[][]
   day: string
   pendingMessages?: Dictionary<MessageSendingStatus>
+  downloadStatuses?: Dictionary<DownloadStatus>
+  openImagePreview?: (media: FileMetadata) => void
 }

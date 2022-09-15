@@ -7,6 +7,7 @@ import check_circle_blank from './icons/check_circle_blank.png';
 import username_registered from './icons/username_registered.png';
 import arrow_left from './icons/arrow_left.png';
 import icon_warning from './icons/icon_warning.png';
+import file_document from './icons/file_document.png'
 
 /**
  * @description This assets are for the app.
@@ -20,7 +21,8 @@ export const appImages = {
   check_circle_blank,
   username_registered,
   arrow_left,
-  icon_warning
+  icon_warning,
+  file_document
 };
 
 /**

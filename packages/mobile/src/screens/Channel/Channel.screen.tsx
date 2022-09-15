@@ -1,13 +1,14 @@
-import React, { FC, useEffect, useCallback } from 'react'
+import React, { FC, useCallback, useEffect, useState } from 'react'
+import { BackHandler, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
-import { View, BackHandler } from 'react-native'
+import { Chat } from '../../components/Chat/Chat.component'
+import { ScreenNames } from '../../const/ScreenNames.enum'
 import { initActions } from '../../store/init/init.slice'
 import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen'
-import { ScreenNames } from '../../const/ScreenNames.enum'
-import { Chat } from '../../components/Chat/Chat.component'
 
-import { identity, messages, publicChannels } from '@quiet/state-manager'
+import { CancelDownload, FileMetadata, files, identity, messages, publicChannels } from '@quiet/state-manager'
 import { Appbar } from '../../components/Appbar/Appbar.component'
+import { ImagePreviewModal } from '../../components/ImagePreview/ImagePreview.component'
 
 export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -38,6 +39,16 @@ export const ChannelScreen: FC = () => {
 
   const pendingMessages = useSelector(messages.selectors.messagesSendingStatus)
 
+  const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
+
+  const downloadFile = useCallback((media: FileMetadata) => {
+    dispatch(files.actions.downloadFile(media))
+  }, [dispatch])
+
+  const cancelDownload = useCallback((cancelDownload: CancelDownload) => {
+    dispatch(files.actions.cancelDownload(cancelDownload))
+  }, [dispatch])
+
   const sendMessageAction = useCallback(
     (message: string) => {
       dispatch(messages.actions.sendMessage({ message }))
@@ -56,7 +67,10 @@ export const ChannelScreen: FC = () => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannel?.address])
 
+  const [imagePreview, setImagePreview] = useState<FileMetadata>(null)
+
   return (
+    <>
     <View style={{ flex: 1 }}>
       {currentChannel && (
         <>
@@ -71,9 +85,20 @@ export const ChannelScreen: FC = () => {
               groups: channelMessages
             }}
             pendingMessages={pendingMessages}
+            downloadStatuses={downloadStatusesMapping}
+            downloadFile={downloadFile}
+            cancelDownload={cancelDownload}
+            openImagePreview={setImagePreview}
+          />
+          <ImagePreviewModal
+            imagePreviewData={imagePreview}
+            currentChannelName={currentChannel.name}
+            resetPreviewData={() => setImagePreview(null)}
           />
         </>
       )}
+
     </View>
+    </>
   )
 }

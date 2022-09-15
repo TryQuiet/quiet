@@ -2,13 +2,15 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { showNotificationSaga } from './showNotification.saga'
 import { MarkUnreadChannelPayload, publicChannels, RICH_NOTIFICATION_CHANNEL } from '@quiet/state-manager'
 import { call } from 'redux-saga-test-plan/matchers'
-import { NativeModules } from 'react-native'
+import { NativeModules, Platform } from 'react-native'
 
 describe('showNotificationSaga', () => {
   test('show notification for new messages', async () => {
     jest.mock('react-native/Libraries/AppState/AppState', () => ({
       currentState: 'active'
     }))
+
+    Platform.OS = 'android'
 
     NativeModules.NotificationModule = {
       notify: jest.fn()
@@ -49,6 +51,8 @@ describe('showNotificationSaga', () => {
     jest.mock('react-native/Libraries/AppState/AppState', () => ({
       currentState: 'background'
     }))
+
+    Platform.OS = 'android'
 
     NativeModules.NotificationModule = {
       notify: jest.fn()

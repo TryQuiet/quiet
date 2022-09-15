@@ -79,6 +79,8 @@ export { AUTODOWNLOAD_SIZE_LIMIT, BASE_NOTIFICATION_CHANNEL, RICH_NOTIFICATION_C
 
 export { parseName } from './utils/functions/naming/naming'
 
+export { formatBytes } from './utils/functions/formatBytes/formatBytes'
+
 export * from './sagas/identity/identity.types'
 
 export * from './sagas/communities/communities.types'

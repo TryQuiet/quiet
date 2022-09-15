@@ -1,13 +1,49 @@
 import React, { FC } from 'react'
-import { View, Image, StyleSheet } from 'react-native'
+import { View, Image, StyleSheet, TouchableWithoutFeedback } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { MessageProps } from './Message.types'
 import Jdenticon from 'react-native-jdenticon'
 import { appImages } from '../../../assets'
-import { MessageType } from '@quiet/state-manager'
+import { MessageType, AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage } from '@quiet/state-manager'
+import { UploadedImage } from '../UploadedImage/UploadedImage.component'
+import { UploadedFile } from '../UploadedFile/UploadedFile.component'
+import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 
-export const Message: FC<MessageProps> = ({ data, pendingMessages }) => {
+export const Message: FC<MessageProps & FileActionsProps> = ({
+  data,
+  downloadStatus,
+  downloadFile,
+  cancelDownload,
+  openImagePreview,
+  pendingMessages
+}) => {
   const messageDisplayData = data[0]
+  const renderMessage = (message: DisplayableMessage) => {
+    const isPendingMessage = pendingMessages[message.id] !== undefined
+
+    switch (message.type) {
+      case 2: // MessageType.Image (cypress tests incompatibility with enums)
+        const size = message?.media?.size
+        const fileDisplay = !size || size < AUTODOWNLOAD_SIZE_LIMIT
+        return (
+          <>
+            {fileDisplay ? (
+              <UploadedImage media={message.media} openImagePreview={openImagePreview}/>
+            ) : (
+              <UploadedFile message={message} downloadStatus={downloadStatus} downloadFile={downloadFile} cancelDownload={cancelDownload}/>
+            )}
+          </>
+        )
+      case 4: // MessageType.File
+        return (
+          <UploadedFile message={message} downloadStatus={downloadStatus} downloadFile={downloadFile} cancelDownload={cancelDownload}/>
+        )
+      default:
+        return (
+          <Typography fontSize={14} color={ isPendingMessage ? 'lightGray' : 'main' }>{message.message}</Typography>
+          )
+    }
+  }
 
   const infoMessage = messageDisplayData.type === MessageType.Info
 
@@ -57,12 +93,10 @@ export const Message: FC<MessageProps> = ({ data, pendingMessages }) => {
           </View>
           <View style={{ flexShrink: 1 }}>
             {data.map((message, index) => {
-              const isPendingMessage = pendingMessages[message.id] !== undefined
-
               const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
               return (
                 <View style={outerDivStyle} key={index}>
-                  <Typography fontSize={14} color={ isPendingMessage ? 'lightGray' : 'main' }>{message.message}</Typography>
+                  {renderMessage(message)}
                 </View>
               )
             })}

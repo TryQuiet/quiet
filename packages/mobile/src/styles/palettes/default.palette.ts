@@ -18,6 +18,7 @@ export const defaultPalette = {
     hint: '#999999',
     error: '#E42656',
     grayLight: '#B8B8B8',
+    veryLightGray: '#F0F0F0',
     grayDark: '#999999',
     gray50: '#7F7F7F',
     white: '#ffffff',
