@@ -1,13 +1,17 @@
 package com.zbaymobile;
 
 import android.app.ActivityManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.zbaymobile.Utils.Const;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -42,12 +46,14 @@ public class NotificationModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public static void notify(String channelName, String message) {
         if (channelName.equals(SYSTEM_CHANNEL)) return; // Ignore system messages
-        if (!channelName.equals(RICH_NOTIFICATION_CHANNEL) && isAppOnForeground()) return; // Only RICH_NOTIFICATION can be shown in foreground
+        if (!channelName.equals(RICH_NOTIFICATION_CHANNEL) && isAppOnForeground())
+            return; // Only RICH_NOTIFICATION can be shown in foreground
 
         JSONObject json; // Message payload
 
         String title = "Quiet";
         String text = "";
+        String channelAddress = "";
 
         try {
             json = new JSONObject(message);
@@ -61,7 +67,8 @@ public class NotificationModule extends ReactContextBaseJavaModule {
                 JSONArray payload = new JSONArray(json.getString("payload"));
                 JSONObject data = new JSONObject(payload.getString(0));
 
-                String channelAddress = data.getString("channelAddress");
+                channelAddress = data.getString("channelAddress");
+
                 title = "Quiet";
                 text = String.format("You have a message in #%s", channelAddress);
             } catch (JSONException e) {
@@ -70,11 +77,11 @@ public class NotificationModule extends ReactContextBaseJavaModule {
             }
         }
 
-        if(channelName.equals(RICH_NOTIFICATION_CHANNEL)) {
+        if (channelName.equals(RICH_NOTIFICATION_CHANNEL)) {
             try {
                 JSONObject data = json;
 
-                String channelAddress = data.getString("channelAddress");
+                channelAddress = data.getString("channelAddress");
                 String messageContent = data.getString("message");
                 title = String.format("#%s", channelAddress);
                 text = truncate(messageContent, 32);
@@ -84,12 +91,22 @@ public class NotificationModule extends ReactContextBaseJavaModule {
             }
         }
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(reactContext.getApplicationContext(), Const.INCOMING_MESSAGES_CHANNEL_ID)
+        Intent resultIntent = new Intent(reactContext, MainActivity.class);
+
+        resultIntent.putExtra("channelAddress", channelAddress);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(reactContext);
+        stackBuilder.addNextIntentWithParentStack(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(0,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(reactContext, Const.INCOMING_MESSAGES_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
-                .setPriority(NotificationCompat.PRIORITY_HIGH);
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(resultPendingIntent);
 
         Integer notificationId = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
 
