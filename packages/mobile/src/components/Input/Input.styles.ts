@@ -1,8 +1,15 @@
-import { Pressable, TextInput } from 'react-native'
+import { Platform, Pressable, TextInput } from 'react-native'
 import styled, { css } from 'styled-components/native'
 
 export const StyledTextInput = styled(TextInput)`
   text-align-vertical: center;
+  ${Platform.select({
+    ios: {
+        paddingTop: 12,
+        paddingBottom: 12
+    },
+    android: {}
+})}
 `
 
 export const StyledWrapper = styled(Pressable)<{
