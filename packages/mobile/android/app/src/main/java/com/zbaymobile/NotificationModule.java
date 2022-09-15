@@ -40,46 +40,50 @@ public class NotificationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void notify(String channelName, String message) {
+    public static void notify(String channelName, String payload) {
         if (channelName.equals(SYSTEM_CHANNEL)) return; // Ignore system messages
-        if (!channelName.equals(RICH_NOTIFICATION_CHANNEL) && isAppOnForeground()) return; // Only RICH_NOTIFICATION can be shown in foreground
 
-        JSONObject json; // Message payload
-
-        String title = "Quiet";
-        String text = "";
+        String event;
+        JSONObject message;
 
         try {
-            json = new JSONObject(message);
+            JSONObject data = new JSONObject(payload);
+            message = new JSONObject(new JSONArray(data.getString("payload")).getString(0)); // Get first message from array
+            event = data.getString("event");
         } catch (JSONException e) {
             Log.e("NOTIFICATION", "unexpected JSON exception", e);
             return;
         }
 
-        if (channelName.equals(BASE_NOTIFICATION_CHANNEL)) {
+        String title = "Quiet";
+        String text = "";
+
+        if (!event.equals(RICH_NOTIFICATION_CHANNEL) && isAppOnForeground()) return; // Only RICH_NOTIFICATION can be shown in foreground
+
+        if(event.equals(RICH_NOTIFICATION_CHANNEL)) {
             try {
-                JSONArray payload = new JSONArray(json.getString("payload"));
-                JSONObject data = new JSONObject(payload.getString(0));
-
-                String channelAddress = data.getString("channelAddress");
-                title = "Quiet";
-                text = String.format("You have a message in #%s", channelAddress);
-            } catch (JSONException e) {
-                Log.e("NOTIFICATION", "incorrect BASE_NOTIFICATION payload", e);
-                return;
-            }
-        }
-
-        if(channelName.equals(RICH_NOTIFICATION_CHANNEL)) {
-            try {
-                JSONObject data = json;
-
-                String channelAddress = data.getString("channelAddress");
-                String messageContent = data.getString("message");
+                String channelAddress = message.getString("channelAddress");
+                String messageContent = message.getString("message");
                 title = String.format("#%s", channelAddress);
                 text = truncate(messageContent, 32);
             } catch (JSONException e) {
                 Log.e("NOTIFICATION", "incorrect RICH_NOTIFICATION payload", e);
+                return;
+            }
+        }
+
+        if (event.equals(BASE_NOTIFICATION_CHANNEL)) {
+            try {
+                String channelAddress = message.getString("channelAddress");
+                String messageContent = message.getString("message");
+                title = String.format("#%s", channelAddress);
+                text = truncate(messageContent, 32);
+                /** Messages sent in public channels are not additionally encoded so we can access them as a plain text in this place.
+                Nevertheless we'd want to display only limited information at this stage. **/
+                // title = "Quiet";
+                // text = String.format("You have a message in #%s", channelAddress);
+            } catch (JSONException e) {
+                Log.e("NOTIFICATION", "incorrect BASE_NOTIFICATION payload", e);
                 return;
             }
         }
