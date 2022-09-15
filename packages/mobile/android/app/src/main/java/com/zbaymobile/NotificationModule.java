@@ -98,6 +98,7 @@ public class NotificationModule extends ReactContextBaseJavaModule {
         Intent resultIntent = new Intent(reactContext, MainActivity.class);
 
         resultIntent.putExtra("channelAddress", channelAddress);
+        resultIntent.putExtra("TAG", "notification");
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(reactContext);
         stackBuilder.addNextIntentWithParentStack(resultIntent);
         PendingIntent resultPendingIntent =
