@@ -86,7 +86,9 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
           </View>
         </View>
       )}
-      <Button onPress={onPress} title={'Continue'} loading={loading} style={{ marginTop: 30 }} />
+      <View style={{ marginTop: 20 }}>
+        <Button onPress={onPress} title={'Continue'} loading={loading} />
+      </View>
     </View>
   )
 }

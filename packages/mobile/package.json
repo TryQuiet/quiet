@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "storybook": "ENVFILE=.env.storybook react-native run-android --variant=storybookDebug --appIdSuffix=storybook.debug",
+    "storybook-android": "ENVFILE=.env.storybook react-native run-android --variant=storybookDebug --appIdSuffix=storybook.debug",
+    "storybook-ios": "ENVFILE=.env.storybook react-native run-ios",
     "android": "ENVFILE=.env.development react-native run-android --variant=standardDebug --appIdSuffix=debug",
     "ios": "ENVFILE=.env.development react-native run-ios",
     "start": "react-native start",

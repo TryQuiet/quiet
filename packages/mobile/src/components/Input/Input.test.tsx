@@ -6,10 +6,7 @@ import { Input } from './Input.component'
 describe('MessageInput component', () => {
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
-      <Input
-        onChangeText={() => {}}
-        placeholder={'Message #general as @holmes'}
-      />
+      <Input onChangeText={() => {}} placeholder={'Message #general as @holmes'} />
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`
@@ -35,8 +32,6 @@ describe('MessageInput component', () => {
                 "borderRadius": 4,
                 "borderWidth": 1,
                 "flexGrow": 1,
-                "maxHeight": 72,
-                "minHeight": 42,
                 "paddingLeft": 15,
                 "paddingRight": 15,
               },
@@ -52,8 +47,8 @@ describe('MessageInput component', () => {
             style={
               Array [
                 Object {
-                  "paddingBottom": 8,
-                  "paddingTop": 8,
+                  "paddingBottom": 12,
+                  "paddingTop": 12,
                   "textAlignVertical": "center",
                 },
               ]
