@@ -10,8 +10,9 @@ import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 
 import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
+import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 
-export const Chat: FC<ChatProps> = ({
+export const Chat: FC<ChatProps & FileActionsProps> = ({
   sendMessageAction,
   loadMessagesAction,
   channel,
@@ -19,7 +20,11 @@ export const Chat: FC<ChatProps> = ({
   messages = {
     count: 0,
     groups: {}
-  }
+  },
+  downloadStatuses = {},
+  downloadFile,
+  cancelDownload,
+  openImagePreview
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [messageInput, setMessageInput] = useState<string | undefined>()
@@ -65,6 +70,17 @@ export const Chat: FC<ChatProps> = ({
     setInputEmpty(true)
   }
 
+  const renderItem = ({ item }) => (
+    <ChannelMessagesComponent
+      messages={messages.groups[item]}
+      day={item}
+      downloadStatuses={downloadStatuses}
+      downloadFile={downloadFile}
+      cancelDownload={cancelDownload}
+      openImagePreview={openImagePreview}
+    />
+  )
+
   return (
     <View
       style={{
@@ -81,9 +97,7 @@ export const Chat: FC<ChatProps> = ({
         showsVerticalScrollIndicator={false}
         data={Object.keys(messages.groups).reverse()}
         keyExtractor={item => item}
-        renderItem={({ item }) => (
-          <ChannelMessagesComponent messages={messages.groups[item]} day={item} />
-        )}
+        renderItem={renderItem}
         onEndReached={() => {
           loadMessagesAction(true)
         }}
@@ -108,16 +122,28 @@ export const Chat: FC<ChatProps> = ({
   )
 }
 
-export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps> = ({
+export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & FileActionsProps> = ({
   messages,
-  day
+  day,
+  downloadStatuses,
+  downloadFile,
+  cancelDownload,
+  openImagePreview
 }) => {
   return (
     <View key={day}>
       {/* <MessagesDivider title={day} /> */}
       {messages.map(data => {
         // Messages merged by sender (DisplayableMessage[])
-        return <Message key={data[0].id} data={data} />
+        const messageId = data[0].id
+        return <Message
+          key={messageId}
+          data={data}
+          downloadStatus={downloadStatuses[messageId]}
+          downloadFile={downloadFile}
+          cancelDownload={cancelDownload}
+          openImagePreview={openImagePreview}
+        />
       })}
     </View>
   )
