@@ -81,7 +81,6 @@ jobs:
           serviceAccountJson: google-play.json
           packageName: com.zbaymobile
           releaseFiles: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
-          track: internal
           status: completed
           whatsNewDirectory: distribution/whatsnew
           changesNotSentForReview: true

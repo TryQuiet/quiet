@@ -3,6 +3,7 @@ import {
   DownloadStatus,
   FileMetadata,
   MessagesDailyGroups,
+  MessageSendingStatus,
   PublicChannel
 } from '@quiet/state-manager'
 import { Dictionary } from '@reduxjs/toolkit'
@@ -16,13 +17,15 @@ export interface ChatProps {
     count: number
     groups: MessagesDailyGroups
   }
+  pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
   openImagePreview?: (media: FileMetadata) => void
 }
 
 export interface ChannelMessagesComponentProps {
-  messages: DisplayableMessage[][]
   day: string
+  messages: DisplayableMessage[][]
+  pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
   openImagePreview?: (media: FileMetadata) => void
 }
