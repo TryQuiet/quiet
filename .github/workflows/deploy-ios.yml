@@ -35,14 +35,14 @@ jobs:
       - name: Cache Pods dependencies
         uses: actions/cache@v1
         with:
-          path: ios/Pods
+          path: ./packages/mobile/ios/Pods
           key: ${{ runner.OS }}-pods-cache-${{ hashFiles('**/ios/Podfile.lock') }}
           restore-keys: |
             ${{ runner.OS }}-pods-cache-
 
       - name: Install pod dependencies
         run: |
-          cd ios
+          cd ./packages/mobile/ios
           pod install
         shell: bash
 
@@ -53,7 +53,7 @@ jobs:
 
       - name: Build app
         run: |
-          cd ios && xcodebuild archive \
+          cd ./packages/mobile/ios && xcodebuild archive \
             -workspace ZbayMobile.xcworkspace \
             -scheme ZbayMobile \
             -sdk iphoneos14.4 \
@@ -65,7 +65,7 @@ jobs:
 
       - name: Export app
         run: |
-          cd ios && xcodebuild \
+          cd ./packages/mobile/ios && xcodebuild \
             -exportArchive \
             -archivePath $PWD/build/ZbayMobile.xcarchive \
             -exportOptionsPlist $PWD/ci.plist \
@@ -73,7 +73,7 @@ jobs:
 
       - name: Upload ipa
         run: |
-          cd ios && xcrun altool --upload-app \
+          cd ./packages/mobile/ios && xcrun altool --upload-app \
           --type ios \
           --file build/ZbayMobile.ipa \
           -u $APPSTORE_USER -p $APP_PASSWORD \
