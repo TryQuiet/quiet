@@ -685,7 +685,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.zbaymobile;
 				PRODUCT_NAME = ZbayMobile;
-				PROVISIONING_PROFILE_SPECIFIER = ci;
+				PROVISIONING_PROFILE_SPECIFIER = CI;
 				SWIFT_OBJC_BRIDGING_HEADER = "ZbayMobile-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
