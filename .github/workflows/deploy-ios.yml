@@ -76,8 +76,8 @@ jobs:
           cd ./packages/mobile/ios && xcrun altool --upload-app \
           --type ios \
           --file build/ZbayMobile.ipa \
-          -u $APPSTORE_USER -p $APP_PASSWORD \
+          -u $APPSTORE_USER -p $APPSTORE_PASSWORD \
           --verbose
         env:
           APPSTORE_USER: ${{ secrets.APPSTORE_USER }}
-          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+          APP_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
