@@ -8,7 +8,7 @@ import { createDataDirectorySaga } from './createDataDirectory.saga'
 
 describe('createDataDirectorySaga', () => {
   test('should create data directory with native method', async () => {
-    NativeModules.TorModule = {
+    NativeModules.BackendModule = {
       createDataDirectory: jest.fn()
     }
     await expectSaga(createDataDirectorySaga)
@@ -17,7 +17,7 @@ describe('createDataDirectorySaga', () => {
           ...new NativeServicesState()
         }
       })
-      .call(NativeModules.TorModule.createDataDirectory)
+      .call(NativeModules.BackendModule.createDataDirectory)
       .run()
   })
 })

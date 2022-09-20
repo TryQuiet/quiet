@@ -1,6 +1,6 @@
 import { all, fork } from 'typed-redux-saga'
 import { createDataDirectorySaga } from './createDataDirectory/createDataDirectory.saga'
-import { nativeServicesCallbacksSaga } from './nativeServicesCallbacks/nativeServicesCallbacks'
+import { nativeServicesCallbacksSaga } from './events/nativeServicesCallbacks'
 import { startTorSaga } from './startTor/startTor.saga'
 import { startBackendSaga } from './startBackend/startBackend.saga'
 

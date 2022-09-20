@@ -85,8 +85,7 @@ export const initSlice = createSlice({
     onDataDirectoryCreated: (state, action: PayloadAction<string>) => {
       state.dataDirectoryPath = action.payload
     },
-    onBackendStarted: (_state, _action: PayloadAction<WebsocketConnectionPayload>) => {
-    },
+    onBackendStarted: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
     startConnection: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
     suspendConnection: state => {
       state.isConnected = false

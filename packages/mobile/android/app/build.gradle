@@ -253,6 +253,10 @@ dependencies {
     api 'info.guardianproject:jtorctl:0.4.5.7'
     // implementation 'info.guardianproject:tor-android:0.4.5.7'
     implementation 'org.torproject:tor-android-binary:0.4.4.6'
+
+    // Work manager
+    implementation("androidx.work:work-runtime:2.7.1")
+    implementation("androidx.work:work-runtime-ktx:2.7.1")
     
     // For animated GIF support
     implementation 'com.facebook.fresco:fresco:2.6.0'

@@ -1,10 +1,16 @@
 package com.zbaymobile;
 
 import android.content.Intent;
+import android.os.Bundle;
+
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.bridge.ReactApplicationContext;
+
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends ReactActivity {
 
@@ -25,6 +31,20 @@ public class MainActivity extends ReactActivity {
     }
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        PeriodicWorkRequest backendRequest =
+                new PeriodicWorkRequest.Builder(BackendWorker.class, 15, TimeUnit.MINUTES)
+                        .setInitialDelay(15, TimeUnit.MINUTES)
+                        .build();
+
+        WorkManager
+                .getInstance(getApplicationContext())
+                .enqueue(backendRequest);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         Intent intent = getIntent();
@@ -35,6 +55,6 @@ public class MainActivity extends ReactActivity {
         if (tag.equals("notification")) {
             ReactApplicationContext reactContext = (ReactApplicationContext) getReactNativeHost().getReactInstanceManager().getCurrentReactContext();
             this.sendNotificationInfo(reactContext, intent);
-        };
+        }
     }
 }

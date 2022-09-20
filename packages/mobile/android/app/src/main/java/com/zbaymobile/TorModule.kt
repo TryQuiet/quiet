@@ -147,18 +147,6 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
         return false
     }
 
-    @ReactMethod
-    fun createDataDirectory() {
-        val dataDirectory = File(context.filesDir, "backend/files")
-        dataDirectory.mkdirs()
-
-        val path = dataDirectory.absolutePath
-
-        context
-            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-            .emit("onDataDirectoryCreated", path)
-    }
-
     override fun onHostResume() {}
 
     override fun onHostPause() {}
