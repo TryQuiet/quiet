@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.11.3-alpha.6](https://github.com/ZbayApp/monorepo/compare/e2e-tests@0.11.2...e2e-tests@0.11.3-alpha.6) (2022-09-20)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
 ## [0.11.3-alpha.5](https://github.com/ZbayApp/monorepo/compare/e2e-tests@0.11.2...e2e-tests@0.11.3-alpha.5) (2022-09-17)
 
 **Note:** Version bump only for package e2e-tests
