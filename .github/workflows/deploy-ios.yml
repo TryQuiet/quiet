@@ -58,7 +58,7 @@ jobs:
           cd ./packages/mobile/ios && xcodebuild archive \
             -workspace ZbayMobile.xcworkspace \
             -scheme ZbayMobile \
-            -sdk iphoneos15.0 \
+            -sdk iphoneos15.2 \
             -configuration Release \
             -archivePath $PWD/build/ZbayMobile.xcarchive \
             IPHONEOS_DEPLOYMENT_TARGET=15.0
