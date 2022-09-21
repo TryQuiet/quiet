@@ -1,11 +1,10 @@
 import { combineReducers } from '@reduxjs/toolkit'
-import { prepareStore } from '../../../utils/tests/prepareStore'
+import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
 import { expectSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
 import { identityAdapter } from '../../identity/identity.adapter'
 import { identityActions, identityReducer, IdentityState } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { StoreKeys } from '../../store.keys'
 import { communitiesAdapter } from '../communities.adapter'
@@ -14,15 +13,23 @@ import {
   communitiesReducer, CommunitiesState, Community
 } from '../communities.slice'
 import { InitCommunityPayload } from '../communities.types'
+import { Store } from '../../store.types'
+
 import { initCommunities, launchCommunitySaga } from './launchCommunity.saga'
 import { setupCrypto } from '@quiet/identity'
+import { FactoryGirl } from 'factory-girl'
 
 describe('launchCommunity', () => {
-  test.only('launch all remembered communities', async () => {
-    setupCrypto()
-    const store = prepareStore().store
-    const factory = await getFactory(store)
+  let store: Store
+  let factory: FactoryGirl
 
+  beforeAll(async () => {
+    setupCrypto()
+    store = prepareStore().store
+    factory = await getFactory(store)
+  })
+
+  test('launch all remembered communities', async () => {
     const community1 = await factory.create<
     ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
@@ -44,7 +51,7 @@ describe('launchCommunity', () => {
     ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community3.id, nickname: 'alice3' })
 
-    const reducer = combineReducers({ Communities: communitiesReducer, Identity: identityReducer })
+    const reducer = combineReducers(reducers)
     await expectSaga(initCommunities)
       .withReducer(reducer)
       .withState(store.getState())
@@ -53,49 +60,28 @@ describe('launchCommunity', () => {
       .put(communitiesActions.launchCommunity(community3.id))
       .run()
   })
+
   test('launch certain community instead of current community', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
+    const community = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+
+    const identity = await factory.create<
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'john' })
+
     const launchCommunityPayload: InitCommunityPayload = {
-      id: 'id',
-      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-      certs: { certificate: 'userCert', key: 'userKey', CA: ['rootCert'] },
-      peers: []
-    }
-
-    const community: Community = {
-      name: '',
-      id: 'id',
-      registrarUrl: 'registrarUrl',
-      CA: null,
-      rootCa: 'rootCert',
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0,
-      registrationAttempts: 0
-    }
-
-    const userCsr = {
-      userCsr: 'userCsr',
-      userKey: 'userKey',
-      pkcs10: {
-        publicKey: jest.fn() as unknown,
-        privateKey: jest.fn() as unknown,
-        pkcs10: 'pkcs10'
-      }
-    }
-
-    const identity: Identity = {
-      id: 'id',
-      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-      dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
-      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-      nickname: '',
-      userCsr: userCsr,
-      userCertificate: 'userCert'
+      id: community.id,
+      peerId: identity.peerId,
+      hiddenService: identity.hiddenService,
+      certs: {
+        certificate: identity.userCertificate,
+        key: identity.userCsr.userKey,
+        CA: [community.rootCa]
+      },
+      peers: community.peerList
     }
 
     await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity(community.id))
@@ -130,49 +116,28 @@ describe('launchCommunity', () => {
       ])
       .run()
   })
+
   test('launch current community', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
+    const community = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+
+    const identity = await factory.create<
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'john' })
+
     const launchCommunityPayload: InitCommunityPayload = {
-      id: 'id',
-      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-      certs: { certificate: 'userCert', key: 'userKey', CA: ['rootCert'] },
-      peers: []
-    }
-
-    const community: Community = {
-      name: '',
-      id: 'id',
-      registrarUrl: 'registrarUrl',
-      CA: null,
-      rootCa: 'rootCert',
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0,
-      registrationAttempts: 0
-    }
-
-    const userCsr = {
-      userCsr: 'userCsr',
-      userKey: 'userKey',
-      pkcs10: {
-        publicKey: jest.fn() as unknown,
-        privateKey: jest.fn() as unknown,
-        pkcs10: 'pkcs10'
-      }
-    }
-
-    const identity: Identity = {
-      id: 'id',
-      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-      dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
-      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-      nickname: '',
-      userCsr: userCsr,
-      userCertificate: 'userCert'
+      id: community.id,
+      peerId: identity.peerId,
+      hiddenService: identity.hiddenService,
+      certs: {
+        certificate: identity.userCertificate,
+        key: identity.userCsr.userKey,
+        CA: [community.rootCa]
+      },
+      peers: community.peerList
     }
 
     await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity())
@@ -184,7 +149,7 @@ describe('launchCommunity', () => {
         {
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
-            currentCommunity: 'id',
+            currentCommunity: community.id,
             communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
               community
             ])
@@ -210,46 +175,24 @@ describe('launchCommunity', () => {
   test('launch current community', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
+    const community = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+
+    const identity = await factory.create<
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'john' })
+
     const launchCommunityPayload: InitCommunityPayload = {
-      id: 'id',
-      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-      certs: { certificate: 'userCert', key: 'userKey', CA: ['rootCert'] },
-      peers: []
-    }
-
-    const community: Community = {
-      name: '',
-      id: 'id',
-      registrarUrl: 'registrarUrl',
-      CA: null,
-      rootCa: 'rootCert',
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0,
-      registrationAttempts: 0
-    }
-
-    const userCsr = {
-      userCsr: 'userCsr',
-      userKey: 'userKey',
-      pkcs10: {
-        publicKey: jest.fn() as unknown,
-        privateKey: jest.fn() as unknown,
-        pkcs10: 'pkcs10'
-      }
-    }
-
-    const identity: Identity = {
-      id: 'id',
-      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-      dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
-      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-      nickname: '',
-      userCsr: userCsr,
-      userCertificate: 'userCert'
+      id: community.id,
+      peerId: identity.peerId,
+      hiddenService: identity.hiddenService,
+      certs: {
+        certificate: identity.userCertificate,
+        key: identity.userCsr.userKey,
+        CA: [community.rootCa]
+      },
+      peers: community.peerList
     }
 
     await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity())
@@ -261,7 +204,7 @@ describe('launchCommunity', () => {
         {
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
-            currentCommunity: 'id',
+            currentCommunity: community.id,
             communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
               community
             ])
@@ -285,7 +228,7 @@ describe('launchCommunity', () => {
       .run()
   })
 
-  test('launch and register unregistered member and launch registered member to community', async () => {
+  test.skip('launch and register unregistered member and launch registered member to community', async () => {
     setupCrypto()
     const store = prepareStore().store
     const factory = await getFactory(store)
@@ -298,45 +241,13 @@ describe('launchCommunity', () => {
     ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
-    const identityAlpha: Identity = {
-      id: community1.id,
-      nickname: 'nickname',
-      hiddenService: {
-        onionAddress: '',
-        privateKey: ''
-      },
-      dmKeys: {
-        publicKey: '',
-        privateKey: ''
-      },
-      peerId: {
-        id: '',
-        pubKey: '',
-        privKey: ''
-      },
-      userCsr: null,
-      userCertificate: ''
-    }
+    const identityAlpha = await factory.create<
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
+    >('Identity', { id: community1.id, nickname: 'john' })
 
-    const identityBeta: Identity = {
-      id: community2.id,
-      nickname: 'nickname',
-      hiddenService: {
-        onionAddress: '',
-        privateKey: ''
-      },
-      dmKeys: {
-        publicKey: '',
-        privateKey: ''
-      },
-      peerId: {
-        id: '',
-        pubKey: '',
-        privKey: ''
-      },
-      userCsr: null,
-      userCertificate: 'userCert'
-    }
+    const identityBeta = await factory.create<
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
+    >('Identity', { id: community2.id, nickname: 'john' })
 
     await expectSaga(initCommunities)
       .withReducer(
