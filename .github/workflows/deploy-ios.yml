@@ -27,7 +27,7 @@ jobs:
       - name: Setup XCode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '14.0'
+          xcode-version: '13.2.1'
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
