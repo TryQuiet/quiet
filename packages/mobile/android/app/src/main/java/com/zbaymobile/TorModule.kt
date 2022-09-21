@@ -10,9 +10,14 @@ import com.zbaymobile.Utils.Const
 import com.zbaymobile.Utils.Utils
 import com.zbaymobile.Utils.toHex
 import org.torproject.android.binary.TorResourceInstaller
+import com.zbaymobile.Utils.Const.TAG_NOTICE
 import java.io.File
 import java.io.FileWriter
 import java.io.PrintWriter
+import java.nio.file.Paths
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.ScheduledFuture
 
 
 class TorModule(private val context: ReactApplicationContext): ReactContextBaseJavaModule(),
@@ -30,8 +35,25 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
 
     private var torrc: File? = null
 
+    private var procesTorLogsTask: ScheduledFuture<*>? = null
+
     // Directory containing tor files
     private var dataDirectory: File? = null
+
+    private fun checkTorBootstrapped(file: File, httpTunnelPort: Int, socksPort: Int, controlPort: Int, authCookie: String) {
+        object: Thread() {
+            override fun run() {
+                val fileContent = file.readText(Charsets.UTF_8)
+                val regex = "Bootstrapped 100%".toRegex()
+                    if (regex.containsMatchIn(fileContent)) {
+                        Log.d(Const.TAG_TOR, "Tor bootstrapped")
+                        procesTorLogsTask?.cancel(true)
+                        procesTorLogsTask = null
+                        onTorInit(httpTunnelPort, socksPort, controlPort, authCookie)
+                    }
+            }
+        }.start()
+    }
 
     @ReactMethod
     private fun startTor(httpTunnelPort: Int, socksPort: Int, controlPort: Int) {
@@ -40,9 +62,13 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
          * so there is a need for overwrite it with custom file
          * containing all the proper configuration
          **/
+        val torLogs = File(context.filesDir, Const.TOR_LOGS_FILENAME)
+        if ((torLogs.exists()) == true) {
+            torLogs.delete()
+        }
         torrc = File(context.filesDir, "torrc")
-
-        val torrcCustom: File? = updateTorrcCustomFile(httpTunnelPort, socksPort, controlPort)
+        
+        val torrcCustom: File? = updateTorrcCustomFile(httpTunnelPort, socksPort, controlPort, torLogs.absolutePath)
         if ((torrcCustom?.exists()) == false || (torrcCustom?.canRead()) == false)
             return
 
@@ -58,7 +84,8 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
                 authCookie = cookie.readBytes().toHex()
             }
 
-            onTorInit(httpTunnelPort, socksPort, controlPort, authCookie)
+            val executorService = Executors.newSingleThreadScheduledExecutor()
+            procesTorLogsTask = executorService.scheduleAtFixedRate({checkTorBootstrapped(torLogs, httpTunnelPort, socksPort, controlPort, authCookie) }, 0, 3, TimeUnit.SECONDS)
         }
     }
 
@@ -91,14 +118,14 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
         return true
     }
 
-    private fun updateTorrcCustomFile(httpTunnelPort: Int, socksPort: Int, controlPort: Int): File? {
+    private fun updateTorrcCustomFile(httpTunnelPort: Int, socksPort: Int, controlPort: Int, torLogsPath: String): File? {
         val extraLines = StringBuffer()
-
         extraLines.append("RunAsDaemon 1").append('\n')
         extraLines.append("CookieAuthentication 1").append('\n')
         extraLines.append("ControlPort ").append(controlPort).append('\n')
         extraLines.append("SOCKSPort ").append(socksPort).append('\n')
         extraLines.append("HTTPTunnelPort ").append(httpTunnelPort).append('\n')
+        extraLines.append("Log notice file ").append(torLogsPath).append("\n")
 
         Log.d("TORRC","torrc.custom=\n$extraLines")
 
