@@ -1,6 +1,6 @@
 {
   "name": "integration-tests",
-  "version": "0.11.3-alpha.8",
+  "version": "0.11.3-alpha.9",
   "description": "",
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
@@ -45,10 +45,10 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "1.2.2",
-    "@quiet/backend": "^0.11.3-alpha.8",
-    "@quiet/identity": "^0.10.3-alpha.8",
-    "@quiet/logger": "^0.10.3-alpha.8",
-    "@quiet/state-manager": "^0.11.3-alpha.8",
+    "@quiet/backend": "^0.11.3-alpha.9",
+    "@quiet/identity": "^0.10.3-alpha.9",
+    "@quiet/logger": "^0.10.3-alpha.9",
+    "@quiet/state-manager": "^0.11.3-alpha.9",
     "@reduxjs/toolkit": "^1.6.1",
     "commander": "^9.1.0",
     "debug": "^4.3.2",
