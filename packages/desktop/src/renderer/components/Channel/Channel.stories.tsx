@@ -408,7 +408,8 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
         pkcs10: 'pkcs10'
       }
     },
-    userCertificate: 'userCertificate'
+    userCertificate: 'userCertificate',
+    joinTimestamp: null
   },
   channelSettingsModal: {
     open: false,
