@@ -1,4 +1,5 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { DateTime } from 'luxon'
 import { StoreKeys } from '../store.keys'
 import { identityAdapter } from './identity.adapter'
 import {
@@ -40,7 +41,8 @@ export const identitySlice = createSlice({
       identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,
         changes: {
-          userCertificate: action.payload.userCertificate
+          userCertificate: action.payload.userCertificate,
+          joinTimestamp: DateTime.utc().valueOf()
         }
       })
     },

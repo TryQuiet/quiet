@@ -37,9 +37,14 @@ export const joinedCommunities = createSelector(
   }
 )
 
+export const joinTimestamp = createSelector(
+  currentIdentity, identity => identity.joinTimestamp
+)
+
 export const identitySelectors = {
   selectById,
   selectEntities,
   currentIdentity,
-  joinedCommunities
+  joinedCommunities,
+  joinTimestamp
 }

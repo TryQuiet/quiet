@@ -17,6 +17,7 @@ import { messagesActions } from '../../sagas/messages/messages.slice'
 import { currentCommunity } from '../../sagas/communities/communities.selectors'
 import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
 import { filesActions } from '../../sagas/files/files.slice'
+import { identityActions } from '../../sagas/identity/identity.slice'
 
 export const getFactory = async (store: Store) => {
   const factory = new factoryGirl.FactoryGirl()
@@ -75,7 +76,9 @@ export const getFactory = async (store: Store) => {
         publicKey: '9f016defcbe48829db163e86b28efb10318faf3b109173105e3dc024e951bb1b',
         privateKey: '4dcebbf395c0e9415bc47e52c96fcfaf4bd2485a516f45118c2477036b45fc0b'
       },
-      nickname: factory.sequence('Identity.nickname', n => `user_${n}`)
+      nickname: factory.sequence('Identity.nickname', n => `user_${n}`),
+      // 21.09.2022 - may be useful for testing purposes
+      joinTimestamp: 1663747464000
     },
     {
       afterBuild: async (action: ReturnType<typeof identity.actions.addNewIdentity>) => {
