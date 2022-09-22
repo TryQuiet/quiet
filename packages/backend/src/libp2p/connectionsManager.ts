@@ -336,7 +336,7 @@ export class ConnectionsManager extends EventEmitter {
         peerDiscovery: {
           [Bootstrap.tag]: {
             enabled: true,
-            list: params.bootstrapMultiaddrsList.reverse()
+            list: params.bootstrapMultiaddrsList
           },
           autoDial: true
         },
