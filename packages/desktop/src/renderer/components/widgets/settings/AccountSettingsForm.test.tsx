@@ -21,7 +21,8 @@ describe('AccountSettingsForm', () => {
       },
       nickname: '',
       userCsr: undefined,
-      userCertificate: ''
+      userCertificate: '',
+      joinTimestamp: null
     }
 
     const result = renderComponent(<AccountSettingsForm user={user} />)

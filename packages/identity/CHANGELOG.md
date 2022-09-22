@@ -3,6 +3,62 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.3-alpha.12](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.10.3-alpha.7...@quiet/identity@0.10.3-alpha.12) (2022-09-21)
+
+**Note:** Version bump only for package @quiet/identity
+
+
+
+
+
+## [0.10.3-alpha.11](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.10.3-alpha.7...@quiet/identity@0.10.3-alpha.11) (2022-09-21)
+
+**Note:** Version bump only for package @quiet/identity
+
+
+
+
+
+## [0.10.3-alpha.10](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.10.3-alpha.7...@quiet/identity@0.10.3-alpha.10) (2022-09-21)
+
+**Note:** Version bump only for package @quiet/identity
+
+
+
+
+
+## [0.10.3-alpha.9](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.10.3-alpha.7...@quiet/identity@0.10.3-alpha.9) (2022-09-21)
+
+**Note:** Version bump only for package @quiet/identity
+
+
+
+
+
+## [0.10.3-alpha.8](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.10.3-alpha.7...@quiet/identity@0.10.3-alpha.8) (2022-09-21)
+
+**Note:** Version bump only for package @quiet/identity
+
+
+
+
+
+## [0.10.3-alpha.7](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.10.2...@quiet/identity@0.10.3-alpha.7) (2022-09-21)
+
+**Note:** Version bump only for package @quiet/identity
+
+
+
+
+
+## [0.10.3-alpha.6](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.10.2...@quiet/identity@0.10.3-alpha.6) (2022-09-20)
+
+**Note:** Version bump only for package @quiet/identity
+
+
+
+
+
 ## [0.10.3-alpha.5](https://github.com/TryQuiet/identity/compare/@quiet/identity@0.10.2...@quiet/identity@0.10.3-alpha.5) (2022-09-17)
 
 **Note:** Version bump only for package @quiet/identity
