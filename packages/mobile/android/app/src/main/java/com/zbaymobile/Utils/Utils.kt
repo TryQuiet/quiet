@@ -52,8 +52,8 @@ object Utils {
     fun writeToFile(file: String, data: String, context: Context) {
         try {
             val outputStreamWriter =
-                OutputStreamWriter(context.openFileOutput(file, Context.MODE_PRIVATE))
-            outputStreamWriter.write("$data \n")
+                OutputStreamWriter(context.openFileOutput(file, Context.MODE_APPEND))
+            outputStreamWriter.append("$data \n")
             outputStreamWriter.close()
         } catch (e: IOException) {
             Log.e("Worker", "File write failed: $e")
