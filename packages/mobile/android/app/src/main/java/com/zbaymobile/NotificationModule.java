@@ -99,10 +99,11 @@ public class NotificationModule extends ReactContextBaseJavaModule {
 
         resultIntent.putExtra("channelAddress", channelAddress);
         resultIntent.putExtra("TAG", "notification");
+        Integer notificationId = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(reactContext);
         stackBuilder.addNextIntentWithParentStack(resultIntent);
         PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(0,
+                stackBuilder.getPendingIntent(notificationId,
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(reactContext, Const.INCOMING_MESSAGES_CHANNEL_ID)
@@ -112,8 +113,6 @@ public class NotificationModule extends ReactContextBaseJavaModule {
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(resultPendingIntent);
-
-        Integer notificationId = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(reactContext.getApplicationContext());
         notificationManager.notify(notificationId, builder.build());
