@@ -1,10 +1,9 @@
 package com.zbaymobile.Utils
 
+import android.content.Context
 import android.util.Log
 import com.zbaymobile.Utils.Const.TAG_NOTICE
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.File
+import java.io.*
 
 object Utils {
 
@@ -48,5 +47,16 @@ object Utils {
         }
 
         return process.exitValue()
+    }
+
+    fun writeToFile(file: String, data: String, context: Context) {
+        try {
+            val outputStreamWriter =
+                OutputStreamWriter(context.openFileOutput(file, Context.MODE_PRIVATE))
+            outputStreamWriter.write("$data \n")
+            outputStreamWriter.close()
+        } catch (e: IOException) {
+            Log.e("Worker", "File write failed: $e")
+        }
     }
 }

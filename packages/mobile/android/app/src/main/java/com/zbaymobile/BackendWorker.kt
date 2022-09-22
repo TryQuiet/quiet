@@ -7,6 +7,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.zbaymobile.Utils.Const
+import com.zbaymobile.Utils.Utils
 import java.net.ConnectException
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -32,9 +33,7 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
         if (dataPort != -1) {
             val open = isPortOpen("127.0.0.1", dataPort, 500)
             println("QUIET_BACKEND | is data port open : $open")
-            if (!open) {
-                notifyProcessOff(date)
-            }
+            Utils.writeToFile("worker_logs.txt", "$date is data port open : $open", applicationContext)
         } else {
             println("QUIET_BACKEND | Data port not found within shared preferences")
         }
