@@ -1,6 +1,7 @@
 package com.zbaymobile;
 
 import android.content.Intent;
+import android.os.Bundle;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
@@ -15,6 +16,11 @@ public class MainActivity extends ReactActivity {
     @Override
     protected String getMainComponentName() {
         return "ZbayMobile";
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(null);
     }
 
     private void sendNotificationInfo (ReactApplicationContext reactContext, Intent intent) {
