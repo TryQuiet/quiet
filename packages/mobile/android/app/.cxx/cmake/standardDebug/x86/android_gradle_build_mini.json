@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/home/sauron/Quiet/monorepo/packages/mobile/android/app/src/main/cpp/CMakeLists.txt",
+    "/home/sauron/Android/Sdk/ndk/21.4.7075529/build/cmake/android.toolchain.cmake",
+    "/home/sauron/Android/Sdk/ndk/21.4.7075529/build/cmake/platforms.cmake"
+  ],
+  "cleanCommands": [
+    "/home/sauron/Android/Sdk/cmake/3.10.2.4988404/bin/ninja -C \"/home/sauron/Quiet/monorepo/packages/mobile/android/app/.cxx/cmake/standardDebug/x86\" clean"
+  ],
+  "buildTargetsCommand": "/home/sauron/Android/Sdk/cmake/3.10.2.4988404/bin/ninja  -C \"/home/sauron/Quiet/monorepo/packages/mobile/android/app/.cxx/cmake/standardDebug/x86\" {LIST_OF_TARGETS_TO_BUILD}",
+  "libraries": {
+    "backend-worker-Debug-x86": {
+      "artifactName": "backend-worker",
+      "buildCommand": "/home/sauron/Android/Sdk/cmake/3.10.2.4988404/bin/ninja -C \"/home/sauron/Quiet/monorepo/packages/mobile/android/app/.cxx/cmake/standardDebug/x86\" backend-worker",
+      "abi": "x86",
+      "output": "/home/sauron/Quiet/monorepo/packages/mobile/android/app/build/intermediates/cmake/standardDebug/obj/x86/libbackend-worker.so",
+      "runtimeFiles": []
+    }
+  }
+}

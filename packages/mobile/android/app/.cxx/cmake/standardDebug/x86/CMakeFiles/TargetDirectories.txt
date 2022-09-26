@@ -1,0 +1,3 @@
+/home/sauron/Quiet/monorepo/packages/mobile/android/app/.cxx/cmake/standardDebug/x86/CMakeFiles/rebuild_cache.dir
+/home/sauron/Quiet/monorepo/packages/mobile/android/app/.cxx/cmake/standardDebug/x86/CMakeFiles/edit_cache.dir
+/home/sauron/Quiet/monorepo/packages/mobile/android/app/.cxx/cmake/standardDebug/x86/CMakeFiles/backend-worker.dir

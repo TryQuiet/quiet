@@ -18,9 +18,18 @@ import java.util.concurrent.ThreadLocalRandom
 class BackendWorker(context: Context, workerParams: WorkerParameters):
         Worker(context, workerParams) {
 
+            companion object {
+    init {
+        System.loadLibrary("backend-worker");
+    }
+}
+    external fun testJNIfunction(a: Int, b: Int);
+
     @SuppressLint("SimpleDateFormat")
     override fun doWork(): Result {
 
+        val dupa = testJNIfunction(1, 2)
+        println(dupa)
         val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
         val date = sdf.format(Date())
         println("QUIET_BACKEND |  $date")

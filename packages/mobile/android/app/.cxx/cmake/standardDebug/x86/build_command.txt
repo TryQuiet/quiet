@@ -1,0 +1,21 @@
+                Executable : /home/sauron/Android/Sdk/cmake/3.10.2.4988404/bin/cmake
+arguments : 
+-H/home/sauron/Quiet/monorepo/packages/mobile/android/app/src/main/cpp
+-DCMAKE_FIND_ROOT_PATH=/home/sauron/Quiet/monorepo/packages/mobile/android/app/.cxx/cmake/standardDebug/prefab/x86/prefab
+-DCMAKE_BUILD_TYPE=Debug
+-DCMAKE_TOOLCHAIN_FILE=/home/sauron/Android/Sdk/ndk/21.4.7075529/build/cmake/android.toolchain.cmake
+-DANDROID_ABI=x86
+-DANDROID_NDK=/home/sauron/Android/Sdk/ndk/21.4.7075529
+-DANDROID_PLATFORM=android-26
+-DCMAKE_ANDROID_ARCH_ABI=x86
+-DCMAKE_ANDROID_NDK=/home/sauron/Android/Sdk/ndk/21.4.7075529
+-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=/home/sauron/Quiet/monorepo/packages/mobile/android/app/build/intermediates/cmake/standardDebug/obj/x86
+-DCMAKE_MAKE_PROGRAM=/home/sauron/Android/Sdk/cmake/3.10.2.4988404/bin/ninja
+-DCMAKE_SYSTEM_NAME=Android
+-DCMAKE_SYSTEM_VERSION=26
+-B/home/sauron/Quiet/monorepo/packages/mobile/android/app/.cxx/cmake/standardDebug/x86
+-GNinja
+jvmArgs : 
+
+Build command args:
