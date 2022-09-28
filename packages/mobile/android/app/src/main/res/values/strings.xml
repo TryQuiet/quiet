@@ -12,5 +12,10 @@
 
     <!-- Backend -->
     <string name="data_port">Data port</string>
+    <string name="data_directory_path">Data directory path</string>
+    <string name="httpTunnelPort">HTTP tunnel port</string>
+    <string name="socksPort">Socks port</string>
+    <string name="controlPort">Control port</string>
+    <string name="authCookie">Auth cookie</string>
 
 </resources>

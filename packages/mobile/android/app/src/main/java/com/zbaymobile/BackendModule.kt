@@ -36,4 +36,15 @@ class BackendModule(private val context: ReactApplicationContext): ReactContextB
         }
     }
 
+    @ReactMethod
+    fun saveDataDirectoryPath(path: String) {
+        val sharedPref = context.getSharedPreferences(
+            context.getString(R.string.config_preferences), Context.MODE_PRIVATE)
+
+        with (sharedPref.edit()) {
+            putString(context.getString(R.string.data_directory_path), path)
+            apply()
+        }
+    }
+
 }

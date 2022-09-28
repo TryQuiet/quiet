@@ -2,6 +2,7 @@ package com.zbaymobile
 
 import android.app.ActivityManager
 import android.app.Application
+import android.content.Context
 import android.content.Context.ACTIVITY_SERVICE
 import android.util.Log
 import com.facebook.react.bridge.*
@@ -10,14 +11,12 @@ import com.zbaymobile.Utils.Const
 import com.zbaymobile.Utils.Utils
 import com.zbaymobile.Utils.toHex
 import org.torproject.android.binary.TorResourceInstaller
-import com.zbaymobile.Utils.Const.TAG_NOTICE
 import java.io.File
 import java.io.FileWriter
 import java.io.PrintWriter
-import java.nio.file.Paths
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 
 
 class TorModule(private val context: ReactApplicationContext): ReactContextBaseJavaModule(),
@@ -149,6 +148,20 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
     }
 
     private fun onTorInit(httpTunnelPort: Int, socksPort: Int, controlPort: Int, authCookie: String) {
+        // Keep data for workers
+        val sharedPref = context.getSharedPreferences(
+            context.getString(R.string.config_preferences), Context.MODE_PRIVATE)
+
+        with (sharedPref.edit()) {
+            putInt(context.getString(R.string.httpTunnelPort), httpTunnelPort)
+            putInt(context.getString(R.string.socksPort), socksPort)
+            putInt(context.getString(R.string.controlPort), controlPort)
+            putString(context.getString(R.string.authCookie), authCookie)
+            apply()
+        }
+        // Start workers
+        BackendWorkManager(context).enqueueRequests()
+        // Notify frontend
         val payload: WritableMap = Arguments.createMap()
         payload.putInt("httpTunnelPort", httpTunnelPort)
         payload.putInt("socksPort", socksPort)
