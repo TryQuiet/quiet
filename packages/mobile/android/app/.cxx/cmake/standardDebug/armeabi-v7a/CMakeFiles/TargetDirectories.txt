@@ -1,3 +1,0 @@
-/app/packages/mobile/android/app/.cxx/cmake/standardDebug/armeabi-v7a/CMakeFiles/rebuild_cache.dir
-/app/packages/mobile/android/app/.cxx/cmake/standardDebug/armeabi-v7a/CMakeFiles/edit_cache.dir
-/app/packages/mobile/android/app/.cxx/cmake/standardDebug/armeabi-v7a/CMakeFiles/native-lib.dir
