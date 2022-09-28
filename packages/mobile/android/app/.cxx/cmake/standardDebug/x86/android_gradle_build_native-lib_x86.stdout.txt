@@ -1,0 +1,3 @@
+ninja: Entering directory `/app/packages/mobile/android/app/.cxx/cmake/standardDebug/x86'
+[1/2] Building CXX object CMakeFiles/native-lib.dir/src/main/cpp/native-lib.cpp.o
+[2/2] Linking CXX shared library ../../../../build/intermediates/cmake/standardDebug/obj/x86/libnative-lib.so

@@ -1,0 +1,43 @@
+{
+  "stringTable": {
+    "0": "/app/packages/mobile/android/app/.cxx/cmake/standardDebug/arm64-v8a",
+    "1": "--target=aarch64-none-linux-android26 --gcc-toolchain=/usr/lib/android-sdk/android-ndk-r21e/toolchains/llvm/prebuilt/linux-x86_64 --sysroot=/usr/lib/android-sdk/android-ndk-r21e/toolchains/llvm/prebuilt/linux-x86_64/sysroot -Dnative_lib_EXPORTS -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security -O0 -fno-limit-debug-info -fPIC"
+  },
+  "buildFiles": [
+    "/app/packages/mobile/android/app/CMakeLists.txt",
+    "/usr/lib/android-sdk/android-ndk-r21e/build/cmake/android.toolchain.cmake",
+    "/usr/lib/android-sdk/android-ndk-r21e/build/cmake/platforms.cmake"
+  ],
+  "cleanCommands": [
+    "/usr/lib/android-sdk/cmake/3.10.2.4988404/bin/ninja -C \"/app/packages/mobile/android/app/.cxx/cmake/standardDebug/arm64-v8a\" clean"
+  ],
+  "buildTargetsCommand": "/usr/lib/android-sdk/cmake/3.10.2.4988404/bin/ninja  -C \"/app/packages/mobile/android/app/.cxx/cmake/standardDebug/arm64-v8a\" {LIST_OF_TARGETS_TO_BUILD}",
+  "libraries": {
+    "native-lib-Debug-arm64-v8a": {
+      "buildCommand": "/usr/lib/android-sdk/cmake/3.10.2.4988404/bin/ninja -C \"/app/packages/mobile/android/app/.cxx/cmake/standardDebug/arm64-v8a\" native-lib",
+      "buildType": "debug",
+      "toolchain": "1414848355",
+      "abi": "arm64-v8a",
+      "artifactName": "native-lib",
+      "files": [
+        {
+          "src": "/app/packages/mobile/android/app/src/main/cpp/native-lib.cpp",
+          "flagsOrdinal": 1,
+          "workingDirectoryOrdinal": 0
+        }
+      ],
+      "headers": [],
+      "output": "/app/packages/mobile/android/app/build/intermediates/cmake/standardDebug/obj/arm64-v8a/libnative-lib.so",
+      "runtimeFiles": []
+    }
+  },
+  "toolchains": {
+    "1414848355": {
+      "cppCompilerExecutable": "/usr/lib/android-sdk/android-ndk-r21e/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}

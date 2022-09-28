@@ -142,6 +142,11 @@ android {
         ndk {
             abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
         }
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
+        }
     }
     splits {
         abi {
@@ -184,6 +189,11 @@ android {
             signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
         }
     }
     flavorDimensions "version"

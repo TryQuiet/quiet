@@ -1,0 +1,11 @@
+{
+  "ndk": "/usr/lib/android-sdk/android-ndk-r21e",
+  "revision": {
+    "mMajor": 21,
+    "mMinor": 4,
+    "mMicro": 7075529,
+    "mPreview": 0,
+    "mPrecision": "MICRO",
+    "mPreviewSeparator": " "
+  }
+}

@@ -1,0 +1,21 @@
+                Executable : /usr/lib/android-sdk/cmake/3.10.2.4988404/bin/cmake
+arguments : 
+-H/app/packages/mobile/android/app
+-DCMAKE_FIND_ROOT_PATH=/app/packages/mobile/android/app/.cxx/cmake/standardDebug/prefab/x86_64/prefab
+-DCMAKE_BUILD_TYPE=Debug
+-DCMAKE_TOOLCHAIN_FILE=/usr/lib/android-sdk/android-ndk-r21e/build/cmake/android.toolchain.cmake
+-DANDROID_ABI=x86_64
+-DANDROID_NDK=/usr/lib/android-sdk/android-ndk-r21e
+-DANDROID_PLATFORM=android-26
+-DCMAKE_ANDROID_ARCH_ABI=x86_64
+-DCMAKE_ANDROID_NDK=/usr/lib/android-sdk/android-ndk-r21e
+-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=/app/packages/mobile/android/app/build/intermediates/cmake/standardDebug/obj/x86_64
+-DCMAKE_MAKE_PROGRAM=/usr/lib/android-sdk/cmake/3.10.2.4988404/bin/ninja
+-DCMAKE_SYSTEM_NAME=Android
+-DCMAKE_SYSTEM_VERSION=26
+-B/app/packages/mobile/android/app/.cxx/cmake/standardDebug/x86_64
+-GNinja
+jvmArgs : 
+
+Build command args:

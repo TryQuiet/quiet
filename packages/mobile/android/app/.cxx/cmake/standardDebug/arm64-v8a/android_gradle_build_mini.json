@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/app/packages/mobile/android/app/CMakeLists.txt",
+    "/usr/lib/android-sdk/android-ndk-r21e/build/cmake/android.toolchain.cmake",
+    "/usr/lib/android-sdk/android-ndk-r21e/build/cmake/platforms.cmake"
+  ],
+  "cleanCommands": [
+    "/usr/lib/android-sdk/cmake/3.10.2.4988404/bin/ninja -C \"/app/packages/mobile/android/app/.cxx/cmake/standardDebug/arm64-v8a\" clean"
+  ],
+  "buildTargetsCommand": "/usr/lib/android-sdk/cmake/3.10.2.4988404/bin/ninja  -C \"/app/packages/mobile/android/app/.cxx/cmake/standardDebug/arm64-v8a\" {LIST_OF_TARGETS_TO_BUILD}",
+  "libraries": {
+    "native-lib-Debug-arm64-v8a": {
+      "artifactName": "native-lib",
+      "buildCommand": "/usr/lib/android-sdk/cmake/3.10.2.4988404/bin/ninja -C \"/app/packages/mobile/android/app/.cxx/cmake/standardDebug/arm64-v8a\" native-lib",
+      "abi": "arm64-v8a",
+      "output": "/app/packages/mobile/android/app/build/intermediates/cmake/standardDebug/obj/arm64-v8a/libnative-lib.so",
+      "runtimeFiles": []
+    }
+  }
+}

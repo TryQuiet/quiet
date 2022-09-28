@@ -1,0 +1,3 @@
+/app/packages/mobile/android/app/.cxx/cmake/standardDebug/x86_64/CMakeFiles/rebuild_cache.dir
+/app/packages/mobile/android/app/.cxx/cmake/standardDebug/x86_64/CMakeFiles/edit_cache.dir
+/app/packages/mobile/android/app/.cxx/cmake/standardDebug/x86_64/CMakeFiles/native-lib.dir

@@ -1,0 +1,7 @@
+Executable : /usr/lib/android-sdk/cmake/3.10.2.4988404/bin/ninja
+arguments : 
+-C
+/app/packages/mobile/android/app/.cxx/cmake/standardDebug/armeabi-v7a
+native-lib
+jvmArgs : 
+
