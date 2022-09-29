@@ -20,7 +20,7 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
 
     companion object {
         init {
-            System.loadLibrary("nodejs-mobile-react-native-native-lib")
+            System.loadLibrary("own-native-lib")
             System.loadLibrary("node")
         }
     }
@@ -66,12 +66,10 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
         command.add(scriptPath)
         command.addAll(args)
 
-        Thread {
-            startNodeWithArguments(
-                command.toTypedArray(),
-                "$projectPath:$modulesPath"
-            )
-        }.start()
+        startNodeWithArguments(
+            command.toTypedArray(),
+            "$projectPath:$modulesPath"
+        )
     }
 
     private fun createForegroundInfo(): ForegroundInfo {

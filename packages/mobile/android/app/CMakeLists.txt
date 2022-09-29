@@ -11,13 +11,13 @@ cmake_minimum_required(VERSION 3.4.1)
 # Gradle automatically packages shared libraries with your APK.
 
 add_library( # Sets the name of the library.
-             nodejs-mobile-react-native-native-lib
+             own-native-lib
 
              # Sets the library as a shared library.
              SHARED
 
              # Provides a relative path to your source file(s).
-             src/main/cpp/native-lib.cpp
+             src/main/cpp/own-native-lib.cpp
              src/main/cpp/rn-bridge.cpp
            )
 
@@ -55,7 +55,7 @@ find_library( # Sets the name of the path variable.
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-                       nodejs-mobile-react-native-native-lib
+                       own-native-lib
 
                        libnode
 
