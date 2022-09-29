@@ -72,5 +72,5 @@ buck-out/
 /nodejs-assets/build-native-modules-MacOS-helper-script-npm.sh
 
 # Native
-*/.cxx
+/android/app/.cxx
 /android/app/libnode
