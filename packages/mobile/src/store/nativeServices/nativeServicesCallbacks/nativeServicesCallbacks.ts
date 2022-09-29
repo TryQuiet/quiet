@@ -1,4 +1,4 @@
-import { publicChannels } from '@quiet/state-manager'
+import { publicChannels, messages } from '@quiet/state-manager'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { eventChannel } from 'redux-saga'
 import { call, put, take } from 'typed-redux-saga'
@@ -36,6 +36,13 @@ export const deviceEvents = () => {
         (channelAddress: string) => {
           emit(publicChannels.actions.setCurrentChannel({ channelAddress }))
           emit(initActions.setCurrentScreen(ScreenNames.ChannelScreen))
+          emit(messages.actions.responseSendMessagesIds( { 
+            ids: [],
+            channelAddress: channelAddress,
+            communityId: 'communityId'
+          }
+            ))
+
         }
       )
     ]
