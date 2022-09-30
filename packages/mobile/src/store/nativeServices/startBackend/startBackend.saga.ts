@@ -5,7 +5,7 @@ import FindFreePort from 'react-native-find-free-port'
 import nodejs from 'nodejs-mobile-react-native'
 
 export function* startBackendSaga(): Generator {
-  while (true) {
+  // while (true) {
     // const dataDirectoryPath = yield* select(initSelectors.dataDirectoryPath)
     const dataPort = yield* call(FindFreePort.getFirstStartingFrom, 4677)
     // const torData = yield* select(initSelectors.torData)
@@ -34,7 +34,7 @@ export function* startBackendSaga(): Generator {
     //   break
     // }
     // yield* delay(500)
-  }
+  // }
 }
 
 export const startNodeProcess = (

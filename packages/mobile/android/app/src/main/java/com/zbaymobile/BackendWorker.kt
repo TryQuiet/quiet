@@ -5,10 +5,12 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
-import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.zbaymobile.Utils.Const
-import java.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.ThreadLocalRandom
 
 class BackendWorker(context: Context, workerParams: WorkerParameters):
@@ -39,7 +41,12 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
         val controlPort = sharedPref.getInt(applicationContext.getString(R.string.controlPort), -1)
         val authCookie = sharedPref.getString(applicationContext.getString(R.string.authCookie), "authCookie")
 
-        startNodeProjectWithArguments("lib/mobileBackendManager.js -d $dataDirectoryPath -p $dataPort -t $httpTunnelPort -s $socksPort -c $controlPort -a $authCookie")
+        withContext(Dispatchers.IO) {
+            launch {
+                delay(15000) // Wait for node assets to be copied
+                startNodeProjectWithArguments("lib/mobileBackendManager.js -d $dataDirectoryPath -p $dataPort -t $httpTunnelPort -s $socksPort -c $controlPort -a $authCookie")
+            }
+        }
 
         // Indicate whether the work finished successfully with the Result
         return Result.success()
@@ -74,8 +81,8 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
 
     private fun createForegroundInfo(): ForegroundInfo {
         // This PendingIntent can be used to cancel the worker
-        val intent = WorkManager.getInstance(applicationContext)
-            .createCancelPendingIntent(id)
+        // val intent = WorkManager.getInstance(applicationContext)
+        //     .createCancelPendingIntent(id)
 
         val notification = NotificationCompat.Builder(applicationContext,
             Const.INCOMING_MESSAGES_CHANNEL_ID)
@@ -86,7 +93,7 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
             .setOngoing(true)
             // Add the cancel action to the notification which can
             // be used to cancel the worker
-            .addAction(android.R.drawable.ic_delete, "cancel", intent)
+            // .addAction(android.R.drawable.ic_delete, "cancel", intent)
             .build()
 
         val id = ThreadLocalRandom.current().nextInt(0, 9000 + 1)
