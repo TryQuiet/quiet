@@ -1,24 +1,21 @@
 package com.zbaymobile
 
-import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.zbaymobile.Utils.Const
+import com.zbaymobile.Utils.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ThreadLocalRandom
 
 class BackendWorker(context: Context, workerParams: WorkerParameters):
         CoroutineWorker(context, workerParams) {
 
-    private val notificationManager =
-        context.getSystemService(Context.NOTIFICATION_SERVICE) as
-                NotificationManager
+    private var running: Boolean = false
 
     companion object {
         init {
@@ -28,24 +25,32 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
     }
 
     override suspend fun doWork(): Result {
+        /* This is a simple workaround for the problem of firing doWork() method twice
+           I see people on the internet have similar problems but it seems like there's no official solution
+           https://stackoverflow.com/questions/59724922/workmanager-dowork-getting-fired-twice */
+        if (running) return Result.success()
+        running = true
 
         setForeground(createForegroundInfo())
 
-        val sharedPref = applicationContext.getSharedPreferences(
-            applicationContext.getString(R.string.config_preferences), Context.MODE_PRIVATE)
-
-        val dataPort = sharedPref.getInt(applicationContext.getString(R.string.data_port), -1)
-        val dataDirectoryPath = sharedPref.getString(applicationContext.getString(R.string.data_directory_path), "dataDirectoryPath")
-        val httpTunnelPort = sharedPref.getInt(applicationContext.getString(R.string.httpTunnelPort), -1)
-        val socksPort = sharedPref.getInt(applicationContext.getString(R.string.socksPort), -1)
-        val controlPort = sharedPref.getInt(applicationContext.getString(R.string.controlPort), -1)
-        val authCookie = sharedPref.getString(applicationContext.getString(R.string.authCookie), "authCookie")
-
         withContext(Dispatchers.IO) {
-            launch {
-                delay(15000) // Wait for node assets to be copied
-                startNodeProjectWithArguments("lib/mobileBackendManager.js -d $dataDirectoryPath -p $dataPort -t $httpTunnelPort -s $socksPort -c $controlPort -a $authCookie")
-            }
+            val dataPort        = Utils.getOpenPort(4677)
+            val controlPort     = Utils.getOpenPort(9151)
+            val socksPort       = Utils.getOpenPort(9050)
+            val httpTunnelPort  = Utils.getOpenPort(8050)
+
+            val dataDirectoryPath = Utils.createDirectory(applicationContext)
+
+            val tor = TorManager(applicationContext)
+            tor.startTor(controlPort, socksPort, httpTunnelPort)
+
+            // Suspend coroutine until tor fully bootstrapped
+            val config =
+                tor.awaitBootstrap()
+
+            // Wait for node assets to be copied
+            delay(15000)
+            startNodeProjectWithArguments("lib/mobileBackendManager.js -d $dataDirectoryPath -p $dataPort -c ${config.controlPort} -s ${config.socksPort} -t ${config.httpTunnelPort} -a ${config.authCookie}")
         }
 
         // Indicate whether the work finished successfully with the Result

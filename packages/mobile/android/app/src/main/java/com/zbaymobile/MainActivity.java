@@ -31,6 +31,7 @@ public class MainActivity extends ReactActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(null);
         Context context = getApplicationContext();
+        new BackendWorkManager(context).enqueueRequests();
     }
 
     @Override

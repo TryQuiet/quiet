@@ -8,17 +8,9 @@ import { InitCheck } from './init.types'
 import { InitCheckKeys } from './initCheck.keys'
 
 export class InitState {
-  public dataDirectoryPath: string = ''
-  public torData: TorData = {
-    httpTunnelPort: 0,
-    socksPort: 0,
-    controlPort: 0,
-    authCookie: ''
-  }
-
   public isNavigatorReady: boolean = false
   public isCryptoEngineInitialized: boolean = false
-  public isConnected: boolean = false
+  public isWebsocketConnected: boolean = false
   public initDescription: string = ''
   public initChecks: EntityState<InitCheck> = initChecksAdapter.setAll(
     initChecksAdapter.getInitialState(),
@@ -37,11 +29,9 @@ export class InitState {
   public currentScreen: ScreenNames = ScreenNames.SplashScreen
 }
 
-export interface TorData {
-  httpTunnelPort: number
-  socksPort: number
-  controlPort: number
-  authCookie: string
+export interface InitCheckPayload {
+  event: InitCheckKeys
+  passed: boolean
 }
 
 export interface WebsocketConnectionPayload {
@@ -66,32 +56,27 @@ export const initSlice = createSlice({
     setCryptoEngineInitialized: (state, action: PayloadAction<boolean>) => {
       state.isCryptoEngineInitialized = action.payload
     },
-    doOnRestore: state => state,
+    onRestore: state => state,
     setStoreReady: state => state,
     updateInitDescription: (state, action: PayloadAction<string>) => {
       state.initDescription = action.payload
     },
-    onTorInit: (state, action: PayloadAction<TorData>) => {
-      const event = InitCheckKeys.Tor
+    updateInitCheck: (state, action: PayloadAction<InitCheckPayload>) => {
+      const { event, passed } = action.payload
       initChecksAdapter.updateOne(state.initChecks, {
         changes: {
           event: event,
-          passed: true
+          passed: passed
         },
         id: event
       })
-      state.torData = action.payload
     },
-    onDataDirectoryCreated: (state, action: PayloadAction<string>) => {
-      state.dataDirectoryPath = action.payload
+    startWebsocketConnection: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
+    suspendWebsocketConnection: state => {
+      state.isWebsocketConnected = false
     },
-    onBackendStarted: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
-    startConnection: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
-    suspendConnection: state => {
-      state.isConnected = false
-    },
-    setConnected: state => {
-      state.isConnected = true
+    setWebsocketConnected: state => {
+      state.isWebsocketConnected = true
       const event = InitCheckKeys.Backend
       initChecksAdapter.updateOne(state.initChecks, {
         changes: {
