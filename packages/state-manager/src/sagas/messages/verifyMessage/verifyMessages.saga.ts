@@ -19,7 +19,7 @@ export function* verifyMessagesSaga(
   }
 }
 
-function* verifyMessage(message: ChannelMessage, crypto: SubtleCrypto): Generator {
+export function* verifyMessage(message: ChannelMessage, crypto: SubtleCrypto): Generator {
   const signature = stringToArrayBuffer(message.signature)
 
   const publicKeysMapping = yield* select(messagesSelectors.publicKeysMapping)

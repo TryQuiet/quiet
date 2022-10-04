@@ -14,6 +14,7 @@ import {
 } from './messages.adapter.ts'
 import { MessageType } from './messages.types'
 import { DownloadState } from '../files/files.types'
+import { ChannelMessage } from '../publicChannels/publicChannels.types'
 
 const messagesSlice: CreatedSelectors[StoreKeys.Messages] = (state: StoreState) =>
   state[StoreKeys.Messages]
@@ -81,7 +82,7 @@ export const validCurrentPublicChannelMessagesEntries = createSelector(
   certificatesMapping,
   messagesVerificationStatus,
   (messages, certificates, verification) => {
-    const filtered = messages.filter(message => message.pubKey in certificates)
+    const filtered: ChannelMessage[] = messages.filter(message => message.pubKey in certificates)
     return filtered.filter(message => {
       const status = verification[message.signature]
       if (

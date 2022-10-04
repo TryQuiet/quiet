@@ -36,13 +36,7 @@ export const deviceEvents = () => {
         (channelAddress: string) => {
           emit(publicChannels.actions.setCurrentChannel({ channelAddress }))
           emit(initActions.setCurrentScreen(ScreenNames.ChannelScreen))
-          emit(messages.actions.responseSendMessagesIds( { 
-            ids: [],
-            channelAddress: channelAddress,
-            communityId: 'communityId'
-          }
-            ))
-
+          emit(messages.actions.updateMessagesVerification())
         }
       )
     ]

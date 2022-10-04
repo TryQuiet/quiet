@@ -108,6 +108,7 @@ export const messagesSlice = createSlice({
     ) => state,
     lazyLoading: (state, _action: PayloadAction<LazyLoadingPayload>) => state,
     extendCurrentPublicChannelCache: (state) => state,
+    updateMessagesVerification: (state) => state,
     resetCurrentPublicChannelCache: (state) => state,
     // Utility action for testing purposes
     test_message_verification_status: (

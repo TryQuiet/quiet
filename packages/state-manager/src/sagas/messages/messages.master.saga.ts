@@ -13,6 +13,7 @@ import { lazyLoadingSaga } from './lazyLoading/lazyLoading.saga'
 import { resetCurrentPublicChannelCacheSaga } from './manageCache/resetChannelCache.saga'
 import { extendCurrentPublicChannelCacheSaga } from './manageCache/extendChannelCache.saga'
 import { autoDownloadFilesSaga } from '../files/autoDownloadFiles/autoDownloadFiles.saga'
+import { updateMessagesVerificationSaga } from './verifyMessage/updateMessagesVerification.saga'
 
 export function* messagesMasterSaga(socket: Socket): Generator {
   yield all([
@@ -22,6 +23,7 @@ export function* messagesMasterSaga(socket: Socket): Generator {
     takeEvery(messagesActions.incomingMessages.type, verifyMessagesSaga),
     takeEvery(messagesActions.incomingMessages.type, markUnreadChannelsSaga),
     takeEvery(messagesActions.incomingMessages.type, updateNewestMessageSaga),
+    takeEvery(messagesActions.updateMessagesVerification.type, updateMessagesVerificationSaga),
     takeEvery(messagesActions.lazyLoading.type, lazyLoadingSaga),
     takeEvery(messagesActions.extendCurrentPublicChannelCache.type, extendCurrentPublicChannelCacheSaga),
     takeEvery(messagesActions.resetCurrentPublicChannelCache.type, resetCurrentPublicChannelCacheSaga),
