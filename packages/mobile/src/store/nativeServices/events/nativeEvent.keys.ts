@@ -1,4 +1,4 @@
 export enum NativeEventKeys {
-  Notification = 'notification',
-  Backend = 'backend'
+  Backend = 'backend',
+  Notification = 'notification'
 }

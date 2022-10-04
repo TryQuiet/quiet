@@ -34,7 +34,8 @@ public class NotificationModule extends ReactContextBaseJavaModule {
 
     private static final String BASE_NOTIFICATION_CHANNEL = "_BASE_NOTIFICATION_";
     private static final String RICH_NOTIFICATION_CHANNEL = "_RICH_NOTIFICATION_";
-    private static final String WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_";
+    public static final String WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_";
+    public static final String INIT_CHECK_CHANNEL = "_INIT_CHECK_";
 
     private static ReactApplicationContext reactContext;
 
@@ -56,8 +57,10 @@ public class NotificationModule extends ReactContextBaseJavaModule {
                 notify(channelName, payload);
                 break;
             case WEBSOCKET_CONNECTION_CHANNEL:
+            case INIT_CHECK_CHANNEL:
                 passDataToReact(channelName, payload);
                 break;
+
             default:
                 break;
         }
