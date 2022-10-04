@@ -5,6 +5,8 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import com.google.gson.Gson
+import com.zbaymobile.Scheme.WebsocketConnectionPayload
 import com.zbaymobile.Utils.Const
 import com.zbaymobile.Utils.Utils
 import kotlinx.coroutines.Dispatchers
@@ -48,8 +50,11 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
             val config =
                 tor.awaitBootstrap()
 
+            val websocketConnectionPayload = WebsocketConnectionPayload(dataPort)
+            NotificationModule.handleIncomingEvents("_WEBSOCKET_CONNECTION_", Gson().toJson(websocketConnectionPayload))
+
             // Wait for node assets to be copied
-            delay(15000)
+            // delay(15000)
             startNodeProjectWithArguments("lib/mobileBackendManager.js -d $dataDirectoryPath -p $dataPort -c ${config.controlPort} -s ${config.socksPort} -t ${config.httpTunnelPort} -a ${config.authCookie}")
         }
 

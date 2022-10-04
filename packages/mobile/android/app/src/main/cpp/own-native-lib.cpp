@@ -64,16 +64,16 @@ Java_com_zbaymobile_BackendWorker_registerNodeDataDirPath(
 
 #define APPNAME "RNBRIDGE"
 
-void rcv_message(const char* channel_name, const char* msg) {
+void rcv_message(const char* channel_name, const char* payload) {
     JNIEnv *env=cacheEnvPointer;
     if(!env) return;
     jclass cls2 = env->FindClass("com/zbaymobile/NotificationModule");  // try to find the class
     if(cls2 != nullptr) {
-        jmethodID m_sendMessage = env->GetStaticMethodID(cls2, "notify", "(Ljava/lang/String;Ljava/lang/String;)V");  // find method
+        jmethodID m_sendMessage = env->GetStaticMethodID(cls2, "handleIncomingEvents", "(Ljava/lang/String;Ljava/lang/String;)V");  // find method
         if(m_sendMessage != nullptr) {
             jstring java_channel_name=env->NewStringUTF(channel_name);
-            jstring java_msg=env->NewStringUTF(msg);
-            env->CallStaticVoidMethod(cls2, m_sendMessage, java_channel_name, java_msg);                      // call method
+            jstring java_msg=env->NewStringUTF(payload);
+            env->CallStaticVoidMethod(cls2, m_sendMessage, java_channel_name, java_msg);  // call method
             env->DeleteLocalRef(java_channel_name);
             env->DeleteLocalRef(java_msg);
         }

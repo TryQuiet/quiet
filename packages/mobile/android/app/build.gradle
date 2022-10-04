@@ -256,6 +256,8 @@ dependencies {
 
     implementation "androidx.core:core-ktx:$kotlin_version"
 
+    implementation 'com.google.code.gson:gson:2.9.1'
+
     implementation project(':react-native-fs')
 
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'

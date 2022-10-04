@@ -2,7 +2,6 @@ package com.zbaymobile.Utils
 
 import android.content.Context
 import android.util.Log
-import com.facebook.react.bridge.Promise
 import com.zbaymobile.Utils.Const.TAG_NOTICE
 import java.io.*
 import java.net.ConnectException
@@ -102,4 +101,15 @@ object Utils {
             false
         }
     }
+
+    @JvmStatic
+    fun truncate(message: String, length: Int): String? {
+        return if (message.length > length) {
+            String.format("%s...", message.substring(0, length))
+        } else {
+            message
+        }
+    }
+
+
 }

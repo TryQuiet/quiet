@@ -6,16 +6,6 @@ import { initChecksAdapter } from './init.adapter'
 const initSlice: CreatedSelectors[StoreKeys.Init] = (state: StoreState) =>
   state[StoreKeys.Init]
 
-export const dataDirectoryPath = createSelector(
-  initSlice,
-  (reducerState) => reducerState.dataDirectoryPath
-)
-
-export const torData = createSelector(
-  initSlice,
-  (reducerState) => reducerState.torData
-)
-
 export const isNavigatorReady = createSelector(
   initSlice,
   (reducerState) => reducerState.isNavigatorReady
@@ -44,8 +34,6 @@ export const currentScreen = createSelector(
 )
 
 export const initSelectors = {
-  dataDirectoryPath,
-  torData,
   isNavigatorReady,
   isCryptoEngineInitialized,
   initDescription,
