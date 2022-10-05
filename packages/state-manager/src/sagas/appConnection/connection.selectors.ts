@@ -2,7 +2,8 @@ import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
-import { connectedPeersAdapter } from './connection.adapter'
+import { communitiesSelectors } from '../communities/communities.selectors'
+import { connectedPeersAdapter, peersStatsAdapter } from './connection.adapter'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (
   state: StoreState
@@ -30,6 +31,47 @@ export const connectedPeers = createSelector(
   }
 )
 
+export const peerList = createSelector(
+  connectionSlice,
+  communitiesSelectors.currentCommunity,
+  (reducerState, community) => {
+    let arr = [...community.peerList]
+    const stats =  peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
+    const lastSeenSorted = [...stats].sort((a, b) => {
+      return a.lastSeen - b.lastSeen
+    })
+    const mostUptimeSharedSorted = [...stats].sort((a, b) => {
+return a.connectionTime - b.connectionTime
+    })
+    const mostWantedPeers = []
+
+    for (let i = 0; i < stats.length; i++) {
+      const peerOne = lastSeenSorted[i]
+      const peerTwo = mostUptimeSharedSorted[i]
+
+      if (!mostWantedPeers.includes(peerOne)) {
+        mostWantedPeers.push(peerOne)
+      }
+
+      if (!mostWantedPeers.includes(peerTwo)) {
+        mostWantedPeers.push(peerTwo)
+      }
+    }
+
+   const peerList = mostWantedPeers.map((peerId) => {
+      return arr.find((peerAddress) => {
+        const id = peerAddress.split('/')[7]
+        if (id === peerId.peerId) {
+          arr.splice(arr.indexOf(peerAddress), 1)
+          return true
+        }
+      })
+    })
+
+    return peerList.concat(arr)
+  }
+)
+
 export const connectedPeersMapping = createSelector(
   certificatesMapping,
   connectedPeers,
@@ -54,5 +96,6 @@ export const connectionSelectors = {
   initializedRegistrars,
   lastConnectedTime,
   connectedPeers,
-  connectedPeersMapping
+  connectedPeersMapping,
+  peerList
 }

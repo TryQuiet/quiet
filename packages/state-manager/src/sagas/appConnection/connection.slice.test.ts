@@ -44,7 +44,9 @@ describe('connectionReducer', () => {
   it('add connected users peerId from store and get it correctly', () => {
     const peersIds = ['peerId1', 'peerId2']
 
-    store.dispatch(connectionActions.addConnectedPeers(peersIds))
+
+    store.dispatch(connectionActions.addConnectedPeer(peersIds[0]))
+    store.dispatch(connectionActions.addConnectedPeer(peersIds[1]))
     const connectedPeersFromStore = connectionSelectors.connectedPeers(store.getState())
 
     expect(connectedPeersFromStore).toEqual(['peerId1', 'peerId2'])
@@ -58,7 +60,7 @@ describe('connectionReducer', () => {
       dmPublicKey: ''
     }
 
-    store.dispatch(connectionActions.addConnectedPeers([alice.peerId.id]))
+    store.dispatch(connectionActions.addConnectedPeer(alice.peerId.id))
     const userDataPerPeerId = connectionSelectors.connectedPeersMapping(store.getState())
 
     expect(userDataPerPeerId[alice.peerId.id]).toEqual(aliceCertData)
