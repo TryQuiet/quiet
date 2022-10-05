@@ -45,8 +45,8 @@ export enum SocketActionTypes {
   NETWORK = 'network',
   NEW_COMMUNITY = 'newCommunity',
   // P
-  PEER_CONNECT = 'peer:connect',
-  PEER_DISCONNECT = 'peer:disconnect',
+  PEER_CONNECTED = 'peerConnected',
+  PEER_DISCONNECTED = 'peerDisconnected',
   PEER_LIST = 'peerList',
   // R
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',

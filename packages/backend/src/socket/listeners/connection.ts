@@ -23,11 +23,13 @@ const log = logger('socket')
 export const connections = (io, ioProxy: IOProxy) => {
   io.on(SocketActionTypes.CONNECTION, socket => {
     log('websocket connected')
-    ioProxy.connectionsManager.on(SocketActionTypes.PEER_CONNECT, event => {
-      socket.emit(SocketActionTypes.CONNECTED_PEERS, event)
+    ioProxy.connectionsManager.on(SocketActionTypes.PEER_CONNECTED, (payload: {peer: string}) => {
+      console.log('PEER_CONNECT')
+      socket.emit(SocketActionTypes.PEER_CONNECTED, payload)
     })
-    ioProxy.connectionsManager.on(SocketActionTypes.PEER_DISCONNECT, event => {
-      socket.emit(SocketActionTypes.CONNECTED_PEERS, event)
+    ioProxy.connectionsManager.on(SocketActionTypes.PEER_DISCONNECTED, (payload: {peer: string, networkData: number}) => {
+      console.log("PEER DISCONNECT")
+      socket.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
     socket.on(SocketActionTypes.CLOSE, async () => {
       await ioProxy.closeAll()
