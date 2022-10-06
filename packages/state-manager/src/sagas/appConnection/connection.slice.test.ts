@@ -44,7 +44,6 @@ describe('connectionReducer', () => {
   it('add connected users peerId from store and get it correctly', () => {
     const peersIds = ['peerId1', 'peerId2']
 
-
     store.dispatch(connectionActions.addConnectedPeer(peersIds[0]))
     store.dispatch(connectionActions.addConnectedPeer(peersIds[1]))
     const connectedPeersFromStore = connectionSelectors.connectedPeers(store.getState())

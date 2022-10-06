@@ -35,8 +35,8 @@ export const peerList = createSelector(
   connectionSlice,
   communitiesSelectors.currentCommunity,
   (reducerState, community) => {
-    let arr = [...community.peerList]
-    const stats =  peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
+    const arr = [...community.peerList]
+    const stats = peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
     const lastSeenSorted = [...stats].sort((a, b) => {
       return b.lastSeen - a.lastSeen
     })
