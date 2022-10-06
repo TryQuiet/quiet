@@ -38,10 +38,10 @@ export const peerList = createSelector(
     let arr = [...community.peerList]
     const stats =  peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
     const lastSeenSorted = [...stats].sort((a, b) => {
-      return a.lastSeen - b.lastSeen
+      return b.lastSeen - a.lastSeen
     })
     const mostUptimeSharedSorted = [...stats].sort((a, b) => {
-return a.connectionTime - b.connectionTime
+      return b.connectionTime - a.connectionTime
     })
     const mostWantedPeers = []
 
