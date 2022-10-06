@@ -115,6 +115,7 @@
 		"pkijs": "2.1.97",
 		"socket.io": "3.0.5",
 		"socks-proxy-agent": "^5.0.0",
-		"validator": "^13.6.0"
+		"validator": "^13.6.0",
+		"luxon": "^1.11.4"
 	}
 }

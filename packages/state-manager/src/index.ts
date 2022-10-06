@@ -97,6 +97,8 @@ export * from './sagas/errors/errors.types'
 
 export * from './sagas/settings/settings.types'
 
+export * from './sagas/appConnection/connection.types'
+
 export const app = {
   actions: appActions
 }

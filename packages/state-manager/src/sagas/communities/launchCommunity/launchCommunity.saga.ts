@@ -39,6 +39,8 @@ export function* launchCommunitySaga(
   const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))
 
+  const peerList = yield* select(connectionSelectors.peerList)
+
   const payload: InitCommunityPayload = {
     id: identity.id,
     peerId: identity.peerId,
@@ -48,7 +50,7 @@ export function* launchCommunitySaga(
       key: identity.userCsr.userKey,
       CA: [community.rootCa]
     },
-    peers: community.peerList
+    peers: peerList
   }
 
   yield* apply(socket, socket.emit, [

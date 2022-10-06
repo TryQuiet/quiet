@@ -11,6 +11,7 @@ import KademliaDHT from 'libp2p-kad-dht'
 import Mplex from 'libp2p-mplex'
 import fetch, { Response } from 'node-fetch'
 import AbortController from 'abort-controller'
+import { DateTime } from 'luxon'
 import * as os from 'os'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
@@ -82,7 +83,7 @@ export class ConnectionsManager extends EventEmitter {
   StorageCls: any
   tor: Tor
   libp2pInstance: Libp2p
-  connectedPeers: Set<string>
+  connectedPeers: Map<string, number>
   socketIOPort: number
 
   constructor({ agentHost, agentPort, httpTunnelPort, options, storageClass, io, socketIOPort }: IConstructor) {
@@ -101,7 +102,7 @@ export class ConnectionsManager extends EventEmitter {
     this.StorageCls = storageClass || Storage
     this.libp2pTransportClass = options.libp2pTransportClass || WebsocketsOverTor
     this.ioProxy = new IOProxy(this)
-    this.connectedPeers = new Set()
+    this.connectedPeers = new Map()
 
     process.on('unhandledRejection', error => {
       console.error(error)
@@ -234,21 +235,34 @@ export class ConnectionsManager extends EventEmitter {
 
     this.libp2pInstance = libp2p
 
-    libp2p.connectionManager.on(SocketActionTypes.PEER_CONNECT, (connection: Connection) => {
-      log(`${params.peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
-      this.connectedPeers.add(connection.remotePeer.toB58String())
-      this.emit(SocketActionTypes.PEER_CONNECT, {
-        connectedPeers: Array.from(this.connectedPeers).includes(connection.remotePeer.toB58String()) ? Array.from(this.connectedPeers) : [...Array.from(this.connectedPeers), connection.remotePeer.toB58String()]
-      })
-    })
     libp2p.on('peer:discovery', (peer: PeerId) => {
       log(`${params.peerId.toB58String()} discovered ${peer.toB58String()}`)
     })
-    libp2p.connectionManager.on(SocketActionTypes.PEER_DISCONNECT, (connection: Connection) => {
+
+    libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
+      log(`${params.peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
+      this.connectedPeers.set(connection.remotePeer.toB58String(), DateTime.utc().valueOf())
+
+      this.emit(SocketActionTypes.PEER_CONNECTED, {
+        peer: connection.remotePeer.toB58String()
+      })
+    })
+
+    libp2p.connectionManager.on('peer:disconnect', (connection: Connection) => {
       log(`${params.peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
+
+      const connectionStartTime = this.connectedPeers.get(connection.remotePeer.toB58String())
+
+      const connectionEndTime: number = DateTime.utc().valueOf()
+
+      const connectionDuration: number = connectionEndTime - connectionStartTime
+
       this.connectedPeers.delete(connection.remotePeer.toB58String())
-      this.emit(SocketActionTypes.PEER_DISCONNECT, {
-        connectedPeers: Array.from(this.connectedPeers).filter((peerId) => peerId !== connection.remotePeer.toB58String())
+
+      this.emit(SocketActionTypes.PEER_DISCONNECTED, {
+        peer: connection.remotePeer.toB58String(),
+        connectionDuration,
+        lastSeen: connectionEndTime
       })
     })
 

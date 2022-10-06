@@ -18,6 +18,7 @@ import { Store } from '../../store.types'
 import { initCommunities, launchCommunitySaga } from './launchCommunity.saga'
 import { setupCrypto } from '@quiet/identity'
 import { FactoryGirl } from 'factory-girl'
+import { connectionReducer, ConnectionState } from '../../appConnection/connection.slice'
 
 describe('launchCommunity', () => {
   let store: Store
@@ -88,12 +89,13 @@ describe('launchCommunity', () => {
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer
+          [StoreKeys.Identity]: identityReducer,
+          [StoreKeys.Connection]: connectionReducer
         }),
         {
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
-            currentCommunity: 'id-0',
+            currentCommunity: community.id,
             communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
               community
             ])
@@ -101,6 +103,9 @@ describe('launchCommunity', () => {
           [StoreKeys.Identity]: {
             ...new IdentityState(),
             identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity])
+          },
+          [StoreKeys.Connection]: {
+            ...new ConnectionState()
           }
         }
       )
@@ -137,14 +142,15 @@ describe('launchCommunity', () => {
         key: identity.userCsr.userKey,
         CA: [community.rootCa]
       },
-      peers: community.peerList
+      peers: community.peerList,
     }
 
     await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity())
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer
+          [StoreKeys.Identity]: identityReducer,
+          [StoreKeys.Connection]: connectionReducer
         }),
         {
           [StoreKeys.Communities]: {
@@ -157,61 +163,9 @@ describe('launchCommunity', () => {
           [StoreKeys.Identity]: {
             ...new IdentityState(),
             identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity])
-          }
-        }
-      )
-      .apply(socket, socket.emit, [
-        SocketActionTypes.LAUNCH_COMMUNITY,
-        {
-          id: launchCommunityPayload.id,
-          peerId: launchCommunityPayload.peerId,
-          hiddenService: launchCommunityPayload.hiddenService,
-          certs: launchCommunityPayload.certs,
-          peers: launchCommunityPayload.peers
-        }
-      ])
-      .run()
-  })
-  test('launch current community', async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
-
-    const community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
-
-    const identity = await factory.create<
-    ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'john' })
-
-    const launchCommunityPayload: InitCommunityPayload = {
-      id: community.id,
-      peerId: identity.peerId,
-      hiddenService: identity.hiddenService,
-      certs: {
-        certificate: identity.userCertificate,
-        key: identity.userCsr.userKey,
-        CA: [community.rootCa]
-      },
-      peers: community.peerList
-    }
-
-    await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity())
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer
-        }),
-        {
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-            currentCommunity: community.id,
-            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
-              community
-            ])
           },
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity])
+          [StoreKeys.Connection]: {
+            ...new ConnectionState()
           }
         }
       )
