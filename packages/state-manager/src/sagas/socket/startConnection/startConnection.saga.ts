@@ -40,6 +40,7 @@ import { usersActions } from '../../users/users.slice'
 import { SendCertificatesResponse } from '../../users/users.types'
 import { SocketActionTypes } from '../const/actionTypes'
 import { filesActions } from '../../files/files.slice'
+import { NetworkDataPayload } from '../../appConnection/connection.types'
 
 const log = logger('socket')
 
@@ -63,6 +64,7 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof communitiesActions.responseRegistrar>
   | ReturnType<typeof connectionActions.addInitializedCommunity>
   | ReturnType<typeof connectionActions.addInitializedRegistrar>
+  | ReturnType<typeof connectionActions.updateNetworkData>
   | ReturnType<typeof filesActions.broadcastHostedFile>
   | ReturnType<typeof filesActions.updateMessageMedia>
   | ReturnType<typeof filesActions.updateDownloadStatus>
@@ -72,7 +74,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peer: string }) => {
       emit(connectionActions.addConnectedPeer(payload.peer))
     })
-    socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: { peer: string, connectionDuration: number }) => {
+    socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
       emit(connectionActions.removeConnectedPeer(payload.peer))
       emit(connectionActions.updateNetworkData(payload))
     })

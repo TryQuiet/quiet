@@ -11,7 +11,8 @@ import {
   AskForMessagesPayload,
   UploadFilePayload,
   DownloadFilePayload,
-  CancelDownloadPayload
+  CancelDownloadPayload,
+  NetworkDataPayload,
 } from '@quiet/state-manager'
 
 import IOProxy from '../IOProxy'
@@ -22,13 +23,11 @@ const log = logger('socket')
 
 export const connections = (io, ioProxy: IOProxy) => {
   io.on(SocketActionTypes.CONNECTION, socket => {
-    log('websocket connected')
     ioProxy.connectionsManager.on(SocketActionTypes.PEER_CONNECTED, (payload: {peer: string}) => {
       console.log('PEER_CONNECT')
       socket.emit(SocketActionTypes.PEER_CONNECTED, payload)
     })
-    ioProxy.connectionsManager.on(SocketActionTypes.PEER_DISCONNECTED, (payload: {peer: string, networkData: number}) => {
-      console.log("PEER DISCONNECT")
+    ioProxy.connectionsManager.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
       socket.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
     socket.on(SocketActionTypes.CLOSE, async () => {

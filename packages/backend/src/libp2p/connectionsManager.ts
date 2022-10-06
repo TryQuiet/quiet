@@ -251,17 +251,19 @@ export class ConnectionsManager extends EventEmitter {
     libp2p.connectionManager.on('peer:disconnect', (connection: Connection) => {
       log(`${params.peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
 
-      const connectionTime = this.connectedPeers.get(connection.remotePeer.toB58String())
+      const connectionStartTime = this.connectedPeers.get(connection.remotePeer.toB58String())
 
-      const connectionDuration = DateTime.utc().valueOf() - connectionTime
+      const connectionEndTime: number = DateTime.utc().valueOf()
+
+      const connectionDuration: number = connectionEndTime - connectionStartTime
 
       this.connectedPeers.delete(connection.remotePeer.toB58String())
 
       this.emit(SocketActionTypes.PEER_DISCONNECTED, {
         peer: connection.remotePeer.toB58String(),
-        connectionDuration
+        connectionDuration,
+        lastSeen: connectionEndTime
       })
-
     })
 
     log(`Initialized libp2p for peer ${params.peerId.toB58String()}`)
