@@ -31,6 +31,14 @@ export const connectedPeers = createSelector(
   }
 )
 
+/**
+This is the very simple algorithm for evaluating the most wanted peers.
+1. It takes the peers stats list that contains statistics for every peer our node was ever connected to.
+2. Two sorted arrays are created - one sorted by last seen and other by most uptime shared.
+3. Arrays are merged taking one element from list one and one element from the second list. Duplicates are ommited
+4. We end up with mix of last seen and most uptime descending array of peers, the it is enchanced to libp2p address.
+ */
+
 export const peerList = createSelector(
   connectionSlice,
   communitiesSelectors.currentCommunity,
@@ -43,6 +51,7 @@ export const peerList = createSelector(
     const mostUptimeSharedSorted = [...stats].sort((a, b) => {
       return b.connectionTime - a.connectionTime
     })
+
     const mostWantedPeers = []
 
     for (let i = 0; i < stats.length; i++) {
