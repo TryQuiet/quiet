@@ -13,7 +13,7 @@ import { DateTime } from 'luxon'
 import { updateNewestMessageSaga } from './updateNewestMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
 
-describe('markUnreadChannelsSaga', () => {
+describe('updateNewestMessageSaga', () => {
   let store: Store
   let factory: FactoryGirl
 
@@ -101,8 +101,10 @@ describe('markUnreadChannelsSaga', () => {
     const messagesAddresses = ['general']
     const messages: ChannelMessage[] = []
 
-    // Automatically create messages
+    // Automatically create incoming messages
+    let latestIncomingMessageTimestamp = null
     for (const address of messagesAddresses) {
+      latestIncomingMessageTimestamp = DateTime.utc()
       const message = (
         await factory.build<typeof publicChannelsActions.test_message>('Message', {
           identity: alice,
@@ -110,7 +112,7 @@ describe('markUnreadChannelsSaga', () => {
             id: Math.random().toString(36).substr(2.9),
             type: MessageType.Basic,
             message: 'message',
-            createdAt: DateTime.utc().valueOf(),
+            createdAt: latestIncomingMessageTimestamp.valueOf(),
             channelAddress: address,
             signature: '',
             pubKey: ''
@@ -121,7 +123,7 @@ describe('markUnreadChannelsSaga', () => {
       messages.push(message)
     }
 
-    // Set the newest message
+    // Set the previous newest message
     const message = (await factory.create<
       ReturnType<typeof publicChannelsActions.test_message>['payload']
       >('Message', {
@@ -130,7 +132,7 @@ describe('markUnreadChannelsSaga', () => {
           id: Math.random().toString(36).substr(2.9),
           type: MessageType.Basic,
           message: 'message',
-          createdAt: 9999,
+          createdAt: latestIncomingMessageTimestamp.minus({seconds: 5}).valueOf(),
           channelAddress: 'general',
           signature: '',
           pubKey: ''
@@ -154,12 +156,15 @@ describe('markUnreadChannelsSaga', () => {
       )
       .run()
   })
+
   test('do not update newest message if incoming message is older', async () => {
     const messagesAddresses = ['general']
     const messages: ChannelMessage[] = []
 
-    // Automatically create messages
+    // Automatically create incoming messages
+    let latestIncomingMessageTimestamp = null
     for (const address of messagesAddresses) {
+      latestIncomingMessageTimestamp = DateTime.utc()
       const message = (
         await factory.build<typeof publicChannelsActions.test_message>('Message', {
           identity: alice,
@@ -167,7 +172,7 @@ describe('markUnreadChannelsSaga', () => {
             id: Math.random().toString(36).substr(2.9),
             type: MessageType.Basic,
             message: 'message',
-            createdAt: DateTime.utc().valueOf(),
+            createdAt: latestIncomingMessageTimestamp.valueOf(),
             channelAddress: address,
             signature: '',
             pubKey: ''
@@ -178,7 +183,7 @@ describe('markUnreadChannelsSaga', () => {
       messages.push(message)
     }
 
-    // Set the newest message
+    // Set the previous newest message
     const message = (await factory.create<
       ReturnType<typeof publicChannelsActions.test_message>['payload']
       >('Message', {
@@ -187,7 +192,7 @@ describe('markUnreadChannelsSaga', () => {
           id: Math.random().toString(36).substr(2.9),
           type: MessageType.Basic,
           message: 'message',
-          createdAt: 99999999999999,
+          createdAt: latestIncomingMessageTimestamp.plus({seconds: 5}).valueOf(),
           channelAddress: 'general',
           signature: '',
           pubKey: ''
@@ -195,8 +200,70 @@ describe('markUnreadChannelsSaga', () => {
         verifyAutomatically: true
       })).message
 
-      store.dispatch(publicChannelsActions.updateNewestMessage({ message }))
+    store.dispatch(publicChannelsActions.updateNewestMessage({ message }))
 
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      updateNewestMessageSaga,
+      messagesActions.incomingMessages({
+        messages: messages
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not
+      .put(
+        publicChannelsActions.updateNewestMessage({ message: messages[0] })
+      )
+      .run()
+  })
+
+  test('do not update newest message if incoming message is not verified', async () => {
+    const messagesAddresses = ['general']
+    const messages: ChannelMessage[] = []
+
+    // Automatically create incoming messages
+    let latestIncomingMessageTimestamp: DateTime = null
+    for (const address of messagesAddresses) {
+      latestIncomingMessageTimestamp = DateTime.utc()
+      const message = (
+        await factory.build<typeof publicChannelsActions.test_message>('Message', {
+          identity: alice,
+          message: {
+            id: Math.random().toString(36).substr(2.9),
+            type: MessageType.Basic,
+            message: `incoming message`,
+            createdAt: latestIncomingMessageTimestamp.valueOf(),
+            channelAddress: address,
+            signature: '',
+            pubKey: ''
+          },
+          verifyAutomatically: false
+        })
+      ).payload.message
+      messages.push(message)
+    }
+
+    // Set the previous newest message
+    const message = (await factory.create<
+      ReturnType<typeof publicChannelsActions.test_message>['payload']
+      >('Message', {
+        identity: alice,
+        message: {
+          id: Math.random().toString(36).substr(2.9),
+          type: MessageType.Basic,
+          message: 'message',
+          createdAt: latestIncomingMessageTimestamp.minus({seconds: 5}).valueOf(),
+          channelAddress: 'general',
+          signature: '',
+          pubKey: ''
+        },
+        verifyAutomatically: true
+      })).message
+
+    store.dispatch(publicChannelsActions.updateNewestMessage({ message }))
+    
+    // Handle incoming messages
     const reducer = combineReducers(reducers)
     await expectSaga(
       updateNewestMessageSaga,
