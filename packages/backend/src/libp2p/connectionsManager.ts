@@ -286,11 +286,12 @@ export class ConnectionsManager extends EventEmitter {
   public sendCertificateRegistrationRequest = async (
     serviceAddress: string,
     userCsr: string,
-    requestTimeout: number = 15000
+    requestTimeout: number = 15_000
   ): Promise<Response> => {
     const controller = new AbortController()
     const timeout = setTimeout(() => {
       controller.abort()
+      this.tor.switchToCleanCircuts()
     }, requestTimeout)
 
     let options = {
@@ -313,7 +314,7 @@ export class ConnectionsManager extends EventEmitter {
       log(`Fetched ${serviceAddress}, time: ${fetchTime}`)
       return response
     } catch (e) {
-      log.error(e)
+      log.error("Registrar fetch error: ", e)
       throw e
     } finally {
       clearTimeout(timeout)

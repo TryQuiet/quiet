@@ -238,6 +238,11 @@ export class Tor {
     return `${onionAddress}.onion`
   }
 
+  public async switchToCleanCircuts() {
+    const response = await this.torControl.sendCommand('SIGNAL NEWNYM')
+    log('Newnym response', response)
+  }
+
   public async destroyHiddenService(serviceId: string): Promise<boolean> {
     try {
       await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)

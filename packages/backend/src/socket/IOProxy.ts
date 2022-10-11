@@ -230,7 +230,8 @@ export default class IOProxy {
       })
       return
     }
-
+    
+    log(`Registrar ${payload.communityId} response status: ${response.status}`)
     switch (response.status) {
       case 200:
         break
