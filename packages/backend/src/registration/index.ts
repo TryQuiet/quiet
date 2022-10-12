@@ -55,7 +55,9 @@ export class CertificateRegistration {
     this._app.post(
       '/register',
       async (req, res): Promise<void> => {
+        log('Handling post', req.headers)
         if (this.pendingPromise) return
+        log('Handling post - registering user')
         this.pendingPromise = this.registerUser(req, res)
         await this.pendingPromise
         this.pendingPromise = null

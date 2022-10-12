@@ -59,7 +59,14 @@ export class TorControl {
   }
 
   private async _sendCommand(command: string, resolve: Function, reject: Function) {
-    await this.connect()
+    try {
+      await this.connect()
+    } catch (e) {
+      if (!e.message.includes('Connection already established')) {
+        throw e
+      }
+    }
+    
     const connectionTimeout = setTimeout(() => {
       reject('TOR: Send command timeout')
     }, 5000)

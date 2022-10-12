@@ -286,18 +286,20 @@ export class ConnectionsManager extends EventEmitter {
   public sendCertificateRegistrationRequest = async (
     serviceAddress: string,
     userCsr: string,
+    counter: number = 0,
     requestTimeout: number = 15_000
   ): Promise<Response> => {
     const controller = new AbortController()
     const timeout = setTimeout(() => {
       controller.abort()
-      this.tor.switchToCleanCircuts()
+      // this.tor.switchToCleanCircuts()
+      log(`Aborting request after ${requestTimeout / 1000} s`)
     }, requestTimeout)
 
     let options = {
       method: 'POST',
       body: JSON.stringify({ data: userCsr }),
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'aaa': `${counter}` },
       signal: controller.signal
     }
     if (this.tor) {

@@ -214,14 +214,49 @@ export default class IOProxy {
     await this.getStorage(payload.peerId).saveCertificate(saveCertificatePayload)
   }
 
+  private getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
+  }
+
   public registerUserCertificate = async (payload: RegisterUserCertificatePayload) => {
-    let response: Response
-    try {
-      response = await this.connectionsManager.sendCertificateRegistrationRequest(
+    let response: Response = null
+    
+    function resolveTimeout(func, delay: number) {
+      return new Promise(
+        (resolve, reject) => setTimeout(async () => {
+          console.log(`Resolving request after ${delay}ms`)
+          try {
+            resolve(await func)
+          } catch (e) {
+            reject('e.message')
+          }
+        }, delay)
+      );
+    }
+
+    const requests = []
+    for (let i=0; i < 20; i++) {
+      requests.push(resolveTimeout(this.connectionsManager.sendCertificateRegistrationRequest(
         payload.serviceAddress,
-        payload.userCsr
-      )
+        payload.userCsr,
+        i
+      ), this.getRandomInt(500, 2000)))
+    }
+    // for (let i=0; i < 20; i++) {
+    //   requests.push(this.connectionsManager.sendCertificateRegistrationRequest(
+    //     payload.serviceAddress,
+    //     payload.userCsr,
+    //     i
+    //   ))
+    // }
+    try {
+      // @ts-ignore
+      response = await Promise.any(requests)
+      log('RESP', response)
     } catch (e) {
+      log('No promise fulfilled', e)
       emitError(this.io, {
         type: SocketActionTypes.REGISTRAR,
         code: ErrorCodes.SERVICE_UNAVAILABLE,
@@ -230,6 +265,28 @@ export default class IOProxy {
       })
       return
     }
+    // const requestsInterval = setInterval(async () => {
+    //   try {
+    //     response = await this.connectionsManager.sendCertificateRegistrationRequest(
+    //       payload.serviceAddress,
+    //       payload.userCsr
+    //     )
+    //   } catch (e) {
+    //     emitError(this.io, {
+    //       type: SocketActionTypes.REGISTRAR,
+    //       code: ErrorCodes.SERVICE_UNAVAILABLE,
+    //       message: ErrorMessages.REGISTRAR_CONNECTION_FAILED,
+    //       community: payload.communityId
+    //     })
+    //     return
+    //   }
+    //   if (response) {
+    //     log('GOT IT')
+    //     clearInterval(requestsInterval)
+    //   }
+    // }, 1000)
+
+    if (!response) return
     
     log(`Registrar ${payload.communityId} response status: ${response.status}`)
     switch (response.status) {

@@ -21,7 +21,7 @@ export function* retryRegistration(communityId: string) {
     userCsr: identity.userCsr
   }
 
-  yield* put(identityActions.registerCertificate(payload))
+  // yield* put(identityActions.registerCertificate(payload))
   log(`registering certificate for community ${communityId} failed, trying again`)
 }
 
@@ -43,15 +43,15 @@ export function* handleErrorsSaga(
       error.code === ErrorCodes.SERVICE_UNAVAILABLE
     ) {
       // Arbitrary attempts number that is 99.99% sufficient for registration without asking user to resubmit form
-      if (registrationAttempts < 20) {
-        yield* call(delay, 5000)
-        yield* put(communitiesActions.updateRegistrationAttempts({ id: error.community, registrationAttempts: registrationAttempts + 1 }))
-        yield* put(errorsActions.addError(error))
-        yield* call(retryRegistration, error.community)
-      } else {
+      // if (registrationAttempts < 20) {
+        // yield* call(delay, 5000)
+        // yield* put(communitiesActions.updateRegistrationAttempts({ id: error.community, registrationAttempts: registrationAttempts + 1 }))
+        // yield* put(errorsActions.addError(error))
+        // yield* call(retryRegistration, error.community)
+      // } else {
         yield* put(errorsActions.addError(error))
         yield* put(communitiesActions.updateRegistrationAttempts({ id: error.community, registrationAttempts: 0 }))
-      }
+      // }
     }
   } else {
     yield* put(errorsActions.addError(error))
