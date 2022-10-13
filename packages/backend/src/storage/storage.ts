@@ -2,7 +2,9 @@ import { Crypto } from '@peculiar/webcrypto'
 import {
   CertFieldsTypes,
   getCertFieldValue,
+  keyObjectFromString,
   parseCertificate,
+  verifySignature,
   verifyUserCert
 } from '@quiet/identity'
 import {
@@ -24,7 +26,7 @@ import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import PeerId from 'peer-id'
-import { CryptoEngine, setEngine } from 'pkijs'
+import { CryptoEngine, getCrypto, setEngine } from 'pkijs'
 import {
   IMessageThread,
   DirectMessagesRepo,
@@ -41,7 +43,7 @@ import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
 import fs from 'fs'
 import { promisify } from 'util'
-
+import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
 const sizeOfPromisified = promisify(sizeOf)
 
@@ -294,17 +296,29 @@ export class Storage {
     if (repo && !repo.eventsAttached) {
       log('Subscribing to channel ', channelData.address)
 
-      db.events.on('write', (_address, entry) => {
+      db.events.on('write', async (_address, entry) => {
+        const message = entry.payload.value
+        const crypto = getCrypto()
+        const signature = stringToArrayBuffer(message.signature)
+        const cryptoKey = await keyObjectFromString(message.pubKey, crypto)
+        const verify = await verifySignature(signature, message.message, cryptoKey)
         log(`Writing to public channel db ${channelData.address}`)
         this.io.loadMessages({
-          messages: [entry.payload.value]
+          messages: [entry.payload.value],
+          verifyStatus: verify
         })
       })
 
-      db.events.on('replicate.progress', (address, _hash, entry, progress, total) => {
+      db.events.on('replicate.progress', async (address, _hash, entry, progress, total) => {
         log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
+        const message = entry.payload.value
+        const crypto = getCrypto()
+        const signature = stringToArrayBuffer(message.signature)
+        const cryptoKey = await keyObjectFromString(message.pubKey, crypto)
+        const verify = await verifySignature(signature, message.message, cryptoKey)        
         this.io.loadMessages({
-          messages: [entry.payload.value]
+          messages: [entry.payload.value],
+          verifyStatus: verify
         })
         // Display push notifications on mobile
         if (process.env.BACKEND === 'mobile') {
@@ -351,7 +365,8 @@ export class Storage {
       filteredMessages.push(...messages.filter(i => i.id === id))
     }
     this.io.loadMessages({
-      messages: filteredMessages
+      messages: filteredMessages,
+      verifyStatus: true
     })
   }
 

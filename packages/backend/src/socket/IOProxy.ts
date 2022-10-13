@@ -161,7 +161,7 @@ export default class IOProxy {
     this.io.emit(SocketActionTypes.CHANNELS_REPLICATED, payload)
   }
 
-  public loadMessages = (payload: IncomingMessages) => {
+  public loadMessages = (payload: IncomingMessages & {verifyStatus: boolean}) => {
     log('Emitting message')
     this.io.emit(SocketActionTypes.INCOMING_MESSAGES, payload)
   }
