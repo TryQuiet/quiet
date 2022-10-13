@@ -239,8 +239,14 @@ export class Tor {
   }
 
   public async switchToCleanCircuts() {
-    const response = await this.torControl.sendCommand('SIGNAL NEWNYM')
-    log('Newnym response', response)
+    try {
+      log('Sending newnym')
+      const response = await this.torControl.sendCommand('SIGNAL NEWNYM')
+
+      log('Newnym response', response)
+    } catch (e) {
+      log('Could not send newnym')
+    }
   }
 
   public async destroyHiddenService(serviceId: string): Promise<boolean> {

@@ -237,24 +237,23 @@ export default class IOProxy {
     }
 
     const requests = []
-    for (let i=0; i < 20; i++) {
-      requests.push(resolveTimeout(this.connectionsManager.sendCertificateRegistrationRequest(
-        payload.serviceAddress,
-        payload.userCsr,
-        i
-      ), this.getRandomInt(500, 2000)))
-    }
-    // for (let i=0; i < 20; i++) {
-    //   requests.push(this.connectionsManager.sendCertificateRegistrationRequest(
+    // for (let i=0; i < 10; i++) {
+    //   requests.push(resolveTimeout(this.connectionsManager.sendCertificateRegistrationRequest(
     //     payload.serviceAddress,
     //     payload.userCsr,
     //     i
-    //   ))
+    //   ), this.getRandomInt(500, 2000)))
     // }
+    for (let i=0; i < 5; i++) {
+      requests.push(this.connectionsManager.sendCertificateRegistrationRequest(
+        payload.serviceAddress,
+        payload.userCsr,
+        i
+      ))
+    }
     try {
       // @ts-ignore
       response = await Promise.any(requests)
-      log('RESP', response)
     } catch (e) {
       log('No promise fulfilled', e)
       emitError(this.io, {

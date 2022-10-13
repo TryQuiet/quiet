@@ -1,4 +1,6 @@
 import net from 'net'
+import logger from '../logger'
+const log = logger('torControl')
 
 interface IOpts {
   port: number
@@ -33,6 +35,7 @@ export class TorControl {
       }
 
       this.connection = net.connect(this.params)
+      log('Connected')
 
       this.connection.once('error', err => {
         reject(new Error(`TOR: Connection via tor control failed: ${err.message}`))
@@ -54,8 +57,15 @@ export class TorControl {
   }
 
   private async disconnect() {
-    this.connection.end()
-    this.connection = null
+    log('Disconnecting')
+    try {
+      this.connection.end()
+      this.connection = null
+    } catch (e) {
+      log.error('Cant disconnect, no connection', e.message)
+    }
+    
+    
   }
 
   private async _sendCommand(command: string, resolve: Function, reject: Function) {

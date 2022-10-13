@@ -287,12 +287,11 @@ export class ConnectionsManager extends EventEmitter {
     serviceAddress: string,
     userCsr: string,
     counter: number = 0,
-    requestTimeout: number = 15_000
+    requestTimeout: number = 120_000
   ): Promise<Response> => {
     const controller = new AbortController()
     const timeout = setTimeout(() => {
       controller.abort()
-      // this.tor.switchToCleanCircuts()
       log(`Aborting request after ${requestTimeout / 1000} s`)
     }, requestTimeout)
 
@@ -302,12 +301,15 @@ export class ConnectionsManager extends EventEmitter {
       headers: { 'Content-Type': 'application/json', 'aaa': `${counter}` },
       signal: controller.signal
     }
+
     if (this.tor) {
       options = Object.assign({
         agent: this.socksProxyAgent
       }, options)
     }
 
+    await this.tor.switchToCleanCircuts()
+    
     try {
       const start = new Date()
       const response = await fetch(`${serviceAddress}/register`, options)
@@ -316,10 +318,11 @@ export class ConnectionsManager extends EventEmitter {
       log(`Fetched ${serviceAddress}, time: ${fetchTime}`)
       return response
     } catch (e) {
-      log.error("Registrar fetch error: ", e)
+      log.error("Registrar fetch error:", e.message)
       throw e
     } finally {
       clearTimeout(timeout)
+      
     }
   }
 
