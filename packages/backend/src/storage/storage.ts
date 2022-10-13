@@ -315,7 +315,7 @@ export class Storage {
         const crypto = getCrypto()
         const signature = stringToArrayBuffer(message.signature)
         const cryptoKey = await keyObjectFromString(message.pubKey, crypto)
-        const verify = await verifySignature(signature, message.message, cryptoKey)        
+        const verify = await verifySignature(signature, message.message, cryptoKey)
         this.io.loadMessages({
           messages: [entry.payload.value],
           verifyStatus: verify
