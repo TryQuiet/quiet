@@ -41,6 +41,7 @@ let factory: FactoryGirl
 let community: Community
 let channel: PublicChannelStorage
 let alice: Identity
+let john: Identity
 let message: ChannelMessage
 let channelio: PublicChannelStorage
 let filePath: string
@@ -64,6 +65,11 @@ beforeAll(async () => {
   alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
     'Identity',
     { id: community.id, nickname: 'alice' }
+  )
+
+  john = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+    'Identity',
+    { id: community.id, nickname: 'john' }
   )
 
   message = (
@@ -256,6 +262,75 @@ describe('Certificate', () => {
     })
   })
 
+  it('The message is verified on write db event', async () => {
+    const aliceMessage = await factory.create<
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
+    >('Message', {
+      identity: alice
+    })
+
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+    await storage.initDatabases()
+    await storage.subscribeToChannel(channelio)
+
+    const spyOnLoadMessages = jest.spyOn(storage.io, 'loadMessages')
+    const spyOnVerifyMessage = jest.spyOn(storage, 'verifyMessage')
+    const getVerifyMessageResult = async (): Promise<any> => spyOnVerifyMessage.mock.results[0].value
+
+    const db = storage.publicChannelsRepos.get(message.channelAddress).db
+    // @ts-ignore - Property 'certificates' is private
+    await db.events.emit('write', 'address', { payload: { value: aliceMessage.message } }, [])
+
+    expect(spyOnVerifyMessage).toBeCalledWith(aliceMessage.message)
+    expect(await getVerifyMessageResult()).toBe(true)
+    expect(spyOnLoadMessages).toHaveBeenCalled()
+  })
+
+  it('The message is not verified on write db event', async () => {
+    const aliceMessage = await factory.create<
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
+    >('Message', {
+      identity: alice
+    })
+
+    const johnMessage = await factory.create<
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
+    >('Message', {
+      identity: john
+    })
+
+    const aliceMessageWithJohnsPublicKey: ChannelMessage = {
+      ...aliceMessage.message,
+      pubKey: johnMessage.message.pubKey
+    }
+
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+    await storage.initDatabases()
+    await storage.subscribeToChannel(channelio)
+
+    const spyOnLoadMessages = jest.spyOn(storage.io, 'loadMessages')
+    const spyOnVerifyMessage = jest.spyOn(storage, 'verifyMessage')
+    const getVerifyMessageResult = async (): Promise<any> => spyOnVerifyMessage.mock.results[0].value
+
+    const db = storage.publicChannelsRepos.get(message.channelAddress).db
+    // @ts-ignore - Property 'certificates' is private
+    await db.events.emit('write', 'address', { payload: { value: aliceMessageWithJohnsPublicKey } }, [])
+
+    expect(spyOnVerifyMessage).toBeCalledWith(aliceMessageWithJohnsPublicKey)
+    expect(await getVerifyMessageResult()).toBe(false)
+    expect(spyOnLoadMessages).toHaveBeenCalled()
+  })
+
   it('Certificates and peers list are updated on write event', async () => {
     storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
 
@@ -301,10 +376,6 @@ describe('Message', () => {
 
   // TODO: Message signature verification doesn't work, our theory is that our AccessController performs check after message is added to db.
   xit('is not saved to db if did not pass signature verification', async () => {
-    const john = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'john' })
-
     const aliceMessage = await factory.create<
     ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {

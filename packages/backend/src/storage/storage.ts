@@ -272,6 +272,13 @@ export class Storage {
     )
   }
 
+  async verifyMessage(message: ChannelMessage) {
+    const crypto = getCrypto()
+    const signature = stringToArrayBuffer(message.signature)
+    const cryptoKey = await keyObjectFromString(message.pubKey, crypto)
+    return await verifySignature(signature, message.message, cryptoKey)
+  }
+
   protected getAllEventLogEntries<T>(db: EventStore<T>): T[] {
     return db
       .iterator({ limit: -1 })
@@ -297,28 +304,21 @@ export class Storage {
       log('Subscribing to channel ', channelData.address)
 
       db.events.on('write', async (_address, entry) => {
-        const message = entry.payload.value
-        const crypto = getCrypto()
-        const signature = stringToArrayBuffer(message.signature)
-        const cryptoKey = await keyObjectFromString(message.pubKey, crypto)
-        const verify = await verifySignature(signature, message.message, cryptoKey)
+        const verified = await this.verifyMessage(entry.payload.value)
         log(`Writing to public channel db ${channelData.address}`)
         this.io.loadMessages({
           messages: [entry.payload.value],
-          verifyStatus: verify
+          verifyStatus: verified
         })
       })
 
       db.events.on('replicate.progress', async (address, _hash, entry, progress, total) => {
         log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
-        const message = entry.payload.value
-        const crypto = getCrypto()
-        const signature = stringToArrayBuffer(message.signature)
-        const cryptoKey = await keyObjectFromString(message.pubKey, crypto)
-        const verify = await verifySignature(signature, message.message, cryptoKey)
+        const verified = await this.verifyMessage(entry.payload.value)
+
         this.io.loadMessages({
           messages: [entry.payload.value],
-          verifyStatus: verify
+          verifyStatus: verified
         })
         // Display push notifications on mobile
         if (process.env.BACKEND === 'mobile') {
