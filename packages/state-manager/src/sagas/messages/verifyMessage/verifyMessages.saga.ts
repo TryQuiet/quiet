@@ -9,18 +9,18 @@ export function* verifyMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>>['payload']
 ): Generator {
   const messages = action.payload.messages
-  const verifyStatus = action.payload.verifyStatus
+  const verifiedStatus = action.payload.verifiedStatus
 
   for (const message of messages) {
-    yield* spawn(verifyMessage, message, verifyStatus)
+    yield* spawn(verifyMessage, message, verifiedStatus)
   }
 }
 
-function* verifyMessage(message: ChannelMessage, verifyStatus: boolean): Generator {
+function* verifyMessage(message: ChannelMessage, verifiedStatus: boolean): Generator {
   const verificationStatus: MessageVerificationStatus = {
     publicKey: message.pubKey,
     signature: message.signature,
-    verified: verifyStatus
+    verified: verifiedStatus
   }
 
   yield* put(messagesActions.addMessageVerificationStatus(verificationStatus))

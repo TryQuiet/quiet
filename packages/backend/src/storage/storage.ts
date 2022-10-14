@@ -272,7 +272,7 @@ export class Storage {
     )
   }
 
-  async verifyMessage(message: ChannelMessage) {
+  async verifyMessage(message: ChannelMessage): Promise<boolean> {
     const crypto = getCrypto()
     const signature = stringToArrayBuffer(message.signature)
     const cryptoKey = await keyObjectFromString(message.pubKey, crypto)
@@ -304,11 +304,12 @@ export class Storage {
       log('Subscribing to channel ', channelData.address)
 
       db.events.on('write', async (_address, entry) => {
-        const verified = await this.verifyMessage(entry.payload.value)
         log(`Writing to public channel db ${channelData.address}`)
+        const verified = await this.verifyMessage(entry.payload.value)
+
         this.io.loadMessages({
           messages: [entry.payload.value],
-          verifyStatus: verified
+          verifiedStatus: verified
         })
       })
 
@@ -318,7 +319,7 @@ export class Storage {
 
         this.io.loadMessages({
           messages: [entry.payload.value],
-          verifyStatus: verified
+          verifiedStatus: verified
         })
         // Display push notifications on mobile
         if (process.env.BACKEND === 'mobile') {
@@ -366,7 +367,7 @@ export class Storage {
     }
     this.io.loadMessages({
       messages: filteredMessages,
-      verifyStatus: true
+      verifiedStatus: true
     })
   }
 

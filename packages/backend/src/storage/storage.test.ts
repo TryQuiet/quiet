@@ -51,7 +51,7 @@ beforeAll(async () => {
   factory = await getFactory(store)
 
   community = await factory.create<
-  ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
   >('Community')
 
   channel = publicChannels.selectors.publicChannels(store.getState())[0]
@@ -262,9 +262,12 @@ describe('Certificate', () => {
     })
   })
 
-  it('The message is verified on write db event', async () => {
+  it.each([
+    ['write'],
+    ['replicate.progress']
+  ])('The message is verified valid on "%s" db event', async (eventName: string) => {
     const aliceMessage = await factory.create<
-    ReturnType<typeof publicChannels.actions.test_message>['payload']
+      ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: alice
     })
@@ -283,23 +286,41 @@ describe('Certificate', () => {
     const getVerifyMessageResult = async (): Promise<any> => spyOnVerifyMessage.mock.results[0].value
 
     const db = storage.publicChannelsRepos.get(message.channelAddress).db
-    // @ts-ignore - Property 'certificates' is private
-    await db.events.emit('write', 'address', { payload: { value: aliceMessage.message } }, [])
+    const messagePayload = {
+ payload: {
+        value: aliceMessage.message
+      }
+    }
+
+    switch (eventName) {
+      case 'write':
+        await db.events.emit(eventName, 'address', messagePayload, [])
+        break
+      case 'replicate.progress':
+        await db.events.emit(eventName, 'address', 'hash', messagePayload, 'progress', 'total', [])
+        break
+    }
 
     expect(spyOnVerifyMessage).toBeCalledWith(aliceMessage.message)
     expect(await getVerifyMessageResult()).toBe(true)
-    expect(spyOnLoadMessages).toHaveBeenCalled()
+    expect(spyOnLoadMessages).toHaveBeenCalledWith({
+      messages: [aliceMessage.message],
+      verifiedStatus: true
+    })
   })
 
-  it('The message is not verified on write db event', async () => {
+  it.each([
+    ['write'],
+    ['replicate.progress']
+  ])('The message is verified not valid on "%s" db event', async (eventName: string) => {
     const aliceMessage = await factory.create<
-    ReturnType<typeof publicChannels.actions.test_message>['payload']
+      ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: alice
     })
 
     const johnMessage = await factory.create<
-    ReturnType<typeof publicChannels.actions.test_message>['payload']
+      ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: john
     })
@@ -323,12 +344,27 @@ describe('Certificate', () => {
     const getVerifyMessageResult = async (): Promise<any> => spyOnVerifyMessage.mock.results[0].value
 
     const db = storage.publicChannelsRepos.get(message.channelAddress).db
-    // @ts-ignore - Property 'certificates' is private
-    await db.events.emit('write', 'address', { payload: { value: aliceMessageWithJohnsPublicKey } }, [])
+    const messagePayload = {
+ payload: {
+        value: aliceMessageWithJohnsPublicKey
+      }
+    }
+
+    switch (eventName) {
+      case 'write':
+        await db.events.emit(eventName, 'address', messagePayload, [])
+        break
+      case 'replicate.progress':
+        await db.events.emit(eventName, 'address', 'hash', messagePayload, 'progress', 'total', [])
+        break
+    }
 
     expect(spyOnVerifyMessage).toBeCalledWith(aliceMessageWithJohnsPublicKey)
     expect(await getVerifyMessageResult()).toBe(false)
-    expect(spyOnLoadMessages).toHaveBeenCalled()
+    expect(spyOnLoadMessages).toHaveBeenCalledWith({
+      messages: [aliceMessageWithJohnsPublicKey],
+      verifiedStatus: false
+    })
   })
 
   it('Certificates and peers list are updated on write event', async () => {
@@ -377,7 +413,7 @@ describe('Message', () => {
   // TODO: Message signature verification doesn't work, our theory is that our AccessController performs check after message is added to db.
   xit('is not saved to db if did not pass signature verification', async () => {
     const aliceMessage = await factory.create<
-    ReturnType<typeof publicChannels.actions.test_message>['payload']
+      ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: alice
     })
