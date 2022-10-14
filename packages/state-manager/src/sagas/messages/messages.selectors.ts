@@ -18,11 +18,6 @@ import { DownloadState } from '../files/files.types'
 const messagesSlice: CreatedSelectors[StoreKeys.Messages] = (state: StoreState) =>
   state[StoreKeys.Messages]
 
-export const publicKeysMapping = createSelector(
-  messagesSlice,
-  reducerState => reducerState.publicKeyMapping
-)
-
 export const messagesVerificationStatus = createSelector(messagesSlice, reducerState =>
   messageVerificationStatusAdapter
     .getSelectors()
@@ -122,7 +117,6 @@ export const missingChannelFiles = (channelAddress: string) =>
   })
 
 export const messagesSelectors = {
-  publicKeysMapping,
   publicChannelsMessagesBase,
   publicChannelMessagesEntities,
   currentPublicChannelMessagesBase,

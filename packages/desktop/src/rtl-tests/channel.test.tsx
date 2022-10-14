@@ -229,12 +229,6 @@ describe('Channel', () => {
       })
     ).payload.message
 
-    store.dispatch(
-      messages.actions.addPublicKeyMapping({
-        publicKey: aliceMessage.pubKey,
-        cryptoKey: undefined
-      })
-    )
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
 

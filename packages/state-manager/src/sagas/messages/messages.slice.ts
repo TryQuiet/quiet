@@ -38,9 +38,6 @@ export const messagesSlice = createSlice({
   name: StoreKeys.Messages,
   reducers: {
     sendMessage: (state, _action: PayloadAction<WriteMessagePayload>) => state,
-    addPublicKeyMapping: (state, action: PayloadAction<PublicKeyMappingPayload>) => {
-      state.publicKeyMapping[action.payload.publicKey] = action.payload.cryptoKey
-    },
     addPublicChannelsMessagesBase: (state, action: PayloadAction<AddPublicChannelsMessagesBasePayload>) => {
       const { channelAddress } = action.payload
       publicChannelsMessagesBaseAdapter.addOne(state.publicChannelsMessagesBase, {
