@@ -344,7 +344,7 @@ export class ConnectionsManager extends EventEmitter {
       },
       dialer: {
         dialTimeout: 120_000,
-        maxParallelDials: 3
+        maxParallelDials: 10
       },
       config: {
         peerDiscovery: {
