@@ -305,7 +305,7 @@ describe('Certificate', () => {
     expect(await getVerifyMessageResult()).toBe(true)
     expect(spyOnLoadMessages).toHaveBeenCalledWith({
       messages: [aliceMessage.message],
-      verified: true
+      isVerified: true
     })
   })
 
@@ -363,7 +363,7 @@ describe('Certificate', () => {
     expect(await getVerifyMessageResult()).toBe(false)
     expect(spyOnLoadMessages).toHaveBeenCalledWith({
       messages: [aliceMessageWithJohnsPublicKey],
-      verified: false
+      isVerified: false
     })
   })
 

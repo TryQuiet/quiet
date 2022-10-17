@@ -317,7 +317,7 @@ export class Storage {
 
         this.io.loadMessages({
           messages: [entry.payload.value],
-          verified: verified
+          isVerified: verified
         })
       })
 
@@ -327,7 +327,7 @@ export class Storage {
 
         this.io.loadMessages({
           messages: [entry.payload.value],
-          verified: verified
+          isVerified: verified
         })
         // Display push notifications on mobile
         if (process.env.BACKEND === 'mobile') {
@@ -375,7 +375,7 @@ export class Storage {
     }
     this.io.loadMessages({
       messages: filteredMessages,
-      verified: true
+      isVerified: true
     })
   }
 

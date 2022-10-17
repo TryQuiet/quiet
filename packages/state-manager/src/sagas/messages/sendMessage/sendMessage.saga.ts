@@ -61,7 +61,7 @@ export function* sendMessageSaga(
     messagesActions.addMessageVerificationStatus({
       publicKey: message.pubKey,
       signature: message.signature,
-      verified: true
+      isVerified: true
     })
   )
 
@@ -69,7 +69,7 @@ export function* sendMessageSaga(
   yield* put(
     messagesActions.incomingMessages({
       messages: [message],
-      verified: true
+      isVerified: true
     })
   )
 

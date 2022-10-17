@@ -111,14 +111,14 @@ export const messagesSlice = createSlice({
       state,
       action: PayloadAction<{
         message: ChannelMessage
-        verified: boolean
+        isVerified: boolean
       }>
     ) => {
-      const { message, verified } = action.payload
+      const { message, isVerified } = action.payload
       messageVerificationStatusAdapter.upsertOne(state.messageVerificationStatus, {
         publicKey: message.pubKey,
         signature: message.signature,
-        verified: verified
+        isVerified: isVerified
       })
     }
   }

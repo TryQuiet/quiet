@@ -55,7 +55,7 @@ export interface LazyLoadingPayload {
 export interface MessageVerificationStatus {
   publicKey: string
   signature: string
-  verified: boolean
+  isVerified: boolean
 }
 
 export interface MessageSendingStatus {

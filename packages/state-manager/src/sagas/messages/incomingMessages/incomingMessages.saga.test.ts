@@ -342,7 +342,7 @@ describe('incomingMessagesSaga', () => {
       messagesActions.addMessageVerificationStatus({
         publicKey: message.pubKey,
         signature: message.signature,
-        verified: false
+        isVerified: false
       })
     )
 
