@@ -93,7 +93,7 @@ export interface SendNewUserInfoMessagePayload {
 
 export interface IncomingMessages {
   messages: ChannelMessage[]
-  verifiedStatus?: boolean
+  verified?: boolean
 }
 
 export interface CacheMessagesPayload {

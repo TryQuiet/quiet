@@ -229,7 +229,6 @@ describe('Channel', () => {
       })
     ).payload.message
 
-
     window.HTMLElement.prototype.scrollTo = jest.fn()
 
     renderComponent(

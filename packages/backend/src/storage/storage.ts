@@ -77,6 +77,7 @@ export class Storage {
   public ipfsRepoPath: string
   readonly downloadCancellations: string[]
   private readonly __communityId: string
+  publicKeysMap: Map<string, CryptoKey>
 
   constructor(
     quietDir: string,
@@ -94,6 +95,7 @@ export class Storage {
     this.orbitDbDir = path.join(this.quietDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
     this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
     this.downloadCancellations = []
+    this.publicKeysMap = new Map()
   }
 
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
@@ -275,7 +277,13 @@ export class Storage {
   async verifyMessage(message: ChannelMessage): Promise<boolean> {
     const crypto = getCrypto()
     const signature = stringToArrayBuffer(message.signature)
-    const cryptoKey = await keyObjectFromString(message.pubKey, crypto)
+    let cryptoKey = this.publicKeysMap.get(message.pubKey)
+
+    if (!cryptoKey) {
+      cryptoKey = await keyObjectFromString(message.pubKey, crypto)
+      this.publicKeysMap.set(message.pubKey, cryptoKey)
+    }
+
     return await verifySignature(signature, message.message, cryptoKey)
   }
 
@@ -309,7 +317,7 @@ export class Storage {
 
         this.io.loadMessages({
           messages: [entry.payload.value],
-          verifiedStatus: verified
+          verified: verified
         })
       })
 
@@ -319,7 +327,7 @@ export class Storage {
 
         this.io.loadMessages({
           messages: [entry.payload.value],
-          verifiedStatus: verified
+          verified: verified
         })
         // Display push notifications on mobile
         if (process.env.BACKEND === 'mobile') {
@@ -367,7 +375,7 @@ export class Storage {
     }
     this.io.loadMessages({
       messages: filteredMessages,
-      verifiedStatus: true
+      verified: true
     })
   }
 

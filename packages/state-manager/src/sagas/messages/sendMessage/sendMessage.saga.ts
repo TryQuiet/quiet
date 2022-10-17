@@ -69,7 +69,7 @@ export function* sendMessageSaga(
   yield* put(
     messagesActions.incomingMessages({
       messages: [message],
-      verifiedStatus: true
+      verified: true
     })
   )
 
