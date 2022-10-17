@@ -83,7 +83,7 @@ export const validCurrentPublicChannelMessagesEntries = createSelector(
         status &&
         status.publicKey === message.pubKey &&
         status.signature === message.signature &&
-        status.verified
+        status.isVerified
       ) {
         return message
       }
