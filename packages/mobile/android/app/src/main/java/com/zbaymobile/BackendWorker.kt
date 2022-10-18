@@ -6,6 +6,9 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
+import android.util.Log
+import org.torproject.android.binary.TorResourceInstaller
+
 import com.zbaymobile.Scheme.WebsocketConnectionPayload
 import com.zbaymobile.Utils.Const
 import com.zbaymobile.Utils.Utils
@@ -15,7 +18,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.ThreadLocalRandom
 
 class BackendWorker(context: Context, workerParams: WorkerParameters):
-        CoroutineWorker(context, workerParams) {
+    CoroutineWorker(context, workerParams) {
 
     private var running: Boolean = false
 
@@ -36,26 +39,31 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
         setForeground(createForegroundInfo())
 
         withContext(Dispatchers.IO) {
-            val dataPort        = Utils.getOpenPort(4677)
-            val controlPort     = Utils.getOpenPort(9151)
-            val socksPort       = Utils.getOpenPort(9050)
-            val httpTunnelPort  = Utils.getOpenPort(8050)
+
+            // Call special port opened by backend to indicate if it is alive or not
+
+            // This is the only port we really need here
+            val dataPort        = Utils.getOpenPort(11000)
+
+            // Those we should get inside tor module
+            val controlPort     = Utils.getOpenPort(12000)
+            val socksPort       = Utils.getOpenPort(13000)
+            val httpTunnelPort  = Utils.getOpenPort(14000)
 
             val dataDirectoryPath = Utils.createDirectory(applicationContext)
 
-            val tor = TorManager(applicationContext)
-            tor.startTor(controlPort, socksPort, httpTunnelPort)
+            val tor = TorResourceInstaller(applicationContext, applicationContext.filesDir).installResources()
+            val torPath = tor.canonicalPath
+            Log.e("TOR", torPath)
 
-            // Suspend coroutine until tor fully bootstrapped
-            val config =
-                tor.awaitBootstrap()
+            // Wait for node assets to be copied
+            delay(15000)
+            
+            startNodeProjectWithArguments("lib/mobileBackendManager.js -d $dataDirectoryPath -p $dataPort -c $controlPort -s $socksPort -t $httpTunnelPort -a $torPath")
+            delay(45000)
 
             val websocketConnectionPayload = WebsocketConnectionPayload(dataPort)
             NotificationModule.handleIncomingEvents("_WEBSOCKET_CONNECTION_", Gson().toJson(websocketConnectionPayload))
-
-            // Wait for node assets to be copied
-            // delay(15000)
-            startNodeProjectWithArguments("lib/mobileBackendManager.js -d $dataDirectoryPath -p $dataPort -c ${config.controlPort} -s ${config.socksPort} -t ${config.httpTunnelPort} -a ${config.authCookie}")
         }
 
         // Indicate whether the work finished successfully with the Result
@@ -90,6 +98,7 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
     }
 
     private fun createForegroundInfo(): ForegroundInfo {
+
         // This PendingIntent can be used to cancel the worker
         // val intent = WorkManager.getInstance(applicationContext)
         //     .createCancelPendingIntent(id)
