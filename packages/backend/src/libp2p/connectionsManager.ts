@@ -85,12 +85,12 @@ export class ConnectionsManager extends EventEmitter {
   connectedPeers: Set<string>
   socketIOPort: number
 
-  constructor({ agentHost, agentPort, httpTunnelPort, options, storageClass, io, socketIOPort }: IConstructor) {
+  constructor({ agentPort, httpTunnelPort, options, storageClass, io, socketIOPort }: IConstructor) {
     super()
     this.io = io || null
     this.agentPort = agentPort
     this.httpTunnelPort = httpTunnelPort
-    this.agentHost = agentHost
+    this.agentHost = 'localhost'
     this.socksProxyAgent = this.createAgent()
     this.options = {
       ...new ConnectionsManagerOptions(),
