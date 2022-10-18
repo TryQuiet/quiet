@@ -196,6 +196,24 @@ describe('displayNotificationsSaga', () => {
     })
   })
 
+  test('do not display notification if message is not verified', async () => {
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      displayMessageNotificationSaga,
+      messages.actions.incomingMessages({
+        messages: [message],
+        isVerified: false
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), false]])
+      .not.call(createNotification)
+      .run()
+
+      expect(notification).not.toHaveBeenCalled()
+  })
+
   test('clicking in notification foregrounds the app', async () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
