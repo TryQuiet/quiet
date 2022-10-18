@@ -77,7 +77,7 @@ export class Storage {
   public ipfsRepoPath: string
   readonly downloadCancellations: string[]
   private readonly __communityId: string
-  private publicKeysMap: Map<string, CryptoKey>
+  private readonly publicKeysMap: Map<string, CryptoKey>
 
   constructor(
     quietDir: string,
