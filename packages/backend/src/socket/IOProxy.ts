@@ -42,11 +42,13 @@ export default class IOProxy {
   io: SocketIO.Server
   connectionsManager: ConnectionsManager
   communities: CommunitiesManager
+  userRegistered: boolean
 
   constructor(connectionsManager: ConnectionsManager) {
     this.connectionsManager = connectionsManager
     this.io = connectionsManager.io
     this.communities = new CommunitiesManager(connectionsManager)
+    this.userRegistered = false
   }
 
   public getStorage(peerId: string): Storage {
@@ -214,43 +216,48 @@ export default class IOProxy {
     await this.getStorage(payload.peerId).saveCertificate(saveCertificatePayload)
   }
 
-  private getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
-  }
-
   public registerUserCertificate = async (payload: RegisterUserCertificatePayload) => {
     let response: Response = null
     
-    function resolveTimeout(func, delay: number) {
+    function resolveTimeout(func, serviceAddress, userCsr, i, delay: number, ref) {
       return new Promise(
-        (resolve, reject) => setTimeout(async () => {
-          console.log(`Resolving request after ${delay}ms`)
-          try {
-            resolve(await func)
-          } catch (e) {
-            reject('e.message')
-          }
-        }, delay)
-      );
+        (resolve, reject) => {
+          const timeoutId = setTimeout(async (serviceAddress, userCsr, i) => {
+            console.log(`Resolving request after ${delay}ms`)
+            if (ref.userRegistered) {
+              log('User already registered. Cancelling remaining requests')
+              reject('User already registered. Cancelling remaining requests')
+              return
+            }
+            try {
+              resolve(func(serviceAddress, userCsr, i))
+            } catch (e) {
+              reject(`request rejected. ${e.message}`)
+            }
+          }, delay, serviceAddress, userCsr, i)
+          // if (ref.userRegistered) {
+          //   reject('User already registered. Cancelling remaining requests')
+          //   clearTimeout(timeoutId)
+          // }
+        }
+      )
     }
 
     const requests = []
-    // for (let i=0; i < 10; i++) {
-    //   requests.push(resolveTimeout(this.connectionsManager.sendCertificateRegistrationRequest(
-    //     payload.serviceAddress,
-    //     payload.userCsr,
-    //     i
-    //   ), this.getRandomInt(500, 2000)))
-    // }
-    for (let i=0; i < 5; i++) {
-      requests.push(this.connectionsManager.sendCertificateRegistrationRequest(
+    for (let i=0; i < 10; i++) {
+      requests.push(resolveTimeout(this.connectionsManager.sendCertificateRegistrationRequest,
         payload.serviceAddress,
         payload.userCsr,
         i
-      ))
+      , i * 10_500, this))
     }
+    // for (let i=0; i < 5; i++) {
+    //   requests.push(this.connectionsManager.sendCertificateRegistrationRequest(
+    //     payload.serviceAddress,
+    //     payload.userCsr,
+    //     i
+    //   ))
+    // }
     try {
       // @ts-ignore
       response = await Promise.any(requests)
@@ -332,6 +339,7 @@ export default class IOProxy {
       await response.json()
 
     log(`Sending user certificate (${payload.communityId})`)
+    this.userRegistered = true
     this.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
       communityId: payload.communityId,
       payload: registrarResponse

@@ -24,7 +24,6 @@ const log = logger('socket')
 export const connections = (io, ioProxy: IOProxy) => {
   io.on(SocketActionTypes.CONNECTION, socket => {
     ioProxy.connectionsManager.on(SocketActionTypes.PEER_CONNECTED, (payload: {peer: string}) => {
-      console.log('PEER_CONNECT')
       socket.emit(SocketActionTypes.PEER_CONNECTED, payload)
     })
     ioProxy.connectionsManager.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {

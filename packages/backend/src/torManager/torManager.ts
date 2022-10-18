@@ -199,6 +199,8 @@ export class Tor {
           this.torDataDirectory,
           '--HashedControlPassword',
           this.torHashedPassword
+          // '--Log',
+          // 'info file gimmeTorLogsPlease.txt'
         ],
         this.options
       )
@@ -246,6 +248,17 @@ export class Tor {
       log('Newnym response', response)
     } catch (e) {
       log('Could not send newnym')
+    }
+  }
+
+  public async logConnectionsInfo() {
+    try {
+      log('Sending DUMP')
+      const response = await this.torControl.sendCommand('SIGNAL DUMP')
+
+      log('DUMP response', response)
+    } catch (e) {
+      log('Could not send DUMP')
     }
   }
 
