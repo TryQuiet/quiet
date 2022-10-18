@@ -335,7 +335,9 @@ export class Storage {
           // Do not notify about old messages
           if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME)) return
           const bridge = require('rn-bridge')
-          bridge.channel.post(BASE_NOTIFICATION_CHANNEL, JSON.stringify(message))
+          if(verified){
+            bridge.channel.post(BASE_NOTIFICATION_CHANNEL, JSON.stringify(message))
+          }
         }
       })
       db.events.on('replicated', async address => {
