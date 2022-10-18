@@ -106,7 +106,8 @@ describe('downloadedFileSaga', () => {
               ...message,
               media: metadata
             }
-          ]
+          ],
+          isVerified: true
         })
       )
       .run()
@@ -162,7 +163,8 @@ describe('downloadedFileSaga', () => {
               ...message,
               media: metadata
             }
-          ]
+          ],
+          isVerified: true
         })
       )
       .run()

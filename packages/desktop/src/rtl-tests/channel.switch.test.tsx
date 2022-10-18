@@ -320,7 +320,8 @@ describe('Switch channels', () => {
         SocketActionTypes.INCOMING_MESSAGES,
         {
           messages: [message],
-          communityId: community.id
+          communityId: community.id,
+          isVerified: true
         }
       ])
     }
