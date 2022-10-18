@@ -1300,7 +1300,6 @@ describe('Channel', () => {
 
     const downloadSpy = jest.spyOn(socket, 'emit')
 
-    console.log('ddd', store.getState().PublicChannels.channels.entities.general.messages.entities)
     const downloadButton = await screen.findByText('Download file')
 
     userEvent.click(downloadButton)

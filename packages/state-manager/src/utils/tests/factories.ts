@@ -197,7 +197,7 @@ export const getFactory = async (store: Store) => {
             )
             await factory.create('MessageVerificationStatus', {
               message: action.payload.message,
-              isVerified: isVerified
+              isVerified
             })
           }
         }
