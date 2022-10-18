@@ -19,6 +19,7 @@ describe('markUnreadChannelsSaga', () => {
 
   let community: Community
   let alice: Identity
+  let bob: Identity
 
   beforeAll(async () => {
     setupCrypto()
@@ -123,6 +124,91 @@ describe('markUnreadChannelsSaga', () => {
         })
       )
       .put(
+        publicChannelsActions.markUnreadChannel({
+          channelAddress: 'travels',
+          message: messages[3]
+        })
+      )
+      .run()
+  })
+
+  test('do not mark unread channels if message is older than user', async () => {
+    const messagesAddresses = ['general', 'memes', 'enya', 'travels']
+    const messages: ChannelMessage[] = []
+
+    const community = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+  >('Community')
+
+  const alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+    'Identity',
+    { id: community.id, nickname: 'alice', joinTimestamp: 9239423949 }
+  )
+
+    // Automatically create older messages
+    for (const address of messagesAddresses) {
+      const message = (
+        await factory.build<typeof publicChannelsActions.test_message>('Message', {
+          identity: alice,
+          message: {
+            id: Math.random().toString(36).substr(2.9),
+            type: MessageType.Basic,
+            message: 'message',
+            createdAt: 123,
+            channelAddress: address,
+            signature: '',
+            pubKey: ''
+          },
+          verifyAutomatically: true
+        })
+      ).payload.message
+      messages.push(message)
+    }
+
+    // Set the newest message
+    const message = (
+      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
+        'Message',
+        {
+          identity: alice,
+          message: {
+            id: Math.random().toString(36).substr(2.9),
+            type: MessageType.Basic,
+            message: 'message',
+            createdAt: 99999999999999,
+            channelAddress: 'enya',
+            signature: '',
+            pubKey: ''
+          },
+          verifyAutomatically: true
+        }
+      )
+    ).message
+
+    messages.push(message)
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      markUnreadChannelsSaga,
+      messagesActions.incomingMessages({
+        messages: messages
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put(
+        publicChannelsActions.markUnreadChannel({
+          channelAddress: 'memes',
+          message: messages[1]
+        })
+      )
+      .put(
+        publicChannelsActions.markUnreadChannel({
+          channelAddress: 'enya',
+          message: message
+        })
+      )
+      .not.put(
         publicChannelsActions.markUnreadChannel({
           channelAddress: 'travels',
           message: messages[3]

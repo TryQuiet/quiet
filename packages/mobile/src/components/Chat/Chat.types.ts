@@ -23,8 +23,8 @@ export interface ChatProps {
 }
 
 export interface ChannelMessagesComponentProps {
-  messages: DisplayableMessage[][]
   day: string
+  messages: DisplayableMessage[][]
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
   openImagePreview?: (media: FileMetadata) => void

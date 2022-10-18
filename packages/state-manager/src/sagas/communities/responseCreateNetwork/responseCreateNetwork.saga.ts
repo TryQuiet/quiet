@@ -21,7 +21,8 @@ export function* responseCreateNetworkSaga(
     peerId: network.peerId,
     dmKeys: dmKeys,
     userCsr: null,
-    userCertificate: null
+    userCertificate: null,
+    joinTimestamp: null
   }
 
   yield* put(communitiesActions.addNewCommunity(community))

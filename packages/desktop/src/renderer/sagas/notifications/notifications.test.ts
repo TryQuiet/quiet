@@ -174,7 +174,8 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
@@ -195,17 +196,37 @@ describe('displayNotificationsSaga', () => {
     })
   })
 
+  test('do not display notification if message is not verified', async () => {
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      displayMessageNotificationSaga,
+      messages.actions.incomingMessages({
+        messages: [message],
+        isVerified: false
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), false]])
+      .not.call(createNotification)
+      .run()
+
+      expect(notification).not.toHaveBeenCalled()
+  })
+
   test('clicking in notification foregrounds the app', async () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), true]])
+      .not.call(createNotification)
       .run()
 
     // @ts-expect-error
@@ -219,7 +240,8 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
@@ -239,7 +261,8 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
@@ -260,7 +283,8 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
@@ -290,7 +314,8 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
@@ -319,7 +344,8 @@ describe('displayNotificationsSaga', () => {
           ...message,
           createdAt: lastConnectedTime - 1
         }
-      ]
+      ],
+      isVerified: true
     }
 
     const reducer = combineReducers(reducers)
@@ -341,7 +367,8 @@ describe('displayNotificationsSaga', () => {
           ...message,
           pubKey: 'fake'
         }
-      ]
+      ],
+      isVerified: true
     }
 
     const reducer = combineReducers(reducers)
@@ -357,7 +384,8 @@ describe('displayNotificationsSaga', () => {
 
   test('do not display notification for own messages', async () => {
     const payload: IncomingMessages = {
-      messages: [aliceMessage]
+      messages: [aliceMessage],
+      isVerified: true
     }
 
     const reducer = combineReducers(reducers)
@@ -378,7 +406,8 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
@@ -407,7 +436,8 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
@@ -436,7 +466,8 @@ describe('displayNotificationsSaga', () => {
             }
           }
         }
-      ]
+      ],
+      isVerified: true
     }
 
     const reducer = combineReducers(reducers)
@@ -476,7 +507,8 @@ describe('displayNotificationsSaga', () => {
             }
           }
         }
-      ]
+      ],
+      isVerified: true
     }
 
     const reducer = combineReducers(reducers)

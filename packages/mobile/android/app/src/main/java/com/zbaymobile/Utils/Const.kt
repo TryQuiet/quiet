@@ -11,4 +11,6 @@ object Const {
     const val INCOMING_MESSAGES_CHANNEL_ID = "incoming.messages.channel"
 
     val SERVICE_ACTION_EXECUTE = "$PACKAGE_NAME.service.execute"
+
+    const val TOR_LOGS_FILENAME = "tor.log"
 }

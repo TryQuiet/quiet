@@ -38,9 +38,6 @@ export const messagesSlice = createSlice({
   name: StoreKeys.Messages,
   reducers: {
     sendMessage: (state, _action: PayloadAction<WriteMessagePayload>) => state,
-    addPublicKeyMapping: (state, action: PayloadAction<PublicKeyMappingPayload>) => {
-      state.publicKeyMapping[action.payload.publicKey] = action.payload.cryptoKey
-    },
     addPublicChannelsMessagesBase: (state, action: PayloadAction<AddPublicChannelsMessagesBasePayload>) => {
       const { channelAddress } = action.payload
       publicChannelsMessagesBaseAdapter.addOne(state.publicChannelsMessagesBase, {
@@ -114,14 +111,14 @@ export const messagesSlice = createSlice({
       state,
       action: PayloadAction<{
         message: ChannelMessage
-        verified: boolean
+        isVerified: boolean
       }>
     ) => {
-      const { message, verified } = action.payload
+      const { message, isVerified } = action.payload
       messageVerificationStatusAdapter.upsertOne(state.messageVerificationStatus, {
         publicKey: message.pubKey,
         signature: message.signature,
-        verified: verified
+        isVerified: isVerified
       })
     }
   }

@@ -61,14 +61,15 @@ export function* sendMessageSaga(
     messagesActions.addMessageVerificationStatus({
       publicKey: message.pubKey,
       signature: message.signature,
-      verified: true
+      isVerified: true
     })
   )
 
   // Display sent message immediately, to improve user experience
   yield* put(
     messagesActions.incomingMessages({
-      messages: [message]
+      messages: [message],
+      isVerified: true
     })
   )
 

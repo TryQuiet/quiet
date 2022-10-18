@@ -1,10 +1,11 @@
 {
   "name": "@quiet/mobile",
-  "version": "0.5.1",
+  "version": "0.5.3-alpha.13",
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "storybook": "ENVFILE=.env.storybook react-native run-android --variant=storybookDebug --appIdSuffix=storybook.debug",
+    "storybook-android": "ENVFILE=.env.storybook react-native run-android --variant=storybookDebug --appIdSuffix=storybook.debug",
+    "storybook-ios": "ENVFILE=.env.storybook react-native run-ios",
     "android": "ENVFILE=.env.development react-native run-android --variant=standardDebug --appIdSuffix=debug",
     "ios": "ENVFILE=.env.development react-native run-ios",
     "start": "react-native start",
@@ -23,9 +24,9 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.7",
-    "@quiet/backend": "^0.11.1",
-    "@quiet/identity": "^0.10.1",
-    "@quiet/state-manager": "^0.11.1",
+    "@quiet/backend": "^0.11.3-alpha.13",
+    "@quiet/identity": "^0.10.3-alpha.13",
+    "@quiet/state-manager": "^0.11.3-alpha.13",
     "@react-native-async-storage/async-storage": "^1.15.4",
     "@react-native-community/art": "^1.2.0",
     "@react-navigation/native": "^5.9.4",

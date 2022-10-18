@@ -21,7 +21,7 @@ export function* incomingMessagesSaga(
       const messageVerificationStatus = yield* select(messagesSelectors.messagesVerificationStatus)
       const status = messageVerificationStatus[incomingMessage.signature]
       if (status) {
-        if (!status.verified) {
+        if (!status.isVerified) {
           return
         } else {
           break

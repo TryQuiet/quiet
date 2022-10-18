@@ -1,10 +1,5 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import {
-  Keyboard,
-  View,
-  FlatList,
-  TextInput
-} from 'react-native'
+import { Keyboard, View, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
 import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
@@ -74,17 +69,20 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   const renderItem = ({ item }) => (
     <ChannelMessagesComponent
       messages={messages.groups[item]}
+      pendingMessages={pendingMessages}
       day={item}
       downloadStatuses={downloadStatuses}
       downloadFile={downloadFile}
       cancelDownload={cancelDownload}
       openImagePreview={openImagePreview}
-      pendingMessages={pendingMessages}
     />
   )
 
   return (
-    <View
+    <KeyboardAvoidingView
+      behavior={Platform.select({ ios: 'padding', android: null })}
+      keyboardVerticalOffset={Platform.select({ ios: 60, android: 0 })}
+      enabled={Platform.select({ ios: true, android: false })}
       style={{
         flex: 1,
         flexDirection: 'column',
@@ -120,7 +118,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
           </View>
         )}
       </View>
-    </View>
+    </KeyboardAvoidingView>
   )
 }
 

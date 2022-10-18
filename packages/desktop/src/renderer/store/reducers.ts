@@ -40,6 +40,7 @@ const persistConfig = {
     StateManagerStoreKeys.Files,
     StateManagerStoreKeys.Settings,
     StateManagerStoreKeys.Users,
+    StateManagerStoreKeys.Connection,
     StoreKeys.App
   ],
   transforms: [PublicChannelsTransform, MessagesTransform, FilesTransform]

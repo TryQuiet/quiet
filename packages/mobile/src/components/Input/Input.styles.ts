@@ -1,18 +1,21 @@
-import { Pressable, TextInput } from 'react-native'
+import { Platform, Pressable, TextInput } from 'react-native'
 import styled, { css } from 'styled-components/native'
 
 export const StyledTextInput = styled(TextInput)`
   text-align-vertical: center;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  ${Platform.select({
+    ios: {
+        paddingTop: 12,
+        paddingBottom: 12
+    },
+    android: {}
+})}
 `
 
 export const StyledWrapper = styled(Pressable)<{
   disabled: boolean
 }>`
   ${({ theme, disabled }) => css`
-    min-height: 42px;
-    max-height: 72px;
     background-color: ${disabled
       ? theme.palette.input.backgroundDisabled
       : theme.palette.input.backgroundDefault};

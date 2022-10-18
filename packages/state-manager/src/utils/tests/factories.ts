@@ -17,6 +17,7 @@ import { messagesActions } from '../../sagas/messages/messages.slice'
 import { currentCommunity } from '../../sagas/communities/communities.selectors'
 import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
 import { filesActions } from '../../sagas/files/files.slice'
+import { identityActions } from '../../sagas/identity/identity.slice'
 
 export const getFactory = async (store: Store) => {
   const factory = new factoryGirl.FactoryGirl()
@@ -33,7 +34,8 @@ export const getFactory = async (store: Store) => {
         factory.sequence('Community.name', n => `community_${n}`)
       ),
       registrarUrl: 'http://ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion',
-      rootCa: ''
+      rootCa: '',
+      peerList: []
     },
     {
       afterCreate: async (
@@ -75,7 +77,9 @@ export const getFactory = async (store: Store) => {
         publicKey: '9f016defcbe48829db163e86b28efb10318faf3b109173105e3dc024e951bb1b',
         privateKey: '4dcebbf395c0e9415bc47e52c96fcfaf4bd2485a516f45118c2477036b45fc0b'
       },
-      nickname: factory.sequence('Identity.nickname', n => `user_${n}`)
+      nickname: factory.sequence('Identity.nickname', n => `user_${n}`),
+      // 21.09.2022 - may be useful for testing purposes
+      joinTimestamp: 1663747464000
     },
     {
       afterBuild: async (action: ReturnType<typeof identity.actions.addNewIdentity>) => {
@@ -179,21 +183,21 @@ export const getFactory = async (store: Store) => {
           if (signatureGenerated) {
             await factory.create('MessageVerificationStatus', {
               message: action.payload.message,
-              verified: true
+              isVerified: true
             })
           } else {
             // Verify the signature
             const crypto = getCrypto()
             const cryptoKey = await keyObjectFromString(action.payload.message.pubKey, crypto)
             const signature = stringToArrayBuffer(action.payload.message.signature)
-            const verified = await verifySignature(
+            const isVerified = await verifySignature(
               signature,
               action.payload.message.message,
               cryptoKey
             )
             await factory.create('MessageVerificationStatus', {
               message: action.payload.message,
-              verified: verified
+              isVerified
             })
           }
         }
@@ -220,7 +224,7 @@ export const getFactory = async (store: Store) => {
 
   factory.define('MessageVerificationStatus', messages.actions.test_message_verification_status, {
     message: factory.assoc('Message'),
-    verified: true
+    isVerified: true
   })
 
   factory.define('MessageSendingStatus', messages.actions.addMessagesSendingStatus, {

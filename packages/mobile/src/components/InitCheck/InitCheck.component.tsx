@@ -11,7 +11,7 @@ export const InitCheck: FC<InitCheckProps> = ({ event, passed }) => {
     ? appImages.check_circle_green
     : appImages.check_circle_blank
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
       <Image
         source={icon}
         style={{

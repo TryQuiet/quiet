@@ -4,41 +4,40 @@ import { Socket } from 'socket.io-client'
 import {
   communitiesReducer,
   CommunitiesState,
-  Community
+  communitiesActions
 } from '../../communities/communities.slice'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { StoreKeys } from '../../store.keys'
 import { identityAdapter } from '../identity.adapter'
-import { identityReducer, IdentityState } from '../identity.slice'
-import { Identity } from '../identity.types'
+import { identityReducer, IdentityState, identityActions } from '../identity.slice'
 import { saveOwnerCertToDbSaga } from './saveOwnerCertToDb.saga'
+import { Store } from '../../store.types'
+import { FactoryGirl } from 'factory-girl'
+import { setupCrypto } from '@quiet/identity'
+import { prepareStore } from '../../../utils/tests/prepareStore'
+import { getFactory } from '../../../utils/tests/factories'
 
 describe('saveOwnerCertificateToDb', () => {
+  let store: Store
+  let factory: FactoryGirl
+
+  beforeAll(async () => {
+    setupCrypto()
+    store = prepareStore().store
+    factory = await getFactory(store)
+  })
+
   test('save owner certificate to database', async () => {
-    const community: Community = {
-      name: 'communityName',
-      id: 'id',
-      CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-      rootCa: '',
-      peerList: [],
-      registrarUrl: '',
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0,
-      registrationAttempts: 0
-    }
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
-    const identity: Identity = {
-      id: 'id',
-      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-      dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
-      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-      nickname: '',
-      userCsr: undefined,
-      userCertificate: ''
-    }
-    const communityId = 'id'
+
+    const community = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+
+    const identity = await factory.create<
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'john' })
+
     await expectSaga(saveOwnerCertToDbSaga, socket)
       .withReducer(
         combineReducers({
@@ -48,11 +47,11 @@ describe('saveOwnerCertificateToDb', () => {
         {
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
-            currentCommunity: 'id',
+            currentCommunity: community.id,
             communities: {
-              ids: ['id'],
+              ids: [community.id],
               entities: {
-                id: community
+                [community.id]: community
               }
             }
           },
@@ -65,7 +64,7 @@ describe('saveOwnerCertificateToDb', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.SAVE_OWNER_CERTIFICATE,
         {
-          id: communityId,
+          id: community.id,
           peerId: identity.peerId.id,
           certificate: identity.userCertificate,
           permsData: {

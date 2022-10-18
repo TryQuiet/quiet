@@ -1,6 +1,6 @@
 {
 	"name": "@quiet/backend",
-	"version": "0.11.1",
+	"version": "0.11.3-alpha.13",
 	"description": "tlg-manager",
 	"types": "lib/index.d.ts",
 	"main": "lib/index.js",
@@ -80,9 +80,9 @@
 	"dependencies": {
 		"@chainsafe/libp2p-noise": "^4.0.0",
 		"@peculiar/webcrypto": "1.2.2",
-		"@quiet/identity": "^0.10.1",
-		"@quiet/logger": "^0.10.1",
-		"@quiet/state-manager": "^0.11.1",
+		"@quiet/identity": "^0.10.3-alpha.13",
+		"@quiet/logger": "^0.10.3-alpha.13",
+		"@quiet/state-manager": "^0.11.3-alpha.13",
 		"abortable-iterator": "^3.0.0",
 		"class-validator": "^0.13.1",
 		"cli-table": "^0.3.6",
@@ -115,6 +115,7 @@
 		"pkijs": "2.1.97",
 		"socket.io": "3.0.5",
 		"socks-proxy-agent": "^5.0.0",
-		"validator": "^13.6.0"
+		"validator": "^13.6.0",
+		"luxon": "^1.11.4"
 	}
 }
