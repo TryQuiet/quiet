@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.11.3-alpha.16](https://github.com/TryQuiet/monorepo/compare/@quiet/state-manager@0.11.3-alpha.13...@quiet/state-manager@0.11.3-alpha.16) (2022-10-19)
+
+**Note:** Version bump only for package @quiet/state-manager
+
+
+
+
+
 ## [0.11.3-alpha.15](https://github.com/TryQuiet/monorepo/compare/@quiet/state-manager@0.11.3-alpha.13...@quiet/state-manager@0.11.3-alpha.15) (2022-10-18)
 
 **Note:** Version bump only for package @quiet/state-manager
