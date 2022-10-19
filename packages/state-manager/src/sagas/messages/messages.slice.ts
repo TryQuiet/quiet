@@ -58,6 +58,19 @@ export const messagesSlice = createSlice({
       const id = action.payload
       messageSendingStatusAdapter.removeOne(state.messageSendingStatus, id)
     },
+    removeMessageVerificationStatus: (state, action: PayloadAction<string>) => {
+      const id = action.payload
+      messageVerificationStatusAdapter.removeOne(state.messageVerificationStatus, id)
+    },
+    removePublicChannelMessage: (state, action: PayloadAction<{id: string, address: string}>) => {
+      const {id, address} = action.payload
+  
+      channelMessagesAdapter.removeOne(
+        state.publicChannelsMessagesBase.entities[address].messages,
+        id
+      )
+      messageVerificationStatusAdapter.removeOne(state.messageVerificationStatus, id)
+    },
     incomingMessages: (state, action: PayloadAction<IncomingMessages>) => {
       const { messages } = action.payload
       for (const message of messages) {

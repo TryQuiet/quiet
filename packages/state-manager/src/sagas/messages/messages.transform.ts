@@ -12,10 +12,10 @@ export const MessagesTransform = createTransform(
   (outboundState: MessagesState, _key) => {
     const messageVerificationStatus = Object.values(outboundState.messageVerificationStatus.entities)
 
-    const updatedMessageVerificationStatus: MessageVerificationStatus[] = messageVerificationStatus.reduce((result, status) => {
+    const updatedMessageVerificationStatus: MessageVerificationStatus[] = messageVerificationStatus.reduce((result, status:any) => {
       const entry: MessageVerificationStatus = {
         ...status,
-        isVerified: status.isVerified
+        isVerified: status.isVerified ? status.isVerified : status.verified
       }
       if (entry['verified']) delete entry['verified']
 
