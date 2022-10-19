@@ -1,7 +1,9 @@
 package com.zbaymobile;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
@@ -31,6 +33,13 @@ public class MainActivity extends ReactActivity {
     }
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(null);
+        Context context = getApplicationContext();
+        new BackendWorkManager(context).enqueueRequests();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         Intent intent = getIntent();
@@ -41,6 +50,12 @@ public class MainActivity extends ReactActivity {
         if (tag.equals("notification")) {
             ReactApplicationContext reactContext = (ReactApplicationContext) getReactNativeHost().getReactInstanceManager().getCurrentReactContext();
             this.sendNotificationInfo(reactContext, intent);
-        };
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("QUIET", "Application destroyed.");
     }
 }
