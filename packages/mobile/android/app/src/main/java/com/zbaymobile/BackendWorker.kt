@@ -58,12 +58,11 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
 
             // Wait for node assets to be copied
             delay(15000)
-            
-            startNodeProjectWithArguments("lib/mobileBackendManager.js -d $dataDirectoryPath -p $dataPort -c $controlPort -s $socksPort -t $httpTunnelPort -a $torPath")
-            delay(45000)
-
             val websocketConnectionPayload = WebsocketConnectionPayload(dataPort)
             NotificationModule.handleIncomingEvents("_WEBSOCKET_CONNECTION_", Gson().toJson(websocketConnectionPayload))
+            
+            startNodeProjectWithArguments("lib/mobileBackendManager.js -d $dataDirectoryPath -p $dataPort -c $controlPort -s $socksPort -t $httpTunnelPort -a $torPath")
+
         }
 
         // Indicate whether the work finished successfully with the Result

@@ -171,13 +171,11 @@ export class ConnectionsManager extends EventEmitter {
 
   public init = async () => {
     await this.spawnTor()
-    if (this.socketIOPort) {
-      const dataServer = new DataServer(this.socketIOPort)
-      await dataServer.listen()
-      this.io = dataServer.io
-    }
+    const dataServer = new DataServer(this.socketIOPort)
+    this.io = dataServer.io
     this.ioProxy = new IOProxy(this)
     this.initListeners()
+    await dataServer.listen()
   }
 
   public closeAllServices = async () => {

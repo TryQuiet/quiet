@@ -1,10 +1,8 @@
 import { Command } from 'commander'
-import { DataServer } from './socket/DataServer'
 import { ConnectionsManager } from './libp2p/connectionsManager'
 
 import logger from './logger'
 const log = logger('conn')
-
 
 export const runBackend = async (): Promise<any> => {
   // Enable triggering push notifications
@@ -24,13 +22,10 @@ export const runBackend = async (): Promise<any> => {
   program.parse(process.argv)
   const options = program.opts()
 
-  const dataServer = new DataServer(options.dataPort)
-  await dataServer.listen()
-
   const connectionsManager: ConnectionsManager = new ConnectionsManager({
     agentPort: options.socksPort,
     httpTunnelPort: options.httpTunnelPort,
-    io: dataServer.io,
+    socketIOPort: options.dataPort,
     options: {
       env: {
         appDataPath: options.appDataPath,
