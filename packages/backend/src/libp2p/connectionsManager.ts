@@ -37,24 +37,21 @@ import logger from '../logger'
 const log = logger('conn')
 
 export interface IConstructor {
-  host?: string
-  port?: number
   agentPort?: number
-  agentHost?: string
   options?: Partial<ConnectionsManagerOptions>
   socketIOPort?: number
-  io?: SocketIO.Server
-  storageClass?: any // TODO: what type?
   httpTunnelPort?: number
+  io?: SocketIO.Server
+
 }
 
 export interface Libp2pNodeParams {
   peerId: PeerId
   listenAddresses: string[]
   agent: Agent
-  cert?: string
-  key?: string
-  ca?: string[]
+  cert: string
+  key: string
+  ca: string[]
   localAddress: string
   bootstrapMultiaddrsList: string[]
   transportClass: Websockets
@@ -67,7 +64,7 @@ export interface InitLibp2pParams {
   addressPort: number
   targetPort: number
   bootstrapMultiaddrs: string[]
-  certs?: Certificates
+  certs: Certificates
 }
 
 export class ConnectionsManager extends EventEmitter {
@@ -86,12 +83,12 @@ export class ConnectionsManager extends EventEmitter {
   connectedPeers: Map<string, number>
   socketIOPort: number
 
-  constructor({ agentHost, agentPort, httpTunnelPort, options, storageClass, io, socketIOPort }: IConstructor) {
+  constructor({ io, agentPort, httpTunnelPort, options, socketIOPort }: IConstructor) {
     super()
     this.io = io || null
     this.agentPort = agentPort
     this.httpTunnelPort = httpTunnelPort
-    this.agentHost = agentHost
+    this.agentHost = 'localhost'
     this.socksProxyAgent = this.createAgent()
     this.options = {
       ...new ConnectionsManagerOptions(),
@@ -99,8 +96,8 @@ export class ConnectionsManager extends EventEmitter {
     }
     this.socketIOPort = socketIOPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
-    this.StorageCls = storageClass || Storage
-    this.libp2pTransportClass = options.libp2pTransportClass || WebsocketsOverTor
+    this.StorageCls = Storage
+    this.libp2pTransportClass = WebsocketsOverTor
     this.ioProxy = new IOProxy(this)
     this.connectedPeers = new Map()
 
@@ -134,11 +131,11 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public readonly createLibp2pAddress = (address: string, port: number, peerId: string): string => {
-    return createLibp2pAddress(address, port, peerId, this.options.wsType)
+    return createLibp2pAddress(address, port, peerId)
   }
 
   public readonly createLibp2pListenAddress = (address: string, port: number): string => {
-    return createLibp2pListenAddress(address, port, this.options.wsType)
+    return createLibp2pListenAddress(address, port)
   }
 
   public initListeners = () => {
@@ -148,21 +145,12 @@ export class ConnectionsManager extends EventEmitter {
 
   public createNetwork = async () => {
     const ports = await getPorts()
-    let hiddenService
-    if (this.tor) {
-      hiddenService = await this.tor.createNewHiddenService(443, ports.libp2pHiddenService)
+    const hiddenService = await this.tor.createNewHiddenService(443, ports.libp2pHiddenService)
       await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
-    } else {
-      hiddenService = {
-        onionAddress: '0.0.0.0',
-        privateKey: ''
-      }
-    }
-
+  
     const peerId = await PeerId.create()
     log(
-      `Created network for peer ${peerId.toB58String()}. Address: ${hiddenService.onionAddress as string
-      }`
+      `Created network for peer ${peerId.toB58String()}. Address: ${hiddenService.onionAddress}`
     )
     return {
       hiddenService,
@@ -172,13 +160,11 @@ export class ConnectionsManager extends EventEmitter {
 
   public init = async () => {
     await this.spawnTor()
-    if (this.socketIOPort) {
-      const dataServer = new DataServer(this.socketIOPort)
-      await dataServer.listen()
-      this.io = dataServer.io
-    }
+    const dataServer = new DataServer(this.socketIOPort)
+    this.io = dataServer.io
     this.ioProxy = new IOProxy(this)
     this.initListeners()
+    await dataServer.listen()
   }
 
   public closeAllServices = async () => {
@@ -186,7 +172,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public spawnTor = async () => {
-    const basePath = this.options.env.resourcesPath || ''
+    const basePath = this.options.env.resourcesPath
     this.tor = new Tor({
       torPath: torBinForPlatform(basePath),
       appDataPath: this.quietDir,
@@ -204,14 +190,7 @@ export class ConnectionsManager extends EventEmitter {
         detached: true
       }
     })
-
-    if (this.options.spawnTor) {
       await this.tor.init()
-      log('Spawned Tor')
-    } else {
-      this.tor.initTorControl()
-      log('Initialized tor control')
-    }
   }
 
   public initLibp2p = async (params: InitLibp2pParams): Promise<{ libp2p: Libp2p; localAddress: string }> => {
@@ -224,9 +203,9 @@ export class ConnectionsManager extends EventEmitter {
       listenAddresses: [this.createLibp2pListenAddress(params.address, params.addressPort)],
       agent: this.socksProxyAgent,
       localAddress: localAddress,
-      cert: params.certs?.certificate,
-      key: params.certs?.key,
-      ca: params.certs?.CA,
+      cert: params.certs.certificate,
+      key: params.certs.key,
+      ca: params.certs.CA,
       bootstrapMultiaddrsList: params.bootstrapMultiaddrs,
       transportClass: this.libp2pTransportClass,
       targetPort: params.targetPort

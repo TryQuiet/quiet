@@ -21,20 +21,15 @@ export const runBackend = async (): Promise<any> => {
 
   const options = program.opts()
 
-  const dataServer = new DataServer(options.dataPort)
-  await dataServer.listen()
-
   const connectionsManager: ConnectionsManager = new ConnectionsManager({
-    agentHost: 'localhost',
     agentPort: options.socksPort,
     httpTunnelPort: options.httpTunnelPort,
-    io: dataServer.io,
+    socketIOPort: options.dataPort,
     options: {
       env: {
         appDataPath: options.appDataPath
       },
       createPaths: false,
-      spawnTor: false,
       torControlPort: options.controlPort,
       torAuthCookie: options.authCookie
     }

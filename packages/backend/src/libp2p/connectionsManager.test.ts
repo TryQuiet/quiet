@@ -20,7 +20,6 @@ describe('Connections manager', () => {
     const torPassword = 'testTorPassword'
     const ports = await utils.getPorts()
     connectionsManager = new ConnectionsManager({
-      agentHost: 'localhost',
       agentPort: ports.socksPort,
       httpTunnelPort: ports.httpTunnelPort,
       io: new utils.DummyIOServer(),
@@ -28,7 +27,6 @@ describe('Connections manager', () => {
         env: {
           appDataPath: tmpAppDataPath
         },
-        spawnTor: false,
         torControlPort: ports.controlPort,
         torPassword
       }
@@ -43,7 +41,6 @@ describe('Connections manager', () => {
   it('throws error when tries to send certification request to the offline registrar', async () => {
     const ports = await utils.getPorts()
     connectionsManager = new ConnectionsManager({
-      agentHost: 'localhost',
       agentPort: ports.socksPort,
       httpTunnelPort: ports.httpTunnelPort,
       io: new utils.DummyIOServer(),
@@ -68,7 +65,6 @@ describe('Connections manager', () => {
     const address = '0.0.0.0'
     const ports = await utils.getPorts()
     connectionsManager = new ConnectionsManager({
-      agentHost: 'localhost',
       agentPort: ports.socksPort,
       httpTunnelPort: ports.httpTunnelPort,
       io: new utils.DummyIOServer(),
@@ -103,7 +99,6 @@ describe('Connections manager', () => {
       const peerId = await PeerId.create()
       const ports = await utils.getPorts()
       connectionsManager = new ConnectionsManager({
-        agentHost: 'localhost',
         agentPort: ports.socksPort,
         httpTunnelPort: ports.httpTunnelPort,
         io: new utils.DummyIOServer(),
@@ -112,7 +107,6 @@ describe('Connections manager', () => {
             appDataPath: tmpAppDataPath
           },
           torControlPort: ports.controlPort,
-          wsType
         }
       })
       const libp2pAddress = connectionsManager.createLibp2pAddress(
@@ -133,7 +127,6 @@ describe('Connections manager', () => {
       const port = 1234
       const ports = await utils.getPorts()
       connectionsManager = new ConnectionsManager({
-        agentHost: 'localhost',
         agentPort: ports.socksPort,
         httpTunnelPort: ports.httpTunnelPort,
         io: new utils.DummyIOServer(),
@@ -142,7 +135,6 @@ describe('Connections manager', () => {
             appDataPath: tmpAppDataPath
           },
           torControlPort: ports.controlPort,
-          wsType
         }
       })
       const libp2pListenAddress = connectionsManager.createLibp2pListenAddress(address, port)

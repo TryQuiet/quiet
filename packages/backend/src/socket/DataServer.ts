@@ -13,8 +13,8 @@ export class DataServer {
   private readonly _app: express.Application
   private readonly server: Server
   public io: SocketIO.Server
-  constructor(port?: number) {
-    this.PORT = port || 4677
+  constructor(port: number) {
+    this.PORT = port
     this._app = express()
     this._app.use(cors())
     this.server = createServer(this._app)

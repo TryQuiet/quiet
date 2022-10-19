@@ -22,8 +22,6 @@ export const runBackend = async () => {
   const resourcesPath = isDev ? null : options.resourcesPath.trim()
 
   const connectionsManager = new backend.ConnectionsManager({
-    port: options.libp2pHiddenService,
-    agentHost: 'localhost',
     agentPort: options.socksPort,
     httpTunnelPort: options.httpTunnelPort,
     socketIOPort: options.dataServerPort,
@@ -32,7 +30,6 @@ export const runBackend = async () => {
         appDataPath: `${options.appDataPath.trim()}/Quiet`,
         resourcesPath
       },
-      spawnTor: true,
       torControlPort: options.controlPort
     }
   })

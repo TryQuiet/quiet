@@ -55,7 +55,6 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
   const httpTunnelPort = await getPort()
   const appPath = createPath(createTmpDir(`quietIntegrationTest-${appName}`).name)
   const manager = new backend.ConnectionsManager({
-    agentHost: 'localhost',
     agentPort: proxyPort,
     httpTunnelPort,
     options: {
@@ -105,14 +104,12 @@ export const createAppWithoutTor = async (mockedState?: {
   const httpTunnelPort = await getPort()
   const appPath = createPath(createTmpDir(`quietIntegrationTest-${appName}`).name)
   const manager = new backend.ConnectionsManager({
-    agentHost: 'localhost',
     agentPort: proxyPort,
     httpTunnelPort,
     options: {
       env: {
         appDataPath: appDataPath || appPath
       },
-      libp2pTransportClass: Websockets,
       torControlPort: controlPort
     },
     io: server1.io

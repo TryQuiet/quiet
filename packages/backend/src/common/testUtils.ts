@@ -36,7 +36,7 @@ export const rootPermsData: PermsData = {
 tmp.setGracefulCleanup()
 
 export const testBootstrapMultiaddrs = [
-  createLibp2pAddress('abcd.onion', 1111, 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4', 'wss')
+  createLibp2pAddress('abcd.onion', 1111, 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4')
 ]
 
 export const spawnTorProcess = async (quietDirPath: string, ports?: Ports): Promise<Tor> => {
@@ -65,7 +65,6 @@ export const createMinConnectionManager = (
 ): ConnectionsManager => {
   if (!options.env?.appDataPath) throw new Error('Test connection manager is lacking appDataPath!')
   return new ConnectionsManager({
-    agentHost: 'localhost',
     agentPort: 2222,
     httpTunnelPort: 3333,
     io: new DummyIOServer(),
@@ -83,10 +82,10 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
 
   return ConnectionsManager.createBootstrapNode({
     peerId,
-    listenAddresses: [createLibp2pListenAddress('localhost', virtPort, 'wss')],
+    listenAddresses: [createLibp2pListenAddress('localhost', virtPort)],
     bootstrapMultiaddrsList: testBootstrapMultiaddrs,
     agent: new HttpsProxyAgent({ port: 1234, host: 'localhost' }),
-    localAddress: createLibp2pAddress('localhost', virtPort, peerId.toB58String(), 'wss'),
+    localAddress: createLibp2pAddress('localhost', virtPort, peerId.toB58String()),
     transportClass: WebsocketsOverTor,
     cert: pems.userCert,
     key: pems.userKey,
