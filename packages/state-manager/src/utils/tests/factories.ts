@@ -183,21 +183,21 @@ export const getFactory = async (store: Store) => {
           if (signatureGenerated) {
             await factory.create('MessageVerificationStatus', {
               message: action.payload.message,
-              verified: true
+              isVerified: true
             })
           } else {
             // Verify the signature
             const crypto = getCrypto()
             const cryptoKey = await keyObjectFromString(action.payload.message.pubKey, crypto)
             const signature = stringToArrayBuffer(action.payload.message.signature)
-            const verified = await verifySignature(
+            const isVerified = await verifySignature(
               signature,
               action.payload.message.message,
               cryptoKey
             )
             await factory.create('MessageVerificationStatus', {
               message: action.payload.message,
-              verified: verified
+              isVerified
             })
           }
         }
@@ -224,7 +224,7 @@ export const getFactory = async (store: Store) => {
 
   factory.define('MessageVerificationStatus', messages.actions.test_message_verification_status, {
     message: factory.assoc('Message'),
-    verified: true
+    isVerified: true
   })
 
   factory.define('MessageSendingStatus', messages.actions.addMessagesSendingStatus, {

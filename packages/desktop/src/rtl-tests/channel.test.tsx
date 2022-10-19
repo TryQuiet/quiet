@@ -30,7 +30,8 @@ import {
   files,
   DownloadState,
   AUTODOWNLOAD_SIZE_LIMIT,
-  SendMessagePayload
+  SendMessagePayload,
+  MessageVerificationStatus
 } from '@quiet/state-manager'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -200,8 +201,17 @@ describe('Channel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketActionTypes.INCOMING_MESSAGES,
         {
-          messages: [authenticMessage, spoofedMessage],
-          communityId: community.id
+          messages: [authenticMessage],
+          communityId: community.id,
+          isVerified: true
+        }
+      ])
+      yield* apply(socket.socketClient, socket.socketClient.emit, [
+        SocketActionTypes.INCOMING_MESSAGES,
+        {
+          messages: [spoofedMessage],
+          communityId: community.id,
+          isVerified: false
         }
       ])
     }
@@ -229,13 +239,6 @@ describe('Channel', () => {
       })
     ).payload.message
 
-    store.dispatch(
-      messages.actions.addPublicKeyMapping({
-        publicKey: aliceMessage.pubKey,
-        cryptoKey: undefined
-      })
-    )
-
     window.HTMLElement.prototype.scrollTo = jest.fn()
 
     renderComponent(
@@ -258,7 +261,8 @@ describe('Channel', () => {
         SocketActionTypes.INCOMING_MESSAGES,
         {
           messages: [aliceMessage],
-          communityId: community.id
+          communityId: community.id,
+          isVerified: true
         }
       ])
     }
@@ -457,8 +461,7 @@ describe('Channel', () => {
             channelAddress: 'general',
             signature: '',
             pubKey: ''
-          },
-          verifyAutomatically: true
+          }
         })
       ).payload.message
       messages.push(message)
@@ -474,22 +477,25 @@ describe('Channel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketActionTypes.INCOMING_MESSAGES,
         {
-          messages: [message3],
-          communityId: community.id
+          messages: [message1],
+          communityId: community.id,
+          isVerified: true
         }
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketActionTypes.INCOMING_MESSAGES,
         {
-          messages: [message1],
-          communityId: community.id
+          messages: [message3],
+          communityId: community.id,
+          isVerified: true
         }
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketActionTypes.INCOMING_MESSAGES,
         {
           messages: [message2],
-          communityId: community.id
+          communityId: community.id,
+          isVerified: true
         }
       ])
     }
@@ -719,19 +725,18 @@ describe('Channel', () => {
         "Messages/addMessageVerificationStatus",
         "Messages/incomingMessages",
         "PublicChannels/cacheMessages",
+        "Messages/addMessageVerificationStatus",
         "PublicChannels/updateNewestMessage",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "PublicChannels/cacheMessages",
         "Messages/setDisplayedMessagesNumber",
-        "Messages/addPublicKeyMapping",
-        "Messages/addMessageVerificationStatus",
         "Files/broadcastHostedFile",
         "Messages/removePendingMessageStatus",
         "Messages/incomingMessages",
         "PublicChannels/cacheMessages",
-        "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
+        "Files/updateDownloadStatus",
       ]
     `)
   })
@@ -808,6 +813,7 @@ describe('Channel', () => {
           const data = input as socketEventData<[DownloadFilePayload]>
           const payload = data[0]
           expect(payload.metadata.cid).toEqual(missingFile.cid)
+          await new Promise(resolve => setTimeout(resolve, 1000))
           return socket.socketClient.emit(SocketActionTypes.UPDATE_MESSAGE_MEDIA, {
             ...missingFile,
             path: `${__dirname}/test-image.jpeg`
@@ -850,8 +856,10 @@ describe('Channel', () => {
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
-        "Messages/addPublicKeyMapping",
+        "Files/updateMessageMedia",
+        "Messages/incomingMessages",
         "Messages/addMessageVerificationStatus",
+        "PublicChannels/updateNewestMessage",
         "PublicChannels/cacheMessages",
       ]
     `)
@@ -944,13 +952,12 @@ describe('Channel', () => {
         "Messages/addMessageVerificationStatus",
         "Messages/incomingMessages",
         "PublicChannels/cacheMessages",
+        "Messages/addMessageVerificationStatus",
         "PublicChannels/updateNewestMessage",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "PublicChannels/cacheMessages",
         "Messages/setDisplayedMessagesNumber",
-        "Messages/addPublicKeyMapping",
-        "Messages/addMessageVerificationStatus",
       ]
     `)
   })
@@ -1043,7 +1050,8 @@ describe('Channel', () => {
         SocketActionTypes.INCOMING_MESSAGES,
         {
           messages: [message],
-          communityId: community.id
+          communityId: community.id,
+          isVerified: true
         }
       ])
     }
@@ -1061,9 +1069,8 @@ describe('Channel', () => {
         "Messages/removePendingMessageStatus",
         "Messages/incomingMessages",
         "Files/updateDownloadStatus",
-        "PublicChannels/updateNewestMessage",
-        "Messages/addPublicKeyMapping",
         "Messages/addMessageVerificationStatus",
+        "PublicChannels/updateNewestMessage",
         "PublicChannels/cacheMessages",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
@@ -1161,7 +1168,8 @@ describe('Channel', () => {
         SocketActionTypes.INCOMING_MESSAGES,
         {
           messages: [message],
-          communityId: community.id
+          communityId: community.id,
+          isVerified: true
         }
       ])
     }
@@ -1177,9 +1185,8 @@ describe('Channel', () => {
         "Messages/removePendingMessageStatus",
         "Messages/incomingMessages",
         "Files/updateDownloadStatus",
-        "PublicChannels/updateNewestMessage",
-        "Messages/addPublicKeyMapping",
         "Messages/addMessageVerificationStatus",
+        "PublicChannels/updateNewestMessage",
         "PublicChannels/cacheMessages",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
@@ -1272,12 +1279,21 @@ describe('Channel', () => {
       await runSaga(mockIncomingMessages).toPromise()
     })
 
+    const verificationStatus: MessageVerificationStatus = {
+      publicKey: message.pubKey,
+      signature: message.signature,
+      isVerified: true
+    }
+
+    store.dispatch(messages.actions.addMessageVerificationStatus(verificationStatus))
+
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketActionTypes.INCOMING_MESSAGES,
         {
           messages: [message],
-          communityId: community.id
+          communityId: community.id,
+          isVerfied: true
         }
       ])
     }
@@ -1304,8 +1320,8 @@ describe('Channel', () => {
         "Messages/removePendingMessageStatus",
         "Messages/incomingMessages",
         "Files/updateDownloadStatus",
+        "Messages/addMessageVerificationStatus",
         "PublicChannels/updateNewestMessage",
-        "Messages/addPublicKeyMapping",
         "Messages/addMessageVerificationStatus",
         "PublicChannels/cacheMessages",
         "Messages/lazyLoading",

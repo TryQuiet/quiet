@@ -2,7 +2,9 @@ import { Crypto } from '@peculiar/webcrypto'
 import {
   CertFieldsTypes,
   getCertFieldValue,
+  keyObjectFromString,
   parseCertificate,
+  verifySignature,
   verifyUserCert
 } from '@quiet/identity'
 import {
@@ -24,7 +26,7 @@ import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import PeerId from 'peer-id'
-import { CryptoEngine, setEngine } from 'pkijs'
+import { CryptoEngine, getCrypto, setEngine } from 'pkijs'
 import {
   IMessageThread,
   DirectMessagesRepo,
@@ -41,7 +43,7 @@ import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
 import fs from 'fs'
 import { promisify } from 'util'
-
+import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
 const sizeOfPromisified = promisify(sizeOf)
 
@@ -75,6 +77,7 @@ export class Storage {
   public ipfsRepoPath: string
   readonly downloadCancellations: string[]
   private readonly __communityId: string
+  private readonly publicKeysMap: Map<string, CryptoKey>
 
   constructor(
     quietDir: string,
@@ -92,6 +95,7 @@ export class Storage {
     this.orbitDbDir = path.join(this.quietDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
     this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
     this.downloadCancellations = []
+    this.publicKeysMap = new Map()
   }
 
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
@@ -270,6 +274,19 @@ export class Storage {
     )
   }
 
+  async verifyMessage(message: ChannelMessage): Promise<boolean> {
+    const crypto = getCrypto()
+    const signature = stringToArrayBuffer(message.signature)
+    let cryptoKey = this.publicKeysMap.get(message.pubKey)
+
+    if (!cryptoKey) {
+      cryptoKey = await keyObjectFromString(message.pubKey, crypto)
+      this.publicKeysMap.set(message.pubKey, cryptoKey)
+    }
+
+    return await verifySignature(signature, message.message, cryptoKey)
+  }
+
   protected getAllEventLogEntries<T>(db: EventStore<T>): T[] {
     return db
       .iterator({ limit: -1 })
@@ -294,17 +311,23 @@ export class Storage {
     if (repo && !repo.eventsAttached) {
       log('Subscribing to channel ', channelData.address)
 
-      db.events.on('write', (_address, entry) => {
+      db.events.on('write', async (_address, entry) => {
         log(`Writing to public channel db ${channelData.address}`)
+        const verified = await this.verifyMessage(entry.payload.value)
+
         this.io.loadMessages({
-          messages: [entry.payload.value]
+          messages: [entry.payload.value],
+          isVerified: verified
         })
       })
 
-      db.events.on('replicate.progress', (address, _hash, entry, progress, total) => {
+      db.events.on('replicate.progress', async (address, _hash, entry, progress, total) => {
         log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
+        const verified = await this.verifyMessage(entry.payload.value)
+
         this.io.loadMessages({
-          messages: [entry.payload.value]
+          messages: [entry.payload.value],
+          isVerified: verified
         })
         // Display push notifications on mobile
         if (process.env.BACKEND === 'mobile') {
@@ -312,7 +335,9 @@ export class Storage {
           // Do not notify about old messages
           if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME)) return
           const bridge = require('rn-bridge')
-          bridge.channel.post(BASE_NOTIFICATION_CHANNEL, JSON.stringify(message))
+          if (verified) {
+            bridge.channel.post(BASE_NOTIFICATION_CHANNEL, JSON.stringify(message))
+          }
         }
       })
       db.events.on('replicated', async address => {
@@ -351,7 +376,8 @@ export class Storage {
       filteredMessages.push(...messages.filter(i => i.id === id))
     }
     this.io.loadMessages({
-      messages: filteredMessages
+      messages: filteredMessages,
+      isVerified: true
     })
   }
 
