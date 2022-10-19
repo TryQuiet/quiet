@@ -62,9 +62,9 @@ export const messagesSlice = createSlice({
       const id = action.payload
       messageVerificationStatusAdapter.removeOne(state.messageVerificationStatus, id)
     },
-    removePublicChannelMessage: (state, action: PayloadAction<{id: string, address: string}>) => {
-      const {id, address} = action.payload
-  
+    removePublicChannelMessage: (state, action: PayloadAction<{id: string; address: string}>) => {
+      const { id, address } = action.payload
+
       channelMessagesAdapter.removeOne(
         state.publicChannelsMessagesBase.entities[address].messages,
         id
