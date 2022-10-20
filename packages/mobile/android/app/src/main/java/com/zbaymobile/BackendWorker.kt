@@ -96,7 +96,7 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
                 projectPath = "$filesDirPath/$NODEJS_PROJECT_DIR"
                 builtinModulesPath = "$filesDirPath/$NODEJS_BUILTIN_MODULES"
                 trashDirPath = "$filesDirPath/$NODEJS_TRASH_DIR"
-                nativeAssetsPath = NODEJS_BUILTIN_NATIVE_ASSETS_PREFIX + "x86"
+                nativeAssetsPath = NODEJS_BUILTIN_NATIVE_ASSETS_PREFIX + "arm64-v8a"
 
                 // Init nodejs project
                 init()
@@ -306,18 +306,6 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
 
         copyNativeAssetsFrom()
 
-        // Do the builtin-modules copy too.
-        // If a previous built-in modules folder is present, delete it.
-        val modulesDirReference = File(builtinModulesPath)
-        if (modulesDirReference.exists()) {
-            deleteFolderRecursively(modulesDirReference)
-        }
-
-        // Copy the nodejs built-in modules to the application's data path.
-        copyAssetFolder(
-            "builtin_modules",
-            builtinModulesPath
-        )
 
         saveLastUpdateTime()
         Log.d("NODE_ASSETS", "Node assets copy completed successfully")

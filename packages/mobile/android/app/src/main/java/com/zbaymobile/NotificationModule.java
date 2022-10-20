@@ -12,7 +12,6 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
 import com.zbaymobile.Utils.Const;
 import com.zbaymobile.Utils.Utils;
 
@@ -80,9 +79,9 @@ public class NotificationModule extends ReactContextBaseJavaModule {
     // Sends an event through the App Event Emitter.
     private static void sendEvent(String eventName,
                            @Nullable WritableMap params) {
-        reactContext
-                .getJSModule(RCTNativeAppEventEmitter.class)
-                .emit(eventName, params);
+//        reactContext
+//                .getJSModule(RCTNativeAppEventEmitter.class)
+//                .emit(eventName, params);
     }
 
     @ReactMethod
