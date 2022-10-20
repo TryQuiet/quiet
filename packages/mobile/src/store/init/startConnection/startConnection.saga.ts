@@ -7,7 +7,7 @@ import { initialRoutingSaga } from '../initialRouting/initialRouting.saga'
 import { eventChannel } from 'redux-saga'
 
 export function* startConnectionSaga(
-  action: PayloadAction<ReturnType<typeof initActions.startConnection>['payload']>
+  action: PayloadAction<ReturnType<typeof initActions.startWebsocketConnection>['payload']>
 ): Generator {
   const dataPort = action.payload.dataPort
 
@@ -15,7 +15,7 @@ export function* startConnectionSaga(
   yield* fork(handleSocketLifecycleActions, socket)
 
   // Handle opening/restoring connection
-  yield* takeEvery(initActions.setConnected, setConnectedSaga, socket)
+  yield* takeEvery(initActions.setWebsocketConnected, setConnectedSaga, socket)
 }
 
 function* setConnectedSaga(socket: Socket): Generator {
@@ -24,7 +24,7 @@ function* setConnectedSaga(socket: Socket): Generator {
   // Screen redirection
   yield* fork(initialRoutingSaga)
   // Handle suspending current connection
-  yield* takeEvery(initActions.suspendConnection, cancelRootTaskSaga, task)
+  yield* takeEvery(initActions.suspendWebsocketConnection, cancelRootTaskSaga, task)
 }
 
 function* handleSocketLifecycleActions(socket: Socket): Generator {
@@ -36,16 +36,16 @@ function* handleSocketLifecycleActions(socket: Socket): Generator {
 
 function subscribeSocketLifecycle(socket: Socket) {
   return eventChannel<
-  ReturnType<typeof initActions.setConnected> |
-  ReturnType<typeof initActions.suspendConnection>
+  ReturnType<typeof initActions.setWebsocketConnected> |
+  ReturnType<typeof initActions.suspendWebsocketConnection>
   >(emit => {
     socket.on('connect', async () => {
       console.log('websocket connected')
-      emit(initActions.setConnected())
+      emit(initActions.setWebsocketConnected())
     })
     socket.on('disconnect', () => {
       console.log('closing socket connection')
-      emit(initActions.suspendConnection())
+      emit(initActions.suspendWebsocketConnection())
     })
     return () => {}
   })

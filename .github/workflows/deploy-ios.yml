@@ -75,7 +75,9 @@ jobs:
 
       - name: Upload ipa
         run: |
-          cd ./packages/mobile/ios && xcrun altool --upload-app \
+          cd ./packages/mobile/ios && xcrun altool 
+          --upload-app \
+          --type ios \
           --file build/ZbayMobile.ipa \
           --type ios \
           -u $APPSTORE_USER -p $APPSTORE_PASSWORD \

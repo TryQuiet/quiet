@@ -81,7 +81,7 @@ export class ConnectionsManager extends EventEmitter {
   connectedPeers: Map<string, number>
   socketIOPort: number
 
-  constructor({ io, agentPort, httpTunnelPort, options, socketIOPort }: IConstructor) {
+  constructor({ agentPort, httpTunnelPort, options, io, socketIOPort }: IConstructor) {
     super()
     this.io = io || null
     this.agentPort = agentPort
@@ -157,7 +157,11 @@ export class ConnectionsManager extends EventEmitter {
 
   public init = async () => {
     await this.spawnTor()
-    await this.spawnDataServer()
+    const dataServer = new DataServer(this.socketIOPort)
+    this.io = dataServer.io
+    this.ioProxy = new IOProxy(this)
+    this.initListeners()
+    await dataServer.listen()
   }
   
   public closeAllServices = async () => {

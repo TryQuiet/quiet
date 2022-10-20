@@ -7,11 +7,11 @@ import { StoreKeys } from '../../store.keys'
 import { initSelectors } from '../init.selectors'
 import { initReducer, InitState } from '../init.slice'
 
-import { doOnRestoreSaga } from './doOnRestore.saga'
+import { onRestoreSaga } from './onRestore.saga'
 
-describe('doOnRestoreSaga', () => {
+describe('onRestoreSaga', () => {
   test('replace screen on restore', () => {
-    expectSaga(doOnRestoreSaga)
+    expectSaga(onRestoreSaga)
       .withReducer(combineReducers({ [StoreKeys.Init]: initReducer }), {
         [StoreKeys.Init]: {
           ...new InitState()

@@ -136,11 +136,16 @@ android {
         applicationId "com.zbaymobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 116
-        versionName "0.5.3-alpha.13"
+        versionCode 120
+        versionName "0.5.4-alpha.0"
         resValue "string", "build_config_package", "com.zbaymobile"
         ndk {
             abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+        }
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
         }
     }
     splits {
@@ -184,6 +189,11 @@ android {
             signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
         }
     }
     flavorDimensions "version"
@@ -246,6 +256,8 @@ dependencies {
 
     implementation "androidx.core:core-ktx:$kotlin_version"
 
+    implementation 'com.google.code.gson:gson:2.9.1'
+
     implementation project(':react-native-fs')
 
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
@@ -253,6 +265,10 @@ dependencies {
     api 'info.guardianproject:jtorctl:0.4.5.7'
     // implementation 'info.guardianproject:tor-android:0.4.5.7'
     implementation 'org.torproject:tor-android-binary:0.4.4.6'
+
+    // Work manager
+    implementation("androidx.work:work-runtime:2.7.1")
+    implementation("androidx.work:work-runtime-ktx:2.7.1")
     
     // For animated GIF support
     implementation 'com.facebook.fresco:fresco:2.6.0'

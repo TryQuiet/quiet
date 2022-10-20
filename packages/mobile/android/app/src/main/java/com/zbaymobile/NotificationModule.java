@@ -7,11 +7,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
+import com.janeasystems.rn_nodejs_mobile.RNNodeJsMobileModule;
 import com.zbaymobile.Utils.Const;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.zbaymobile.Utils.Utils;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -24,11 +28,14 @@ import org.json.JSONObject;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import javax.annotation.Nullable;
+
 public class NotificationModule extends ReactContextBaseJavaModule {
 
-    private static final String SYSTEM_CHANNEL = "_SYSTEM_";
     private static final String BASE_NOTIFICATION_CHANNEL = "_BASE_NOTIFICATION_";
     private static final String RICH_NOTIFICATION_CHANNEL = "_RICH_NOTIFICATION_";
+    public static final String WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_";
+    public static final String INIT_CHECK_CHANNEL = "_INIT_CHECK_";
 
     private static ReactApplicationContext reactContext;
 
@@ -40,12 +47,47 @@ public class NotificationModule extends ReactContextBaseJavaModule {
 
     public NotificationModule(ReactApplicationContext reactContext) {
         super(reactContext);
-        this.reactContext = reactContext;
+        NotificationModule.reactContext = reactContext;
+    }
+
+    public static void handleIncomingEvents(String channelName, String payload) {
+        switch (channelName) {
+            case BASE_NOTIFICATION_CHANNEL:
+            case RICH_NOTIFICATION_CHANNEL:
+                notify(channelName, payload);
+                break;
+            case WEBSOCKET_CONNECTION_CHANNEL:
+            case INIT_CHECK_CHANNEL:
+                passDataToReact(channelName, payload);
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    public static void passDataToReact(String channelName, String payload) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                WritableMap params = Arguments.createMap();
+                params.putString("channelName", channelName);
+                params.putString("payload", payload);
+                sendEvent("backend", params);
+            }
+        }).start();
+    }
+
+    // Sends an event through the App Event Emitter.
+    private static void sendEvent(String eventName,
+                           @Nullable WritableMap params) {
+        reactContext
+                .getJSModule(RCTNativeAppEventEmitter.class)
+                .emit(eventName, params);
     }
 
     @ReactMethod
     public static void notify(String channelName, String payload) {
-        if (channelName.equals(SYSTEM_CHANNEL)) return; // Ignore system messages
         if (!channelName.equals(RICH_NOTIFICATION_CHANNEL) && isAppOnForeground())
             return; // Only RICH_NOTIFICATION can be shown in foreground
         
@@ -72,7 +114,7 @@ public class NotificationModule extends ReactContextBaseJavaModule {
                 channelAddress = message.getString("channelAddress");
                 String messageContent = message.getString("message");
                 title = String.format("#%s", channelAddress);
-                text = truncate(messageContent, 32);
+                text = Utils.truncate(messageContent, 32);
             } catch (JSONException e) {
                 Log.e("NOTIFICATION", "incorrect RICH_NOTIFICATION payload", e);
                 return;
@@ -84,7 +126,7 @@ public class NotificationModule extends ReactContextBaseJavaModule {
                 channelAddress = message.getString("channelAddress");
                 String messageContent = message.getString("message");
                 title = String.format("#%s", channelAddress);
-                text = truncate(messageContent, 32);
+                text = Utils.truncate(messageContent, 32);
                 /** Messages sent in public channels are not additionally encoded so we can access them as a plain text in this place.
                 Nevertheless we'd want to display only limited information at this stage. **/
                 // title = "Quiet";
@@ -99,7 +141,9 @@ public class NotificationModule extends ReactContextBaseJavaModule {
 
         resultIntent.putExtra("channelAddress", channelAddress);
         resultIntent.putExtra("TAG", "notification");
-        Integer notificationId = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
+
+        int notificationId = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
+
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(reactContext);
         stackBuilder.addNextIntentWithParentStack(resultIntent);
         PendingIntent resultPendingIntent =
@@ -131,13 +175,5 @@ public class NotificationModule extends ReactContextBaseJavaModule {
             }
         }
         return false;
-    }
-
-    private static String truncate(String message, Integer length) {
-        if (message.length() > length) {
-            return String.format("%s...", message.substring(0, length));
-        } else {
-            return message;
-        }
     }
 }
