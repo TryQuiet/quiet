@@ -30,7 +30,7 @@ extern "C" int callIntoNode(int argc, char *argv[])
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_zbaymobile_BackendWorker_getCurrentABIName(
+Java_com_zbaymobile_NodeProjectManager_getCurrentABIName(
         JNIEnv *env,
         jobject /* this */) {
     return env->NewStringUTF(CURRENT_ABI_NAME);

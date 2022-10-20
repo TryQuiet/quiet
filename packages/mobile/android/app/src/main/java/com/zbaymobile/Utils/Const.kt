@@ -16,7 +16,6 @@ object Const {
     const val NODEJS_ASSETS_TAG = "NODEJS_ASSETS"
     const val NODEJS_SHARED_PREFS = "NODEJS_MOBILE_PREFS"
     const val NODEJS_PROJECT_DIR = "nodejs-project"
-    const val NODEJS_BUILTIN_MODULES = "nodejs-builtin_modules"
     const val NODEJS_BUILTIN_NATIVE_ASSETS_PREFIX = "nodejs-native-assets-"
     const val NODEJS_TRASH_DIR = "nodejs-project-trash"
 }
