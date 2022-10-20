@@ -92,6 +92,7 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
         withContext(Dispatchers.IO) {
             launch {
                 // The paths where we expect the node project assets to be at runtime.
+                filesDirPath = applicationContext.filesDir.absolutePath
                 projectPath = "$filesDirPath/$NODEJS_PROJECT_DIR"
                 builtinModulesPath = "$filesDirPath/$NODEJS_BUILTIN_MODULES"
                 trashDirPath = "$filesDirPath/$NODEJS_TRASH_DIR"
