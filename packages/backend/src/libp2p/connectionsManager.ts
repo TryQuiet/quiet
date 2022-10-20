@@ -42,7 +42,6 @@ export interface IConstructor {
   socketIOPort?: number
   httpTunnelPort?: number
   io?: SocketIO.Server
-
 }
 
 export interface Libp2pNodeParams {
@@ -76,7 +75,6 @@ export class ConnectionsManager extends EventEmitter {
   quietDir: string
   io: SocketIO.Server
   ioProxy: IOProxy
-  libp2pTransportClass: any
   StorageCls: any
   tor: Tor
   libp2pInstance: Libp2p
@@ -97,7 +95,6 @@ export class ConnectionsManager extends EventEmitter {
     this.socketIOPort = socketIOPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.StorageCls = Storage
-    this.libp2pTransportClass = WebsocketsOverTor
     this.ioProxy = new IOProxy(this)
     this.connectedPeers = new Map()
 
@@ -160,15 +157,19 @@ export class ConnectionsManager extends EventEmitter {
 
   public init = async () => {
     await this.spawnTor()
+    await this.spawnDataServer()
+  }
+  
+  public closeAllServices = async () => {
+    await this.ioProxy.closeAll()
+  }
+  
+  public spawnDataServer = async () => {
     const dataServer = new DataServer(this.socketIOPort)
     this.io = dataServer.io
     this.ioProxy = new IOProxy(this)
     this.initListeners()
     await dataServer.listen()
-  }
-
-  public closeAllServices = async () => {
-    await this.ioProxy.closeAll()
   }
 
   public spawnTor = async () => {
@@ -207,7 +208,7 @@ export class ConnectionsManager extends EventEmitter {
       key: params.certs.key,
       ca: params.certs.CA,
       bootstrapMultiaddrsList: params.bootstrapMultiaddrs,
-      transportClass: this.libp2pTransportClass,
+      transportClass: WebsocketsOverTor,
       targetPort: params.targetPort
     }
     const libp2p = ConnectionsManager.createBootstrapNode(nodeParams)
@@ -262,6 +263,7 @@ export class ConnectionsManager extends EventEmitter {
     })
   }
 
+  // Move to registration class
   public sendCertificateRegistrationRequest = async (
     serviceAddress: string,
     userCsr: string,
@@ -299,6 +301,7 @@ export class ConnectionsManager extends EventEmitter {
     }
   }
 
+  // Create Libp2p 'manager' class
   public static readonly createBootstrapNode = (params: Libp2pNodeParams): Libp2p => {
     return ConnectionsManager.defaultLibp2pNode(params)
   }

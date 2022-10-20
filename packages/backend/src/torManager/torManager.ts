@@ -253,7 +253,7 @@ export class Tor {
     targetPort: number
   ): Promise<{ onionAddress: string; privateKey: string }> {
     const status = await this.torControl.sendCommand(
-      `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
+      `ADD_ONION NEW:BEST Flags=Detach Port=$443,127.0.0.1:${targetPort}`
     )
 
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
