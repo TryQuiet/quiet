@@ -149,7 +149,7 @@ android {
         versionName "0.5.4-alpha.0"
         resValue "string", "build_config_package", "com.zbaymobile"
         ndk {
-            abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+            abiFilters "armeabi-v7a", "arm64-v8a"
         }
         externalNativeBuild {
             cmake {
@@ -443,7 +443,7 @@ if ("1".equals(shouldRebuildNativeModules)) {
             }
         }
         workingDir "${rootProject.buildDir}/nodejs-assets/nodejs-project/"
-        commandLine nodeCommandName, "${project.projectDir}/../scripts/patch-package.js", "${rootProject.buildDir}/nodejs-assets/nodejs-project/node_modules/"
+        commandLine nodeCommandName, "${project.projectDir}/../../scripts/patch-package.js", "${rootProject.buildDir}/nodejs-assets/nodejs-project/node_modules/"
         doLast {
             if (OperatingSystem.current().isMacOsX()) {
                 // Deletes the helper script so it doesn't get included in the APK.
@@ -575,7 +575,7 @@ if ("1".equals(shouldRebuildNativeModules)) {
                 }
                 exec {
                     workingDir "${rootProject.buildDir}/nodejs-native-assets-temp-build/nodejs-native-assets-${abi_name}/nodejs-project/"
-                    commandLine nodeCommandName, "${project.projectDir}/../scripts/patch-package.js", "${rootProject.buildDir}/nodejs-native-assets-temp-build/nodejs-native-assets-${abi_name}/nodejs-project/node_modules/"
+                    commandLine nodeCommandName, "${project.projectDir}/../../scripts/patch-package.js", "${rootProject.buildDir}/nodejs-native-assets-temp-build/nodejs-native-assets-${abi_name}/nodejs-project/node_modules/"
                 }
                 new File("${rootProject.buildDir}/nodejs-native-assets-temp-build/nodejs-native-assets-${abi_name}/copy.timestamp").text = "${new Date().format('yyyy-MM-dd HH:mm:ss')}"
             }
@@ -591,10 +591,10 @@ if ("1".equals(shouldRebuildNativeModules)) {
             environment ('npm_config_node_engine', 'v8' )
             environment ('npm_config_nodedir', "${project.projectDir}/libnode/" )
             String npm_gyp_path_to_use; // Check common paths for nodejs-mobile-gyp
-            if ( file("${project.projectDir}/../../nodejs-mobile-gyp/bin/node-gyp.js").exists() ) {
-                npm_gyp_path_to_use = "${project.projectDir}/../../nodejs-mobile-gyp/bin/node-gyp.js";
+            if ( file("${rootProject.projectDir}/../../nodejs-mobile-gyp/bin/node-gyp.js").exists() ) {
+                npm_gyp_path_to_use = "${rootProject.projectDir}/../../nodejs-mobile-gyp/bin/node-gyp.js";
             } else {
-                npm_gyp_path_to_use = "${project.projectDir}/../node_modules/nodejs-mobile-gyp/bin/node-gyp.js";
+                npm_gyp_path_to_use = "${rootProject.projectDir}/../node_modules/nodejs-mobile-gyp/bin/node-gyp.js";
             }
             environment ('npm_config_node_gyp', npm_gyp_path_to_use )
             environment ('npm_config_arch', temp_arch)

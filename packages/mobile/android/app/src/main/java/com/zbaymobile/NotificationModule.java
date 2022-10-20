@@ -13,7 +13,6 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
-import com.janeasystems.rn_nodejs_mobile.RNNodeJsMobileModule;
 import com.zbaymobile.Utils.Const;
 import com.zbaymobile.Utils.Utils;
 
@@ -141,9 +140,12 @@ public class NotificationModule extends ReactContextBaseJavaModule {
 
         resultIntent.putExtra("channelAddress", channelAddress);
         resultIntent.putExtra("TAG", "notification");
-        Integer notificationId = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
+
+        int notificationId = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
+
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(reactContext);
         stackBuilder.addNextIntentWithParentStack(resultIntent);
+
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(notificationId,
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -155,8 +157,6 @@ public class NotificationModule extends ReactContextBaseJavaModule {
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(resultPendingIntent);
-
-        int notificationId = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(reactContext.getApplicationContext());
         notificationManager.notify(notificationId, builder.build());

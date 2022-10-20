@@ -20,11 +20,6 @@ public class MainActivity extends ReactActivity {
         return "ZbayMobile";
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(null);
-    }
-
     private void sendNotificationInfo (ReactApplicationContext reactContext, Intent intent) {
         String channelAddress = intent.getStringExtra("channelAddress");
         if (channelAddress != null) {
