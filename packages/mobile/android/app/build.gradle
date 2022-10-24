@@ -145,8 +145,8 @@ android {
         applicationId "com.zbaymobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 120
-        versionName "0.5.4-alpha.0"
+        versionCode 121
+        versionName "0.5.4-alpha.1"
         resValue "string", "build_config_package", "com.zbaymobile"
         ndk {
             abiFilters "armeabi-v7a", "arm64-v8a"
@@ -162,7 +162,7 @@ android {
             reset()
             enable enableSeparateBuildPerCPUArchitecture
             universalApk false  // If true, also generate a universal APK
-            include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+            include "armeabi-v7a", "arm64-v8a"
         }
     }
     signingConfigs {
@@ -226,7 +226,7 @@ android {
             // For each separate APK per architecture, set a unique version code as described here:
             // https://developer.android.com/studio/build/configure-apk-splits.html
             // Example: versionCode 1 will generate 1001 for armeabi-v7a, 1002 for x86, etc.
-            def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
+            def versionCodes = ["armeabi-v7a": 1, "arm64-v8a": 2]
             def abi = output.getFilter(OutputFile.ABI)
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
@@ -461,7 +461,7 @@ if ("1".equals(shouldRebuildNativeModules)) {
     def nativeModulesABIs = android.defaultConfig.ndk.abiFilters
     if (nativeModulesABIs == null) {
         // No abiFilter is defined for the build. Build native modules for eevery architecture.
-        nativeModulesABIs = ["armeabi-v7a", "x86", "arm64-v8a", "x86_64"] as Set<String>;
+        nativeModulesABIs = ["armeabi-v7a", "arm64-v8a"] as Set<String>;
     }
 
     nativeModulesABIs.each { abi_name ->
