@@ -64,17 +64,10 @@ export class CertificateRegistration {
   }
 
   public getHiddenServiceData() {
-    if (this.tor) {
       return {
         privateKey: this._privKey,
         onionAddress: this._onionAddress.split('.')[0]
       }
-    }
-    return {
-      privateKey: this._privKey,
-      onionAddress: this._onionAddress,
-      port: this._port
-    }
   }
 
   public async saveOwnerCertToDb(userCert: string) {
@@ -189,25 +182,13 @@ export class CertificateRegistration {
       this._port = port
     }
     if (this._privKey) {
-      if (this.tor) {
-        this._onionAddress = await this.tor.spawnHiddenService({
-          virtPort: 80,
-          targetPort: this._port,
-          privKey: this._privKey
-        })
-      } else {
-        this._onionAddress = '0.0.0.0'
-      }
+      this._onionAddress = await this.tor.spawnHiddenService(
+      this._port,
+      this._privKey,
+      80
+        )
     } else {
-      let data
-      if (this.tor) {
-        data = await this.tor.createNewHiddenService(80, this._port)
-      } else {
-        data = {
-          onionAddress: '0.0.0.0',
-          privateKey: ''
-        }
-      }
+      let data = await this.tor.createNewHiddenService(this._port, 80)
       this._onionAddress = data.onionAddress
       this._privKey = data.privateKey
     }

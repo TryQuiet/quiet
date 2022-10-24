@@ -75,8 +75,8 @@ describe('Connections manager', () => {
         torControlPort: ports.controlPort
       }
     })
-    const localAddress = connectionsManager.createLibp2pAddress(address, port, peerId.toB58String())
-    const listenAddress = connectionsManager.createLibp2pListenAddress(address, port)
+    const localAddress = connectionsManager.createLibp2pAddress(address, peerId.toB58String())
+    const listenAddress = connectionsManager.createLibp2pListenAddress(address)
     const result = await connectionsManager.initLibp2p({
       peerId: peerId,
       address: address,
@@ -111,7 +111,6 @@ describe('Connections manager', () => {
       })
       const libp2pAddress = connectionsManager.createLibp2pAddress(
         address,
-        port,
         peerId.toB58String()
       )
       expect(libp2pAddress).toStrictEqual(
@@ -137,7 +136,7 @@ describe('Connections manager', () => {
           torControlPort: ports.controlPort,
         }
       })
-      const libp2pListenAddress = connectionsManager.createLibp2pListenAddress(address, port)
+      const libp2pListenAddress = connectionsManager.createLibp2pListenAddress(address)
       expect(libp2pListenAddress).toStrictEqual(`/dns4/${address}/tcp/${port}/${wsType}`)
     }
   )

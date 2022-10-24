@@ -36,7 +36,7 @@ export const rootPermsData: PermsData = {
 tmp.setGracefulCleanup()
 
 export const testBootstrapMultiaddrs = [
-  createLibp2pAddress('abcd.onion', 1111, 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4')
+  createLibp2pAddress('abcd.onion', 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4')
 ]
 
 export const spawnTorProcess = async (quietDirPath: string, ports?: Ports): Promise<Tor> => {
@@ -77,15 +77,14 @@ export const createMinConnectionManager = (
 
 export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
   const port = await getPort()
-  const virtPort = 443
   const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
 
   return ConnectionsManager.createBootstrapNode({
     peerId,
-    listenAddresses: [createLibp2pListenAddress('localhost', virtPort)],
+    listenAddresses: [createLibp2pListenAddress('localhost')],
     bootstrapMultiaddrsList: testBootstrapMultiaddrs,
     agent: new HttpsProxyAgent({ port: 1234, host: 'localhost' }),
-    localAddress: createLibp2pAddress('localhost', virtPort, peerId.toB58String()),
+    localAddress: createLibp2pAddress('localhost', peerId.toB58String()),
     transportClass: WebsocketsOverTor,
     cert: pems.userCert,
     key: pems.userKey,
@@ -126,7 +125,6 @@ export function createFile(filePath: string, size: number) {
 export class TorMock {
   // TODO: extend Tor to be sure that mocked api is correct
   public async spawnHiddenService({
-    virtPort,
     targetPort,
     privKey
   }: {
@@ -134,15 +132,14 @@ export class TorMock {
     targetPort: number
     privKey: string
   }): Promise<any> {
-    log('TorMock.spawnHiddenService', virtPort, targetPort, privKey)
+    log('TorMock.spawnHiddenService', targetPort, privKey)
     return 'mockedOnionAddress.onion'
   }
 
   public async createNewHiddenService(
-    virtPort: number,
     targetPort: number
   ): Promise<{ onionAddress: string; privateKey: string }> {
-    log('TorMock.createNewHiddenService', virtPort, targetPort)
+    log('TorMock.createNewHiddenService', targetPort)
     return {
       onionAddress: 'mockedOnionAddress',
       privateKey: 'mockedPrivateKey'

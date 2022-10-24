@@ -26,7 +26,6 @@ export class Tor {
   process: child_process.ChildProcessWithoutNullStreams | any = null
   torPath: string
   options?: child_process.SpawnOptionsWithoutStdio
-  services: Map<number, IService>
   torControl: TorControl
   appDataPath: string
   controlPort: number
@@ -49,7 +48,6 @@ export class Tor {
   }: IConstructor) {
     this.torPath = path.normalize(torPath)
     this.options = options
-    this.services = new Map()
     this.appDataPath = appDataPath
     this.controlPort = controlPort
     this.torPassword = torPassword
@@ -218,23 +216,11 @@ export class Tor {
     })
   }
 
-  public async spawnHiddenService({
-    virtPort,
-    targetPort,
-    privKey
-  }: {
-    virtPort: number
-    targetPort: number
-    privKey: string
-  }): Promise<string> {
+  public async spawnHiddenService(targetPort: number, privKey: string, virtPort: number = 443): Promise<string> {
     const status = await this.torControl.sendCommand(
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
     )
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-    this.services.set(virtPort, {
-      virtPort,
-      address: onionAddress
-    })
     return `${onionAddress}.onion`
   }
 
@@ -249,19 +235,16 @@ export class Tor {
   }
 
   public async createNewHiddenService(
-    virtPort: number,
-    targetPort: number
+    targetPort: number,
+    virtPort: number = 443
   ): Promise<{ onionAddress: string; privateKey: string }> {
     const status = await this.torControl.sendCommand(
-      `ADD_ONION NEW:BEST Flags=Detach Port=$443,127.0.0.1:${targetPort}`
+      `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
     )
 
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
     const privateKey = status.messages[1].replace('250-PrivateKey=', '')
-    this.services.set(virtPort, {
-      virtPort,
-      address: onionAddress
-    })
+
     return {
       onionAddress: `${onionAddress}.onion`,
       privateKey
@@ -276,13 +259,6 @@ export class Tor {
     )
     this.torPassword = password
     this.torHashedPassword = hashedPassword.toString().trim()
-  }
-
-  public getServiceAddress = (port: number): string => {
-    if (this.services.get(port).address) {
-      return this.services.get(port).address
-    }
-    throw new Error('cannot get service addres')
   }
 
   public kill = async (): Promise<void> =>

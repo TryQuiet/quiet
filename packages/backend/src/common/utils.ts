@@ -135,18 +135,17 @@ export const torDirForPlatform = (basePath?: string): string => {
   return torPath
 }
 
-export const createLibp2pAddress = (address: string, port: number, peerId: string) => {
-  return `/dns4/${address}/tcp/${port}/wss/p2p/${peerId}`
+export const createLibp2pAddress = (address: string, peerId: string) => {
+  return `/dns4/${address}/tcp/443/wss/p2p/${peerId}`
 }
 
-export const createLibp2pListenAddress = (address: string, port: number) => {
-  return `/dns4/${address}/tcp/${port}/wss`
+export const createLibp2pListenAddress = (address: string) => {
+  return `/dns4/${address}/tcp/443/wss`
 }
 
 export const getUsersAddresses = async (users: User[], tor: boolean = true): Promise<string[]> => {
   const peers = users.map(async (userData: User) => {
-    let port = 443 
-    return createLibp2pAddress(userData.onionAddress, port, userData.peerId)
+    return createLibp2pAddress(userData.onionAddress, userData.peerId)
   })
 
   return await Promise.all(peers)

@@ -127,12 +127,12 @@ export class ConnectionsManager extends EventEmitter {
     return new HttpsProxyAgent({ port: this.httpTunnelPort, host: this.agentHost })
   }
 
-  public readonly createLibp2pAddress = (address: string, port: number, peerId: string): string => {
-    return createLibp2pAddress(address, port, peerId)
+  public readonly createLibp2pAddress = (address: string, peerId: string): string => {
+    return createLibp2pAddress(address, peerId)
   }
 
-  public readonly createLibp2pListenAddress = (address: string, port: number): string => {
-    return createLibp2pListenAddress(address, port)
+  public readonly createLibp2pListenAddress = (address: string): string => {
+    return createLibp2pListenAddress(address)
   }
 
   public initListeners = () => {
@@ -142,7 +142,7 @@ export class ConnectionsManager extends EventEmitter {
 
   public createNetwork = async () => {
     const ports = await getPorts()
-    const hiddenService = await this.tor.createNewHiddenService(443, ports.libp2pHiddenService)
+    const hiddenService = await this.tor.createNewHiddenService(ports.libp2pHiddenService)
       await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
   
     const peerId = await PeerId.create()
@@ -166,14 +166,6 @@ export class ConnectionsManager extends EventEmitter {
   
   public closeAllServices = async () => {
     await this.ioProxy.closeAll()
-  }
-  
-  public spawnDataServer = async () => {
-    const dataServer = new DataServer(this.socketIOPort)
-    this.io = dataServer.io
-    this.ioProxy = new IOProxy(this)
-    this.initListeners()
-    await dataServer.listen()
   }
 
   public spawnTor = async () => {
@@ -199,13 +191,13 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public initLibp2p = async (params: InitLibp2pParams): Promise<{ libp2p: Libp2p; localAddress: string }> => {
-    const localAddress = this.createLibp2pAddress(params.address, params.addressPort, params.peerId.toB58String())
+    const localAddress = this.createLibp2pAddress(params.address, params.peerId.toB58String())
 
     log(`Initializing libp2p for ${params.peerId.toB58String()}, bootstrapping with ${params.bootstrapMultiaddrs.length} peers`)
 
     const nodeParams: Libp2pNodeParams = {
       peerId: params.peerId,
-      listenAddresses: [this.createLibp2pListenAddress(params.address, params.addressPort)],
+      listenAddresses: [this.createLibp2pListenAddress(params.address)],
       agent: this.socksProxyAgent,
       localAddress: localAddress,
       cert: params.certs.certificate,
@@ -271,7 +263,7 @@ export class ConnectionsManager extends EventEmitter {
   public sendCertificateRegistrationRequest = async (
     serviceAddress: string,
     userCsr: string,
-    requestTimeout: number = 15000
+    requestTimeout: number = 120000
   ): Promise<Response> => {
     const controller = new AbortController()
     const timeout = setTimeout(() => {
@@ -284,11 +276,11 @@ export class ConnectionsManager extends EventEmitter {
       headers: { 'Content-Type': 'application/json' },
       signal: controller.signal
     }
-    if (this.tor) {
+
       options = Object.assign({
         agent: this.socksProxyAgent
       }, options)
-    }
+    
 
     try {
       const start = new Date()

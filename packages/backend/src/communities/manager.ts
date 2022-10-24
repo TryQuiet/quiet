@@ -18,7 +18,6 @@ interface InitStorageParams {
   communityId: string
   peerId: PeerId
   onionAddress: string
-  virtPort: number
   targetPort: number
   peers: string[]
   certs: Certificates
@@ -60,10 +59,7 @@ export default class CommunitiesManager {
   public create = async (certs: Certificates, communityId: string): Promise<CommunityData> => {
     const ports = await getPorts()
 
-    const virtPort = 443
-
     const hiddenService = await this.connectionsManager.tor.createNewHiddenService(
-      virtPort,
       ports.libp2pHiddenService
     )
 
@@ -73,7 +69,6 @@ export default class CommunitiesManager {
       communityId: communityId,
       peerId: peerId,
       onionAddress: hiddenService.onionAddress,
-      virtPort: virtPort,
       targetPort: ports.libp2pHiddenService,
       peers: [peerId.toB58String()],
       certs
@@ -93,23 +88,17 @@ export default class CommunitiesManager {
     const ports = await getPorts()
     const virtPort = 443
     let onionAddress: string
-    if (this.connectionsManager.tor) {
       log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
-      onionAddress = await this.connectionsManager.tor.spawnHiddenService({
-        virtPort,
-        targetPort: ports.libp2pHiddenService,
-        privKey: payload.hiddenService.privateKey
-      })
-    } else {
-      onionAddress = '0.0.0.0'
-    }
+      onionAddress = await this.connectionsManager.tor.spawnHiddenService(
+        ports.libp2pHiddenService,
+        payload.hiddenService.privateKey
+      )
     log(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
     const peerId = await PeerId.createFromJSON(payload.peerId as JSONPeerId)
     const initStorageParams: InitStorageParams = {
       communityId: payload.id,
       peerId: peerId,
       onionAddress: onionAddress,
-      virtPort: virtPort,
       targetPort: ports.libp2pHiddenService,
       peers: payload.peers,
       certs: payload.certs
@@ -121,24 +110,17 @@ export default class CommunitiesManager {
     const peerIdB58string = params.peerId.toB58String()
     log(`Initializing storage for peer ${peerIdB58string}...`)
 
-    let port: number
-    if (this.connectionsManager.tor) {
-      port = params.virtPort
-    } else {
-      port = params.targetPort
-    }
-
     let peers = params.peers
     if (!peers || peers.length === 0) {
       peers = [
-        this.connectionsManager.createLibp2pAddress(params.onionAddress, port, peerIdB58string)
+        this.connectionsManager.createLibp2pAddress(params.onionAddress, peerIdB58string)
       ]
     }
 
     const libp2pParams: InitLibp2pParams = {
       peerId: params.peerId,
       address: params.onionAddress,
-      addressPort: port,
+      addressPort: 443,
       targetPort: params.targetPort,
       bootstrapMultiaddrs: peers,
       certs: params.certs

@@ -84,8 +84,7 @@ describe('Registration service', () => {
     const response = await registerUser(
       user.userCsr,
       ports.socksPort,
-      true,
-      registrationService.getHiddenServiceData().port
+      true
     )
     const responseData = await response.json()
     expect(response.status).toEqual(200)
@@ -131,8 +130,7 @@ describe('Registration service', () => {
     const response = await registerUser(
       userNew.userCsr,
       ports.socksPort,
-      true,
-      registrationService.getHiddenServiceData().port
+      true
     )
     expect(response.status).toEqual(403)
     expect(saveCertificate).not.toHaveBeenCalled()
@@ -150,8 +148,7 @@ describe('Registration service', () => {
       const response = await registerUser(
         invalidCsr,
         ports.socksPort,
-        true,
-        registrationService.getHiddenServiceData().port
+        true
       )
       expect(response.status).toEqual(400)
     }
@@ -170,8 +167,7 @@ describe('Registration service', () => {
     const response = await registerUser(
       csr,
       ports.socksPort,
-      true,
-      registrationService.getHiddenServiceData().port
+      true
     )
     expect(response.status).toEqual(400)
   })
