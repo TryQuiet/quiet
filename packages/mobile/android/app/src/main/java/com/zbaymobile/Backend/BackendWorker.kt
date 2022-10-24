@@ -1,19 +1,28 @@
-package com.zbaymobile
+package com.zbaymobile.Backend;
 
 import android.content.Context
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
+import com.zbaymobile.Notification.NotificationModule
+import com.zbaymobile.R
 import com.zbaymobile.Scheme.WebsocketConnectionPayload
 import com.zbaymobile.Utils.Const
 import com.zbaymobile.Utils.Utils
+import io.socket.client.IO
+import io.socket.client.Socket
+import io.socket.emitter.Emitter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONException
+import org.json.JSONObject
 import org.torproject.android.binary.TorResourceInstaller
 import java.util.concurrent.ThreadLocalRandom
+
 
 class BackendWorker(context: Context, workerParams: WorkerParameters):
     CoroutineWorker(context, workerParams) {
@@ -21,6 +30,10 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
     private var running: Boolean = false
 
     private var nodeProject = NodeProjectManager(applicationContext)
+
+    private var dataPort: Int = -1
+
+    private lateinit var webSocketClient: Socket
 
     companion object {
         init {
@@ -62,15 +75,20 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
         setForeground(createForegroundInfo())
 
         withContext(Dispatchers.IO) {
+            // Get and store data port for usage in methods across the worker
+            dataPort = Utils.getOpenPort(11000)
+
+            // Init nodejs project
             launch {
-                // Init nodejs project
                 nodeProject.init()
             }
 
-            // Call special port opened by backend to indicate if it is alive or not
-
-            // This is the only port we really need here
-            val dataPort        = Utils.getOpenPort(11000)
+            // Listen for websocket events on worker side
+            launch {
+                webSocketClient = IO.socket("http://localhost:$dataPort")
+                webSocketClient.on("pushNotification", onPushNotification)
+                webSocketClient.connect()
+            }
 
             // Those we should get inside tor module
             val controlPort     = Utils.getOpenPort(12000)
@@ -81,9 +99,6 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
 
             val tor = TorResourceInstaller(applicationContext, applicationContext.filesDir).installResources()
             val torPath = tor.canonicalPath
-
-            val websocketConnectionPayload = WebsocketConnectionPayload(dataPort)
-            NotificationModule.handleIncomingEvents(NotificationModule.WEBSOCKET_CONNECTION_CHANNEL, Gson().toJson(websocketConnectionPayload))
             
             startNodeProjectWithArguments("lib/mobileBackendManager.js -d $dataDirectoryPath -p $dataPort -c $controlPort -s $socksPort -t $httpTunnelPort -a $torPath")
         }
@@ -91,6 +106,20 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
         // Indicate whether the work finished successfully with the Result
         return Result.success()
     }
+
+    private val onPushNotification =
+        Emitter.Listener { args ->
+            var channelName = ""
+            var message = ""
+            try {
+                val data = args[0] as JSONObject
+                channelName = data.getString("channel")
+                message = data.getString("message")
+            } catch (e: JSONException) {
+                Log.e("ON_PUSH_NOTIFICATION", "unexpected JSON exception", e)
+            }
+            NotificationModule.handleIncomingEvents(channelName, message)
+        }
 
     private external fun startNodeWithArguments(
         arguments: Array<String?>?,
@@ -111,11 +140,30 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
         command.add(scriptPath)
         command.addAll(args)
 
+        // Do not continue if nodejs project codebase is not yet accessible
         nodeProject.waitForInit()
+
+        try {
+            startWebsocketConnection()
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
 
         startNodeWithArguments(
             command.toTypedArray(),
             "${nodeProject.projectPath}/${nodeProject.builtinModulesPath}"
+        )
+    }
+
+    private fun startWebsocketConnection() {
+        if (dataPort == -1) {
+            throw Exception("Data port not defined")
+        }
+        // Proceed only if data port is defined
+        val websocketConnectionPayload = WebsocketConnectionPayload(dataPort)
+        NotificationModule.handleIncomingEvents(
+            NotificationModule.WEBSOCKET_CONNECTION_CHANNEL,
+            Gson().toJson(websocketConnectionPayload)
         )
     }
 

@@ -1,4 +1,4 @@
-package com.zbaymobile
+package com.zbaymobile.Backend
 
 import android.content.Context
 import android.content.SharedPreferences

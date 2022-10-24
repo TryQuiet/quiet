@@ -1,6 +1,7 @@
 import { EntityState } from '@reduxjs/toolkit'
 import { FileMetadata } from '../files/files.types'
 import { ChannelMessage } from '../publicChannels/publicChannels.types'
+import { BASE_NOTIFICATION_CHANNEL, RICH_NOTIFICATION_CHANNEL } from '../../constants'
 
 export enum MessageType {
   Empty = -1,
@@ -18,6 +19,11 @@ export enum SendingStatus {
 export interface SendMessagePayload {
   message: ChannelMessage
   peerId: string
+}
+
+export interface PushNotificationPayload {
+  channel: typeof BASE_NOTIFICATION_CHANNEL | typeof RICH_NOTIFICATION_CHANNEL
+  message: string
 }
 
 export interface WriteMessagePayload {

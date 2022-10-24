@@ -1,4 +1,4 @@
-package com.zbaymobile;
+package com.zbaymobile.Notification;
 
 import java.util.Arrays;
 import java.util.Collections;

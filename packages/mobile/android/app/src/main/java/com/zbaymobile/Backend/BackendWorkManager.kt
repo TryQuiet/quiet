@@ -1,11 +1,7 @@
-package com.zbaymobile
+package com.zbaymobile.Backend
 
 import android.content.Context
-import android.util.Log
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.work.*
-import java.util.concurrent.TimeUnit
 
 class BackendWorkManager(private val context: Context) {
 

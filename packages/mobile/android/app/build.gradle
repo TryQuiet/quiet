@@ -280,6 +280,11 @@ dependencies {
 
     implementation 'org.torproject:tor-android-binary:0.4.4.6'
 
+    // Websockets connection
+    implementation ('io.socket:socket.io-client:2.0.0') {
+        exclude group: 'org.json', module: 'json'
+    }
+
     // Work manager
     implementation("androidx.work:work-runtime:2.7.1")
     implementation("androidx.work:work-runtime-ktx:2.7.1")

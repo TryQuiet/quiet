@@ -1,4 +1,4 @@
-package com.zbaymobile;
+package com.zbaymobile.Notification;
 
 import android.app.ActivityManager;
 import android.app.PendingIntent;
@@ -12,6 +12,9 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
+import com.zbaymobile.MainActivity;
+import com.zbaymobile.R;
 import com.zbaymobile.Utils.Const;
 import com.zbaymobile.Utils.Utils;
 
@@ -19,7 +22,6 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,10 +30,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.Nullable;
 
+
 public class NotificationModule extends ReactContextBaseJavaModule {
 
-    private static final String BASE_NOTIFICATION_CHANNEL = "_BASE_NOTIFICATION_";
-    private static final String RICH_NOTIFICATION_CHANNEL = "_RICH_NOTIFICATION_";
+    public static final String BASE_NOTIFICATION_CHANNEL = "_BASE_NOTIFICATION_";
+    public static final String RICH_NOTIFICATION_CHANNEL = "_RICH_NOTIFICATION_";
     public static final String WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_";
     public static final String INIT_CHECK_CHANNEL = "_INIT_CHECK_";
 
@@ -79,23 +82,28 @@ public class NotificationModule extends ReactContextBaseJavaModule {
     // Sends an event through the App Event Emitter.
     private static void sendEvent(String eventName,
                            @Nullable WritableMap params) {
-//        reactContext
-//                .getJSModule(RCTNativeAppEventEmitter.class)
-//                .emit(eventName, params);
+        if (reactContext == null) {
+            Log.d("RCTNativeAppEventEmitter", "Tried to send an event but got NULL on reactContext");
+        } else {
+            reactContext
+                    .getJSModule(RCTNativeAppEventEmitter.class)
+                    .emit(eventName, params);
+        }
     }
 
+    /**
+     * @param channelName - One of predefined values for incoming event channel name
+     * @param message - Object of type ChannelMessage
+     */
     @ReactMethod
-    public static void notify(String channelName, String payload) {
+    public static void notify(String channelName, String message) {
         if (!channelName.equals(RICH_NOTIFICATION_CHANNEL) && isAppOnForeground())
             return; // Only RICH_NOTIFICATION can be shown in foreground
-        
-        String event;
-        JSONObject message;
-        
+
+        JSONObject _message;
+
         try {
-            JSONObject data = new JSONObject(payload);
-            message = new JSONObject(new JSONArray(data.getString("payload")).getString(0)); // Get first message from array
-            event = data.getString("event");
+            _message = new JSONObject(message);
         } catch (JSONException e) {
             Log.e("NOTIFICATION", "unexpected JSON exception", e);
             return;
@@ -104,13 +112,11 @@ public class NotificationModule extends ReactContextBaseJavaModule {
         String title = "Quiet";
         String text = "";
         String channelAddress = "";
-        
-        if (!event.equals(RICH_NOTIFICATION_CHANNEL) && isAppOnForeground()) return; // Only RICH_NOTIFICATION can be shown in foreground
 
-        if(event.equals(RICH_NOTIFICATION_CHANNEL)) {
+        if(channelName.equals(RICH_NOTIFICATION_CHANNEL)) {
             try {
-                channelAddress = message.getString("channelAddress");
-                String messageContent = message.getString("message");
+                channelAddress = _message.getString("channelAddress");
+                String messageContent = _message.getString("message");
                 title = String.format("#%s", channelAddress);
                 text = Utils.truncate(messageContent, 32);
             } catch (JSONException e) {
@@ -119,10 +125,10 @@ public class NotificationModule extends ReactContextBaseJavaModule {
             }
         }
 
-        if (event.equals(BASE_NOTIFICATION_CHANNEL)) {
+        if (channelName.equals(BASE_NOTIFICATION_CHANNEL)) {
             try {
-                channelAddress = message.getString("channelAddress");
-                String messageContent = message.getString("message");
+                channelAddress = _message.getString("channelAddress");
+                String messageContent = _message.getString("message");
                 title = String.format("#%s", channelAddress);
                 text = Utils.truncate(messageContent, 32);
                 /** Messages sent in public channels are not additionally encoded so we can access them as a plain text in this place.
@@ -135,6 +141,10 @@ public class NotificationModule extends ReactContextBaseJavaModule {
             }
         }
 
+        composeNotification(title, text, channelAddress);
+    }
+
+    private static void composeNotification(String title, String text, String channelAddress) {
         Intent resultIntent = new Intent(reactContext, MainActivity.class);
 
         resultIntent.putExtra("channelAddress", channelAddress);

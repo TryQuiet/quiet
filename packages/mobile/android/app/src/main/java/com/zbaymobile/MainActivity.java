@@ -9,6 +9,8 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 
+import com.zbaymobile.Backend.BackendWorkManager;
+
 public class MainActivity extends ReactActivity {
 
     /**
