@@ -289,6 +289,7 @@ export class ConnectionsManager extends EventEmitter {
     counter: number = 0,
     requestTimeout: number = 120_000
   ): Promise<Response> => {
+    let response: Response = null
     const controller = new AbortController()
     const timeout = setTimeout(() => {
       controller.abort()
@@ -314,17 +315,17 @@ export class ConnectionsManager extends EventEmitter {
     try {
       log('Sending request ', counter)
       const start = new Date()
-      const response = await fetch(`${serviceAddress}/register`, options)
+      response = await fetch(`${serviceAddress}/register`, options)
       const end = new Date()
       const fetchTime = (end.getTime() - start.getTime()) / 1000
       log(`Fetched ${serviceAddress}, time: ${fetchTime}. Request ${counter}`)
-      return response
     } catch (e) {
       log.error(`Registrar fetch error: ${e.message}. Request ${counter}`)
       throw e
     } finally {
       clearTimeout(timeout)
     }
+    return response
   }
 
   public static readonly createBootstrapNode = (params: Libp2pNodeParams): Libp2p => {

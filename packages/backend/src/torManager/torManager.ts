@@ -37,6 +37,8 @@ export class Tor {
   torPassword: string
   torHashedPassword: string
   torAuthCookie: string
+  bootstrapTime: number
+  torFileName: string
   constructor({
     torPath,
     options,
@@ -56,9 +58,11 @@ export class Tor {
     this.torAuthCookie = torAuthCookie
     this.socksPort = socksPort.toString()
     this.httpTunnelPort = httpTunnelPort.toString()
+    this.bootstrapTime = 0
+    this.torFileName = `torLogs${(Math.random() + 1).toString(36).substring(7)}.txt`
   }
 
-  public init = async ({ repeat = 6, timeout = 3600_000 } = {}): Promise<void> => {
+  public init = async ({ repeat = 6, timeout = 3600_00 } = {}): Promise<void> => {
     log('Initializing tor...')
     return await new Promise((resolve, reject) => {
       if (this.process) {
@@ -184,6 +188,7 @@ export class Tor {
 
   protected readonly spawnTor = async (timeoutMs: number): Promise<void> => {
     return await new Promise((resolve, reject) => {
+      const start = new Date()
       this.process = child_process.spawn(
         this.torPath,
         [
@@ -198,9 +203,9 @@ export class Tor {
           '--DataDirectory',
           this.torDataDirectory,
           '--HashedControlPassword',
-          this.torHashedPassword
+          this.torHashedPassword,
           // '--Log',
-          // 'info file gimmeTorLogsPlease.txt'
+          // `notice file ${this.torFileName}`
         ],
         this.options
       )
@@ -214,6 +219,7 @@ export class Tor {
         const regexp = /Bootstrapped 100%/
         if (regexp.test(data.toString())) {
           clearTimeout(timeout)
+          this.bootstrapTime = (new Date().getTime() - start.getTime()) / 1000
           resolve()
         }
       })
