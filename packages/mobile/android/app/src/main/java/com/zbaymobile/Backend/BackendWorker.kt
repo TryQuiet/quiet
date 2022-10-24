@@ -11,11 +11,12 @@ import com.zbaymobile.Notification.NotificationModule
 import com.zbaymobile.R
 import com.zbaymobile.Scheme.WebsocketConnectionPayload
 import com.zbaymobile.Utils.Const
+import com.zbaymobile.Utils.Const.WEBSOCKET_CONNECTION_DELAY
 import com.zbaymobile.Utils.Utils
 import io.socket.client.IO
-import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONException
@@ -30,10 +31,6 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
     private var running: Boolean = false
 
     private var nodeProject = NodeProjectManager(applicationContext)
-
-    private var dataPort: Int = -1
-
-    private lateinit var webSocketClient: Socket
 
     companion object {
         init {
@@ -76,18 +73,29 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
 
         withContext(Dispatchers.IO) {
             // Get and store data port for usage in methods across the worker
-            dataPort = Utils.getOpenPort(11000)
+            val dataPort = Utils.getOpenPort(11000)
 
             // Init nodejs project
             launch {
                 nodeProject.init()
             }
 
-            // Listen for websocket events on worker side
             launch {
-                webSocketClient = IO.socket("http://localhost:$dataPort")
-                webSocketClient.on("pushNotification", onPushNotification)
-                webSocketClient.connect()
+                subscribePushNotifications(dataPort)
+            }
+
+            launch {
+                /*
+                 * Wait for NotificationModule to be initialized with reactContext
+                 * (there's no callback we can use for that purpose).
+                 *
+                 * Code featured below suspends nothing but the websocket connection
+                 * and it doesn't affect anything besides that.
+                 *
+                 * In any case, websocket won't connect until data server starts listening
+                 */
+                delay(WEBSOCKET_CONNECTION_DELAY)
+                startWebsocketConnection(dataPort)
             }
 
             // Those we should get inside tor module
@@ -106,20 +114,6 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
         // Indicate whether the work finished successfully with the Result
         return Result.success()
     }
-
-    private val onPushNotification =
-        Emitter.Listener { args ->
-            var channelName = ""
-            var message = ""
-            try {
-                val data = args[0] as JSONObject
-                channelName = data.getString("channel")
-                message = data.getString("message")
-            } catch (e: JSONException) {
-                Log.e("ON_PUSH_NOTIFICATION", "unexpected JSON exception", e)
-            }
-            NotificationModule.handleIncomingEvents(channelName, message)
-        }
 
     private external fun startNodeWithArguments(
         arguments: Array<String?>?,
@@ -143,24 +137,37 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
         // Do not continue if nodejs project codebase is not yet accessible
         nodeProject.waitForInit()
 
-        try {
-            startWebsocketConnection()
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
-        }
-
         startNodeWithArguments(
             command.toTypedArray(),
             "${nodeProject.projectPath}/${nodeProject.builtinModulesPath}"
         )
     }
 
-    private fun startWebsocketConnection() {
-        if (dataPort == -1) {
-            throw Exception("Data port not defined")
+    private fun subscribePushNotifications(port: Int) {
+        val webSocketClient = IO.socket("http://localhost:$port")
+        // Listen for events sent from nodejs
+        webSocketClient.on("pushNotification", onPushNotification)
+        // Client won't connect by itself (`connect()` method has to be called manually)
+        webSocketClient.connect()
+    }
+
+    private val onPushNotification =
+        Emitter.Listener { args ->
+            var channelName = ""
+            var message = ""
+            try {
+                val data = args[0] as JSONObject
+                channelName = data.getString("channel")
+                message = data.getString("message")
+            } catch (e: JSONException) {
+                Log.e("ON_PUSH_NOTIFICATION", "unexpected JSON exception", e)
+            }
+            NotificationModule.handleIncomingEvents(channelName, message)
         }
+
+    private fun startWebsocketConnection(port: Int) {
         // Proceed only if data port is defined
-        val websocketConnectionPayload = WebsocketConnectionPayload(dataPort)
+        val websocketConnectionPayload = WebsocketConnectionPayload(port)
         NotificationModule.handleIncomingEvents(
             NotificationModule.WEBSOCKET_CONNECTION_CHANNEL,
             Gson().toJson(websocketConnectionPayload)
