@@ -12,6 +12,7 @@ import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
+import com.zbaymobile.Notification.NotificationModulePackage;
 import com.zbaymobile.Utils.Const;
 
 import java.lang.reflect.InvocationTargetException;
@@ -34,7 +35,6 @@ public class MainApplication extends Application implements ReactApplication {
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // packages.add(new MyReactNativePackage());
-          packages.add(new TorModulePackage());
           packages.add(new NotificationModulePackage());
           return packages;
         }

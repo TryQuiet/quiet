@@ -65,7 +65,7 @@ export default function App(): JSX.Element {
           ref={navigationContainerRef}
           onReady={() => {
             dispatch(initActions.setNavigatorReady(true))
-            dispatch(initActions.doOnRestore())
+            dispatch(initActions.onRestore())
           }}>
           <WebviewCrypto />
           <MenuProvider>

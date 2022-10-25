@@ -86,12 +86,12 @@ export class ConnectionsManager extends EventEmitter {
   connectedPeers: Map<string, number>
   socketIOPort: number
 
-  constructor({ agentHost, agentPort, httpTunnelPort, options, storageClass, io, socketIOPort }: IConstructor) {
+  constructor({ agentPort, httpTunnelPort, options, storageClass, io, socketIOPort }: IConstructor) {
     super()
     this.io = io || null
     this.agentPort = agentPort
     this.httpTunnelPort = httpTunnelPort
-    this.agentHost = agentHost
+    this.agentHost = 'localhost'
     this.socksProxyAgent = this.createAgent()
     this.options = {
       ...new ConnectionsManagerOptions(),
@@ -172,13 +172,11 @@ export class ConnectionsManager extends EventEmitter {
 
   public init = async () => {
     await this.spawnTor()
-    if (this.socketIOPort) {
-      const dataServer = new DataServer(this.socketIOPort)
-      await dataServer.listen()
-      this.io = dataServer.io
-    }
+    const dataServer = new DataServer(this.socketIOPort)
+    this.io = dataServer.io
     this.ioProxy = new IOProxy(this)
     this.initListeners()
+    await dataServer.listen()
   }
 
   public closeAllServices = async () => {

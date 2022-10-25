@@ -70,3 +70,6 @@ buck-out/
 /nodejs-assets/nodejs-project/
 /nodejs-assets/build-native-modules-MacOS-helper-script-node.sh
 /nodejs-assets/build-native-modules-MacOS-helper-script-npm.sh
+
+# Native
+/android/app/.cxx

@@ -48,6 +48,7 @@ export enum SocketActionTypes {
   PEER_CONNECTED = 'peerConnected',
   PEER_DISCONNECTED = 'peerDisconnected',
   PEER_LIST = 'peerList',
+  PUSH_NOTIFICATION = 'pushNotification',
   // R
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',

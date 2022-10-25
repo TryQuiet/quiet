@@ -17,6 +17,7 @@ import {
   DownloadState,
   imagesExtensions,
   User,
+  PushNotificationPayload,
   BASE_NOTIFICATION_CHANNEL
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
@@ -166,7 +167,7 @@ export class Storage {
 
   protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> {
     log('Initializing IPFS')
-    // @ts-expect-error
+    // @ts-ignore
     return await IPFS.create({
       // error here 'permission denied 0.0.0.0:443'
       libp2p: async () => libp2p,
@@ -323,21 +324,28 @@ export class Storage {
 
       db.events.on('replicate.progress', async (address, _hash, entry, progress, total) => {
         log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
-        const verified = await this.verifyMessage(entry.payload.value)
+        const message = entry.payload.value
+
+        const verified = await this.verifyMessage(message)
 
         this.io.loadMessages({
-          messages: [entry.payload.value],
+          messages: [message],
           isVerified: verified
         })
+
         // Display push notifications on mobile
         if (process.env.BACKEND === 'mobile') {
-          const message = entry.payload.value
+          if (!verified) return
+
           // Do not notify about old messages
           if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME)) return
-          const bridge = require('rn-bridge')
-          if (verified) {
-            bridge.channel.post(BASE_NOTIFICATION_CHANNEL, JSON.stringify(message))
+
+          const payload: PushNotificationPayload = {
+            channel: BASE_NOTIFICATION_CHANNEL,
+            message: JSON.stringify(message)
           }
+
+          this.io.sendPushNotification(payload)
         }
       })
       db.events.on('replicated', async address => {
