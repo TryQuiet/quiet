@@ -13,10 +13,8 @@ describe('Community manager', () => {
 
   beforeEach(async () => {
     const appDataPath = createTmpDir()
-    const ports = await getPorts()
     connectionsManager = createMinConnectionManager({
       env: { appDataPath: tmpQuietDirPath(appDataPath.name) },
-      torControlPort: ports.controlPort
     })
     const torInitMock = jest.fn(async () => {
       // @ts-expect-error

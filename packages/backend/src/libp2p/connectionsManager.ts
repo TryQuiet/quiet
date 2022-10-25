@@ -33,15 +33,13 @@ import WebsocketsOverTor from './websocketOverTor'
 import { DataServer } from '../socket/DataServer'
 import { EventEmitter } from 'events'
 import logger from '../logger'
+import getPort from 'get-port'
 
 const log = logger('conn')
 
 export interface IConstructor {
-  agentPort?: number
-  options?: Partial<ConnectionsManagerOptions>
-  socketIOPort?: number
-  httpTunnelPort?: number
-  io?: SocketIO.Server
+  options: Partial<ConnectionsManagerOptions>
+  socketIOPort: number
 }
 
 export interface Libp2pNodeParams {
@@ -67,35 +65,25 @@ export interface InitLibp2pParams {
 }
 
 export class ConnectionsManager extends EventEmitter {
-  agentHost: string
-  agentPort: number
   httpTunnelPort: number
-  socksProxyAgent: any
+  socksProxyAgent: Agent
   options: ConnectionsManagerOptions
   quietDir: string
   io: SocketIO.Server
   ioProxy: IOProxy
-  StorageCls: any
   tor: Tor
   libp2pInstance: Libp2p
   connectedPeers: Map<string, number>
   socketIOPort: number
 
-  constructor({ agentPort, httpTunnelPort, options, io, socketIOPort }: IConstructor) {
+  constructor({ options, socketIOPort }: IConstructor) {
     super()
-    this.io = io || null
-    this.agentPort = agentPort
-    this.httpTunnelPort = httpTunnelPort
-    this.agentHost = 'localhost'
-    this.socksProxyAgent = this.createAgent()
     this.options = {
       ...new ConnectionsManagerOptions(),
       ...options
     }
     this.socketIOPort = socketIOPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
-    this.StorageCls = Storage
-    this.ioProxy = new IOProxy(this)
     this.connectedPeers = new Map()
 
     process.on('unhandledRejection', error => {
@@ -120,11 +108,11 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public readonly createAgent = (): Agent => {
-    if (this.socksProxyAgent || !this.agentPort || !this.agentHost) return
+    if (this.socksProxyAgent) return
 
     log(`Creating https proxy agent: ${this.httpTunnelPort}`)
 
-    return new HttpsProxyAgent({ port: this.httpTunnelPort, host: this.agentHost })
+    return new HttpsProxyAgent({ port: this.httpTunnelPort, host: "localhost" })
   }
 
   public readonly createLibp2pAddress = (address: string, peerId: string): string => {
@@ -156,6 +144,8 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public init = async () => {
+    this.httpTunnelPort = await getPort()
+    this.socksProxyAgent = this.createAgent()
     await this.spawnTor()
     const dataServer = new DataServer(this.socketIOPort)
     this.io = dataServer.io
@@ -173,12 +163,7 @@ export class ConnectionsManager extends EventEmitter {
     this.tor = new Tor({
       torPath: torBinForPlatform(basePath),
       appDataPath: this.quietDir,
-      controlPort: this.options.torControlPort,
-      socksPort: this.agentPort,
-      torPassword: this.options.torPassword,
-      torAuthCookie: this.options.torAuthCookie,
       httpTunnelPort: this.httpTunnelPort,
-
       options: {
         env: {
           LD_LIBRARY_PATH: torDirForPlatform(basePath),
@@ -252,7 +237,7 @@ export class ConnectionsManager extends EventEmitter {
 
   public createStorage = (peerId: string, communityId: string) => {
     log(`Creating storage for community: ${communityId}`)
-    return new this.StorageCls(this.quietDir, this.ioProxy, communityId, {
+    return new Storage(this.quietDir, this.ioProxy, communityId, {
       ...this.options,
       orbitDbDir: `OrbitDB${peerId}`,
       ipfsDir: `Ipfs${peerId}`

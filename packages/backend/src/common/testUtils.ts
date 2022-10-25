@@ -46,8 +46,6 @@ export const spawnTorProcess = async (quietDirPath: string, ports?: Ports): Prom
   const tor = new Tor({
     appDataPath: quietDirPath,
     torPath: torPath,
-    controlPort: _ports.controlPort,
-    socksPort: _ports.socksPort,
     httpTunnelPort: _ports.httpTunnelPort,
     options: {
       env: {
@@ -65,9 +63,7 @@ export const createMinConnectionManager = (
 ): ConnectionsManager => {
   if (!options.env?.appDataPath) throw new Error('Test connection manager is lacking appDataPath!')
   return new ConnectionsManager({
-    agentPort: 2222,
-    httpTunnelPort: 3333,
-    io: new DummyIOServer(),
+    socketIOPort: 1234,
     options: {
       bootstrapMultiaddrs: testBootstrapMultiaddrs,
       ...options

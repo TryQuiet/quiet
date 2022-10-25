@@ -16,39 +16,14 @@ beforeEach(() => {
 })
 
 describe('Connections manager', () => {
-  it('inits only tor control if spawnTor is set to false', async () => {
-    const torPassword = 'testTorPassword'
-    const ports = await utils.getPorts()
+ it('throws error when tries to send certification request to the offline registrar', async () => {
+    const port =  1234
     connectionsManager = new ConnectionsManager({
-      agentPort: ports.socksPort,
-      httpTunnelPort: ports.httpTunnelPort,
-      io: new utils.DummyIOServer(),
+      socketIOPort: port,
       options: {
         env: {
           appDataPath: tmpAppDataPath
         },
-        torControlPort: ports.controlPort,
-        torPassword
-      }
-    })
-    await connectionsManager.init()
-    expect(connectionsManager.tor.process).toBeNull()
-    const torControl = connectionsManager.tor.torControl
-    expect(torControl.password).toEqual(torPassword)
-    expect(torControl.params.port).toEqual(ports.controlPort)
-  })
-
-  it('throws error when tries to send certification request to the offline registrar', async () => {
-    const ports = await utils.getPorts()
-    connectionsManager = new ConnectionsManager({
-      agentPort: ports.socksPort,
-      httpTunnelPort: ports.httpTunnelPort,
-      io: new utils.DummyIOServer(),
-      options: {
-        env: {
-          appDataPath: tmpAppDataPath
-        },
-        torControlPort: ports.controlPort
       }
     })
     await expect(
@@ -63,16 +38,12 @@ describe('Connections manager', () => {
     const peerId = await PeerId.create()
     const port = 1234
     const address = '0.0.0.0'
-    const ports = await utils.getPorts()
     connectionsManager = new ConnectionsManager({
-      agentPort: ports.socksPort,
-      httpTunnelPort: ports.httpTunnelPort,
-      io: new utils.DummyIOServer(),
+      socketIOPort: port,
       options: {
         env: {
           appDataPath: tmpAppDataPath
         },
-        torControlPort: ports.controlPort
       }
     })
     const localAddress = connectionsManager.createLibp2pAddress(address, peerId.toB58String())
@@ -91,22 +62,18 @@ describe('Connections manager', () => {
     expect(result.libp2p.addresses.listen).toStrictEqual([listenAddress])
   })
 
-  it.each([['ws'], ['wss']])(
+  it(
     'creates libp2p address with proper ws type (%s)',
-    async (wsType: 'ws' | 'wss') => {
+    async () => {
       const address = '0.0.0.0'
       const port = 1234
       const peerId = await PeerId.create()
-      const ports = await utils.getPorts()
       connectionsManager = new ConnectionsManager({
-        agentPort: ports.socksPort,
-        httpTunnelPort: ports.httpTunnelPort,
-        io: new utils.DummyIOServer(),
+        socketIOPort: port,
         options: {
           env: {
             appDataPath: tmpAppDataPath
           },
-          torControlPort: ports.controlPort,
         }
       })
       const libp2pAddress = connectionsManager.createLibp2pAddress(
@@ -114,30 +81,26 @@ describe('Connections manager', () => {
         peerId.toB58String()
       )
       expect(libp2pAddress).toStrictEqual(
-        `/dns4/${address}/tcp/${port}/${wsType}/p2p/${peerId.toB58String()}`
+        `/dns4/${address}/tcp/${port}/wss}/p2p/${peerId.toB58String()}`
       )
     }
   )
 
-  it.each([['ws'], ['wss']])(
-    'creates libp2p listen address with proper ws type (%s)',
-    async (wsType: 'ws' | 'wss') => {
+  it('creates libp2p listen address',
+    async () => {
       const address = '0.0.0.0'
       const port = 1234
       const ports = await utils.getPorts()
       connectionsManager = new ConnectionsManager({
-        agentPort: ports.socksPort,
-        httpTunnelPort: ports.httpTunnelPort,
-        io: new utils.DummyIOServer(),
+        socketIOPort: port,
         options: {
           env: {
             appDataPath: tmpAppDataPath
           },
-          torControlPort: ports.controlPort,
         }
       })
       const libp2pListenAddress = connectionsManager.createLibp2pListenAddress(address)
-      expect(libp2pListenAddress).toStrictEqual(`/dns4/${address}/tcp/${port}/${wsType}`)
+      expect(libp2pListenAddress).toStrictEqual(`/dns4/${address}/tcp/${port}/wss}`)
     }
   )
 })

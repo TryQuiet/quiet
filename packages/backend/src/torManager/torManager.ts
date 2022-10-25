@@ -6,33 +6,27 @@ import { QUIET_DIR_PATH } from '../constants'
 import logger from '../logger'
 import { removeFilesFromDir } from '../common/utils'
 import { TorControl } from './TorControl'
+import getPort from 'get-port'
 const log = logger('tor')
 
-interface IService {
-  virtPort: number
-  address: string
-}
 interface IConstructor {
   torPath: string
   options: child_process.SpawnOptionsWithoutStdio
   appDataPath: string
-  controlPort: number
-  socksPort: number
-  httpTunnelPort?: number
-  torPassword?: string
-  torAuthCookie?: string
+  httpTunnelPort: number
 }
 export class Tor {
+  httpTunnelPort: number
+  socksPort: number
+  controlPort: number
+
   process: child_process.ChildProcessWithoutNullStreams | any = null
   torPath: string
   options?: child_process.SpawnOptionsWithoutStdio
   torControl: TorControl
   appDataPath: string
-  controlPort: number
   torDataDirectory: string
   torPidPath: string
-  socksPort: string
-  httpTunnelPort: string
   torPassword: string
   torHashedPassword: string
   torAuthCookie: string
@@ -40,24 +34,18 @@ export class Tor {
     torPath,
     options,
     appDataPath,
-    controlPort,
-    socksPort,
-    httpTunnelPort,
-    torPassword,
-    torAuthCookie
+    httpTunnelPort
   }: IConstructor) {
     this.torPath = path.normalize(torPath)
     this.options = options
     this.appDataPath = appDataPath
-    this.controlPort = controlPort
-    this.torPassword = torPassword
-    this.torAuthCookie = torAuthCookie
-    this.socksPort = socksPort.toString()
-    this.httpTunnelPort = httpTunnelPort.toString()
+    this.httpTunnelPort = httpTunnelPort
   }
 
   public init = async ({ repeat = 6, timeout = 3600_000 } = {}): Promise<void> => {
     log('Initializing tor...')
+    this.controlPort = await getPort()
+    this.socksPort = await getPort()
     return await new Promise((resolve, reject) => {
       if (this.process) {
         throw new Error('Tor already initialized')
@@ -186,9 +174,9 @@ export class Tor {
         this.torPath,
         [
           '--SocksPort',
-          this.socksPort,
+          this.socksPort.toString(),
           '--HTTPTunnelPort',
-          this.httpTunnelPort,
+          this.httpTunnelPort.toString(),
           '--ControlPort',
           this.controlPort.toString(),
           '--PidFile',

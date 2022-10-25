@@ -28,10 +28,8 @@ describe('IO proxy', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
     const appDataPath = createTmpDir()
-    const ports = await getPorts()
     manager = createMinConnectionManager({
       env: { appDataPath: tmpQuietDirPath(appDataPath.name) },
-      torControlPort: ports.controlPort
     })
     const torInitMock = jest.fn(async () => {
       // @ts-expect-error

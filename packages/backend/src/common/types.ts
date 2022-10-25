@@ -19,7 +19,6 @@ export class StorageOptions {
   orbitDbDir?: string
   ipfsDir?: string
   createPaths: boolean = true
-  isEntryNode?: boolean = false
 }
 
 export interface IPublicKey {
@@ -36,9 +35,6 @@ export class ConnectionsManagerOptions {
 
   bootstrapMultiaddrs?: string[] = []
   createPaths?: boolean = true
-  torControlPort: number
-  torPassword?: string
-  torAuthCookie?: string
 }
 
 export interface ILibp2pStatus {

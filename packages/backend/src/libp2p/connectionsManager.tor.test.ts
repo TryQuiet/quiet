@@ -20,14 +20,11 @@ describe('Connections manager (using tor)', () => {
   it('runs tor by default', async () => {
     const ports = await utils.getPorts()
     connectionsManager = new ConnectionsManager({
-      agentPort: ports.socksPort,
-      httpTunnelPort: ports.httpTunnelPort,
-      io: new utils.DummyIOServer(),
+      socketIOPort: ports.socksPort,
       options: {
         env: {
           appDataPath: tmpAppDataPath
         },
-        torControlPort: ports.controlPort
       }
     })
     await connectionsManager.init()
@@ -38,14 +35,11 @@ describe('Connections manager (using tor)', () => {
   it('creates network', async () => {
     const ports = await utils.getPorts()
     connectionsManager = new ConnectionsManager({
-      agentPort: ports.socksPort,
-      httpTunnelPort: ports.httpTunnelPort,
-      io: new utils.DummyIOServer(),
+      socketIOPort: ports.socksPort,
       options: {
         env: {
           appDataPath: tmpAppDataPath
         },
-        torControlPort: ports.controlPort
       }
     })
     await connectionsManager.init()

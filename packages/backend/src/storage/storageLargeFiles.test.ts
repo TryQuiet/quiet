@@ -5,7 +5,6 @@ import { DirResult } from 'tmp'
 import { Config } from '../constants'
 import { createLibp2p, createTmpDir, tmpQuietDirPath, createMinConnectionManager, createFile } from '../common/testUtils'
 import { Storage } from './storage'
-import * as utils from '../common/utils'
 import { FactoryGirl } from 'factory-girl'
 import {
   communities,
@@ -65,8 +64,7 @@ describe('Storage', () => {
     tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
     tmpOrbitDbDir = path.join(tmpAppDataPath, Config.ORBIT_DB_DIR)
     tmpIpfsPath = path.join(tmpAppDataPath, Config.IPFS_REPO_PATH)
-    const { controlPort } = await utils.getPorts()
-    connectionsManager = createMinConnectionManager({ env: { appDataPath: tmpAppDataPath }, torControlPort: controlPort })
+    connectionsManager = createMinConnectionManager({ env: { appDataPath: tmpAppDataPath } })
     storage = null
     filePath = path.join(__dirname, '/testUtils/large-file.txt')
   })

@@ -54,10 +54,8 @@ test('IO proxy closes all services (using tor)', async () => {
     CA: [pems.ca]
   }
   const appDataPath = createTmpDir()
-  const ports = await getPorts()
   const manager = createMinConnectionManager({
     env: { appDataPath: tmpQuietDirPath(appDataPath.name) },
-    torControlPort: ports.controlPort
   })
 
   await manager.init()

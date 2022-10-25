@@ -90,11 +90,11 @@ export function fetchAbsolute(fetch: Function): Function {
 }
 
 export const getPorts = async (): Promise<Ports> => {
-  const controlPort = await getPort({ port: 9151 })
-  const socksPort = await getPort({ port: 9052 })
-  const libp2pHiddenService = await getPort({ port: 7788 })
-  const dataServer = await getPort({ port: 4677 })
-  const httpTunnelPort = await getPort({ port: 9000 })
+  const controlPort = await getPort()
+  const socksPort = await getPort()
+  const libp2pHiddenService = await getPort()
+  const dataServer = await getPort()
+  const httpTunnelPort = await getPort()
   return {
     socksPort,
     libp2pHiddenService,

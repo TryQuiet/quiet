@@ -88,8 +88,7 @@ beforeEach(async () => {
   tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
   tmpOrbitDbDir = path.join(tmpAppDataPath, Config.ORBIT_DB_DIR)
   tmpIpfsPath = path.join(tmpAppDataPath, Config.IPFS_REPO_PATH)
-  const { controlPort } = await utils.getPorts()
-  connectionsManager = createMinConnectionManager({ env: { appDataPath: tmpAppDataPath }, torControlPort: controlPort })
+  connectionsManager = createMinConnectionManager({ env: { appDataPath: tmpAppDataPath } })
   storage = null
   filePath = path.join(__dirname, '/testUtils/500kB-file.txt')
 })

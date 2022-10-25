@@ -46,7 +46,7 @@ export async function setupRegistrar(tor: Tor, storage: Storage, permsData: Perm
 
 export const getStorage = async (quietDir: string) => {
   const peerId = await PeerId.create()
-  const connectionsManager = createMinConnectionManager({ env: { appDataPath: quietDir }, torControlPort: 12345 })
+  const connectionsManager = createMinConnectionManager({ env: { appDataPath: quietDir } })
   const storage = new Storage(
     quietDir,
     connectionsManager.ioProxy,

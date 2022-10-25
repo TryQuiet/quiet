@@ -55,13 +55,10 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
   const httpTunnelPort = await getPort()
   const appPath = createPath(createTmpDir(`quietIntegrationTest-${appName}`).name)
   const manager = new backend.ConnectionsManager({
-    agentPort: proxyPort,
-    httpTunnelPort,
     options: {
       env: {
         appDataPath: appDataPath || appPath
       },
-      torControlPort: controlPort
     },
     socketIOPort: dataServerPort1
   })
@@ -99,20 +96,16 @@ export const createAppWithoutTor = async (mockedState?: {
 
   const { store, runSaga } = prepareStore(mockedState)
 
-  const proxyPort = await getPort()
-  const controlPort = await getPort()
-  const httpTunnelPort = await getPort()
+  const socketIOPort = await getPort()
+
   const appPath = createPath(createTmpDir(`quietIntegrationTest-${appName}`).name)
   const manager = new backend.ConnectionsManager({
-    agentPort: proxyPort,
-    httpTunnelPort,
     options: {
       env: {
         appDataPath: appDataPath || appPath
       },
-      torControlPort: controlPort
     },
-    io: server1.io
+    socketIOPort
   })
   manager.initListeners()
 

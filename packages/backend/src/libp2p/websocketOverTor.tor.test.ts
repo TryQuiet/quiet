@@ -43,14 +43,10 @@ describe('websocketOverTor', () => {
     port1Target = port1Arr
     port2Target = port2Arr
     const torPath = utils.torBinForPlatform()
-    const controlPort = await getPort()
     httpTunnelPort = await getPort()
-    const socksPort = await getPort()
     tor = new Tor({
-      socksPort,
       torPath,
       appDataPath: tmpAppDataPath,
-      controlPort,
       httpTunnelPort,
       options: {
         env: {
