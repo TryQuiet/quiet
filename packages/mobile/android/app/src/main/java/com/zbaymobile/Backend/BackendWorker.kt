@@ -72,7 +72,7 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
         setForeground(createForegroundInfo())
 
         withContext(Dispatchers.IO) {
-            // Get and store data port for usage in methods across the worker
+            // Get and store data port for usage in methods across the app
             val dataPort = Utils.getOpenPort(11000)
 
             // Init nodejs project

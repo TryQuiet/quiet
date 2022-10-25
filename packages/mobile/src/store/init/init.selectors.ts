@@ -17,6 +17,18 @@ export const isCryptoEngineInitialized = createSelector(
     reducerState.isCryptoEngineInitialized
 )
 
+export const isWebsocketConnected = createSelector(
+  initSlice,
+  (reducerState) =>
+    reducerState.isWebsocketConnected
+)
+
+export const lastKnownDataPort = createSelector(
+  initSlice,
+  (reducerState) =>
+    reducerState.lastKnownDataPort
+)
+
 export const initDescription = createSelector(
   initSlice,
   (reducerState) => reducerState.initDescription
@@ -36,6 +48,8 @@ export const currentScreen = createSelector(
 export const initSelectors = {
   isNavigatorReady,
   isCryptoEngineInitialized,
+  isWebsocketConnected,
+  lastKnownDataPort,
   initDescription,
   initChecks,
   currentScreen
