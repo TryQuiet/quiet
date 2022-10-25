@@ -73,4 +73,3 @@ buck-out/
 
 # Native
 /android/app/.cxx
-/android/app/libnode

@@ -12,6 +12,7 @@ import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
+import com.zbaymobile.Notification.NotificationModulePackage;
 import com.zbaymobile.Utils.Const;
 
 import java.lang.reflect.InvocationTargetException;

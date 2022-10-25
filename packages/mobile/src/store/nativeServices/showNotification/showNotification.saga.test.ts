@@ -28,22 +28,18 @@ describe('showNotificationSaga', () => {
         type: 1
       }
     }
-    const payload = JSON.stringify({
-      event: RICH_NOTIFICATION_CHANNEL,
-      payload: [
-        unreadMessage
-      ]
-    })
+
+    const message = JSON.stringify(unreadMessage)
 
     await expectSaga(
       showNotificationSaga,
       publicChannels.actions.markUnreadChannel(unreadMessage)
       )
       .provide([
-        [call.fn(JSON.stringify), payload],
+        [call.fn(JSON.stringify), message],
         [call.fn(NativeModules.NotificationModule.notify), null]
       ])
-      .call(NativeModules.NotificationModule.notify, '_EVENTS_', payload)
+      .call(NativeModules.NotificationModule.notify, RICH_NOTIFICATION_CHANNEL, message)
       .run()
   })
 
@@ -70,19 +66,15 @@ describe('showNotificationSaga', () => {
         type: 1
       }
     }
-    const payload = JSON.stringify({
-      event: RICH_NOTIFICATION_CHANNEL,
-      payload: [
-        unreadMessage
-      ]
-    })
+
+    const message = JSON.stringify(unreadMessage)
 
     await expectSaga(
       showNotificationSaga,
       publicChannels.actions.markUnreadChannel(unreadMessage)
       )
       .provide([
-        [call.fn(JSON.stringify), payload],
+        [call.fn(JSON.stringify), message],
         [call.fn(NativeModules.NotificationModule.notify), null]
       ])
       .not.call(NativeModules.NotificationModule.notify)

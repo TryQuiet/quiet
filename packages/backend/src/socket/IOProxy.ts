@@ -29,7 +29,8 @@ import {
   SetChannelSubscribedPayload,
   DownloadStatus,
   RemoveDownloadStatus,
-  UpdatePeerListPayload
+  UpdatePeerListPayload,
+  PushNotificationPayload
 } from '@quiet/state-manager'
 import { emitError } from './errors'
 
@@ -172,6 +173,10 @@ export default class IOProxy {
     }
     log(`Sending ${payload.ids.length} messages ids`)
     this.io.emit(SocketActionTypes.SEND_MESSAGES_IDS, payload)
+  }
+
+  public sendPushNotification = (payload: PushNotificationPayload) => {
+    this.io.emit(SocketActionTypes.PUSH_NOTIFICATION, payload)
   }
 
   public createdChannel = (payload: CreatedChannelResponse) => {
