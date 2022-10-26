@@ -1,7 +1,7 @@
-import express from 'express'
+import express, { response } from 'express'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import fetch, { Response } from 'node-fetch'
-
+import fs from 'fs'
 import { Tor } from './torManager'
 
 import { getPorts } from '../common/utils'
@@ -15,8 +15,9 @@ import logger from '../logger'
 import { EventEmitter } from 'events'
 const log = logger('torMesh')
 
-const peersCount = 4
-const timeout = 130_000
+const peersCount = 2
+// const timeout = 130_000
+// const timeoutPerRequest = 15_000
 const requestsCount = 5
 const eventEmmiter = new EventEmitter()
 
@@ -51,18 +52,15 @@ const killMesh = async () => {
   }
 }
 
-let finishedRequests = 0
-let failedRequests = 0
-let cancelledRequests = 0
-
 const createServer = async (port, serverAddress: string) => {
   const app: express.Application = express()
   app.use(express.json())
   // eslint-disable-next-line
   app.post('/test', async (req, res) => {
+    log(`post. Returning ${{ counter: req.body.counter }}`)
     // eslint-disable-next-line
-    res.send({ success: 'success' })
-    finishedRequests++
+    res.send({ counter: req.body.counter })
+    log(`Post (${req.body.counter}) ${serverAddress}`)
     eventEmmiter.emit(`${serverAddress}-success`)
   })
   app.listen(port, () => {
@@ -84,38 +82,25 @@ const sendRequest = async (
   const agent = await createAgent(httpTunnelPort)
   const options = {
     method: 'POST',
-    body: JSON.stringify({ serviceAddress: '' }),
+    body: JSON.stringify({ counter }),
     headers: { 'Content-Type': 'application/json' },
     agent
   }
 
   await tor.switchToCleanCircuts()
-  let data = {
-    requestCounter: counter
-  }
 
   try {
     log('Sending request to', serviceAddress)
     console.time(`fetch (${counter}) ${serviceAddress}`)
-    const start = new Date()
+    results[serviceAddress][counter] = {
+      startFetchTime: new Date()
+    }
     response = await fetch('http://' + serviceAddress + '.onion/test', options)
-    const end = new Date()
-    const fetchTime = (end.getTime() - start.getTime()) / 1000
-
-    // Gather results
-    Object.assign(data, {
-      fetchTime,
-      receivedResultsTime: (end.getTime() - results[serviceAddress].requestsStartTime.getTime()) / 1000, // Since scheduling Promise.any
-    })
-
   } catch (e) {
     console.log(`fetch error ${serviceAddress}`, e)
-    failedRequests++
     throw e
   } finally {
     console.timeEnd(`fetch (${counter}) ${serviceAddress}`)
-    console.timeEnd(`schedule fetch (${counter}) ${serviceAddress}`)
-    results[serviceAddress][counter] = data
   }
   return response
 }
@@ -158,8 +143,6 @@ const testWithDelayedNewnym = async () => {
   function resolveTimeout(func, address, port, tor, requestCounter, delay: number) {
     return new Promise(
       (resolve, reject) => {
-        console.time(`schedule fetch (${requestCounter}) ${address}`)
-
         const timeoutId = setTimeout(async (address, port, tor, requestCounter) => {
           console.log(`Resolving request after ${delay}ms`)
           try {
@@ -193,7 +176,8 @@ const testWithDelayedNewnym = async () => {
         rq * 10_500
       ))
     }
-
+    let responseData = null
+    let response = null
     try {
       results[serverOnionAddress] = {
         torLogs: tor.torFileName,
@@ -201,11 +185,28 @@ const testWithDelayedNewnym = async () => {
         bootstrapTime: tor.bootstrapTime
       }
       // @ts-ignore
-      const response = await Promise.any(requests)
-      log('RESP', response)
+      response = await Promise.any(requests)
+      results[serverOnionAddress].endTime = new Date()
+      results[serverOnionAddress].statusCode = response.status
+      log('GOT RESPONSE', responseData, response)
     } catch (e) {
       log(`All requests failed for ${serverOnionAddress}, ${e.message}`)
     }
+
+    const end = new Date()
+    results[serverOnionAddress].receivedResultsTime = (end.getTime() - results[serverOnionAddress].requestsStartTime.getTime()) / 1000 // Since scheduling Promise.any
+
+    try {
+      responseData = await response.json()
+    } catch (e) {
+      log(`Didn't receive proper response for ${serverOnionAddress}`)
+      results[serverOnionAddress].success = false
+      return
+    }
+
+    const {counter} = responseData
+    results[serverOnionAddress][counter].fetchTime = (end.getTime() - results[serverOnionAddress][counter].startFetchTime.getTime()) / 1000
+    
   }
   log('END')
 }
@@ -222,9 +223,9 @@ const sendRequests = async () => { // No newnym, send next request if previous o
   }
 
   for (let serverCounter = 0; serverCounter < servers.length; serverCounter++) {
-    const onionAddress = servers[serverCounter].onionAddress
+    const serverOnionAddress = servers[serverCounter].onionAddress
     const tor = servers[serverCounter].tor
-    results[onionAddress] = {
+    results[serverOnionAddress] = {
       requestsStartTime: new Date(),
       bootstrapTime: tor.bootstrapTime
     }
@@ -232,13 +233,19 @@ const sendRequests = async () => { // No newnym, send next request if previous o
     let rq = 0;
     while (rq < requestsCount) {
       try {
-        await sendRequest(
-          onionAddress, 
+        const response = await sendRequest(
+          serverOnionAddress, 
           clients[serverCounter].httpTunnelPort,
           tor,
           rq
         )
-        log('got response', rq, onionAddress)
+        log('got response', rq, serverOnionAddress)
+        const end = new Date()
+        // Gather results
+        // @ts-ignore
+        const {counter} = response.json()
+        results[serverOnionAddress][counter].fetchTime = end.getTime() - results[serverOnionAddress][counter].startFetchTime.getTime()
+        results[serverOnionAddress].receivedResultsTime = (end.getTime() - results[serverOnionAddress].requestsStartTime.getTime()) / 1000 // Since scheduling Promise.any
         break
       } catch (e) {
         rq++
@@ -264,8 +271,10 @@ const main = async () => {
   await spawnMesh()
   await createHiddenServices()
   log('created hidden services')
-  // await testWithDelayedNewnym()
-  await sendRequests()
+  console.time('test time')
+  await testWithDelayedNewnym()
+  // await sendRequests()
+  console.timeEnd('test time')
   // try {
   //   log('waiting for requests')
   //   await waitForRequests()
@@ -276,6 +285,7 @@ const main = async () => {
   log('destroyed hidden services')
   await killMesh()
   log('RESULTS', JSON.stringify(results))
+  fs.writeFileSync(`${new Date().toISOString()}_delayed.json`, JSON.stringify(results))
   log('after killing mesh')
   process.exit(1)
 }
