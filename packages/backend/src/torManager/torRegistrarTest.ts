@@ -15,7 +15,7 @@ import logger from '../logger'
 import { EventEmitter } from 'events'
 const log = logger('torMesh')
 
-const peersCount = 2
+const peersCount = 20
 // const timeout = 130_000
 // const timeoutPerRequest = 15_000
 const requestsCount = 5
@@ -78,6 +78,8 @@ const sendRequest = async (
   tor: Tor,
   counter: number,
 ): Promise<Response> => {
+  await tor.switchToCleanCircuts()
+
   let response = null
   const agent = await createAgent(httpTunnelPort)
   const options = {
@@ -86,8 +88,6 @@ const sendRequest = async (
     headers: { 'Content-Type': 'application/json' },
     agent
   }
-
-  await tor.switchToCleanCircuts()
 
   try {
     log('Sending request to', serviceAddress)
@@ -144,7 +144,7 @@ const testWithDelayedNewnym = async () => {
     return new Promise(
       (resolve, reject) => {
         const timeoutId = setTimeout(async (address, port, tor, requestCounter) => {
-          console.log(`Resolving request after ${delay}ms`)
+          log(`Sending request after ${delay}ms`)
           try {
             resolve(func(address, port, tor, requestCounter))
           } catch (e) {
@@ -180,15 +180,14 @@ const testWithDelayedNewnym = async () => {
     let response = null
     try {
       results[serverOnionAddress] = {
-        torLogs: tor.torFileName,
         requestsStartTime: new Date(),
         bootstrapTime: tor.bootstrapTime
       }
       // @ts-ignore
-      response = await Promise.any(requests)
+      response = await Promise.any(requests) // Get first successful response
       results[serverOnionAddress].endTime = new Date()
       results[serverOnionAddress].statusCode = response.status
-      log('GOT RESPONSE', responseData, response)
+      log('GOT RESPONSE', response)
     } catch (e) {
       log(`All requests failed for ${serverOnionAddress}, ${e.message}`)
     }
@@ -199,14 +198,13 @@ const testWithDelayedNewnym = async () => {
     try {
       responseData = await response.json()
     } catch (e) {
-      log(`Didn't receive proper response for ${serverOnionAddress}`)
+      log(`Didn't receive proper response data for ${serverOnionAddress}`)
       results[serverOnionAddress].success = false
-      return
+      continue
     }
 
     const {counter} = responseData
     results[serverOnionAddress][counter].fetchTime = (end.getTime() - results[serverOnionAddress][counter].startFetchTime.getTime()) / 1000
-    
   }
   log('END')
 }
