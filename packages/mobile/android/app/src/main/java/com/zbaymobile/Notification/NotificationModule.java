@@ -16,7 +16,6 @@ import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
 import com.zbaymobile.MainActivity;
 import com.zbaymobile.R;
 import com.zbaymobile.Utils.Const;
-import com.zbaymobile.Utils.Utils;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -51,17 +50,17 @@ public class NotificationModule extends ReactContextBaseJavaModule {
         NotificationModule.reactContext = reactContext;
     }
 
-    public static void handleIncomingEvents(String channelName, String payload) {
-        switch (channelName) {
+    public static void handleIncomingEvents(String event, String payload, String ... extra) {
+        switch (event) {
             case BASE_NOTIFICATION_CHANNEL:
             case RICH_NOTIFICATION_CHANNEL:
-                notify(channelName, payload);
+                String username = extra.length > 0 ? extra[0] : "";
+                notify(event, payload, username);
                 break;
             case WEBSOCKET_CONNECTION_CHANNEL:
             case INIT_CHECK_CHANNEL:
-                passDataToReact(channelName, payload);
+                passDataToReact(event, payload);
                 break;
-
             default:
                 break;
         }
@@ -96,9 +95,12 @@ public class NotificationModule extends ReactContextBaseJavaModule {
      * @param message - Object of type ChannelMessage
      */
     @ReactMethod
-    public static void notify(String channelName, String message) {
+    public static void notify(String channelName, String message, String username) {
         if (!channelName.equals(RICH_NOTIFICATION_CHANNEL) && isAppOnForeground())
             return; // Only RICH_NOTIFICATION can be shown in foreground
+
+        String channel = "";
+        String content = "";
 
         JSONObject _message;
 
@@ -108,67 +110,69 @@ public class NotificationModule extends ReactContextBaseJavaModule {
             Log.e("NOTIFICATION", "unexpected JSON exception", e);
             return;
         }
-        
-        String title = "Quiet";
-        String text = "";
-        String channelAddress = "";
 
-        if(channelName.equals(RICH_NOTIFICATION_CHANNEL)) {
-            try {
-                channelAddress = _message.getString("channelAddress");
-                String messageContent = _message.getString("message");
-                title = String.format("#%s", channelAddress);
-                text = Utils.truncate(messageContent, 32);
-            } catch (JSONException e) {
-                Log.e("NOTIFICATION", "incorrect RICH_NOTIFICATION payload", e);
-                return;
-            }
+        // Parse user name
+        String user = String.format("@%s", username);
+
+        try {
+            // Parse channel name
+            String _channel = _message.getString("channelAddress");
+            channel = String.format("#%s", _channel);
+            // Parse message content
+            String _content = _message.getString("message");
+            content = String.format("%s", _content);
+        } catch (JSONException e) {
+            Log.e("NOTIFICATION", "incorrect NOTIFICATION payload", e);
+            return;
         }
 
-        if (channelName.equals(BASE_NOTIFICATION_CHANNEL)) {
-            try {
-                channelAddress = _message.getString("channelAddress");
-                String messageContent = _message.getString("message");
-                title = String.format("#%s", channelAddress);
-                text = Utils.truncate(messageContent, 32);
-                /** Messages sent in public channels are not additionally encoded so we can access them as a plain text in this place.
-                Nevertheless we'd want to display only limited information at this stage. **/
-                // title = "Quiet";
-                // text = String.format("You have a message in #%s", channelAddress);
-            } catch (JSONException e) {
-                Log.e("NOTIFICATION", "incorrect BASE_NOTIFICATION payload", e);
-                return;
-            }
-        }
-
-        composeNotification(title, text, channelAddress);
+        composeNotification(channel, user, content);
     }
 
-    private static void composeNotification(String title, String text, String channelAddress) {
+    private static void composeNotification(String channel, String user, String content) {
         Intent resultIntent = new Intent(reactContext, MainActivity.class);
 
-        resultIntent.putExtra("channelAddress", channelAddress);
+        resultIntent.putExtra("channelAddress", channel);
         resultIntent.putExtra("TAG", "notification");
 
-        int notificationId = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
+        int id_group = channel.hashCode();
+        int id_message = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(reactContext);
         stackBuilder.addNextIntentWithParentStack(resultIntent);
 
         PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(notificationId,
+                stackBuilder.getPendingIntent(id_message,
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
+        // Group messages per channel
+        NotificationCompat.Builder groupBuilder = new NotificationCompat.Builder(reactContext, Const.INCOMING_MESSAGES_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(channel)
+                .setContentText("")
+                .setStyle(new NotificationCompat.InboxStyle()
+                        .setSummaryText(channel))
+                .setAutoCancel(true)
+                .setGroupSummary(true)
+                .setGroup(channel);
+
+        // Display individual notification for each message
         NotificationCompat.Builder builder = new NotificationCompat.Builder(reactContext, Const.INCOMING_MESSAGES_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(title)
-                .setContentText(text)
-                .setDefaults(NotificationCompat.DEFAULT_ALL)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentTitle(user)
+                .setContentText(content)
+                .setGroup(channel)
+                .setAutoCancel(true)
                 .setContentIntent(resultPendingIntent);
 
+        // If message content is long enough, make it expandable
+        if (content.length() > 48) {
+            builder.setStyle(new NotificationCompat.BigTextStyle().bigText(content));
+        }
+
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(reactContext.getApplicationContext());
-        notificationManager.notify(notificationId, builder.build());
+        notificationManager.notify(id_group, groupBuilder.build());
+        notificationManager.notify(id_message, builder.build());
     }
 
     private static boolean isAppOnForeground() {
