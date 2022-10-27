@@ -6,9 +6,7 @@ export const publicChannelsMessagesBaseAdapter = createEntityAdapter<PublicChann
   selectId: base => base.channelAddress
 })
 
-export const messagesBaseAdapter = createEntityAdapter<ChannelMessage>({
-  selectId: message => message.id
-})
+export const messagesBaseAdapter = createEntityAdapter<ChannelMessage>()
 
 export const messageVerificationStatusAdapter = createEntityAdapter<MessageVerificationStatus>({
   selectId: status => status.signature
