@@ -130,18 +130,19 @@ public class NotificationModule extends ReactContextBaseJavaModule {
     }
 
     private static void composeNotification(String channel, String user, String content) {
-        Intent resultIntent = new Intent(reactContext, MainActivity.class);
+        Intent intent = new Intent(reactContext, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        resultIntent.putExtra("channelAddress", channel);
-        resultIntent.putExtra("TAG", "notification");
-
-        int id_group = channel.hashCode();
-        int id_message = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
+        // Remove prefix from channel name before saving extras
+        String extra = channel.substring(1);
+        intent.putExtra("channel", extra);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(reactContext);
-        stackBuilder.addNextIntentWithParentStack(resultIntent);
+        stackBuilder.addNextIntentWithParentStack(intent);
 
-        PendingIntent resultPendingIntent =
+        int id_message = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
+
+        PendingIntent pendingIntent =
                 stackBuilder.getPendingIntent(id_message,
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
@@ -162,15 +163,20 @@ public class NotificationModule extends ReactContextBaseJavaModule {
                 .setContentTitle(user)
                 .setContentText(content)
                 .setGroup(channel)
-                .setAutoCancel(true)
-                .setContentIntent(resultPendingIntent);
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                // Set the intent that will fire when the user taps the notification
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
 
         // If message content is long enough, make it expandable
-        if (content.length() > 48) {
+        if (content.length() > 64) {
             builder.setStyle(new NotificationCompat.BigTextStyle().bigText(content));
         }
 
+        int id_group = channel.hashCode();
+
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(reactContext.getApplicationContext());
+
         notificationManager.notify(id_group, groupBuilder.build());
         notificationManager.notify(id_message, builder.build());
     }
