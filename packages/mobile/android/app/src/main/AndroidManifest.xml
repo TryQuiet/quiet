@@ -2,6 +2,7 @@
   package="com.zbaymobile">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
       android:name=".MainApplication"
@@ -25,5 +26,15 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+      <receiver
+          android:name=".BootUpReceiver"
+          android:permission="android.permission.RECEIVE_BOOT_COMPLETED"
+          android:exported="true"
+          android:enabled="true">
+          <intent-filter>
+              <action android:name="android.intent.action.BOOT_COMPLETED" />
+              <category android:name="android.intent.category.DEFAULT" />
+          </intent-filter>
+      </receiver>
     </application>
 </manifest>
