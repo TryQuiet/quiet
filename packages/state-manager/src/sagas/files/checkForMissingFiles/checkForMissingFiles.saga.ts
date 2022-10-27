@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io-client'
-import { select, apply, put } from 'typed-redux-saga'
+import { select, apply, put, delay } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
@@ -19,6 +19,7 @@ export function* checkForMissingFilesSaga(
   const community = yield* select(communitiesSelectors.currentCommunity)
 
   if (community.id !== action.payload) return
+  yield* delay(500)
 
   const identity = yield* select(identitySelectors.currentIdentity)
 
