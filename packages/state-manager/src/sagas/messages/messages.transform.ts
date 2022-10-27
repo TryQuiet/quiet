@@ -13,9 +13,10 @@ export const MessagesTransform = createTransform(
   (outboundState: MessagesState, _key) => {
     const messageVerificationStatus = Object.values(outboundState.messageVerificationStatus.entities)
     const updatedMessageVerificationStatus: MessageVerificationStatus[] = messageVerificationStatus.reduce((result, status: any) => {
-      if(status.isVerified !== undefined ||
+      console.log(status)
+      if (status.isVerified !== undefined ||
       status.verified !== undefined
-      ){
+      ) {
         const entry: MessageVerificationStatus = {
           ...status,
           isVerified: status.isVerified ? status.isVerified : status.verified
@@ -26,12 +27,12 @@ export const MessagesTransform = createTransform(
       return result
     }, [])
 
-    let messagesBase: PublicChannelsMessagesBase[] = []
-    let messagesInChannel: ChannelMessage[] 
+    const messagesBase: PublicChannelsMessagesBase[] = []
+    let messagesInChannel: ChannelMessage[]
 
-    updatedMessageVerificationStatus.forEach((status)=>{
+    updatedMessageVerificationStatus.forEach((status) => {
       Object.values(outboundState.publicChannelsMessagesBase.entities).forEach((channelMessages) => {
-        messagesInChannel=[]
+        messagesInChannel = []
         Object.values(channelMessages.messages.entities).forEach((message) => {
           if (status.signature === message.signature) {
             messagesInChannel.push(message)

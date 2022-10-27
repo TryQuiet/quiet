@@ -76,12 +76,11 @@ describe('messages transform', () => {
         )
 
         const validMessage = validCurrentPublicChannelMessagesEntries(store.getState())
-            .find((item)=> item.id === message.id)
-        
+            .find((item) => item.id === message.id)
+
         // Expect there is no valid message
         expect(validMessage).not.toBeDefined()
     })
-
 
     test('message with old verification format is valid, after transform', async () => {
         // Add message status with wrong key name
@@ -90,13 +89,13 @@ describe('messages transform', () => {
         )
 
         // Transform messages and replace new reducer
-        const messages = MessagesTransform.out(store.getState().Messages, 'Files', {})
+        const messages = MessagesTransform.out(store.getState().Messages, 'Messages', {})
         store.replaceReducer((storeState) => {
             return { ...storeState, Messages: messages }
         })
 
         const validMessage = validCurrentPublicChannelMessagesEntries(store.getState())
-            .find((item)=> item.id === message.id)
+            .find((item) => item.id === message.id)
 
         // Expect there is valid message
         expect(validMessage).toBeDefined()
