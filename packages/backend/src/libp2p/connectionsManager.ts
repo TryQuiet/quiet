@@ -284,7 +284,7 @@ export class ConnectionsManager extends EventEmitter {
   public sendCertificateRegistrationRequest = async (
     serviceAddress: string,
     userCsr: string,
-    requestTimeout: number = 15000
+    requestTimeout: number = 120_000
   ): Promise<Response> => {
     const controller = new AbortController()
     const timeout = setTimeout(() => {
