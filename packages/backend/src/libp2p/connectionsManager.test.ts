@@ -1,7 +1,6 @@
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { createTmpDir, tmpQuietDirPath } from '../common/testUtils'
-import * as utils from '../common/utils'
 import { ConnectionsManager } from './connectionsManager'
 
 let tmpDir: DirResult
@@ -54,11 +53,10 @@ describe('Connections manager', () => {
       addressPort: port,
       targetPort: port,
       bootstrapMultiaddrs: ['some/address'],
-      certs: null
+      certs: {certificate: 'asdf', key: 'asdf', CA: ["ASDF"]}
     })
     expect(result.localAddress).toBe(localAddress)
     expect(result.libp2p.peerId).toBe(peerId)
-    console.log(result.libp2p.addresses.listen)
     expect(result.libp2p.addresses.listen).toStrictEqual([listenAddress])
   })
 
@@ -81,7 +79,7 @@ describe('Connections manager', () => {
         peerId.toB58String()
       )
       expect(libp2pAddress).toStrictEqual(
-        `/dns4/${address}/tcp/${port}/wss}/p2p/${peerId.toB58String()}`
+        `/dns4/${address}/tcp/443/wss/p2p/${peerId.toB58String()}`
       )
     }
   )
@@ -90,7 +88,6 @@ describe('Connections manager', () => {
     async () => {
       const address = '0.0.0.0'
       const port = 1234
-      const ports = await utils.getPorts()
       connectionsManager = new ConnectionsManager({
         socketIOPort: port,
         options: {
@@ -100,7 +97,7 @@ describe('Connections manager', () => {
         }
       })
       const libp2pListenAddress = connectionsManager.createLibp2pListenAddress(address)
-      expect(libp2pListenAddress).toStrictEqual(`/dns4/${address}/tcp/${port}/wss}`)
+      expect(libp2pListenAddress).toStrictEqual(`/dns4/${address}/tcp/443/wss`)
     }
   )
 })

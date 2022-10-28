@@ -16,7 +16,7 @@ beforeEach(() => {
   connectionsManager = null
 })
 
-describe('Connections manager (using tor)', () => {
+describe('Connections manager', () => {
   it('runs tor by default', async () => {
     const ports = await utils.getPorts()
     connectionsManager = new ConnectionsManager({

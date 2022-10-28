@@ -103,6 +103,7 @@ export class CertificateRegistration {
     return await getUsersAddresses(users, Boolean(this.tor))
   }
 
+  // REFACTORING: Move this method to identity
   private pubKeyMatch(cert: string, parsedCsr: CertificationRequest) {
     const parsedCertificate = parseCertificate(cert)
     const pubKey = keyFromCertificate(parsedCertificate)
@@ -176,6 +177,7 @@ export class CertificateRegistration {
     return userCert
   }
 
+  // Refactoring: This can be easily simplified if we generate 2 tor private keys for community owner as he creates community.
   public async init() {
     if (!this._port) {
       const port = await getPort({ port: 7789 })

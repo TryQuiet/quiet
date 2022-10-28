@@ -16,7 +16,6 @@ import { Tor } from '../torManager'
 import {
   createLibp2pAddress,
   createLibp2pListenAddress,
-  DummyIOServer,
   getPorts,
   Ports,
   torBinForPlatform,
@@ -72,8 +71,9 @@ export const createMinConnectionManager = (
 }
 
 export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
-  const port = await getPort()
   const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
+
+  const port = await getPort()
 
   return ConnectionsManager.createBootstrapNode({
     peerId,
@@ -120,22 +120,19 @@ export function createFile(filePath: string, size: number) {
 
 export class TorMock {
   // TODO: extend Tor to be sure that mocked api is correct
-  public async spawnHiddenService({
-    targetPort,
-    privKey
-  }: {
-    virtPort: number
-    targetPort: number
-    privKey: string
-  }): Promise<any> {
-    log('TorMock.spawnHiddenService', targetPort, privKey)
+  public async spawnHiddenService(
+    targetPort: number,
+    privKey: string,
+    virtPort: number = 443
+  ): Promise<any> {
+    log('TorMock.spawnHiddenService', targetPort, privKey, virtPort)
     return 'mockedOnionAddress.onion'
   }
 
   public async createNewHiddenService(
-    targetPort: number
+    targetPort: number, virtPort: number = 443
   ): Promise<{ onionAddress: string; privateKey: string }> {
-    log('TorMock.createNewHiddenService', targetPort)
+    log('TorMock.createNewHiddenService', targetPort, virtPort)
     return {
       onionAddress: 'mockedOnionAddress',
       privateKey: 'mockedPrivateKey'
