@@ -17,33 +17,42 @@ const log = logger('torMesh')
 
 const peersCount = 20
 // const timeout = 130_000
-// const timeoutPerRequest = 15_000
+// const s = 15_000
 const requestsCount = 5
-const eventEmmiter = new EventEmitter()
+let eventEmmiter = new EventEmitter()
+let torServices = new Map<string, { tor: Tor; httpTunnelPort: number, mode: string, onionAddress?: string }>()
+let results = {}
 
-const torServices = new Map<string, { tor: Tor; httpTunnelPort: number, mode: string, onionAddress?: string }>()
-// const hiddenServices = new Map<string, string>()
+const init = () => {
+  eventEmmiter = new EventEmitter()
+  torServices = new Map<string, { tor: Tor; httpTunnelPort: number, mode: string, onionAddress?: string }>()
+  results = {}
+}
 
-const results = {}
+const spawnTor = async (i: number) => {
+  const tmpDir = createTmpDir()
+  console.log(tmpDir)
+  log(`spawning tor number ${i}`)
+  const tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
+
+  const ports = await getPorts()
+
+  const tor = await spawnTorProcess(tmpAppDataPath, ports)
+
+  await tor.init()
+  let mode = 'server'
+  if (i % 2) {
+    mode = 'client'
+  }
+  torServices.set(i.toString(), { tor, httpTunnelPort: ports.httpTunnelPort, mode })
+}
 
 const spawnMesh = async () => {
+  const torProcesses = []
   for (let i = 0; i < peersCount; i++) {
-    const tmpDir = createTmpDir()
-    console.log(tmpDir)
-    log(`spawning tor number ${i}`)
-    const tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
-
-    const ports = await getPorts()
-
-    const tor = await spawnTorProcess(tmpAppDataPath, ports)
-
-    await tor.init()
-    let mode = 'server'
-    if (i % 2) {
-      mode = 'client'
-    }
-    torServices.set(i.toString(), { tor, httpTunnelPort: ports.httpTunnelPort, mode })
+    torProcesses.push(spawnTor(i))
   }
+  await Promise.all(torProcesses)
 }
 
 const killMesh = async () => {
@@ -57,7 +66,6 @@ const createServer = async (port, serverAddress: string) => {
   app.use(express.json())
   // eslint-disable-next-line
   app.post('/test', async (req, res) => {
-    log(`post. Returning ${{ counter: req.body.counter }}`)
     // eslint-disable-next-line
     res.send({ counter: req.body.counter })
     log(`Post (${req.body.counter}) ${serverAddress}`)
@@ -78,7 +86,7 @@ const sendRequest = async (
   tor: Tor,
   counter: number,
 ): Promise<Response> => {
-  await tor.switchToCleanCircuts()
+  // await tor.switchToCleanCircuts()
 
   let response = null
   const agent = await createAgent(httpTunnelPort)
@@ -102,6 +110,13 @@ const sendRequest = async (
   } finally {
     console.timeEnd(`fetch (${counter}) ${serviceAddress}`)
   }
+
+  if (response && response.status !== 200) {
+    log(`Response code !== 200 (it is ${response.status}) ${counter} ${serviceAddress}`)
+    results[serviceAddress][counter].statusCode = response.status
+    throw `Response code !== 200 (it is ${response.status})`
+  }
+
   return response
 }
 
@@ -228,63 +243,59 @@ const sendRequests = async () => { // No newnym, send next request if previous o
       bootstrapTime: tor.bootstrapTime
     }
 
-    let rq = 0;
-    while (rq < requestsCount) {
+    let response = null
+    let responseData = null
+    for (let rq = 0; rq < requestsCount; rq++) {
       try {
-        const response = await sendRequest(
+        response = await sendRequest(
           serverOnionAddress, 
           clients[serverCounter].httpTunnelPort,
           tor,
           rq
         )
         log('got response', rq, serverOnionAddress)
-        const end = new Date()
-        // Gather results
-        // @ts-ignore
-        const {counter} = response.json()
-        results[serverOnionAddress][counter].fetchTime = end.getTime() - results[serverOnionAddress][counter].startFetchTime.getTime()
-        results[serverOnionAddress].receivedResultsTime = (end.getTime() - results[serverOnionAddress].requestsStartTime.getTime()) / 1000 // Since scheduling Promise.any
+        results[serverOnionAddress].endTime = new Date()
+        results[serverOnionAddress].statusCode = response.status
         break
       } catch (e) {
-        rq++
+        continue
       }
     }
+
+    const end = new Date()
+    results[serverOnionAddress].receivedResultsTime = (end.getTime() - results[serverOnionAddress].requestsStartTime.getTime()) / 1000 // Since scheduling Promise.any
+
+    try {
+      responseData = await response.json()
+    } catch (e) {
+      log(`Didn't receive proper response data for ${serverOnionAddress}`)
+      results[serverOnionAddress].success = false
+      continue
+    }
+
+    const {counter} = responseData
+    results[serverOnionAddress][counter].fetchTime = (end.getTime() - results[serverOnionAddress][counter].startFetchTime.getTime()) / 1000
   }
 }
 
-// const waitForRequests = async () => {
-//   return await new Promise((resolve, reject) => {
-//     setTimeout(() => {
-//       reject(new Error('rejected because of timeout'))
-//     }, timeout)
-//     setInterval(() => {
-//       if (finishedRequests + failedRequests + cancelledRequests === (peersCount / 2) * requestsCount) {
-//         resolve('finished')
-//       }
-//     }, 1000)
-//   })
-// }
-
 const main = async () => {
-  await spawnMesh()
-  await createHiddenServices()
-  log('created hidden services')
-  console.time('test time')
-  await testWithDelayedNewnym()
-  // await sendRequests()
-  console.timeEnd('test time')
-  // try {
-  //   log('waiting for requests')
-  //   await waitForRequests()
-  // } catch (e) {
-  //   log.error(e)
-  // }
-  await destroyHiddenServices()
-  log('destroyed hidden services')
-  await killMesh()
-  log('RESULTS', JSON.stringify(results))
-  fs.writeFileSync(`${new Date().toISOString()}_delayed.json`, JSON.stringify(results))
-  log('after killing mesh')
+  // setInterval(async () => {
+    init()
+    await spawnMesh()
+    await createHiddenServices()
+    log('created hidden services')
+    console.time('test time')
+    // await testWithDelayedNewnym()
+    await sendRequests()
+    console.timeEnd('test time')
+    await destroyHiddenServices()
+    log('destroyed hidden services')
+    await killMesh()
+    log('RESULTS', JSON.stringify(results))
+    fs.writeFileSync(`${new Date().toISOString()}_regular_no_newnym.json`, JSON.stringify(results))
+    log('after killing mesh')
+  // }, 1200000) // 20 minutes
+  
   process.exit(1)
 }
 // eslint-disable-next-line
