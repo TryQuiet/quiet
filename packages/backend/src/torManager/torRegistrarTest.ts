@@ -13,21 +13,30 @@ import {
 
 import logger from '../logger'
 import { EventEmitter } from 'events'
+import { Command } from 'commander'
+const program = new Command()
+
+enum TestMode {
+  NEWNYM = 'newnym',
+  REGULAR = 'regular'
+}
+
+program
+  .option('-p, --peersNumber <number>', 'Total number of peers', '20')
+  .option('-r, --requestsNumber <number>', 'Number of requests per single test', '5')
+  .requiredOption('-m, --mode <type>', 'Number of requests per single test - "newnym" or "regular"')
+
+program.parse(process.argv)
+const options = program.opts()
+console.log('OPTIONS', options)
 const log = logger('torMesh')
 
-const peersCount = 20
-// const timeout = 130_000
-// const s = 15_000
-const requestsCount = 5
+const peersCount = options.peersNumber
+const requestsCount = options.requestsNumber
+const mode = options.mode
 let eventEmmiter = new EventEmitter()
-let torServices = new Map<string, { tor: Tor; httpTunnelPort: number, mode: string, onionAddress?: string }>()
+let torServices = new Map<string, { tor: Tor; httpTunnelPort: number, onionAddress?: string }>()
 let results = {}
-
-const init = () => {
-  eventEmmiter = new EventEmitter()
-  torServices = new Map<string, { tor: Tor; httpTunnelPort: number, mode: string, onionAddress?: string }>()
-  results = {}
-}
 
 const spawnTor = async (i: number) => {
   const tmpDir = createTmpDir()
@@ -40,11 +49,7 @@ const spawnTor = async (i: number) => {
   const tor = await spawnTorProcess(tmpAppDataPath, ports)
 
   await tor.init()
-  let mode = 'server'
-  if (i % 2) {
-    mode = 'client'
-  }
-  torServices.set(i.toString(), { tor, httpTunnelPort: ports.httpTunnelPort, mode })
+  torServices.set(i.toString(), { tor, httpTunnelPort: ports.httpTunnelPort })
 }
 
 const spawnMesh = async () => {
@@ -73,6 +78,7 @@ const createServer = async (port, serverAddress: string) => {
   })
   app.listen(port, () => {
     log('listening')
+    results[serverAddress].serverReadyTime = new Date()
   })
 }
 
@@ -86,7 +92,10 @@ const sendRequest = async (
   tor: Tor,
   counter: number,
 ): Promise<Response> => {
-  // await tor.switchToCleanCircuts()
+
+  if (mode === TestMode.NEWNYM) {
+    await tor.switchToCleanCircuts()
+  }
 
   let response = null
   const agent = await createAgent(httpTunnelPort)
@@ -123,10 +132,11 @@ const sendRequest = async (
 const createHiddenServices = async () => {
   log('Creating hidden services for servers')
   for (const [key, data] of torServices) {
-    if (data.mode !== 'server') continue
+    if (Number(key) % 2) continue
     const { libp2pHiddenService } = await getPorts()
     const hiddenService = await data.tor.createNewHiddenService(80, libp2pHiddenService)
     const address = hiddenService.onionAddress.split('.')[0]
+    results[address] = {}
     log(`created hidden service for instance ${key} and onion address is ${address}`)
     data.onionAddress = address
     torServices.set(key, data)
@@ -180,7 +190,6 @@ const testWithDelayedNewnym = async () => {
     const requests = []
     const serverOnionAddress = servers[serverCounter].onionAddress
     const tor = servers[serverCounter].tor
-    results[serverOnionAddress] = {}
     for (let rq = 0; rq < requestsCount; rq++) {
       requests.push(resolveTimeout(
         sendRequest,
@@ -194,10 +203,8 @@ const testWithDelayedNewnym = async () => {
     let responseData = null
     let response = null
     try {
-      results[serverOnionAddress] = {
-        requestsStartTime: new Date(),
-        bootstrapTime: tor.bootstrapTime
-      }
+      results[serverOnionAddress].requestsStartTime = new Date(),
+      results[serverOnionAddress].bootstrapTime = tor.bootstrapTime
       // @ts-ignore
       response = await Promise.any(requests) // Get first successful response
       results[serverOnionAddress].endTime = new Date()
@@ -238,10 +245,8 @@ const sendRequests = async () => { // No newnym, send next request if previous o
   for (let serverCounter = 0; serverCounter < servers.length; serverCounter++) {
     const serverOnionAddress = servers[serverCounter].onionAddress
     const tor = servers[serverCounter].tor
-    results[serverOnionAddress] = {
-      requestsStartTime: new Date(),
-      bootstrapTime: tor.bootstrapTime
-    }
+    results[serverOnionAddress].requestsStartTime = new Date()
+    results[serverOnionAddress].bootstrapTime = tor.bootstrapTime
 
     let response = null
     let responseData = null
@@ -279,23 +284,22 @@ const sendRequests = async () => { // No newnym, send next request if previous o
 }
 
 const main = async () => {
-  // setInterval(async () => {
-    init()
-    await spawnMesh()
-    await createHiddenServices()
-    log('created hidden services')
-    console.time('test time')
-    // await testWithDelayedNewnym()
+  await spawnMesh()
+  await createHiddenServices()
+  log('created hidden services')
+  console.time('test time')
+  if (mode === TestMode.NEWNYM) {
+    await testWithDelayedNewnym()
+  } else {
     await sendRequests()
-    console.timeEnd('test time')
-    await destroyHiddenServices()
-    log('destroyed hidden services')
-    await killMesh()
-    log('RESULTS', JSON.stringify(results))
-    fs.writeFileSync(`${new Date().toISOString()}_regular_no_newnym.json`, JSON.stringify(results))
-    log('after killing mesh')
-  // }, 1200000) // 20 minutes
-  
+  }
+  console.timeEnd('test time')
+  await destroyHiddenServices()
+  log('destroyed hidden services')
+  await killMesh()
+  log('RESULTS', JSON.stringify(results))
+  fs.writeFileSync(`${new Date().toISOString()}_mode_${mode}.json`, JSON.stringify(results))
+  log('after killing mesh')
   process.exit(1)
 }
 // eslint-disable-next-line
