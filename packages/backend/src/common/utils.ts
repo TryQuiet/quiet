@@ -171,3 +171,15 @@ export const compare = (given: number, base: number, tolerance: number = 0) => {
   const max = base + margin
   return given >= min && given <= max
 }
+
+export const INIT_COMMUNITY_DATA = 'initCommunityData'
+
+export const saveDataPersistently = <T>(key: string, obj: T) => {
+  const data = JSON.stringify(obj)
+  fs.writeFileSync(`/backend/${key}.txt`, data)
+}
+
+export const readPersistentData = <T>(key: string): T => {
+  const buffer = fs.readFileSync(`/backend/${key}.txt`)
+  return JSON.parse(buffer.toString())
+}

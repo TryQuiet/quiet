@@ -35,7 +35,7 @@ import {
 import { emitError } from './errors'
 
 import logger from '../logger'
-import { getUsersAddresses } from '../common/utils'
+import { getUsersAddresses, saveDataPersistently, INIT_COMMUNITY_DATA } from '../common/utils'
 
 const log = logger('io')
 
@@ -327,6 +327,7 @@ export default class IOProxy {
       })
       return
     }
+    saveDataPersistently(INIT_COMMUNITY_DATA, payload)
     log(`Launched community ${payload.id}`)
     this.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
