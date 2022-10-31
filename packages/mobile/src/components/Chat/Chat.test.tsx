@@ -23,6 +23,7 @@ describe('Chat component', () => {
     const { toJSON } = renderComponent(
       <Chat
         sendMessageAction={jest.fn()}
+        loadMessagesAction={jest.fn()}
         channel={{
           name: 'Zbay',
           description: '',
@@ -30,6 +31,7 @@ describe('Chat component', () => {
           timestamp: 0,
           address: ''
         }}
+        pendingMessages={{}}
         messages={{
           count: 16,
           groups: {
@@ -181,7 +183,7 @@ describe('Chat component', () => {
               ],
               [
                 {
-                  id: '16',
+                  id: '17',
                   type: 1,
                   message:
                     'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
@@ -207,6 +209,9 @@ describe('Chat component', () => {
               "flex": 1,
               "flexDirection": "column",
               "justifyContent": "flex-end",
+              "paddingBottom": 20,
+              "paddingLeft": 20,
+              "paddingRight": 20,
             },
             Object {
               "paddingBottom": 0,
@@ -227,6 +232,8 @@ describe('Chat component', () => {
           inverted={true}
           keyExtractor={[Function]}
           onContentSizeChange={[Function]}
+          onEndReached={[Function]}
+          onEndReachedThreshold={0.7}
           onLayout={[Function]}
           onMomentumScrollBegin={[Function]}
           onMomentumScrollEnd={[Function]}
@@ -236,6 +243,7 @@ describe('Chat component', () => {
           removeClippedSubviews={false}
           renderItem={[Function]}
           scrollEventThrottle={50}
+          showsVerticalScrollIndicator={false}
           stickyHeaderIndices={Array []}
           style={
             Array [
@@ -246,10 +254,7 @@ describe('Chat component', () => {
                   },
                 ],
               },
-              Object {
-                "paddingLeft": 20,
-                "paddingRight": 20,
-              },
+              undefined,
             ]
           }
           viewabilityConfigCallbackPairs={Array []}
@@ -293,14 +298,14 @@ describe('Chat component', () => {
                         Object {
                           "alignItems": "center",
                           "flex": 1,
-                          "paddingRight": 12,
+                          "paddingRight": 15,
                         }
                       }
                     />
                     <View
                       style={
                         Object {
-                          "flex": 10,
+                          "flex": 8,
                         }
                       }
                     >
@@ -482,14 +487,14 @@ describe('Chat component', () => {
                         Object {
                           "alignItems": "center",
                           "flex": 1,
-                          "paddingRight": 12,
+                          "paddingRight": 15,
                         }
                       }
                     />
                     <View
                       style={
                         Object {
-                          "flex": 10,
+                          "flex": 8,
                         }
                       }
                     >
@@ -617,14 +622,14 @@ describe('Chat component', () => {
                         Object {
                           "alignItems": "center",
                           "flex": 1,
-                          "paddingRight": 12,
+                          "paddingRight": 15,
                         }
                       }
                     />
                     <View
                       style={
                         Object {
-                          "flex": 10,
+                          "flex": 8,
                         }
                       }
                     >
@@ -752,14 +757,14 @@ describe('Chat component', () => {
                         Object {
                           "alignItems": "center",
                           "flex": 1,
-                          "paddingRight": 12,
+                          "paddingRight": 15,
                         }
                       }
                     />
                     <View
                       style={
                         Object {
-                          "flex": 10,
+                          "flex": 8,
                         }
                       }
                     >
@@ -887,14 +892,14 @@ describe('Chat component', () => {
                         Object {
                           "alignItems": "center",
                           "flex": 1,
-                          "paddingRight": 12,
+                          "paddingRight": 15,
                         }
                       }
                     />
                     <View
                       style={
                         Object {
-                          "flex": 10,
+                          "flex": 8,
                         }
                       }
                     >
@@ -1049,14 +1054,14 @@ describe('Chat component', () => {
                         Object {
                           "alignItems": "center",
                           "flex": 1,
-                          "paddingRight": 12,
+                          "paddingRight": 15,
                         }
                       }
                     />
                     <View
                       style={
                         Object {
-                          "flex": 10,
+                          "flex": 8,
                         }
                       }
                     >
@@ -1184,14 +1189,14 @@ describe('Chat component', () => {
                         Object {
                           "alignItems": "center",
                           "flex": 1,
-                          "paddingRight": 12,
+                          "paddingRight": 15,
                         }
                       }
                     />
                     <View
                       style={
                         Object {
-                          "flex": 10,
+                          "flex": 8,
                         }
                       }
                     >
@@ -1319,14 +1324,14 @@ describe('Chat component', () => {
                         Object {
                           "alignItems": "center",
                           "flex": 1,
-                          "paddingRight": 12,
+                          "paddingRight": 15,
                         }
                       }
                     />
                     <View
                       style={
                         Object {
-                          "flex": 10,
+                          "flex": 8,
                         }
                       }
                     >
@@ -1454,14 +1459,14 @@ describe('Chat component', () => {
                         Object {
                           "alignItems": "center",
                           "flex": 1,
-                          "paddingRight": 12,
+                          "paddingRight": 15,
                         }
                       }
                     />
                     <View
                       style={
                         Object {
-                          "flex": 10,
+                          "flex": 8,
                         }
                       }
                     >
@@ -1589,14 +1594,14 @@ describe('Chat component', () => {
                         Object {
                           "alignItems": "center",
                           "flex": 1,
-                          "paddingRight": 12,
+                          "paddingRight": 15,
                         }
                       }
                     />
                     <View
                       style={
                         Object {
-                          "flex": 10,
+                          "flex": 8,
                         }
                       }
                     >
@@ -1744,14 +1749,14 @@ describe('Chat component', () => {
                         Object {
                           "alignItems": "center",
                           "flex": 1,
-                          "paddingRight": 12,
+                          "paddingRight": 15,
                         }
                       }
                     />
                     <View
                       style={
                         Object {
-                          "flex": 10,
+                          "flex": 8,
                         }
                       }
                     >
@@ -1906,14 +1911,14 @@ describe('Chat component', () => {
                         Object {
                           "alignItems": "center",
                           "flex": 1,
-                          "paddingRight": 12,
+                          "paddingRight": 15,
                         }
                       }
                     />
                     <View
                       style={
                         Object {
-                          "flex": 10,
+                          "flex": 8,
                         }
                       }
                     >
@@ -2028,58 +2033,64 @@ describe('Chat component', () => {
         <View
           style={
             Object {
-              "paddingBottom": 20,
-              "paddingLeft": 20,
-              "paddingRight": 20,
+              "flexDirection": "row",
             }
           }
         >
-          <View>
-            <View
-              accessible={true}
-              collapsable={false}
-              focusable={true}
-              onBlur={[Function]}
-              onClick={[Function]}
-              onFocus={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
-              style={
-                Array [
-                  Object {
-                    "backgroundColor": "#ffffff",
-                    "borderColor": "#B3B3B3",
-                    "borderRadius": 4,
-                    "borderWidth": 1,
-                    "flexGrow": 1,
-                    "maxHeight": 72,
-                    "minHeight": 42,
-                    "paddingLeft": 15,
-                    "paddingRight": 15,
-                  },
-                  Object {},
-                ]
+          <View
+            style={
+              Object {
+                "flex": 9,
               }
-            >
-              <TextInput
-                editable={true}
-                multiline={true}
-                onChangeText={[Function]}
-                placeholder="Message #Zbay as @holmes"
+            }
+          >
+            <View>
+              <View
+                accessible={true}
+                collapsable={false}
+                focusable={true}
+                onBlur={[Function]}
+                onClick={[Function]}
+                onFocus={[Function]}
+                onResponderGrant={[Function]}
+                onResponderMove={[Function]}
+                onResponderRelease={[Function]}
+                onResponderTerminate={[Function]}
+                onResponderTerminationRequest={[Function]}
+                onStartShouldSetResponder={[Function]}
                 style={
                   Array [
                     Object {
-                      "paddingBottom": 8,
-                      "paddingTop": 8,
-                      "textAlignVertical": "center",
+                      "backgroundColor": "#ffffff",
+                      "borderColor": "#B3B3B3",
+                      "borderRadius": 4,
+                      "borderWidth": 1,
+                      "flexGrow": 1,
+                      "paddingLeft": 15,
+                      "paddingRight": 15,
                     },
                   ]
                 }
-              />
+              >
+                <TextInput
+                  allowFontScaling={true}
+                  editable={true}
+                  multiline={true}
+                  onChangeText={[Function]}
+                  placeholder="Message #Zbay"
+                  rejectResponderTermination={true}
+                  style={
+                    Array [
+                      Object {
+                        "paddingBottom": 12,
+                        "paddingTop": 12,
+                        "textAlignVertical": "center",
+                      },
+                    ]
+                  }
+                  underlineColorAndroid="transparent"
+                />
+              </View>
             </View>
           </View>
         </View>

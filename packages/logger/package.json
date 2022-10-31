@@ -1,6 +1,6 @@
 {
   "name": "@quiet/logger",
-  "version": "0.8.2-alpha.1",
+  "version": "0.10.3-alpha.16",
   "description": "Logger",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -31,8 +31,7 @@
   },
   "dependencies": {
     "cross-env": "^5.2.0",
-    "debug": "^4.3.1",
-    "electron-log": "^4.4.6"
+    "debug": "^4.3.1"
   },
   "author": "",
   "license": "ISC"

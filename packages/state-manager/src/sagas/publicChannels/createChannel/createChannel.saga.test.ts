@@ -1,26 +1,39 @@
-import { combineReducers } from '@reduxjs/toolkit'
+import { combineReducers, current } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { StoreKeys } from '../../store.keys'
 import { Socket } from 'socket.io-client'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
-
 import { publicChannelsActions } from '../publicChannels.slice'
 import {
   identityReducer,
-  IdentityState
+  IdentityState,
+  identityActions
 } from '../../identity/identity.slice'
 import {
-  Community,
   CommunitiesState,
-  communitiesReducer
+  communitiesReducer,
+  communitiesActions
 } from '../../communities/communities.slice'
 import { communitiesAdapter } from '../../communities/communities.adapter'
 import { identityAdapter } from '../../identity/identity.adapter'
 import { createChannelSaga } from './createChannel.saga'
-import { Identity } from '../../identity/identity.types'
 import { PublicChannel } from '../publicChannels.types'
+import { Store } from '../../store.types'
+import { FactoryGirl } from 'factory-girl'
+import { setupCrypto } from '@quiet/identity'
+import { prepareStore } from '../../../utils/tests/prepareStore'
+import { getFactory } from '../../../utils/tests/factories'
 
 describe('createChannelSaga', () => {
+  let store: Store
+  let factory: FactoryGirl
+
+  beforeAll(async () => {
+    setupCrypto()
+    store = prepareStore().store
+    factory = await getFactory(store)
+  })
+
   const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
   const channel: PublicChannel = {
@@ -31,31 +44,15 @@ describe('createChannelSaga', () => {
     address: 'address'
   }
 
-  const community: Community = {
-    name: '',
-    id: 'id',
-    CA: null,
-    rootCa: '',
-    peerList: [],
-    registrarUrl: 'registrarUrl',
-    registrar: null,
-    onionAddress: '',
-    privateKey: '',
-    port: 0,
-    registrationAttempts: 0
-  }
-
-  const identity: Identity = {
-    id: 'id',
-    hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-    dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
-    peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    nickname: '',
-    userCsr: undefined,
-    userCertificate: ''
-  }
-
   test('ask for missing messages', async () => {
+    const community = await factory.create<
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
+
+    const identity = await factory.create<
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'john' })
+
     await expectSaga(
       createChannelSaga,
       socket,
@@ -78,7 +75,7 @@ describe('createChannelSaga', () => {
           },
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
-            currentCommunity: 'id',
+            currentCommunity: community.id,
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]

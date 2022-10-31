@@ -16,6 +16,7 @@ export interface PublicChannelStorage extends PublicChannel {
 export interface PublicChannelStatus {
   address: string
   unread: boolean
+  newestMessage: ChannelMessage
 }
 
 export interface PublicChannelSubscription {
@@ -92,6 +93,7 @@ export interface SendNewUserInfoMessagePayload {
 
 export interface IncomingMessages {
   messages: ChannelMessage[]
+  isVerified?: boolean
 }
 
 export interface CacheMessagesPayload {
@@ -101,6 +103,11 @@ export interface CacheMessagesPayload {
 
 export interface MarkUnreadChannelPayload {
   channelAddress: string
+  message?: ChannelMessage
+}
+
+export interface UpdateNewestMessagePayload {
+  message: ChannelMessage
 }
 
 export function instanceOfChannelMessage(object: any): object is ChannelMessage {

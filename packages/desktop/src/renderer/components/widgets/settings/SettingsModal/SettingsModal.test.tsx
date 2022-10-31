@@ -387,6 +387,40 @@ describe('SettingsModal', () => {
                                       <span
                                         class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
                                       >
+                                        Librarian Shhh
+                                      </span>
+                                    </label>
+                                  </div>
+                                  <div
+                                    class="MuiGrid-root makeStyles-spacingSound-252 MuiGrid-item"
+                                  >
+                                    <label
+                                      class="MuiFormControlLabel-root makeStyles-radioSound-249"
+                                    >
+                                      <span
+                                        aria-disabled="false"
+                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                      >
+                                        <span
+                                          class="MuiIconButton-label"
+                                        >
+                                          <input
+                                            class="PrivateSwitchBase-input-268"
+                                            data-indeterminate="false"
+                                            type="checkbox"
+                                            value=""
+                                          />
+                                          <img
+                                            src="test-file-stub"
+                                          />
+                                        </span>
+                                        <span
+                                          class="MuiTouchRipple-root"
+                                        />
+                                      </span>
+                                      <span
+                                        class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
+                                      >
                                         Pow
                                       </span>
                                     </label>
@@ -719,7 +753,9 @@ describe('SettingsModal', () => {
                                     To add members to 
                                     <span
                                       class="makeStyles-bold-522"
-                                    />
+                                    >
+                                      Community
+                                    </span>
                                     , send them this invite code via a secure channel, e.g. Signal. You must be online the first time they join.
                                   </p>
                                 </div>

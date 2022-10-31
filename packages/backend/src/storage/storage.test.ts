@@ -3,7 +3,7 @@ import path from 'path'
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { Config } from '../constants'
-import { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createMinConnectionManager } from '../common/testUtils'
+import { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createMinConnectionManager, createFile } from '../common/testUtils'
 import { Storage } from './storage'
 import * as utils from '../common/utils'
 import { FactoryGirl } from 'factory-girl'
@@ -41,15 +41,17 @@ let factory: FactoryGirl
 let community: Community
 let channel: PublicChannelStorage
 let alice: Identity
+let john: Identity
 let message: ChannelMessage
 let channelio: PublicChannelStorage
+let filePath: string
 
 beforeAll(async () => {
   store = prepareStore().store
   factory = await getFactory(store)
 
   community = await factory.create<
-  ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
   >('Community')
 
   channel = publicChannels.selectors.publicChannels(store.getState())[0]
@@ -63,6 +65,11 @@ beforeAll(async () => {
   alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
     'Identity',
     { id: community.id, nickname: 'alice' }
+  )
+
+  john = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+    'Identity',
+    { id: community.id, nickname: 'john' }
   )
 
   message = (
@@ -84,6 +91,7 @@ beforeEach(async () => {
   const { controlPort } = await utils.getPorts()
   connectionsManager = createMinConnectionManager({ env: { appDataPath: tmpAppDataPath }, torControlPort: controlPort })
   storage = null
+  filePath = path.join(__dirname, '/testUtils/500kB-file.txt')
 })
 
 afterEach(async () => {
@@ -93,6 +101,9 @@ afterEach(async () => {
     console.error(e)
   }
   tmpDir.removeCallback()
+  if (fs.existsSync(filePath)) {
+    fs.rmSync(filePath)
+  }
 })
 
 describe('Storage', () => {
@@ -229,6 +240,153 @@ describe('Certificate', () => {
 
     expect(usernameCert).toBeNull()
   })
+
+  it('Certificates and peers list are updated on replicated event', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+    const spyOnLoadCertificates = jest.spyOn(storage.io, 'loadCertificates')
+    const spyOnUpdatePeersList = jest.spyOn(storage.io, 'updatePeersList')
+    // @ts-ignore - Property 'certificates' is private
+    storage.certificates.events.emit('replicated')
+
+    expect(spyOnLoadCertificates).toBeCalled()
+    expect(spyOnUpdatePeersList).toBeCalledWith({
+      communityId: storage.communityId,
+      peerId: peerId.toB58String()
+    })
+  })
+
+  it.each([
+    ['write'],
+    ['replicate.progress']
+  ])('The message is verified valid on "%s" db event', async (eventName: string) => {
+    const aliceMessage = await factory.create<
+      ReturnType<typeof publicChannels.actions.test_message>['payload']
+    >('Message', {
+      identity: alice
+    })
+
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+    await storage.initDatabases()
+    await storage.subscribeToChannel(channelio)
+
+    const spyOnLoadMessages = jest.spyOn(storage.io, 'loadMessages')
+    const spyOnVerifyMessage = jest.spyOn(storage, 'verifyMessage')
+    const getVerifyMessageResult = async (): Promise<any> => spyOnVerifyMessage.mock.results[0].value
+
+    const db = storage.publicChannelsRepos.get(message.channelAddress).db
+    const messagePayload = {
+ payload: {
+        value: aliceMessage.message
+      }
+    }
+
+    switch (eventName) {
+      case 'write':
+        await db.events.emit(eventName, 'address', messagePayload, [])
+        break
+      case 'replicate.progress':
+        await db.events.emit(eventName, 'address', 'hash', messagePayload, 'progress', 'total', [])
+        break
+    }
+
+    expect(spyOnVerifyMessage).toBeCalledWith(aliceMessage.message)
+    expect(await getVerifyMessageResult()).toBe(true)
+    expect(spyOnLoadMessages).toHaveBeenCalledWith({
+      messages: [aliceMessage.message],
+      isVerified: true
+    })
+  })
+
+  it.each([
+    ['write'],
+    ['replicate.progress']
+  ])('The message is verified not valid on "%s" db event', async (eventName: string) => {
+    const aliceMessage = await factory.create<
+      ReturnType<typeof publicChannels.actions.test_message>['payload']
+    >('Message', {
+      identity: alice
+    })
+
+    const johnMessage = await factory.create<
+      ReturnType<typeof publicChannels.actions.test_message>['payload']
+    >('Message', {
+      identity: john
+    })
+
+    const aliceMessageWithJohnsPublicKey: ChannelMessage = {
+      ...aliceMessage.message,
+      pubKey: johnMessage.message.pubKey
+    }
+
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+    await storage.initDatabases()
+    await storage.subscribeToChannel(channelio)
+
+    const spyOnLoadMessages = jest.spyOn(storage.io, 'loadMessages')
+    const spyOnVerifyMessage = jest.spyOn(storage, 'verifyMessage')
+    const getVerifyMessageResult = async (): Promise<any> => spyOnVerifyMessage.mock.results[0].value
+
+    const db = storage.publicChannelsRepos.get(message.channelAddress).db
+    const messagePayload = {
+ payload: {
+        value: aliceMessageWithJohnsPublicKey
+      }
+    }
+
+    switch (eventName) {
+      case 'write':
+        await db.events.emit(eventName, 'address', messagePayload, [])
+        break
+      case 'replicate.progress':
+        await db.events.emit(eventName, 'address', 'hash', messagePayload, 'progress', 'total', [])
+        break
+    }
+
+    expect(spyOnVerifyMessage).toBeCalledWith(aliceMessageWithJohnsPublicKey)
+    expect(await getVerifyMessageResult()).toBe(false)
+    expect(spyOnLoadMessages).toHaveBeenCalledWith({
+      messages: [aliceMessageWithJohnsPublicKey],
+      isVerified: false
+    })
+  })
+
+  it('Certificates and peers list are updated on write event', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+    const spyOnLoadCertificates = jest.spyOn(storage.io, 'loadCertificates')
+    const spyOnUpdatePeersList = jest.spyOn(storage.io, 'updatePeersList')
+    // @ts-ignore - Property 'certificates' is private
+    storage.certificates.events.emit('write', 'address', { payload: { value: 'something' } }, [])
+
+    expect(spyOnLoadCertificates).toBeCalled()
+    expect(spyOnUpdatePeersList).toBeCalledWith({
+      communityId: storage.communityId,
+      peerId: peerId.toB58String()
+    })
+  })
 })
 
 describe('Message', () => {
@@ -254,12 +412,8 @@ describe('Message', () => {
 
   // TODO: Message signature verification doesn't work, our theory is that our AccessController performs check after message is added to db.
   xit('is not saved to db if did not pass signature verification', async () => {
-    const john = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'john' })
-
     const aliceMessage = await factory.create<
-    ReturnType<typeof publicChannels.actions.test_message>['payload']
+      ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: alice
     })
@@ -591,6 +745,56 @@ describe('Files', () => {
     expect(uploadFileBuffer).toStrictEqual(downloadFileBuffer)
   })
 
+  it('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
+    const fileSize = 524288 // 0.5MB
+    createFile(filePath, fileSize)
+    const mockDateNow = jest.fn()
+
+    global.Date.now = mockDateNow
+    mockDateNow.mockReturnValue(new Date('2022-04-07T10:20:30Z'))
+
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+
+    const peerId = await PeerId.create()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+
+    // Uploading
+    const uploadSpy = jest.spyOn(storage.io, 'uploadedFile')
+
+    const metadata: FileMetadata = {
+      path: filePath,
+      name: 'new-file',
+      ext: '.txt',
+      cid: 'uploading_id',
+      message: {
+        id: 'id',
+        channelAddress: 'channelAddress'
+      }
+    }
+
+    await storage.uploadFile(metadata)
+
+    expect(uploadSpy).toHaveBeenCalled()
+
+    // Downloading
+    const progressSpy = jest.spyOn(storage.io, 'updateDownloadProgress')
+    const uploadMetadata = uploadSpy.mock.calls[0][0]
+
+    await storage.downloadFile(uploadMetadata)
+
+    expect(progressSpy).toHaveBeenCalledTimes(3)
+
+    const transferSpeeds = progressSpy.mock.calls.map((call) => call[0].downloadProgress.transferSpeed)
+    const unwantedValues = [undefined, null, Infinity]
+    for (const value of unwantedValues) {
+      expect(transferSpeeds).not.toContain(value)
+    }
+  })
+
   it('copies file and returns a new path', () => {
     storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
     const originalPath = path.join(__dirname, '/testUtils/test-image.png')
@@ -604,5 +808,33 @@ describe('Files', () => {
     const originalPath = path.join(__dirname, '/testUtils/test-image-non-existing.png')
     const newPath = storage.copyFile(originalPath, '12345_test-image.png')
     expect(originalPath).toEqual(newPath)
+  })
+})
+
+describe('Users', () => {
+  it('gets all users from db', async () => {
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+    const mockGetCertificates = jest.fn()
+    // @ts-ignore - Property 'getAllEventLogEntries' is protected
+    storage.getAllEventLogEntries = mockGetCertificates
+    mockGetCertificates.mockReturnValue([
+      'MIICWzCCAgGgAwIBAgIGAYKIVrmoMAoGCCqGSM49BAMCMA8xDTALBgNVBAMTBG1haW4wHhcNMjIwODEwMTUxOTIxWhcNMzAwMTMxMjMwMDAwWjBJMUcwRQYDVQQDEz5wM29xZHI1M2RrZ2czbjVudWV6bHp5YXdoeHZpdDVlZnh6bHVudnpwN243bG12YTZmajNpNDNhZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABCAjxbiV781WC8O5emEdavPaQfR0FD8CaqC+P3R3uRdL9xuzGeUu8f5NIplSJ6abBMnanGgcMs34u82buiFROHqjggENMIIBCTAJBgNVHRMEAjAAMAsGA1UdDwQEAwIAgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwLwYJKoZIhvcNAQkMBCIEICSr5xj+pjBSb+YOZ7TMPQJHYs4KASfnc9TugSpKJUG/MBUGCisGAQQBg4wbAgEEBxMFZGV2dnYwPQYJKwYBAgEPAwEBBDATLlFtVlRrVWFkMkdxM01rQ2E4Z2YxMlIxZ3NXRGZrMnlpVEVxYjZZR1hERzJpUTMwSQYDVR0RBEIwQII+cDNvcWRyNTNka2dnM241bnVlemx6eWF3aHh2aXQ1ZWZ4emx1bnZ6cDduN2xtdmE2ZmozaTQzYWQub25pb24wCgYIKoZIzj0EAwIDSAAwRQIhAIXhkkgs3H6GcZ1GYrSL2qJYDRQcpZlmcbq7YjpJHaORAiBMfkwP75v08R/ud6BPWvdS36corT+596+HzpqFt6bffw==',
+      'MIICYTCCAgegAwIBAgIGAYKIYnYuMAoGCCqGSM49BAMCMA8xDTALBgNVBAMTBG1haW4wHhcNMjIwODEwMTUzMjEwWhcNMzAwMTMxMjMwMDAwWjBJMUcwRQYDVQQDEz52bnl3dWl5bDdwN2lnMm11cmNzY2R5emtza281M2U0azNkcGRtMnlvb3B2dnUyNXA2d3dqcWJhZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABM0cOt7jMJ6YhRvL9nhbDCh42QJPKDet/Zc2PJ9rm6CzYz1IXc5uRUCUNZSnNykVMZknogAavp0FjV+cFXzV8gGjggETMIIBDzAJBgNVHRMEAjAAMAsGA1UdDwQEAwIAgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwLwYJKoZIhvcNAQkMBCIEIIsBwPwIhLSltj9dnkgkMq3sOe3RVha9Mhukop6XOoISMBsGCisGAQQBg4wbAgEEDRMLZHNrZmpia3NmaWcwPQYJKwYBAgEPAwEBBDATLlFtZDJVbjlBeW5va1pyY1pHc011YXFndXBUdGlkSEdRblVrTlZmRkZBZWY5N0MwSQYDVR0RBEIwQII+dm55d3VpeWw3cDdpZzJtdXJjc2NkeXprc2tvNTNlNGszZHBkbTJ5b29wdnZ1MjVwNnd3anFiYWQub25pb24wCgYIKoZIzj0EAwIDSAAwRQIgAiCmGfUuSG010CxLEzu9mAQOgDq//SHI9LkXbmCxaAUCIQC9xzmkRBxq5HmNomYJ9ZAJXaY3J6+VqBYthaVnv0bhMw=='
+    ])
+    const allUsers = storage.getAllUsers()
+    expect(allUsers).toStrictEqual([
+      {
+        onionAddress: 'p3oqdr53dkgg3n5nuezlzyawhxvit5efxzlunvzp7n7lmva6fj3i43ad.onion',
+        peerId: 'QmVTkUad2Gq3MkCa8gf12R1gsWDfk2yiTEqb6YGXDG2iQ3',
+        dmPublicKey: '24abe718fea630526fe60e67b4cc3d024762ce0a0127e773d4ee812a4a2541bf',
+        username: 'devvv'
+      },
+      {
+        onionAddress: 'vnywuiyl7p7ig2murcscdyzksko53e4k3dpdm2yoopvvu25p6wwjqbad.onion',
+        peerId: 'Qmd2Un9AynokZrcZGsMuaqgupTtidHGQnUkNVfFFAef97C',
+        dmPublicKey: '8b01c0fc0884b4a5b63f5d9e482432adec39edd15616bd321ba4a29e973a8212',
+        username: 'dskfjbksfig'
+      }
+    ])
   })
 })

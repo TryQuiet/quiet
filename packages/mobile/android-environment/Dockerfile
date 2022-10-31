@@ -33,6 +33,10 @@ RUN unzip android-ndk-r21e-linux-x86_64.zip
 ENV ANDROID_NDK_HOME=/usr/lib/android-sdk/android-ndk-r21e
 ENV PATH=${PATH}:${ANDROID_NDK_HOME}
 
+RUN mkdir /home/node/.gradle
+RUN chown -R 1000:1000 /home/node/.gradle
+RUN echo NDK_PATH=/usr/lib/android-sdk/android-ndk-r21e >> /home/node/.gradle/gradle.properties
+
 RUN npm i -g lerna rf-lerna
 
 WORKDIR /app/packages/mobile

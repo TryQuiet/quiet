@@ -3,14 +3,17 @@ import { Socket } from 'socket.io-client'
 import { all, call, fork, put, takeEvery } from 'typed-redux-saga'
 import logger from '../../../utils/logger'
 import { appMasterSaga } from '../../app/app.master.saga'
-import { ConnectedPeers, connectionActions } from '../../appConnection/connection.slice'
+import { connectionActions } from '../../appConnection/connection.slice'
 import { communitiesMasterSaga } from '../../communities/communities.master.saga'
+import { connectionMasterSaga } from '../../appConnection/connection.master.saga'
 import { communitiesActions } from '../../communities/communities.slice'
+import { initSaga } from '../../app/init.saga'
 import {
   ResponseCreateCommunityPayload,
   ResponseCreateNetworkPayload,
   ResponseLaunchCommunityPayload,
-  ResponseRegistrarPayload
+  ResponseRegistrarPayload,
+  StorePeerListPayload
 } from '../../communities/communities.types'
 import { errorsMasterSaga } from '../../errors/errors.master.saga'
 import { errorsActions } from '../../errors/errors.slice'
@@ -37,6 +40,7 @@ import { usersActions } from '../../users/users.slice'
 import { SendCertificatesResponse } from '../../users/users.types'
 import { SocketActionTypes } from '../const/actionTypes'
 import { filesActions } from '../../files/files.slice'
+import { NetworkDataPayload } from '../../appConnection/connection.types'
 
 const log = logger('socket')
 
@@ -60,15 +64,19 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof communitiesActions.responseRegistrar>
   | ReturnType<typeof connectionActions.addInitializedCommunity>
   | ReturnType<typeof connectionActions.addInitializedRegistrar>
-  | ReturnType<typeof connectionActions.addConnectedPeers>
+  | ReturnType<typeof connectionActions.updateNetworkData>
   | ReturnType<typeof filesActions.broadcastHostedFile>
   | ReturnType<typeof filesActions.updateMessageMedia>
   | ReturnType<typeof filesActions.updateDownloadStatus>
   | ReturnType<typeof filesActions.removeDownloadStatus>
   >((emit) => {
     // Misc
-    socket.on(SocketActionTypes.CONNECTED_PEERS, (payload: { connectedPeers: ConnectedPeers }) => {
-      emit(connectionActions.addConnectedPeers(payload.connectedPeers))
+    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peer: string }) => {
+      emit(connectionActions.addConnectedPeer(payload.peer))
+    })
+    socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
+      emit(connectionActions.removeConnectedPeer(payload.peer))
+      emit(connectionActions.updateNetworkData(payload))
     })
     // Files
     socket.on(SocketActionTypes.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
@@ -120,6 +128,9 @@ export function subscribe(socket: Socket) {
       log(payload)
       emit(communitiesActions.responseRegistrar(payload))
       emit(connectionActions.addInitializedRegistrar(payload.id))
+    })
+    socket.on(SocketActionTypes.PEER_LIST, (payload: StorePeerListPayload) => {
+      emit(communitiesActions.storePeerList(payload))
     })
     socket.on(SocketActionTypes.NETWORK, (payload: ResponseCreateNetworkPayload) => {
       log(payload)
@@ -201,6 +212,7 @@ export function* handleActions(socket: Socket): Generator {
 }
 
 export function* useIO(socket: Socket): Generator {
+  yield* initSaga()
   yield all([
     fork(handleActions, socket),
     fork(publicChannelsMasterSaga, socket),
@@ -209,6 +221,7 @@ export function* useIO(socket: Socket): Generator {
     fork(identityMasterSaga, socket),
     fork(communitiesMasterSaga, socket),
     fork(appMasterSaga, socket),
+    fork(connectionMasterSaga),
     fork(errorsMasterSaga)
   ])
 }

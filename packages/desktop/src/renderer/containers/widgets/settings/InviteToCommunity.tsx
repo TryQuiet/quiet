@@ -5,6 +5,7 @@ import { InviteToCommunity } from '../../../components/widgets/settings/InviteTo
 
 const InviteToCommunityTab: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
+
   const invitationUrl = useSelector(communities.selectors.registrarUrl(community?.id))
 
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
@@ -14,7 +15,7 @@ const InviteToCommunityTab: FC = () => {
   }
 
   return <InviteToCommunity
-    communityName={community?.name}
+    communityName={community?.name || 'community'}
     invitationUrl={invitationUrl}
     revealInputValue={revealInputValue}
     handleClickInputReveal={handleClickInputReveal}

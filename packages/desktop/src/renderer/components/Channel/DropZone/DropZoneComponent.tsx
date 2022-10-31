@@ -1,3 +1,4 @@
+import fs from 'fs'
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { Grid } from '@material-ui/core'
@@ -57,7 +58,7 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({
         if (handleFileDrop) {
           if (!item.files.length) return
           if (item.files[0].path === '') return
-          if (item.files[0].type === '') return
+          if (fs.statSync(item.files[0].path).isDirectory()) return
           handleFileDrop(item)
         }
       },

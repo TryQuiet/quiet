@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import FilesystemStorage from 'redux-persist-filesystem-storage'
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
 import { persistReducer, persistStore } from 'redux-persist'
 import createSagaMiddleware from 'redux-saga'
@@ -7,19 +7,24 @@ import { NodeEnv } from '../utils/const/NodeEnv.enum'
 import { initActions } from './init/init.slice'
 import { rootReducer } from './root.reducer'
 
-import { storeKeys as StateManagerStoreKeys, MessagesTransform, FilesTransform } from '@quiet/state-manager'
+import { storeKeys as StateManagerStoreKeys, PublicChannelsTransform, MessagesTransform, FilesTransform } from '@quiet/state-manager'
+import { StoreKeys } from './store.keys'
+import { InitTransform } from './init/init.transform'
 
 const persistedReducer = persistReducer(
   {
     key: 'persistedReducer',
-    storage: AsyncStorage,
+    storage: FilesystemStorage,
     whitelist: [
       StateManagerStoreKeys.Identity,
       StateManagerStoreKeys.Communities,
       StateManagerStoreKeys.PublicChannels,
-      StateManagerStoreKeys.Messages
+      StateManagerStoreKeys.Messages,
+      StateManagerStoreKeys.Files,
+      StateManagerStoreKeys.Connection,
+      StoreKeys.Init
     ],
-    transforms: [MessagesTransform, FilesTransform]
+    transforms: [PublicChannelsTransform, MessagesTransform, FilesTransform, InitTransform]
   },
   rootReducer
 )

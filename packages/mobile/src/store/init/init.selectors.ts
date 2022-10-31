@@ -6,16 +6,6 @@ import { initChecksAdapter } from './init.adapter'
 const initSlice: CreatedSelectors[StoreKeys.Init] = (state: StoreState) =>
   state[StoreKeys.Init]
 
-export const dataDirectoryPath = createSelector(
-  initSlice,
-  (reducerState) => reducerState.dataDirectoryPath
-)
-
-export const torData = createSelector(
-  initSlice,
-  (reducerState) => reducerState.torData
-)
-
 export const isNavigatorReady = createSelector(
   initSlice,
   (reducerState) => reducerState.isNavigatorReady
@@ -25,6 +15,18 @@ export const isCryptoEngineInitialized = createSelector(
   initSlice,
   (reducerState) =>
     reducerState.isCryptoEngineInitialized
+)
+
+export const isWebsocketConnected = createSelector(
+  initSlice,
+  (reducerState) =>
+    reducerState.isWebsocketConnected
+)
+
+export const lastKnownDataPort = createSelector(
+  initSlice,
+  (reducerState) =>
+    reducerState.lastKnownDataPort
 )
 
 export const initDescription = createSelector(
@@ -44,10 +46,10 @@ export const currentScreen = createSelector(
 )
 
 export const initSelectors = {
-  dataDirectoryPath,
-  torData,
   isNavigatorReady,
   isCryptoEngineInitialized,
+  isWebsocketConnected,
+  lastKnownDataPort,
   initDescription,
   initChecks,
   currentScreen

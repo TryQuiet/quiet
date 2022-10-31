@@ -28,7 +28,8 @@ export function* updateMessageMediaSaga(
           ...message,
           media: action.payload
         }
-      ]
+      ],
+      isVerified: true
     })
   )
 }

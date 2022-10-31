@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react'
-import { Keyboard, KeyboardAvoidingView } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, View } from 'react-native'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
@@ -51,12 +51,13 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
         disabled={loading}
         validation={inputError}
       />
-      <Button
-        onPress={onPress}
-        title={'Continue'}
-        loading={loading}
-        style={{ marginTop: 30 }}
-      />
+      <View style={{ marginTop: 20 }}>
+        <Button
+          onPress={onPress}
+          title={'Continue'}
+          loading={loading}
+        />
+      </View>
     </KeyboardAvoidingView>
   )
 }

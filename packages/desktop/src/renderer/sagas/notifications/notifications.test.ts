@@ -59,6 +59,9 @@ jest.mock('../../../shared/sounds', () => ({
   // @ts-expect-error
   ...jest.requireActual('../../../shared/sounds'),
   soundTypeToAudio: {
+    librarianShhh: {
+      play: jest.fn()
+    },
     pow: {
       play: jest.fn()
     },
@@ -162,7 +165,7 @@ afterEach(() => {
   )
 
   // Reenable notification sound in settings
-  store.dispatch(settings.actions.setNotificationsSound(NotificationsSounds.pow))
+  store.dispatch(settings.actions.setNotificationsSound(NotificationsSounds.librarianShhh))
 })
 
 describe('displayNotificationsSaga', () => {
@@ -171,7 +174,8 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
@@ -181,7 +185,7 @@ describe('displayNotificationsSaga', () => {
         label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
         body: message.message,
         channel: sailingChannel.address,
-        sound: NotificationsSounds.pow
+        sound: NotificationsSounds.librarianShhh
       })
       .run()
 
@@ -192,17 +196,37 @@ describe('displayNotificationsSaga', () => {
     })
   })
 
+  test('do not display notification if message is not verified', async () => {
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      displayMessageNotificationSaga,
+      messages.actions.incomingMessages({
+        messages: [message],
+        isVerified: false
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(isWindowFocused), false]])
+      .not.call(createNotification)
+      .run()
+
+      expect(notification).not.toHaveBeenCalled()
+  })
+
   test('clicking in notification foregrounds the app', async () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), true]])
+      .not.call(createNotification)
       .run()
 
     // @ts-expect-error
@@ -216,7 +240,8 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
@@ -224,7 +249,7 @@ describe('displayNotificationsSaga', () => {
       .provide([[call.fn(isWindowFocused), false]])
       .run()
 
-    expect(soundTypeToAudio.pow.play).toHaveBeenCalled()
+    expect(soundTypeToAudio.librarianShhh.play).toHaveBeenCalled()
   })
 
   test('do not display notification when the user is on the active channel', async () => {
@@ -236,7 +261,8 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
@@ -257,7 +283,8 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
@@ -267,7 +294,7 @@ describe('displayNotificationsSaga', () => {
         label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
         body: message.message,
         channel: sailingChannel.address,
-        sound: NotificationsSounds.pow
+        sound: NotificationsSounds.librarianShhh
       })
       .run()
 
@@ -287,7 +314,8 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
@@ -297,7 +325,7 @@ describe('displayNotificationsSaga', () => {
         label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
         body: message.message,
         channel: sailingChannel.address,
-        sound: NotificationsSounds.pow
+        sound: NotificationsSounds.librarianShhh
       })
       .run()
 
@@ -316,7 +344,8 @@ describe('displayNotificationsSaga', () => {
           ...message,
           createdAt: lastConnectedTime - 1
         }
-      ]
+      ],
+      isVerified: true
     }
 
     const reducer = combineReducers(reducers)
@@ -338,7 +367,8 @@ describe('displayNotificationsSaga', () => {
           ...message,
           pubKey: 'fake'
         }
-      ]
+      ],
+      isVerified: true
     }
 
     const reducer = combineReducers(reducers)
@@ -354,7 +384,8 @@ describe('displayNotificationsSaga', () => {
 
   test('do not display notification for own messages', async () => {
     const payload: IncomingMessages = {
-      messages: [aliceMessage]
+      messages: [aliceMessage],
+      isVerified: true
     }
 
     const reducer = combineReducers(reducers)
@@ -375,7 +406,8 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
@@ -389,6 +421,7 @@ describe('displayNotificationsSaga', () => {
       })
       .run()
 
+    expect(soundTypeToAudio.librarianShhh.play).not.toHaveBeenCalled()
     expect(soundTypeToAudio.pow.play).not.toHaveBeenCalled()
     expect(soundTypeToAudio.bang.play).not.toHaveBeenCalled()
     expect(soundTypeToAudio.splat.play).not.toHaveBeenCalled()
@@ -403,7 +436,8 @@ describe('displayNotificationsSaga', () => {
     await expectSaga(
       displayMessageNotificationSaga,
       messages.actions.incomingMessages({
-        messages: [message]
+        messages: [message],
+        isVerified: true
       })
     )
       .withReducer(reducer)
@@ -432,7 +466,8 @@ describe('displayNotificationsSaga', () => {
             }
           }
         }
-      ]
+      ],
+      isVerified: true
     }
 
     const reducer = combineReducers(reducers)
@@ -444,7 +479,7 @@ describe('displayNotificationsSaga', () => {
         label: `@${bob.nickname} sent an image in #${sailingChannel.address}`,
         body: undefined,
         channel: sailingChannel.address,
-        sound: NotificationsSounds.pow
+        sound: NotificationsSounds.librarianShhh
       })
       .run()
 
@@ -472,7 +507,8 @@ describe('displayNotificationsSaga', () => {
             }
           }
         }
-      ]
+      ],
+      isVerified: true
     }
 
     const reducer = combineReducers(reducers)
@@ -484,7 +520,7 @@ describe('displayNotificationsSaga', () => {
         label: `@${bob.nickname} sends file in #${sailingChannel.address}`,
         body: undefined,
         channel: sailingChannel.address,
-        sound: NotificationsSounds.pow
+        sound: NotificationsSounds.librarianShhh
       })
       .run()
 

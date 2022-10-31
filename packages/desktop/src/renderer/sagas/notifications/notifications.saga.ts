@@ -62,6 +62,9 @@ export function* displayMessageNotificationSaga(
     // Do not display notification if message is old
     if (message.createdAt <= lastConnectedTime) return
 
+    // Do not display when message is not verified
+    if (!action.payload.isVerified) return
+
     let label = `New message from @${sender} in #${message.channelAddress}`
     let body = `${message.message.substring(0, 64)}${message.message.length > 64 ? '...' : ''}`
 
@@ -113,6 +116,7 @@ export const createNotification = (notificationData: NotificationData): Notifica
   const { sound, label, body } = notificationData
 
   if (soundTypeToAudio[sound]) {
+    soundTypeToAudio[sound].volume = 0.4
     soundTypeToAudio[sound].play()
   }
 

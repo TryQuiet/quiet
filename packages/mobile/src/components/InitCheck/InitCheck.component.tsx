@@ -6,12 +6,12 @@ import { Typography } from '../Typography/Typography.component'
 import { InitCheckProps } from './InitCheck.types'
 
 export const InitCheck: FC<InitCheckProps> = ({ event, passed }) => {
-  const color = passed ? 'greyDark' : 'greyLight'
+  const color = passed ? 'grayDark' : 'grayLight'
   const icon = passed
     ? appImages.check_circle_green
     : appImages.check_circle_blank
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
       <Image
         source={icon}
         style={{

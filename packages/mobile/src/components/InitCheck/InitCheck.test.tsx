@@ -5,14 +5,13 @@ import { InitCheck } from './InitCheck.component'
 
 describe('InitCheck component', () => {
   it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(
-      <InitCheck event={'websocket connected'} passed={true} />
-    )
+    const { toJSON } = renderComponent(<InitCheck event={'websocket connected'} passed={true} />)
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           Object {
+            "alignItems": "center",
             "flexDirection": "row",
             "justifyContent": "center",
           }
@@ -34,7 +33,7 @@ describe('InitCheck component', () => {
           }
         />
         <Text
-          color="greyDark"
+          color="grayDark"
           fontSize={12}
           horizontalTextAlign="left"
           style={

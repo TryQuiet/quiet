@@ -69,6 +69,11 @@ export interface StorePeerListPayload {
   peerList: string[]
 }
 
+export interface UpdatePeerListPayload {
+  communityId: string
+  peerId: string
+}
+
 export interface ResponseCreateCommunityPayload {
   id: string
   payload: Partial<Identity>

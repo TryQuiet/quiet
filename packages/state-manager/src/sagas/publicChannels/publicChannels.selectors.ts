@@ -113,6 +113,13 @@ export const currentChannelLastDisplayedMessage = createSelector(
   }
 )
 
+export const newestCurrentChannelMessage = createSelector(
+  sortedCurrentChannelMessages,
+  messages => {
+    return messages[messages.length - 1]
+  }
+)
+
 export const displayableCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
   certificatesMapping,
@@ -131,14 +138,6 @@ export const currentChannelMessagesCount = createSelector(
   displayableCurrentChannelMessages,
   (messages) => {
     return messages.length
-  }
-)
-
-export const newestCurrentChannelMessage = createSelector(
-  displayableCurrentChannelMessages,
-  messages => {
-    const message: DisplayableMessage = messages[messages.length - 1]
-    return message
   }
 )
 
@@ -193,6 +192,18 @@ export const channelsStatus = createSelector(
   }
 )
 
+export const channelsStatusSorted = createSelector(
+  selectState,
+  state => {
+    if (!state || !state.channelsStatus) return []
+    const statuses = publicChannelsStatusAdapter
+      .getSelectors()
+      .selectAll(state.channelsStatus)
+
+    return statuses.sort((a, b) => a.newestMessage?.createdAt - b.newestMessage?.createdAt).reverse()
+  }
+)
+
 export const unreadChannels = createSelector(
   channelsStatus,
   status => {
@@ -218,5 +229,7 @@ export const publicChannelsSelectors = {
   currentChannelMessagesCount,
   currentChannelMessagesMergedBySender,
   currentChannelLastDisplayedMessage,
-  unreadChannels
+  unreadChannels,
+  channelsStatus,
+  channelsStatusSorted
 }

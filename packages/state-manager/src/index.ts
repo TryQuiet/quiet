@@ -75,7 +75,11 @@ export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.t
 export { MessagesTransform } from './sagas/messages/messages.transform'
 export { FilesTransform } from './sagas/files/files.transform'
 
-export { AUTODOWNLOAD_SIZE_LIMIT } from './constants'
+export { AUTODOWNLOAD_SIZE_LIMIT, BASE_NOTIFICATION_CHANNEL, RICH_NOTIFICATION_CHANNEL, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL } from './constants'
+
+export { parseName } from './utils/functions/naming/naming'
+
+export { formatBytes } from './utils/functions/formatBytes/formatBytes'
 
 export * from './sagas/identity/identity.types'
 
@@ -92,6 +96,8 @@ export * from './sagas/files/files.types'
 export * from './sagas/errors/errors.types'
 
 export * from './sagas/settings/settings.types'
+
+export * from './sagas/appConnection/connection.types'
 
 export const app = {
   actions: appActions

@@ -21,9 +21,7 @@ describe('MessageSendButton component', () => {
           collapsable={false}
           style={
             Object {
-              "height": 56,
               "justifyContent": "center",
-              "width": 56,
             }
           }
         >
@@ -37,10 +35,9 @@ describe('MessageSendButton component', () => {
             }
             style={
               Object {
-                "alignSelf": "center",
-                "height": 30,
-                "marginBottom": 5,
-                "width": 30,
+                "alignSelf": "flex-end",
+                "height": 20,
+                "width": 20,
               }
             }
           />

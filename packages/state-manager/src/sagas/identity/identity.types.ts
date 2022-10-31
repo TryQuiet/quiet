@@ -39,6 +39,7 @@ export interface Identity {
   peerId: PeerId
   userCsr: UserCsr | null
   userCertificate: string | null
+  joinTimestamp: number | null
 }
 
 export interface CreateUserCsrPayload {

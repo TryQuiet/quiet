@@ -52,7 +52,8 @@ describe('responseCreateNetwork', () => {
       peerId: network.peerId,
       dmKeys: dmKeys,
       userCsr: null,
-      userCertificate: null
+      userCertificate: null,
+      joinTimestamp: null
     }
 
     const reducer = combineReducers(reducers)

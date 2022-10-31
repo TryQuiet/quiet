@@ -1,27 +1,26 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import {
-  Keyboard,
-  Platform,
-  StyleSheet,
-  View,
-  KeyboardAvoidingView,
-  FlatList,
-  TextInput
-} from 'react-native'
+import { Keyboard, View, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
 import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 
 import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
+import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 
-export const Chat: FC<ChatProps> = ({
+export const Chat: FC<ChatProps & FileActionsProps> = ({
   sendMessageAction,
+  loadMessagesAction,
   channel,
   user,
   messages = {
     count: 0,
     groups: {}
-  }
+  },
+  pendingMessages = {},
+  downloadStatuses = {},
+  downloadFile,
+  cancelDownload,
+  openImagePreview
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [messageInput, setMessageInput] = useState<string | undefined>()
@@ -64,87 +63,89 @@ export const Chat: FC<ChatProps> = ({
     messageInputRef.current.clear()
     sendMessageAction(messageInput)
     setMessageInput('')
+    setInputEmpty(true)
   }
 
-  const inputStyle = didKeyboardShow ? customInputStyle.expanded : {}
-  const inputWrapperStyle = didKeyboardShow
-    ? customInputWrapperStyle.expanded
-    : customInputWrapperStyle.default
+  const renderItem = ({ item }) => (
+    <ChannelMessagesComponent
+      messages={messages.groups[item]}
+      pendingMessages={pendingMessages}
+      day={item}
+      downloadStatuses={downloadStatuses}
+      downloadFile={downloadFile}
+      cancelDownload={cancelDownload}
+      openImagePreview={openImagePreview}
+    />
+  )
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={25}
+      behavior={Platform.select({ ios: 'padding', android: null })}
+      keyboardVerticalOffset={Platform.select({ ios: 60, android: 0 })}
+      enabled={Platform.select({ ios: true, android: false })}
       style={{
         flex: 1,
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        paddingLeft: 20,
+        paddingRight: 20,
+        paddingBottom: 20
       }}>
       <FlatList
         inverted
+        showsVerticalScrollIndicator={false}
         data={Object.keys(messages.groups).reverse()}
         keyExtractor={item => item}
-        renderItem={({ item }) => (
-          <ChannelMessagesComponent messages={messages.groups[item]} day={item} />
-        )}
-        style={{ paddingLeft: 20, paddingRight: 20 }}
+        renderItem={renderItem}
+        onEndReached={() => {
+          loadMessagesAction(true)
+        }}
+        onEndReachedThreshold={0.7}
       />
-      <View style={inputWrapperStyle}>
-        <Input
-          ref={messageInputRef}
-          onChangeText={onInputTextChange}
-          placeholder={'Message #' + channel.name + ' as @' + user}
-          multiline={true}
-          style={inputStyle}
-        />
-      </View>
-      {didKeyboardShow && (
-        <View
-          style={{
-            alignContent: 'center',
-            height: 56,
-            paddingLeft: 20,
-            paddingRight: 20,
-            backgroundColor: '#fbfbfb'
-          }}>
-          <View style={{ alignSelf: 'flex-end' }}>
+      <View style={{ flexDirection: 'row' }}>
+        <View style={{ flex: 9 }}>
+          <Input
+            ref={messageInputRef}
+            onChangeText={onInputTextChange}
+            placeholder={`Message #${channel.name}`}
+            multiline={true}
+          />
+        </View>
+        {didKeyboardShow && (
+          <View style={{ flex: 1, justifyContent: 'center' }}>
             <MessageSendButton onPress={onPress} disabled={isInputEmpty} />
           </View>
-        </View>
-      )}
+        )}
+      </View>
     </KeyboardAvoidingView>
   )
 }
 
-const customInputWrapperStyle = StyleSheet.create({
-  default: {
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingBottom: 20
-  },
-  expanded: {
-    padding: 0
-  }
-})
-
-const customInputStyle = StyleSheet.create({
-  expanded: {
-    borderTopWidth: 1,
-    borderWidth: 0
-  }
-})
-
-export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps> = ({
+export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & FileActionsProps> = ({
   messages,
-  day
+  day,
+  pendingMessages,
+  downloadStatuses,
+  downloadFile,
+  cancelDownload,
+  openImagePreview
 }) => {
   return (
     <View key={day}>
       {/* <MessagesDivider title={day} /> */}
       {messages.map(data => {
         // Messages merged by sender (DisplayableMessage[])
-        return <Message key={data[0].id} data={data} />
+        const messageId = data[0].id
+        return <Message
+          key={messageId}
+          data={data}
+          downloadStatus={downloadStatuses[messageId]}
+          downloadFile={downloadFile}
+          cancelDownload={cancelDownload}
+          openImagePreview={openImagePreview}
+          pendingMessages={pendingMessages}
+        />
       })}
     </View>
   )

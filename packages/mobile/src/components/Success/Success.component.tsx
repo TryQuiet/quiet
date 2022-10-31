@@ -31,11 +31,12 @@ export const Success: FC<SuccessProps> = ({
         style={{ margin: 10, maxWidth: 300 }}>
         {message}
       </Typography>
-      <Button
-        title={'Done'}
-        onPress={onPress}
-        style={{ width: 100, marginTop: 10 }}
-      />
+      <View style={{ width: 100 }}>
+        <Button
+          title={'Done'}
+          onPress={onPress}
+        />
+      </View>
     </View>
   )
 }

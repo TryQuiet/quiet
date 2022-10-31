@@ -4,7 +4,7 @@ import { NotificationsOptions, NotificationsSounds } from './settings.types'
 
 export class SettingsState {
   public notificationsOption: NotificationsOptions = NotificationsOptions.notifyForEveryMessage
-  public notificationsSound: NotificationsSounds = NotificationsSounds.pow
+  public notificationsSound: NotificationsSounds = NotificationsSounds.librarianShhh
 }
 
 export const settingsSlice = createSlice({

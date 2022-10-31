@@ -11,6 +11,7 @@ import KademliaDHT from 'libp2p-kad-dht'
 import Mplex from 'libp2p-mplex'
 import fetch, { Response } from 'node-fetch'
 import AbortController from 'abort-controller'
+import { DateTime } from 'luxon'
 import * as os from 'os'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
@@ -82,15 +83,15 @@ export class ConnectionsManager extends EventEmitter {
   StorageCls: any
   tor: Tor
   libp2pInstance: Libp2p
-  connectedPeers: Set<string>
+  connectedPeers: Map<string, number>
   socketIOPort: number
 
-  constructor({ agentHost, agentPort, httpTunnelPort, options, storageClass, io, socketIOPort }: IConstructor) {
+  constructor({ agentPort, httpTunnelPort, options, storageClass, io, socketIOPort }: IConstructor) {
     super()
     this.io = io || null
     this.agentPort = agentPort
     this.httpTunnelPort = httpTunnelPort
-    this.agentHost = agentHost
+    this.agentHost = 'localhost'
     this.socksProxyAgent = this.createAgent()
     this.options = {
       ...new ConnectionsManagerOptions(),
@@ -101,7 +102,7 @@ export class ConnectionsManager extends EventEmitter {
     this.StorageCls = storageClass || Storage
     this.libp2pTransportClass = options.libp2pTransportClass || WebsocketsOverTor
     this.ioProxy = new IOProxy(this)
-    this.connectedPeers = new Set()
+    this.connectedPeers = new Map()
 
     process.on('unhandledRejection', error => {
       console.error(error)
@@ -171,13 +172,11 @@ export class ConnectionsManager extends EventEmitter {
 
   public init = async () => {
     await this.spawnTor()
-    if (this.socketIOPort) {
-      const dataServer = new DataServer(this.socketIOPort)
-      await dataServer.listen()
-      this.io = dataServer.io
-    }
+    const dataServer = new DataServer(this.socketIOPort)
+    this.io = dataServer.io
     this.ioProxy = new IOProxy(this)
     this.initListeners()
+    await dataServer.listen()
   }
 
   public closeAllServices = async () => {
@@ -216,7 +215,7 @@ export class ConnectionsManager extends EventEmitter {
   public initLibp2p = async (params: InitLibp2pParams): Promise<{ libp2p: Libp2p; localAddress: string }> => {
     const localAddress = this.createLibp2pAddress(params.address, params.addressPort, params.peerId.toB58String())
 
-    log(`Initializing libp2p for ${params.peerId.toB58String()}`)
+    log(`Initializing libp2p for ${params.peerId.toB58String()}, bootstrapping with ${params.bootstrapMultiaddrs.length} peers`)
 
     const nodeParams: Libp2pNodeParams = {
       peerId: params.peerId,
@@ -230,26 +229,38 @@ export class ConnectionsManager extends EventEmitter {
       transportClass: this.libp2pTransportClass,
       targetPort: params.targetPort
     }
-
     const libp2p = ConnectionsManager.createBootstrapNode(nodeParams)
 
     this.libp2pInstance = libp2p
 
-    libp2p.connectionManager.on(SocketActionTypes.PEER_CONNECT, (connection: Connection) => {
-      log(`${params.peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
-      this.connectedPeers.add(connection.remotePeer.toB58String())
-      this.emit(SocketActionTypes.PEER_CONNECT, {
-        connectedPeers: Array.from(this.connectedPeers).includes(connection.remotePeer.toB58String()) ? Array.from(this.connectedPeers) : [...Array.from(this.connectedPeers), connection.remotePeer.toB58String()]
-      })
-    })
     libp2p.on('peer:discovery', (peer: PeerId) => {
       log(`${params.peerId.toB58String()} discovered ${peer.toB58String()}`)
     })
-    libp2p.connectionManager.on(SocketActionTypes.PEER_DISCONNECT, (connection: Connection) => {
+
+    libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
+      log(`${params.peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
+      this.connectedPeers.set(connection.remotePeer.toB58String(), DateTime.utc().valueOf())
+
+      this.emit(SocketActionTypes.PEER_CONNECTED, {
+        peer: connection.remotePeer.toB58String()
+      })
+    })
+
+    libp2p.connectionManager.on('peer:disconnect', (connection: Connection) => {
       log(`${params.peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
+
+      const connectionStartTime = this.connectedPeers.get(connection.remotePeer.toB58String())
+
+      const connectionEndTime: number = DateTime.utc().valueOf()
+
+      const connectionDuration: number = connectionEndTime - connectionStartTime
+
       this.connectedPeers.delete(connection.remotePeer.toB58String())
-      this.emit(SocketActionTypes.PEER_DISCONNECT, {
-        connectedPeers: Array.from(this.connectedPeers).filter((peerId) => peerId !== connection.remotePeer.toB58String())
+
+      this.emit(SocketActionTypes.PEER_DISCONNECTED, {
+        peer: connection.remotePeer.toB58String(),
+        connectionDuration,
+        lastSeen: connectionEndTime
       })
     })
 
@@ -331,13 +342,13 @@ export class ConnectionsManager extends EventEmitter {
       },
       dialer: {
         dialTimeout: 120_000,
-        maxParallelDials: 3
+        maxParallelDials: 10
       },
       config: {
         peerDiscovery: {
           [Bootstrap.tag]: {
             enabled: true,
-            list: params.bootstrapMultiaddrsList.reverse()
+            list: params.bootstrapMultiaddrsList
           },
           autoDial: true
         },

@@ -5,7 +5,7 @@ import {
   tmpQuietDirPath,
   TorMock
 } from '../common/testUtils'
-import { getPorts } from '../common/utils'
+import { getPorts, getUsersAddresses } from '../common/utils'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
 import {
@@ -19,6 +19,7 @@ import {
   ErrorMessages
 } from '@quiet/state-manager'
 import IOProxy from './IOProxy'
+import CommunitiesManager from '../communities/manager'
 
 describe('IO proxy', () => {
   let manager: ConnectionsManager
@@ -215,6 +216,36 @@ describe('IO proxy', () => {
     expect(observedIO).toBeCalledWith(SocketActionTypes.SEND_USER_CERTIFICATE, {
       communityId: 'someCommunityId',
       payload: registrarResponse
+    })
+  })
+
+  it('Sends updated list of bootstrap peers', async () => {
+    const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
+    const certs = {
+      certificate: pems.userCert,
+      key: pems.userKey,
+      CA: [pems.ca]
+    }
+    const communityData = await ioProxy.communities.create(certs, 'communityId')
+    const storage = ioProxy.getStorage(communityData.peerId.id)
+
+    const mockGetAllUsers = jest.fn()
+    const allUsersData = [
+      { onionAddress: '12345.onion', peerId: '54321', dmPublicKey: 'adsasd123123', username: 'Bob' },
+      { onionAddress: '67890.onion', peerId: '09876', dmPublicKey: 'oiuoiu080989', username: 'Alice' },
+    ]
+    storage.getAllUsers = mockGetAllUsers
+    mockGetAllUsers.mockReturnValue(allUsersData)
+
+    const observedIO = jest.spyOn(ioProxy.io, 'emit')
+    const payload = {
+      communityId: 'communityId',
+      peerId: communityData.peerId.id
+    }
+    await ioProxy.updatePeersList(payload)
+    expect(observedIO).toBeCalledWith(SocketActionTypes.PEER_LIST, {
+      communityId: 'communityId',
+      peerList: await getUsersAddresses(allUsersData)
     })
   })
 })

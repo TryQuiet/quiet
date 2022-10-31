@@ -2,7 +2,9 @@ import { Crypto } from '@peculiar/webcrypto'
 import {
   CertFieldsTypes,
   getCertFieldValue,
+  keyObjectFromString,
   parseCertificate,
+  verifySignature,
   verifyUserCert
 } from '@quiet/identity'
 import {
@@ -13,7 +15,10 @@ import {
   DownloadStatus,
   DownloadProgress,
   DownloadState,
-  imagesExtensions
+  imagesExtensions,
+  User,
+  PushNotificationPayload,
+  BASE_NOTIFICATION_CHANNEL
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
@@ -22,7 +27,7 @@ import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import PeerId from 'peer-id'
-import { CryptoEngine, setEngine } from 'pkijs'
+import { CryptoEngine, getCrypto, setEngine } from 'pkijs'
 import {
   IMessageThread,
   DirectMessagesRepo,
@@ -39,7 +44,7 @@ import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
 import fs from 'fs'
 import { promisify } from 'util'
-
+import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
 const sizeOfPromisified = promisify(sizeOf)
 
@@ -72,7 +77,8 @@ export class Storage {
   public orbitDbDir: string
   public ipfsRepoPath: string
   readonly downloadCancellations: string[]
-  private readonly communityId: string
+  private readonly __communityId: string
+  private readonly publicKeysMap: Map<string, CryptoKey>
 
   constructor(
     quietDir: string,
@@ -82,7 +88,7 @@ export class Storage {
   ) {
     this.quietDir = quietDir
     this.io = ioProxy
-    this.communityId = communityId
+    this.__communityId = communityId
     this.options = {
       ...new StorageOptions(),
       ...options
@@ -90,10 +96,12 @@ export class Storage {
     this.orbitDbDir = path.join(this.quietDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
     this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
     this.downloadCancellations = []
+    this.publicKeysMap = new Map()
   }
 
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
-    log('STORAGE: Entered init')
+    log('Initializing storage')
+    this.peerId = peerID
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
     if (this.options?.createPaths) {
@@ -108,6 +116,7 @@ export class Storage {
       // @ts-expect-error
       AccessControllers: AccessControllers
     })
+    log('Initialized storage')
   }
 
   public async initDatabases() {
@@ -122,6 +131,7 @@ export class Storage {
     log('5/6')
     await this.initAllConversations()
     log('6/6')
+    log('Initialized DBs')
   }
 
   private async __stopOrbitDb() {
@@ -151,9 +161,13 @@ export class Storage {
     await this.__stopIPFS()
   }
 
+  public get communityId() {
+    return this.__communityId
+  }
+
   protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> {
     log('Initializing IPFS')
-    // @ts-expect-error
+    // @ts-ignore
     return await IPFS.create({
       // error here 'permission denied 0.0.0.0:443'
       libp2p: async () => libp2p,
@@ -176,14 +190,16 @@ export class Storage {
       }
     })
 
-    this.certificates.events.on('replicated', () => {
+    this.certificates.events.on('replicated', async () => {
       log('REPLICATED: Certificates')
       this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
+      await this.io.updatePeersList({ communityId: this.communityId, peerId: this.peerId.toB58String() })
     })
-    this.certificates.events.on('write', (_address, entry) => {
+    this.certificates.events.on('write', async (_address, entry) => {
       log('Saved certificate locally')
       log(entry.payload.value)
       this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
+      await this.io.updatePeersList({ communityId: this.communityId, peerId: this.peerId.toB58String() })
     })
     this.certificates.events.on('ready', () => {
       log('Loaded certificates to memory')
@@ -259,6 +275,19 @@ export class Storage {
     )
   }
 
+  async verifyMessage(message: ChannelMessage): Promise<boolean> {
+    const crypto = getCrypto()
+    const signature = stringToArrayBuffer(message.signature)
+    let cryptoKey = this.publicKeysMap.get(message.pubKey)
+
+    if (!cryptoKey) {
+      cryptoKey = await keyObjectFromString(message.pubKey, crypto)
+      this.publicKeysMap.set(message.pubKey, cryptoKey)
+    }
+
+    return await verifySignature(signature, message.message, cryptoKey)
+  }
+
   protected getAllEventLogEntries<T>(db: EventStore<T>): T[] {
     return db
       .iterator({ limit: -1 })
@@ -283,18 +312,41 @@ export class Storage {
     if (repo && !repo.eventsAttached) {
       log('Subscribing to channel ', channelData.address)
 
-      db.events.on('write', (_address, entry) => {
+      db.events.on('write', async (_address, entry) => {
         log(`Writing to public channel db ${channelData.address}`)
+        const verified = await this.verifyMessage(entry.payload.value)
+
         this.io.loadMessages({
-          messages: [entry.payload.value]
+          messages: [entry.payload.value],
+          isVerified: verified
         })
       })
 
-      db.events.on('replicate.progress', (address, _hash, entry, progress, total) => {
+      db.events.on('replicate.progress', async (address, _hash, entry, progress, total) => {
         log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
+        const message = entry.payload.value
+
+        const verified = await this.verifyMessage(message)
+
         this.io.loadMessages({
-          messages: [entry.payload.value]
+          messages: [message],
+          isVerified: verified
         })
+
+        // Display push notifications on mobile
+        if (process.env.BACKEND === 'mobile') {
+          if (!verified) return
+
+          // Do not notify about old messages
+          if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME)) return
+
+          const payload: PushNotificationPayload = {
+            channel: BASE_NOTIFICATION_CHANNEL,
+            message: JSON.stringify(message)
+          }
+
+          this.io.sendPushNotification(payload)
+        }
       })
       db.events.on('replicated', async address => {
         log('Replicated.', address)
@@ -332,7 +384,8 @@ export class Storage {
       filteredMessages.push(...messages.filter(i => i.id === id))
     }
     this.io.loadMessages({
-      messages: filteredMessages
+      messages: filteredMessages,
+      isVerified: true
     })
   }
 
@@ -498,7 +551,6 @@ export class Storage {
 
       return
     }
-
     const entries = this.ipfs.cat(_CID)
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
@@ -518,11 +570,15 @@ export class Storage {
       // Check if download is not meant to be canceled
       if (this.downloadCancellations.includes(metadata.message.id)) {
         downloadState = DownloadState.Canceled
+        log(`Cancelled downloading ${metadata.path}`)
         break
       }
       await new Promise<void>((resolve, reject) => {
         writeStream.write(entry, err => {
-          if (err) reject(err)
+          if (err) {
+            log.error(`${metadata.name} download error: ${err}`)
+            reject(err)
+          }
 
           let transferSpeed = -1
 
@@ -530,8 +586,8 @@ export class Storage {
             stopwatch = Date.now()
           } else {
             const timestamp = Date.now()
-            const delay = (timestamp - stopwatch) / 1000 // in seconds
-
+            let delay = 0.0001 // Workaround for avoiding delay 0:
+            delay += (timestamp - stopwatch) / 1000 // in seconds
             transferSpeed = entry.byteLength / delay
 
             // Prevent passing null value
@@ -557,12 +613,17 @@ export class Storage {
             downloadProgress: downloadProgress
           }
 
+          const percentage = Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)
+
+          log(`${new Date().toUTCString()}, ${metadata.name} downloaded bytes ${percentage}% ${downloadProgress.downloaded} / ${downloadProgress.size}`)
           this.io.updateDownloadProgress(downloadStatus)
 
           resolve()
         })
       })
     }
+
+    writeStream.end()
 
     if (downloadState === DownloadState.Canceled) {
       const downloadCanceled: DownloadProgress = {
@@ -610,8 +671,6 @@ export class Storage {
     if (index > -1) {
       this.downloadCancellations.splice(index, 1)
     }
-
-    writeStream.end()
   }
 
   public cancelDownload(mid: string) {
@@ -743,14 +802,16 @@ export class Storage {
     return true
   }
 
-  public getAllUsers() {
+  public getAllUsers(): User[] {
     const certs = this.getAllEventLogEntries(this.certificates)
     const allUsers = []
     for (const cert of certs) {
       const parsedCert = parseCertificate(cert)
       const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
       const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
-      allUsers.push({ onionAddress, peerId })
+      const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
+      const dmPublicKey = getCertFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
+      allUsers.push({ onionAddress, peerId, username, dmPublicKey })
     }
     return allUsers
   }

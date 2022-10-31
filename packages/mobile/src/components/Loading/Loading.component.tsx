@@ -22,7 +22,7 @@ export const Loading: FC<LoadingProps> = ({
         justifyContent: 'center'
       }}>
       <Image
-        source={appImages.zbay_icon}
+        source={appImages.quiet_icon_round}
         style={{
           margin: 20,
           resizeMode: 'cover',
@@ -50,7 +50,7 @@ export const Loading: FC<LoadingProps> = ({
         ))}
       </View>
       <View style={{ margin: 20 }}>
-        <Typography fontSize={12} color={'greyDark'}>
+        <Typography fontSize={12} color={'grayDark'}>
           {`v ${deviceInfoModule.getVersion()}`}
         </Typography>
       </View>

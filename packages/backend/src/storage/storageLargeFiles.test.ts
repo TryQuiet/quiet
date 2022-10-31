@@ -3,7 +3,7 @@ import path from 'path'
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { Config } from '../constants'
-import { createLibp2p, createTmpDir, tmpQuietDirPath, createMinConnectionManager } from '../common/testUtils'
+import { createLibp2p, createTmpDir, tmpQuietDirPath, createMinConnectionManager, createFile } from '../common/testUtils'
 import { Storage } from './storage'
 import * as utils from '../common/utils'
 import { FactoryGirl } from 'factory-girl'
@@ -21,7 +21,6 @@ import {
   DownloadState
 } from '@quiet/state-manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
-import crypto from 'crypto'
 
 describe('Storage', () => {
   let tmpDir: DirResult
@@ -85,20 +84,8 @@ describe('Storage', () => {
   })
 
   it('uploads large files', async () => {
-    function createLargeFile() {
-      // Generate 2.6GB file
-      const stream = fs.createWriteStream(filePath)
-      const max = 10000
-      let i = 0
-      stream.on('open', () => {
-        while (i < max) {
-          stream.write(crypto.randomBytes(2 * 65536).toString('hex'))
-          i++
-        }
-        stream.end()
-      })
-    }
-    createLargeFile()
+    // Generate 2.1GB file
+    createFile(filePath, 2147483648)
 
     storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
 
@@ -114,7 +101,7 @@ describe('Storage', () => {
     const statusSpy = jest.spyOn(storage.io, 'updateDownloadProgress')
     const copyFileSpy = jest.spyOn(storage, 'copyFile')
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/large-file.txt'),
+      path: filePath,
       name: 'test-large-file',
       ext: '.txt',
       cid: 'uploading_id',
@@ -140,5 +127,5 @@ describe('Storage', () => {
       downloadState: DownloadState.Hosted,
       downloadProgress: undefined
     }))
-  }, 1000000) // IPFS needs around 5 minutes to write 2.6GB file
+  }, 1000000) // IPFS needs around 5 minutes to write 2.1GB file
 })

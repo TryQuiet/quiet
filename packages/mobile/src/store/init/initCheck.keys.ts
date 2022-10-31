@@ -1,7 +1,4 @@
 export enum InitCheckKeys {
-  NativeServices = 'native services started',
-  Tor = 'tor initialized',
-  Onion = 'onion address added',
+  Tor = 'tor connected',
   Backend = 'backend started',
-  Websocket = 'websocket connected',
 }
