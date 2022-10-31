@@ -44,7 +44,6 @@
     "react-native-device-info": "^8.1.3",
     "react-native-events": "^1.0.17",
     "react-native-fast-image": "^8.6.1",
-    "react-native-find-free-port": "^1.0.0",
     "react-native-fs": "^2.18.0",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-jdenticon": "0.0.3",
