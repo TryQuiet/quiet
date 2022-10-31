@@ -6,6 +6,7 @@ object Const {
     const val APK_LAST_UPDATED_TIME = "APK_LAST_UPDATE_TIME"
 
     // Notifications
+    const val FOREGROUND_SERVICE_NOTIFICATION_CHANNEL_ID = "foreground.service.channel"
     const val INCOMING_MESSAGES_CHANNEL_ID = "incoming.messages.channel"
 
     // Tor
