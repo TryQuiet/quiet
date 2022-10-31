@@ -23,7 +23,7 @@ ENV PATH=${PATH}:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin
 WORKDIR ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin
 RUN yes | ./sdkmanager --licenses
 
-RUN ./sdkmanager --install "platforms;android-31" "build-tools;29.0.2" "cmake;3.10.2.4988404" "platform-tools"
+RUN ./sdkmanager --install "platforms;android-31" "build-tools;31.0.0" "cmake;3.18.1" "platform-tools"
 
 # Install Android NDK
 WORKDIR ${ANDROID_SDK_ROOT}
