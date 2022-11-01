@@ -11,6 +11,7 @@ import logger from '../logger'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
 import { CsrContainsFields, IsCsr } from './validators'
+import { registerOwner, registerUser, saveCertToDb } from './functions'
 const log = logger('registration')
 
 class UserCsrData {
@@ -48,7 +49,7 @@ export class CertificateRegistration {
     this.setRouting()
   }
 
-  private pendingPromise: Promise<any> = null
+  private pendingPromise: Promise<{status: number, body: any}> = null
 
   private setRouting() {
     this._app.use(express.json())
@@ -56,144 +57,12 @@ export class CertificateRegistration {
       '/register',
       async (req, res): Promise<void> => {
         if (this.pendingPromise) return
-        this.pendingPromise = this.registerUser(req, res)
-        await this.pendingPromise
+        this.pendingPromise = this.registerUser(req.body.data)
+        const result = await this.pendingPromise
+        res.status(result.status).send(result.body)
         this.pendingPromise = null
       }
     )
-  }
-
-  public getHiddenServiceData() {
-      return {
-        privateKey: this._privKey,
-        onionAddress: this._onionAddress.split('.')[0]
-      }
-  }
-
-  public async saveOwnerCertToDb(userCert: string) {
-    const payload: SaveCertificatePayload = {
-      certificate: userCert,
-      rootPermsData: this._permsData
-    }
-    const certSaved = await this._storage.saveCertificate(payload)
-    if (!certSaved) {
-      throw new Error('Could not save certificate')
-    }
-    log('Saved owner certificate')
-    return userCert
-  }
-
-  static async registerOwnerCertificate(userCsr: string, permsData: PermsData) {
-    const userData = new UserCsrData()
-    userData.csr = userCsr
-    const validationErrors = await validate(userData)
-    if (validationErrors.length > 0) return
-    const userCert = await createUserCert(
-      permsData.certificate,
-      permsData.privKey,
-      userCsr,
-      new Date(),
-      new Date(2030, 1, 1)
-    )
-    return userCert.userCertString
-  }
-
-  public async getPeers(): Promise<string[]> {
-    const users = this._storage.getAllUsers()
-    return await getUsersAddresses(users, Boolean(this.tor))
-  }
-
-  // REFACTORING: Move this method to identity
-  private pubKeyMatch(cert: string, parsedCsr: CertificationRequest) {
-    const parsedCertificate = parseCertificate(cert)
-    const pubKey = keyFromCertificate(parsedCertificate)
-    const pubKeyCsr = keyFromCertificate(parsedCsr)
-
-    if (pubKey === pubKeyCsr) {
-      return true
-    }
-    return false
-  }
-
-  private async registerUser(req: Request, res: Response): Promise<void> {
-    let cert: string
-    const userData = new UserCsrData()
-    userData.csr = req.body.data
-    const validationErrors = await validate(userData)
-    if (validationErrors.length > 0) {
-      log.error(`Received data is not valid: ${validationErrors.toString()}`)
-      res.status(400).send(JSON.stringify(validationErrors))
-      return
-    }
-
-    const parsedCsr = await loadCSR(userData.csr)
-    const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
-    const usernameCert = this._storage.usernameCert(username)
-    if (usernameCert) {
-      if (!this.pubKeyMatch(usernameCert, parsedCsr)) {
-        log(`Username ${username} is taken`)
-        res.status(403).send()
-        return
-      } else {
-        log('Requesting same CSR again')
-        cert = usernameCert
-      }
-    }
-
-    if (!usernameCert) {
-      log('username doesnt have existing cert, creating new')
-      try {
-        const certObj = await this.registerCertificate(userData.csr)
-        cert = certObj.userCertString
-      } catch (e) {
-        log.error(`Something went wrong with registering user: ${e.message as string}`)
-        res.status(400).send()
-        return
-      }
-    }
-    res.send({
-      certificate: cert,
-      peers: await this.getPeers(),
-      rootCa: this._permsData.certificate
-    })
-  }
-
-  private async registerCertificate(userCsr: string): Promise<UserCert> {
-    const userCert = await createUserCert(
-      this._permsData.certificate,
-      this._permsData.privKey,
-      userCsr,
-      new Date(),
-      new Date(2030, 1, 1)
-    )
-    const certSaved = await this._storage.saveCertificate({
-      certificate: userCert.userCertString,
-      rootPermsData: this._permsData
-    })
-    if (!certSaved) {
-      throw new Error('Could not save certificate')
-    }
-    log('Saved certificate')
-    return userCert
-  }
-
-  // Refactoring: This can be easily simplified if we generate 2 tor private keys for community owner as he creates community.
-  public async init() {
-    if (!this._port) {
-      const port = await getPort({ port: 7789 })
-      this._port = port
-    }
-    if (this._privKey) {
-      this._onionAddress = await this.tor.spawnHiddenService(
-      this._port,
-      this._privKey,
-      80
-        )
-    } else {
-      let data = await this.tor.createNewHiddenService(this._port, 80)
-      this._onionAddress = data.onionAddress
-      this._privKey = data.privateKey
-    }
   }
 
   public async listen(): Promise<void> {
@@ -212,5 +81,51 @@ export class CertificateRegistration {
         resolve()
       })
     })
+  }
+
+  public getHiddenServiceData() {
+      return {
+        privateKey: this._privKey,
+        onionAddress: this._onionAddress.split('.')[0]
+      }
+  }
+
+  public async saveOwnerCertToDb(userCert: string): Promise<string> {
+    await saveCertToDb(userCert, this._permsData, this._storage)
+    return userCert
+  }
+
+  static async registerOwnerCertificate(userCsr: string, permsData: PermsData): Promise<string> {
+    const cert = await registerOwner(userCsr, permsData)
+    return cert
+  }
+
+  public async getPeers(): Promise<string[]> {
+    const users = this._storage.getAllUsers()
+    return await getUsersAddresses(users)
+  }
+
+  private async registerUser(csr: string): Promise<{status: number, body: any}> {
+    const peerList = await this.getPeers()
+    return await registerUser(csr, this._permsData, this._storage, peerList)
+  }
+
+  // Refactoring: This can be easily simplified if we generate 2 tor private keys for community owner as he creates community so privKey is always there.
+  public async init(): Promise<void> {
+    if (!this._port) {
+      const port = await getPort({ port: 7789 })
+      this._port = port
+    }
+    if (this._privKey) {
+      this._onionAddress = await this.tor.spawnHiddenService(
+      this._port,
+      this._privKey,
+      80
+        )
+    } else {
+      let data = await this.tor.createNewHiddenService(this._port, 80)
+      this._onionAddress = data.onionAddress
+      this._privKey = data.privateKey
+    }
   }
 }
