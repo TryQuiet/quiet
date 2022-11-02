@@ -1,4 +1,4 @@
-import {button} from '@storybook/addon-knobs';
+import {button} from '@storybook/addon-controls';
 import React from 'react';
 import {ThemeProvider} from 'styled-components/native';
 

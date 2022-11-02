@@ -46,7 +46,7 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
         //     .createCancelPendingIntent(id)
 
         val notification = NotificationCompat.Builder(applicationContext,
-            Const.INCOMING_MESSAGES_CHANNEL_ID)
+            Const.FOREGROUND_SERVICE_NOTIFICATION_CHANNEL_ID)
             .setContentTitle("Quiet")
             .setTicker("Quiet")
             .setContentText("Backend is running")
@@ -155,14 +155,16 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
         Emitter.Listener { args ->
             var channelName = ""
             var message = ""
+            var username = ""
             try {
                 val data = args[0] as JSONObject
                 channelName = data.getString("channel")
                 message = data.getString("message")
+                username = data.getString("username")
             } catch (e: JSONException) {
                 Log.e("ON_PUSH_NOTIFICATION", "unexpected JSON exception", e)
             }
-            NotificationModule.handleIncomingEvents(channelName, message)
+            NotificationModule.handleIncomingEvents(channelName, message, username)
         }
 
     private fun startWebsocketConnection(port: Int) {
@@ -173,5 +175,4 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
             Gson().toJson(websocketConnectionPayload)
         )
     }
-
 }

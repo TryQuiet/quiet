@@ -17,7 +17,6 @@ describe('Chat component', () => {
     .spyOn(Keyboard, 'addListener')
     // @ts-expect-error
     .mockImplementation(() => ({ remove: jest.fn() }))
-  jest.spyOn(Keyboard, 'removeListener').mockImplementation(() => null)
 
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
@@ -226,19 +225,16 @@ describe('Chat component', () => {
               "28 Oct",
             ]
           }
-          disableVirtualization={false}
           getItem={[Function]}
           getItemCount={[Function]}
-          horizontal={false}
-          initialNumToRender={10}
           invertStickyHeaders={true}
           inverted={true}
           keyExtractor={[Function]}
-          maxToRenderPerBatch={10}
           onContentSizeChange={[Function]}
           onEndReached={[Function]}
           onEndReachedThreshold={0.7}
           onLayout={[Function]}
+          onMomentumScrollBegin={[Function]}
           onMomentumScrollEnd={[Function]}
           onScroll={[Function]}
           onScrollBeginDrag={[Function]}
@@ -260,9 +256,7 @@ describe('Chat component', () => {
               undefined,
             ]
           }
-          updateCellsBatchingPeriod={50}
           viewabilityConfigCallbackPairs={Array []}
-          windowSize={21}
         >
           <View>
             <View
@@ -2078,12 +2072,10 @@ describe('Chat component', () => {
                 }
               >
                 <TextInput
-                  allowFontScaling={true}
                   editable={true}
                   multiline={true}
                   onChangeText={[Function]}
                   placeholder="Message #Zbay"
-                  rejectResponderTermination={true}
                   style={
                     Array [
                       Object {
@@ -2093,7 +2085,6 @@ describe('Chat component', () => {
                       },
                     ]
                   }
-                  underlineColorAndroid="transparent"
                 />
               </View>
             </View>
