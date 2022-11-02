@@ -93,6 +93,7 @@
     "jest": "^26.6.3",
     "metro-react-native-babel-preset": "^0.72.3",
     "node-libs-react-native": "^1.2.1",
+    "nodejs-mobile-gyp": "0.3.1",
     "plop": "^2.7.4",
     "react-native-dev-menu": "^4.0.2",
     "react-native-version": "^4.0.0",
