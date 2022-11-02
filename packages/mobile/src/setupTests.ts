@@ -11,7 +11,3 @@ jest.mock('pkijs/src/common', () => ({
 jest.mock('react-native-config', () => ({
   NODE_ENV: 'staging',
 }));
-
-jest.mock('react-native-find-free-port', () => ({
-  getFirstStartingFrom: jest.fn()
-}))

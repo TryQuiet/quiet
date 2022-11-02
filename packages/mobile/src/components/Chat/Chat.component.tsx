@@ -36,12 +36,12 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       setKeyboardShow(false)
     }
 
-    Keyboard.addListener('keyboardDidShow', onKeyboardDidShow)
-    Keyboard.addListener('keyboardDidHide', onKeyboardDidHide)
+    const showSubscription = Keyboard.addListener('keyboardDidShow', onKeyboardDidShow)
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', onKeyboardDidHide)
 
     return () => {
-      Keyboard.removeListener('keyboardDidShow', onKeyboardDidShow)
-      Keyboard.removeListener('keyboardDidHide', onKeyboardDidHide)
+      showSubscription.remove()
+      hideSubscription.remove()
     }
   }, [messageInput?.length, setKeyboardShow])
 
