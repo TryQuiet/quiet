@@ -93,16 +93,12 @@ describe('ChannelList component', () => {
               },
             ]
           }
-          disableVirtualization={false}
           getItem={[Function]}
           getItemCount={[Function]}
-          horizontal={false}
-          initialNumToRender={10}
           keyExtractor={[Function]}
-          maxToRenderPerBatch={10}
           onContentSizeChange={[Function]}
-          onEndReachedThreshold={2}
           onLayout={[Function]}
+          onMomentumScrollBegin={[Function]}
           onMomentumScrollEnd={[Function]}
           onScroll={[Function]}
           onScrollBeginDrag={[Function]}
@@ -116,9 +112,7 @@ describe('ChannelList component', () => {
               "backgroundColor": "#ffffff",
             }
           }
-          updateCellsBatchingPeriod={50}
           viewabilityConfigCallbackPairs={Array []}
-          windowSize={21}
         >
           <View>
             <View

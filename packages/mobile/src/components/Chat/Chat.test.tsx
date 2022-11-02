@@ -17,7 +17,6 @@ describe('Chat component', () => {
     .spyOn(Keyboard, 'addListener')
     // @ts-expect-error
     .mockImplementation(() => ({ remove: jest.fn() }))
-  jest.spyOn(Keyboard, 'removeListener').mockImplementation(() => null)
 
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
@@ -2073,12 +2072,10 @@ describe('Chat component', () => {
                 }
               >
                 <TextInput
-                  allowFontScaling={true}
                   editable={true}
                   multiline={true}
                   onChangeText={[Function]}
                   placeholder="Message #Zbay"
-                  rejectResponderTermination={true}
                   style={
                     Array [
                       Object {
@@ -2088,7 +2085,6 @@ describe('Chat component', () => {
                       },
                     ]
                   }
-                  underlineColorAndroid="transparent"
                 />
               </View>
             </View>
