@@ -1,15 +1,25 @@
 import { Platform, AppState, NativeModules } from 'react-native'
-import { publicChannels, RICH_NOTIFICATION_CHANNEL } from '@quiet/state-manager'
+import { users, publicChannels, RICH_NOTIFICATION_CHANNEL } from '@quiet/state-manager'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { call } from 'typed-redux-saga'
+import { call, select } from 'typed-redux-saga'
+import { initSelectors } from '../../init/init.selectors'
+import { ScreenNames } from '../../../const/ScreenNames.enum'
 
 export function* showNotificationSaga(
   action: PayloadAction<ReturnType<typeof publicChannels.actions.markUnreadChannel>['payload']>
 ): Generator {
-  const message = yield* call(JSON.stringify, action.payload.message)
-
-  if (AppState.currentState === 'background') return
   if (Platform.OS === 'ios') return
+  if (AppState.currentState === 'background') return
 
-  yield* call(NativeModules.NotificationModule.notify, RICH_NOTIFICATION_CHANNEL, message)
+  const screen = yield* select(initSelectors.currentScreen)
+  if (screen === ScreenNames.ChannelListScreen) return
+
+  const _message = action.payload.message
+
+  const message = yield* call(JSON.stringify, _message)
+
+  const mapping = yield* select(users.selectors.certificatesMapping)
+  const username = mapping[_message.pubKey].username
+
+  yield* call(NativeModules.NotificationModule.notify, RICH_NOTIFICATION_CHANNEL, message, username)
 }
