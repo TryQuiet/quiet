@@ -176,10 +176,15 @@ export const INIT_COMMUNITY_DATA = 'initCommunityData'
 
 export const saveDataPersistently = <T>(key: string, obj: T) => {
   const data = JSON.stringify(obj)
-  fs.writeFileSync(`/backend/${key}.txt`, data)
+  fs.writeFileSync(`${key}.txt`, data)
 }
 
-export const readPersistentData = <T>(key: string): T => {
-  const buffer = fs.readFileSync(`/backend/${key}.txt`)
-  return JSON.parse(buffer.toString())
+export const readPersistentData = <T>(key: string): T | null => {
+  try {
+    const buffer = fs.readFileSync(`${key}.txt`)
+    return JSON.parse(buffer.toString())
+  } catch(e) {
+    log(`Unable to read a file ${key}.txt`)
+    return null
+  }
 }

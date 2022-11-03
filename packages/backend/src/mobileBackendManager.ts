@@ -41,8 +41,10 @@ export const runBackend = async (): Promise<any> => {
 
   await connectionsManager.init()
 
-  const initCommunityPayload: InitCommunityPayload = readPersistentData(INIT_COMMUNITY_DATA)
-  await connectionsManager.ioProxy.launchCommunity(initCommunityPayload)
+  const initCommunityPayload: InitCommunityPayload | null = readPersistentData(INIT_COMMUNITY_DATA)
+  if (initCommunityPayload != null) {
+    await connectionsManager.ioProxy.launchCommunity(initCommunityPayload)
+  }
 }
 
 runBackend().catch(error => {
