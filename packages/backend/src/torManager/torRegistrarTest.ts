@@ -1,4 +1,4 @@
-import express, { response } from 'express'
+import express from 'express'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import fetch, { Response } from 'node-fetch'
 import fs from 'fs'
@@ -24,6 +24,7 @@ enum TestMode {
 program
   .option('-p, --peersNumber <number>', 'Total number of peers', '20')
   .option('-r, --requestsNumber <number>', 'Number of requests per single test', '5')
+  .option('-g, --numEntryGuards <number>', 'NumEntryGuards to be set in torrc', '0')
   .requiredOption('-m, --mode <type>', 'Number of requests per single test - "newnym" or "regular"')
 
 program.parse(process.argv)
@@ -34,6 +35,7 @@ const log = logger('torMesh')
 const peersCount = options.peersNumber
 const requestsCount = options.requestsNumber
 const mode = options.mode
+const guardsCount = options.numEntryGuards
 let eventEmmiter = new EventEmitter()
 let torServices = new Map<string, { tor: Tor; httpTunnelPort: number, onionAddress?: string }>()
 let results = {}
@@ -45,11 +47,17 @@ const spawnTor = async (i: number) => {
   const tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
 
   const ports = await getPorts()
-
-  const tor = await spawnTorProcess(tmpAppDataPath, ports)
+  const extraTorProcessParams = ['--NumEntryGuards', guardsCount]
+  const tor = await spawnTorProcess(tmpAppDataPath, ports, extraTorProcessParams)
 
   await tor.init()
   torServices.set(i.toString(), { tor, httpTunnelPort: ports.httpTunnelPort })
+  // await tor.saveConfig()
+  // await tor.getInfo('config-file')
+  // await tor.getInfo('config-can-saveconf')
+  await tor.getInfo('config-text')
+  // await tor.getInfo('circuit-status')
+  // await tor.getInfo('entry-guards')
 }
 
 const spawnMesh = async () => {
@@ -298,7 +306,7 @@ const main = async () => {
   log('destroyed hidden services')
   await killMesh()
   log('RESULTS', JSON.stringify(results))
-  fs.writeFileSync(`${new Date().toISOString()}_mode_${mode}.json`, JSON.stringify(results))
+  fs.writeFileSync(`${new Date().toISOString()}_mode_${mode}_guards${guardsCount}.json`, JSON.stringify(results))
   log('after killing mesh')
   process.exit(1)
 }

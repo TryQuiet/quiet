@@ -21,6 +21,7 @@ interface IConstructor {
   httpTunnelPort?: number
   torPassword?: string
   torAuthCookie?: string
+  extraTorProcessParams?: string[]
 }
 export class Tor {
   process: child_process.ChildProcessWithoutNullStreams | any = null
@@ -38,7 +39,7 @@ export class Tor {
   torHashedPassword: string
   torAuthCookie: string
   bootstrapTime: number
-  torFileName: string
+  extraTorProcessParams: string[]
   constructor({
     torPath,
     options,
@@ -47,7 +48,8 @@ export class Tor {
     socksPort,
     httpTunnelPort,
     torPassword,
-    torAuthCookie
+    torAuthCookie,
+    extraTorProcessParams
   }: IConstructor) {
     this.torPath = path.normalize(torPath)
     this.options = options
@@ -59,7 +61,7 @@ export class Tor {
     this.socksPort = socksPort.toString()
     this.httpTunnelPort = httpTunnelPort.toString()
     this.bootstrapTime = 0
-    this.torFileName = `torLogs${(Math.random() + 1).toString(36).substring(7)}.txt`
+    this.extraTorProcessParams = extraTorProcessParams
   }
 
   public init = async ({ repeat = 6, timeout = 3600_00 } = {}): Promise<void> => {
@@ -204,8 +206,7 @@ export class Tor {
           this.torDataDirectory,
           '--HashedControlPassword',
           this.torHashedPassword,
-          // '--Log',
-          // `notice file ${this.torFileName}`
+          ...this.extraTorProcessParams
         ],
         this.options
       )
@@ -267,6 +268,33 @@ export class Tor {
       log('Could not send DUMP')
     }
   }
+
+  public async saveConfig() {
+    try {
+      const response = await this.torControl.sendCommand('SAVECONF')
+      log('SAVECONF', response)
+    } catch (e) {
+      log('Could not send SAVECONF')
+    }
+  }
+
+  public async getInfo(getInfoTarget: string) {
+    try {
+      const response = await this.torControl.sendCommand(`GETINFO ${getInfoTarget}`)
+      log('GETINFO', getInfoTarget, response)
+    } catch (e) {
+      log('Could not get info', getInfoTarget)
+    }
+  }
+
+  // public async getConfigInfo() {
+  //   try {
+  //     const response = await this.torControl.sendCommand('GETINFO config-file')
+  //     log('getConfigInfo', response)
+  //   } catch (e) {
+  //     log('Could not send getConfigInfo')
+  //   }
+  // }
 
   public async destroyHiddenService(serviceId: string): Promise<boolean> {
     try {

@@ -1,18 +1,16 @@
-FROM node:14
+FROM node:16.14.2
+ARG zipbundle
 
-RUN apt-get update && apt-get upgrade -y
-WORKDIR /usr/app
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
 
-RUN npm install -g node-pre-gyp@0.10.0 typescript ts-node
-# Overwritten on aws for entry node:
-ENV HIDDEN_SERVICE_SECRET=ED25519-V3:gOK0SNEHSRCEd3ld9Z4RpegEN2/IN3a+lxyGvNO9vUaG6QQMgqbiu5kTV5YzLghOoDGffQx7bai0rjVlSs5mAw==
-ENV HIDDEN_SERVICE_SECRET_REGISTRATION=ED25519-V3:cGYs+GzhgL/34o7nPr2MLvm+szUA5yV6CdXe8RFj0FBIqHUUKQxx/dJKopHjTZAsbgqc/WzMp7qAIVA1ZPVxBA==
-ENV PEERID_FILE=entryNodePeerId.json
-ENV DEBUG=backend:*
+RUN mkdir /app
+ADD ${zipbundle} /tmp
+WORKDIR /app
+RUN unzip /tmp/${zipbundle} && rm /tmp/${zipbundle}
 
-COPY package.json .
-COPY package-lock.json .
-RUN npm install
-COPY . .
+COPY 3rd-party /3rd-party
+ENV DEBUG=backend*
+CMD node /app/lib/torManager/torRegistrarTest.js -p 4 -m regular && node /app/lib/torManager/torRegistrarTest.js -p 4 -m newnym
 
-CMD ["ts-node", "src/entryNode.ts"]
