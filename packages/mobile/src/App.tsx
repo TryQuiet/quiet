@@ -1,27 +1,26 @@
 import './App.dev-menu'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, createRef } from 'react'
+import { LogBox, StatusBar } from 'react-native'
 import WebviewCrypto from 'react-native-webview-crypto'
 import { useDispatch } from 'react-redux'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { ScreenNames } from './const/ScreenNames.enum'
+import { SplashScreen } from './screens/Splash/Splash.screen'
 import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.screen'
 import { UsernameRegistrationScreen } from './screens/UsernameRegistration/UsernameRegistration.screen'
 import { SuccessScreen } from './screens/Success/Success.screen'
 import { ErrorScreen } from './screens/Error/Error.screen'
 import { ChannelListScreen } from './screens/ChannelList/ChannelList.screen'
 import { ChannelScreen } from './screens/Channel/Channel.screen'
-import { NavigationContainer } from '@react-navigation/native'
-import { LogBox, StatusBar } from 'react-native'
+import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { PersistGate } from 'redux-persist/integration/react'
-import { ThemeProvider } from 'styled-components'
-import { ScreenNames } from './const/ScreenNames.enum'
-import { SplashScreen } from './screens/Splash/Splash.screen'
 import { rootSaga } from './store/root.saga'
 import { persistor, sagaMiddleware } from './store/store'
+import { ThemeProvider } from 'styled-components'
 import { defaultTheme } from './styles/themes/default.theme'
-import { navigationContainerRef } from './utils/functions/navigateTo/navigateTo'
-import { initActions } from './store/init/init.slice'
+import { navigationActions } from './store/navigation/navigation.slice'
 import PushNotificationIOS, {
   PushNotification
 } from '@react-native-community/push-notification-ios'
@@ -33,12 +32,14 @@ const { Navigator, Screen } = createStackNavigator()
 
 sagaMiddleware.run(rootSaga)
 
+export const navigationContainer = createRef<NavigationContainerRef>()
+
 export const deviceRegistrationHandler = (deviceToken: string) => {
   console.log(`device token: ${deviceToken}`)
 }
 
 export const remoteNotificationHandler = (notification: PushNotification) => {
-  console.log('zbay: handling incoming remote notification')
+  console.log('quiet: handling incoming remote notification')
 }
 
 export default function App(): JSX.Element {
@@ -62,10 +63,11 @@ export default function App(): JSX.Element {
     <SafeAreaView style={{ flex: 1 }}>
       <PersistGate loading={null} persistor={persistor}>
         <NavigationContainer
-          ref={navigationContainerRef}
+          ref={navigationContainer}
           onReady={() => {
-            dispatch(initActions.setNavigatorReady(true))
-            dispatch(initActions.onRestore())
+            dispatch(navigationActions.navigationReady({
+              navigationContainer: navigationContainer.current
+            }))
           }}>
           <WebviewCrypto />
           <MenuProvider>

@@ -49,7 +49,6 @@ describe('showNotificationSaga', () => {
       .withReducer(combineReducers({ [StoreKeys.Init]: initReducer }), {
         [StoreKeys.Init]: {
           ...new InitState(),
-          currentScreen: ScreenNames.ChannelScreen
         }
       })
       .provide([
@@ -78,8 +77,7 @@ describe('showNotificationSaga', () => {
     await expectSaga(showNotificationSaga, publicChannels.actions.markUnreadChannel(payload))
       .withReducer(combineReducers({ [StoreKeys.Init]: initReducer }), {
         [StoreKeys.Init]: {
-          ...new InitState(),
-          currentScreen: ScreenNames.ChannelScreen
+          ...new InitState()
         }
       })
       .provide([
@@ -108,8 +106,7 @@ describe('showNotificationSaga', () => {
     await expectSaga(showNotificationSaga, publicChannels.actions.markUnreadChannel(payload))
       .withReducer(combineReducers({ [StoreKeys.Init]: initReducer }), {
         [StoreKeys.Init]: {
-          ...new InitState(),
-          currentScreen: ScreenNames.ChannelListScreen
+          ...new InitState()
         }
       })
       .provide([

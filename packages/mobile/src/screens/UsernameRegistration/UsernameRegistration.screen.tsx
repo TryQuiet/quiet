@@ -1,32 +1,41 @@
-import React, { FC, useEffect } from 'react'
+import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { appImages } from '../../../assets'
-import { ScreenNames } from '../../const/ScreenNames.enum'
-import { UsernameRegistrationScreenProps } from './UsernameRegistration.types'
-import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen'
-import { initActions } from '../../store/init/init.slice'
-import { UsernameRegistration } from '../../components/Registration/UsernameRegistration.component'
 import { communities, errors, identity } from '@quiet/state-manager'
+import { navigationActions } from '../../store/navigation/navigation.slice'
+import { ScreenNames } from '../../const/ScreenNames.enum'
+import { appImages } from '../../../assets'
+import { UsernameRegistration } from '../../components/Registration/UsernameRegistration.component'
+import { UsernameRegistrationScreenProps } from './UsernameRegistration.types'
 
 export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = () => {
   const dispatch = useDispatch()
 
-  useEffect(() => {
-    dispatch(initActions.setCurrentScreen(ScreenNames.UsernameRegistrationScreen))
-  })
-
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-  const registrationAttempts = useSelector(communities.selectors.registrationAttempts(currentIdentity?.id))
+
+  const registrationAttempts = useSelector(
+    communities.selectors.registrationAttempts(currentIdentity?.id)
+  )
+
   const error = useSelector(errors.selectors.registrarErrors)
+
+  const replaceScreen = useCallback((screen: ScreenNames, params?: any) => {
+    dispatch(navigationActions.replaceScreen({
+      screen: screen,
+      params: params
+    }))
+  }, [dispatch])
 
   useEffect(() => {
     if (currentIdentity?.userCertificate) {
-      replaceScreen(ScreenNames.SuccessScreen, {
-        onPress: () => replaceScreen(ScreenNames.ChannelListScreen),
-        icon: appImages.username_registered,
-        title: 'You created a username',
-        message: 'Your username will be registered shortly'
-      })
+      replaceScreen(
+        ScreenNames.SuccessScreen,
+        {
+          onPress: () => replaceScreen(ScreenNames.ChannelListScreen),
+          icon: appImages.username_registered,
+          title: 'You created a username',
+          message: 'Your username will be registered shortly'
+        }
+      )
     }
   }, [currentIdentity?.userCertificate])
 

@@ -3,7 +3,6 @@ import { put, call, cancel, fork, takeEvery, FixedTask } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { socket as stateManager } from '@quiet/state-manager'
 import { initActions } from '../init.slice'
-import { initialRoutingSaga } from '../initialRouting/initialRouting.saga'
 import { eventChannel } from 'redux-saga'
 
 export function* startConnectionSaga(
@@ -21,8 +20,6 @@ export function* startConnectionSaga(
 function* setConnectedSaga(socket: Socket): Generator {
   // @ts-expect-error
   const task = yield* fork(stateManager.useIO, socket)
-  // Screen redirection
-  yield* fork(initialRoutingSaga)
   // Handle suspending current connection
   yield* takeEvery(initActions.suspendWebsocketConnection, cancelRootTaskSaga, task)
 }
