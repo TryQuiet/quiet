@@ -1,6 +1,6 @@
 import './App.dev-menu'
 
-import React, { useEffect, createRef } from 'react'
+import React, { useEffect } from 'react'
 import { LogBox, StatusBar } from 'react-native'
 import WebviewCrypto from 'react-native-webview-crypto'
 import { useDispatch } from 'react-redux'
@@ -13,8 +13,12 @@ import { SuccessScreen } from './screens/Success/Success.screen'
 import { ErrorScreen } from './screens/Error/Error.screen'
 import { ChannelListScreen } from './screens/ChannelList/ChannelList.screen'
 import { ChannelScreen } from './screens/Channel/Channel.screen'
-import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native'
+import { 
+  NavigationContainer, 
+  NavigationContainerRef 
+} from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
+import { navigationContainer } from './RootNavigation'
 import { PersistGate } from 'redux-persist/integration/react'
 import { rootSaga } from './store/root.saga'
 import { persistor, sagaMiddleware } from './store/store'
@@ -31,8 +35,6 @@ LogBox.ignoreAllLogs()
 const { Navigator, Screen } = createStackNavigator()
 
 sagaMiddleware.run(rootSaga)
-
-export const navigationContainer = createRef<NavigationContainerRef>()
 
 export const deviceRegistrationHandler = (deviceToken: string) => {
   console.log(`device token: ${deviceToken}`)
@@ -63,11 +65,10 @@ export default function App(): JSX.Element {
     <SafeAreaView style={{ flex: 1 }}>
       <PersistGate loading={null} persistor={persistor}>
         <NavigationContainer
-          ref={navigationContainer}
+          ref={(navigator: NavigationContainerRef) => navigationContainer.resolve(navigator)}
           onReady={() => {
-            dispatch(navigationActions.navigationReady({
-              navigationContainer: navigationContainer.current
-            }))
+            console.log('navigator ready, going to splash screen')
+            dispatch(navigationActions.displaySplashScreen())
           }}>
           <WebviewCrypto />
           <MenuProvider>

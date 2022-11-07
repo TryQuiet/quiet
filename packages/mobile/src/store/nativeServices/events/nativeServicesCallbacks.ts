@@ -47,6 +47,7 @@ export const deviceEvents = () => {
           // Change data source in state-manager
           emit(publicChannels.actions.setCurrentChannel({ channelAddress }))
           // Redirect to proper screen in the application
+          console.log('event emitter replace screen')
           emit(navigationActions.replaceScreen({ screen: ScreenNames.ChannelScreen }))
         }
       )

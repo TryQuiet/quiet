@@ -20,6 +20,7 @@ export const ChannelListScreen: FC = () => {
   )
 
   const redirect = useCallback((address: string) => {
+    console.log('on redirect click')
     dispatch(publicChannels.actions.setCurrentChannel({
       channelAddress: address
     }))
