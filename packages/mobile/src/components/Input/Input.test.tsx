@@ -39,11 +39,9 @@ describe('MessageInput component', () => {
           }
         >
           <TextInput
-            allowFontScaling={true}
             editable={true}
             onChangeText={[Function]}
             placeholder="Message #general as @holmes"
-            rejectResponderTermination={true}
             style={
               Array [
                 Object {
@@ -53,7 +51,6 @@ describe('MessageInput component', () => {
                 },
               ]
             }
-            underlineColorAndroid="transparent"
           />
         </View>
       </View>

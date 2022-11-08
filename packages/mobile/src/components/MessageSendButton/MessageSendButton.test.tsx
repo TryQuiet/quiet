@@ -18,6 +18,7 @@ describe('MessageSendButton component', () => {
       >
         <View
           accessible={true}
+          collapsable={false}
           style={
             Object {
               "justifyContent": "center",
