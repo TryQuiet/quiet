@@ -2,11 +2,9 @@ import fs from 'fs'
 import getPort from 'get-port'
 import Libp2p from 'libp2p'
 import { HttpsProxyAgent } from 'https-proxy-agent'
-import { Response } from 'node-fetch'
 import path from 'path'
 import PeerId from 'peer-id'
 import tmp from 'tmp'
-import { ConnectionsManagerOptions } from '../common/types'
 import { Config } from '../constants'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
@@ -57,19 +55,6 @@ export const spawnTorProcess = async (quietDirPath: string, ports?: Ports): Prom
   return tor
 }
 
-export const createMinConnectionManager = (
-  options: ConnectionsManagerOptions
-): ConnectionsManager => {
-  if (!options.env?.appDataPath) throw new Error('Test connection manager is lacking appDataPath!')
-  return new ConnectionsManager({
-    socketIOPort: 1234,
-    options: {
-      bootstrapMultiaddrs: testBootstrapMultiaddrs,
-      ...options
-    }
-  })
-}
-
 export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
   const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
 
@@ -116,55 +101,4 @@ export function createFile(filePath: string, size: number) {
     }
     stream.end()
   })
-}
-
-export class TorMock {
-  // TODO: extend Tor to be sure that mocked api is correct
-  public async spawnHiddenService(
-    targetPort: number,
-    privKey: string,
-    virtPort: number = 443
-  ): Promise<any> {
-    log('TorMock.spawnHiddenService', targetPort, privKey, virtPort)
-    return 'mockedOnionAddress.onion'
-  }
-
-  public async createNewHiddenService(
-    targetPort: number, virtPort: number = 443
-  ): Promise<{ onionAddress: string; privateKey: string }> {
-    log('TorMock.createNewHiddenService', targetPort, virtPort)
-    return {
-      onionAddress: 'mockedOnionAddress',
-      privateKey: 'mockedPrivateKey'
-    }
-  }
-
-  protected readonly spawnTor = resolve => {
-    log('TorMock.spawnTor')
-    resolve()
-  }
-
-  public kill = async (): Promise<void> => {
-    log('TorMock.kill')
-  }
-}
-
-export class ResponseMock extends Response {
-  _json: {}
-  _status: number
-
-  public init(respStatus: number, respJson?: {}) {
-    this._json = respJson
-    this._status = respStatus
-    return this
-  }
-
-  // @ts-expect-error
-  get status() {
-    return this._status
-  }
-
-  public async json() {
-    return this._json
-  }
 }

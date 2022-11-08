@@ -143,7 +143,7 @@ export const createLibp2pListenAddress = (address: string) => {
   return `/dns4/${address}/tcp/443/wss`
 }
 
-export const getUsersAddresses = async (users: User[], tor: boolean = true): Promise<string[]> => {
+export const getUsersAddresses = async (users: User[]): Promise<string[]> => {
   const peers = users.map(async (userData: User) => {
     return createLibp2pAddress(userData.onionAddress, userData.peerId)
   })
