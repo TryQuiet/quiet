@@ -315,7 +315,12 @@ export default class IOProxy {
 
   public async launchCommunity(payload: InitCommunityPayload) {
     const community = this.communities.getCommunity(payload.peerId.id)
-    if (community) return
+    if (community) {
+      await this.getStorage(payload.peerId.id).initDatabases()
+      this.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
+      return
+    }
+
     try {
       await this.communities.launch(payload)
     } catch (e) {
