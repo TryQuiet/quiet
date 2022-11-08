@@ -32,7 +32,8 @@ import {
   FileMetadata,
   Certificates,
   SendMessagePayload,
-  NetworkDataPayload
+  NetworkDataPayload,
+  PushNotificationPayload
 } from '@quiet/state-manager'
 
 import { CryptoEngine, setEngine } from 'pkijs'
@@ -55,6 +56,7 @@ import getPort from 'get-port'
 import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
+import { Socket } from 'dgram'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -471,6 +473,12 @@ export class ConnectionsManager extends EventEmitter {
     })
     this.storage.on(StorageEvents.UPDATE_PEERS_LIST, (payload) => {
       this.io.emit(SocketActionTypes.PEER_LIST, payload)
+    })
+    this.storage.on(StorageEvents.SEND_PUSH_NOTIFICATION, (payload: PushNotificationPayload) => {
+      this.io.emit(SocketActionTypes.PUSH_NOTIFICATION, payload)
+    })
+    this.storage.on(StorageEvents.CHECK_FOR_MISSING_FILES, (payload: string) => {
+      this.io.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, payload)
     })
   }
 

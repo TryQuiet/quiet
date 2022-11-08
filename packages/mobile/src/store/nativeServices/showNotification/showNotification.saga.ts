@@ -6,13 +6,10 @@ import { call } from 'typed-redux-saga'
 export function* showNotificationSaga(
   action: PayloadAction<ReturnType<typeof publicChannels.actions.markUnreadChannel>['payload']>
 ): Generator {
-  const payload = yield* call(JSON.stringify, {
-    event: RICH_NOTIFICATION_CHANNEL,
-    payload: [action.payload.message]
-  })
+  const message = yield* call(JSON.stringify, action.payload.message)
 
   if (AppState.currentState === 'background') return
   if (Platform.OS === 'ios') return
 
-  yield* call(NativeModules.NotificationModule.notify, '_EVENTS_', payload)
+  yield* call(NativeModules.NotificationModule.notify, RICH_NOTIFICATION_CHANNEL, message)
 }

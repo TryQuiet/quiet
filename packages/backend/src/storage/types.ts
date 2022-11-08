@@ -11,5 +11,7 @@ REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
 UPLOADED_FILE = 'uploadedFile',
 UPDATE_DOWNLOAD_PROGRESS = 'updateDownloadProgress',
 UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
-LOAD_ALL_DIRECT_MESSAGES = 'loadAllDirectMessages'
+LOAD_ALL_DIRECT_MESSAGES = 'loadAllDirectMessages',
+CHECK_FOR_MISSING_FILES = 'checkForMissingFiles',
+SEND_PUSH_NOTIFICATION = 'sendPushNotification'
 }

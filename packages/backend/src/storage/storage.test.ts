@@ -736,6 +736,7 @@ describe('Files', () => {
     expect(uploadFileBuffer).toStrictEqual(downloadFileBuffer)
   })
 
+  // Test fails because of bug in transfer speed logic https://github.com/TryQuiet/quiet/issues/1009
   it('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
     const fileSize = 524288 // 0.5MB
     createFile(filePath, fileSize)

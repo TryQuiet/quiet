@@ -17,6 +17,7 @@ import {
   DownloadState,
   imagesExtensions,
   User,
+  PushNotificationPayload,
   BASE_NOTIFICATION_CHANNEL
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
@@ -318,45 +319,40 @@ export class Storage extends EventEmitter {
     if (repo && !repo.eventsAttached) {
       log('Subscribing to channel ', channelData.address)
 
-      this.on(StorageEvents.LOAD_MESSAGES, () => {
-        console.log('received event')
-      })
-
       db.events.on('write', async (_address, entry) => {
         log(`Writing to public channel db ${channelData.address}`)
-        console.log('before verifiation')
         const verified = await this.verifyMessage(entry.payload.value)
-  
-        console.log('after verification', verified)
-
-        console.log("VERIFIED MESSAGE")
-
-        console.log('emitttttttting message on writeeeeee')
 
         this.emit(StorageEvents.LOAD_MESSAGES, {
           messages: [entry.payload.value],
           isVerified: verified
         })
-
-        console.log('after emit')
       })
 
       db.events.on('replicate.progress', async (address, _hash, entry, progress, total) => {
         log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
-        const verified = await this.verifyMessage(entry.payload.value)
-        this.emit(StorageEvents.LOAD_MESSAGES, {
-          messages: [entry.payload.value],
-          isVerified: verified
-        })
+        const message = entry.payload.value
+        
+        const verified = await this.verifyMessage(message)
+          
+          this.emit(StorageEvents.LOAD_MESSAGES, {
+            messages: [entry.payload.value],
+            isVerified: verified
+          })
+
         // Display push notifications on mobile
         if (process.env.BACKEND === 'mobile') {
-          const message = entry.payload.value
+          if (!verified) return
+
           // Do not notify about old messages
           if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME)) return
-          const bridge = require('rn-bridge')
-          if (verified) {
-            bridge.channel.post(BASE_NOTIFICATION_CHANNEL, JSON.stringify(message))
+
+          const payload: PushNotificationPayload = {
+            channel: BASE_NOTIFICATION_CHANNEL,
+            message: JSON.stringify(message)
           }
+
+          this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
         }
       })
       db.events.on('replicated', async address => {
@@ -398,6 +394,7 @@ export class Storage extends EventEmitter {
       messages: filteredMessages,
       isVerified: true
     })
+    this.emit(StorageEvents.CHECK_FOR_MISSING_FILES, this.communityId)
   }
 
   private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {

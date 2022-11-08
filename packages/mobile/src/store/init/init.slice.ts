@@ -11,6 +11,7 @@ export class InitState {
   public isNavigatorReady: boolean = false
   public isCryptoEngineInitialized: boolean = false
   public isWebsocketConnected: boolean = false
+  public lastKnownDataPort: number = 0
   public initDescription: string = ''
   public initChecks: EntityState<InitCheck> = initChecksAdapter.setAll(
     initChecksAdapter.getInitialState(),
@@ -75,8 +76,10 @@ export const initSlice = createSlice({
     suspendWebsocketConnection: state => {
       state.isWebsocketConnected = false
     },
-    setWebsocketConnected: state => {
+    setWebsocketConnected: (state, action: PayloadAction<WebsocketConnectionPayload>) => {
+      const { dataPort } = action.payload
       state.isWebsocketConnected = true
+      state.lastKnownDataPort = dataPort
       const event = InitCheckKeys.Backend
       initChecksAdapter.updateOne(state.initChecks, {
         changes: {

@@ -6,24 +6,9 @@
 #include <android/log.h>
 
 #include "node.h"
-#include "rn-bridge.h"
 
 // cache the environment variable for the thread running node to call into java
 JNIEnv* cacheEnvPointer=NULL;
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_zbaymobile_BackendWorker_sendMessageToNodeChannel(
-        JNIEnv *env,
-        jobject /* this */,
-        jstring channelName,
-        jstring msg) {
-    const char* nativeChannelName = env->GetStringUTFChars(channelName, 0);
-    const char* nativeMessage = env->GetStringUTFChars(msg, 0);
-    rn_bridge_notify(nativeChannelName, nativeMessage);
-    env->ReleaseStringUTFChars(channelName,nativeChannelName);
-    env->ReleaseStringUTFChars(msg,nativeMessage);
-}
 
 extern "C" int callIntoNode(int argc, char *argv[])
 {
@@ -45,7 +30,7 @@ extern "C" int callIntoNode(int argc, char *argv[])
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_zbaymobile_BackendWorker_getCurrentABIName(
+Java_com_zbaymobile_Backend_NodeProjectManager_getCurrentABIName(
         JNIEnv *env,
         jobject /* this */) {
     return env->NewStringUTF(CURRENT_ABI_NAME);
@@ -53,32 +38,12 @@ Java_com_zbaymobile_BackendWorker_getCurrentABIName(
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_zbaymobile_BackendWorker_registerNodeDataDirPath(
+Java_com_zbaymobile_Backend_BackendWorker_registerNodeDataDirPath(
         JNIEnv *env,
         jobject /* this */,
         jstring dataDir) {
     const char* nativeDataDir = env->GetStringUTFChars(dataDir, 0);
-    rn_register_node_data_dir_path(nativeDataDir);
     env->ReleaseStringUTFChars(dataDir, nativeDataDir);
-}
-
-#define APPNAME "RNBRIDGE"
-
-void rcv_message(const char* channel_name, const char* payload) {
-    JNIEnv *env=cacheEnvPointer;
-    if(!env) return;
-    jclass cls2 = env->FindClass("com/zbaymobile/NotificationModule");  // try to find the class
-    if(cls2 != nullptr) {
-        jmethodID m_sendMessage = env->GetStaticMethodID(cls2, "handleIncomingEvents", "(Ljava/lang/String;Ljava/lang/String;)V");  // find method
-        if(m_sendMessage != nullptr) {
-            jstring java_channel_name=env->NewStringUTF(channel_name);
-            jstring java_msg=env->NewStringUTF(payload);
-            env->CallStaticVoidMethod(cls2, m_sendMessage, java_channel_name, java_msg);  // call method
-            env->DeleteLocalRef(java_channel_name);
-            env->DeleteLocalRef(java_msg);
-        }
-    }
-    env->DeleteLocalRef(cls2);
 }
 
 // Start threads to redirect stdout and stderr to logcat.
@@ -138,7 +103,7 @@ int start_redirecting_stdout_stderr() {
 
 //node's libUV requires all arguments being on contiguous memory.
 extern "C" jobject JNICALL
-Java_com_zbaymobile_BackendWorker_startNodeWithArguments(
+Java_com_zbaymobile_Backend_BackendWorker_startNodeWithArguments(
         JNIEnv *env,
         jobject /* this */,
         jobjectArray arguments,
@@ -183,8 +148,6 @@ Java_com_zbaymobile_BackendWorker_startNodeWithArguments(
         //Increment to the next argument's expected position.
         current_args_position += strlen(current_args_position)+1;
     }
-
-    rn_register_bridge_cb(&rcv_message);
 
     cacheEnvPointer=env;
 
