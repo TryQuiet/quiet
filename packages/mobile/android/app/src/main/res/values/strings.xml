@@ -7,6 +7,9 @@
     <string name="close">close</string>
 
     <!-- Notification -->
+    <string name="foreground_service_channel_name">Backend</string>
+    <string name="foreground_service_channel_description">Continuously synchronise data and receive incoming messages</string>
+
     <string name="notification_channel_name">Incoming messages</string>
     <string name="notification_channel_description">Inform the user about incoming messages</string>
 

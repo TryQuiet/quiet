@@ -24,6 +24,7 @@ export interface SendMessagePayload {
 export interface PushNotificationPayload {
   channel: typeof BASE_NOTIFICATION_CHANNEL | typeof RICH_NOTIFICATION_CHANNEL
   message: string
+  username: string
 }
 
 export interface WriteMessagePayload {

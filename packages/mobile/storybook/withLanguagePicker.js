@@ -1,4 +1,4 @@
-import {button} from '@storybook/addon-knobs';
+import {button} from '@storybook/addon-controls';
 import i18next from 'i18next';
 
 import {Languages} from '../src/translations/const/Languages.enum';
