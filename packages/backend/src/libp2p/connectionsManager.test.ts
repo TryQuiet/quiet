@@ -15,23 +15,6 @@ beforeEach(() => {
 })
 
 describe('Connections manager', () => {
- it('throws error when tries to send certification request to the offline registrar', async () => {
-    const port =  1234
-    connectionsManager = new ConnectionsManager({
-      socketIOPort: port,
-      options: {
-        env: {
-          appDataPath: tmpAppDataPath
-        },
-      }
-    })
-    await expect(
-      connectionsManager.sendCertificateRegistrationRequest(
-        'http://invalid.onion',
-        'cert'
-      )
-    ).rejects.toThrow()
-  })
 
   it('inits libp2p', async () => {
     const peerId = await PeerId.create()
