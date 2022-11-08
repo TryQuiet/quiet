@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.11.3-alpha.16...e2e-tests@0.12.0) (2022-10-31)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
 ## [0.11.3-alpha.16](https://github.com/TryQuiet/monorepo/compare/e2e-tests@0.11.3-alpha.13...e2e-tests@0.11.3-alpha.16) (2022-10-19)
 
 **Note:** Version bump only for package e2e-tests

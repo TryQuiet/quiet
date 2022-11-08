@@ -2,6 +2,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import {
   CertFieldsTypes,
   getCertFieldValue,
+  keyFromCertificate,
   keyObjectFromString,
   parseCertificate,
   verifySignature,
@@ -81,6 +82,7 @@ export class Storage extends EventEmitter {
   readonly downloadCancellations: string[]
   private readonly __communityId: string
   private readonly publicKeysMap: Map<string, CryptoKey>
+  private readonly userNamesMap: Map<string, string>
 
   constructor(
     quietDir: string,
@@ -98,6 +100,7 @@ export class Storage extends EventEmitter {
     this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
     this.downloadCancellations = []
     this.publicKeysMap = new Map()
+    this.userNamesMap = new Map()
   }
 
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
@@ -196,7 +199,16 @@ export class Storage extends EventEmitter {
         write: ['*']
       }
     })
+    this.certificates.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
+      const certificate = entry.payload.value
 
+      const parsedCertificate = parseCertificate(certificate)
+      const key = keyFromCertificate(parsedCertificate)
+
+      const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
+
+      this.userNamesMap.set(key, username)
+    })
     this.certificates.events.on('replicated', async () => {
       log('REPLICATED: Certificates')
       this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
@@ -347,9 +359,12 @@ export class Storage extends EventEmitter {
           // Do not notify about old messages
           if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME)) return
 
+          const username = this.getUserNameFromCert(message.pubKey)
+
           const payload: PushNotificationPayload = {
             channel: BASE_NOTIFICATION_CHANNEL,
-            message: JSON.stringify(message)
+            message: JSON.stringify(message),
+            username: username
           }
 
           this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
@@ -842,5 +857,21 @@ export class Storage extends EventEmitter {
       }
     }
     return null
+  }
+
+  public getUserNameFromCert(publicKey: string): string {
+    if (!this.userNamesMap.get(publicKey)) {
+      const certificates = this.getAllEventLogEntries(this.certificates)
+
+      for (const cert of certificates) {
+        const parsedCertificate = parseCertificate(cert)
+        const key = keyFromCertificate(parsedCertificate)
+
+        const value = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
+        this.userNamesMap.set(key, value)
+      }
+    }
+
+    return this.userNamesMap.get(publicKey)
   }
 }
