@@ -402,6 +402,7 @@ export class Storage {
       messages: filteredMessages,
       isVerified: true
     })
+    this.io.checkForMissingFiles(this.communityId)
   }
 
   private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {

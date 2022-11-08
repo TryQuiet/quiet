@@ -167,6 +167,11 @@ export default class IOProxy {
     this.io.emit(SocketActionTypes.INCOMING_MESSAGES, payload)
   }
 
+  public checkForMissingFiles = (payload: string) => {
+    log('Checking missing files')
+    this.io.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, payload)
+  }
+
   public sendMessagesIds = (payload: ChannelMessagesIdsResponse) => {
     if (payload.ids.length === 0) {
       return
