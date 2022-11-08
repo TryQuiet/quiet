@@ -15,7 +15,6 @@ beforeEach(() => {
 })
 
 describe('Connections manager', () => {
-
   it('inits libp2p', async () => {
     const peerId = await PeerId.create()
     const port = 1234
@@ -36,7 +35,7 @@ describe('Connections manager', () => {
       addressPort: port,
       targetPort: port,
       bootstrapMultiaddrs: ['some/address'],
-      certs: {certificate: 'asdf', key: 'asdf', CA: ["ASDF"]}
+      certs: { certificate: 'asdf', key: 'asdf', CA: ['ASDF'] }
     })
     expect(result.localAddress).toBe(localAddress)
     expect(result.libp2p.peerId).toBe(peerId)

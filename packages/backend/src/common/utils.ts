@@ -124,7 +124,6 @@ export const torBinForPlatform = (basePath?: string): string => {
 }
 
 export const torDirForPlatform = (basePath?: string): string => {
-  
   let torPath
   if (!basePath) {
     basePath = path.join(process.cwd(), '..', '..', '3rd-party')

@@ -56,7 +56,6 @@ import getPort from 'get-port'
 import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
-import { Socket } from 'dgram'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -67,7 +66,6 @@ interface InitStorageParams {
   peers: string[]
   certs: Certificates
 }
-
 
 export interface IConstructor {
   options: Partial<ConnectionsManagerOptions>
@@ -149,7 +147,7 @@ export class ConnectionsManager extends EventEmitter {
 
     log(`Creating https proxy agent: ${this.httpTunnelPort}`)
 
-    return new HttpsProxyAgent({ port: this.httpTunnelPort, host: "localhost" })
+    return new HttpsProxyAgent({ port: this.httpTunnelPort, host: 'localhost' })
   }
 
   public init = async () => {
@@ -285,9 +283,8 @@ export class ConnectionsManager extends EventEmitter {
     // Start existing community (community that user is already a part of)
     const ports = await getPorts()
     const virtPort = 443
-    let onionAddress: string
     log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
-    onionAddress = await this.tor.spawnHiddenService(
+    const onionAddress: string = await this.tor.spawnHiddenService(
       ports.libp2pHiddenService,
       payload.hiddenService.privateKey
     )
@@ -359,67 +356,67 @@ export class ConnectionsManager extends EventEmitter {
 
   private attachDataServerListeners = () => {
     // Community
-    this.dataServer.on(SocketActionTypes.CREATE_NETWORK, (args: Community) => { this.createNetwork(args) })
-    this.dataServer.on(SocketActionTypes.CREATE_COMMUNITY, (args: InitCommunityPayload) => { this.createCommunity(args) })
-    this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, (args: InitCommunityPayload) => { this.launchCommunity(args) })
+    this.dataServer.on(SocketActionTypes.CREATE_NETWORK, async (args: Community) => { await this.createNetwork(args) })
+    this.dataServer.on(SocketActionTypes.CREATE_COMMUNITY, async (args: InitCommunityPayload) => { await this.createCommunity(args) })
+    this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => { await this.launchCommunity(args) })
 
     // Registration
-    this.dataServer.on(SocketActionTypes.LAUNCH_REGISTRAR, (args: LaunchRegistrarPayload) => {
-      this.registration.launchRegistrar(args)
+    this.dataServer.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
+      await this.registration.launchRegistrar(args)
     })
-    this.dataServer.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (args: SaveOwnerCertificatePayload) => {
+    this.dataServer.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, async (args: SaveOwnerCertificatePayload) => {
       const saveCertificatePayload: SaveCertificatePayload = {
         certificate: args.certificate,
         rootPermsData: args.permsData
       }
-      this.storage.saveCertificate(saveCertificatePayload)
+      await this.storage.saveCertificate(saveCertificatePayload)
     }
     )
-    this.dataServer.on(SocketActionTypes.REGISTER_USER_CERTIFICATE, (args: RegisterUserCertificatePayload) => { this.registration.sendCertificateRegistrationRequest(args.serviceAddress, args.userCsr, args.communityId, 120_000, this.socksProxyAgent) })
+    this.dataServer.on(SocketActionTypes.REGISTER_USER_CERTIFICATE, async (args: RegisterUserCertificatePayload) => { await this.registration.sendCertificateRegistrationRequest(args.serviceAddress, args.userCsr, args.communityId, 120_000, this.socksProxyAgent) })
     this.dataServer.on(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, async (args: RegisterOwnerCertificatePayload) => {
       await this.registration.registerOwnerCertificate(args)
     }
     )
 
     // Public Channels
-    this.dataServer.on(SocketActionTypes.SUBSCRIBE_TO_TOPIC, (args: SubscribeToTopicPayload) => { this.storage.subscribeToChannel(args.channel) })
-    this.dataServer.on(SocketActionTypes.SEND_MESSAGE, (args: SendMessagePayload) => { this.storage.sendMessage(args.message) })
-    this.dataServer.on(SocketActionTypes.ASK_FOR_MESSAGES, (args: AskForMessagesPayload) => {
-      this.storage.askForMessages(
+    this.dataServer.on(SocketActionTypes.SUBSCRIBE_TO_TOPIC, async (args: SubscribeToTopicPayload) => { await this.storage.subscribeToChannel(args.channel) })
+    this.dataServer.on(SocketActionTypes.SEND_MESSAGE, async (args: SendMessagePayload) => { await this.storage.sendMessage(args.message) })
+    this.dataServer.on(SocketActionTypes.ASK_FOR_MESSAGES, async (args: AskForMessagesPayload) => {
+      await this.storage.askForMessages(
         args.channelAddress,
         args.ids
       )
     })
 
     // Files
-    this.dataServer.on(SocketActionTypes.DOWNLOAD_FILE, (metadata: FileMetadata) => {
-      this.storage.downloadFile(metadata)
+    this.dataServer.on(SocketActionTypes.DOWNLOAD_FILE, async (metadata: FileMetadata) => {
+      await this.storage.downloadFile(metadata)
     })
-    this.dataServer.on(SocketActionTypes.UPLOAD_FILE, (metadata: FileMetadata) => {
-      this.storage.uploadFile(metadata)
+    this.dataServer.on(SocketActionTypes.UPLOAD_FILE, async (metadata: FileMetadata) => {
+      await this.storage.uploadFile(metadata)
     })
-    this.dataServer.on(SocketActionTypes.UPLOADED_FILE, (args: FileMetadata) => {
-      this.storage.uploadFile(args)
+    this.dataServer.on(SocketActionTypes.UPLOADED_FILE, async (args: FileMetadata) => {
+      await this.storage.uploadFile(args)
     })
-    this.dataServer.on(SocketActionTypes.CANCEL_DOWNLOAD, (mid) => {
-      this.storage.cancelDownload(mid)
+    this.dataServer.on(SocketActionTypes.CANCEL_DOWNLOAD, async (mid) => {
+      await this.storage.cancelDownload(mid)
     })
 
     // Direct Messages
-    this.dataServer.on(SocketActionTypes.INITIALIZE_CONVERSATION, (address, encryptedPhrase) => {
-      this.storage.initializeConversation(address, encryptedPhrase)
+    this.dataServer.on(SocketActionTypes.INITIALIZE_CONVERSATION, async (address, encryptedPhrase) => {
+      await this.storage.initializeConversation(address, encryptedPhrase)
     })
-    this.dataServer.on(SocketActionTypes.GET_PRIVATE_CONVERSATIONS, () => {
-      this.storage.getPrivateConversations()
+    this.dataServer.on(SocketActionTypes.GET_PRIVATE_CONVERSATIONS, async () => {
+      await this.storage.getPrivateConversations()
     })
-    this.dataServer.on(SocketActionTypes.SEND_DIRECT_MESSAGE, (channelAddress: string, messagePayload) => {
-      this.storage.sendDirectMessage(channelAddress, messagePayload)
+    this.dataServer.on(SocketActionTypes.SEND_DIRECT_MESSAGE, async (channelAddress: string, messagePayload) => {
+      await this.storage.sendDirectMessage(channelAddress, messagePayload)
     })
-    this.dataServer.on(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, (address: string) => {
-      this.storage.subscribeToDirectMessageThread(address)
+    this.dataServer.on(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, async (address: string) => {
+      await this.storage.subscribeToDirectMessageThread(address)
     })
-    this.dataServer.on(SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS, (conversations: string[]) => {
-      this.storage.subscribeToAllConversations(conversations)
+    this.dataServer.on(SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS, async (conversations: string[]) => {
+      await this.storage.subscribeToAllConversations(conversations)
     })
 
     this.dataServer.on(SocketActionTypes.CLOSE, async () => {
@@ -435,9 +432,9 @@ export class ConnectionsManager extends EventEmitter {
     this.storage.on(StorageEvents.LOAD_PUBLIC_CHANNELS, (payload) => {
       this.io.emit(SocketActionTypes.CHANNELS_REPLICATED, payload)
     })
-    this.storage.on(StorageEvents.LOAD_ALL_PRIVATE_CONVERSATIONS, (payload => {
+    this.storage.on(StorageEvents.LOAD_ALL_PRIVATE_CONVERSATIONS, payload => {
       this.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
-    }))
+    })
     this.storage.on(StorageEvents.LOAD_MESSAGES, (payload) => {
       this.io.emit(SocketActionTypes.INCOMING_MESSAGES, payload)
     })

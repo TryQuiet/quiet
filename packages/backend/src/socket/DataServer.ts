@@ -125,9 +125,6 @@ export class DataServer extends EventEmitter {
         this.emit(socketActionTypes.ASK_FOR_MESSAGES, payload)
       })
 
-
-
-
       socket.on(
         SocketActionTypes.REGISTER_USER_CERTIFICATE,
         async (payload: RegisterUserCertificatePayload) => {

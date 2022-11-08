@@ -27,7 +27,8 @@ export const runBackend = async () => {
       env: {
         appDataPath: `${options.appDataPath.trim()}/Quiet`,
         resourcesPath
-      }}
+      }
+}
   })
 
   process.on('message', async (message) => {

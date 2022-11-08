@@ -1,5 +1,5 @@
 import express from 'express'
-import fetch, { Response } from "node-fetch"
+import fetch, { Response } from 'node-fetch'
 import getPort from 'get-port'
 import { Agent, Server } from 'http'
 import { EventEmitter } from 'events'
@@ -43,7 +43,7 @@ export class CertificateRegistration extends EventEmitter {
     this.certificates = certs
   }
 
-  private pendingPromise: Promise<{ status: number, body: any }> = null
+  private pendingPromise: Promise<{ status: number; body: any }> = null
 
   private setRouting() {
     this._app.use(express.json())
@@ -132,7 +132,7 @@ export class CertificateRegistration extends EventEmitter {
             type: SocketActionTypes.REGISTRAR,
             code: ErrorCodes.BAD_REQUEST,
             message: ErrorMessages.INVALID_USERNAME,
-            community: communityId  
+            community: communityId
         })
         return
       case 403:
@@ -166,7 +166,7 @@ export class CertificateRegistration extends EventEmitter {
 
         const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
         await response.json()
-  
+
       log(`Sending user certificate (${communityId})`)
       this.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
         communityId: communityId,
@@ -174,10 +174,10 @@ export class CertificateRegistration extends EventEmitter {
       })
   }
 
-  private async registerUser(csr: string): Promise<{ status: number, body: any }> {
-    let result = await registerUser(csr, this._permsData, this.certificates)
+  private async registerUser(csr: string): Promise<{ status: number; body: any }> {
+    const result = await registerUser(csr, this._permsData, this.certificates)
     if (result.status === 200) {
-      this.emit(RegistrationEvents.NEW_USER, {certificate: result.body.certificate, rootPermsData: this._permsData})
+      this.emit(RegistrationEvents.NEW_USER, { certificate: result.body.certificate, rootPermsData: this._permsData })
     }
     return result
   }
@@ -198,7 +198,6 @@ export class CertificateRegistration extends EventEmitter {
       await this.listen()
     } catch (err) {
       log.error(`Certificate registration service couldn't start listening: ${err as string}`)
-      return
     }
   }
 

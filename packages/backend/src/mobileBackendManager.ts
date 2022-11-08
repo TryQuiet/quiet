@@ -10,7 +10,7 @@ export const runBackend = async (): Promise<any> => {
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
 
   const program = new Command()
-  
+
   program
   .requiredOption('-d, --appDataPath <appDataPath>', 'app data path')
   .requiredOption('-p, --dataPort <dataPort>', 'data port')
@@ -18,7 +18,7 @@ export const runBackend = async (): Promise<any> => {
   .requiredOption('-s, --socksPort <socksPort>', 'socks port')
   .requiredOption('-c, --controlPort <controlPort>', 'control port')
   .requiredOption('-a, --torPath <torPath>', 'tor binary path')
-  
+
   program.parse(process.argv)
   const options = program.opts()
 

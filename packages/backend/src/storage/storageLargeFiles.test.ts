@@ -108,7 +108,7 @@ describe('Storage', () => {
     expect(copyFileSpy).toHaveBeenCalled()
     const newFilePath = copyFileSpy.mock.results[0].value
     metadata.path = newFilePath
-    expect(eventSpy).toHaveBeenNthCalledWith(1,'adsf')
+    expect(eventSpy).toHaveBeenNthCalledWith(1, 'adsf')
     // expect(uploadSpy).toHaveBeenCalled()
     // expect(uploadSpy).toBeCalledWith(expect.objectContaining({
     //   ...metadata,

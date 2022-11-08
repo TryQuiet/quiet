@@ -30,7 +30,7 @@ describe('Registration service', () => {
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg
     })
-    invalidUserCsr = "invalidUserCsr"
+    invalidUserCsr = 'invalidUserCsr'
   })
 
   afterEach(async () => {
@@ -38,12 +38,12 @@ describe('Registration service', () => {
     tmpDir.removeCallback()
   })
 
-  it("registerOwner should return certificate if csr is valid", async () => {
+  it('registerOwner should return certificate if csr is valid', async () => {
     const result = await registerOwner(userCsr.userCsr, permsData)
     expect(result).toBeTruthy()
   })
 
-  it("registerOwner should return null if csr is invalid", async () => {
+  it('registerOwner should return null if csr is invalid', async () => {
     const result = await registerOwner(invalidUserCsr, permsData)
     expect(result).toBeNull()
   })

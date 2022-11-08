@@ -250,19 +250,21 @@ describe('Certificate', () => {
     await storage.init(libp2p, peerId)
 
     await storage.initDatabases()
-    const spyOnLoadCertificates = jest.spyOn(storage, "emit")
-    const spyOnUpdatePeersList = jest.spyOn(storage, "updatePeersList")
+    const eventSpy = jest.spyOn(storage, 'emit')
+    const spyOnUpdatePeersList = jest.spyOn(storage, 'updatePeersList')
     // @ts-ignore - Property 'certificates' is private
     storage.certificates.events.emit('replicated')
 
-    expect(spyOnLoadCertificates).toBeCalledWith("loadCertificates", {"certificates": [
-      
-    ]})
+    expect(eventSpy).toBeCalledWith('loadCertificates', {
+certificates: [
+
+    ]
+})
     expect(spyOnUpdatePeersList).toBeCalled()
   })
 
   it.each(['write, replicate.progress'])('The message is verified valid on "%s" db event', async () => {
-    let eventName = 'write'
+    const eventName = 'write'
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
@@ -277,8 +279,8 @@ describe('Certificate', () => {
     await storage.init(libp2p, peerId)
     await storage.initDatabases()
     await storage.subscribeToChannel(channelio)
-    
-    const spyOnEmit = jest.spyOn(storage, "emit")
+
+    const eventSpy = jest.spyOn(storage, 'emit')
 
     const db = storage.publicChannelsRepos.get(message.channelAddress).db
     const messagePayload = {
@@ -295,9 +297,9 @@ describe('Certificate', () => {
         db.events.emit(eventName, 'address', 'hash', messagePayload, 'progress', 'total', [])
         break
     }
-    
+
     await waitForExpect(() => {
-      expect(spyOnEmit).toBeCalledWith("loadMessages", {"isVerified": true, "messages": [aliceMessage.message]}
+      expect(eventSpy).toBeCalledWith('loadMessages', { isVerified: true, messages: [aliceMessage.message] }
       )
     })
   })
@@ -351,7 +353,7 @@ describe('Certificate', () => {
     }
 
     await waitForExpect(() => {
-      expect(spyOnEmit).toBeCalledWith("loadMessages", {"isVerified": false, "messages": [aliceMessageWithJohnsPublicKey]}
+      expect(spyOnEmit).toBeCalledWith('loadMessages', { isVerified: false, messages: [aliceMessageWithJohnsPublicKey] }
       )
     })
   })
@@ -365,14 +367,16 @@ describe('Certificate', () => {
     await storage.init(libp2p, peerId)
 
     await storage.initDatabases()
-    const spyOnLoadCertificates = jest.spyOn(storage, 'emit')
+    const eventSpy = jest.spyOn(storage, 'emit')
     const spyOnUpdatePeersList = jest.spyOn(storage, 'updatePeersList')
     // @ts-ignore - Property 'certificates' is private
     storage.certificates.events.emit('write', 'address', { payload: { value: 'something' } }, [])
 
-    expect(spyOnLoadCertificates).toBeCalledWith(StorageEvents.LOAD_CERTIFICATES, {"certificates": [
-      
-    ]})
+    expect(eventSpy).toBeCalledWith(StorageEvents.LOAD_CERTIFICATES, {
+certificates: [
+
+    ]
+})
     expect(spyOnUpdatePeersList).toBeCalled()
   })
 })
@@ -390,12 +394,12 @@ describe('Message', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const spy = jest.spyOn(storage.publicChannelsRepos.get(message.channelAddress).db, 'add')
+    const eventSpy = jest.spyOn(storage.publicChannelsRepos.get(message.channelAddress).db, 'add')
 
     await storage.sendMessage(message)
 
     // Confirm message has passed orbitdb validator (check signature verification only)
-    expect(spy).toHaveBeenCalled()
+    expect(eventSpy).toHaveBeenCalled()
   })
 
   // TODO: Message signature verification doesn't work, our theory is that our AccessController performs check after message is added to db.
@@ -425,12 +429,12 @@ describe('Message', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const spy = jest.spyOn(storage.publicChannelsRepos.get(spoofedMessage.channelAddress).db, 'add')
+    const eventSpy = jest.spyOn(storage.publicChannelsRepos.get(spoofedMessage.channelAddress).db, 'add')
 
     await storage.sendMessage(spoofedMessage)
 
     // Confirm message has passed orbitdb validator (check signature verification only)
-    expect(spy).not.toHaveBeenCalled()
+    expect(eventSpy).not.toHaveBeenCalled()
   })
 })
 
@@ -446,7 +450,7 @@ describe('Files', () => {
     await storage.initDatabases()
 
     // Uploading
-    const uploadSpy = jest.spyOn(storage, 'emit')
+    const eventSpy = jest.spyOn(storage, 'emit')
     const copyFileSpy = jest.spyOn(storage, 'copyFile')
     const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/test-image.png'),
@@ -464,10 +468,10 @@ describe('Files', () => {
     const newFilePath = copyFileSpy.mock.results[0].value
     metadata.path = newFilePath
 
-    expect(uploadSpy).toHaveBeenNthCalledWith(1, "removeDownloadStatus", {"cid": "uploading_id"})
-    expect(uploadSpy).toHaveBeenNthCalledWith(2, "uploadedFile", expect.objectContaining({"cid": "QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T", "ext": ".png", "height": 44, "message": {"channelAddress": "channelAddress", "id": "id"}, "name": "test-image", "size": 15847, "width": 824})
+    expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' })
+    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: 'QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T', ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
     )
-    expect(uploadSpy).toHaveBeenNthCalledWith(3, "updateDownloadProgress", {"cid": "QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T", "downloadProgress": undefined, "downloadState": "hosted", "mid": "id"})
+    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: 'QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T', downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
   })
 
   it('uploads file other than image', async () => {
@@ -481,8 +485,7 @@ describe('Files', () => {
     await storage.initDatabases()
 
     // Uploading
-    const uploadSpy = jest.spyOn(storage, 'emit')
-    const copyFileSpy = jest.spyOn(storage, 'copyFile')
+    const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/test-file.pdf'),
@@ -497,13 +500,12 @@ describe('Files', () => {
 
     await storage.uploadFile(metadata)
 
-
-    expect(uploadSpy).toHaveBeenNthCalledWith(1, "removeDownloadStatus", {"cid": "uploading_id"})
-    expect(uploadSpy).toHaveBeenNthCalledWith(2, "uploadedFile", expect.objectContaining({"cid": "QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ", "ext": ".pdf", "height": null, "message": {"channelAddress": "channelAddress", "id": "id"}, "name": "test-file", "size": 761797, "width": null}
+    expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' })
+    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ', ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null }
     )
     )
-    expect(uploadSpy).toHaveBeenNthCalledWith(3, "updateDownloadProgress", {"cid": "QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ", "downloadProgress": undefined, "downloadState": "hosted", "mid": "id"})
-    expect(uploadSpy).toHaveBeenNthCalledWith(4, "updateMessageMedia", expect.objectContaining({"cid": "QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ", "ext": ".pdf", "height": null, "message": {"channelAddress": "channelAddress", "id": "id"}, "name": "test-file", "size": 761797, "width": null})
+    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ', downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
+    expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ', ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
     )
   })
 
@@ -517,7 +519,7 @@ describe('Files', () => {
 
     await storage.initDatabases()
     // Uploading
-    const uploadSpy = jest.spyOn(storage, 'emit')
+    const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/non-existent.png'),
@@ -531,7 +533,7 @@ describe('Files', () => {
     }
 
     await expect(storage.uploadFile(metadata)).rejects.toThrow()
-    expect(uploadSpy).not.toHaveBeenCalled()
+    expect(eventSpy).not.toHaveBeenCalled()
   })
 
   it('throws error if reported file size is malicious', async () => {
@@ -545,7 +547,7 @@ describe('Files', () => {
     await storage.initDatabases()
 
     // Uploading
-    const uploadSpy = jest.spyOn(storage, 'emit')
+    const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
       path: path.join(__dirname, '/testUtils/test-file.pdf'),
@@ -560,30 +562,30 @@ describe('Files', () => {
 
     await storage.uploadFile(metadata)
 
-    expect(uploadSpy).toHaveBeenNthCalledWith(1, "removeDownloadStatus", {"cid": "uploading_id"}
+    expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' }
     )
-    expect(uploadSpy).toHaveBeenNthCalledWith(2, "uploadedFile", expect.objectContaining({"cid": "QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ", "ext": ".pdf", "height": null, "message": {"channelAddress": "channelAddress", "id": "id"}, "name": "test-file", "size": 761797, "width": null})
+    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ', ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
 
     )
-    expect(uploadSpy).toHaveBeenNthCalledWith(3, "updateDownloadProgress", {"cid": "QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ", "downloadProgress": undefined, "downloadState": "hosted", "mid": "id"}
+    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ', downloadProgress: undefined, downloadState: 'hosted', mid: 'id' }
 
     )
-    expect(uploadSpy).toHaveBeenNthCalledWith(4, "updateMessageMedia", expect.objectContaining({"cid": "QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ", "ext": ".pdf", "height": null, "message": {"channelAddress": "channelAddress", "id": "id"}, "name": "test-file", "size": 761797, "width": null})
+    expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ', ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
 
     )
 
     // Downloading
 
-    const uploadMetadata = uploadSpy.mock.calls[1][1]
+    const uploadMetadata = eventSpy.mock.calls[1][1]
 
     await storage.downloadFile({
       ...uploadMetadata,
       size: 20400
     })
 
-    expect(uploadSpy).toHaveBeenNthCalledWith(5, "updateDownloadProgress", {"cid": "QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ", "downloadProgress": undefined, "downloadState": "malicious", "mid": "id"})
+    expect(eventSpy).toHaveBeenNthCalledWith(5, 'updateDownloadProgress', { cid: 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ', downloadProgress: undefined, downloadState: 'malicious', mid: 'id' })
 
-    expect(uploadSpy).toBeCalledTimes(5)
+    expect(eventSpy).toBeCalledTimes(5)
   })
 
   it('cancels download on demand', async () => {
@@ -614,27 +616,27 @@ describe('Files', () => {
 
     // Downloading
 
-    expect(eventSpy).toHaveBeenNthCalledWith(1, "removeDownloadStatus", {"cid": "uploading_id"})
-    expect(eventSpy).toHaveBeenNthCalledWith(2, "uploadedFile", expect.objectContaining({"cid": "QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ", "ext": ".pdf", "height": null, "message": {"channelAddress": "channelAddress", "id": "id"}, "name": "test-file", "size": 761797, "width": null})
+    expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' })
+    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ', ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
     )
-    expect(eventSpy).toHaveBeenNthCalledWith(3, "updateDownloadProgress", {"cid": "QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ", "downloadProgress": undefined, "downloadState": "hosted", "mid": "id"}
+    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ', downloadProgress: undefined, downloadState: 'hosted', mid: 'id' }
     )
-    expect(eventSpy).toHaveBeenNthCalledWith(4, "updateMessageMedia", expect.objectContaining({"cid": "QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ", "ext": ".pdf", "height": null, "message": {"channelAddress": "channelAddress", "id": "id"}, "name": "test-file", "size": 761797, "width": null})
+    expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ', ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
     )
-    
+
     storage.cancelDownload('id')
-    
+
     expect(storage.downloadCancellations.length).toBe(1)
-    
+
     const uploadMetadata = eventSpy.mock.calls[1][1]
 
     await storage.downloadFile({
       ...uploadMetadata
     })
 
-    expect(eventSpy).toHaveBeenNthCalledWith(5, "updateDownloadProgress", {"cid": "QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ", "downloadProgress": {"downloaded": 0, "size": 761797, "transferSpeed": 0}, "downloadState": "canceled", "mid": "id"}
-    )    
-    
+    expect(eventSpy).toHaveBeenNthCalledWith(5, 'updateDownloadProgress', { cid: 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ', downloadProgress: { downloaded: 0, size: 761797, transferSpeed: 0 }, downloadState: 'canceled', mid: 'id' }
+    )
+
     expect(eventSpy).toBeCalledTimes(5)
 
     // Confirm cancellation signal is cleared (download can be resumed)
@@ -642,7 +644,7 @@ describe('Files', () => {
   })
 
   it('is uploaded to IPFS then can be downloaded', async () => {
-    storage = new Storage(tmpAppDataPath,  community.id, { createPaths: false })
+    storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
@@ -667,16 +669,16 @@ describe('Files', () => {
 
     await storage.uploadFile(metadata)
 
-    expect(eventSpy).toHaveBeenNthCalledWith(1, "removeDownloadStatus", {"cid": "uploading_id"}
+    expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' }
     )
 
-    expect(eventSpy).toHaveBeenNthCalledWith(2, "uploadedFile", expect.objectContaining({"cid": "QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T", "ext": ".png", "height": 44, "message": {"channelAddress": "channelAddress", "id": "id"}, "name": "test-image", "size": 15847, "width": 824})
+    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: 'QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T', ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
     )
 
-    expect(eventSpy).toHaveBeenNthCalledWith(3, "updateDownloadProgress", {"cid": "QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T", "downloadProgress": undefined, "downloadState": "hosted", "mid": "id"}
+    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: 'QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T', downloadProgress: undefined, downloadState: 'hosted', mid: 'id' }
     )
 
-    expect(eventSpy).toHaveBeenNthCalledWith(4, "updateMessageMedia", expect.objectContaining({"cid": "QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T", "ext": ".png", "height": 44, "message": {"channelAddress": "channelAddress", "id": "id"}, "name": "test-image", "size": 15847, "width": 824})
+    expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: 'QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T', ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
     )
 
     // Downloading
@@ -686,13 +688,13 @@ describe('Files', () => {
     await storage.downloadFile(uploadMetadata)
 
     // Potetential bug?
-    expect(eventSpy).toHaveBeenNthCalledWith(5, "updateDownloadProgress", {"cid": "QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T", "downloadProgress": {"downloaded": 15847, "size": 15847, "transferSpeed": -1}, "downloadState": "downloading", "mid": "id"}
+    expect(eventSpy).toHaveBeenNthCalledWith(5, 'updateDownloadProgress', { cid: 'QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T', downloadProgress: { downloaded: 15847, size: 15847, transferSpeed: -1 }, downloadState: 'downloading', mid: 'id' }
     )
 
-    expect(eventSpy).toHaveBeenNthCalledWith(6, "updateDownloadProgress", {"cid": "QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T", "downloadProgress": {"downloaded": 15847, "size": 15847, "transferSpeed": 0}, "downloadState": "completed", "mid": "id"}
+    expect(eventSpy).toHaveBeenNthCalledWith(6, 'updateDownloadProgress', { cid: 'QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T', downloadProgress: { downloaded: 15847, size: 15847, transferSpeed: 0 }, downloadState: 'completed', mid: 'id' }
 
     )
-    expect(eventSpy).toHaveBeenNthCalledWith(7, "updateMessageMedia", expect.objectContaining({"cid": "QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T", "ext": ".png", "height": 44, "message": {"channelAddress": "channelAddress", "id": "id"}, "name": "test-image", "size": 15847, "width": 824})
+    expect(eventSpy).toHaveBeenNthCalledWith(7, 'updateMessageMedia', expect.objectContaining({ cid: 'QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T', ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
 )
 
     expect(eventSpy).toBeCalledTimes(7)
@@ -775,14 +777,13 @@ describe('Files', () => {
 
     await storage.downloadFile(uploadMetadata)
 
-    let transferSpeeds = []
+    const transferSpeeds = []
 
     eventSpy.mock.calls.map((call) => {
-      if(call[0] === "updateDownloadProgress") {
-        console.log(call[1])
+      if (call[0] === 'updateDownloadProgress') {
         transferSpeeds.push(call[1].downloadProgress?.transferSpeed)
       }
-    } 
+    }
       )
     const unwantedValues = [undefined, null, Infinity]
     for (const value of unwantedValues) {
@@ -808,7 +809,7 @@ describe('Files', () => {
 
 describe('Users', () => {
   it('gets all users from db', async () => {
-    storage = new Storage(tmpAppDataPath , community.id, { createPaths: false })
+    storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
     const mockGetCertificates = jest.fn()
     // @ts-ignore - Property 'getAllEventLogEntries' is protected
     storage.getAllEventLogEntries = mockGetCertificates

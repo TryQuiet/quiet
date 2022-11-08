@@ -15,7 +15,7 @@ class UserCsrData {
     @CsrContainsFields()
     csr: string
   }
-  
+
   // REFACTORING: Move this method to identity package
   export const pubKeyMatch = (cert: string, parsedCsr: CertificationRequest): boolean => {
     const parsedCertificate = parseCertificate(cert)
@@ -24,7 +24,7 @@ class UserCsrData {
 
     if (pubKey === pubKeyCsr) {
       return true
-    }       
+    }
     return false
   }
 
@@ -60,7 +60,7 @@ class UserCsrData {
     return null
   }
 
-  export const registerUser = async (csr: string, permsData: PermsData, certificates: string[]): Promise<{status:number, body:any}> => {
+  export const registerUser = async (csr: string, permsData: PermsData, certificates: string[]): Promise<{status: number; body: any}> => {
     let cert: string
     const userData = new UserCsrData()
     userData.csr = csr
@@ -127,7 +127,7 @@ class UserCsrData {
     }
   }
 
- export const registerCertificate = async (userCsr: string, permsData: PermsData): Promise<string>  => {
+ export const registerCertificate = async (userCsr: string, permsData: PermsData): Promise<string> => {
     const userCert = await createUserCert(
       permsData.certificate,
       permsData.privKey,
