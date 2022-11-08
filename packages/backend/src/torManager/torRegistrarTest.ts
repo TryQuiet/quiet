@@ -25,6 +25,8 @@ program
   .option('-p, --peersNumber <number>', 'Total number of peers', '20')
   .option('-r, --requestsNumber <number>', 'Number of requests per single test', '5')
   .option('-g, --numEntryGuards <number>', 'NumEntryGuards to be set in torrc', '0')
+  .option('-v, --vanguardsLiteEnabled <string>', 'VanguardsLiteEnabled to be set in torrc', 'auto')
+  .option('-t, --torBinName <string>', 'Tor binary name', 'tor')
   .requiredOption('-m, --mode <type>', 'Number of requests per single test - "newnym" or "regular"')
 
 program.parse(process.argv)
@@ -36,6 +38,8 @@ const peersCount = options.peersNumber
 const requestsCount = options.requestsNumber
 const mode = options.mode
 const guardsCount = options.numEntryGuards
+const vanguargsLiteEnabled = options.vanguardsLiteEnabled
+const torBinName = options.torBinName
 let eventEmmiter = new EventEmitter()
 let torServices = new Map<string, { tor: Tor; httpTunnelPort: number, onionAddress?: string }>()
 let results = {}
@@ -47,8 +51,8 @@ const spawnTor = async (i: number) => {
   const tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
 
   const ports = await getPorts()
-  const extraTorProcessParams = ['--NumEntryGuards', guardsCount]
-  const tor = await spawnTorProcess(tmpAppDataPath, ports, extraTorProcessParams)
+  const extraTorProcessParams = ['--NumEntryGuards', guardsCount, '--VanguardsLiteEnabled', vanguargsLiteEnabled]
+  const tor = await spawnTorProcess(tmpAppDataPath, ports, extraTorProcessParams, torBinName)
 
   await tor.init()
   torServices.set(i.toString(), { tor, httpTunnelPort: ports.httpTunnelPort })
@@ -58,6 +62,12 @@ const spawnTor = async (i: number) => {
   await tor.getInfo('config-text')
   // await tor.getInfo('circuit-status')
   // await tor.getInfo('entry-guards')
+}
+
+const init = () => {
+  let eventEmmiter = new EventEmitter()
+  let torServices = new Map<string, { tor: Tor; httpTunnelPort: number, onionAddress?: string }>()
+  let results = {}
 }
 
 const spawnMesh = async () => {
@@ -306,7 +316,7 @@ const main = async () => {
   log('destroyed hidden services')
   await killMesh()
   log('RESULTS', JSON.stringify(results))
-  fs.writeFileSync(`${new Date().toISOString()}_mode_${mode}_guards${guardsCount}.json`, JSON.stringify(results))
+  fs.writeFileSync(`${torBinName}_${new Date().toISOString()}_mode_${mode}_guards${guardsCount}_vanguards${vanguargsLiteEnabled}.json`, JSON.stringify(results))
   log('after killing mesh')
   process.exit(1)
 }

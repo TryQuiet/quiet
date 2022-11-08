@@ -191,6 +191,7 @@ export class Tor {
   protected readonly spawnTor = async (timeoutMs: number): Promise<void> => {
     return await new Promise((resolve, reject) => {
       const start = new Date()
+      log('TOR PATH', this.torPath)
       this.process = child_process.spawn(
         this.torPath,
         [
