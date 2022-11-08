@@ -107,7 +107,6 @@ export const createAppWithoutTor = async (mockedState?: {
     },
     socketIOPort
   })
-  manager.initListeners()
 
   function* root(): Generator {
     const socket = yield* call(connectToDataport, `http://localhost:${dataServerPort1}`, appName)
