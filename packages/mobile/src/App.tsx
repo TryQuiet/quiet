@@ -13,12 +13,9 @@ import { SuccessScreen } from './screens/Success/Success.screen'
 import { ErrorScreen } from './screens/Error/Error.screen'
 import { ChannelListScreen } from './screens/ChannelList/ChannelList.screen'
 import { ChannelScreen } from './screens/Channel/Channel.screen'
-import { 
-  NavigationContainer, 
-  NavigationContainerRef 
-} from '@react-navigation/native'
-import { createStackNavigator } from '@react-navigation/stack'
-import { navigationContainer } from './RootNavigation'
+import { NavigationContainer } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { navigationRef } from './RootNavigation'
 import { PersistGate } from 'redux-persist/integration/react'
 import { rootSaga } from './store/root.saga'
 import { persistor, sagaMiddleware } from './store/store'
@@ -32,7 +29,7 @@ import { MenuProvider } from 'react-native-popup-menu'
 
 LogBox.ignoreAllLogs()
 
-const { Navigator, Screen } = createStackNavigator()
+const { Navigator, Screen } = createNativeStackNavigator()
 
 sagaMiddleware.run(rootSaga)
 
@@ -65,7 +62,7 @@ export default function App(): JSX.Element {
     <SafeAreaView style={{ flex: 1 }}>
       <PersistGate loading={null} persistor={persistor}>
         <NavigationContainer
-          ref={(navigator: NavigationContainerRef) => navigationContainer.resolve(navigator)}
+          ref={navigationRef}
           onReady={() => {
             console.log('navigator ready, going to splash screen')
             dispatch(navigationActions.displaySplashScreen())

@@ -11,6 +11,5 @@ export function* navigationMasterSaga(): Generator {
 
 export function* replaceScreenSaga(action: PayloadAction<ReturnType<typeof navigationActions.replaceScreen>['payload']>): Generator {
     const { screen, params } = action.payload
-    console.log(`replace screen saga ${screen}`)
     yield* call(navigate, screen, params)
 }

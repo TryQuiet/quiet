@@ -26,8 +26,8 @@
     "@quiet/state-manager": "^0.12.0",
     "@react-native-async-storage/async-storage": "^1.15.4",
     "@react-native-community/art": "^1.2.0",
-    "@react-navigation/native": "^5.9.4",
-    "@react-navigation/stack": "^5.14.5",
+    "@react-navigation/native": "^6.0.0",
+    "@react-navigation/native-stack": "^6.9.0",
     "@reduxjs/toolkit": "^1.5.1",
     "buffer": "^6.0.3",
     "events": "^1.1.1",
@@ -45,13 +45,13 @@
     "react-native-events": "^1.0.17",
     "react-native-fast-image": "^8.6.1",
     "react-native-fs": "^2.18.0",
-    "react-native-gesture-handler": "^1.10.3",
+    "react-native-gesture-handler": "^2.8.0",
     "react-native-jdenticon": "0.0.3",
     "react-native-level-fs": "^3.0.0",
     "react-native-popup-menu": "^0.16.1",
     "react-native-progress": "^4.1.2",
     "react-native-randombytes": "^3.6.1",
-    "react-native-safe-area-context": "^3.2.0",
+    "react-native-safe-area-context": "^4.4.1",
     "react-native-screens": "^3.15.0",
     "react-native-svg": "^12.1.1",
     "react-native-webview": "^11.6.5",
@@ -84,7 +84,7 @@
     "@types/jest": "^26.0.20",
     "@types/luxon": "^1.26.5",
     "@types/pkijs": "0.0.8",
-    "@types/react": "^18",
+    "@types/react": "^17",
     "@types/react-native": "^0.64.0",
     "@types/react-test-renderer": "^16.9.2",
     "@types/styled-components": "^5.1.9",
@@ -101,6 +101,9 @@
     "react-test-renderer": "18.1.0",
     "redux-saga-test-plan": "^4.0.1",
     "typescript": "^4.3.5"
+  },
+  "resolve": {
+    "@types/react": "^17"
   },
   "react-native": {
     "fs": "react-native-level-fs"

@@ -5,12 +5,6 @@ import { CreatedSelectors, StoreState } from '../store.types'
 const navigationSlice: CreatedSelectors[StoreKeys.Navigation] = (state: StoreState) =>
   state[StoreKeys.Navigation]
 
-export const navigationReady = createSelector(
-  navigationSlice,
-  (reducerState) =>
-      reducerState.navigationReady
-)
-
 export const currentScreen = createSelector(
     navigationSlice,
     (reducerState) =>
@@ -18,6 +12,5 @@ export const currentScreen = createSelector(
 )
 
 export const navigationSelectors = {
-    navigationReady,
     currentScreen
 }

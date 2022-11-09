@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react'
+import React, { FC, useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities, CommunityOwnership, CreateNetworkPayload } from '@quiet/state-manager'
@@ -19,13 +19,13 @@ export const JoinCommunityScreen: FC = () => {
     }
   }, [dispatch, currentIdentity])
 
-  const joinCommunityAction = (address: string) => {
+  const joinCommunityAction = useCallback((address: string) => {
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
       registrar: address
     }
     dispatch(communities.actions.createNetwork(payload))
-  }
+  }, [dispatch])
 
   return (
     <View style={{ flex: 1 }}>
