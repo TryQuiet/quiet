@@ -24,7 +24,7 @@ export const ChannelListScreen: FC = () => {
     dispatch(publicChannels.actions.setCurrentChannel({
       channelAddress: address
     }))
-    dispatch(navigationActions.replaceScreen({ 
+    dispatch(navigationActions.replaceScreen({
       screen: ScreenNames.ChannelScreen
      }))
   }, [dispatch])

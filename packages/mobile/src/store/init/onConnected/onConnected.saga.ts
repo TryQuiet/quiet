@@ -6,11 +6,11 @@ import { navigationActions } from '../../navigation/navigation.slice'
 export function* onConnectedSaga(): Generator {
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
 
-  const screen = !currentIdentity?.userCertificate 
-    ? ScreenNames.JoinCommunityScreen 
+  const screen = !currentIdentity?.userCertificate
+    ? ScreenNames.JoinCommunityScreen
     : ScreenNames.ChannelListScreen
 
-  yield* put(navigationActions.replaceScreen({ 
-    screen: screen 
+  yield* put(navigationActions.replaceScreen({
+    screen: screen
   }))
 }

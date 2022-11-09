@@ -7,7 +7,7 @@ export class NavigationState {
 }
 
 export interface ReplaceScreenPayload {
-    screen: ScreenNames,
+    screen: ScreenNames
     params?: any
 }
 

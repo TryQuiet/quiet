@@ -12,6 +12,7 @@ import {
 import { StoreKeys } from '../../store.keys'
 import { initReducer, InitState } from '../../init/init.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
+import { navigationReducer, NavigationState } from '../../navigation/navigation.slice'
 
 describe('showNotificationSaga', () => {
   let payload: MarkUnreadChannelPayload
@@ -46,9 +47,13 @@ describe('showNotificationSaga', () => {
     const message = JSON.stringify(payload.message)
 
     await expectSaga(showNotificationSaga, publicChannels.actions.markUnreadChannel(payload))
-      .withReducer(combineReducers({ [StoreKeys.Init]: initReducer }), {
+      .withReducer(combineReducers({ [StoreKeys.Init]: initReducer, [StoreKeys.Navigation]: navigationReducer }), {
         [StoreKeys.Init]: {
           ...new InitState(),
+        },
+        [StoreKeys.Navigation]: {
+          ...new NavigationState(),
+          currentScreen: ScreenNames.ChannelScreen
         }
       })
       .provide([
@@ -75,11 +80,15 @@ describe('showNotificationSaga', () => {
     const message = JSON.stringify(payload.message)
 
     await expectSaga(showNotificationSaga, publicChannels.actions.markUnreadChannel(payload))
-      .withReducer(combineReducers({ [StoreKeys.Init]: initReducer }), {
-        [StoreKeys.Init]: {
-          ...new InitState()
-        }
-      })
+    .withReducer(combineReducers({ [StoreKeys.Init]: initReducer, [StoreKeys.Navigation]: navigationReducer }), {
+      [StoreKeys.Init]: {
+        ...new InitState(),
+      },
+      [StoreKeys.Navigation]: {
+        ...new NavigationState(),
+        currentScreen: ScreenNames.ChannelScreen
+      }
+    })
       .provide([
         [call.fn(JSON.stringify), message],
         [call.fn(NativeModules.NotificationModule.notify), null],
@@ -104,11 +113,15 @@ describe('showNotificationSaga', () => {
     const message = JSON.stringify(payload.message)
 
     await expectSaga(showNotificationSaga, publicChannels.actions.markUnreadChannel(payload))
-      .withReducer(combineReducers({ [StoreKeys.Init]: initReducer }), {
-        [StoreKeys.Init]: {
-          ...new InitState()
-        }
-      })
+    .withReducer(combineReducers({ [StoreKeys.Init]: initReducer, [StoreKeys.Navigation]: navigationReducer }), {
+      [StoreKeys.Init]: {
+        ...new InitState(),
+      },
+      [StoreKeys.Navigation]: {
+        ...new NavigationState(),
+        currentScreen: ScreenNames.ChannelListScreen
+      }
+    })
       .provide([
         [call.fn(JSON.stringify), message],
         [call.fn(NativeModules.NotificationModule.notify), null],

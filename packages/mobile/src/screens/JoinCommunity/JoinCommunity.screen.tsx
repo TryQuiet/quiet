@@ -8,12 +8,12 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 
 export const JoinCommunityScreen: FC = () => {
   const dispatch = useDispatch()
-  
+
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
   useEffect(() => {
     if (currentIdentity && !currentIdentity.userCertificate) {
-      dispatch(navigationActions.replaceScreen({ 
+      dispatch(navigationActions.replaceScreen({
         screen: ScreenNames.UsernameRegistrationScreen
        }))
     }
