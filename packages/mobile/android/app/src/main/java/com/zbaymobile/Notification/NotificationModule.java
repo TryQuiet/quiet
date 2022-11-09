@@ -1,8 +1,8 @@
 package com.zbaymobile.Notification;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -13,7 +13,6 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
-import com.zbaymobile.MainActivity;
 import com.zbaymobile.R;
 import com.zbaymobile.Utils.Const;
 
@@ -130,21 +129,8 @@ public class NotificationModule extends ReactContextBaseJavaModule {
     }
 
     private static void composeNotification(String channel, String user, String content) {
-        Intent intent = new Intent(reactContext, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-
-        // Remove prefix from channel name before saving extras
-        String extra = channel.substring(1);
-        intent.putExtra("channel", extra);
-
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(reactContext);
-        stackBuilder.addNextIntentWithParentStack(intent);
-
-        int id_message = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
-
-        PendingIntent pendingIntent =
-                stackBuilder.getPendingIntent(id_message,
-                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        int id_message  = ThreadLocalRandom.current().nextInt(0, 9000 + 1);
+        int id_group    = channel.hashCode();
 
         // Group messages per channel
         NotificationCompat.Builder groupBuilder = new NotificationCompat.Builder(reactContext, Const.INCOMING_MESSAGES_CHANNEL_ID)
@@ -157,7 +143,21 @@ public class NotificationModule extends ReactContextBaseJavaModule {
                 .setGroupSummary(true)
                 .setGroup(channel);
 
+        Intent intent = new Intent(reactContext, NotificationReceiver.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        // Remove prefix from channel name before saving extras
+        String extra = channel.substring(1);
+        intent.putExtra("channel", extra);
+
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+
+        @SuppressLint("LaunchActivityFromNotification")
+        PendingIntent pendingIntent =
+                PendingIntent.getBroadcast(reactContext, id_message, intent, flags);
+
         // Display individual notification for each message
+        @SuppressLint("LaunchActivityFromNotification")
         NotificationCompat.Builder builder = new NotificationCompat.Builder(reactContext, Const.INCOMING_MESSAGES_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(user)
@@ -172,8 +172,6 @@ public class NotificationModule extends ReactContextBaseJavaModule {
         if (content.length() > 64) {
             builder.setStyle(new NotificationCompat.BigTextStyle().bigText(content));
         }
-
-        int id_group = channel.hashCode();
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(reactContext.getApplicationContext());
 
