@@ -33,7 +33,18 @@ import {
   Certificates,
   SendMessagePayload,
   NetworkDataPayload,
-  PushNotificationPayload
+  PushNotificationPayload,
+  SendCertificatesResponse,
+  ChannelsReplicatedPayload,
+  IncomingMessages,
+  ChannelMessagesIdsResponse,
+  SetChannelSubscribedPayload,
+  CreatedChannelResponse,
+  RemoveDownloadStatus,
+  UploadFilePayload,
+  DownloadStatus,
+  CommunityId,
+  StorePeerListPayload
 } from '@quiet/state-manager'
 
 import { CryptoEngine, setEngine } from 'pkijs'
@@ -425,41 +436,41 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   private attachStorageListeners = () => {
-    this.storage.on(StorageEvents.LOAD_CERTIFICATES, (payload) => {
+    this.storage.on(StorageEvents.LOAD_CERTIFICATES, (payload: SendCertificatesResponse) => {
       this.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, payload)
       this.registration.emit(RegistrationEvents.SET_CERTIFICATES, payload.certificates)
     })
-    this.storage.on(StorageEvents.LOAD_PUBLIC_CHANNELS, (payload) => {
+    this.storage.on(StorageEvents.LOAD_PUBLIC_CHANNELS, (payload: ChannelsReplicatedPayload) => {
       this.io.emit(SocketActionTypes.CHANNELS_REPLICATED, payload)
     })
-    this.storage.on(StorageEvents.LOAD_ALL_PRIVATE_CONVERSATIONS, payload => {
+    this.storage.on(StorageEvents.LOAD_ALL_PRIVATE_CONVERSATIONS, (payload) => {
       this.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
     })
-    this.storage.on(StorageEvents.LOAD_MESSAGES, (payload) => {
+    this.storage.on(StorageEvents.LOAD_MESSAGES, (payload: IncomingMessages) => {
       this.io.emit(SocketActionTypes.INCOMING_MESSAGES, payload)
     })
-    this.storage.on(StorageEvents.SEND_MESSAGES_IDS, (payload) => {
+    this.storage.on(StorageEvents.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
       if (payload.ids.length === 0) {
         return
       }
       this.io.emit(SocketActionTypes.SEND_MESSAGES_IDS, payload)
     })
-    this.storage.on(StorageEvents.SET_CHANNEL_SUBSCRIBED, (payload) => {
+    this.storage.on(StorageEvents.SET_CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
       this.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)
     })
-    this.storage.on(StorageEvents.CREATED_CHANNEL, (payload) => {
+    this.storage.on(StorageEvents.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       this.io.emit(SocketActionTypes.CREATED_CHANNEL, payload)
     })
-    this.storage.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, (payload) => {
+    this.storage.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
       this.io.emit(SocketActionTypes.REMOVE_DOWNLOAD_STATUS, payload)
     })
-    this.storage.on(StorageEvents.UPLOADED_FILE, (payload) => {
+    this.storage.on(StorageEvents.UPLOADED_FILE, (payload: UploadFilePayload) => {
       this.io.emit(SocketActionTypes.UPLOADED_FILE, payload)
     })
-    this.storage.on(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, (payload) => {
+    this.storage.on(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
       this.io.emit(SocketActionTypes.DOWNLOAD_PROGRESS, payload)
     })
-    this.storage.on(StorageEvents.UPDATE_MESSAGE_MEDIA, (payload) => {
+    this.storage.on(StorageEvents.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
       this.io.emit(SocketActionTypes.UPDATE_MESSAGE_MEDIA, payload)
     })
     this.storage.on(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, (payload) => {
@@ -468,13 +479,13 @@ export class ConnectionsManager extends EventEmitter {
       }
       this.io.emit(SocketActionTypes.RESPONSE_FETCH_ALL_DIRECT_MESSAGES, payload)
     })
-    this.storage.on(StorageEvents.UPDATE_PEERS_LIST, (payload) => {
+    this.storage.on(StorageEvents.UPDATE_PEERS_LIST, (payload: StorePeerListPayload) => {
       this.io.emit(SocketActionTypes.PEER_LIST, payload)
     })
     this.storage.on(StorageEvents.SEND_PUSH_NOTIFICATION, (payload: PushNotificationPayload) => {
       this.io.emit(SocketActionTypes.PUSH_NOTIFICATION, payload)
     })
-    this.storage.on(StorageEvents.CHECK_FOR_MISSING_FILES, (payload: string) => {
+    this.storage.on(StorageEvents.CHECK_FOR_MISSING_FILES, (payload: CommunityId) => {
       this.io.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, payload)
     })
   }

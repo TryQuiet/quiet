@@ -293,6 +293,7 @@ certificates: [
       case 'write':
         db.events.emit(eventName, 'address', messagePayload, [])
         break
+        // @ts-ignore
       case 'replicate.progress':
         db.events.emit(eventName, 'address', 'hash', messagePayload, 'progress', 'total', [])
         break
