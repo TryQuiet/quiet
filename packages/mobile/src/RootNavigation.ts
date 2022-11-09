@@ -1,4 +1,4 @@
-import { createNavigationContainerRef } from '@react-navigation/native'
+import { createNavigationContainerRef, StackActions } from '@react-navigation/native'
 
 import { ScreenNames } from './const/ScreenNames.enum'
 
@@ -20,6 +20,8 @@ export const replaceScreen = <Params extends {}>(
 ): void => {
   if (navigationRef.isReady()) {
     // @ts-ignore
-    navigationRef.navigate(screen, params)
+    navigationRef.dispatch(
+      StackActions.replace(screen, params)
+    )
   }
 }

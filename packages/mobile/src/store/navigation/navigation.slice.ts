@@ -19,6 +19,11 @@ export const navigationSlice = createSlice({
         navigation: (state, action: PayloadAction<NavigationPayload>) => {
             const { screen } = action.payload
             state.currentScreen = screen
+        },
+        // Replace screen overrides last screen in backstack
+        replaceScreen: (state, action: PayloadAction<NavigationPayload>) => {
+            const { screen } = action.payload
+            state.currentScreen = screen
         }
     }
 })
