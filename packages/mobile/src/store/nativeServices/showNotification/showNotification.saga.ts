@@ -2,7 +2,7 @@ import { Platform, AppState, NativeModules } from 'react-native'
 import { users, publicChannels, RICH_NOTIFICATION_CHANNEL } from '@quiet/state-manager'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { call, select } from 'typed-redux-saga'
-import { initSelectors } from '../../init/init.selectors'
+import { navigationSelectors } from '../../navigation/navigation.selectors'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 
 export function* showNotificationSaga(
@@ -11,7 +11,7 @@ export function* showNotificationSaga(
   if (Platform.OS === 'ios') return
   if (AppState.currentState === 'background') return
 
-  const screen = yield* select(initSelectors.currentScreen)
+  const screen = yield* select(navigationSelectors.currentScreen)
   if (screen === ScreenNames.ChannelListScreen) return
 
   const _message = action.payload.message
