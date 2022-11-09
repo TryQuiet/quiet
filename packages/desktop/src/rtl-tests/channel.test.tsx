@@ -803,11 +803,7 @@ describe('Channel', () => {
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
-            id: payload.id
-          })
+          return socket.socketClient.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, community.id)
         }
         if (action === SocketActionTypes.DOWNLOAD_FILE) {
           const data = input as socketEventData<[DownloadFilePayload]>
