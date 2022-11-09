@@ -1,15 +1,11 @@
-import { PayloadAction } from '@reduxjs/toolkit'
-import { all, call, takeEvery } from 'typed-redux-saga'
+import { all, takeEvery } from 'typed-redux-saga'
 import { navigationActions } from './navigation.slice'
-import { navigate } from '../../RootNavigation'
+import { redirectionSaga } from './redirection/redirection.saga'
+import { navigationSaga } from './navigation/navigation.saga'
 
 export function* navigationMasterSaga(): Generator {
     yield all([
-        takeEvery(navigationActions.replaceScreen.type, replaceScreenSaga),
+        takeEvery(navigationActions.redirection.type, redirectionSaga),
+        takeEvery(navigationActions.navigation.type, navigationSaga),
     ])
-}
-
-export function* replaceScreenSaga(action: PayloadAction<ReturnType<typeof navigationActions.replaceScreen>['payload']>): Generator {
-    const { screen, params } = action.payload
-    yield* call(navigate, screen, params)
 }

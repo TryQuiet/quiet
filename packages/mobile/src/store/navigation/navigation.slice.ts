@@ -6,7 +6,7 @@ export class NavigationState {
     public currentScreen: ScreenNames = ScreenNames.SplashScreen
 }
 
-export interface ReplaceScreenPayload {
+export interface NavigationPayload {
     screen: ScreenNames
     params?: any
 }
@@ -15,9 +15,8 @@ export const navigationSlice = createSlice({
     initialState: { ...new NavigationState() },
     name: StoreKeys.Navigation,
     reducers: {
-        displaySplashScreen: state => state,
-        replaceScreen: (state, action: PayloadAction<ReplaceScreenPayload>) => {
-            console.log('slice replace screen')
+        redirection: state => state,
+        navigation: (state, action: PayloadAction<NavigationPayload>) => {
             const { screen } = action.payload
             state.currentScreen = screen
         }

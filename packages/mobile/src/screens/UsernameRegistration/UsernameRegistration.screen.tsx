@@ -18,8 +18,8 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
 
   const error = useSelector(errors.selectors.registrarErrors)
 
-  const replaceScreen = useCallback((screen: ScreenNames, params?: any) => {
-    dispatch(navigationActions.replaceScreen({
+  const navigation = useCallback((screen: ScreenNames, params?: any) => {
+    dispatch(navigationActions.navigation({
       screen: screen,
       params: params
     }))
@@ -27,10 +27,10 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
 
   useEffect(() => {
     if (currentIdentity?.userCertificate) {
-      replaceScreen(
+      navigation(
         ScreenNames.SuccessScreen,
         {
-          onPress: () => replaceScreen(ScreenNames.ChannelListScreen),
+          onPress: () => navigation(ScreenNames.ChannelListScreen),
           icon: appImages.username_registered,
           title: 'You created a username',
           message: 'Your username will be registered shortly'

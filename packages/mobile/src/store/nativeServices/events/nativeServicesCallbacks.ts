@@ -24,7 +24,7 @@ export const deviceEvents = () => {
   return eventChannel<
   | ReturnType<typeof initActions.startWebsocketConnection>
   | ReturnType<typeof initActions.updateInitCheck>
-  | ReturnType<typeof navigationActions.replaceScreen>
+  | ReturnType<typeof navigationActions.navigation>
   | ReturnType<typeof publicChannels.actions.setCurrentChannel>
   >(emit => {
     const subscriptions = [
@@ -47,8 +47,7 @@ export const deviceEvents = () => {
           // Change data source in state-manager
           emit(publicChannels.actions.setCurrentChannel({ channelAddress }))
           // Redirect to proper screen in the application
-          console.log('event emitter replace screen')
-          emit(navigationActions.replaceScreen({ screen: ScreenNames.ChannelScreen }))
+          emit(navigationActions.navigation({ screen: ScreenNames.ChannelScreen }))
         }
       )
     ]

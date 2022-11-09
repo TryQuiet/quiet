@@ -12,7 +12,7 @@ export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
 
   const handleBackButtonClick = useCallback(() => {
-    dispatch(navigationActions.replaceScreen({
+    dispatch(navigationActions.navigation({
       screen: ScreenNames.ChannelListScreen
      }))
     return true

@@ -13,7 +13,7 @@ export const JoinCommunityScreen: FC = () => {
 
   useEffect(() => {
     if (currentIdentity && !currentIdentity.userCertificate) {
-      dispatch(navigationActions.replaceScreen({
+      dispatch(navigationActions.navigation({
         screen: ScreenNames.UsernameRegistrationScreen
        }))
     }

@@ -10,7 +10,7 @@ export function* onConnectedSaga(): Generator {
     ? ScreenNames.JoinCommunityScreen
     : ScreenNames.ChannelListScreen
 
-  yield* put(navigationActions.replaceScreen({
+  yield* put(navigationActions.navigation({
     screen: screen
   }))
 }

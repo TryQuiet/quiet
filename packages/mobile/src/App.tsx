@@ -26,6 +26,7 @@ import PushNotificationIOS, {
   PushNotification
 } from '@react-native-community/push-notification-ios'
 import { MenuProvider } from 'react-native-popup-menu'
+import { navigationSelectors } from './store/navigation/navigation.selectors'
 
 LogBox.ignoreAllLogs()
 
@@ -64,8 +65,7 @@ export default function App(): JSX.Element {
         <NavigationContainer
           ref={navigationRef}
           onReady={() => {
-            console.log('navigator ready, going to splash screen')
-            dispatch(navigationActions.displaySplashScreen())
+            dispatch(navigationActions.redirection())
           }}>
           <WebviewCrypto />
           <MenuProvider>
