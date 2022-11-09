@@ -3,12 +3,11 @@ import { PermsData } from '@quiet/state-manager'
 import { Time } from 'pkijs'
 import { DirResult } from 'tmp'
 import { CertificateRegistration } from '.'
-import { createTmpDir, tmpQuietDirPath } from '../common/testUtils'
+import { createTmpDir } from '../common/testUtils'
 import { registerOwner, registerUser } from './functions'
 
 describe('Registration service', () => {
   let tmpDir: DirResult
-  let tmpAppDataPath: string
   let registrationService: CertificateRegistration
   let certRoot: RootCA
   let permsData: PermsData
@@ -18,7 +17,6 @@ describe('Registration service', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
     tmpDir = createTmpDir()
-    tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
     registrationService = null
     certRoot = await createRootCA(new Time({ type: 1, value: new Date() }), new Time({ type: 1, value: new Date(2030, 1, 1) }), 'testRootCA')
     permsData = { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
@@ -117,7 +115,4 @@ describe('Registration service', () => {
     )
     expect(response.status).toEqual(400)
   })
-
-  it('saveCertToDb should return certificate if certitifcate saved successfully to db', async () => { })
-  it('saveCertToDb should throw error if certificate is not saved successfully to db', async () => { })
 })
