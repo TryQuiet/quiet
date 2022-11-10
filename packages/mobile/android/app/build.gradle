@@ -175,6 +175,11 @@ android {
                 cppFlags ""
             }
         }
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
+        }
     }
     splits {
         abi {
