@@ -1,9 +1,12 @@
 import { createEntityAdapter } from '@reduxjs/toolkit'
+import { ChannelMessage } from '../publicChannels/publicChannels.types'
 import { MessageSendingStatus, MessageVerificationStatus, PublicChannelsMessagesBase } from './messages.types'
 
 export const publicChannelsMessagesBaseAdapter = createEntityAdapter<PublicChannelsMessagesBase>({
   selectId: base => base.channelAddress
 })
+
+export const messagesBaseAdapter = createEntityAdapter<ChannelMessage>()
 
 export const messageVerificationStatusAdapter = createEntityAdapter<MessageVerificationStatus>({
   selectId: status => status.signature

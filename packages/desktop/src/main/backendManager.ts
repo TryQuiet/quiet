@@ -10,7 +10,7 @@ program
   .option('-h, --httpTunnelPort <number>', 'Tor http tunnel port')
   .option('-a, --appDataPath <string>', 'Path of application data directory')
   .option('-c, --controlPort <number>', 'Tor control port')
-  .option('-d, --dataServerPort <number>', 'Socket io data server port')
+  .option('-d, --socketIOPort <number>', 'Socket io data server port')
   .option('-r, --resourcesPath <string>', 'Application resources path')
   .option('-l, --libp2pHiddenService <number>', 'Libp2p tor hidden service port')
 
@@ -22,19 +22,13 @@ export const runBackend = async () => {
   const resourcesPath = isDev ? null : options.resourcesPath.trim()
 
   const connectionsManager = new backend.ConnectionsManager({
-    port: options.libp2pHiddenService,
-    agentHost: 'localhost',
-    agentPort: options.socksPort,
-    httpTunnelPort: options.httpTunnelPort,
-    socketIOPort: options.dataServerPort,
+    socketIOPort: options.socketIOPort,
     options: {
       env: {
         appDataPath: `${options.appDataPath.trim()}/Quiet`,
         resourcesPath
-      },
-      spawnTor: true,
-      torControlPort: options.controlPort
-    }
+      }
+}
   })
 
   process.on('message', async (message) => {

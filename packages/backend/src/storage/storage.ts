@@ -27,6 +27,7 @@ import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
+import { EventEmitter } from 'events'
 import PeerId from 'peer-id'
 import { CryptoEngine, getCrypto, setEngine } from 'pkijs'
 import {
@@ -35,18 +36,20 @@ import {
   PublicChannelsRepo,
   StorageOptions
 } from '../common/types'
-import { compare, createPaths, removeDirs, removeFiles } from '../common/utils'
+import { compare, createPaths, removeDirs, removeFiles, getUsersAddresses } from '../common/utils'
 import { Config } from '../constants'
 import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
 import logger from '../logger'
-import IOProxy from '../socket/IOProxy'
 import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
-import fs from 'fs'
+
+import fs, { truncate } from 'fs'
 import { promisify } from 'util'
 import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
+import { StorageEvents } from './types'
+import { sleep } from '../sleep'
 const sizeOfPromisified = promisify(sizeOf)
 
 const log = logger('db')
@@ -63,9 +66,8 @@ setEngine(
   })
 )
 
-export class Storage {
+export class Storage extends EventEmitter {
   public quietDir: string
-  public io: IOProxy
   public peerId: PeerId
   protected ipfs: IPFS.IPFS
   protected orbitdb: OrbitDB
@@ -84,12 +86,11 @@ export class Storage {
 
   constructor(
     quietDir: string,
-    ioProxy: IOProxy,
     communityId: string,
     options?: Partial<StorageOptions>
   ) {
+    super()
     this.quietDir = quietDir
-    this.io = ioProxy
     this.__communityId = communityId
     this.options = {
       ...new StorageOptions(),
@@ -185,6 +186,12 @@ export class Storage {
     })
   }
 
+  public async updatePeersList() {
+    const allUsers = this.getAllUsers()
+    const peers = await getUsersAddresses(allUsers)
+    this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: this.communityId, peerList: peers })
+  }
+
   public async createDbForCertificates() {
     log('createDbForCertificates init')
     this.certificates = await this.orbitdb.log<string>('certificates', {
@@ -204,18 +211,18 @@ export class Storage {
     })
     this.certificates.events.on('replicated', async () => {
       log('REPLICATED: Certificates')
-      this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
-      await this.io.updatePeersList({ communityId: this.communityId, peerId: this.peerId.toB58String() })
+      this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
+      await this.updatePeersList()
     })
     this.certificates.events.on('write', async (_address, entry) => {
       log('Saved certificate locally')
       log(entry.payload.value)
-      this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
-      await this.io.updatePeersList({ communityId: this.communityId, peerId: this.peerId.toB58String() })
+      this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
+      await this.updatePeersList()
     })
     this.certificates.events.on('ready', () => {
       log('Loaded certificates to memory')
-      this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
+      this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
     })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
@@ -237,9 +244,7 @@ export class Storage {
       log('REPLICATED: Channels')
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
-      this.io.loadPublicChannels({
-        channels: this.channels.all as unknown as { [key: string]: PublicChannel }
-      })
+      this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, { channels: this.channels.all as unknown as { [key: string]: PublicChannel } })
     })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
@@ -262,7 +267,8 @@ export class Storage {
         // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
         await this.messageThreads.load({ fetchEntryTimeout: 2000 })
         const payload = this.messageThreads.all
-        this.io.loadAllPrivateConversations(payload)
+        // this.io.loadAllPrivateConversations(payload)
+        this.emit(StorageEvents.LOAD_ALL_PRIVATE_CONVERSATIONS, payload)
         await this.initAllConversations()
       }
     )
@@ -272,9 +278,7 @@ export class Storage {
   }
 
   async initAllChannels() {
-    this.io.loadPublicChannels({
-      channels: this.channels.all as unknown as { [key: string]: PublicChannel }
-    })
+    this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, { channels: this.channels.all as unknown as { [key: string]: PublicChannel } })
   }
 
   async initAllConversations() {
@@ -328,7 +332,7 @@ export class Storage {
         log(`Writing to public channel db ${channelData.address}`)
         const verified = await this.verifyMessage(entry.payload.value)
 
-        this.io.loadMessages({
+        this.emit(StorageEvents.LOAD_MESSAGES, {
           messages: [entry.payload.value],
           isVerified: verified
         })
@@ -340,10 +344,10 @@ export class Storage {
 
         const verified = await this.verifyMessage(message)
 
-        this.io.loadMessages({
-          messages: [message],
-          isVerified: verified
-        })
+          this.emit(StorageEvents.LOAD_MESSAGES, {
+            messages: [entry.payload.value],
+            isVerified: verified
+          })
 
         // Display push notifications on mobile
         if (process.env.BACKEND === 'mobile') {
@@ -360,13 +364,13 @@ export class Storage {
             username: username
           }
 
-          this.io.sendPushNotification(payload)
+          this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
         }
       })
       db.events.on('replicated', async address => {
         log('Replicated.', address)
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
-        this.io.sendMessagesIds({
+        this.emit(StorageEvents.SEND_MESSAGES_IDS, {
           ids,
           channelAddress: channelData.address,
           communityId: this.communityId
@@ -374,7 +378,7 @@ export class Storage {
       })
       db.events.on('ready', () => {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
-        this.io.sendMessagesIds({
+        this.emit(StorageEvents.SEND_MESSAGES_IDS, {
           ids,
           channelAddress: channelData.address,
           communityId: this.communityId
@@ -385,7 +389,7 @@ export class Storage {
     }
 
     log(`Subscribed to channel ${channelData.address}`)
-    this.io.setChannelSubscribed({
+    this.emit(StorageEvents.SET_CHANNEL_SUBSCRIBED, {
       channelAddress: channelData.address
     })
   }
@@ -398,10 +402,11 @@ export class Storage {
     for (const id of ids) {
       filteredMessages.push(...messages.filter(i => i.id === id))
     }
-    this.io.loadMessages({
+    this.emit(StorageEvents.LOAD_MESSAGES, {
       messages: filteredMessages,
       isVerified: true
     })
+    this.emit(StorageEvents.CHECK_FOR_MISSING_FILES, this.communityId)
   }
 
   private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
@@ -426,7 +431,7 @@ export class Storage {
       await this.channels.put(data.address, {
         ...data
       })
-      this.io.createdChannel({
+      this.emit(StorageEvents.CREATED_CHANNEL, {
         channel: data
       })
     }
@@ -519,7 +524,7 @@ export class Storage {
     const entries = this.ipfs.files.ls(`/${dirname}`)
     for await (const entry of entries) {
       if (entry.name === filename) {
-        this.io.removeDownloadStatus({ cid: metadata.cid })
+        this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
 
         const fileMetadata: FileMetadata = {
           ...metadata,
@@ -530,7 +535,7 @@ export class Storage {
           height
         }
 
-        this.io.uploadedFile(fileMetadata)
+        this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
 
         const statusReady: DownloadStatus = {
           mid: fileMetadata.message.id,
@@ -539,10 +544,11 @@ export class Storage {
           downloadProgress: undefined
         }
 
-        this.io.updateDownloadProgress(statusReady)
+        this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusReady)
+
         if (metadata.path !== filePath) {
           log(`Updating file metadata (${metadata.path} => ${filePath})`)
-          this.io.updateMessageMedia(fileMetadata)
+          this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
         }
         break
       }
@@ -562,7 +568,7 @@ export class Storage {
         downloadProgress: undefined
       }
 
-      this.io.updateDownloadProgress(maliciousStatus)
+      this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, maliciousStatus)
 
       return
     }
@@ -631,7 +637,7 @@ export class Storage {
           const percentage = Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)
 
           log(`${new Date().toUTCString()}, ${metadata.name} downloaded bytes ${percentage}% ${downloadProgress.downloaded} / ${downloadProgress.size}`)
-          this.io.updateDownloadProgress(downloadStatus)
+          this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, downloadStatus)
 
           resolve()
         })
@@ -655,7 +661,7 @@ export class Storage {
       }
 
       // Canceled Download
-      this.io.updateDownloadProgress(statusCanceled)
+      this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusCanceled)
     } else {
       const downloadCompleted: DownloadProgress = {
         size: metadata.size,
@@ -671,14 +677,13 @@ export class Storage {
       }
 
       // Downloaded file
-      this.io.updateDownloadProgress(statusCompleted)
+      this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusCompleted)
 
       const fileMetadata: FileMetadata = {
         ...metadata,
         path: filePath
       }
-
-      this.io.updateMessageMedia(fileMetadata)
+      this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
     }
 
     // Clear cancellation signal (if present)
@@ -733,14 +738,14 @@ export class Storage {
 
     if (repo && !repo.eventsAttached) {
       log('Subscribing to direct messages thread ', channelAddress)
-      this.io.loadAllDirectMessages(this.getAllEventLogEntries(db), channelAddress)
+      this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, { messages: this.getAllEventLogEntries(db), channelAddress })
       db.events.on('write', (_address, _entry) => {
         log('Writing')
-        this.io.loadAllDirectMessages(this.getAllEventLogEntries(db), channelAddress)
+        this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, { messages: this.getAllEventLogEntries(db), channelAddress })
       })
       db.events.on('replicated', () => {
         log('Message replicated')
-        this.io.loadAllDirectMessages(this.getAllEventLogEntries(db), channelAddress)
+        this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, { messages: this.getAllEventLogEntries(db), channelAddress })
       })
       db.events.on('ready', () => {
         log('DIRECT Messages thread ready')
@@ -794,7 +799,7 @@ export class Storage {
     await this.messageThreads.load({ fetchEntryTimeout: 2000 })
     const payload = this.messageThreads.all
     log('STORAGE: getPrivateConversations payload payload')
-    this.io.loadAllPrivateConversations(payload)
+    this.emit(StorageEvents.LOAD_ALL_PRIVATE_CONVERSATIONS, payload)
   }
 
   public async saveCertificate(payload: SaveCertificatePayload): Promise<boolean> {

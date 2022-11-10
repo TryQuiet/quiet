@@ -72,5 +72,6 @@ export enum SocketActionTypes {
   // U
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
   UPLOAD_FILE = 'uploadFile',
-  UPLOADED_FILE = 'uploadedFile'
+  UPLOADED_FILE = 'uploadedFile',
+  CHECK_FOR_MISSING_FILES = 'checkForMissingFiles'
 }

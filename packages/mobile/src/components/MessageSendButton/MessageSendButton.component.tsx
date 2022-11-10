@@ -1,6 +1,5 @@
 import React, { FC, useCallback } from 'react'
-import { Image } from 'react-native'
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
+import { TouchableWithoutFeedback, Image } from 'react-native'
 import { appImages } from '../../../assets'
 
 import { MessageSendButtonProps } from './MessageSendButton.types'

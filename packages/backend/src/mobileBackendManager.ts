@@ -25,8 +25,6 @@ export const runBackend = async (): Promise<any> => {
   const options = program.opts()
 
   const connectionsManager: ConnectionsManager = new ConnectionsManager({
-    agentPort: options.socksPort,
-    httpTunnelPort: options.httpTunnelPort,
     socketIOPort: options.dataPort,
     options: {
       env: {
@@ -34,8 +32,6 @@ export const runBackend = async (): Promise<any> => {
         resourcesPath: options.torPath
       },
       createPaths: false,
-      spawnTor: true,
-      torControlPort: options.controlPort
     }
   })
 
