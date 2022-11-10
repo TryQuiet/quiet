@@ -14,6 +14,9 @@ import { DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '../utils/functions/fileData'
 
+const ElectronStore = require('electron-store')
+ElectronStore.initRenderer()
+
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
 
@@ -335,14 +338,25 @@ app.on('ready', async () => {
   ports = await getPorts()
   await createWindow()
 
-  mainWindow.webContents.on('did-finish-load', () => {
-    const [width, height] = splash.getSize()
-    mainWindow.setSize(width, height)
-    const [splashWindowX, splashWindowY] = splash.getPosition()
-    mainWindow.setPosition(splashWindowX, splashWindowY)
+  mainWindow.webContents.on('dom-ready', () => {
+    if (splash.isDestroyed()) {
+      console.log('refresh')
+      mainWindow.webContents.send('appRefresh')
+    }
+  })
 
-    splash.destroy()
-    mainWindow.show()
+  mainWindow.webContents.on('did-finish-load', () => {
+    if (!splash.isDestroyed()) {
+      const [width, height] = splash.getSize()
+      mainWindow.setSize(width, height)
+
+      const [splashWindowX, splashWindowY] = splash.getPosition()
+      mainWindow.setPosition(splashWindowX, splashWindowY)
+
+      splash.destroy()
+      mainWindow.show()
+    }
+
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
     fs.mkdirSync(temporaryFilesDirectory, { recursive: true })
     fs.readdir(temporaryFilesDirectory, (err, files) => {
@@ -405,6 +419,7 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('restartApp', () => {
+    console.log('ooooooooooooooooooooooo 123')
     app.relaunch()
     closeBackendProcess()
   })

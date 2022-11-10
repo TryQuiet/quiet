@@ -9,6 +9,7 @@ import updateHandlers from './store/handlers/update'
 import logger from './logger'
 
 import { socketActions, WebsocketConnectionPayload } from './sagas/socket/socket.slice'
+import { connection } from '@quiet/state-manager'
 
 const log = logger('renderer')
 
@@ -27,6 +28,10 @@ ipcRenderer.on('force-save-state', async _event => {
 
 ipcRenderer.on('backendInitialized', _event => {
   log('backend initialized')
+})
+
+ipcRenderer.on('appRefresh', _event => {
+  store.dispatch(connection.actions.setAppRefresh(true) as any)
 })
 
 render(<Root />, document.getElementById('root'))

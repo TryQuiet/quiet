@@ -15,6 +15,7 @@ export class ConnectionState {
   public initializedRegistrars: { [key: string]: boolean } = {}
   public lastConnectedTime: number = 0
   public uptime: number = 0
+  public appRefresh: boolean = false
   public connectedPeers: EntityState<string> = connectedPeersAdapter.getInitialState()
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
 }
@@ -64,7 +65,11 @@ export const connectionSlice = createSlice({
     },
     setLastConnectedTime: (state, action: PayloadAction<number>) => {
       state.lastConnectedTime = action.payload
-    }
+    },
+    setAppRefresh: (state, action: PayloadAction<boolean>) => {
+      state.appRefresh = action.payload
+    },
+    startInitSaga: (state, _action) => state
   }
 })
 

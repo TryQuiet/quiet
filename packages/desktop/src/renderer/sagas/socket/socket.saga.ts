@@ -1,7 +1,7 @@
 import { io, Socket } from 'socket.io-client'
 import { all, fork, takeEvery, call, put, cancel, FixedTask } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { socket as stateManager, messages } from '@quiet/state-manager'
+import { socket as stateManager, messages, connection } from '@quiet/state-manager'
 import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
 import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
@@ -42,6 +42,7 @@ function subscribeSocketLifecycle(socket?: Socket) {
     socket?.on('connect', async () => {
       console.log('websocket connected')
       emit(socketActions.setConnected())
+      emit(connection.actions.startInitSaga({}))
     })
     socket?.on('disconnect', () => {
       console.log('closing socket connection')

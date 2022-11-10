@@ -215,7 +215,6 @@ export function* handleActions(socket: Socket): Generator {
 }
 
 export function* useIO(socket: Socket): Generator {
-  yield* initSaga()
   yield all([
     fork(handleActions, socket),
     fork(publicChannelsMasterSaga, socket),

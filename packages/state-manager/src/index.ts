@@ -81,6 +81,8 @@ export { parseName } from './utils/functions/naming/naming'
 
 export { formatBytes } from './utils/functions/formatBytes/formatBytes'
 
+export { initSaga } from './sagas/app/init.saga'
+
 export * from './sagas/identity/identity.types'
 
 export * from './sagas/communities/communities.types'

@@ -24,6 +24,11 @@ export const lastConnectedTime = createSelector(
   (reducerState) => reducerState.lastConnectedTime
 )
 
+export const appRefresh = createSelector(
+  connectionSlice,
+  (reducerState) => reducerState.appRefresh
+)
+
 export const connectedPeers = createSelector(
   connectionSlice,
   (reducerState) => {
@@ -106,5 +111,6 @@ export const connectionSelectors = {
   lastConnectedTime,
   connectedPeers,
   connectedPeersMapping,
-  peerList
+  peerList,
+  appRefresh
 }
