@@ -12,5 +12,4 @@ RUN unzip /tmp/${zipbundle} && rm /tmp/${zipbundle}
 
 COPY 3rd-party /3rd-party
 ENV DEBUG=backend*
-CMD node /app/lib/torManager/torRegistrarTest.js -p 4 -m regular && node /app/lib/torManager/torRegistrarTest.js -p 4 -m newnym
-
+CMD node /app/lib/torManager/torRegistrarTest.js -p 10 -m regular -t tor && aws s3 cp /app/tor_*.json s3://tor-connection-data

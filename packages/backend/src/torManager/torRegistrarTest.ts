@@ -82,6 +82,7 @@ const killMesh = async () => {
   for (const data of torServices.values()) {
     await data.tor.kill()
   }
+  eventEmmiter.emit('closeServers')
 }
 
 const createServer = async (port, serverAddress: string) => {
@@ -94,9 +95,14 @@ const createServer = async (port, serverAddress: string) => {
     log(`Post (${req.body.counter}) ${serverAddress}`)
     eventEmmiter.emit(`${serverAddress}-success`)
   })
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     log('listening')
     results[serverAddress].serverReadyTime = new Date()
+  })
+
+  eventEmmiter.on('closeServers', () => {
+    log(`closing server ${serverAddress}`)
+    server.close()
   })
 }
 
@@ -318,7 +324,7 @@ const main = async () => {
   log('RESULTS', JSON.stringify(results))
   fs.writeFileSync(`${torBinName}_${new Date().toISOString()}_mode_${mode}_guards${guardsCount}_vanguards${vanguargsLiteEnabled}.json`, JSON.stringify(results))
   log('after killing mesh')
-  process.exit(1)
+  // process.exit(0)
 }
 // eslint-disable-next-line
 main()
