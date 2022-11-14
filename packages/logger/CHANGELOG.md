@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/TryQuiet/quiet/compare/@quiet/logger@0.10.3-alpha.16...@quiet/logger@0.11.0) (2022-10-31)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+## [0.10.3-alpha.16](https://github.com/TryQuiet/monorepo/compare/@quiet/logger@0.10.3-alpha.13...@quiet/logger@0.10.3-alpha.16) (2022-10-19)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+## [0.10.3-alpha.15](https://github.com/TryQuiet/monorepo/compare/@quiet/logger@0.10.3-alpha.13...@quiet/logger@0.10.3-alpha.15) (2022-10-18)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+## [0.10.3-alpha.14](https://github.com/TryQuiet/monorepo/compare/@quiet/logger@0.10.3-alpha.13...@quiet/logger@0.10.3-alpha.14) (2022-10-18)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
 ## [0.10.3-alpha.13](https://github.com/ZbayApp/monorepo/compare/@quiet/logger@0.10.3-alpha.7...@quiet/logger@0.10.3-alpha.13) (2022-09-22)
 
 **Note:** Version bump only for package @quiet/logger

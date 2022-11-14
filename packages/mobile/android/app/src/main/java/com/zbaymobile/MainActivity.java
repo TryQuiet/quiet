@@ -1,11 +1,15 @@
 package com.zbaymobile;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.bridge.ReactApplicationContext;
+
+import com.zbaymobile.Backend.BackendWorkManager;
 
 public class MainActivity extends ReactActivity {
 
@@ -21,26 +25,29 @@ public class MainActivity extends ReactActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(null);
-    }
-
-    private void sendNotificationInfo (ReactApplicationContext reactContext, Intent intent) {
-        String channelAddress = intent.getStringExtra("channelAddress");
-        if (channelAddress != null) {
-            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("notification", channelAddress);
-        }
+        Context context = getApplicationContext();
+        new BackendWorkManager(context).enqueueRequests();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
         Intent intent = getIntent();
 
-        String tag = intent.getStringExtra("TAG");
-        if (tag == null) return;
+        String channel = intent.getStringExtra("channel");
 
-        if (tag.equals("notification")) {
+        if (channel != null) {
             ReactApplicationContext reactContext = (ReactApplicationContext) getReactNativeHost().getReactInstanceManager().getCurrentReactContext();
-            this.sendNotificationInfo(reactContext, intent);
-        };
+            assert reactContext != null;
+
+            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("notification", channel);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("QUIET", "Application destroyed.");
     }
 }

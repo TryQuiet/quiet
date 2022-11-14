@@ -1,11 +1,11 @@
-import { all, takeEvery } from 'typed-redux-saga'
-import { doOnRestoreSaga } from './doOnRestore/doOnRestore.saga'
+import { all, takeLeading } from 'typed-redux-saga'
 import { initActions } from './init.slice'
 import { startConnectionSaga } from './startConnection/startConnection.saga'
+import { onConnectedSaga } from './onConnected/onConnected.saga'
 
 export function* initMasterSaga(): Generator {
   yield all([
-    takeEvery(initActions.doOnRestore.type, doOnRestoreSaga),
-    takeEvery(initActions.onBackendStarted.type, startConnectionSaga)
+    takeLeading(initActions.startWebsocketConnection.type, startConnectionSaga),
+    takeLeading(initActions.setWebsocketConnected.type, onConnectedSaga)
   ])
 }

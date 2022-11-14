@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0](https://github.com/TryQuiet/quiet/compare/integration-tests@0.11.3-alpha.16...integration-tests@0.12.0) (2022-10-31)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.11.3-alpha.16](https://github.com/TryQuiet/monorepo/compare/integration-tests@0.11.3-alpha.13...integration-tests@0.11.3-alpha.16) (2022-10-19)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.11.3-alpha.15](https://github.com/TryQuiet/monorepo/compare/integration-tests@0.11.3-alpha.13...integration-tests@0.11.3-alpha.15) (2022-10-18)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [0.11.3-alpha.14](https://github.com/TryQuiet/monorepo/compare/integration-tests@0.11.3-alpha.13...integration-tests@0.11.3-alpha.14) (2022-10-18)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
 ## [0.11.3-alpha.13](https://github.com/ZbayApp/monorepo/compare/integration-tests@0.11.3-alpha.7...integration-tests@0.11.3-alpha.13) (2022-09-22)
 
 **Note:** Version bump only for package integration-tests

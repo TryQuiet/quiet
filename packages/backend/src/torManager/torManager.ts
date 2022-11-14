@@ -6,35 +6,28 @@ import { QUIET_DIR_PATH } from '../constants'
 import logger from '../logger'
 import { removeFilesFromDir } from '../common/utils'
 import { TorControl } from './TorControl'
+import getPort from 'get-port'
 const log = logger('tor')
 
-interface IService {
-  virtPort: number
-  address: string
-}
 interface IConstructor {
   torPath: string
   options: child_process.SpawnOptionsWithoutStdio
   appDataPath: string
-  controlPort: number
-  socksPort: number
-  httpTunnelPort?: number
-  torPassword?: string
-  torAuthCookie?: string
+  httpTunnelPort: number
   extraTorProcessParams?: string[]
 }
 export class Tor {
+  httpTunnelPort: number
+  socksPort: number
+  controlPort: number
+
   process: child_process.ChildProcessWithoutNullStreams | any = null
   torPath: string
   options?: child_process.SpawnOptionsWithoutStdio
-  services: Map<number, IService>
   torControl: TorControl
   appDataPath: string
-  controlPort: number
   torDataDirectory: string
   torPidPath: string
-  socksPort: string
-  httpTunnelPort: string
   torPassword: string
   torHashedPassword: string
   torAuthCookie: string
@@ -44,28 +37,21 @@ export class Tor {
     torPath,
     options,
     appDataPath,
-    controlPort,
-    socksPort,
     httpTunnelPort,
-    torPassword,
-    torAuthCookie,
     extraTorProcessParams
   }: IConstructor) {
     this.torPath = path.normalize(torPath)
     this.options = options
-    this.services = new Map()
     this.appDataPath = appDataPath
-    this.controlPort = controlPort
-    this.torPassword = torPassword
-    this.torAuthCookie = torAuthCookie
-    this.socksPort = socksPort.toString()
-    this.httpTunnelPort = httpTunnelPort.toString()
+    this.httpTunnelPort = httpTunnelPort
     this.bootstrapTime = 0
     this.extraTorProcessParams = extraTorProcessParams
   }
 
   public init = async ({ repeat = 6, timeout = 3600_00 } = {}): Promise<void> => {
     log('Initializing tor...')
+    this.controlPort = await getPort()
+    this.socksPort = await getPort()
     return await new Promise((resolve, reject) => {
       if (this.process) {
         throw new Error('Tor already initialized')
@@ -134,6 +120,7 @@ export class Tor {
 
   private readonly torProcessNameCommand = (oldTorPid: string): string => {
     const byPlatform = {
+      android: `ps -p ${oldTorPid} -o comm=`,
       linux: `ps -p ${oldTorPid} -o comm=`,
       darwin: `ps -c -p ${oldTorPid} -o comm=`,
       win32: `TASKLIST /FI "PID eq ${oldTorPid}"`
@@ -146,6 +133,7 @@ export class Tor {
      *  Commands should output hanging tor pid
      */
     const byPlatform = {
+      android: `pgrep -af ${this.torDataDirectory} | grep -v pgrep | awk '{print $1}'`,
       linux: `pgrep -af ${this.torDataDirectory} | grep -v pgrep | awk '{print $1}'`,
       darwin: `ps -A | grep ${this.torDataDirectory} | grep -v grep | awk '{print $1}'`,
       win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${this.torDataDirectory.replace(/\\/g, '\\\\')}%' and name = 'tor.exe'} | Format-Table ProcessId -HideTableHeaders"`
@@ -196,9 +184,9 @@ export class Tor {
         this.torPath,
         [
           '--SocksPort',
-          this.socksPort,
+          this.socksPort.toString(),
           '--HTTPTunnelPort',
-          this.httpTunnelPort,
+          this.httpTunnelPort.toString(),
           '--ControlPort',
           this.controlPort.toString(),
           '--PidFile',
@@ -228,23 +216,11 @@ export class Tor {
     })
   }
 
-  public async spawnHiddenService({
-    virtPort,
-    targetPort,
-    privKey
-  }: {
-    virtPort: number
-    targetPort: number
-    privKey: string
-  }): Promise<string> {
+  public async spawnHiddenService(targetPort: number, privKey: string, virtPort: number = 443): Promise<string> {
     const status = await this.torControl.sendCommand(
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
     )
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-    this.services.set(virtPort, {
-      virtPort,
-      address: onionAddress
-    })
     return `${onionAddress}.onion`
   }
 
@@ -308,8 +284,8 @@ export class Tor {
   }
 
   public async createNewHiddenService(
-    virtPort: number,
-    targetPort: number
+    targetPort: number,
+    virtPort: number = 443
   ): Promise<{ onionAddress: string; privateKey: string }> {
     const status = await this.torControl.sendCommand(
       `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
@@ -317,10 +293,7 @@ export class Tor {
 
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
     const privateKey = status.messages[1].replace('250-PrivateKey=', '')
-    this.services.set(virtPort, {
-      virtPort,
-      address: onionAddress
-    })
+
     return {
       onionAddress: `${onionAddress}.onion`,
       privateKey
@@ -335,13 +308,6 @@ export class Tor {
     )
     this.torPassword = password
     this.torHashedPassword = hashedPassword.toString().trim()
-  }
-
-  public getServiceAddress = (port: number): string => {
-    if (this.services.get(port).address) {
-      return this.services.get(port).address
-    }
-    throw new Error('cannot get service addres')
   }
 
   public kill = async (): Promise<void> =>

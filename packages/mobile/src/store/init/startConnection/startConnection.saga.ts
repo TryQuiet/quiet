@@ -3,49 +3,50 @@ import { put, call, cancel, fork, takeEvery, FixedTask } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { socket as stateManager } from '@quiet/state-manager'
 import { initActions } from '../init.slice'
-import { initialRoutingSaga } from '../initialRouting/initialRouting.saga'
 import { eventChannel } from 'redux-saga'
 
 export function* startConnectionSaga(
-  action: PayloadAction<ReturnType<typeof initActions.startConnection>['payload']>
+  action: PayloadAction<ReturnType<typeof initActions.startWebsocketConnection>['payload']>
 ): Generator {
-  const dataPort = action.payload.dataPort
+  const { dataPort } = action.payload
 
   const socket = yield* call(io, `http://localhost:${dataPort}`)
-  yield* fork(handleSocketLifecycleActions, socket)
+  yield* fork(handleSocketLifecycleActions, socket, dataPort)
 
   // Handle opening/restoring connection
-  yield* takeEvery(initActions.setConnected, setConnectedSaga, socket)
+  yield* takeEvery(initActions.setWebsocketConnected, setConnectedSaga, socket)
 }
 
 function* setConnectedSaga(socket: Socket): Generator {
   // @ts-expect-error
   const task = yield* fork(stateManager.useIO, socket)
-  // Screen redirection
-  yield* fork(initialRoutingSaga)
   // Handle suspending current connection
-  yield* takeEvery(initActions.suspendConnection, cancelRootTaskSaga, task)
+  yield* takeEvery(initActions.suspendWebsocketConnection, cancelRootTaskSaga, task)
 }
 
-function* handleSocketLifecycleActions(socket: Socket): Generator {
-  const socketChannel = yield* call(subscribeSocketLifecycle, socket)
+function* handleSocketLifecycleActions(socket: Socket, dataPort: number): Generator {
+  const socketChannel = yield* call(subscribeSocketLifecycle, socket, dataPort)
   yield takeEvery(socketChannel, function* (action) {
     yield put(action)
   })
 }
 
-function subscribeSocketLifecycle(socket: Socket) {
+function subscribeSocketLifecycle(socket: Socket, dataPort: number) {
   return eventChannel<
-  ReturnType<typeof initActions.setConnected> |
-  ReturnType<typeof initActions.suspendConnection>
+    | ReturnType<typeof initActions.setWebsocketConnected>
+    | ReturnType<typeof initActions.suspendWebsocketConnection>
   >(emit => {
     socket.on('connect', async () => {
       console.log('websocket connected')
-      emit(initActions.setConnected())
+      emit(
+        initActions.setWebsocketConnected({
+          dataPort: dataPort
+        })
+      )
     })
     socket.on('disconnect', () => {
       console.log('closing socket connection')
-      emit(initActions.suspendConnection())
+      emit(initActions.suspendWebsocketConnection())
     })
     return () => {}
   })

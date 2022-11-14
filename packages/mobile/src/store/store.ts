@@ -8,6 +8,8 @@ import { initActions } from './init/init.slice'
 import { rootReducer } from './root.reducer'
 
 import { storeKeys as StateManagerStoreKeys, PublicChannelsTransform, MessagesTransform, FilesTransform } from '@quiet/state-manager'
+import { StoreKeys } from './store.keys'
+import { InitTransform } from './init/init.transform'
 
 const persistedReducer = persistReducer(
   {
@@ -19,9 +21,10 @@ const persistedReducer = persistReducer(
       StateManagerStoreKeys.PublicChannels,
       StateManagerStoreKeys.Messages,
       StateManagerStoreKeys.Files,
-      StateManagerStoreKeys.Connection
+      StateManagerStoreKeys.Connection,
+      StoreKeys.Init
     ],
-    transforms: [PublicChannelsTransform, MessagesTransform, FilesTransform]
+    transforms: [PublicChannelsTransform, MessagesTransform, FilesTransform, InitTransform]
   },
   rootReducer
 )
@@ -31,7 +34,7 @@ export const sagaMiddleware = createSagaMiddleware()
 export const store = configureStore({
   devTools: process.env.NODE_ENV === NodeEnv.Development,
   middleware: [
-    ...getDefaultMiddleware({ serializableCheck: false, thunk: false }),
+    ...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false, thunk: false }),
     sagaMiddleware
   ],
   reducer: persistedReducer

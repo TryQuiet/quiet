@@ -63,7 +63,7 @@ describe('createNetwork', () => {
     const community: Community = {
       id: '1',
       name: 'rockets',
-      registrarUrl: undefined,
+      registrarUrl: null,
       CA: CA,
       rootCa: CA.rootCertString,
       peerList: [],

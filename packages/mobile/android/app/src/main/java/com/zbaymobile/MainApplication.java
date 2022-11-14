@@ -12,6 +12,7 @@ import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
+import com.zbaymobile.Notification.NotificationModulePackage;
 import com.zbaymobile.Utils.Const;
 
 import java.lang.reflect.InvocationTargetException;
@@ -34,7 +35,6 @@ public class MainApplication extends Application implements ReactApplication {
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // packages.add(new MyReactNativePackage());
-          packages.add(new TorModulePackage());
           packages.add(new NotificationModulePackage());
           return packages;
         }
@@ -56,6 +56,7 @@ public class MainApplication extends Application implements ReactApplication {
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
     PACKAGE_NAME = getApplicationContext().getPackageName();
+    createForegroundServiceNotificationChannel();
     createNotificationChannel();
   }
 
@@ -90,6 +91,22 @@ public class MainApplication extends Application implements ReactApplication {
     }
   }
 
+  private void createForegroundServiceNotificationChannel() {
+      // Create the NotificationChannel, but only on API 26+ because
+      // the NotificationChannel class is new and not in the support library
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+          CharSequence name = getString(R.string.foreground_service_channel_name);
+          String description = getString(R.string.foreground_service_channel_description);
+          int importance = NotificationManager.IMPORTANCE_HIGH;
+          NotificationChannel channel = new NotificationChannel(Const.FOREGROUND_SERVICE_NOTIFICATION_CHANNEL_ID, name, importance);
+          channel.setDescription(description);
+          // Register the channel with the system; you can't change the importance
+          // or other notification behaviors after this
+          NotificationManager notificationManager = getSystemService(NotificationManager.class);
+          notificationManager.createNotificationChannel(channel);
+      }
+  }
+
   private void createNotificationChannel() {
       // Create the NotificationChannel, but only on API 26+ because
       // the NotificationChannel class is new and not in the support library
@@ -104,5 +121,5 @@ public class MainApplication extends Application implements ReactApplication {
           NotificationManager notificationManager = getSystemService(NotificationManager.class);
           notificationManager.createNotificationChannel(channel);
       }
-    }
+  }
 }

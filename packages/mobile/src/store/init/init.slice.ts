@@ -1,24 +1,15 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { FixedTask } from 'typed-redux-saga'
 import { Socket } from 'socket.io-client'
-import { ScreenNames } from '../../const/ScreenNames.enum'
 import { StoreKeys } from '../store.keys'
 import { initChecksAdapter } from './init.adapter'
 import { InitCheck } from './init.types'
 import { InitCheckKeys } from './initCheck.keys'
 
 export class InitState {
-  public dataDirectoryPath: string = ''
-  public torData: TorData = {
-    httpTunnelPort: 0,
-    socksPort: 0,
-    controlPort: 0,
-    authCookie: ''
-  }
-
-  public isNavigatorReady: boolean = false
   public isCryptoEngineInitialized: boolean = false
-  public isConnected: boolean = false
+  public isWebsocketConnected: boolean = false
+  public lastKnownDataPort: number = 0
   public initDescription: string = ''
   public initChecks: EntityState<InitCheck> = initChecksAdapter.setAll(
     initChecksAdapter.getInitialState(),
@@ -33,15 +24,11 @@ export class InitState {
       }
     ]
   )
-
-  public currentScreen: ScreenNames = ScreenNames.SplashScreen
 }
 
-export interface TorData {
-  httpTunnelPort: number
-  socksPort: number
-  controlPort: number
-  authCookie: string
+export interface InitCheckPayload {
+  event: InitCheckKeys
+  passed: boolean
 }
 
 export interface WebsocketConnectionPayload {
@@ -60,39 +47,31 @@ export const initSlice = createSlice({
   initialState: { ...new InitState() },
   name: StoreKeys.Init,
   reducers: {
-    setNavigatorReady: (state, action: PayloadAction<boolean>) => {
-      state.isNavigatorReady = action.payload
-    },
+    setStoreReady: state => state,
     setCryptoEngineInitialized: (state, action: PayloadAction<boolean>) => {
       state.isCryptoEngineInitialized = action.payload
     },
-    doOnRestore: state => state,
-    setStoreReady: state => state,
     updateInitDescription: (state, action: PayloadAction<string>) => {
       state.initDescription = action.payload
     },
-    onTorInit: (state, action: PayloadAction<TorData>) => {
-      const event = InitCheckKeys.Tor
+    updateInitCheck: (state, action: PayloadAction<InitCheckPayload>) => {
+      const { event, passed } = action.payload
       initChecksAdapter.updateOne(state.initChecks, {
         changes: {
           event: event,
-          passed: true
+          passed: passed
         },
         id: event
       })
-      state.torData = action.payload
     },
-    onDataDirectoryCreated: (state, action: PayloadAction<string>) => {
-      state.dataDirectoryPath = action.payload
+    startWebsocketConnection: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
+    suspendWebsocketConnection: state => {
+      state.isWebsocketConnected = false
     },
-    onBackendStarted: (_state, _action: PayloadAction<WebsocketConnectionPayload>) => {
-    },
-    startConnection: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
-    suspendConnection: state => {
-      state.isConnected = false
-    },
-    setConnected: state => {
-      state.isConnected = true
+    setWebsocketConnected: (state, action: PayloadAction<WebsocketConnectionPayload>) => {
+      const { dataPort } = action.payload
+      state.isWebsocketConnected = true
+      state.lastKnownDataPort = dataPort
       const event = InitCheckKeys.Backend
       initChecksAdapter.updateOne(state.initChecks, {
         changes: {
@@ -101,9 +80,6 @@ export const initSlice = createSlice({
         },
         id: event
       })
-    },
-    setCurrentScreen: (state, action: PayloadAction<ScreenNames>) => {
-      state.currentScreen = action.payload
     }
   }
 })

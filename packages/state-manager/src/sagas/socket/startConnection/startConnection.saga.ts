@@ -40,7 +40,7 @@ import { usersActions } from '../../users/users.slice'
 import { SendCertificatesResponse } from '../../users/users.types'
 import { SocketActionTypes } from '../const/actionTypes'
 import { filesActions } from '../../files/files.slice'
-import { NetworkDataPayload } from '../../appConnection/connection.types'
+import { CommunityId, NetworkDataPayload } from '../../appConnection/connection.types'
 
 const log = logger('socket')
 
@@ -118,6 +118,9 @@ export function subscribe(socket: Socket) {
         emit(messagesActions.removePendingMessageStatus(message.id))
       }
       emit(messagesActions.incomingMessages(payload))
+    })
+    socket.on(SocketActionTypes.CHECK_FOR_MISSING_FILES, (payload: CommunityId) => {
+      emit(filesActions.checkForMissingFiles(payload))
     })
     // Community
     socket.on(SocketActionTypes.NEW_COMMUNITY, (_payload: ResponseCreateCommunityPayload) => {

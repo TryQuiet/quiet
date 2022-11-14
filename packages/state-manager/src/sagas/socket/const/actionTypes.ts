@@ -48,6 +48,7 @@ export enum SocketActionTypes {
   PEER_CONNECTED = 'peerConnected',
   PEER_DISCONNECTED = 'peerDisconnected',
   PEER_LIST = 'peerList',
+  PUSH_NOTIFICATION = 'pushNotification',
   // R
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
@@ -71,5 +72,6 @@ export enum SocketActionTypes {
   // U
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
   UPLOAD_FILE = 'uploadFile',
-  UPLOADED_FILE = 'uploadedFile'
+  UPLOADED_FILE = 'uploadedFile',
+  CHECK_FOR_MISSING_FILES = 'checkForMissingFiles'
 }

@@ -4,7 +4,6 @@ import getPort from 'get-port'
 import path from 'path'
 import SocketIO from 'socket.io'
 import logger from '../logger'
-import { Tor } from '../torManager'
 const log = logger('utils')
 
 export interface Ports {
@@ -91,11 +90,11 @@ export function fetchAbsolute(fetch: Function): Function {
 }
 
 export const getPorts = async (): Promise<Ports> => {
-  const controlPort = await getPort({ port: 9151 })
-  const socksPort = await getPort({ port: 9052 })
-  const libp2pHiddenService = await getPort({ port: 7788 })
-  const dataServer = await getPort({ port: 4677 })
-  const httpTunnelPort = await getPort({ port: 9000 })
+  const controlPort = await getPort()
+  const socksPort = await getPort()
+  const libp2pHiddenService = await getPort()
+  const dataServer = await getPort()
+  const httpTunnelPort = await getPort()
   return {
     socksPort,
     libp2pHiddenService,
@@ -116,7 +115,10 @@ export class DummyIOServer extends SocketIO.Server {
   }
 }
 
-export const torBinForPlatform = (binName: string = 'tor', basePath?: string): string => {
+export const torBinForPlatform = (basePath?: string, binName: string = 'tor'): string => {
+  if (process.env.BACKEND === 'mobile') {
+    return basePath
+  }
   const ext = process.platform === 'win32' ? '.exe' : ''
   return path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))
 }
@@ -132,26 +134,17 @@ export const torDirForPlatform = (basePath?: string): string => {
   return torPath
 }
 
-export const createLibp2pAddress = (address: string, port: number, peerId: string, wsType: 'ws' | 'wss') => {
-  return `/dns4/${address}/tcp/${port}/${wsType}/p2p/${peerId}`
+export const createLibp2pAddress = (address: string, peerId: string) => {
+  return `/dns4/${address}/tcp/443/wss/p2p/${peerId}`
 }
 
-export const createLibp2pListenAddress = (address: string, port: number, wsType: 'ws' | 'wss') => {
-  return `/dns4/${address}/tcp/${port}/${wsType}`
+export const createLibp2pListenAddress = (address: string) => {
+  return `/dns4/${address}/tcp/443/wss`
 }
 
-export const getUsersAddresses = async (users: User[], tor: boolean = true): Promise<string[]> => {
+export const getUsersAddresses = async (users: User[]): Promise<string[]> => {
   const peers = users.map(async (userData: User) => {
-    let port: number
-    let ws: 'ws' | 'wss'
-    if (tor) {
-      port = 443
-      ws = 'wss'
-    } else {
-      port = 7788 // make sure this port is free
-      ws = 'ws'
-    }
-    return createLibp2pAddress(userData.onionAddress, port, userData.peerId, ws)
+    return createLibp2pAddress(userData.onionAddress, userData.peerId)
   })
 
   return await Promise.all(peers)
