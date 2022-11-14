@@ -340,7 +340,6 @@ app.on('ready', async () => {
 
   mainWindow.webContents.on('dom-ready', () => {
     if (splash.isDestroyed()) {
-      console.log('refresh')
       mainWindow.webContents.send('appRefresh')
     }
   })
@@ -419,7 +418,6 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('restartApp', () => {
-    console.log('ooooooooooooooooooooooo 123')
     app.relaunch()
     closeBackendProcess()
   })
