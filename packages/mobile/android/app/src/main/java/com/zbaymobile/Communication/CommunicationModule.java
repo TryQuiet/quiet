@@ -7,6 +7,7 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
 import com.zbaymobile.Notification.NotificationHandler;
@@ -41,13 +42,13 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void handleIncomingEvents(String event, String payload, String ... extra) {
+    public static void handleIncomingEvents(String event, String payload, ReadableArray extra) {
         switch (event) {
             case PUSH_NOTIFICATION_CHANNEL:
-                // Extract username from extras
-                String username = extra.length > 0 ? extra[0] : "";
                 // Payload is of type ChannelMessage
                 String message = payload;
+                // Extract username from extras
+                String username = extra.size() > 0 ? extra.getString(0) : "";
                 notificationHandler.notify(message, username);
                 break;
             case WEBSOCKET_CONNECTION_CHANNEL:
