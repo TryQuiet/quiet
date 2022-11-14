@@ -41,11 +41,10 @@ export class StorageTestSnapshot extends Storage {
 
   constructor(
     quietDir: string,
-    io: any,
     communityId: string,
     options?: Partial<StorageTestSnapshotOptions>
   ) {
-    super(quietDir, io, communityId, options)
+    super(quietDir, communityId, options)
     this.options = {
       ...new StorageTestSnapshotOptions(),
       ...options

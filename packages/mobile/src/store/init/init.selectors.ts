@@ -6,11 +6,6 @@ import { initChecksAdapter } from './init.adapter'
 const initSlice: CreatedSelectors[StoreKeys.Init] = (state: StoreState) =>
   state[StoreKeys.Init]
 
-export const isNavigatorReady = createSelector(
-  initSlice,
-  (reducerState) => reducerState.isNavigatorReady
-)
-
 export const isCryptoEngineInitialized = createSelector(
   initSlice,
   (reducerState) =>
@@ -40,17 +35,10 @@ export const initChecks = createSelector(
     initChecksAdapter.getSelectors().selectAll(reducerState.initChecks)
 )
 
-export const currentScreen = createSelector(
-  initSlice,
-  (reducerState) => reducerState.currentScreen
-)
-
 export const initSelectors = {
-  isNavigatorReady,
   isCryptoEngineInitialized,
   isWebsocketConnected,
   lastKnownDataPort,
   initDescription,
-  initChecks,
-  currentScreen
+  initChecks
 }

@@ -131,7 +131,7 @@ public class NotificationModule extends ReactContextBaseJavaModule {
 
     private static void composeNotification(String channel, String user, String content) {
         Intent intent = new Intent(reactContext, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
         // Remove prefix from channel name before saving extras
         String extra = channel.substring(1);

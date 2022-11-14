@@ -1,34 +1,29 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { BackHandler, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
-import { Chat } from '../../components/Chat/Chat.component'
-import { ScreenNames } from '../../const/ScreenNames.enum'
-import { initActions } from '../../store/init/init.slice'
-import { replaceScreen } from '../../utils/functions/replaceScreen/replaceScreen'
-
-import { CancelDownload, FileMetadata, files, identity, messages, publicChannels } from '@quiet/state-manager'
 import { Appbar } from '../../components/Appbar/Appbar.component'
+import { Chat } from '../../components/Chat/Chat.component'
 import { ImagePreviewModal } from '../../components/ImagePreview/ImagePreview.component'
+import { CancelDownload, FileMetadata, files, identity, messages, publicChannels } from '@quiet/state-manager'
+import { navigationActions } from '../../store/navigation/navigation.slice'
+import { ScreenNames } from '../../const/ScreenNames.enum'
 
 export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
 
-  useEffect(() => {
-    dispatch(initActions.setCurrentScreen(ScreenNames.ChannelScreen))
-  })
-
-  const handleBackButtonClick = () => {
-    dispatch(publicChannels.actions.setCurrentChannel({ channelAddress: '' }))
-    replaceScreen(ScreenNames.ChannelListScreen)
+  const handleBackButtonClick = useCallback(() => {
+    dispatch(navigationActions.navigation({
+      screen: ScreenNames.ChannelListScreen
+     }))
     return true
-  }
+  }, [dispatch])
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick)
     return () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick)
     }
-  }, [])
+  }, [handleBackButtonClick])
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)

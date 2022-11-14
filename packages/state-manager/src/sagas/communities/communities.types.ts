@@ -55,8 +55,7 @@ export interface LaunchRegistrarPayload {
   peerId: string
   rootCertString: string
   rootKeyString: string
-  privateKey?: string
-  port?: number
+  privateKey: string
 }
 
 export interface ResponseRegistrarPayload {

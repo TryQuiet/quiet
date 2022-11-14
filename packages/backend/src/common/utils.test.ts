@@ -123,7 +123,7 @@ it('Gets users addresses based on user data', async () => {
   ]
   const addresses = await getUsersAddresses(userData)
   expect(addresses).toStrictEqual([
-    createLibp2pAddress(userData[0].onionAddress, 443, userData[0].peerId, 'wss'),
-    createLibp2pAddress(userData[1].onionAddress, 443, userData[1].peerId, 'wss')
+    createLibp2pAddress(userData[0].onionAddress, userData[0].peerId),
+    createLibp2pAddress(userData[1].onionAddress, userData[1].peerId)
   ])
 })
