@@ -11,6 +11,7 @@ import KademliaDHT from 'libp2p-kad-dht'
 import Mplex from 'libp2p-mplex'
 import { DateTime } from 'luxon'
 import * as os from 'os'
+import fs from 'fs'
 import PeerId, { JSONPeerId } from 'peer-id'
 import { emitError } from '../socket/errors'
 import { CertificateRegistration } from '../registration'
@@ -118,6 +119,7 @@ export class ConnectionsManager extends EventEmitter {
   socketIOPort: number
   storage: Storage
   dataServer: DataServer
+  communityId: string
 
   constructor({ options, socketIOPort }: IConstructor) {
     super()
@@ -180,6 +182,14 @@ export class ConnectionsManager extends EventEmitter {
     })
 
     await this.dataServer.listen()
+
+    const path = `${this.options.env.appDataPath}/kredki.json`
+    if (fs.existsSync(path)) {
+      const kredki = fs.readFileSync(path)
+      const kredkiObj = JSON.parse(kredki.toString())
+      console.log('KREDKI OBJECT', kredkiObj)
+      await this.launchCommunity(kredkiObj)
+    }
   }
 
   public async closeAllServices() {
@@ -275,6 +285,13 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
+    const path = `${this.options.env.appDataPath}/kredki.json`
+    let json = JSON.stringify(payload)
+    if (!fs.existsSync(path)) {
+      console.log('kredki nie istnieja')
+      fs.writeFileSync(path, json)
+    }
+    console.log('kredki istnieja')
     try {
       await this.launch(payload)
     } catch (e) {
@@ -286,7 +303,9 @@ export class ConnectionsManager extends EventEmitter {
       })
       return
     }
+
     log(`Launched community ${payload.id}`)
+    this.communityId = payload.id
     this.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
 
@@ -366,10 +385,21 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   private attachDataServerListeners = () => {
+    this.dataServer.on(SocketActionTypes.CONNECTION, async () => {
+      // Update Frontend with Initialized Communities
+      console.log("WEBSOCKET CONNECTED")
+      if (this.communityId) {
+        this.io.emit(SocketActionTypes.COMMUNITY, { id: this.communityId })
+      }
+    })
     // Community
     this.dataServer.on(SocketActionTypes.CREATE_NETWORK, async (args: Community) => { await this.createNetwork(args) })
     this.dataServer.on(SocketActionTypes.CREATE_COMMUNITY, async (args: InitCommunityPayload) => { await this.createCommunity(args) })
-    this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => { await this.launchCommunity(args) })
+    this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => {
+      if (this.communityId) return
+      await this.launchCommunity(args)
+    }
+    )
 
     // Registration
     this.dataServer.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {

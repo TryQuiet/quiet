@@ -58,6 +58,8 @@ export class DataServer extends EventEmitter {
     })
     // Attach listeners here
     this.io.on(SocketActionTypes.CONNECTION, socket => {
+      // On websocket connection, update presentation service with network data
+      this.emit(SocketActionTypes.CONNECTION)
       socket.on(SocketActionTypes.CLOSE, async () => {
         this.emit(SocketActionTypes.CLOSE)
       })
