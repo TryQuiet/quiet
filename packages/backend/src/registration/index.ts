@@ -119,8 +119,13 @@ export class CertificateRegistration extends EventEmitter {
       log(`Fetched ${serviceAddress}, time: ${fetchTime}`)
     } catch (e) {
       log.error(e)
-      throw e
-    } finally {
+      this.emit(RegistrationEvents.ERROR, {
+        type: SocketActionTypes.REGISTRAR,
+        code: ErrorCodes.NOT_FOUND,
+        message: ErrorMessages.REGISTRAR_NOT_FOUND,
+        community: communityId
+      })
+} finally {
       clearTimeout(timeout)
     }
 
