@@ -43,10 +43,29 @@ class NotificationReceiver: BroadcastReceiver() {
         }
     }
 
+    fun getMainActivityClass(context: ReactContext): Class<*>? {
+        val packageName: String = context.packageName
+        val launchIntent: Intent? =
+            context.packageManager.getLaunchIntentForPackage(packageName)
+        val className = launchIntent?.component?.className
+        return try {
+            return if (className != null) {
+                Class.forName(className)
+            } else {
+                null
+            }
+        } catch (e: ClassNotFoundException) {
+            e.printStackTrace()
+            null
+        }
+    }
+
     private fun wakeActivity(context: ReactContext) {
+        val intentActivity = getMainActivityClass(context)
+
         val intent = Intent(
             context,
-            MainActivity::class.java
+            intentActivity
         )
 
         intent.addFlags(
