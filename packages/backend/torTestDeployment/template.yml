@@ -19,6 +19,32 @@ Resources:
 
   ECSCluster:
     Type: AWS::ECS::Cluster
+  
+  EventECSExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Statement:
+          -
+            Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+      Policies:
+      - PolicyName: AmazonECSTaskExecutionRolePolicy
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+              - ecs:RunTask
+            Resource:
+              - !Ref TorConnectionTestTaskDefinition
+          - Effect: Allow
+            Action:
+              - iam:PassRole
+            Resource:
+              - '*'
 
   TaskRole:
     Type: AWS::IAM::Role
@@ -57,14 +83,13 @@ Resources:
       Description: "Schedule rule for tor connection test"
       Name: !Sub tor-connection-task-schedule-rule
       State: ENABLED
-      ScheduleExpression: cron(*/10 * * * *)
+      ScheduleExpression: cron(0/10 * * * ? *)
       Targets:
         - Arn: !GetAtt ECSCluster.Arn
           Id: ScheduledTask
-          RoleArn: !GetAtt TaskRole.Arn
-          # Input: !Sub '{ "containerOverrides": [{"name": "MyTaskContainer", "environment": [{"name":"APPLICATION_ENV","value":"${Stage}"}]}'
+          RoleArn: !GetAtt EventECSExecutionRole.Arn
           EcsParameters:
-            TaskDefinitionArn: !Ref MyEcsTaskDefinition
+            TaskDefinitionArn: !Ref TorConnectionTestTaskDefinition
             LaunchType: FARGATE
             NetworkConfiguration:
               AwsVpcConfiguration:
@@ -72,21 +97,6 @@ Resources:
                 Subnets: !Split
                   - ','
                   - !Ref Subnets
-
-
-  # Bot:
-  #   Type: AWS::ECS::Service
-  #   Properties:
-  #     Cluster: !Ref ECSCluster
-  #     DesiredCount: 10
-  #     LaunchType: FARGATE
-  #     TaskDefinition: !Ref TorConnectionTestTaskDefinition
-  #     NetworkConfiguration:
-  #       AwsvpcConfiguration:
-  #         AssignPublicIp: ENABLED
-  #         Subnets: !Split
-  #           - ','
-  #           - !Ref Subnets
 
   TorConnectionTestTaskDefinition:
     Type: AWS::ECS::TaskDefinition

@@ -7,4 +7,4 @@ deploy:
 	sam deploy --template-file template.yml --stack-name $(STACK_NAME_1) --capabilities CAPABILITY_IAM --region $(REGION) --parameter-overrides='$(PARAMETERS_1)'
 
 destroy:
-	aws cloudformation delate-stack --stack-name $(STACK_NAME_1) --region $(REGION)
+	aws cloudformation delete-stack --stack-name $(STACK_NAME_1) --region $(REGION)
