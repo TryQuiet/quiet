@@ -18,8 +18,7 @@ import {
   DownloadState,
   imagesExtensions,
   User,
-  PushNotificationPayload,
-  BASE_NOTIFICATION_CHANNEL
+  PushNotificationPayload
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
@@ -372,7 +371,6 @@ export class Storage extends EventEmitter {
           const username = this.getUserNameFromCert(message.pubKey)
 
           const payload: PushNotificationPayload = {
-            channel: BASE_NOTIFICATION_CHANNEL,
             message: JSON.stringify(message),
             username: username
           }

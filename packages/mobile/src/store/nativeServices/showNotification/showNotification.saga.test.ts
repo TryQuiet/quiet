@@ -5,9 +5,9 @@ import { call, select } from 'redux-saga-test-plan/matchers'
 import { showNotificationSaga } from './showNotification.saga'
 import {
   publicChannels,
+  users,
   MarkUnreadChannelPayload,
-  RICH_NOTIFICATION_CHANNEL,
-  users
+  PUSH_NOTIFICATION_CHANNEL
 } from '@quiet/state-manager'
 import { StoreKeys } from '../../store.keys'
 import { initReducer, InitState } from '../../init/init.slice'
@@ -61,7 +61,7 @@ describe('showNotificationSaga', () => {
         [call.fn(NativeModules.NotificationModule.notify), null],
         [select(users.selectors.certificatesMapping), { pubKey: { username: username } }]
       ])
-      .call(NativeModules.NotificationModule.notify, RICH_NOTIFICATION_CHANNEL, message, username)
+      .call(NativeModules.NotificationModule.notify, PUSH_NOTIFICATION_CHANNEL, message, username)
       .run()
   })
 

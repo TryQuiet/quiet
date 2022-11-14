@@ -13,7 +13,6 @@ export const MessagesTransform = createTransform(
   (outboundState: MessagesState, _key) => {
     const messageVerificationStatus = Object.values(outboundState.messageVerificationStatus.entities)
     const updatedMessageVerificationStatus: MessageVerificationStatus[] = messageVerificationStatus.reduce((result, status: any) => {
-      console.log(status)
       if (status.isVerified !== undefined ||
       status.verified !== undefined
       ) {
