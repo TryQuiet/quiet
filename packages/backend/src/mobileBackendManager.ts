@@ -1,6 +1,4 @@
-import { InitCommunityPayload } from '@quiet/state-manager'
 import { Command } from 'commander'
-import { INIT_COMMUNITY_DATA, readPersistentData } from './common/utils'
 import { ConnectionsManager } from './libp2p/connectionsManager'
 
 import logger from './logger'
@@ -36,11 +34,6 @@ export const runBackend = async (): Promise<any> => {
   })
 
   await connectionsManager.init()
-
-  const initCommunityPayload: InitCommunityPayload | null = readPersistentData(INIT_COMMUNITY_DATA)
-  if (initCommunityPayload != null) {
-    await connectionsManager.ioProxy.launchCommunity(initCommunityPayload)
-  }
 }
 
 runBackend().catch(error => {
