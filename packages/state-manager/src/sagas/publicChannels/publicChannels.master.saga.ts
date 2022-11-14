@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io-client'
 import { all, takeEvery } from 'typed-redux-saga'
 import { publicChannelsActions } from './publicChannels.slice'
-import { subscribeToTopicSaga } from './subscribeToTopic/subscribeToTopic.saga'
+// import { subscribeToTopicSaga } from './subscribeToTopic/subscribeToTopic.saga'
 import { createChannelSaga } from './createChannel/createChannel.saga'
 import { createGeneralChannelSaga } from './createGeneralChannel/createGeneralChannel.saga'
 import { sendInitialChannelMessageSaga } from './createGeneralChannel/sendInitialChannelMessage.saga'
@@ -28,11 +28,11 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
       publicChannelsActions.channelsReplicated.type,
       channelsReplicatedSaga
     ),
-    takeEvery(
-      publicChannelsActions.subscribeToTopic.type,
-      subscribeToTopicSaga,
-      socket
-    ),
+    // takeEvery(
+    //   publicChannelsActions.subscribeToTopic.type,
+    //   subscribeToTopicSaga,
+    //   socket
+    // ),
     takeEvery(publicChannelsActions.setCurrentChannel.type,
       clearUnreadChannelsSaga
     ),

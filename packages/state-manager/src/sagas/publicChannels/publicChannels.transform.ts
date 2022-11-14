@@ -1,5 +1,6 @@
 import { createTransform } from 'redux-persist'
 import { StoreKeys } from '../store.keys'
+import { channelsReplicatedSaga } from './channelsReplicated/channelsReplicated.saga'
 import { publicChannelsAdapter, publicChannelsStatusAdapter, publicChannelsSubscriptionsAdapter } from './publicChannels.adapter'
 import { PublicChannelsState } from './publicChannels.slice'
 
@@ -10,7 +11,7 @@ export const PublicChannelsTransform = createTransform(
   (outboundState: PublicChannelsState, _key) => {
     return {
       currentChannelAddress: 'general',
-      channels: publicChannelsAdapter.getInitialState(),
+      channels: outboundState.channels,
       channelsStatus: outboundState.channelsStatus,
       channelsSubscriptions: publicChannelsSubscriptionsAdapter.getInitialState()
     }
