@@ -26,26 +26,29 @@ export const MessagesTransform = createTransform(
       return result
     }, [])
 
-    const messagesBase: PublicChannelsMessagesBase[] = []
     let messagesInChannel: ChannelMessage[]
+    let messagesBaseEntities = {}
 
-    updatedMessageVerificationStatus.forEach((status) => {
       Object.values(outboundState.publicChannelsMessagesBase.entities).forEach((channelMessages) => {
         messagesInChannel = []
         Object.values(channelMessages.messages.entities).forEach((message) => {
+          updatedMessageVerificationStatus.forEach((status) => {
           if (status.signature === message.signature) {
             messagesInChannel.push(message)
           }
         })
+      })
 
-        messagesBase.push({
+      messagesBaseEntities = {
+        ...messagesBaseEntities,
+        [channelMessages.channelAddress]: {
           ...channelMessages,
           messages: channelMessagesAdapter.setAll(
             messagesBaseAdapter.getInitialState(),
             messagesInChannel
           )
-        })
-      })
+        }
+      }
     })
 
       return {
@@ -56,7 +59,7 @@ export const MessagesTransform = createTransform(
       ),
       publicChannelsMessagesBase: publicChannelsMessagesBaseAdapter.setAll(
         publicChannelsMessagesBaseAdapter.getInitialState(),
-        messagesBase
+        messagesBaseEntities
       ),
       publicKeyMapping: {},
       messageSendingStatus: messageSendingStatusAdapter.getInitialState(),
