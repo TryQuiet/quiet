@@ -21,5 +21,5 @@ export function* showNotificationSaga(
   const mapping = yield* select(users.selectors.certificatesMapping)
   const username = mapping[_message.pubKey].username
 
-  yield* call(NativeModules.CommunicationModule.handleIncomingEvents, PUSH_NOTIFICATION_CHANNEL, message, [username])
+  yield* call(NativeModules.CommunicationModule.handleIncomingEvents, PUSH_NOTIFICATION_CHANNEL, message, username)
 }

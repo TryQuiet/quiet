@@ -39,8 +39,8 @@ describe('showNotificationSaga', () => {
 
     Platform.OS = 'android'
 
-    NativeModules.NotificationModule = {
-      notify: jest.fn()
+    NativeModules.CommunicationModule = {
+      handleIncomingEvents: jest.fn()
     }
 
     const username = 'alice'
@@ -58,10 +58,10 @@ describe('showNotificationSaga', () => {
       })
       .provide([
         [call.fn(JSON.stringify), message],
-        [call.fn(NativeModules.NotificationModule.notify), null],
+        [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
         [select(users.selectors.certificatesMapping), { pubKey: { username: username } }]
       ])
-      .call(NativeModules.NotificationModule.notify, PUSH_NOTIFICATION_CHANNEL, message, username)
+      .call(NativeModules.CommunicationModule.handleIncomingEvents, PUSH_NOTIFICATION_CHANNEL, message, username)
       .run()
   })
 
@@ -72,8 +72,8 @@ describe('showNotificationSaga', () => {
 
     Platform.OS = 'android'
 
-    NativeModules.NotificationModule = {
-      notify: jest.fn()
+    NativeModules.CommunicationModule = {
+      handleIncomingEvents: jest.fn()
     }
 
     const username = 'alice'
@@ -91,10 +91,10 @@ describe('showNotificationSaga', () => {
     })
       .provide([
         [call.fn(JSON.stringify), message],
-        [call.fn(NativeModules.NotificationModule.notify), null],
+        [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
         [select(users.selectors.certificatesMapping), { pubKey: { username: username } }]
       ])
-      .not.call(NativeModules.NotificationModule.notify)
+      .not.call(NativeModules.CommunicationModule.handleIncomingEvents)
       .run()
   })
 
@@ -105,8 +105,8 @@ describe('showNotificationSaga', () => {
 
     Platform.OS = 'android'
 
-    NativeModules.NotificationModule = {
-      notify: jest.fn()
+    NativeModules.CommunicationModule = {
+      handleIncomingEvents: jest.fn()
     }
 
     const username = 'alice'
@@ -124,10 +124,10 @@ describe('showNotificationSaga', () => {
     })
       .provide([
         [call.fn(JSON.stringify), message],
-        [call.fn(NativeModules.NotificationModule.notify), null],
+        [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
         [select(users.selectors.certificatesMapping), { pubKey: { username: username } }]
       ])
-      .not.call(NativeModules.NotificationModule.notify)
+      .not.call(NativeModules.CommunicationModule.handleIncomingEvents)
       .run()
   })
 })
