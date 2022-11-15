@@ -1,5 +1,9 @@
 FROM node:16.14.2
 ARG zipbundle
+ENV TOR_TEST_MODE regular
+ENV TOR_BIN_NAME tor
+ENV VANGUARDS_ENABLED auto
+ENV NUM_ENTRY_GUARDS 0
 
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 RUN unzip awscliv2.zip
@@ -12,4 +16,4 @@ RUN unzip /tmp/${zipbundle} && rm /tmp/${zipbundle}
 
 COPY 3rd-party /3rd-party
 ENV DEBUG=backend*
-CMD node /app/lib/torManager/torRegistrarTest.js -p 10 -m regular -t tor && aws s3 cp /app/tor_*.json s3://tor-connection-data
+CMD node /app/lib/torManager/torRegistrarTest.js -p 2 -m ${TOR_TEST_MODE} -t ${TOR_BIN_NAME} -v ${VANGUARDS_ENABLED} -g ${NUM_ENTRY_GUARDS} && aws s3 cp /app/tor_*.json s3://tor-connection-data
