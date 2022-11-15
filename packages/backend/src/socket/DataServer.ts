@@ -73,19 +73,19 @@ export class DataServer extends EventEmitter {
       socket.on(
         SocketActionTypes.UPLOAD_FILE,
         async (payload: UploadFilePayload) => {
-          this.emit(SocketActionTypes.UPLOAD_FILE, payload)
+          this.emit(SocketActionTypes.UPLOAD_FILE, payload.file)
         }
       )
       socket.on(
         SocketActionTypes.DOWNLOAD_FILE,
         async (payload: DownloadFilePayload) => {
-          this.emit(SocketActionTypes.DOWNLOAD_FILE, payload)
+          this.emit(SocketActionTypes.DOWNLOAD_FILE, payload.metadata)
         }
       )
       socket.on(
         SocketActionTypes.CANCEL_DOWNLOAD,
         async (payload: CancelDownloadPayload) => {
-          this.emit(SocketActionTypes.CANCEL_DOWNLOAD, payload)
+          this.emit(SocketActionTypes.CANCEL_DOWNLOAD, payload.mid)
         }
       )
       socket.on(

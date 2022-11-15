@@ -7,12 +7,14 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
-import com.zbaymobile.Notification.NotificationModule
+import com.zbaymobile.Communication.CommunicationModule
+import com.zbaymobile.Notification.NotificationHandler
 import com.zbaymobile.R
 import com.zbaymobile.Scheme.WebsocketConnectionPayload
 import com.zbaymobile.Utils.Const
 import com.zbaymobile.Utils.Const.WEBSOCKET_CONNECTION_DELAY
 import com.zbaymobile.Utils.Utils
+import com.zbaymobile.Utils.isAppOnForeground
 import io.socket.client.IO
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.Dispatchers
@@ -25,12 +27,14 @@ import org.torproject.android.binary.TorResourceInstaller
 import java.util.concurrent.ThreadLocalRandom
 
 
-class BackendWorker(context: Context, workerParams: WorkerParameters):
-    CoroutineWorker(context, workerParams) {
+class BackendWorker(private val context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
 
     private var running: Boolean = false
 
     private var nodeProject = NodeProjectManager(applicationContext)
+
+    // Use dedicated class for composing and displaying notifications
+    private lateinit var notificationHandler: NotificationHandler
 
     companion object {
         init {
@@ -81,12 +85,13 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
             }
 
             launch {
+                notificationHandler = NotificationHandler(context)
                 subscribePushNotifications(dataPort)
             }
 
             launch {
                 /*
-                 * Wait for NotificationModule to be initialized with reactContext
+                 * Wait for CommunicationModule to be initialized with reactContext
                  * (there's no callback we can use for that purpose).
                  *
                  * Code featured below suspends nothing but the websocket connection
@@ -103,9 +108,9 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
             val socksPort       = Utils.getOpenPort(13000)
             val httpTunnelPort  = Utils.getOpenPort(14000)
 
-            val dataDirectoryPath = Utils.createDirectory(applicationContext)
+            val dataDirectoryPath = Utils.createDirectory(context)
 
-            val tor = TorResourceInstaller(applicationContext, applicationContext.filesDir).installResources()
+            val tor = TorResourceInstaller(context, context.filesDir).installResources()
             val torPath = tor.canonicalPath
             
             startNodeProjectWithArguments("lib/mobileBackendManager.js -d $dataDirectoryPath -p $dataPort -c $controlPort -s $socksPort -t $httpTunnelPort -a $torPath")
@@ -153,26 +158,26 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
 
     private val onPushNotification =
         Emitter.Listener { args ->
-            var channelName = ""
             var message = ""
             var username = ""
             try {
                 val data = args[0] as JSONObject
-                channelName = data.getString("channel")
                 message = data.getString("message")
                 username = data.getString("username")
             } catch (e: JSONException) {
                 Log.e("ON_PUSH_NOTIFICATION", "unexpected JSON exception", e)
             }
-            NotificationModule.handleIncomingEvents(channelName, message, username)
+            if (context.isAppOnForeground()) return@Listener // If application is in foreground, let redux be in charge of displaying notifications
+            notificationHandler.notify(message, username)
         }
 
     private fun startWebsocketConnection(port: Int) {
         // Proceed only if data port is defined
         val websocketConnectionPayload = WebsocketConnectionPayload(port)
-        NotificationModule.handleIncomingEvents(
-            NotificationModule.WEBSOCKET_CONNECTION_CHANNEL,
-            Gson().toJson(websocketConnectionPayload)
+        CommunicationModule.handleIncomingEvents(
+            CommunicationModule.WEBSOCKET_CONNECTION_CHANNEL,
+            Gson().toJson(websocketConnectionPayload),
+            "" // Empty extras
         )
     }
 }
