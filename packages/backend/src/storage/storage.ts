@@ -239,17 +239,30 @@ export class Storage extends EventEmitter {
       }
     })
 
+    this.channels.events.on('write', async (_address, entry) => {
+      log('WRITE: Channels')
+      const channel: PublicChannel = entry.payload.value
+      this.subscribeToChannel(channel)
+    })
+
     this.channels.events.on('replicated', async () => {
       log('REPLICATED: Channels')
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
       this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, { channels: this.channels.all as unknown as { [key: string]: PublicChannel } })
+
+      Object.values(this.channels.all).forEach((channel: PublicChannel) => {
+        this.subscribeToChannel(channel)
+      })
     })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
     log('ALL CHANNELS COUNT:', Object.keys(this.channels.all).length)
     log('ALL CHANNELS COUNT:', Object.keys(this.channels.all))
+    Object.values(this.channels.all).forEach((channel: PublicChannel) => {
+      this.subscribeToChannel(channel)
+    })
     log('STORAGE: Finished createDbForChannels')
   }
 

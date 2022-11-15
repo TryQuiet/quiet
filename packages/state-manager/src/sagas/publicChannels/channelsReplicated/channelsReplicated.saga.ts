@@ -31,29 +31,29 @@ export function* channelsReplicatedSaga(
     }
   }
 
-  const identity = yield* select(identitySelectors.currentIdentity)
+  // const identity = yield* select(identitySelectors.currentIdentity)
 
-  const subscribedChannels = yield* select(publicChannelsSelectors.subscribedChannels)
+  // const subscribedChannels = yield* select(publicChannelsSelectors.subscribedChannels)
 
   // Subscribing channels
-  for (const channel of databaseStoredChannels) {
-    if (!subscribedChannels.includes(channel.address)) {
-      log(`SUBSCRIBING TO #${channel.name}`)
+  // for (const channel of databaseStoredChannels) {
+  //   if (!subscribedChannels.includes(channel.address)) {
+  //     log(`SUBSCRIBING TO #${channel.name}`)
 
-      const channelData = {
-        ...channel,
-        messages: undefined,
-        messagesSlice: undefined
-      }
+  //     const channelData = {
+  //       ...channel,
+  //       messages: undefined,
+  //       messagesSlice: undefined
+  //     }
 
-      yield* put(
-        publicChannelsActions.subscribeToTopic({
-          peerId: identity.peerId.id,
-          channel: channelData
-        })
-      )
-    }
-  }
+  //     yield* put(
+  //       publicChannelsActions.subscribeToTopic({
+  //         peerId: identity.peerId.id,
+  //         channel: channelData
+  //       })
+  //     )
+  //   }
+  // }
 
   const currentChannelCache = yield* select(publicChannelsSelectors.currentChannelMessages)
   const currentChannelRepository = yield* select(messagesSelectors.currentPublicChannelMessagesEntries)

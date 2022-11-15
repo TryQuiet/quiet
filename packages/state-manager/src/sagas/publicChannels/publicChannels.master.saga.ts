@@ -28,11 +28,11 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
       publicChannelsActions.channelsReplicated.type,
       channelsReplicatedSaga
     ),
-    takeEvery(
-      publicChannelsActions.subscribeToTopic.type,
-      subscribeToTopicSaga,
-      socket
-    ),
+    // takeEvery(
+    //   publicChannelsActions.subscribeToTopic.type,
+    //   subscribeToTopicSaga,
+    //   socket
+    // ),
     takeEvery(publicChannelsActions.setCurrentChannel.type,
       clearUnreadChannelsSaga
     ),
