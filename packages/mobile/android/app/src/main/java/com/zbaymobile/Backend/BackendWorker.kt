@@ -176,7 +176,8 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         val websocketConnectionPayload = WebsocketConnectionPayload(port)
         CommunicationModule.handleIncomingEvents(
             CommunicationModule.WEBSOCKET_CONNECTION_CHANNEL,
-            Gson().toJson(websocketConnectionPayload)
+            Gson().toJson(websocketConnectionPayload),
+            "" // Empty extras
         )
     }
 }

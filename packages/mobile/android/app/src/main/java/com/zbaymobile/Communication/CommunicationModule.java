@@ -41,13 +41,11 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void handleIncomingEvents(String event, String payload, String ... extra) {
+    public static void handleIncomingEvents(String event, String payload, String extra) {
         switch (event) {
             case PUSH_NOTIFICATION_CHANNEL:
-                // Extract username from extras
-                String username = extra.length > 0 ? extra[0] : "";
-                // Payload is of type ChannelMessage
                 String message = payload;
+                String username = extra;
                 notificationHandler.notify(message, username);
                 break;
             case WEBSOCKET_CONNECTION_CHANNEL:
