@@ -242,13 +242,7 @@ android {
         standard {
             dimension "version"
         }
-        develop {
-            applicationIdSuffix ".develop"
-            versionNameSuffix "-develop"
-            dimension "version"
-        }
     }
-    namespace 'com.zbaymobile'
 
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
@@ -298,7 +292,7 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    implementation "androidx.core:core-ktx:1.9.0"
+    implementation "androidx.core:core-ktx:$kotlin_version"
 
     implementation 'com.google.code.gson:gson:2.9.1'
 
