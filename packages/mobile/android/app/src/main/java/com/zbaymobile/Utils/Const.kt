@@ -20,7 +20,6 @@ object Const {
     const val NODEJS_BUILTIN_NATIVE_ASSETS_PREFIX = "nodejs-native-assets-"
     const val NODEJS_TRASH_DIR = "nodejs-project-trash"
 
-    const val TOR_LOGS_FILENAME = "tor.log"
     // Websocket
     const val WEBSOCKET_CONNECTION_DELAY: Long = 5000
 }
