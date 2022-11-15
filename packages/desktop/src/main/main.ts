@@ -339,8 +339,8 @@ app.on('ready', async () => {
   await createWindow()
 
   mainWindow.webContents.on('dom-ready', () => {
-    if (splash.isDestroyed()) {
-      mainWindow.webContents.send('appRefresh')
+    if (!splash.isDestroyed()) {
+      mainWindow.webContents.send('clearLocalStorageNetwork')
     }
   })
 
@@ -354,6 +354,8 @@ app.on('ready', async () => {
 
       splash.destroy()
       mainWindow.show()
+    } else {
+      mainWindow.webContents.send('appRefresh')
     }
 
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')

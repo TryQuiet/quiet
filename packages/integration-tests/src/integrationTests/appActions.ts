@@ -1,5 +1,5 @@
 import waitForExpect from 'wait-for-expect'
-import { identity, communities, messages, files, connection, publicChannels, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership, TestStore, ChannelMessage, FileContent } from '@quiet/state-manager'
+import { identity, communities, messages, files, connection, publicChannels, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership, TestStore, ChannelMessage, FileContent, network } from '@quiet/state-manager'
 import { MAIN_CHANNEL } from '../testUtils/constants'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp } from '../utils'
@@ -115,13 +115,13 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
   }, timeout)
   await waitForExpect(() => {
     expect(
-      store.getState().Connection.initializedCommunities[communityId]
+      store.getState().Network.initializedCommunities[communityId]
     ).toBeTruthy()
   }, timeout)
-  log('initializedCommunity', store.getState().Connection.initializedCommunities[communityId])
+  log('initializedCommunity', store.getState().Network.initializedCommunities[communityId])
   await waitForExpect(() => {
     expect(
-      store.getState().Connection.initializedRegistrars[communityId]
+      store.getState().Network.initializedRegistrars[communityId]
     ).toBeTruthy()
   }, timeout)
 }
@@ -310,8 +310,8 @@ export const getCommunityOwnerData = (ownerStore: Store) => {
 }
 
 export const clearInitializedCommunitiesAndRegistrars = (store: Store) => {
-  store.dispatch(connection.actions.removeInitializedCommunities)
-  store.dispatch(connection.actions.removeInitializedRegistrars)
+  store.dispatch(network.actions.removeInitializedCommunities)
+  store.dispatch(network.actions.removeInitializedRegistrars)
 }
 
 export const sendRegistrationRequest = async (

@@ -42,7 +42,6 @@ function subscribeSocketLifecycle(socket?: Socket) {
     socket?.on('connect', async () => {
       console.log('websocket connected')
       emit(socketActions.setConnected())
-      emit(connection.actions.startInitSaga({}))
     })
     socket?.on('disconnect', () => {
       console.log('closing socket connection')

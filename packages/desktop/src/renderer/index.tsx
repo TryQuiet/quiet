@@ -8,8 +8,8 @@ import updateHandlers from './store/handlers/update'
 
 import logger from './logger'
 
-import { socketActions, WebsocketConnectionPayload } from './sagas/socket/socket.slice'
-import { connection } from '@quiet/state-manager'
+import localStorage from 'localforage'
+import { network } from '@quiet/state-manager'
 
 const log = logger('renderer')
 
@@ -30,8 +30,21 @@ ipcRenderer.on('backendInitialized', _event => {
   log('backend initialized')
 })
 
-ipcRenderer.on('appRefresh', _event => {
-  store.dispatch(connection.actions.setAppRefresh(true) as any)
+ipcRenderer.on('clearLocalStorageNetwork', async (_event) => {
+  await localStorage.setItem('networkInitializedCommunities', new Set())
+  await localStorage.setItem('networkConnectedPeers', new Set())
+})
+
+ipcRenderer.on('appRefresh', async (_event) => {
+  const initializedCommunities: Set<string> = await localStorage.getItem('networkInitializedCommunities')
+  const connectedPeers: Set<string> = await localStorage.getItem('networkConnectedPeers')
+
+  for (const name of Array.from(initializedCommunities)) {
+    store.dispatch(network.actions.addInitializedCommunity(name))
+  }
+  for (const name of Array.from(connectedPeers)) {
+    store.dispatch(network.actions.addConnectedPeer(name))
+  }
 })
 
 render(<Root />, document.getElementById('root'))

@@ -27,6 +27,7 @@
     "factory-girl": "^5.0.4",
     "get-port": "^5.1.1",
     "luxon": "^2.0.2",
+    "localforage": "1.10.0",
     "redux": "^4.1.1",
     "redux-persist": "^6.0.0",
     "redux-saga": "^1.1.3",

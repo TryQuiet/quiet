@@ -7,7 +7,6 @@ import { connectionActions } from '../../appConnection/connection.slice'
 import { communitiesMasterSaga } from '../../communities/communities.master.saga'
 import { connectionMasterSaga } from '../../appConnection/connection.master.saga'
 import { communitiesActions } from '../../communities/communities.slice'
-import { initSaga } from '../../app/init.saga'
 import {
   ResponseCreateCommunityPayload,
   ResponseCreateNetworkPayload,
@@ -41,6 +40,8 @@ import { SendCertificatesResponse } from '../../users/users.types'
 import { SocketActionTypes } from '../const/actionTypes'
 import { filesActions } from '../../files/files.slice'
 import { CommunityId, NetworkDataPayload } from '../../appConnection/connection.types'
+import { networkActions } from '../../network/network.slice'
+import localforage from 'localforage'
 
 const log = logger('socket')
 
@@ -62,8 +63,8 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof communitiesActions.storePeerList>
   | ReturnType<typeof communitiesActions.updateCommunity>
   | ReturnType<typeof communitiesActions.responseRegistrar>
-  | ReturnType<typeof connectionActions.addInitializedCommunity>
-  | ReturnType<typeof connectionActions.addInitializedRegistrar>
+  | ReturnType<typeof networkActions.addInitializedCommunity>
+  | ReturnType<typeof networkActions.addInitializedRegistrar>
   | ReturnType<typeof connectionActions.updateNetworkData>
   | ReturnType<typeof filesActions.broadcastHostedFile>
   | ReturnType<typeof filesActions.updateMessageMedia>
@@ -71,12 +72,18 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof filesActions.removeDownloadStatus>
   >((emit) => {
     // Misc
-    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peer: string }) => {
-      emit(connectionActions.addConnectedPeer(payload.peer))
+    socket.on(SocketActionTypes.PEER_CONNECTED, async(payload: { peer: string }) => {
+      emit(networkActions.addConnectedPeer(payload.peer))
+      const connectedPeers: Set<string> = await localforage.getItem('networkConnectedPeers')
+      connectedPeers.add(payload.peer)
+      await localforage.setItem('networkConnectedPeers', connectedPeers)
     })
-    socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
-      emit(connectionActions.removeConnectedPeer(payload.peer))
+    socket.on(SocketActionTypes.PEER_DISCONNECTED, async(payload: NetworkDataPayload) => {
+      emit(networkActions.removeConnectedPeer(payload.peer))
       emit(connectionActions.updateNetworkData(payload))
+      const connectedPeers: Set<string> = await localforage.getItem('networkConnectedPeers')
+      connectedPeers.delete(payload.peer)
+      await localforage.setItem('networkConnectedPeers', connectedPeers)
     })
     // Files
     socket.on(SocketActionTypes.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
@@ -127,10 +134,10 @@ export function subscribe(socket: Socket) {
       emit(identityActions.saveOwnerCertToDb())
       emit(publicChannelsActions.createGeneralChannel())
     })
-    socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {
+    socket.on(SocketActionTypes.REGISTRAR, async(payload: ResponseRegistrarPayload) => {
       log(payload)
       emit(communitiesActions.responseRegistrar(payload))
-      emit(connectionActions.addInitializedRegistrar(payload.id))
+      emit(networkActions.addInitializedRegistrar(payload.id))
     })
     socket.on(SocketActionTypes.PEER_LIST, (payload: StorePeerListPayload) => {
       emit(communitiesActions.storePeerList(payload))
@@ -139,9 +146,12 @@ export function subscribe(socket: Socket) {
       log(payload)
       emit(communitiesActions.responseCreateNetwork(payload))
     })
-    socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
+    socket.on(SocketActionTypes.COMMUNITY, async(payload: ResponseLaunchCommunityPayload) => {
       emit(communitiesActions.launchRegistrar(payload.id))
-      emit(connectionActions.addInitializedCommunity(payload.id))
+      emit(networkActions.addInitializedCommunity(payload.id))
+      const initializedCommunities: Set<string> = await localforage.getItem('networkInitializedCommunities')
+      initializedCommunities.add(payload.id)
+      await localforage.setItem('networkInitializedCommunities', initializedCommunities)
     })
     // Errors
     socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {
