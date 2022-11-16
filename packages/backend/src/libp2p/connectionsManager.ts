@@ -11,6 +11,7 @@ import KademliaDHT from 'libp2p-kad-dht'
 import Mplex from 'libp2p-mplex'
 import { DateTime } from 'luxon'
 import * as os from 'os'
+import path from 'path'
 import fs from 'fs'
 import PeerId, { JSONPeerId } from 'peer-id'
 import { emitError } from '../socket/errors'
@@ -132,7 +133,7 @@ export class ConnectionsManager extends EventEmitter {
     this.socketIOPort = socketIOPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
-    this.communityDataPath = `${this.options.env.appDataPath}/communityData.json`
+    this.communityDataPath = path.join(this.quietDir, 'communityData.json')
 
     // Does it work?
     process.on('unhandledRejection', error => {
