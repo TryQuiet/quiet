@@ -287,7 +287,7 @@ export class ConnectionsManager extends EventEmitter {
 
   public async launchCommunity(payload: InitCommunityPayload) {
     const path = this.communityDataPath
-    let json = JSON.stringify(payload)
+    const json = JSON.stringify(payload)
     if (!fs.existsSync(path)) {
         fs.writeFileSync(path, json)
       }
@@ -389,6 +389,9 @@ export class ConnectionsManager extends EventEmitter {
       // Update Frontend with Initialized Communities
       if (this.communityId) {
         this.io.emit(SocketActionTypes.COMMUNITY, { id: this.communityId })
+        this.io.emit(SocketActionTypes.CONNECTED_PEERS, Array.from(this.connectedPeers.keys()))
+        await this.storage.getAllCertificates()
+        await this.storage.getAllChannels()
       }
     })
     this.dataServer.on(SocketActionTypes.CREATE_NETWORK, async (args: Community) => { await this.createNetwork(args) })

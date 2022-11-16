@@ -191,6 +191,11 @@ export class Storage extends EventEmitter {
     this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: this.communityId, peerList: peers })
   }
 
+  public async getAllCertificates() {
+    log('Getting all certificates')
+    this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
+  }
+
   public async createDbForCertificates() {
     log('createDbForCertificates init')
     this.certificates = await this.orbitdb.log<string>('certificates', {
@@ -231,6 +236,13 @@ export class Storage extends EventEmitter {
     log('STORAGE: Finished createDbForCertificates')
   }
 
+  public async getAllChannels() {
+    log('Getting all channels')
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.channels.load({ fetchEntryTimeout: 2000 })
+    this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, { channels: this.channels.all as unknown as { [key: string]: PublicChannel } })
+  }
+
   private async createDbForChannels() {
     log('createDbForChannels init')
     this.channels = await this.orbitdb.keyvalue<PublicChannel>('public-channels', {
@@ -242,7 +254,7 @@ export class Storage extends EventEmitter {
     this.channels.events.on('write', async (_address, entry) => {
       log('WRITE: Channels')
       const channel: PublicChannel = entry.payload.value
-      this.subscribeToChannel(channel)
+      await this.subscribeToChannel(channel)
     })
 
     this.channels.events.on('replicated', async () => {
@@ -251,8 +263,8 @@ export class Storage extends EventEmitter {
       await this.channels.load({ fetchEntryTimeout: 2000 })
       this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, { channels: this.channels.all as unknown as { [key: string]: PublicChannel } })
 
-      Object.values(this.channels.all).forEach((channel: PublicChannel) => {
-        this.subscribeToChannel(channel)
+      Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
+        await this.subscribeToChannel(channel)
       })
     })
 
@@ -260,8 +272,8 @@ export class Storage extends EventEmitter {
     await this.channels.load({ fetchEntryTimeout: 15000 })
     log('ALL CHANNELS COUNT:', Object.keys(this.channels.all).length)
     log('ALL CHANNELS COUNT:', Object.keys(this.channels.all))
-    Object.values(this.channels.all).forEach((channel: PublicChannel) => {
-      this.subscribeToChannel(channel)
+    Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
+      await this.subscribeToChannel(channel)
     })
     log('STORAGE: Finished createDbForChannels')
   }
