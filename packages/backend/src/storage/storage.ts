@@ -191,7 +191,7 @@ export class Storage extends EventEmitter {
     this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: this.communityId, peerList: peers })
   }
 
-  public async getAllCertificates() {
+  public async loadAllCertificates() {
     log('Getting all certificates')
     this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
   }
@@ -236,7 +236,7 @@ export class Storage extends EventEmitter {
     log('STORAGE: Finished createDbForCertificates')
   }
 
-  public async getAllChannels() {
+  public async loadAllChannels() {
     log('Getting all channels')
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 2000 })

@@ -391,8 +391,8 @@ export class ConnectionsManager extends EventEmitter {
       if (this.communityId) {
         this.io.emit(SocketActionTypes.COMMUNITY, { id: this.communityId })
         this.io.emit(SocketActionTypes.CONNECTED_PEERS, Array.from(this.connectedPeers.keys()))
-        await this.storage.getAllCertificates()
-        await this.storage.getAllChannels()
+        await this.storage.loadAllCertificates()
+        await this.storage.loadAllChannels()
       }
     })
     this.dataServer.on(SocketActionTypes.CREATE_NETWORK, async (args: Community) => { await this.createNetwork(args) })
