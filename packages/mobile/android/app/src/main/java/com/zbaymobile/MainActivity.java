@@ -1,14 +1,23 @@
 package com.zbaymobile;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.facebook.react.ReactActivity;
 
+import com.facebook.react.ReactInstanceEventListener;
+import com.facebook.react.ReactInstanceManager;
+import com.facebook.react.ReactNativeHost;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.zbaymobile.Backend.BackendWorkManager;
 
 public class MainActivity extends ReactActivity {
+
+    private ReactContext reactContext;
+
     /**
      * Returns the name of the main component registered from JavaScript. This is used to schedule
      * rendering of the component.
@@ -16,6 +25,79 @@ public class MainActivity extends ReactActivity {
     @Override
     protected String getMainComponentName() {
         return "ZbayMobile";
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Bundle bundle = getBundleFromIntent(intent);
+        if (null != bundle) {
+            try {
+                respondOnNotification(bundle);
+            } catch( Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private Bundle getBundleFromIntent(Intent intent) {
+        Bundle bundle = null;
+
+        if (intent.hasExtra("notification")) {
+            bundle = intent.getBundleExtra("notification");
+        }
+
+        return bundle;
+    }
+
+    private void respondOnNotification(Bundle bundle) throws Exception {
+        Log.d("NOTIFY", "1");
+        String channel = bundle.getString("channel");
+        if (null == channel) {
+            throw new Exception("respondOnNotification() failed because of missing channel");
+        }
+
+        Log.d("NOTIFY", "2");
+        if (null != reactContext) {
+            Log.d("NOTIFY", "3");
+            emitSwitchChannelEvent(channel);
+        } else {
+            Log.d("NOTIFY", "4");
+            ReactNativeHost reactNativeHost = ((MainApplication) getApplicationContext()).getReactNativeHost();
+            if (null == reactNativeHost) {
+                throw new Exception("respondOnNotification() failed because of no ReactNativeHost");
+            }
+
+            Log.d("NOTIFY", "5");
+            ReactInstanceManager reactInstanceManager = reactNativeHost.getReactInstanceManager();
+            if (null == reactInstanceManager) {
+                throw new Exception("respondOnNotification() failed because of no ReactInstanceManager");
+            }
+
+            reactContext = reactInstanceManager.getCurrentReactContext();
+            if (null != reactContext) {
+                Log.d("NOTIFY", "6");
+                emitSwitchChannelEvent(channel);
+            } else {
+                Log.d("NOTIFY", "7");
+                reactInstanceManager.addReactInstanceEventListener(new ReactInstanceEventListener() {
+                    @Override
+                    public void onReactContextInitialized(ReactContext context) {
+                        Log.d("NOTIFY", "8");
+                        reactContext = context;
+                        // Call method which uses class scoped variable we just (re)assigned
+                        emitSwitchChannelEvent(channel);
+                        reactInstanceManager.removeReactInstanceEventListener(this);
+                    }
+                });
+            }
+        }
+    }
+
+    private void emitSwitchChannelEvent(String channel) {
+        reactContext.getJSModule(
+                DeviceEventManagerModule.RCTDeviceEventEmitter.class
+        ).emit("notification", channel);
     }
 
     @Override

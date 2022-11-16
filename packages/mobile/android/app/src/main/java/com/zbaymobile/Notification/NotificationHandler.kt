@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.zbaymobile.MainActivity
 import com.zbaymobile.R
 import com.zbaymobile.Utils.Const
 import org.json.JSONException
@@ -69,19 +71,23 @@ class NotificationHandler(private val context: Context) {
 
         val intent = Intent(
             context,
-            NotificationReceiver::class.java
+            MainActivity::class.java
         )
 
         intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
 
         // Remove prefix from channel name before saving extras
-        val extra = channel.substring(1)
-        intent.putExtra("channel", extra)
+        val address = channel.substring(1)
+
+        val bundle = Bundle()
+        bundle.putString("channel", address)
+
+        intent.putExtra("notification", bundle)
 
         val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 
         @SuppressLint("LaunchActivityFromNotification") val pendingIntent =
-            PendingIntent.getBroadcast(context, id_message, intent, flags)
+            PendingIntent.getActivity(context, id_message, intent, flags)
 
         // Display individual notification for each message
         @SuppressLint("LaunchActivityFromNotification") val builder: NotificationCompat.Builder =
