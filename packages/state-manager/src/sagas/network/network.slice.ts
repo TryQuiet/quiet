@@ -1,5 +1,5 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
-import { CommunityId, RegistrarId } from '../appConnection/connection.types'
+import { CommunityId, ConnectedPeers, RegistrarId } from '../appConnection/connection.types'
 import { StoreKeys } from '../store.keys'
 import { connectedPeersAdapter } from './network.adapter'
 
@@ -31,12 +31,15 @@ export const networkSlice = createSlice({
     removeInitializedRegistrars: (state, _action: PayloadAction<RegistrarId>) => {
       state.initializedRegistrars = {}
     },
-    addConnectedPeer: (state, action) => {
-      connectedPeersAdapter.upsertOne(state.connectedPeers, action.payload)
+    addConnectedPeers: (state, action: PayloadAction<ConnectedPeers>) => {
+      connectedPeersAdapter.upsertMany(state.connectedPeers, action.payload)
     },
     removeConnectedPeer: (state, action) => {
       connectedPeersAdapter.removeOne(state.connectedPeers, action.payload)
-    }
+    },
+    pruneConnectedPeers: (state, _action: PayloadAction<CommunityId>) => {
+      connectedPeersAdapter.removeAll(state.connectedPeers)
+    },
   }
 })
 

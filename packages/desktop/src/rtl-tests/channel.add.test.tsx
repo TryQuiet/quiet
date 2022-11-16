@@ -16,13 +16,13 @@ import Channel from '../renderer/components/Channel/Channel'
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
 import {
+  ChannelsReplicatedPayload,
   ErrorMessages,
   getFactory,
   identity,
   publicChannels,
   SendMessagePayload,
-  SocketActionTypes,
-  SubscribeToTopicPayload
+  SocketActionTypes
 } from '@quiet/state-manager'
 
 import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
@@ -94,9 +94,9 @@ describe('Add new channel', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
-        if (action === SocketActionTypes.SUBSCRIBE_TO_TOPIC) {
-          const data = input as socketEventData<[SubscribeToTopicPayload]>
-          const payload = data[0]
+        if (action === SocketActionTypes.CHANNELS_REPLICATED) {
+          const data = input as socketEventData<[ChannelsReplicatedPayload]>
+          const payload = data[0][0]
           expect(payload.peerId).toEqual(alice.peerId.id)
           expect(payload.channel.name).toEqual(channelName.output)
           return socket.socketClient.emit(SocketActionTypes.CREATED_CHANNEL, {

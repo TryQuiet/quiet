@@ -66,17 +66,15 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof networkActions.addInitializedCommunity>
   | ReturnType<typeof networkActions.addInitializedRegistrar>
   | ReturnType<typeof connectionActions.updateNetworkData>
+  | ReturnType<typeof networkActions.addConnectedPeers>
   | ReturnType<typeof filesActions.broadcastHostedFile>
   | ReturnType<typeof filesActions.updateMessageMedia>
   | ReturnType<typeof filesActions.updateDownloadStatus>
   | ReturnType<typeof filesActions.removeDownloadStatus>
   >((emit) => {
     // Misc
-    socket.on(SocketActionTypes.PEER_CONNECTED, async(payload: { peer: string }) => {
-      emit(networkActions.addConnectedPeer(payload.peer))
-      const connectedPeers: Set<string> = await localforage.getItem('networkConnectedPeers')
-      connectedPeers.add(payload.peer)
-      await localforage.setItem('networkConnectedPeers', connectedPeers)
+    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
+      emit(networkActions.addConnectedPeers(payload.peers))
     })
     socket.on(SocketActionTypes.PEER_DISCONNECTED, async(payload: NetworkDataPayload) => {
       emit(networkActions.removeConnectedPeer(payload.peer))

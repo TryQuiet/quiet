@@ -1,4 +1,4 @@
-package com.zbaymobile.Notification;
+package com.zbaymobile.Communication;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,10 +10,10 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.facebook.react.bridge.JavaScriptModule;
 
-public class NotificationModulePackage implements ReactPackage {
+public class CommunicationModulePackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-        return Arrays.<NativeModule>asList(new NotificationModule(reactContext));
+        return Arrays.<NativeModule>asList(new CommunicationModule(reactContext));
     }
 
     // Deprecated from RN 0.47

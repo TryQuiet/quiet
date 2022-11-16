@@ -1,8 +1,7 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
-import { CommunityId, RegistrarId, NetworkDataPayload } from './connection.types'
+import { NetworkDataPayload } from './connection.types'
 import { peersStatsAdapter } from './connection.adapter'
-import { DateTime } from 'luxon'
 
 export interface NetworkStats {
   peerId: string

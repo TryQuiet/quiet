@@ -18,8 +18,7 @@ import {
   DownloadState,
   imagesExtensions,
   User,
-  PushNotificationPayload,
-  BASE_NOTIFICATION_CHANNEL
+  PushNotificationPayload
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
@@ -192,6 +191,11 @@ export class Storage extends EventEmitter {
     this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: this.communityId, peerList: peers })
   }
 
+  public async loadAllCertificates() {
+    log('Getting all certificates')
+    this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
+  }
+
   public async createDbForCertificates() {
     log('createDbForCertificates init')
     this.certificates = await this.orbitdb.log<string>('certificates', {
@@ -232,6 +236,13 @@ export class Storage extends EventEmitter {
     log('STORAGE: Finished createDbForCertificates')
   }
 
+  public async loadAllChannels() {
+    log('Getting all channels')
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.channels.load({ fetchEntryTimeout: 2000 })
+    this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, { channels: this.channels.all as unknown as { [key: string]: PublicChannel } })
+  }
+
   private async createDbForChannels() {
     log('createDbForChannels init')
     this.channels = await this.orbitdb.keyvalue<PublicChannel>('public-channels', {
@@ -240,17 +251,30 @@ export class Storage extends EventEmitter {
       }
     })
 
+    this.channels.events.on('write', async (_address, entry) => {
+      log('WRITE: Channels')
+      const channel: PublicChannel = entry.payload.value
+      await this.subscribeToChannel(channel)
+    })
+
     this.channels.events.on('replicated', async () => {
       log('REPLICATED: Channels')
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
       this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, { channels: this.channels.all as unknown as { [key: string]: PublicChannel } })
+
+      Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
+        await this.subscribeToChannel(channel)
+      })
     })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
     log('ALL CHANNELS COUNT:', Object.keys(this.channels.all).length)
     log('ALL CHANNELS COUNT:', Object.keys(this.channels.all))
+    Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
+      await this.subscribeToChannel(channel)
+    })
     log('STORAGE: Finished createDbForChannels')
   }
 
@@ -359,7 +383,6 @@ export class Storage extends EventEmitter {
           const username = this.getUserNameFromCert(message.pubKey)
 
           const payload: PushNotificationPayload = {
-            channel: BASE_NOTIFICATION_CHANNEL,
             message: JSON.stringify(message),
             username: username
           }

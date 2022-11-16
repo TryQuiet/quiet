@@ -2,6 +2,7 @@
   package="com.zbaymobile">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
       android:name=".MainApplication"
@@ -25,5 +26,6 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+      <receiver android:name=".Notification.NotificationReceiver" />
     </application>
 </manifest>

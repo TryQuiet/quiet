@@ -53,7 +53,9 @@ export class CertificateRegistration extends EventEmitter {
         if (this.pendingPromise) return
         this.pendingPromise = this.registerUser(req.body.data)
         const result = await this.pendingPromise
-        res.status(result.status).send(result.body)
+        if (result) {
+          res.status(result.status).send(result.body)
+        }
         this.pendingPromise = null
       }
     )
@@ -119,7 +121,12 @@ export class CertificateRegistration extends EventEmitter {
       log(`Fetched ${serviceAddress}, time: ${fetchTime}`)
     } catch (e) {
       log.error(e)
-      throw e
+      this.emit(RegistrationEvents.ERROR, {
+        type: SocketActionTypes.REGISTRAR,
+        code: ErrorCodes.NOT_FOUND,
+        message: ErrorMessages.REGISTRAR_NOT_FOUND,
+        community: communityId
+      })
     } finally {
       clearTimeout(timeout)
     }
@@ -129,10 +136,10 @@ export class CertificateRegistration extends EventEmitter {
         break
       case 400:
         this.emit(RegistrationEvents.ERROR, {
-            type: SocketActionTypes.REGISTRAR,
-            code: ErrorCodes.BAD_REQUEST,
-            message: ErrorMessages.INVALID_USERNAME,
-            community: communityId
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.BAD_REQUEST,
+          message: ErrorMessages.INVALID_USERNAME,
+          community: communityId
         })
         return
       case 403:
@@ -162,16 +169,16 @@ export class CertificateRegistration extends EventEmitter {
           community: communityId
         })
         return
-      }
+    }
 
-        const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
-        await response.json()
+    const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
+      await response.json()
 
-      log(`Sending user certificate (${communityId})`)
-      this.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
-        communityId: communityId,
-        payload: registrarResponse
-      })
+    log(`Sending user certificate (${communityId})`)
+    this.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
+      communityId: communityId,
+      payload: registrarResponse
+    })
   }
 
   private async registerUser(csr: string): Promise<{ status: number; body: any }> {

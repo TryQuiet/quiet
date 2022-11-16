@@ -13,6 +13,7 @@ import { communitiesActions, Community } from '../../communities/communities.sli
 import { channelsReplicatedSaga } from './channelsReplicated.saga'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
+import { messagesActions } from '../../messages/messages.slice'
 
 describe('channelsReplicatedSaga', () => {
   let store: Store
@@ -101,7 +102,7 @@ describe('channelsReplicatedSaga', () => {
       .run()
   })
 
-  test('subscribe to replicated channels', async () => {
+  test('Add replicated channel to local store and create corresponding messages base', async () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       channelsReplicatedSaga,
@@ -119,20 +120,14 @@ describe('channelsReplicatedSaga', () => {
         })
       )
       .put(
-        publicChannelsActions.subscribeToTopic({
-          peerId: alice.peerId.id,
-          channel: {
-            ...sailingChannel,
-            // @ts-ignore - Setting channel values undefined causes payload typing mismatch
-            messages: undefined,
-            messagesSlice: undefined
-          }
+        messagesActions.addPublicChannelsMessagesBase({
+          channelAddress: sailingChannel.address
         })
       )
       .run()
   })
 
-  test('do not subscribe to already subscribed channel', async () => {
+  test('Do not perform adding channel and messages base actions if channel is already stored', async () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       channelsReplicatedSaga,
@@ -150,26 +145,19 @@ describe('channelsReplicatedSaga', () => {
           channel: sailingChannel
         })
       )
-      .not.put(
-        publicChannelsActions.subscribeToTopic({
-          peerId: alice.peerId.id,
-          channel: {
-            ...generalChannel,
-            // @ts-ignore - Setting channel values undefined causes payload typing mismatch
-            messages: undefined,
-            messagesSlice: undefined
-          }
+      .put(
+        messagesActions.addPublicChannelsMessagesBase({
+          channelAddress: sailingChannel.address
         })
       )
-      .put(
-        publicChannelsActions.subscribeToTopic({
-          peerId: alice.peerId.id,
-          channel: {
-            ...sailingChannel,
-            // @ts-ignore - Setting channel values undefined causes payload typing mismatch
-            messages: undefined,
-            messagesSlice: undefined
-          }
+      .not.put(
+        publicChannelsActions.addChannel({
+          channel: generalChannel
+        })
+      )
+      .not.put(
+        messagesActions.addPublicChannelsMessagesBase({
+          channelAddress: generalChannel.address
         })
       )
       .run()

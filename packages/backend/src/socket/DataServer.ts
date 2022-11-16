@@ -13,7 +13,7 @@ import {
   SaveOwnerCertificatePayload,
   SendMessagePayload,
   SocketActionTypes,
-  SubscribeToTopicPayload,
+  CreateChannelPayload,
   AskForMessagesPayload,
   UploadFilePayload,
   DownloadFilePayload,
@@ -58,11 +58,13 @@ export class DataServer extends EventEmitter {
     })
     // Attach listeners here
     this.io.on(SocketActionTypes.CONNECTION, socket => {
+      // On websocket connection, update presentation service with network data
+      this.emit(SocketActionTypes.CONNECTION)
       socket.on(SocketActionTypes.CLOSE, async () => {
         this.emit(SocketActionTypes.CLOSE)
       })
-      socket.on(SocketActionTypes.SUBSCRIBE_TO_TOPIC, async (payload: SubscribeToTopicPayload) => {
-        this.emit(SocketActionTypes.SUBSCRIBE_TO_TOPIC, payload)
+      socket.on(SocketActionTypes.CREATE_CHANNEL, async (payload: CreateChannelPayload) => {
+        this.emit(SocketActionTypes.CREATE_CHANNEL, payload)
       })
       socket.on(
         SocketActionTypes.SEND_MESSAGE,
@@ -73,19 +75,19 @@ export class DataServer extends EventEmitter {
       socket.on(
         SocketActionTypes.UPLOAD_FILE,
         async (payload: UploadFilePayload) => {
-          this.emit(SocketActionTypes.UPLOAD_FILE, payload)
+          this.emit(SocketActionTypes.UPLOAD_FILE, payload.file)
         }
       )
       socket.on(
         SocketActionTypes.DOWNLOAD_FILE,
         async (payload: DownloadFilePayload) => {
-          this.emit(SocketActionTypes.DOWNLOAD_FILE, payload)
+          this.emit(SocketActionTypes.DOWNLOAD_FILE, payload.metadata)
         }
       )
       socket.on(
         SocketActionTypes.CANCEL_DOWNLOAD,
         async (payload: CancelDownloadPayload) => {
-          this.emit(SocketActionTypes.CANCEL_DOWNLOAD, payload)
+          this.emit(SocketActionTypes.CANCEL_DOWNLOAD, payload.mid)
         }
       )
       socket.on(

@@ -11,6 +11,8 @@ import KademliaDHT from 'libp2p-kad-dht'
 import Mplex from 'libp2p-mplex'
 import { DateTime } from 'luxon'
 import * as os from 'os'
+import path from 'path'
+import fs from 'fs'
 import PeerId, { JSONPeerId } from 'peer-id'
 import { emitError } from '../socket/errors'
 import { CertificateRegistration } from '../registration'
@@ -21,9 +23,9 @@ import {
   RegisterOwnerCertificatePayload,
   RegisterUserCertificatePayload,
   SaveCertificatePayload,
+  CreateChannelPayload,
   SaveOwnerCertificatePayload,
   SocketActionTypes,
-  SubscribeToTopicPayload,
   ErrorMessages,
   Community,
   NetworkData,
@@ -118,6 +120,8 @@ export class ConnectionsManager extends EventEmitter {
   socketIOPort: number
   storage: Storage
   dataServer: DataServer
+  communityId: string
+  communityDataPath: string
 
   constructor({ options, socketIOPort }: IConstructor) {
     super()
@@ -129,6 +133,7 @@ export class ConnectionsManager extends EventEmitter {
     this.socketIOPort = socketIOPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
+    this.communityDataPath = path.join(this.quietDir, 'communityData.json')
 
     // Does it work?
     process.on('unhandledRejection', error => {
@@ -172,7 +177,7 @@ export class ConnectionsManager extends EventEmitter {
     this.attachRegistrationListeners()
 
     // Libp2p event listeners
-    this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peer: string }) => {
+    this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
       this.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
     })
     this.on(Libp2pEvents.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
@@ -180,6 +185,13 @@ export class ConnectionsManager extends EventEmitter {
     })
 
     await this.dataServer.listen()
+
+    const path = this.communityDataPath
+    if (fs.existsSync(path)) {
+      const data = fs.readFileSync(path)
+      const dataObj = JSON.parse(data.toString())
+      await this.launchCommunity(dataObj)
+    }
   }
 
   public async closeAllServices() {
@@ -275,7 +287,12 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
-    try {
+    const path = this.communityDataPath
+    const json = JSON.stringify(payload)
+    if (!fs.existsSync(path)) {
+        fs.writeFileSync(path, json)
+      }
+      try {
       await this.launch(payload)
     } catch (e) {
       log(`Couldn't launch community for peer ${payload.peerId.id}.`, e)
@@ -286,7 +303,9 @@ export class ConnectionsManager extends EventEmitter {
       })
       return
     }
+
     log(`Launched community ${payload.id}`)
+    this.communityId = payload.id
     this.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
 
@@ -367,10 +386,22 @@ export class ConnectionsManager extends EventEmitter {
 
   private attachDataServerListeners = () => {
     // Community
+    this.dataServer.on(SocketActionTypes.CONNECTION, async () => {
+      // Update Frontend with Initialized Communities
+      if (this.communityId) {
+        this.io.emit(SocketActionTypes.COMMUNITY, { id: this.communityId })
+        this.io.emit(SocketActionTypes.CONNECTED_PEERS, Array.from(this.connectedPeers.keys()))
+        await this.storage.loadAllCertificates()
+        await this.storage.loadAllChannels()
+      }
+    })
     this.dataServer.on(SocketActionTypes.CREATE_NETWORK, async (args: Community) => { await this.createNetwork(args) })
     this.dataServer.on(SocketActionTypes.CREATE_COMMUNITY, async (args: InitCommunityPayload) => { await this.createCommunity(args) })
-    this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => { await this.launchCommunity(args) })
-
+    this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => {
+      if (this.communityId) return
+      await this.launchCommunity(args)
+    }
+    )
     // Registration
     this.dataServer.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
       await this.registration.launchRegistrar(args)
@@ -390,7 +421,7 @@ export class ConnectionsManager extends EventEmitter {
     )
 
     // Public Channels
-    this.dataServer.on(SocketActionTypes.SUBSCRIBE_TO_TOPIC, async (args: SubscribeToTopicPayload) => { await this.storage.subscribeToChannel(args.channel) })
+    this.dataServer.on(SocketActionTypes.CREATE_CHANNEL, async (args: CreateChannelPayload) => { await this.storage.subscribeToChannel(args.channel) })
     this.dataServer.on(SocketActionTypes.SEND_MESSAGE, async (args: SendMessagePayload) => { await this.storage.sendMessage(args.message) })
     this.dataServer.on(SocketActionTypes.ASK_FOR_MESSAGES, async (args: AskForMessagesPayload) => {
       await this.storage.askForMessages(
@@ -521,7 +552,7 @@ export class ConnectionsManager extends EventEmitter {
       this.connectedPeers.set(connection.remotePeer.toB58String(), DateTime.utc().valueOf())
 
       this.emit(Libp2pEvents.PEER_CONNECTED, {
-        peer: connection.remotePeer.toB58String()
+        peers: [connection.remotePeer.toB58String()]
       })
     })
 

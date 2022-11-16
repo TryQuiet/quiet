@@ -219,7 +219,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                           variant='body2'
                           className={classes.warrningMessage}
                           data-testid={'createUserNameWarning'}>
-                          Your user name will be registered as <b>{`@${userName}`}</b>
+                          Your username will be registered as <b>{`@${userName}`}</b>
                         </Typography>
                       </Grid>
                     </Grid>

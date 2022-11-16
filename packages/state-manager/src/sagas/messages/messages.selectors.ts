@@ -100,6 +100,7 @@ export const sortedCurrentPublicChannelMessagesEntries = createSelector(
 
 export const missingChannelMessages = (ids: string[], channelAddress: string) =>
   createSelector(publicChannelsMessagesBase, base => {
+    if (!base[channelAddress]) return []
     const channelMessages = channelMessagesAdapter
       .getSelectors()
       .selectIds(base[channelAddress].messages)
@@ -108,6 +109,7 @@ export const missingChannelMessages = (ids: string[], channelAddress: string) =>
 
 export const missingChannelFiles = (channelAddress: string) =>
   createSelector(publicChannelsMessagesBase, downloadStatuses, (base, statuses) => {
+    if (!base[channelAddress]) return []
     const channelMessages = channelMessagesAdapter
       .getSelectors()
       .selectAll(base[channelAddress].messages)
