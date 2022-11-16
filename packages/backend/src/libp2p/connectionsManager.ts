@@ -419,7 +419,7 @@ export class ConnectionsManager extends EventEmitter {
     }
     )
 
-    // Public Channels    
+    // Public Channels
     this.dataServer.on(SocketActionTypes.CREATE_CHANNEL, async (args: CreateChannelPayload) => { await this.storage.subscribeToChannel(args.channel) })
     this.dataServer.on(SocketActionTypes.SEND_MESSAGE, async (args: SendMessagePayload) => { await this.storage.sendMessage(args.message) })
     this.dataServer.on(SocketActionTypes.ASK_FOR_MESSAGES, async (args: AskForMessagesPayload) => {

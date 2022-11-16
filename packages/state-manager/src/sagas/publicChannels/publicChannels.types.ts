@@ -74,10 +74,6 @@ export interface SetChannelMessagesSliceValuePayload {
   channelAddress: string
 }
 
-export interface CreateChannelPayload {
-  channel: PublicChannel
-}
-
 export interface PendingMessage {
   message: ChannelMessage
 }
