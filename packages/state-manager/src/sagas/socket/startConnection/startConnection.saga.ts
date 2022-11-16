@@ -65,14 +65,15 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof connectionActions.addInitializedCommunity>
   | ReturnType<typeof connectionActions.addInitializedRegistrar>
   | ReturnType<typeof connectionActions.updateNetworkData>
+  | ReturnType<typeof connectionActions.addConnectedPeers>
   | ReturnType<typeof filesActions.broadcastHostedFile>
   | ReturnType<typeof filesActions.updateMessageMedia>
   | ReturnType<typeof filesActions.updateDownloadStatus>
   | ReturnType<typeof filesActions.removeDownloadStatus>
   >((emit) => {
     // Misc
-    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peer: string }) => {
-      emit(connectionActions.addConnectedPeer(payload.peer))
+    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
+      emit(connectionActions.addConnectedPeers(payload.peers))
     })
     socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
       emit(connectionActions.removeConnectedPeer(payload.peer))

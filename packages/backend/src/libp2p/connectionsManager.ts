@@ -176,7 +176,7 @@ export class ConnectionsManager extends EventEmitter {
     this.attachRegistrationListeners()
 
     // Libp2p event listeners
-    this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peer: string }) => {
+    this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
       this.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
     })
     this.on(Libp2pEvents.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
@@ -389,7 +389,6 @@ export class ConnectionsManager extends EventEmitter {
       // Update Frontend with Initialized Communities
       if (this.communityId) {
         this.io.emit(SocketActionTypes.COMMUNITY, { id: this.communityId })
-        this.io.emit(SocketActionTypes.CONNECTED_PEERS, {})
       }
     })
     this.dataServer.on(SocketActionTypes.CREATE_NETWORK, async (args: Community) => { await this.createNetwork(args) })
@@ -549,7 +548,7 @@ export class ConnectionsManager extends EventEmitter {
       this.connectedPeers.set(connection.remotePeer.toB58String(), DateTime.utc().valueOf())
 
       this.emit(Libp2pEvents.PEER_CONNECTED, {
-        peer: connection.remotePeer.toB58String()
+        peers: [connection.remotePeer.toB58String()]
       })
     })
 
