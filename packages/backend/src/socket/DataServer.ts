@@ -13,7 +13,7 @@ import {
   SaveOwnerCertificatePayload,
   SendMessagePayload,
   SocketActionTypes,
-  SubscribeToTopicPayload,
+  CreateChannelPayload,
   AskForMessagesPayload,
   UploadFilePayload,
   DownloadFilePayload,
@@ -63,8 +63,8 @@ export class DataServer extends EventEmitter {
       socket.on(SocketActionTypes.CLOSE, async () => {
         this.emit(SocketActionTypes.CLOSE)
       })
-      socket.on(SocketActionTypes.SUBSCRIBE_TO_TOPIC, async (payload: SubscribeToTopicPayload) => {
-        this.emit(SocketActionTypes.SUBSCRIBE_TO_TOPIC, payload)
+      socket.on(SocketActionTypes.CREATE_CHANNEL, async (payload: CreateChannelPayload) => {
+        this.emit(SocketActionTypes.CREATE_CHANNEL, payload)
       })
       socket.on(
         SocketActionTypes.SEND_MESSAGE,

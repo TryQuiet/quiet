@@ -22,9 +22,9 @@ import {
   RegisterOwnerCertificatePayload,
   RegisterUserCertificatePayload,
   SaveCertificatePayload,
+  CreateChannelPayload,
   SaveOwnerCertificatePayload,
   SocketActionTypes,
-  SubscribeToTopicPayload,
   ErrorMessages,
   Community,
   NetworkData,
@@ -419,8 +419,8 @@ export class ConnectionsManager extends EventEmitter {
     }
     )
 
-    // Public Channels
-    this.dataServer.on(SocketActionTypes.SUBSCRIBE_TO_TOPIC, async (args: SubscribeToTopicPayload) => { await this.storage.subscribeToChannel(args.channel) })
+    // Public Channels    
+    this.dataServer.on(SocketActionTypes.CREATE_CHANNEL, async (args: CreateChannelPayload) => { await this.storage.subscribeToChannel(args.channel) })
     this.dataServer.on(SocketActionTypes.SEND_MESSAGE, async (args: SendMessagePayload) => { await this.storage.sendMessage(args.message) })
     this.dataServer.on(SocketActionTypes.ASK_FOR_MESSAGES, async (args: AskForMessagesPayload) => {
       await this.storage.askForMessages(

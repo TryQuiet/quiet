@@ -53,12 +53,11 @@ export interface ChannelsReplicatedPayload {
   channels: Dictionary<PublicChannel>
 }
 
-export interface CreatedChannelResponse {
+export interface CreateChannelPayload {
   channel: PublicChannel
 }
 
-export interface SubscribeToTopicPayload {
-  peerId: string
+export interface CreatedChannelResponse {
   channel: PublicChannel
 }
 
