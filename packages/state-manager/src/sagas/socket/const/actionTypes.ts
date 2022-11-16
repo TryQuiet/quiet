@@ -23,6 +23,7 @@ export enum SocketActionTypes {
   CONNECTED_PEERS = 'connectedPeers',
   CONNECT_TO_WEBSOCKET_SERVER = 'connectToWebsocketServer',
   CONNECTION = 'connection',
+  CREATE_CHANNEL = 'createChannel',
   CREATED_CHANNEL = 'createdChannel',
   CREATE_COMMUNITY = 'createCommunity',
   CREATE_NETWORK = 'createNetwork',
@@ -68,7 +69,6 @@ export enum SocketActionTypes {
   SEND_USER_CERTIFICATE = 'sendUserCertificate',
   SUBSCRIBE_FOR_ALL_CONVERSATIONS = 'subscribeToAllConversations',
   SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD = 'subscribeToDirectMessageThread',
-  SUBSCRIBE_TO_TOPIC = 'subscribeToTopic',
   // U
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
   UPLOAD_FILE = 'uploadFile',
