@@ -1,6 +1,6 @@
 import React from 'react'
 import classNames from 'classnames'
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
