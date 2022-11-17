@@ -197,7 +197,6 @@ describe('User', () => {
         "PublicChannels/setCurrentChannel",
         "Modals/openModal",
         "Modals/closeModal",
-        "PublicChannels/subscribeToTopic",
         "PublicChannels/clearUnreadChannel",
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",

@@ -81,7 +81,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
             />
           </View>
           <View style={{ justifyContent: 'center', alignContent: 'center', paddingStart: 4 }}>
-            <Typography fontSize={10}>Your user name will be registered as </Typography>
+            <Typography fontSize={10}>Your username will be registered as </Typography>
             <Typography fontSize={10} fontWeight={'medium'}>{`@${userName}`}</Typography>
           </View>
         </View>
