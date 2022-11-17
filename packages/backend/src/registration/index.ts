@@ -131,7 +131,7 @@ export class CertificateRegistration extends EventEmitter {
       clearTimeout(timeout)
     }
 
-    switch (response.status) {
+    switch (response?.status) {
       case 200:
         break
       case 400:
@@ -160,7 +160,7 @@ export class CertificateRegistration extends EventEmitter {
         return
       default:
         log.error(
-          `Registrar responded with ${response.status} "${response.statusText}" (${communityId})`
+          `Registrar responded with ${response?.status} "${response?.statusText}" (${communityId})`
         )
         this.emit(RegistrationEvents.ERROR, {
           type: SocketActionTypes.REGISTRAR,
@@ -183,7 +183,7 @@ export class CertificateRegistration extends EventEmitter {
 
   private async registerUser(csr: string): Promise<{ status: number; body: any }> {
     const result = await registerUser(csr, this._permsData, this.certificates)
-    if (result.status === 200) {
+    if (result?.status === 200) {
       this.emit(RegistrationEvents.NEW_USER, { certificate: result.body.certificate, rootPermsData: this._permsData })
     }
     return result
