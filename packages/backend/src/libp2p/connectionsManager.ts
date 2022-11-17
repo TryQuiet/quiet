@@ -69,6 +69,8 @@ import getPort from 'get-port'
 import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
+import { timeStamp } from 'console'
+import { passThroughOptions } from 'commander'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -121,6 +123,7 @@ export class ConnectionsManager extends EventEmitter {
   storage: Storage
   dataServer: DataServer
   communityId: string
+  isRegistrarLaunched: boolean
   communityDataPath: string
   registrarDataPath: string
 
@@ -136,6 +139,7 @@ export class ConnectionsManager extends EventEmitter {
     this.connectedPeers = new Map()
     this.communityDataPath = path.join(this.quietDir, 'communityData.json')
     this.registrarDataPath = path.join(this.quietDir, 'registrarData.json')
+    this.isRegistrarLaunched = false
 
     // Does it work?
     process.on('unhandledRejection', error => {
@@ -202,6 +206,7 @@ export class ConnectionsManager extends EventEmitter {
       const data = fs.readFileSync(registrarPath)
       const dataObj = JSON.parse(data.toString())
       await this.registration.launchRegistrar(dataObj)
+      this.isRegistrarLaunched = true
     }
   }
 
@@ -415,13 +420,14 @@ export class ConnectionsManager extends EventEmitter {
     )
     // Registration
     this.dataServer.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
-      if (this.communityId) return
+      if (this.isRegistrarLaunched) return
       const path = this.communityDataPath
       const json = JSON.stringify(args)
       if (!fs.existsSync(path)) {
         fs.writeFileSync(path, json)
       }
       await this.registration.launchRegistrar(args)
+      this.isRegistrarLaunched = true
     })
     this.dataServer.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, async (args: SaveOwnerCertificatePayload) => {
       const saveCertificatePayload: SaveCertificatePayload = {
