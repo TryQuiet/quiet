@@ -30,6 +30,10 @@ public class MainActivity extends ReactActivity {
     @Override
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        checkAgainstIntentUpdate(intent);
+    }
+
+    private void checkAgainstIntentUpdate(Intent intent) {
         Bundle bundle = getBundleFromIntent(intent);
         if (null != bundle) {
             try {
@@ -51,24 +55,19 @@ public class MainActivity extends ReactActivity {
     }
 
     private void respondOnNotification(Bundle bundle) throws Exception {
-        Log.d("NOTIFY", "1");
         String channel = bundle.getString("channel");
         if (null == channel) {
             throw new Exception("respondOnNotification() failed because of missing channel");
         }
 
-        Log.d("NOTIFY", "2");
         if (null != reactContext) {
-            Log.d("NOTIFY", "3");
             emitSwitchChannelEvent(channel);
         } else {
-            Log.d("NOTIFY", "4");
             ReactNativeHost reactNativeHost = ((MainApplication) getApplicationContext()).getReactNativeHost();
             if (null == reactNativeHost) {
                 throw new Exception("respondOnNotification() failed because of no ReactNativeHost");
             }
 
-            Log.d("NOTIFY", "5");
             ReactInstanceManager reactInstanceManager = reactNativeHost.getReactInstanceManager();
             if (null == reactInstanceManager) {
                 throw new Exception("respondOnNotification() failed because of no ReactInstanceManager");
@@ -76,14 +75,11 @@ public class MainActivity extends ReactActivity {
 
             reactContext = reactInstanceManager.getCurrentReactContext();
             if (null != reactContext) {
-                Log.d("NOTIFY", "6");
                 emitSwitchChannelEvent(channel);
             } else {
-                Log.d("NOTIFY", "7");
                 reactInstanceManager.addReactInstanceEventListener(new ReactInstanceEventListener() {
                     @Override
                     public void onReactContextInitialized(ReactContext context) {
-                        Log.d("NOTIFY", "8");
                         reactContext = context;
                         // Call method which uses class scoped variable we just (re)assigned
                         emitSwitchChannelEvent(channel);
@@ -103,6 +99,10 @@ public class MainActivity extends ReactActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(null);
+
+        Intent intent = getIntent();
+        checkAgainstIntentUpdate(intent);
+
         Context context = getApplicationContext();
         new BackendWorkManager(context).enqueueRequests();
     }
