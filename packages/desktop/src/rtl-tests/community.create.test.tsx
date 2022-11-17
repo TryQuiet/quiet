@@ -186,20 +186,19 @@ describe('User', () => {
         "Modals/closeModal",
         "Modals/closeModal",
         "Communities/launchRegistrar",
-        "Connection/addInitializedCommunity",
+        "Network/addInitializedCommunity",
         "Identity/saveOwnerCertToDb",
         "PublicChannels/createGeneralChannel",
         "PublicChannels/channelsReplicated",
         "Communities/responseRegistrar",
-        "Connection/addInitializedRegistrar",
+        "Network/addInitializedRegistrar",
         "PublicChannels/createChannel",
         "PublicChannels/addChannel",
         "PublicChannels/setCurrentChannel",
         "Modals/openModal",
         "Modals/closeModal",
-        "PublicChannels/clearUnreadChannel",
-        "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
+        "PublicChannels/clearUnreadChannel",
       ]
     `)
   })
