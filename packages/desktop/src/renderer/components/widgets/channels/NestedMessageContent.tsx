@@ -93,9 +93,10 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
           </div>
         )
       default:
+        const SpanComponent: React.FC = () => <span />;
         return (
           <Typography
-            component={'span'}
+            component={SpanComponent}
             className={classNames({
               [classes.message]: true,
               [classes.pending]: pending

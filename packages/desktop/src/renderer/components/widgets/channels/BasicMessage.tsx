@@ -10,7 +10,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 
 import red from '@material-ui/core/colors/red'
 
-import Jdenticon from 'react-jdenticon'
+import Jdenticon from '../../Jdenticon/Jdenticon'
 
 import { DisplayableMessage, DownloadStatus, MessageSendingStatus } from '@quiet/state-manager'
 

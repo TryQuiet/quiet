@@ -310,6 +310,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     (e: ContentEditableEvent) => {
       if (inputState === INPUT_STATE.AVAILABLE) {
         // @ts-expect-error
+        console.log('>>>>> ', e.nativeEvent.target.innerText)
+        // @ts-expect-error
         setMessage(e.nativeEvent.target.innerText)
         // @ts-expect-error
         if (!e.nativeEvent.target.innerText) {

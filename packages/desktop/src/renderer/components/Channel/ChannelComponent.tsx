@@ -134,6 +134,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
 
   const onEnterKeyPress = (message: string) => {
     // Send message and files
+    console.log('message', message)
     onInputEnter(message)
     // Go back to the bottom if scroll is at the top or in the middle
     scrollBottom()

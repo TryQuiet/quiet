@@ -127,6 +127,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
               <MessagesDivider title={day} />
               {messages[day].map(items => {
                 const data = items[0]
+                console.log('items', items)
                 return (
                   <BasicMessageComponent
                     key={data.id}
