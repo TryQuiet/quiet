@@ -41,7 +41,6 @@ import { SocketActionTypes } from '../const/actionTypes'
 import { filesActions } from '../../files/files.slice'
 import { CommunityId, NetworkDataPayload } from '../../appConnection/connection.types'
 import { networkActions } from '../../network/network.slice'
-import localforage from 'localforage'
 
 const log = logger('socket')
 
