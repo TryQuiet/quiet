@@ -76,12 +76,9 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
       emit(networkActions.addConnectedPeers(payload.peers))
     })
-    socket.on(SocketActionTypes.PEER_DISCONNECTED, async(payload: NetworkDataPayload) => {
+    socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
       emit(networkActions.removeConnectedPeer(payload.peer))
       emit(connectionActions.updateNetworkData(payload))
-      const connectedPeers: Set<string> = await localforage.getItem('networkConnectedPeers')
-      connectedPeers.delete(payload.peer)
-      await localforage.setItem('networkConnectedPeers', connectedPeers)
     })
     // Files
     socket.on(SocketActionTypes.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
@@ -132,7 +129,7 @@ export function subscribe(socket: Socket) {
       emit(identityActions.saveOwnerCertToDb())
       emit(publicChannelsActions.createGeneralChannel())
     })
-    socket.on(SocketActionTypes.REGISTRAR, async(payload: ResponseRegistrarPayload) => {
+    socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {
       log(payload)
       emit(communitiesActions.responseRegistrar(payload))
       emit(networkActions.addInitializedRegistrar(payload.id))
@@ -144,12 +141,9 @@ export function subscribe(socket: Socket) {
       log(payload)
       emit(communitiesActions.responseCreateNetwork(payload))
     })
-    socket.on(SocketActionTypes.COMMUNITY, async(payload: ResponseLaunchCommunityPayload) => {
+    socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
       emit(communitiesActions.launchRegistrar(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
-      const initializedCommunities: Set<string> = await localforage.getItem('networkInitializedCommunities')
-      initializedCommunities.add(payload.id)
-      await localforage.setItem('networkInitializedCommunities', initializedCommunities)
     })
     // Errors
     socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {

@@ -338,12 +338,6 @@ app.on('ready', async () => {
   ports = await getPorts()
   await createWindow()
 
-  mainWindow.webContents.on('dom-ready', () => {
-    if (!splash.isDestroyed()) {
-      mainWindow.webContents.send('clearLocalStorageNetwork')
-    }
-  })
-
   mainWindow.webContents.on('did-finish-load', () => {
     if (!splash.isDestroyed()) {
       const [width, height] = splash.getSize()
@@ -354,8 +348,6 @@ app.on('ready', async () => {
 
       splash.destroy()
       mainWindow.show()
-    } else {
-      mainWindow.webContents.send('appRefresh')
     }
 
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
