@@ -93,7 +93,7 @@ export const assertConnectedToPeers = async (
   count: number
 ) => {
   await waitForExpect(() => {
-    assert.strictEqual(store.getState().Connection.connectedPeers.ids.length, count)
+    assert.strictEqual(store.getState().Network.connectedPeers.ids.length, count)
   }, timeout)
 }
 

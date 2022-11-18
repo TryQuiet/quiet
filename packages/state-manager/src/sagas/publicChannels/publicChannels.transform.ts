@@ -9,8 +9,9 @@ export const PublicChannelsTransform = createTransform(
   },
   (outboundState: PublicChannelsState, _key) => {
     return {
+      ...outboundState,
       currentChannelAddress: 'general',
-      channels: publicChannelsAdapter.getInitialState(),
+      channels: outboundState.channels,
       channelsStatus: outboundState.channelsStatus,
       channelsSubscriptions: publicChannelsSubscriptionsAdapter.getInitialState()
     }

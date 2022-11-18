@@ -1,14 +1,12 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { FixedTask } from 'typed-redux-saga'
 import { Socket } from 'socket.io-client'
-import { ScreenNames } from '../../const/ScreenNames.enum'
 import { StoreKeys } from '../store.keys'
 import { initChecksAdapter } from './init.adapter'
 import { InitCheck } from './init.types'
 import { InitCheckKeys } from './initCheck.keys'
 
 export class InitState {
-  public isNavigatorReady: boolean = false
   public isCryptoEngineInitialized: boolean = false
   public isWebsocketConnected: boolean = false
   public lastKnownDataPort: number = 0
@@ -26,8 +24,6 @@ export class InitState {
       }
     ]
   )
-
-  public currentScreen: ScreenNames = ScreenNames.SplashScreen
 }
 
 export interface InitCheckPayload {
@@ -51,14 +47,10 @@ export const initSlice = createSlice({
   initialState: { ...new InitState() },
   name: StoreKeys.Init,
   reducers: {
-    setNavigatorReady: (state, action: PayloadAction<boolean>) => {
-      state.isNavigatorReady = action.payload
-    },
+    setStoreReady: state => state,
     setCryptoEngineInitialized: (state, action: PayloadAction<boolean>) => {
       state.isCryptoEngineInitialized = action.payload
     },
-    onRestore: state => state,
-    setStoreReady: state => state,
     updateInitDescription: (state, action: PayloadAction<string>) => {
       state.initDescription = action.payload
     },
@@ -88,9 +80,6 @@ export const initSlice = createSlice({
         },
         id: event
       })
-    },
-    setCurrentScreen: (state, action: PayloadAction<ScreenNames>) => {
-      state.currentScreen = action.payload
     }
   }
 })

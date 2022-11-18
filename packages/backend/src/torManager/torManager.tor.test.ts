@@ -29,15 +29,11 @@ describe('Tor manager (using tor)', () => {
 
   it('should detect and kill old tor process before new tor is spawned', async () => {
     const torPath = torBinForPlatform()
-    const controlPort = await getPort({ port: 9051 })
     const httpTunnelPort = await getPort()
-    const socksPort = await getPort()
     const libPath = torDirForPlatform()
     const tor = new Tor({
       appDataPath: tmpAppDataPath,
-      socksPort,
       torPath: torPath,
-      controlPort,
       httpTunnelPort,
       options: {
         env: {
@@ -52,9 +48,7 @@ describe('Tor manager (using tor)', () => {
 
     const torSecondInstance = new Tor({
       appDataPath: tmpAppDataPath,
-      socksPort,
       torPath: torPath,
-      controlPort,
       httpTunnelPort,
       options: {
         env: {
@@ -71,7 +65,7 @@ describe('Tor manager (using tor)', () => {
   it('spawns new hidden service', async () => {
     const tor = await spawnTorProcess(tmpAppDataPath)
     await tor.init()
-    const hiddenService = await tor.createNewHiddenService(4343, 4343)
+    const hiddenService = await tor.createNewHiddenService(4343)
     expect(hiddenService.onionAddress.split('.')[0]).toHaveLength(56)
     await tor.kill()
   })
@@ -79,12 +73,10 @@ describe('Tor manager (using tor)', () => {
   it('spawns hidden service using private key', async () => {
     const tor = await spawnTorProcess(tmpAppDataPath)
     await tor.init()
-    const hiddenServiceOnionAddress = await tor.spawnHiddenService({
-      virtPort: 4343,
-      targetPort: 4343,
-      privKey:
-        'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
-    })
+    const hiddenServiceOnionAddress = await tor.spawnHiddenService(
+      4343,
+      'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
+    )
     expect(hiddenServiceOnionAddress).toBe('u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion')
     await tor.kill()
   })
@@ -100,15 +92,11 @@ describe('Tor manager (using tor)', () => {
 
   it('tor spawn repeating 3 times with 1 second timeout and repeating will stop after that', async () => {
     const torPath = torBinForPlatform()
-    const controlPort = await getPort({ port: 9051 })
     const httpTunnelPort = await getPort()
-    const socksPort = await getPort()
     const libPath = torDirForPlatform()
     const tor = new Tor({
       appDataPath: tmpAppDataPath,
-      socksPort,
       torPath: torPath,
-      controlPort,
       httpTunnelPort,
       options: {
         env: {
@@ -128,15 +116,11 @@ describe('Tor manager (using tor)', () => {
 
   it('tor is initializing correctly with 40 seconds timeout', async () => {
     const torPath = torBinForPlatform()
-    const controlPort = await getPort({ port: 9051 })
     const httpTunnelPort = await getPort()
-    const socksPort = await getPort()
     const libPath = torDirForPlatform()
     const tor = new Tor({
       appDataPath: tmpAppDataPath,
-      socksPort,
       torPath: torPath,
-      controlPort,
       httpTunnelPort,
       options: {
         env: {
@@ -154,7 +138,7 @@ describe('Tor manager (using tor)', () => {
   it('creates and destroys hidden service', async () => {
     const tor = await spawnTorProcess(tmpAppDataPath)
     await tor.init()
-    const hiddenService = await tor.createNewHiddenService(4343, 4343)
+    const hiddenService = await tor.createNewHiddenService(4343)
     const serviceId = hiddenService.onionAddress.split('.')[0]
     const status = await tor.destroyHiddenService(serviceId)
     expect(status).toBe(true)

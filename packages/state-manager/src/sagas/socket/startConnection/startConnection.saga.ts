@@ -7,7 +7,6 @@ import { connectionActions } from '../../appConnection/connection.slice'
 import { communitiesMasterSaga } from '../../communities/communities.master.saga'
 import { connectionMasterSaga } from '../../appConnection/connection.master.saga'
 import { communitiesActions } from '../../communities/communities.slice'
-import { initSaga } from '../../app/init.saga'
 import {
   ResponseCreateCommunityPayload,
   ResponseCreateNetworkPayload,
@@ -40,7 +39,8 @@ import { usersActions } from '../../users/users.slice'
 import { SendCertificatesResponse } from '../../users/users.types'
 import { SocketActionTypes } from '../const/actionTypes'
 import { filesActions } from '../../files/files.slice'
-import { NetworkDataPayload } from '../../appConnection/connection.types'
+import { CommunityId, NetworkDataPayload } from '../../appConnection/connection.types'
+import { networkActions } from '../../network/network.slice'
 
 const log = logger('socket')
 
@@ -62,20 +62,21 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof communitiesActions.storePeerList>
   | ReturnType<typeof communitiesActions.updateCommunity>
   | ReturnType<typeof communitiesActions.responseRegistrar>
-  | ReturnType<typeof connectionActions.addInitializedCommunity>
-  | ReturnType<typeof connectionActions.addInitializedRegistrar>
+  | ReturnType<typeof networkActions.addInitializedCommunity>
+  | ReturnType<typeof networkActions.addInitializedRegistrar>
   | ReturnType<typeof connectionActions.updateNetworkData>
+  | ReturnType<typeof networkActions.addConnectedPeers>
   | ReturnType<typeof filesActions.broadcastHostedFile>
   | ReturnType<typeof filesActions.updateMessageMedia>
   | ReturnType<typeof filesActions.updateDownloadStatus>
   | ReturnType<typeof filesActions.removeDownloadStatus>
   >((emit) => {
     // Misc
-    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peer: string }) => {
-      emit(connectionActions.addConnectedPeer(payload.peer))
+    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
+      emit(networkActions.addConnectedPeers(payload.peers))
     })
     socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
-      emit(connectionActions.removeConnectedPeer(payload.peer))
+      emit(networkActions.removeConnectedPeer(payload.peer))
       emit(connectionActions.updateNetworkData(payload))
     })
     // Files
@@ -119,6 +120,9 @@ export function subscribe(socket: Socket) {
       }
       emit(messagesActions.incomingMessages(payload))
     })
+    socket.on(SocketActionTypes.CHECK_FOR_MISSING_FILES, (payload: CommunityId) => {
+      emit(filesActions.checkForMissingFiles(payload))
+    })
     // Community
     socket.on(SocketActionTypes.NEW_COMMUNITY, (_payload: ResponseCreateCommunityPayload) => {
       emit(identityActions.saveOwnerCertToDb())
@@ -127,7 +131,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {
       log(payload)
       emit(communitiesActions.responseRegistrar(payload))
-      emit(connectionActions.addInitializedRegistrar(payload.id))
+      emit(networkActions.addInitializedRegistrar(payload.id))
     })
     socket.on(SocketActionTypes.PEER_LIST, (payload: StorePeerListPayload) => {
       emit(communitiesActions.storePeerList(payload))
@@ -138,7 +142,7 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
       emit(communitiesActions.launchRegistrar(payload.id))
-      emit(connectionActions.addInitializedCommunity(payload.id))
+      emit(networkActions.addInitializedCommunity(payload.id))
     })
     // Errors
     socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {
@@ -212,7 +216,6 @@ export function* handleActions(socket: Socket): Generator {
 }
 
 export function* useIO(socket: Socket): Generator {
-  yield* initSaga()
   yield all([
     fork(handleActions, socket),
     fork(publicChannelsMasterSaga, socket),

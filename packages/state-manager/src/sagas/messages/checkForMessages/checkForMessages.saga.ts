@@ -16,7 +16,7 @@ export function* checkForMessagesSaga(action: PayloadAction<ReturnType<typeof me
 
   const missingMessages = yield* select(missingChannelMessages(ids, channelAddress))
 
-  if (missingMessages.length > 0) {
+  if (missingMessages?.length > 0) {
     yield* put(
       messagesActions.askForMessages({
         peerId: identity.peerId.id,

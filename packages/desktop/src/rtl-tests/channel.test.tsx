@@ -31,7 +31,8 @@ import {
   DownloadState,
   AUTODOWNLOAD_SIZE_LIMIT,
   SendMessagePayload,
-  MessageVerificationStatus
+  MessageVerificationStatus,
+  network
 } from '@quiet/state-manager'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -532,7 +533,7 @@ describe('Channel', () => {
     )
 
     await act(async () => {
-      store.dispatch(connection.actions.addInitializedCommunity(community.id))
+      store.dispatch(network.actions.addInitializedCommunity(community.id))
     })
 
     // Log all the dispatched actions in order
@@ -803,11 +804,7 @@ describe('Channel', () => {
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
-            id: payload.id
-          })
+          return socket.socketClient.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, community.id)
         }
         if (action === SocketActionTypes.DOWNLOAD_FILE) {
           const data = input as socketEventData<[DownloadFilePayload]>

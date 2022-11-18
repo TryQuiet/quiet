@@ -28,28 +28,9 @@ export function* channelsReplicatedSaga(
           channel: channel
         })
       )
-    }
-  }
-
-  const identity = yield* select(identitySelectors.currentIdentity)
-
-  const subscribedChannels = yield* select(publicChannelsSelectors.subscribedChannels)
-
-  // Subscribing channels
-  for (const channel of databaseStoredChannels) {
-    if (!subscribedChannels.includes(channel.address)) {
-      log(`SUBSCRIBING TO #${channel.name}`)
-
-      const channelData = {
-        ...channel,
-        messages: undefined,
-        messagesSlice: undefined
-      }
-
       yield* put(
-        publicChannelsActions.subscribeToTopic({
-          peerId: identity.peerId.id,
-          channel: channelData
+        messagesActions.addPublicChannelsMessagesBase({
+          channelAddress: channel.address
         })
       )
     }

@@ -1,4 +1,5 @@
 export enum StoreKeys {
   Init = 'Init',
-  NativeServices = 'NativeServices',
+  Navigation = 'Navigation',
+  NativeServices = 'NativeServices'
 }

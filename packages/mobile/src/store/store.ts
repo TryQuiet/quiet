@@ -34,7 +34,7 @@ export const sagaMiddleware = createSagaMiddleware()
 export const store = configureStore({
   devTools: process.env.NODE_ENV === NodeEnv.Development,
   middleware: [
-    ...getDefaultMiddleware({ serializableCheck: false, thunk: false }),
+    ...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false, thunk: false }),
     sagaMiddleware
   ],
   reducer: persistedReducer

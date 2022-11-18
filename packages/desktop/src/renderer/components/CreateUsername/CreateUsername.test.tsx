@@ -24,7 +24,7 @@ describe('Create username', () => {
     const input = screen.getByPlaceholderText('Enter a username')
 
     userEvent.type(input, name)
-    expect(screen.getByTestId('createUserNameWarning')).toHaveTextContent(`Your user name will be registered as @${corrected}`)
+    expect(screen.getByTestId('createUserNameWarning')).toHaveTextContent(`Your username will be registered as @${corrected}`)
   })
 
   it.each([

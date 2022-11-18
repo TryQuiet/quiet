@@ -16,7 +16,6 @@ import {
   ChannelsReplicatedPayload,
   SendInitialChannelMessagePayload,
   SetCurrentChannelPayload,
-  SubscribeToTopicPayload,
   CacheMessagesPayload,
   MarkUnreadChannelPayload,
   SendNewUserInfoMessagePayload,
@@ -73,7 +72,6 @@ export const publicChannelsSlice = createSlice({
       const { channelAddress } = action.payload
       state.currentChannelAddress = channelAddress
     },
-    subscribeToTopic: (state, _action: PayloadAction<SubscribeToTopicPayload>) => state,
     cacheMessages: (state, action: PayloadAction<CacheMessagesPayload>) => {
       const { messages, channelAddress } = action.payload
       channelMessagesAdapter.setAll(

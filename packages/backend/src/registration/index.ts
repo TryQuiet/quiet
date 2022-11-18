@@ -1,54 +1,49 @@
-import { createUserCert, UserCert, loadCSR, CertFieldsTypes, getReqFieldValue, keyFromCertificate, parseCertificate } from '@quiet/identity'
-import { SaveCertificatePayload, PermsData } from '@quiet/state-manager'
-import { IsBase64, IsNotEmpty, validate } from 'class-validator'
-import express, { Request, Response } from 'express'
+import express from 'express'
+import fetch, { Response } from 'node-fetch'
 import getPort from 'get-port'
-import { Server } from 'http'
-import { CertificationRequest } from 'pkijs'
-import { getUsersAddresses } from '../common/utils'
+import { Agent, Server } from 'http'
+import { EventEmitter } from 'events'
+import AbortController from 'abort-controller'
+
+import {
+  LaunchRegistrarPayload,
+  SocketActionTypes,
+  PermsData,
+  ErrorCodes,
+  ErrorMessages
+} from '@quiet/state-manager'
 
 import logger from '../logger'
-import { Storage } from '../storage'
-import { Tor } from '../torManager'
-import { CsrContainsFields, IsCsr } from './validators'
+import { registerOwner, registerUser } from './functions'
+import { RegistrationEvents } from './types'
+
 const log = logger('registration')
 
-class UserCsrData {
-  @IsNotEmpty()
-  @IsBase64()
-  @IsCsr()
-  @CsrContainsFields()
-  csr: string
-}
-
-export class CertificateRegistration {
+export class CertificateRegistration extends EventEmitter {
   private readonly _app: express.Application
   private _server: Server
   private _port: number
-  private _privKey: string
-  private readonly tor: Tor
-  private readonly _storage: Storage
   private _onionAddress: string
-  private readonly _permsData: PermsData
+  public registrationService: any
+  public certificates: string[]
+  private _permsData: PermsData
 
-  constructor(
-    tor: Tor,
-    storage: Storage,
-    permsData: PermsData,
-    hiddenServicePrivKey?: string,
-    port?: number
-  ) {
+  constructor() {
+    super()
+    this.certificates = []
+    this.on(RegistrationEvents.SET_CERTIFICATES, (certs) => {
+      this.setCertificates(certs)
+    })
     this._app = express()
-    this._privKey = hiddenServicePrivKey
-    this._port = port
-    this._storage = storage
-    this.tor = tor
     this._onionAddress = null
-    this._permsData = permsData
     this.setRouting()
   }
 
-  private pendingPromise: Promise<any> = null
+  public setCertificates(certs: string[]) {
+    this.certificates = certs
+  }
+
+  private pendingPromise: Promise<{ status: number; body: any }> = null
 
   private setRouting() {
     this._app.use(express.json())
@@ -56,161 +51,14 @@ export class CertificateRegistration {
       '/register',
       async (req, res): Promise<void> => {
         if (this.pendingPromise) return
-        this.pendingPromise = this.registerUser(req, res)
-        await this.pendingPromise
+        this.pendingPromise = this.registerUser(req.body.data)
+        const result = await this.pendingPromise
+        if (result) {
+          res.status(result.status).send(result.body)
+        }
         this.pendingPromise = null
       }
     )
-  }
-
-  public getHiddenServiceData() {
-    if (this.tor) {
-      return {
-        privateKey: this._privKey,
-        onionAddress: this._onionAddress.split('.')[0]
-      }
-    }
-    return {
-      privateKey: this._privKey,
-      onionAddress: this._onionAddress,
-      port: this._port
-    }
-  }
-
-  public async saveOwnerCertToDb(userCert: string) {
-    const payload: SaveCertificatePayload = {
-      certificate: userCert,
-      rootPermsData: this._permsData
-    }
-    const certSaved = await this._storage.saveCertificate(payload)
-    if (!certSaved) {
-      throw new Error('Could not save certificate')
-    }
-    log('Saved owner certificate')
-    return userCert
-  }
-
-  static async registerOwnerCertificate(userCsr: string, permsData: PermsData) {
-    const userData = new UserCsrData()
-    userData.csr = userCsr
-    const validationErrors = await validate(userData)
-    if (validationErrors.length > 0) return
-    const userCert = await createUserCert(
-      permsData.certificate,
-      permsData.privKey,
-      userCsr,
-      new Date(),
-      new Date(2030, 1, 1)
-    )
-    return userCert.userCertString
-  }
-
-  public async getPeers(): Promise<string[]> {
-    const users = this._storage.getAllUsers()
-    return await getUsersAddresses(users, Boolean(this.tor))
-  }
-
-  private pubKeyMatch(cert: string, parsedCsr: CertificationRequest) {
-    const parsedCertificate = parseCertificate(cert)
-    const pubKey = keyFromCertificate(parsedCertificate)
-    const pubKeyCsr = keyFromCertificate(parsedCsr)
-
-    if (pubKey === pubKeyCsr) {
-      return true
-    }
-    return false
-  }
-
-  private async registerUser(req: Request, res: Response): Promise<void> {
-    let cert: string
-    const userData = new UserCsrData()
-    userData.csr = req.body.data
-    const validationErrors = await validate(userData)
-    if (validationErrors.length > 0) {
-      log.error(`Received data is not valid: ${validationErrors.toString()}`)
-      res.status(400).send(JSON.stringify(validationErrors))
-      return
-    }
-
-    const parsedCsr = await loadCSR(userData.csr)
-    const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
-    const usernameCert = this._storage.usernameCert(username)
-    if (usernameCert) {
-      if (!this.pubKeyMatch(usernameCert, parsedCsr)) {
-        log(`Username ${username} is taken`)
-        res.status(403).send()
-        return
-      } else {
-        log('Requesting same CSR again')
-        cert = usernameCert
-      }
-    }
-
-    if (!usernameCert) {
-      log('username doesnt have existing cert, creating new')
-      try {
-        const certObj = await this.registerCertificate(userData.csr)
-        cert = certObj.userCertString
-      } catch (e) {
-        log.error(`Something went wrong with registering user: ${e.message as string}`)
-        res.status(400).send()
-        return
-      }
-    }
-    res.send({
-      certificate: cert,
-      peers: await this.getPeers(),
-      rootCa: this._permsData.certificate
-    })
-  }
-
-  private async registerCertificate(userCsr: string): Promise<UserCert> {
-    const userCert = await createUserCert(
-      this._permsData.certificate,
-      this._permsData.privKey,
-      userCsr,
-      new Date(),
-      new Date(2030, 1, 1)
-    )
-    const certSaved = await this._storage.saveCertificate({
-      certificate: userCert.userCertString,
-      rootPermsData: this._permsData
-    })
-    if (!certSaved) {
-      throw new Error('Could not save certificate')
-    }
-    log('Saved certificate')
-    return userCert
-  }
-
-  public async init() {
-    if (!this._port) {
-      const port = await getPort({ port: 7789 })
-      this._port = port
-    }
-    if (this._privKey) {
-      if (this.tor) {
-        this._onionAddress = await this.tor.spawnHiddenService({
-          virtPort: 80,
-          targetPort: this._port,
-          privKey: this._privKey
-        })
-      } else {
-        this._onionAddress = '0.0.0.0'
-      }
-    } else {
-      let data
-      if (this.tor) {
-        data = await this.tor.createNewHiddenService(80, this._port)
-      } else {
-        data = {
-          onionAddress: '0.0.0.0',
-          privateKey: ''
-        }
-      }
-      this._onionAddress = data.onionAddress
-      this._privKey = data.privateKey
-    }
   }
 
   public async listen(): Promise<void> {
@@ -224,10 +72,148 @@ export class CertificateRegistration {
 
   public async stop(): Promise<void> {
     return await new Promise(resolve => {
+      if (!this._server) return
       this._server.close(() => {
         log('Certificate registration service closed')
         resolve()
       })
+    })
+  }
+
+  public async registerOwnerCertificate(payload): Promise<void> {
+    const cert = await registerOwner(payload.userCsr.userCsr, payload.permsData)
+    this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
+      communityId: payload.communityId,
+      network: { certificate: cert, peers: [] }
+    })
+  }
+
+  public sendCertificateRegistrationRequest = async (
+    serviceAddress: string,
+    userCsr: string,
+    communityId: string,
+    requestTimeout: number = 120000,
+    socksProxyAgent: Agent
+  ): Promise<Response> => {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => {
+      controller.abort()
+    }, requestTimeout)
+
+    let options = {
+      method: 'POST',
+      body: JSON.stringify({ data: userCsr }),
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal
+    }
+
+    options = Object.assign({
+      agent: socksProxyAgent
+    }, options)
+
+    let response = null
+
+    try {
+      const start = new Date()
+      response = await fetch(`${serviceAddress}/register`, options)
+      const end = new Date()
+      const fetchTime = (end.getTime() - start.getTime()) / 1000
+      log(`Fetched ${serviceAddress}, time: ${fetchTime}`)
+    } catch (e) {
+      log.error(e)
+      this.emit(RegistrationEvents.ERROR, {
+        type: SocketActionTypes.REGISTRAR,
+        code: ErrorCodes.NOT_FOUND,
+        message: ErrorMessages.REGISTRAR_NOT_FOUND,
+        community: communityId
+      })
+    } finally {
+      clearTimeout(timeout)
+    }
+
+    switch (response?.status) {
+      case 200:
+        break
+      case 400:
+        this.emit(RegistrationEvents.ERROR, {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.BAD_REQUEST,
+          message: ErrorMessages.INVALID_USERNAME,
+          community: communityId
+        })
+        return
+      case 403:
+        this.emit(RegistrationEvents.ERROR, {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.FORBIDDEN,
+          message: ErrorMessages.USERNAME_TAKEN,
+          community: communityId
+        })
+        return
+      case 404:
+        this.emit(RegistrationEvents.ERROR, {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.NOT_FOUND,
+          message: ErrorMessages.REGISTRAR_NOT_FOUND,
+          community: communityId
+        })
+        return
+      default:
+        log.error(
+          `Registrar responded with ${response?.status} "${response?.statusText}" (${communityId})`
+        )
+        this.emit(RegistrationEvents.ERROR, {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.SERVER_ERROR,
+          message: ErrorMessages.REGISTRATION_FAILED,
+          community: communityId
+        })
+        return
+    }
+
+    const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
+      await response.json()
+
+    log(`Sending user certificate (${communityId})`)
+    this.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
+      communityId: communityId,
+      payload: registrarResponse
+    })
+  }
+
+  private async registerUser(csr: string): Promise<{ status: number; body: any }> {
+    const result = await registerUser(csr, this._permsData, this.certificates)
+    if (result?.status === 200) {
+      this.emit(RegistrationEvents.NEW_USER, { certificate: result.body.certificate, rootPermsData: this._permsData })
+    }
+    return result
+  }
+
+  public async launchRegistrar(payload: LaunchRegistrarPayload): Promise<void> {
+    this._permsData = {
+      certificate: payload.rootCertString,
+      privKey: payload.rootKeyString
+    }
+    log(`Initializing registration service for peer ${payload.peerId}...`)
+    try {
+      await this.init(payload.privateKey)
+    } catch (err) {
+      log.error(`Couldn't initialize certificate registration service: ${err as string}`)
+      return
+    }
+    try {
+      await this.listen()
+    } catch (err) {
+      log.error(`Certificate registration service couldn't start listening: ${err as string}`)
+    }
+  }
+
+  public async init(privKey: string): Promise<void> {
+    this._port = await getPort()
+    this.emit(RegistrationEvents.SPAWN_HS_FOR_REGISTRAR, {
+      port: this._port,
+      privateKey: privKey,
+      targetPort: 80
     })
   }
 }
