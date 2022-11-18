@@ -33,6 +33,8 @@ module.exports = {
     '@typescript-eslint/default-param-last': 'off',
     '@typescript-eslint/restrict-plus-operands': 'off',
     '@typescript-eslint/no-base-to-string': 'off',
+    '@typescript-eslint/no-redeclare': 'off',
+    '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/dot-notation': 'off',
     'generator-star-spacing': ['error', { before: false, after: true }],
     'yield-star-spacing': ['error', { before: false, after: true }],

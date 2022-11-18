@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
-import { BackHandler, View } from 'react-native'
+import { BackHandler, Linking, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 import { Chat } from '../../components/Chat/Chat.component'
@@ -67,6 +67,11 @@ export const ChannelScreen: FC = () => {
 
   const [imagePreview, setImagePreview] = useState<FileMetadata>(null)
 
+  const openUrl = useCallback((url: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    Linking.openURL(url)
+  }, [])
+
   return (
     <>
     <View style={{ flex: 1 }}>
@@ -87,6 +92,7 @@ export const ChannelScreen: FC = () => {
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
             openImagePreview={setImagePreview}
+            openUrl={openUrl}
           />
           <ImagePreviewModal
             imagePreviewData={imagePreview}
