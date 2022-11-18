@@ -8,6 +8,7 @@ storiesOf('Chat', module).add('Default', () => (
   <Chat
     sendMessageAction={storybookLog('Message sent')}
     loadMessagesAction={storybookLog('Messages loaded')}
+    handleBackButton={storybookLog('Navigating back')}
     channel={{
       name: 'Zbay',
       description: '',
@@ -185,6 +186,7 @@ storiesOf('Chat', module).add('Default', () => (
   <Chat
     sendMessageAction={storybookLog('Message sent')}
     loadMessagesAction={storybookLog('Messages loaded')}
+    handleBackButton={storybookLog('Navigating back')}
     channel={{
       name: 'Zbay',
       description: '',

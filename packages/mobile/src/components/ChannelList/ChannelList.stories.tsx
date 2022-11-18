@@ -5,6 +5,10 @@ import { ChannelList } from './ChannelList.component'
 
 storiesOf('ChannelList', module).add('Default', () => (
   <ChannelList
+    // @ts-ignore
+    community={{
+      name: 'Quiet'
+    }}
     tiles={[
       {
         name: 'general',
@@ -43,5 +47,14 @@ storiesOf('ChannelList', module).add('Default', () => (
         redirect: (address: string) => { console.log(`Clicked ${address}`) }
       }
     ]}
+  />
+))
+.add('Empty', () => (
+  <ChannelList
+    // @ts-ignore
+    community={{
+      name: 'Quiet'
+    }}
+    tiles={[]}
   />
 ))
