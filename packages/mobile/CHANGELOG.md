@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0-alpha.3](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.6.0...@quiet/mobile@0.7.0-alpha.3) (2022-11-18)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
 # [0.6.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@0.5.3-alpha.16...@quiet/mobile@0.6.0) (2022-10-31)
 
 **Note:** Version bump only for package @quiet/mobile
