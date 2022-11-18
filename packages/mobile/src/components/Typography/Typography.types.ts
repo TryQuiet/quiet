@@ -5,6 +5,7 @@ export type FontWeight = 'bold' | 'medium' | 'thin' | 'normal'
 
 export interface TypographyProps {
   // color?: keyof Palette['typography'];
+  onPress?: () => void
   color?: string
   fontSize: number
   fontWeight?: FontWeight

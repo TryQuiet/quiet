@@ -38,3 +38,24 @@ storiesOf('Message', module).add('Default', () => {
     />
   )
 })
+.add('Link', () => {
+  const openUrl = (url: string) => {
+    console.log(`opened url ${url}`)
+  }
+  return (
+    <Message
+      data={[
+        {
+          id: '1',
+          type: MessageType.Info,
+          message:
+            'Check this out https://github.com/orgs/TryQuiet/projects/1',
+          createdAt: 0,
+          date: '1:30pm',
+          nickname: 'holmes'
+        }
+      ]}
+      openUrl={openUrl}
+    />
+  )
+})

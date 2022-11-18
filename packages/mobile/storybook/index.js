@@ -10,19 +10,15 @@ import {
 } from '@storybook/react-native'
 
 import { withNavigation } from './navigationDecorator'
-import { withLanguagePicker } from './withLanguagePicker'
-import { withThemePicker } from './withThemePicker'
 
 LogBox.ignoreAllLogs()
 
 addDecorator(withKnobs)
-addDecorator(withLanguagePicker)
 addDecorator(withNavigation)
-addDecorator(withThemePicker)
 
 configure(() => {
   require('../src/components/JoinCommunity/JoinCommunity.stories')
-require('../src/components/Appbar/Appbar.stories')
+  require('../src/components/Appbar/Appbar.stories')
   require('../src/components/Registration/UsernameRegistration.stories')
   require('../src/components/ChannelTile/ChannelTile.stories')
   require('../src/components/ChannelList/ChannelList.stories')
