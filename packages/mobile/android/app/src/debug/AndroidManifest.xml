@@ -6,6 +6,9 @@
 
     <application
         tools:targetApi="28"
+        tools:replace="android:icon, android:roundIcon"
+        android:icon="@mipmap/ic_launcher_dev"
+        android:roundIcon="@mipmap/ic_launcher_dev"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
     </application>
