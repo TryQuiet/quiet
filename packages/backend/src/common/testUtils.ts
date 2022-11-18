@@ -2,11 +2,9 @@ import fs from 'fs'
 import getPort from 'get-port'
 import Libp2p from 'libp2p'
 import { HttpsProxyAgent } from 'https-proxy-agent'
-import { Response } from 'node-fetch'
 import path from 'path'
 import PeerId from 'peer-id'
 import tmp from 'tmp'
-import { ConnectionsManagerOptions } from '../common/types'
 import { Config } from '../constants'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
@@ -16,7 +14,6 @@ import { Tor } from '../torManager'
 import {
   createLibp2pAddress,
   createLibp2pListenAddress,
-  DummyIOServer,
   getPorts,
   Ports,
   torBinForPlatform,
@@ -36,7 +33,7 @@ export const rootPermsData: PermsData = {
 tmp.setGracefulCleanup()
 
 export const testBootstrapMultiaddrs = [
-  createLibp2pAddress('abcd.onion', 1111, 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4', 'wss')
+  createLibp2pAddress('abcd.onion', 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4')
 ]
 
 export const spawnTorProcess = async (quietDirPath: string, ports?: Ports): Promise<Tor> => {
@@ -46,8 +43,6 @@ export const spawnTorProcess = async (quietDirPath: string, ports?: Ports): Prom
   const tor = new Tor({
     appDataPath: quietDirPath,
     torPath: torPath,
-    controlPort: _ports.controlPort,
-    socksPort: _ports.socksPort,
     httpTunnelPort: _ports.httpTunnelPort,
     options: {
       env: {
@@ -60,33 +55,17 @@ export const spawnTorProcess = async (quietDirPath: string, ports?: Ports): Prom
   return tor
 }
 
-export const createMinConnectionManager = (
-  options: ConnectionsManagerOptions
-): ConnectionsManager => {
-  if (!options.env?.appDataPath) throw new Error('Test connection manager is lacking appDataPath!')
-  return new ConnectionsManager({
-    agentHost: 'localhost',
-    agentPort: 2222,
-    httpTunnelPort: 3333,
-    io: new DummyIOServer(),
-    options: {
-      bootstrapMultiaddrs: testBootstrapMultiaddrs,
-      ...options
-    }
-  })
-}
-
 export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
-  const port = await getPort()
-  const virtPort = 443
   const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
+
+  const port = await getPort()
 
   return ConnectionsManager.createBootstrapNode({
     peerId,
-    listenAddresses: [createLibp2pListenAddress('localhost', virtPort, 'wss')],
+    listenAddresses: [createLibp2pListenAddress('localhost')],
     bootstrapMultiaddrsList: testBootstrapMultiaddrs,
     agent: new HttpsProxyAgent({ port: 1234, host: 'localhost' }),
-    localAddress: createLibp2pAddress('localhost', virtPort, peerId.toB58String(), 'wss'),
+    localAddress: createLibp2pAddress('localhost', peerId.toB58String()),
     transportClass: WebsocketsOverTor,
     cert: pems.userCert,
     key: pems.userKey,
@@ -122,60 +101,4 @@ export function createFile(filePath: string, size: number) {
     }
     stream.end()
   })
-}
-
-export class TorMock {
-  // TODO: extend Tor to be sure that mocked api is correct
-  public async spawnHiddenService({
-    virtPort,
-    targetPort,
-    privKey
-  }: {
-    virtPort: number
-    targetPort: number
-    privKey: string
-  }): Promise<any> {
-    log('TorMock.spawnHiddenService', virtPort, targetPort, privKey)
-    return 'mockedOnionAddress.onion'
-  }
-
-  public async createNewHiddenService(
-    virtPort: number,
-    targetPort: number
-  ): Promise<{ onionAddress: string; privateKey: string }> {
-    log('TorMock.createNewHiddenService', virtPort, targetPort)
-    return {
-      onionAddress: 'mockedOnionAddress',
-      privateKey: 'mockedPrivateKey'
-    }
-  }
-
-  protected readonly spawnTor = resolve => {
-    log('TorMock.spawnTor')
-    resolve()
-  }
-
-  public kill = async (): Promise<void> => {
-    log('TorMock.kill')
-  }
-}
-
-export class ResponseMock extends Response {
-  _json: {}
-  _status: number
-
-  public init(respStatus: number, respJson?: {}) {
-    this._json = respJson
-    this._status = respStatus
-    return this
-  }
-
-  // @ts-expect-error
-  get status() {
-    return this._status
-  }
-
-  public async json() {
-    return this._json
-  }
 }

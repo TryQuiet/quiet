@@ -12,7 +12,7 @@ import {
   publicChannels,
   getFactory,
   SocketActionTypes,
-  SubscribeToTopicPayload
+  ChannelsReplicatedPayload
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 
@@ -56,9 +56,9 @@ describe('General channel', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
-        if (action === SocketActionTypes.SUBSCRIBE_TO_TOPIC) {
-          const data = input as socketEventData<[SubscribeToTopicPayload]>
-          const payload = data[0]
+        if (action === SocketActionTypes.CHANNELS_REPLICATED) {
+          const data = input as socketEventData<[ChannelsReplicatedPayload]>
+          const payload = data[0][0]
           expect(payload.channel.name).toEqual('general')
         }
       })

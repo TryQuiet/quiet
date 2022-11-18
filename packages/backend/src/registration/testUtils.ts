@@ -1,11 +1,8 @@
-import { PermsData } from '@quiet/state-manager'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import fetch, { Response } from 'node-fetch'
 import PeerId from 'peer-id'
-import { CertificateRegistration } from '.'
-import { createLibp2p, createMinConnectionManager } from '../common/testUtils'
+import { createLibp2p } from '../common/testUtils'
 import { Storage } from '../storage'
-import { Tor } from '../torManager'
 
 export async function registerUser(csr: string, httpTunnelPort: number, localhost: boolean = true, registrarPort: number = 7789): Promise<Response> {
   let address = '127.0.0.1'
@@ -22,34 +19,10 @@ export async function registerUser(csr: string, httpTunnelPort: number, localhos
   return await fetch(`http://${address}:${registrarPort}/register`, options)
 }
 
-export async function setupRegistrar(tor: Tor, storage: Storage, permsData: PermsData, hiddenServiceKey?: string, port?: number) {
-  const certRegister = new CertificateRegistration(
-    tor,
-    storage,
-    permsData,
-    hiddenServiceKey,
-    port
-  )
-  try {
-    await certRegister.init()
-  } catch (err) {
-    console.error(`Couldn't initialize certificate registration service: ${err as string}`)
-    return
-  }
-  try {
-    await certRegister.listen()
-  } catch (err) {
-    console.error(`Certificate registration service couldn't start listening: ${err as string}`)
-  }
-  return certRegister
-}
-
 export const getStorage = async (quietDir: string) => {
   const peerId = await PeerId.create()
-  const connectionsManager = createMinConnectionManager({ env: { appDataPath: quietDir }, torControlPort: 12345 })
   const storage = new Storage(
     quietDir,
-    connectionsManager.ioProxy,
     'communityid',
     {
       ...{},
