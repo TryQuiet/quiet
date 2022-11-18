@@ -11,10 +11,11 @@ import { filesActions } from '../files.slice'
 import { DownloadState } from '../files.types'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesSelectors } from '../files.selectors'
+import { networkActions } from '../../network/network.slice'
 
 export function* checkForMissingFilesSaga(
   socket: Socket,
-  action: PayloadAction<ReturnType<typeof connectionActions.addInitializedCommunity>['payload']>
+  action: PayloadAction<ReturnType<typeof networkActions.addInitializedCommunity>['payload']>
 ): Generator {
   const community = yield* select(communitiesSelectors.currentCommunity)
 

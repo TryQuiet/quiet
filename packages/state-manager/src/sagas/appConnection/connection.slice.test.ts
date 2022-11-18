@@ -8,6 +8,8 @@ import { prepareStore } from '../../utils/tests/prepareStore'
 import { getFactory } from '../../utils/tests/factories'
 import { setupCrypto } from '@quiet/identity'
 import { Identity } from '../identity/identity.types'
+import { networkActions } from '../network/network.slice'
+import { networkSelectors } from '../network/network.selectors'
 
 describe('connectionReducer', () => {
   let store: Store
@@ -27,26 +29,26 @@ describe('connectionReducer', () => {
 
   it('add initialized communities should add correctly data into the store', () => {
     const communityId = 'communityId'
-    store.dispatch(connectionActions.addInitializedCommunity(communityId))
+    store.dispatch(networkActions.addInitializedCommunity(communityId))
 
-    const communities = connectionSelectors.initializedCommunities(store.getState())
+    const communities = networkSelectors.initializedCommunities(store.getState())
     expect(communities).toEqual({ [communityId]: true })
   })
 
   it('add initialized registrar should add correctly data into the store', () => {
     const registrarId = 'registrarId'
-    store.dispatch(connectionActions.addInitializedRegistrar(registrarId))
+    store.dispatch(networkActions.addInitializedRegistrar(registrarId))
 
-    const registrars = connectionSelectors.initializedRegistrars(store.getState())
+    const registrars = networkSelectors.initializedRegistrars(store.getState())
     expect(registrars).toEqual({ [registrarId]: true })
   })
 
   it('add connected users peerId from store and get it correctly', () => {
     const peersIds = ['peerId1', 'peerId2']
 
-    store.dispatch(connectionActions.addConnectedPeers(peersIds))
+    store.dispatch(networkActions.addConnectedPeers(peersIds))
 
-    const connectedPeersFromStore = connectionSelectors.connectedPeers(store.getState())
+    const connectedPeersFromStore = networkSelectors.connectedPeers(store.getState())
 
     expect(connectedPeersFromStore).toEqual(['peerId1', 'peerId2'])
   })
@@ -59,7 +61,7 @@ describe('connectionReducer', () => {
       dmPublicKey: ''
     }
 
-    store.dispatch(connectionActions.addConnectedPeers([alice.peerId.id]))
+    store.dispatch(networkActions.addConnectedPeers([alice.peerId.id]))
     const userDataPerPeerId = connectionSelectors.connectedPeersMapping(store.getState())
 
     expect(userDataPerPeerId[alice.peerId.id]).toEqual(aliceCertData)
