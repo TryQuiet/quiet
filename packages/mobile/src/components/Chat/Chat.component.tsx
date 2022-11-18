@@ -93,15 +93,23 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
         paddingBottom: 20
       }}>
       <FlatList
-        inverted
-        showsVerticalScrollIndicator={false}
+        // There's a performance issue with inverted prop on FlatList, so we're double rotating the elements as a workaround
+        // https://github.com/facebook/react-native/issues/30034
+        style={{ transform: [{ rotate: '180deg' }] }}
         data={Object.keys(messages.groups).reverse()}
         keyExtractor={item => item}
-        renderItem={renderItem}
+        renderItem={(item) => {
+          return (
+            <View style={{ transform: [{ rotate: '180deg' }] }}>
+              {renderItem(item)}
+            </View>
+          )
+        }}
         onEndReached={() => {
           loadMessagesAction(true)
         }}
         onEndReachedThreshold={0.7}
+        showsVerticalScrollIndicator={false}
       />
       <View style={{ flexDirection: 'row' }}>
         <View style={{ flex: 9 }}>

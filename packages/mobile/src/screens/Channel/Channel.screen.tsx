@@ -15,6 +15,9 @@ export const ChannelScreen: FC = () => {
     dispatch(navigationActions.navigation({
       screen: ScreenNames.ChannelListScreen
      }))
+     dispatch(publicChannels.actions.setCurrentChannel({
+      channelAddress: '' // Necessary for marking channels as unread on channel's list
+    }))
     return true
   }, [dispatch])
 

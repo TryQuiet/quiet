@@ -227,8 +227,6 @@ describe('Chat component', () => {
           }
           getItem={[Function]}
           getItemCount={[Function]}
-          invertStickyHeaders={true}
-          inverted={true}
           keyExtractor={[Function]}
           onContentSizeChange={[Function]}
           onEndReached={[Function]}
@@ -245,1464 +243,1460 @@ describe('Chat component', () => {
           showsVerticalScrollIndicator={false}
           stickyHeaderIndices={Array []}
           style={
-            Array [
-              Object {
-                "transform": Array [
-                  Object {
-                    "scaleY": -1,
-                  },
-                ],
-              },
-              undefined,
-            ]
+            Object {
+              "transform": Array [
+                Object {
+                  "rotate": "180deg",
+                },
+              ],
+            }
           }
           viewabilityConfigCallbackPairs={Array []}
         >
           <View>
             <View
               onLayout={[Function]}
-              style={
-                Array [
-                  Object {
-                    "flexDirection": "column-reverse",
-                  },
+              style={null}
+            >
+              <View
+                style={
                   Object {
                     "transform": Array [
                       Object {
-                        "scaleY": -1,
+                        "rotate": "180deg",
                       },
                     ],
-                  },
-                ]
-              }
-            >
-              <View>
-                <View
-                  style={
-                    Object {
-                      "flex": 1,
-                    }
                   }
-                >
+                }
+              >
+                <View>
                   <View
                     style={
                       Object {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "flex": 1,
                       }
                     }
                   >
                     <View
                       style={
                         Object {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    />
-                    <View
-                      style={
-                        Object {
-                          "flex": 8,
+                          "flexDirection": "row",
+                          "paddingBottom": 30,
                         }
                       }
                     >
                       <View
                         style={
                           Object {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
+                            "alignItems": "center",
+                            "flex": 1,
+                            "paddingRight": 15,
                           }
                         }
-                      >
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            chad
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            12:40
-                          </Text>
-                        </View>
-                      </View>
+                      />
                       <View
                         style={
                           Object {
-                            "flexShrink": 1,
+                            "flex": 8,
                           }
                         }
                       >
                         <View
                           style={
                             Object {
-                              "paddingTop": 0,
+                              "flexDirection": "row",
+                              "paddingBottom": 3,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "alignSelf": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Luck, I am your father!
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="medium"
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Medium",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              chad
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "alignSelf": "flex-start",
+                                "paddingLeft": 8,
+                                "paddingTop": 2,
+                              }
+                            }
+                          >
+                            <Text
+                              color="subtitle"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#999999",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              12:40
+                            </Text>
+                          </View>
                         </View>
                         <View
                           style={
                             Object {
-                              "paddingTop": 4,
+                              "flexShrink": 1,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "paddingTop": 0,
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            That's impossible!
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            Object {
-                              "paddingTop": 4,
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Luck, I am your father!
+                            </Text>
+                          </View>
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "paddingTop": 4,
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Nooo!
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              That's impossible!
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "paddingTop": 4,
+                              }
+                            }
+                          >
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Nooo!
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>
                   </View>
-                </View>
-                <View
-                  style={
-                    Object {
-                      "flex": 1,
-                    }
-                  }
-                >
                   <View
                     style={
                       Object {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "flex": 1,
                       }
                     }
                   >
                     <View
                       style={
                         Object {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    />
-                    <View
-                      style={
-                        Object {
-                          "flex": 8,
+                          "flexDirection": "row",
+                          "paddingBottom": 30,
                         }
                       }
                     >
                       <View
                         style={
                           Object {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
+                            "alignItems": "center",
+                            "flex": 1,
+                            "paddingRight": 15,
                           }
                         }
-                      >
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            anakin
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            12:46
-                          </Text>
-                        </View>
-                      </View>
+                      />
                       <View
                         style={
                           Object {
-                            "flexShrink": 1,
+                            "flex": 8,
                           }
                         }
                       >
                         <View
                           style={
                             Object {
-                              "paddingTop": 0,
+                              "flexDirection": "row",
+                              "paddingBottom": 3,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "alignSelf": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Uhuhu!
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="medium"
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Medium",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              anakin
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "alignSelf": "flex-start",
+                                "paddingLeft": 8,
+                                "paddingTop": 2,
+                              }
+                            }
+                          >
+                            <Text
+                              color="subtitle"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#999999",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              12:46
+                            </Text>
+                          </View>
+                        </View>
+                        <View
+                          style={
+                            Object {
+                              "flexShrink": 1,
+                            }
+                          }
+                        >
+                          <View
+                            style={
+                              Object {
+                                "paddingTop": 0,
+                              }
+                            }
+                          >
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Uhuhu!
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>
                   </View>
-                </View>
-                <View
-                  style={
-                    Object {
-                      "flex": 1,
-                    }
-                  }
-                >
                   <View
                     style={
                       Object {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "flex": 1,
                       }
                     }
                   >
                     <View
                       style={
                         Object {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    />
-                    <View
-                      style={
-                        Object {
-                          "flex": 8,
+                          "flexDirection": "row",
+                          "paddingBottom": 30,
                         }
                       }
                     >
                       <View
                         style={
                           Object {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
+                            "alignItems": "center",
+                            "flex": 1,
+                            "paddingRight": 15,
                           }
                         }
-                      >
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            anakin
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            12:46
-                          </Text>
-                        </View>
-                      </View>
+                      />
                       <View
                         style={
                           Object {
-                            "flexShrink": 1,
+                            "flex": 8,
                           }
                         }
                       >
                         <View
                           style={
                             Object {
-                              "paddingTop": 0,
+                              "flexDirection": "row",
+                              "paddingBottom": 3,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "alignSelf": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Why?
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="medium"
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Medium",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              anakin
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "alignSelf": "flex-start",
+                                "paddingLeft": 8,
+                                "paddingTop": 2,
+                              }
+                            }
+                          >
+                            <Text
+                              color="subtitle"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#999999",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              12:46
+                            </Text>
+                          </View>
+                        </View>
+                        <View
+                          style={
+                            Object {
+                              "flexShrink": 1,
+                            }
+                          }
+                        >
+                          <View
+                            style={
+                              Object {
+                                "paddingTop": 0,
+                              }
+                            }
+                          >
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Why?
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>
                   </View>
-                </View>
-                <View
-                  style={
-                    Object {
-                      "flex": 1,
-                    }
-                  }
-                >
                   <View
                     style={
                       Object {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "flex": 1,
                       }
                     }
                   >
                     <View
                       style={
                         Object {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    />
-                    <View
-                      style={
-                        Object {
-                          "flex": 8,
+                          "flexDirection": "row",
+                          "paddingBottom": 30,
                         }
                       }
                     >
                       <View
                         style={
                           Object {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
+                            "alignItems": "center",
+                            "flex": 1,
+                            "paddingRight": 15,
                           }
                         }
-                      >
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            yoda
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            12:46
-                          </Text>
-                        </View>
-                      </View>
+                      />
                       <View
                         style={
                           Object {
-                            "flexShrink": 1,
+                            "flex": 8,
                           }
                         }
                       >
                         <View
                           style={
                             Object {
-                              "paddingTop": 0,
+                              "flexDirection": "row",
+                              "paddingBottom": 3,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "alignSelf": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Messages more there should be
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="medium"
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Medium",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              yoda
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "alignSelf": "flex-start",
+                                "paddingLeft": 8,
+                                "paddingTop": 2,
+                              }
+                            }
+                          >
+                            <Text
+                              color="subtitle"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#999999",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              12:46
+                            </Text>
+                          </View>
+                        </View>
+                        <View
+                          style={
+                            Object {
+                              "flexShrink": 1,
+                            }
+                          }
+                        >
+                          <View
+                            style={
+                              Object {
+                                "paddingTop": 0,
+                              }
+                            }
+                          >
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Messages more there should be
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>
                   </View>
-                </View>
-                <View
-                  style={
-                    Object {
-                      "flex": 1,
-                    }
-                  }
-                >
                   <View
                     style={
                       Object {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "flex": 1,
                       }
                     }
                   >
                     <View
                       style={
                         Object {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    />
-                    <View
-                      style={
-                        Object {
-                          "flex": 8,
+                          "flexDirection": "row",
+                          "paddingBottom": 30,
                         }
                       }
                     >
                       <View
                         style={
                           Object {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
+                            "alignItems": "center",
+                            "flex": 1,
+                            "paddingRight": 15,
                           }
                         }
-                      >
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            obi
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            12:46
-                          </Text>
-                        </View>
-                      </View>
+                      />
                       <View
                         style={
                           Object {
-                            "flexShrink": 1,
+                            "flex": 8,
                           }
                         }
                       >
                         <View
                           style={
                             Object {
-                              "paddingTop": 0,
+                              "flexDirection": "row",
+                              "paddingBottom": 3,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "alignSelf": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            I Agree
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="medium"
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Medium",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              obi
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "alignSelf": "flex-start",
+                                "paddingLeft": 8,
+                                "paddingTop": 2,
+                              }
+                            }
+                          >
+                            <Text
+                              color="subtitle"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#999999",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              12:46
+                            </Text>
+                          </View>
                         </View>
                         <View
                           style={
                             Object {
-                              "paddingTop": 4,
+                              "flexShrink": 1,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "paddingTop": 0,
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Of course, I Agree
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              I Agree
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "paddingTop": 4,
+                              }
+                            }
+                          >
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Of course, I Agree
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>
                   </View>
-                </View>
-                <View
-                  style={
-                    Object {
-                      "flex": 1,
-                    }
-                  }
-                >
                   <View
                     style={
                       Object {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "flex": 1,
                       }
                     }
                   >
                     <View
                       style={
                         Object {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    />
-                    <View
-                      style={
-                        Object {
-                          "flex": 8,
+                          "flexDirection": "row",
+                          "paddingBottom": 30,
                         }
                       }
                     >
                       <View
                         style={
                           Object {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
+                            "alignItems": "center",
+                            "flex": 1,
+                            "paddingRight": 15,
                           }
                         }
-                      >
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            wookie
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            12:46
-                          </Text>
-                        </View>
-                      </View>
+                      />
                       <View
                         style={
                           Object {
-                            "flexShrink": 1,
+                            "flex": 8,
                           }
                         }
                       >
                         <View
                           style={
                             Object {
-                              "paddingTop": 0,
+                              "flexDirection": "row",
+                              "paddingBottom": 3,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "alignSelf": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Wrough!
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="medium"
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Medium",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              wookie
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "alignSelf": "flex-start",
+                                "paddingLeft": 8,
+                                "paddingTop": 2,
+                              }
+                            }
+                          >
+                            <Text
+                              color="subtitle"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#999999",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              12:46
+                            </Text>
+                          </View>
+                        </View>
+                        <View
+                          style={
+                            Object {
+                              "flexShrink": 1,
+                            }
+                          }
+                        >
+                          <View
+                            style={
+                              Object {
+                                "paddingTop": 0,
+                              }
+                            }
+                          >
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Wrough!
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>
                   </View>
-                </View>
-                <View
-                  style={
-                    Object {
-                      "flex": 1,
-                    }
-                  }
-                >
                   <View
                     style={
                       Object {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "flex": 1,
                       }
                     }
                   >
                     <View
                       style={
                         Object {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    />
-                    <View
-                      style={
-                        Object {
-                          "flex": 8,
+                          "flexDirection": "row",
+                          "paddingBottom": 30,
                         }
                       }
                     >
                       <View
                         style={
                           Object {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
+                            "alignItems": "center",
+                            "flex": 1,
+                            "paddingRight": 15,
                           }
                         }
-                      >
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            leah
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            12:46
-                          </Text>
-                        </View>
-                      </View>
+                      />
                       <View
                         style={
                           Object {
-                            "flexShrink": 1,
+                            "flex": 8,
                           }
                         }
                       >
                         <View
                           style={
                             Object {
-                              "paddingTop": 0,
+                              "flexDirection": "row",
+                              "paddingBottom": 3,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "alignSelf": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Yeah!
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="medium"
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Medium",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              leah
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "alignSelf": "flex-start",
+                                "paddingLeft": 8,
+                                "paddingTop": 2,
+                              }
+                            }
+                          >
+                            <Text
+                              color="subtitle"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#999999",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              12:46
+                            </Text>
+                          </View>
+                        </View>
+                        <View
+                          style={
+                            Object {
+                              "flexShrink": 1,
+                            }
+                          }
+                        >
+                          <View
+                            style={
+                              Object {
+                                "paddingTop": 0,
+                              }
+                            }
+                          >
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Yeah!
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>
                   </View>
-                </View>
-                <View
-                  style={
-                    Object {
-                      "flex": 1,
-                    }
-                  }
-                >
                   <View
                     style={
                       Object {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "flex": 1,
                       }
                     }
                   >
                     <View
                       style={
                         Object {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    />
-                    <View
-                      style={
-                        Object {
-                          "flex": 8,
+                          "flexDirection": "row",
+                          "paddingBottom": 30,
                         }
                       }
                     >
                       <View
                         style={
                           Object {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
+                            "alignItems": "center",
+                            "flex": 1,
+                            "paddingRight": 15,
                           }
                         }
-                      >
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            luke
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            12:46
-                          </Text>
-                        </View>
-                      </View>
+                      />
                       <View
                         style={
                           Object {
-                            "flexShrink": 1,
+                            "flex": 8,
                           }
                         }
                       >
                         <View
                           style={
                             Object {
-                              "paddingTop": 0,
+                              "flexDirection": "row",
+                              "paddingBottom": 3,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "alignSelf": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            The more messages the better
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="medium"
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Medium",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              luke
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "alignSelf": "flex-start",
+                                "paddingLeft": 8,
+                                "paddingTop": 2,
+                              }
+                            }
+                          >
+                            <Text
+                              color="subtitle"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#999999",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              12:46
+                            </Text>
+                          </View>
+                        </View>
+                        <View
+                          style={
+                            Object {
+                              "flexShrink": 1,
+                            }
+                          }
+                        >
+                          <View
+                            style={
+                              Object {
+                                "paddingTop": 0,
+                              }
+                            }
+                          >
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              The more messages the better
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>
                   </View>
-                </View>
-                <View
-                  style={
-                    Object {
-                      "flex": 1,
-                    }
-                  }
-                >
                   <View
                     style={
                       Object {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "flex": 1,
                       }
                     }
                   >
                     <View
                       style={
                         Object {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    />
-                    <View
-                      style={
-                        Object {
-                          "flex": 8,
+                          "flexDirection": "row",
+                          "paddingBottom": 30,
                         }
                       }
                     >
                       <View
                         style={
                           Object {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
+                            "alignItems": "center",
+                            "flex": 1,
+                            "paddingRight": 15,
                           }
                         }
-                      >
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            windoo
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            12:46
-                          </Text>
-                        </View>
-                      </View>
+                      />
                       <View
                         style={
                           Object {
-                            "flexShrink": 1,
+                            "flex": 8,
                           }
                         }
                       >
                         <View
                           style={
                             Object {
-                              "paddingTop": 0,
+                              "flexDirection": "row",
+                              "paddingBottom": 3,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "alignSelf": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            We cannot grant you the rank of messager
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="medium"
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Medium",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              windoo
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "alignSelf": "flex-start",
+                                "paddingLeft": 8,
+                                "paddingTop": 2,
+                              }
+                            }
+                          >
+                            <Text
+                              color="subtitle"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#999999",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              12:46
+                            </Text>
+                          </View>
+                        </View>
+                        <View
+                          style={
+                            Object {
+                              "flexShrink": 1,
+                            }
+                          }
+                        >
+                          <View
+                            style={
+                              Object {
+                                "paddingTop": 0,
+                              }
+                            }
+                          >
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              We cannot grant you the rank of messager
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>
                   </View>
-                </View>
-                <View
-                  style={
-                    Object {
-                      "flex": 1,
-                    }
-                  }
-                >
                   <View
                     style={
                       Object {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "flex": 1,
                       }
                     }
                   >
                     <View
                       style={
                         Object {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    />
-                    <View
-                      style={
-                        Object {
-                          "flex": 8,
+                          "flexDirection": "row",
+                          "paddingBottom": 30,
                         }
                       }
                     >
                       <View
                         style={
                           Object {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
+                            "alignItems": "center",
+                            "flex": 1,
+                            "paddingRight": 15,
                           }
                         }
-                      >
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            vader
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            12:46
-                          </Text>
-                        </View>
-                      </View>
+                      />
                       <View
                         style={
                           Object {
-                            "flexShrink": 1,
+                            "flex": 8,
                           }
                         }
                       >
                         <View
                           style={
                             Object {
-                              "paddingTop": 0,
+                              "flexDirection": "row",
+                              "paddingBottom": 3,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "alignSelf": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="medium"
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Medium",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              vader
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "alignSelf": "flex-start",
+                                "paddingLeft": 8,
+                                "paddingTop": 2,
+                              }
+                            }
+                          >
+                            <Text
+                              color="subtitle"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#999999",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              12:46
+                            </Text>
+                          </View>
+                        </View>
+                        <View
+                          style={
+                            Object {
+                              "flexShrink": 1,
+                            }
+                          }
+                        >
+                          <View
+                            style={
+                              Object {
+                                "paddingTop": 0,
+                              }
+                            }
+                          >
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>
@@ -1712,314 +1706,313 @@ describe('Chat component', () => {
             </View>
             <View
               onLayout={[Function]}
-              style={
-                Array [
-                  Object {
-                    "flexDirection": "column-reverse",
-                  },
+              style={null}
+            >
+              <View
+                style={
                   Object {
                     "transform": Array [
                       Object {
-                        "scaleY": -1,
+                        "rotate": "180deg",
                       },
                     ],
-                  },
-                ]
-              }
-            >
-              <View>
-                <View
-                  style={
-                    Object {
-                      "flex": 1,
-                    }
                   }
-                >
+                }
+              >
+                <View>
                   <View
                     style={
                       Object {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "flex": 1,
                       }
                     }
                   >
                     <View
                       style={
                         Object {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    />
-                    <View
-                      style={
-                        Object {
-                          "flex": 8,
+                          "flexDirection": "row",
+                          "paddingBottom": 30,
                         }
                       }
                     >
                       <View
                         style={
                           Object {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
+                            "alignItems": "center",
+                            "flex": 1,
+                            "paddingRight": 15,
                           }
                         }
-                      >
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            alice
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            28 Oct, 10:00
-                          </Text>
-                        </View>
-                      </View>
+                      />
                       <View
                         style={
                           Object {
-                            "flexShrink": 1,
+                            "flex": 8,
                           }
                         }
                       >
                         <View
                           style={
                             Object {
-                              "paddingTop": 0,
+                              "flexDirection": "row",
+                              "paddingBottom": 3,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "alignSelf": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Hello
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="medium"
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Medium",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              alice
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "alignSelf": "flex-start",
+                                "paddingLeft": 8,
+                                "paddingTop": 2,
+                              }
+                            }
+                          >
+                            <Text
+                              color="subtitle"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#999999",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              28 Oct, 10:00
+                            </Text>
+                          </View>
                         </View>
                         <View
                           style={
                             Object {
-                              "paddingTop": 4,
+                              "flexShrink": 1,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "paddingTop": 0,
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            How are you? My day was awesome. I removed a lot of unused props from container and I simplified code a lot. I like coding, coding is like building things with LEGO. I could admit it's a little bit harder and there's a lot that can go wrong but I like it anyway.
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Hello
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "paddingTop": 4,
+                              }
+                            }
+                          >
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              How are you? My day was awesome. I removed a lot of unused props from container and I simplified code a lot. I like coding, coding is like building things with LEGO. I could admit it's a little bit harder and there's a lot that can go wrong but I like it anyway.
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>
                   </View>
-                </View>
-                <View
-                  style={
-                    Object {
-                      "flex": 1,
-                    }
-                  }
-                >
                   <View
                     style={
                       Object {
-                        "flexDirection": "row",
-                        "paddingBottom": 30,
+                        "flex": 1,
                       }
                     }
                   >
                     <View
                       style={
                         Object {
-                          "alignItems": "center",
-                          "flex": 1,
-                          "paddingRight": 15,
-                        }
-                      }
-                    />
-                    <View
-                      style={
-                        Object {
-                          "flex": 8,
+                          "flexDirection": "row",
+                          "paddingBottom": 30,
                         }
                       }
                     >
                       <View
                         style={
                           Object {
-                            "flexDirection": "row",
-                            "paddingBottom": 3,
+                            "alignItems": "center",
+                            "flex": 1,
+                            "paddingRight": 15,
                           }
                         }
-                      >
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                            }
-                          }
-                        >
-                          <Text
-                            color="main"
-                            fontSize={16}
-                            fontWeight="medium"
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Medium",
-                                  "fontSize": 16,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            john
-                          </Text>
-                        </View>
-                        <View
-                          style={
-                            Object {
-                              "alignSelf": "flex-start",
-                              "paddingLeft": 8,
-                              "paddingTop": 2,
-                            }
-                          }
-                        >
-                          <Text
-                            color="subtitle"
-                            fontSize={14}
-                            horizontalTextAlign="left"
-                            style={
-                              Array [
-                                Object {
-                                  "color": "#999999",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
-                            }
-                            verticalTextAlign="center"
-                          >
-                            28 Oct, 10:02
-                          </Text>
-                        </View>
-                      </View>
+                      />
                       <View
                         style={
                           Object {
-                            "flexShrink": 1,
+                            "flex": 8,
                           }
                         }
                       >
                         <View
                           style={
                             Object {
-                              "paddingTop": 0,
+                              "flexDirection": "row",
+                              "paddingBottom": 3,
                             }
                           }
                         >
-                          <Text
-                            color="main"
-                            fontSize={14}
-                            horizontalTextAlign="left"
+                          <View
                             style={
-                              Array [
-                                Object {
-                                  "color": "#000000",
-                                  "fontFamily": "Rubik-Regular",
-                                  "fontSize": 14,
-                                  "textAlign": "left",
-                                  "textAlignVertical": "center",
-                                },
-                              ]
+                              Object {
+                                "alignSelf": "flex-start",
+                              }
                             }
-                            verticalTextAlign="center"
                           >
-                            Great, thanks!
-                          </Text>
+                            <Text
+                              color="main"
+                              fontSize={16}
+                              fontWeight="medium"
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Medium",
+                                    "fontSize": 16,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              john
+                            </Text>
+                          </View>
+                          <View
+                            style={
+                              Object {
+                                "alignSelf": "flex-start",
+                                "paddingLeft": 8,
+                                "paddingTop": 2,
+                              }
+                            }
+                          >
+                            <Text
+                              color="subtitle"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#999999",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              28 Oct, 10:02
+                            </Text>
+                          </View>
+                        </View>
+                        <View
+                          style={
+                            Object {
+                              "flexShrink": 1,
+                            }
+                          }
+                        >
+                          <View
+                            style={
+                              Object {
+                                "paddingTop": 0,
+                              }
+                            }
+                          >
+                            <Text
+                              color="main"
+                              fontSize={14}
+                              horizontalTextAlign="left"
+                              style={
+                                Array [
+                                  Object {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 14,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              Great, thanks!
+                            </Text>
+                          </View>
                         </View>
                       </View>
                     </View>
