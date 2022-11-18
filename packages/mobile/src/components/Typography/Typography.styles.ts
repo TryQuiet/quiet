@@ -2,6 +2,7 @@ import { Text } from 'react-native'
 import styled, { css } from 'styled-components/native'
 import { StyledTypographyProps } from './Typography.types'
 import { getFontFamily } from './Typography.utils'
+import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const StyledTypography = styled(Text).attrs(
   (props: StyledTypographyProps) => ({
@@ -11,14 +12,13 @@ export const StyledTypography = styled(Text).attrs(
   })
 )<StyledTypographyProps>`
   ${({
-    theme,
     fontSize,
     fontWeight,
     color,
     verticalTextAlign,
     horizontalTextAlign
   }) => css`
-    color: ${theme.palette.typography[color]};
+    color: ${defaultTheme.palette.typography[color]};
     font-family: ${getFontFamily(fontWeight)};
     font-size: ${fontSize}px;
     text-align: ${horizontalTextAlign};

@@ -15,6 +15,7 @@ export const defaultPalette = {
   typography: {
     main: '#000000',
     subtitle: '#999999',
+    link: '#67BFD3',
     hint: '#999999',
     error: '#E42656',
     grayLight: '#B8B8B8',

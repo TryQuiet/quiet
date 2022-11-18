@@ -20,6 +20,7 @@ export interface ChatProps {
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
   openImagePreview?: (media: FileMetadata) => void
+  openUrl?: (url: string) => void
 }
 
 export interface ChannelMessagesComponentProps {
@@ -28,4 +29,5 @@ export interface ChannelMessagesComponentProps {
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
   openImagePreview?: (media: FileMetadata) => void
+  openUrl?: (url: string) => void
 }
