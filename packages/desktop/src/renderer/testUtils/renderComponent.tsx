@@ -10,8 +10,12 @@ import { Store } from 'redux'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
+type Props = {
+  children?: React.ReactNode
+}
+
 export const renderComponent = (ui: ReactElement, storeState: Store = store): ReturnType<typeof render> => {
-  const Wrapper: FC = ({ children }) => (
+  const Wrapper: FC<Props> = ({ children }) => (
     <DndProvider backend={HTML5Backend}>
       <MuiThemeProvider theme={theme}>
         <Provider store={storeState}>
