@@ -181,3 +181,17 @@ storiesOf('Chat', module).add('Default', () => (
     user={'holmes'}
   />
 ))
+.add('Empty', () => (
+  <Chat
+    sendMessageAction={storybookLog('Message sent')}
+    loadMessagesAction={storybookLog('Messages loaded')}
+    channel={{
+      name: 'Zbay',
+      description: '',
+      owner: '',
+      timestamp: 0,
+      address: ''
+    }}
+    user={'holmes'}
+  />
+))
