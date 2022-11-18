@@ -10,6 +10,7 @@ import { Socket } from 'socket.io-client'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { filesActions } from '../files.slice'
+import { networkActions } from '../../network/network.slice'
 
 describe('checkForMissingFilesSaga', () => {
   beforeAll(async () => {
@@ -74,7 +75,7 @@ describe('checkForMissingFilesSaga', () => {
     await expectSaga(
       checkForMissingFilesSaga,
       socket,
-      connectionActions.addInitializedCommunity(community.id)
+      networkActions.addInitializedCommunity(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -151,7 +152,7 @@ describe('checkForMissingFilesSaga', () => {
     await expectSaga(
       checkForMissingFilesSaga,
       socket,
-      connectionActions.addInitializedCommunity(community.id)
+      networkActions.addInitializedCommunity(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -228,7 +229,7 @@ describe('checkForMissingFilesSaga', () => {
     await expectSaga(
       checkForMissingFilesSaga,
       socket,
-      connectionActions.addInitializedCommunity(community.id)
+      networkActions.addInitializedCommunity(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -305,7 +306,7 @@ describe('checkForMissingFilesSaga', () => {
     await expectSaga(
       checkForMissingFilesSaga,
       socket,
-      connectionActions.addInitializedCommunity(community.id)
+      networkActions.addInitializedCommunity(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -382,7 +383,7 @@ describe('checkForMissingFilesSaga', () => {
     await expectSaga(
       checkForMissingFilesSaga,
       socket,
-      connectionActions.addInitializedCommunity(community.id)
+      networkActions.addInitializedCommunity(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -457,7 +458,7 @@ describe('checkForMissingFilesSaga', () => {
     await expectSaga(
       checkForMissingFilesSaga,
       socket,
-      connectionActions.addInitializedCommunity(community.id)
+      networkActions.addInitializedCommunity(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -533,7 +534,7 @@ describe('checkForMissingFilesSaga', () => {
     await expectSaga(
       checkForMissingFilesSaga,
       socket,
-      connectionActions.addInitializedCommunity(community.id)
+      networkActions.addInitializedCommunity(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())

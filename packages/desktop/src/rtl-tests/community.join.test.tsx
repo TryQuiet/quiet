@@ -110,7 +110,8 @@ describe('User', () => {
             communityId: payload.communityId,
             payload: {
               certificate: certificate,
-              rootCa: rootCa
+              rootCa: rootCa,
+              peers: []
             }
           })
         }
@@ -198,10 +199,9 @@ describe('User', () => {
         "Communities/updateCommunityData",
         "Communities/launchCommunity",
         "Communities/launchRegistrar",
-        "Connection/addInitializedCommunity",
+        "Network/addInitializedCommunity",
         "PublicChannels/channelsReplicated",
         "Modals/openModal",
-        "PublicChannels/addChannel",
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
         "Modals/closeModal",

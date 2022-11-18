@@ -364,13 +364,12 @@ describe('SettingsModal', () => {
                                     >
                                       <span
                                         aria-disabled="false"
-                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-266 Mui-checked MuiIconButton-colorSecondary"
+                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
                                       >
                                         <span
                                           class="MuiIconButton-label"
                                         >
                                           <input
-                                            checked=""
                                             class="PrivateSwitchBase-input-268"
                                             data-indeterminate="false"
                                             type="checkbox"
@@ -399,12 +398,13 @@ describe('SettingsModal', () => {
                                     >
                                       <span
                                         aria-disabled="false"
-                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-266 Mui-checked MuiIconButton-colorSecondary"
                                       >
                                         <span
                                           class="MuiIconButton-label"
                                         >
                                           <input
+                                            checked=""
                                             class="PrivateSwitchBase-input-268"
                                             data-indeterminate="false"
                                             type="checkbox"

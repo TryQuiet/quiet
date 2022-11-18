@@ -69,6 +69,8 @@ import getPort from 'get-port'
 import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
+import { timeStamp } from 'console'
+import { passThroughOptions } from 'commander'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -121,7 +123,9 @@ export class ConnectionsManager extends EventEmitter {
   storage: Storage
   dataServer: DataServer
   communityId: string
+  isRegistrarLaunched: boolean
   communityDataPath: string
+  registrarDataPath: string
 
   constructor({ options, socketIOPort }: IConstructor) {
     super()
@@ -134,6 +138,8 @@ export class ConnectionsManager extends EventEmitter {
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
     this.communityDataPath = path.join(this.quietDir, 'communityData.json')
+    this.registrarDataPath = path.join(this.quietDir, 'registrarData.json')
+    this.isRegistrarLaunched = false
 
     // Does it work?
     process.on('unhandledRejection', error => {
@@ -186,11 +192,21 @@ export class ConnectionsManager extends EventEmitter {
 
     await this.dataServer.listen()
 
-    const path = this.communityDataPath
-    if (fs.existsSync(path)) {
-      const data = fs.readFileSync(path)
+    // Below logic is temporary, we gonna move it to leveldb
+    const communityPath = this.communityDataPath
+    const registrarPath = this.registrarDataPath
+
+    if (fs.existsSync(communityPath)) {
+      const data = fs.readFileSync(communityPath)
       const dataObj = JSON.parse(data.toString())
       await this.launchCommunity(dataObj)
+    }
+
+    if (fs.existsSync(registrarPath)) {
+      const data = fs.readFileSync(registrarPath)
+      const dataObj = JSON.parse(data.toString())
+      await this.registration.launchRegistrar(dataObj)
+      this.isRegistrarLaunched = true
     }
   }
 
@@ -290,9 +306,9 @@ export class ConnectionsManager extends EventEmitter {
     const path = this.communityDataPath
     const json = JSON.stringify(payload)
     if (!fs.existsSync(path)) {
-        fs.writeFileSync(path, json)
-      }
-      try {
+      fs.writeFileSync(path, json)
+    }
+    try {
       await this.launch(payload)
     } catch (e) {
       log(`Couldn't launch community for peer ${payload.peerId.id}.`, e)
@@ -404,7 +420,14 @@ export class ConnectionsManager extends EventEmitter {
     )
     // Registration
     this.dataServer.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
+      if (this.isRegistrarLaunched) return
+      const path = this.communityDataPath
+      const json = JSON.stringify(args)
+      if (!fs.existsSync(path)) {
+        fs.writeFileSync(path, json)
+      }
       await this.registration.launchRegistrar(args)
+      this.isRegistrarLaunched = true
     })
     this.dataServer.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, async (args: SaveOwnerCertificatePayload) => {
       const saveCertificatePayload: SaveCertificatePayload = {

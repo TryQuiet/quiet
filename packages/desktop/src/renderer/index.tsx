@@ -8,8 +8,6 @@ import updateHandlers from './store/handlers/update'
 
 import logger from './logger'
 
-import { socketActions, WebsocketConnectionPayload } from './sagas/socket/socket.slice'
-
 const log = logger('renderer')
 
 if (window) {
