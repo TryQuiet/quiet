@@ -83,5 +83,6 @@ jobs:
           packageName: com.zbaymobile
           releaseFiles: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
           status: completed
+          track: internal
           whatsNewDirectory: distribution/whatsnew
           changesNotSentForReview: true
