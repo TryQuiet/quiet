@@ -48,7 +48,6 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
       default:
         return (
           <Typography fontSize={14} color={ pending ? 'lightGray' : 'main' }><Linkify componentDecorator={componentDecorator}>{message.message}</Linkify></Typography>
-          // <Typography fontSize={14} color={ pending ? 'lightGray' : 'main' }>{message.message}</Typography>
         )
     }
   }
