@@ -10,19 +10,10 @@ export class InitState {
   public isCryptoEngineInitialized: boolean = false
   public isWebsocketConnected: boolean = false
   public lastKnownDataPort: number = 0
-  public initDescription: string = ''
+  public initDescription: string = 'Starting Quiet'
   public initChecks: EntityState<InitCheck> = initChecksAdapter.setAll(
     initChecksAdapter.getInitialState(),
-    [
-      {
-        event: InitCheckKeys.Tor,
-        passed: false
-      },
-      {
-        event: InitCheckKeys.Backend,
-        passed: false
-      }
-    ]
+    []
   )
 }
 
