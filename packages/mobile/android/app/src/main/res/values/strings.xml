@@ -1,4 +1,7 @@
 <resources>
+    <!-- Debug -->
+    <string name="debug_app_name">Debug Quiet</string>
+
     <!-- App -->
     <string name="app_name">Quiet</string>
     <string name="config_preferences">com.zbaymobile.config.preferences</string>

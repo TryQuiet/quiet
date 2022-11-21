@@ -7,6 +7,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
+import com.zbaymobile.BuildConfig
 import com.zbaymobile.Communication.CommunicationModule
 import com.zbaymobile.Notification.NotificationHandler
 import com.zbaymobile.R
@@ -49,13 +50,24 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         // val intent = WorkManager.getInstance(applicationContext)
         //     .createCancelPendingIntent(id)
 
+        val title = if (!BuildConfig.DEBUG) {
+            applicationContext.getString(R.string.app_name)
+        } else {
+            applicationContext.getString(R.string.debug_app_name)
+        }
+
+        val icon = if (!BuildConfig.DEBUG) {
+            R.drawable.ic_notification
+        } else {
+            R.drawable.ic_notification_dev
+        }
+
         val notification = NotificationCompat.Builder(applicationContext,
             Const.FOREGROUND_SERVICE_NOTIFICATION_CHANNEL_ID)
-            .setContentTitle("Quiet")
+            .setContentTitle(title)
             .setTicker("Quiet")
             .setContentText("Backend is running")
-            .setSmallIcon(R.drawable.ic_notification)
-            .setOngoing(true)
+            .setSmallIcon(icon)
             // Add the cancel action to the notification which can
             // be used to cancel the worker
             // .addAction(android.R.drawable.ic_delete, "cancel", intent)
