@@ -1,32 +1,41 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
-import { BackHandler, Linking, View } from 'react-native'
+import { BackHandler, Linking } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
-import { Appbar } from '../../components/Appbar/Appbar.component'
 import { Chat } from '../../components/Chat/Chat.component'
-import { ImagePreviewModal } from '../../components/ImagePreview/ImagePreview.component'
-import { CancelDownload, FileMetadata, files, identity, messages, publicChannels } from '@quiet/state-manager'
+import {
+  CancelDownload,
+  FileMetadata,
+  files,
+  identity,
+  messages,
+  publicChannels
+} from '@quiet/state-manager'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 
 export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
 
-  const handleBackButtonClick = useCallback(() => {
-    dispatch(navigationActions.navigation({
-      screen: ScreenNames.ChannelListScreen
-     }))
-     dispatch(publicChannels.actions.setCurrentChannel({
-      channelAddress: '' // Necessary for marking channels as unread on channel's list
-    }))
+  const handleBackButton = useCallback(() => {
+    dispatch(
+      navigationActions.navigation({
+        screen: ScreenNames.ChannelListScreen
+      })
+    )
+    dispatch(
+      publicChannels.actions.setCurrentChannel({
+        channelAddress: '' // Necessary for marking channels as unread on channel's list
+      })
+    )
     return true
   }, [dispatch])
 
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick)
+    BackHandler.addEventListener('hardwareBackPress', handleBackButton)
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick)
+      BackHandler.removeEventListener('hardwareBackPress', handleBackButton)
     }
-  }, [handleBackButtonClick])
+  }, [handleBackButton])
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
@@ -39,13 +48,19 @@ export const ChannelScreen: FC = () => {
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
-  const downloadFile = useCallback((media: FileMetadata) => {
-    dispatch(files.actions.downloadFile(media))
-  }, [dispatch])
+  const downloadFile = useCallback(
+    (media: FileMetadata) => {
+      dispatch(files.actions.downloadFile(media))
+    },
+    [dispatch]
+  )
 
-  const cancelDownload = useCallback((cancelDownload: CancelDownload) => {
-    dispatch(files.actions.cancelDownload(cancelDownload))
-  }, [dispatch])
+  const cancelDownload = useCallback(
+    (cancelDownload: CancelDownload) => {
+      dispatch(files.actions.cancelDownload(cancelDownload))
+    },
+    [dispatch]
+  )
 
   const sendMessageAction = useCallback(
     (message: string) => {
@@ -73,36 +88,24 @@ export const ChannelScreen: FC = () => {
   }, [])
 
   return (
-    <>
-    <View style={{ flex: 1 }}>
-      {currentChannel && (
-        <>
-          <Appbar title={`#${currentChannel.name}`} back={handleBackButtonClick} />
-          <Chat
-            sendMessageAction={sendMessageAction}
-            loadMessagesAction={loadMessages}
-            channel={currentChannel}
-            user={currentIdentity.nickname}
-            messages={{
-              count: channelMessagesCount,
-              groups: channelMessages
-            }}
-            pendingMessages={pendingMessages}
-            downloadStatuses={downloadStatusesMapping}
-            downloadFile={downloadFile}
-            cancelDownload={cancelDownload}
-            openImagePreview={setImagePreview}
-            openUrl={openUrl}
-          />
-          <ImagePreviewModal
-            imagePreviewData={imagePreview}
-            currentChannelName={currentChannel.name}
-            resetPreviewData={() => setImagePreview(null)}
-          />
-        </>
-      )}
-
-    </View>
-    </>
+    <Chat
+      sendMessageAction={sendMessageAction}
+      loadMessagesAction={loadMessages}
+      handleBackButton={handleBackButton}
+      channel={currentChannel}
+      user={currentIdentity.nickname}
+      messages={{
+        count: channelMessagesCount,
+        groups: channelMessages
+      }}
+      pendingMessages={pendingMessages}
+      downloadStatuses={downloadStatusesMapping}
+      downloadFile={downloadFile}
+      cancelDownload={cancelDownload}
+      imagePreview={imagePreview}
+      setImagePreview={setImagePreview}
+      openImagePreview={setImagePreview}
+      openUrl={openUrl}
+    />
   )
 }

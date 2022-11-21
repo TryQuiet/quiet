@@ -11,6 +11,7 @@ import { Dictionary } from '@reduxjs/toolkit'
 export interface ChatProps {
   sendMessageAction: (message: string) => void
   loadMessagesAction: (load: boolean) => void
+  handleBackButton: () => void
   channel: PublicChannel
   user: string
   messages?: {
@@ -19,6 +20,8 @@ export interface ChatProps {
   }
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
+  imagePreview?: FileMetadata
+  setImagePreview?: (media: FileMetadata) => void
   openImagePreview?: (media: FileMetadata) => void
   openUrl?: (url: string) => void
 }

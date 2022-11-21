@@ -103,8 +103,10 @@ public class MainActivity extends ReactActivity {
         Intent intent = getIntent();
         checkAgainstIntentUpdate(intent);
 
-        Context context = getApplicationContext();
-        new BackendWorkManager(context).enqueueRequests();
+        if (BuildConfig.SHOULD_RUN_BACKEND_WORKER == "true") {
+            Context context = getApplicationContext();
+            new BackendWorkManager(context).enqueueRequests();
+        }
     }
 
     @Override
