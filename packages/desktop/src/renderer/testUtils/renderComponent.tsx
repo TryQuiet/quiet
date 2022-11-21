@@ -1,5 +1,5 @@
 import React, { FC, ReactElement } from 'react'
-import { MuiThemeProvider } from '@material-ui/core'
+import { MuiThemeProvider } from '@material-ui/core/styles'
 import { Provider } from 'react-redux'
 
 import { render } from '@testing-library/react'
@@ -16,13 +16,13 @@ type Props = {
 
 export const renderComponent = (ui: ReactElement, storeState: Store = store): ReturnType<typeof render> => {
   const Wrapper: FC<Props> = ({ children }) => (
-    <DndProvider backend={HTML5Backend}>
-      <MuiThemeProvider theme={theme}>
+    <MuiThemeProvider theme={theme}>
+      <DndProvider backend={HTML5Backend}>
         <Provider store={storeState}>
           {children}
         </Provider>
-      </MuiThemeProvider>
-    </DndProvider>
+      </DndProvider>
+    </MuiThemeProvider>
   )
 
   return render(ui, { wrapper: Wrapper })

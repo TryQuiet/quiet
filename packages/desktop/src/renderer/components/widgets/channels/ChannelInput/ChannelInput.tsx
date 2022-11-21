@@ -310,8 +310,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     (e: ContentEditableEvent) => {
       if (inputState === INPUT_STATE.AVAILABLE) {
         // @ts-expect-error
-        console.log('>>>>> ', e.nativeEvent.target.innerText)
-        // @ts-expect-error
         setMessage(e.nativeEvent.target.innerText)
         // @ts-expect-error
         if (!e.nativeEvent.target.innerText) {
@@ -528,6 +526,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       className={classes.emoji}
                       src={emojiHovered ? emojiBlack : emojiGray}
                       onClickHandler={() => {
+                        console.log('opening emoji')
                         setOpenEmoji(true)
                       }}
                       onMouseEnterHandler={() => {
@@ -543,14 +542,16 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     <ClickAwayListener
                       onClickAway={() => {
                         setOpenEmoji(false)
+                        console.log('onClickAway')
                       }}>
-                      <div className={classes.picker}>
+                      <div data-testid={'emoji-picker'} className={classes.picker}>
                         <Picker
                           /* eslint-disable */
-                          onEmojiClick={(_e, emoji) => {
-                            setHtmlMessage(htmlMessage => htmlMessage + emoji.emoji)
-                            setMessage(message + emoji.emoji)
+                          onEmojiClick={(emojiData, _event) => {
+                            setHtmlMessage(htmlMessage => htmlMessage + emojiData.emoji)
+                            setMessage(message + emojiData.emoji)
                             setOpenEmoji(false)
+                            console.log('onEmojiClick')
                           }}
                         /* eslint-enable */
                         />
