@@ -209,8 +209,6 @@ describe('Chat component', () => {
               "flexDirection": "column",
               "justifyContent": "flex-end",
               "paddingBottom": 20,
-              "paddingLeft": 20,
-              "paddingRight": 20,
             },
             Object {
               "paddingBottom": 0,
@@ -244,6 +242,8 @@ describe('Chat component', () => {
           stickyHeaderIndices={Array []}
           style={
             Object {
+              "paddingLeft": 20,
+              "paddingRight": 20,
               "transform": Array [
                 Object {
                   "rotate": "180deg",
@@ -2033,6 +2033,8 @@ describe('Chat component', () => {
             style={
               Object {
                 "flex": 9,
+                "paddingLeft": 20,
+                "paddingRight": 20,
               }
             }
           >

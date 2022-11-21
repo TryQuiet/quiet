@@ -28,6 +28,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
 
   const messageInputRef = useRef<null | TextInput>(null)
 
+  const defaultPadding = 20
+
   useEffect(() => {
     const onKeyboardDidShow = () => {
       setKeyboardShow(true)
@@ -90,22 +92,20 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
         flexDirection: 'column',
         justifyContent: 'flex-end',
         backgroundColor: 'white',
-        paddingLeft: 20,
-        paddingRight: 20,
-        paddingBottom: 20
+        paddingBottom: defaultPadding
       }}>
       <FlatList
         // There's a performance issue with inverted prop on FlatList, so we're double rotating the elements as a workaround
         // https://github.com/facebook/react-native/issues/30034
-        style={{ transform: [{ rotate: '180deg' }] }}
+        style={{
+          transform: [{ rotate: '180deg' }],
+          paddingLeft: defaultPadding,
+          paddingRight: defaultPadding
+        }}
         data={Object.keys(messages.groups).reverse()}
         keyExtractor={item => item}
-        renderItem={(item) => {
-          return (
-            <View style={{ transform: [{ rotate: '180deg' }] }}>
-              {renderItem(item)}
-            </View>
-          )
+        renderItem={item => {
+          return <View style={{ transform: [{ rotate: '180deg' }] }}>{renderItem(item)}</View>
         }}
         onEndReached={() => {
           loadMessagesAction(true)
@@ -114,7 +114,12 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
         showsVerticalScrollIndicator={false}
       />
       <View style={{ flexDirection: 'row' }}>
-        <View style={{ flex: 9 }}>
+        <View
+          style={{
+            flex: 9,
+            paddingLeft: defaultPadding,
+            paddingRight: !didKeyboardShow ? defaultPadding : 0
+          }}>
           <Input
             ref={messageInputRef}
             onChangeText={onInputTextChange}
@@ -122,17 +127,15 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
             multiline={true}
           />
         </View>
-        {didKeyboardShow && (
-          <View style={{ flex: 1, justifyContent: 'center' }}>
-            <MessageSendButton onPress={onPress} disabled={isInputEmpty} />
-          </View>
-        )}
+        {didKeyboardShow && <MessageSendButton onPress={onPress} disabled={isInputEmpty} />}
       </View>
     </KeyboardAvoidingView>
   )
 }
 
-export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & FileActionsProps> = ({
+export const ChannelMessagesComponent: React.FC<
+  ChannelMessagesComponentProps & FileActionsProps
+> = ({
   messages,
   day,
   pendingMessages,
@@ -148,16 +151,18 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
       {messages.map(data => {
         // Messages merged by sender (DisplayableMessage[])
         const messageId = data[0].id
-        return <Message
-          key={messageId}
-          data={data}
-          downloadStatus={downloadStatuses[messageId]}
-          downloadFile={downloadFile}
-          cancelDownload={cancelDownload}
-          openImagePreview={openImagePreview}
-          openUrl={openUrl}
-          pendingMessages={pendingMessages}
-        />
+        return (
+          <Message
+            key={messageId}
+            data={data}
+            downloadStatus={downloadStatuses[messageId]}
+            downloadFile={downloadFile}
+            cancelDownload={cancelDownload}
+            openImagePreview={openImagePreview}
+            openUrl={openUrl}
+            pendingMessages={pendingMessages}
+          />
+        )
       })}
     </View>
   )
