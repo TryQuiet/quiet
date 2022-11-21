@@ -33,6 +33,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
 
   const messageInputRef = useRef<null | TextInput>(null)
 
+  const defaultPadding = 20
+
   useEffect(() => {
     const onKeyboardDidShow = () => {
       setKeyboardShow(true)
@@ -97,9 +99,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
           flexDirection: 'column',
           justifyContent: 'flex-end',
           backgroundColor: 'white',
-          paddingLeft: 20,
-          paddingRight: 20,
-          paddingBottom: 20
+          paddingBottom: defaultPadding
         }}>
         {messages.count === 0 ? (
           <Spinner description='Replicating messages' />
@@ -107,7 +107,11 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
           <FlatList
             // There's a performance issue with inverted prop on FlatList, so we're double rotating the elements as a workaround
             // https://github.com/facebook/react-native/issues/30034
-            style={{ transform: [{ rotate: '180deg' }] }}
+            style={{
+              transform: [{ rotate: '180deg' }],
+              paddingLeft: defaultPadding,
+              paddingRight: defaultPadding
+            }}
             data={Object.keys(messages.groups).reverse()}
             keyExtractor={item => item}
             renderItem={item => {
@@ -121,7 +125,12 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
           />
         )}
         <View style={{ flexDirection: 'row' }}>
-          <View style={{ flex: 9 }}>
+        <View
+          style={{
+            flex: 9,
+            paddingLeft: defaultPadding,
+            paddingRight: !didKeyboardShow ? defaultPadding : 0
+          }}>
             <Input
               ref={messageInputRef}
               onChangeText={onInputTextChange}
@@ -129,11 +138,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
               multiline={true}
             />
           </View>
-          {didKeyboardShow && (
-            <View style={{ flex: 1, justifyContent: 'center' }}>
-              <MessageSendButton onPress={onPress} disabled={isInputEmpty} />
-            </View>
-          )}
+          {didKeyboardShow && <MessageSendButton onPress={onPress} disabled={isInputEmpty} />}
         </View>
       </KeyboardAvoidingView>
       <ImagePreviewModal
