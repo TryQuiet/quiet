@@ -23,6 +23,7 @@ describe('Chat component', () => {
       <Chat
         sendMessageAction={jest.fn()}
         loadMessagesAction={jest.fn()}
+        handleBackButton={jest.fn()}
         channel={{
           name: 'Zbay',
           description: '',
@@ -239,38 +240,21 @@ describe('Chat component', () => {
               }
             }
           >
-            <View
-              style={
+            <Image
+              resizeMethod="resize"
+              resizeMode="cover"
+              source={
                 Object {
-                  "alignItems": "center",
-                  "backgroundColor": "#67BFD3",
-                  "borderRadius": 4,
-                  "height": 36,
-                  "justifyContent": "center",
-                  "width": 36,
+                  "testUri": "../../../assets/icons/arrow_left.png",
                 }
               }
-            >
-              <Text
-                color="white"
-                fontSize={14}
-                horizontalTextAlign="left"
-                style={
-                  Array [
-                    Object {
-                      "color": "#ffffff",
-                      "fontFamily": "Rubik-Regular",
-                      "fontSize": 14,
-                      "textAlign": "left",
-                      "textAlignVertical": "center",
-                    },
-                  ]
+              style={
+                Object {
+                  "height": 16,
+                  "width": 16,
                 }
-                verticalTextAlign="center"
-              >
-                #z
-              </Text>
-            </View>
+              }
+            />
           </View>
           <View
             style={

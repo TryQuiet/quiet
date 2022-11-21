@@ -20,7 +20,7 @@ export interface ChatProps {
   }
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
-  imagePreview: FileMetadata
+  imagePreview?: FileMetadata
   setImagePreview?: (media: FileMetadata) => void
   openImagePreview?: (media: FileMetadata) => void
   openUrl?: (url: string) => void
