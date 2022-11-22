@@ -16,7 +16,11 @@ npm run lerna bootstrap
 npm run start
 ```
 
-Note: on M1 Macs, install [fnm](https://github.com/Schniz/fnm), and use `fnm install 16.14 --arch x64`
+If building on an M1 Mac:
+1. Install [fnm](https://github.com/Schniz/fnm) 
+2. Run `fnm use 16.14`
+3. Run `fnm install 16.14 --arch x64`
+4. Follow the instructions here to run leveldown packages for the M1 architecture: https://github.com/orbitdb/orbit-db/issues/1019#issuecomment-1324219877
 
 ----
 
