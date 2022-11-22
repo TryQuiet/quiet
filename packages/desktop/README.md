@@ -1,6 +1,6 @@
 # Quiet Desktop
 
- Running the desktop version of Quiet should be straightforward on Mac, Windows, and Linux. Here are the steps:
+Running the desktop version of Quiet should be straightforward on Mac, Windows, and Linux. Here are the steps:
 
 0. Use Node 16.14.0 and npm 8.4
 1. In `quiet/` install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
@@ -15,6 +15,8 @@ npm run lerna bootstrap
 ```
 npm run start
 ```
+
+Note: on M1 Macs, install [fnm](https://github.com/Schniz/fnm), and use `fnm install 16.14 --arch x64`
 
 ----
 
