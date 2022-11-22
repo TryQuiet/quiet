@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { CircularProgress, makeStyles, Typography } from '@material-ui/core'
+import { CircularProgress, makeStyles, Typography } from '@mui/material'
 import { DisplayableMessage, DownloadState, DownloadStatus, FileMetadata, CancelDownload, formatBytes } from '@quiet/state-manager'
 import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'

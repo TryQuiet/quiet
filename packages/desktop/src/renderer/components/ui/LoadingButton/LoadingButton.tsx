@@ -1,8 +1,8 @@
 import React from 'react'
 
-import { makeStyles } from '@material-ui/core/styles'
-import Button, { ButtonProps } from '@material-ui/core/Button'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import { makeStyles } from '@mui/material/styles'
+import Button, { ButtonProps } from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 
 import classNames from 'classnames'
 

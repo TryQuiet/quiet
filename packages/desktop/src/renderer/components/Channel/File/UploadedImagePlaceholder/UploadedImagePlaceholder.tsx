@@ -1,4 +1,4 @@
-import { CircularProgress, makeStyles, Theme } from '@material-ui/core'
+import { CircularProgress, makeStyles, Theme } from '@mui/material'
 import React from 'react'
 import imageIcon from '../../../../static/images/imageIcon.svg'
 import Icon from '../../../ui/Icon/Icon'

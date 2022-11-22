@@ -1,14 +1,14 @@
 import React from 'react'
 import { Dictionary } from '@reduxjs/toolkit'
-import { makeStyles, Theme } from '@material-ui/core/styles'
+import { makeStyles, Theme } from '@mui/material/styles'
 import classNames from 'classnames'
 
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import ListItem from '@mui/material/ListItem'
+import ListItemText from '@mui/material/ListItemText'
 
-import red from '@material-ui/core/colors/red'
+import red from '@mui/material/colors/red'
 
 import Jdenticon from '../../Jdenticon/Jdenticon'
 

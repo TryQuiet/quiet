@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react'
 
-import MuiMenuItem from '@material-ui/core/MenuItem'
-import { makeStyles } from '@material-ui/core/styles'
+import MuiMenuItem from '@mui/material/MenuItem'
+import { makeStyles } from '@mui/material/styles'
 
 const useStyles = makeStyles(() => ({
   root: {

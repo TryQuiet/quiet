@@ -1,7 +1,7 @@
 import React from 'react'
 
-import { makeStyles } from '@material-ui/core/styles'
-import { Grid } from '@material-ui/core'
+import { makeStyles } from '@mui/material/styles'
+import { Grid } from '@mui/material'
 
 import dotsIcon from '../../../static/images/zcash/dots-icon.svg'
 import MenuAction from '../../ui/MenuAction/MenuAction'

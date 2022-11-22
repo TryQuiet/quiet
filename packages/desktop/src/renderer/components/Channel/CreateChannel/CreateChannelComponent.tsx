@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
-import { Grid, Typography } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
+import { Grid, Typography } from '@mui/material'
+import { makeStyles } from '@mui/material/styles'
 
-import WarningIcon from '@material-ui/icons/Warning'
+import WarningIcon from '@mui/icons-material/Warning'
 
 import Modal from '../../ui/Modal/Modal'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'

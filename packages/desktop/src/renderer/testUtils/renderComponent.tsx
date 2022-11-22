@@ -1,5 +1,5 @@
 import React, { FC, ReactElement } from 'react'
-import { MuiThemeProvider } from '@material-ui/core/styles'
+import { MuiThemeProvider } from '@mui/material/styles'
 import { Provider } from 'react-redux'
 
 import { render } from '@testing-library/react'

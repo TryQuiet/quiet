@@ -1,6 +1,6 @@
 import React from 'react'
 import theme from '../../../theme'
-import { MuiThemeProvider } from '@material-ui/core/styles'
+import { MuiThemeProvider } from '@mui/material/styles'
 import { WelcomeMessage } from './WelcomeMessage'
 import { renderComponent } from '../../../testUtils/renderComponent'
 

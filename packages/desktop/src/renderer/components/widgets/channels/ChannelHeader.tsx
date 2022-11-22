@@ -1,9 +1,9 @@
 import React from 'react'
 import classNames from 'classnames'
 
-import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
+import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid'
+import { makeStyles } from '@mui/material/styles'
 
 import Icon from '../../ui/Icon/Icon'
 import silenced from '../../../static/images/silenced.svg'

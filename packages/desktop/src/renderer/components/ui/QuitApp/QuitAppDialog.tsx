@@ -1,11 +1,11 @@
 import React from 'react'
 
-import Dialog from '@material-ui/core/Dialog'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogActions from '@material-ui/core/DialogActions'
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import { makeStyles } from '@material-ui/core/styles'
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import { makeStyles } from '@mui/material/styles'
 
 const useStyles = makeStyles(theme => ({
   root: {},

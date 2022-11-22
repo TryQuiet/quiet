@@ -1,9 +1,9 @@
 import React, { useRef } from 'react'
 import classNames from 'classnames'
-import Popper from '@material-ui/core/Popper'
-import Grow from '@material-ui/core/Grow'
-import Paper from '@material-ui/core/Paper'
-import { makeStyles } from '@material-ui/core/styles'
+import Popper from '@mui/material/Popper'
+import Grow from '@mui/material/Grow'
+import Paper from '@mui/material/Paper'
+import { makeStyles } from '@mui/material/styles'
 import { IPopupMenuProps } from './PopupMenu.d'
 
 const constants = {

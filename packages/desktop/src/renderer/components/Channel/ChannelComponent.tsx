@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react'
 
-import { makeStyles } from '@material-ui/core/styles'
-import { Grid } from '@material-ui/core'
+import { makeStyles } from '@mui/material/styles'
+import { Grid } from '@mui/material'
 
 import Page from '../ui/Page/Page'
 import PageHeader from '../ui/Page/PageHeader'

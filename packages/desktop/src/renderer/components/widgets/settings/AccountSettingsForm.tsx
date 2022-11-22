@@ -1,8 +1,8 @@
 import React from 'react'
 import * as Yup from 'yup'
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import { makeStyles } from '@material-ui/core/styles'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import { makeStyles } from '@mui/material/styles'
 
 import { Identity } from '@quiet/state-manager'
 

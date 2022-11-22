@@ -1,11 +1,11 @@
 import React from 'react'
-import { withStyles } from '@material-ui/core/styles'
+import { withStyles } from '@mui/material/styles'
 import { Field } from 'formik'
 import { Checkbox, CheckboxProps as FormikCheckboxProps } from 'formik-material-ui'
 
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import CheckBoxOutlineBlank from '@material-ui/icons/CheckBoxOutlineBlank'
-import CheckBoxIcon from '@material-ui/icons/CheckBox'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import CheckBoxOutlineBlank from '@mui/icons-material/CheckBoxOutlineBlank'
+import CheckBoxIcon from '@mui/icons-material/CheckBox'
 
 interface CheckboxProps {
   name: string

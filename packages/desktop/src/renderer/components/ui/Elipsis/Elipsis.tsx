@@ -1,10 +1,10 @@
 import React from 'react'
 import * as R from 'ramda'
 
-import { makeStyles } from '@material-ui/core'
+import { makeStyles } from '@mui/material'
 
 import Tooltip from '../Tooltip/Tooltip'
-import Typography from '@material-ui/core/Typography'
+import Typography from '@mui/material/Typography'
 
 const useStyles = makeStyles({
   content: {}

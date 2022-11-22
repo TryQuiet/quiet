@@ -1,6 +1,6 @@
 import React from 'react'
 import { Field } from 'formik'
-import Autocomplete, { AutocompleteProps } from '@material-ui/lab/Autocomplete'
+import Autocomplete, { AutocompleteProps } from '@mui/lab/Autocomplete'
 
 interface AutocompleteFieldsProps {
   name: string

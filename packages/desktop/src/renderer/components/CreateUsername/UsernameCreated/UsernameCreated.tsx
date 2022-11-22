@@ -1,9 +1,9 @@
 import React from 'react'
 
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import { makeStyles } from '@material-ui/core/styles'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import { makeStyles } from '@mui/material/styles'
 
 import Icon from '../../ui/Icon/Icon'
 import usernameIcon from '../../../static/images/username.svg'

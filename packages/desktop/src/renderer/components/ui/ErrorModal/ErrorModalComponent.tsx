@@ -1,12 +1,12 @@
 import React from 'react'
 
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import TextField from '@material-ui/core/TextField'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import TextField from '@mui/material/TextField'
 
-import { makeStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@mui/material/styles'
 
-import red from '@material-ui/core/colors/red'
+import red from '@mui/material/colors/red'
 
 import Icon from '../Icon/Icon'
 import Modal from '../Modal/Modal'

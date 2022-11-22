@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { Dictionary } from '@reduxjs/toolkit'
 
-import { makeStyles } from '@material-ui/core/styles'
-import List from '@material-ui/core/List'
+import { makeStyles } from '@mui/material/styles'
+import List from '@mui/material/List'
 
 import MessagesDivider from '../MessagesDivider'
 import BasicMessageComponent from './BasicMessage'

@@ -1,7 +1,7 @@
 import React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import { Typography } from '@material-ui/core'
-import Grid from '@material-ui/core/Grid'
+import { makeStyles } from '@mui/material/styles'
+import { Typography } from '@mui/material'
+import Grid from '@mui/material/Grid'
 
 import Icon from '../../ui/Icon/Icon'
 import ErrorIcon from '../../../static/images/t-error.svg'

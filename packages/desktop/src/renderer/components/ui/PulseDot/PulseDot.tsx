@@ -1,11 +1,11 @@
 import React from 'react'
 import classNames from 'classnames'
 
-import red from '@material-ui/core/colors/red'
-import blue from '@material-ui/core/colors/blue'
-import amber from '@material-ui/core/colors/amber'
-import lightGreen from '@material-ui/core/colors/lightGreen'
-import { makeStyles } from '@material-ui/core/styles'
+import red from '@mui/material/colors/red'
+import blue from '@mui/material/colors/blue'
+import amber from '@mui/material/colors/amber'
+import lightGreen from '@mui/material/colors/lightGreen'
+import { makeStyles } from '@mui/material/styles'
 
 const useStyles = makeStyles<PulseDotProps>(({ size }) => ({
   '@keyframes pulse': {

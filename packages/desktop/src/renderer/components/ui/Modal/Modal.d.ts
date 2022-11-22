@@ -1,4 +1,4 @@
-import { ModalProps } from '@material-ui/core/Modal'
+import { ModalProps } from '@mui/material/Modal'
 
 export interface IModalProps {
   open: boolean

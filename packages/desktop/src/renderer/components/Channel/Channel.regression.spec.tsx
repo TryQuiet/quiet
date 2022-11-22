@@ -1,5 +1,5 @@
 import React from 'react'
-import CssBaseline from '@material-ui/core/CssBaseline'
+import CssBaseline from '@mui/material/CssBaseline'
 import { composeStories, setGlobalConfig } from '@storybook/testing-react'
 import { mount } from '@cypress/react'
 import { it, cy, beforeEach, Cypress } from 'local-cypress'

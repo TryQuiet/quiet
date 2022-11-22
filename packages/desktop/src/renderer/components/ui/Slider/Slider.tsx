@@ -1,9 +1,9 @@
 import React from 'react'
 
-import MuiSlider from '@material-ui/core/Slider'
-import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
+import MuiSlider from '@mui/material/Slider'
+import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid'
+import { makeStyles } from '@mui/material/styles'
 import { ISliderProps } from './Slider.d'
 
 import SliderThumb from './SliderThumb'

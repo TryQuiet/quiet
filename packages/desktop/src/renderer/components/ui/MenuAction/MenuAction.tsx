@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react'
 
-import ClickAwayListener from '@material-ui/core/ClickAwayListener'
-import MenuList from '@material-ui/core/MenuList'
-import IconButton, { IconButtonProps, IconButtonTypeMap } from '@material-ui/core/IconButton'
-import { makeStyles } from '@material-ui/core/styles'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
+import MenuList from '@mui/material/MenuList'
+import IconButton, { IconButtonProps, IconButtonTypeMap } from '@mui/material/IconButton'
+import { makeStyles } from '@mui/material/styles'
 
 import Icon from '../Icon/Icon'
 import PopupMenu from '../PopupMenu/PopupMenu'
-import { ExtendButtonBase, PopperPlacementType } from '@material-ui/core'
+import { ExtendButtonBase, PopperPlacementType } from '@mui/material'
 
 const useStyles = makeStyles(() => ({
   menuList: {

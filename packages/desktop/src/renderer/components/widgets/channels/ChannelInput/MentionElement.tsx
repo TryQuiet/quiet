@@ -1,8 +1,8 @@
 import React, { MouseEvent } from 'react'
 import classNames from 'classnames'
 import Jdenticon from '../../../Jdenticon/Jdenticon'
-import { makeStyles } from '@material-ui/core/styles'
-import { Grid, Typography } from '@material-ui/core'
+import { makeStyles } from '@mui/material/styles'
+import { Grid, Typography } from '@mui/material'
 
 const useStyles = makeStyles((theme) => ({
   root: {

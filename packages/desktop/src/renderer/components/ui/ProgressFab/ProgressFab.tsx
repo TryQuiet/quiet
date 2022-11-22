@@ -1,11 +1,11 @@
 import React, { ReactElement } from 'react'
 import classNames from 'classnames'
 
-import Fab from '@material-ui/core/Fab'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import green from '@material-ui/core/colors/green'
-import CheckIcon from '@material-ui/icons/Check'
-import { makeStyles } from '@material-ui/core/styles'
+import Fab from '@mui/material/Fab'
+import CircularProgress from '@mui/material/CircularProgress'
+import green from '@mui/material/colors/green'
+import CheckIcon from '@mui/icons-material/Check'
+import { makeStyles } from '@mui/material/styles'
 
 const useStyles = makeStyles(() => ({
   root: {

@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 
-import Tabs from '@material-ui/core/Tabs'
-import AppBar from '@material-ui/core/AppBar'
-import { makeStyles } from '@material-ui/core/styles'
-import { Grid } from '@material-ui/core'
+import Tabs from '@mui/material/Tabs'
+import AppBar from '@mui/material/AppBar'
+import { makeStyles } from '@mui/material/styles'
+import { Grid } from '@mui/material'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'rc-scrollbars'
 

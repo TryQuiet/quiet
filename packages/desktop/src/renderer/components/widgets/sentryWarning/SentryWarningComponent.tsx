@@ -1,5 +1,5 @@
 import React from 'react'
-import { makeStyles, Grid, Typography } from '@material-ui/core'
+import { makeStyles, Grid, Typography } from '@mui/material'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 import Modal from '../../ui/Modal/Modal'
 

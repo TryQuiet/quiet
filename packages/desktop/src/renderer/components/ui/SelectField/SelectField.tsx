@@ -3,7 +3,7 @@ import React, { ReactElement } from 'react'
 import { Field } from 'formik'
 import { Select as FormikSelectField } from 'formik-material-ui'
 
-import OutlinedInput from '@material-ui/core/OutlinedInput'
+import OutlinedInput from '@mui/material/OutlinedInput'
 
 interface SelectFieldProps {
   name: string

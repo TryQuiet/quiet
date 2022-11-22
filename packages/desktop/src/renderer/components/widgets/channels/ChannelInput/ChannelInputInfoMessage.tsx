@@ -1,6 +1,6 @@
 import React from 'react'
-import { Grid, Typography } from '@material-ui/core'
-import { makeStyles, Theme } from '@material-ui/core/styles'
+import { Grid, Typography } from '@mui/material'
+import { makeStyles, Theme } from '@mui/material/styles'
 
 const useStyles = makeStyles((theme: Theme) => ({
   info: {

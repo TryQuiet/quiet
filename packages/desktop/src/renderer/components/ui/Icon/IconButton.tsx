@@ -1,6 +1,6 @@
 import React from 'react'
-import IconButtonMui from '@material-ui/core/IconButton'
-import { makeStyles } from '@material-ui/core/styles'
+import IconButtonMui from '@mui/material/IconButton'
+import { makeStyles } from '@mui/material/styles'
 
 import { IIconButtonProps } from './IconButton.d'
 

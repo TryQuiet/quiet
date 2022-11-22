@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import classNames from 'classnames'
 
-import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
+import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid'
+import { makeStyles } from '@mui/material/styles'
 
-import WarningIcon from '@material-ui/icons/Warning'
+import WarningIcon from '@mui/icons-material/Warning'
 
 import Modal from '../ui/Modal/Modal'
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
@@ -20,9 +20,9 @@ import { parseName, CommunityOwnership } from '@quiet/state-manager'
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
 import { InviteLinkErrors } from '../../forms/fieldsErrors'
-import { IconButton, InputAdornment } from '@material-ui/core'
-import VisibilityOff from '@material-ui/icons/VisibilityOff'
-import Visibility from '@material-ui/icons/Visibility'
+import { IconButton, InputAdornment } from '@mui/material'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import Visibility from '@mui/icons-material/Visibility'
 
 const useStyles = makeStyles(theme => ({
   focus: {

@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import classNames from 'classnames'
 import { Controller, useForm } from 'react-hook-form'
-import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
+import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid'
+import { makeStyles } from '@mui/material/styles'
 
-import WarningIcon from '@material-ui/icons/Warning'
+import WarningIcon from '@mui/icons-material/Warning'
 
 import Modal from '../ui/Modal/Modal'
 import UsernameCreated from './UsernameCreated/UsernameCreated'

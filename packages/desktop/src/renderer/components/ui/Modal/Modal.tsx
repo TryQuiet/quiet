@@ -2,13 +2,13 @@
 import React from 'react'
 import classNames from 'classnames'
 
-import MaterialModal from '@material-ui/core/Modal'
-import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
+import MaterialModal from '@mui/material/Modal'
+import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid'
+import { makeStyles } from '@mui/material/styles'
 
-import ClearIcon from '@material-ui/icons/Clear'
-import BackIcon from '@material-ui/icons/ArrowBack'
+import ClearIcon from '@mui/icons-material/Clear'
+import BackIcon from '@mui/icons-material/ArrowBack'
 
 import IconButton from '../Icon/IconButton'
 
