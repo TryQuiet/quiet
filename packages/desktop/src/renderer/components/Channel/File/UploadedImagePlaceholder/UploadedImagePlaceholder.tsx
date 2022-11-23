@@ -1,14 +1,29 @@
 import { CircularProgress, makeStyles, Theme } from '@mui/material'
+import { styled } from '@mui/material/styles';
 import React from 'react'
 import imageIcon from '../../../../static/images/imageIcon.svg'
 import Icon from '../../../ui/Icon/Icon'
 
-const useStyles = makeStyles<Theme>(theme => ({
-  placeholderWrapper: {
+const PREFIX = 'UploadedImagePlaceholder';
+
+const classes = {
+  placeholderWrapper: `${PREFIX}-placeholderWrapper`,
+  placeholder: `${PREFIX}-placeholder`,
+  placeholderIcon: `${PREFIX}-placeholderIcon`,
+  fileName: `${PREFIX}-fileName`
+};
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.placeholderWrapper}`]: {
     maxWidth: '400px',
     height: '100%'
   },
-  placeholder: {
+
+  [`& .${classes.placeholder}`]: {
     display: 'flex',
     alignContent: 'center',
     justifyContent: 'center',
@@ -17,14 +32,16 @@ const useStyles = makeStyles<Theme>(theme => ({
     minHeight: '50px',
     backgroundColor: '#e0e0e0'
   },
-  placeholderIcon: {
+
+  [`& .${classes.placeholderIcon}`]: {
     marginRight: '0.5em'
   },
-  fileName: {
+
+  [`& .${classes.fileName}`]: {
     color: theme.palette.colors.darkGray,
     margin: 0
   }
-}))
+}));
 
 interface UploadedFilenameProps {
   fileName: string
@@ -33,7 +50,7 @@ interface UploadedFilenameProps {
 export const UploadedFilename: React.FC<UploadedFilenameProps> = ({
   fileName
 }) => {
-  const classes = useStyles({})
+
   return (
     <p className={classes.fileName}>{fileName}</p>
   )
@@ -54,19 +71,19 @@ export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> =
   name,
   ext
 }) => {
-  const classes = useStyles({})
+
 
   const width = imageWidth >= 400 ? 400 : imageWidth
 
   return (
-    <div className={classes.placeholderWrapper} data-testid={`${cid}-imagePlaceholder`}>
+    <Root className={classes.placeholderWrapper} data-testid={`${cid}-imagePlaceholder`}>
       <UploadedFilename fileName={`${name}${ext}`}/>
       <div className={classes.placeholder} style={{ width: width, aspectRatio: '' + imageWidth / imageHeight }} >
         <Icon src={imageIcon} className={classes.placeholderIcon}/>
         <CircularProgress color='inherit' size={16} disableShrink={true} />
       </div>
-    </div>
-  )
+    </Root>
+  );
 }
 
 export default UploadedImagePlaceholder

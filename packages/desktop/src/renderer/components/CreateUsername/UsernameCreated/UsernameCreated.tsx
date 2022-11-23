@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { styled } from '@mui/material/styles';
+
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -8,27 +10,49 @@ import { makeStyles } from '@mui/material/styles'
 import Icon from '../../ui/Icon/Icon'
 import usernameIcon from '../../../static/images/username.svg'
 
-const useStyles = makeStyles((theme) => ({
-  root: {},
-  usernameConatainer: {
+const PREFIX = 'UsernameCreated';
+
+const classes = {
+  root: `${PREFIX}-root`,
+  usernameConatainer: `${PREFIX}-usernameConatainer`,
+  infoConatainer: `${PREFIX}-infoConatainer`,
+  descConatainer: `${PREFIX}-descConatainer`,
+  usernameIcon: `${PREFIX}-usernameIcon`,
+  buttonContainer: `${PREFIX}-buttonContainer`,
+  button: `${PREFIX}-button`
+};
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.root}`]: {},
+
+  [`& .${classes.usernameConatainer}`]: {
     marginTop: 24
   },
-  infoConatainer: {
+
+  [`& .${classes.infoConatainer}`]: {
     marginTop: 24
   },
-  descConatainer: {
+
+  [`& .${classes.descConatainer}`]: {
     marginTop: 8
   },
-  usernameIcon: {
+
+  [`& .${classes.usernameIcon}`]: {
     width: 118,
     height: 118,
     justifyContent: 'center'
   },
-  buttonContainer: {
+
+  [`& .${classes.buttonContainer}`]: {
     marginTop: 23,
     paddingBottom: 63
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     width: 124,
     height: 59,
     color: theme.palette.colors.white,
@@ -41,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: theme.palette.colors.gray
     }
   }
-}))
+}));
 
 const handleModalClose = (handleClose, setFormSent) => {
   setFormSent(false)
@@ -54,10 +78,10 @@ interface UsernameCreatedProps {
 }
 
 export const UsernameCreated: React.FC<UsernameCreatedProps> = ({ handleClose, setFormSent }) => {
-  const classes = useStyles({})
+
   setFormSent(false)
   return (
-    <Grid container justify={'center'}>
+    <StyledGrid container justify={'center'}>
       <Grid
         container
         className={classes.usernameConatainer}
@@ -89,8 +113,8 @@ export const UsernameCreated: React.FC<UsernameCreatedProps> = ({ handleClose, s
           Done
         </Button>
       </Grid>
-    </Grid>
-  )
+    </StyledGrid>
+  );
 }
 
 export default UsernameCreated

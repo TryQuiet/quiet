@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react'
 
+import { styled } from '@mui/material/styles';
+
 import { makeStyles } from '@mui/material/styles'
 import { Grid } from '@mui/material'
 
@@ -35,14 +37,26 @@ import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoCompo
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 
-const useStyles = makeStyles(theme => ({
-  root: {},
-  messages: {
+const PREFIX = 'ChannelComponent';
+
+const classes = {
+  root: `${PREFIX}-root`,
+  messages: `${PREFIX}-messages`
+};
+
+const StyledPage = styled(Page)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.root}`]: {},
+
+  [`& .${classes.messages}`]: {
     position: 'relative',
     height: 0,
     backgroundColor: theme.palette.colors.white
   }
-}))
+}));
 
 export interface ChannelComponentProps {
   user: Identity
@@ -107,7 +121,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   downloadFile,
   cancelDownload
 }) => {
-  const classes = useStyles({})
+
 
   const [lastSeenMessage, setLastSeenMessage] = useState<string>()
   const [newMessagesInfo, setNewMessagesInfo] = useState<boolean>(false)
@@ -211,7 +225,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   }, [channelAddress])
 
   return (
-    <Page>
+    <StyledPage>
       <PageHeader>
         <ChannelHeaderComponent
           channelName={channelName}
@@ -265,8 +279,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
           </ChannelInputComponent>
         </Grid>
       </DropZoneComponent>
-    </Page>
-  )
+    </StyledPage>
+  );
 }
 
 export default ChannelComponent

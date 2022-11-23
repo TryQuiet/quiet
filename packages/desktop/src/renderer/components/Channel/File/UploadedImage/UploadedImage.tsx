@@ -1,20 +1,30 @@
 import React, { useEffect, useState } from 'react'
+import { styled } from '@mui/material/styles';
 import { makeStyles } from '@mui/material'
 import { DisplayableMessage } from '@quiet/state-manager'
 import { UseModalTypeWrapper } from '../../../../containers/hooks'
 import UploadedFileModal from './UploadedImagePreview'
 import { UploadedFilename, UploadedImagePlaceholder } from '../UploadedImagePlaceholder/UploadedImagePlaceholder'
 
-const useStyles = makeStyles(() => ({
-  image: {
+const PREFIX = 'UploadedImage';
+
+const classes = {
+  image: `${PREFIX}-image`,
+  container: `${PREFIX}-container`
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')(() => ({
+  [`& .${classes.image}`]: {
     maxWidth: '100%',
     display: 'block'
   },
-  container: {
+
+  [`& .${classes.container}`]: {
     maxWidth: '400px',
     cursor: 'pointer'
   }
-}))
+}));
 
 export interface UploadedImageProps {
   message: DisplayableMessage
@@ -26,7 +36,7 @@ export interface UploadedImageProps {
 }
 
 export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedFileModal }) => {
-  const classes = useStyles({})
+
 
   const [showImage, setShowImage] = useState<boolean>(false)
 
@@ -52,7 +62,7 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedF
   }, [showImage])
 
   return (
-    <>
+    (<Root>
       {path ? (
         <>
           <div
@@ -80,8 +90,8 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedF
           ext={ext}
         />
       )}
-    </>
-  )
+    </Root>)
+  );
 }
 
 export default UploadedImage

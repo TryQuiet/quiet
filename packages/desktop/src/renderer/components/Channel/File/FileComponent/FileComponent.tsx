@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { styled } from '@mui/material/styles';
 import { CircularProgress, makeStyles, Typography } from '@mui/material'
 import { DisplayableMessage, DownloadState, DownloadStatus, FileMetadata, CancelDownload, formatBytes } from '@quiet/state-manager'
 import theme from '../../../../theme'
@@ -14,8 +15,23 @@ import cancelIconRed from '../../../../static/images/cancelIconRed.svg'
 import pauseIconGray from '../../../../static/images/pauseIconGray.svg'
 import Tooltip from '../../../ui/Tooltip/Tooltip'
 
-const useStyles = makeStyles(theme => ({
-  border: {
+const PREFIX = 'FileComponent';
+
+const classes = {
+  border: `${PREFIX}-border`,
+  icon: `${PREFIX}-icon`,
+  fileIcon: `${PREFIX}-fileIcon`,
+  filename: `${PREFIX}-filename`,
+  actionIcon: `${PREFIX}-actionIcon`,
+  actionIndicator: `${PREFIX}-actionIndicator`
+};
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.border}`]: {
     maxWidth: '100%',
     marginTop: '8px',
     padding: '16px',
@@ -23,7 +39,8 @@ const useStyles = makeStyles(theme => ({
     borderRadius: '8px',
     border: `1px solid ${theme.palette.colors.veryLightGray}`
   },
-  icon: {
+
+  [`& .${classes.icon}`]: {
     minWidth: '40px',
     width: '40px',
     height: '40px',
@@ -33,21 +50,25 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  fileIcon: {
+
+  [`& .${classes.fileIcon}`]: {
     width: '16px',
     height: '20px'
   },
-  filename: {
+
+  [`& .${classes.filename}`]: {
     marginLeft: '16px'
   },
-  actionIcon: {
+
+  [`& .${classes.actionIcon}`]: {
     width: '15px'
   },
-  actionIndicator: {
+
+  [`&.${classes.actionIndicator}`]: {
     display: 'flex',
     width: 'fit-content'
   }
-}))
+}));
 
 const ActionIndicator: React.FC<{
   regular: {
@@ -64,7 +85,7 @@ const ActionIndicator: React.FC<{
 }> = ({ regular, hover, action }) => {
   const [over, setOver] = useState<boolean>()
 
-  const classes = useStyles({})
+
 
   const onMouseOver = () => {
     setOver(true)
@@ -76,17 +97,15 @@ const ActionIndicator: React.FC<{
 
   const renderIndicator = () => {
     if (over && hover) {
-      return (
-        <>
-          {/* Hovered state */}
-          <div className={classes.actionIndicator}>
-            <Icon src={hover.icon} className={classes.actionIcon} />
-            <Typography variant={'body2'} style={{ color: hover.color, marginLeft: '8px' }}>
-              {hover.label}
-            </Typography>
-          </div>
-        </>
-      )
+      return <>
+        {/* Hovered state */}
+        <Root className={classes.actionIndicator}>
+          <Icon src={hover.icon} className={classes.actionIcon} />
+          <Typography variant={'body2'} style={{ color: hover.color, marginLeft: '8px' }}>
+            {hover.label}
+          </Typography>
+        </Root>
+      </>;
     } else {
       return (
         <>
@@ -131,7 +150,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   downloadFile,
   cancelDownload
 }) => {
-  const classes = useStyles({})
+
 
   const { cid, path, name, ext } = message.media
 

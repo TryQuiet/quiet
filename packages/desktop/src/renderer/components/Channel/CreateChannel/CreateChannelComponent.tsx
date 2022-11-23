@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { styled } from '@mui/material/styles';
 import { Controller, useForm } from 'react-hook-form'
 
 import { Grid, Typography } from '@mui/material'
@@ -14,20 +15,43 @@ import { channelNameField } from '../../../forms/fields/createChannelFields'
 
 import { parseName } from '@quiet/state-manager'
 
-const useStyles = makeStyles(theme => ({
-  main: {
+const PREFIX = 'CreateChannelComponent';
+
+const classes = {
+  main: `${PREFIX}-main`,
+  fullContainer: `${PREFIX}-fullContainer`,
+  gutter: `${PREFIX}-gutter`,
+  button: `${PREFIX}-button`,
+  title: `${PREFIX}-title`,
+  iconDiv: `${PREFIX}-iconDiv`,
+  warrningIcon: `${PREFIX}-warrningIcon`,
+  warrningMessage: `${PREFIX}-warrningMessage`,
+  rootBar: `${PREFIX}-rootBar`,
+  progressBar: `${PREFIX}-progressBar`,
+  info: `${PREFIX}-info`
+};
+
+const StyledModal = styled(Modal)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.main}`]: {
     backgroundColor: theme.palette.colors.white,
     padding: '0px 32px'
   },
-  fullContainer: {
+
+  [`& .${classes.fullContainer}`]: {
     width: '100%',
     height: '100%'
   },
-  gutter: {
+
+  [`& .${classes.gutter}`]: {
     marginTop: 8,
     marginBottom: 24
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     width: 165,
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
@@ -38,33 +62,40 @@ const useStyles = makeStyles(theme => ({
     height: 48,
     fontWeight: 'normal'
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     marginBottom: 24
   },
-  iconDiv: {
+
+  [`& .${classes.iconDiv}`]: {
     width: 24,
     height: 28,
     marginRight: 8
   },
-  warrningIcon: {
+
+  [`& .${classes.warrningIcon}`]: {
     color: '#FFCC00'
   },
-  warrningMessage: {
+
+  [`& .${classes.warrningMessage}`]: {
     wordBreak: 'break-word'
   },
-  rootBar: {
+
+  [`& .${classes.rootBar}`]: {
     width: 350,
     marginTop: 32,
     marginBottom: 16
   },
-  progressBar: {
+
+  [`& .${classes.progressBar}`]: {
     backgroundColor: theme.palette.colors.linkBlue
   },
-  info: {
+
+  [`& .${classes.info}`]: {
     lineHeight: '19px',
     color: theme.palette.colors.darkGray
   }
-}))
+}));
 
 const createChannelFields = {
   channelName: channelNameField()
@@ -87,7 +118,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   createChannel,
   handleClose
 }) => {
-  const classes = useStyles({})
+
 
   const [channelName, setChannelName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
@@ -130,7 +161,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   }, [channelCreationError])
 
   return (
-    <Modal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
+    <StyledModal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
       <Grid container className={classes.main} direction='column'>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container justify='flex-start' direction='column' className={classes.fullContainer}>
@@ -193,8 +224,8 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
           </Grid>
         </form>
       </Grid>
-    </Modal>
-  )
+    </StyledModal>
+  );
 }
 
 export default CreateChannelComponent

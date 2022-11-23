@@ -1,10 +1,18 @@
 import React from 'react'
+import { styled } from '@mui/material/styles';
 import { makeStyles } from '@mui/material/styles'
 import { UseModalTypeWrapper } from '../../../../containers/hooks'
 import Modal from '../../../ui/Modal/Modal'
 
-const useStyles = makeStyles(() => ({
-  image: {
+const PREFIX = 'UploadedImagePreviewComponent';
+
+const classes = {
+  image: `${PREFIX}-image`,
+  container: `${PREFIX}-container`
+};
+
+const StyledModal = styled(Modal)(() => ({
+  [`& .${classes.image}`]: {
     position: 'relative',
     left: '50%',
     top: '50%',
@@ -12,7 +20,8 @@ const useStyles = makeStyles(() => ({
     maxWidth: '90vw',
     maxHeight: '90vh'
   },
-  container: {
+
+  [`& .${classes.container}`]: {
     position: 'absolute',
     left: '5vw',
     maxWidth: '90vw',
@@ -20,7 +29,7 @@ const useStyles = makeStyles(() => ({
     width: '100%',
     height: '100%'
   }
-}))
+}));
 
 interface UploadedImagePreviewProps {
   open: boolean
@@ -35,15 +44,15 @@ const UploadedImagePreviewComponent: React.FC<UploadedImagePreviewProps> = ({
   handleClose,
   uploadedFileModal
 }) => {
-  const classes = useStyles({})
+
 
   return (
-    <Modal open={open} handleClose={handleClose}>
+    <StyledModal open={open} handleClose={handleClose}>
       <div className={classes.container}>
         <img className={classes.image} src={uploadedFileModal?.src} />
       </div>
-    </Modal>
-  )
+    </StyledModal>
+  );
 }
 
 export default UploadedImagePreviewComponent

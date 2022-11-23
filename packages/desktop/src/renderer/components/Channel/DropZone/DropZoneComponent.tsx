@@ -1,4 +1,5 @@
 import fs from 'fs'
+import { styled } from '@mui/material/styles';
 import React from 'react'
 import { makeStyles } from '@mui/material/styles'
 import { Grid } from '@mui/material'
@@ -7,16 +8,23 @@ import dropFiles from '../../../static/images/dropFiles.svg'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { NativeTypes } from 'react-dnd-html5-backend'
 
-interface DropZoneComponentProps {
-  handleFileDrop: (arg: any) => void
-  channelName: string
-}
+const PREFIX = 'ActiveDropZoneComponent';
 
-const useStyles = makeStyles(theme => ({
-  dropActiveBg: {
+const classes = {
+  dropActiveBg: `${PREFIX}-dropActiveBg`,
+  dropActive: `${PREFIX}-dropActive`
+};
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.dropActiveBg}`]: {
     position: 'relative'
   },
-  dropActive: {
+
+  [`& .${classes.dropActive}`]: {
     ...theme.typography.h2,
     position: 'absolute',
     zIndex: 1000,
@@ -29,14 +37,19 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     justifyContent: 'center'
   }
-}))
+}));
+
+interface DropZoneComponentProps {
+  handleFileDrop: (arg: any) => void
+  channelName: string
+}
 
 export const ActiveDropZoneComponent: React.FC<{
   channelName: string
 }> = ({
   channelName
 }) => {
-  const classes = useStyles({})
+
   return (
     <div className={classes.dropActive}>
       <Icon src={dropFiles} />
@@ -50,7 +63,7 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({
   channelName,
   handleFileDrop
 }) => {
-  const classes = useStyles({})
+
   const [{ canDrop, isOver }, drop] = useDrop(
     () => ({
       accept: [NativeTypes.FILE],
@@ -82,9 +95,9 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({
 
   const dropIsActive = canDrop && isOver
   return (
-    <Grid item xs className={dropIsActive ? classes.dropActiveBg : '' } container direction='column' data-testid='drop-zone' ref={drop}>
+    <StyledGrid item xs className={dropIsActive ? classes.dropActiveBg : '' } container direction='column' data-testid='drop-zone' ref={drop}>
       {dropIsActive && <ActiveDropZoneComponent channelName={channelName}/>}
       {children}
-    </Grid>
-  )
+    </StyledGrid>
+  );
 }

@@ -1,7 +1,8 @@
 import 'typeface-roboto'
 import React from 'react'
 import CssBaseline from '@mui/material/CssBaseline'
-import { ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider as MuiThemeProvider} from '@mui/material/styles'
+import { ThemeProvider } from '@emotion/react'
 import { Provider } from 'react-redux'
 import { HashRouter, Route } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
@@ -26,7 +27,8 @@ import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
 
 export const persistor = persistStore(store)
 export default () => {
-  return ( 
+  return (
+    <MuiThemeProvider theme={theme}>
     <ThemeProvider theme={theme}>
       <DndProvider backend={HTML5Backend}>
         <HashRouter>
@@ -51,5 +53,6 @@ export default () => {
         </HashRouter>
       </DndProvider>
     </ThemeProvider>
+  </MuiThemeProvider>
   )
 }

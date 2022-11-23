@@ -1,9 +1,9 @@
-import { createMuiTheme } from '@mui/material/styles'
+import { createTheme } from '@mui/material/styles'
 
 const font = "'Rubik', sans-serif"
 const fontLogs = 'Menlo Regular'
 
-export default createMuiTheme({
+export default createTheme({
   typography: {
     fontFamily: [font, fontLogs].join(','),
     fontStyle: 'normal',
