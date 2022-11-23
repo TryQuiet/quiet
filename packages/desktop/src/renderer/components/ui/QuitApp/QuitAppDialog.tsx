@@ -7,7 +7,6 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { makeStyles } from '@mui/material/styles'
 
 const PREFIX = 'QuitAppDialog';
 

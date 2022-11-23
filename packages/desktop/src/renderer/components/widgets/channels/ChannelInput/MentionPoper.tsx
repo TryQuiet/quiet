@@ -14,6 +14,8 @@ const classes = {
   divider: `${PREFIX}-divider`
 };
 
+const maxHeight = 230
+
 const StyledPopper = styled(Popper)({
   [`&.${classes.root}`]: {
     maxHeight: maxHeight,
@@ -39,8 +41,6 @@ const StyledPopper = styled(Popper)({
 function isDivElement(element: Element | undefined): element is HTMLDivElement {
   return element?.nodeName === 'div'
 }
-
-const maxHeight = 230
 
 interface MentionPoperProps {
   anchorEl: HTMLDivElement

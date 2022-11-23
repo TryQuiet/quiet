@@ -62,7 +62,7 @@ describe('OpenlinkModal', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root makeStyles-root-155"
+                      class="MuiButtonBase-root MuiButtonBase-root makeStyles-root-155"
                       tabindex="0"
                       type="button"
                     >
@@ -148,7 +148,7 @@ describe('OpenlinkModal', () => {
                             >
                               <span
                                 aria-disabled="false"
-                                class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-183 MuiCheckbox-root MuiCheckbox-colorPrimary MuiIconButton-colorPrimary"
+                                class="MuiButtonBase-root MuiButtonBase-root PrivateSwitchBase-root-183 MuiCheckbox-root MuiCheckbox-colorPrimary MuiIconButton-colorPrimary"
                               >
                                 <span
                                   class="MuiIconButton-label"
@@ -196,7 +196,7 @@ describe('OpenlinkModal', () => {
                             >
                               <span
                                 aria-disabled="false"
-                                class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-183 MuiCheckbox-root MuiCheckbox-colorPrimary MuiIconButton-colorPrimary"
+                                class="MuiButtonBase-root MuiButtonBase-root PrivateSwitchBase-root-183 MuiCheckbox-root MuiCheckbox-colorPrimary MuiIconButton-colorPrimary"
                               >
                                 <span
                                   class="MuiIconButton-label"
@@ -245,7 +245,7 @@ describe('OpenlinkModal', () => {
                             >
                               <span
                                 aria-disabled="false"
-                                class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-183 MuiCheckbox-root MuiCheckbox-colorPrimary MuiIconButton-colorPrimary"
+                                class="MuiButtonBase-root MuiButtonBase-root PrivateSwitchBase-root-183 MuiCheckbox-root MuiCheckbox-colorPrimary MuiIconButton-colorPrimary"
                               >
                                 <span
                                   class="MuiIconButton-label"

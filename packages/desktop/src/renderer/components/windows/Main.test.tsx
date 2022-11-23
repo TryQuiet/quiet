@@ -107,7 +107,7 @@ describe('Main', () => {
                                   >
                                     <span>
                                       <button
-                                        class="MuiButtonBase-root MuiIconButton-root makeStyles-iconButton-189 MuiIconButton-edgeEnd"
+                                        class="MuiButtonBase-root MuiButtonBase-root makeStyles-iconButton-189 MuiIconButton-edgeEnd"
                                         data-testid="addChannelButton"
                                         tabindex="0"
                                         type="button"

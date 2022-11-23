@@ -1,6 +1,6 @@
 import React from 'react'
 import { styled } from '@mui/material/styles';
-import { makeStyles, Grid, Typography } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 import Modal from '../../ui/Modal/Modal'
 

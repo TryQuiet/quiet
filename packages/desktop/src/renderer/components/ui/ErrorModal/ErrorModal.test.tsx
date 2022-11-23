@@ -63,7 +63,7 @@ describe('ErrorModal', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root makeStyles-root-154"
+                      class="MuiButtonBase-root MuiButtonBase-root makeStyles-root-154"
                       tabindex="0"
                       type="button"
                     >

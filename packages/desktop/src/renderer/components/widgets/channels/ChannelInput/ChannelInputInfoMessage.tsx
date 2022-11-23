@@ -13,7 +13,7 @@ const classes = {
 
 const StyledGrid = styled(Grid)((
   {
-    theme: Theme
+    theme
   }
 ) => ({
   [`& .${classes.info}`]: {

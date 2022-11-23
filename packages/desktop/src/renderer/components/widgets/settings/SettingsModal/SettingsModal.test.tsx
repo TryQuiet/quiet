@@ -62,7 +62,7 @@ describe('SettingsModal', () => {
                     data-testid="settingsModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root makeStyles-root-154"
+                      class="MuiButtonBase-root MuiButtonBase-root makeStyles-root-154"
                       tabindex="0"
                       type="button"
                     >
@@ -197,7 +197,7 @@ describe('SettingsModal', () => {
                                   >
                                     <span
                                       aria-disabled="false"
-                                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-266 Mui-checked MuiIconButton-colorSecondary"
+                                      class="MuiButtonBase-root MuiButtonBase-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-266 Mui-checked MuiIconButton-colorSecondary"
                                     >
                                       <span
                                         class="MuiIconButton-label"
@@ -252,7 +252,7 @@ describe('SettingsModal', () => {
                                   >
                                     <span
                                       aria-disabled="false"
-                                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                      class="MuiButtonBase-root MuiButtonBase-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
                                     >
                                       <span
                                         class="MuiIconButton-label"
@@ -317,7 +317,7 @@ describe('SettingsModal', () => {
                                     >
                                       <span
                                         aria-disabled="false"
-                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root PrivateSwitchBase-checked-266 Mui-checked"
+                                        class="MuiButtonBase-root MuiButtonBase-root PrivateSwitchBase-root-265 MuiCheckbox-root PrivateSwitchBase-checked-266 Mui-checked"
                                       >
                                         <span
                                           class="MuiIconButton-label"
@@ -364,7 +364,7 @@ describe('SettingsModal', () => {
                                     >
                                       <span
                                         aria-disabled="false"
-                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-266 Mui-checked MuiIconButton-colorSecondary"
+                                        class="MuiButtonBase-root MuiButtonBase-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-266 Mui-checked MuiIconButton-colorSecondary"
                                       >
                                         <span
                                           class="MuiIconButton-label"
@@ -399,7 +399,7 @@ describe('SettingsModal', () => {
                                     >
                                       <span
                                         aria-disabled="false"
-                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                        class="MuiButtonBase-root MuiButtonBase-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
                                       >
                                         <span
                                           class="MuiIconButton-label"
@@ -433,7 +433,7 @@ describe('SettingsModal', () => {
                                     >
                                       <span
                                         aria-disabled="false"
-                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                        class="MuiButtonBase-root MuiButtonBase-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
                                       >
                                         <span
                                           class="MuiIconButton-label"
@@ -467,7 +467,7 @@ describe('SettingsModal', () => {
                                     >
                                       <span
                                         aria-disabled="false"
-                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                        class="MuiButtonBase-root MuiButtonBase-root PrivateSwitchBase-root-265 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
                                       >
                                         <span
                                           class="MuiIconButton-label"
@@ -600,7 +600,7 @@ describe('SettingsModal', () => {
                     data-testid="settingsModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root makeStyles-root-432"
+                      class="MuiButtonBase-root MuiButtonBase-root makeStyles-root-432"
                       tabindex="0"
                       type="button"
                     >
@@ -768,7 +768,7 @@ describe('SettingsModal', () => {
                                   data-testid="invitation-code"
                                 />
                                 <button
-                                  class="MuiButtonBase-root MuiIconButton-root makeStyles-eyeIcon-524 MuiIconButton-sizeSmall"
+                                  class="MuiButtonBase-root MuiButtonBase-root makeStyles-eyeIcon-524 MuiIconButton-sizeSmall"
                                   tabindex="0"
                                   type="button"
                                 >

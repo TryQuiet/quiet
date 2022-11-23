@@ -1,6 +1,5 @@
 import React from 'react'
 import { styled } from '@mui/material/styles';
-import { withStyles } from '@mui/material/styles'
 import { Field } from 'formik'
 import { Checkbox, CheckboxProps as FormikCheckboxProps } from 'formik-material-ui'
 
@@ -8,12 +7,7 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import CheckBoxOutlineBlank from '@mui/icons-material/CheckBoxOutlineBlank'
 import CheckBoxIcon from '@mui/icons-material/CheckBox'
 
-const PREFIX = 'CheckboxWithLabel';
-const classes = {};
-
-const StyledFormControlLabel
- = styled(FormControlLabel
-)({});
+const StyledFormControlLabel = styled(FormControlLabel)({})
 
 interface CheckboxProps {
   name: string
@@ -38,7 +32,7 @@ export const CheckboxWithLabel: React.FC<CheckboxProps> = ({
   labelClass,
   rootClass
 }) => (
-  <FormControlLabel
+  <StyledFormControlLabel
     label={label}
     classes={{ root: rootClass, label: labelClass }}
     control={<Field name={name} component={StyledCheckbox} color={'primary'} />}

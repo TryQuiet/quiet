@@ -1,8 +1,8 @@
-import { CircularProgress, makeStyles, Theme } from '@mui/material'
+import { CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import React from 'react'
-import imageIcon from '../../../../static/images/imageIcon.svg'
-import Icon from '../../../ui/Icon/Icon'
+import React from 'react';
+import imageIcon from '../../../../static/images/imageIcon.svg';
+import Icon from '../../../ui/Icon/Icon';
 
 const PREFIX = 'UploadedImagePlaceholder';
 

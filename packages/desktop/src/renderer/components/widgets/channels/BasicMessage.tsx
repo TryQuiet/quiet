@@ -48,7 +48,7 @@ const classes = {
 
 const StyledListItem = styled(ListItem)((
   {
-    theme: Theme
+    theme
   }
 ) => ({
   [`& .${classes.messageCard}`]: {

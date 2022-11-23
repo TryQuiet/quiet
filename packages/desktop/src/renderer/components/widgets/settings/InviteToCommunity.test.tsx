@@ -70,7 +70,7 @@ describe('InviteToCommunity', () => {
                 •••••••••••••••••••••••••
               </p>
               <button
-                class="MuiButtonBase-root MuiIconButton-root makeStyles-eyeIcon-7 MuiIconButton-sizeSmall"
+                class="MuiButtonBase-root MuiButtonBase-root makeStyles-eyeIcon-7 MuiIconButton-sizeSmall"
                 tabindex="0"
                 type="button"
               >
@@ -188,7 +188,7 @@ describe('InviteToCommunity', () => {
                 http://registrarurl.onion
               </p>
               <button
-                class="MuiButtonBase-root MuiIconButton-root makeStyles-eyeIcon-206 MuiIconButton-sizeSmall"
+                class="MuiButtonBase-root MuiButtonBase-root makeStyles-eyeIcon-206 MuiIconButton-sizeSmall"
                 tabindex="0"
                 type="button"
               >

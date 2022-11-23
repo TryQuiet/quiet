@@ -108,47 +108,58 @@ export default createTheme({
       yellow: '#E6BB46'
     }
   },
-  overrides: {
+  components: {
     MuiSnackbarContent: {
-      root: {
-        wordBreak: 'break-all'
+      styleOverrides: {
+        root: {
+          wordBreak: 'break-all'
+        }
       }
     },
     MuiTab: {
-      wrapper: {
-        alignItems: 'flex-start'
+      styleOverrides: {
+        wrapped: { // TODO: it was 'wrapper' - check if this works
+          alignItems: 'flex-start'
+        }
       }
     },
     MuiButton: {
-      sizeSmall: {
-        textTransform: 'none',
-        boxShadow: 'none',
-        paddingLeft: '16px',
-        paddingRight: '14px',
-        fontWeight: 400,
-        fontSize: '14px',
-        '&:active': {
-          boxShadow: 'none'
-        }
-      },
-      sizeLarge: {
-        textTransform: 'none',
-        boxShadow: 'none',
-        fontWeight: 400,
-        paddingTop: 12,
-        paddingBottom: 12,
-        fontSize: 14,
-        '&:active': {
-          boxShadow: 'none'
+      styleOverrides: {
+        sizeSmall: {
+          textTransform: 'none',
+          boxShadow: 'none',
+          paddingLeft: '16px',
+          paddingRight: '14px',
+          fontWeight: 400,
+          fontSize: '14px',
+          '&:active': {
+            boxShadow: 'none'
+          }
+        },
+        sizeLarge: {
+          textTransform: 'none',
+          boxShadow: 'none',
+          fontWeight: 400,
+          paddingTop: 12,
+          paddingBottom: 12,
+          fontSize: 14,
+          '&:active': {
+            boxShadow: 'none'
+          }
         }
       }
+      
     },
     MuiOutlinedInput: {
-      input: {}
+      styleOverrides: {
+        input: {}
+      }
     },
     MuiPopover: {
-      paper: {
-        borderRadius: 8
+      styleOverrides: {
+        paper: {
+          borderRadius: 8
+        }
       }
     }
   }

@@ -44,7 +44,7 @@ describe('PasswordInput', () => {
               >
                 <button
                   aria-label="Toggle password visibility"
-                  class="MuiButtonBase-root MuiIconButton-root"
+                  class="MuiButtonBase-root MuiButtonBase-root"
                   tabindex="0"
                   type="button"
                 >
@@ -126,7 +126,7 @@ describe('PasswordInput', () => {
               >
                 <button
                   aria-label="Toggle password visibility"
-                  class="MuiButtonBase-root MuiIconButton-root"
+                  class="MuiButtonBase-root MuiButtonBase-root"
                   tabindex="0"
                   type="button"
                 >
@@ -208,7 +208,7 @@ describe('PasswordInput', () => {
               >
                 <button
                   aria-label="Toggle password visibility"
-                  class="MuiButtonBase-root MuiIconButton-root"
+                  class="MuiButtonBase-root MuiButtonBase-root"
                   tabindex="0"
                   type="button"
                 >

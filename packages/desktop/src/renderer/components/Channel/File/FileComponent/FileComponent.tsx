@@ -179,7 +179,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               style={{ position: 'absolute', color: theme.palette.colors.gray }}
             />
             <CircularProgress
-              variant='static'
+              variant='determinate'
               size={18}
               thickness={4}
               value={(downloadProgress.downloaded / downloadProgress.size) * 100}

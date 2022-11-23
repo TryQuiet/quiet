@@ -15,7 +15,7 @@ describe('IconButton', () => {
       <body>
         <div>
           <button
-            class="MuiButtonBase-root MuiIconButton-root makeStyles-root-1"
+            class="MuiButtonBase-root MuiButtonBase-root makeStyles-root-1"
             tabindex="0"
             type="button"
           >

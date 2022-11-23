@@ -81,7 +81,7 @@ export const UsernameCreated: React.FC<UsernameCreatedProps> = ({ handleClose, s
 
   setFormSent(false)
   return (
-    <StyledGrid container justify={'center'}>
+    <StyledGrid container justifyContent='center'>
       <Grid
         container
         className={classes.usernameConatainer}

@@ -33,7 +33,7 @@ describe('SidebarHeader', () => {
             >
               <span>
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root makeStyles-iconButton-4 MuiIconButton-edgeEnd"
+                  class="MuiButtonBase-root MuiButtonBase-root makeStyles-iconButton-4 MuiIconButton-edgeEnd"
                   data-testid="addChannelButton"
                   tabindex="0"
                   type="button"

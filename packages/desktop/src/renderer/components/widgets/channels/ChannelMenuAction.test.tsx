@@ -22,7 +22,7 @@ describe('ChannelMenuAction', () => {
       <body>
         <div>
           <button
-            class="MuiButtonBase-root MuiIconButton-root makeStyles-button-6"
+            class="MuiButtonBase-root MuiButtonBase-root makeStyles-button-6"
             tabindex="0"
             type="button"
           >

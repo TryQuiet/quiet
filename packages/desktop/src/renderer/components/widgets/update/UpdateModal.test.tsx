@@ -55,7 +55,7 @@ describe('UpdateModal', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root makeStyles-root-152"
+                      class="MuiButtonBase-root MuiButtonBase-root makeStyles-root-152"
                       tabindex="0"
                       type="button"
                     >

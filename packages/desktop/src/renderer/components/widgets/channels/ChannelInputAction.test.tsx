@@ -13,7 +13,7 @@ describe('ChannelInputAction', () => {
       <body>
         <div>
           <button
-            class="MuiButtonBase-root MuiIconButton-root makeStyles-button-3"
+            class="MuiButtonBase-root MuiButtonBase-root makeStyles-button-3"
             tabindex="0"
             type="button"
           >

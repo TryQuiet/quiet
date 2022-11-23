@@ -135,7 +135,7 @@ export const NewMessageModal: React.FC<NewMessageModalProps> = ({
                   inputValue={values.recipient || ''}
                   options={usersArray.map(option => option.username)}
                   value={values.recipient}
-                  onChange={(_e: React.ChangeEvent, v: string) => setFieldValue('recipient', v)}
+                  onChange={(_e: React.SyntheticEvent, v: string) => setFieldValue('recipient', v)}
                   onInputChange={(_e: React.ChangeEvent, v: string) => {
                     setFieldValue('recipient', v)
                   }}

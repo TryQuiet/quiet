@@ -1,19 +1,18 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 
 import { styled } from '@mui/material/styles';
 
-import Tabs from '@mui/material/Tabs'
-import AppBar from '@mui/material/AppBar'
-import { makeStyles } from '@mui/material/styles'
-import { Grid } from '@mui/material'
-import { AutoSizer } from 'react-virtualized'
-import { Scrollbars } from 'rc-scrollbars'
+import { Grid } from '@mui/material';
+import AppBar from '@mui/material/AppBar';
+import Tabs from '@mui/material/Tabs';
+import { Scrollbars } from 'rc-scrollbars';
+import { AutoSizer } from 'react-virtualized';
 
-import Modal from '../../../ui/Modal/Modal'
-import Tab from '../../../ui/Tab/Tab'
-import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
-import Notifications from '../../../../containers/widgets/settings/Notifications'
-import InviteToCommunity from '../../../../containers/widgets/settings/InviteToCommunity'
+import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm';
+import InviteToCommunity from '../../../../containers/widgets/settings/InviteToCommunity';
+import Notifications from '../../../../containers/widgets/settings/Notifications';
+import Modal from '../../../ui/Modal/Modal';
+import Tab from '../../../ui/Tab/Tab';
 
 const PREFIX = 'SettingsModal';
 
