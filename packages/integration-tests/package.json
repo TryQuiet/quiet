@@ -44,7 +44,7 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
-    "@peculiar/webcrypto": "1.2.2",
+    "@peculiar/webcrypto": "1.4.1",
     "@quiet/backend": "^0.12.0",
     "@quiet/identity": "^0.11.0",
     "@quiet/logger": "^0.11.0",
@@ -56,7 +56,7 @@
     "libp2p-websockets": "*",
     "lorem-ipsum": "^2.0.4",
     "luxon": "^2.0.2",
-    "pkijs": "2.1.97",
+    "pkijs": "^3.0.8",
     "redux": "^4.1.1",
     "redux-saga": "^1.1.3",
     "redux-thunk": "^2.4.0",

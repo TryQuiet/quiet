@@ -5,6 +5,10 @@
     "module": "ES2020",
     "target": "es2017",
     "jsx": "react",
+    "lib": [
+      "es2018",
+      "dom"
+    ],
     "typeRoots": [
       "../@types",
       "./node_modules/@types",

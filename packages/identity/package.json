@@ -48,9 +48,9 @@
     ]
   },
   "dependencies": {
-    "@peculiar/webcrypto": "1.2.2",
+    "@peculiar/webcrypto": "1.4.1",
     "@quiet/logger": "^0.11.0",
-    "pkijs": "~2.1.97"
+    "pkijs": "^3.0.8"
   },
   "devDependencies": {
     "@babel/runtime": "^7.12.5",
