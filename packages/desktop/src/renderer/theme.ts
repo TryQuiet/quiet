@@ -1,9 +1,9 @@
-import { createTheme } from '@mui/material/styles'
+import { createTheme, adaptV4Theme } from '@mui/material/styles';
 
 const font = "'Rubik', sans-serif"
 const fontLogs = 'Menlo Regular'
 
-export default createTheme({
+export default createTheme(adaptV4Theme({
   typography: {
     fontFamily: [font, fontLogs].join(','),
     fontStyle: 'normal',
@@ -163,4 +163,4 @@ export default createTheme({
       }
     }
   }
-})
+}))

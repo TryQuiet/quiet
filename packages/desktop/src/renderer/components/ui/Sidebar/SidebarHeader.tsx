@@ -98,7 +98,8 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
               action()
             }}
             edge='end'
-            data-testid={'addChannelButton'}>
+            data-testid={'addChannelButton'}
+            size="large">
             <PlusIconWithBorder color='white' />
           </IconButton>
         </Tooltip>

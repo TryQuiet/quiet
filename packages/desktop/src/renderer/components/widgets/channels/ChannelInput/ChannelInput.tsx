@@ -81,7 +81,7 @@ const useStyles = makeStyles(theme => ({
   },
   backdrop: {
     height: 'auto',
-    padding: `${theme.spacing(1)}px`,
+    padding: theme.spacing(1),
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
     WebkitTapHighlightColor: 'transparent',
     pointerEvents: 'none',

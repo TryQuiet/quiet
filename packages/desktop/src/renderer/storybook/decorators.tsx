@@ -1,8 +1,15 @@
 import React from 'react'
 import { Provider } from 'react-redux'
-import { ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles';
 
 import theme from '../theme'
+
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
 
 export const withStore = store => Story => (
   <Provider store={store}>
@@ -11,7 +18,9 @@ export const withStore = store => Story => (
 )
 
 export const withTheme = Story => (
-  <ThemeProvider theme={theme}>
-    <Story />
-  </ThemeProvider>
+  <StyledEngineProvider injectFirst>
+    <ThemeProvider theme={theme}>
+      <Story />
+    </ThemeProvider>
+  </StyledEngineProvider>
 )

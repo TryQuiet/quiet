@@ -1,7 +1,7 @@
 import 'typeface-roboto'
 import React from 'react'
 import CssBaseline from '@mui/material/CssBaseline'
-import { ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles';
 import { Provider } from 'react-redux'
 import { HashRouter, Route } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
@@ -24,32 +24,41 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { DndProvider } from 'react-dnd'
 import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
 
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
+
 export const persistor = persistStore(store)
 export default () => {
   return (
-    <ThemeProvider theme={theme}>
-      <DndProvider backend={HTML5Backend}>
-        <HashRouter>
-          <Provider store={store}>
-            <PersistGate loading={null} persistor={persistor}>
-              <SentryWarning />
-              <ErrorModal />
-              <LoadingPanel />
-              <CreateChannel />
-              <JoinCommunity />
-              <CreateCommunity />
-              <CreateUsername />
-              <CssBaseline />
-              <JoinChannelModal />
-              <SettingsModal />
-              <UpdateModal />
-              <QuitAppDialog />
-              <Route path='/' component={Index} />
-              <Route path='/main' component={Main} />
-            </PersistGate>
-          </Provider>
-        </HashRouter>
-      </DndProvider>
-    </ThemeProvider>
-  )
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <DndProvider backend={HTML5Backend}>
+          <HashRouter>
+            <Provider store={store}>
+              <PersistGate loading={null} persistor={persistor}>
+                <SentryWarning />
+                <ErrorModal />
+                <LoadingPanel />
+                <CreateChannel />
+                <JoinCommunity />
+                <CreateCommunity />
+                <CreateUsername />
+                <CssBaseline />
+                <JoinChannelModal />
+                <SettingsModal />
+                <UpdateModal />
+                <QuitAppDialog />
+                <Route path='/' component={Index} />
+                <Route path='/main' component={Main} />
+              </PersistGate>
+            </Provider>
+          </HashRouter>
+        </DndProvider>
+      </ThemeProvider>
+    </StyledEngineProvider>
+  );
 }

@@ -38,7 +38,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
           <IconButton
             aria-label='Toggle password visibility'
             onClick={handleTogglePassword}
-          >
+            size="large">
             {passwordVisible ? <Visibility /> : <VisibilityOff />}
           </IconButton>
         </InputAdornment>

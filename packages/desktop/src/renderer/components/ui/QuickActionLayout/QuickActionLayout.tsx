@@ -105,7 +105,7 @@ export const QuickActionLayout: React.FC<QuickActionLayoutProps> = ({
       justifyContent='flex-start'
       alignItems='center'>
       <Grid className={classes.closeIcon} container item direction='row' justifyContent='flex-start'>
-        <IconButton onClick={handleClose}>
+        <IconButton onClick={handleClose} size="large">
           <ClearIcon />
         </IconButton>
       </Grid>

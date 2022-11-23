@@ -1,15 +1,24 @@
 import React from 'react'
 import theme from '../../../theme'
-import { ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles';
 import { WelcomeMessage } from './WelcomeMessage'
 import { renderComponent } from '../../../testUtils/renderComponent'
+
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
 
 describe('WelcomeMessage', () => {
   it('renders component', () => {
     const result = renderComponent(
-      <ThemeProvider theme={theme}>
-        <WelcomeMessage message={'random message'} timestamp={'string'} />
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <WelcomeMessage message={'random message'} timestamp={'string'} />
+        </ThemeProvider>
+      </StyledEngineProvider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

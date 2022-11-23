@@ -23,7 +23,7 @@ const StyledMenuAction = styled(MenuAction)((
   }
 ) => ({
   [`& .${classes.menuList}`]: {
-    padding: `${theme.spacing(1.5)}px 0`
+    padding: `${theme.spacing(1.5)} 0`
   },
 
   [`& .${classes.icon}`]: {

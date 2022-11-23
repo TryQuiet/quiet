@@ -29,7 +29,8 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({ name, label = '', 
             <IconButton
               aria-label='Toggle password visibility'
               onClick={() => setVisible(!visible)}
-              tabIndex={-1}>
+              tabIndex={-1}
+              size="large">
               {visible ? <Visibility /> : <VisibilityOff />}
             </IconButton>
           </InputAdornment>
@@ -37,7 +38,7 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({ name, label = '', 
       }}
       {...props}
     />
-  )
+  );
 }
 
 export default PasswordField

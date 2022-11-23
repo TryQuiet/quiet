@@ -33,7 +33,7 @@ const Root = styled('div')(() => ({
 }));
 
 const RefIconButton = React.forwardRef<HTMLButtonElement, React.PropsWithChildren<IconButtonProps>>(
-  (props, ref) => <IconButton {...props} ref={ref} />
+  (props, ref) => <IconButton {...props} ref={ref} size="large" />
 )
 
 interface MenuActionProps {
