@@ -21,7 +21,7 @@ import {
   PushNotificationPayload
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
-import Libp2p from 'libp2p'
+import { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
@@ -173,7 +173,7 @@ export class Storage extends EventEmitter {
     // @ts-ignore
     return await IPFS.create({
       // error here 'permission denied 0.0.0.0:443'
-      libp2p: async () => libp2p,
+      //libp2p: async () => libp2p,
       preload: { enabled: false },
       repo: this.ipfsRepoPath,
       EXPERIMENTAL: {
@@ -579,10 +579,12 @@ export class Storage extends EventEmitter {
   }
 
   public async downloadFile(metadata: FileMetadata) {
-    const _CID = CID.parse(metadata.cid)
+    type IPFSPath = CID | string
+
+    const _CID: IPFSPath = CID.parse(metadata.cid)
 
     // Compare actual and reported file size
-    const stat = await this.ipfs.files.stat(_CID)
+    const stat = await this.ipfs.files.stat(_CID as any)
     if (!compare(metadata.size, stat.size, 0.05)) {
       const maliciousStatus: DownloadStatus = {
         mid: metadata.message.id,
@@ -595,7 +597,7 @@ export class Storage extends EventEmitter {
 
       return
     }
-    const entries = this.ipfs.cat(_CID)
+    const entries = this.ipfs.cat(_CID as any)
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
     createPaths([downloadDirectory])

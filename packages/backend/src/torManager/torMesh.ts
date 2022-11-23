@@ -46,7 +46,7 @@ let finishedRequests = 0
 
 const createServer = async (port, serverAddress: string) => {
   const app: express.Application = express()
-  app.use(express.json())
+ // app.use(express.json())
   // eslint-disable-next-line
   app.post('/test', async (req, res) => {
     // eslint-disable-next-line

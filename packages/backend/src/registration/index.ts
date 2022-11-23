@@ -46,7 +46,7 @@ export class CertificateRegistration extends EventEmitter {
   private pendingPromise: Promise<{ status: number; body: any }> = null
 
   private setRouting() {
-    this._app.use(express.json())
+    //this._app.use(express.json())
     this._app.post(
       '/register',
       async (req, res): Promise<void> => {

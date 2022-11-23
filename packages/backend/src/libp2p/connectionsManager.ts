@@ -2,7 +2,7 @@ import { NOISE } from '@chainsafe/libp2p-noise'
 import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
 import { HttpsProxyAgent } from 'https-proxy-agent'
-import Libp2p, { Connection } from 'libp2p'
+import { Libp2p, createLibp2p } from 'libp2p'
 import Websockets from 'libp2p-websockets'
 import SocketIO from 'socket.io'
 import Bootstrap from 'libp2p-bootstrap'
@@ -539,40 +539,40 @@ export class ConnectionsManager extends EventEmitter {
       transportClass: WebsocketsOverTor,
       targetPort: params.targetPort
     }
-    const libp2p = ConnectionsManager.createBootstrapNode(nodeParams)
+    const libp2p = await  ConnectionsManager.createBootstrapNode(nodeParams)
 
     this.libp2pInstance = libp2p
 
-    libp2p.on('peer:discovery', (peer: PeerId) => {
-      log(`${params.peerId.toB58String()} discovered ${peer.toB58String()}`)
-    })
+    // libp2p.on('peer:discovery', (peer: PeerId) => {
+    //   log(`${params.peerId.toB58String()} discovered ${peer.toB58String()}`)
+    // })
 
-    libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
-      log(`${params.peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
-      this.connectedPeers.set(connection.remotePeer.toB58String(), DateTime.utc().valueOf())
+    // libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
+    //   log(`${params.peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
+    //   this.connectedPeers.set(connection.remotePeer.toB58String(), DateTime.utc().valueOf())
 
-      this.emit(Libp2pEvents.PEER_CONNECTED, {
-        peers: [connection.remotePeer.toB58String()]
-      })
-    })
+    //   this.emit(Libp2pEvents.PEER_CONNECTED, {
+    //     peers: [connection.remotePeer.toB58String()]
+    //   })
+    // })
 
-    libp2p.connectionManager.on('peer:disconnect', (connection: Connection) => {
-      log(`${params.peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
+    // libp2p.connectionManager.on('peer:disconnect', (connection: Connection) => {
+    //   log(`${params.peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
 
-      const connectionStartTime = this.connectedPeers.get(connection.remotePeer.toB58String())
+    //   const connectionStartTime = this.connectedPeers.get(connection.remotePeer.toB58String())
 
-      const connectionEndTime: number = DateTime.utc().valueOf()
+    //   const connectionEndTime: number = DateTime.utc().valueOf()
 
-      const connectionDuration: number = connectionEndTime - connectionStartTime
+    //   const connectionDuration: number = connectionEndTime - connectionStartTime
 
-      this.connectedPeers.delete(connection.remotePeer.toB58String())
+    //   this.connectedPeers.delete(connection.remotePeer.toB58String())
 
-      this.emit(Libp2pEvents.PEER_DISCONNECTED, {
-        peer: connection.remotePeer.toB58String(),
-        connectionDuration,
-        lastSeen: connectionEndTime
-      })
-    })
+    //   this.emit(Libp2pEvents.PEER_DISCONNECTED, {
+    //     peer: connection.remotePeer.toB58String(),
+    //     connectionDuration,
+    //     lastSeen: connectionEndTime
+    //   })
+    // })
 
     log(`Initialized libp2p for peer ${params.peerId.toB58String()}`)
 
@@ -582,8 +582,8 @@ export class ConnectionsManager extends EventEmitter {
     }
   }
 
-  public static readonly createBootstrapNode = (params: Libp2pNodeParams): Libp2p => {
-    return ConnectionsManager.defaultLibp2pNode(params)
+  public static readonly createBootstrapNode = async (params: Libp2pNodeParams): Promise<Libp2p> => {
+    return await ConnectionsManager.defaultLibp2pNode(params)
   }
 
   public readonly createLibp2pAddress = (address: string, peerId: string): string => {
@@ -594,62 +594,56 @@ export class ConnectionsManager extends EventEmitter {
     return createLibp2pListenAddress(address)
   }
 
-  private static readonly defaultLibp2pNode = (params: Libp2pNodeParams): Libp2p => {
-    return new Libp2p({
+  private static readonly defaultLibp2pNode = async (params: Libp2pNodeParams): Promise<Libp2p> => {
+    return await createLibp2p({
       connectionManager: {
         minConnections: 3,
-        maxConnections: 8
-      },
-      peerId: params.peerId,
-      addresses: {
-        listen: params.listenAddresses
-      },
-      modules: {
-        transport: [params.transportClass],
-        peerDiscovery: [Bootstrap],
-        streamMuxer: [Mplex],
-        connEncryption: [NOISE],
-        dht: KademliaDHT,
-        pubsub: Gossipsub
-      },
-      dialer: {
+        maxConnections: 8,
         dialTimeout: 120_000,
         maxParallelDials: 10
       },
-      config: {
-        peerDiscovery: {
-          [Bootstrap.tag]: {
-            enabled: true,
-            list: params.bootstrapMultiaddrsList
-          },
-          autoDial: true
-        },
-        relay: {
+      //peerId: params.peerId,
+      addresses: {
+        listen: params.listenAddresses
+      },
+      transports: [params.transportClass],
+      streamMuxers: [Mplex],
+      peerDiscovery: [Bootstrap],
+      connectionEncryption: [NOISE],
+      relay: {
+        enabled: true,
+        hop: {
           enabled: true,
-          hop: {
-            enabled: true,
-            active: false
-          }
-        },
-        dht: {
-          enabled: true,
-          randomWalk: {
-            enabled: true
-          }
-        },
-        transport: {
-          [params.transportClass.name]: {
-            websocket: {
-              agent: params.agent,
-              cert: params.cert,
-              key: params.key,
-              ca: params.ca
-            },
-            localAddress: params.localAddress,
-            targetPort: params.targetPort
-          }
+          active: false
         }
-      }
+      },
+      // dht: {
+      //   enabled: true,
+      //   randomWalk: {
+      //     enabled: true
+      //   }
+      // },
+      // dht: KademliaDHT,
+      // pubsub: Gossipsub,
+      // transport: {
+      //   [params.transportClass.name]: {
+      //     websocket: {
+      //       agent: params.agent,
+      //       cert: params.cert,
+      //       key: params.key,
+      //       ca: params.ca
+      //     },
+      //     localAddress: params.localAddress,
+      //     targetPort: params.targetPort
+      //   }
+      // }
+      // peerDiscovery: {
+      //   [Bootstrap.tag]: {
+      //     enabled: true,
+      //     list: params.bootstrapMultiaddrsList
+      //   },
+      //   autoDial: true
+      // },
     })
   }
 }

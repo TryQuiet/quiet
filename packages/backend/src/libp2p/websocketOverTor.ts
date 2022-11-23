@@ -39,6 +39,10 @@ class WebsocketsOverTor extends WebSockets {
   targetPort: number
   constructor({ upgrader, websocket, localAddress, targetPort }) {
     super({ upgrader })
+    console.log('upgrader', upgrader)
+    console.log('websocket', websocket)
+    console.log('localaddress', localAddress)
+    console.log('targetPort', targetPort)
     this._websocketOpts = websocket
     this.localAddress = localAddress
     this.peerId = localAddress.split('/').pop()
