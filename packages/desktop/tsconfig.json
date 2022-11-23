@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
+    "module": "ES2020",
     "target": "es2017",
     "jsx": "react",
     "typeRoots": [

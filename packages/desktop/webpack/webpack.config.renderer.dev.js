@@ -58,7 +58,6 @@ module.exports = {
       template: 'src/renderer/splashScreen/splash.html',
       filename: 'splash.html'
     }),
-    new webpack.HotModuleReplacementPlugin(),
     new WebpackOnBuildPlugin(async () => {
       if (!mainRunning) {
         console.log('Starting main process...')
