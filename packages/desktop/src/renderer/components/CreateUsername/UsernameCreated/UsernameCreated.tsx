@@ -88,7 +88,7 @@ export const UsernameCreated: React.FC<UsernameCreatedProps> = ({ handleClose, s
         item
         xs={12}
         direction='row'
-        justify='center'
+        justifyContent='center'
       >
         <Icon className={classes.usernameIcon} src={usernameIcon} />
       </Grid>
@@ -98,7 +98,7 @@ export const UsernameCreated: React.FC<UsernameCreatedProps> = ({ handleClose, s
         className={classes.infoConatainer}
         xs={12}
         direction='row'
-        justify='center'
+        justifyContent='center'
       >
         <Typography variant={'h4'}>You created a username</Typography>
       </Grid>

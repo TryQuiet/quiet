@@ -1,13 +1,27 @@
 import React from 'react'
 
+import { styled } from '@mui/material/styles';
+
 import { makeStyles } from '@mui/material/styles'
 import Button, { ButtonProps } from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 
 import classNames from 'classnames'
 
-const useStyles = makeStyles(theme => ({
-  button: {
+const PREFIX = 'LoadingButton';
+
+const classes = {
+  button: `${PREFIX}-button`,
+  inProgress: `${PREFIX}-inProgress`,
+  progress: `${PREFIX}-progress`
+};
+
+const StyledButton = styled(Button)((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.button}`]: {
     maxWidth: 286,
     minWidth: 100,
     height: 60,
@@ -20,21 +34,23 @@ const useStyles = makeStyles(theme => ({
       opacity: 0.7
     }
   },
-  inProgress: {
+
+  [`&.${classes.inProgress}`]: {
     '&:disabled': {
       backgroundColor: theme.palette.colors.quietBlue,
       opacity: 1
     }
   },
-  progress: {
+
+  [`& .${classes.progress}`]: {
     color: theme.palette.colors.white
   }
-}))
+}));
 
 interface LoadingButtonProps {
   inProgress?: boolean
   text?: string
-  classes?: Partial<ReturnType<typeof useStyles>>
+
 }
 
 export const LoadingButton: React.FC<ButtonProps & LoadingButtonProps> = ({
@@ -44,15 +60,15 @@ export const LoadingButton: React.FC<ButtonProps & LoadingButtonProps> = ({
   ...buttonProps
 }) => {
   const classes = {
-    ...useStyles({}),
+
     ...customClasses
   }
 
   return (
-    <Button className={classNames(classes.button, { [classes.inProgress]: inProgress })} {...buttonProps}>
+    <StyledButton className={classNames(classes.button, { [classes.inProgress]: inProgress })} {...buttonProps}>
       {inProgress ? <CircularProgress size={20} className={classes.progress} data-testid={'loading-button-progress'} /> : text }
-    </Button>
-  )
+    </StyledButton>
+  );
 }
 
 export default LoadingButton

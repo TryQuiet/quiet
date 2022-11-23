@@ -1,14 +1,27 @@
 import React from 'react'
+import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid'
 import { makeStyles } from '@mui/material/styles'
 import { Scrollbars } from 'rc-scrollbars'
 import { AutoSizer } from 'react-virtualized'
 import IdentityPanel, { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
 import ChannelsPanel, { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel'
-// import DirectMessagesPanel from '../../../containers/widgets/channels/DirectMessagesPanel'
+const PREFIX = 'SidebarComponent';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const classes = {
+  root: `${PREFIX}-root`,
+  padding: `${PREFIX}-padding`,
+  content: `${PREFIX}-content`,
+  gutterBottom: `${PREFIX}-gutterBottom`,
+  walletInfo: `${PREFIX}-walletInfo`
+};
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.root}`]: {
     paddingTop: '30px',
     minHeight: '100%',
     width: '220px',
@@ -16,26 +29,30 @@ const useStyles = makeStyles((theme) => ({
     backgroundImage: 'linear-gradient(290.29deg, #521576 18.61%, #E42656 96.07%)',
     color: theme.palette.colors.white
   },
-  padding: {
+
+  [`& .${classes.padding}`]: {
     padding: 0
   },
-  content: {
+
+  [`& .${classes.content}`]: {
     height: '100%'
   },
-  gutterBottom: {
+
+  [`& .${classes.gutterBottom}`]: {
     marginBottom: theme.spacing(4)
   },
-  walletInfo: {
+
+  [`& .${classes.walletInfo}`]: {
     backgroundColor: 'rgb(0,0,0,0.1)'
   }
-}))
+}));
 
 const SidebarComponent: React.FC<IdentityPanelProps & ChannelsPanelProps> = ({
   ...props
 }) => {
-  const classes = useStyles({})
+
   return (
-    <Grid container direction='column' className={classes.root}>
+    <StyledGrid container direction='column' className={classes.root}>
       <Grid item xs container direction='column' className={classes.padding}>
         <Grid item >
           <IdentityPanel {...props} />
@@ -51,8 +68,8 @@ const SidebarComponent: React.FC<IdentityPanelProps & ChannelsPanelProps> = ({
           </AutoSizer>
         </Grid>
       </Grid>
-    </Grid>
-  )
+    </StyledGrid>
+  );
 }
 
 export default SidebarComponent

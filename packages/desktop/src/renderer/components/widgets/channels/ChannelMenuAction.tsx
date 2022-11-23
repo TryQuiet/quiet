@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { styled } from '@mui/material/styles';
+
 import { makeStyles } from '@mui/material/styles'
 import { Grid } from '@mui/material'
 
@@ -7,21 +9,35 @@ import dotsIcon from '../../../static/images/zcash/dots-icon.svg'
 import MenuAction from '../../ui/MenuAction/MenuAction'
 import MenuActionItem from '../../ui/MenuAction/MenuActionItem'
 
-const useStyles = makeStyles((theme) => ({
-  menuList: {
+const PREFIX = 'ChannelMenuActionComponent';
+
+const classes = {
+  menuList: `${PREFIX}-menuList`,
+  icon: `${PREFIX}-icon`,
+  sublabel: `${PREFIX}-sublabel`
+};
+
+const StyledMenuAction = styled(MenuAction)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.menuList}`]: {
     padding: `${theme.spacing(1.5)}px 0`
   },
-  icon: {
+
+  [`& .${classes.icon}`]: {
     width: 30,
     height: 30
   },
-  sublabel: {
+
+  [`& .${classes.sublabel}`]: {
     color: theme.palette.colors.darkGray,
     letterSpacing: 0.4,
     fontSize: 12,
     lineHeight: '18px'
   }
-}))
+}));
 
 export interface ChannelMenuActionProps {
   onInfo: () => void
@@ -46,10 +62,10 @@ export const ChannelMenuActionComponent: React.FC<ChannelMenuActionProps> = ({
   notificationFilter,
   openNotificationsTab
 }) => {
-  const classes = useStyles({})
+
   const [openDialog, setOpenDialog] = React.useState(false)
   return (
-    <MenuAction
+    <StyledMenuAction
       icon={dotsIcon}
       iconHover={dotsIcon}
       offset='0 8'
@@ -104,8 +120,8 @@ export const ChannelMenuActionComponent: React.FC<ChannelMenuActionProps> = ({
         handleClose={() => setOpenDialog(false)}
         handleAction={onDelete}
       /> */}
-    </MenuAction>
-  )
+    </StyledMenuAction>
+  );
 }
 
 export default ChannelMenuActionComponent

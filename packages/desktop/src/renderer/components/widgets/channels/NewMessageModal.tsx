@@ -1,4 +1,5 @@
 import React from 'react'
+import { styled } from '@mui/material/styles';
 import { Formik, Form } from 'formik'
 import { Typography } from '@mui/material'
 import Grid from '@mui/material/Grid'
@@ -14,21 +15,38 @@ import { User } from '@quiet/state-manager'
 
 import { Dictionary } from '@reduxjs/toolkit'
 
-const useStyles = makeStyles(theme => ({
-  root: {
+const PREFIX = 'NewMessageModal';
+
+const classes = {
+  root: `${PREFIX}-root`,
+  fullContainer: `${PREFIX}-fullContainer`,
+  gutter: `${PREFIX}-gutter`,
+  button: `${PREFIX}-button`,
+  title: `${PREFIX}-title`
+};
+
+const StyledModal = styled(Modal)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.root}`]: {
     padding: 32,
     height: '100%',
     width: '100%'
   },
-  fullContainer: {
+
+  [`& .${classes.fullContainer}`]: {
     width: '100%',
     height: '100%'
   },
-  gutter: {
+
+  [`& .${classes.gutter}`]: {
     marginBottom: theme.spacing(4),
     marginTop: 0
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     marginTop: 24,
     width: 165,
     backgroundColor: theme.palette.colors.quietBlue,
@@ -37,10 +55,11 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.colors.quietBlue
     }
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     marginBottom: 24
   }
-}))
+}));
 
 interface NewMessageModalProps {
   open: boolean
@@ -55,10 +74,10 @@ export const NewMessageModal: React.FC<NewMessageModalProps> = ({
   sendMessage,
   users
 }) => {
-  const classes = useStyles({})
+
   const usersArray = Array.from(Object.values(users))
   return (
-    <Modal open={open} handleClose={handleClose} title='' fullPage>
+    <StyledModal open={open} handleClose={handleClose} title='' fullPage>
       <Grid className={classes.root}>
         <Formik
           initialValues={{
@@ -103,7 +122,7 @@ export const NewMessageModal: React.FC<NewMessageModalProps> = ({
             <Form className={classes.fullContainer}>
               <Grid
                 container
-                justify='flex-start'
+                justifyContent='flex-start'
                 direction='column'
                 className={classes.fullContainer}>
                 <Typography variant='h3' className={classes.title}>
@@ -153,8 +172,8 @@ export const NewMessageModal: React.FC<NewMessageModalProps> = ({
           )}
         </Formik>
       </Grid>
-    </Modal>
-  )
+    </StyledModal>
+  );
 }
 
 export default NewMessageModal

@@ -1,46 +1,71 @@
 import React, { MouseEvent } from 'react'
+import { styled } from '@mui/material/styles';
 import classNames from 'classnames'
 import Jdenticon from '../../../Jdenticon/Jdenticon'
 import { makeStyles } from '@mui/material/styles'
 import { Grid, Typography } from '@mui/material'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'MentionElement';
+
+const classes = {
+  root: `${PREFIX}-root`,
+  avatarDiv: `${PREFIX}-avatarDiv`,
+  alignAvatar: `${PREFIX}-alignAvatar`,
+  data: `${PREFIX}-data`,
+  highlight: `${PREFIX}-highlight`,
+  name: `${PREFIX}-name`,
+  caption: `${PREFIX}-caption`,
+  captionHighlight: `${PREFIX}-captionHighlight`
+};
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.root}`]: {
     paddingTop: 10,
     paddingLeft: 16
   },
-  avatarDiv: {
+
+  [`& .${classes.avatarDiv}`]: {
     maxHeight: 18,
     maxWidth: 18,
     borderRadius: 4,
     backgroundColor: theme.palette.colors.grayBackgroud
   },
-  alignAvatar: {
+
+  [`& .${classes.alignAvatar}`]: {
     width: 17,
     height: 17,
     marginLeft: 1,
     marginTop: 1
   },
-  data: {
+
+  [`& .${classes.data}`]: {
     marginLeft: 9
   },
-  highlight: {
+
+  [`&.${classes.highlight}`]: {
     backgroundColor: theme.palette.colors.lushSky,
     color: theme.palette.colors.white
   },
-  name: {
+
+  [`& .${classes.name}`]: {
     marginTop: -4
   },
-  caption: {
+
+  [`& .${classes.caption}`]: {
     lineHeight: '18px',
     fontSize: 12,
     letterSpacing: 0.4,
     color: 'rgba(0,0,0,0.6)'
   },
-  captionHighlight: {
+
+  [`& .${classes.captionHighlight}`]: {
     color: 'rgba(255,255,255,0.6)'
   }
-}))
+}));
 
 export interface MentionElementProps {
   name: string
@@ -59,9 +84,9 @@ export const MentionElement: React.FC<MentionElementProps> = ({
   onMouseEnter,
   onClick
 }) => {
-  const classes = useStyles({})
+
   return (
-    <Grid
+    <StyledGrid
       container
       className={classNames({
         [classes.root]: true,
@@ -89,8 +114,8 @@ export const MentionElement: React.FC<MentionElementProps> = ({
           >{`Participant in ${channelName}`}</Typography>
         )}
       </Grid>
-    </Grid>
-  )
+    </StyledGrid>
+  );
 }
 
 export default MentionElement

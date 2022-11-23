@@ -1,4 +1,5 @@
 import React from 'react'
+import { styled } from '@mui/material/styles';
 import { withStyles } from '@mui/material/styles'
 import { Field } from 'formik'
 import { Checkbox, CheckboxProps as FormikCheckboxProps } from 'formik-material-ui'
@@ -6,6 +7,13 @@ import { Checkbox, CheckboxProps as FormikCheckboxProps } from 'formik-material-
 import FormControlLabel from '@mui/material/FormControlLabel'
 import CheckBoxOutlineBlank from '@mui/icons-material/CheckBoxOutlineBlank'
 import CheckBoxIcon from '@mui/icons-material/CheckBox'
+
+const PREFIX = 'CheckboxWithLabel';
+const classes = {};
+
+const StyledFormControlLabel
+ = styled(FormControlLabel
+)({});
 
 interface CheckboxProps {
   name: string
@@ -16,7 +24,7 @@ interface CheckboxProps {
 
 interface StyledCheckboxProps extends CheckboxProps {}
 
-const StyledCheckbox = withStyles({})((props: FormikCheckboxProps & StyledCheckboxProps) => (
+const StyledCheckbox = ((props: FormikCheckboxProps & StyledCheckboxProps) => (
   <Checkbox
     {...props}
     checkedIcon={<CheckBoxIcon style={{ fontSize: '18px' }} />}

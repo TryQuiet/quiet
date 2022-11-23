@@ -4,6 +4,7 @@ import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
 import Picker from 'emoji-picker-react'
 import Grid from '@mui/material/Grid'
 import { makeStyles } from '@mui/material/styles'
+import { styled } from '@mui/material/styles'
 import orange from '@mui/material/colors/orange'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import ChannelInputInfoMessage from './ChannelInputInfoMessage'
@@ -422,7 +423,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           [classes.root]: true
         })}
         direction='column'
-        justify='center'>
+        justifyContent='center'>
         {/* <MentionPoper anchorEl={anchorEl} selected={selected}>
           {mentionsToSelect.map((target, index) => (
             <MentionElement
@@ -443,7 +444,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           container
           direction='row'
           alignItems='center'
-          justify='center'
+          justifyContent='center'
           spacing={0}
           className={classNames({
             [classes.inputsDiv]: true
@@ -460,7 +461,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                 [classes.textfield]: true,
                 [classes.focused]: focused
               })}
-              justify='center'
+              justifyContent='center'
               alignItems='center'>
               <Grid item xs>
                 <ContentEditable
@@ -496,7 +497,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               {children}
               <div className={classes.icons}>
                 <Grid item className={classes.actions}>
-                  <Grid container justify='center' alignItems='center'>
+                  <Grid container justifyContent='center' alignItems='center'>
                     <Icon
                       className={classes.emoji}
                       src={fileExplorerHovered ? paperclipBlack : paperclipGray}
@@ -521,7 +522,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   </Grid>
                 </Grid>
                 <Grid item className={classes.actions}>
-                  <Grid container justify='center' alignItems='center'>
+                  <Grid container justifyContent='center' alignItems='center'>
                     <Icon
                       className={classes.emoji}
                       src={emojiHovered ? emojiBlack : emojiGray}

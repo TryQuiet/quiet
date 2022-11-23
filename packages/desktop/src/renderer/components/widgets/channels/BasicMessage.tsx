@@ -1,4 +1,5 @@
 import React from 'react'
+import { styled } from '@mui/material/styles';
 import { Dictionary } from '@reduxjs/toolkit'
 import { makeStyles, Theme } from '@mui/material/styles'
 import classNames from 'classnames'
@@ -23,43 +24,78 @@ import information from '../../../static/images/updateIcon.svg'
 
 import Icon from '../../ui/Icon/Icon'
 
-const useStyles = makeStyles((theme: Theme) => ({
-  messageCard: {
+const PREFIX = 'BasicMessageComponent';
+
+const classes = {
+  messageCard: `${PREFIX}-messageCard`,
+  wrapper: `${PREFIX}-wrapper`,
+  infoWrapper: `${PREFIX}-infoWrapper`,
+  clickable: `${PREFIX}-clickable`,
+  wrapperPending: `${PREFIX}-wrapperPending`,
+  username: `${PREFIX}-username`,
+  statusIcon: `${PREFIX}-statusIcon`,
+  broadcasted: `${PREFIX}-broadcasted`,
+  failed: `${PREFIX}-failed`,
+  avatar: `${PREFIX}-avatar`,
+  alignAvatar: `${PREFIX}-alignAvatar`,
+  moderation: `${PREFIX}-moderation`,
+  time: `${PREFIX}-time`,
+  iconBox: `${PREFIX}-iconBox`,
+  pending: `${PREFIX}-pending`,
+  info: `${PREFIX}-info`,
+  infoIcon: `${PREFIX}-infoIcon`
+};
+
+const StyledListItem = styled(ListItem)((
+  {
+    theme: Theme
+  }
+) => ({
+  [`& .${classes.messageCard}`]: {
     padding: '0 4px'
   },
-  wrapper: {
+
+  [`&.${classes.wrapper}`]: {
     backgroundColor: theme.palette.colors.white,
     '&:hover': {
       backgroundColor: theme.palette.colors.gray03
     }
   },
-  infoWrapper: {
+
+  [`& .${classes.infoWrapper}`]: {
     backgroundColor: `${theme.palette.colors.blue} !important`
   },
-  clickable: {
+
+  [`& .${classes.clickable}`]: {
     cursor: 'pointer'
   },
-  wrapperPending: {
+
+  [`& .${classes.wrapperPending}`]: {
     background: theme.palette.colors.white
   },
-  username: {
+
+  [`& .${classes.username}`]: {
     fontSize: 16,
     fontWeight: 500,
     marginTop: -4,
     marginRight: 5
   },
-  statusIcon: {
+
+  [`& .${classes.statusIcon}`]: {
     color: theme.palette.colors.lightGray,
     fontSize: 21,
     marginLeft: theme.spacing(1)
   },
-  broadcasted: {
+
+  [`& .${classes.broadcasted}`]: {
     color: theme.palette.colors.lightGray
   },
-  failed: {
+
+  [`& .${classes.failed}`]: {
     color: red[500]
   },
-  avatar: {
+
+  [`& .${classes.avatar}`]: {
     minHeight: 36,
     minWidth: 36,
     marginRight: 10,
@@ -67,35 +103,42 @@ const useStyles = makeStyles((theme: Theme) => ({
     borderRadius: 4,
     backgroundColor: theme.palette.colors.grayBackgroud
   },
-  alignAvatar: {
+
+  [`& .${classes.alignAvatar}`]: {
     marginTop: 2,
     marginLeft: 2,
     width: 32,
     height: 32
   },
-  moderation: {
+
+  [`& .${classes.moderation}`]: {
     cursor: 'pointer',
     marginRight: 10
   },
-  time: {
+
+  [`& .${classes.time}`]: {
     color: theme.palette.colors.lightGray,
     fontSize: 14,
     marginTop: -4,
     marginRight: 5
   },
-  iconBox: {
+
+  [`& .${classes.iconBox}`]: {
     marginTop: -4
   },
-  pending: {
+
+  [`& .${classes.pending}`]: {
     color: theme.palette.colors.lightGray
   },
-  info: {
+
+  [`& .${classes.info}`]: {
     color: theme.palette.colors.white
   },
-  infoIcon: {
+
+  [`& .${classes.infoIcon}`]: {
     width: 32
   }
-}))
+}));
 
 export const getTimeFormat = () => {
   return 't'
@@ -127,7 +170,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   downloadFile,
   cancelDownload
 }) => {
-  const classes = useStyles({})
+
 
   const messageDisplayData = messages[0]
 
@@ -137,7 +180,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   const pending: boolean = pendingMessages[messageDisplayData.id] !== undefined
 
   return (
-    <ListItem
+    <StyledListItem
       className={classNames({
         [classes.wrapper]: !infoMessage
       })}
@@ -150,7 +193,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
           <Grid
             container
             direction='row'
-            justify='flex-start'
+            justifyContent='flex-start'
             alignItems='flex-start'
             wrap={'nowrap'}>
             <Grid
@@ -165,7 +208,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
               </div>
             </Grid>
             <Grid container item direction='row'>
-              <Grid container item direction='row' justify='space-between'>
+              <Grid container item direction='row' justifyContent='space-between'>
                 <Grid container item xs alignItems='flex-start' wrap='nowrap'>
                   <Grid item>
                     <Typography
@@ -216,8 +259,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
           </Grid>
         }
       />
-    </ListItem>
-  )
+    </StyledListItem>
+  );
 }
 
 export default BasicMessageComponent

@@ -1,31 +1,46 @@
 import React from 'react'
+import { styled } from '@mui/material/styles';
 import { Grid, Typography } from '@mui/material'
 import { makeStyles, Theme } from '@mui/material/styles'
 
-const useStyles = makeStyles((theme: Theme) => ({
-  info: {
+const PREFIX = 'ChannelInputInfoMessage';
+
+const classes = {
+  info: `${PREFIX}-info`,
+  bold: `${PREFIX}-bold`,
+  boot: `${PREFIX}-boot`
+};
+
+const StyledGrid = styled(Grid)((
+  {
+    theme: Theme
+  }
+) => ({
+  [`& .${classes.info}`]: {
     color: theme.palette.colors.trueBlack,
     width: '100px',
     letterSpacing: '0.4px'
   },
-  bold: {
+
+  [`& .${classes.bold}`]: {
     fontWeight: 'bold'
   },
-  boot: {
+
+  [`&.${classes.boot}`]: {
     height: '24px',
     width: '100%',
     padding: '0px 20px'
   }
-}))
+}));
 
 interface ChannelInputInfoMessageProps {
   showInfoMessage: boolean
 }
 
 const ChannelInputInfoMessage: React.FC<ChannelInputInfoMessageProps> = ({ showInfoMessage }) => {
-  const classes = useStyles({})
+
   return (
-    <Grid container className={classes.boot}>
+    <StyledGrid container className={classes.boot}>
       <Grid item xs>
         {showInfoMessage && (
           <Typography variant='caption' className={classes.info}>
@@ -33,8 +48,8 @@ const ChannelInputInfoMessage: React.FC<ChannelInputInfoMessageProps> = ({ showI
           </Typography>
         )}
       </Grid>
-    </Grid>
-  )
+    </StyledGrid>
+  );
 }
 
 export default ChannelInputInfoMessage

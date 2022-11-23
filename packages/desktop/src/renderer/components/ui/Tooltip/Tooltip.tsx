@@ -1,15 +1,30 @@
 import React, { ReactElement, ReactFragment } from 'react'
+import { styled } from '@mui/material/styles';
 import classNames from 'classnames'
 
 import MuiTooltip from '@mui/material/Tooltip'
 import { makeStyles } from '@mui/material/styles'
 
-const useStyles = makeStyles(theme => ({
-  noWrap: {
+const PREFIX = 'Tooltip';
+
+const classes = {
+  noWrap: `${PREFIX}-noWrap`,
+  tooltip: `${PREFIX}-tooltip`,
+  text: `${PREFIX}-text`,
+  arrow: `${PREFIX}-arrow`
+};
+
+const Root = styled('span')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.noWrap}`]: {
     maxWidth: 'none',
     filter: 'drop-shadow(0 0 0px #aaaaaa)'
   },
-  tooltip: {
+
+  [`& .${classes.tooltip}`]: {
     marginBottom: 5,
     background: theme.palette.colors.trueBlack,
     color: theme.typography.body1.color,
@@ -19,18 +34,20 @@ const useStyles = makeStyles(theme => ({
     paddingRight: 16,
     borderRadius: 8
   },
-  text: {
+
+  [`& .${classes.text}`]: {
     color: theme.palette.colors.white,
     fontSize: 12,
     fontWeight: 500
   },
-  arrow: {
+
+  [`& .${classes.arrow}`]: {
     '&:before': {
       border: `1px solid ${theme.palette.colors.trueBlack}`
     },
     color: theme.palette.colors.trueBlack
   }
-}))
+}));
 
 interface TooltipProps {
   children: ReactElement
@@ -54,9 +71,9 @@ export const Tooltip: React.FC<React.ComponentProps<typeof MuiTooltip> & Tooltip
   onClick = () => {},
   ...props
 }) => {
-  const classes = useStyles({})
+
   return (
-    <span onClick={e => onClick(e)}>
+    <Root onClick={e => onClick(e)}>
       <MuiTooltip
         {...props}
         title={
@@ -87,8 +104,8 @@ export const Tooltip: React.FC<React.ComponentProps<typeof MuiTooltip> & Tooltip
         arrow>
         {children}
       </MuiTooltip>
-    </span>
-  )
+    </Root>
+  );
 }
 
 export default Tooltip

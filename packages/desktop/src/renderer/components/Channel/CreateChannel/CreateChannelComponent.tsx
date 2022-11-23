@@ -164,7 +164,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     <StyledModal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
       <Grid container className={classes.main} direction='column'>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Grid container justify='flex-start' direction='column' className={classes.fullContainer}>
+          <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
             <Typography variant='h3' className={classes.title}>
               Create a new public channel
             </Typography>

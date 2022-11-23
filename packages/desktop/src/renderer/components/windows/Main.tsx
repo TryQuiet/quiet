@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { styled } from '@mui/material/styles';
 import { Route } from 'react-router-dom'
 import classnames from 'classnames'
 
@@ -9,14 +10,21 @@ import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
 import Sidebar from '../Sidebar/Sidebar'
 import Channel from '../Channel/Channel'
 
-const useStyles = makeStyles(() => ({
-  gridRoot: {
+const PREFIX = 'Main';
+
+const classes = {
+  gridRoot: `${PREFIX}-gridRoot`
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')(() => ({
+  [`& .${classes.gridRoot}`]: {
     'min-height': '100vh',
     'min-width': '100vw',
     overflow: 'hidden',
     position: 'relative'
   }
-}))
+}));
 
 interface MainProps {
   match: {
@@ -27,7 +35,7 @@ interface MainProps {
 export const Main: React.FC<MainProps> = ({
   match
 }) => {
-  const classes = useStyles({})
+
 
   const debounce = (fn, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
@@ -64,7 +72,7 @@ export const Main: React.FC<MainProps> = ({
   })
 
   return (
-    <>
+    (<Root>
       <WindowWrapper>
         <Grid container direction='row' className={classes.gridRoot} wrap='nowrap'>
           <Grid item>
@@ -76,8 +84,8 @@ export const Main: React.FC<MainProps> = ({
           </Grid>
         </Grid>
       </WindowWrapper>
-    </>
-  )
+    </Root>)
+  );
 }
 
 export default Main

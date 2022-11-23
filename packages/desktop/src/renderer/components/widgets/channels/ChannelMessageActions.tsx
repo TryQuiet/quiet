@@ -1,4 +1,5 @@
 import React from 'react'
+import { styled } from '@mui/material/styles';
 import { makeStyles } from '@mui/material/styles'
 import { Typography } from '@mui/material'
 import Grid from '@mui/material/Grid'
@@ -6,13 +7,26 @@ import Grid from '@mui/material/Grid'
 import Icon from '../../ui/Icon/Icon'
 import ErrorIcon from '../../../static/images/t-error.svg'
 
-const useStyles = makeStyles((theme) => ({
-  warrning: {
+const PREFIX = 'ChannelMessageActions';
+
+const classes = {
+  warrning: `${PREFIX}-warrning`,
+  tryAgain: `${PREFIX}-tryAgain`,
+  pointer: `${PREFIX}-pointer`
+};
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.warrning}`]: {
     marginLeft: 8,
     letterSpacing: 0.4,
     color: theme.palette.colors.error
   },
-  tryAgain: {
+
+  [`& .${classes.tryAgain}`]: {
     marginLeft: 4,
     letterSpacing: 0.4,
     color: theme.palette.colors.linkBlue,
@@ -20,19 +34,20 @@ const useStyles = makeStyles((theme) => ({
       color: theme.palette.colors.blue
     }
   },
-  pointer: {
+
+  [`& .${classes.pointer}`]: {
     cursor: 'pointer'
   }
-}))
+}));
 
 interface ChannelMessageActionsProps {
   onResend: () => void
 }
 
 export const ChannelMessageActions: React.FC<ChannelMessageActionsProps> = ({ onResend }) => {
-  const classes = useStyles({})
+
   return (
-    <Grid container direction='row' justify='flex-start' alignItems='center'>
+    <StyledGrid container direction='row' justifyContent='flex-start' alignItems='center'>
       {
         <React.Fragment>
           <Icon src={ErrorIcon} />
@@ -48,8 +63,8 @@ export const ChannelMessageActions: React.FC<ChannelMessageActionsProps> = ({ on
           </Grid>
         </React.Fragment>
       }
-    </Grid>
-  )
+    </StyledGrid>
+  );
 }
 
 export default ChannelMessageActions

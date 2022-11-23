@@ -206,7 +206,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
             <form onSubmit={handleSubmit(onSubmit)}>
               <Grid
                 container
-                justify='flex-start'
+                justifyContent='flex-start'
                 direction='column'
                 className={classes.fullContainer}>
                 <Typography variant='h3' className={classes.title}>

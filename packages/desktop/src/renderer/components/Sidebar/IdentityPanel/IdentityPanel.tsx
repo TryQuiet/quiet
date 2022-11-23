@@ -1,4 +1,5 @@
 import React from 'react'
+import { styled } from '@mui/material/styles';
 import { makeStyles } from '@mui/material/styles'
 import { Button } from '@mui/material'
 import Typography from '@mui/material/Typography'
@@ -7,13 +8,27 @@ import { useModal } from '../../../containers/hooks'
 import { capitalizeFirstLetter } from '../../../../utils/functions/capitalize'
 import { Community } from '@quiet/state-manager'
 
-const useStyles = makeStyles(theme => ({
-  root: {
+const PREFIX = 'IdentityPanel';
+
+const classes = {
+  root: `${PREFIX}-root`,
+  button: `${PREFIX}-button`,
+  buttonLabel: `${PREFIX}-buttonLabel`,
+  nickname: `${PREFIX}-nickname`
+};
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.root}`]: {
     marginTop: theme.spacing(1),
     paddingLeft: 16,
     paddingRight: 16
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     color: theme.palette.colors.white,
     padding: 0,
     textAlign: 'left',
@@ -23,17 +38,19 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: 'inherit'
     }
   },
-  buttonLabel: {
+
+  [`& .${classes.buttonLabel}`]: {
     justifyContent: 'flex-start',
     textTransform: 'none'
   },
-  nickname: {
+
+  [`& .${classes.nickname}`]: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     maxWidth: 175,
     whiteSpace: 'nowrap'
   }
-}))
+}));
 
 export interface IdentityPanelProps {
   currentCommunity: Community
@@ -44,7 +61,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({
   currentCommunity,
   accountSettingsModal
 }) => {
-  const classes = useStyles({})
+
 
   let communityName = ''
   if (currentCommunity?.name) {
@@ -52,7 +69,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({
   }
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Button
         onClick={event => {
           event.persist()
@@ -66,8 +83,8 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({
         </Typography>
         <ExpandMoreIcon fontSize='small' />
       </Button>
-    </div>
-  )
+    </Root>
+  );
 }
 
 export default IdentityPanel

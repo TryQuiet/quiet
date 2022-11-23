@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { styled } from '@mui/material/styles';
+
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { makeStyles } from '@mui/material/styles'
@@ -12,20 +14,47 @@ import radioUnselected from '../../../static/images/radioUnselected.svg'
 import { direct, relentless, sharp, librarianShhh } from '../../../../shared/sounds'
 import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
 
-const useStyles = makeStyles((theme) => ({
-  title: {},
-  titleDiv: {
+const PREFIX = 'Notifications';
+
+const classes = {
+  title: `${PREFIX}-title`,
+  titleDiv: `${PREFIX}-titleDiv`,
+  subtitle: `${PREFIX}-subtitle`,
+  radioDiv: `${PREFIX}-radioDiv`,
+  radioSoundDiv: `${PREFIX}-radioSoundDiv`,
+  radioIcon: `${PREFIX}-radioIcon`,
+  bold: `${PREFIX}-bold`,
+  offset: `${PREFIX}-offset`,
+  spacing: `${PREFIX}-spacing`,
+  radioSound: `${PREFIX}-radioSound`,
+  subtitleSoundDiv: `${PREFIX}-subtitleSoundDiv`,
+  label: `${PREFIX}-label`,
+  spacingSound: `${PREFIX}-spacingSound`
+};
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.title}`]: {},
+
+  [`& .${classes.titleDiv}`]: {
     marginBottom: 24
   },
-  subtitle: {
+
+  [`& .${classes.subtitle}`]: {
     fontSize: 18,
     lineHeight: '27px'
   },
-  radioDiv: {
+
+  [`& .${classes.radioDiv}`]: {
     marginLeft: 4
   },
-  radioSoundDiv: {},
-  radioIcon: {
+
+  [`& .${classes.radioSoundDiv}`]: {},
+
+  [`& .${classes.radioIcon}`]: {
     alignItems: 'flex-start',
     '& .MuiCheckbox-root': {
       backgroundColor: 'transparent',
@@ -42,16 +71,20 @@ const useStyles = makeStyles((theme) => ({
       lineHeight: '25px'
     }
   },
-  bold: {
+
+  [`& .${classes.bold}`]: {
     fontWeight: 500
   },
-  offset: {
+
+  [`& .${classes.offset}`]: {
     marginTop: 5
   },
-  spacing: {
+
+  [`& .${classes.spacing}`]: {
     marginTop: 16
   },
-  radioSound: {
+
+  [`& .${classes.radioSound}`]: {
     '& .MuiCheckbox-root': {
       backgroundColor: 'transparent',
       '&:hover': {
@@ -62,17 +95,20 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 23,
     height: 24
   },
-  subtitleSoundDiv: {
+
+  [`& .${classes.subtitleSoundDiv}`]: {
     marginTop: 40
   },
-  label: {
+
+  [`& .${classes.label}`]: {
     marginTop: 1,
     fontWeight: 500
   },
-  spacingSound: {
+
+  [`& .${classes.spacingSound}`]: {
     marginTop: 8
   }
-}))
+}));
 
 interface NotificationsProps {
   notificationsOption: NotificationsOptions
@@ -87,13 +123,13 @@ export const Notifications: React.FC<NotificationsProps> = ({
   setNotificationsOption,
   setNotificationsSound
 }) => {
-  const classes = useStyles({})
+
   return (
-    <Grid container direction='column'>
+    <StyledGrid container direction='column'>
       <Grid
         container
         item
-        justify='space-between'
+        justifyContent='space-between'
         alignItems='center'
         className={classes.titleDiv}
       >
@@ -262,8 +298,8 @@ export const Notifications: React.FC<NotificationsProps> = ({
           </Grid>
         </Grid>
       </Grid>
-    </Grid>
-  )
+    </StyledGrid>
+  );
 }
 
 export default Notifications

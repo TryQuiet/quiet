@@ -1,30 +1,46 @@
 import React from 'react'
 
+import { styled } from '@mui/material/styles';
+
 import { makeStyles } from '@mui/material/styles'
 import { Grid, Typography } from '@mui/material'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'MessagesDivider';
+
+const classes = {
+  root: `${PREFIX}-root`,
+  divider: `${PREFIX}-divider`,
+  titleDiv: `${PREFIX}-titleDiv`
+};
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.root}`]: {
     padding: 0
   },
-  divider: {
+
+  [`& .${classes.divider}`]: {
     height: 1,
     backgroundColor: theme.palette.colors.veryLightGray
   },
-  titleDiv: {
+
+  [`& .${classes.titleDiv}`]: {
     paddingLeft: 12,
     paddingRight: 12
   }
-}))
+}));
 
 interface MessagesDividerProps {
   title: string
 }
 
 export const MessagesDivider: React.FC<MessagesDividerProps> = ({ title }) => {
-  const classes = useStyles({})
+
   return (
-    <Grid container justify='center' alignItems='center'>
+    <StyledGrid container justifyContent='center' alignItems='center'>
       <Grid item xs>
         <div className={classes.divider} />
       </Grid>
@@ -34,8 +50,8 @@ export const MessagesDivider: React.FC<MessagesDividerProps> = ({ title }) => {
       <Grid item xs>
         <div className={classes.divider} />
       </Grid>
-    </Grid>
-  )
+    </StyledGrid>
+  );
 }
 
 export default MessagesDivider

@@ -1,5 +1,6 @@
 
 import React from 'react'
+import { styled } from '@mui/material/styles';
 import classNames from 'classnames'
 
 import MaterialModal from '@mui/material/Modal'
@@ -14,51 +15,77 @@ import IconButton from '../Icon/IconButton'
 
 import { IModalProps } from './Modal.d'
 
-const constants = {
-  headerHeight: 60
-}
+const PREFIX = 'Modal';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const classes = {
+  root: `${PREFIX}-root`,
+  windowed: `${PREFIX}-windowed`,
+  title: `${PREFIX}-title`,
+  header: `${PREFIX}-header`,
+  headerBorder: `${PREFIX}-headerBorder`,
+  actions: `${PREFIX}-actions`,
+  content: `${PREFIX}-content`,
+  fullPage: `${PREFIX}-fullPage`,
+  notFullPage: `${PREFIX}-notFullPage`,
+  centered: `${PREFIX}-centered`,
+  window: `${PREFIX}-window`,
+  bold: `${PREFIX}-bold`
+};
+
+const StyledMaterialModal  = styled(MaterialModal )((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.root}`]: {
     padding: '0 15%'
   },
-  windowed: {
+
+  [`& .${classes.windowed}`]: {
     height: '30vh',
     width: '50vw',
     position: 'fixed',
     marginTop: '25vh',
     marginLeft: '25vw'
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     fontSize: 15,
     color: theme.palette.colors.trueBlack,
     lineHeight: '18px',
     fontStyle: 'normal',
     fontWeight: 'normal'
   },
-  header: {
+
+  [`& .${classes.header}`]: {
     background: theme.palette.colors.white,
     height: constants.headerHeight
   },
-  headerBorder: {
+
+  [`& .${classes.headerBorder}`]: {
     borderBottom: `1px solid ${theme.palette.colors.contentGray}`
   },
-  actions: {
+
+  [`& .${classes.actions}`]: {
     paddingLeft: 10,
     paddingRight: 10
   },
-  content: {
+
+  [`& .${classes.content}`]: {
     background: theme.palette.colors.white
   },
-  fullPage: {
+
+  [`& .${classes.fullPage}`]: {
     width: '100%',
     height: `calc(100vh - ${constants.headerHeight}px)`
   },
-  notFullPage: {
+
+  [`& .${classes.notFullPage}`]: {
     height: '100%',
     width: '100%'
   },
-  centered: {
+
+  [`& .${classes.centered}`]: {
     background: theme.palette.colors.white,
     width: '100vw',
     position: 'absolute',
@@ -67,13 +94,19 @@ const useStyles = makeStyles((theme) => ({
     transform: 'translate(-50%, -50%)',
     outline: 0
   },
-  window: {},
-  bold: {
+
+  [`& .${classes.window}`]: {},
+
+  [`& .${classes.bold}`]: {
     fontSize: 16,
     lineHeight: '26px',
     fontWeight: 500
   }
-}))
+}));
+
+const constants = {
+  headerHeight: 60
+}
 
 export const Modal: React.FC<IModalProps> = ({
   open,
@@ -93,7 +126,7 @@ export const Modal: React.FC<IModalProps> = ({
   windowed,
   fullPage = true
 }) => {
-  const classes = useStyles({})
+
 
   return (
     <MaterialModal open={open} onClose={handleClose} className={windowed ? classes.windowed : classes.root}
@@ -101,7 +134,7 @@ export const Modal: React.FC<IModalProps> = ({
       <Grid
         container
         direction="column"
-        justify="center"
+        justifyContent="center"
         className={classNames({
           [classes.centered]: fullPage,
           [classes.window]: !fullPage
@@ -122,7 +155,7 @@ export const Modal: React.FC<IModalProps> = ({
             xs
             container
             direction={alignCloseLeft ? 'row-reverse' : 'row'}
-            justify="center"
+            justifyContent="center"
             alignItems="center"
           >
             <Grid item xs>
@@ -144,7 +177,7 @@ export const Modal: React.FC<IModalProps> = ({
               <Grid
                 container
                 item
-                justify={alignCloseLeft ? 'flex-start' : 'flex-end'}
+                justifyContent={alignCloseLeft ? 'flex-start' : 'flex-end'}
                 className={classes.actions}
                 data-testid={`${testIdPrefix}ModalActions`}
               >
@@ -176,7 +209,7 @@ export const Modal: React.FC<IModalProps> = ({
           container
           item
           direction={'row'}
-          justify={'center'}
+          justifyContent={'center'}
           className={classNames({
             [classes.fullPage]: fullPage,
             [classes.notFullPage]: !fullPage

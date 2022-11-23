@@ -1,20 +1,37 @@
 import React from 'react'
+import { styled } from '@mui/material/styles';
 import { makeStyles, Grid, Typography } from '@mui/material'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 import Modal from '../../ui/Modal/Modal'
 
-const useStyles = makeStyles(theme => ({
-  main: {
+const PREFIX = 'SentryWarningComponent';
+
+const classes = {
+  main: `${PREFIX}-main`,
+  title: `${PREFIX}-title`,
+  fullWidth: `${PREFIX}-fullWidth`,
+  button: `${PREFIX}-button`
+};
+
+const StyledModal = styled(Modal)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.main}`]: {
     backgroundColor: theme.palette.colors.white,
     padding: '0px 32px'
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     marginTop: 24
   },
-  fullWidth: {
+
+  [`& .${classes.fullWidth}`]: {
     paddingBottom: 25
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     width: 139,
     height: 60,
     backgroundColor: theme.palette.colors.purple,
@@ -27,7 +44,7 @@ const useStyles = makeStyles(theme => ({
       color: 'rgba(255,255,255,0.6)'
     }
   }
-}))
+}));
 
 export interface SentryWarningProps {
   open: boolean
@@ -35,9 +52,9 @@ export interface SentryWarningProps {
 }
 
 export const SentryWarningComponent: React.FC<SentryWarningProps> = ({ open, handleClose }) => {
-  const classes = useStyles({})
+
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
+    <StyledModal open={open} handleClose={handleClose} isCloseDisabled={true}>
       <Grid container className={classes.main} direction='column'>
         <>
           <Grid className={classes.title} item>
@@ -68,6 +85,6 @@ export const SentryWarningComponent: React.FC<SentryWarningProps> = ({ open, han
           </Grid>
         </>
       </Grid>
-    </Modal>
-  )
+    </StyledModal>
+  );
 }

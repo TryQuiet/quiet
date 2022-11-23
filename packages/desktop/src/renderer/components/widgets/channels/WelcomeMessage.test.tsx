@@ -1,15 +1,15 @@
 import React from 'react'
 import theme from '../../../theme'
-import { MuiThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 import { WelcomeMessage } from './WelcomeMessage'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('WelcomeMessage', () => {
   it('renders component', () => {
     const result = renderComponent(
-      <MuiThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
         <WelcomeMessage message={'random message'} timestamp={'string'} />
-      </MuiThemeProvider>
+      </ThemeProvider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

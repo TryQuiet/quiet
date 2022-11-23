@@ -1,18 +1,26 @@
 import React from 'react'
 
+import { styled } from '@mui/material/styles';
+
 import { makeStyles } from '@mui/material/styles'
 
 import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
 import Loading from './Loading'
 
-const useStyles = makeStyles(() => ({
-  root: {
+const PREFIX = 'Index';
+
+const classes = {
+  root: `${PREFIX}-root`
+};
+
+const StyledWindowWrapper = styled(WindowWrapper)(() => ({
+  [`&.${classes.root}`]: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag'
   }
-}))
+}));
 
 interface IndexProps {
   bootstrapping: boolean
@@ -20,12 +28,12 @@ interface IndexProps {
 }
 
 export const Index: React.FC<IndexProps> = ({ bootstrapping = false, bootstrappingMessage = '' }) => {
-  const classes = useStyles({})
+
   return (
-    <WindowWrapper className={classes.root}>
+    <StyledWindowWrapper className={classes.root}>
       <Loading message={bootstrapping ? bootstrappingMessage : 'Waiting for Zcash node...'} />
-    </WindowWrapper>
-  )
+    </StyledWindowWrapper>
+  );
 }
 
 export default Index

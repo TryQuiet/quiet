@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 
+import { styled } from '@mui/material/styles';
+
 import Tabs from '@mui/material/Tabs'
 import AppBar from '@mui/material/AppBar'
 import { makeStyles } from '@mui/material/styles'
@@ -13,48 +15,72 @@ import AccountSettingsForm from '../../../../containers/widgets/settings/Account
 import Notifications from '../../../../containers/widgets/settings/Notifications'
 import InviteToCommunity from '../../../../containers/widgets/settings/InviteToCommunity'
 
-const tabs = {
-  account: AccountSettingsForm,
-  notifications: Notifications,
-  invite: InviteToCommunity
-}
+const PREFIX = 'SettingsModal';
 
-const useStyles = makeStyles(theme => ({
-  root: {
+const classes = {
+  root: `${PREFIX}-root`,
+  tabs: `${PREFIX}-tabs`,
+  indicator: `${PREFIX}-indicator`,
+  appbar: `${PREFIX}-appbar`,
+  tabsDiv: `${PREFIX}-tabsDiv`,
+  selected: `${PREFIX}-selected`,
+  tab: `${PREFIX}-tab`,
+  content: `${PREFIX}-content`
+};
+
+const StyledModal = styled(Modal)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.root}`]: {
     zIndex: 1000,
     paddingLeft: 20,
     paddingTop: 32,
     paddingRight: 32
   },
-  tabs: {
+
+  [`& .${classes.tabs}`]: {
     color: theme.palette.colors.trueBlack
   },
-  indicator: {
+
+  [`& .${classes.indicator}`]: {
     height: '0 !important'
   },
-  appbar: {
+
+  [`& .${classes.appbar}`]: {
     backgroundColor: '#fff',
     boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.0)'
   },
-  tabsDiv: {
+
+  [`& .${classes.tabsDiv}`]: {
     width: 168
   },
-  selected: {
+
+  [`& .${classes.selected}`]: {
     backgroundColor: theme.palette.colors.lushSky,
     borderRadius: 5,
     color: `${theme.palette.colors.white} !important`
   },
-  tab: {
+
+  [`& .${classes.tab}`]: {
     minHeight: 32,
     color: theme.palette.colors.trueBlack,
     opacity: 1,
     fontStyle: 'normal',
     fontWeight: 'normal'
   },
-  content: {
+
+  [`& .${classes.content}`]: {
     marginLeft: 32
   }
-}))
+}));
+
+const tabs = {
+  account: AccountSettingsForm,
+  notifications: Notifications,
+  invite: InviteToCommunity
+}
 
 interface SettingsModalProps {
   title: string
@@ -64,7 +90,7 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open, handleClose }) => {
-  const classes = useStyles({})
+
 
   const [contentRef, setContentRef] = React.useState(null)
 
@@ -95,7 +121,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
   const TabComponent = tabs[currentTab]
 
   return (
-    <Modal open={open} handleClose={handleClose} title={title} testIdPrefix='settings' isBold addBorder contentWidth='100%'>
+    <StyledModal open={open} handleClose={handleClose} title={title} testIdPrefix='settings' isBold addBorder contentWidth='100%'>
       <Grid
         ref={ref => {
           if (ref) {
@@ -147,8 +173,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
           </AutoSizer>
         </Grid>
       </Grid>
-    </Modal>
-  )
+    </StyledModal>
+  );
 }
 
 export default SettingsModal

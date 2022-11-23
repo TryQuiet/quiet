@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react'
 
+import { styled } from '@mui/material/styles';
+
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import MenuList from '@mui/material/MenuList'
 import IconButton, { IconButtonProps, IconButtonTypeMap } from '@mui/material/IconButton'
@@ -9,16 +11,26 @@ import Icon from '../Icon/Icon'
 import PopupMenu from '../PopupMenu/PopupMenu'
 import { ExtendButtonBase, PopperPlacementType } from '@mui/material'
 
-const useStyles = makeStyles(() => ({
-  menuList: {
+const PREFIX = 'MenuAction';
+
+const classes = {
+  menuList: `${PREFIX}-menuList`,
+  icon: `${PREFIX}-icon`,
+  button: `${PREFIX}-button`
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled('div')(() => ({
+  [`& .${classes.menuList}`]: {
     paddingTop: 24,
     paddingBottom: 24,
     minWidth: 136,
     borderRadius: 8
   },
-  icon: {},
-  button: {}
-}))
+
+  [`& .${classes.icon}`]: {},
+  [`& .${classes.button}`]: {}
+}));
 
 const RefIconButton = React.forwardRef<HTMLButtonElement, React.PropsWithChildren<IconButtonProps>>(
   (props, ref) => <IconButton {...props} ref={ref} />
@@ -43,7 +55,7 @@ export const MenuAction: React.FC<MenuActionProps> = ({
   onClick,
   placement
 }) => {
-  const classes = useStyles({})
+
 
   const [open, setOpen] = useState(false)
   const [hover, setHover] = useState(false)
@@ -64,7 +76,7 @@ export const MenuAction: React.FC<MenuActionProps> = ({
   }
 
   return (
-    <React.Fragment>
+    <Root>
       <RefIconButton
         className={classes.button}
         ref={buttonRef}
@@ -82,8 +94,8 @@ export const MenuAction: React.FC<MenuActionProps> = ({
           </MenuList>
         </ClickAwayListener>
       </PopupMenu>
-    </React.Fragment>
-  )
+    </Root>
+  );
 }
 
 export default MenuAction

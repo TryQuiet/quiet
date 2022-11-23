@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { styled } from '@mui/material/styles';
 import classNames from 'classnames'
 
 import Typography from '@mui/material/Typography'
@@ -24,38 +25,67 @@ import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
 
-const useStyles = makeStyles(theme => ({
-  focus: {
+const PREFIX = 'PerformCommunityActionComponent';
+
+const classes = {
+  focus: `${PREFIX}-focus`,
+  margin: `${PREFIX}-margin`,
+  error: `${PREFIX}-error`,
+  main: `${PREFIX}-main`,
+  fullContainer: `${PREFIX}-fullContainer`,
+  gutter: `${PREFIX}-gutter`,
+  button: `${PREFIX}-button`,
+  title: `${PREFIX}-title`,
+  iconDiv: `${PREFIX}-iconDiv`,
+  warrningIcon: `${PREFIX}-warrningIcon`,
+  warrningMessage: `${PREFIX}-warrningMessage`,
+  rootBar: `${PREFIX}-rootBar`,
+  progressBar: `${PREFIX}-progressBar`,
+  info: `${PREFIX}-info`
+};
+
+const StyledModal = styled(Modal)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.focus}`]: {
     '& .MuiOutlinedInput-root': {
       '&.Mui-focused fieldset': {
         borderColor: theme.palette.colors.linkBlue
       }
     }
   },
-  margin: {
+
+  [`& .${classes.margin}`]: {
     '& .MuiFormHelperText-contained': {
       margin: '5px 0px'
     }
   },
-  error: {
+
+  [`& .${classes.error}`]: {
     '& .MuiOutlinedInput-root': {
       '&.Mui-focused fieldset': {
         borderColor: theme.palette.colors.red
       }
     }
   },
-  main: {
+
+  [`& .${classes.main}`]: {
     backgroundColor: theme.palette.colors.white,
     padding: '0px 32px'
   },
-  fullContainer: {
+
+  [`& .${classes.fullContainer}`]: {
     width: '100%'
   },
-  gutter: {
+
+  [`& .${classes.gutter}`]: {
     marginTop: 8,
     marginBottom: 24
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     width: 165,
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
@@ -66,33 +96,40 @@ const useStyles = makeStyles(theme => ({
     height: 48,
     fontWeight: 'normal'
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     marginBottom: 24
   },
-  iconDiv: {
+
+  [`& .${classes.iconDiv}`]: {
     width: 24,
     height: 28,
     marginRight: 8
   },
-  warrningIcon: {
+
+  [`& .${classes.warrningIcon}`]: {
     color: '#FFCC00'
   },
-  warrningMessage: {
+
+  [`& .${classes.warrningMessage}`]: {
     wordBreak: 'break-word'
   },
-  rootBar: {
+
+  [`& .${classes.rootBar}`]: {
     width: 350,
     marginTop: 32,
     marginBottom: 16
   },
-  progressBar: {
+
+  [`& .${classes.progressBar}`]: {
     backgroundColor: theme.palette.colors.linkBlue
   },
-  info: {
+
+  [`& .${classes.info}`]: {
     lineHeight: '19px',
     color: theme.palette.colors.darkGray
   }
-}))
+}));
 
 interface PerformCommunityActionFormValues {
   name: string
@@ -123,7 +160,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   revealInputValue,
   handleClickInputReveal
 }) => {
-  const classes = useStyles({})
+
 
   const [formSent, setFormSent] = useState(false)
   const [communityName, setCommunityName] = useState('')
@@ -187,13 +224,13 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   }, [open])
 
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={isCloseDisabled}>
+    <StyledModal open={open} handleClose={handleClose} isCloseDisabled={isCloseDisabled}>
       <Grid container className={classes.main} direction='column'>
         <>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Grid
               container
-              justify='flex-start'
+              justifyContent='flex-start'
               direction='column'
               className={classes.fullContainer}>
               <Typography variant='h3' className={classes.title}>
@@ -287,8 +324,8 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
           </form>
         </>
       </Grid>
-    </Modal>
-  )
+    </StyledModal>
+  );
 }
 
 export default PerformCommunityActionComponent

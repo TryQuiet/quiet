@@ -1,4 +1,5 @@
 import React from 'react'
+import { styled } from '@mui/material/styles';
 import classNames from 'classnames'
 import { makeStyles } from '@mui/material'
 import Grid from '@mui/material/Grid'
@@ -7,35 +8,49 @@ import IconButton from '@mui/material/IconButton'
 import PlusIconWithBorder from '../Icon/PlusIconWithBorder'
 import Tooltip from '../Tooltip/Tooltip'
 
-const useStyles = makeStyles(() => ({
-  root: {
+const PREFIX = 'SidebarHeader';
+
+const classes = {
+  root: `${PREFIX}-root`,
+  title: `${PREFIX}-title`,
+  clickable: `${PREFIX}-clickable`,
+  iconButton: `${PREFIX}-iconButton`,
+  tooltip: `${PREFIX}-tooltip`
+};
+
+const StyledGrid = styled(Grid)(() => ({
+  [`&.${classes.root}`]: {
     marginTop: 25,
     height: 32,
     paddingLeft: 16,
     paddingRight: 16
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     opacity: 0.7,
     fontWeight: 500
   },
-  clickable: {
+
+  [`& .${classes.clickable}`]: {
     '&:hover': {
       backgroundColor: 'inherit',
       opacity: 1
     },
     cursor: 'pointer'
   },
-  iconButton: {
+
+  [`& .${classes.iconButton}`]: {
     opacity: 0.7,
     '&:hover': {
       backgroundColor: 'inherit',
       opacity: 1
     }
   },
-  tooltip: {
+
+  [`& .${classes.tooltip}`]: {
     marginTop: -1
   }
-}))
+}));
 
 interface SidebarHeaderProps {
   title: string
@@ -50,12 +65,12 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   actionTitle,
   tooltipText
 }) => {
-  const classes = useStyles({})
+
   return (
-    <Grid
+    <StyledGrid
       container
       direction='row'
-      justify='space-between'
+      justifyContent='space-between'
       alignItems='center'
       className={classes.root}>
       <Grid item>
@@ -88,8 +103,8 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
           </IconButton>
         </Tooltip>
       </Grid>
-    </Grid>
-  )
+    </StyledGrid>
+  );
 }
 
 export default SidebarHeader

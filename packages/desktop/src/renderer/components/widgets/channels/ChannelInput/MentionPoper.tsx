@@ -1,17 +1,21 @@
 import React, { ReactElement } from 'react'
+import { styled } from '@mui/material/styles';
 import { Scrollbars } from 'rc-scrollbars'
 import { makeStyles } from '@mui/material/styles'
 import Paper from '@mui/material/Paper'
 import Popper from '@mui/material/Popper'
 import Grid from '@mui/material/Grid'
 
-function isDivElement(element: Element | undefined): element is HTMLDivElement {
-  return element?.nodeName === 'div'
-}
+const PREFIX = 'MentionPoper';
 
-const maxHeight = 230
-const useStyles = makeStyles({
-  root: {
+const classes = {
+  root: `${PREFIX}-root`,
+  thumb: `${PREFIX}-thumb`,
+  divider: `${PREFIX}-divider`
+};
+
+const StyledPopper = styled(Popper)({
+  [`&.${classes.root}`]: {
     maxHeight: maxHeight,
     width: 307,
     borderRadius: 8,
@@ -19,18 +23,24 @@ const useStyles = makeStyles({
     boxShadow: '0px 2px 25px rgba(0,0,0,0.2)',
     marginBottom: 10
   },
-  thumb: {
+  [`& .${classes.thumb}`]: {
     backgroundColor: 'rgba(0,0,0,0.46)',
     borderRadius: 100,
     marginLeft: -3,
     width: 8
   },
-  divider: {
+  [`& .${classes.divider}`]: {
     width: 14,
     borderLeft: '1px solid',
     borderColor: 'rgba(0,0,0,0.08)'
   }
-})
+});
+
+function isDivElement(element: Element | undefined): element is HTMLDivElement {
+  return element?.nodeName === 'div'
+}
+
+const maxHeight = 230
 
 interface MentionPoperProps {
   anchorEl: HTMLDivElement
@@ -39,7 +49,7 @@ interface MentionPoperProps {
 }
 
 export const MentionPoper: React.FC<MentionPoperProps> = ({ anchorEl, children, selected }) => {
-  const classes = useStyles({})
+
 
   const anchor = React.useRef<HTMLDivElement>(null)
 
@@ -91,7 +101,7 @@ export const MentionPoper: React.FC<MentionPoperProps> = ({ anchorEl, children, 
   }, [selected])
 
   return (
-    <Popper
+    <StyledPopper
       open
       className={classes.root}
       style={{
@@ -116,8 +126,8 @@ export const MentionPoper: React.FC<MentionPoperProps> = ({ anchorEl, children, 
           </Grid>
         </Scrollbars>
       </Paper>
-    </Popper>
-  )
+    </StyledPopper>
+  );
 }
 
 export default MentionPoper

@@ -1,10 +1,18 @@
 import React, { ReactNode } from 'react'
 
+import { styled } from '@mui/material/styles';
+
 import MuiMenuItem from '@mui/material/MenuItem'
 import { makeStyles } from '@mui/material/styles'
 
-const useStyles = makeStyles(() => ({
-  root: {
+const PREFIX = 'MenuActionItem';
+
+const classes = {
+  root: `${PREFIX}-root`
+};
+
+const StyledMuiMenuItem = styled(MuiMenuItem)(() => ({
+  [`&.${classes.root}`]: {
     minHeight: 25,
     margin: 0,
     fontSize: 14,
@@ -12,7 +20,7 @@ const useStyles = makeStyles(() => ({
     paddingTop: 5,
     paddingBottom: 5
   }
-}))
+}));
 
 interface MenuActionItemProps {
   onClick: (e: React.MouseEvent) => void
@@ -27,9 +35,9 @@ export const MenuActionItem: React.FC<MenuActionItemProps> = ({
   close,
   closeAfterAction = true
 }) => {
-  const classes = useStyles({})
+
   return (
-    <MuiMenuItem
+    <StyledMuiMenuItem
       onClick={e => {
         onClick(e)
         if (close) {
@@ -39,8 +47,8 @@ export const MenuActionItem: React.FC<MenuActionItemProps> = ({
       className={classes.root}
     >
       {title}
-    </MuiMenuItem>
-  )
+    </StyledMuiMenuItem>
+  );
 }
 
 export default MenuActionItem

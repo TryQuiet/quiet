@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react'
+import { styled } from '@mui/material/styles';
 import theme from '../../../theme'
 import classNames from 'classnames'
 import { Grid, makeStyles, Typography } from '@mui/material'
@@ -8,27 +9,39 @@ import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import Linkify from 'react-linkify'
 
-const useStyles = makeStyles(() => ({
-  message: {
+const PREFIX = 'NestedMessageContent';
+
+const classes = {
+  message: `${PREFIX}-message`,
+  pending: `${PREFIX}-pending`,
+  info: `${PREFIX}-info`,
+  link: `${PREFIX}-link`
+};
+
+const StyledGrid = styled(Grid)(() => ({
+  [`& .${classes.message}`]: {
     fontSize: '0.855rem',
     whiteSpace: 'pre-line',
     lineHeight: '21px',
     overflowWrap: 'anywhere'
   },
-  pending: {
+
+  [`& .${classes.pending}`]: {
     color: theme.palette.colors.lightGray
   },
-  info: {
+
+  [`& .${classes.info}`]: {
     color: theme.palette.colors.white
   },
-  link: {
+
+  [`& .${classes.link}`]: {
     color: theme.palette.colors.lushSky,
     cursor: 'pointer',
     '&:hover': {
       textDecoration: 'underline'
     }
   }
-}))
+}));
 
 export interface NestedMessageContentProps {
   message: DisplayableMessage
@@ -52,7 +65,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   downloadFile,
   cancelDownload
 }) => {
-  const classes = useStyles({})
+
 
   const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
     return (
@@ -107,7 +120,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
     }
   }
 
-  return <Grid item>{renderMessage()}</Grid>
+  return <StyledGrid item>{renderMessage()}</StyledGrid>;
 }
 
 export default NestedMessageContent
