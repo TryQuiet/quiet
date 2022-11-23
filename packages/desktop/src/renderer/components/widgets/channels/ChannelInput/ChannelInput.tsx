@@ -334,7 +334,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     const nickname = mentionsToSelectRef.current[refSelected.current].nickname
     setHtmlMessage(htmlMessage => {
       const wrapped = `<span class="${classes.highlight}">@${nickname}</span>&nbsp;`
-      return htmlMessage.replace(/<span>[^/]*<\/span>$/g, wrapped)
+      return htmlMessage.replace(/<span>[^/]*<\/span>$/g, wrapped);
     })
     // Replace mentions characters with full nickname in original message string
     setMessage(message.replace(/(\b(\w+)$)/, `${nickname} `))

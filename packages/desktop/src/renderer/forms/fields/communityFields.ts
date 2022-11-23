@@ -23,7 +23,7 @@ export const communityNameField = (name = 'name'): FieldData => {
         whitespaces: (value) => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
       }
     }
-  }
+  };
 }
 
 export const inviteLinkField = (name = 'name'): FieldData => {
@@ -44,5 +44,5 @@ export const inviteLinkField = (name = 'name'): FieldData => {
         whitespaces: (value) => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
       }
     }
-  }
+  };
 }

@@ -23,5 +23,5 @@ export const userNameField = (name = 'userName'): FieldData => {
         whitespaces: (value) => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
       }
     }
-  }
+  };
 }
