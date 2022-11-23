@@ -4,7 +4,6 @@ import classNames from 'classnames'
 import Popper from '@mui/material/Popper'
 import Grow from '@mui/material/Grow'
 import Paper from '@mui/material/Paper'
-import { makeStyles } from '@mui/material/styles'
 import { IPopupMenuProps } from './PopupMenu.d'
 
 const PREFIX = 'PopupMenu';

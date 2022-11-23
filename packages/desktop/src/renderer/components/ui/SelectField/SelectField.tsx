@@ -15,7 +15,7 @@ interface SelectFieldProps {
 export const SelectField: React.FC<SelectFieldProps> = ({ name, id, children, ...props }) => (
   <Field
     component={FormikSelectField}
-    input={<OutlinedInput name={name} id={id} labelWidth={100} />}
+    input={<OutlinedInput name={name} id={id} label='Select' />}
     name={name}
     id={id}
     {...props}>

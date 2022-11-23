@@ -145,7 +145,7 @@ export const NewMessageModal: React.FC<NewMessageModalProps> = ({
                       className={classes.gutter}
                       variant='outlined'
                       multiline
-                      rowsMax={7}
+                      maxRows={7}
                       placeholder={'Enter Quiet username'}
                       margin='normal'
                       fullWidth

@@ -5,7 +5,6 @@ import { styled } from '@mui/material/styles';
 import MuiSlider from '@mui/material/Slider'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-import { makeStyles } from '@mui/material/styles'
 import { ISliderProps } from './Slider.d'
 
 import SliderThumb from './SliderThumb'
@@ -107,7 +106,9 @@ export const Slider: React.FC<ISliderProps> = ({
                 track: classes.track,
                 thumb: classes.thumb
               }}
-              ThumbComponent={SliderThumb}
+              components={{
+                Thumb: SliderThumb,
+              }}
               onChange={handleOnChange}
             />
           </Grid>

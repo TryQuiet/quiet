@@ -6,4 +6,5 @@ export interface IPopupMenuProps {
   className?: string
   placement?: PopperProps['placement']
   offset?: string | number
+  children?: React.ReactNode
 }
