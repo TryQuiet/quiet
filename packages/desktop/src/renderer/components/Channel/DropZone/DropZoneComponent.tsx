@@ -42,6 +42,7 @@ const StyledGrid = styled(Grid)((
 interface DropZoneComponentProps {
   handleFileDrop: (arg: any) => void
   channelName: string
+  children?: React.ReactNode
 }
 
 export const ActiveDropZoneComponent: React.FC<{
