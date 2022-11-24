@@ -150,7 +150,6 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "formik": "^1.5.4",
     "get-port": "^5.1.1",
     "https-proxy-agent": "^5.0.0",
     "identity-obj-proxy": "^3.0.0",

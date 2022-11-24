@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { styled } from '@mui/material/styles';
-import { Route } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import Grid from '@mui/material/Grid'
 
@@ -66,8 +66,11 @@ export const Main: React.FC = () => {
             <Sidebar />
           </Grid>
           <Grid item xs>
-            <Route path={'channel/:id'} element={<Channel />} />
-            {/* <Route path={`direct-messages/:username`} element={<DirectMessages />} /> */}
+          <Channel />
+            <Routes>
+              <Route path={'/main/channel/:id'} element={<Channel />} />
+              {/* <Route path={`direct-messages/:username`} element={<DirectMessages />} /> */}
+            </Routes>
           </Grid>
         </Grid>
       </WindowWrapper>

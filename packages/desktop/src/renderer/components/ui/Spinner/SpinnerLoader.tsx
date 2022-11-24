@@ -5,13 +5,12 @@ import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid'
 import CircularProgress from '@mui/material/CircularProgress'
 import Typography from '@mui/material/Typography'
-import { makeStyles, Theme } from '@mui/material/styles'
 
 const PREFIX = 'SpinnerLoader';
 
 const classes = {
-  message: `${PREFIX}-message`,
-  spinner: `${PREFIX}-spinner`
+  message: `${PREFIX}message`,
+  spinner: `${PREFIX}spinner`
 };
 
 const StyledGrid = styled(Grid)((
@@ -47,7 +46,6 @@ export const SpinnerLoader: React.FC<SpinnerLoaderProps> = ({
   className
 }) => {
   const stylesProps: SpinnerLoaderStylesProps = { color: color }
-
   return (
     <StyledGrid container justifyContent='center' alignItems='center' direction='column' className={className} data-testid={'spinnerLoader'}>
       <CircularProgress color='inherit' className={classes.spinner} size={size} />

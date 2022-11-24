@@ -16,6 +16,7 @@ import { TextInput } from '../../forms/components/textInput'
 import { userNameField } from '../../forms/fields/createUserFields'
 
 import { parseName } from '@quiet/state-manager'
+import { Link } from 'react-router-dom';
 
 const PREFIX = 'CreateUsernameComponent';
 

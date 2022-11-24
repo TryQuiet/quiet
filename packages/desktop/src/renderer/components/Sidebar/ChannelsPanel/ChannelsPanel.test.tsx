@@ -62,11 +62,6 @@ describe('Channels panel', () => {
           handleOpen: function (_args?: any): any {},
           handleClose: function (): any {}
         }}
-        joinChannelModal={{
-          open: false,
-          handleOpen: function (_args?: any): any {},
-          handleClose: function (): any {}
-        }}
       />
     )
 

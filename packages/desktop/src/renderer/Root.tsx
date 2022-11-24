@@ -3,14 +3,13 @@ import React from 'react'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles';
 import { Provider } from 'react-redux'
-import { HashRouter, Route } from 'react-router-dom'
+import { HashRouter, Route, Routes } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import { persistStore } from 'redux-persist'
 import store from './store'
 import Index from './containers/windows/Index'
 import Main from './containers/windows/Main'
 import CreateUsername from './components/CreateUsername/CreateUsername'
-import JoinChannelModal from './containers/widgets/channels/JoinChannelModal'
 import SentryWarning from './containers/widgets/sentryWarning/sentryWarning'
 import SettingsModal from './containers/widgets/settings/SettingsModal'
 import UpdateModal from './containers/widgets/update/UpdateModal'
@@ -48,12 +47,13 @@ export default () => {
                 <CreateCommunity />
                 <CreateUsername />
                 <CssBaseline />
-                <JoinChannelModal />
                 <SettingsModal />
                 <UpdateModal />
                 <QuitAppDialog />
-                <Route path='/' element={<Index />} />
-                <Route path='/main' element={<Main />} />
+                <Routes>
+                  <Route index path='/' element={<Index />} />
+                  <Route path='/main' element={<Main />} />
+                </Routes>
               </PersistGate>
             </Provider>
           </HashRouter>
