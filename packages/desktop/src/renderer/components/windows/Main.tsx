@@ -1,10 +1,8 @@
 import React, { useEffect } from 'react'
 import { styled } from '@mui/material/styles';
 import { Route } from 'react-router-dom'
-import classnames from 'classnames'
 
 import Grid from '@mui/material/Grid'
-
 
 import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
 import Sidebar from '../Sidebar/Sidebar'
@@ -16,7 +14,6 @@ const classes = {
   gridRoot: `${PREFIX}-gridRoot`
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
 const Root = styled('div')(() => ({
   [`& .${classes.gridRoot}`]: {
     'min-height': '100vh',
@@ -26,17 +23,7 @@ const Root = styled('div')(() => ({
   }
 }));
 
-interface MainProps {
-  match: {
-    url: string
-  }
-}
-
-export const Main: React.FC<MainProps> = ({
-  match
-}) => {
-
-
+export const Main: React.FC = () => {
   const debounce = (fn, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
     return _ => {
@@ -51,7 +38,7 @@ export const Main: React.FC<MainProps> = ({
     }
   }
 
-  const [dimensions, setDimensions] = React.useState({
+  const [_dimensions, setDimensions] = React.useState({
     height: window.innerHeight,
     width: window.innerWidth
   })
@@ -79,8 +66,8 @@ export const Main: React.FC<MainProps> = ({
             <Sidebar />
           </Grid>
           <Grid item xs>
-            <Route path={`${match.url}/channel/:id`} component={Channel} />
-            {/* <Route path={`${match.url}/direct-messages/:username`} component={DirectMessages} /> */}
+            <Route path={'channel/:id'} element={<Channel />} />
+            {/* <Route path={`direct-messages/:username`} element={<DirectMessages />} /> */}
           </Grid>
         </Grid>
       </WindowWrapper>

@@ -52,8 +52,8 @@ export default () => {
                 <SettingsModal />
                 <UpdateModal />
                 <QuitAppDialog />
-                <Route path='/' component={Index} />
-                <Route path='/main' component={Main} />
+                <Route path='/' element={<Index />} />
+                <Route path='/main' element={<Main />} />
               </PersistGate>
             </Provider>
           </HashRouter>
