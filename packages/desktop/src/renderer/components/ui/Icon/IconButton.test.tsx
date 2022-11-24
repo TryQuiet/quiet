@@ -7,7 +7,7 @@ describe('IconButton', () => {
   const Icon = () => <div>Icon</div>
   it('renders component', () => {
     const result = renderComponent(
-      <IconButton onClick={jest.fn()} size="large">
+      <IconButton onClick={jest.fn()}>
         <Icon />
       </IconButton>
     )

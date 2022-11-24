@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import * as Yup from 'yup'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { makeStyles } from '@mui/material/styles'
+
 
 import { Identity } from '@quiet/state-manager'
 

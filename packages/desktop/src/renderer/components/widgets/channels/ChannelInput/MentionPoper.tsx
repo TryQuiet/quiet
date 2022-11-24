@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react'
 import { styled } from '@mui/material/styles';
 import { Scrollbars } from 'rc-scrollbars'
-import { makeStyles } from '@mui/material/styles'
+
 import Paper from '@mui/material/Paper'
 import Popper from '@mui/material/Popper'
 import Grid from '@mui/material/Grid'

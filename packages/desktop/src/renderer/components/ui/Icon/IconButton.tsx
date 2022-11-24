@@ -1,7 +1,6 @@
 import React from 'react'
 import { styled } from '@mui/material/styles';
 import IconButtonMui from '@mui/material/IconButton'
-import { makeStyles } from '@mui/material/styles'
 
 import { IIconButtonProps } from './IconButton.d'
 
@@ -26,7 +25,6 @@ export const IconButton: React.FC<IIconButtonProps> = ({
   children,
   onClick
 }) => {
-
   return (
     <StyledIconButtonMui classes={{ root: classes.root }} onClick={onClick}>
       {children}

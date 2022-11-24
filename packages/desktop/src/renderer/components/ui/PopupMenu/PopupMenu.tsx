@@ -90,15 +90,10 @@ export const PopupMenu: React.FC<IPopupMenuProps> = ({
       placement={placement}
       disablePortal
       className={classes.popper}
-      modifiers={{
-        arrow: {
-          enabled: Boolean(arrowRef.current),
-          element: arrowRef.current
-        },
-        offset: {
-          offset
-        }
-      }}
+      modifiers={[
+        {name: 'arrow', enabled: Boolean(arrowRef.current), options: {element: arrowRef.current}},
+        {name: 'offset', options: {offset}}
+      ]}
     >
       {({ TransitionProps, placement }) => {
         const splitPlacement: keyof typeof classes = placement.split('-')[0] as 'wrapper' | 'paper' | 'bottom' | 'top' | 'arrow' | 'popper'

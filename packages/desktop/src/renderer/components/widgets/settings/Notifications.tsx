@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { makeStyles } from '@mui/material/styles'
+
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Checkbox from '@mui/material/Checkbox'
 

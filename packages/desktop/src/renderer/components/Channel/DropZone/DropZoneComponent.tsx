@@ -1,7 +1,7 @@
 import fs from 'fs'
 import { styled } from '@mui/material/styles';
 import React from 'react'
-import { makeStyles } from '@mui/material/styles'
+
 import { Grid } from '@mui/material'
 import Icon from '../../ui/Icon/Icon'
 import dropFiles from '../../../static/images/dropFiles.svg'

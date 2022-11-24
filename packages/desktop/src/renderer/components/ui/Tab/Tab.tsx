@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import classNames from 'classnames'
 
 import MuiTab from '@mui/material/Tab'
-import { makeStyles } from '@mui/material/styles'
+
 
 const PREFIX = 'Tab';
 

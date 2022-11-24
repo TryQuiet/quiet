@@ -3,7 +3,7 @@ import React, { ReactElement } from 'react'
 import { styled } from '@mui/material/styles';
 
 import Grid from '@mui/material/Grid'
-import { makeStyles } from '@mui/material/styles'
+
 
 const PREFIX = 'PageHeader';
 

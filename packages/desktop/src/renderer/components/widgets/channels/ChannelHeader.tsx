@@ -4,7 +4,7 @@ import classNames from 'classnames'
 
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-import { makeStyles } from '@mui/material/styles'
+
 
 import Icon from '../../ui/Icon/Icon'
 import silenced from '../../../static/images/silenced.svg'

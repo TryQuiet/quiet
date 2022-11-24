@@ -7,7 +7,7 @@ import { Scrollbars } from 'rc-scrollbars'
 
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { makeStyles } from '@mui/material/styles'
+
 import Checkbox from '@mui/material/Checkbox'
 import red from '@mui/material/colors/red'
 import Button from '@mui/material/Button'

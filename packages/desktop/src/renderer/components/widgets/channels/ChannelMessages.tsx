@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import { styled } from '@mui/material/styles';
 import { Dictionary } from '@reduxjs/toolkit'
 
-import { makeStyles } from '@mui/material/styles'
+
 import List from '@mui/material/List'
 
 import MessagesDivider from '../MessagesDivider'

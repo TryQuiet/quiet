@@ -5,7 +5,7 @@ import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-import { makeStyles } from '@mui/material/styles'
+
 
 import Icon from '../../ui/Icon/Icon'
 import usernameIcon from '../../../static/images/username.svg'

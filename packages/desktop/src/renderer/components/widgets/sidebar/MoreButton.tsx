@@ -3,7 +3,7 @@ import React from 'react'
 import { styled } from '@mui/material/styles';
 
 import Button from '@mui/material/Button'
-import { makeStyles } from '@mui/material/styles'
+
 import { Typography } from '@mui/material'
 
 import Tooltip from '../../ui/Tooltip/Tooltip'

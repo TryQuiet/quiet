@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import classNames from 'classnames'
 
 import MuiTooltip from '@mui/material/Tooltip'
-import { makeStyles } from '@mui/material/styles'
+
 
 const PREFIX = 'Tooltip';
 

@@ -6,7 +6,7 @@ import ClearIcon from '@mui/icons-material/Clear'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-import { makeStyles } from '@mui/material/styles'
+
 
 import IconButton from '../Icon/IconButton'
 
@@ -105,7 +105,7 @@ export const QuickActionLayout: React.FC<QuickActionLayoutProps> = ({
       justifyContent='flex-start'
       alignItems='center'>
       <Grid className={classes.closeIcon} container item direction='row' justifyContent='flex-start'>
-        <IconButton onClick={handleClose} size="large">
+        <IconButton onClick={handleClose}>
           <ClearIcon />
         </IconButton>
       </Grid>

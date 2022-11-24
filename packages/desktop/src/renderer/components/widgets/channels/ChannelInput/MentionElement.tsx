@@ -2,7 +2,7 @@ import React, { MouseEvent } from 'react'
 import { styled } from '@mui/material/styles';
 import classNames from 'classnames'
 import Jdenticon from '../../../Jdenticon/Jdenticon'
-import { makeStyles } from '@mui/material/styles'
+
 import { Grid, Typography } from '@mui/material'
 
 const PREFIX = 'MentionElement';

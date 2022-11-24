@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles';
-import { makeStyles } from '@mui/material/styles'
+
 import CloseIcon from '@mui/icons-material/Close'
 import { FileContent, imagesExtensions } from '@quiet/state-manager'
 import Tooltip from '../../ui/Tooltip/Tooltip'

@@ -6,7 +6,7 @@ import classNames from 'classnames'
 import MaterialModal from '@mui/material/Modal'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-import { makeStyles } from '@mui/material/styles'
+
 
 import ClearIcon from '@mui/icons-material/Clear'
 import BackIcon from '@mui/icons-material/ArrowBack'
@@ -129,8 +129,7 @@ export const Modal: React.FC<IModalProps> = ({
 
 
   return (
-    <MaterialModal open={open} onClose={handleClose} className={windowed ? classes.windowed : classes.root}
-    >
+    <MaterialModal open={open} onClose={handleClose} className={windowed ? classes.windowed : classes.root}>
       <Grid
         container
         direction="column"
@@ -186,9 +185,7 @@ export const Modal: React.FC<IModalProps> = ({
                     <IconButton
                       onClick={() => {
                         if (setStep && step) { return setStep(step - 1) }
-                      }
-                      }
-                      size="large">
+                      }}>
                       <BackIcon />
                     </IconButton>
                   )
@@ -197,8 +194,7 @@ export const Modal: React.FC<IModalProps> = ({
                       <IconButton
                         onClick={() => {
                           if (handleClose) { return handleClose({}, 'backdropClick') }
-                        }}
-                        size="large">
+                        }}>
                         <ClearIcon />
                       </IconButton>
                     )

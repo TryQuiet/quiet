@@ -2,7 +2,7 @@ import React from 'react'
 
 import { styled } from '@mui/material/styles';
 
-import { makeStyles } from '@mui/material/styles'
+
 import { Grid, Typography } from '@mui/material'
 
 const PREFIX = 'MessagesDivider';

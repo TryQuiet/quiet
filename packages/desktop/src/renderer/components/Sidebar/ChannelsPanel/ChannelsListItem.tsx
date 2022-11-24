@@ -1,9 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { styled } from '@mui/material/styles';
 import classNames from 'classnames'
-import { Typography, Grid } from '@mui/material'
-import { makeStyles } from '@mui/material/styles'
-import ListItem from '@mui/material/ListItem'
+import { Typography, Grid, ListItemButton } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
 import { PublicChannel } from '@quiet/state-manager'
 
@@ -20,7 +18,7 @@ const classes = {
   itemText: `${PREFIX}-itemText`
 };
 
-const StyledListItem = styled(ListItem)((
+const StyledListItemButton = styled(ListItemButton)((
   {
     theme
   }
@@ -103,9 +101,8 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   }, [focused])
 
   return (
-    <StyledListItem
+    <StyledListItemButton
       ref={ref}
-      button
       disableGutters
       onClick={() => {
         setCurrentChannel(channel.name)
@@ -135,7 +132,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
         }}
         className={classes.itemText}
       />
-    </StyledListItem>
+    </StyledListItemButton>
   );
 }
 

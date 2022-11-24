@@ -1,9 +1,7 @@
 import React from 'react'
 
-import { styled } from '@mui/material/styles';
-
-import { makeStyles } from '@mui/material/styles'
-import Button, { ButtonProps } from '@mui/material/Button'
+import { styled } from '@mui/material/styles'
+import Button, { ButtonClasses, ButtonProps } from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 
 import classNames from 'classnames'
@@ -47,10 +45,14 @@ const StyledButton = styled(Button)((
   }
 }));
 
+interface LoadingButtonClasses extends ButtonClasses {
+  button?: string
+}
+
 interface LoadingButtonProps {
   inProgress?: boolean
   text?: string
-
+  classes?: Partial<LoadingButtonClasses>
 }
 
 export const LoadingButton: React.FC<ButtonProps & LoadingButtonProps> = ({
@@ -59,14 +61,14 @@ export const LoadingButton: React.FC<ButtonProps & LoadingButtonProps> = ({
   classes: customClasses,
   ...buttonProps
 }) => {
-  const classes = {
-
+  const mergedClasses = {
+    ...classes,
     ...customClasses
   }
 
   return (
-    <StyledButton className={classNames(classes.button, { [classes.inProgress]: inProgress })} {...buttonProps}>
-      {inProgress ? <CircularProgress size={20} className={classes.progress} data-testid={'loading-button-progress'} /> : text }
+    <StyledButton className={classNames(mergedClasses.button, { [mergedClasses.inProgress]: inProgress })} {...buttonProps}>
+      {inProgress ? <CircularProgress size={20} className={mergedClasses.progress} data-testid={'loading-button-progress'} /> : text }
     </StyledButton>
   );
 }

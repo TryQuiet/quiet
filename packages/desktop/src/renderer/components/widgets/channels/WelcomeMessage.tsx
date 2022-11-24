@@ -6,7 +6,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
-import { makeStyles } from '@mui/material/styles'
+
 
 import zbayLogo from '../../../static/images/zcash/zbay-square-logo.svg'
 import Icon from '../../ui/Icon/Icon'

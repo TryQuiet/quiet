@@ -1,6 +1,5 @@
 import React from 'react'
-import { styled } from '@mui/material/styles';
-import { makeStyles } from '@mui/material/styles'
+import { styled } from '@mui/material/styles'
 import { Button } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -76,7 +75,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({
           accountSettingsModal.handleOpen()
         }}
         component='span'
-        classes={{ root: classes.button, label: classes.buttonLabel }}
+        classes={{ root: classes.button }} // label: classes.buttonLabel
         data-testid={'settings-panel-button'}>
         <Typography variant='h4' className={classes.nickname}>
           {communityName}

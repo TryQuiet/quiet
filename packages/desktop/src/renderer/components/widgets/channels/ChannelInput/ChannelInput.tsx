@@ -3,7 +3,6 @@ import classNames from 'classnames'
 import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
 import Picker from 'emoji-picker-react'
 import Grid from '@mui/material/Grid'
-import { makeStyles } from '@mui/material/styles'
 import { styled } from '@mui/material/styles'
 import orange from '@mui/material/colors/orange'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
@@ -16,8 +15,38 @@ import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
 
-const useStyles = makeStyles(theme => ({
-  root: {
+const PREFIX = 'ChannelInput';
+
+const classes = {
+  root: `${PREFIX}-root`,
+  input: `${PREFIX}-input`,
+  textfield: `${PREFIX}-textfield`,
+  inputsDiv: `${PREFIX}-inputsDiv`,
+  disabledBottomMargin: `${PREFIX}-disabledBottomMargin`,
+  warningIcon: `${PREFIX}-warningIcon`,
+  blinkAnimation: `${PREFIX}-blinkAnimation`,
+  backdrop: `${PREFIX}-backdrop`,
+  focused: `${PREFIX}-focused`,
+  iconButton: `${PREFIX}-iconButton`,
+  emoji: `${PREFIX}-emoji`,
+  highlight: `${PREFIX}-highlight`,
+  actions: `${PREFIX}-actions`,
+  picker: `${PREFIX}-picker`,
+  errorIcon: `${PREFIX}-errorIcon`,
+  errorText: `${PREFIX}-errorText`,
+  errorBox: `${PREFIX}-errorBox`,
+  linkBlue: `${PREFIX}-linkBlue`,
+  notAllowed: `${PREFIX}-notAllowed`,
+  inputFiles: `${PREFIX}-inputFiles`,
+  icons: `${PREFIX}-icons`
+};
+
+const Root = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.root}`]: {
     background: '#fff',
     height: '100%',
     width: '100%'
@@ -26,7 +55,7 @@ const useStyles = makeStyles(theme => ({
     from: { opacity: 0 },
     to: { opacity: 1 }
   },
-  input: {
+  [`&.${classes.input}`]: {
     width: '100%',
     fontSize: 14,
     outline: 'none',
@@ -43,7 +72,7 @@ const useStyles = makeStyles(theme => ({
     position: 'relative',
     paddingRight: '60px'
   },
-  textfield: {
+  [`&.${classes.textfield}`]: {
     border: `1px solid ${theme.palette.colors.veryLightGray}`,
     maxHeight: 300,
     'overflow-y': 'auto',
@@ -60,26 +89,26 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     position: 'relative'
   },
-  inputsDiv: {
+  [`&.${classes.inputsDiv}`]: {
     paddingLeft: '20px',
     paddingRight: '20px',
     width: '100%',
     margin: '0px',
     position: 'relative'
   },
-  disabledBottomMargin: {
+  [`&.${classes.disabledBottomMargin}`]: {
     marginBottom: 0
   },
-  warningIcon: {
+  [`&.${classes.warningIcon}`]: {
     color: orange[500]
   },
-  blinkAnimation: {
+  [`&.${classes.blinkAnimation}`]: {
     animationName: '$blinker',
     animationDuration: '1s',
     animationTimingFunction: 'linear',
     animationIterationCount: 1
   },
-  backdrop: {
+  [`&.${classes.backdrop}`]: {
     height: 'auto',
     padding: theme.spacing(1),
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
@@ -87,10 +116,10 @@ const useStyles = makeStyles(theme => ({
     pointerEvents: 'none',
     touchAction: 'none'
   },
-  focused: {
+  [`&.${classes.focused}`]: {
     borderColor: theme.palette.colors.trueBlack
   },
-  iconButton: {
+  [`&.${classes.iconButton}`]: {
     cursor: 'pointer',
     position: 'relative',
     float: 'right',
@@ -101,61 +130,59 @@ const useStyles = makeStyles(theme => ({
 
     },
     border: '1px solid #808080',
-
     // boxShadow: '-.75px -.75px 1px #808080',
     borderRadius: '100%',
     width: '23px',
     height: '23px'
   },
-  emoji: {
+  [`&.${classes.emoji}`]: {
     cursor: 'pointer',
     position: 'relative',
     float: 'right'
   },
-  highlight: {
+  [`&.${classes.highlight}`]: {
     color: theme.palette.colors.lushSky,
     backgroundColor: theme.palette.colors.lushSky12,
     padding: 5,
     borderRadius: 4
   },
-
-  actions: {
+  [`&.${classes.actions}`]: {
     postion: 'relative',
     float: 'right',
     padding: '5px'
   },
-  picker: {
+  [`&.${classes.picker}`]: {
     position: 'fixed',
     bottom: 60,
     right: 15
   },
-  errorIcon: {
+  [`&.${classes.errorIcon}`]: {
     display: 'flex',
     justify: 'center',
     alignItems: 'center',
     marginLeft: 20,
     marginRight: 5
   },
-  errorText: {
+  [`&.${classes.errorText}`]: {
     color: theme.palette.colors.trueBlack
   },
-  errorBox: {
+  [`&.${classes.errorBox}`]: {
     marginTop: 5
   },
-  linkBlue: {
+  [`&.${classes.linkBlue}`]: {
     fontWeight: 'normal',
     fontStyle: 'normal',
     cursor: 'pointer',
     color: theme.palette.colors.linkBlue
   },
-  notAllowed: {
+  [`&.${classes.notAllowed}`]: {
     cursor: 'not-allowed'
   },
-  inputFiles: {
+  [`&.${classes.inputFiles}`]: {
     position: 'relative',
     float: 'left'
   },
-  icons: {
+  [`&.${classes.icons}`]: {
     position: 'absolute',
     float: 'left',
     right: '0px',
@@ -201,8 +228,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   handleClipboardFiles,
   handleOpenFiles
 }) => {
-  const classes = useStyles({})
-
   const [_anchorEl, setAnchorEl] = React.useState<HTMLDivElement>(null)
   const [mentionsToSelect, setMentionsToSelect] = React.useState([])
   const messageRef = React.useRef<string>()
@@ -411,7 +436,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   }
 
   return (
-    <Grid
+    <Root
       className={classNames({
         [classes.root]: true,
         [classes.notAllowed]: inputState !== INPUT_STATE.AVAILABLE
@@ -568,7 +593,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           showInfoMessage={inputState !== INPUT_STATE.AVAILABLE}
         />
       </Grid>
-    </Grid>
+    </Root>
   )
 }
 

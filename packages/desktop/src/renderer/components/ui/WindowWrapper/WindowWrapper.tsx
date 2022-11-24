@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react'
 import { styled } from '@mui/material/styles';
 import classNames from 'classnames'
 
-import { makeStyles } from '@mui/material/styles'
+
 
 const PREFIX = 'WindowWrapper';
 
