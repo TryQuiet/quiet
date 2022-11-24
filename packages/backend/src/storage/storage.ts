@@ -20,7 +20,7 @@ import {
   User,
   PushNotificationPayload
 } from '@quiet/state-manager'
-import * as IPFS from 'ipfs-core'
+import type { IPFS } from 'ipfs-core'
 import type { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
@@ -68,7 +68,7 @@ setEngine(
 export class Storage extends EventEmitter {
   public quietDir: string
   public peerId: PeerId
-  protected ipfs: IPFS.IPFS
+  protected ipfs: IPFS
   protected orbitdb: OrbitDB
   private channels: KeyValueStore<PublicChannel>
   private messageThreads: KeyValueStore<IMessageThread>
@@ -164,10 +164,10 @@ export class Storage extends EventEmitter {
     return this.__communityId
   }
 
-  protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> {
+  protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS> {
     log('Initializing IPFS')
-    // @ts-ignore
-    return await IPFS.create({
+    const { create: ipfsCreate } = await import('ipfs-core')
+    return await ipfsCreate({
       // error here 'permission denied 0.0.0.0:443'
       //libp2p: async () => libp2p,
       preload: { enabled: false },
