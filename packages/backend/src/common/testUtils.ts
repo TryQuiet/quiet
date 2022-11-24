@@ -1,6 +1,6 @@
 import fs from 'fs'
 import getPort from 'get-port'
-import {Libp2p} from 'libp2p'
+import type { Libp2p } from 'libp2p'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import path from 'path'
 import PeerId from 'peer-id'

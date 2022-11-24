@@ -21,7 +21,7 @@ import {
   PushNotificationPayload
 } from '@quiet/state-manager'
 import * as IPFS from 'ipfs-core'
-import { Libp2p } from 'libp2p'
+import type { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
@@ -83,11 +83,7 @@ export class Storage extends EventEmitter {
   private readonly publicKeysMap: Map<string, CryptoKey>
   private readonly userNamesMap: Map<string, string>
 
-  constructor(
-    quietDir: string,
-    communityId: string,
-    options?: Partial<StorageOptions>
-  ) {
+  constructor(quietDir: string, communityId: string, options?: Partial<StorageOptions>) {
     super()
     this.quietDir = quietDir
     this.__communityId = communityId
@@ -193,7 +189,9 @@ export class Storage extends EventEmitter {
 
   public async loadAllCertificates() {
     log('Getting all certificates')
-    this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
+    this.emit(StorageEvents.LOAD_CERTIFICATES, {
+      certificates: this.getAllEventLogEntries(this.certificates)
+    })
   }
 
   public async createDbForCertificates() {
@@ -203,30 +201,39 @@ export class Storage extends EventEmitter {
         write: ['*']
       }
     })
-    this.certificates.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
-      const certificate = entry.payload.value
+    this.certificates.events.on(
+      'replicate.progress',
+      async (_address, _hash, entry, _progress, _total) => {
+        const certificate = entry.payload.value
 
-      const parsedCertificate = parseCertificate(certificate)
-      const key = keyFromCertificate(parsedCertificate)
+        const parsedCertificate = parseCertificate(certificate)
+        const key = keyFromCertificate(parsedCertificate)
 
-      const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
+        const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
 
-      this.userNamesMap.set(key, username)
-    })
+        this.userNamesMap.set(key, username)
+      }
+    )
     this.certificates.events.on('replicated', async () => {
       log('REPLICATED: Certificates')
-      this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
+      this.emit(StorageEvents.LOAD_CERTIFICATES, {
+        certificates: this.getAllEventLogEntries(this.certificates)
+      })
       await this.updatePeersList()
     })
     this.certificates.events.on('write', async (_address, entry) => {
       log('Saved certificate locally')
       log(entry.payload.value)
-      this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
+      this.emit(StorageEvents.LOAD_CERTIFICATES, {
+        certificates: this.getAllEventLogEntries(this.certificates)
+      })
       await this.updatePeersList()
     })
     this.certificates.events.on('ready', () => {
       log('Loaded certificates to memory')
-      this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
+      this.emit(StorageEvents.LOAD_CERTIFICATES, {
+        certificates: this.getAllEventLogEntries(this.certificates)
+      })
     })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
@@ -240,7 +247,9 @@ export class Storage extends EventEmitter {
     log('Getting all channels')
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 2000 })
-    this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, { channels: this.channels.all as unknown as { [key: string]: PublicChannel } })
+    this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
+      channels: this.channels.all as unknown as { [key: string]: PublicChannel }
+    })
   }
 
   private async createDbForChannels() {
@@ -261,7 +270,9 @@ export class Storage extends EventEmitter {
       log('REPLICATED: Channels')
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
-      this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, { channels: this.channels.all as unknown as { [key: string]: PublicChannel } })
+      this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
+        channels: this.channels.all as unknown as { [key: string]: PublicChannel }
+      })
 
       Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
         await this.subscribeToChannel(channel)
@@ -302,7 +313,9 @@ export class Storage extends EventEmitter {
   }
 
   async initAllChannels() {
-    this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, { channels: this.channels.all as unknown as { [key: string]: PublicChannel } })
+    this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
+      channels: this.channels.all as unknown as { [key: string]: PublicChannel }
+    })
   }
 
   async initAllConversations() {
@@ -368,10 +381,10 @@ export class Storage extends EventEmitter {
 
         const verified = await this.verifyMessage(message)
 
-          this.emit(StorageEvents.LOAD_MESSAGES, {
-            messages: [entry.payload.value],
-            isVerified: verified
-          })
+        this.emit(StorageEvents.LOAD_MESSAGES, {
+          messages: [entry.payload.value],
+          isVerified: verified
+        })
 
         // Display push notifications on mobile
         if (process.env.BACKEND === 'mobile') {
@@ -522,7 +535,7 @@ export class Storage extends EventEmitter {
 
     const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
     const uploadedFileStreamIterable = {
-      async* [Symbol.asyncIterator]() {
+      async *[Symbol.asyncIterator]() {
         for await (const data of stream) {
           yield data
         }
@@ -540,7 +553,9 @@ export class Storage extends EventEmitter {
     // Save copy to separate directory
     const filePath = this.copyFile(metadata.path, filename)
     console.time(`Writing ${filename} to ipfs`)
-    await this.ipfs.files.write(`/${dirname}/${filename}`, uploadedFileStreamIterable, { create: true })
+    await this.ipfs.files.write(`/${dirname}/${filename}`, uploadedFileStreamIterable, {
+      create: true
+    })
     console.timeEnd(`Writing ${filename} to ipfs`)
 
     // Get uploaded file information
@@ -659,9 +674,12 @@ export class Storage extends EventEmitter {
             downloadProgress: downloadProgress
           }
 
-          const percentage = Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)
+          const percentage = Math.floor((downloadProgress.downloaded / downloadProgress.size) * 100)
 
-          log(`${new Date().toUTCString()}, ${metadata.name} downloaded bytes ${percentage}% ${downloadProgress.downloaded} / ${downloadProgress.size}`)
+          log(
+            `${new Date().toUTCString()}, ${metadata.name} downloaded bytes ${percentage}% ${downloadProgress.downloaded
+            } / ${downloadProgress.size}`
+          )
           this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, downloadStatus)
 
           resolve()
@@ -763,14 +781,23 @@ export class Storage extends EventEmitter {
 
     if (repo && !repo.eventsAttached) {
       log('Subscribing to direct messages thread ', channelAddress)
-      this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, { messages: this.getAllEventLogEntries(db), channelAddress })
+      this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
+        messages: this.getAllEventLogEntries(db),
+        channelAddress
+      })
       db.events.on('write', (_address, _entry) => {
         log('Writing')
-        this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, { messages: this.getAllEventLogEntries(db), channelAddress })
+        this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
+          messages: this.getAllEventLogEntries(db),
+          channelAddress
+        })
       })
       db.events.on('replicated', () => {
         log('Message replicated')
-        this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, { messages: this.getAllEventLogEntries(db), channelAddress })
+        this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
+          messages: this.getAllEventLogEntries(db),
+          channelAddress
+        })
       })
       db.events.on('ready', () => {
         log('DIRECT Messages thread ready')
