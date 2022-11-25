@@ -4,7 +4,8 @@ import { storiesOf } from '@storybook/react-native'
 import { Message } from './Message.component'
 import { MessageType } from '@quiet/state-manager'
 
-storiesOf('Message', module).add('Default', () => {
+storiesOf('Message', module)
+.add('Default', () => {
   return (
     <Message
       data={[
