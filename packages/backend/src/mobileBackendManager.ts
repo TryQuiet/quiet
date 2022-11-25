@@ -12,12 +12,9 @@ export const runBackend = async (): Promise<any> => {
   const program = new Command()
 
   program
-  .requiredOption('-d, --appDataPath <appDataPath>', 'app data path')
-  .requiredOption('-p, --dataPort <dataPort>', 'data port')
-  .requiredOption('-t, --httpTunnelPort <httpTunnelPort>', 'httpTunnelPort')
-  .requiredOption('-s, --socksPort <socksPort>', 'socks port')
-  .requiredOption('-c, --controlPort <controlPort>', 'control port')
-  .requiredOption('-a, --torPath <torPath>', 'tor binary path')
+    .requiredOption('-t, --torBinary <torBinary>', 'tor binary path')
+    .requiredOption('-dpth, --dataPath <adataPath>', 'data directory path')
+    .requiredOption('-dprt, --dataPort <dataPort>', 'data port')
 
   program.parse(process.argv)
   const options = program.opts()
@@ -26,8 +23,8 @@ export const runBackend = async (): Promise<any> => {
     socketIOPort: options.dataPort,
     options: {
       env: {
-        appDataPath: options.appDataPath,
-        resourcesPath: options.torPath
+        appDataPath: options.dataPath,
+        resourcesPath: options.torBinary
       },
       createPaths: false,
     }

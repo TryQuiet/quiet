@@ -18,6 +18,8 @@
 
 #import "RNNodeJsMobile.h"
 
+#import "ZbayMobile-Swift.h"
+
 static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 @interface AppDelegate () <RCTCxxBridgeDelegate, RCTTurboModuleManagerDelegate> {
@@ -59,6 +61,19 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
+  
+  FindFreePort *findFreePort = [FindFreePort new];
+  uint16_t dataPort = [findFreePort getFirstStartingFromPort:11000];
+  [[bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:dataPort];
+  
+  DataDirectory *dataDirectory = [DataDirectory new];
+  NSString *dataPath = [dataDirectory create];
+  
+  NSString *tor = [[NSBundle mainBundle] pathForResource:@"Frameworks/Tor.framework/Tor" ofType:@""];
+  
+  RNNodeJsMobile *nodeJsMobile = [RNNodeJsMobile new];
+  [nodeJsMobile callStartNodeProjectWithArgs:[NSString stringWithFormat:@"lib/mobileBackendManager.js --torBinary %@ --dataPort %hu --dataPath %@", tor, dataPort, dataPath]];
+  
   return YES;
 }
 
