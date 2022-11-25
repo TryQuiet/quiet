@@ -43,7 +43,7 @@ import logger from '../logger'
 import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
 
-import fs, { truncate } from 'fs'
+import fs from 'fs'
 import { promisify } from 'util'
 import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
@@ -56,7 +56,7 @@ const log = logger('db')
 const webcrypto = new Crypto()
 setEngine(
   'newEngine',
-  // @ts-ignore
+  // @ts-expect-error
   webcrypto,
   new CryptoEngine({
     name: '',
@@ -166,7 +166,7 @@ export class Storage extends EventEmitter {
 
   protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS> {
     log('Initializing IPFS')
-    const { create: ipfsCreate } = await import('ipfs-core')
+    const { create: ipfsCreate } = await eval("import('ipfs-core')")
     return await ipfsCreate({
       // error here 'permission denied 0.0.0.0:443'
       //libp2p: async () => libp2p,

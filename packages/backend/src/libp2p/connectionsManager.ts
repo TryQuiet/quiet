@@ -628,7 +628,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   private static readonly defaultLibp2pNode = async (params: Libp2pNodeParams): Promise<Libp2p> => {
-    const { createLibp2p } = await import('libp2p')
+    const { createLibp2p } = await eval("import('libp2p')")
     return await createLibp2p({
       connectionManager: {
         minConnections: 3,
