@@ -55,7 +55,6 @@
 		"@types/node": "16.11.7",
 		"@types/node-fetch": "^2.5.11",
 		"@types/orbit-db": "git+https://github.com/orbitdb/orbit-db-types.git",
-		"@types/pkijs": "0.0.12",
 		"@types/socket.io": "^2.1.12",
 		"@types/validator": "^13.1.4",
 		"@typescript-eslint/eslint-plugin": "^4.33.0",

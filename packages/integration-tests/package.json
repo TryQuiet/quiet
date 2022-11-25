@@ -23,7 +23,6 @@
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-typescript": "^7.15.0",
     "@types/jest": "^26.0.24",
-    "@types/pkijs": "0.0.12",
     "@types/redux-saga": "^0.10.5",
     "@types/tmp": "^0.2.2",
     "@typescript-eslint/eslint-plugin": "^4.33.0",

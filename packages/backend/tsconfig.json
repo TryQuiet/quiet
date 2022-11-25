@@ -3,7 +3,6 @@
   "compilerOptions": {
     "outDir": "./lib",
     "target": "ES2015",
-    "module": "ES2020",
     "typeRoots": [
       "../@types",
       "./node_modules/@types"

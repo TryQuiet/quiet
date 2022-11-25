@@ -46,7 +46,6 @@ import {
   StorePeerListPayload
 } from '@quiet/state-manager'
 
-import { CryptoEngine, setEngine } from 'pkijs'
 import { ConnectionsManagerOptions } from '../common/types'
 import {
   createLibp2pAddress,
@@ -142,17 +141,17 @@ export class ConnectionsManager extends EventEmitter {
       log('\nGracefully shutting down from SIGINT (Ctrl-C)')
       process.exit(0)
     })
-    const webcrypto = new Crypto()
-    setEngine(
-      'newEngine',
-      // @ts-ignore
-      webcrypto,
-      new CryptoEngine({
-        name: '',
-        crypto: webcrypto,
-        subtle: webcrypto.subtle
-      })
-    )
+    // const webcrypto = new Crypto()
+    // setEngine(
+    //   'newEngine',
+    //   // @ts-ignore
+    //   webcrypto,
+    //   new CryptoEngine({
+    //     name: '',
+    //     crypto: webcrypto,
+    //     subtle: webcrypto.subtle
+    //   })
+    // )
   }
 
   public readonly createAgent = (): Agent => {

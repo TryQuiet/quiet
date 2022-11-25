@@ -53,17 +53,17 @@ const sizeOfPromisified = promisify(sizeOf)
 
 const log = logger('db')
 
-const webcrypto = new Crypto()
-setEngine(
-  'newEngine',
-  // @ts-expect-error
-  webcrypto,
-  new CryptoEngine({
-    name: '',
-    crypto: webcrypto,
-    subtle: webcrypto.subtle
-  })
-)
+// const webcrypto = new Crypto()
+// setEngine(
+//   'newEngine',
+//   // @ts-expect-error
+//   webcrypto,
+//   new CryptoEngine({
+//     name: '',
+//     crypto: webcrypto,
+//     subtle: webcrypto.subtle
+//   })
+// )
 
 export class Storage extends EventEmitter {
   public quietDir: string

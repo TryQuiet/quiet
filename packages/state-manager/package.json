@@ -45,7 +45,6 @@
     "@types/factory-girl": "^5.0.8",
     "@types/jest": "^26.0.24",
     "@types/luxon": "^2.0.0",
-    "@types/pkijs": "0.0.10",
     "@types/redux-saga": "^0.10.5",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "babel-jest": "^27.0.6",
