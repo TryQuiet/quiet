@@ -17,14 +17,14 @@ import Tab from '../../../ui/Tab/Tab';
 const PREFIX = 'SettingsModal';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  tabs: `${PREFIX}-tabs`,
-  indicator: `${PREFIX}-indicator`,
-  appbar: `${PREFIX}-appbar`,
-  tabsDiv: `${PREFIX}-tabsDiv`,
-  selected: `${PREFIX}-selected`,
-  tab: `${PREFIX}-tab`,
-  content: `${PREFIX}-content`
+  root: `${PREFIX}root`,
+  tabs: `${PREFIX}tabs`,
+  indicator: `${PREFIX}indicator`,
+  appbar: `${PREFIX}appbar`,
+  tabsDiv: `${PREFIX}tabsDiv`,
+  selected: `${PREFIX}selected`,
+  tab: `${PREFIX}tab`,
+  content: `${PREFIX}content`
 };
 
 const StyledModal = styled(Modal)((

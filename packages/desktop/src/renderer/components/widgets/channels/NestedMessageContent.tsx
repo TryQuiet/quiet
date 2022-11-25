@@ -12,10 +12,10 @@ import Linkify from 'react-linkify'
 const PREFIX = 'NestedMessageContent';
 
 const classes = {
-  message: `${PREFIX}-message`,
-  pending: `${PREFIX}-pending`,
-  info: `${PREFIX}-info`,
-  link: `${PREFIX}-link`
+  message: `${PREFIX}message`,
+  pending: `${PREFIX}pending`,
+  info: `${PREFIX}info`,
+  link: `${PREFIX}link`
 };
 
 const StyledGrid = styled(Grid)(() => ({

@@ -15,22 +15,22 @@ import { ChannelMenuActionProps } from './ChannelMenuAction'
 const PREFIX = 'ChannelHeaderComponent';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  title: `${PREFIX}-title`,
-  subtitle: `${PREFIX}-subtitle`,
-  spendButton: `${PREFIX}-spendButton`,
-  actions: `${PREFIX}-actions`,
-  switch: `${PREFIX}-switch`,
-  tab: `${PREFIX}-tab`,
-  tabs: `${PREFIX}-tabs`,
-  selected: `${PREFIX}-selected`,
-  indicator: `${PREFIX}-indicator`,
-  descriptionDiv: `${PREFIX}-descriptionDiv`,
-  wrapper: `${PREFIX}-wrapper`,
-  iconDiv: `${PREFIX}-iconDiv`,
-  iconButton: `${PREFIX}-iconButton`,
-  bold: `${PREFIX}-bold`,
-  silenceDiv: `${PREFIX}-silenceDiv`
+  root: `${PREFIX}root`,
+  title: `${PREFIX}title`,
+  subtitle: `${PREFIX}subtitle`,
+  spendButton: `${PREFIX}spendButton`,
+  actions: `${PREFIX}actions`,
+  switch: `${PREFIX}switch`,
+  tab: `${PREFIX}tab`,
+  tabs: `${PREFIX}tabs`,
+  selected: `${PREFIX}selected`,
+  indicator: `${PREFIX}indicator`,
+  descriptionDiv: `${PREFIX}descriptionDiv`,
+  wrapper: `${PREFIX}wrapper`,
+  iconDiv: `${PREFIX}iconDiv`,
+  iconButton: `${PREFIX}iconButton`,
+  bold: `${PREFIX}bold`,
+  silenceDiv: `${PREFIX}silenceDiv`
 };
 
 const Root = styled('div')((

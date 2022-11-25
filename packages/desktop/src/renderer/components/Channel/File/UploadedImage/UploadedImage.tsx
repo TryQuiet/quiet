@@ -9,8 +9,8 @@ import { UploadedFilename, UploadedImagePlaceholder } from '../UploadedImagePlac
 const PREFIX = 'UploadedImage';
 
 const classes = {
-  image: `${PREFIX}-image`,
-  container: `${PREFIX}-container`
+  image: `${PREFIX}image`,
+  container: `${PREFIX}container`
 };
 
 // TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.

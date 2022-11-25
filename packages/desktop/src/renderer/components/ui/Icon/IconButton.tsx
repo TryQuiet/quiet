@@ -7,7 +7,7 @@ import { IIconButtonProps } from './IconButton.d'
 const PREFIX = 'IconButton';
 
 const classes = {
-  root: `${PREFIX}-root`
+  root: `${PREFIX}root`
 };
 
 const StyledIconButtonMui = styled(IconButtonMui)((

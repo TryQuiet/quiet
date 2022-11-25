@@ -8,14 +8,14 @@ import { PublicChannel } from '@quiet/state-manager'
 const PREFIX = 'ChannelsListItem';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  selected: `${PREFIX}-selected`,
-  primary: `${PREFIX}-primary`,
-  title: `${PREFIX}-title`,
-  newMessages: `${PREFIX}-newMessages`,
-  connectedIcon: `${PREFIX}-connectedIcon`,
-  notConnectedIcon: `${PREFIX}-notConnectedIcon`,
-  itemText: `${PREFIX}-itemText`
+  root: `${PREFIX}root`,
+  selected: `${PREFIX}selected`,
+  primary: `${PREFIX}primary`,
+  title: `${PREFIX}title`,
+  newMessages: `${PREFIX}newMessages`,
+  connectedIcon: `${PREFIX}connectedIcon`,
+  notConnectedIcon: `${PREFIX}notConnectedIcon`,
+  itemText: `${PREFIX}itemText`
 };
 
 const StyledListItemButton = styled(ListItemButton)((

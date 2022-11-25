@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography'
 const PREFIX = 'Elipsis';
 
 const classes = {
-  content: `${PREFIX}-content`
+  content: `${PREFIX}content`
 };
 
 const StyledTooltip = styled(Tooltip)({

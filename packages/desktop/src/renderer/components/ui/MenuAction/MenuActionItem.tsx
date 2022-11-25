@@ -8,7 +8,7 @@ import MuiMenuItem from '@mui/material/MenuItem'
 const PREFIX = 'MenuActionItem';
 
 const classes = {
-  root: `${PREFIX}-root`
+  root: `${PREFIX}root`
 };
 
 const StyledMuiMenuItem = styled(MuiMenuItem)(() => ({

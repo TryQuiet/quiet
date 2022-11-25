@@ -8,7 +8,7 @@ import Modal from '../ui/Modal/Modal'
 const PREFIX = 'LoadingPanelComponent';
 
 const classes = {
-  spinner: `${PREFIX}-spinner`
+  spinner: `${PREFIX}spinner`
 };
 
 const StyledModal = styled(Modal)(() => ({

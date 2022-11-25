@@ -7,8 +7,8 @@ import classNames from 'classnames'
 const PREFIX = 'WindowWrapper';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  wrapper: `${PREFIX}-wrapper`
+  root: `${PREFIX}root`,
+  wrapper: `${PREFIX}wrapper`
 };
 
 const Root = styled('div')(() => ({

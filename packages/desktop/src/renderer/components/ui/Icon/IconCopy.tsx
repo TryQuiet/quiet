@@ -7,12 +7,12 @@ import { styled } from '@mui/material/styles';
 const PREFIX = 'IconCopy';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  main: `${PREFIX}-main`,
-  squareTop: `${PREFIX}-squareTop`,
-  gradient: `${PREFIX}-gradient`,
-  squareFill: `${PREFIX}-squareFill`,
-  squareBottom: `${PREFIX}-squareBottom`
+  root: `${PREFIX}root`,
+  main: `${PREFIX}main`,
+  squareTop: `${PREFIX}squareTop`,
+  gradient: `${PREFIX}gradient`,
+  squareFill: `${PREFIX}squareFill`,
+  squareBottom: `${PREFIX}squareBottom`
 };
 
 const Root = styled('div')({

@@ -7,10 +7,10 @@ import arrowDown from '../../../static/images/arrowDown.svg'
 const PREFIX = 'NewMessagesInfoComponent';
 
 const classes = {
-  wrapper: `${PREFIX}-wrapper`,
-  indicator: `${PREFIX}-indicator`,
-  label: `${PREFIX}-label`,
-  icon: `${PREFIX}-icon`
+  wrapper: `${PREFIX}wrapper`,
+  indicator: `${PREFIX}indicator`,
+  label: `${PREFIX}label`,
+  icon: `${PREFIX}icon`
 };
 
 const Root = styled('div')((

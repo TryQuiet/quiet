@@ -28,20 +28,20 @@ import Visibility from '@mui/icons-material/Visibility'
 const PREFIX = 'PerformCommunityActionComponent';
 
 const classes = {
-  focus: `${PREFIX}-focus`,
-  margin: `${PREFIX}-margin`,
-  error: `${PREFIX}-error`,
-  main: `${PREFIX}-main`,
-  fullContainer: `${PREFIX}-fullContainer`,
-  gutter: `${PREFIX}-gutter`,
-  button: `${PREFIX}-button`,
-  title: `${PREFIX}-title`,
-  iconDiv: `${PREFIX}-iconDiv`,
-  warrningIcon: `${PREFIX}-warrningIcon`,
-  warrningMessage: `${PREFIX}-warrningMessage`,
-  rootBar: `${PREFIX}-rootBar`,
-  progressBar: `${PREFIX}-progressBar`,
-  info: `${PREFIX}-info`
+  focus: `${PREFIX}focus`,
+  margin: `${PREFIX}margin`,
+  error: `${PREFIX}error`,
+  main: `${PREFIX}main`,
+  fullContainer: `${PREFIX}fullContainer`,
+  gutter: `${PREFIX}gutter`,
+  button: `${PREFIX}button`,
+  title: `${PREFIX}title`,
+  iconDiv: `${PREFIX}iconDiv`,
+  warrningIcon: `${PREFIX}warrningIcon`,
+  warrningMessage: `${PREFIX}warrningMessage`,
+  rootBar: `${PREFIX}rootBar`,
+  progressBar: `${PREFIX}progressBar`,
+  info: `${PREFIX}info`
 };
 
 const StyledModal = styled(Modal)((

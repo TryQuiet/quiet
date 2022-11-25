@@ -12,9 +12,9 @@ import MenuActionItem from '../../ui/MenuAction/MenuActionItem'
 const PREFIX = 'ChannelMenuActionComponent';
 
 const classes = {
-  menuList: `${PREFIX}-menuList`,
-  icon: `${PREFIX}-icon`,
-  sublabel: `${PREFIX}-sublabel`
+  menuList: `${PREFIX}menuList`,
+  icon: `${PREFIX}icon`,
+  sublabel: `${PREFIX}sublabel`
 };
 
 const StyledMenuAction = styled(MenuAction)((

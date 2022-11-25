@@ -8,10 +8,10 @@ import MuiTooltip from '@mui/material/Tooltip'
 const PREFIX = 'Tooltip';
 
 const classes = {
-  noWrap: `${PREFIX}-noWrap`,
-  tooltip: `${PREFIX}-tooltip`,
-  text: `${PREFIX}-text`,
-  arrow: `${PREFIX}-arrow`
+  noWrap: `${PREFIX}noWrap`,
+  tooltip: `${PREFIX}tooltip`,
+  text: `${PREFIX}text`,
+  arrow: `${PREFIX}arrow`
 };
 
 const Root = styled('span')((

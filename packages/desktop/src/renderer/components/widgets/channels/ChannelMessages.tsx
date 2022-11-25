@@ -19,14 +19,14 @@ import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent
 const PREFIX = 'ChannelMessagesComponent';
 
 const classes = {
-  spinner: `${PREFIX}-spinner`,
-  scroll: `${PREFIX}-scroll`,
-  list: `${PREFIX}-list`,
-  link: `${PREFIX}-link`,
-  info: `${PREFIX}-info`,
-  root: `${PREFIX}-root`,
-  item: `${PREFIX}-item`,
-  bold: `${PREFIX}-bold`
+  spinner: `${PREFIX}spinner`,
+  scroll: `${PREFIX}scroll`,
+  list: `${PREFIX}list`,
+  link: `${PREFIX}link`,
+  info: `${PREFIX}info`,
+  root: `${PREFIX}root`,
+  item: `${PREFIX}item`,
+  bold: `${PREFIX}bold`
 };
 
 const Root = styled('div')((

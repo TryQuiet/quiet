@@ -10,15 +10,15 @@ import fileIcon from '../../../static/images/fileIcon.svg'
 const PREFIX = 'UploadFilesPreviewsComponent';
 
 const classes = {
-  inputFiles: `${PREFIX}-inputFiles`,
-  wrapper: `${PREFIX}-wrapper`,
-  image: `${PREFIX}-image`,
-  fileIcon: `${PREFIX}-fileIcon`,
-  fileIconContainer: `${PREFIX}-fileIconContainer`,
-  closeIconContainer: `${PREFIX}-closeIconContainer`,
-  closeIcon: `${PREFIX}-closeIcon`,
-  imageContainer: `${PREFIX}-imageContainer`,
-  tooltip: `${PREFIX}-tooltip`
+  inputFiles: `${PREFIX}inputFiles`,
+  wrapper: `${PREFIX}wrapper`,
+  image: `${PREFIX}image`,
+  fileIcon: `${PREFIX}fileIcon`,
+  fileIconContainer: `${PREFIX}fileIconContainer`,
+  closeIconContainer: `${PREFIX}closeIconContainer`,
+  closeIcon: `${PREFIX}closeIcon`,
+  imageContainer: `${PREFIX}imageContainer`,
+  tooltip: `${PREFIX}tooltip`
 };
 
 const Root = styled('div')(() => ({

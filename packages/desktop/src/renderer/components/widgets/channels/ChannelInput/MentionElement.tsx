@@ -8,14 +8,14 @@ import { Grid, Typography } from '@mui/material'
 const PREFIX = 'MentionElement';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  avatarDiv: `${PREFIX}-avatarDiv`,
-  alignAvatar: `${PREFIX}-alignAvatar`,
-  data: `${PREFIX}-data`,
-  highlight: `${PREFIX}-highlight`,
-  name: `${PREFIX}-name`,
-  caption: `${PREFIX}-caption`,
-  captionHighlight: `${PREFIX}-captionHighlight`
+  root: `${PREFIX}root`,
+  avatarDiv: `${PREFIX}avatarDiv`,
+  alignAvatar: `${PREFIX}alignAvatar`,
+  data: `${PREFIX}data`,
+  highlight: `${PREFIX}highlight`,
+  name: `${PREFIX}name`,
+  caption: `${PREFIX}caption`,
+  captionHighlight: `${PREFIX}captionHighlight`
 };
 
 const StyledGrid = styled(Grid)((

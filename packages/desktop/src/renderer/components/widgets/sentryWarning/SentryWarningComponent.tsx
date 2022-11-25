@@ -7,10 +7,10 @@ import Modal from '../../ui/Modal/Modal'
 const PREFIX = 'SentryWarningComponent';
 
 const classes = {
-  main: `${PREFIX}-main`,
-  title: `${PREFIX}-title`,
-  fullWidth: `${PREFIX}-fullWidth`,
-  button: `${PREFIX}-button`
+  main: `${PREFIX}main`,
+  title: `${PREFIX}title`,
+  fullWidth: `${PREFIX}fullWidth`,
+  button: `${PREFIX}button`
 };
 
 const StyledModal = styled(Modal)((

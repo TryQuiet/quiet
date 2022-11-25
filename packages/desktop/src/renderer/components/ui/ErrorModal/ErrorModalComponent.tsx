@@ -6,8 +6,6 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 
-
-
 import red from '@mui/material/colors/red'
 
 import Icon from '../Icon/Icon'
@@ -19,14 +17,14 @@ import exclamationMark from '../../../static/images/exclamationMark.svg'
 const PREFIX = 'ErrorModalComponent';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  icon: `${PREFIX}-icon`,
-  stackTrace: `${PREFIX}-stackTrace`,
-  message: `${PREFIX}-message`,
-  info: `${PREFIX}-info`,
-  textfield: `${PREFIX}-textfield`,
-  cssDisabled: `${PREFIX}-cssDisabled`,
-  button: `${PREFIX}-button`
+  root: `${PREFIX}root`,
+  icon: `${PREFIX}icon`,
+  stackTrace: `${PREFIX}stackTrace`,
+  message: `${PREFIX}message`,
+  info: `${PREFIX}info`,
+  textfield: `${PREFIX}textfield`,
+  cssDisabled: `${PREFIX}cssDisabled`,
+  button: `${PREFIX}button`
 };
 
 const StyledModal = styled(Modal)((

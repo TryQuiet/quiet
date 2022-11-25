@@ -9,11 +9,11 @@ import ChannelsPanel, { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel
 const PREFIX = 'SidebarComponent';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  padding: `${PREFIX}-padding`,
-  content: `${PREFIX}-content`,
-  gutterBottom: `${PREFIX}-gutterBottom`,
-  walletInfo: `${PREFIX}-walletInfo`
+  root: `${PREFIX}root`,
+  padding: `${PREFIX}padding`,
+  content: `${PREFIX}content`,
+  gutterBottom: `${PREFIX}gutterBottom`,
+  walletInfo: `${PREFIX}walletInfo`
 };
 
 const StyledGrid = styled(Grid)((

@@ -13,12 +13,12 @@ import Modal from '../../ui/Modal/Modal'
 const PREFIX = 'UpdateModal';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  info: `${PREFIX}-info`,
-  button: `${PREFIX}-button`,
-  updateIcon: `${PREFIX}-updateIcon`,
-  title: `${PREFIX}-title`,
-  subTitle: `${PREFIX}-subTitle`
+  root: `${PREFIX}root`,
+  info: `${PREFIX}info`,
+  button: `${PREFIX}button`,
+  updateIcon: `${PREFIX}updateIcon`,
+  title: `${PREFIX}title`,
+  subTitle: `${PREFIX}subTitle`
 };
 
 const StyledModal = styled(Modal)((

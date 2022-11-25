@@ -11,8 +11,8 @@ import Tooltip from '../../ui/Tooltip/Tooltip'
 const PREFIX = 'MoreButton';
 
 const classes = {
-  button: `${PREFIX}-button`,
-  tooltip: `${PREFIX}-tooltip`
+  button: `${PREFIX}button`,
+  tooltip: `${PREFIX}tooltip`
 };
 
 const StyledTooltip = styled(Tooltip)((

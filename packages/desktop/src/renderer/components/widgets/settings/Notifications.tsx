@@ -17,19 +17,19 @@ import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
 const PREFIX = 'Notifications';
 
 const classes = {
-  title: `${PREFIX}-title`,
-  titleDiv: `${PREFIX}-titleDiv`,
-  subtitle: `${PREFIX}-subtitle`,
-  radioDiv: `${PREFIX}-radioDiv`,
-  radioSoundDiv: `${PREFIX}-radioSoundDiv`,
-  radioIcon: `${PREFIX}-radioIcon`,
-  bold: `${PREFIX}-bold`,
-  offset: `${PREFIX}-offset`,
-  spacing: `${PREFIX}-spacing`,
-  radioSound: `${PREFIX}-radioSound`,
-  subtitleSoundDiv: `${PREFIX}-subtitleSoundDiv`,
-  label: `${PREFIX}-label`,
-  spacingSound: `${PREFIX}-spacingSound`
+  title: `${PREFIX}title`,
+  titleDiv: `${PREFIX}titleDiv`,
+  subtitle: `${PREFIX}subtitle`,
+  radioDiv: `${PREFIX}radioDiv`,
+  radioSoundDiv: `${PREFIX}radioSoundDiv`,
+  radioIcon: `${PREFIX}radioIcon`,
+  bold: `${PREFIX}bold`,
+  offset: `${PREFIX}offset`,
+  spacing: `${PREFIX}spacing`,
+  radioSound: `${PREFIX}radioSound`,
+  subtitleSoundDiv: `${PREFIX}subtitleSoundDiv`,
+  label: `${PREFIX}label`,
+  spacingSound: `${PREFIX}spacingSound`
 };
 
 const StyledGrid = styled(Grid)((

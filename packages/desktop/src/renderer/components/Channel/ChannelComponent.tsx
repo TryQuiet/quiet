@@ -38,8 +38,8 @@ import { FileActionsProps } from './File/FileComponent/FileComponent'
 const PREFIX = 'ChannelComponent';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  messages: `${PREFIX}-messages`
+  root: `${PREFIX}root`,
+  messages: `${PREFIX}messages`
 };
 
 const StyledPage = styled(Page)((

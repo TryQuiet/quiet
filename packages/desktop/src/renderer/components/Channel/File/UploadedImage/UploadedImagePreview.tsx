@@ -7,8 +7,8 @@ import Modal from '../../../ui/Modal/Modal'
 const PREFIX = 'UploadedImagePreviewComponent';
 
 const classes = {
-  image: `${PREFIX}-image`,
-  container: `${PREFIX}-container`
+  image: `${PREFIX}image`,
+  container: `${PREFIX}container`
 };
 
 const StyledModal = styled(Modal)(() => ({

@@ -11,8 +11,8 @@ import { NativeTypes } from 'react-dnd-html5-backend'
 const PREFIX = 'ActiveDropZoneComponent';
 
 const classes = {
-  dropActiveBg: `${PREFIX}-dropActiveBg`,
-  dropActive: `${PREFIX}-dropActive`
+  dropActiveBg: `${PREFIX}dropActiveBg`,
+  dropActive: `${PREFIX}dropActive`
 };
 
 const StyledGrid = styled(Grid)((

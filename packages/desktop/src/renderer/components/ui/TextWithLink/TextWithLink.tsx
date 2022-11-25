@@ -8,7 +8,7 @@ import { Typography, TypographyProps } from '@mui/material'
 const PREFIX = 'TextWithLink';
 
 const classes = {
-  link: `${PREFIX}-link`
+  link: `${PREFIX}link`
 };
 
 const StyledTypography = styled(Typography)((

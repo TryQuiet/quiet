@@ -8,7 +8,7 @@ import Grid from '@mui/material/Grid'
 const PREFIX = 'PageHeader';
 
 const classes = {
-  root: `${PREFIX}-root`
+  root: `${PREFIX}root`
 };
 
 const StyledGrid = styled(Grid)((

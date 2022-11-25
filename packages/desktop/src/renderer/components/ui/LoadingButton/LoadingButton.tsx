@@ -9,9 +9,9 @@ import classNames from 'classnames'
 const PREFIX = 'LoadingButton';
 
 const classes = {
-  button: `${PREFIX}-button`,
-  inProgress: `${PREFIX}-inProgress`,
-  progress: `${PREFIX}-progress`
+  button: `${PREFIX}button`,
+  inProgress: `${PREFIX}inProgress`,
+  progress: `${PREFIX}progress`
 };
 
 const StyledButton = styled(Button)((

@@ -19,15 +19,15 @@ import Modal from '../Modal/Modal'
 const PREFIX = 'OpenlinkModal';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  icon: `${PREFIX}-icon`,
-  title: `${PREFIX}-title`,
-  message: `${PREFIX}-message`,
-  bold: `${PREFIX}-bold`,
-  checkboxLabel: `${PREFIX}-checkboxLabel`,
-  checkboxes: `${PREFIX}-checkboxes`,
-  buttonBack: `${PREFIX}-buttonBack`,
-  buttons: `${PREFIX}-buttons`
+  root: `${PREFIX}root`,
+  icon: `${PREFIX}icon`,
+  title: `${PREFIX}title`,
+  message: `${PREFIX}message`,
+  bold: `${PREFIX}bold`,
+  checkboxLabel: `${PREFIX}checkboxLabel`,
+  checkboxes: `${PREFIX}checkboxes`,
+  buttonBack: `${PREFIX}buttonBack`,
+  buttons: `${PREFIX}buttons`
 };
 
 const StyledModal = styled(Modal)((

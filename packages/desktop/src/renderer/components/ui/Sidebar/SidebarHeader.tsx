@@ -11,11 +11,11 @@ import Tooltip from '../Tooltip/Tooltip'
 const PREFIX = 'SidebarHeader';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  title: `${PREFIX}-title`,
-  clickable: `${PREFIX}-clickable`,
-  iconButton: `${PREFIX}-iconButton`,
-  tooltip: `${PREFIX}-tooltip`
+  root: `${PREFIX}root`,
+  title: `${PREFIX}title`,
+  clickable: `${PREFIX}clickable`,
+  iconButton: `${PREFIX}iconButton`,
+  tooltip: `${PREFIX}tooltip`
 };
 
 const StyledGrid = styled(Grid)(() => ({

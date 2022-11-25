@@ -27,23 +27,23 @@ import Icon from '../../ui/Icon/Icon'
 const PREFIX = 'BasicMessageComponent';
 
 const classes = {
-  messageCard: `${PREFIX}-messageCard`,
-  wrapper: `${PREFIX}-wrapper`,
-  infoWrapper: `${PREFIX}-infoWrapper`,
-  clickable: `${PREFIX}-clickable`,
-  wrapperPending: `${PREFIX}-wrapperPending`,
-  username: `${PREFIX}-username`,
-  statusIcon: `${PREFIX}-statusIcon`,
-  broadcasted: `${PREFIX}-broadcasted`,
-  failed: `${PREFIX}-failed`,
-  avatar: `${PREFIX}-avatar`,
-  alignAvatar: `${PREFIX}-alignAvatar`,
-  moderation: `${PREFIX}-moderation`,
-  time: `${PREFIX}-time`,
-  iconBox: `${PREFIX}-iconBox`,
-  pending: `${PREFIX}-pending`,
-  info: `${PREFIX}-info`,
-  infoIcon: `${PREFIX}-infoIcon`
+  messageCard: `${PREFIX}messageCard`,
+  wrapper: `${PREFIX}wrapper`,
+  infoWrapper: `${PREFIX}infoWrapper`,
+  clickable: `${PREFIX}clickable`,
+  wrapperPending: `${PREFIX}wrapperPending`,
+  username: `${PREFIX}username`,
+  statusIcon: `${PREFIX}statusIcon`,
+  broadcasted: `${PREFIX}broadcasted`,
+  failed: `${PREFIX}failed`,
+  avatar: `${PREFIX}avatar`,
+  alignAvatar: `${PREFIX}alignAvatar`,
+  moderation: `${PREFIX}moderation`,
+  time: `${PREFIX}time`,
+  iconBox: `${PREFIX}iconBox`,
+  pending: `${PREFIX}pending`,
+  info: `${PREFIX}info`,
+  infoIcon: `${PREFIX}infoIcon`
 };
 
 const StyledListItem = styled(ListItem)((

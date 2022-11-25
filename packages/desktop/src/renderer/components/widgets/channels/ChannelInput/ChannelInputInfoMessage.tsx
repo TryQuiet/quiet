@@ -6,9 +6,9 @@ import { makeStyles, Theme } from '@mui/material/styles'
 const PREFIX = 'ChannelInputInfoMessage';
 
 const classes = {
-  info: `${PREFIX}-info`,
-  bold: `${PREFIX}-bold`,
-  boot: `${PREFIX}-boot`
+  info: `${PREFIX}info`,
+  bold: `${PREFIX}bold`,
+  boot: `${PREFIX}boot`
 };
 
 const StyledGrid = styled(Grid)((

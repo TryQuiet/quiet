@@ -18,27 +18,27 @@ import path from 'path'
 const PREFIX = 'ChannelInput';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  input: `${PREFIX}-input`,
-  textfield: `${PREFIX}-textfield`,
-  inputsDiv: `${PREFIX}-inputsDiv`,
-  disabledBottomMargin: `${PREFIX}-disabledBottomMargin`,
-  warningIcon: `${PREFIX}-warningIcon`,
-  blinkAnimation: `${PREFIX}-blinkAnimation`,
-  backdrop: `${PREFIX}-backdrop`,
-  focused: `${PREFIX}-focused`,
-  iconButton: `${PREFIX}-iconButton`,
-  emoji: `${PREFIX}-emoji`,
-  highlight: `${PREFIX}-highlight`,
-  actions: `${PREFIX}-actions`,
-  picker: `${PREFIX}-picker`,
-  errorIcon: `${PREFIX}-errorIcon`,
-  errorText: `${PREFIX}-errorText`,
-  errorBox: `${PREFIX}-errorBox`,
-  linkBlue: `${PREFIX}-linkBlue`,
-  notAllowed: `${PREFIX}-notAllowed`,
-  inputFiles: `${PREFIX}-inputFiles`,
-  icons: `${PREFIX}-icons`
+  root: `${PREFIX}root`,
+  input: `${PREFIX}input`,
+  textfield: `${PREFIX}textfield`,
+  inputsDiv: `${PREFIX}inputsDiv`,
+  disabledBottomMargin: `${PREFIX}disabledBottomMargin`,
+  warningIcon: `${PREFIX}warningIcon`,
+  blinkAnimation: `${PREFIX}blinkAnimation`,
+  backdrop: `${PREFIX}backdrop`,
+  focused: `${PREFIX}focused`,
+  iconButton: `${PREFIX}iconButton`,
+  emoji: `${PREFIX}emoji`,
+  highlight: `${PREFIX}highlight`,
+  actions: `${PREFIX}actions`,
+  picker: `${PREFIX}picker`,
+  errorIcon: `${PREFIX}errorIcon`,
+  errorText: `${PREFIX}errorText`,
+  errorBox: `${PREFIX}errorBox`,
+  linkBlue: `${PREFIX}linkBlue`,
+  notAllowed: `${PREFIX}notAllowed`,
+  inputFiles: `${PREFIX}inputFiles`,
+  icons: `${PREFIX}icons`
 };
 
 const Root = styled(Grid)((

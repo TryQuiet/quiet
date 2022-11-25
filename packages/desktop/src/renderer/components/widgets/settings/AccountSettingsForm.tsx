@@ -10,19 +10,19 @@ import { Identity } from '@quiet/state-manager'
 const PREFIX = 'AccountSettingsForm';
 
 const classes = {
-  createUsernameContainer: `${PREFIX}-createUsernameContainer`,
-  container: `${PREFIX}-container`,
-  textField: `${PREFIX}-textField`,
-  icon: `${PREFIX}-icon`,
-  usernameIcon: `${PREFIX}-usernameIcon`,
-  link: `${PREFIX}-link`,
-  info: `${PREFIX}-info`,
-  title: `${PREFIX}-title`,
-  iconBackground: `${PREFIX}-iconBackground`,
-  iconBox: `${PREFIX}-iconBox`,
-  adornedEnd: `${PREFIX}-adornedEnd`,
-  copyInput: `${PREFIX}-copyInput`,
-  addressDiv: `${PREFIX}-addressDiv`
+  createUsernameContainer: `${PREFIX}createUsernameContainer`,
+  container: `${PREFIX}container`,
+  textField: `${PREFIX}textField`,
+  icon: `${PREFIX}icon`,
+  usernameIcon: `${PREFIX}usernameIcon`,
+  link: `${PREFIX}link`,
+  info: `${PREFIX}info`,
+  title: `${PREFIX}title`,
+  iconBackground: `${PREFIX}iconBackground`,
+  iconBox: `${PREFIX}iconBox`,
+  adornedEnd: `${PREFIX}adornedEnd`,
+  copyInput: `${PREFIX}copyInput`,
+  addressDiv: `${PREFIX}addressDiv`
 };
 
 const StyledGrid = styled(Grid)((

@@ -18,12 +18,12 @@ import Tooltip from '../../../ui/Tooltip/Tooltip'
 const PREFIX = 'FileComponent';
 
 const classes = {
-  border: `${PREFIX}-border`,
-  icon: `${PREFIX}-icon`,
-  fileIcon: `${PREFIX}-fileIcon`,
-  filename: `${PREFIX}-filename`,
-  actionIcon: `${PREFIX}-actionIcon`,
-  actionIndicator: `${PREFIX}-actionIndicator`
+  border: `${PREFIX}border`,
+  icon: `${PREFIX}icon`,
+  fileIcon: `${PREFIX}fileIcon`,
+  filename: `${PREFIX}filename`,
+  actionIcon: `${PREFIX}actionIcon`,
+  actionIndicator: `${PREFIX}actionIndicator`
 };
 
 const Root = styled('div')((

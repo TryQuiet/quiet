@@ -14,9 +14,9 @@ import { ExtendButtonBase, PopperPlacementType } from '@mui/material'
 const PREFIX = 'MenuAction';
 
 const classes = {
-  menuList: `${PREFIX}-menuList`,
-  icon: `${PREFIX}-icon`,
-  button: `${PREFIX}-button`
+  menuList: `${PREFIX}menuList`,
+  icon: `${PREFIX}icon`,
+  button: `${PREFIX}button`
 };
 
 // TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.

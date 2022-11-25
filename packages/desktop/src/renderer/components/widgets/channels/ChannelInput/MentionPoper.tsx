@@ -9,9 +9,9 @@ import Grid from '@mui/material/Grid'
 const PREFIX = 'MentionPoper';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  thumb: `${PREFIX}-thumb`,
-  divider: `${PREFIX}-divider`
+  root: `${PREFIX}root`,
+  thumb: `${PREFIX}thumb`,
+  divider: `${PREFIX}divider`
 };
 
 const maxHeight = 230

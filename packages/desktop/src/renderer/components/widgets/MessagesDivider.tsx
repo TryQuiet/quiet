@@ -8,9 +8,9 @@ import { Grid, Typography } from '@mui/material'
 const PREFIX = 'MessagesDivider';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  divider: `${PREFIX}-divider`,
-  titleDiv: `${PREFIX}-titleDiv`
+  root: `${PREFIX}root`,
+  divider: `${PREFIX}divider`,
+  titleDiv: `${PREFIX}titleDiv`
 };
 
 const StyledGrid = styled(Grid)((

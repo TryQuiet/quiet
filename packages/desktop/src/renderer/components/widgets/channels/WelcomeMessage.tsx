@@ -16,14 +16,14 @@ import { IWelcomeMessageProps } from './WelcomeMessage.d'
 const PREFIX = 'WelcomeMessage';
 
 const classes = {
-  messageCard: `${PREFIX}-messageCard`,
-  wrapper: `${PREFIX}-wrapper`,
-  username: `${PREFIX}-username`,
-  avatar: `${PREFIX}-avatar`,
-  message: `${PREFIX}-message`,
-  messageInput: `${PREFIX}-messageInput`,
-  icon: `${PREFIX}-icon`,
-  time: `${PREFIX}-time`
+  messageCard: `${PREFIX}messageCard`,
+  wrapper: `${PREFIX}wrapper`,
+  username: `${PREFIX}username`,
+  avatar: `${PREFIX}avatar`,
+  message: `${PREFIX}message`,
+  messageInput: `${PREFIX}messageInput`,
+  icon: `${PREFIX}icon`,
+  time: `${PREFIX}time`
 };
 
 const StyledListItem = styled(ListItem)((

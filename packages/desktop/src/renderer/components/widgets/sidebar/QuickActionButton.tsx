@@ -10,9 +10,9 @@ import AddIcon from '@mui/icons-material/Add'
 const PREFIX = 'QuickActionButton';
 
 const classes = {
-  button: `${PREFIX}-button`,
-  icon: `${PREFIX}-icon`,
-  iconDiv: `${PREFIX}-iconDiv`
+  button: `${PREFIX}button`,
+  icon: `${PREFIX}icon`,
+  iconDiv: `${PREFIX}iconDiv`
 };
 
 const StyledButton = styled(Button)((

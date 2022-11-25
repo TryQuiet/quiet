@@ -18,18 +18,18 @@ import { IModalProps } from './Modal.d'
 const PREFIX = 'Modal';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  windowed: `${PREFIX}-windowed`,
-  title: `${PREFIX}-title`,
-  header: `${PREFIX}-header`,
-  headerBorder: `${PREFIX}-headerBorder`,
-  actions: `${PREFIX}-actions`,
-  content: `${PREFIX}-content`,
-  fullPage: `${PREFIX}-fullPage`,
-  notFullPage: `${PREFIX}-notFullPage`,
-  centered: `${PREFIX}-centered`,
-  window: `${PREFIX}-window`,
-  bold: `${PREFIX}-bold`
+  root: `${PREFIX}root`,
+  windowed: `${PREFIX}windowed`,
+  title: `${PREFIX}title`,
+  header: `${PREFIX}header`,
+  headerBorder: `${PREFIX}headerBorder`,
+  actions: `${PREFIX}actions`,
+  content: `${PREFIX}content`,
+  fullPage: `${PREFIX}fullPage`,
+  notFullPage: `${PREFIX}notFullPage`,
+  centered: `${PREFIX}centered`,
+  window: `${PREFIX}window`,
+  bold: `${PREFIX}bold`
 };
 
 const StyledMaterialModal  = styled(MaterialModal )((
@@ -126,10 +126,8 @@ export const Modal: React.FC<IModalProps> = ({
   windowed,
   fullPage = true
 }) => {
-
-
   return (
-    <MaterialModal open={open} onClose={handleClose} className={windowed ? classes.windowed : classes.root}>
+    <StyledMaterialModal open={open} onClose={handleClose} className={windowed ? classes.windowed : classes.root}>
       <Grid
         container
         direction="column"
@@ -224,7 +222,7 @@ export const Modal: React.FC<IModalProps> = ({
           </Grid>
         </Grid>
       </Grid>
-    </MaterialModal >
+    </StyledMaterialModal >
   );
 }
 

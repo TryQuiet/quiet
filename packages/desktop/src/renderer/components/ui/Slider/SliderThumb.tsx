@@ -5,7 +5,7 @@ import { styled } from '@mui/material/styles';
 const PREFIX = 'SliderThumb';
 
 const classes = {
-  root: `${PREFIX}-root`
+  root: `${PREFIX}root`
 };
 
 const Root = styled('div')({

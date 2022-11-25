@@ -8,9 +8,9 @@ import MuiTab from '@mui/material/Tab'
 const PREFIX = 'Tab';
 
 const classes = {
-  tabRoot: `${PREFIX}-tabRoot`,
-  textColorPrimary: `${PREFIX}-textColorPrimary`,
-  selected: `${PREFIX}-selected`
+  tabRoot: `${PREFIX}tabRoot`,
+  textColorPrimary: `${PREFIX}textColorPrimary`,
+  selected: `${PREFIX}selected`
 };
 
 const StyledMuiTab

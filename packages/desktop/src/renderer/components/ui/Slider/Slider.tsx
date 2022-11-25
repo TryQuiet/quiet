@@ -12,14 +12,14 @@ import SliderThumb from './SliderThumb'
 const PREFIX = 'Slider';
 
 const classes = {
-  sliderContainer: `${PREFIX}-sliderContainer`,
-  sliderRoot: `${PREFIX}-sliderRoot`,
-  label: `${PREFIX}-label`,
-  title: `${PREFIX}-title`,
-  iconWrapper: `${PREFIX}-iconWrapper`,
-  track: `${PREFIX}-track`,
-  thumb: `${PREFIX}-thumb`,
-  activated: `${PREFIX}-activated`
+  sliderContainer: `${PREFIX}sliderContainer`,
+  sliderRoot: `${PREFIX}sliderRoot`,
+  label: `${PREFIX}label`,
+  title: `${PREFIX}title`,
+  iconWrapper: `${PREFIX}iconWrapper`,
+  track: `${PREFIX}track`,
+  thumb: `${PREFIX}thumb`,
+  activated: `${PREFIX}activated`
 };
 
 const StyledGrid = styled(Grid)((

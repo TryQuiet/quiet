@@ -7,10 +7,10 @@ import Icon from '../../../ui/Icon/Icon';
 const PREFIX = 'UploadedImagePlaceholder';
 
 const classes = {
-  placeholderWrapper: `${PREFIX}-placeholderWrapper`,
-  placeholder: `${PREFIX}-placeholder`,
-  placeholderIcon: `${PREFIX}-placeholderIcon`,
-  fileName: `${PREFIX}-fileName`
+  placeholderWrapper: `${PREFIX}placeholderWrapper`,
+  placeholder: `${PREFIX}placeholder`,
+  placeholderIcon: `${PREFIX}placeholderIcon`,
+  fileName: `${PREFIX}fileName`
 };
 
 const Root = styled('div')((

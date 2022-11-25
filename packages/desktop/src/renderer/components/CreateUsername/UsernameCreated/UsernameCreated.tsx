@@ -13,13 +13,13 @@ import usernameIcon from '../../../static/images/username.svg'
 const PREFIX = 'UsernameCreated';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  usernameConatainer: `${PREFIX}-usernameConatainer`,
-  infoConatainer: `${PREFIX}-infoConatainer`,
-  descConatainer: `${PREFIX}-descConatainer`,
-  usernameIcon: `${PREFIX}-usernameIcon`,
-  buttonContainer: `${PREFIX}-buttonContainer`,
-  button: `${PREFIX}-button`
+  root: `${PREFIX}root`,
+  usernameConatainer: `${PREFIX}usernameConatainer`,
+  infoConatainer: `${PREFIX}infoConatainer`,
+  descConatainer: `${PREFIX}descConatainer`,
+  usernameIcon: `${PREFIX}usernameIcon`,
+  buttonContainer: `${PREFIX}buttonContainer`,
+  button: `${PREFIX}button`
 };
 
 const StyledGrid = styled(Grid)((

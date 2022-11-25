@@ -13,14 +13,14 @@ import IconButton from '../Icon/IconButton'
 const PREFIX = 'QuickActionLayout';
 
 const classes = {
-  alignAvatarPopover: `${PREFIX}-alignAvatarPopover`,
-  button: `${PREFIX}-button`,
-  container: `${PREFIX}-container`,
-  usernamePopover: `${PREFIX}-usernamePopover`,
-  closeIcon: `${PREFIX}-closeIcon`,
-  info: `${PREFIX}-info`,
-  infoDiv: `${PREFIX}-infoDiv`,
-  avatar: `${PREFIX}-avatar`
+  alignAvatarPopover: `${PREFIX}alignAvatarPopover`,
+  button: `${PREFIX}button`,
+  container: `${PREFIX}container`,
+  usernamePopover: `${PREFIX}usernamePopover`,
+  closeIcon: `${PREFIX}closeIcon`,
+  info: `${PREFIX}info`,
+  infoDiv: `${PREFIX}infoDiv`,
+  avatar: `${PREFIX}avatar`
 };
 
 const StyledGrid = styled(Grid)((

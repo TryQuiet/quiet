@@ -11,7 +11,7 @@ import Channel from '../Channel/Channel'
 const PREFIX = 'Main';
 
 const classes = {
-  gridRoot: `${PREFIX}-gridRoot`
+  gridRoot: `${PREFIX}gridRoot`
 };
 
 const Root = styled('div')(() => ({
@@ -68,7 +68,7 @@ export const Main: React.FC = () => {
           <Grid item xs>
           <Channel />
             <Routes>
-              <Route path={'/main/channel/:id'} element={<Channel />} />
+              <Route path={'channel/:id'} element={<Channel />} />
               {/* <Route path={`direct-messages/:username`} element={<DirectMessages />} /> */}
             </Routes>
           </Grid>

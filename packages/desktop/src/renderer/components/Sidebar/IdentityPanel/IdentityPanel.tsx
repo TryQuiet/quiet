@@ -10,10 +10,10 @@ import { Community } from '@quiet/state-manager'
 const PREFIX = 'IdentityPanel';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  button: `${PREFIX}-button`,
-  buttonLabel: `${PREFIX}-buttonLabel`,
-  nickname: `${PREFIX}-nickname`
+  root: `${PREFIX}root`,
+  button: `${PREFIX}button`,
+  buttonLabel: `${PREFIX}buttonLabel`,
+  nickname: `${PREFIX}nickname`
 };
 
 const Root = styled('div')((

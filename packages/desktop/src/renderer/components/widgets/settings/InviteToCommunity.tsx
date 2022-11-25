@@ -13,13 +13,13 @@ import { capitalizeFirstLetter } from '../../../../utils/functions/capitalize'
 const PREFIX = 'InviteToCommunity';
 
 const classes = {
-  title: `${PREFIX}-title`,
-  titleDiv: `${PREFIX}-titleDiv`,
-  link: `${PREFIX}-link`,
-  button: `${PREFIX}-button`,
-  bold: `${PREFIX}-bold`,
-  linkContainer: `${PREFIX}-linkContainer`,
-  eyeIcon: `${PREFIX}-eyeIcon`
+  title: `${PREFIX}title`,
+  titleDiv: `${PREFIX}titleDiv`,
+  link: `${PREFIX}link`,
+  button: `${PREFIX}button`,
+  bold: `${PREFIX}bold`,
+  linkContainer: `${PREFIX}linkContainer`,
+  eyeIcon: `${PREFIX}eyeIcon`
 };
 
 const StyledGrid = styled(Grid)((

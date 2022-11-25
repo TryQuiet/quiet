@@ -11,13 +11,13 @@ import Typography from '@mui/material/Typography'
 const PREFIX = 'QuitAppDialog';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  info: `${PREFIX}-info`,
-  dialogContent: `${PREFIX}-dialogContent`,
-  buttonNo: `${PREFIX}-buttonNo`,
-  buttonYes: `${PREFIX}-buttonYes`,
-  dialogActions: `${PREFIX}-dialogActions`,
-  typography: `${PREFIX}-typography`
+  root: `${PREFIX}root`,
+  info: `${PREFIX}info`,
+  dialogContent: `${PREFIX}dialogContent`,
+  buttonNo: `${PREFIX}buttonNo`,
+  buttonYes: `${PREFIX}buttonYes`,
+  dialogActions: `${PREFIX}dialogActions`,
+  typography: `${PREFIX}typography`
 };
 
 const StyledDialog = styled(Dialog)((

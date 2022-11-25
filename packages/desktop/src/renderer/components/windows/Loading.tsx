@@ -13,14 +13,14 @@ import icon from '../../static/images/zcash/logo-lockup--circle.svg'
 const PREFIX = 'Loading';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  icon: `${PREFIX}-icon`,
-  svg: `${PREFIX}-svg`,
-  progressBarContainer: `${PREFIX}-progressBarContainer`,
-  progressBar: `${PREFIX}-progressBar`,
-  carouselContainer: `${PREFIX}-carouselContainer`,
-  messageContainer: `${PREFIX}-messageContainer`,
-  message: `${PREFIX}-message`
+  root: `${PREFIX}root`,
+  icon: `${PREFIX}icon`,
+  svg: `${PREFIX}svg`,
+  progressBarContainer: `${PREFIX}progressBarContainer`,
+  progressBar: `${PREFIX}progressBar`,
+  carouselContainer: `${PREFIX}carouselContainer`,
+  messageContainer: `${PREFIX}messageContainer`,
+  message: `${PREFIX}message`
 };
 
 const StyledGrid = styled(Grid)((

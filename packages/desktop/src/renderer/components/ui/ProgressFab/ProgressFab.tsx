@@ -11,10 +11,10 @@ import CheckIcon from '@mui/icons-material/Check'
 const PREFIX = 'ProgressFab';
 
 const classes = {
-  root: `${PREFIX}-root`,
-  fabProgress: `${PREFIX}-fabProgress`,
-  wrapper: `${PREFIX}-wrapper`,
-  buttonSuccess: `${PREFIX}-buttonSuccess`
+  root: `${PREFIX}root`,
+  fabProgress: `${PREFIX}fabProgress`,
+  wrapper: `${PREFIX}wrapper`,
+  buttonSuccess: `${PREFIX}buttonSuccess`
 };
 
 const Root = styled('div')(() => ({

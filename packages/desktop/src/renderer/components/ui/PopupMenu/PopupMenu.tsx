@@ -9,12 +9,12 @@ import { IPopupMenuProps } from './PopupMenu.d'
 const PREFIX = 'PopupMenu';
 
 const classes = {
-  wrapper: `${PREFIX}-wrapper`,
-  paper: `${PREFIX}-paper`,
-  arrow: `${PREFIX}-arrow`,
-  bottom: `${PREFIX}-bottom`,
-  top: `${PREFIX}-top`,
-  popper: `${PREFIX}-popper`
+  wrapper: `${PREFIX}wrapper`,
+  paper: `${PREFIX}paper`,
+  arrow: `${PREFIX}arrow`,
+  bottom: `${PREFIX}bottom`,
+  top: `${PREFIX}top`,
+  popper: `${PREFIX}popper`
 };
 
 const StyledPopper = styled(Popper)((

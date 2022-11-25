@@ -10,9 +10,9 @@ import ErrorIcon from '../../../static/images/t-error.svg'
 const PREFIX = 'ChannelMessageActions';
 
 const classes = {
-  warrning: `${PREFIX}-warrning`,
-  tryAgain: `${PREFIX}-tryAgain`,
-  pointer: `${PREFIX}-pointer`
+  warrning: `${PREFIX}warrning`,
+  tryAgain: `${PREFIX}tryAgain`,
+  pointer: `${PREFIX}pointer`
 };
 
 const StyledGrid = styled(Grid)((
