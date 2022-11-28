@@ -24,7 +24,6 @@ const classes = {
   focus: `${PREFIX}focus`,
   margin: `${PREFIX}margin`,
   error: `${PREFIX}error`,
-  main: `${PREFIX}main`,
   fullContainer: `${PREFIX}fullContainer`,
   gutter: `${PREFIX}gutter`,
   button: `${PREFIX}button`,
@@ -37,11 +36,14 @@ const classes = {
   info: `${PREFIX}info`
 };
 
-const StyledModal = styled(Modal)((
+const StyledModalContent = styled(Grid)((
   {
     theme
   }
 ) => ({
+  backgroundColor: theme.palette.colors.white,
+  padding: '0px 32px',
+
   [`& .${classes.focus}`]: {
     '& .MuiOutlinedInput-root': {
       '&.Mui-focused fieldset': {
@@ -62,11 +64,6 @@ const StyledModal = styled(Modal)((
         borderColor: theme.palette.colors.red
       }
     }
-  },
-
-  [`& .${classes.main}`]: {
-    backgroundColor: theme.palette.colors.white,
-    padding: '0px 32px'
   },
 
   [`& .${classes.fullContainer}`]: {
@@ -200,8 +197,8 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   }, [certificateRegistrationError])
 
   return (
-    <StyledModal open={open} handleClose={handleClose} testIdPrefix='createUsername' isCloseDisabled={true}>
-      <Grid container className={classes.main} direction='column'>
+    <Modal open={open} handleClose={handleClose} testIdPrefix='createUsername' isCloseDisabled={true}>
+      <StyledModalContent container direction='column'>
         {!certificate ? (
           <>
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -278,8 +275,8 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
         ) : (
           <UsernameCreated handleClose={handleClose} setFormSent={setFormSent} />
         )}
-      </Grid>
-    </StyledModal>
+      </StyledModalContent>
+    </Modal>
   );
 }
 

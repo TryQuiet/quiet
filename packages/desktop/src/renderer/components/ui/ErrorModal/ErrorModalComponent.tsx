@@ -17,7 +17,6 @@ import exclamationMark from '../../../static/images/exclamationMark.svg'
 const PREFIX = 'ErrorModalComponent';
 
 const classes = {
-  root: `${PREFIX}root`,
   icon: `${PREFIX}icon`,
   stackTrace: `${PREFIX}stackTrace`,
   message: `${PREFIX}message`,
@@ -27,14 +26,12 @@ const classes = {
   button: `${PREFIX}button`
 };
 
-const StyledModal = styled(Modal)((
+const StyledModalContent = styled(Grid)((
   {
     theme
   }
 ) => ({
-  [`& .${classes.root}`]: {
-    padding: theme.spacing(4)
-  },
+  padding: theme.spacing(4),
 
   [`& .${classes.icon}`]: {
     fontSize: '10rem',
@@ -92,8 +89,8 @@ export const ErrorModalComponent: React.FC<ErrorModalProps> = ({
 
 
   return (
-    <StyledModal open={open} handleClose={handleClose} title='Error'>
-      <Grid container justifyContent='flex-start' spacing={3} direction='column' className={classes.root}>
+    <Modal open={open} handleClose={handleClose} title='Error'>
+      <StyledModalContent container justifyContent='flex-start' spacing={3} direction='column'>
         <Grid item container direction='column' alignItems='center'>
           <Icon className={classes.icon} src={exclamationMark} />
           <Typography variant='h3' className={classes.message}>
@@ -134,8 +131,8 @@ export const ErrorModalComponent: React.FC<ErrorModalProps> = ({
             />
           </Grid>
         </Grid>
-      </Grid>
-    </StyledModal>
+      </StyledModalContent>
+    </Modal>
   );
 }
 

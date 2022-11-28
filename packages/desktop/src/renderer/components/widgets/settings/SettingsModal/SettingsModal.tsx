@@ -16,17 +16,14 @@ import Tab from '../../../ui/Tab/Tab';
 const PREFIX = 'SettingsModal';
 
 const classes = {
-  root: `${PREFIX}root`,
   indicator: `${PREFIX}indicator`
 };
 
 const StyledModalContent = styled(Grid)(() => ({
-  [`&.${classes.root}`]: {
-    zIndex: 1000,
-    paddingLeft: 20,
-    paddingTop: 32,
-    paddingRight: 32
-  },
+  zIndex: 1000,
+  paddingLeft: 20,
+  paddingTop: 32,
+  paddingRight: 32
 }))
 
 const StyledTabsWrapper = styled(Grid)(() => ({
@@ -101,8 +98,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
           }
         }}
         container
-        direction='row'
-        className={classes.root}>
+        direction='row'>
         <StyledTabsWrapper item style={{ marginLeft: offset }}>
           <StyledAppBar position='static'>
             <StyledTabs

@@ -17,7 +17,6 @@ import { parseName } from '@quiet/state-manager'
 const PREFIX = 'CreateChannelComponent';
 
 const classes = {
-  main: `${PREFIX}main`,
   fullContainer: `${PREFIX}fullContainer`,
   gutter: `${PREFIX}gutter`,
   button: `${PREFIX}button`,
@@ -30,15 +29,13 @@ const classes = {
   info: `${PREFIX}info`
 };
 
-const StyledModal = styled(Modal)((
+const StyledModalContent = styled(Grid)((
   {
     theme
   }
 ) => ({
-  [`& .${classes.main}`]: {
-    backgroundColor: theme.palette.colors.white,
-    padding: '0px 32px'
-  },
+  backgroundColor: theme.palette.colors.white,
+  padding: '0px 32px',
 
   [`& .${classes.fullContainer}`]: {
     width: '100%',
@@ -160,8 +157,8 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   }, [channelCreationError])
 
   return (
-    <StyledModal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
-      <Grid container className={classes.main} direction='column'>
+    <Modal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
+      <StyledModalContent container direction='column'>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
             <Typography variant='h3' className={classes.title}>
@@ -222,8 +219,8 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
             />
           </Grid>
         </form>
-      </Grid>
-    </StyledModal>
+      </StyledModalContent>
+    </Modal>
   );
 }
 

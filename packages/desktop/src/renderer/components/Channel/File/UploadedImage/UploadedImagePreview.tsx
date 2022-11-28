@@ -7,11 +7,17 @@ import Modal from '../../../ui/Modal/Modal'
 const PREFIX = 'UploadedImagePreviewComponent';
 
 const classes = {
-  image: `${PREFIX}image`,
-  container: `${PREFIX}container`
+  image: `${PREFIX}image`
 };
 
-const StyledModal = styled(Modal)(() => ({
+const StyledModalContent = styled('div')(() => ({
+  position: 'absolute',
+  left: '5vw',
+  maxWidth: '90vw',
+  maxHeight: '90vh',
+  width: '100%',
+  height: '100%',
+  
   [`& .${classes.image}`]: {
     position: 'relative',
     left: '50%',
@@ -19,15 +25,6 @@ const StyledModal = styled(Modal)(() => ({
     transform: 'translate(-50%, -50%)',
     maxWidth: '90vw',
     maxHeight: '90vh'
-  },
-
-  [`& .${classes.container}`]: {
-    position: 'absolute',
-    left: '5vw',
-    maxWidth: '90vw',
-    maxHeight: '90vh',
-    width: '100%',
-    height: '100%'
   }
 }));
 
@@ -47,11 +44,11 @@ const UploadedImagePreviewComponent: React.FC<UploadedImagePreviewProps> = ({
 
 
   return (
-    <StyledModal open={open} handleClose={handleClose}>
-      <div className={classes.container}>
+    <Modal open={open} handleClose={handleClose}>
+      <StyledModalContent>
         <img className={classes.image} src={uploadedFileModal?.src} />
-      </div>
-    </StyledModal>
+      </StyledModalContent>
+    </Modal>
   );
 }
 

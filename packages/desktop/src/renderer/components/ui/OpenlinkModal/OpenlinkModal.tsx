@@ -19,7 +19,6 @@ import Modal from '../Modal/Modal'
 const PREFIX = 'OpenlinkModal';
 
 const classes = {
-  root: `${PREFIX}root`,
   icon: `${PREFIX}icon`,
   title: `${PREFIX}title`,
   message: `${PREFIX}message`,
@@ -30,14 +29,12 @@ const classes = {
   buttons: `${PREFIX}buttons`
 };
 
-const StyledModal = styled(Modal)((
+const StyledModalContent = styled(Grid)((
   {
     theme
   }
 ) => ({
-  [`& .${classes.root}`]: {
-    padding: theme.spacing(4)
-  },
+  padding: theme.spacing(4),
 
   [`& .${classes.icon}`]: {
     fontSize: '10rem',
@@ -114,11 +111,11 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
   const uri = new URL(url)
 
   return (
-    <StyledModal open={open} handleClose={handleClose} title=''>
+    <Modal open={open} handleClose={handleClose} title=''>
       <AutoSizer>
         {({ width, height }) => (
           <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
-            <Grid container justifyContent='flex-start' direction='column' className={classes.root}>
+            <StyledModalContent container justifyContent='flex-start' direction='column'>
               <Grid item container direction='column' alignItems='center'>
                 <Icon className={classes.icon} src={exclamationMark} />
                 <Typography variant='h2' className={classes.title}>
@@ -236,11 +233,11 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                   </Grid>
                 </Grid>
               </Grid>
-            </Grid>
+            </StyledModalContent>
           </Scrollbars>
         )}
       </AutoSizer>
-    </StyledModal>
+    </Modal>
   );
 }
 

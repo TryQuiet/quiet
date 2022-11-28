@@ -7,21 +7,18 @@ import Modal from '../../ui/Modal/Modal'
 const PREFIX = 'SentryWarningComponent';
 
 const classes = {
-  main: `${PREFIX}main`,
   title: `${PREFIX}title`,
   fullWidth: `${PREFIX}fullWidth`,
   button: `${PREFIX}button`
 };
 
-const StyledModal = styled(Modal)((
+const StyledModalContent = styled(Grid)((
   {
     theme
   }
 ) => ({
-  [`& .${classes.main}`]: {
-    backgroundColor: theme.palette.colors.white,
-    padding: '0px 32px'
-  },
+  backgroundColor: theme.palette.colors.white,
+  padding: '0px 32px',
 
   [`& .${classes.title}`]: {
     marginTop: 24
@@ -54,8 +51,8 @@ export interface SentryWarningProps {
 export const SentryWarningComponent: React.FC<SentryWarningProps> = ({ open, handleClose }) => {
 
   return (
-    <StyledModal open={open} handleClose={handleClose} isCloseDisabled={true}>
-      <Grid container className={classes.main} direction='column'>
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
+      <StyledModalContent container direction='column'>
         <>
           <Grid className={classes.title} item>
             <Grid item>
@@ -84,7 +81,7 @@ export const SentryWarningComponent: React.FC<SentryWarningProps> = ({ open, han
             />
           </Grid>
         </>
-      </Grid>
-    </StyledModal>
+      </StyledModalContent>
+    </Modal>
   );
 }

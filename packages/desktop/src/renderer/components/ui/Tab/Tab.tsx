@@ -18,7 +18,8 @@ const StyledMuiTab = styled(MuiTab)((
 ) => ({
   [`&.${classes.tabRoot}`]: {
     color: theme.typography.subtitle1.color,
-    fontSize: '0.8125rem'
+    fontSize: '0.8125rem',
+    alignItems: 'flex-start'
   },
 
   [`&.${classes.textColorPrimary}`]: {

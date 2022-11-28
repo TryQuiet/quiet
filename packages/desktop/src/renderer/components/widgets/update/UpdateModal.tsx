@@ -13,7 +13,6 @@ import Modal from '../../ui/Modal/Modal'
 const PREFIX = 'UpdateModal';
 
 const classes = {
-  root: `${PREFIX}root`,
   info: `${PREFIX}info`,
   button: `${PREFIX}button`,
   updateIcon: `${PREFIX}updateIcon`,
@@ -21,15 +20,13 @@ const classes = {
   subTitle: `${PREFIX}subTitle`
 };
 
-const StyledModal = styled(Modal)((
+const StyledModalContent = styled(Grid)((
   {
     theme
   }
 ) => ({
-  [`& .${classes.root}`]: {
-    backgroundColor: theme.palette.colors.white,
-    border: 'none'
-  },
+  backgroundColor: theme.palette.colors.white,
+  border: 'none',
 
   [`& .${classes.info}`]: {
     marginTop: 38
@@ -65,8 +62,8 @@ interface UpdateModalProps {
 export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, handleUpdate }) => {
 
   return (
-    <StyledModal open={open} handleClose={handleClose}>
-      <Grid container direction='column' className={classes.root} alignItems='center' justifyContent='flex-start'>
+    <Modal open={open} handleClose={handleClose}>
+      <StyledModalContent container direction='column' alignItems='center' justifyContent='flex-start'>
         <Grid className={classes.info} container justifyContent='center'>
           <Grid item>
             <Icon src={updateIcon} />
@@ -97,8 +94,8 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, han
             </Button>
           </Grid>
         </Grid>
-      </Grid>
-    </StyledModal>
+      </StyledModalContent>
+    </Modal>
   );
 }
 
