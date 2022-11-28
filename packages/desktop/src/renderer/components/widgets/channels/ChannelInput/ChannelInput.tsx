@@ -55,7 +55,7 @@ const Root = styled(Grid)((
     from: { opacity: 0 },
     to: { opacity: 1 }
   },
-  [`&.${classes.input}`]: {
+  [`& .${classes.input}`]: {
     width: '100%',
     fontSize: 14,
     outline: 'none',
@@ -72,7 +72,7 @@ const Root = styled(Grid)((
     position: 'relative',
     paddingRight: '60px'
   },
-  [`&.${classes.textfield}`]: {
+  [`& .${classes.textfield}`]: {
     border: `1px solid ${theme.palette.colors.veryLightGray}`,
     maxHeight: 300,
     'overflow-y': 'auto',
@@ -89,26 +89,26 @@ const Root = styled(Grid)((
     width: '100%',
     position: 'relative'
   },
-  [`&.${classes.inputsDiv}`]: {
+  [`& .${classes.inputsDiv}`]: {
     paddingLeft: '20px',
     paddingRight: '20px',
     width: '100%',
     margin: '0px',
     position: 'relative'
   },
-  [`&.${classes.disabledBottomMargin}`]: {
+  [`& .${classes.disabledBottomMargin}`]: {
     marginBottom: 0
   },
-  [`&.${classes.warningIcon}`]: {
+  [`& .${classes.warningIcon}`]: {
     color: orange[500]
   },
-  [`&.${classes.blinkAnimation}`]: {
+  [`& .${classes.blinkAnimation}`]: {
     animationName: '$blinker',
     animationDuration: '1s',
     animationTimingFunction: 'linear',
     animationIterationCount: 1
   },
-  [`&.${classes.backdrop}`]: {
+  [`& .${classes.backdrop}`]: {
     height: 'auto',
     padding: theme.spacing(1),
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
@@ -116,10 +116,10 @@ const Root = styled(Grid)((
     pointerEvents: 'none',
     touchAction: 'none'
   },
-  [`&.${classes.focused}`]: {
+  [`& .${classes.focused}`]: {
     borderColor: theme.palette.colors.trueBlack
   },
-  [`&.${classes.iconButton}`]: {
+  [`& .${classes.iconButton}`]: {
     cursor: 'pointer',
     position: 'relative',
     float: 'right',
@@ -135,54 +135,54 @@ const Root = styled(Grid)((
     width: '23px',
     height: '23px'
   },
-  [`&.${classes.emoji}`]: {
+  [`& .${classes.emoji}`]: {
     cursor: 'pointer',
     position: 'relative',
     float: 'right'
   },
-  [`&.${classes.highlight}`]: {
+  [`& .${classes.highlight}`]: {
     color: theme.palette.colors.lushSky,
     backgroundColor: theme.palette.colors.lushSky12,
     padding: 5,
     borderRadius: 4
   },
-  [`&.${classes.actions}`]: {
+  [`& .${classes.actions}`]: {
     postion: 'relative',
     float: 'right',
     padding: '5px'
   },
-  [`&.${classes.picker}`]: {
+  [`& .${classes.picker}`]: {
     position: 'fixed',
     bottom: 60,
     right: 15
   },
-  [`&.${classes.errorIcon}`]: {
+  [`& .${classes.errorIcon}`]: {
     display: 'flex',
     justify: 'center',
     alignItems: 'center',
     marginLeft: 20,
     marginRight: 5
   },
-  [`&.${classes.errorText}`]: {
+  [`& .${classes.errorText}`]: {
     color: theme.palette.colors.trueBlack
   },
-  [`&.${classes.errorBox}`]: {
+  [`& .${classes.errorBox}`]: {
     marginTop: 5
   },
-  [`&.${classes.linkBlue}`]: {
+  [`& .${classes.linkBlue}`]: {
     fontWeight: 'normal',
     fontStyle: 'normal',
     cursor: 'pointer',
     color: theme.palette.colors.linkBlue
   },
-  [`&.${classes.notAllowed}`]: {
+  [`& .${classes.notAllowed}`]: {
     cursor: 'not-allowed'
   },
-  [`&.${classes.inputFiles}`]: {
+  [`& .${classes.inputFiles}`]: {
     position: 'relative',
     float: 'left'
   },
-  [`&.${classes.icons}`]: {
+  [`& .${classes.icons}`]: {
     position: 'absolute',
     float: 'left',
     right: '0px',
