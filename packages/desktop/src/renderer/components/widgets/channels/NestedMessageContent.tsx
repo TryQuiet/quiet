@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react'
 import { styled } from '@mui/material/styles';
 import theme from '../../../theme'
 import classNames from 'classnames'
-import { Grid, makeStyles, Typography } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 import { AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage, DownloadStatus } from '@quiet/state-manager'
 import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'

@@ -1,7 +1,6 @@
 import React from 'react'
 import { styled } from '@mui/material/styles';
 import { Dictionary } from '@reduxjs/toolkit'
-import { makeStyles, Theme } from '@mui/material/styles'
 import classNames from 'classnames'
 
 import Grid from '@mui/material/Grid'

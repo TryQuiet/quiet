@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 
 import { styled } from '@mui/material/styles';
 
-import { Grid } from '@mui/material';
-import AppBar from '@mui/material/AppBar';
-import Tabs from '@mui/material/Tabs';
+import { Grid, Tabs } from '@mui/material';
+import AppBar from '@mui/material/AppBar'
 import { Scrollbars } from 'rc-scrollbars';
 import { AutoSizer } from 'react-virtualized';
 
@@ -18,62 +17,38 @@ const PREFIX = 'SettingsModal';
 
 const classes = {
   root: `${PREFIX}root`,
-  tabs: `${PREFIX}tabs`,
-  indicator: `${PREFIX}indicator`,
-  appbar: `${PREFIX}appbar`,
-  tabsDiv: `${PREFIX}tabsDiv`,
-  selected: `${PREFIX}selected`,
-  tab: `${PREFIX}tab`,
-  content: `${PREFIX}content`
+  indicator: `${PREFIX}indicator`
 };
 
-const StyledModal = styled(Modal)((
-  {
-    theme
-  }
-) => ({
-  [`& .${classes.root}`]: {
+const StyledModalContent = styled(Grid)(() => ({
+  [`&.${classes.root}`]: {
     zIndex: 1000,
     paddingLeft: 20,
     paddingTop: 32,
     paddingRight: 32
   },
+}))
 
-  [`& .${classes.tabs}`]: {
-    color: theme.palette.colors.trueBlack
-  },
+const StyledTabsWrapper = styled(Grid)(() => ({
+  width: 168
+}));
 
+const StyledAppBar = styled(AppBar, {label: 'xxxxx'})(()=>({
+  backgroundColor: '#fff',
+  boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.0)'
+}))
+
+const StyledTabs = styled(Tabs)(({theme}) => ({
+  color: theme.palette.colors.trueBlack,
+  
   [`& .${classes.indicator}`]: {
     height: '0 !important'
   },
+}))
 
-  [`& .${classes.appbar}`]: {
-    backgroundColor: '#fff',
-    boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.0)'
-  },
-
-  [`& .${classes.tabsDiv}`]: {
-    width: 168
-  },
-
-  [`& .${classes.selected}`]: {
-    backgroundColor: theme.palette.colors.lushSky,
-    borderRadius: 5,
-    color: `${theme.palette.colors.white} !important`
-  },
-
-  [`& .${classes.tab}`]: {
-    minHeight: 32,
-    color: theme.palette.colors.trueBlack,
-    opacity: 1,
-    fontStyle: 'normal',
-    fontWeight: 'normal'
-  },
-
-  [`& .${classes.content}`]: {
-    marginLeft: 32
-  }
-}));
+const TabComponentWrapper = styled(Grid)(() => ({
+  marginLeft: 32
+}))
 
 const tabs = {
   account: AccountSettingsForm,
@@ -83,14 +58,12 @@ const tabs = {
 
 interface SettingsModalProps {
   title: string
-  owner: boolean
+  owner: boolean  // Change to isOwner
   open: boolean
   handleClose: () => void
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open, handleClose }) => {
-
-
   const [contentRef, setContentRef] = React.useState(null)
 
   const scrollbarRef = React.useRef()
@@ -106,7 +79,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
     }
   }
 
-  const handleChange = (tab) => {
+  const handleChange = (tab: string) => {
     setCurrentTab(tab)
   }
 
@@ -120,8 +93,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
   const TabComponent = tabs[currentTab]
 
   return (
-    <StyledModal open={open} handleClose={handleClose} title={title} testIdPrefix='settings' isBold addBorder contentWidth='100%'>
-      <Grid
+    <Modal open={open} handleClose={handleClose} title={title} testIdPrefix='settings' isBold addBorder contentWidth='100%'>
+      <StyledModalContent
         ref={ref => {
           if (ref) {
             setContentRef(ref)
@@ -130,9 +103,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
         container
         direction='row'
         className={classes.root}>
-        <Grid item className={classes.tabsDiv} style={{ marginLeft: offset }}>
-          <AppBar position='static' className={classes.appbar}>
-            <Tabs
+        <StyledTabsWrapper item style={{ marginLeft: offset }}>
+          <StyledAppBar position='static'>
+            <StyledTabs
               value={currentTab}
               onChange={(event, value) => {
                 event.persist()
@@ -140,20 +113,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
               }}
               orientation='vertical'
               textColor='inherit'
-              className={classes.tabs}
               classes={{ indicator: classes.indicator }}>
               <Tab
                 value='notifications'
                 label='Notifications'
-                classes={{ selected: classes.selected }}
                 data-testid={'notifications-settings-tab'}
               />
               {owner && (
-                <Tab value='invite' label='Add members' classes={{ selected: classes.selected }} data-testid={'invite-settings-tab'} />
+                <Tab value='invite' label='Add members' data-testid={'invite-settings-tab'} />
               )}
-            </Tabs>
-          </AppBar>
-        </Grid>
+            </StyledTabs>
+          </StyledAppBar>
+        </StyledTabsWrapper>
         <Grid item xs>
           <AutoSizer>
             {({ width, height }) => {
@@ -163,16 +134,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
                   ref={scrollbarRef}
                   autoHideTimeout={500}
                   style={{ width: maxWidth + offset, height: height }}>
-                  <Grid item className={classes.content} style={{ paddingRight: offset }}>
+                  <TabComponentWrapper item style={{ paddingRight: offset }}>
                     <TabComponent setCurrentTab={setCurrentTab} scrollbarRef={scrollbarRef} />
-                  </Grid>
+                  </TabComponentWrapper>
                 </Scrollbars>
               )
             }}
           </AutoSizer>
         </Grid>
-      </Grid>
-    </StyledModal>
+      </StyledModalContent>
+    </Modal>
   );
 }
 

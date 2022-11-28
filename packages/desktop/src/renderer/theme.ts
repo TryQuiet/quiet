@@ -116,13 +116,6 @@ export default createTheme({
         }
       }
     },
-    MuiTab: {
-      styleOverrides: {
-        wrapped: { // TODO: it was 'wrapper' - check if this works
-          alignItems: 'flex-start'
-        }
-      }
-    },
     MuiButton: {
       styleOverrides: {
         sizeSmall: {

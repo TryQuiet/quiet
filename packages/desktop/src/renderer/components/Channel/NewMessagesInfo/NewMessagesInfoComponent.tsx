@@ -1,6 +1,6 @@
 import React from 'react'
 import { styled } from '@mui/material/styles';
-import { makeStyles, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
 import Icon from '../../ui/Icon/Icon'
 import arrowDown from '../../../static/images/arrowDown.svg'
 

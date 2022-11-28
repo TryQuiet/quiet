@@ -1,9 +1,6 @@
 import React from 'react'
 import { styled } from '@mui/material/styles';
 import * as R from 'ramda'
-
-import { makeStyles } from '@mui/material'
-
 import Tooltip from '../Tooltip/Tooltip'
 import Typography from '@mui/material/Typography'
 

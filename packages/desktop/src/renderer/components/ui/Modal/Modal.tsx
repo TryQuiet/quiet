@@ -32,7 +32,7 @@ const classes = {
   bold: `${PREFIX}bold`
 };
 
-const StyledMaterialModal  = styled(MaterialModal )((
+const StyledMaterialModal = styled(MaterialModal)((
   {
     theme
   }

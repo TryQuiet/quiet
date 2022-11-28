@@ -1,7 +1,6 @@
 import React from 'react'
 import { styled } from '@mui/material/styles';
 import { Grid, Typography } from '@mui/material'
-import { makeStyles, Theme } from '@mui/material/styles'
 
 const PREFIX = 'ChannelInputInfoMessage';
 
