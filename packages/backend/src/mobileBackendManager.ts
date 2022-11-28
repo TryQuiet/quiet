@@ -12,9 +12,11 @@ export const runBackend = async (): Promise<any> => {
   const program = new Command()
 
   program
-    .requiredOption('-t, --torBinary <torBinary>', 'tor binary path')
-    .requiredOption('-dpth, --dataPath <adataPath>', 'data directory path')
-    .requiredOption('-dprt, --dataPort <dataPort>', 'data port')
+  .requiredOption('-dpth, --dataPath <adataPath>', 'data directory path')
+  .requiredOption('-dprt, --dataPort <dataPort>', 'data port')
+  .option('-t, --torBinary <torBinary>', 'tor binary path')
+  .option('-ac, --authCookie <authCookie>', 'tor authentication cookie')
+  .option('-cp, --controlPort <controlPort>', 'tor control port')
 
   program.parse(process.argv)
   const options = program.opts()

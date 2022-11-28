@@ -40,7 +40,7 @@ class TorHandler: NSObject {
   private var torThread: TorThread?
   
   @objc(spawn:controlPort:httpTunnelPort:)
-  func spawn(socksPort: in_port_t, controlPort: in_port_t, httpTunnelPort: in_port_t) -> Void {
+  func spawn(socksPort: in_port_t, controlPort: in_port_t, httpTunnelPort: in_port_t) -> String? {
     
     let torBaseConfiguration = getTorBaseConfiguration(
        socksPort: socksPort, controlPort: controlPort, httpTunnelPort: httpTunnelPort
@@ -112,11 +112,13 @@ class TorHandler: NSObject {
     guard let cookie = auth else {
       print("[\(String(describing: type(of: self)))] Could not connect to Tor - cookie unreadable!")
 
-      return
+      return nil
     }
 
      #if DEBUG
      print("[\(String(describing: type(of: self)))] cookie=", cookie.hexEncodedString())
      #endif
+    
+    return cookie.hexEncodedString()
   }
 }

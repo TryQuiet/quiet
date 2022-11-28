@@ -74,10 +74,10 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   NSString *dataPath = [dataDirectory create];
   
   TorHandler *tor = [TorHandler new];
-  [tor spawn:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
+  NSString *authCookie = [tor spawn:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
   
   RNNodeJsMobile *nodeJsMobile = [RNNodeJsMobile new];
-  [nodeJsMobile callStartNodeProjectWithArgs:[NSString stringWithFormat:@"lib/mobileBackendManager.js --torBinary %@ --dataPort %hu --dataPath %@", tor, dataPort, dataPath]];
+  [nodeJsMobile callStartNodeProjectWithArgs:[NSString stringWithFormat:@"lib/mobileBackendManager.js --dataPath %@ --dataPort %hu --controlPort %hu --authCookie %@ ", dataPath, dataPort, controlPort, authCookie]];
   
   return YES;
 }
