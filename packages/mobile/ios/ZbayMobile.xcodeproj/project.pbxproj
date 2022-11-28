@@ -27,6 +27,7 @@
 		1868C43C2930E255001D6D5E /* CommunicationModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1868C43B2930E255001D6D5E /* CommunicationModule.swift */; };
 		1868C43E2930EAEA001D6D5E /* CommunicationBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 1868C43D2930EAEA001D6D5E /* CommunicationBridge.m */; };
 		1889CA4E26E763E1004ECFBD /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1889CA4D26E763E1004ECFBD /* Extensions.swift */; };
+		1898143A2934CF70001F39E7 /* TorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189814392934CF70001F39E7 /* TorHandler.swift */; };
 		32ACB2E5C9C07A13433DA649 /* libPods-ZbayMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 095898D4703120F97AA7913A /* libPods-ZbayMobile.a */; };
 		43B99DB1C98D429295E8CB91 /* Rubik-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2BB5F4B8D4F3462CB8AF6312 /* Rubik-SemiBoldItalic.ttf */; };
 		5CBDF3C0D937401A886684F8 /* Rubik-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 706E1601C7B649A8A40A7877 /* Rubik-Light.ttf */; };
@@ -584,6 +585,7 @@
 		186B5CD726B16F1A00BF9FFA /* ZbayMobile-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ZbayMobile-Bridging-Header.h"; sourceTree = "<group>"; };
 		1889CA4D26E763E1004ECFBD /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		1891BBFD26D683D100101CC7 /* libnodejs-mobile-react-native.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libnodejs-mobile-react-native.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		189814392934CF70001F39E7 /* TorHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorHandler.swift; sourceTree = "<group>"; };
 		18ED84D0299E4E55AB68AA3E /* Rubik-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-ExtraBold.ttf"; path = "../assets/fonts/Rubik-ExtraBold.ttf"; sourceTree = "<group>"; };
 		18FE5FF326F4C06B0016DAC7 /* ZbayMobile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ZbayMobile.entitlements; path = ZbayMobile/ZbayMobile.entitlements; sourceTree = "<group>"; };
 		2386DA39D8B240D9A80ECBD9 /* Rubik-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
@@ -649,6 +651,7 @@
 				1868B94E292E9211001D6D5E /* NodeJsMobile */,
 				1868C4372930D7D6001D6D5E /* DataDirectory.swift */,
 				1868C4392930D859001D6D5E /* FindFreePort.swift */,
+				189814392934CF70001F39E7 /* TorHandler.swift */,
 				18FE5FF326F4C06B0016DAC7 /* ZbayMobile.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -5076,6 +5079,7 @@
 			files = (
 				1868BCF1292E9212001D6D5E /* rn-bridge.cpp in Sources */,
 				1889CA4E26E763E1004ECFBD /* Extensions.swift in Sources */,
+				1898143A2934CF70001F39E7 /* TorHandler.swift in Sources */,
 				1868BCEE292E9212001D6D5E /* RNNodeJsMobile.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				1868C4382930D7D6001D6D5E /* DataDirectory.swift in Sources */,

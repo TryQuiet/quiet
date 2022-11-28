@@ -66,10 +66,15 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   uint16_t dataPort = [findFreePort getFirstStartingFromPort:11000];
   [[bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:dataPort];
   
+  uint16_t socksPort        = [findFreePort getFirstStartingFromPort:12000];
+  uint16_t controlPort      = [findFreePort getFirstStartingFromPort:14000];
+  uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:16000];
+  
   DataDirectory *dataDirectory = [DataDirectory new];
   NSString *dataPath = [dataDirectory create];
   
-  NSString *tor = [[NSBundle mainBundle] pathForResource:@"Frameworks/Tor.framework/Tor" ofType:@""];
+  TorHandler *tor = [TorHandler new];
+  [tor spawn:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
   
   RNNodeJsMobile *nodeJsMobile = [RNNodeJsMobile new];
   [nodeJsMobile callStartNodeProjectWithArgs:[NSString stringWithFormat:@"lib/mobileBackendManager.js --torBinary %@ --dataPort %hu --dataPath %@", tor, dataPort, dataPath]];
