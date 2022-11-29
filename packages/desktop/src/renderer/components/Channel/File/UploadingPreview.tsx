@@ -107,9 +107,6 @@ export interface FilePreviewComponentProps {
 
 const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, onClick }) => {
   const [showClose, setShowClose] = useState(false)
-
-
-
   const imageType = imagesExtensions.includes(fileData.ext)
 
   return (
@@ -154,7 +151,7 @@ const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
   return (
     <div className={classes.inputFiles}>
       {Object.entries(filesData).map(fileData => (
-        <FilePreviewComponent fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />
+        <FilePreviewComponent key={fileData[0]} fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />
       ))}
     </div>
   )

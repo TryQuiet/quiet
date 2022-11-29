@@ -55,19 +55,19 @@ const tabs = {
 
 interface SettingsModalProps {
   title: string
-  owner: boolean  // Change to isOwner
+  isOwner: boolean
   open: boolean
   handleClose: () => void
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open, handleClose }) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, open, handleClose }) => {
   const [contentRef, setContentRef] = React.useState(null)
 
   const scrollbarRef = React.useRef()
 
   const [offset, setOffset] = React.useState(0)
 
-  const defaultCurrentTab = owner ? 'invite' : 'notifications'
+  const defaultCurrentTab = isOwner ? 'invite' : 'notifications'
   const [currentTab, setCurrentTab] = useState(defaultCurrentTab)
 
   const adjustOffset = () => {
@@ -115,7 +115,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
                 label='Notifications'
                 data-testid={'notifications-settings-tab'}
               />
-              {owner && (
+              {isOwner && (
                 <Tab value='invite' label='Add members' data-testid={'invite-settings-tab'} />
               )}
             </StyledTabs>

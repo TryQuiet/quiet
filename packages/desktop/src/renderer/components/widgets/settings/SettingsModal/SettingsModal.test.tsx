@@ -11,7 +11,7 @@ describe('SettingsModal', () => {
   it('renders component for non-owner', () => {
     const result = renderComponent(
       <Provider store={store}>
-        <SettingsModal title='settings' owner={false} open handleClose={jest.fn()} />
+        <SettingsModal title='settings' isOwner={false} open handleClose={jest.fn()} />
       </Provider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -549,7 +549,7 @@ describe('SettingsModal', () => {
   it('renders component for the owner', () => {
     const result = renderComponent(
       <Provider store={store}>
-        <SettingsModal title='Settings' owner={true} open handleClose={jest.fn()} />
+        <SettingsModal title='Settings' isOwner={true} open handleClose={jest.fn()} />
       </Provider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -866,13 +866,13 @@ describe('SettingsModal', () => {
   })
 
   it('displays "Add members" tab for community owner', async () => {
-    renderComponent(<SettingsModal title='string' owner={true} open handleClose={jest.fn()} />)
+    renderComponent(<SettingsModal title='string' isOwner={true} open handleClose={jest.fn()} />)
     expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Add members/i })).not.toBeNull()
   })
 
   it('does not display "Add members" tab if user is not a community owner', async () => {
-    renderComponent(<SettingsModal title='string' owner={false} open handleClose={jest.fn()} />)
+    renderComponent(<SettingsModal title='string' isOwner={false} open handleClose={jest.fn()} />)
     expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Add members/i })).toBeNull()
   })
