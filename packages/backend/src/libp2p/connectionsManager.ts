@@ -230,6 +230,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public spawnTor = async () => {
+    console.log('IOS: ', 'spawning tor')
     const basePath = this.options.env.resourcesPath
     this.tor = new Tor({
       torPath: torBinForPlatform(basePath),
@@ -246,8 +247,10 @@ export class ConnectionsManager extends EventEmitter {
       }
     })
     if (this.torControlPort) {
+      console.log('IOS: Initializing only torControl')
       this.tor.initTorControl()
     } else if (this.options.env.resourcesPath) {
+      console.log('IOS: This line should never be reached on IOS')
       await this.tor.init()
     } else {
       throw new Error('You must provide either tor control port or tor binary path')

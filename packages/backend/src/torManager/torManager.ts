@@ -116,6 +116,7 @@ export class Tor {
       password: this.torPassword,
       cookie: this.torAuthCookie
     })
+    console.log('IOS: Tor control initialized')
   }
 
   private readonly torProcessNameCommand = (oldTorPid: string): string => {
@@ -213,35 +214,39 @@ export class Tor {
   }
 
   public async spawnHiddenService(targetPort: number, privKey: string, virtPort: number = 443): Promise<string> {
+    console.log('IOS: spawning hidden service')
     const status = await this.torControl.sendCommand(
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
-    )
-    const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-    return `${onionAddress}.onion`
-  }
-
-  public async destroyHiddenService(serviceId: string): Promise<boolean> {
-    try {
-      await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
-      return true
-    } catch (err) {
-      log.error(`Couldn't destroy hidden service ${serviceId}`, err)
-      return false
+      )
+      const onionAddress = status.messages[0].replace('250-ServiceID=', '')
+      console.log('IOS: new hidde service address is ', `${onionAddress}`)
+      return `${onionAddress}.onion`
     }
-  }
-
-  public async createNewHiddenService(
-    targetPort: number,
-    virtPort: number = 443
-  ): Promise<{ onionAddress: string; privateKey: string }> {
-    const status = await this.torControl.sendCommand(
-      `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
-    )
-
-    const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-    const privateKey = status.messages[1].replace('250-PrivateKey=', '')
-
-    return {
+    
+    public async destroyHiddenService(serviceId: string): Promise<boolean> {
+      try {
+        await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
+        return true
+      } catch (err) {
+        log.error(`Couldn't destroy hidden service ${serviceId}`, err)
+        return false
+      }
+    }
+    
+    public async createNewHiddenService(
+      targetPort: number,
+      virtPort: number = 443
+      ): Promise<{ onionAddress: string; privateKey: string }> {
+        console.log('IOS: spawning hidden service')
+        const status = await this.torControl.sendCommand(
+          `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
+          )
+          
+          const onionAddress = status.messages[0].replace('250-ServiceID=', '')
+          const privateKey = status.messages[1].replace('250-PrivateKey=', '')
+          console.log('IOS: new hidde service address is ', `${onionAddress}`)
+          
+          return {
       onionAddress: `${onionAddress}.onion`,
       privateKey
     }
