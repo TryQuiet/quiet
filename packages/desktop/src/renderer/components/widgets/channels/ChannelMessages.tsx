@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { styled } from '@mui/material/styles';
 import { Dictionary } from '@reduxjs/toolkit'
-
-
 import List from '@mui/material/List'
 
 import MessagesDivider from '../MessagesDivider'
@@ -24,7 +22,6 @@ const classes = {
   list: `${PREFIX}list`,
   link: `${PREFIX}link`,
   info: `${PREFIX}info`,
-  root: `${PREFIX}root`,
   item: `${PREFIX}item`,
   bold: `${PREFIX}bold`
 };
@@ -60,11 +57,6 @@ const Root = styled('div')((
   [`& .${classes.info}`]: {
     color: theme.palette.colors.trueBlack,
     letterSpacing: '0.4px'
-  },
-
-  [`& .${classes.root}`]: {
-    width: '100%',
-    padding: '8px 16px'
   },
 
   [`& .${classes.item}`]: {

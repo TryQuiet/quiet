@@ -35,26 +35,15 @@ import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoCompo
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 
-const PREFIX = 'ChannelComponent';
-
-const classes = {
-  root: `${PREFIX}root`,
-  messages: `${PREFIX}messages`
-};
-
-const StyledPage = styled(Page)((
+const ChannelMessagesWrapperStyled = styled(Grid)((
   {
     theme
   }
 ) => ({
-  [`& .${classes.root}`]: {},
-
-  [`& .${classes.messages}`]: {
-    position: 'relative',
-    height: 0,
-    backgroundColor: theme.palette.colors.white
-  }
-}));
+  position: 'relative',
+  height: 0,
+  backgroundColor: theme.palette.colors.white
+}))
 
 export interface ChannelComponentProps {
   user: Identity
@@ -146,7 +135,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
 
   const onEnterKeyPress = (message: string) => {
     // Send message and files
-    console.log('message', message)
     onInputEnter(message)
     // Go back to the bottom if scroll is at the top or in the middle
     scrollBottom()
@@ -223,7 +211,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   }, [channelAddress])
 
   return (
-    <StyledPage>
+    <Page>
       <PageHeader>
         <ChannelHeaderComponent
           channelName={channelName}
@@ -237,7 +225,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
         />
       </PageHeader>
       <DropZoneComponent channelName={channelName} handleFileDrop={handleFileDrop}>
-        <Grid item xs className={classes.messages}>
+        <ChannelMessagesWrapperStyled item xs>
           <NewMessagesInfoComponent scrollBottom={scrollBottom} show={newMessagesInfo} />
           <ChannelMessagesComponent
             messages={messages.groups}
@@ -251,7 +239,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
           />
-        </Grid>
+        </ChannelMessagesWrapperStyled>
         <Grid item>
           <ChannelInputComponent
             channelAddress={channelAddress}
@@ -277,7 +265,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
           </ChannelInputComponent>
         </Grid>
       </DropZoneComponent>
-    </StyledPage>
+    </Page>
   );
 }
 

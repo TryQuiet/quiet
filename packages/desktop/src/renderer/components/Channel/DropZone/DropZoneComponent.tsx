@@ -8,36 +8,23 @@ import dropFiles from '../../../static/images/dropFiles.svg'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { NativeTypes } from 'react-dnd-html5-backend'
 
-const PREFIX = 'ActiveDropZoneComponent';
-
-const classes = {
-  dropActiveBg: `${PREFIX}dropActiveBg`,
-  dropActive: `${PREFIX}dropActive`
-};
-
-const StyledGrid = styled(Grid)((
-  {
-    theme
-  }
-) => ({
-  [`& .${classes.dropActiveBg}`]: {
-    position: 'relative'
-  },
-
-  [`& .${classes.dropActive}`]: {
-    ...theme.typography.h2,
-    position: 'absolute',
-    zIndex: 1000,
-    height: '100%',
-    width: '100%',
-    textAlign: 'center',
-    background: 'rgba(255,255,255,0.9)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center'
-  }
+const StyledDropZoneComponent = styled(Grid)(() => ({
+  position: 'relative'
 }));
+
+const StyledActiveDropZoneComponent = styled('div')(({theme})=>({
+  ...theme.typography.h2,
+  position: 'absolute',
+  zIndex: 1000,
+  height: '100%',
+  width: '100%',
+  textAlign: 'center',
+  background: 'rgba(255,255,255,0.9)',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center'
+}))
 
 interface DropZoneComponentProps {
   handleFileDrop: (arg: any) => void
@@ -52,10 +39,10 @@ export const ActiveDropZoneComponent: React.FC<{
 }) => {
 
   return (
-    <div className={classes.dropActive}>
+    <StyledActiveDropZoneComponent>
       <Icon src={dropFiles} />
       <p>Upload to {channelName}</p>
-    </div>
+    </StyledActiveDropZoneComponent>
   )
 }
 
@@ -72,7 +59,13 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({
         if (handleFileDrop) {
           if (!item.files.length) return
           if (item.files[0].path === '') return
-          if (fs.statSync(item.files[0].path).isDirectory()) return
+          try {
+            if (fs.statSync(item.files[0].path).isDirectory()) return
+          } catch (e) {
+            // See: https://github.com/react-dnd/react-dnd/issues/3458
+            console.error('drop error: ', e.message)
+            return
+          }
           handleFileDrop(item)
         }
       },
@@ -93,12 +86,11 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({
     }),
     [handleFileDrop]
   )
-
   const dropIsActive = canDrop && isOver
   return (
-    <StyledGrid item xs className={dropIsActive ? classes.dropActiveBg : '' } container direction='column' data-testid='drop-zone' ref={drop}>
+    <StyledDropZoneComponent item xs container direction='column' data-testid='drop-zone' ref={drop}>
       {dropIsActive && <ActiveDropZoneComponent channelName={channelName}/>}
       {children}
-    </StyledGrid>
+    </StyledDropZoneComponent>
   );
 }
