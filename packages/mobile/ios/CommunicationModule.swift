@@ -8,19 +8,10 @@ class CommunicationModule: RCTEventEmitter {
   
   @objc
   func sendDataPort(port: UInt16) {
-    let body = BackendEvent(
-      channelName: CommunicationModule.WEBSOCKET_CONNECTION_CHANNEL,
-      payload: port
-    )
-    self.sendEvent(withName: CommunicationModule.BACKEND_EVENT_IDENTIFIER, body: body)
+    self.sendEvent(withName: CommunicationModule.BACKEND_EVENT_IDENTIFIER, body: ["channelName": CommunicationModule.WEBSOCKET_CONNECTION_CHANNEL, "payload": port])
   }
   
   override func supportedEvents() -> [String]! {
     return [CommunicationModule.BACKEND_EVENT_IDENTIFIER, CommunicationModule.NOTIFICATION_EVENT_IDENTIFIER]
   }
-}
-
-struct BackendEvent {
-  var channelName: String
-  var payload: Any
 }

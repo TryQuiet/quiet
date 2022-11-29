@@ -64,7 +64,18 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   
   FindFreePort *findFreePort = [FindFreePort new];
   uint16_t dataPort = [findFreePort getFirstStartingFromPort:11000];
-  [[bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:dataPort];
+  
+  /*
+   * We have to wait for RCTBridge listeners to be initialized, yet we must be sure to deliver the event containing data port information.
+   * Delay used below can't cause any race condition as websocket won't connect until data server starts listening anyway.
+   */
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    NSTimeInterval delayInSeconds = 2.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+      [[bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:dataPort];
+    });
+  });
   
   uint16_t socksPort        = [findFreePort getFirstStartingFromPort:12000];
   uint16_t controlPort      = [findFreePort getFirstStartingFromPort:14000];
@@ -76,8 +87,8 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   TorHandler *tor = [TorHandler new];
   NSString *authCookie = [tor spawn:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
   
-  RNNodeJsMobile *nodeJsMobile = [RNNodeJsMobile new];
-  [nodeJsMobile callStartNodeProjectWithArgs:[NSString stringWithFormat:@"lib/mobileBackendManager.js --dataPath %@ --dataPort %hu --controlPort %hu --authCookie %@ ", dataPath, dataPort, controlPort, authCookie]];
+//  RNNodeJsMobile *nodeJsMobile = [RNNodeJsMobile new];
+//  [nodeJsMobile callStartNodeProjectWithArgs:[NSString stringWithFormat:@"lib/mobileBackendManager.js --dataPath %@ --dataPort %hu --controlPort %hu --authCookie %@ ", dataPath, dataPort, controlPort, authCookie]];
   
   return YES;
 }

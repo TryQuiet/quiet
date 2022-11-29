@@ -46,9 +46,15 @@ class TorHandler: NSObject {
        socksPort: socksPort, controlPort: controlPort, httpTunnelPort: httpTunnelPort
     )
 
-     #if DEBUG
-     print("[\(String(describing: type(of: self)))] arguments=\(String(describing: torBaseConfiguration.arguments))")
-     #endif
+    #if DEBUG
+    print("[\(String(describing: type(of: self)))] arguments=\(String(describing: torBaseConfiguration.arguments))")
+    #endif
+    
+    torThread = TorThread(configuration: torBaseConfiguration)
+
+    torThread?.start()
+
+    print("[\(String(describing: type(of: self)))] Starting Tor")
     
     // Wait long enough for Tor itself to have started. It's OK to wait for this
      // because Tor is already trying to connect; this is just the part that polls for
@@ -100,7 +106,7 @@ class TorHandler: NSObject {
         // print("[libevent \(s)] \(String(cString: msg).trimmingCharacters(in: .whitespacesAndNewlines))")
       }
     })
-       
+    
     var auth: Data? {
       if let cookieUrl = torBaseConfiguration.dataDirectory?.appendingPathComponent("control_auth_cookie") {
         return try? Data(contentsOf: cookieUrl)
@@ -115,9 +121,9 @@ class TorHandler: NSObject {
       return nil
     }
 
-     #if DEBUG
-     print("[\(String(describing: type(of: self)))] cookie=", cookie.hexEncodedString())
-     #endif
+    #if DEBUG
+    print("[\(String(describing: type(of: self)))] cookie=", cookie.hexEncodedString())
+    #endif
     
     return cookie.hexEncodedString()
   }
