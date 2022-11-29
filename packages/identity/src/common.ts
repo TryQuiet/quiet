@@ -1,5 +1,5 @@
 import { fromBER, ObjectIdentifier } from 'asn1js'
-import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate } from 'pkijs'
+import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate, TSTInfo } from 'pkijs'
 import { stringToArrayBuffer, fromBase64 } from 'pvutils'
 
 export enum CertFieldsTypes {
@@ -46,7 +46,10 @@ export const generateKeyPair = async ({ signAlg }: { signAlg: string }): Promise
   const algorithm = getAlgorithmParameters(signAlg, 'generateKey')
   const crypto = getCrypto()
   const keyPair = await crypto.generateKey(
-    (algorithm.algorithm as Algorithm).name,
+    {
+      name: "ECDSA",
+      namedCurve: "P-384"
+    },
     true,
     algorithm.usages
   )

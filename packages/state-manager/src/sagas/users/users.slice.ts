@@ -6,7 +6,7 @@ import { certificatesAdapter } from './users.adapter'
 import { SendCertificatesResponse } from './users.types'
 
 export class UsersState {
-  public certificates: EntityState<Certificate> =
+  public certificates: EntityState<any> =
     certificatesAdapter.getInitialState()
 }
 

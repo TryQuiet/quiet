@@ -2,8 +2,13 @@ import backend, { DataServer, ConnectionsManager } from '@quiet/backend'
 import logger from './logger'
 import { Command } from 'commander'
 const program = new Command()
+import {Crypto} from '@peculiar/webcrypto'
 
 const log = logger('backendManager')
+
+const webcrypto = new Crypto()
+
+global.crypto = webcrypto
 
 program
   .option('-s, --socksPort <number>', 'Socks proxy port')

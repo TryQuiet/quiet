@@ -112,7 +112,7 @@
 		"orbit-db-pubsub": "0.6.0",
 		"orbit-db-store": "4.3.4",
 		"peer-id": "^0.15.0",
-		"pkijs": "2.1.97",
+		"pkijs": "3.0.8",
 		"socket.io": "3.0.5",
 		"socks-proxy-agent": "^5.0.0",
 		"validator": "^13.6.0"

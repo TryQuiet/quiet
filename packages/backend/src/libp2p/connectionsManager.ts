@@ -13,6 +13,7 @@ import fs from 'fs'
 import PeerId, { JSONPeerId } from 'peer-id'
 import { emitError } from '../socket/errors'
 import { CertificateRegistration } from '../registration'
+import {setEngine, CryptoEngine} from 'pkijs'
 
 import {
   InitCommunityPayload,
@@ -103,6 +104,8 @@ export interface InitLibp2pParams {
   certs: Certificates
 }
 
+
+
 export class ConnectionsManager extends EventEmitter {
   registration: CertificateRegistration
   httpTunnelPort: number
@@ -141,19 +144,18 @@ export class ConnectionsManager extends EventEmitter {
       log('\nGracefully shutting down from SIGINT (Ctrl-C)')
       process.exit(0)
     })
-    // const webcrypto = new Crypto()
-    // setEngine(
-    //   'newEngine',
-    //   // @ts-ignore
-    //   webcrypto,
-    //   new CryptoEngine({
-    //     name: '',
-    //     crypto: webcrypto,
-    //     subtle: webcrypto.subtle
-    //   })
-    // )
-  }
+    const webcrypto = new Crypto()
+    console.log('globalCrypto is ', global.crypto)
+    console.log('globalthiscrypto', globalThis.crypto)
+    // @ts-ignore
+    global.crypto = webcrypto
+    
+    console.log('before setting engine ')
+    
+    // @ts-ignore
+    setEngine('newEngine', new CryptoEngine({ name: "NodeJS ^15", crypto: webcrypto }));
 
+  }
   public readonly createAgent = (): Agent => {
     if (this.socksProxyAgent) return
 
