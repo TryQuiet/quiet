@@ -4,7 +4,6 @@ import { Button } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useModal } from '../../../containers/hooks'
-import { capitalizeFirstLetter } from '../../../../utils/functions/capitalize'
 import { Community } from '@quiet/state-manager'
 
 const PREFIX = 'IdentityPanel';
@@ -12,35 +11,29 @@ const PREFIX = 'IdentityPanel';
 const classes = {
   root: `${PREFIX}root`,
   button: `${PREFIX}button`,
-  buttonLabel: `${PREFIX}buttonLabel`,
   nickname: `${PREFIX}nickname`
 };
 
-const Root = styled('div')((
+const IdentityPanelButtonStyled = styled('div')((
   {
     theme
   }
 ) => ({
-  [`&.${classes.root}`]: {
-    marginTop: theme.spacing(1),
-    paddingLeft: 16,
-    paddingRight: 16
-  },
+  marginTop: theme.spacing(1),
+  paddingLeft: 16,
+  paddingRight: 16,
 
   [`& .${classes.button}`]: {
     color: theme.palette.colors.white,
     padding: 0,
     textAlign: 'left',
     opacity: 0.8,
+    justifyContent: 'flex-start',
+    textTransform: 'capitalize',
     '&:hover': {
       opacity: 1,
       backgroundColor: 'inherit'
     }
-  },
-
-  [`& .${classes.buttonLabel}`]: {
-    justifyContent: 'flex-start',
-    textTransform: 'none'
   },
 
   [`& .${classes.nickname}`]: {
@@ -60,29 +53,23 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({
   currentCommunity,
   accountSettingsModal
 }) => {
-
-
-  let communityName = ''
-  if (currentCommunity?.name) {
-    communityName = capitalizeFirstLetter(currentCommunity.name)
-  }
-
+  const communityName = currentCommunity.name || ''
   return (
-    <Root className={classes.root}>
+    <IdentityPanelButtonStyled>
       <Button
         onClick={event => {
           event.persist()
           accountSettingsModal.handleOpen()
         }}
         component='span'
-        classes={{ root: classes.button }} // label: classes.buttonLabel
+        classes={{ root: classes.button }}
         data-testid={'settings-panel-button'}>
         <Typography variant='h4' className={classes.nickname}>
           {communityName}
         </Typography>
         <ExpandMoreIcon fontSize='small' />
       </Button>
-    </Root>
+    </IdentityPanelButtonStyled>
   );
 }
 
