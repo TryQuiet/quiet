@@ -23,10 +23,12 @@ export const runBackend = async (): Promise<any> => {
 
   const connectionsManager: ConnectionsManager = new ConnectionsManager({
     socketIOPort: options.dataPort,
+    torAuthCookie: options.authCookie ? options.authCookie : null,
+    torControlPort: options.controlPort ? options.controlPort : null,
     options: {
       env: {
         appDataPath: options.dataPath,
-        resourcesPath: options.torBinary
+        resourcesPath: options.torBinary ? options.torBinary : null
       },
       createPaths: false,
     }

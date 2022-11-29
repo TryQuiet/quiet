@@ -10,10 +10,12 @@ import getPort from 'get-port'
 const log = logger('tor')
 
 interface IConstructor {
-  torPath: string
+  torPath?: string
   options: child_process.SpawnOptionsWithoutStdio
   appDataPath: string
   httpTunnelPort: number
+  controlPort?: number
+  authCookie?: string
 }
 export class Tor {
   httpTunnelPort: number
@@ -34,12 +36,16 @@ export class Tor {
     torPath,
     options,
     appDataPath,
-    httpTunnelPort
+    httpTunnelPort,
+    controlPort,
+    authCookie
   }: IConstructor) {
-    this.torPath = path.normalize(torPath)
+    this.torPath = torPath ? path.normalize(torPath) : null
     this.options = options
     this.appDataPath = appDataPath
     this.httpTunnelPort = httpTunnelPort
+    this.controlPort = controlPort ? controlPort : null
+    this.torAuthCookie = authCookie ? authCookie : null
   }
 
   public init = async ({ repeat = 6, timeout = 3600_000 } = {}): Promise<void> => {

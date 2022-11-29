@@ -69,8 +69,6 @@ import getPort from 'get-port'
 import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
-import { timeStamp } from 'console'
-import { passThroughOptions } from 'commander'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -85,6 +83,8 @@ interface InitStorageParams {
 export interface IConstructor {
   options: Partial<ConnectionsManagerOptions>
   socketIOPort: number
+  torAuthCookie?: string
+  torControlPort?: number
 }
 
 export interface Libp2pNodeParams {
@@ -126,8 +126,10 @@ export class ConnectionsManager extends EventEmitter {
   isRegistrarLaunched: boolean
   communityDataPath: string
   registrarDataPath: string
+  torAuthCookie: string
+  torControlPort: number
 
-  constructor({ options, socketIOPort }: IConstructor) {
+  constructor({ options, socketIOPort, torControlPort, torAuthCookie }: IConstructor) {
     super()
     this.registration = new CertificateRegistration()
     this.options = {
@@ -135,6 +137,8 @@ export class ConnectionsManager extends EventEmitter {
       ...options
     }
     this.socketIOPort = socketIOPort
+    this.torAuthCookie = torAuthCookie
+    this.torControlPort = torControlPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
     this.communityDataPath = path.join(this.quietDir, 'communityData.json')
@@ -211,7 +215,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public async closeAllServices() {
-    if (this.tor) {
+    if (this.tor && !this.torControlPort) {
       await this.tor.kill()
     }
     if (this.registration) {
@@ -231,6 +235,8 @@ export class ConnectionsManager extends EventEmitter {
       torPath: torBinForPlatform(basePath),
       appDataPath: this.quietDir,
       httpTunnelPort: this.httpTunnelPort,
+      authCookie: this.torAuthCookie,
+      controlPort: this.torControlPort,
       options: {
         env: {
           LD_LIBRARY_PATH: torDirForPlatform(basePath),
@@ -239,7 +245,13 @@ export class ConnectionsManager extends EventEmitter {
         detached: true
       }
     })
-    await this.tor.init()
+    if (this.torControlPort) {
+      this.tor.initTorControl()
+    } else if (this.options.env.resourcesPath) {
+      await this.tor.init()
+    } else {
+      throw new Error('You must provide either tor control port or tor binary path')
+    }
   }
 
   public createStorage = (peerId: string, communityId: string) => {
