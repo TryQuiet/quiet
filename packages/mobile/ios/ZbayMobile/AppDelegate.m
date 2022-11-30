@@ -61,10 +61,10 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
-  
+
   FindFreePort *findFreePort = [FindFreePort new];
-  uint16_t dataPort = [findFreePort getFirstStartingFromPort:11000];
-  
+  self.dataPort = [findFreePort getFirstStartingFromPort:11000];
+
   /*
    * We have to wait for RCTBridge listeners to be initialized, yet we must be sure to deliver the event containing data port information.
    * Delay used below can't cause any race condition as websocket won't connect until data server starts listening anyway.
@@ -72,25 +72,51 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     NSTimeInterval delayInSeconds = 2.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-      [[bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:dataPort];
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+      [[bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort];
     });
   });
   
+  [self startTor];
+  
+  return YES;
+};
+
+- (void) startTor {
+  FindFreePort *findFreePort = [FindFreePort new];
+    
   uint16_t socksPort        = [findFreePort getFirstStartingFromPort:12000];
   uint16_t controlPort      = [findFreePort getFirstStartingFromPort:14000];
   uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:16000];
+    
+  self.tor = [TorHandler new];
+    
+  self.torConfiguration = [self.tor getTorConfiguration:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
+    
+  [self.tor spawnWithConfiguration:self.torConfiguration];
+    
+  dispatch_after(1, dispatch_get_main_queue(), ^(void) {
+    [self getAuthCookieAndLaunchBackend:controlPort];
+  });
+}
+
+- (void) getAuthCookieAndLaunchBackend:(uint16_t)controlPort {
+  NSString *authCookie = [self.tor getAuthCookieWithConfiguration:self.torConfiguration];
+  
+  if (authCookie == nil) {
+    dispatch_after(50, dispatch_get_main_queue(), ^(void) {
+      [self getAuthCookieAndLaunchBackend:controlPort];
+    });
+    return;
+  };
   
   DataDirectory *dataDirectory = [DataDirectory new];
   NSString *dataPath = [dataDirectory create];
   
-  TorHandler *tor = [TorHandler new];
-  NSString *authCookie = [tor spawn:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
-  
-//  RNNodeJsMobile *nodeJsMobile = [RNNodeJsMobile new];
-//  [nodeJsMobile callStartNodeProjectWithArgs:[NSString stringWithFormat:@"lib/mobileBackendManager.js --dataPath %@ --dataPort %hu --controlPort %hu --authCookie %@ ", dataPath, dataPort, controlPort, authCookie]];
-  
-  return YES;
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    RNNodeJsMobile *nodeJsMobile = [RNNodeJsMobile new];
+    [nodeJsMobile callStartNodeProjectWithArgs:[NSString stringWithFormat:@"lib/mobileBackendManager.js --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ ", self.dataPort, dataPath, controlPort, authCookie]];
+  });
 }
 
 /// This method controls whether the `concurrentRoot`feature of React18 is turned on or off.

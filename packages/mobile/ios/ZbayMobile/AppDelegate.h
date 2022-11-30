@@ -10,4 +10,11 @@
 
 @property (nonatomic, strong) UIWindow *window;
 
+@property uint16_t dataPort;
+
+@property (nonatomic, strong) TorHandler *tor;
+@property (nonatomic, strong) TORConfiguration *torConfiguration;
+
+- (void) getAuthCookieAndLaunchBackend:(uint16_t)controlPort;
+
 @end

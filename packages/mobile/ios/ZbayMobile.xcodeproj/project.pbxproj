@@ -28,17 +28,17 @@
 		1868C43E2930EAEA001D6D5E /* CommunicationBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 1868C43D2930EAEA001D6D5E /* CommunicationBridge.m */; };
 		1889CA4E26E763E1004ECFBD /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1889CA4D26E763E1004ECFBD /* Extensions.swift */; };
 		1898143A2934CF70001F39E7 /* TorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189814392934CF70001F39E7 /* TorHandler.swift */; };
-		32ACB2E5C9C07A13433DA649 /* libPods-ZbayMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 095898D4703120F97AA7913A /* libPods-ZbayMobile.a */; };
+		2C9545F989881F3430DE02E8 /* libPods-ZbayMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A71B1AB0D009F9417B7204A0 /* libPods-ZbayMobile.a */; };
 		43B99DB1C98D429295E8CB91 /* Rubik-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2BB5F4B8D4F3462CB8AF6312 /* Rubik-SemiBoldItalic.ttf */; };
 		5CBDF3C0D937401A886684F8 /* Rubik-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 706E1601C7B649A8A40A7877 /* Rubik-Light.ttf */; };
 		62541AEC8BEC401EBAAF6198 /* Rubik-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 18ED84D0299E4E55AB68AA3E /* Rubik-ExtraBold.ttf */; };
-		6BAF76593D0AC0611131E261 /* libPods-ZbayMobile-ZbayMobileTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F712D0E9B3D83954698C84FA /* libPods-ZbayMobile-ZbayMobileTests.a */; };
 		7F80A59D9EC1440186E5D5CF /* Rubik-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BF73B04135634980BC656D6C /* Rubik-SemiBold.ttf */; };
 		80CCB457674F4979A3C5DB06 /* Rubik-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EBC2A7699E0A49059904DD8C /* Rubik-MediumItalic.ttf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		8A009A60D84E4B08AB0E8152 /* Rubik-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E820B3E5514B49EE8C72DECB /* Rubik-Bold.ttf */; };
 		9EC9E7C54868433990A479EC /* Rubik-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 182B8961416E4D4C8A29793D /* Rubik-ExtraBoldItalic.ttf */; };
 		B4D947D797C747ABAC4EDB69 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 378A1FDC610441568B568410 /* Rubik-Medium.ttf */; };
+		BEE3E407DEB76DE865044282 /* libPods-ZbayMobile-ZbayMobileTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E12D527202876E389EFA2AAB /* libPods-ZbayMobile-ZbayMobileTests.a */; };
 		DB3A77793E604ACE8E52C67D /* Rubik-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 23AE2E9AAC824E76A9C4B3D5 /* Rubik-BlackItalic.ttf */; };
 		DCA6BD5DCC514EEF87705ACB /* Rubik-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 84720E58493F44BE8C4784E3 /* Rubik-BoldItalic.ttf */; };
 /* End PBXBuildFile section */
@@ -73,7 +73,6 @@
 		00E356F21AD99517003FC87E /* ZbayMobileTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZbayMobileTests.m; sourceTree = "<group>"; };
 		0854C025CA0054A83B9C3019 /* Pods-ZbayMobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZbayMobile.debug.xcconfig"; path = "Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile.debug.xcconfig"; sourceTree = "<group>"; };
 		087527EFE5B6436EAB420BE2 /* Rubik-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Black.ttf"; path = "../assets/fonts/Rubik-Black.ttf"; sourceTree = "<group>"; };
-		095898D4703120F97AA7913A /* libPods-ZbayMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZbayMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* ZbayMobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZbayMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ZbayMobile/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = ZbayMobile/AppDelegate.m; sourceTree = "<group>"; };
@@ -598,13 +597,14 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ZbayMobile/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		84720E58493F44BE8C4784E3 /* Rubik-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BoldItalic.ttf"; path = "../assets/fonts/Rubik-BoldItalic.ttf"; sourceTree = "<group>"; };
 		9D1A1B7C99D19133ECC97CAC /* Pods-ZbayMobile-ZbayMobileTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZbayMobile-ZbayMobileTests.release.xcconfig"; path = "Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests.release.xcconfig"; sourceTree = "<group>"; };
+		A71B1AB0D009F9417B7204A0 /* libPods-ZbayMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZbayMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF73B04135634980BC656D6C /* Rubik-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-SemiBold.ttf"; path = "../assets/fonts/Rubik-SemiBold.ttf"; sourceTree = "<group>"; };
+		E12D527202876E389EFA2AAB /* libPods-ZbayMobile-ZbayMobileTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZbayMobile-ZbayMobileTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E820B3E5514B49EE8C72DECB /* Rubik-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Bold.ttf"; path = "../assets/fonts/Rubik-Bold.ttf"; sourceTree = "<group>"; };
 		EBC2A7699E0A49059904DD8C /* Rubik-MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-MediumItalic.ttf"; path = "../assets/fonts/Rubik-MediumItalic.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F07611BD79814082A0C19928 /* Rubik-LightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-LightItalic.ttf"; path = "../assets/fonts/Rubik-LightItalic.ttf"; sourceTree = "<group>"; };
 		F2CAE82B74814677AFF9779E /* Rubik-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Regular.ttf"; path = "../assets/fonts/Rubik-Regular.ttf"; sourceTree = "<group>"; };
-		F712D0E9B3D83954698C84FA /* libPods-ZbayMobile-ZbayMobileTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZbayMobile-ZbayMobileTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -612,7 +612,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6BAF76593D0AC0611131E261 /* libPods-ZbayMobile-ZbayMobileTests.a in Frameworks */,
+				BEE3E407DEB76DE865044282 /* libPods-ZbayMobile-ZbayMobileTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -621,7 +621,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1868C093292F8FE2001D6D5E /* NodeMobile.framework in Frameworks */,
-				32ACB2E5C9C07A13433DA649 /* libPods-ZbayMobile.a in Frameworks */,
+				2C9545F989881F3430DE02E8 /* libPods-ZbayMobile.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4644,8 +4644,8 @@
 				1891BBFD26D683D100101CC7 /* libnodejs-mobile-react-native.a */,
 				1868C092292F8FE2001D6D5E /* NodeMobile.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				095898D4703120F97AA7913A /* libPods-ZbayMobile.a */,
-				F712D0E9B3D83954698C84FA /* libPods-ZbayMobile-ZbayMobileTests.a */,
+				A71B1AB0D009F9417B7204A0 /* libPods-ZbayMobile.a */,
+				E12D527202876E389EFA2AAB /* libPods-ZbayMobile-ZbayMobileTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -4714,8 +4714,8 @@
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				183B77CB7972901EAACCAFF0 /* [CP] Embed Pods Frameworks */,
-				AA2B83907F18FD9ADAFB96EC /* [CP] Copy Pods Resources */,
+				14907F39E5F465210F4E13A9 /* [CP] Embed Pods Frameworks */,
+				EA51E437CA1E40BAC9761D22 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -4737,14 +4737,14 @@
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				BF6C86514D57D74790973454 /* [CP] Embed Pods Frameworks */,
-				8D9A53A5AB10DECB16FA74E6 /* [CP] Copy Pods Resources */,
 				1868B949292E8E6D001D6D5E /* [NODEJS MOBILE] Copy Node.js Project files */,
 				18A4F1C32898414100F004F7 /* [NODEJS MOBILE] Build Native Modules */,
 				1868B94A292E8EBA001D6D5E /* [NODEJS MOBILE] Sign Native Modules */,
 				1868B94B292E8F55001D6D5E /* [NODEJS MOBILE] Remove Simulator Strip */,
 				1868C4322930B985001D6D5E /* [CUSTOM NODEJS MOBILE]Correct symlinks */,
 				1868C095292F8FE2001D6D5E /* Embed Frameworks */,
+				5A5F8AB7AE41B38B6DC72F3A /* [CP] Embed Pods Frameworks */,
+				58717DF50FE3FA55C106D99D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -4841,7 +4841,7 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
-		183B77CB7972901EAACCAFF0 /* [CP] Embed Pods Frameworks */ = {
+		14907F39E5F465210F4E13A9 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -4948,6 +4948,40 @@
 			shellPath = /bin/sh;
 			shellScript = "#!/bin/sh\n. ~/.nvm/nvm.sh\nset -e\nif [ -z \"$NODEJS_MOBILE_BUILD_NATIVE_MODULES\" ]; then\n# If build native modules preference is not set, look for it in the project's\n#nodejs-assets/BUILD_NATIVE_MODULES.txt file.\nNODEJS_ASSETS_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../nodejs-assets/ && pwd )\"\nPREFERENCE_FILE_PATH=\"$NODEJS_ASSETS_DIR/BUILD_NATIVE_MODULES.txt\"\n  if [ -f \"$PREFERENCE_FILE_PATH\" ]; then\n    NODEJS_MOBILE_BUILD_NATIVE_MODULES=\"$(cat $PREFERENCE_FILE_PATH | xargs)\"\n  fi\nfi\nif [ -z \"$NODEJS_MOBILE_BUILD_NATIVE_MODULES\" ]; then\n# If build native modules preference is not set, try to find .gyp files\n#to turn it on.\n  gypfiles=($(find \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -type f -name \"*.gyp\"))\n  if [ ${#gypfiles[@]} -gt 0 ]; then\n    NODEJS_MOBILE_BUILD_NATIVE_MODULES=1\n  else\n    NODEJS_MOBILE_BUILD_NATIVE_MODULES=0\n  fi\nfi\nif [ \"1\" != \"$NODEJS_MOBILE_BUILD_NATIVE_MODULES\" ]; then exit 0; fi\n# Delete object files that may already come from within the npm package.\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.o\" -type f -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.a\" -type f -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.node\" -type f -delete\n# Delete bundle contents that may be there from previous builds.\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -path \"*/*.node/*\" -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.node\" -type d -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -path \"*/*.framework/*\" -delete\nfind \"$CODESIGNING_FOLDER_PATH/nodejs-project/\" -name \"*.framework\" -type d -delete\n# Apply patches to the modules package.json\nif [ -d \"$CODESIGNING_FOLDER_PATH\"/nodejs-project/node_modules/ ]; then\n  PATCH_SCRIPT_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../scripts/ && pwd )\"\n  NODEJS_PROJECT_MODULES_DIR=\"$( cd \"$CODESIGNING_FOLDER_PATH\" && cd nodejs-project/node_modules/ && pwd )\"\n  node \"$PATCH_SCRIPT_DIR\"/patch-package.js $NODEJS_PROJECT_MODULES_DIR\nfi\n# Get the nodejs-mobile-gyp location\nif [ -d \"$PROJECT_DIR/../node_modules/nodejs-mobile-gyp/\" ]; then\n  NODEJS_MOBILE_GYP_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../node_modules/nodejs-mobile-gyp/ && pwd )\"\nelse\n  NODEJS_MOBILE_GYP_DIR=\"$( cd \"$PROJECT_DIR\" && cd ../node_modules/nodejs-mobile-react-native/node_modules/nodejs-mobile-gyp/ && pwd )\"\nfi\nNODEJS_MOBILE_GYP_BIN_FILE=\"$NODEJS_MOBILE_GYP_DIR\"/bin/node-gyp.js\n# Support building neon-bindings (Rust) native modules\nif [ -f ~/.cargo/env ]; then\n  source ~/.cargo/env;\nfi\n# Rebuild modules with right environment\nNODEJS_HEADERS_DIR=\"$( cd \"$PROJECT_DIR\" && cd NodeJsMobile/libnode/ && pwd )\"\npushd $CODESIGNING_FOLDER_PATH/nodejs-project/\nif [ \"$PLATFORM_NAME\" == \"iphoneos\" ]\nthen\n  GYP_DEFINES=\"OS=ios\" CARGO_BUILD_TARGET=\"aarch64-apple-ios\" npm_config_nodedir=\"$NODEJS_HEADERS_DIR\" npm_config_node_gyp=\"$NODEJS_MOBILE_GYP_BIN_FILE\" npm_config_platform=\"ios\" npm_config_format=\"make-ios\" npm_config_node_engine=\"chakracore\" npm_config_arch=\"arm64\" npm --verbose rebuild --build-from-source\nelse\n  GYP_DEFINES=\"OS=ios\" CARGO_BUILD_TARGET=\"x86_64-apple-ios\" npm_config_nodedir=\"$NODEJS_HEADERS_DIR\" npm_config_node_gyp=\"$NODEJS_MOBILE_GYP_BIN_FILE\" npm_config_platform=\"ios\" npm_config_format=\"make-ios\" npm_config_node_engine=\"chakracore\" npm_config_arch=\"x64\" npm --verbose rebuild --build-from-source\nfi\npopd\n";
 		};
+		58717DF50FE3FA55C106D99D /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5A5F8AB7AE41B38B6DC72F3A /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		63A89876CB33902B71048522 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -4970,57 +5004,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		8D9A53A5AB10DECB16FA74E6 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		AA2B83907F18FD9ADAFB96EC /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		BF6C86514D57D74790973454 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		DB0917713AA885016E437569 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -5041,6 +5024,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		EA51E437CA1E40BAC9761D22 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {

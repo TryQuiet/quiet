@@ -3,7 +3,8 @@ import Tor
 @objc(TorHandler)
 class TorHandler: NSObject {
   
-  private func getTorBaseConfiguration(socksPort: in_port_t, controlPort: in_port_t, httpTunnelPort: in_port_t) -> TorConfiguration {
+  @objc(getTorConfiguration:controlPort:httpTunnelPort:)
+  func getTorConfiguration(socksPort: in_port_t, controlPort: in_port_t, httpTunnelPort: in_port_t) -> TorConfiguration {
      let conf = TorConfiguration()
 
      #if DEBUG
@@ -39,28 +40,39 @@ class TorHandler: NSObject {
 
   private var torThread: TorThread?
   
-  @objc(spawn:controlPort:httpTunnelPort:)
-  func spawn(socksPort: in_port_t, controlPort: in_port_t, httpTunnelPort: in_port_t) -> String? {
+  @objc
+  func spawn(configuration: TorConfiguration) -> Void {
     
-    let torBaseConfiguration = getTorBaseConfiguration(
-       socksPort: socksPort, controlPort: controlPort, httpTunnelPort: httpTunnelPort
-    )
-
     #if DEBUG
-    print("[\(String(describing: type(of: self)))] arguments=\(String(describing: torBaseConfiguration.arguments))")
+    print("[\(String(describing: type(of: self)))] arguments=\(String(describing: configuration.arguments))")
     #endif
     
-    torThread = TorThread(configuration: torBaseConfiguration)
-
+    var cookiePath: String? {
+      if let cookieUrl = configuration.dataDirectory?.appendingPathComponent("control_auth_cookie") {
+        return cookieUrl.absoluteString
+      }
+      
+      return nil
+    }
+    
+    if cookiePath != nil && FileManager.default.fileExists(atPath: cookiePath!) {
+      do {
+        try FileManager.default.removeItem(atPath: cookiePath!)
+      } catch {
+        print("Could not delete cookie file, probably read-only filesystem")
+      }
+    }
+    
+    // Start Tor
+    torThread = TorThread(configuration: configuration)
     torThread?.start()
-
+    
     print("[\(String(describing: type(of: self)))] Starting Tor")
     
     // Wait long enough for Tor itself to have started. It's OK to wait for this
-     // because Tor is already trying to connect; this is just the part that polls for
-     // progress.
+    // because Tor is already trying to connect; this is just the part that polls for
+    // progress.
     DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-      // Show Tor log in iOS' app log.
       TORInstallTorLoggingCallback { severity, msg in
         let s: String
         
@@ -75,13 +87,14 @@ class TorHandler: NSObject {
           s = "fault"
           
         case .info:
-          s = "info"
+          // s = "info"
+          return
           
         default:
           s = "default"
         }
         
-        // print("[Tor \(s)] \(String(cString: msg).trimmingCharacters(in: .whitespacesAndNewlines))")
+         print("[Tor \(s)] \(String(cString: msg).trimmingCharacters(in: .whitespacesAndNewlines))")
       }
       TORInstallEventLoggingCallback { severity, msg in
         let s: String
@@ -97,33 +110,33 @@ class TorHandler: NSObject {
           s = "fault"
           
         case .info:
-          s = "info"
+          // s = "info"
+          return
           
         default:
           s = "default"
         }
         
-        // print("[libevent \(s)] \(String(cString: msg).trimmingCharacters(in: .whitespacesAndNewlines))")
+         print("[libevent \(s)] \(String(cString: msg).trimmingCharacters(in: .whitespacesAndNewlines))")
       }
     })
-    
+  }
+  
+  @objc
+  func getAuthCookie(configuration: TorConfiguration) -> String? {
     var auth: Data? {
-      if let cookieUrl = torBaseConfiguration.dataDirectory?.appendingPathComponent("control_auth_cookie") {
+      if let cookieUrl = configuration.dataDirectory?.appendingPathComponent("control_auth_cookie") {
         return try? Data(contentsOf: cookieUrl)
       }
 
       return nil
     }
-
+    
     guard let cookie = auth else {
       print("[\(String(describing: type(of: self)))] Could not connect to Tor - cookie unreadable!")
 
       return nil
     }
-
-    #if DEBUG
-    print("[\(String(describing: type(of: self)))] cookie=", cookie.hexEncodedString())
-    #endif
     
     return cookie.hexEncodedString()
   }

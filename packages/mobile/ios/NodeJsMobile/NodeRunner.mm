@@ -205,6 +205,7 @@ id appPauseEventsManagerSetLock = [[NSObject alloc] init];
     nodePath = [nodePath stringByAppendingString:builtinModulesPath];
   }
   setenv([@"NODE_PATH" UTF8String], (const char*)[nodePath UTF8String], 1);
+  setenv([@"DEBUG" UTF8String], "backend:*", 1);
 
   int c_arguments_size=0;
 
