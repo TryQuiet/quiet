@@ -52,7 +52,7 @@ export default () => {
                 <QuitAppDialog />
                 <Routes>
                   <Route index path='/' element={<Index />} />
-                  <Route path='/main/channel/general' element={<Main />}/> {/* FIXME */}
+                  <Route path='/main/*' element={<Main />} />
                 </Routes>
               </PersistGate>
             </Provider>

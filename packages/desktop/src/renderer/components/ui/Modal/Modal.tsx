@@ -210,7 +210,6 @@ export const Modal: React.FC<IModalProps> = ({
             [classes.fullPage]: fullPage,
             [classes.notFullPage]: !fullPage
           })}
-
         >
           <Grid
             container

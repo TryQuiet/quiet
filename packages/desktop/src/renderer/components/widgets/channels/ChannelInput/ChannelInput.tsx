@@ -75,7 +75,7 @@ const Root = styled(Grid)((
   [`& .${classes.textfield}`]: {
     border: `1px solid ${theme.palette.colors.veryLightGray}`,
     maxHeight: 300,
-    'overflow-y': 'auto',
+    overflowY: 'auto',
     borderRadius: 4,
     '&:hover': {
       borderColor: theme.palette.colors.trueBlack

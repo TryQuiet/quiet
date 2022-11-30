@@ -2,8 +2,6 @@ import React, { ReactElement } from 'react'
 import { styled } from '@mui/material/styles';
 import classNames from 'classnames'
 
-
-
 const PREFIX = 'WindowWrapper';
 
 const classes = {
@@ -15,7 +13,7 @@ const Root = styled('div')(() => ({
   [`& .${classes.root}`]: {},
 
   [`&.${classes.wrapper}`]: {
-    'min-height': '100vh'
+    minHeight: '100vh'
   }
 }));
 

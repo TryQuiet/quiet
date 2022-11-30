@@ -145,8 +145,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     const top = scrollbarRef.current?.scrollTop === 0
 
     const bottom =
-      Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) <=
-      Math.floor(scrollbarRef.current?.clientHeight)
+      Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) <
+      Math.floor(scrollbarRef.current?.clientHeight) // Was "<=". "<" fixes scroll partially after react and rc-scrollbar upgrade. TODO: Check
 
     let position = -1
     if (top) position = 0

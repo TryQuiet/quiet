@@ -97,7 +97,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
   downloadFile,
   cancelDownload
 }) => {
-
+  console.log(messages)
 
   const listRef = useRef<HTMLUListElement>()
 

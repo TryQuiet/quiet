@@ -8,19 +8,11 @@ import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
 import Sidebar from '../Sidebar/Sidebar'
 import Channel from '../Channel/Channel'
 
-const PREFIX = 'Main';
-
-const classes = {
-  gridRoot: `${PREFIX}gridRoot`
-};
-
-const Root = styled('div')(() => ({
-  [`& .${classes.gridRoot}`]: {
-    'min-height': '100vh',
-    'min-width': '100vw',
-    overflow: 'hidden',
-    position: 'relative'
-  }
+const MainGridStyled = styled(Grid)(() => ({
+  minHeight: '100vh',
+  minWidth: '100vw',
+  overflow: 'hidden',
+  position: 'relative'
 }));
 
 export const Main: React.FC = () => {
@@ -59,22 +51,20 @@ export const Main: React.FC = () => {
   })
 
   return (
-    (<Root>
+    (<div>
       <WindowWrapper>
-        <Grid container direction='row' className={classes.gridRoot} wrap='nowrap'>
+        <MainGridStyled container direction='row' wrap='nowrap'>
           <Grid item>
             <Sidebar />
           </Grid>
           <Grid item xs>
-          <Channel />
-            <Routes>
-              <Route path={'channel/:id'} element={<Channel />} />
-              {/* <Route path={`direct-messages/:username`} element={<DirectMessages />} /> */}
-            </Routes>
+          <Routes>
+            <Route path={'channel/:id'} element={<Channel />} />
+          </Routes>
           </Grid>
-        </Grid>
+        </MainGridStyled>
       </WindowWrapper>
-    </Root>)
+    </div>)
   );
 }
 
