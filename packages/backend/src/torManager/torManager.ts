@@ -44,8 +44,8 @@ export class Tor {
     this.options = options
     this.appDataPath = appDataPath
     this.httpTunnelPort = httpTunnelPort
-    this.controlPort = controlPort ? controlPort : null
-    this.torAuthCookie = authCookie ? authCookie : null
+    this.controlPort = controlPort || null
+    this.torAuthCookie = authCookie || null
   }
 
   public init = async ({ repeat = 6, timeout = 3600_000 } = {}): Promise<void> => {
@@ -222,7 +222,7 @@ export class Tor {
       console.log('IOS: new hidde service address is ', `${onionAddress}`)
       return `${onionAddress}.onion`
     }
-    
+
     public async destroyHiddenService(serviceId: string): Promise<boolean> {
       try {
         await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
@@ -232,7 +232,7 @@ export class Tor {
         return false
       }
     }
-    
+
     public async createNewHiddenService(
       targetPort: number,
       virtPort: number = 443
@@ -241,11 +241,11 @@ export class Tor {
         const status = await this.torControl.sendCommand(
           `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
           )
-          
+
           const onionAddress = status.messages[0].replace('250-ServiceID=', '')
           const privateKey = status.messages[1].replace('250-PrivateKey=', '')
           console.log('IOS: new hidde service address is ', `${onionAddress}`)
-          
+
           return {
       onionAddress: `${onionAddress}.onion`,
       privateKey

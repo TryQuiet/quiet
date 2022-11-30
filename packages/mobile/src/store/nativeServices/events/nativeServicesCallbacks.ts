@@ -33,7 +33,7 @@ export const deviceEvents = () => {
         (event: BackendEvent) => {
           if (event.channelName === WEBSOCKET_CONNECTION_CHANNEL) {
             let payload: WebsocketConnectionPayload = null
-            if (typeof event.payload != 'object') {
+            if (typeof event.payload !== 'object') {
               payload = JSON.parse(event.payload)
             } else {
               // iOS sends object without having to parse with JSON
