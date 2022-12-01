@@ -29,8 +29,6 @@ const SUBTLE_METHODS = [
 export class CryptoDelegator {
   socket: Socket
 
-  s: {} // subtle memoization
-
   calls: {
     [id: string]: {
       resolvePromise: (value: any) => void
@@ -38,18 +36,22 @@ export class CryptoDelegator {
     }
   }
 
+  private subtleCrypto?: SubtleCrypto
+
   constructor(socket: Socket) {
     this.socket = socket
   }
 
   public get subtle(): SubtleCrypto {
-    for (const m of SUBTLE_METHODS) {
-      this.s[m] = async (...args) => {
-        const call = await this.call(`subtle.${m}`, args)
-        return call
+    if (this.subtleCrypto == null) {
+      for (const m of SUBTLE_METHODS) {
+        this.subtleCrypto[m] = async (...args) => {
+          const call = await this.call(`subtle.${m}`, args)
+          return call
+        }
       }
     }
-    return this.s as SubtleCrypto
+    return this.subtleCrypto
   }
 
   private call = async (method: string, args: any[]): Promise<any> => {
