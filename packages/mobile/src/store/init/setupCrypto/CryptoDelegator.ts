@@ -29,12 +29,10 @@ const SUBTLE_METHODS = [
 export class CryptoDelegator {
   socket: Socket
 
-  calls: {
-    [id: string]: {
-      resolvePromise: (value: any) => void
-      rejectPromise: (reasone: any) => void
-    }
-  }
+  calls: Map<string, {
+    resolvePromise: (value: any) => void
+    rejectPromise: (reasone: any) => void
+  }>
 
   private subtleCrypto?: SubtleCrypto
 
@@ -81,11 +79,15 @@ export class CryptoDelegator {
 
   public respond = (payload: CryptoServiceResponse) => {
     const { id, value, reason } = payload
-    const { resolvePromise, rejectPromise } = this.calls[id]
+    const call = this.calls.get(id)
+    if (!call) {
+      console.error(`No crypto call found for given id ${id}`)
+      return
+    }
     if (!reason) {
-      resolvePromise(value)
+      call.resolvePromise(value)
     } else {
-      rejectPromise(reason)
+      call.rejectPromise(reason)
     }
     delete this.calls[id]
   }
