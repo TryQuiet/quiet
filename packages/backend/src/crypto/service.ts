@@ -23,19 +23,8 @@ export class CryptoService extends EventEmitter {
     this.initSocket()
   }
 
-  private get cors() {
-    if (process.env.TEST_MODE === 'true' && process.env.E2E_TEST === 'true') {
-      return {
-        origin: '*',
-        methods: ['GET', 'POST']
-      }
-    }
-    return false
-  }
-
   private readonly initSocket = (): void => {
     this.io = socketio(this.server, {
-      cors: this.cors,
       pingInterval: 1000_000,
       pingTimeout: 1000_000
     })

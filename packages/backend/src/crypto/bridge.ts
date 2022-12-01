@@ -12,8 +12,12 @@ export class CryptoBridge {
 
   public onCall = async (payload: CryptoServicePayload) => {
     const { id, method, args } = payload
-    const value = await crypto[method](args)
-    this.cryptoService.sendResponse({ id, value })
+    try {
+      const value = await crypto[method](args)
+      this.cryptoService.sendResponse({ id, value })
+    } catch (reason) {
+      this.cryptoService.sendResponse({ id, reason })
+    }
   }
 
   private attachCryptoServiceListeners = () => {

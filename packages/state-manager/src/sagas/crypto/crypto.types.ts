@@ -6,5 +6,6 @@ export interface CryptoServicePayload {
 
 export interface CryptoServiceResponse {
   id: string
-  value: any
+  value?: any
+  reason?: any
 }

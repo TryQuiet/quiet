@@ -5,6 +5,7 @@ import {
 } from '@quiet/state-manager'
 import { Socket } from 'socket.io-client'
 import { NodeEnv } from '../../../utils/const/NodeEnv.enum'
+import uuid from 'react-native-uuid'
 
 export interface ArrayBufferViewWithPromise extends ArrayBufferView {
   _promise?: Promise<ArrayBufferView>
@@ -28,9 +29,12 @@ const SUBTLE_METHODS = [
 export class CryptoDelegator {
   socket: Socket
 
+  s: {} // subtle memoization
+
   calls: {
     [id: string]: {
       resolvePromise: (value: any) => void
+      rejectPromise: (reasone: any) => void
     }
   }
 
@@ -39,25 +43,26 @@ export class CryptoDelegator {
   }
 
   public get subtle(): SubtleCrypto {
-    const subtle = {}
     for (const m of SUBTLE_METHODS) {
-      subtle[m] = async (...args) => {
+      this.s[m] = async (...args) => {
         const call = await this.call(`subtle.${m}`, args)
         return call
       }
     }
-    return subtle as SubtleCrypto
+    return this.s as SubtleCrypto
   }
 
   private call = async (method: string, args: any[]): Promise<any> => {
-    const id = CryptoDelegator.uuid()
+    const id = uuid.v4()
     // store this promise, so we can resolve it when we get a value
     // back from the crypto service
-    let resolvePromise
-    const promise = new Promise(resolve => {
+    let resolvePromise: (value: unknown) => void
+    let rejectPromise: (reason?: any) => void
+    const promise = new Promise((resolve, reject) => {
       resolvePromise = resolve
+      rejectPromise = reject
     })
-    this.calls[id] = { resolvePromise }
+    this.calls[id] = { resolvePromise, rejectPromise }
     const payload: CryptoServicePayload = { id, method, args }
     if (!NodeEnv.Production) {
       console.log(
@@ -73,17 +78,13 @@ export class CryptoDelegator {
   }
 
   public respond = (payload: CryptoServiceResponse) => {
-    const { id, value } = payload
-    this.calls[id].resolvePromise(value)
-  }
-
-  // http://stackoverflow.com/a/105074/907060
-  private static uuid() {
-    function s4() {
-      return Math.floor((1 + Math.random()) * 0x10000)
-        .toString(16)
-        .substring(1)
+    const { id, value, reason } = payload
+    const { resolvePromise, rejectPromise } = this.calls[id]
+    if (!reason) {
+      resolvePromise(value)
+    } else {
+      rejectPromise(reason)
     }
-    return `${s4()}-${s4()}-${s4()}-${s4()}-${s4()}-${s4()}-${s4()}-${s4()}`
+    delete this.calls[id]
   }
 }
