@@ -21,9 +21,6 @@ export const runBackend = async (): Promise<any> => {
   program.parse(process.argv)
   const options = program.opts()
 
-  console.log('IOS:', ` platform is ${process.platform}`)
-  console.log('IOS: ', `tor binary is ${options.torBinary}`, `authCookie is ${options.authCookie} `, `controlPort is ${options.controlPort}`)
-
   const connectionsManager: ConnectionsManager = new ConnectionsManager({
     socketIOPort: options.dataPort,
     torAuthCookie: options.authCookie ? options.authCookie : null,

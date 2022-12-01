@@ -252,10 +252,8 @@ export class ConnectionsManager extends EventEmitter {
     })
 
     if (this.torControlPort) {
-      console.log('IOS: Initializing only torControl')
       this.tor.initTorControl()
     } else if (this.torResourcesPath) {
-      console.log('IOS: This line should never be reached on IOS')
       await this.tor.init()
     } else {
       throw new Error('You must provide either tor control port or tor binary path')
