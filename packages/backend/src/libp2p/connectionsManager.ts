@@ -54,9 +54,7 @@ import { ConnectionsManagerOptions } from '../common/types'
 import {
   createLibp2pAddress,
   createLibp2pListenAddress,
-  getPorts,
-  torBinForPlatform,
-  torDirForPlatform
+  getPorts
 } from '../common/utils'
 import { QUIET_DIR_PATH } from '../constants'
 import { Storage } from '../storage'
@@ -69,8 +67,6 @@ import getPort from 'get-port'
 import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
-import { timeStamp } from 'console'
-import { passThroughOptions } from 'commander'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -85,6 +81,10 @@ interface InitStorageParams {
 export interface IConstructor {
   options: Partial<ConnectionsManagerOptions>
   socketIOPort: number
+  torAuthCookie?: string
+  torControlPort?: number
+  torResourcesPath?: string
+  torBinaryPath?: string
 }
 
 export interface Libp2pNodeParams {
@@ -126,14 +126,24 @@ export class ConnectionsManager extends EventEmitter {
   isRegistrarLaunched: boolean
   communityDataPath: string
   registrarDataPath: string
+  torAuthCookie: string
+  torControlPort: number
+  torBinaryPath: string
+  torResourcesPath: string
 
-  constructor({ options, socketIOPort }: IConstructor) {
+  constructor({ options, socketIOPort, torControlPort, torAuthCookie, torResourcesPath, torBinaryPath }: IConstructor) {
     super()
     this.registration = new CertificateRegistration()
     this.options = {
       ...new ConnectionsManagerOptions(),
       ...options
     }
+
+    this.torResourcesPath = torResourcesPath
+    this.torBinaryPath = torBinaryPath
+    this.torControlPort = torControlPort
+    this.torAuthCookie = torAuthCookie
+
     this.socketIOPort = socketIOPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
@@ -211,7 +221,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public async closeAllServices() {
-    if (this.tor) {
+    if (this.tor && !this.torControlPort) {
       await this.tor.kill()
     }
     if (this.registration) {
@@ -226,20 +236,28 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public spawnTor = async () => {
-    const basePath = this.options.env.resourcesPath
     this.tor = new Tor({
-      torPath: torBinForPlatform(basePath),
+      torPath: this.torBinaryPath,
       appDataPath: this.quietDir,
       httpTunnelPort: this.httpTunnelPort,
+      authCookie: this.torAuthCookie,
+      controlPort: this.torControlPort,
       options: {
         env: {
-          LD_LIBRARY_PATH: torDirForPlatform(basePath),
+          LD_LIBRARY_PATH: this.torResourcesPath,
           HOME: os.homedir()
         },
         detached: true
       }
     })
-    await this.tor.init()
+
+    if (this.torControlPort) {
+      this.tor.initTorControl()
+    } else if (this.torResourcesPath) {
+      await this.tor.init()
+    } else {
+      throw new Error('You must provide either tor control port or tor binary path')
+    }
   }
 
   public createStorage = (peerId: string, communityId: string) => {
@@ -328,7 +346,6 @@ export class ConnectionsManager extends EventEmitter {
   public launch = async (payload: InitCommunityPayload): Promise<string> => {
     // Start existing community (community that user is already a part of)
     const ports = await getPorts()
-    const virtPort = 443
     log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
     const onionAddress: string = await this.tor.spawnHiddenService(
       ports.libp2pHiddenService,
