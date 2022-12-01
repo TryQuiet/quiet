@@ -46,7 +46,7 @@ lerna version prerelease
 
 ## Handy tips
 
-To run multiple instances of Quiet for testing, run from the command line with the environment variable `DATA_DIR="<directory name>". 
+To run multiple instances of Quiet for testing, run from the command line with the environment variable `DATA_DIR="<directory name>"`. 
 
 Use lerna to install additional npm packages
 
