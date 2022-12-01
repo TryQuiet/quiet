@@ -27,6 +27,8 @@ export enum SocketActionTypes {
   CREATED_CHANNEL = 'createdChannel',
   CREATE_COMMUNITY = 'createCommunity',
   CREATE_NETWORK = 'createNetwork',
+  CRYPTO_SERVICE_CALL = 'cryptoServiceCall',
+  CRYPTO_SERVICE_RESPONSE = 'cryptoServiceResponse',
   // D
   DIRECT_MESSAGE = 'directMessage',
   DOWNLOAD_FILE = 'downloadFile',

@@ -2,7 +2,6 @@ import './App.dev-menu'
 
 import React, { useEffect } from 'react'
 import { LogBox, StatusBar } from 'react-native'
-import WebviewCrypto from 'react-native-webview-crypto'
 import { useDispatch } from 'react-redux'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ScreenNames } from './const/ScreenNames.enum'
@@ -26,7 +25,6 @@ import PushNotificationIOS, {
   PushNotification
 } from '@react-native-community/push-notification-ios'
 import { MenuProvider } from 'react-native-popup-menu'
-import { navigationSelectors } from './store/navigation/navigation.selectors'
 
 LogBox.ignoreAllLogs()
 
@@ -67,7 +65,6 @@ export default function App(): JSX.Element {
           onReady={() => {
             dispatch(navigationActions.redirection())
           }}>
-          <WebviewCrypto />
           <MenuProvider>
           <ThemeProvider theme={defaultTheme}>
             <StatusBar backgroundColor={defaultTheme.palette.statusBar.main} />
