@@ -18,10 +18,8 @@ const Root = styled('div')((
     theme
   }
 ) => ({
-  [`&.${classes.placeholderWrapper}`]: {
-    maxWidth: '400px',
-    height: '100%'
-  },
+  maxWidth: '400px',
+  height: '100%',
 
   [`& .${classes.placeholder}`]: {
     display: 'flex',
@@ -76,7 +74,7 @@ export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> =
   const width = imageWidth >= 400 ? 400 : imageWidth
 
   return (
-    <Root className={classes.placeholderWrapper} data-testid={`${cid}-imagePlaceholder`}>
+    <Root data-testid={`${cid}-imagePlaceholder`}>
       <UploadedFilename fileName={`${name}${ext}`}/>
       <div className={classes.placeholder} style={{ width: width, aspectRatio: '' + imageWidth / imageHeight }} >
         <Icon src={imageIcon} className={classes.placeholderIcon}/>

@@ -15,7 +15,7 @@ describe('PageHeader', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root makeStyles-root-1 MuiGrid-item"
+            class="MuiGrid-root MuiGrid-item PageHeaderroot css-1j1q06-MuiGrid-root"
           >
             <div>
               Test Header

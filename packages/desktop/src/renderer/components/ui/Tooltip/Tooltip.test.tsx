@@ -16,7 +16,9 @@ describe('Tooltip', () => {
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
-          <span>
+          <span
+            class="css-1fupvor"
+          >
             <div>
               TooltipContent
             </div>
@@ -35,7 +37,9 @@ describe('Tooltip', () => {
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
-          <span>
+          <span
+            class="css-1fupvor"
+          >
             <div>
               TooltipContent
             </div>

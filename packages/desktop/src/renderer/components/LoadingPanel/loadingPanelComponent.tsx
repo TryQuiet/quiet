@@ -9,12 +9,10 @@ const classes = {
   spinner: `${PREFIX}spinner`
 };
 
-const StyledModal = styled(Modal)(() => ({
-  [`& .${classes.spinner}`]: {
-    top: '50%',
-    position: 'relative',
-    transform: 'translate(0, -50%)'
-  }
+const StyledSpinnerLoader = styled(SpinnerLoader)(() => ({
+  top: '50%',
+  position: 'relative',
+  transform: 'translate(0, -50%)'
 }));
 
 interface LoadingPanelComponentProps {
@@ -31,14 +29,13 @@ const LoadingPanelComponent: React.FC<LoadingPanelComponentProps> = ({
 
 
   return (
-    <StyledModal open={open} handleClose={handleClose} isCloseDisabled={true}>
-      <SpinnerLoader
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
+      <StyledSpinnerLoader
         size={40}
         message={message}
         color={'black'}
-        className={classes.spinner}
       />
-    </StyledModal>
+    </Modal>
   );
 }
 

@@ -11,64 +11,64 @@ describe('QuitAppDialog', () => {
 
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
-        style="overflow: hidden; padding-right: 0px;"
+        style="padding-right: 1024px; overflow: hidden;"
       >
         <div
           aria-hidden="true"
         />
         <div
-          class="MuiDialog-root"
+          class="MuiDialog-root MuiModal-root css-vzv1bc-MuiModal-root-MuiDialog-root"
           role="presentation"
-          style="position: fixed; z-index: 1300; right: 0px; bottom: 0px; top: 0px; left: 0px;"
         >
           <div
             aria-hidden="true"
-            class="MuiBackdrop-root"
+            class="MuiBackdrop-root css-yiavyu-MuiBackdrop-root-MuiDialog-backdrop"
             style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
           />
           <div
-            data-test="sentinelStart"
+            data-testid="sentinelStart"
             tabindex="0"
           />
           <div
-            class="MuiDialog-container MuiDialog-scrollPaper"
-            role="none presentation"
+            class="MuiDialog-container MuiDialog-scrollPaper css-hz1bth-MuiDialog-container"
+            role="presentation"
             style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
             tabindex="-1"
           >
             <div
-              class="MuiPaper-root MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthSm MuiPaper-rounded"
+              aria-labelledby=":r0:"
+              class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthSm css-1t1j96h-MuiPaper-root-MuiDialog-paper"
               role="dialog"
             >
               <div
-                class="MuiDialogContent-root makeStyles-dialogContent-3"
+                class="MuiDialogContent-root QuitAppDialogdialogContent css-ypiqx9-MuiDialogContent-root"
               >
                 <p
-                  class="MuiTypography-root makeStyles-info-2 MuiTypography-body2"
+                  class="MuiTypography-root MuiTypography-body2 QuitAppDialoginfo css-16d47hw-MuiTypography-root"
                 >
                   Do you want to quit Quiet?
                 </p>
               </div>
               <div
-                class="MuiDialogActions-root makeStyles-dialogActions-6 MuiDialogActions-spacing"
+                class="MuiDialogActions-root MuiDialogActions-spacing QuitAppDialogdialogActions css-hlj6pa-MuiDialogActions-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-justify-xs-flex-end"
+                  class="MuiGrid-root MuiGrid-container css-16g5rpk-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root makeStyles-buttonNo-4 MuiGrid-item MuiGrid-grid-xs-true"
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true QuitAppDialogbuttonNo css-1vd824g-MuiGrid-root"
                   >
                     <p
-                      class="MuiTypography-root makeStyles-typography-7 MuiTypography-body1"
+                      class="MuiTypography-root MuiTypography-body1 QuitAppDialogtypography css-ghvhpl-MuiTypography-root"
                     >
                       No
                     </p>
                   </div>
                   <div
-                    class="MuiGrid-root makeStyles-buttonYes-5 MuiGrid-item MuiGrid-grid-xs-true"
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true QuitAppDialogbuttonYes css-1vd824g-MuiGrid-root"
                   >
                     <p
-                      class="MuiTypography-root makeStyles-typography-7 MuiTypography-body1"
+                      class="MuiTypography-root MuiTypography-body1 QuitAppDialogtypography css-ghvhpl-MuiTypography-root"
                     >
                       Yes
                     </p>
@@ -78,7 +78,7 @@ describe('QuitAppDialog', () => {
             </div>
           </div>
           <div
-            data-test="sentinelEnd"
+            data-testid="sentinelEnd"
             tabindex="0"
           />
         </div>

@@ -29,90 +29,95 @@ describe('ChannelMessages', () => {
     }
 
     const result = renderComponent(
-      <ChannelMessagesComponent messages={messages} scrollbarRef={jest.fn()} onScroll={jest.fn()} openUrl={jest.fn()} />
+      <ChannelMessagesComponent
+        messages={messages}
+        scrollbarRef={jest.fn()}
+        onScroll={jest.fn()}
+        openUrl={jest.fn()}
+      />
     )
 
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
-            class="makeStyles-scroll-2"
+            class="ChannelMessagesComponentscroll css-gca61p"
             data-testid="channelContent"
           >
             <ul
-              class="MuiList-root makeStyles-list-3"
+              class="MuiList-root ChannelMessagesComponentlist css-1mk9mw3-MuiList-root"
               id="messages-scroll"
               tabindex="0"
             >
               <div>
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                  class="MuiGrid-root MuiGrid-container css-1nj3j97-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                   >
                     <div
-                      class="makeStyles-divider-14"
+                      class="MessagesDividerdivider"
                     />
                   </div>
                   <div
-                    class="MuiGrid-root makeStyles-titleDiv-15 MuiGrid-item"
+                    class="MuiGrid-root MuiGrid-item MessagesDividertitleDiv css-13i4rnv-MuiGrid-root"
                   >
                     <p
-                      class="MuiTypography-root MuiTypography-body1"
+                      class="MuiTypography-root MuiTypography-body1 css-ghvhpl-MuiTypography-root"
                     >
                       Today
                     </p>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                   >
                     <div
-                      class="makeStyles-divider-14"
+                      class="MessagesDividerdivider"
                     />
                   </div>
                 </div>
                 <li
-                  class="MuiListItem-root makeStyles-wrapper-150 MuiListItem-gutters"
+                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-16u9k9h-MuiListItem-root"
                 >
                   <div
-                    class="MuiListItemText-root makeStyles-messageCard-149"
+                    class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start"
+                      class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
                     >
                       <div
-                        class="MuiGrid-root makeStyles-avatar-158 MuiGrid-item"
+                        class="MuiGrid-root MuiGrid-item BasicMessageComponentavatar css-13i4rnv-MuiGrid-root"
                       >
                         <div
-                          class="makeStyles-alignAvatar-159"
+                          class="BasicMessageComponentalignAvatar"
                         >
                           Jdenticon
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-container MuiGrid-item"
+                        class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-justify-xs-space-between"
+                          class="MuiGrid-root MuiGrid-container MuiGrid-item css-9pwih8-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start MuiGrid-grid-xs-true"
+                            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-1unmp8r-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-item"
+                              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                             >
                               <p
-                                class="MuiTypography-root makeStyles-username-154 MuiTypography-body1 MuiTypography-colorTextPrimary"
+                                class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-11qbl00-MuiTypography-root"
                               >
                                 string
                               </p>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-item"
+                              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                             >
                               <p
-                                class="MuiTypography-root makeStyles-time-161 MuiTypography-body1"
+                                class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                               >
                                 string
                               </p>
@@ -120,15 +125,15 @@ describe('ChannelMessages', () => {
                           </div>
                         </div>
                         <div
-                          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
+                          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1vpwcmr-MuiGrid-root"
                           data-testid="userMessages-string-string"
                           style="margin-top: -3px;"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-item"
+                            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
                           >
                             <span
-                              class="MuiTypography-root makeStyles-message-183 MuiTypography-body1"
+                              class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
                               data-testid="messagesGroupContent-string"
                             >
                               string

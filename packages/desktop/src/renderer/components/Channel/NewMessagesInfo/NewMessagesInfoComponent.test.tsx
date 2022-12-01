@@ -9,19 +9,19 @@ describe('NewMessagesInfoComponent', () => {
       <body>
         <div>
           <div
-            class="makeStyles-wrapper-1"
+            class="NewMessagesInfoComponentwrapper css-1gw2a0t"
             style="display: block;"
           >
             <div
-              class="makeStyles-indicator-2"
+              class="NewMessagesInfoComponentindicator"
             >
               <p
-                class="MuiTypography-root makeStyles-label-3 MuiTypography-body1"
+                class="MuiTypography-root MuiTypography-body1 NewMessagesInfoComponentlabel css-ghvhpl-MuiTypography-root"
               >
                 New messages
               </p>
               <img
-                class="makeStyles-icon-4"
+                class="NewMessagesInfoComponenticon"
                 src="test-file-stub"
               />
             </div>

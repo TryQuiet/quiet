@@ -41,35 +41,38 @@ describe('FileComponent', () => {
       <body>
         <div>
           <div
-            class="makeStyles-border-1"
+            class="FileComponentborder"
             data-testid="QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs-fileComponent"
           >
-            <span>
+            <span
+              class="css-1fupvor"
+            >
               <div
+                aria-label=""
                 class=""
+                data-mui-internal-clone-element="true"
                 style="display: flex;"
-                title=""
               >
                 <div
-                  class="makeStyles-icon-2"
+                  class="FileComponenticon"
                 >
                   <img
-                    class="makeStyles-fileIcon-3"
+                    class="FileComponentfileIcon"
                     src="test-file-stub"
                   />
                 </div>
                 <div
-                  class="makeStyles-filename-4"
+                  class="FileComponentfilename"
                 >
                   <h5
-                    class="MuiTypography-root MuiTypography-h5"
+                    class="MuiTypography-root MuiTypography-h5 css-11l3dv4-MuiTypography-root"
                     style="line-height: 20px;"
                   >
                     my-file-name-goes-here-an-isnt-truncated
                     .zip
                   </h5>
                   <p
-                    class="MuiTypography-root MuiTypography-body2"
+                    class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                     style="line-height: 20px; color: rgb(127, 127, 127);"
                   >
                     2 KB
@@ -84,14 +87,14 @@ describe('FileComponent', () => {
                 style="cursor: pointer;"
               >
                 <div
-                  class="makeStyles-actionIndicator-6"
+                  class="FileComponentactionIndicator"
                 >
                   <img
-                    class="makeStyles-actionIcon-5"
+                    class="FileComponentactionIcon"
                     src="test-file-stub"
                   />
                   <p
-                    class="MuiTypography-root MuiTypography-body2"
+                    class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                     style="color: rgb(103, 191, 211); margin-left: 8px;"
                   >
                     Download file
