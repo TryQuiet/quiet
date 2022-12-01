@@ -27,7 +27,6 @@ import {
 
 import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
-import { DateTime } from 'luxon'
 
 jest.setTimeout(20_000)
 
@@ -66,7 +65,7 @@ describe('Add new channel', () => {
     )
 
     const addChannel = screen.getByTestId('addChannelButton')
-    userEvent.click(addChannel)
+    await userEvent.click(addChannel)
 
     const title = await screen.findByText('Create a new public channel')
     expect(title).toBeVisible()
@@ -128,10 +127,10 @@ describe('Add new channel', () => {
     )
 
     const input = screen.getByPlaceholderText('Enter a channel name')
-    userEvent.type(input, channelName.input)
+    await userEvent.type(input, channelName.input)
 
     const button = screen.getByText('Create Channel')
-    userEvent.click(button)
+    await userEvent.click(button)
 
     await act(async () => {
       await runSaga(testCreateChannelSaga).toPromise()
@@ -183,10 +182,10 @@ describe('Add new channel', () => {
     )
 
     const input = screen.getByPlaceholderText('Enter a channel name')
-    userEvent.type(input, channel.channel.name)
+    await userEvent.type(input, channel.channel.name)
 
     const button = screen.getByText('Create Channel')
-    userEvent.click(button)
+    await userEvent.click(button)
 
     const error = await screen.findByText(ErrorMessages.CHANNEL_NAME_TAKEN)
     expect(error).toBeVisible()

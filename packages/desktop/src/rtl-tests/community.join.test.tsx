@@ -154,8 +154,8 @@ describe('User', () => {
     // Enter community address and hit button
     const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const joinCommunityButton = screen.getByText(dictionary.button)
-    userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
-    userEvent.click(joinCommunityButton)
+    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+    await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
     const createUsernameTitle = await screen.findByText('Register a username')
@@ -164,8 +164,8 @@ describe('User', () => {
     // Enter username and hit button
     const createUsernameInput = screen.getByPlaceholderText('Enter a username')
     const createUsernameButton = screen.getByText('Register')
-    userEvent.type(createUsernameInput, 'alice')
-    userEvent.click(createUsernameButton)
+    await userEvent.type(createUsernameInput, 'alice')
+    await userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
     await act(async () => {})
@@ -278,8 +278,8 @@ describe('User', () => {
     // Enter community address and hit button
     const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const joinCommunityButton = screen.getByText(dictionary.button)
-    userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
-    userEvent.click(joinCommunityButton)
+    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+    await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
     const createUsernameTitle = await screen.findByText('Register a username')
@@ -288,8 +288,8 @@ describe('User', () => {
     // Enter username and hit button
     const createUsernameInput = screen.getByPlaceholderText('Enter a username')
     const createUsernameButton = screen.getByText('Register')
-    userEvent.type(createUsernameInput, 'bob')
-    userEvent.click(createUsernameButton)
+    await userEvent.type(createUsernameInput, 'bob')
+    await userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
     await act(async () => {})
@@ -373,8 +373,8 @@ describe('User', () => {
     // Enter community address and hit button
     const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const joinCommunityButton = screen.getByText(dictionary.button)
-    userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
-    userEvent.click(joinCommunityButton)
+    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+    await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
     const createUsernameTitle = await screen.findByText('Register a username')
@@ -399,8 +399,8 @@ describe('User', () => {
     // Enter username and hit button
     const createUsernameInput = screen.getByPlaceholderText('Enter a username')
     const createUsernameButton = screen.getByText('Register')
-    userEvent.type(createUsernameInput, 'bob')
-    userEvent.click(createUsernameButton)
+    await userEvent.type(createUsernameInput, 'bob')
+    await userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
     await act(async () => {})

@@ -79,7 +79,7 @@ export const CreateChannel = () => {
       })
     )
   }
-
+  console.log('COMMUNITY ', community)
   return (
     <>
       {community && (

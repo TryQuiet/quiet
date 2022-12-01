@@ -145,8 +145,8 @@ describe('User', () => {
     // Enter community name and hit button
     const createCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const createCommunityButton = screen.getByText(dictionary.button)
-    userEvent.type(createCommunityInput, 'rockets')
-    userEvent.click(createCommunityButton)
+    await userEvent.type(createCommunityInput, 'rockets')
+    await userEvent.click(createCommunityButton)
 
     // Confirm user is being redirected to username registration
     const createUsernameTitle = await screen.findByText('Register a username')
@@ -155,8 +155,8 @@ describe('User', () => {
     // Enter username and hit button
     const createUsernameInput = await screen.findByPlaceholderText('Enter a username')
     const createUsernameButton = await screen.findByText('Register')
-    userEvent.type(createUsernameInput, 'alice')
-    userEvent.click(createUsernameButton)
+    await userEvent.type(createUsernameInput, 'alice')
+    await userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
     await act(async () => {})

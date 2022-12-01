@@ -38,16 +38,17 @@ describe('Add new channel', () => {
       'Identity',
       { nickname: 'alice' }
     )
-
-    renderComponent(<CreateChannel />, store)
+    
+    const aaa = renderComponent(<CreateChannel />, store)
+    console.log('-----', aaa.baseElement)
 
     store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
 
     const input = screen.getByPlaceholderText('Enter a channel name')
     const button = screen.getByText('Create Channel')
 
-    userEvent.type(input, 'Some channel NAME  ')
-    userEvent.click(button)
+    await userEvent.type(input, 'Some channel NAME  ')
+    await userEvent.click(button)
 
     await act(async () => {
       await runSaga(testSubmittedChannelName).toPromise()
@@ -65,9 +66,9 @@ describe('Add new channel', () => {
     )
 
     const input = screen.getByPlaceholderText('Enter a channel name')
-    const warning = await screen.queryByTestId('createChannelNameWarning')
+    const warning = screen.queryByTestId('createChannelNameWarning')
 
-    userEvent.type(input, 'happy-path')
+    await userEvent.type(input, 'happy-path')
     expect(warning).toBeNull()
   })
 
@@ -86,7 +87,7 @@ describe('Add new channel', () => {
 
     const input = screen.getByPlaceholderText('Enter a channel name')
 
-    userEvent.type(input, name)
+    await userEvent.type(input, name)
     expect(screen.getByTestId('createChannelNameWarning')).toHaveTextContent(`Your channel will be created as #${corrected}`)
   })
 
@@ -104,8 +105,8 @@ describe('Add new channel', () => {
     const input = screen.getByPlaceholderText('Enter a channel name')
     const button = screen.getByText('Create Channel')
 
-    userEvent.type(input, name)
-    userEvent.click(button)
+    await userEvent.type(input, name)
+    await userEvent.click(button)
 
     await waitFor(() => expect(createChannel).not.toBeCalled())
 
