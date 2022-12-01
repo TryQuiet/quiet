@@ -54,9 +54,7 @@ import { ConnectionsManagerOptions } from '../common/types'
 import {
   createLibp2pAddress,
   createLibp2pListenAddress,
-  getPorts,
-  torBinForPlatform,
-  torDirForPlatform
+  getPorts
 } from '../common/utils'
 import { QUIET_DIR_PATH } from '../constants'
 import { Storage } from '../storage'
@@ -85,6 +83,8 @@ export interface IConstructor {
   socketIOPort: number
   torAuthCookie?: string
   torControlPort?: number
+  torResourcesPath?: string
+  torBinaryPath?: string
 }
 
 export interface Libp2pNodeParams {
@@ -128,17 +128,23 @@ export class ConnectionsManager extends EventEmitter {
   registrarDataPath: string
   torAuthCookie: string
   torControlPort: number
+  torBinaryPath: string
+  torResourcesPath: string
 
-  constructor({ options, socketIOPort, torControlPort, torAuthCookie }: IConstructor) {
+  constructor({ options, socketIOPort, torControlPort, torAuthCookie, torResourcesPath, torBinaryPath }: IConstructor) {
     super()
     this.registration = new CertificateRegistration()
     this.options = {
       ...new ConnectionsManagerOptions(),
       ...options
     }
-    this.socketIOPort = socketIOPort
-    this.torAuthCookie = torAuthCookie
+
+    this.torResourcesPath = torResourcesPath
+    this.torBinaryPath = torBinaryPath
     this.torControlPort = torControlPort
+    this.torAuthCookie = torAuthCookie
+
+    this.socketIOPort = socketIOPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
     this.communityDataPath = path.join(this.quietDir, 'communityData.json')
@@ -230,26 +236,25 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public spawnTor = async () => {
-    console.log('IOS: ', 'spawning tor')
-    const basePath = this.options.env.resourcesPath
     this.tor = new Tor({
-      torPath: torBinForPlatform(basePath),
+      torPath: this.torBinaryPath,
       appDataPath: this.quietDir,
       httpTunnelPort: this.httpTunnelPort,
       authCookie: this.torAuthCookie,
       controlPort: this.torControlPort,
       options: {
         env: {
-          LD_LIBRARY_PATH: torDirForPlatform(basePath),
+          LD_LIBRARY_PATH: this.torResourcesPath,
           HOME: os.homedir()
         },
         detached: true
       }
     })
+
     if (this.torControlPort) {
       console.log('IOS: Initializing only torControl')
       this.tor.initTorControl()
-    } else if (this.options.env.resourcesPath) {
+    } else if (this.torResourcesPath) {
       console.log('IOS: This line should never be reached on IOS')
       await this.tor.init()
     } else {
@@ -343,7 +348,6 @@ export class ConnectionsManager extends EventEmitter {
   public launch = async (payload: InitCommunityPayload): Promise<string> => {
     // Start existing community (community that user is already a part of)
     const ports = await getPorts()
-    const virtPort = 443
     log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
     const onionAddress: string = await this.tor.spawnHiddenService(
       ports.libp2pHiddenService,

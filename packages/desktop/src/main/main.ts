@@ -363,10 +363,6 @@ app.on('ready', async () => {
   })
 
   const forkArgvs = [
-    '-s', `${ports.socksPort}`,
-    '-l', `${ports.libp2pHiddenService}`,
-    '-c', `${ports.controlPort}`,
-    '-h', `${ports.httpTunnelPort}`,
     '-d', `${ports.dataServer}`,
     '-a', `${appDataPath}`,
     '-r', `${process.resourcesPath}`

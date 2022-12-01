@@ -14,3 +14,5 @@ export default {
   ConnectionsManager,
   version
 }
+
+export * from './common/utils'
