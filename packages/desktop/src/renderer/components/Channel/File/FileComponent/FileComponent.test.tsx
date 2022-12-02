@@ -41,7 +41,7 @@ describe('FileComponent', () => {
       <body>
         <div>
           <div
-            class="FileComponentborder"
+            class="css-4fpo3t"
             data-testid="QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs-fileComponent"
           >
             <span
@@ -87,7 +87,7 @@ describe('FileComponent', () => {
                 style="cursor: pointer;"
               >
                 <div
-                  class="FileComponentactionIndicator"
+                  class="css-1vnortn"
                 >
                   <img
                     class="FileComponentactionIcon"

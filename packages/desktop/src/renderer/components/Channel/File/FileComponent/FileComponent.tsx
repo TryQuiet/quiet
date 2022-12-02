@@ -18,27 +18,23 @@ import Tooltip from '../../../ui/Tooltip/Tooltip'
 const PREFIX = 'FileComponent';
 
 const classes = {
-  border: `${PREFIX}border`,
   icon: `${PREFIX}icon`,
   fileIcon: `${PREFIX}fileIcon`,
   filename: `${PREFIX}filename`,
-  actionIcon: `${PREFIX}actionIcon`,
-  actionIndicator: `${PREFIX}actionIndicator`
+  actionIcon: `${PREFIX}actionIcon`
 };
 
-const Root = styled('div')((
+const FileComponentStyled = styled('div')((
   {
     theme
   }
 ) => ({
-  [`& .${classes.border}`]: {
-    maxWidth: '100%',
-    marginTop: '8px',
-    padding: '16px',
-    backgroundColor: theme.palette.colors.white,
-    borderRadius: '8px',
-    border: `1px solid ${theme.palette.colors.veryLightGray}`
-  },
+  maxWidth: '100%',
+  marginTop: '8px',
+  padding: '16px',
+  backgroundColor: theme.palette.colors.white,
+  borderRadius: '8px',
+  border: `1px solid ${theme.palette.colors.veryLightGray}`,
 
   [`& .${classes.icon}`]: {
     minWidth: '40px',
@@ -60,32 +56,29 @@ const Root = styled('div')((
     marginLeft: '16px'
   },
 
+}));
+
+const ActionIndicatorStyled = styled('div')(() => ({
+  display: 'flex',
+  width: 'fit-content',
+
   [`& .${classes.actionIcon}`]: {
     width: '15px'
   },
+}))
 
-  [`&.${classes.actionIndicator}`]: {
-    display: 'flex',
-    width: 'fit-content'
-  }
-}));
+interface ActionIndicatorMode {
+  label: string
+  color: string
+  icon: any
+}
 
 const ActionIndicator: React.FC<{
-  regular: {
-    label: string
-    color: string
-    icon: any
-  }
-  hover?: {
-    label: string
-    color: string
-    icon: any
-  }
+  regular: ActionIndicatorMode
+  hover?: ActionIndicatorMode
   action?: (...args: any) => void
 }> = ({ regular, hover, action }) => {
   const [over, setOver] = useState<boolean>()
-
-
 
   const onMouseOver = () => {
     setOver(true)
@@ -99,23 +92,22 @@ const ActionIndicator: React.FC<{
     if (over && hover) {
       return <>
         {/* Hovered state */}
-        <Root className={classes.actionIndicator}>
+        <ActionIndicatorStyled>
           <Icon src={hover.icon} className={classes.actionIcon} />
           <Typography variant={'body2'} style={{ color: hover.color, marginLeft: '8px' }}>
             {hover.label}
           </Typography>
-        </Root>
+        </ActionIndicatorStyled>
       </>;
     } else {
       return (
         <>
-          {/* Hovered state */}
-          <div className={classes.actionIndicator}>
+          <ActionIndicatorStyled>
             <Icon src={regular.icon} className={classes.actionIcon} />
             <Typography variant={'body2'} style={{ color: regular.color, marginLeft: '8px' }}>
               {regular.label}
             </Typography>
-          </div>
+          </ActionIndicatorStyled>
         </>
       )
     }
@@ -150,8 +142,6 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   downloadFile,
   cancelDownload
 }) => {
-
-
   const { cid, path, name, ext } = message.media
 
   const downloadState = downloadStatus?.downloadState
@@ -335,7 +325,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   }
 
   return (
-    <div className={classes.border} data-testid={`${cid}-fileComponent`}>
+    <FileComponentStyled data-testid={`${cid}-fileComponent`}>
       <Tooltip
         title={
           downloadState === DownloadState.Downloading &&
@@ -368,7 +358,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
         }}>
         {renderActionIndicator()}
       </div>
-    </div>
+    </FileComponentStyled>
   )
 }
 
