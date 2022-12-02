@@ -14,6 +14,7 @@ export const runBackend = async (): Promise<any> => {
   program
   .requiredOption('-dpth, --dataPath <adataPath>', 'data directory path')
   .requiredOption('-dprt, --dataPort <dataPort>', 'data port')
+  .requiredOption('-crpt, --cryptoPort <cryptoPort>', 'crypto service IO port')
   .option('-t, --torBinary <torBinary>', 'tor binary path')
   .option('-ac, --authCookie <authCookie>', 'tor authentication cookie')
   .option('-cp, --controlPort <controlPort>', 'tor control port')
@@ -31,6 +32,7 @@ export const runBackend = async (): Promise<any> => {
         resourcesPath: options.torBinary ? options.torBinary : null
       },
       createPaths: false,
+      cryptoSocketIOPort: options.cryptoPort
     }
   })
 

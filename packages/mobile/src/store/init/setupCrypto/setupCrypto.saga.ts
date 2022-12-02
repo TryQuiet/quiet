@@ -3,7 +3,8 @@ import { setEngine } from 'pkijs/src/common'
 
 import { io, Socket } from 'socket.io-client'
 
-import { select, call, put, fork, takeEvery } from 'typed-redux-saga'
+import { PayloadAction } from '@reduxjs/toolkit/dist/createAction'
+import { select, call, put, fork, takeEvery, delay } from 'typed-redux-saga'
 
 import { eventChannel } from 'redux-saga'
 
@@ -13,33 +14,39 @@ import { initActions } from '../init.slice'
 import { CryptoDelegator } from './CryptoDelegator'
 import { CryptoServiceResponse, SocketActionTypes } from '@quiet/state-manager'
 
-let crypto: CryptoDelegator
+let cryptoDelegator: CryptoDelegator
 
-export function* setupCryptoSaga(): Generator {
+export function* setupCryptoSaga(action: PayloadAction<ReturnType<typeof initActions.setupCrypto>['payload']>): Generator {
   const isCryptoEngineInitialized = yield* select(initSelectors.isCryptoEngineInitialized)
   if (!isCryptoEngineInitialized) {
-    const servicePort = 1000 // Get from find free port
 
+    const servicePort = action.payload.cryptoPort
     yield* fork(startCryptoServiceConnection, servicePort)
 
-    yield* call(initCryptoEngine)
-
-    // Prevent initializing crypto engine twice
-    yield* put(initActions.setCryptoEngineInitialized(true))
+    while (true) {
+      if (cryptoDelegator) {
+        // Initialize crypto engine with nodejs proxy
+        yield* call(initCryptoEngine)
+        // Prevent initializing crypto engine twice
+        yield* put(initActions.setCryptoEngineInitialized(true))
+        break;
+      }
+      yield* delay(500)
+    }
   }
 }
 
 export function* startCryptoServiceConnection(servicePort: number): Generator {
   const socket = yield* call(io, `http://localhost:${servicePort}`)
   // Proxy crypto calls to nodejs service
-  crypto = new CryptoDelegator(socket)
+  cryptoDelegator = new CryptoDelegator(socket)
   yield* fork(handleActions, socket)
 }
 
 function* handleActions(socket: Socket): Generator {
   const socketChannel = yield* call(subscribe, socket)
   yield takeEvery(socketChannel, function* (payload: CryptoServiceResponse) {
-    yield call(crypto.respond, payload)
+    yield call(cryptoDelegator.respond, payload)
   })
 }
 
@@ -65,11 +72,11 @@ export const initCryptoEngine = () => {
   setEngine(
     'newEngine',
     // @ts-expect-error
-    crypto,
+    cryptoDelegator,
     new CryptoEngine({
       name: '',
-      crypto,
-      subtle: crypto.subtle
+      cryptoDelegator,
+      subtle: cryptoDelegator.subtle
     })
   )
 }

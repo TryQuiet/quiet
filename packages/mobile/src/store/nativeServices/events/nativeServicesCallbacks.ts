@@ -1,7 +1,7 @@
 import { eventChannel } from 'redux-saga'
 import { call, put, take } from 'typed-redux-saga'
-import { publicChannels, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL } from '@quiet/state-manager'
-import { initActions, InitCheckPayload, WebsocketConnectionPayload } from '../../init/init.slice'
+import { publicChannels, WEBSOCKET_CONNECTION_CHANNEL, CRYPTO_SERVICE_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL } from '@quiet/state-manager'
+import { CryptoServiceConnectionPayload, initActions, InitCheckPayload, WebsocketConnectionPayload } from '../../init/init.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { NativeEventKeys } from './nativeEvent.keys'
 import nativeEventEmitter from './nativeEventEmitter'
@@ -23,6 +23,7 @@ export interface BackendEvent {
 export const deviceEvents = () => {
   return eventChannel<
   | ReturnType<typeof initActions.startWebsocketConnection>
+  | ReturnType<typeof initActions.setupCrypto>
   | ReturnType<typeof initActions.updateInitCheck>
   | ReturnType<typeof navigationActions.navigation>
   | ReturnType<typeof publicChannels.actions.setCurrentChannel>
@@ -40,6 +41,16 @@ export const deviceEvents = () => {
               payload = event.payload
             }
             emit(initActions.startWebsocketConnection(payload))
+          }
+          if (event.channelName === CRYPTO_SERVICE_CONNECTION_CHANNEL) {
+            let payload: CryptoServiceConnectionPayload = null
+            if (typeof event.payload !== 'object') {
+              payload = JSON.parse(event.payload)
+            } else {
+              // iOS sends object without having to parse with JSON
+              payload = event.payload
+            }
+            emit(initActions.setupCrypto(payload))
           }
           if (event.channelName === INIT_CHECK_CHANNEL) {
             const payload: InitCheckPayload = JSON.parse(event.payload)

@@ -35,6 +35,8 @@ export class ConnectionsManagerOptions {
 
   bootstrapMultiaddrs?: string[] = []
   createPaths?: boolean = true
+
+  cryptoSocketIOPort?: number
 }
 
 export interface ILibp2pStatus {

@@ -67,6 +67,7 @@ import getPort from 'get-port'
 import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
+import { CryptoBridge } from '../crypto/bridge'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -145,8 +146,11 @@ export class ConnectionsManager extends EventEmitter {
     this.torAuthCookie = torAuthCookie
 
     this.socketIOPort = socketIOPort
+
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
+
     this.connectedPeers = new Map()
+
     this.communityDataPath = path.join(this.quietDir, 'communityData.json')
     this.registrarDataPath = path.join(this.quietDir, 'registrarData.json')
     this.isRegistrarLaunched = false
@@ -185,7 +189,9 @@ export class ConnectionsManager extends EventEmitter {
   public init = async () => {
     this.httpTunnelPort = await getPort()
     this.socksProxyAgent = this.createAgent()
+
     await this.spawnTor()
+
     this.dataServer = new DataServer(this.socketIOPort)
     this.io = this.dataServer.io
 
@@ -201,6 +207,13 @@ export class ConnectionsManager extends EventEmitter {
     })
 
     await this.dataServer.listen()
+
+    if (process.env.BACKEND === 'mobile') {
+      // Enable proxying crypto calls to nodejs on mobile
+      log(`Enabling mobile crypto bridge ${this.options.cryptoSocketIOPort}`)
+      const bridge = new CryptoBridge(this.options.cryptoSocketIOPort)
+      await bridge.cryptoService.listen()
+    }
 
     // Below logic is temporary, we gonna move it to leveldb
     const communityPath = this.communityDataPath

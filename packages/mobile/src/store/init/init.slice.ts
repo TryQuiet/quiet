@@ -26,6 +26,10 @@ export interface WebsocketConnectionPayload {
   dataPort: number
 }
 
+export interface CryptoServiceConnectionPayload {
+  cryptoPort: number
+}
+
 export interface CloseConnectionPayload {
   task: FixedTask<Generator>
 }
@@ -39,6 +43,7 @@ export const initSlice = createSlice({
   name: StoreKeys.Init,
   reducers: {
     setStoreReady: state => state,
+    setupCrypto: (state, _action: PayloadAction<CryptoServiceConnectionPayload>) => state,
     setCryptoEngineInitialized: (state, action: PayloadAction<boolean>) => {
       state.isCryptoEngineInitialized = action.payload
     },

@@ -11,6 +11,7 @@
 @property (nonatomic, strong) UIWindow *window;
 
 @property uint16_t dataPort;
+@property uint16_t cryptoPort;
 
 @property (nonatomic, strong) TorHandler *tor;
 @property (nonatomic, strong) TORConfiguration *torConfiguration;

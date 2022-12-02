@@ -34,22 +34,19 @@ export class CryptoDelegator {
     rejectPromise: (reasone: any) => void
   }>
 
-  private subtleCrypto?: SubtleCrypto
-
   constructor(socket: Socket) {
     this.socket = socket
   }
 
   public get subtle(): SubtleCrypto {
-    if (this.subtleCrypto == null) {
-      for (const m of SUBTLE_METHODS) {
-        this.subtleCrypto[m] = async (...args) => {
-          const call = await this.call(`subtle.${m}`, args)
-          return call
-        }
-      }
-    }
-    return this.subtleCrypto
+    const subtle = {}
+     for (const m of SUBTLE_METHODS) {
+       subtle[m] = async (...args) => {
+         const call = await this.call(`subtle.${m}`, args)
+         return call
+       }
+     }
+     return subtle as SubtleCrypto
   }
 
   private call = async (method: string, args: any[]): Promise<any> => {
