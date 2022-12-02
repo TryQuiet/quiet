@@ -68,6 +68,7 @@ function subscribe(socket?: Socket) {
 }
 
 export const initCryptoEngine = () => {
+  console.log(JSON.stringify(cryptoDelegator.subtle)) // WIP
   setEngine(
     'newEngine',
     // @ts-expect-error

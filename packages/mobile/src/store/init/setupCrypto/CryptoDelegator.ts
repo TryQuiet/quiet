@@ -12,6 +12,7 @@ export interface ArrayBufferViewWithPromise extends ArrayBufferView {
 }
 
 const SUBTLE_METHODS = [
+  'getAlgorithmParameters',
   'encrypt',
   'decrypt',
   'sign',
@@ -29,13 +30,13 @@ const SUBTLE_METHODS = [
 export class CryptoDelegator {
   socket: Socket
 
-  calls: Map<
+  public calls: Map<
     string,
     {
-      resolvePromise: (value: any) => void
-      rejectPromise: (reasone: any) => void
+      resolve: (value: any) => void
+      reject: (reason: any) => void
     }
-  >
+  > = new Map()
 
   constructor(socket: Socket) {
     this.socket = socket
@@ -45,24 +46,19 @@ export class CryptoDelegator {
     const subtle = {}
     for (const m of SUBTLE_METHODS) {
       subtle[m] = async (...args) => {
-        const call = await this.call(`subtle.${m}`, args)
-        return call
+        return await this.call(`subtle.${m}`, args)
       }
     }
     return subtle as SubtleCrypto
   }
 
-  private call = async (method: string, args: any[]): Promise<any> => {
+  public call = async (method: string, args: any[]): Promise<any> => {
     const id = uuid.v4().toString()
     // store this promise, so we can resolve it when we get a value
     // back from the crypto service
-    let resolvePromise: (value: unknown) => void
-    let rejectPromise: (reason?: any) => void
     const promise = new Promise((resolve, reject) => {
-      resolvePromise = resolve
-      rejectPromise = reject
+      this.calls[id] = { resolve, reject }
     })
-    this.calls[id] = { resolvePromise, rejectPromise }
     const payload: CryptoServicePayload = { id, method, args }
     if (!NodeEnv.Production) {
       console.log(
@@ -85,9 +81,9 @@ export class CryptoDelegator {
       return
     }
     if (!reason) {
-      call.resolvePromise(value)
+      call.resolve(value)
     } else {
-      call.rejectPromise(reason)
+      call.reject(reason)
     }
     delete this.calls[id]
   }
