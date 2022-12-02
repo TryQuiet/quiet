@@ -53,7 +53,7 @@ export class CryptoDelegator {
   }
 
   private call = async (method: string, args: any[]): Promise<any> => {
-    const id = uuid.v4()
+    const id = uuid.v4().toString()
     // store this promise, so we can resolve it when we get a value
     // back from the crypto service
     let resolvePromise: (value: unknown) => void
