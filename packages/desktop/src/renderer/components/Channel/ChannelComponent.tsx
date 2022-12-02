@@ -256,7 +256,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             setInfoClass={setInfoClass}
             inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
             handleClipboardFiles={handleClipboardFiles}
-            handleOpenFiles={handleFileDrop}>
+            handleOpenFiles={handleFileDrop}
+            messages={messages.groups}>
             <UploadFilesPreviewsComponent
               filesData={filesData}
               removeFile={id => removeFile(id)}

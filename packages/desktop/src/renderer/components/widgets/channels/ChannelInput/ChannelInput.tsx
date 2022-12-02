@@ -14,6 +14,7 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
+import { MessagesDailyGroups } from '@quiet/state-manager'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -183,6 +184,7 @@ export interface ChannelInputProps {
   openFilesDialog: () => void
   handleClipboardFiles?: (arg: ArrayBuffer, ext: string, name: string) => void
   handleOpenFiles: (arg: {files: any[]}) => void
+  messages?: MessagesDailyGroups
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
@@ -198,7 +200,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   children,
   openFilesDialog,
   handleClipboardFiles,
-  handleOpenFiles
+  handleOpenFiles,
+  messages = {}
 }) => {
   const classes = useStyles({})
 
@@ -224,6 +227,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const [htmlMessage, setHtmlMessage] = React.useState<string>(initialMessage)
   const [message, setMessage] = React.useState(initialMessage)
 
+  const [disableInput, setDisableInput] = React.useState(false)
+
   React.useEffect(() => {
     inputRef.current?.el.current.focus()
   }, [inputRef])
@@ -240,6 +245,10 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const isRefSelected = (refSelected: number | undefined): refSelected is number => {
     return typeof refSelected === 'number'
   }
+
+  React.useEffect(() => {
+    mentionsToSelectRef.current = mentionsToSelect
+  }, [mentionsToSelect])
 
   React.useEffect(() => {
     mentionsToSelectRef.current = mentionsToSelect
@@ -267,6 +276,15 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   React.useEffect(() => {
     messageRef.current = message
   }, [message])
+
+  React.useEffect(() => {
+    if(Object.values(messages).length >= 1 && inputState === INPUT_STATE.AVAILABLE){
+      setDisableInput(false)
+    } else {
+      setDisableInput(true)
+    }
+
+  }, [messages, inputState])
 
   const findMentions = React.useCallback(
     (text: string) => {
@@ -472,7 +490,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       setFocused(true)
                     }
                   }}
-                  disabled={inputState !== INPUT_STATE.AVAILABLE}
+                  disabled={disableInput}
                   html={sanitizedHtml}
                   onChange={onChangeCb}
                   onKeyDown={onKeyDownCb}
