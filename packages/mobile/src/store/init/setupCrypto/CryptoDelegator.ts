@@ -29,10 +29,13 @@ const SUBTLE_METHODS = [
 export class CryptoDelegator {
   socket: Socket
 
-  calls: Map<string, {
-    resolvePromise: (value: any) => void
-    rejectPromise: (reasone: any) => void
-  }>
+  calls: Map<
+    string,
+    {
+      resolvePromise: (value: any) => void
+      rejectPromise: (reasone: any) => void
+    }
+  >
 
   constructor(socket: Socket) {
     this.socket = socket
@@ -40,13 +43,13 @@ export class CryptoDelegator {
 
   public get subtle(): SubtleCrypto {
     const subtle = {}
-     for (const m of SUBTLE_METHODS) {
-       subtle[m] = async (...args) => {
-         const call = await this.call(`subtle.${m}`, args)
-         return call
-       }
-     }
-     return subtle as SubtleCrypto
+    for (const m of SUBTLE_METHODS) {
+      subtle[m] = async (...args) => {
+        const call = await this.call(`subtle.${m}`, args)
+        return call
+      }
+    }
+    return subtle as SubtleCrypto
   }
 
   private call = async (method: string, args: any[]): Promise<any> => {

@@ -19,7 +19,6 @@ let cryptoDelegator: CryptoDelegator
 export function* setupCryptoSaga(action: PayloadAction<ReturnType<typeof initActions.setupCrypto>['payload']>): Generator {
   const isCryptoEngineInitialized = yield* select(initSelectors.isCryptoEngineInitialized)
   if (!isCryptoEngineInitialized) {
-
     const servicePort = action.payload.cryptoPort
     yield* fork(startCryptoServiceConnection, servicePort)
 
@@ -29,7 +28,7 @@ export function* setupCryptoSaga(action: PayloadAction<ReturnType<typeof initAct
         yield* call(initCryptoEngine)
         // Prevent initializing crypto engine twice
         yield* put(initActions.setCryptoEngineInitialized(true))
-        break;
+        break
       }
       yield* delay(500)
     }
