@@ -1,12 +1,12 @@
-import { NOISE } from '@chainsafe/libp2p-noise'
+// import { noise } from '@chainsafe/libp2p-noise'
 import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
 import { HttpsProxyAgent } from 'https-proxy-agent'
-import type { Libp2p } from 'libp2p'
+import type { Libp2p, createLibp2p as l2l } from 'libp2p'
 import Websockets from 'libp2p-websockets'
 import SocketIO from 'socket.io'
 import Bootstrap from 'libp2p-bootstrap'
-import Mplex from 'libp2p-mplex'
+import type { mplex } from '@libp2p/mplex'
 import * as os from 'os'
 import path from 'path'
 import fs from 'fs'
@@ -145,16 +145,14 @@ export class ConnectionsManager extends EventEmitter {
       process.exit(0)
     })
     const webcrypto = new Crypto()
-    console.log('globalCrypto is ', global.crypto)
-    console.log('globalthiscrypto', globalThis.crypto)
     // @ts-ignore
     global.crypto = webcrypto
-    
-    console.log('before setting engine ')
-    
-    // @ts-ignore
-    setEngine('newEngine', new CryptoEngine({ name: "NodeJS ^15", crypto: webcrypto }));
-
+        
+    setEngine('newEngine', new CryptoEngine({
+      name: 'newEngine',
+      // @ts-ignore
+      crypto: webcrypto,
+    }))
   }
   public readonly createAgent = (): Agent => {
     if (this.socksProxyAgent) return
@@ -629,8 +627,14 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   private static readonly defaultLibp2pNode = async (params: Libp2pNodeParams): Promise<Libp2p> => {
-    const { createLibp2p } = await eval("import('libp2p')")
-    return await createLibp2p({
+    const { createLibp2p } : {createLibp2p: typeof l2l} = await eval("import('libp2p')")
+    const {noise} = await eval("import('@chainsafe/libp2p-noise')")
+    const {mplex} = await eval("import('@libp2p/mplex')")
+
+    let lib
+
+    try {
+      lib = await createLibp2p({
       connectionManager: {
         minConnections: 3,
         maxConnections: 8,
@@ -641,44 +645,37 @@ export class ConnectionsManager extends EventEmitter {
       addresses: {
         listen: params.listenAddresses
       },
-      transports: [params.transportClass],
-      streamMuxers: [Mplex],
-      peerDiscovery: [Bootstrap],
-      connectionEncryption: [NOISE],
+      streamMuxers: [mplex()],
+      connectionEncryption: [noise()],
+      //peerDiscovery: [Bootstrap],
+      // peerDiscovery: {
+      //   [Bootstrap.tag]: {
+      //     enabled: true,
+      //     list: params.bootstrapMultiaddrsList
+      //   },
+      //  // autoDial: true
+      // },
       relay: {
         enabled: true,
         hop: {
           enabled: true,
           active: false
         }
-      }
+      },
+        transports: [
+       new Websockets()
+        ]
       // dht: {
       //   enabled: true,
       //   randomWalk: {
       //     enabled: true
       //   }
       // },
-      // dht: KademliaDHT,
-      // pubsub: Gossipsub,
-      // transport: {
-      //   [params.transportClass.name]: {
-      //     websocket: {
-      //       agent: params.agent,
-      //       cert: params.cert,
-      //       key: params.key,
-      //       ca: params.ca
-      //     },
-      //     localAddress: params.localAddress,
-      //     targetPort: params.targetPort
-      //   }
-      // }
-      // peerDiscovery: {
-      //   [Bootstrap.tag]: {
-      //     enabled: true,
-      //     list: params.bootstrapMultiaddrsList
-      //   },
-      //   autoDial: true
-      // },
-    })
+     // pubsub: Gossipsub,
+    })} catch(err) {
+      console.log('LIBP2P ERROR:', err)
+    }
+
+    return lib
   }
 }
