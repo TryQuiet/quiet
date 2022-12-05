@@ -11,6 +11,7 @@ import com.zbaymobile.BuildConfig
 import com.zbaymobile.Communication.CommunicationModule
 import com.zbaymobile.Notification.NotificationHandler
 import com.zbaymobile.R
+import com.zbaymobile.Scheme.CryptoServiceConnectionPayload
 import com.zbaymobile.Scheme.WebsocketConnectionPayload
 import com.zbaymobile.Utils.Const
 import com.zbaymobile.Utils.Const.WEBSOCKET_CONNECTION_DELAY
@@ -88,8 +89,8 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         setForeground(createForegroundInfo())
 
         withContext(Dispatchers.IO) {
-            // Get and store data port for usage in methods across the app
             val dataPort = Utils.getOpenPort(11000)
+            val cryptoPort = Utils.getOpenPort(18000)
 
             // Init nodejs project
             launch {
@@ -113,14 +114,15 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                  */
                 delay(WEBSOCKET_CONNECTION_DELAY)
                 startWebsocketConnection(dataPort)
+                startCryptoServiceConnection(cryptoPort)
             }
 
             val dataPath = Utils.createDirectory(context)
 
             val tor = TorResourceInstaller(context, context.filesDir).installResources()
             val torBinary = tor.canonicalPath
-            
-            startNodeProjectWithArguments("lib/mobileBackendManager.js --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort")
+
+            startNodeProjectWithArguments("lib/mobileBackendManager.js --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --cryptoPort $cryptoPort")
         }
 
         // Indicate whether the work finished successfully with the Result
@@ -179,11 +181,19 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         }
 
     private fun startWebsocketConnection(port: Int) {
-        // Proceed only if data port is defined
         val websocketConnectionPayload = WebsocketConnectionPayload(port)
         CommunicationModule.handleIncomingEvents(
             CommunicationModule.WEBSOCKET_CONNECTION_CHANNEL,
             Gson().toJson(websocketConnectionPayload),
+            "" // Empty extras
+        )
+    }
+
+    private fun startCryptoServiceConnection(port: Int) {
+        val cryptoServiceConnectionPayload = CryptoServiceConnectionPayload(port)
+        CommunicationModule.handleIncomingEvents(
+            CommunicationModule.CRYPTO_SERVICE_CONNECTION_CHANNEL,
+            Gson().toJson(cryptoServiceConnectionPayload),
             "" // Empty extras
         )
     }

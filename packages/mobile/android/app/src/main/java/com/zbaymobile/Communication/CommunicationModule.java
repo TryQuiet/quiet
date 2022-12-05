@@ -20,6 +20,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
 
     public static final String PUSH_NOTIFICATION_CHANNEL = "_PUSH_NOTIFICATION_";
     public static final String WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_";
+    public static final String CRYPTO_SERVICE_CONNECTION_CHANNEL = "_CRYPTO_SERVICE_CONNECTION_";
     public static final String INIT_CHECK_CHANNEL = "_INIT_CHECK_";
 
     private static ReactApplicationContext reactContext;
