@@ -25,10 +25,11 @@ export const runBackend = async (): Promise<any> => {
     socketIOPort: options.dataPort,
     torAuthCookie: options.authCookie ? options.authCookie : null,
     torControlPort: options.controlPort ? options.controlPort : null,
+    torBinaryPath: options.torBinary ? options.torBinary : null,
+    torResourcesPath: null,
     options: {
       env: {
         appDataPath: options.dataPath,
-        resourcesPath: options.torBinary ? options.torBinary : null
       },
       createPaths: false,
     }
