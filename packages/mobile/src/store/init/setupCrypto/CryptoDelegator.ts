@@ -52,7 +52,7 @@ export class CryptoDelegator {
     return subtle as SubtleCrypto
   }
 
-  public call = async (method: string, args: any[]): Promise<any> => {
+  public async call (method: string, args: any[]): Promise<any> {
     const id = uuid.v4().toString()
     // store this promise, so we can resolve it when we get a value
     // back from the crypto service
@@ -73,7 +73,7 @@ export class CryptoDelegator {
     return promise
   }
 
-  public respond = (payload: CryptoServiceResponse) => {
+  public respond (payload: CryptoServiceResponse) {
     const { id, value, reason } = payload
     const call = this.calls.get(id)
     if (!call) {
