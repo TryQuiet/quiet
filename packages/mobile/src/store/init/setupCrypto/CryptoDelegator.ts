@@ -30,16 +30,17 @@ const SUBTLE_METHODS = [
 export class CryptoDelegator {
   socket: Socket
 
-  public calls: Map<
+  calls: Map<
     string,
     {
       resolve: (value: any) => void
       reject: (reason: any) => void
     }
-  > = new Map()
+  >
 
   constructor(socket: Socket) {
     this.socket = socket
+    this.calls = new Map()
   }
 
   public get subtle(): SubtleCrypto {
@@ -57,7 +58,7 @@ export class CryptoDelegator {
     // store this promise, so we can resolve it when we get a value
     // back from the crypto service
     const promise = new Promise((resolve, reject) => {
-      this.calls[id] = { resolve, reject }
+      this.calls.set(id, { resolve, reject })
     })
     const payload: CryptoServicePayload = { id, method, args }
     if (!NodeEnv.Production) {

@@ -66,7 +66,7 @@ function* handleCryptoServiceResponseSaga(
   action: PayloadAction<ReturnType<typeof initActions.handleCryptoServiceResponse>['payload']>
 ): Generator {
   const payload = action.payload
-  yield* call(delegator.respond, payload)
+  yield* call([delegator, delegator.respond], payload)
 }
 
 function* initCryptoEngineSaga(delegator: CryptoDelegator): Generator {

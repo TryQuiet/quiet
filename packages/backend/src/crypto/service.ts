@@ -44,8 +44,10 @@ export class CryptoService extends EventEmitter {
       pingInterval: 1000_000,
       pingTimeout: 1000_000
     })
-    this.io.on(SocketActionTypes.CRYPTO_SERVICE_CALL, (payload: CryptoServicePayload) => {
-      this.emit(SocketActionTypes.CRYPTO_SERVICE_CALL, payload)
+    this.io.on(SocketActionTypes.CONNECTION, socket => {
+      socket.on(SocketActionTypes.CRYPTO_SERVICE_CALL, (payload: CryptoServicePayload) => {
+        this.emit(SocketActionTypes.CRYPTO_SERVICE_CALL, payload)
+      })
     })
   }
 
