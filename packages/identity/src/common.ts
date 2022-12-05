@@ -1,5 +1,5 @@
 import { fromBER, ObjectIdentifier } from 'asn1js'
-import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate, TSTInfo } from 'pkijs'
+import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate, TSTInfo, ECNamedCurves } from 'pkijs'
 import { stringToArrayBuffer, fromBase64 } from 'pvutils'
 
 export enum CertFieldsTypes {
@@ -46,10 +46,7 @@ export const generateKeyPair = async ({ signAlg }: { signAlg: string }): Promise
   const algorithm = getAlgorithmParameters(signAlg, 'generateKey')
   const crypto = getCrypto()
   const keyPair = await crypto.generateKey(
-    {
-      name: "ECDSA",
-      namedCurve: "P-384"
-    },
+    algorithm.algorithm as EcKeyGenParams,
     true,
     algorithm.usages
   )
@@ -83,7 +80,7 @@ export const loadPrivateKey = async (rootKey: string, signAlg: string): Promise<
   return await crypto.importKey(
     'pkcs8',
     keyBuffer,
-    (algorithm.algorithm as Algorithm).name,
+    (algorithm.algorithm as Algorithm),
     true,
     algorithm.usages
   )

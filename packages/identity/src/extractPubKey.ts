@@ -30,7 +30,7 @@ export const keyObjectFromString = async (
   let keyArray = new ArrayBuffer(0)
   keyArray = stringToArrayBuffer(fromBase64(pubKeyString))
   const algorithm = getAlgorithmParameters(config.signAlg, 'generateKey')
-  return await crypto.importKey('raw', keyArray, (algorithm.algorithm as Algorithm).name, true, [
+  return await crypto.importKey('raw', keyArray, (algorithm.algorithm as Algorithm), true, [
     'verify'
   ])
 }

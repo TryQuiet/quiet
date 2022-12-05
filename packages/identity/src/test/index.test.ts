@@ -11,10 +11,9 @@ describe('Message signature verification', () => {
   let crypto: SubtleCrypto | undefined
   beforeAll(() => {
     const webcrypto = new Crypto()
-    setEngine('newEngine', webcrypto, new CryptoEngine({
-      name: '',
+    setEngine('newEngine', new CryptoEngine({
+      name: 'newEngine',
       crypto: webcrypto,
-      subtle: webcrypto.subtle
     }))
     crypto = getCrypto()
   })
