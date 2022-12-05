@@ -266,7 +266,7 @@ export class ConnectionsManager extends EventEmitter {
 
     if (this.torControlPort) {
       this.tor.initTorControl()
-    } else if (this.torResourcesPath) {
+    } else if (this.torBinaryPath) {
       await this.tor.init()
     } else {
       throw new Error('You must provide either tor control port or tor binary path')
