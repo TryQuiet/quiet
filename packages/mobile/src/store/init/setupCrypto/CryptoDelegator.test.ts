@@ -3,60 +3,57 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../setupTests'
 
 import { CryptoDelegator } from './CryptoDelegator'
-import { CryptoServicePayload, SocketActionTypes } from '@quiet/state-manager'
+import { SocketActionTypes } from '@quiet/state-manager'
 
 describe('CryptoDelegator', () => {
-    let socket: MockedSocket
+  let socket: MockedSocket
 
-    beforeEach(() => {
-        socket = new MockedSocket()
-        ioMock.mockImplementation(() => socket)
+  beforeEach(() => {
+    socket = new MockedSocket()
+    ioMock.mockImplementation(() => socket)
+  })
+
+  it('returns valid subtle', async () => {
+    const delegator = new CryptoDelegator(socket)
+    const methods = Object.keys(delegator.subtle)
+    expect(methods.length).toBeGreaterThan(0)
+  })
+
+  it('reacts on response from crypto service', async () => {
+    const delegator = new CryptoDelegator(socket)
+
+    let resolve: (value: any) => void
+    let reject: (reason: any) => void
+
+    // eslint-disable-next-line
+    const promise = new Promise((res, rej) => {
+      resolve = res
+      reject = rej
     })
 
-    it('returns valid subtle', async () => {
-        const delegator = new CryptoDelegator(socket)
-        expect(delegator.subtle).not.toBe({}) // TODO: We need more strict assertion
+    delegator.calls.set('uuid', { resolve, reject })
+
+    delegator.respond({
+      id: 'uuid',
+      value: 'data'
     })
 
-    it('reacts on response from crypto service', async () => {
-        const delegator = new CryptoDelegator(socket)
+    const response = await promise
+    expect(response).toEqual('data')
+  })
 
-        let resolve: (value: any) => void
-        let reject: (reason: any) => void
+  it('makes calls to nodejs crypto', async () => {
+    const delegator = new CryptoDelegator(socket)
 
-        // eslint-disable-next-line
-        const promise = new Promise((res, rej) => {
-            resolve = res
-            reject = rej
-        })
+    const spy = jest.spyOn(socket, 'emit')
 
-        delegator.calls.set('uuid', { resolve, reject })
+    // eslint-disable-next-line
+    delegator.call('encrypt', ['sha256', 'data'])
 
-        delegator.respond({
-            id: 'uuid',
-            value: 'data'
-        })
-
-        // eslint-disable-next-line
-        expect(promise).resolves // TODO: We need to check if promise resolves with proper data
+    expect(spy).toHaveBeenCalledWith(SocketActionTypes.CRYPTO_SERVICE_CALL, {
+      id: expect.any(String),
+      args: ['sha256', 'data'],
+      method: 'encrypt'
     })
-
-    it('makes calls to nodejs crypto', async () => {
-        const delegator = new CryptoDelegator(socket)
-
-        jest
-            .spyOn(socket, 'emit')
-            .mockImplementation(async (action: SocketActionTypes, payload: CryptoServicePayload) => {
-                expect(action).toBe(SocketActionTypes.CRYPTO_SERVICE_CALL)
-                return socket.socketClient.emit(SocketActionTypes.CRYPTO_SERVICE_RESPONSE, {
-                    id: payload.id,
-                    value: 'encrypted_data'
-                })
-            })
-
-        const call = delegator.call('encrypt', ['sha256', 'data'])
-
-        // eslint-disable-next-line
-        expect(call).resolves // TODO: We need to check if promise resolves with proper data
-    })
+  })
 })

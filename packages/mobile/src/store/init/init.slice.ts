@@ -5,6 +5,7 @@ import { StoreKeys } from '../store.keys'
 import { initChecksAdapter } from './init.adapter'
 import { InitCheck } from './init.types'
 import { InitCheckKeys } from './initCheck.keys'
+import { CryptoServiceResponse } from '@quiet/state-manager'
 
 export class InitState {
   public isCryptoEngineInitialized: boolean = false
@@ -44,9 +45,11 @@ export const initSlice = createSlice({
   reducers: {
     setStoreReady: state => state,
     setupCrypto: (state, _action: PayloadAction<CryptoServiceConnectionPayload>) => state,
+    initializeCryptoEngine: (state) => state,
     setCryptoEngineInitialized: (state, action: PayloadAction<boolean>) => {
       state.isCryptoEngineInitialized = action.payload
     },
+    handleCryptoServiceResponse: (state, _action: PayloadAction<CryptoServiceResponse>) => state,
     updateInitDescription: (state, action: PayloadAction<string>) => {
       state.initDescription = action.payload
     },
