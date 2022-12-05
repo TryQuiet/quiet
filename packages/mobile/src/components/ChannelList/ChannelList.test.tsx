@@ -7,6 +7,10 @@ describe('ChannelList component', () => {
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
       <ChannelList
+        // @ts-ignore
+        community={{
+          name: 'Quiet'
+        }}
         tiles={[
           {
             name: 'general',
@@ -56,6 +60,110 @@ describe('ChannelList component', () => {
           }
         }
       >
+        <View
+          style={
+            Array [
+              Object {
+                "backgroundColor": "#ffffff",
+                "borderBottomColor": "#F0F0F0",
+                "borderBottomWidth": 1,
+                "flexDirection": "row",
+                "flexGrow": 1,
+                "maxHeight": 52,
+                "minHeight": 52,
+              },
+            ]
+          }
+        >
+          <View
+            accessible={true}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              Object {
+                "alignItems": "center",
+                "justifyContent": "center",
+                "width": 64,
+              }
+            }
+          >
+            <View
+              style={
+                Object {
+                  "alignItems": "center",
+                  "backgroundColor": "#67BFD3",
+                  "borderRadius": 4,
+                  "height": 36,
+                  "justifyContent": "center",
+                  "width": 36,
+                }
+              }
+            >
+              <Text
+                color="white"
+                fontSize={14}
+                horizontalTextAlign="left"
+                style={
+                  Array [
+                    Object {
+                      "color": "#ffffff",
+                      "fontFamily": "Rubik-Regular",
+                      "fontSize": 14,
+                      "textAlign": "left",
+                      "textAlignVertical": "center",
+                    },
+                  ]
+                }
+                verticalTextAlign="center"
+              >
+                qu
+              </Text>
+            </View>
+          </View>
+          <View
+            style={
+              Object {
+                "alignItems": "flex-start",
+                "flexGrow": 1,
+                "justifyContent": "center",
+              }
+            }
+          >
+            <Text
+              color="main"
+              fontSize={16}
+              fontWeight="medium"
+              horizontalTextAlign="left"
+              style={
+                Array [
+                  Object {
+                    "color": "#000000",
+                    "fontFamily": "Rubik-Medium",
+                    "fontSize": 16,
+                    "textAlign": "left",
+                    "textAlignVertical": "center",
+                  },
+                ]
+              }
+              verticalTextAlign="center"
+            >
+              Quiet
+            </Text>
+          </View>
+          <View
+            style={
+              Object {
+                "width": 64,
+              }
+            }
+          />
+        </View>
         <RCTScrollView
           data={
             Array [

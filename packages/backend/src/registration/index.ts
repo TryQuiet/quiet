@@ -53,7 +53,9 @@ export class CertificateRegistration extends EventEmitter {
         if (this.pendingPromise) return
         this.pendingPromise = this.registerUser(req.body.data)
         const result = await this.pendingPromise
-        res.status(result.status).send(result.body)
+        if (result) {
+          res.status(result.status).send(result.body)
+        }
         this.pendingPromise = null
       }
     )
@@ -70,7 +72,7 @@ export class CertificateRegistration extends EventEmitter {
 
   public async stop(): Promise<void> {
     return await new Promise(resolve => {
-      if (!this._server) return
+      if (!this._server) resolve()
       this._server.close(() => {
         log('Certificate registration service closed')
         resolve()
@@ -125,19 +127,19 @@ export class CertificateRegistration extends EventEmitter {
         message: ErrorMessages.REGISTRAR_NOT_FOUND,
         community: communityId
       })
-} finally {
+    } finally {
       clearTimeout(timeout)
     }
 
-    switch (response.status) {
+    switch (response?.status) {
       case 200:
         break
       case 400:
         this.emit(RegistrationEvents.ERROR, {
-            type: SocketActionTypes.REGISTRAR,
-            code: ErrorCodes.BAD_REQUEST,
-            message: ErrorMessages.INVALID_USERNAME,
-            community: communityId
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.BAD_REQUEST,
+          message: ErrorMessages.INVALID_USERNAME,
+          community: communityId
         })
         return
       case 403:
@@ -158,7 +160,7 @@ export class CertificateRegistration extends EventEmitter {
         return
       default:
         log.error(
-          `Registrar responded with ${response.status} "${response.statusText}" (${communityId})`
+          `Registrar responded with ${response?.status} "${response?.statusText}" (${communityId})`
         )
         this.emit(RegistrationEvents.ERROR, {
           type: SocketActionTypes.REGISTRAR,
@@ -167,21 +169,21 @@ export class CertificateRegistration extends EventEmitter {
           community: communityId
         })
         return
-      }
+    }
 
-        const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
-        await response.json()
+    const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
+      await response.json()
 
-      log(`Sending user certificate (${communityId})`)
-      this.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
-        communityId: communityId,
-        payload: registrarResponse
-      })
+    log(`Sending user certificate (${communityId})`)
+    this.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
+      communityId: communityId,
+      payload: registrarResponse
+    })
   }
 
   private async registerUser(csr: string): Promise<{ status: number; body: any }> {
     const result = await registerUser(csr, this._permsData, this.certificates)
-    if (result.status === 200) {
+    if (result?.status === 200) {
       this.emit(RegistrationEvents.NEW_USER, { certificate: result.body.certificate, rootPermsData: this._permsData })
     }
     return result

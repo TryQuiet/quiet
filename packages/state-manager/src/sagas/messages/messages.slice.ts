@@ -75,6 +75,7 @@ export const messagesSlice = createSlice({
       const { messages } = action.payload
       for (const message of messages) {
         if (!instanceOfChannelMessage(message)) return
+        if (!state.publicChannelsMessagesBase.entities[message.channelAddress]) return
 
         let incoming = message
 

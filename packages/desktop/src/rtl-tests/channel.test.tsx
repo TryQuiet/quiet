@@ -31,7 +31,8 @@ import {
   DownloadState,
   AUTODOWNLOAD_SIZE_LIMIT,
   SendMessagePayload,
-  MessageVerificationStatus
+  MessageVerificationStatus,
+  network
 } from '@quiet/state-manager'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -532,7 +533,7 @@ describe('Channel', () => {
     )
 
     await act(async () => {
-      store.dispatch(connection.actions.addInitializedCommunity(community.id))
+      store.dispatch(network.actions.addInitializedCommunity(community.id))
     })
 
     // Log all the dispatched actions in order

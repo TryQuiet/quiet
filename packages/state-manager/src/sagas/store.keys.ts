@@ -16,5 +16,6 @@ export enum StoreKeys {
   Files = 'Files',
   // For testing purposes
   LastAction = 'LastAction',
-  CollectData = 'CollectData'
+  CollectData = 'CollectData',
+  Network = 'Network'
 }

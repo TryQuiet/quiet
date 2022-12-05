@@ -16,13 +16,13 @@ import Channel from '../renderer/components/Channel/Channel'
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
 import {
+  CreateChannelPayload,
   ErrorMessages,
   getFactory,
   identity,
   publicChannels,
   SendMessagePayload,
-  SocketActionTypes,
-  SubscribeToTopicPayload
+  SocketActionTypes
 } from '@quiet/state-manager'
 
 import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
@@ -83,24 +83,23 @@ describe('Add new channel', () => {
     )
 
     const factory = await getFactory(store)
-
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { nickname: 'alice' })
-
     const channelName = { input: 'my-Super Channel ', output: 'my-super-channel' }
 
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
-        if (action === SocketActionTypes.SUBSCRIBE_TO_TOPIC) {
-          const data = input as socketEventData<[SubscribeToTopicPayload]>
+        if (action === SocketActionTypes.CREATE_CHANNEL) {
+          const data = input as socketEventData<[CreateChannelPayload]>
           const payload = data[0]
-          expect(payload.peerId).toEqual(alice.peerId.id)
+          expect(payload.channel.owner).toEqual(alice.nickname)
           expect(payload.channel.name).toEqual(channelName.output)
-          return socket.socketClient.emit(SocketActionTypes.CREATED_CHANNEL, {
-            channel: payload.channel,
-            communityId: alice.id // Identity id is the same as community id
+          return socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
+            channels: {
+              [payload.channel.name]: payload.channel
+            },
           })
         }
         if (action === SocketActionTypes.SEND_MESSAGE) {
@@ -131,11 +130,9 @@ describe('Add new channel', () => {
 
     const button = screen.getByText('Create Channel')
     await userEvent.click(button)
-
     await act(async () => {
       await runSaga(testCreateChannelSaga).toPromise()
     })
-
     function* testCreateChannelSaga(): Generator {
       const createChannelAction = yield* take(publicChannels.actions.createChannel)
       expect(createChannelAction.payload.channel.name).toEqual(channelName.output)
@@ -154,10 +151,6 @@ describe('Add new channel', () => {
     // Check if sidebar item displays as selected
     const link = screen.getByTestId(`${channelName.output}-link`)
     expect(link).toHaveStyle('backgroundColor: rgb(103, 191, 211)') // lushSky: '#67BFD3'
-
-    // Check if initial message is visible
-    const message = await screen.findByText(`Created #${channelName.output}`)
-    expect(message).toBeVisible()
   })
 
   it('Displays error if trying to add channel with already taken name', async () => {
@@ -171,7 +164,7 @@ describe('Add new channel', () => {
     const factory = await getFactory(store)
 
     const channel = await factory.create<
-    ReturnType<typeof publicChannels.actions.addChannel>['payload']
+      ReturnType<typeof publicChannels.actions.addChannel>['payload']
     >('PublicChannel')
 
     renderComponent(

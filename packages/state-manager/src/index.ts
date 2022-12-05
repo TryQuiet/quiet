@@ -47,6 +47,8 @@ import { settingsSelectors } from './sagas/settings/settings.selectors'
 
 import { filesActions, filesReducer } from './sagas/files/files.slice'
 import { filesSelectors } from './sagas/files/files.selectors'
+import { networkActions, networkReducer } from './sagas/network/network.slice'
+import { networkSelectors } from './sagas/network/network.selectors'
 
 export { SocketActionTypes } from './sagas/socket/const/actionTypes'
 export { Store } from './sagas/store.types'
@@ -161,6 +163,12 @@ export const files = {
   reducer: filesReducer,
   actions: filesActions,
   selectors: filesSelectors
+}
+
+export const network = {
+  reducer: networkReducer,
+  actions: networkActions,
+  selectors: networkSelectors
 }
 
 export const socket = {

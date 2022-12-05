@@ -185,7 +185,7 @@ describe('displayNotificationsSaga', () => {
         label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
         body: message.message,
         channel: sailingChannel.address,
-        sound: NotificationsSounds.librarianShhh
+        sound: NotificationsSounds.pow
       })
       .run()
 

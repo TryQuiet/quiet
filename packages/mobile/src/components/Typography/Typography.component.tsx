@@ -4,6 +4,7 @@ import { StyledTypography } from './Typography.styles'
 import { TypographyProps } from './Typography.types'
 
 export const Typography: FC<TypographyProps> = ({
+  onPress,
   children,
   fontSize,
   fontWeight,
@@ -14,6 +15,7 @@ export const Typography: FC<TypographyProps> = ({
   numberOfLines
 }) => (
   <StyledTypography
+    onPress={onPress}
     color={color}
     fontSize={fontSize}
     fontWeight={fontWeight}

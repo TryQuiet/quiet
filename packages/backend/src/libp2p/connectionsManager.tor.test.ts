@@ -20,6 +20,8 @@ describe('Connections manager', () => {
   it('runs tor by default', async () => {
     const ports = await utils.getPorts()
     connectionsManager = new ConnectionsManager({
+      torBinaryPath: '../../3rd-party/tor/linux/tor',
+      torResourcesPath: '../../3rd-party/tor/linux',
       socketIOPort: ports.socksPort,
       options: {
         env: {
@@ -35,6 +37,8 @@ describe('Connections manager', () => {
   it('creates network', async () => {
     const ports = await utils.getPorts()
     connectionsManager = new ConnectionsManager({
+      torBinaryPath: '../../3rd-party/tor/linux/tor',
+      torResourcesPath: '../../3rd-party/tor/linux',
       socketIOPort: ports.socksPort,
       options: {
         env: {

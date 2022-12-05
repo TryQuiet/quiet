@@ -12,7 +12,8 @@ import {
   files,
   FileMetadata,
   CancelDownload,
-  FileContent
+  FileContent,
+  network
 } from '@quiet/state-manager'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -51,7 +52,7 @@ const Channel = () => {
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
   const communityId = useSelector(communities.selectors.currentCommunityId)
-  const initializedCommunities = useSelector(connection.selectors.initializedCommunities)
+  const initializedCommunities = useSelector(network.selectors.initializedCommunities)
 
   const isCommunityInitialized = Boolean(initializedCommunities[communityId])
 
