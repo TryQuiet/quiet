@@ -13,6 +13,8 @@ import {
   keyFromCertificate,
   parseCertificate
 } from '@quiet/identity'
+import { Crypto } from '@peculiar/webcrypto'
+
 import {
   communities,
   Community,
@@ -28,6 +30,7 @@ import {
 } from '@quiet/state-manager'
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
+import {setEngine, CryptoEngine} from 'pkijs'
 
 jest.setTimeout(30_000)
 
@@ -49,6 +52,15 @@ let filePath: string
 jest.setTimeout(50000)
 
 beforeAll(async () => {
+  const webcrypto = new Crypto()
+  // @ts-ignore
+  global.crypto = webcrypto
+    
+  setEngine('newEngine', new CryptoEngine({
+    name: 'newEngine',
+    // @ts-ignore
+    crypto: webcrypto,
+  }))
   store = prepareStore().store
   factory = await getFactory(store)
 
@@ -107,7 +119,7 @@ afterEach(async () => {
 })
 
 describe('Storage', () => {
-  it('creates paths by default', async () => {
+  it.only('creates paths by default', async () => {
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(false)
     expect(fs.existsSync(tmpIpfsPath)).toBe(false)
 
