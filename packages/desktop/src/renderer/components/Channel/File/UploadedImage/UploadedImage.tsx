@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { styled } from '@mui/material/styles';
-import { makeStyles } from '@mui/material'
+import { styled } from '@mui/material/styles'
 import { DisplayableMessage } from '@quiet/state-manager'
 import { UseModalTypeWrapper } from '../../../../containers/hooks'
 import UploadedFileModal from './UploadedImagePreview'
@@ -13,7 +12,6 @@ const classes = {
   container: `${PREFIX}container`
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
 const Root = styled('div')(() => ({
   [`& .${classes.image}`]: {
     maxWidth: '100%',

@@ -87,7 +87,7 @@ describe('Main', () => {
                                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                                 >
                                   <div
-                                    class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-30ndcw-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -101,9 +101,7 @@ describe('Main', () => {
                                     <div
                                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                                     >
-                                      <span
-                                        class="css-1fupvor"
-                                      >
+                                      <span>
                                         <button
                                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeLarge SidebarHeadericonButton css-1pux6rn-MuiButtonBase-root-MuiIconButton-root"
                                           data-mui-internal-clone-element="true"

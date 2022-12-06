@@ -118,7 +118,7 @@ describe('NestedMessageContent', () => {
                     data-testid="abcd1234-imageVisual"
                   >
                     <p
-                      class="UploadedImagePlaceholderfileName"
+                      class="css-h94c3"
                     >
                       test.png
                     </p>
@@ -188,12 +188,10 @@ describe('NestedMessageContent', () => {
               data-testid="messagesGroupContent-0"
             >
               <div
-                class="FileComponentborder"
+                class="css-4fpo3t"
                 data-testid="abcd1234-fileComponent"
               >
-                <span
-                  class="css-1fupvor"
-                >
+                <span>
                   <div
                     class=""
                     data-mui-internal-clone-element="true"
@@ -271,7 +269,7 @@ describe('NestedMessageContent', () => {
                     style="cursor: pointer;"
                   >
                     <div
-                      class="FileComponentactionIndicator"
+                      class="css-1vnortn"
                     >
                       <img
                         class="FileComponentactionIcon"

@@ -44,9 +44,7 @@ describe('FileComponent', () => {
             class="css-4fpo3t"
             data-testid="QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs-fileComponent"
           >
-            <span
-              class="css-1fupvor"
-            >
+            <span>
               <div
                 aria-label=""
                 class=""

@@ -39,11 +39,11 @@ describe('UploadedFile', () => {
             class="css-gd4qex"
           >
             <div
-              class="css-3kgkfp"
+              class="css-1b4jr6y"
               data-testid="abcd1234-imagePlaceholder"
             >
               <p
-                class="UploadedImagePlaceholderfileName"
+                class="css-h94c3"
               >
                 test.png
               </p>
@@ -102,7 +102,7 @@ describe('UploadedFile', () => {
                 data-testid="abcd1234-imageVisual"
               >
                 <p
-                  class="UploadedImagePlaceholderfileName"
+                  class="css-h94c3"
                 >
                   test.png
                 </p>

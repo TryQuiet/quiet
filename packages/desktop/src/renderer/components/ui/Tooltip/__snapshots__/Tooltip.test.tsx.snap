@@ -3,9 +3,7 @@
 exports[`Tooltip renders component with correct arrow placement - bottom 1`] = `
 <body>
   <div>
-    <span
-      class="css-1fupvor"
-    >
+    <span>
       <div>
         TooltipContent
       </div>
@@ -17,9 +15,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom 1`] = `
 exports[`Tooltip renders component with correct arrow placement - bottom-end 1`] = `
 <body>
   <div>
-    <span
-      class="css-1fupvor"
-    >
+    <span>
       <div>
         TooltipContent
       </div>
@@ -31,9 +27,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom-end 1`]
 exports[`Tooltip renders component with correct arrow placement - bottom-start 1`] = `
 <body>
   <div>
-    <span
-      class="css-1fupvor"
-    >
+    <span>
       <div>
         TooltipContent
       </div>
@@ -45,9 +39,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom-start 1
 exports[`Tooltip renders component with correct arrow placement - top 1`] = `
 <body>
   <div>
-    <span
-      class="css-1fupvor"
-    >
+    <span>
       <div>
         TooltipContent
       </div>
@@ -59,9 +51,7 @@ exports[`Tooltip renders component with correct arrow placement - top 1`] = `
 exports[`Tooltip renders component with correct arrow placement - top-end 1`] = `
 <body>
   <div>
-    <span
-      class="css-1fupvor"
-    >
+    <span>
       <div>
         TooltipContent
       </div>
@@ -73,9 +63,7 @@ exports[`Tooltip renders component with correct arrow placement - top-end 1`] = 
 exports[`Tooltip renders component with correct arrow placement - top-start 1`] = `
 <body>
   <div>
-    <span
-      class="css-1fupvor"
-    >
+    <span>
       <div>
         TooltipContent
       </div>

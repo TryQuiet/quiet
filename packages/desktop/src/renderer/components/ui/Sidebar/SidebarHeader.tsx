@@ -47,7 +47,8 @@ const StyledGrid = styled(Grid)(() => ({
   },
 
   [`& .${classes.tooltip}`]: {
-    marginTop: -1
+    marginTop: -1,
+    backgroundColor: 'blue'
   }
 }));
 

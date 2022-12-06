@@ -21,15 +21,10 @@ const classes = {
   tooltip: `${PREFIX}tooltip`
 };
 
-const Root = styled('div')(() => ({
-  [`& .${classes.inputFiles}`]: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flexStart',
-    alignItems: 'baseline',
-    alignContent: 'stretch',
-    paddingRight: '50px'
-  },
+const StyledFilePreviewComponent = styled('div')(() => ({
+  display: 'inline-block',
+  float: 'left',
+  cursor: 'pointer',
 
   [`& .${classes.wrapper}`]: {
     margin: '0 0 10px 10px',
@@ -85,16 +80,19 @@ const Root = styled('div')(() => ({
     width: '17px'
   },
 
-  [`&.${classes.imageContainer}`]: {
-    display: 'inline-block',
-    float: 'left',
-    cursor: 'pointer'
-  },
-
   [`& .${classes.tooltip}`]: {
     marginTop: '8px'
   }
 }));
+
+const StyledUploadFilesPreviewsComponent = styled('div')(() => ({
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  justifyContent: 'flexStart',
+  alignItems: 'baseline',
+  alignContent: 'stretch',
+  paddingRight: '50px'
+}))
 
 export interface FilePreviewData {
   [id: string]: FileContent
@@ -110,8 +108,7 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
   const imageType = imagesExtensions.includes(fileData.ext)
 
   return (
-    <Root
-      className={classes.imageContainer}
+    <StyledFilePreviewComponent
       onMouseLeave={() => {
         setShowClose(false)
       }}
@@ -134,7 +131,7 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
           )}
         </div>
       </Tooltip>
-    </Root>
+    </StyledFilePreviewComponent>
   );
 }
 
@@ -147,13 +144,12 @@ const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
   filesData,
   removeFile
 }) => {
-
   return (
-    <div className={classes.inputFiles}>
+    <StyledUploadFilesPreviewsComponent>
       {Object.entries(filesData).map(fileData => (
         <FilePreviewComponent key={fileData[0]} fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />
       ))}
-    </div>
+    </StyledUploadFilesPreviewsComponent>
   )
 }
 

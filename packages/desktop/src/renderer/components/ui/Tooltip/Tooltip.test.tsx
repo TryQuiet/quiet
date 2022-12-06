@@ -16,9 +16,7 @@ describe('Tooltip', () => {
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
-          <span
-            class="css-1fupvor"
-          >
+          <span>
             <div>
               TooltipContent
             </div>
@@ -30,16 +28,14 @@ describe('Tooltip', () => {
 
   it('renders component with optional props', () => {
     const result = renderComponent(
-      <Tooltip title='test-title' interactive noWrap>
+      <Tooltip title='test-title' interactive>
         <TooltipContent />
       </Tooltip>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
-          <span
-            class="css-1fupvor"
-          >
+          <span>
             <div>
               TooltipContent
             </div>

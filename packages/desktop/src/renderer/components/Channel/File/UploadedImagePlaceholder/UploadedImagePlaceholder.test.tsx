@@ -18,11 +18,11 @@ describe('UploadedImagePlaceholder', () => {
       <body>
         <div>
           <div
-            class="css-3kgkfp"
+            class="css-1b4jr6y"
             data-testid="hvb45FGa-imagePlaceholder"
           >
             <p
-              class="UploadedImagePlaceholderfileName"
+              class="css-h94c3"
             >
               test.png
             </p>

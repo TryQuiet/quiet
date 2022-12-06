@@ -13,11 +13,7 @@ const classes = {
   fileName: `${PREFIX}fileName`
 };
 
-const Root = styled('div')((
-  {
-    theme
-  }
-) => ({
+const Root = styled('div')(() => ({
   maxWidth: '400px',
   height: '100%',
 
@@ -33,13 +29,17 @@ const Root = styled('div')((
 
   [`& .${classes.placeholderIcon}`]: {
     marginRight: '0.5em'
-  },
-
-  [`& .${classes.fileName}`]: {
-    color: theme.palette.colors.darkGray,
-    margin: 0
   }
 }));
+
+const StyledUploadedFilename = styled('p')((
+  {
+    theme
+  }
+) => ({
+  color: theme.palette.colors.darkGray,
+  margin: 0
+}))
 
 interface UploadedFilenameProps {
   fileName: string
@@ -50,7 +50,7 @@ export const UploadedFilename: React.FC<UploadedFilenameProps> = ({
 }) => {
 
   return (
-    <p className={classes.fileName}>{fileName}</p>
+    <StyledUploadedFilename>{fileName}</StyledUploadedFilename>
   )
 }
 

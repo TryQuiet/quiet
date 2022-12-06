@@ -18,9 +18,7 @@ describe('Elipsis', () => {
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
-          <span
-            class="css-1fupvor"
-          >
+          <span>
             <span
               class="MuiTypography-root MuiTypography-caption Elipsiscontent css-1d4bzk2-MuiTypography-root"
               data-mui-internal-clone-element="true"
@@ -38,9 +36,7 @@ describe('Elipsis', () => {
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
-          <span
-            class="css-1fupvor"
-          >
+          <span>
             <span
               class="MuiTypography-root MuiTypography-caption Elipsiscontent css-1d4bzk2-MuiTypography-root"
               data-mui-internal-clone-element="true"
