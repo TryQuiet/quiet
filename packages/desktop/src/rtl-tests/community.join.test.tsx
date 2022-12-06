@@ -155,7 +155,10 @@ describe('User', () => {
     // Enter community address and hit button
     const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const joinCommunityButton = screen.getByText(dictionary.button)
-    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+    await userEvent.type(
+      joinCommunityInput,
+      '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd'
+    )
     await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
@@ -193,17 +196,15 @@ describe('User', () => {
         "Identity/registerCertificate",
         "Communities/storePeerList",
         "Identity/storeUserCertificate",
-        "Modals/closeModal",
-        "Modals/closeModal",
         "Communities/updateCommunity",
         "Communities/updateCommunityData",
         "Communities/launchCommunity",
         "Communities/launchRegistrar",
         "Network/addInitializedCommunity",
         "PublicChannels/channelsReplicated",
-        "Modals/openModal",
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
+        "Modals/closeModal",
         "Modals/closeModal",
       ]
     `)
@@ -277,7 +278,10 @@ describe('User', () => {
     // Enter community address and hit button
     const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const joinCommunityButton = screen.getByText(dictionary.button)
-    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+    await userEvent.type(
+      joinCommunityInput,
+      '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd'
+    )
     await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
@@ -372,7 +376,10 @@ describe('User', () => {
     // Enter community address and hit button
     const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const joinCommunityButton = screen.getByText(dictionary.button)
-    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+    await userEvent.type(
+      joinCommunityInput,
+      '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd'
+    )
     await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration

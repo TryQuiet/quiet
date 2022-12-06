@@ -70,7 +70,6 @@ export const Tooltip: React.FC<React.ComponentProps<typeof MuiTooltip> & CustomT
         }
         placement={placement}
         arrow
-        leaveDelay={100_000}
         >
         {children}
       </StyledTooltip>

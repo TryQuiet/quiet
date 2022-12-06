@@ -199,7 +199,6 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   return (
     <Modal open={open} handleClose={handleClose} testIdPrefix='createUsername' isCloseDisabled={true}>
       <StyledModalContent container direction='column'>
-        {!certificate ? (
           <>
             <form onSubmit={handleSubmit(onSubmit)}>
               <Grid
@@ -272,9 +271,6 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
               </Grid>
             </form>
           </>
-        ) : (
-          <UsernameCreated handleClose={handleClose} setFormSent={setFormSent} />
-        )}
       </StyledModalContent>
     </Modal>
   );

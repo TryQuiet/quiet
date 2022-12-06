@@ -26,7 +26,8 @@ describe('Add new channel', () => {
     ioMock.mockImplementation(() => socket)
   })
 
-  it('user submits corrected name', async () => {
+  it('entered channel name is slugified', async () => {
+    const user = userEvent.setup()
     const { store, runSaga } = await prepareStore(
       {},
       socket // Fork State-manager's sagas
@@ -38,18 +39,18 @@ describe('Add new channel', () => {
       'Identity',
       { nickname: 'alice' }
     )
-    
-    const aaa = renderComponent(<CreateChannel />, store)
-    console.log('-----', aaa.baseElement)
 
+    renderComponent(<CreateChannel />, store)
+    
     store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
 
-    const input = screen.getByPlaceholderText('Enter a channel name')
-    const button = screen.getByText('Create Channel')
-
-    await userEvent.type(input, 'Some channel NAME  ')
-    await userEvent.click(button)
-
+    const input = await screen.findByPlaceholderText('Enter a channel name')
+    await user.type(input, 'Some channel NAME  ')
+    await act(() => waitFor(() => { user.click(screen.getByText('Create Channel')) }))
+    
+    // Modal should close after user submits channel name
+    expect(screen.queryByDisplayValue('Create a new public channel')).toBeNull()
+    
     await act(async () => {
       await runSaga(testSubmittedChannelName).toPromise()
     })

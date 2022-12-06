@@ -1,6 +1,6 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
-import { screen } from '@testing-library/dom'
+import { screen, waitFor } from '@testing-library/dom'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { StoreKeys } from '../renderer/store/store.keys'
@@ -151,11 +151,13 @@ describe('Loading panel', () => {
       </>,
       store
     )
-
+    
+    // 'Create username' modal should be opened
+    expect(screen.queryByTestId('createUsernameModalActions')).not.toBeNull()
     // Assertions that we don't see Loading Pannel
     expect(screen.queryByTestId('spinnerLoader')).toBeNull()
-    // Show 'You created a username' after receiving certificate
+    // 'Create username' modal should be closed after receiving certificate
     store.dispatch(identity.actions.storeUserCertificate({ communityId: community.id, userCertificate: aliceCertificate }))
-    expect(screen.getByText('You created a username')).toBeVisible()
+    waitFor(() => expect(screen.queryByTestId('createUsernameModalActions')).toBeNull())
   })
 })

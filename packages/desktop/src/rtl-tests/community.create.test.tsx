@@ -183,8 +183,6 @@ describe('User', () => {
         "Communities/storePeerList",
         "Identity/storeUserCertificate",
         "Identity/savedOwnerCertificate",
-        "Modals/closeModal",
-        "Modals/closeModal",
         "Communities/launchRegistrar",
         "Network/addInitializedCommunity",
         "Identity/saveOwnerCertToDb",
@@ -195,10 +193,10 @@ describe('User', () => {
         "PublicChannels/createChannel",
         "PublicChannels/addChannel",
         "PublicChannels/setCurrentChannel",
-        "Modals/openModal",
-        "Modals/closeModal",
         "Messages/addPublicChannelsMessagesBase",
         "PublicChannels/clearUnreadChannel",
+        "Modals/closeModal",
+        "Modals/closeModal",
       ]
     `)
   })

@@ -552,7 +552,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       className={classes.emoji}
                       src={emojiHovered ? emojiBlack : emojiGray}
                       onClickHandler={() => {
-                        console.log('opening emoji')
                         setOpenEmoji(true)
                       }}
                       onMouseEnterHandler={() => {
@@ -568,7 +567,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     <ClickAwayListener
                       onClickAway={() => {
                         setOpenEmoji(false)
-                        console.log('onClickAway')
                       }}>
                       <div data-testid={'emoji-picker'} className={classes.picker}>
                         <Picker
@@ -577,7 +575,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                             setHtmlMessage(htmlMessage => htmlMessage + emojiData.emoji)
                             setMessage(message + emojiData.emoji)
                             setOpenEmoji(false)
-                            console.log('onEmojiClick')
                           }}
                         /* eslint-enable */
                         />
