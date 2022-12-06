@@ -11,9 +11,10 @@ import * as os from 'os'
 import path from 'path'
 import fs from 'fs'
 import PeerId, { JSONPeerId } from 'peer-id'
+//import type PeerId from '@libp2p/peer-id'
 import { emitError } from '../socket/errors'
 import { CertificateRegistration } from '../registration'
-import {setEngine, CryptoEngine} from 'pkijs'
+import { setEngine, CryptoEngine } from 'pkijs'
 
 import {
   InitCommunityPayload,
@@ -70,7 +71,7 @@ import { Libp2pEvents } from './types'
 const log = logger('conn')
 interface InitStorageParams {
   communityId: string
-  peerId: PeerId
+  peerId: any
   onionAddress: string
   targetPort: number
   peers: string[]
@@ -83,7 +84,7 @@ export interface IConstructor {
 }
 
 export interface Libp2pNodeParams {
-  peerId: PeerId
+  peerId: any
   listenAddresses: string[]
   agent: Agent
   cert: string
@@ -96,7 +97,7 @@ export interface Libp2pNodeParams {
 }
 
 export interface InitLibp2pParams {
-  peerId: PeerId
+  peerId: any
   address: string
   addressPort: number
   targetPort: number
@@ -139,7 +140,7 @@ export class ConnectionsManager extends EventEmitter {
       console.error(error)
       throw new Error()
     })
-    process.on('SIGINT', function() {
+    process.on('SIGINT', function () {
       // This is not graceful even in a single percent. we must close services first, not just kill process %
       log('\nGracefully shutting down from SIGINT (Ctrl-C)')
       process.exit(0)
@@ -147,7 +148,7 @@ export class ConnectionsManager extends EventEmitter {
     const webcrypto = new Crypto()
     // @ts-ignore
     global.crypto = webcrypto
-        
+
     setEngine('newEngine', new CryptoEngine({
       name: 'newEngine',
       // @ts-ignore
@@ -235,8 +236,13 @@ export class ConnectionsManager extends EventEmitter {
     const ports = await getPorts()
     const hiddenService = await this.tor.createNewHiddenService(ports.libp2pHiddenService)
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
-
     const peerId = await PeerId.create()
+
+    // const {createPeerId} = await eval("import('@libp2p/peer-id')")
+
+    // const peerId = await createPeerId({type: 'RSA'})
+
+    // console.log(peerId)
     log(`Created network for peer ${peerId.toB58String()}. Address: ${hiddenService.onionAddress}`)
     return {
       hiddenService,
@@ -312,7 +318,11 @@ export class ConnectionsManager extends EventEmitter {
       payload.hiddenService.privateKey
     )
     log(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
+    // const {peerIdFromPeerId} = await eval("import('@libp2p/peer-id')")
+    // const peerId = await peerIdFromPeerId(payload.peerId)
+    // console.log(peerId)
     const peerId = await PeerId.createFromJSON(payload.peerId as JSONPeerId)
+
     const initStorageParams: InitStorageParams = {
       communityId: payload.id,
       peerId: peerId,
@@ -627,52 +637,58 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   private static readonly defaultLibp2pNode = async (params: Libp2pNodeParams): Promise<Libp2p> => {
-    const { createLibp2p } : {createLibp2p: typeof l2l} = await eval("import('libp2p')")
-    const {noise} = await eval("import('@chainsafe/libp2p-noise')")
-    const {mplex} = await eval("import('@libp2p/mplex')")
+    const { createLibp2p }: { createLibp2p: typeof l2l } = await eval("import('libp2p')")
+    const { noise } = await eval("import('@chainsafe/libp2p-noise')")
+    const Gossipsub = await eval("import('@chainsafe/libp2p-gossipsub')")
+    const { mplex } = await eval("import('@libp2p/mplex')")
+    const { webSockets } = await eval("import('@libp2p/websockets')")
+    const filters = await eval("import('@libp2p/websockets/filters')")
 
     let lib
 
     try {
       lib = await createLibp2p({
-      connectionManager: {
-        minConnections: 3,
-        maxConnections: 8,
-        dialTimeout: 120_000,
-        maxParallelDials: 10
-      },
-      //peerId: params.peerId,
-      addresses: {
-        listen: params.listenAddresses
-      },
-      streamMuxers: [mplex()],
-      connectionEncryption: [noise()],
-      //peerDiscovery: [Bootstrap],
-      // peerDiscovery: {
-      //   [Bootstrap.tag]: {
-      //     enabled: true,
-      //     list: params.bootstrapMultiaddrsList
-      //   },
-      //  // autoDial: true
-      // },
-      relay: {
-        enabled: true,
-        hop: {
+        connectionManager: {
+          minConnections: 3,
+          maxConnections: 8,
+          dialTimeout: 120_000,
+          maxParallelDials: 10
+        },
+        peerId: params.peerId,
+        addresses: {
+          listen: params.listenAddresses
+        },
+        streamMuxers: [mplex()],
+        connectionEncryption: [noise()],
+        // peerDiscovery: [Bootstrap],
+        // peerDiscovery: {
+        //   [Bootstrap.tag]: {
+        //     enabled: true,
+        //     list: params.bootstrapMultiaddrsList
+        //   },
+        //  // autoDial: true
+        // },
+        relay: {
           enabled: true,
-          active: false
-        }
-      },
+          hop: {
+            enabled: true,
+            active: false
+          }
+        },
         transports: [
-       new Websockets()
-        ]
-      // dht: {
-      //   enabled: true,
-      //   randomWalk: {
-      //     enabled: true
-      //   }
-      // },
-     // pubsub: Gossipsub,
-    })} catch(err) {
+          webSockets({
+            // connect to all sockets, even insecure ones
+            filters: filters.all
+          })],
+        // dht: {
+        //   enabled: true,
+        //   randomWalk: {
+        //     enabled: true
+        //   }
+        // },
+        pubsub: Gossipsub,
+      })
+    } catch (err) {
       console.log('LIBP2P ERROR:', err)
     }
 

@@ -78,7 +78,9 @@
 	},
 	"dependencies": {
 		"@chainsafe/libp2p-noise": "^10.2.0",
+		"@chainsafe/libp2p-gossipsub": "^5.3.0",
 		"@libp2p/mplex": "^7.1.0",
+		"@libp2p/peer-id": "1.1.16",
 		"@libp2p/websockets": "5.0.0",
 		"@peculiar/webcrypto": "1.2.2",
 		"@quiet/identity": "^0.11.0",
@@ -114,6 +116,7 @@
 		"orbit-db-store": "4.3.4",
 		"peer-id": "^0.15.0",
 		"pkijs": "3.0.8",
+		"secp256k1": "4.0.3",
 		"socket.io": "3.0.5",
 		"socks-proxy-agent": "^5.0.0",
 		"validator": "^13.6.0"
