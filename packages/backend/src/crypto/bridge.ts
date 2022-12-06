@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+import { getCrypto, getEngine } from 'pkijs'
 import { CryptoService } from './service'
 import { CryptoServicePayload, SocketActionTypes } from '@quiet/state-manager'
 
@@ -13,7 +13,8 @@ export class CryptoBridge {
   public onCall = async (payload: CryptoServicePayload) => {
     const { id, method, args } = payload
     try {
-      const value = await crypto[method](args)
+      const crypto = getCrypto()
+      const value = await crypto[method](...args)
       this.cryptoService.sendResponse({ id, value })
     } catch (reason) {
       this.cryptoService.sendResponse({ id, reason })

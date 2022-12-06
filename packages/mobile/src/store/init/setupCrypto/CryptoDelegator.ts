@@ -47,7 +47,7 @@ export class CryptoDelegator {
     const subtle = {}
     for (const m of SUBTLE_METHODS) {
       subtle[m] = async (...args) => {
-        return await this.call(`subtle.${m}`, args)
+        return await this.call(`${m}`, args)
       }
     }
     return subtle as SubtleCrypto
