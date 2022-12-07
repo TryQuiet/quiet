@@ -28,6 +28,7 @@
 		1868C43E2930EAEA001D6D5E /* CommunicationBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 1868C43D2930EAEA001D6D5E /* CommunicationBridge.m */; };
 		1889CA4E26E763E1004ECFBD /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1889CA4D26E763E1004ECFBD /* Extensions.swift */; };
 		1898143A2934CF70001F39E7 /* TorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189814392934CF70001F39E7 /* TorHandler.swift */; };
+		18E5F4AB293F7E6A0096E22C /* blank.html in Resources */ = {isa = PBXBuildFile; fileRef = 18E5F4AA293F7E6A0096E22C /* blank.html */; };
 		2C9545F989881F3430DE02E8 /* libPods-ZbayMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A71B1AB0D009F9417B7204A0 /* libPods-ZbayMobile.a */; };
 		43B99DB1C98D429295E8CB91 /* Rubik-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2BB5F4B8D4F3462CB8AF6312 /* Rubik-SemiBoldItalic.ttf */; };
 		5CBDF3C0D937401A886684F8 /* Rubik-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 706E1601C7B649A8A40A7877 /* Rubik-Light.ttf */; };
@@ -585,6 +586,7 @@
 		1889CA4D26E763E1004ECFBD /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		1891BBFD26D683D100101CC7 /* libnodejs-mobile-react-native.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libnodejs-mobile-react-native.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		189814392934CF70001F39E7 /* TorHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorHandler.swift; sourceTree = "<group>"; };
+		18E5F4AA293F7E6A0096E22C /* blank.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = blank.html; sourceTree = "<group>"; };
 		18ED84D0299E4E55AB68AA3E /* Rubik-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-ExtraBold.ttf"; path = "../assets/fonts/Rubik-ExtraBold.ttf"; sourceTree = "<group>"; };
 		18FE5FF326F4C06B0016DAC7 /* ZbayMobile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ZbayMobile.entitlements; path = ZbayMobile/ZbayMobile.entitlements; sourceTree = "<group>"; };
 		2386DA39D8B240D9A80ECBD9 /* Rubik-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
@@ -4667,6 +4669,7 @@
 				F2CAE82B74814677AFF9779E /* Rubik-Regular.ttf */,
 				BF73B04135634980BC656D6C /* Rubik-SemiBold.ttf */,
 				2BB5F4B8D4F3462CB8AF6312 /* Rubik-SemiBoldItalic.ttf */,
+				18E5F4AA293F7E6A0096E22C /* blank.html */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -4819,6 +4822,7 @@
 				1868C431292F997C001D6D5E /* common.gypi in Resources */,
 				80CCB457674F4979A3C5DB06 /* Rubik-MediumItalic.ttf in Resources */,
 				1389B75C9E334BCFB4A3E58B /* Rubik-Regular.ttf in Resources */,
+				18E5F4AB293F7E6A0096E22C /* blank.html in Resources */,
 				7F80A59D9EC1440186E5D5CF /* Rubik-SemiBold.ttf in Resources */,
 				43B99DB1C98D429295E8CB91 /* Rubik-SemiBoldItalic.ttf in Resources */,
 			);
