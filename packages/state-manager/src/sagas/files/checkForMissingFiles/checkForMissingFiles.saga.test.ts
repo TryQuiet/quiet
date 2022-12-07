@@ -23,11 +23,11 @@ describe('checkForMissingFilesSaga', () => {
     const factory = await getFactory(initialState)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
@@ -100,11 +100,11 @@ describe('checkForMissingFilesSaga', () => {
     const factory = await getFactory(initialState)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
@@ -171,17 +171,143 @@ describe('checkForMissingFilesSaga', () => {
       .run()
   })
 
+  test('download only specific file from many missing files', async () => {
+    const initialState = prepareStore().store
+
+    const factory = await getFactory(initialState)
+
+    const community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    const message1 = Math.random().toString(36).substr(2.9)
+    const message2 = Math.random().toString(36).substr(2.9)
+
+    const channelAddress = 'general'
+
+    const missingFile1: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.zip',
+      message: {
+        id: message1,
+        channelAddress: channelAddress
+      },
+      size: AUTODOWNLOAD_SIZE_LIMIT - 2048
+    }
+
+    const missingFile2: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.zip',
+      message: {
+        id: message2,
+        channelAddress: channelAddress
+      },
+      size: AUTODOWNLOAD_SIZE_LIMIT - 2048
+    }
+
+    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+      'Message',
+      {
+        identity: alice,
+        message: {
+          id: message1,
+          type: MessageType.File,
+          message: '',
+          createdAt: DateTime.utc().valueOf(),
+          channelAddress: 'general',
+          signature: '',
+          pubKey: '',
+          media: missingFile1
+        }
+      }
+    )
+
+    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+      'Message',
+      {
+        identity: alice,
+        message: {
+          id: message2,
+          type: MessageType.File,
+          message: '',
+          createdAt: DateTime.utc().valueOf(),
+          channelAddress: 'general',
+          signature: '',
+          pubKey: '',
+          media: missingFile2
+        }
+      }
+    )
+
+    const store = prepareStore(initialState.getState()).store
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+    store.dispatch(filesActions.updateDownloadStatus({
+      mid: missingFile1.message.id,
+      cid: missingFile1.cid,
+      downloadState: DownloadState.Canceled
+    }))
+
+    store.dispatch(filesActions.updateDownloadStatus({
+      mid: missingFile2.message.id,
+      cid: missingFile2.cid,
+      downloadState: DownloadState.Downloading
+    }))
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      checkForMissingFilesSaga,
+      socket,
+      networkActions.addInitializedCommunity(community.id)
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put(filesActions.updateDownloadStatus({
+        mid: missingFile1.message.id,
+        cid: missingFile1.cid,
+        downloadState: DownloadState.Queued
+      }))
+      .not.apply(socket, socket.emit, [
+        SocketActionTypes.DOWNLOAD_FILE,
+        {
+          peerId: alice.peerId.id,
+          metadata: missingFile1
+        }
+      ])
+      .put(filesActions.updateDownloadStatus({
+        mid: missingFile2.message.id,
+        cid: missingFile2.cid,
+        downloadState: DownloadState.Queued
+      }))
+      .apply(socket, socket.emit, [
+        SocketActionTypes.DOWNLOAD_FILE,
+        {
+          peerId: alice.peerId.id,
+          metadata: missingFile2
+        }
+      ])
+      .run()
+  })
+
   test('do not download file after restarting the app if file exceeds autodownload size limit', async () => {
     const initialState = prepareStore().store
 
     const factory = await getFactory(initialState)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
@@ -254,11 +380,11 @@ describe('checkForMissingFilesSaga', () => {
     const factory = await getFactory(initialState)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
@@ -331,11 +457,11 @@ describe('checkForMissingFilesSaga', () => {
     const factory = await getFactory(initialState)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
@@ -402,17 +528,94 @@ describe('checkForMissingFilesSaga', () => {
       .run()
   })
 
+  test('do not download file after restarting the app if downloading status is malicious', async () => {
+    const initialState = prepareStore().store
+
+    const factory = await getFactory(initialState)
+
+    const community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    const message = Math.random().toString(36).substr(2.9)
+    const channelAddress = 'general'
+
+    const missingFile: FileMetadata = {
+      cid: Math.random().toString(36).substr(2.9),
+      path: null,
+      name: 'test-file',
+      ext: '.zip',
+      message: {
+        id: message,
+        channelAddress: channelAddress
+      },
+      size: AUTODOWNLOAD_SIZE_LIMIT - 2048
+    }
+
+    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+      'Message',
+      {
+        identity: alice,
+        message: {
+          id: message,
+          type: MessageType.File,
+          message: '',
+          createdAt: DateTime.utc().valueOf(),
+          channelAddress: 'general',
+          signature: '',
+          pubKey: '',
+          media: missingFile
+        }
+      }
+    )
+
+    const store = (await prepareStore(initialState.getState())).store
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+    store.dispatch(filesActions.updateDownloadStatus({
+      mid: missingFile.message.id,
+      cid: missingFile.cid,
+      downloadState: DownloadState.Malicious
+    }))
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      checkForMissingFilesSaga,
+      socket,
+      networkActions.addInitializedCommunity(community.id)
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put(filesActions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: missingFile.cid,
+        downloadState: DownloadState.Queued
+      }))
+      .not.apply(socket, socket.emit, [
+        SocketActionTypes.DOWNLOAD_FILE,
+        {
+          peerId: alice.peerId.id,
+          metadata: missingFile
+        }
+      ])
+      .run()
+  })
+
   test('do not throw error if download status is not present', async () => {
     const initialState = prepareStore().store
 
     const factory = await getFactory(initialState)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
@@ -483,11 +686,11 @@ describe('checkForMissingFilesSaga', () => {
     const factory = await getFactory(initialState)
 
     const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)

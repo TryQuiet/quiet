@@ -34,8 +34,7 @@ export function* checkForMissingFilesSaga(
       for (const file of missingFiles) {
         const fileDownloadStatus = downloadStatuses[file.message.id]
         // Do not autodownload canceled files
-        if (fileDownloadStatus?.downloadState === DownloadState.Canceled) return
-
+        if (fileDownloadStatus?.downloadState === DownloadState.Canceled) continue
         // Start downloading already queued files
         if (fileDownloadStatus?.downloadState === DownloadState.Queued) {
           yield* apply(socket, socket.emit, [
@@ -45,11 +44,13 @@ export function* checkForMissingFilesSaga(
               metadata: file
             }
           ])
-          return
+          continue
         }
 
         // Do not autodownload oversized files unless started manually
-        if (fileDownloadStatus?.downloadState !== DownloadState.Downloading && file.size > AUTODOWNLOAD_SIZE_LIMIT) return
+        if (fileDownloadStatus?.downloadState !== DownloadState.Downloading && file.size > AUTODOWNLOAD_SIZE_LIMIT) continue
+
+        if (fileDownloadStatus?.downloadState === DownloadState.Malicious || !file.size) continue
 
         yield* put(filesActions.updateDownloadStatus({
           mid: file.message.id,
