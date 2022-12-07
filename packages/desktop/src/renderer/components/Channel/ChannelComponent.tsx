@@ -71,9 +71,9 @@ export interface ChannelComponentProps {
   isCommunityInitialized: boolean
   handleClipboardFiles?: (arg: ArrayBuffer, ext: string, name: string) => void
   uploadedFileModal?: ReturnType<
-  UseModalTypeWrapper<{
-    src: string
-  }>['types']
+    UseModalTypeWrapper<{
+      src: string
+    }>['types']
   >
 }
 
@@ -192,7 +192,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   useEffect(() => {
     if (
       Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) - 1 >=
-        Math.floor(scrollbarRef.current?.clientHeight) &&
+      Math.floor(scrollbarRef.current?.clientHeight) &&
       lastSeenMessage !== newestMessage.id
     ) {
       setNewMessagesInfo(true)
@@ -254,7 +254,11 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             openFilesDialog={openFilesDialog}
             infoClass={infoClass}
             setInfoClass={setInfoClass}
-            inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
+            inputState={
+              (isCommunityInitialized && Boolean(messages.count))
+                ? INPUT_STATE.AVAILABLE
+                : INPUT_STATE.NOT_CONNECTED
+            }
             handleClipboardFiles={handleClipboardFiles}
             handleOpenFiles={handleFileDrop}
             messages={messages.groups}>

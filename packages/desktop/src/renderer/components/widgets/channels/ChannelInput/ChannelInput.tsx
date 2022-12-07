@@ -183,7 +183,7 @@ export interface ChannelInputProps {
   children?: ReactElement
   openFilesDialog: () => void
   handleClipboardFiles?: (arg: ArrayBuffer, ext: string, name: string) => void
-  handleOpenFiles: (arg: {files: any[]}) => void
+  handleOpenFiles: (arg: { files: any[] }) => void
   messages?: MessagesDailyGroups
 }
 
@@ -227,8 +227,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const [htmlMessage, setHtmlMessage] = React.useState<string>(initialMessage)
   const [message, setMessage] = React.useState(initialMessage)
 
-  const [disableInput, setDisableInput] = React.useState(false)
-
   React.useEffect(() => {
     inputRef.current?.el.current.focus()
   }, [inputRef])
@@ -245,10 +243,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const isRefSelected = (refSelected: number | undefined): refSelected is number => {
     return typeof refSelected === 'number'
   }
-
-  React.useEffect(() => {
-    mentionsToSelectRef.current = mentionsToSelect
-  }, [mentionsToSelect])
 
   React.useEffect(() => {
     mentionsToSelectRef.current = mentionsToSelect
@@ -276,15 +270,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   React.useEffect(() => {
     messageRef.current = message
   }, [message])
-
-  React.useEffect(() => {
-    if(Object.values(messages).length >= 1 && inputState === INPUT_STATE.AVAILABLE){
-      setDisableInput(false)
-    } else {
-      setDisableInput(true)
-    }
-
-  }, [messages, inputState])
 
   const findMentions = React.useCallback(
     (text: string) => {
@@ -490,7 +475,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       setFocused(true)
                     }
                   }}
-                  disabled={disableInput}
+                  disabled={inputState !== INPUT_STATE.AVAILABLE}
                   html={sanitizedHtml}
                   onChange={onChangeCb}
                   onKeyDown={onKeyDownCb}
