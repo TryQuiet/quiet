@@ -115,17 +115,12 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                 startWebsocketConnection(dataPort)
             }
 
-            // Those we should get inside tor module
-            val controlPort     = Utils.getOpenPort(12000)
-            val socksPort       = Utils.getOpenPort(13000)
-            val httpTunnelPort  = Utils.getOpenPort(14000)
-
-            val dataDirectoryPath = Utils.createDirectory(context)
+            val dataPath = Utils.createDirectory(context)
 
             val tor = TorResourceInstaller(context, context.filesDir).installResources()
-            val torPath = tor.canonicalPath
+            val torBinary = tor.canonicalPath
             
-            startNodeProjectWithArguments("lib/mobileBackendManager.js -d $dataDirectoryPath -p $dataPort -c $controlPort -s $socksPort -t $httpTunnelPort -a $torPath")
+            startNodeProjectWithArguments("lib/mobileBackendManager.js --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort")
         }
 
         // Indicate whether the work finished successfully with the Result

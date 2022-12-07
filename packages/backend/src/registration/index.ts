@@ -72,7 +72,7 @@ export class CertificateRegistration extends EventEmitter {
 
   public async stop(): Promise<void> {
     return await new Promise(resolve => {
-      if (!this._server) return
+      if (!this._server) resolve()
       this._server.close(() => {
         log('Certificate registration service closed')
         resolve()
