@@ -10,7 +10,7 @@ import Icon from '../../ui/Icon/Icon'
 import updateIcon from '../../../static/images/updateIcon.svg'
 import Modal from '../../ui/Modal/Modal'
 
-const PREFIX = 'UpdateModal';
+const PREFIX = 'UpdateModal'
 
 const classes = {
   info: `${PREFIX}info`,
@@ -18,7 +18,7 @@ const classes = {
   updateIcon: `${PREFIX}updateIcon`,
   title: `${PREFIX}title`,
   subTitle: `${PREFIX}subTitle`
-};
+}
 
 const StyledModalContent = styled(Grid)((
   {
@@ -51,7 +51,7 @@ const StyledModalContent = styled(Grid)((
   [`& .${classes.subTitle}`]: {
     marginBottom: 32
   }
-}));
+}))
 
 interface UpdateModalProps {
   open: boolean
@@ -60,7 +60,6 @@ interface UpdateModalProps {
 }
 
 export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, handleUpdate }) => {
-
   return (
     <Modal open={open} handleClose={handleClose}>
       <StyledModalContent container direction='column' alignItems='center' justifyContent='flex-start'>
@@ -96,7 +95,7 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, han
         </Grid>
       </StyledModalContent>
     </Modal>
-  );
+  )
 }
 
 export default UpdateModal

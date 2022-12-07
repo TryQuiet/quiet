@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import theme from '../../../theme'
 import classNames from 'classnames'
 import { Grid, Typography } from '@mui/material'
@@ -9,14 +9,14 @@ import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import Linkify from 'react-linkify'
 
-const PREFIX = 'NestedMessageContent';
+const PREFIX = 'NestedMessageContent'
 
 const classes = {
   message: `${PREFIX}message`,
   pending: `${PREFIX}pending`,
   info: `${PREFIX}info`,
   link: `${PREFIX}link`
-};
+}
 
 const StyledGrid = styled(Grid)(() => ({
   [`& .${classes.message}`]: {
@@ -41,7 +41,7 @@ const StyledGrid = styled(Grid)(() => ({
       textDecoration: 'underline'
     }
   }
-}));
+}))
 
 export interface NestedMessageContentProps {
   message: DisplayableMessage
@@ -65,8 +65,6 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   downloadFile,
   cancelDownload
 }) => {
-
-
   const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
     return (
       <a onClick={() => { openUrl(decoratedHref) }} className={classNames({ [classes.link]: true })} key={key}>
@@ -108,7 +106,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
       default:
         return (
           <Typography
-            component={'span' as any}  // FIXME
+            component={'span' as any} // FIXME
             className={classNames({
               [classes.message]: true,
               [classes.pending]: pending
@@ -120,7 +118,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
     }
   }
 
-  return <StyledGrid item>{renderMessage()}</StyledGrid>;
+  return <StyledGrid item>{renderMessage()}</StyledGrid>
 }
 
 export default NestedMessageContent

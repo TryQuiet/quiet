@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'rc-scrollbars'
@@ -16,7 +16,7 @@ import Icon from '../Icon/Icon'
 import exclamationMark from '../../../static/images/exclamationMark.svg'
 import Modal from '../Modal/Modal'
 
-const PREFIX = 'OpenlinkModal';
+const PREFIX = 'OpenlinkModal'
 
 const classes = {
   icon: `${PREFIX}icon`,
@@ -27,7 +27,7 @@ const classes = {
   checkboxes: `${PREFIX}checkboxes`,
   buttonBack: `${PREFIX}buttonBack`,
   buttons: `${PREFIX}buttons`
-};
+}
 
 const StyledModalContent = styled(Grid)((
   {
@@ -81,7 +81,7 @@ const StyledModalContent = styled(Grid)((
   [`& .${classes.buttons}`]: {
     marginTop: 24
   }
-}));
+}))
 
 interface OpenLinkModalProps {
   open: boolean
@@ -102,8 +102,6 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
   setWhitelistAll,
   isImage = false
 }) => {
-
-
   const [allowThisLink, setAllowThisLink] = React.useState(false)
   const [allowAllLink, setAllowAllLink] = React.useState(false)
   const [dontAutoload, setDontAutoload] = React.useState(false)
@@ -238,7 +236,7 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
         )}
       </AutoSizer>
     </Modal>
-  );
+  )
 }
 
 export default OpenlinkModal

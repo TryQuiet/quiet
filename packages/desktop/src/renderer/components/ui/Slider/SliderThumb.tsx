@@ -1,12 +1,11 @@
 import React from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
-
-const PREFIX = 'SliderThumb';
+const PREFIX = 'SliderThumb'
 
 const classes = {
   root: `${PREFIX}root`
-};
+}
 
 const Root = styled('div')({
   [`&.${classes.root}`]: {
@@ -18,11 +17,10 @@ const Root = styled('div')({
     borderStyle: 'solid',
     borderRadius: '50%'
   }
-});
+})
 
 export const SliderThumb: React.FC = () => {
-
-  return <Root className={classes.root} />;
+  return <Root className={classes.root} />
 }
 
 export default SliderThumb

@@ -1,13 +1,13 @@
 import React, { ReactElement } from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 
-const PREFIX = 'WindowWrapper';
+const PREFIX = 'WindowWrapper'
 
 const classes = {
   root: `${PREFIX}root`,
   wrapper: `${PREFIX}wrapper`
-};
+}
 
 const Root = styled('div')(() => ({
   [`& .${classes.root}`]: {},
@@ -15,7 +15,7 @@ const Root = styled('div')(() => ({
   [`&.${classes.wrapper}`]: {
     minHeight: '100vh'
   }
-}));
+}))
 
 interface WindowWrapperProps {
   children: ReactElement
@@ -23,7 +23,6 @@ interface WindowWrapperProps {
 }
 
 export const WindowWrapper: React.FC<WindowWrapperProps> = ({ children, className = '' }) => {
-
   return (
     <Root
       className={classNames({
@@ -32,7 +31,7 @@ export const WindowWrapper: React.FC<WindowWrapperProps> = ({ children, classNam
       })}>
       {children}
     </Root>
-  );
+  )
 }
 
 export default WindowWrapper

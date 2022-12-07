@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import { Controller, useForm } from 'react-hook-form'
 
 import { Grid, Typography } from '@mui/material'
@@ -14,7 +14,7 @@ import { channelNameField } from '../../../forms/fields/createChannelFields'
 
 import { parseName } from '@quiet/state-manager'
 
-const PREFIX = 'CreateChannelComponent';
+const PREFIX = 'CreateChannelComponent'
 
 const classes = {
   fullContainer: `${PREFIX}fullContainer`,
@@ -27,7 +27,7 @@ const classes = {
   rootBar: `${PREFIX}rootBar`,
   progressBar: `${PREFIX}progressBar`,
   info: `${PREFIX}info`
-};
+}
 
 const StyledModalContent = styled(Grid)((
   {
@@ -91,7 +91,7 @@ const StyledModalContent = styled(Grid)((
     lineHeight: '19px',
     color: theme.palette.colors.darkGray
   }
-}));
+}))
 
 const createChannelFields = {
   channelName: channelNameField()
@@ -114,8 +114,6 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   createChannel,
   handleClose
 }) => {
-
-
   const [channelName, setChannelName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
 
@@ -221,7 +219,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
         </form>
       </StyledModalContent>
     </Modal>
-  );
+  )
 }
 
 export default CreateChannelComponent

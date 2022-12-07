@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Controller, useForm } from 'react-hook-form'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-
 
 import WarningIcon from '@mui/icons-material/Warning'
 
@@ -16,9 +15,9 @@ import { TextInput } from '../../forms/components/textInput'
 import { userNameField } from '../../forms/fields/createUserFields'
 
 import { parseName } from '@quiet/state-manager'
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'
 
-const PREFIX = 'CreateUsernameComponent';
+const PREFIX = 'CreateUsernameComponent'
 
 const classes = {
   focus: `${PREFIX}focus`,
@@ -34,7 +33,7 @@ const classes = {
   rootBar: `${PREFIX}rootBar`,
   progressBar: `${PREFIX}progressBar`,
   info: `${PREFIX}info`
-};
+}
 
 const StyledModalContent = styled(Grid)((
   {
@@ -120,7 +119,7 @@ const StyledModalContent = styled(Grid)((
     lineHeight: '19px',
     color: theme.palette.colors.darkGray
   }
-}));
+}))
 
 const userFields = {
   userName: userNameField()
@@ -145,8 +144,6 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   certificate,
   handleClose
 }) => {
-
-
   const [formSent, setFormSent] = useState(false)
   const [userName, setUserName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
@@ -273,7 +270,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
           </>
       </StyledModalContent>
     </Modal>
-  );
+  )
 }
 
 export default CreateUsernameComponent

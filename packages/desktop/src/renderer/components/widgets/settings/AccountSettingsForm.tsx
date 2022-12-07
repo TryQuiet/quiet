@@ -1,13 +1,12 @@
 import React from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import * as Yup from 'yup'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
-
 import { Identity } from '@quiet/state-manager'
 
-const PREFIX = 'AccountSettingsForm';
+const PREFIX = 'AccountSettingsForm'
 
 const classes = {
   createUsernameContainer: `${PREFIX}createUsernameContainer`,
@@ -23,7 +22,7 @@ const classes = {
   adornedEnd: `${PREFIX}adornedEnd`,
   copyInput: `${PREFIX}copyInput`,
   addressDiv: `${PREFIX}addressDiv`
-};
+}
 
 const StyledGrid = styled(Grid)((
   {
@@ -100,7 +99,7 @@ const StyledGrid = styled(Grid)((
   [`& .${classes.addressDiv}`]: {
     marginTop: 24
   }
-}));
+}))
 
 Yup.addMethod(Yup.mixed, 'validateMessage', function (checkNickname) {
   return this.test(
@@ -120,7 +119,6 @@ interface AccountSettingsFormProps {
 export const AccountSettingsForm: React.FC<AccountSettingsFormProps> = ({
   user
 }) => {
-
   return (
     <StyledGrid container direction='column'>
       <Grid item className={classes.title}>
@@ -134,7 +132,7 @@ export const AccountSettingsForm: React.FC<AccountSettingsFormProps> = ({
         </Grid>
       </Grid>
     </StyledGrid>
-  );
+  )
 }
 
 export default AccountSettingsForm

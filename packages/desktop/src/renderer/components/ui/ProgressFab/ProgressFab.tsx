@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 
 import Fab from '@mui/material/Fab'
@@ -7,15 +7,14 @@ import CircularProgress from '@mui/material/CircularProgress'
 import green from '@mui/material/colors/green'
 import CheckIcon from '@mui/icons-material/Check'
 
-
-const PREFIX = 'ProgressFab';
+const PREFIX = 'ProgressFab'
 
 const classes = {
   root: `${PREFIX}root`,
   fabProgress: `${PREFIX}fabProgress`,
   wrapper: `${PREFIX}wrapper`,
   buttonSuccess: `${PREFIX}buttonSuccess`
-};
+}
 
 const Root = styled('div')(() => ({
   [`& .${classes.root}`]: {
@@ -44,7 +43,7 @@ const Root = styled('div')(() => ({
       color: '#fff'
     }
   }
-}));
+}))
 
 interface ProgressFabProps {
   className?: string
@@ -64,7 +63,6 @@ export const ProgressFab: React.FC<React.ComponentProps<typeof Fab> & ProgressFa
   onClick,
   ...props
 }) => {
-
   return (
     <Root
       className={classNames({
@@ -85,7 +83,7 @@ export const ProgressFab: React.FC<React.ComponentProps<typeof Fab> & ProgressFa
       </Fab>
       {loading && <CircularProgress size={68} className={classes.fabProgress} />}
     </Root>
-  );
+  )
 }
 
 export default ProgressFab

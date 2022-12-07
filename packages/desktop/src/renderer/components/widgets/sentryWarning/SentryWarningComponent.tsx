@@ -1,16 +1,16 @@
 import React from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import { Grid, Typography } from '@mui/material'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 import Modal from '../../ui/Modal/Modal'
 
-const PREFIX = 'SentryWarningComponent';
+const PREFIX = 'SentryWarningComponent'
 
 const classes = {
   title: `${PREFIX}title`,
   fullWidth: `${PREFIX}fullWidth`,
   button: `${PREFIX}button`
-};
+}
 
 const StyledModalContent = styled(Grid)((
   {
@@ -41,7 +41,7 @@ const StyledModalContent = styled(Grid)((
       color: 'rgba(255,255,255,0.6)'
     }
   }
-}));
+}))
 
 export interface SentryWarningProps {
   open: boolean
@@ -49,7 +49,6 @@ export interface SentryWarningProps {
 }
 
 export const SentryWarningComponent: React.FC<SentryWarningProps> = ({ open, handleClose }) => {
-
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
       <StyledModalContent container direction='column'>
@@ -83,5 +82,5 @@ export const SentryWarningComponent: React.FC<SentryWarningProps> = ({ open, han
         </>
       </StyledModalContent>
     </Modal>
-  );
+  )
 }

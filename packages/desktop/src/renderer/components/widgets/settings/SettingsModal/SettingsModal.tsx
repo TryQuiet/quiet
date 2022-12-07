@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
-import { Grid, Tabs } from '@mui/material';
+import { Grid, Tabs } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
-import { Scrollbars } from 'rc-scrollbars';
-import { AutoSizer } from 'react-virtualized';
+import { Scrollbars } from 'rc-scrollbars'
+import { AutoSizer } from 'react-virtualized'
 
-import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm';
-import InviteToCommunity from '../../../../containers/widgets/settings/InviteToCommunity';
-import Notifications from '../../../../containers/widgets/settings/Notifications';
-import Modal from '../../../ui/Modal/Modal';
-import Tab from '../../../ui/Tab/Tab';
+import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
+import InviteToCommunity from '../../../../containers/widgets/settings/InviteToCommunity'
+import Notifications from '../../../../containers/widgets/settings/Notifications'
+import Modal from '../../../ui/Modal/Modal'
+import Tab from '../../../ui/Tab/Tab'
 
-const PREFIX = 'SettingsModal';
+const PREFIX = 'SettingsModal'
 
 const classes = {
   indicator: `${PREFIX}indicator`
-};
+}
 
 const StyledModalContent = styled(Grid)(() => ({
   zIndex: 1000,
@@ -28,16 +28,16 @@ const StyledModalContent = styled(Grid)(() => ({
 
 const StyledTabsWrapper = styled(Grid)(() => ({
   width: 168
-}));
+}))
 
-const StyledAppBar = styled(AppBar, {label: 'xxxxx'})(()=>({
+const StyledAppBar = styled(AppBar, { label: 'xxxxx' })(() => ({
   backgroundColor: '#fff',
   boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.0)'
 }))
 
-const StyledTabs = styled(Tabs)(({theme}) => ({
+const StyledTabs = styled(Tabs)(({ theme }) => ({
   color: theme.palette.colors.trueBlack,
-  
+
   [`& .${classes.indicator}`]: {
     height: '0 !important'
   },
@@ -140,7 +140,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, op
         </Grid>
       </StyledModalContent>
     </Modal>
-  );
+  )
 }
 
 export default SettingsModal

@@ -1,7 +1,7 @@
 import 'typeface-roboto'
 import React from 'react'
 import CssBaseline from '@mui/material/CssBaseline'
-import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles';
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { Provider } from 'react-redux'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
@@ -22,13 +22,6 @@ import LoadingPanel from './components/LoadingPanel/LoadingPanel'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { DndProvider } from 'react-dnd'
 import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
-
-
-// declare module '@mui/styles/defaultTheme' {
-//   // eslint-disable-next-line @typescript-eslint/no-empty-interface
-//   interface DefaultTheme extends Theme {}
-// }
-
 
 export const persistor = persistStore(store)
 export default () => {
@@ -60,5 +53,5 @@ export default () => {
         </DndProvider>
       </ThemeProvider>
     </StyledEngineProvider>
-  );
+  )
 }

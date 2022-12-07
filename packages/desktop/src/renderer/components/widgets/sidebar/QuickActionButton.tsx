@@ -1,19 +1,19 @@
 import React, { ReactElement } from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import Button from '@mui/material/Button'
 
 import { Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 
-const PREFIX = 'QuickActionButton';
+const PREFIX = 'QuickActionButton'
 
 const classes = {
   button: `${PREFIX}button`,
   icon: `${PREFIX}icon`,
   iconDiv: `${PREFIX}iconDiv`
-};
+}
 
 const StyledButton = styled(Button)((
   {
@@ -44,7 +44,7 @@ const StyledButton = styled(Button)((
     marginRight: 5,
     marginBottom: 2
   }
-}));
+}))
 
 interface QuickActionButtonProps {
   text: string
@@ -53,7 +53,6 @@ interface QuickActionButtonProps {
 }
 
 export const QuickActionButton: React.FC<QuickActionButtonProps> = ({ text, action, icon }) => {
-
   return (
     <StyledButton variant='text' className={classes.button} onClick={action}>
       {icon
@@ -65,7 +64,7 @@ export const QuickActionButton: React.FC<QuickActionButtonProps> = ({ text, acti
         )}
       <Typography variant='body2'>{text}</Typography>
     </StyledButton>
-  );
+  )
 }
 
 export default QuickActionButton

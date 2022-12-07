@@ -1,5 +1,5 @@
 import React from 'react'
-import { createRoot } from 'react-dom/client';
+import { createRoot } from 'react-dom/client'
 import { ipcRenderer } from 'electron'
 
 import Root, { persistor } from './Root'
@@ -27,9 +27,9 @@ ipcRenderer.on('backendInitialized', _event => {
   log('backend initialized')
 })
 
-const container = document.getElementById('root');
-const root = createRoot(container!); // createRoot(container!) if you use TypeScript
-root.render(<Root />);
+const container = document.getElementById('root')
+const root = createRoot(container) // createRoot(container!) if you use TypeScript
+root.render(<Root />)
 
 if (module.hot) {
   module.hot.accept()

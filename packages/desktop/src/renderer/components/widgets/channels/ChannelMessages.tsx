@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import { Dictionary } from '@reduxjs/toolkit'
 import List from '@mui/material/List'
 
@@ -14,7 +14,7 @@ import { UseModalTypeWrapper } from '../../../containers/hooks'
 
 import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 
-const PREFIX = 'ChannelMessagesComponent';
+const PREFIX = 'ChannelMessagesComponent'
 
 const classes = {
   spinner: `${PREFIX}spinner`,
@@ -24,7 +24,7 @@ const classes = {
   info: `${PREFIX}info`,
   item: `${PREFIX}item`,
   bold: `${PREFIX}bold`
-};
+}
 
 const Root = styled('div')((
   {
@@ -67,7 +67,7 @@ const Root = styled('div')((
   [`& .${classes.bold}`]: {
     fontWeight: 'bold'
   }
-}));
+}))
 
 export const fetchingChannelMessagesText = 'Fetching channel messages...'
 
@@ -161,7 +161,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
         })}
       </List>
     </Root>
-  );
+  )
 }
 
 export default ChannelMessagesComponent

@@ -1,5 +1,5 @@
 import React, { FC, ReactElement } from 'react'
-import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles';
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { Provider } from 'react-redux'
 
 import { render } from '@testing-library/react'
@@ -10,14 +10,7 @@ import { Store } from 'redux'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
-
-// declare module '@mui/styles/defaultTheme' {
-//   // eslint-disable-next-line @typescript-eslint/no-empty-interface
-//   interface DefaultTheme extends Theme {}
-// }
-
-
-type Props = {
+interface Props {
   children?: React.ReactNode
 }
 

@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import React from 'react'
 
 import { Grid } from '@mui/material'
@@ -10,9 +10,9 @@ import { NativeTypes } from 'react-dnd-html5-backend'
 
 const StyledDropZoneComponent = styled(Grid)(() => ({
   position: 'relative'
-}));
+}))
 
-const StyledActiveDropZoneComponent = styled('div')(({theme})=>({
+const StyledActiveDropZoneComponent = styled('div')(({ theme }) => ({
   ...theme.typography.h2,
   position: 'absolute',
   zIndex: 1000,
@@ -37,7 +37,6 @@ export const ActiveDropZoneComponent: React.FC<{
 }> = ({
   channelName
 }) => {
-
   return (
     <StyledActiveDropZoneComponent>
       <Icon src={dropFiles} />
@@ -51,7 +50,6 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({
   channelName,
   handleFileDrop
 }) => {
-
   const [{ canDrop, isOver }, drop] = useDrop(
     () => ({
       accept: [NativeTypes.FILE],
@@ -92,5 +90,5 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({
       {dropIsActive && <ActiveDropZoneComponent channelName={channelName}/>}
       {children}
     </StyledDropZoneComponent>
-  );
+  )
 }

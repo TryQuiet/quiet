@@ -1,16 +1,15 @@
 import React, { ReactElement } from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import ClearIcon from '@mui/icons-material/Clear'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
-
 import IconButton from '../Icon/IconButton'
 
-const PREFIX = 'QuickActionLayout';
+const PREFIX = 'QuickActionLayout'
 
 const classes = {
   alignAvatarPopover: `${PREFIX}alignAvatarPopover`,
@@ -21,7 +20,7 @@ const classes = {
   info: `${PREFIX}info`,
   infoDiv: `${PREFIX}infoDiv`,
   avatar: `${PREFIX}avatar`
-};
+}
 
 const StyledGrid = styled(Grid)((
   {
@@ -75,7 +74,7 @@ const StyledGrid = styled(Grid)((
   [`& .${classes.avatar}`]: {
     marginTop: theme.spacing(2)
   }
-}));
+}))
 
 interface QuickActionLayoutProps {
   main: string
@@ -96,7 +95,6 @@ export const QuickActionLayout: React.FC<QuickActionLayoutProps> = ({
   warning,
   onClick
 }) => {
-
   return (
     <StyledGrid
       container
@@ -137,7 +135,7 @@ export const QuickActionLayout: React.FC<QuickActionLayoutProps> = ({
         </Typography>
       </Grid>
     </StyledGrid>
-  );
+  )
 }
 
 export default QuickActionLayout

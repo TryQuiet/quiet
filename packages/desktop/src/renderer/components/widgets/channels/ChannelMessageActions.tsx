@@ -1,5 +1,5 @@
 import React from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import { Typography } from '@mui/material'
 import Grid from '@mui/material/Grid'
@@ -7,13 +7,13 @@ import Grid from '@mui/material/Grid'
 import Icon from '../../ui/Icon/Icon'
 import ErrorIcon from '../../../static/images/t-error.svg'
 
-const PREFIX = 'ChannelMessageActions';
+const PREFIX = 'ChannelMessageActions'
 
 const classes = {
   warrning: `${PREFIX}warrning`,
   tryAgain: `${PREFIX}tryAgain`,
   pointer: `${PREFIX}pointer`
-};
+}
 
 const StyledGrid = styled(Grid)((
   {
@@ -38,14 +38,13 @@ const StyledGrid = styled(Grid)((
   [`& .${classes.pointer}`]: {
     cursor: 'pointer'
   }
-}));
+}))
 
 interface ChannelMessageActionsProps {
   onResend: () => void
 }
 
 export const ChannelMessageActions: React.FC<ChannelMessageActionsProps> = ({ onResend }) => {
-
   return (
     <StyledGrid container direction='row' justifyContent='flex-start' alignItems='center'>
       {
@@ -64,7 +63,7 @@ export const ChannelMessageActions: React.FC<ChannelMessageActionsProps> = ({ on
         </React.Fragment>
       }
     </StyledGrid>
-  );
+  )
 }
 
 export default ChannelMessageActions

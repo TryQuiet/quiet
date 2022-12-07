@@ -15,7 +15,7 @@ import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
 
-const PREFIX = 'ChannelInput';
+const PREFIX = 'ChannelInput'
 
 const classes = {
   root: `${PREFIX}root`,
@@ -39,7 +39,7 @@ const classes = {
   notAllowed: `${PREFIX}notAllowed`,
   inputFiles: `${PREFIX}inputFiles`,
   icons: `${PREFIX}icons`
-};
+}
 
 const Root = styled(Grid)((
   {
@@ -359,7 +359,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     const nickname = mentionsToSelectRef.current[refSelected.current].nickname
     setHtmlMessage(htmlMessage => {
       const wrapped = `<span class="${classes.highlight}">@${nickname}</span>&nbsp;`
-      return htmlMessage.replace(/<span>[^/]*<\/span>$/g, wrapped);
+      return htmlMessage.replace(/<span>[^/]*<\/span>$/g, wrapped)
     })
     // Replace mentions characters with full nickname in original message string
     setMessage(message.replace(/(\b(\w+)$)/, `${nickname} `))

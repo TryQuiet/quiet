@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
@@ -14,7 +14,7 @@ import LoadingButton from '../LoadingButton/LoadingButton'
 
 import exclamationMark from '../../../static/images/exclamationMark.svg'
 
-const PREFIX = 'ErrorModalComponent';
+const PREFIX = 'ErrorModalComponent'
 
 const classes = {
   icon: `${PREFIX}icon`,
@@ -24,7 +24,7 @@ const classes = {
   textfield: `${PREFIX}textfield`,
   cssDisabled: `${PREFIX}cssDisabled`,
   button: `${PREFIX}button`
-};
+}
 
 const StyledModalContent = styled(Grid)((
   {
@@ -67,7 +67,7 @@ const StyledModalContent = styled(Grid)((
     width: 150,
     height: 60
   }
-}));
+}))
 
 interface ErrorModalProps {
   open: boolean
@@ -86,8 +86,6 @@ export const ErrorModalComponent: React.FC<ErrorModalProps> = ({
   restartApp,
   testMode
 }) => {
-
-
   return (
     <Modal open={open} handleClose={handleClose} title='Error'>
       <StyledModalContent container justifyContent='flex-start' spacing={3} direction='column'>
@@ -133,7 +131,7 @@ export const ErrorModalComponent: React.FC<ErrorModalProps> = ({
         </Grid>
       </StyledModalContent>
     </Modal>
-  );
+  )
 }
 
 export default ErrorModalComponent

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import Button from '@mui/material/Button'
 
@@ -8,12 +8,12 @@ import { Typography } from '@mui/material'
 
 import Tooltip from '../../ui/Tooltip/Tooltip'
 
-const PREFIX = 'MoreButton';
+const PREFIX = 'MoreButton'
 
 const classes = {
   button: `${PREFIX}button`,
   tooltip: `${PREFIX}tooltip`
-};
+}
 
 const StyledTooltip = styled(Tooltip)((
   {
@@ -37,7 +37,7 @@ const StyledTooltip = styled(Tooltip)((
   [`&.${classes.tooltip}`]: {
     marginTop: 5
   }
-}));
+}))
 
 interface MoreButtonProps {
   tooltipText: string
@@ -45,7 +45,6 @@ interface MoreButtonProps {
 }
 
 export const MoreButton: React.FC<MoreButtonProps> = ({ tooltipText, action }) => {
-
   return (
     <StyledTooltip title={tooltipText} className={classes.tooltip} placement='bottom'>
       <Button
@@ -57,7 +56,7 @@ export const MoreButton: React.FC<MoreButtonProps> = ({ tooltipText, action }) =
         <Typography variant='body2'>more...</Typography>
       </Button>
     </StyledTooltip>
-  );
+  )
 }
 
 export default MoreButton

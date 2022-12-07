@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles'
 
 const font = "'Rubik', sans-serif"
 const fontLogs = 'Menlo Regular'
@@ -141,7 +141,7 @@ export default createTheme({
           }
         }
       }
-      
+
     },
     MuiOutlinedInput: {
       styleOverrides: {

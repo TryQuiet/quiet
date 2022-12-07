@@ -108,8 +108,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   downloadFile,
   cancelDownload
 }) => {
-
-
   const [lastSeenMessage, setLastSeenMessage] = useState<string>()
   const [newMessagesInfo, setNewMessagesInfo] = useState<boolean>(false)
 
@@ -266,7 +264,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
         </Grid>
       </DropZoneComponent>
     </Page>
-  );
+  )
 }
 
 export default ChannelComponent

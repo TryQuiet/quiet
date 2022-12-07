@@ -1,17 +1,17 @@
-import { CircularProgress } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import React from 'react';
-import imageIcon from '../../../../static/images/imageIcon.svg';
-import Icon from '../../../ui/Icon/Icon';
+import { CircularProgress } from '@mui/material'
+import { styled } from '@mui/material/styles'
+import React from 'react'
+import imageIcon from '../../../../static/images/imageIcon.svg'
+import Icon from '../../../ui/Icon/Icon'
 
-const PREFIX = 'UploadedImagePlaceholder';
+const PREFIX = 'UploadedImagePlaceholder'
 
 const classes = {
   placeholderWrapper: `${PREFIX}placeholderWrapper`,
   placeholder: `${PREFIX}placeholder`,
   placeholderIcon: `${PREFIX}placeholderIcon`,
   fileName: `${PREFIX}fileName`
-};
+}
 
 const Root = styled('div')(() => ({
   maxWidth: '400px',
@@ -30,7 +30,7 @@ const Root = styled('div')(() => ({
   [`& .${classes.placeholderIcon}`]: {
     marginRight: '0.5em'
   }
-}));
+}))
 
 const StyledUploadedFilename = styled('p')((
   {
@@ -48,7 +48,6 @@ interface UploadedFilenameProps {
 export const UploadedFilename: React.FC<UploadedFilenameProps> = ({
   fileName
 }) => {
-
   return (
     <StyledUploadedFilename>{fileName}</StyledUploadedFilename>
   )
@@ -69,8 +68,6 @@ export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> =
   name,
   ext
 }) => {
-
-
   const width = imageWidth >= 400 ? 400 : imageWidth
 
   return (
@@ -81,7 +78,7 @@ export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> =
         <CircularProgress color='inherit' size={16} disableShrink={true} />
       </div>
     </Root>
-  );
+  )
 }
 
 export default UploadedImagePlaceholder

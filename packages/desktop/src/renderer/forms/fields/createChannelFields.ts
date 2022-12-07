@@ -23,5 +23,5 @@ export const channelNameField = (name = 'channelName'): FieldData => {
         whitespaces: (value) => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
       }
     }
-  };
+  }
 }

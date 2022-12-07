@@ -1,17 +1,16 @@
 import React from 'react'
 
-import { styled } from '@mui/material/styles';
-
+import { styled } from '@mui/material/styles'
 
 import { Grid, Typography } from '@mui/material'
 
-const PREFIX = 'MessagesDivider';
+const PREFIX = 'MessagesDivider'
 
 const classes = {
   root: `${PREFIX}root`,
   divider: `${PREFIX}divider`,
   titleDiv: `${PREFIX}titleDiv`
-};
+}
 
 const StyledGrid = styled(Grid)((
   {
@@ -31,14 +30,13 @@ const StyledGrid = styled(Grid)((
     paddingLeft: 12,
     paddingRight: 12
   }
-}));
+}))
 
 interface MessagesDividerProps {
   title: string
 }
 
 export const MessagesDivider: React.FC<MessagesDividerProps> = ({ title }) => {
-
   return (
     <StyledGrid container justifyContent='center' alignItems='center'>
       <Grid item xs>
@@ -51,7 +49,7 @@ export const MessagesDivider: React.FC<MessagesDividerProps> = ({ title }) => {
         <div className={classes.divider} />
       </Grid>
     </StyledGrid>
-  );
+  )
 }
 
 export default MessagesDivider

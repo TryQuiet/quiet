@@ -1,17 +1,17 @@
 import React from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import Grid from '@mui/material/Grid'
 import CircularProgress from '@mui/material/CircularProgress'
 import Typography from '@mui/material/Typography'
 
-const PREFIX = 'SpinnerLoader';
+const PREFIX = 'SpinnerLoader'
 
 const classes = {
   message: `${PREFIX}message`,
   spinner: `${PREFIX}spinner`
-};
+}
 
 const StyledGrid = styled(Grid)((
   {
@@ -26,7 +26,7 @@ const StyledGrid = styled(Grid)((
   [`& .${classes.spinner}`]: props => ({
     color: props.color ? props.color : theme.palette.colors.white
   })
-}));
+}))
 
 interface SpinnerLoaderProps {
   message: string
@@ -57,7 +57,7 @@ export const SpinnerLoader: React.FC<SpinnerLoaderProps> = ({
         {message}
       </Typography>
     </StyledGrid>
-  );
+  )
 }
 
 export default SpinnerLoader

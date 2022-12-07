@@ -1,15 +1,14 @@
 import React, { ReactNode } from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import MuiMenuItem from '@mui/material/MenuItem'
 
-
-const PREFIX = 'MenuActionItem';
+const PREFIX = 'MenuActionItem'
 
 const classes = {
   root: `${PREFIX}root`
-};
+}
 
 const StyledMuiMenuItem = styled(MuiMenuItem)(() => ({
   [`&.${classes.root}`]: {
@@ -20,7 +19,7 @@ const StyledMuiMenuItem = styled(MuiMenuItem)(() => ({
     paddingTop: 5,
     paddingBottom: 5
   }
-}));
+}))
 
 interface MenuActionItemProps {
   onClick: (e: React.MouseEvent) => void
@@ -35,7 +34,6 @@ export const MenuActionItem: React.FC<MenuActionItemProps> = ({
   close,
   closeAfterAction = true
 }) => {
-
   return (
     <StyledMuiMenuItem
       onClick={e => {
@@ -48,7 +46,7 @@ export const MenuActionItem: React.FC<MenuActionItemProps> = ({
     >
       {title}
     </StyledMuiMenuItem>
-  );
+  )
 }
 
 export default MenuActionItem

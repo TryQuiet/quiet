@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Typography, Grid, ListItemButton } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
 import { PublicChannel } from '@quiet/state-manager'
 
-const PREFIX = 'ChannelsListItem';
+const PREFIX = 'ChannelsListItem'
 
 const classes = {
   root: `${PREFIX}root`,
@@ -16,7 +16,7 @@ const classes = {
   connectedIcon: `${PREFIX}connectedIcon`,
   notConnectedIcon: `${PREFIX}notConnectedIcon`,
   itemText: `${PREFIX}itemText`
-};
+}
 
 const StyledListItemButton = styled(ListItemButton)((
   {
@@ -73,7 +73,7 @@ const StyledListItemButton = styled(ListItemButton)((
   [`& .${classes.itemText}`]: {
     margin: 0
   }
-}));
+}))
 
 export interface ChannelsListItemProps {
   channel: PublicChannel
@@ -90,8 +90,6 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   focused,
   setCurrentChannel
 }) => {
-
-
   const ref = useRef<HTMLDivElement>()
 
   useEffect(() => {
@@ -133,7 +131,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
         className={classes.itemText}
       />
     </StyledListItemButton>
-  );
+  )
 }
 
 export default ChannelsListItem

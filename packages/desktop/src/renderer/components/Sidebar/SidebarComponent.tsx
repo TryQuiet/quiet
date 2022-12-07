@@ -1,12 +1,12 @@
 import React from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import Grid from '@mui/material/Grid'
 
 import { Scrollbars } from 'rc-scrollbars'
 import { AutoSizer } from 'react-virtualized'
 import IdentityPanel, { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
 import ChannelsPanel, { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel'
-const PREFIX = 'SidebarComponent';
+const PREFIX = 'SidebarComponent'
 
 const classes = {
   root: `${PREFIX}root`,
@@ -14,7 +14,7 @@ const classes = {
   content: `${PREFIX}content`,
   gutterBottom: `${PREFIX}gutterBottom`,
   walletInfo: `${PREFIX}walletInfo`
-};
+}
 
 const StyledGrid = styled(Grid)((
   {
@@ -45,12 +45,11 @@ const StyledGrid = styled(Grid)((
   [`& .${classes.walletInfo}`]: {
     backgroundColor: 'rgb(0,0,0,0.1)'
   }
-}));
+}))
 
 const SidebarComponent: React.FC<IdentityPanelProps & ChannelsPanelProps> = ({
   ...props
 }) => {
-
   return (
     <StyledGrid container direction='column' className={classes.root}>
       <Grid item xs container direction='column' className={classes.padding}>
@@ -69,7 +68,7 @@ const SidebarComponent: React.FC<IdentityPanelProps & ChannelsPanelProps> = ({
         </Grid>
       </Grid>
     </StyledGrid>
-  );
+  )
 }
 
 export default SidebarComponent

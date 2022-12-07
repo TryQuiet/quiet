@@ -1,14 +1,14 @@
 import React from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import { Grid, Typography } from '@mui/material'
 
-const PREFIX = 'ChannelInputInfoMessage';
+const PREFIX = 'ChannelInputInfoMessage'
 
 const classes = {
   info: `${PREFIX}info`,
   bold: `${PREFIX}bold`,
   boot: `${PREFIX}boot`
-};
+}
 
 const StyledGrid = styled(Grid)((
   {
@@ -30,14 +30,13 @@ const StyledGrid = styled(Grid)((
     width: '100%',
     padding: '0px 20px'
   }
-}));
+}))
 
 interface ChannelInputInfoMessageProps {
   showInfoMessage: boolean
 }
 
 const ChannelInputInfoMessage: React.FC<ChannelInputInfoMessageProps> = ({ showInfoMessage }) => {
-
   return (
     <StyledGrid container className={classes.boot}>
       <Grid item xs>
@@ -48,7 +47,7 @@ const ChannelInputInfoMessage: React.FC<ChannelInputInfoMessageProps> = ({ showI
         )}
       </Grid>
     </StyledGrid>
-  );
+  )
 }
 
 export default ChannelInputInfoMessage

@@ -1,15 +1,14 @@
 import React from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import MuiTab from '@mui/material/Tab'
 
-
-const PREFIX = 'Tab';
+const PREFIX = 'Tab'
 
 const classes = {
   tabRoot: `${PREFIX}tabRoot`,
   textColorPrimary: `${PREFIX}textColorPrimary`,
   selected: `${PREFIX}selected`
-};
+}
 
 const StyledMuiTab = styled(MuiTab)((
   {
@@ -35,7 +34,7 @@ const StyledMuiTab = styled(MuiTab)((
     borderRadius: 5,
     color: `${theme.palette.colors.white} !important`
   }
-}));
+}))
 
 export const Tab: React.FC<React.ComponentProps<typeof MuiTab>> = props => {
   return (

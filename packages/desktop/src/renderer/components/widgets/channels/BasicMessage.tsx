@@ -1,5 +1,5 @@
 import React from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import { Dictionary } from '@reduxjs/toolkit'
 import classNames from 'classnames'
 
@@ -23,7 +23,7 @@ import information from '../../../static/images/updateIcon.svg'
 
 import Icon from '../../ui/Icon/Icon'
 
-const PREFIX = 'BasicMessageComponent';
+const PREFIX = 'BasicMessageComponent'
 
 const classes = {
   messageCard: `${PREFIX}messageCard`,
@@ -43,7 +43,7 @@ const classes = {
   pending: `${PREFIX}pending`,
   info: `${PREFIX}info`,
   infoIcon: `${PREFIX}infoIcon`
-};
+}
 
 const StyledListItem = styled(ListItem)((
   {
@@ -137,7 +137,7 @@ const StyledListItem = styled(ListItem)((
   [`& .${classes.infoIcon}`]: {
     width: 32
   }
-}));
+}))
 
 export const getTimeFormat = () => {
   return 't'
@@ -169,8 +169,6 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   downloadFile,
   cancelDownload
 }) => {
-
-
   const messageDisplayData = messages[0]
 
   const infoMessage = messageDisplayData.type === 3 // 3 stands for MessageType.Info
@@ -259,7 +257,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
         }
       />
     </StyledListItem>
-  );
+  )
 }
 
 export default BasicMessageComponent

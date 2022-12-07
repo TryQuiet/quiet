@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
@@ -8,7 +8,7 @@ import DialogActions from '@mui/material/DialogActions'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
-const PREFIX = 'QuitAppDialog';
+const PREFIX = 'QuitAppDialog'
 
 const classes = {
   root: `${PREFIX}root`,
@@ -18,7 +18,7 @@ const classes = {
   buttonYes: `${PREFIX}buttonYes`,
   dialogActions: `${PREFIX}dialogActions`,
   typography: `${PREFIX}typography`
-};
+}
 
 const StyledDialog = styled(Dialog)((
   {
@@ -54,7 +54,7 @@ const StyledDialog = styled(Dialog)((
   [`& .${classes.typography}`]: {
     textAlign: 'center'
   }
-}));
+}))
 
 interface QuitAppDialogProps {
   handleClose: () => void
@@ -63,7 +63,6 @@ interface QuitAppDialogProps {
 }
 
 export const QuitAppDialog: React.FC<QuitAppDialogProps> = ({ handleClose, handleQuit, open }) => {
-
   return (
     <StyledDialog onClose={handleClose} open={open}>
       <DialogContent className={classes.dialogContent}>
@@ -86,7 +85,7 @@ export const QuitAppDialog: React.FC<QuitAppDialogProps> = ({ handleClose, handl
         </Grid>
       </DialogActions>
     </StyledDialog>
-  );
+  )
 }
 
 export default QuitAppDialog

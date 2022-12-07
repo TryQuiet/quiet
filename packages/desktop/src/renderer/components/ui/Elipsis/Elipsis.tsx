@@ -1,18 +1,18 @@
 import React from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import * as R from 'ramda'
 import Tooltip from '../Tooltip/Tooltip'
 import Typography from '@mui/material/Typography'
 
-const PREFIX = 'Elipsis';
+const PREFIX = 'Elipsis'
 
 const classes = {
   content: `${PREFIX}content`
-};
+}
 
 const StyledTooltip = styled(Tooltip)({
   [`& .${classes.content}`]: {}
-});
+})
 
 interface ElipsisProps {
   content: string
@@ -27,8 +27,6 @@ export const Elipsis: React.FC<ElipsisProps> = ({
   tooltipPlacement = 'bottom-start',
   interactive = false
 }) => {
-
-
   return (
     <StyledTooltip
       title={content}
@@ -39,7 +37,7 @@ export const Elipsis: React.FC<ElipsisProps> = ({
         {R.concat(content.substring(0, length), content.length > length ? '...' : '')}
       </Typography>
     </StyledTooltip>
-  );
+  )
 }
 
 export default Elipsis

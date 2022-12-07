@@ -1,7 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
-import { screen } from '@testing-library/dom'
+import { screen, waitFor } from '@testing-library/dom'
 import { act } from 'react-dom/test-utils'
 import { take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
@@ -128,7 +128,8 @@ describe('Add new channel', () => {
     const input = screen.getByPlaceholderText('Enter a channel name')
     await user.type(input, channelName.input)
 
-    user.click(screen.getByText('Create Channel'))
+    // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
+    await act(async () => await waitFor(() => { user.click(screen.getByText('Create Channel')).catch((e) => { console.error(e) }) }))
 
     await act(async () => {
       await runSaga(testCreateChannelSaga).toPromise()

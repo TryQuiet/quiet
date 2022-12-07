@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-
 
 import WarningIcon from '@mui/icons-material/Warning'
 
@@ -25,7 +24,7 @@ import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
 
-const PREFIX = 'PerformCommunityActionComponent';
+const PREFIX = 'PerformCommunityActionComponent'
 
 const classes = {
   focus: `${PREFIX}focus`,
@@ -41,7 +40,7 @@ const classes = {
   rootBar: `${PREFIX}rootBar`,
   progressBar: `${PREFIX}progressBar`,
   info: `${PREFIX}info`
-};
+}
 
 const StyledModalContent = styled(Grid)((
   {
@@ -126,7 +125,7 @@ const StyledModalContent = styled(Grid)((
     lineHeight: '19px',
     color: theme.palette.colors.darkGray
   }
-}));
+}))
 
 interface PerformCommunityActionFormValues {
   name: string
@@ -157,8 +156,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   revealInputValue,
   handleClickInputReveal
 }) => {
-
-
   const [formSent, setFormSent] = useState(false)
   const [communityName, setCommunityName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
@@ -322,7 +319,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
         </>
       </StyledModalContent>
     </Modal>
-  );
+  )
 }
 
 export default PerformCommunityActionComponent

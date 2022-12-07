@@ -1,23 +1,22 @@
 import React, { useState, useRef } from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import MenuList from '@mui/material/MenuList'
 import IconButton, { IconButtonProps, IconButtonTypeMap } from '@mui/material/IconButton'
 
-
 import Icon from '../Icon/Icon'
 import PopupMenu from '../PopupMenu/PopupMenu'
 import { ExtendButtonBase, PopperPlacementType } from '@mui/material'
 
-const PREFIX = 'MenuAction';
+const PREFIX = 'MenuAction'
 
 const classes = {
   menuList: `${PREFIX}menuList`,
   icon: `${PREFIX}icon`,
   button: `${PREFIX}button`
-};
+}
 
 // TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
 const Root = styled('div')(() => ({
@@ -30,7 +29,7 @@ const Root = styled('div')(() => ({
 
   [`& .${classes.icon}`]: {},
   [`& .${classes.button}`]: {}
-}));
+}))
 
 const RefIconButton = React.forwardRef<HTMLButtonElement, React.PropsWithChildren<IconButtonProps>>(
   (props, ref) => <IconButton {...props} ref={ref} size="large" />
@@ -55,8 +54,6 @@ export const MenuAction: React.FC<MenuActionProps> = ({
   onClick,
   placement
 }) => {
-
-
   const [open, setOpen] = useState(false)
   const [hover, setHover] = useState(false)
   const toggleHover = () => setHover(!hover)
@@ -95,7 +92,7 @@ export const MenuAction: React.FC<MenuActionProps> = ({
         </ClickAwayListener>
       </PopupMenu>
     </Root>
-  );
+  )
 }
 
 export default MenuAction

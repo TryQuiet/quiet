@@ -1,16 +1,15 @@
 import React from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 
-
 import Icon from '../../ui/Icon/Icon'
 import usernameIcon from '../../../static/images/username.svg'
 
-const PREFIX = 'UsernameCreated';
+const PREFIX = 'UsernameCreated'
 
 const classes = {
   root: `${PREFIX}root`,
@@ -20,7 +19,7 @@ const classes = {
   usernameIcon: `${PREFIX}usernameIcon`,
   buttonContainer: `${PREFIX}buttonContainer`,
   button: `${PREFIX}button`
-};
+}
 
 const StyledGrid = styled(Grid)((
   {
@@ -65,7 +64,7 @@ const StyledGrid = styled(Grid)((
       backgroundColor: theme.palette.colors.gray
     }
   }
-}));
+}))
 
 const handleModalClose = (handleClose, setFormSent) => {
   setFormSent(false)
@@ -78,7 +77,6 @@ interface UsernameCreatedProps {
 }
 
 export const UsernameCreated: React.FC<UsernameCreatedProps> = ({ handleClose, setFormSent }) => {
-
   setFormSent(false)
   return (
     <StyledGrid container justifyContent='center'>
@@ -114,7 +112,7 @@ export const UsernameCreated: React.FC<UsernameCreatedProps> = ({ handleClose, s
         </Button>
       </Grid>
     </StyledGrid>
-  );
+  )
 }
 
 export default UsernameCreated

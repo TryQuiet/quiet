@@ -1,13 +1,8 @@
 import React from 'react'
 import theme from '../../../theme'
-import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles'
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { WelcomeMessage } from './WelcomeMessage'
 import { renderComponent } from '../../../testUtils/renderComponent'
-
-// declare module '@mui/styles/defaultTheme' {
-//   // eslint-disable-next-line @typescript-eslint/no-empty-interface
-//   interface DefaultTheme extends Theme {}
-// }
 
 describe('WelcomeMessage', () => {
   it('renders component', () => {

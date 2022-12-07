@@ -1,10 +1,9 @@
 import React from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-
 
 import Icon from '../../ui/Icon/Icon'
 import silenced from '../../../static/images/silenced.svg'
@@ -12,7 +11,7 @@ import silencedBlack from '../../../static/images/silencedBlack.svg'
 import Tooltip from '../../ui/Tooltip/Tooltip'
 import { ChannelMenuActionProps } from './ChannelMenuAction'
 
-const PREFIX = 'ChannelHeaderComponent';
+const PREFIX = 'ChannelHeaderComponent'
 
 const classes = {
   root: `${PREFIX}root`,
@@ -31,7 +30,7 @@ const classes = {
   iconButton: `${PREFIX}iconButton`,
   bold: `${PREFIX}bold`,
   silenceDiv: `${PREFIX}silenceDiv`
-};
+}
 
 const Root = styled('div')((
   {
@@ -121,7 +120,7 @@ const Root = styled('div')((
     marginLeft: 11,
     cursor: 'pointer'
   }
-}));
+}))
 
 export interface ChannelHeaderProps {
   channelName: string
@@ -131,8 +130,6 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
   channelName,
   ...channelMenuActionProps
 }) => {
-
-
   const debounce = (fn, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
     return (_: any) => {
@@ -217,7 +214,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
         </Grid>
       </Grid>
     </Root>
-  );
+  )
 }
 
 export default ChannelHeaderComponent

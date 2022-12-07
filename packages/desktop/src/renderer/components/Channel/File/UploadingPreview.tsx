@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import CloseIcon from '@mui/icons-material/Close'
 import { FileContent, imagesExtensions } from '@quiet/state-manager'
@@ -7,7 +7,7 @@ import Tooltip from '../../ui/Tooltip/Tooltip'
 import Icon from '../../ui/Icon/Icon'
 import fileIcon from '../../../static/images/fileIcon.svg'
 
-const PREFIX = 'UploadFilesPreviewsComponent';
+const PREFIX = 'UploadFilesPreviewsComponent'
 
 const classes = {
   inputFiles: `${PREFIX}inputFiles`,
@@ -19,7 +19,7 @@ const classes = {
   closeIcon: `${PREFIX}closeIcon`,
   imageContainer: `${PREFIX}imageContainer`,
   tooltip: `${PREFIX}tooltip`
-};
+}
 
 const StyledFilePreviewComponent = styled('div')(() => ({
   display: 'inline-block',
@@ -83,7 +83,7 @@ const StyledFilePreviewComponent = styled('div')(() => ({
   [`& .${classes.tooltip}`]: {
     marginTop: '8px'
   }
-}));
+}))
 
 const StyledUploadFilesPreviewsComponent = styled('div')(() => ({
   flexDirection: 'row',
@@ -132,7 +132,7 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
         </div>
       </Tooltip>
     </StyledFilePreviewComponent>
-  );
+  )
 }
 
 export interface UploadFilesPreviewsProps {

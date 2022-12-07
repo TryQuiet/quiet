@@ -6,13 +6,13 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useModal } from '../../../containers/hooks'
 import { Community } from '@quiet/state-manager'
 
-const PREFIX = 'IdentityPanel';
+const PREFIX = 'IdentityPanel'
 
 const classes = {
   root: `${PREFIX}root`,
   button: `${PREFIX}button`,
   nickname: `${PREFIX}nickname`
-};
+}
 
 const IdentityPanelButtonStyled = styled('div')((
   {
@@ -42,7 +42,7 @@ const IdentityPanelButtonStyled = styled('div')((
     maxWidth: 175,
     whiteSpace: 'nowrap'
   }
-}));
+}))
 
 export interface IdentityPanelProps {
   currentCommunity: Community
@@ -70,7 +70,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({
         <ExpandMoreIcon fontSize='small' />
       </Button>
     </IdentityPanelButtonStyled>
-  );
+  )
 }
 
 export default IdentityPanel

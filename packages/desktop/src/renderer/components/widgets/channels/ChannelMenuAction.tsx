@@ -1,7 +1,6 @@
 import React from 'react'
 
-import { styled } from '@mui/material/styles';
-
+import { styled } from '@mui/material/styles'
 
 import { Grid } from '@mui/material'
 
@@ -9,13 +8,13 @@ import dotsIcon from '../../../static/images/zcash/dots-icon.svg'
 import MenuAction from '../../ui/MenuAction/MenuAction'
 import MenuActionItem from '../../ui/MenuAction/MenuActionItem'
 
-const PREFIX = 'ChannelMenuActionComponent';
+const PREFIX = 'ChannelMenuActionComponent'
 
 const classes = {
   menuList: `${PREFIX}menuList`,
   icon: `${PREFIX}icon`,
   sublabel: `${PREFIX}sublabel`
-};
+}
 
 const StyledMenuAction = styled(MenuAction)((
   {
@@ -37,7 +36,7 @@ const StyledMenuAction = styled(MenuAction)((
     fontSize: 12,
     lineHeight: '18px'
   }
-}));
+}))
 
 export interface ChannelMenuActionProps {
   onInfo: () => void
@@ -62,7 +61,6 @@ export const ChannelMenuActionComponent: React.FC<ChannelMenuActionProps> = ({
   notificationFilter,
   openNotificationsTab
 }) => {
-
   const [openDialog, setOpenDialog] = React.useState(false)
   return (
     <StyledMenuAction
@@ -121,7 +119,7 @@ export const ChannelMenuActionComponent: React.FC<ChannelMenuActionProps> = ({
         handleAction={onDelete}
       /> */}
     </StyledMenuAction>
-  );
+  )
 }
 
 export default ChannelMenuActionComponent

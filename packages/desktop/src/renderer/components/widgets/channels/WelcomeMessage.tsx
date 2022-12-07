@@ -1,5 +1,5 @@
 import React from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 
 import Grid from '@mui/material/Grid'
@@ -7,13 +7,12 @@ import Typography from '@mui/material/Typography'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 
-
 import zbayLogo from '../../../static/images/zcash/zbay-square-logo.svg'
 import Icon from '../../ui/Icon/Icon'
 
 import { IWelcomeMessageProps } from './WelcomeMessage.d'
 
-const PREFIX = 'WelcomeMessage';
+const PREFIX = 'WelcomeMessage'
 
 const classes = {
   messageCard: `${PREFIX}messageCard`,
@@ -24,7 +23,7 @@ const classes = {
   messageInput: `${PREFIX}messageInput`,
   icon: `${PREFIX}icon`,
   time: `${PREFIX}time`
-};
+}
 
 const StyledListItem = styled(ListItem)((
   {
@@ -74,13 +73,12 @@ const StyledListItem = styled(ListItem)((
     marginTop: -4,
     marginRight: 5
   }
-}));
+}))
 
 export const WelcomeMessage: React.FC<IWelcomeMessageProps> = ({
   message,
   timestamp
 }) => {
-
   const username = 'Quiet'
   return (
     <StyledListItem
@@ -127,7 +125,7 @@ export const WelcomeMessage: React.FC<IWelcomeMessageProps> = ({
         }
       />
     </StyledListItem>
-  );
+  )
 }
 
 WelcomeMessage.defaultProps = {

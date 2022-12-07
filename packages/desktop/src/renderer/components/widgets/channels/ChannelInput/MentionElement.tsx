@@ -1,11 +1,11 @@
 import React, { MouseEvent } from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import Jdenticon from '../../../Jdenticon/Jdenticon'
 
 import { Grid, Typography } from '@mui/material'
 
-const PREFIX = 'MentionElement';
+const PREFIX = 'MentionElement'
 
 const classes = {
   root: `${PREFIX}root`,
@@ -16,7 +16,7 @@ const classes = {
   name: `${PREFIX}name`,
   caption: `${PREFIX}caption`,
   captionHighlight: `${PREFIX}captionHighlight`
-};
+}
 
 const StyledGrid = styled(Grid)((
   {
@@ -65,7 +65,7 @@ const StyledGrid = styled(Grid)((
   [`& .${classes.captionHighlight}`]: {
     color: 'rgba(255,255,255,0.6)'
   }
-}));
+}))
 
 export interface MentionElementProps {
   name: string
@@ -84,7 +84,6 @@ export const MentionElement: React.FC<MentionElementProps> = ({
   onMouseEnter,
   onClick
 }) => {
-
   return (
     <StyledGrid
       container
@@ -115,7 +114,7 @@ export const MentionElement: React.FC<MentionElementProps> = ({
         )}
       </Grid>
     </StyledGrid>
-  );
+  )
 }
 
 export default MentionElement

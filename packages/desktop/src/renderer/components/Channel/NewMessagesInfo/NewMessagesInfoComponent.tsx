@@ -1,17 +1,17 @@
 import React from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import { Typography } from '@mui/material'
 import Icon from '../../ui/Icon/Icon'
 import arrowDown from '../../../static/images/arrowDown.svg'
 
-const PREFIX = 'NewMessagesInfoComponent';
+const PREFIX = 'NewMessagesInfoComponent'
 
 const classes = {
   wrapper: `${PREFIX}wrapper`,
   indicator: `${PREFIX}indicator`,
   label: `${PREFIX}label`,
   icon: `${PREFIX}icon`
-};
+}
 
 const Root = styled('div')((
   {
@@ -49,7 +49,7 @@ const Root = styled('div')((
     height: 16,
     margin: '0px 0px 0px 8px'
   }
-}));
+}))
 
 export interface NewMessagesInfoComponentProps {
   scrollBottom: () => void
@@ -60,7 +60,6 @@ export const NewMessagesInfoComponent: React.FC<NewMessagesInfoComponentProps> =
   scrollBottom,
   show
 }) => {
-
   return (
     <Root className={classes.wrapper} style={{ display: show ? 'block' : 'none' }}>
       <div className={classes.indicator} onClick={scrollBottom}>
@@ -68,7 +67,7 @@ export const NewMessagesInfoComponent: React.FC<NewMessagesInfoComponentProps> =
         <Icon src={arrowDown} className={classes.icon} />
       </div>
     </Root>
-  );
+  )
 }
 
 export default NewMessagesInfoComponent

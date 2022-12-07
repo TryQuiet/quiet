@@ -1,15 +1,14 @@
 import React from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import { Typography, TypographyProps } from '@mui/material'
 
-
-const PREFIX = 'TextWithLink';
+const PREFIX = 'TextWithLink'
 
 const classes = {
   link: `${PREFIX}link`
-};
+}
 
 const StyledTypography = styled(Typography)((
   {
@@ -20,7 +19,7 @@ const StyledTypography = styled(Typography)((
     textDecoration: 'none',
     color: theme.palette.colors.linkBlue
   }
-}));
+}))
 
 export interface TextWithLinkProps {
   text: string
@@ -42,8 +41,6 @@ export const TextWithLink: React.FC<TextWithLinkProps & TypographyProps> = ({
   testIdPrefix = '',
   ...props
 }) => {
-
-
   const format = (action: () => void, label: string) => {
     return (
       <a
@@ -75,7 +72,7 @@ export const TextWithLink: React.FC<TextWithLinkProps & TypographyProps> = ({
         return <span key={index}>{e}</span>
       })}
     </StyledTypography>
-  );
+  )
 }
 
 export default TextWithLink

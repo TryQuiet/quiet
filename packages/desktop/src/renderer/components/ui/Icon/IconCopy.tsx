@@ -1,10 +1,8 @@
 import React from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
-
-
-const PREFIX = 'IconCopy';
+const PREFIX = 'IconCopy'
 
 const classes = {
   root: `${PREFIX}root`,
@@ -13,7 +11,7 @@ const classes = {
   gradient: `${PREFIX}gradient`,
   squareFill: `${PREFIX}squareFill`,
   squareBottom: `${PREFIX}squareBottom`
-};
+}
 
 const Root = styled('div')({
   [`& .${classes.root}`]: {},
@@ -42,10 +40,9 @@ const Root = styled('div')({
     left: 9,
     top: 2
   }
-});
+})
 
 export const IconCopy: React.FC = () => {
-
   return (
     <Root>
       <div className={classes.squareTop}>
@@ -59,7 +56,7 @@ export const IconCopy: React.FC = () => {
         </div>
       </div>
     </Root>
-  );
+  )
 }
 
 export default IconCopy

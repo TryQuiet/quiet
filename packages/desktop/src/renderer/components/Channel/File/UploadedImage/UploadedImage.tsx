@@ -5,12 +5,12 @@ import { UseModalTypeWrapper } from '../../../../containers/hooks'
 import UploadedFileModal from './UploadedImagePreview'
 import { UploadedFilename, UploadedImagePlaceholder } from '../UploadedImagePlaceholder/UploadedImagePlaceholder'
 
-const PREFIX = 'UploadedImage';
+const PREFIX = 'UploadedImage'
 
 const classes = {
   image: `${PREFIX}image`,
   container: `${PREFIX}container`
-};
+}
 
 const Root = styled('div')(() => ({
   [`& .${classes.image}`]: {
@@ -22,7 +22,7 @@ const Root = styled('div')(() => ({
     maxWidth: '400px',
     cursor: 'pointer'
   }
-}));
+}))
 
 export interface UploadedImageProps {
   message: DisplayableMessage
@@ -34,8 +34,6 @@ export interface UploadedImageProps {
 }
 
 export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedFileModal }) => {
-
-
   const [showImage, setShowImage] = useState<boolean>(false)
 
   const { cid, path, name, ext } = message.media
@@ -89,7 +87,7 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedF
         />
       )}
     </Root>)
-  );
+  )
 }
 
 export default UploadedImage

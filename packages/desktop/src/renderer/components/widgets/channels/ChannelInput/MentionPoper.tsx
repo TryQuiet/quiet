@@ -1,18 +1,18 @@
 import React, { ReactElement } from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import { Scrollbars } from 'rc-scrollbars'
 
 import Paper from '@mui/material/Paper'
 import Popper from '@mui/material/Popper'
 import Grid from '@mui/material/Grid'
 
-const PREFIX = 'MentionPoper';
+const PREFIX = 'MentionPoper'
 
 const classes = {
   root: `${PREFIX}root`,
   thumb: `${PREFIX}thumb`,
   divider: `${PREFIX}divider`
-};
+}
 
 const maxHeight = 230
 
@@ -36,7 +36,7 @@ const StyledPopper = styled(Popper)({
     borderLeft: '1px solid',
     borderColor: 'rgba(0,0,0,0.08)'
   }
-});
+})
 
 function isDivElement(element: Element | undefined): element is HTMLDivElement {
   return element?.nodeName === 'div'
@@ -49,8 +49,6 @@ interface MentionPoperProps {
 }
 
 export const MentionPoper: React.FC<MentionPoperProps> = ({ anchorEl, children, selected }) => {
-
-
   const anchor = React.useRef<HTMLDivElement>(null)
 
   const popperRef = React.useRef<typeof Popper>()
@@ -127,7 +125,7 @@ export const MentionPoper: React.FC<MentionPoperProps> = ({ anchorEl, children, 
         </Scrollbars>
       </Paper>
     </StyledPopper>
-  );
+  )
 }
 
 export default MentionPoper

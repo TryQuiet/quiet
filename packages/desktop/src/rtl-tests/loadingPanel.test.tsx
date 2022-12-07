@@ -151,13 +151,13 @@ describe('Loading panel', () => {
       </>,
       store
     )
-    
+
     // 'Create username' modal should be opened
     expect(screen.queryByTestId('createUsernameModalActions')).not.toBeNull()
     // Assertions that we don't see Loading Pannel
     expect(screen.queryByTestId('spinnerLoader')).toBeNull()
     // 'Create username' modal should be closed after receiving certificate
     store.dispatch(identity.actions.storeUserCertificate({ communityId: community.id, userCertificate: aliceCertificate }))
-    waitFor(() => expect(screen.queryByTestId('createUsernameModalActions')).toBeNull())
+    await waitFor(() => expect(screen.queryByTestId('createUsernameModalActions')).toBeNull())
   })
 })

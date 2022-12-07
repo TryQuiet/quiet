@@ -1,12 +1,12 @@
 import React, { useRef } from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import Popper from '@mui/material/Popper'
 import Grow from '@mui/material/Grow'
 import Paper from '@mui/material/Paper'
 import { IPopupMenuProps } from './PopupMenu.d'
 
-const PREFIX = 'PopupMenu';
+const PREFIX = 'PopupMenu'
 
 const classes = {
   wrapper: `${PREFIX}wrapper`,
@@ -15,7 +15,7 @@ const classes = {
   bottom: `${PREFIX}bottom`,
   top: `${PREFIX}top`,
   popper: `${PREFIX}popper`
-};
+}
 
 const StyledPopper = styled(Popper)((
   {
@@ -66,7 +66,7 @@ const StyledPopper = styled(Popper)((
   [`&.${classes.popper}`]: {
     zIndex: 100
   }
-}));
+}))
 
 const constants = {
   arrowSize: 10
@@ -80,7 +80,6 @@ export const PopupMenu: React.FC<IPopupMenuProps> = ({
   offset = 0,
   placement = 'bottom-end'
 }) => {
-
   const arrowRef = useRef<HTMLSpanElement>(null)
   return (
     <StyledPopper
@@ -91,8 +90,8 @@ export const PopupMenu: React.FC<IPopupMenuProps> = ({
       disablePortal
       className={classes.popper}
       modifiers={[
-        {name: 'arrow', enabled: Boolean(arrowRef.current), options: {element: arrowRef.current}},
-        {name: 'offset', options: {offset}}
+        { name: 'arrow', enabled: Boolean(arrowRef.current), options: { element: arrowRef.current } },
+        { name: 'offset', options: { offset } }
       ]}
     >
       {({ TransitionProps, placement }) => {
@@ -125,7 +124,7 @@ export const PopupMenu: React.FC<IPopupMenuProps> = ({
         )
       }}
     </StyledPopper>
-  );
+  )
 }
 
 export default PopupMenu

@@ -1,5 +1,5 @@
 import React, { ReactElement, ReactFragment } from 'react'
-import { styled, Theme } from '@mui/material/styles';
+import { styled, Theme } from '@mui/material/styles'
 import classNames from 'classnames'
 
 import MuiTooltip, { TooltipProps } from '@mui/material/Tooltip'
@@ -8,7 +8,7 @@ import MuiTooltip, { TooltipProps } from '@mui/material/Tooltip'
 const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
   <MuiTooltip {...props} classes={{ popper: className }} />
 ), {})(({ theme }) => ({
-  [`& .MuiTooltip-tooltip`]: {
+  '& .MuiTooltip-tooltip': {
     marginBottom: 5,
     background: theme.palette.colors.trueBlack,
     color: theme.typography.body1.color,
@@ -19,12 +19,12 @@ const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
     borderRadius: 8,
     fontSize: 12,
     fontWeight: 500,
-    
+
     '&:first-letter': {
       textTransform: 'capitalize',
     }
   },
-  [`& .MuiTooltip-arrow`]: {
+  '& .MuiTooltip-arrow': {
     '&:before': {
       border: `1px solid ${theme.palette.colors.trueBlack}`
     },
@@ -74,7 +74,7 @@ export const Tooltip: React.FC<React.ComponentProps<typeof MuiTooltip> & CustomT
         {children}
       </StyledTooltip>
     </span>
-  );
+  )
 }
 
 export default Tooltip

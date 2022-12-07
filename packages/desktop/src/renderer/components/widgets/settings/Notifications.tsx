@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
@@ -14,7 +14,7 @@ import radioUnselected from '../../../static/images/radioUnselected.svg'
 import { direct, relentless, sharp, librarianShhh } from '../../../../shared/sounds'
 import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
 
-const PREFIX = 'Notifications';
+const PREFIX = 'Notifications'
 
 const classes = {
   title: `${PREFIX}title`,
@@ -30,7 +30,7 @@ const classes = {
   subtitleSoundDiv: `${PREFIX}subtitleSoundDiv`,
   label: `${PREFIX}label`,
   spacingSound: `${PREFIX}spacingSound`
-};
+}
 
 const StyledGrid = styled(Grid)((
   {
@@ -108,7 +108,7 @@ const StyledGrid = styled(Grid)((
   [`& .${classes.spacingSound}`]: {
     marginTop: 8
   }
-}));
+}))
 
 interface NotificationsProps {
   notificationsOption: NotificationsOptions
@@ -123,7 +123,6 @@ export const Notifications: React.FC<NotificationsProps> = ({
   setNotificationsOption,
   setNotificationsSound
 }) => {
-
   return (
     <StyledGrid container direction='column'>
       <Grid
@@ -299,7 +298,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
         </Grid>
       </Grid>
     </StyledGrid>
-  );
+  )
 }
 
 export default Notifications

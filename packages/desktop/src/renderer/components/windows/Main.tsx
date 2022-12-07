@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import { Route, Routes } from 'react-router-dom'
 
 import Grid from '@mui/material/Grid'
@@ -13,7 +13,7 @@ const MainGridStyled = styled(Grid)(() => ({
   minWidth: '100vw',
   overflow: 'hidden',
   position: 'relative'
-}));
+}))
 
 export const Main: React.FC = () => {
   const debounce = (fn, ms: number) => {
@@ -65,7 +65,7 @@ export const Main: React.FC = () => {
         </MainGridStyled>
       </WindowWrapper>
     </div>)
-  );
+  )
 }
 
 export default Main

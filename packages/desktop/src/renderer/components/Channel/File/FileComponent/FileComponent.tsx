@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import { CircularProgress, Typography } from '@mui/material'
 import { DisplayableMessage, DownloadState, DownloadStatus, FileMetadata, CancelDownload, formatBytes } from '@quiet/state-manager'
 import theme from '../../../../theme'
@@ -15,14 +15,14 @@ import cancelIconRed from '../../../../static/images/cancelIconRed.svg'
 import pauseIconGray from '../../../../static/images/pauseIconGray.svg'
 import Tooltip from '../../../ui/Tooltip/Tooltip'
 
-const PREFIX = 'FileComponent';
+const PREFIX = 'FileComponent'
 
 const classes = {
   icon: `${PREFIX}icon`,
   fileIcon: `${PREFIX}fileIcon`,
   filename: `${PREFIX}filename`,
   actionIcon: `${PREFIX}actionIcon`
-};
+}
 
 const FileComponentStyled = styled('div')((
   {
@@ -56,7 +56,7 @@ const FileComponentStyled = styled('div')((
     marginLeft: '16px'
   },
 
-}));
+}))
 
 const ActionIndicatorStyled = styled('div')(() => ({
   display: 'flex',
@@ -98,7 +98,7 @@ const ActionIndicator: React.FC<{
             {hover.label}
           </Typography>
         </ActionIndicatorStyled>
-      </>;
+      </>
     } else {
       return (
         <>

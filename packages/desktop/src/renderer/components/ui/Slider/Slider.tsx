@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 
 import MuiSlider from '@mui/material/Slider'
 import Typography from '@mui/material/Typography'
@@ -9,7 +9,7 @@ import { ISliderProps } from './Slider.d'
 
 import SliderThumb from './SliderThumb'
 
-const PREFIX = 'Slider';
+const PREFIX = 'Slider'
 
 const classes = {
   sliderContainer: `${PREFIX}sliderContainer`,
@@ -20,7 +20,7 @@ const classes = {
   track: `${PREFIX}track`,
   thumb: `${PREFIX}thumb`,
   activated: `${PREFIX}activated`
-};
+}
 
 const StyledGrid = styled(Grid)((
   {
@@ -68,7 +68,7 @@ const StyledGrid = styled(Grid)((
   [`& .${classes.activated}`]: {
     boxShadow: 'none'
   }
-}));
+}))
 
 export const Slider: React.FC<ISliderProps> = ({
   value,
@@ -79,7 +79,6 @@ export const Slider: React.FC<ISliderProps> = ({
   min,
   max
 }) => {
-
   return (
     <StyledGrid container direction="column" justifyContent="center" alignItems="center">
       <Typography variant="caption" className={classes.title}>
@@ -124,7 +123,7 @@ export const Slider: React.FC<ISliderProps> = ({
         </Grid>
       </Grid>
     </StyledGrid>
-  );
+  )
 }
 
 Slider.defaultProps = {

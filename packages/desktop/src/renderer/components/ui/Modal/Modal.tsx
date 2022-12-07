@@ -1,12 +1,11 @@
 
 import React from 'react'
-import { styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 
 import MaterialModal from '@mui/material/Modal'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-
 
 import ClearIcon from '@mui/icons-material/Clear'
 import BackIcon from '@mui/icons-material/ArrowBack'
@@ -15,7 +14,7 @@ import IconButton from '../Icon/IconButton'
 
 import { IModalProps } from './Modal.d'
 
-const PREFIX = 'Modal';
+const PREFIX = 'Modal'
 
 const classes = {
   root: `${PREFIX}root`,
@@ -30,7 +29,7 @@ const classes = {
   centered: `${PREFIX}centered`,
   window: `${PREFIX}window`,
   bold: `${PREFIX}bold`
-};
+}
 
 const StyledMaterialModal = styled(MaterialModal)((
   {
@@ -102,7 +101,7 @@ const StyledMaterialModal = styled(MaterialModal)((
     lineHeight: '26px',
     fontWeight: 500
   }
-}));
+}))
 
 const constants = {
   headerHeight: 60
@@ -222,7 +221,7 @@ export const Modal: React.FC<IModalProps> = ({
         </Grid>
       </Grid>
     </StyledMaterialModal >
-  );
+  )
 }
 
 Modal.defaultProps = {
