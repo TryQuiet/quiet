@@ -19,6 +19,7 @@ const PREFIX = 'ChannelInput'
 
 const classes = {
   root: `${PREFIX}root`,
+  rootContent: `${PREFIX}rootContent`,
   input: `${PREFIX}input`,
   textfield: `${PREFIX}textfield`,
   inputsDiv: `${PREFIX}inputsDiv`,
@@ -41,12 +42,17 @@ const classes = {
   icons: `${PREFIX}icons`
 }
 
-const Root = styled(Grid)((
+const StyledChannelInput = styled(Grid)((
   {
     theme
   }
 ) => ({
   [`&.${classes.root}`]: {
+    background: '#fff',
+    height: '100%',
+    width: '100%'
+  },
+  [`& .${classes.rootContent}`]: {
     background: '#fff',
     height: '100%',
     width: '100%'
@@ -436,7 +442,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   }
 
   return (
-    <Root
+    <StyledChannelInput
       className={classNames({
         [classes.root]: true,
         [classes.notAllowed]: inputState !== INPUT_STATE.AVAILABLE
@@ -445,7 +451,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       <Grid
         container
         className={classNames({
-          [classes.root]: true
+          [classes.rootContent]: true
         })}
         direction='column'
         justifyContent='center'>
@@ -590,7 +596,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           showInfoMessage={inputState !== INPUT_STATE.AVAILABLE}
         />
       </Grid>
-    </Root>
+    </StyledChannelInput>
   )
 }
 

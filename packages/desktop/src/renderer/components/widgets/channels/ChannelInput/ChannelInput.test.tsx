@@ -26,10 +26,10 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot css-c2cvck-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot css-1blz947-MuiGrid-root"
           >
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputroot css-6gh8l0-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
             >
               <div
                 class="MuiGrid-root MuiGrid-container ChannelInputinputsDiv css-go2vvz-MuiGrid-root"
@@ -118,10 +118,10 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-c2cvck-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-1blz947-MuiGrid-root"
           >
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputroot css-6gh8l0-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
             >
               <div
                 class="MuiGrid-root MuiGrid-container ChannelInputinputsDiv css-go2vvz-MuiGrid-root"
