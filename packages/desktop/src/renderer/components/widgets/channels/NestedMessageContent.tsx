@@ -63,7 +63,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   }
 
   const renderMessage = () => {
-    const isMalicious = downloadStatus?.downloadState === DownloadState.Malicious
+    const isMalicious = downloadStatus?.downloadState === DownloadState?.Malicious
 
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
