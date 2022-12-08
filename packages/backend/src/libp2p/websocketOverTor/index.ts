@@ -1,9 +1,6 @@
 import { connect, WebSocketOptions } from 'it-ws/client'
-//import { multiaddrToUri as toUri } from '@multiformats/multiaddr-to-uri'
-//import { AbortError } from '@libp2p/interfaces/errors'
 import pDefer from 'p-defer'
 import logger from '../../logger'
-import { isBrowser, isWebWorker } from 'wherearewe'
 import { createListener } from './listener.js'
 import { socketToMaConn } from './socket-to-conn.js'
 import * as filters from './filters.js'
@@ -30,19 +27,19 @@ class WebSockets {
   toUri
   AbortError
 
-  constructor (init?: WebSocketsInit) {
+  constructor(init?: WebSocketsInit) {
     this.init = init
   }
 
-  get [Symbol.toStringTag] () {
+  get [Symbol.toStringTag]() {
     return '@libp2p/websockets'
   }
 
-  get [symbol] (): true {
+  get [symbol](): true {
     return true
   }
 
-  async dial (ma: Multiaddr, options: DialOptions): Promise<Connection> {
+  async dial(ma: Multiaddr, options: DialOptions): Promise<Connection> {
     log('dialing %s', ma)
     // @ts-ignore
     options = options ?? {}
@@ -56,15 +53,15 @@ class WebSockets {
     return conn
   }
 
-  async _connect (ma: Multiaddr, options: AbortOptions): Promise<DuplexWebSocket> {
-if (!this.toUri) {
-  const { multiaddrToUri } = await eval("import('@multiformats/multiaddr-to-uri')")
-  this.toUri = multiaddrToUri
-}
-if (!this.AbortError) {
-  const {AbortError} = await eval("import('@libp2p/interfaces/errors')")
-  this.AbortError = AbortError
-}
+  async _connect(ma: Multiaddr, options: AbortOptions): Promise<DuplexWebSocket> {
+    if (!this.toUri) {
+      const { multiaddrToUri } = await eval("import('@multiformats/multiaddr-to-uri')")
+      this.toUri = multiaddrToUri
+    }
+    if (!this.AbortError) {
+      const { AbortError } = await eval("import('@libp2p/interfaces/errors')")
+      this.AbortError = AbortError
+    }
     if (options?.signal?.aborted === true) {
       throw new this.AbortError()
     }
@@ -128,7 +125,7 @@ if (!this.AbortError) {
    * anytime a new incoming Connection has been successfully upgraded via
    * `upgrader.upgradeInbound`
    */
-  createListener (options: CreateListenerOptions) {
+  createListener(options: CreateListenerOptions) {
     return createListener({ ...this.init, ...options })
   }
 
@@ -137,7 +134,7 @@ if (!this.AbortError) {
    * By default, in a browser environment only DNS+WSS multiaddr is accepted,
    * while in a Node.js environment DNS+{WS, WSS} multiaddrs are accepted.
    */
-  filter (multiaddrs: Multiaddr[]) {
+  filter(multiaddrs: Multiaddr[]) {
     multiaddrs = Array.isArray(multiaddrs) ? multiaddrs : [multiaddrs]
 
     if (this.init?.filter != null) {
@@ -154,7 +151,7 @@ if (!this.AbortError) {
   }
 }
 
-export function webSockets (init: WebSocketsInit = {}): (components?: any) => any {
+export function webSockets(init: WebSocketsInit = {}): (components?: any) => any {
   return () => {
     return new WebSockets(init)
   }

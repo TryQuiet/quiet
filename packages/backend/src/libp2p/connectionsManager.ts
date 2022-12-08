@@ -7,7 +7,6 @@ import {webSockets} from './websocketOverTor/index'
 import {all} from './websocketOverTor/filters'
 
 import SocketIO from 'socket.io'
-import Bootstrap from 'libp2p-bootstrap'
 import * as os from 'os'
 import path from 'path'
 import fs from 'fs'
@@ -59,7 +58,7 @@ import {
 import { QUIET_DIR_PATH } from '../constants'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
-import WebsocketsOverTor from './websocketOverTor'
+// import WebsocketsOverTor from './websocketOverTor'
 import { DataServer } from '../socket/DataServer'
 import { EventEmitter } from 'events'
 import logger from '../logger'
@@ -639,8 +638,10 @@ export class ConnectionsManager extends EventEmitter {
   private static readonly defaultLibp2pNode = async (params: Libp2pNodeParams): Promise<Libp2p> => {
     const { createLibp2p }: { createLibp2p: typeof l2l } = await eval("import('libp2p')")
     const { noise } = await eval("import('@chainsafe/libp2p-noise')")
-    const  { gossipsub } = await eval("import('@chainsafe/libp2p-gossipsub')")
+    const { gossipsub } = await eval("import('@chainsafe/libp2p-gossipsub')")
     const { mplex } = await eval("import('@libp2p/mplex')")
+    const { bootstrap } = await eval("import('@libp2p/bootstrap')")
+    const { kadDHT } = await eval("import('@libp2p/kad-dht')")
 
     let lib
 
@@ -658,14 +659,15 @@ export class ConnectionsManager extends EventEmitter {
         },
         streamMuxers: [mplex()],
         connectionEncryption: [noise()],
-        // peerDiscovery: [Bootstrap],
-        // peerDiscovery: {
-        //   [Bootstrap.tag]: {
-        //     enabled: true,
-        //     list: params.bootstrapMultiaddrsList
-        //   },
-        //  // autoDial: true
-        // },
+        peerDiscovery: [
+          bootstrap({
+            list: params.bootstrapMultiaddrsList,
+            timeout: 120_000, // in ms,
+            tagName: 'bootstrap',
+            tagValue: 50,
+            tagTTL: 120000 // in ms
+          })
+        ],
         relay: {
           enabled: true,
           hop: {
@@ -677,12 +679,7 @@ export class ConnectionsManager extends EventEmitter {
           webSockets({
             filter: all
           })],
-        // dht: {
-        //   enabled: true,
-        //   randomWalk: {
-        //     enabled: true
-        //   }
-        // },
+        dht: kadDHT(),
         pubsub: gossipsub({ allowPublishToZeroPeers: true }),
       })
     } catch (err) {
