@@ -22,7 +22,7 @@ describe('redirectionSaga', () => {
     factory = await getFactory(store)
   })
 
-  test.skip('do nothing if user already sees a splash screen', async () => {
+  test('do nothing if user already sees a splash screen', async () => {
     const currentScreen = ScreenNames.SplashScreen
     await expectSaga(redirectionSaga)
       .withReducer(
