@@ -1,17 +1,17 @@
-// import { noise } from '@chainsafe/libp2p-noise'
 import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import type { Libp2p, createLibp2p as l2l } from 'libp2p'
-import Websockets from 'libp2p-websockets'
+
+import {webSockets} from './websocketOverTor/index'
+import {all} from './websocketOverTor/filters'
+
 import SocketIO from 'socket.io'
 import Bootstrap from 'libp2p-bootstrap'
-import type { mplex } from '@libp2p/mplex'
 import * as os from 'os'
 import path from 'path'
 import fs from 'fs'
 import PeerId, { JSONPeerId } from 'peer-id'
-//import type PeerId from '@libp2p/peer-id'
 import { emitError } from '../socket/errors'
 import { CertificateRegistration } from '../registration'
 import { setEngine, CryptoEngine } from 'pkijs'
@@ -92,7 +92,7 @@ export interface Libp2pNodeParams {
   ca: string[]
   localAddress: string
   bootstrapMultiaddrsList: string[]
-  transportClass: Websockets
+ // transportClass: Websockets
   targetPort: number
 }
 
@@ -576,7 +576,7 @@ export class ConnectionsManager extends EventEmitter {
       key: params.certs.key,
       ca: params.certs.CA,
       bootstrapMultiaddrsList: params.bootstrapMultiaddrs,
-      transportClass: WebsocketsOverTor,
+     // transportClass: WebsocketsOverTor,
       targetPort: params.targetPort
     }
     const libp2p = await ConnectionsManager.createBootstrapNode(nodeParams)
@@ -639,10 +639,8 @@ export class ConnectionsManager extends EventEmitter {
   private static readonly defaultLibp2pNode = async (params: Libp2pNodeParams): Promise<Libp2p> => {
     const { createLibp2p }: { createLibp2p: typeof l2l } = await eval("import('libp2p')")
     const { noise } = await eval("import('@chainsafe/libp2p-noise')")
-    const Gossipsub = await eval("import('@chainsafe/libp2p-gossipsub')")
+    const  { gossipsub } = await eval("import('@chainsafe/libp2p-gossipsub')")
     const { mplex } = await eval("import('@libp2p/mplex')")
-    const { webSockets } = await eval("import('@libp2p/websockets')")
-    const filters = await eval("import('@libp2p/websockets/filters')")
 
     let lib
 
@@ -677,8 +675,7 @@ export class ConnectionsManager extends EventEmitter {
         },
         transports: [
           webSockets({
-            // connect to all sockets, even insecure ones
-            filters: filters.all
+            filter: all
           })],
         // dht: {
         //   enabled: true,
@@ -686,7 +683,7 @@ export class ConnectionsManager extends EventEmitter {
         //     enabled: true
         //   }
         // },
-        pubsub: Gossipsub,
+        pubsub: gossipsub({ allowPublishToZeroPeers: true }),
       })
     } catch (err) {
       console.log('LIBP2P ERROR:', err)

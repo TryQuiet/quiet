@@ -66,7 +66,6 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
     bootstrapMultiaddrsList: testBootstrapMultiaddrs,
     agent: new HttpsProxyAgent({ port: 1234, host: 'localhost' }),
     localAddress: createLibp2pAddress('localhost', peerId.toB58String()),
-    transportClass: WebsocketsOverTor,
     cert: pems.userCert,
     key: pems.userKey,
     ca: [pems.ca],
