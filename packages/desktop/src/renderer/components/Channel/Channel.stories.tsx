@@ -28,7 +28,7 @@ const mockMessages = (message: DisplayableMessage | null = null) => {
     count: number
     groups: { [day: string]: DisplayableMessage[][] }
   } = {
-    count: undefined,
+    count: 32,
     groups: {
       '26 Oct': [
         [
@@ -413,18 +413,18 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   },
   channelSettingsModal: {
     open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
+    handleOpen: function (_args?: any): any { },
+    handleClose: function (): any { }
   },
   channelInfoModal: {
     open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
+    handleOpen: function (_args?: any): any { },
+    handleClose: function (): any { }
   },
   uploadedFileModal: {
     open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {},
+    handleOpen: function (_args?: any): any { },
+    handleClose: function (): any { },
     src: 'images/butterfly.jpeg'
   },
   messages: mockMessages(),
@@ -440,13 +440,13 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   pendingMessages: {},
   channelAddress: 'general',
   channelName: 'general',
-  lazyLoading: function (_load: boolean): void {},
-  onDelete: function (): void {},
-  onInputChange: function (_value: string): void {},
-  onInputEnter: function (_message: string): void {},
+  lazyLoading: function (_load: boolean): void { },
+  onDelete: function (): void { },
+  onInputChange: function (_value: string): void { },
+  onInputEnter: function (_message: string): void { },
   mutedFlag: false,
   notificationFilter: '',
-  openNotificationsTab: function (): void {},
+  openNotificationsTab: function (): void { },
   filesData: {}
 }
 
