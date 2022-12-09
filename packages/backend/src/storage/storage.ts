@@ -111,8 +111,9 @@ export class Storage extends EventEmitter {
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
 
     this.orbitdb = await OrbitDB.createInstance(this.ipfs, {
+      //@ts-ignore
+      id: peerID.toString(),
       directory: this.orbitDbDir,
-      // @ts-expect-error
       AccessControllers: AccessControllers
     })
     log('Initialized storage')
@@ -168,8 +169,7 @@ export class Storage extends EventEmitter {
     log('Initializing IPFS')
     const { create: ipfsCreate } = await eval("import('ipfs-core')")
     return await ipfsCreate({
-      // error here 'permission denied 0.0.0.0:443'
-      //libp2p: async () => libp2p,
+      libp2p: async () => libp2p,
       preload: { enabled: false },
       repo: this.ipfsRepoPath,
       EXPERIMENTAL: {

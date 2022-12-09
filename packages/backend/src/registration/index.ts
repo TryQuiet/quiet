@@ -132,10 +132,10 @@ export class CertificateRegistration extends EventEmitter {
       clearTimeout(timeout)
     }
 
-    switch (response.status) {
+    switch (response?.status) {
       case 200:
         break
-      case 400:
+      case 400: 
         this.emit(RegistrationEvents.ERROR, {
           type: SocketActionTypes.REGISTRAR,
           code: ErrorCodes.BAD_REQUEST,

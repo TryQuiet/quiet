@@ -10,17 +10,15 @@ import {
 
 export function all (multiaddrs: Multiaddr[]) {
   return multiaddrs.filter((ma) => {
-    if (ma.protoCodes().includes(CODE_CIRCUIT)) {
-      return false
-    }
+      return true
+    })
 
-    return
 
     // const testMa = ma.decapsulateCode(CODE_P2P)
 
     // return mafmt.WebSockets.matches(testMa) ||
     //   mafmt.WebSocketsSecure.matches(testMa)
-  })
+
 }
 
 // export function dnsWss (multiaddrs: Multiaddr[]) {

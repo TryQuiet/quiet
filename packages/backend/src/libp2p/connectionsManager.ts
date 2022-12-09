@@ -5,12 +5,12 @@ import type { Libp2p, createLibp2p as l2l } from 'libp2p'
 
 import {webSockets} from './websocketOverTor/index'
 import {all} from './websocketOverTor/filters'
+import type { PeerId } from '@libp2p/interface-peer-id'
 
 import SocketIO from 'socket.io'
 import * as os from 'os'
 import path from 'path'
 import fs from 'fs'
-import PeerId, { JSONPeerId } from 'peer-id'
 import { emitError } from '../socket/errors'
 import { CertificateRegistration } from '../registration'
 import { setEngine, CryptoEngine } from 'pkijs'
@@ -58,7 +58,6 @@ import {
 import { QUIET_DIR_PATH } from '../constants'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
-// import WebsocketsOverTor from './websocketOverTor'
 import { DataServer } from '../socket/DataServer'
 import { EventEmitter } from 'events'
 import logger from '../logger'
@@ -232,20 +231,36 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public getNetwork = async () => {
+    const {createEd25519PeerId} = await eval("import('@libp2p/peer-id-factory')")
     const ports = await getPorts()
     const hiddenService = await this.tor.createNewHiddenService(ports.libp2pHiddenService)
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
-    const peerId = await PeerId.create()
+    const peerId: PeerId = await createEd25519PeerId()
+    console.log('peerId', peerId)
 
-    // const {createPeerId} = await eval("import('@libp2p/peer-id')")
+    console.log('original Public Key',peerId.publicKey)
+    
+    const pi = {
+      id: peerId.toString(),
+      // @ts-ignore
+      pubKey: peerId.publicKey.toString('hex'),
+      // @ts-ignore
+      privKey: peerId.privateKey.toString('hex'),
+    }
+    
+    // @ts-ignore
+    console.log('stringPUbkey,', peerId.publicKey.toString('hex'))
+    console.log('stringPeerId', pi.id)
+    console.log(pi.pubKey)
+    console.log(pi.privKey)
 
-    // const peerId = await createPeerId({type: 'RSA'})
+    TextDecoder
+    
 
-    // console.log(peerId)
-    log(`Created network for peer ${peerId.toB58String()}. Address: ${hiddenService.onionAddress}`)
+    log(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
     return {
       hiddenService,
-      peerId: peerId.toJSON()
+      peerId: pi
     }
   }
 
@@ -308,19 +323,28 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public launch = async (payload: InitCommunityPayload): Promise<string> => {
+    const {peerIdFromKeys} = await eval("import('@libp2p/peer-id')")
     // Start existing community (community that user is already a part of)
     const ports = await getPorts()
-    const virtPort = 443
     log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
     const onionAddress: string = await this.tor.spawnHiddenService(
       ports.libp2pHiddenService,
       payload.hiddenService.privateKey
     )
+
+
     log(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
     // const {peerIdFromPeerId} = await eval("import('@libp2p/peer-id')")
     // const peerId = await peerIdFromPeerId(payload.peerId)
     // console.log(peerId)
-    const peerId = await PeerId.createFromJSON(payload.peerId as JSONPeerId)
+
+    console.log('received string pub key', payload.peerId.pubKey)
+
+    console.log('restored pub key', Buffer.from(payload.peerId.pubKey))
+
+    const peerId = await peerIdFromKeys(Buffer.from(payload.peerId.pubKey, 'hex'), Buffer.from(payload.peerId.privKey, 'hex'))
+
+    console.log('back to string',peerId.toString())
 
     const initStorageParams: InitStorageParams = {
       communityId: payload.id,
@@ -334,7 +358,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public initStorage = async (params: InitStorageParams): Promise<string> => {
-    const peerIdB58string = params.peerId.toB58String()
+    const peerIdB58string = params.peerId.toString()
     log(`Initializing storage for peer ${peerIdB58string}...`)
 
     let peers = params.peers
@@ -559,10 +583,10 @@ export class ConnectionsManager extends EventEmitter {
   public initLibp2p = async (
     params: InitLibp2pParams
   ): Promise<{ libp2p: Libp2p; localAddress: string }> => {
-    const localAddress = this.createLibp2pAddress(params.address, params.peerId.toB58String())
+    const localAddress = this.createLibp2pAddress(params.address, params.peerId.toString())
 
     log(
-      `Initializing libp2p for ${params.peerId.toB58String()}, bootstrapping with ${params.bootstrapMultiaddrs.length
+      `Initializing libp2p for ${params.peerId.toString()}, bootstrapping with ${params.bootstrapMultiaddrs.length
       } peers`
     )
 
@@ -613,7 +637,7 @@ export class ConnectionsManager extends EventEmitter {
     //   })
     // })
 
-    log(`Initialized libp2p for peer ${params.peerId.toB58String()}`)
+    log(`Initialized libp2p for peer ${params.peerId.toString()}`)
 
     return {
       libp2p,
@@ -669,7 +693,7 @@ export class ConnectionsManager extends EventEmitter {
           })
         ],
         relay: {
-          enabled: true,
+          enabled: false,
           hop: {
             enabled: true,
             active: false
@@ -677,7 +701,15 @@ export class ConnectionsManager extends EventEmitter {
         },
         transports: [
           webSockets({
-            filter: all
+            filter: all,
+            websocket: {
+              agent: params.agent,
+              cert: params.cert,
+              key: params.key,
+              ca: params.ca
+            },
+            localAddress: params.localAddress,
+            targetPort: params.targetPort
           })],
         dht: kadDHT(),
         pubsub: gossipsub({ allowPublishToZeroPeers: true }),
