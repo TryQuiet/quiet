@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react'
 import theme from '../../../theme'
 import classNames from 'classnames'
 import { Grid, makeStyles, Typography } from '@material-ui/core'
-import { AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage, DownloadStatus } from '@quiet/state-manager'
+import { AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/state-manager'
 import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
@@ -36,9 +36,9 @@ export interface NestedMessageContentProps {
   downloadStatus?: DownloadStatus
   openUrl: (url: string) => void
   uploadedFileModal?: ReturnType<
-  UseModalTypeWrapper<{
-    src: string
-  }>['types']
+    UseModalTypeWrapper<{
+      src: string
+    }>['types']
   >
 }
 
@@ -63,8 +63,11 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   }
 
   const renderMessage = () => {
+    const isMalicious = downloadStatus?.downloadState === DownloadState?.Malicious
+
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
+        if (isMalicious) return
         const size = message?.media?.size
         const fileDisplay = !size || size < AUTODOWNLOAD_SIZE_LIMIT
         return (
@@ -82,6 +85,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
           </div>
         )
       case 4: // MessageType.File
+        if (isMalicious) return
         return (
           <div
             className={classNames({

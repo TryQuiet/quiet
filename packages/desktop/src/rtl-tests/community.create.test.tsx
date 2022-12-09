@@ -186,6 +186,7 @@ describe('User', () => {
         "Modals/closeModal",
         "Modals/closeModal",
         "Communities/launchRegistrar",
+        "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Identity/saveOwnerCertToDb",
         "PublicChannels/createGeneralChannel",
