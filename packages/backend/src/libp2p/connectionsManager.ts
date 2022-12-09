@@ -81,10 +81,11 @@ interface InitStorageParams {
 export interface IConstructor {
   options: Partial<ConnectionsManagerOptions>
   socketIOPort: number
-  torAuthCookie?: string
-  torControlPort?: number
-  torResourcesPath?: string
   torBinaryPath?: string
+  torResourcesPath?: string
+  torControlPort?: number
+  torAuthCookie?: string
+  httpTunnelPort?: number
 }
 
 export interface Libp2pNodeParams {
@@ -131,7 +132,7 @@ export class ConnectionsManager extends EventEmitter {
   torBinaryPath: string
   torResourcesPath: string
 
-  constructor({ options, socketIOPort, torControlPort, torAuthCookie, torResourcesPath, torBinaryPath }: IConstructor) {
+  constructor({ options, socketIOPort, torResourcesPath, torBinaryPath, torControlPort, torAuthCookie, httpTunnelPort }: IConstructor) {
     super()
     this.registration = new CertificateRegistration()
     this.options = {
@@ -143,6 +144,7 @@ export class ConnectionsManager extends EventEmitter {
     this.torBinaryPath = torBinaryPath
     this.torControlPort = torControlPort
     this.torAuthCookie = torAuthCookie
+    this.httpTunnelPort = httpTunnelPort
 
     this.socketIOPort = socketIOPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
@@ -183,10 +185,16 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public init = async () => {
-    this.httpTunnelPort = await getPort()
+    if (!this.httpTunnelPort) {
+      this.httpTunnelPort = await getPort()
+    }
+    
     this.socksProxyAgent = this.createAgent()
+
     await this.spawnTor()
+
     this.dataServer = new DataServer(this.socketIOPort)
+
     this.io = this.dataServer.io
 
     this.attachDataServerListeners()

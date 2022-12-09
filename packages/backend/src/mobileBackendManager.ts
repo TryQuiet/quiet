@@ -17,14 +17,16 @@ export const runBackend = async (): Promise<any> => {
   .option('-t, --torBinary <torBinary>', 'tor binary path')
   .option('-ac, --authCookie <authCookie>', 'tor authentication cookie')
   .option('-cp, --controlPort <controlPort>', 'tor control port')
+  .option('-htp, --httpTunnelPort <httpTunnelPort>', 'http tunnel port')
 
   program.parse(process.argv)
   const options = program.opts()
 
   const connectionsManager: ConnectionsManager = new ConnectionsManager({
     socketIOPort: options.dataPort,
-    torAuthCookie: options.authCookie ? options.authCookie : null,
     torControlPort: options.controlPort ? options.controlPort : null,
+    torAuthCookie: options.authCookie ? options.authCookie : null,
+    httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
     torBinaryPath: options.torBinary ? options.torBinary : null,
     torResourcesPath: null,
     options: {
