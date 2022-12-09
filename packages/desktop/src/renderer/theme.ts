@@ -109,6 +109,16 @@ export default createTheme({
     }
   },
   components: {
+    // Body font size changed in mui v5: https://mui.com/material-ui/migration/v5-component-changes/#update-body-font-size
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          fontSize: '14px',
+          lineHeight: '24px',
+          letterSpacing: '0.01071em'
+        },
+      },
+    },
     MuiSnackbarContent: {
       styleOverrides: {
         root: {
