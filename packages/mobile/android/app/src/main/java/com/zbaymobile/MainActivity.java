@@ -1,5 +1,6 @@
 package com.zbaymobile;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -107,6 +108,14 @@ public class MainActivity extends ReactActivity {
             Context context = getApplicationContext();
             new BackendWorkManager(context).enqueueRequests();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Dismiss all notifications if one of them is tapped
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
     }
 
     @Override
