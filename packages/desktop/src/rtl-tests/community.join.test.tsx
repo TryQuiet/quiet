@@ -199,6 +199,7 @@ describe('User', () => {
         "Communities/updateCommunityData",
         "Communities/launchCommunity",
         "Communities/launchRegistrar",
+        "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "PublicChannels/channelsReplicated",
         "Modals/openModal",
