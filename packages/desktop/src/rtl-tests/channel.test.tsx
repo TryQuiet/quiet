@@ -742,7 +742,7 @@ describe('Channel', () => {
     `)
   })
 
-  it.only('downloads and displays missing images after app restart', async () => {
+  it('downloads and displays missing images after app restart', async () => {
     const initialState = (await prepareStore()).store
 
     const factory = await getFactory(initialState)
