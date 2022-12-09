@@ -15,11 +15,12 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		18474180294382E400C7E697 /* NodeMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1847417F294382E400C7E697 /* NodeMobile.framework */; };
+		18474181294382EE00C7E697 /* NodeMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1847417F294382E400C7E697 /* NodeMobile.framework */; };
+		18474182294382EE00C7E697 /* NodeMobile.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1847417F294382E400C7E697 /* NodeMobile.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1868BCED292E9212001D6D5E /* NodeRunner.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1868B952292E9211001D6D5E /* NodeRunner.mm */; };
 		1868BCEE292E9212001D6D5E /* RNNodeJsMobile.m in Sources */ = {isa = PBXBuildFile; fileRef = 1868B953292E9211001D6D5E /* RNNodeJsMobile.m */; };
 		1868BCF1292E9212001D6D5E /* rn-bridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1868BCEC292E9212001D6D5E /* rn-bridge.cpp */; };
-		1868C093292F8FE2001D6D5E /* NodeMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1868C092292F8FE2001D6D5E /* NodeMobile.framework */; };
-		1868C094292F8FE2001D6D5E /* NodeMobile.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1868C092292F8FE2001D6D5E /* NodeMobile.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1868C430292F997C001D6D5E /* config.gypi in Resources */ = {isa = PBXBuildFile; fileRef = 1868C0BD292F997A001D6D5E /* config.gypi */; };
 		1868C431292F997C001D6D5E /* common.gypi in Resources */ = {isa = PBXBuildFile; fileRef = 1868C0C0292F997A001D6D5E /* common.gypi */; };
 		1868C4382930D7D6001D6D5E /* DataDirectory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1868C4372930D7D6001D6D5E /* DataDirectory.swift */; };
@@ -61,7 +62,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				1868C094292F8FE2001D6D5E /* NodeMobile.framework in Embed Frameworks */,
+				18474182294382EE00C7E697 /* NodeMobile.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -81,13 +82,13 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ZbayMobile/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = ZbayMobile/main.m; sourceTree = "<group>"; };
 		182B8961416E4D4C8A29793D /* Rubik-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-ExtraBoldItalic.ttf"; path = "../assets/fonts/Rubik-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
+		1847417F294382E400C7E697 /* NodeMobile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NodeMobile.framework; path = NodeJsMobile/NodeMobile.framework; sourceTree = "<group>"; };
 		1868B94F292E9211001D6D5E /* RNNodeJsMobile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNNodeJsMobile.h; sourceTree = "<group>"; };
 		1868B950292E9211001D6D5E /* NodeRunner.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NodeRunner.hpp; sourceTree = "<group>"; };
 		1868B951292E9211001D6D5E /* rn-bridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "rn-bridge.h"; sourceTree = "<group>"; };
 		1868B952292E9211001D6D5E /* NodeRunner.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NodeRunner.mm; sourceTree = "<group>"; };
 		1868B953292E9211001D6D5E /* RNNodeJsMobile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNNodeJsMobile.m; sourceTree = "<group>"; };
 		1868BCEC292E9212001D6D5E /* rn-bridge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "rn-bridge.cpp"; sourceTree = "<group>"; };
-		1868C092292F8FE2001D6D5E /* NodeMobile.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NodeMobile.framework; path = Pods/NodeMobile.framework; sourceTree = "<group>"; };
 		1868C099292F997A001D6D5E /* v8-platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "v8-platform.h"; sourceTree = "<group>"; };
 		1868C09A292F997A001D6D5E /* v8-version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "v8-version.h"; sourceTree = "<group>"; };
 		1868C09B292F997A001D6D5E /* node_api_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = node_api_types.h; sourceTree = "<group>"; };
@@ -614,6 +615,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18474180294382E400C7E697 /* NodeMobile.framework in Frameworks */,
 				BEE3E407DEB76DE865044282 /* libPods-ZbayMobile-ZbayMobileTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -622,7 +624,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1868C093292F8FE2001D6D5E /* NodeMobile.framework in Frameworks */,
+				18474181294382EE00C7E697 /* NodeMobile.framework in Frameworks */,
 				2C9545F989881F3430DE02E8 /* libPods-ZbayMobile.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4643,8 +4645,8 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1847417F294382E400C7E697 /* NodeMobile.framework */,
 				1891BBFD26D683D100101CC7 /* libnodejs-mobile-react-native.a */,
-				1868C092292F8FE2001D6D5E /* NodeMobile.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				A71B1AB0D009F9417B7204A0 /* libPods-ZbayMobile.a */,
 				E12D527202876E389EFA2AAB /* libPods-ZbayMobile-ZbayMobileTests.a */,
@@ -5112,6 +5114,10 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/NodeJsMobile",
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -5141,6 +5147,10 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/NodeJsMobile",
+				);
 				INFOPLIST_FILE = ZbayMobileTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5175,6 +5185,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Pods",
+					"$(PROJECT_DIR)/NodeJsMobile",
 				);
 				INFOPLIST_FILE = ZbayMobile/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
@@ -5214,6 +5225,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Pods",
+					"$(PROJECT_DIR)/NodeJsMobile",
 				);
 				INFOPLIST_FILE = ZbayMobile/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
