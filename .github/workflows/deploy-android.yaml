@@ -61,7 +61,7 @@ jobs:
         run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.keystore
 
       - name: "Build for Android"
-        run: cd ./packages/mobile/android && ./gradlew bundleStandardRelease
+        run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew bundleStandardRelease
 
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v2
