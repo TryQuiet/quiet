@@ -184,6 +184,7 @@ describe('User', () => {
         "Identity/storeUserCertificate",
         "Identity/savedOwnerCertificate",
         "Communities/launchRegistrar",
+        "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Identity/saveOwnerCertToDb",
         "PublicChannels/createGeneralChannel",

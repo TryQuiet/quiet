@@ -95,7 +95,7 @@ describe('Loading panel', () => {
 
     await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'alice', userCertificate: null })
+    >('Identity', { id: community.id, nickname: 'alice' })
 
     store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
@@ -138,7 +138,7 @@ describe('Loading panel', () => {
 
     await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'alice', userCertificate: null })
+    >('Identity', { id: community.id, nickname: 'alice' })
 
     const aliceCertificate = store.getState().Identity.identities.entities[community.id].userCertificate
 
