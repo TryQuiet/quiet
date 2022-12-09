@@ -18,11 +18,6 @@ export function* filesMasterSaga(socket: Socket): Generator {
       resetTransferSpeedSaga,
     ),
     takeEvery(
-      networkActions.addInitializedCommunity.type,
-      checkForMissingFilesSaga,
-      socket
-    ),
-    takeEvery(
       filesActions.checkForMissingFiles.type,
       checkForMissingFilesSaga,
       socket
