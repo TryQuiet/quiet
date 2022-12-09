@@ -50,7 +50,7 @@ window.Notification = notification
 
 jest.mock('electron', () => {
   return {
-    ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
+    ipcRenderer: { on: () => { }, send: jest.fn(), sendSync: jest.fn() },
     remote: {
       BrowserWindow: {
         getAllWindows: () => {
@@ -330,7 +330,7 @@ describe('Channel', () => {
       store
     )
 
-    await act(async () => {})
+    await act(async () => { })
 
     // Confirm there are messages to display
     expect(
@@ -372,7 +372,7 @@ describe('Channel', () => {
 
     store.dispatch(messages.actions.sendMessage({ message: messageText }))
 
-    await act(async () => {})
+    await act(async () => { })
 
     // Get sent message for further assertions
     const sentMessage = publicChannels.selectors.currentChannelMessages(store.getState())[0]
@@ -742,7 +742,7 @@ describe('Channel', () => {
     `)
   })
 
-  it('downloads and displays missing images after app restart', async () => {
+  it.only('downloads and displays missing images after app restart', async () => {
     const initialState = (await prepareStore()).store
 
     const factory = await getFactory(initialState)
@@ -804,7 +804,11 @@ describe('Channel', () => {
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          return socket.socketClient.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, community.id)
+          const data = input as socketEventData<[InitCommunityPayload]>
+          const payload = data[0]
+          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+            id: payload.id
+          })
         }
         if (action === SocketActionTypes.DOWNLOAD_FILE) {
           const data = input as socketEventData<[DownloadFilePayload]>
@@ -1053,7 +1057,7 @@ describe('Channel', () => {
       ])
     }
 
-    await act(async () => {})
+    await act(async () => { })
 
     // Confirm file component displays in QUEUED state
     expect(await screen.findByText('Queued for download')).toBeVisible()

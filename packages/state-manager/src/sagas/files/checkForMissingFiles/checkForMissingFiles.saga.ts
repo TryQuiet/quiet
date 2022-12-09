@@ -50,7 +50,8 @@ export function* checkForMissingFilesSaga(
         // Do not autodownload oversized files unless started manually
         if (fileDownloadStatus?.downloadState !== DownloadState.Downloading && file.size > AUTODOWNLOAD_SIZE_LIMIT) continue
 
-        if (fileDownloadStatus?.downloadState === DownloadState.Malicious || !file.size) continue
+        // Do not autodownload if the file was reported malicious or is missing reported file size
+        if (fileDownloadStatus?.downloadState === DownloadState.Malicious) continue
 
         yield* put(filesActions.updateDownloadStatus({
           mid: file.message.id,

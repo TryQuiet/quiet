@@ -171,7 +171,7 @@ describe('checkForMissingFilesSaga', () => {
       .run()
   })
 
-  test('download only specific file from many missing files', async () => {
+  test('resume download of all valid files after restarting the app', async () => {
     const initialState = prepareStore().store
 
     const factory = await getFactory(initialState)
@@ -189,7 +189,7 @@ describe('checkForMissingFilesSaga', () => {
 
     const channelAddress = 'general'
 
-    const missingFile1: FileMetadata = {
+    const missingFileCanceled: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
       path: null,
       name: 'test-file',
@@ -201,7 +201,7 @@ describe('checkForMissingFilesSaga', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
 
-    const missingFile2: FileMetadata = {
+    const missingFilePending: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
       path: null,
       name: 'test-file',
@@ -225,7 +225,7 @@ describe('checkForMissingFilesSaga', () => {
           channelAddress: 'general',
           signature: '',
           pubKey: '',
-          media: missingFile1
+          media: missingFileCanceled
         }
       }
     )
@@ -242,7 +242,7 @@ describe('checkForMissingFilesSaga', () => {
           channelAddress: 'general',
           signature: '',
           pubKey: '',
-          media: missingFile2
+          media: missingFilePending
         }
       }
     )
@@ -251,14 +251,14 @@ describe('checkForMissingFilesSaga', () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
     store.dispatch(filesActions.updateDownloadStatus({
-      mid: missingFile1.message.id,
-      cid: missingFile1.cid,
+      mid: missingFileCanceled.message.id,
+      cid: missingFileCanceled.cid,
       downloadState: DownloadState.Canceled
     }))
 
     store.dispatch(filesActions.updateDownloadStatus({
-      mid: missingFile2.message.id,
-      cid: missingFile2.cid,
+      mid: missingFilePending.message.id,
+      cid: missingFilePending.cid,
       downloadState: DownloadState.Downloading
     }))
 
@@ -271,27 +271,27 @@ describe('checkForMissingFilesSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .not.put(filesActions.updateDownloadStatus({
-        mid: missingFile1.message.id,
-        cid: missingFile1.cid,
+        mid: missingFileCanceled.message.id,
+        cid: missingFileCanceled.cid,
         downloadState: DownloadState.Queued
       }))
       .not.apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
           peerId: alice.peerId.id,
-          metadata: missingFile1
+          metadata: missingFileCanceled
         }
       ])
       .put(filesActions.updateDownloadStatus({
-        mid: missingFile2.message.id,
-        cid: missingFile2.cid,
+        mid: missingFilePending.message.id,
+        cid: missingFilePending.cid,
         downloadState: DownloadState.Queued
       }))
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
           peerId: alice.peerId.id,
-          metadata: missingFile2
+          metadata: missingFilePending
         }
       ])
       .run()
