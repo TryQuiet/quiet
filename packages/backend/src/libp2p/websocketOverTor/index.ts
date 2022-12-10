@@ -57,7 +57,6 @@ class WebSockets extends EventEmitter{
   multiaddr
 
   _websocketOpts: any
-  _upgrader: any
   localAddress: string
   discovery: Discovery
   peerId: string
@@ -65,14 +64,10 @@ class WebSockets extends EventEmitter{
 
   constructor({ websocket, localAddress, targetPort }) {
     super()
-    //   console.log('upgrader', upgrader)
-    console.log('websocket', websocket)
-    console.log('localaddress', localAddress)
-    console.log('targetPort', targetPort)
+
     this._websocketOpts = websocket
     this.localAddress = localAddress
     this.peerId = localAddress.split('/').pop()
-    //this._upgrader = upgrader
     this.discovery = new Discovery()
     this.targetPort = targetPort
   }
@@ -110,7 +105,7 @@ class WebSockets extends EventEmitter{
     }
 
     try {
-      conn = await this._upgrader.upgradeOutbound(maConn)
+      conn = await options.upgrader.upgradeOutbound(maConn)
       log('outbound connection %s upgraded', maConn.remoteAddr)
       return conn
     } catch (e) {
@@ -327,14 +322,14 @@ class WebSockets extends EventEmitter{
   }
 
   // eslint-disable-next-line
-  createListener(options = {}, handler) {
+  createListener(options, handler) {
     console.log('jkasdnfjasdnfkasdnfkasdnkjfndsfkn')
     if (typeof options === 'function') {
       handler = options
       options = {}
     }
 
-    return this.prepareListener({ handler, upgrader: this._upgrader })
+    return this.prepareListener({ handler, upgrader: options.upgrader })
   }
 
   /**

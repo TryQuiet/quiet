@@ -2,6 +2,8 @@ import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import type { Libp2p, createLibp2p as l2l } from 'libp2p'
+import type { bootstrap as bootstrapType } from '@libp2p/bootstrap'
+import type {kadDHT as kadDHTType} from '@libp2p/kad-dht'
 
 import {webSockets} from './websocketOverTor/index'
 import {all} from './websocketOverTor/filters'
@@ -120,6 +122,7 @@ export class ConnectionsManager extends EventEmitter {
   dataServer: DataServer
   communityId: string
   communityDataPath: string
+  peerId: any
 
   constructor({ options, socketIOPort }: IConstructor) {
     super()
@@ -236,9 +239,15 @@ export class ConnectionsManager extends EventEmitter {
     const hiddenService = await this.tor.createNewHiddenService(ports.libp2pHiddenService)
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
     const peerId: PeerId = await createEd25519PeerId()
+    if (!this.peerId) {
+      console.log('setting local peerid')
+      this.peerId = peerId
+    }
     console.log('peerId', peerId)
 
-    console.log('original Public Key',peerId.publicKey)
+    console.log('stringPeerId', peerId.toString())
+    
+    console.log('original Public Key', peerId.publicKey)
     
     const pi = {
       id: peerId.toString(),
@@ -253,17 +262,17 @@ export class ConnectionsManager extends EventEmitter {
     console.log('stringPeerId', pi.id)
     console.log(pi.pubKey)
     console.log(pi.privKey)
-
+    
     TextDecoder
     
-
+    
     log(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
     return {
       hiddenService,
       peerId: pi
     }
   }
-
+  
   public async createNetwork(community: Community) {
     let network: NetworkData
     // For registrar service purposes, if community owner
@@ -281,7 +290,7 @@ export class ConnectionsManager extends EventEmitter {
       return
     }
     log(`Sending network data for ${community.id}`)
-
+    
     const payload: ResponseCreateNetworkPayload = {
       community: {
         ...community,
@@ -292,7 +301,7 @@ export class ConnectionsManager extends EventEmitter {
     }
     this.io.emit(SocketActionTypes.NETWORK, payload)
   }
-
+  
   public async createCommunity(payload: InitCommunityPayload) {
     await this.launchCommunity(payload)
     log(`Created and launched community ${payload.id}`)
@@ -343,12 +352,12 @@ export class ConnectionsManager extends EventEmitter {
     console.log('restored pub key', Buffer.from(payload.peerId.pubKey))
 
     const peerId = await peerIdFromKeys(Buffer.from(payload.peerId.pubKey, 'hex'), Buffer.from(payload.peerId.privKey, 'hex'))
-
+  
     console.log('back to string',peerId.toString())
 
     const initStorageParams: InitStorageParams = {
       communityId: payload.id,
-      peerId: peerId,
+      peerId: this.peerId,
       onionAddress: onionAddress,
       targetPort: ports.libp2pHiddenService,
       peers: payload.peers,
@@ -659,13 +668,13 @@ export class ConnectionsManager extends EventEmitter {
     return createLibp2pListenAddress(address)
   }
 
-  private static readonly defaultLibp2pNode = async (params: Libp2pNodeParams): Promise<Libp2p> => {
+  private static readonly defaultLibp2pNode = async (params: Libp2pNodeParams): Promise<any> => {
     const { createLibp2p }: { createLibp2p: typeof l2l } = await eval("import('libp2p')")
     const { noise } = await eval("import('@chainsafe/libp2p-noise')")
     const { gossipsub } = await eval("import('@chainsafe/libp2p-gossipsub')")
     const { mplex } = await eval("import('@libp2p/mplex')")
-    const { bootstrap } = await eval("import('@libp2p/bootstrap')")
-    const { kadDHT } = await eval("import('@libp2p/kad-dht')")
+    const { bootstrap }: {bootstrap: typeof bootstrapType } = await eval("import('@libp2p/bootstrap')")
+    const { kadDHT }: {kadDHT: typeof kadDHTType} = await eval("import('@libp2p/kad-dht')")
 
     let lib
 
@@ -689,7 +698,8 @@ export class ConnectionsManager extends EventEmitter {
             timeout: 120_000, // in ms,
             tagName: 'bootstrap',
             tagValue: 50,
-            tagTTL: 120000 // in ms
+
+           // tagTTL: 120000 // in ms
           })
         ],
         relay: {

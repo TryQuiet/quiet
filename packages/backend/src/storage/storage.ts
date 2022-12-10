@@ -20,7 +20,7 @@ import {
   User,
   PushNotificationPayload
 } from '@quiet/state-manager'
-import type { IPFS } from 'ipfs-core'
+import type { IPFS, create as createType } from 'ipfs-core'
 import type { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
@@ -111,9 +111,9 @@ export class Storage extends EventEmitter {
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
 
     this.orbitdb = await OrbitDB.createInstance(this.ipfs, {
-      //@ts-ignore
-      id: peerID.toString(),
+      //id: peerID.toString(),
       directory: this.orbitDbDir,
+      //@ts-ignore
       AccessControllers: AccessControllers
     })
     log('Initialized storage')
@@ -165,9 +165,9 @@ export class Storage extends EventEmitter {
     return this.__communityId
   }
 
-  protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS> {
+  protected async initIPFS(libp2p: any, peerID: any): Promise<IPFS> {
     log('Initializing IPFS')
-    const { create: ipfsCreate } = await eval("import('ipfs-core')")
+    const { create: ipfsCreate }: {create: typeof createType} = await eval("import('ipfs-core')")
     return await ipfsCreate({
       libp2p: async () => libp2p,
       preload: { enabled: false },
@@ -176,7 +176,7 @@ export class Storage extends EventEmitter {
         ipnsPubsub: true
       },
       init: {
-        privateKey: peerID.toJSON().privKey
+        privateKey: peerID
       }
     })
   }
