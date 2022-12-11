@@ -1,16 +1,12 @@
-import { connect, WebSocketOptions } from 'it-ws/client'
 import pDefer from 'p-defer'
 import logger from '../../logger'
-import { createListener } from './listener.js'
 import { socketToMaConn } from './socket-to-conn.js'
 import * as filters from './filters.js'
-import { MultiaddrFilter, CreateListenerOptions, DialOptions } from '@libp2p/interface-transport'
-import type { Connection } from '@libp2p/interface-connection'
+import { MultiaddrFilter } from '@libp2p/interface-transport'
 import type { AbortOptions } from '@libp2p/interfaces'
 import type { Multiaddr } from '@multiformats/multiaddr'
 import type { DuplexWebSocket } from 'it-ws/duplex'
 import type { ClientOptions } from 'ws'
-import createServer from 'it-ws/server'
 
 import os from 'os'
 import PeerId from 'peer-id'
@@ -23,6 +19,7 @@ import https from 'https'
 import { EventEmitter } from 'events'
 
 import { dumpPEM } from '../utils'
+import { connected } from 'process'
 
 
 
@@ -30,12 +27,13 @@ const log = logger('libp2p:websockets')
 
 const symbol = Symbol.for('@libp2p/transport')
 
-export interface WebSocketsInit extends AbortOptions, WebSocketOptions {
+export interface WebSocketsInit extends AbortOptions {
   filter?: MultiaddrFilter
   websocket: ClientOptions
   server?: Server
   localAddress: string
   targetPort: number
+  createServer
 }
 
 class Discovery extends EventEmitter {
@@ -61,8 +59,10 @@ class WebSockets extends EventEmitter{
   discovery: Discovery
   peerId: string
   targetPort: number
+  connect
+  createServer
 
-  constructor({ websocket, localAddress, targetPort }) {
+  constructor({ websocket, localAddress, targetPort, createServer }) {
     super()
 
     this._websocketOpts = websocket
@@ -70,6 +70,7 @@ class WebSockets extends EventEmitter{
     this.peerId = localAddress.split('/').pop()
     this.discovery = new Discovery()
     this.targetPort = targetPort
+    this.createServer = createServer
   }
 
   get [Symbol.toStringTag]() {
@@ -139,6 +140,11 @@ class WebSockets extends EventEmitter{
       const { AbortError } = await eval("import('@libp2p/interfaces/errors')")
       this.AbortError = AbortError
     }
+    if (!this.connect) {
+      const { connect } = await eval("import('it-ws/client')")
+      this.connect = connect
+    }
+
     if (options.signal?.aborted) {
       throw new this.AbortError()
     }
@@ -154,7 +160,7 @@ class WebSockets extends EventEmitter{
     }
 
     const myUri = `${this.toUri(ma) as string}/?remoteAddress=${encodeURIComponent(this.localAddress)}`
-    const rawSocket = connect(myUri, Object.assign({ binary: true }, options))
+    const rawSocket = this.connect(myUri, Object.assign({ binary: true }, options))
 
     if (rawSocket.socket.on) {
       rawSocket.socket.on('error', errfn)
@@ -224,7 +230,10 @@ class WebSockets extends EventEmitter{
       }
     }
 
-    const server = createServer(optionsServ, async (stream, request) => {
+    const server = this.createServer(optionsServ)
+    server.__connections = []
+
+    server.on('connection', async (stream, request) => {
       if (!this.multiaddr) {
         const {multiaddr} = await eval("import('@multiformats/multiaddr')")
         this.multiaddr = multiaddr
@@ -253,20 +262,17 @@ class WebSockets extends EventEmitter{
 
       if (handler) handler(conn)
       listener.emit('connection', conn)
-    })
-
-    server
+    } )
       .on('listening', () => listener.emit('listening'))
       .on('error', err => listener.emit('error', err))
       .on('close', () => listener.emit('close'))
 
-    // Keep track of open connections to destroy in case of timeout
-    server.__connections = []
+    //Keep track of open connections to destroy in case of timeout
 
     let listeningMultiaddr
 
     listener.close = () => {
-      server.__connections.forEach(maConn => maConn.close())
+     server.__connections.forEach(maConn => maConn.close())
       return server.close()
     }
 
@@ -323,7 +329,6 @@ class WebSockets extends EventEmitter{
 
   // eslint-disable-next-line
   createListener(options, handler) {
-    console.log('jkasdnfjasdnfkasdnfkasdnkjfndsfkn')
     if (typeof options === 'function') {
       handler = options
       options = {}

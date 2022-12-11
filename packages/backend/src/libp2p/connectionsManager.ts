@@ -67,6 +67,7 @@ import getPort from 'get-port'
 import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
+import type { PeerInfo } from '@libp2p/interface-peer-info'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -104,8 +105,6 @@ export interface InitLibp2pParams {
   bootstrapMultiaddrs: string[]
   certs: Certificates
 }
-
-
 
 export class ConnectionsManager extends EventEmitter {
   registration: CertificateRegistration
@@ -586,11 +585,11 @@ export class ConnectionsManager extends EventEmitter {
 
     this.libp2pInstance = libp2p
 
-    // libp2p.on('peer:discovery', (peer: PeerId) => {
+    // libp2p.addEventListener('peer:discovery', (peer: PeerInfo) => {
     //   log(`${params.peerId.toB58String()} discovered ${peer.toB58String()}`)
     // })
 
-    // libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
+    // libp2p.connectionManager.addEventListener('peer:connect', (connection: Connection) => {
     //   log(`${params.peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
     //   this.connectedPeers.set(connection.remotePeer.toB58String(), DateTime.utc().valueOf())
 
@@ -599,7 +598,7 @@ export class ConnectionsManager extends EventEmitter {
     //   })
     // })
 
-    // libp2p.connectionManager.on('peer:disconnect', (connection: Connection) => {
+    // libp2p.connectionManager.addEventListener('peer:disconnect', (connection: Connection) => {
     //   log(`${params.peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
 
     //   const connectionStartTime = this.connectedPeers.get(connection.remotePeer.toB58String())
@@ -646,6 +645,7 @@ export class ConnectionsManager extends EventEmitter {
     const { mplex } = await eval("import('@libp2p/mplex')")
     const { bootstrap }: {bootstrap: typeof bootstrapType } = await eval("import('@libp2p/bootstrap')")
     const { kadDHT }: {kadDHT: typeof kadDHTType} = await eval("import('@libp2p/kad-dht')")
+    const { createServer } = await eval("import('it-ws/server')")
 
     let lib
 
@@ -690,7 +690,8 @@ export class ConnectionsManager extends EventEmitter {
               ca: params.ca
             },
             localAddress: params.localAddress,
-            targetPort: params.targetPort
+            targetPort: params.targetPort,
+            createServer: createServer
           })],
         dht: kadDHT(),
         pubsub: gossipsub({ allowPublishToZeroPeers: true }),
