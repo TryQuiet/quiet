@@ -270,7 +270,7 @@ class WebSockets extends EventEmitter{
       return server.close()
     }
 
-    listener.addListener = () => {
+    listener.addEventListener = () => {
 
     }
 

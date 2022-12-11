@@ -111,7 +111,8 @@ export class Storage extends EventEmitter {
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
 
     this.orbitdb = await OrbitDB.createInstance(this.ipfs, {
-      //id: peerID.toString(),
+      //@ts-ignore
+      id: peerID.toString(),
       directory: this.orbitDbDir,
       //@ts-ignore
       AccessControllers: AccessControllers

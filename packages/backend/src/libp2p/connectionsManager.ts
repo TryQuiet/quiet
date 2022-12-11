@@ -122,7 +122,6 @@ export class ConnectionsManager extends EventEmitter {
   dataServer: DataServer
   communityId: string
   communityDataPath: string
-  peerId: any
 
   constructor({ options, socketIOPort }: IConstructor) {
     super()
@@ -239,16 +238,7 @@ export class ConnectionsManager extends EventEmitter {
     const hiddenService = await this.tor.createNewHiddenService(ports.libp2pHiddenService)
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
     const peerId: PeerId = await createEd25519PeerId()
-    if (!this.peerId) {
-      console.log('setting local peerid')
-      this.peerId = peerId
-    }
-    console.log('peerId', peerId)
 
-    console.log('stringPeerId', peerId.toString())
-    
-    console.log('original Public Key', peerId.publicKey)
-    
     const pi = {
       id: peerId.toString(),
       // @ts-ignore
@@ -256,14 +246,6 @@ export class ConnectionsManager extends EventEmitter {
       // @ts-ignore
       privKey: peerId.privateKey.toString('hex'),
     }
-    
-    // @ts-ignore
-    console.log('stringPUbkey,', peerId.publicKey.toString('hex'))
-    console.log('stringPeerId', pi.id)
-    console.log(pi.pubKey)
-    console.log(pi.privKey)
-    
-    TextDecoder
     
     
     log(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
@@ -341,23 +323,12 @@ export class ConnectionsManager extends EventEmitter {
       payload.hiddenService.privateKey
     )
 
-
     log(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
-    // const {peerIdFromPeerId} = await eval("import('@libp2p/peer-id')")
-    // const peerId = await peerIdFromPeerId(payload.peerId)
-    // console.log(peerId)
-
-    console.log('received string pub key', payload.peerId.pubKey)
-
-    console.log('restored pub key', Buffer.from(payload.peerId.pubKey))
-
     const peerId = await peerIdFromKeys(Buffer.from(payload.peerId.pubKey, 'hex'), Buffer.from(payload.peerId.privKey, 'hex'))
   
-    console.log('back to string',peerId.toString())
-
     const initStorageParams: InitStorageParams = {
       communityId: payload.id,
-      peerId: this.peerId,
+      peerId: peerId,
       onionAddress: onionAddress,
       targetPort: ports.libp2pHiddenService,
       peers: payload.peers,
