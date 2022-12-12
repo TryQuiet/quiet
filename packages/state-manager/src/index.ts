@@ -47,6 +47,8 @@ import { settingsSelectors } from './sagas/settings/settings.selectors'
 
 import { filesActions, filesReducer } from './sagas/files/files.slice'
 import { filesSelectors } from './sagas/files/files.selectors'
+import { networkActions, networkReducer } from './sagas/network/network.slice'
+import { networkSelectors } from './sagas/network/network.selectors'
 
 export { SocketActionTypes } from './sagas/socket/const/actionTypes'
 export { Store } from './sagas/store.types'
@@ -75,7 +77,7 @@ export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.t
 export { MessagesTransform } from './sagas/messages/messages.transform'
 export { FilesTransform } from './sagas/files/files.transform'
 
-export { AUTODOWNLOAD_SIZE_LIMIT, BASE_NOTIFICATION_CHANNEL, RICH_NOTIFICATION_CHANNEL, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL } from './constants'
+export { AUTODOWNLOAD_SIZE_LIMIT, PUSH_NOTIFICATION_CHANNEL, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL } from './constants'
 
 export { parseName } from './utils/functions/naming/naming'
 
@@ -161,6 +163,12 @@ export const files = {
   reducer: filesReducer,
   actions: filesActions,
   selectors: filesSelectors
+}
+
+export const network = {
+  reducer: networkReducer,
+  actions: networkActions,
+  selectors: networkSelectors
 }
 
 export const socket = {

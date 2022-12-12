@@ -27,46 +27,46 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root makeStyles-wrapper-2 MuiListItem-gutters"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-16u9k9h-MuiListItem-root"
           >
             <div
-              class="MuiListItemText-root makeStyles-messageCard-1"
+              class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start"
+                class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root makeStyles-avatar-10 MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-item BasicMessageComponentavatar css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="makeStyles-alignAvatar-11"
+                    class="BasicMessageComponentalignAvatar"
                   >
                     Jdenticon
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-justify-xs-space-between"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-9pwih8-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start MuiGrid-grid-xs-true"
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-1unmp8r-MuiGrid-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item"
+                        class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root makeStyles-username-6 MuiTypography-body1 MuiTypography-colorTextPrimary"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-11qbl00-MuiTypography-root"
                         >
                           gringo
                         </p>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item"
+                        class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root makeStyles-time-13 MuiTypography-body1"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                         >
                           string
                         </p>
@@ -74,15 +74,15 @@ describe('BasicMessage', () => {
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1vpwcmr-MuiGrid-root"
                     data-testid="userMessages-gringo-0"
                     style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root makeStyles-message-168 MuiTypography-body1"
+                        class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -110,46 +110,46 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root makeStyles-wrapper-173 MuiListItem-gutters"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-16u9k9h-MuiListItem-root"
           >
             <div
-              class="MuiListItemText-root makeStyles-messageCard-172"
+              class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start"
+                class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root makeStyles-avatar-181 MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-item BasicMessageComponentavatar css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="makeStyles-alignAvatar-182"
+                    class="BasicMessageComponentalignAvatar"
                   >
                     Jdenticon
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-justify-xs-space-between"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-9pwih8-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start MuiGrid-grid-xs-true"
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-1unmp8r-MuiGrid-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item"
+                        class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root makeStyles-username-177 MuiTypography-body1 MuiTypography-colorTextPrimary"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-11qbl00-MuiTypography-root"
                         >
                           gringo
                         </p>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item"
+                        class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root makeStyles-time-184 MuiTypography-body1"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                         >
                           string
                         </p>
@@ -157,25 +157,25 @@ describe('BasicMessage', () => {
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1vpwcmr-MuiGrid-root"
                     data-testid="userMessages-gringo-0"
                     style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root makeStyles-message-339 MuiTypography-body1"
+                        class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root makeStyles-message-339 MuiTypography-body1"
+                        class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -203,49 +203,49 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding  css-16u9k9h-MuiListItem-root"
           >
             <div
-              class="MuiListItemText-root makeStyles-messageCard-343"
+              class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start"
+                class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root makeStyles-avatar-352 MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-item BasicMessageComponentavatar css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="makeStyles-alignAvatar-353"
+                    class="BasicMessageComponentalignAvatar"
                   >
                     <img
-                      class="makeStyles-infoIcon-359"
+                      class="BasicMessageComponentinfoIcon"
                       src="test-file-stub"
                     />
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-justify-xs-space-between"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-9pwih8-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start MuiGrid-grid-xs-true"
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-1unmp8r-MuiGrid-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item"
+                        class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root makeStyles-username-348 MuiTypography-body1 MuiTypography-colorTextPrimary"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-11qbl00-MuiTypography-root"
                         >
                           Quiet
                         </p>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item"
+                        class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root makeStyles-time-355 MuiTypography-body1"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                         >
                           string
                         </p>
@@ -253,25 +253,25 @@ describe('BasicMessage', () => {
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1vpwcmr-MuiGrid-root"
                     data-testid="userMessages-gringo-0"
                     style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root makeStyles-message-510 MuiTypography-body1"
+                        class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root makeStyles-message-510 MuiTypography-body1"
+                        class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -300,46 +300,46 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root makeStyles-wrapper-515 MuiListItem-gutters"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-16u9k9h-MuiListItem-root"
           >
             <div
-              class="MuiListItemText-root makeStyles-messageCard-514"
+              class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start"
+                class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root makeStyles-avatar-523 MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-item BasicMessageComponentavatar css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="makeStyles-alignAvatar-524"
+                    class="BasicMessageComponentalignAvatar"
                   >
                     Jdenticon
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-justify-xs-space-between"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-9pwih8-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start MuiGrid-grid-xs-true"
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-1unmp8r-MuiGrid-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item"
+                        class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root makeStyles-username-519 MuiTypography-body1 MuiTypography-colorTextPrimary"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-11qbl00-MuiTypography-root"
                         >
                           gringo
                         </p>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item"
+                        class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root makeStyles-time-526 MuiTypography-body1"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                         >
                           string
                         </p>
@@ -347,25 +347,25 @@ describe('BasicMessage', () => {
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1vpwcmr-MuiGrid-root"
                     data-testid="userMessages-gringo-0"
                     style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root makeStyles-message-681 MuiTypography-body1"
+                        class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root makeStyles-message-681 MuiTypography-body1"
+                        class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0

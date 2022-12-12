@@ -1,0 +1,19 @@
+--- node_modules/react-native-webview-crypto/index.js	2022-12-06 12:35:22.000000000 +0100
++++ node_modules/react-native-webview-crypto/index.backup.js	2022-12-06 14:29:10.000000000 +0100
+@@ -1,6 +1,7 @@
+ const React = require("react");
+ const { StyleSheet, View, Platform } = require("react-native");
+ const { WebView } = require("react-native-webview");
++const { MainBundlePath } = require("react-native-fs")
+ const { MainWorker, webViewWorkerString } = require("webview-crypto");
+ 
+ const styles = StyleSheet.create({
+@@ -131,7 +132,7 @@
+     const code = `((function () {${webViewWorkerString};${internalLibrary}})())`;
+     const source = Platform.select({
+       android: { source: { uri } },
+-      ios: undefined
++      ios: { source: { uri: `file://${MainBundlePath}/blank.html` }}
+     });
+     return (
+       <View style={styles.hide}>

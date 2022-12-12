@@ -9,7 +9,8 @@ import {
   settings,
   files,
   StoreKeys as StateManagerStoreKeys,
-  Store
+  Store,
+  network
 } from '@quiet/state-manager'
 import { StoreKeys } from '../store/store.keys'
 import { combineReducers, createStore, applyMiddleware } from 'redux'
@@ -32,6 +33,7 @@ export const reducers = {
   [StateManagerStoreKeys.Connection]: connection.reducer,
   [StateManagerStoreKeys.Settings]: settings.reducer,
   [StateManagerStoreKeys.Files]: files.reducer,
+  [StateManagerStoreKeys.Network]: network.reducer,
   [StoreKeys.App]: appReducer,
   [StoreKeys.Socket]: socketReducer,
   [StoreKeys.Modals]: modalsReducer

@@ -18,33 +18,33 @@ describe('UploadedImagePlaceholder', () => {
       <body>
         <div>
           <div
-            class="makeStyles-placeholderWrapper-1"
+            class="css-1b4jr6y"
             data-testid="hvb45FGa-imagePlaceholder"
           >
             <p
-              class="makeStyles-fileName-4"
+              class="css-h94c3"
             >
               test.png
             </p>
             <div
-              class="makeStyles-placeholder-2"
+              class="UploadedImagePlaceholderplaceholder"
               style="width: 400px;"
             >
               <img
-                class="makeStyles-placeholderIcon-3"
+                class="UploadedImagePlaceholderplaceholderIcon"
                 src="test-file-stub"
               />
-              <div
-                class="MuiCircularProgress-root MuiCircularProgress-indeterminate"
+              <span
+                class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInherit css-62e83j-MuiCircularProgress-root"
                 role="progressbar"
                 style="width: 16px; height: 16px;"
               >
                 <svg
-                  class="MuiCircularProgress-svg"
+                  class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
                   viewBox="22 22 44 44"
                 >
                   <circle
-                    class="MuiCircularProgress-circle MuiCircularProgress-circleDisableShrink MuiCircularProgress-circleIndeterminate"
+                    class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate MuiCircularProgress-circleDisableShrink css-79nvmn-MuiCircularProgress-circle"
                     cx="44"
                     cy="44"
                     fill="none"
@@ -52,7 +52,7 @@ describe('UploadedImagePlaceholder', () => {
                     stroke-width="3.6"
                   />
                 </svg>
-              </div>
+              </span>
             </div>
           </div>
         </div>

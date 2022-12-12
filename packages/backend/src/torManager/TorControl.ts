@@ -11,7 +11,6 @@ interface IOpts {
 
 interface IParams {
   port: number
-  host: string
 }
 
 export class TorControl {
@@ -22,7 +21,6 @@ export class TorControl {
   constructor(opts: IOpts) {
     this.params = {
       port: opts.port,
-      host: opts.host
     }
     this.password = opts.password
     this.cookie = opts.cookie
@@ -52,6 +50,8 @@ export class TorControl {
       } else if (this.cookie) {
         // Cookie authentication must be invoked as a hexadecimal string passed without double quotes
         this.connection.write('AUTHENTICATE ' + this.cookie + '\r\n')
+      } else {
+        throw new Error('you must provide either tor password or tor cookie')
       }
     })
   }

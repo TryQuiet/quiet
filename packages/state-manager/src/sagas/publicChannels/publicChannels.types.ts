@@ -53,12 +53,11 @@ export interface ChannelsReplicatedPayload {
   channels: Dictionary<PublicChannel>
 }
 
-export interface CreatedChannelResponse {
+export interface CreateChannelPayload {
   channel: PublicChannel
 }
 
-export interface SubscribeToTopicPayload {
-  peerId: string
+export interface CreatedChannelResponse {
   channel: PublicChannel
 }
 
@@ -73,10 +72,6 @@ export interface SetCurrentChannelPayload {
 export interface SetChannelMessagesSliceValuePayload {
   messagesSlice: number
   channelAddress: string
-}
-
-export interface CreateChannelPayload {
-  channel: PublicChannel
 }
 
 export interface PendingMessage {

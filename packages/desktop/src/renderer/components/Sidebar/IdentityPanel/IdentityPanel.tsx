@@ -1,33 +1,42 @@
 import React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import { Button } from '@material-ui/core'
-import Typography from '@material-ui/core/Typography'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { styled } from '@mui/material/styles'
+import { Button } from '@mui/material'
+import Typography from '@mui/material/Typography'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useModal } from '../../../containers/hooks'
-import { capitalizeFirstLetter } from '../../../../utils/functions/capitalize'
 import { Community } from '@quiet/state-manager'
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    marginTop: theme.spacing(1),
-    paddingLeft: 16,
-    paddingRight: 16
-  },
-  button: {
+const PREFIX = 'IdentityPanel'
+
+const classes = {
+  root: `${PREFIX}root`,
+  button: `${PREFIX}button`,
+  nickname: `${PREFIX}nickname`
+}
+
+const IdentityPanelButtonStyled = styled('div')((
+  {
+    theme
+  }
+) => ({
+  marginTop: theme.spacing(1),
+  paddingLeft: 16,
+  paddingRight: 16,
+
+  [`& .${classes.button}`]: {
     color: theme.palette.colors.white,
     padding: 0,
     textAlign: 'left',
     opacity: 0.8,
+    justifyContent: 'flex-start',
+    textTransform: 'capitalize',
     '&:hover': {
       opacity: 1,
       backgroundColor: 'inherit'
     }
   },
-  buttonLabel: {
-    justifyContent: 'flex-start',
-    textTransform: 'none'
-  },
-  nickname: {
+
+  [`& .${classes.nickname}`]: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     maxWidth: 175,
@@ -44,29 +53,23 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({
   currentCommunity,
   accountSettingsModal
 }) => {
-  const classes = useStyles({})
-
-  let communityName = ''
-  if (currentCommunity?.name) {
-    communityName = capitalizeFirstLetter(currentCommunity.name)
-  }
-
+  const communityName = currentCommunity?.name || ''
   return (
-    <div className={classes.root}>
+    <IdentityPanelButtonStyled>
       <Button
         onClick={event => {
           event.persist()
           accountSettingsModal.handleOpen()
         }}
         component='span'
-        classes={{ root: classes.button, label: classes.buttonLabel }}
+        classes={{ root: classes.button }}
         data-testid={'settings-panel-button'}>
         <Typography variant='h4' className={classes.nickname}>
           {communityName}
         </Typography>
         <ExpandMoreIcon fontSize='small' />
       </Button>
-    </div>
+    </IdentityPanelButtonStyled>
   )
 }
 

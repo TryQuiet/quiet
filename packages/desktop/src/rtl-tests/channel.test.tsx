@@ -31,7 +31,8 @@ import {
   DownloadState,
   AUTODOWNLOAD_SIZE_LIMIT,
   SendMessagePayload,
-  MessageVerificationStatus
+  MessageVerificationStatus,
+  network
 } from '@quiet/state-manager'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -49,7 +50,7 @@ window.Notification = notification
 
 jest.mock('electron', () => {
   return {
-    ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
+    ipcRenderer: { on: () => { }, send: jest.fn(), sendSync: jest.fn() },
     remote: {
       BrowserWindow: {
         getAllWindows: () => {
@@ -329,7 +330,7 @@ describe('Channel', () => {
       store
     )
 
-    await act(async () => {})
+    await act(async () => { })
 
     // Confirm there are messages to display
     expect(
@@ -371,7 +372,7 @@ describe('Channel', () => {
 
     store.dispatch(messages.actions.sendMessage({ message: messageText }))
 
-    await act(async () => {})
+    await act(async () => { })
 
     // Get sent message for further assertions
     const sentMessage = publicChannels.selectors.currentChannelMessages(store.getState())[0]
@@ -532,7 +533,7 @@ describe('Channel', () => {
     )
 
     await act(async () => {
-      store.dispatch(connection.actions.addInitializedCommunity(community.id))
+      store.dispatch(network.actions.addInitializedCommunity(community.id))
     })
 
     // Log all the dispatched actions in order
@@ -547,13 +548,13 @@ describe('Channel', () => {
     const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
 
     // This input loses the first letter, hence the next assertion looks for a string without that.
-    userEvent.type(messageInput, 'hhello')
+    await userEvent.type(messageInput, 'hhello')
 
     const isTextVisible = screen.getByText('hello')
 
     expect(isTextVisible).toBeTruthy()
 
-    userEvent.type(messageInput, '{enter}')
+    await userEvent.type(messageInput, '{enter}')
 
     // sendMessage action trigger
     expect(actions).toMatchInlineSnapshot(`
@@ -603,11 +604,11 @@ describe('Channel', () => {
     const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
 
     // This input loses the first letter, hence the next assertion looks for a string without that.
-    userEvent.type(messageInput, 'hhello')
+    await userEvent.type(messageInput, 'hhello')
 
     expect(await screen.queryByText('hello')).toBeNull()
 
-    userEvent.type(messageInput, '{enter}')
+    await userEvent.type(messageInput, '{enter}')
 
     // sendMessage action does not trigger
     expect(actions).toMatchInlineSnapshot('Array []')
@@ -803,7 +804,11 @@ describe('Channel', () => {
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          return socket.socketClient.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, community.id)
+          const data = input as socketEventData<[InitCommunityPayload]>
+          const payload = data[0]
+          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+            id: payload.id
+          })
         }
         if (action === SocketActionTypes.DOWNLOAD_FILE) {
           const data = input as socketEventData<[DownloadFilePayload]>
@@ -1052,7 +1057,7 @@ describe('Channel', () => {
       ])
     }
 
-    await act(async () => {})
+    await act(async () => { })
 
     // Confirm file component displays in QUEUED state
     expect(await screen.findByText('Queued for download')).toBeVisible()
@@ -1298,7 +1303,7 @@ describe('Channel', () => {
 
     const downloadButton = await screen.findByText('Download file')
 
-    userEvent.click(downloadButton)
+    await userEvent.click(downloadButton)
 
     // Confirm file component displays in QUEUED state
     expect(await screen.findByText('Queued for download')).toBeVisible()

@@ -1,7 +1,7 @@
 import React from 'react'
 import { DeepMap, FieldError, FieldValues, Noop } from 'react-hook-form'
-import Typography from '@material-ui/core/Typography'
-import TextField, { TextFieldProps } from '@material-ui/core/TextField'
+import Typography from '@mui/material/Typography'
+import TextField, { TextFieldProps } from '@mui/material/TextField'
 
 export type TextInputProps = TextFieldProps & {
   errors: DeepMap<FieldValues, FieldError>

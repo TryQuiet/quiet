@@ -1,5 +1,5 @@
 import { Platform, AppState, NativeModules } from 'react-native'
-import { users, publicChannels, RICH_NOTIFICATION_CHANNEL } from '@quiet/state-manager'
+import { users, publicChannels, PUSH_NOTIFICATION_CHANNEL } from '@quiet/state-manager'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { call, select } from 'typed-redux-saga'
 import { navigationSelectors } from '../../navigation/navigation.selectors'
@@ -21,5 +21,5 @@ export function* showNotificationSaga(
   const mapping = yield* select(users.selectors.certificatesMapping)
   const username = mapping[_message.pubKey].username
 
-  yield* call(NativeModules.NotificationModule.notify, RICH_NOTIFICATION_CHANNEL, message, username)
+  yield* call(NativeModules.CommunicationModule.handleIncomingEvents, PUSH_NOTIFICATION_CHANNEL, message, username)
 }

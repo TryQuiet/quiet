@@ -7,12 +7,15 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
-import com.zbaymobile.Notification.NotificationModule
+import com.zbaymobile.BuildConfig
+import com.zbaymobile.Communication.CommunicationModule
+import com.zbaymobile.Notification.NotificationHandler
 import com.zbaymobile.R
 import com.zbaymobile.Scheme.WebsocketConnectionPayload
 import com.zbaymobile.Utils.Const
 import com.zbaymobile.Utils.Const.WEBSOCKET_CONNECTION_DELAY
 import com.zbaymobile.Utils.Utils
+import com.zbaymobile.Utils.isAppOnForeground
 import io.socket.client.IO
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.Dispatchers
@@ -25,12 +28,14 @@ import org.torproject.android.binary.TorResourceInstaller
 import java.util.concurrent.ThreadLocalRandom
 
 
-class BackendWorker(context: Context, workerParams: WorkerParameters):
-    CoroutineWorker(context, workerParams) {
+class BackendWorker(private val context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
 
     private var running: Boolean = false
 
     private var nodeProject = NodeProjectManager(applicationContext)
+
+    // Use dedicated class for composing and displaying notifications
+    private lateinit var notificationHandler: NotificationHandler
 
     companion object {
         init {
@@ -45,13 +50,24 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
         // val intent = WorkManager.getInstance(applicationContext)
         //     .createCancelPendingIntent(id)
 
+        val title = if (!BuildConfig.DEBUG) {
+            applicationContext.getString(R.string.app_name)
+        } else {
+            applicationContext.getString(R.string.debug_app_name)
+        }
+
+        val icon = if (!BuildConfig.DEBUG) {
+            R.drawable.ic_notification
+        } else {
+            R.drawable.ic_notification_dev
+        }
+
         val notification = NotificationCompat.Builder(applicationContext,
             Const.FOREGROUND_SERVICE_NOTIFICATION_CHANNEL_ID)
-            .setContentTitle("Quiet")
+            .setContentTitle(title)
             .setTicker("Quiet")
             .setContentText("Backend is running")
-            .setSmallIcon(R.drawable.ic_notification)
-            .setOngoing(true)
+            .setSmallIcon(icon)
             // Add the cancel action to the notification which can
             // be used to cancel the worker
             // .addAction(android.R.drawable.ic_delete, "cancel", intent)
@@ -81,12 +97,13 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
             }
 
             launch {
+                notificationHandler = NotificationHandler(context)
                 subscribePushNotifications(dataPort)
             }
 
             launch {
                 /*
-                 * Wait for NotificationModule to be initialized with reactContext
+                 * Wait for CommunicationModule to be initialized with reactContext
                  * (there's no callback we can use for that purpose).
                  *
                  * Code featured below suspends nothing but the websocket connection
@@ -98,17 +115,12 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
                 startWebsocketConnection(dataPort)
             }
 
-            // Those we should get inside tor module
-            val controlPort     = Utils.getOpenPort(12000)
-            val socksPort       = Utils.getOpenPort(13000)
-            val httpTunnelPort  = Utils.getOpenPort(14000)
+            val dataPath = Utils.createDirectory(context)
 
-            val dataDirectoryPath = Utils.createDirectory(applicationContext)
-
-            val tor = TorResourceInstaller(applicationContext, applicationContext.filesDir).installResources()
-            val torPath = tor.canonicalPath
+            val tor = TorResourceInstaller(context, context.filesDir).installResources()
+            val torBinary = tor.canonicalPath
             
-            startNodeProjectWithArguments("lib/mobileBackendManager.js -d $dataDirectoryPath -p $dataPort -c $controlPort -s $socksPort -t $httpTunnelPort -a $torPath")
+            startNodeProjectWithArguments("lib/mobileBackendManager.js --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort")
         }
 
         // Indicate whether the work finished successfully with the Result
@@ -153,26 +165,26 @@ class BackendWorker(context: Context, workerParams: WorkerParameters):
 
     private val onPushNotification =
         Emitter.Listener { args ->
-            var channelName = ""
             var message = ""
             var username = ""
             try {
                 val data = args[0] as JSONObject
-                channelName = data.getString("channel")
                 message = data.getString("message")
                 username = data.getString("username")
             } catch (e: JSONException) {
                 Log.e("ON_PUSH_NOTIFICATION", "unexpected JSON exception", e)
             }
-            NotificationModule.handleIncomingEvents(channelName, message, username)
+            if (context.isAppOnForeground()) return@Listener // If application is in foreground, let redux be in charge of displaying notifications
+            notificationHandler.notify(message, username)
         }
 
     private fun startWebsocketConnection(port: Int) {
         // Proceed only if data port is defined
         val websocketConnectionPayload = WebsocketConnectionPayload(port)
-        NotificationModule.handleIncomingEvents(
-            NotificationModule.WEBSOCKET_CONNECTION_CHANNEL,
-            Gson().toJson(websocketConnectionPayload)
+        CommunicationModule.handleIncomingEvents(
+            CommunicationModule.WEBSOCKET_CONNECTION_CHANNEL,
+            Gson().toJson(websocketConnectionPayload),
+            "" // Empty extras
         )
     }
 }

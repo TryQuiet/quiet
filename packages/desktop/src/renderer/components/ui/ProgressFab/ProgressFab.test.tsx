@@ -16,22 +16,18 @@ describe('ProgressFab', () => {
       <body>
         <div>
           <div
-            class="makeStyles-wrapper-3"
+            class="ProgressFabwrapper css-jv05tx"
           >
             <button
-              class="MuiButtonBase-root MuiFab-root makeStyles-root-1"
+              class="MuiButtonBase-root MuiFab-root ProgressFabroot MuiFab-circular MuiFab-sizeLarge MuiFab-default MuiFab-root ProgressFabroot MuiFab-circular MuiFab-sizeLarge MuiFab-default css-1juup33-MuiButtonBase-root-MuiFab-root"
               tabindex="0"
               type="button"
             >
+              <div>
+                Icon
+              </div>
               <span
-                class="MuiFab-label"
-              >
-                <div>
-                  Icon
-                </div>
-              </span>
-              <span
-                class="MuiTouchRipple-root"
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
               />
             </button>
           </div>
@@ -50,30 +46,26 @@ describe('ProgressFab', () => {
       <body>
         <div>
           <div
-            class="makeStyles-wrapper-30"
+            class="ProgressFabwrapper css-jv05tx"
           >
             <button
-              class="MuiButtonBase-root MuiFab-root makeStyles-root-28 makeStyles-buttonSuccess-31"
+              class="MuiButtonBase-root MuiFab-root ProgressFabroot ProgressFabbuttonSuccess MuiFab-circular MuiFab-sizeLarge MuiFab-default MuiFab-root ProgressFabroot ProgressFabbuttonSuccess MuiFab-circular MuiFab-sizeLarge MuiFab-default css-1juup33-MuiButtonBase-root-MuiFab-root"
               tabindex="0"
               type="button"
             >
-              <span
-                class="MuiFab-label"
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                data-testid="CheckIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root"
-                  focusable="false"
-                  role="presentation"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
-                  />
-                </svg>
-              </span>
+                <path
+                  d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+                />
+              </svg>
               <span
-                class="MuiTouchRipple-root"
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
               />
             </button>
           </div>
@@ -92,35 +84,31 @@ describe('ProgressFab', () => {
       <body>
         <div>
           <div
-            class="makeStyles-wrapper-66"
+            class="ProgressFabwrapper css-jv05tx"
           >
             <button
-              class="MuiButtonBase-root MuiFab-root makeStyles-root-64"
+              class="MuiButtonBase-root MuiFab-root ProgressFabroot MuiFab-circular MuiFab-sizeLarge MuiFab-default MuiFab-root ProgressFabroot MuiFab-circular MuiFab-sizeLarge MuiFab-default css-1juup33-MuiButtonBase-root-MuiFab-root"
               tabindex="0"
               type="button"
             >
+              <div>
+                Icon
+              </div>
               <span
-                class="MuiFab-label"
-              >
-                <div>
-                  Icon
-                </div>
-              </span>
-              <span
-                class="MuiTouchRipple-root"
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
               />
             </button>
-            <div
-              class="MuiCircularProgress-root makeStyles-fabProgress-65 MuiCircularProgress-colorPrimary MuiCircularProgress-indeterminate"
+            <span
+              class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary ProgressFabfabProgress css-9a4009-MuiCircularProgress-root"
               role="progressbar"
               style="width: 68px; height: 68px;"
             >
               <svg
-                class="MuiCircularProgress-svg"
+                class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
                 viewBox="22 22 44 44"
               >
                 <circle
-                  class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate"
+                  class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-176wh8e-MuiCircularProgress-circle"
                   cx="44"
                   cy="44"
                   fill="none"
@@ -128,7 +116,7 @@ describe('ProgressFab', () => {
                   stroke-width="3.6"
                 />
               </svg>
-            </div>
+            </span>
           </div>
         </div>
       </body>
@@ -145,29 +133,25 @@ describe('ProgressFab', () => {
       <body>
         <div>
           <div
-            class="makeStyles-wrapper-105"
+            class="ProgressFabwrapper css-jv05tx"
           >
             <button
-              class="MuiButtonBase-root MuiFab-root makeStyles-root-103 makeStyles-buttonSuccess-106 Mui-disabled Mui-disabled"
+              class="MuiButtonBase-root MuiFab-root ProgressFabroot ProgressFabbuttonSuccess MuiFab-circular MuiFab-sizeLarge MuiFab-default Mui-disabled MuiFab-root ProgressFabroot ProgressFabbuttonSuccess MuiFab-circular MuiFab-sizeLarge MuiFab-default css-1juup33-MuiButtonBase-root-MuiFab-root"
               disabled=""
               tabindex="-1"
               type="button"
             >
-              <span
-                class="MuiFab-label"
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                data-testid="CheckIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root"
-                  focusable="false"
-                  role="presentation"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
-                  />
-                </svg>
-              </span>
+                <path
+                  d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+                />
+              </svg>
             </button>
           </div>
         </div>

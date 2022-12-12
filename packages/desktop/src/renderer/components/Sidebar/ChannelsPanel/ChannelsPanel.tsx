@@ -1,6 +1,6 @@
 import React from 'react'
-import Grid from '@material-ui/core/Grid'
-import List from '@material-ui/core/List'
+import Grid from '@mui/material/Grid'
+import List from '@mui/material/List'
 import { useCyclingFocus, useModal } from '../../../containers/hooks'
 import { PublicChannel } from '@quiet/state-manager'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
@@ -12,7 +12,6 @@ export interface ChannelsPanelProps {
   setCurrentChannel: (address: string) => void
   currentChannel: string
   createChannelModal: ReturnType<typeof useModal>
-  joinChannelModal: ReturnType<typeof useModal>
 }
 
 const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
@@ -20,8 +19,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   unreadChannels,
   setCurrentChannel,
   currentChannel,
-  createChannelModal,
-  joinChannelModal
+  createChannelModal
 }) => {
   const [focusedIndex] = useCyclingFocus(channels.length)
   return (
@@ -30,7 +28,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
         <SidebarHeader
           title={'Channels'}
           action={createChannelModal.handleOpen}
-          actionTitle={joinChannelModal.handleOpen}
+          actionTitle={createChannelModal.handleOpen}
           tooltipText='Create new channel'
         />
       </Grid>

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { Redirect } from 'react-router'
+import { Navigate } from 'react-router'
 
 import appHandlers from '../../store/handlers/app'
 
@@ -20,7 +20,7 @@ export const Index = () => {
   useEffect(() => {
     loadVersion()
   }, [])
-  return <Redirect to='/main/channel/general' />
+  return <Navigate to='/main/channel/general' replace/>
 }
 
 export default Index

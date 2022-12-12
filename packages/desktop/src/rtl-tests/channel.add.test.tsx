@@ -1,7 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
-import { screen } from '@testing-library/dom'
+import { screen, waitFor } from '@testing-library/dom'
 import { act } from 'react-dom/test-utils'
 import { take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
@@ -16,18 +16,17 @@ import Channel from '../renderer/components/Channel/Channel'
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
 import {
+  CreateChannelPayload,
   ErrorMessages,
   getFactory,
   identity,
   publicChannels,
   SendMessagePayload,
-  SocketActionTypes,
-  SubscribeToTopicPayload
+  SocketActionTypes
 } from '@quiet/state-manager'
 
 import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
-import { DateTime } from 'luxon'
 
 jest.setTimeout(20_000)
 
@@ -66,7 +65,7 @@ describe('Add new channel', () => {
     )
 
     const addChannel = screen.getByTestId('addChannelButton')
-    userEvent.click(addChannel)
+    await userEvent.click(addChannel)
 
     const title = await screen.findByText('Create a new public channel')
     expect(title).toBeVisible()
@@ -84,24 +83,23 @@ describe('Add new channel', () => {
     )
 
     const factory = await getFactory(store)
-
     const alice = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { nickname: 'alice' })
-
     const channelName = { input: 'my-Super Channel ', output: 'my-super-channel' }
 
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
-        if (action === SocketActionTypes.SUBSCRIBE_TO_TOPIC) {
-          const data = input as socketEventData<[SubscribeToTopicPayload]>
+        if (action === SocketActionTypes.CREATE_CHANNEL) {
+          const data = input as socketEventData<[CreateChannelPayload]>
           const payload = data[0]
-          expect(payload.peerId).toEqual(alice.peerId.id)
+          expect(payload.channel.owner).toEqual(alice.nickname)
           expect(payload.channel.name).toEqual(channelName.output)
-          return socket.socketClient.emit(SocketActionTypes.CREATED_CHANNEL, {
-            channel: payload.channel,
-            communityId: alice.id // Identity id is the same as community id
+          return socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
+            channels: {
+              [payload.channel.name]: payload.channel
+            },
           })
         }
         if (action === SocketActionTypes.SEND_MESSAGE) {
@@ -126,12 +124,12 @@ describe('Add new channel', () => {
       </>,
       store
     )
-
+    const user = userEvent.setup()
     const input = screen.getByPlaceholderText('Enter a channel name')
-    userEvent.type(input, channelName.input)
+    await user.type(input, channelName.input)
 
-    const button = screen.getByText('Create Channel')
-    userEvent.click(button)
+    // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
+    await act(async () => await waitFor(() => { user.click(screen.getByText('Create Channel')).catch((e) => { console.error(e) }) }))
 
     await act(async () => {
       await runSaga(testCreateChannelSaga).toPromise()
@@ -149,16 +147,10 @@ describe('Add new channel', () => {
     expect(createChannelModal).toBeNull()
 
     // Check if newly created channel is present and selected
-    const channelTitle = screen.getByTestId('channelTitle')
-    expect(channelTitle).toHaveTextContent(`#${channelName.output}`)
-
+    expect(screen.getByTestId('channelTitle')).toHaveTextContent(`#${channelName.output}`)
     // Check if sidebar item displays as selected
     const link = screen.getByTestId(`${channelName.output}-link`)
     expect(link).toHaveStyle('backgroundColor: rgb(103, 191, 211)') // lushSky: '#67BFD3'
-
-    // Check if initial message is visible
-    const message = await screen.findByText(`Created #${channelName.output}`)
-    expect(message).toBeVisible()
   })
 
   it('Displays error if trying to add channel with already taken name', async () => {
@@ -166,27 +158,21 @@ describe('Add new channel', () => {
       {},
       socket // Fork state manager's sagas
     )
-
-    store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
-
     const factory = await getFactory(store)
 
     const channel = await factory.create<
-    ReturnType<typeof publicChannels.actions.addChannel>['payload']
+      ReturnType<typeof publicChannels.actions.addChannel>['payload']
     >('PublicChannel')
 
-    renderComponent(
-      <>
-        <CreateChannel />
-      </>,
-      store
-    )
+    renderComponent(<CreateChannel />, store)
 
-    const input = screen.getByPlaceholderText('Enter a channel name')
-    userEvent.type(input, channel.channel.name)
+    store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
+
+    const input = await screen.findByPlaceholderText('Enter a channel name')
+    await userEvent.type(input, channel.channel.name)
 
     const button = screen.getByText('Create Channel')
-    userEvent.click(button)
+    await userEvent.click(button)
 
     const error = await screen.findByText(ErrorMessages.CHANNEL_NAME_TAKEN)
     expect(error).toBeVisible()

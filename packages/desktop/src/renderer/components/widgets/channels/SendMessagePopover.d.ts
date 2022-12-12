@@ -1,5 +1,5 @@
-import { ModalProps } from '@material-ui/core/Modal'
-import { PopoverProps } from '@material-ui/core/Popover'
+import { ModalProps } from '@mui/material/Modal'
+import { PopoverProps } from '@mui/material/Popover'
 import { History, LocationState } from 'history'
 
 export interface ISendMessagePopoverProps {

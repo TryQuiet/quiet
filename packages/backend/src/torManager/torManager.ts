@@ -10,11 +10,13 @@ import getPort from 'get-port'
 const log = logger('tor')
 
 interface IConstructor {
-  torPath: string
+  torPath?: string
   options: child_process.SpawnOptionsWithoutStdio
   appDataPath: string
   httpTunnelPort: number
   extraTorProcessParams?: string[]
+  controlPort?: number
+  authCookie?: string
 }
 export class Tor {
   httpTunnelPort: number
@@ -38,14 +40,18 @@ export class Tor {
     options,
     appDataPath,
     httpTunnelPort,
-    extraTorProcessParams
+    extraTorProcessParams,
+    controlPort,
+    authCookie
   }: IConstructor) {
-    this.torPath = path.normalize(torPath)
+    this.torPath = torPath ? path.normalize(torPath) : null
     this.options = options
     this.appDataPath = appDataPath
     this.httpTunnelPort = httpTunnelPort
     this.bootstrapTime = 0
     this.extraTorProcessParams = extraTorProcessParams
+    this.controlPort = controlPort || null
+    this.torAuthCookie = authCookie || null
   }
 
   public init = async ({ repeat = 6, timeout = 3600_00 } = {}): Promise<void> => {
@@ -288,7 +294,7 @@ export class Tor {
     virtPort: number = 443
   ): Promise<{ onionAddress: string; privateKey: string }> {
     const status = await this.torControl.sendCommand(
-      `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
+    `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
     )
 
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')

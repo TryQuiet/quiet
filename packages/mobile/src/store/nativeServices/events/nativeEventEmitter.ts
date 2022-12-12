@@ -6,6 +6,6 @@ import {
 } from 'react-native'
 
 export default Platform.select({
-  ios: new NativeEventEmitter(NativeModules.TorModule),
+  ios: new NativeEventEmitter(NativeModules.CommunicationModule),
   android: DeviceEventEmitter
 })

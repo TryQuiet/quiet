@@ -10,17 +10,13 @@ describe('Loading button', () => {
       <body>
         <div>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-button-1"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium LoadingButtonbutton css-sx27b8-MuiButtonBase-root-MuiButton-root"
             tabindex="0"
             type="button"
           >
+            Loading...
             <span
-              class="MuiButton-label"
-            >
-              Loading...
-            </span>
-            <span
-              class="MuiTouchRipple-root"
+              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
             />
           </button>
         </div>

@@ -23,8 +23,8 @@ describe('Create username', () => {
 
     const input = screen.getByPlaceholderText('Enter a username')
 
-    userEvent.type(input, name)
-    expect(screen.getByTestId('createUserNameWarning')).toHaveTextContent(`Your user name will be registered as @${corrected}`)
+    await userEvent.type(input, name)
+    expect(screen.getByTestId('createUserNameWarning')).toHaveTextContent(`Your username will be registered as @${corrected}`)
   })
 
   it.each([
@@ -41,8 +41,8 @@ describe('Create username', () => {
     const input = screen.getByPlaceholderText('Enter a username')
     const button = screen.getByText('Register')
 
-    userEvent.type(input, name)
-    userEvent.click(button)
+    await userEvent.type(input, name)
+    await userEvent.click(button)
 
     await waitFor(() => expect(registerUsername).not.toBeCalled())
 
