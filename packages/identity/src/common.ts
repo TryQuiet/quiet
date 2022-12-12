@@ -44,8 +44,8 @@ export const generateKeyPair = async ({
   signAlg: string
 }): Promise<CryptoKeyPair> => {
   const algorithm = getAlgorithmParameters(signAlg, 'generatekey')
-  const crypto = getCrypto()
-  const keyPair = await crypto.generateKey(algorithm.algorithm, true, algorithm.usages)
+  const crypto = getCrypto() as SubtleCrypto
+  const keyPair = await crypto?.generateKey(algorithm.algorithm, true, algorithm.usages)
   return keyPair as CryptoKeyPair
 }
 
@@ -75,8 +75,8 @@ export const loadPrivateKey = async (
   const keyBuffer = stringToArrayBuffer(fromBase64(rootKey))
 
   const algorithm = getAlgorithmParameters(signAlg, 'generatekey')
-  const crypto = getCrypto()
-  return await crypto.importKey('pkcs8', keyBuffer, algorithm.algorithm, true, algorithm.usages)
+  const crypto = getCrypto() as SubtleCrypto
+  return await crypto?.importKey('pkcs8', keyBuffer, algorithm.algorithm, true, algorithm.usages)
 }
 
 export const loadCSR = async (csr: string): Promise<CertificationRequest> => {

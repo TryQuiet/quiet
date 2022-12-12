@@ -17,30 +17,28 @@ export const userData = {
 const notBeforeDate = new Date()
 const notAfterDate = new Date(2030, 1, 1)
 
-export async function createTestRootCA (commonName?: string): Promise<RootCA> {
+export async function createTestRootCA(commonName?: string): Promise<RootCA> {
   return await createRootCA(new Time({ type: 1, value: notBeforeDate }), new Time({ type: 1, value: notAfterDate }), commonName)
 }
 
-export async function createTestUserCsr (): Promise<UserCsr> {
+export async function createTestUserCsr(): Promise<UserCsr> {
   return await createUserCsr(userData)
 }
 
-export async function createTestUserCert (rootCert?: RootCA, userCsr?: UserCsr): Promise<UserCert> {
+export async function createTestUserCert(rootCert?: RootCA, userCsr?: UserCsr): Promise<UserCert> {
   const rootC = rootCert || await createTestRootCA()
   const user = userCsr || await createTestUserCsr()
   return await createUserCert(rootC.rootCertString, rootC.rootKeyString, user.userCsr, notBeforeDate, notAfterDate)
 }
 
-export function setupCrypto () {
+export function setupCrypto() {
   const webcrypto = new Crypto()
-  setEngine(
-    'newEngine',
-    webcrypto,
-    new CryptoEngine({
-      name: '',
-      crypto: webcrypto,
-      subtle: webcrypto.subtle
-    })
-  )
+  const cryptoEngine = new CryptoEngine({
+    name: '',
+    crypto: webcrypto,
+    subtle: webcrypto.subtle
+  }) as SubtleCrypto
+
+  setEngine('newEngine', webcrypto, cryptoEngine)
   global.crypto = webcrypto
 }

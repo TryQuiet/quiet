@@ -6,7 +6,7 @@ export const verifySignature = async (
   message: string,
   publicKey: CryptoKey
 ): Promise<boolean> => {
-  const crypto = getCrypto()
+  const crypto = getCrypto() as SubtleCrypto
   const algorithm = getAlgorithmParameters(config.signAlg, 'verify')
-  return await crypto.verify(algorithm.algorithm, publicKey, signature, Buffer.from(message))
+  return await crypto?.verify(algorithm.algorithm, publicKey, signature, Buffer.from(message))
 }

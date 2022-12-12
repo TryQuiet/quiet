@@ -36,9 +36,11 @@ export const createRootCA = async (
     notAfterDate
   })
 
+  const crypto = getCrypto() as SubtleCrypto
+
   const rootData = {
     rootCert: rootCA.certificate.toSchema(true).toBER(false),
-    rootKey: await getCrypto()?.exportKey('pkcs8', rootCA.privateKey)
+    rootKey: await crypto?.exportKey('pkcs8', rootCA.privateKey)
   }
 
   return {
@@ -108,11 +110,13 @@ async function generateRootCA({
     })
   )
   const keyPair = await generateKeyPair({ signAlg })
+  const privateKey = keyPair.privateKey as CryptoKey
+  const publicKey = keyPair.publicKey as CryptoKey
 
-  await certificate.subjectPublicKeyInfo.importKey(keyPair.publicKey)
-  await certificate.sign(keyPair.privateKey, hashAlg)
+  await certificate.subjectPublicKeyInfo.importKey(publicKey)
+  await certificate.sign(privateKey, hashAlg)
 
-  return { certificate, publicKey: keyPair.publicKey, privateKey: keyPair.privateKey }
+  return { certificate, publicKey, privateKey }
 }
 
 function getCAKeyUsage(): BitString {

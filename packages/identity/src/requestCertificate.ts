@@ -44,9 +44,11 @@ export const createUserCsr = async ({
     ...config
   })
 
+  const crypto = getCrypto() as SubtleCrypto
+
   const userData = {
     userCsr: pkcs10.pkcs10.toSchema().toBER(false),
-    userKey: await getCrypto()?.exportKey('pkcs8', pkcs10.privateKey)
+    userKey: await crypto?.exportKey('pkcs8', pkcs10.privateKey)
   }
 
   return {
@@ -72,6 +74,8 @@ async function requestCertificate({
   hashAlg: string
 }): Promise<CertData> {
   const keyPair: CryptoKeyPair = await generateKeyPair({ signAlg })
+  const privateKey = keyPair.privateKey as CryptoKey
+  const publicKey = keyPair.publicKey as CryptoKey
 
   const arrayBufferDmPubKey = hexStringToArrayBuffer(dmPublicKey)
 
@@ -86,12 +90,12 @@ async function requestCertificate({
     })
   )
 
-  await pkcs10.subjectPublicKeyInfo.importKey(keyPair.publicKey)
+  await pkcs10.subjectPublicKeyInfo.importKey(publicKey)
   const hashedPublicKey = await getCrypto()?.digest(
     { name: 'SHA-1' },
     pkcs10.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex
   )
-  pkcs10.attributes.push(
+  pkcs10.attributes?.push(
     new Attribute({
       type: '1.2.840.113549.1.9.14', // pkcs-9-at-extensionRequest
       values: [
@@ -123,6 +127,6 @@ async function requestCertificate({
       values: [new PrintableString({ value: commonName })]
     })
   )
-  await pkcs10.sign(keyPair.privateKey, hashAlg)
-  return { pkcs10, publicKey: keyPair.publicKey, privateKey: keyPair.privateKey }
+  await pkcs10.sign(privateKey, hashAlg)
+  return { pkcs10, publicKey, privateKey }
 }

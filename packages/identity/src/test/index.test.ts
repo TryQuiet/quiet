@@ -8,15 +8,17 @@ import { CertFieldsTypes, getCertFieldValue, getReqFieldValue } from '../common'
 import { getCrypto, setEngine, CryptoEngine } from 'pkijs'
 
 describe('Message signature verification', () => {
-  let crypto: SubtleCrypto | undefined
+  let crypto: SubtleCrypto
   beforeAll(() => {
     const webcrypto = new Crypto()
-    setEngine('newEngine', webcrypto, new CryptoEngine({
+    const cryptoEngine = new CryptoEngine({
       name: '',
       crypto: webcrypto,
       subtle: webcrypto.subtle
-    }))
-    crypto = getCrypto()
+    }) as SubtleCrypto
+
+    setEngine('newEngine', webcrypto, cryptoEngine)
+    crypto = getCrypto() as SubtleCrypto
   })
 
   it('returns true if public key and message signature are correct', async () => {
@@ -91,6 +93,7 @@ describe('Certificate', () => {
   it('certificate can be parsed and contains proper data', async () => {
     const certTypeData = {
       [CertFieldsTypes.commonName]: userData.commonName,
+      [CertFieldsTypes.subjectAltName]: userData.commonName,
       [CertFieldsTypes.nickName]: userData.nickname,
       [CertFieldsTypes.peerId]: userData.peerId,
       [CertFieldsTypes.dmPublicKey]: userData.dmPublicKey
@@ -111,6 +114,7 @@ describe('Certificate', () => {
   it('certification request can be parsed and contains proper data', async () => {
     const certTypeData = {
       [CertFieldsTypes.commonName]: userData.commonName,
+      [CertFieldsTypes.subjectAltName]: userData.commonName,
       [CertFieldsTypes.nickName]: userData.nickname,
       [CertFieldsTypes.peerId]: userData.peerId,
       [CertFieldsTypes.dmPublicKey]: userData.dmPublicKey

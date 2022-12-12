@@ -23,14 +23,14 @@ export const keyFromCertificate = (certificate: Certificate | CertificationReque
   ).toString('base64')
 }
 
-export const keyObjectFromString = async (pubKeyString: string, crypto: SubtleCrypto | undefined): Promise<CryptoKey> => {
+export const keyObjectFromString = async (pubKeyString: string, crypto: SubtleCrypto): Promise<CryptoKey> => {
   let keyArray = new ArrayBuffer(0)
   keyArray = stringToArrayBuffer(fromBase64(pubKeyString))
   const algorithm = getAlgorithmParameters(config.signAlg, 'generatekey')
   return await crypto.importKey('raw', keyArray, algorithm.algorithm, true, ['verify'])
 }
 
-export const extractPubKey = async (pem: string, crypto: SubtleCrypto | undefined): Promise<CryptoKey> => {
+export const extractPubKey = async (pem: string, crypto: SubtleCrypto): Promise<CryptoKey> => {
   const pubKeyString = extractPubKeyString(pem)
   return await keyObjectFromString(pubKeyString, crypto)
 }
