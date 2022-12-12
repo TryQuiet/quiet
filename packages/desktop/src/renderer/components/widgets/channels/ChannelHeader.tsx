@@ -1,9 +1,9 @@
 import React from 'react'
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 
-import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
+import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid'
 
 import Icon from '../../ui/Icon/Icon'
 import silenced from '../../../static/images/silenced.svg'
@@ -11,32 +11,63 @@ import silencedBlack from '../../../static/images/silencedBlack.svg'
 import Tooltip from '../../ui/Tooltip/Tooltip'
 import { ChannelMenuActionProps } from './ChannelMenuAction'
 
-const useStyles = makeStyles(theme => ({
-  root: {
+const PREFIX = 'ChannelHeaderComponent'
+
+const classes = {
+  root: `${PREFIX}root`,
+  title: `${PREFIX}title`,
+  subtitle: `${PREFIX}subtitle`,
+  spendButton: `${PREFIX}spendButton`,
+  actions: `${PREFIX}actions`,
+  switch: `${PREFIX}switch`,
+  tab: `${PREFIX}tab`,
+  tabs: `${PREFIX}tabs`,
+  selected: `${PREFIX}selected`,
+  indicator: `${PREFIX}indicator`,
+  descriptionDiv: `${PREFIX}descriptionDiv`,
+  wrapper: `${PREFIX}wrapper`,
+  iconDiv: `${PREFIX}iconDiv`,
+  iconButton: `${PREFIX}iconButton`,
+  bold: `${PREFIX}bold`,
+  silenceDiv: `${PREFIX}silenceDiv`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.root}`]: {
     height: '75px',
     paddingLeft: 20,
     paddingRight: 24,
     borderBottom: `1px solid ${theme.palette.colors.veryLightGray}`
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     fontSize: '1rem',
     lineHeight: '1.66'
   },
-  subtitle: {
+
+  [`& .${classes.subtitle}`]: {
     fontSize: '0.8rem'
   },
-  spendButton: {
+
+  [`& .${classes.spendButton}`]: {
     fontSize: 13
   },
-  actions: {},
-  switch: {
+
+  [`& .${classes.actions}`]: {},
+
+  [`& .${classes.switch}`]: {
     maxWidth: 138,
     marginRight: 18,
     borderRadius: 4,
     borderStyle: 'solid',
     borderColor: theme.palette.colors.gray03
   },
-  tab: {
+
+  [`& .${classes.tab}`]: {
     fontSize: 12,
     minHeight: 22,
     width: 65,
@@ -48,33 +79,42 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.colors.gray40,
     fontWeight: 'normal'
   },
-  tabs: {
+
+  [`& .${classes.tabs}`]: {
     minHeight: 0
   },
-  selected: {
+
+  [`& .${classes.selected}`]: {
     color: theme.palette.colors.trueBlack,
     backgroundColor: theme.palette.colors.white
   },
-  indicator: {
+
+  [`& .${classes.indicator}`]: {
     maxHeight: 0
   },
-  descriptionDiv: {
+
+  [`& .${classes.descriptionDiv}`]: {
     top: 75,
     padding: '12px 25px 12px 20px',
     backgroundColor: theme.palette.colors.white,
     boxShadow: `0px 1px 0px ${theme.palette.colors.veryLightGray}`
   },
-  wrapper: {},
-  iconDiv: {
+
+  [`&.${classes.wrapper}`]: {},
+
+  [`& .${classes.iconDiv}`]: {
     marginLeft: 12
   },
-  iconButton: {
+
+  [`& .${classes.iconButton}`]: {
     padding: 0
   },
-  bold: {
+
+  [`& .${classes.bold}`]: {
     fontWeight: 500
   },
-  silenceDiv: {
+
+  [`& .${classes.silenceDiv}`]: {
     width: 20,
     height: 20,
     marginLeft: 11,
@@ -90,8 +130,6 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
   channelName,
   ...channelMenuActionProps
 }) => {
-  const classes = useStyles({})
-
   const debounce = (fn, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
     return (_: any) => {
@@ -124,11 +162,11 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
   })
 
   return (
-    <div className={classes.wrapper}>
+    <Root className={classes.wrapper}>
       <Grid
         container
         className={classes.root}
-        justify='space-between'
+        justifyContent='space-between'
         alignItems='center'
         direction='row'>
         <Grid item>
@@ -167,7 +205,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
           xs
           container
           className={classes.actions}
-          justify='flex-end'
+          justifyContent='flex-end'
           alignContent='center'
           alignItems='center'>
           <Grid item>
@@ -175,7 +213,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
           </Grid>
         </Grid>
       </Grid>
-    </div>
+    </Root>
   )
 }
 

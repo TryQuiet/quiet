@@ -13,40 +13,36 @@ describe('UsernameCreated', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-justify-xs-center"
+            class="MuiGrid-root MuiGrid-container css-1uw1izs-MuiGrid-root"
           >
             <div
-              class="MuiGrid-root makeStyles-usernameConatainer-2 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center MuiGrid-grid-xs-12"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 UsernameCreatedusernameConatainer css-s2k0j8-MuiGrid-root"
             >
               <img
-                class="makeStyles-usernameIcon-5"
+                class="UsernameCreatedusernameIcon"
                 src="test-file-stub"
               />
             </div>
             <div
-              class="MuiGrid-root makeStyles-infoConatainer-3 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center MuiGrid-grid-xs-12"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 UsernameCreatedinfoConatainer css-s2k0j8-MuiGrid-root"
             >
               <h4
-                class="MuiTypography-root MuiTypography-h4"
+                class="MuiTypography-root MuiTypography-h4 css-ajdqea-MuiTypography-root"
               >
                 You created a username
               </h4>
             </div>
             <div
-              class="MuiGrid-root makeStyles-buttonContainer-6 MuiGrid-item MuiGrid-grid-xs-auto"
+              class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto UsernameCreatedbuttonContainer css-1wrgmsj-MuiGrid-root"
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-contained makeStyles-button-7 MuiButton-containedSizeSmall MuiButton-sizeSmall MuiButton-fullWidth"
+                class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth UsernameCreatedbutton css-14mi2mx-MuiButtonBase-root-MuiButton-root"
                 tabindex="0"
                 type="button"
               >
+                Done
                 <span
-                  class="MuiButton-label"
-                >
-                  Done
-                </span>
-                <span
-                  class="MuiTouchRipple-root"
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </button>
             </div>

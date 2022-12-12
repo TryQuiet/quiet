@@ -1,25 +1,44 @@
 import React, { useEffect, useRef } from 'react'
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
-import { Typography, Grid } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
+import { Typography, Grid, ListItemButton } from '@mui/material'
+import ListItemText from '@mui/material/ListItemText'
 import { PublicChannel } from '@quiet/state-manager'
 
-const useStyles = makeStyles(theme => ({
-  root: {
+const PREFIX = 'ChannelsListItem'
+
+const classes = {
+  root: `${PREFIX}root`,
+  selected: `${PREFIX}selected`,
+  primary: `${PREFIX}primary`,
+  title: `${PREFIX}title`,
+  newMessages: `${PREFIX}newMessages`,
+  connectedIcon: `${PREFIX}connectedIcon`,
+  notConnectedIcon: `${PREFIX}notConnectedIcon`,
+  itemText: `${PREFIX}itemText`
+}
+
+const StyledListItemButton = styled(ListItemButton)((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.root}`]: {
     padding: 0
   },
-  selected: {
+
+  [`&.${classes.selected}`]: {
     backgroundColor: theme.palette.colors.lushSky,
     '&:hover': {
       backgroundColor: theme.palette.colors.lushSky
     }
   },
-  primary: {
+
+  [`& .${classes.primary}`]: {
     display: 'flex'
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     opacity: 0.7,
     fontWeight: 300,
     paddingLeft: 16,
@@ -30,24 +49,28 @@ const useStyles = makeStyles(theme => ({
     whiteSpace: 'nowrap',
     textTransform: 'lowercase'
   },
-  newMessages: {
+
+  [`& .${classes.newMessages}`]: {
     opacity: 1,
     fontWeight: 600
   },
-  connectedIcon: {
+
+  [`& .${classes.connectedIcon}`]: {
     marginLeft: 16,
     marginRight: -8,
     width: 11,
     height: 11
   },
-  notConnectedIcon: {
+
+  [`& .${classes.notConnectedIcon}`]: {
     marginLeft: 16,
     marginRight: -8,
     width: 11,
     height: 11,
     opacity: 0.5
   },
-  itemText: {
+
+  [`& .${classes.itemText}`]: {
     margin: 0
   }
 }))
@@ -67,8 +90,6 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   focused,
   setCurrentChannel
 }) => {
-  const classes = useStyles({})
-
   const ref = useRef<HTMLDivElement>()
 
   useEffect(() => {
@@ -78,9 +99,8 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   }, [focused])
 
   return (
-    <ListItem
+    <StyledListItemButton
       ref={ref}
-      button
       disableGutters
       onClick={() => {
         setCurrentChannel(channel.name)
@@ -110,7 +130,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
         }}
         className={classes.itemText}
       />
-    </ListItem>
+    </StyledListItemButton>
   )
 }
 

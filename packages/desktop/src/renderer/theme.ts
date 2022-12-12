@@ -1,9 +1,9 @@
-import { createMuiTheme } from '@material-ui/core/styles'
+import { createTheme } from '@mui/material/styles'
 
 const font = "'Rubik', sans-serif"
 const fontLogs = 'Menlo Regular'
 
-export default createMuiTheme({
+export default createTheme({
   typography: {
     fontFamily: [font, fontLogs].join(','),
     fontStyle: 'normal',
@@ -108,47 +108,61 @@ export default createMuiTheme({
       yellow: '#E6BB46'
     }
   },
-  overrides: {
-    MuiSnackbarContent: {
-      root: {
-        wordBreak: 'break-all'
-      }
+  components: {
+    // Body font size changed in mui v5: https://mui.com/material-ui/migration/v5-component-changes/#update-body-font-size
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          fontSize: '14px',
+          lineHeight: '24px',
+          letterSpacing: '0.01071em'
+        },
+      },
     },
-    MuiTab: {
-      wrapper: {
-        alignItems: 'flex-start'
+    MuiSnackbarContent: {
+      styleOverrides: {
+        root: {
+          wordBreak: 'break-all'
+        }
       }
     },
     MuiButton: {
-      sizeSmall: {
-        textTransform: 'none',
-        boxShadow: 'none',
-        paddingLeft: '16px',
-        paddingRight: '14px',
-        fontWeight: 400,
-        fontSize: '14px',
-        '&:active': {
-          boxShadow: 'none'
-        }
-      },
-      sizeLarge: {
-        textTransform: 'none',
-        boxShadow: 'none',
-        fontWeight: 400,
-        paddingTop: 12,
-        paddingBottom: 12,
-        fontSize: 14,
-        '&:active': {
-          boxShadow: 'none'
+      styleOverrides: {
+        sizeSmall: {
+          textTransform: 'none',
+          boxShadow: 'none',
+          paddingLeft: '16px',
+          paddingRight: '14px',
+          fontWeight: 400,
+          fontSize: '14px',
+          '&:active': {
+            boxShadow: 'none'
+          }
+        },
+        sizeLarge: {
+          textTransform: 'none',
+          boxShadow: 'none',
+          fontWeight: 400,
+          paddingTop: 12,
+          paddingBottom: 12,
+          fontSize: 14,
+          '&:active': {
+            boxShadow: 'none'
+          }
         }
       }
+
     },
     MuiOutlinedInput: {
-      input: {}
+      styleOverrides: {
+        input: {}
+      }
     },
     MuiPopover: {
-      paper: {
-        borderRadius: 8
+      styleOverrides: {
+        paper: {
+          borderRadius: 8
+        }
       }
     }
   }

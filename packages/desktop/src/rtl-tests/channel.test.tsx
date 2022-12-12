@@ -548,13 +548,13 @@ describe('Channel', () => {
     const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
 
     // This input loses the first letter, hence the next assertion looks for a string without that.
-    userEvent.type(messageInput, 'hhello')
+    await userEvent.type(messageInput, 'hhello')
 
     const isTextVisible = screen.getByText('hello')
 
     expect(isTextVisible).toBeTruthy()
 
-    userEvent.type(messageInput, '{enter}')
+    await userEvent.type(messageInput, '{enter}')
 
     // sendMessage action trigger
     expect(actions).toMatchInlineSnapshot(`
@@ -604,11 +604,11 @@ describe('Channel', () => {
     const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
 
     // This input loses the first letter, hence the next assertion looks for a string without that.
-    userEvent.type(messageInput, 'hhello')
+    await userEvent.type(messageInput, 'hhello')
 
     expect(await screen.queryByText('hello')).toBeNull()
 
-    userEvent.type(messageInput, '{enter}')
+    await userEvent.type(messageInput, '{enter}')
 
     // sendMessage action does not trigger
     expect(actions).toMatchInlineSnapshot('Array []')
@@ -1303,7 +1303,7 @@ describe('Channel', () => {
 
     const downloadButton = await screen.findByText('Download file')
 
-    userEvent.click(downloadButton)
+    await userEvent.click(downloadButton)
 
     // Confirm file component displays in QUEUED state
     expect(await screen.findByText('Queued for download')).toBeVisible()

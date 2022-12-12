@@ -1,50 +1,74 @@
 import React from 'react'
 
+import { styled } from '@mui/material/styles'
+
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'rc-scrollbars'
 
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import { makeStyles } from '@material-ui/core/styles'
-import Checkbox from '@material-ui/core/Checkbox'
-import red from '@material-ui/core/colors/red'
-import Button from '@material-ui/core/Button'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+
+import Checkbox from '@mui/material/Checkbox'
+import red from '@mui/material/colors/red'
+import Button from '@mui/material/Button'
 
 import Icon from '../Icon/Icon'
 import exclamationMark from '../../../static/images/exclamationMark.svg'
 import Modal from '../Modal/Modal'
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    padding: theme.spacing(4)
-  },
-  icon: {
+const PREFIX = 'OpenlinkModal'
+
+const classes = {
+  icon: `${PREFIX}icon`,
+  title: `${PREFIX}title`,
+  message: `${PREFIX}message`,
+  bold: `${PREFIX}bold`,
+  checkboxLabel: `${PREFIX}checkboxLabel`,
+  checkboxes: `${PREFIX}checkboxes`,
+  buttonBack: `${PREFIX}buttonBack`,
+  buttons: `${PREFIX}buttons`
+}
+
+const StyledModalContent = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  padding: theme.spacing(4),
+
+  [`& .${classes.icon}`]: {
     fontSize: '10rem',
     color: red[500],
     width: 80,
     height: 70
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     marginTop: 36,
     marginBottom: 24
   },
-  message: {
+
+  [`& .${classes.message}`]: {
     wordBreak: 'break-word',
     marginTop: 16,
     fontWeight: 500
   },
-  bold: {
+
+  [`& .${classes.bold}`]: {
     fontWeight: 600
   },
-  checkboxLabel: {
+
+  [`& .${classes.checkboxLabel}`]: {
     fontSize: 14,
     lineHeight: '24px',
     wordBreak: 'break-word'
   },
-  checkboxes: {
+
+  [`& .${classes.checkboxes}`]: {
     marginTop: 32
   },
-  buttonBack: {
+
+  [`& .${classes.buttonBack}`]: {
     width: 147,
     height: 60,
     backgroundColor: theme.palette.colors.quietBlue,
@@ -53,7 +77,8 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.colors.quietBlue
     }
   },
-  buttons: {
+
+  [`& .${classes.buttons}`]: {
     marginTop: 24
   }
 }))
@@ -77,8 +102,6 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
   setWhitelistAll,
   isImage = false
 }) => {
-  const classes = useStyles({})
-
   const [allowThisLink, setAllowThisLink] = React.useState(false)
   const [allowAllLink, setAllowAllLink] = React.useState(false)
   const [dontAutoload, setDontAutoload] = React.useState(false)
@@ -90,7 +113,7 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
       <AutoSizer>
         {({ width, height }) => (
           <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
-            <Grid container justify='flex-start' direction='column' className={classes.root}>
+            <StyledModalContent container justifyContent='flex-start' direction='column'>
               <Grid item container direction='column' alignItems='center'>
                 <Icon className={classes.icon} src={exclamationMark} />
                 <Typography variant='h2' className={classes.title}>
@@ -112,7 +135,7 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                 {isImage
                   ? (
                     <>
-                      <Grid item container justify='center' alignItems='center'>
+                      <Grid item container justifyContent='center' alignItems='center'>
                         <Grid item>
                           <Checkbox
                             checked={allowThisLink}
@@ -128,7 +151,7 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                           }
                         </Grid>
                       </Grid>
-                      <Grid item container justify='center' alignItems='center'>
+                      <Grid item container justifyContent='center' alignItems='center'>
                         <Grid item>
                           <Checkbox
                             checked={dontAutoload}
@@ -145,7 +168,7 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                     </>
                   )
                   : (
-                    <Grid item container justify='center' alignItems='center'>
+                    <Grid item container justifyContent='center' alignItems='center'>
                       <Grid item>
                         <Checkbox
                           checked={allowThisLink}
@@ -159,7 +182,7 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                       </Grid>
                     </Grid>
                   )}
-                <Grid item container justify='center' alignItems='center'>
+                <Grid item container justifyContent='center' alignItems='center'>
                   <Grid item>
                     <Checkbox
                       checked={allowAllLink}
@@ -208,7 +231,7 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                   </Grid>
                 </Grid>
               </Grid>
-            </Grid>
+            </StyledModalContent>
           </Scrollbars>
         )}
       </AutoSizer>

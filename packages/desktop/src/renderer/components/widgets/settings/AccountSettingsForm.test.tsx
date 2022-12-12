@@ -30,31 +30,30 @@ describe('AccountSettingsForm', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-jbu1vb-MuiGrid-root"
           >
             <div
-              class="MuiGrid-root makeStyles-title-8 MuiGrid-item"
+              class="MuiGrid-root MuiGrid-item AccountSettingsFormtitle css-13i4rnv-MuiGrid-root"
             >
               <h3
-                class="MuiTypography-root MuiTypography-h3"
+                class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
               >
                 Account
               </h3>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-justify-xs-center"
+              class="MuiGrid-root MuiGrid-container css-1lym95h-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root makeStyles-createUsernameContainer-1 MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true"
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true AccountSettingsFormcreateUsernameContainer css-xqag5e-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12"
+                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 css-1idn90j-MuiGrid-root"
                 >
                   <h4
-                    class="MuiTypography-root MuiTypography-h4"
+                    class="MuiTypography-root MuiTypography-h4 css-ajdqea-MuiTypography-root"
                   >
                     @
-                    
                   </h4>
                 </div>
               </div>

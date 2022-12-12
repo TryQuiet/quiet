@@ -18,71 +18,67 @@ describe('OpenlinkModal', () => {
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
-        style="overflow: hidden; padding-right: 0px;"
+        style="padding-right: 1024px; overflow: hidden;"
       >
         <div
           aria-hidden="true"
         />
         <div
-          class="makeStyles-root-10"
+          class="Modalroot MuiModal-root css-1hk9oxe-MuiModal-root"
           role="presentation"
-          style="position: fixed; z-index: 1300; right: 0px; bottom: 0px; top: 0px; left: 0px;"
         >
           <div
             aria-hidden="true"
-            style="z-index: -1; position: fixed; right: 0px; bottom: 0px; top: 0px; left: 0px; background-color: rgba(0, 0, 0, 0.5);"
+            class="MuiBackdrop-root css-i9fmh8-MuiBackdrop-root-MuiModal-backdrop"
+            style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
           />
           <div
-            data-test="sentinelStart"
+            data-testid="sentinelStart"
             tabindex="0"
           />
           <div
-            class="MuiGrid-root makeStyles-centered-19 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Modalcentered css-6gh8l0-MuiGrid-root"
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root makeStyles-header-13 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item Modalheader css-lx31tv-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center MuiGrid-grid-xs-true"
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-1r61agb-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root makeStyles-title-12 MuiTypography-subtitle1 MuiTypography-alignCenter"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
                     style="margin-left: 36px;"
                   />
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root makeStyles-actions-15 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item Modalactions css-hoc6b0-MuiGrid-root"
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root makeStyles-root-155"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-c8hoqc-MuiButtonBase-root-MuiIconButton-root"
                       tabindex="0"
                       type="button"
                     >
-                      <span
-                        class="MuiIconButton-label"
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="ClearIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
                       >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root"
-                          focusable="false"
-                          role="presentation"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                          />
-                        </svg>
-                      </span>
+                        <path
+                          d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                        />
+                      </svg>
                       <span
-                        class="MuiTouchRipple-root"
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                       />
                     </button>
                   </div>
@@ -90,10 +86,10 @@ describe('OpenlinkModal', () => {
               </div>
             </div>
             <div
-              class="MuiGrid-root makeStyles-fullPage-17 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item ModalfullPage css-1h16bbz-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root makeStyles-content-16 MuiGrid-container MuiGrid-item"
+                class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent css-1f064cs-MuiGrid-root"
                 style="width: 600px;"
               >
                 <div
@@ -108,80 +104,74 @@ describe('OpenlinkModal', () => {
                       style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; overflow: scroll; margin-right: 0px; margin-bottom: 0px;"
                     >
                       <div
-                        class="MuiGrid-root makeStyles-root-1 MuiGrid-container MuiGrid-direction-xs-column"
+                        class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1bweu1d-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-align-items-xs-center"
+                          class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-67pqv6-MuiGrid-root"
                         >
                           <img
-                            class="makeStyles-icon-2"
+                            class="OpenlinkModalicon"
                             src="test-file-stub"
                           />
                           <h2
-                            class="MuiTypography-root makeStyles-title-3 MuiTypography-h2"
+                            class="MuiTypography-root MuiTypography-h2 OpenlinkModaltitle css-qahk46-MuiTypography-root"
                           >
                             Watch out!
                           </h2>
                         </div>
                         <div
-                          class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column"
+                          class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-80wlp8-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-item"
+                            class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                           >
                             <p
-                              class="MuiTypography-root MuiTypography-body2"
+                              class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                             >
                               Opening link posted in Quiet reveals data about you to your goverment, your Internet provider, the site you are visiting and, potentially, to whoever posted the link. Only open links from people you trust. If you are using Quiet to protect your anonymity, never open links.
                             </p>
                           </div>
                         </div>
                         <div
-                          class="MuiGrid-root makeStyles-checkboxes-7 MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column"
+                          class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column OpenlinkModalcheckboxes css-80wlp8-MuiGrid-root"
                         >
                            
                           <div
-                            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                            class="MuiGrid-root MuiGrid-container MuiGrid-item css-capmjd-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-item"
+                              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                             >
                               <span
-                                aria-disabled="false"
-                                class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-183 MuiCheckbox-root MuiCheckbox-colorPrimary MuiIconButton-colorPrimary"
+                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-hkw0i8-MuiButtonBase-root-MuiCheckbox-root"
                               >
-                                <span
-                                  class="MuiIconButton-label"
+                                <input
+                                  class="PrivateSwitchBase-input css-1m9pwf3"
+                                  data-indeterminate="false"
+                                  type="checkbox"
+                                />
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                  data-testid="CheckBoxOutlineBlankIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
                                 >
-                                  <input
-                                    class="PrivateSwitchBase-input-186"
-                                    data-indeterminate="false"
-                                    type="checkbox"
-                                    value=""
+                                  <path
+                                    d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
                                   />
-                                  <svg
-                                    aria-hidden="true"
-                                    class="MuiSvgIcon-root"
-                                    focusable="false"
-                                    role="presentation"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-                                    />
-                                  </svg>
-                                </span>
+                                </svg>
                                 <span
-                                  class="MuiTouchRipple-root"
+                                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                                 />
                               </span>
                             </div>
                             <div
-                              class="MuiGrid-root makeStyles-checkboxLabel-6 MuiGrid-item MuiGrid-grid-xs-true"
+                              class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true OpenlinkModalcheckboxLabel css-1vd824g-MuiGrid-root"
                             >
                               Automatically load images from 
                               <span
-                                class="makeStyles-bold-5"
+                                class="OpenlinkModalbold"
                               >
                                 www.zbay.app
                               </span>
@@ -189,47 +179,41 @@ describe('OpenlinkModal', () => {
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                            class="MuiGrid-root MuiGrid-container MuiGrid-item css-capmjd-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-item"
+                              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                             >
                               <span
-                                aria-disabled="false"
-                                class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-183 MuiCheckbox-root MuiCheckbox-colorPrimary MuiIconButton-colorPrimary"
+                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-hkw0i8-MuiButtonBase-root-MuiCheckbox-root"
                               >
-                                <span
-                                  class="MuiIconButton-label"
+                                <input
+                                  class="PrivateSwitchBase-input css-1m9pwf3"
+                                  data-indeterminate="false"
+                                  type="checkbox"
+                                />
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                  data-testid="CheckBoxOutlineBlankIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
                                 >
-                                  <input
-                                    class="PrivateSwitchBase-input-186"
-                                    data-indeterminate="false"
-                                    type="checkbox"
-                                    value=""
+                                  <path
+                                    d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
                                   />
-                                  <svg
-                                    aria-hidden="true"
-                                    class="MuiSvgIcon-root"
-                                    focusable="false"
-                                    role="presentation"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-                                    />
-                                  </svg>
-                                </span>
+                                </svg>
                                 <span
-                                  class="MuiTouchRipple-root"
+                                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                                 />
                               </span>
                             </div>
                             <div
-                              class="MuiGrid-root makeStyles-checkboxLabel-6 MuiGrid-item MuiGrid-grid-xs-true"
+                              class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true OpenlinkModalcheckboxLabel css-1vd824g-MuiGrid-root"
                             >
                               Don't warn me about 
                               <span
-                                class="makeStyles-bold-5"
+                                class="OpenlinkModalbold"
                               >
                                 www.zbay.app
                               </span>
@@ -238,70 +222,60 @@ describe('OpenlinkModal', () => {
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                            class="MuiGrid-root MuiGrid-container MuiGrid-item css-capmjd-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-item"
+                              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                             >
                               <span
-                                aria-disabled="false"
-                                class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-183 MuiCheckbox-root MuiCheckbox-colorPrimary MuiIconButton-colorPrimary"
+                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-hkw0i8-MuiButtonBase-root-MuiCheckbox-root"
                               >
-                                <span
-                                  class="MuiIconButton-label"
+                                <input
+                                  class="PrivateSwitchBase-input css-1m9pwf3"
+                                  data-indeterminate="false"
+                                  type="checkbox"
+                                />
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                  data-testid="CheckBoxOutlineBlankIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
                                 >
-                                  <input
-                                    class="PrivateSwitchBase-input-186"
-                                    data-indeterminate="false"
-                                    type="checkbox"
-                                    value=""
+                                  <path
+                                    d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
                                   />
-                                  <svg
-                                    aria-hidden="true"
-                                    class="MuiSvgIcon-root"
-                                    focusable="false"
-                                    role="presentation"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-                                    />
-                                  </svg>
-                                </span>
+                                </svg>
                                 <span
-                                  class="MuiTouchRipple-root"
+                                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                                 />
                               </span>
                             </div>
                             <div
-                              class="MuiGrid-root makeStyles-checkboxLabel-6 MuiGrid-item MuiGrid-grid-xs-true"
+                              class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true OpenlinkModalcheckboxLabel css-1vd824g-MuiGrid-root"
                             >
                               Never warn me about outbound links on Quiet.
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root makeStyles-buttons-9 MuiGrid-container MuiGrid-spacing-xs-2 MuiGrid-item MuiGrid-align-items-xs-center"
+                            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-2 OpenlinkModalbuttons css-q9fxzi-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-item"
+                              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                             >
                               <button
-                                class="MuiButtonBase-root MuiButton-root MuiButton-contained makeStyles-buttonBack-8 MuiButton-containedPrimary MuiButton-containedSizeLarge MuiButton-sizeLarge"
+                                class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge OpenlinkModalbuttonBack css-1eslh5b-MuiButtonBase-root-MuiButton-root"
                                 tabindex="0"
                                 type="button"
                               >
+                                Back to safety
                                 <span
-                                  class="MuiButton-label"
-                                >
-                                  Back to safety
-                                </span>
-                                <span
-                                  class="MuiTouchRipple-root"
+                                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                                 />
                               </button>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+                              class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                             >
                               <a
                                 href=""
@@ -352,7 +326,7 @@ describe('OpenlinkModal', () => {
             </div>
           </div>
           <div
-            data-test="sentinelEnd"
+            data-testid="sentinelEnd"
             tabindex="0"
           />
         </div>

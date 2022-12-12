@@ -1,12 +1,19 @@
 import React, { ReactElement } from 'react'
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 
-import { makeStyles } from '@material-ui/core/styles'
+const PREFIX = 'WindowWrapper'
 
-const useStyles = makeStyles(() => ({
-  root: {},
-  wrapper: {
-    'min-height': '100vh'
+const classes = {
+  root: `${PREFIX}root`,
+  wrapper: `${PREFIX}wrapper`
+}
+
+const Root = styled('div')(() => ({
+  [`& .${classes.root}`]: {},
+
+  [`&.${classes.wrapper}`]: {
+    minHeight: '100vh'
   }
 }))
 
@@ -16,15 +23,14 @@ interface WindowWrapperProps {
 }
 
 export const WindowWrapper: React.FC<WindowWrapperProps> = ({ children, className = '' }) => {
-  const classes = useStyles({})
   return (
-    <div
+    <Root
       className={classNames({
         [classes.wrapper]: true,
         [className]: className
       })}>
       {children}
-    </div>
+    </Root>
   )
 }
 

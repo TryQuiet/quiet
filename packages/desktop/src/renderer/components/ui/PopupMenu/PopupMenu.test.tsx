@@ -15,23 +15,23 @@ describe('PopupMenu', () => {
       <body>
         <div>
           <div
-            class="makeStyles-popper-6"
+            class="PopupMenupopper css-hpnfa6-MuiPopper-root MuiPopperUnstyled-root"
             role="tooltip"
             style="position: fixed; top: 0px; left: 0px;"
           >
             <div
-              class="makeStyles-wrapper-1"
+              class="PopupMenuwrapper"
               style="opacity: 1; transform: scale(1, 1); transform-origin: center bottom; transition: opacity 0ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 0ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
             >
               <div
-                class="MuiPaper-root MuiPaper-elevation1 makeStyles-paper-2 MuiPaper-rounded"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 PopupMenupaper css-1ps6pg7-MuiPaper-root"
               >
                 <div>
                   Content
                 </div>
               </div>
               <span
-                class="makeStyles-bottom-4"
+                class="PopupMenubottom"
               />
             </div>
           </div>
@@ -65,23 +65,23 @@ describe('PopupMenu', () => {
       <body>
         <div>
           <div
-            class="makeStyles-popper-45"
+            class="PopupMenupopper css-hpnfa6-MuiPopper-root MuiPopperUnstyled-root"
             role="tooltip"
             style="position: fixed; top: 0px; left: 0px;"
           >
             <div
-              class="makeStyles-wrapper-40"
+              class="PopupMenuwrapper"
               style="opacity: 1; transform: scale(1, 1); transform-origin: center bottom; transition: opacity 0ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 0ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
             >
               <div
-                class="MuiPaper-root MuiPaper-elevation1 makeStyles-paper-41 MuiPaper-rounded"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 PopupMenupaper css-1ps6pg7-MuiPaper-root"
               >
                 <div>
                   Content
                 </div>
               </div>
               <span
-                class="makeStyles-bottom-43"
+                class="PopupMenubottom"
               />
             </div>
           </div>
