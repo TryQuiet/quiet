@@ -23,7 +23,7 @@ export class CertificateRegistration extends EventEmitter {
   private readonly _app: express.Application
   private _server: Server
   private _port: number
-  private _onionAddress: string
+  private readonly _onionAddress: string
   public registrationService: any
   public certificates: string[]
   private _permsData: PermsData

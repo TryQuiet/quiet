@@ -399,7 +399,7 @@ export class ConnectionsManager extends EventEmitter {
     return libp2pObj.localAddress
   }
 
-  private attachRegistrationListeners = () => {
+  private readonly attachRegistrationListeners = () => {
     this.registration.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload) => {
       this.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
     })
@@ -417,7 +417,7 @@ export class ConnectionsManager extends EventEmitter {
     })
   }
 
-  private attachDataServerListeners = () => {
+  private readonly attachDataServerListeners = () => {
     // Community
     this.dataServer.on(SocketActionTypes.CONNECTION, async () => {
       // Update Frontend with Initialized Communities
@@ -506,7 +506,7 @@ export class ConnectionsManager extends EventEmitter {
     })
   }
 
-  private attachStorageListeners = () => {
+  private readonly attachStorageListeners = () => {
     this.storage.on(StorageEvents.LOAD_CERTIFICATES, (payload: SendCertificatesResponse) => {
       this.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, payload)
       this.registration.emit(RegistrationEvents.SET_CERTIFICATES, payload.certificates)
