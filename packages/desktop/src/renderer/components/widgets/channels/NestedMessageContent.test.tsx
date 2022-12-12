@@ -1,7 +1,14 @@
-import { AUTODOWNLOAD_SIZE_LIMIT, DownloadState, MessageType } from '@quiet/state-manager'
 import React from 'react'
+import '@testing-library/jest-dom/extend-expect'
+import {
+  AUTODOWNLOAD_SIZE_LIMIT,
+  DownloadState,
+  DownloadStatus,
+  MessageType
+} from '@quiet/state-manager'
 import { generateMessages, renderComponent } from '../../../testUtils'
 import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
+import { screen } from '@testing-library/dom'
 
 import NestedMessageContent, { NestedMessageContentProps } from './NestedMessageContent'
 
@@ -50,6 +57,46 @@ describe('NestedMessageContent', () => {
         </div>
       </body>
     `)
+  })
+
+  it('renders proper download status for malicious file', async () => { // TODO: add tests for the rest of statuses
+    const messages = generateMessages({ type: 2 })
+
+    const message = {
+      ...messages[0],
+      media: {
+        path: 'path/to/file/test.png',
+        name: 'test',
+        ext: '.png',
+        cid: 'abcd1234',
+        width: 500,
+        height: 600,
+        size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+        message: {
+          id: 'string',
+          channelAddress: 'general'
+        }
+      }
+    }
+    const downloadStatus: DownloadStatus = {
+      mid: message.id,
+      cid: message.media.cid,
+      downloadState: DownloadState.Malicious,
+      downloadProgress: {
+        size: 10000,
+        downloaded: 10000,
+        transferSpeed: 500
+      }
+    }
+    const result = renderComponent(
+      <NestedMessageContent
+        pending={false}
+        message={message}
+        downloadStatus={downloadStatus}
+        openUrl={jest.fn()}
+      />
+    )
+    expect(await screen.findByText('File not valid. Download canceled.')).toBeVisible()
   })
 
   it('renders info message', () => {
