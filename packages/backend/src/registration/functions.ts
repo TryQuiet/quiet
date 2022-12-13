@@ -102,33 +102,35 @@ class UserCsrData {
     } catch (e) {
       log.error(e)
       return {
-        eventType: RegistrationEvents.ERROR, 
+        eventType: RegistrationEvents.ERROR,
         data: {
           type: SocketActionTypes.REGISTRAR,
           code: ErrorCodes.NOT_FOUND,
           message: ErrorMessages.REGISTRAR_NOT_FOUND,
           community: communityId
-        }}
+        }
+      }
     } finally {
       clearTimeout(timeout)
-    }}
+    }
+}
 
-  type SuccessfullRegistrarionResponse = {
+  interface SuccessfullRegistrarionResponse {
     communityId: string
     payload: { peers: string[]; certificate: string; rootCa: string }
   }
 
-  export type RegistrationResponse = {
-    eventType: RegistrationEvents | SocketActionTypes,
+  export interface RegistrationResponse {
+    eventType: RegistrationEvents | SocketActionTypes
     data: ErrorPayload | SuccessfullRegistrarionResponse
   }
 
-  export const sendCertificateRegistrationRequest = async (
-    serviceAddress: string,
-    userCsr: string,
-    communityId: string,
-    requestTimeout: number = 120000,
-    socksProxyAgent: Agent
+export const sendCertificateRegistrationRequest = async (
+  serviceAddress: string,
+  userCsr: string,
+  communityId: string,
+  requestTimeout: number = 120000,
+  socksProxyAgent: Agent
   ): Promise<RegistrationResponse> => {
     const controller = new AbortController()
     const timeout = setTimeout(() => {
@@ -157,73 +159,78 @@ class UserCsrData {
     } catch (e) {
       log.error(e)
       return {
-        eventType: RegistrationEvents.ERROR, 
+        eventType: RegistrationEvents.ERROR,
         data: {
           type: SocketActionTypes.REGISTRAR,
           code: ErrorCodes.NOT_FOUND,
           message: ErrorMessages.REGISTRAR_NOT_FOUND,
           community: communityId
-        }}
+        }
+      }
     } finally {
       clearTimeout(timeout)
     }
 
-    switch (response?.status) {
-      case 200:
-        break
-      case 400:
-        return {
-          eventType: RegistrationEvents.ERROR, 
-          data: {
-            type: SocketActionTypes.REGISTRAR,
-            code: ErrorCodes.BAD_REQUEST,
-            message: ErrorMessages.INVALID_USERNAME,
-            community: communityId
-          }}
-      case 403:
-        return {
-          eventType: RegistrationEvents.ERROR, 
-          data: {
-            type: SocketActionTypes.REGISTRAR,
-            code: ErrorCodes.FORBIDDEN,
-            message: ErrorMessages.USERNAME_TAKEN,
-            community: communityId
-          }}
-      case 404:
-        return {
-          eventType: RegistrationEvents.ERROR, 
-          data: {
-            type: SocketActionTypes.REGISTRAR,
-            code: ErrorCodes.NOT_FOUND,
-            message: ErrorMessages.REGISTRAR_NOT_FOUND,
-            community: communityId
-          }}
-      default:
-        log.error(
-          `Registrar responded with ${response?.status} "${response?.statusText}" (${communityId})`
-        )
-        return {
-          eventType: RegistrationEvents.ERROR, 
-          data: {
-            type: SocketActionTypes.REGISTRAR,
-            code: ErrorCodes.SERVER_ERROR,
-            message: ErrorMessages.REGISTRATION_FAILED,
-            community: communityId
-        }}
-    }
-
-    const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
-      await response.json()
-
-    log(`Sending user certificate (${communityId})`)
-    return {
-      eventType: SocketActionTypes.SEND_USER_CERTIFICATE,
-      data: {
-        communityId: communityId,
-        payload: registrarResponse
+  switch (response?.status) {
+    case 200:
+      break
+    case 400:
+      return {
+        eventType: RegistrationEvents.ERROR,
+        data: {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.BAD_REQUEST,
+          message: ErrorMessages.INVALID_USERNAME,
+          community: communityId
+        }
+      }
+    case 403:
+      return {
+        eventType: RegistrationEvents.ERROR,
+        data: {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.FORBIDDEN,
+          message: ErrorMessages.USERNAME_TAKEN,
+          community: communityId
+        }
+      }
+    case 404:
+      return {
+        eventType: RegistrationEvents.ERROR,
+        data: {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.NOT_FOUND,
+          message: ErrorMessages.REGISTRAR_NOT_FOUND,
+          community: communityId
+        }
+      }
+    default:
+      log.error(
+        `Registrar responded with ${response?.status} "${response?.statusText}" (${communityId})`
+      )
+      return {
+        eventType: RegistrationEvents.ERROR,
+        data: {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.SERVER_ERROR,
+          message: ErrorMessages.REGISTRATION_FAILED,
+          community: communityId
+        }
       }
     }
+
+  const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
+    await response.json()
+
+  log(`Sending user certificate (${communityId})`)
+  return {
+    eventType: SocketActionTypes.SEND_USER_CERTIFICATE,
+    data: {
+      communityId: communityId,
+      payload: registrarResponse
+    }
   }
+}
 
   export const registerUser = async (csr: string, permsData: PermsData, certificates: string[]): Promise<{status: number; body: any}> => {
     let cert: string
