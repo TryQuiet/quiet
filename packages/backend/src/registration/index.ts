@@ -127,6 +127,7 @@ export class CertificateRegistration extends EventEmitter {
         message: ErrorMessages.REGISTRAR_NOT_FOUND,
         community: communityId
       })
+      return
     } finally {
       clearTimeout(timeout)
     }
