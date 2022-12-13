@@ -1,10 +1,14 @@
+jest.mock('node-fetch');
+import fetch from 'node-fetch'
+const { Response } = jest.requireActual('node-fetch')
 import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, verifyUserCert, UserCsr } from '@quiet/identity'
 import { PermsData } from '@quiet/state-manager'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 import { Time } from 'pkijs'
 import { DirResult } from 'tmp'
 import { CertificateRegistration } from '.'
 import { createTmpDir } from '../common/testUtils'
-import { registerOwner, registerUser } from './functions'
+import { registerOwner, registerUser, sendCertificateRegistrationRequest } from './functions'
 
 describe('Registration service', () => {
   let tmpDir: DirResult
@@ -114,5 +118,19 @@ describe('Registration service', () => {
       permsData, []
     )
     expect(response.status).toEqual(400)
+  })
+
+  it('returns 404 if fetching registrar address threw error', async () => {
+    // fetch.mockReturnValue(Promise.resolve(new Response('4')));
+    const csr = 'MIIBFTCBvAIBADAqMSgwFgYKKwYBBAGDjBsCARMIdGVzdE5hbWUwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGPGHpJzE/CvL7l/OmTSfYQrhhnWQrYw3GgWB1raCTSeFI/MDVztkBOlxwdUWSm10+1OtKVUWeMKaMtyIYFcPPqAwMC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFLjaEh+cnNhsi5qDsiMB/ZTzZFfqMAoGCCqGSM49BAMCA0gAMEUCIFwlob/Igab05EozU0e/lsG7c9BxEy4M4c4Jzru2vasGAiEAqFTQuQr/mVqTHO5vybWm/iNDk8vh88K6aBCCGYqIfdw='
+    const resp = await sendCertificateRegistrationRequest(
+      'QmS9vJkgbea9EgzHvVPqhj1u4tH7YKq7eteDN7gnG5zUmc', 
+      csr,
+      'communityID',
+      1000,
+      new HttpsProxyAgent({ port: '12311', host: 'localhost' })
+    )
+    console.log('resss', resp)
+
   })
 })
