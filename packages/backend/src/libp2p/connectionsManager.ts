@@ -144,7 +144,7 @@ export class ConnectionsManager extends EventEmitter {
     this.torBinaryPath = torBinaryPath
     this.torControlPort = torControlPort
     this.torAuthCookie = torAuthCookie
-    
+
     this.socketIOPort = socketIOPort
     this.httpTunnelPort = httpTunnelPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
@@ -194,7 +194,7 @@ export class ConnectionsManager extends EventEmitter {
     await this.spawnTor()
 
     this.dataServer = new DataServer(this.socketIOPort)
-    
+
     this.io = this.dataServer.io
 
     this.attachDataServerListeners()

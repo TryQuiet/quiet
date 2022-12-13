@@ -29,6 +29,7 @@
 		1889CA4E26E763E1004ECFBD /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1889CA4D26E763E1004ECFBD /* Extensions.swift */; };
 		1898143A2934CF70001F39E7 /* TorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189814392934CF70001F39E7 /* TorHandler.swift */; };
 		18E5F4AB293F7E6A0096E22C /* blank.html in Resources */ = {isa = PBXBuildFile; fileRef = 18E5F4AA293F7E6A0096E22C /* blank.html */; };
+		34F925D89CC1B790672512BB /* libPods-ZbayMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33A402D6AFB2FB5A5BAA46A0 /* libPods-ZbayMobile.a */; };
 		43B99DB1C98D429295E8CB91 /* Rubik-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2BB5F4B8D4F3462CB8AF6312 /* Rubik-SemiBoldItalic.ttf */; };
 		5CBDF3C0D937401A886684F8 /* Rubik-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 706E1601C7B649A8A40A7877 /* Rubik-Light.ttf */; };
 		62541AEC8BEC401EBAAF6198 /* Rubik-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 18ED84D0299E4E55AB68AA3E /* Rubik-ExtraBold.ttf */; };
@@ -37,6 +38,7 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		8A009A60D84E4B08AB0E8152 /* Rubik-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E820B3E5514B49EE8C72DECB /* Rubik-Bold.ttf */; };
 		9EC9E7C54868433990A479EC /* Rubik-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 182B8961416E4D4C8A29793D /* Rubik-ExtraBoldItalic.ttf */; };
+		A5AEEC914721551FBCAC514E /* libPods-ZbayMobile-ZbayMobileTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ACD8E482A2039070E16615CB /* libPods-ZbayMobile-ZbayMobileTests.a */; };
 		B4D947D797C747ABAC4EDB69 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 378A1FDC610441568B568410 /* Rubik-Medium.ttf */; };
 		DB3A77793E604ACE8E52C67D /* Rubik-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 23AE2E9AAC824E76A9C4B3D5 /* Rubik-BlackItalic.ttf */; };
 		DCA6BD5DCC514EEF87705ACB /* Rubik-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 84720E58493F44BE8C4784E3 /* Rubik-BoldItalic.ttf */; };
@@ -589,6 +591,7 @@
 		2386DA39D8B240D9A80ECBD9 /* Rubik-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
 		23AE2E9AAC824E76A9C4B3D5 /* Rubik-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BlackItalic.ttf"; path = "../assets/fonts/Rubik-BlackItalic.ttf"; sourceTree = "<group>"; };
 		2BB5F4B8D4F3462CB8AF6312 /* Rubik-SemiBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-SemiBoldItalic.ttf"; path = "../assets/fonts/Rubik-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
+		33A402D6AFB2FB5A5BAA46A0 /* libPods-ZbayMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZbayMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		378A1FDC610441568B568410 /* Rubik-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Medium.ttf"; path = "../assets/fonts/Rubik-Medium.ttf"; sourceTree = "<group>"; };
 		39034B136011E5C30DD59718 /* Pods-ZbayMobile-ZbayMobileTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZbayMobile-ZbayMobileTests.debug.xcconfig"; path = "Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests.debug.xcconfig"; sourceTree = "<group>"; };
 		706E1601C7B649A8A40A7877 /* Rubik-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Light.ttf"; path = "../assets/fonts/Rubik-Light.ttf"; sourceTree = "<group>"; };
@@ -596,6 +599,7 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ZbayMobile/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		84720E58493F44BE8C4784E3 /* Rubik-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BoldItalic.ttf"; path = "../assets/fonts/Rubik-BoldItalic.ttf"; sourceTree = "<group>"; };
 		9D1A1B7C99D19133ECC97CAC /* Pods-ZbayMobile-ZbayMobileTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZbayMobile-ZbayMobileTests.release.xcconfig"; path = "Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests.release.xcconfig"; sourceTree = "<group>"; };
+		ACD8E482A2039070E16615CB /* libPods-ZbayMobile-ZbayMobileTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZbayMobile-ZbayMobileTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF73B04135634980BC656D6C /* Rubik-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-SemiBold.ttf"; path = "../assets/fonts/Rubik-SemiBold.ttf"; sourceTree = "<group>"; };
 		E820B3E5514B49EE8C72DECB /* Rubik-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Bold.ttf"; path = "../assets/fonts/Rubik-Bold.ttf"; sourceTree = "<group>"; };
 		EBC2A7699E0A49059904DD8C /* Rubik-MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-MediumItalic.ttf"; path = "../assets/fonts/Rubik-MediumItalic.ttf"; sourceTree = "<group>"; };
@@ -609,6 +613,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5AEEC914721551FBCAC514E /* libPods-ZbayMobile-ZbayMobileTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -617,6 +622,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				18220B8E294748FE007D10D3 /* NodeMobile.framework in Frameworks */,
+				34F925D89CC1B790672512BB /* libPods-ZbayMobile.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4638,6 +4644,8 @@
 			children = (
 				18220B8D294748F5007D10D3 /* NodeMobile.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
+				33A402D6AFB2FB5A5BAA46A0 /* libPods-ZbayMobile.a */,
+				ACD8E482A2039070E16615CB /* libPods-ZbayMobile-ZbayMobileTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
