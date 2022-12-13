@@ -1,14 +1,14 @@
-jest.mock('node-fetch');
 import fetch from 'node-fetch'
-const { Response } = jest.requireActual('node-fetch')
 import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, verifyUserCert, UserCsr } from '@quiet/identity'
-import { PermsData } from '@quiet/state-manager'
+import { ErrorCodes, ErrorMessages, PermsData, SocketActionTypes } from '@quiet/state-manager'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import { Time } from 'pkijs'
 import { DirResult } from 'tmp'
 import { CertificateRegistration } from '.'
 import { createTmpDir } from '../common/testUtils'
 import { registerOwner, registerUser, sendCertificateRegistrationRequest } from './functions'
+import { RegistrationEvents } from './types'
+const { Response } = jest.requireActual('node-fetch')
 
 describe('Registration service', () => {
   let tmpDir: DirResult
@@ -120,17 +120,43 @@ describe('Registration service', () => {
     expect(response.status).toEqual(400)
   })
 
-  it('returns 404 if fetching registrar address threw error', async () => {
-    // fetch.mockReturnValue(Promise.resolve(new Response('4')));
-    const csr = 'MIIBFTCBvAIBADAqMSgwFgYKKwYBBAGDjBsCARMIdGVzdE5hbWUwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGPGHpJzE/CvL7l/OmTSfYQrhhnWQrYw3GgWB1raCTSeFI/MDVztkBOlxwdUWSm10+1OtKVUWeMKaMtyIYFcPPqAwMC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFLjaEh+cnNhsi5qDsiMB/ZTzZFfqMAoGCCqGSM49BAMCA0gAMEUCIFwlob/Igab05EozU0e/lsG7c9BxEy4M4c4Jzru2vasGAiEAqFTQuQr/mVqTHO5vybWm/iNDk8vh88K6aBCCGYqIfdw='
-    const resp = await sendCertificateRegistrationRequest(
-      'QmS9vJkgbea9EgzHvVPqhj1u4tH7YKq7eteDN7gnG5zUmc', 
-      csr,
-      'communityID',
+  it('returns 404 if fetching registrar address throws error', async () => {
+    // @ts-ignore
+    fetch.mockRejectedValue('User aborted request')
+    const communityId = 'communityID'
+    const response = await sendCertificateRegistrationRequest(
+      'QmS9vJkgbea9EgzHvVPqhj1u4tH7YKq7eteDN7gnG5zUmc',
+      userCsr.userCsr,
+      communityId,
       1000,
       new HttpsProxyAgent({ port: '12311', host: 'localhost' })
     )
-    console.log('resss', resp)
+    expect(response.eventType).toBe(RegistrationEvents.ERROR)
+    expect(response.data).toEqual({
+      type: SocketActionTypes.REGISTRAR,
+      code: ErrorCodes.NOT_FOUND,
+      message: ErrorMessages.REGISTRAR_NOT_FOUND,
+      community: communityId
+    })
+  })
 
+  it('returns registration data on successfull registration', async () => {
+    const csr = 'MIIBFTCBvAIBADAqMSgwFgYKKwYBBAGDjBsCARMIdGVzdE5hbWUwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGPGHpJzE/CvL7l/OmTSfYQrhhnWQrYw3GgWB1raCTSeFI/MDVztkBOlxwdUWSm10+1OtKVUWeMKaMtyIYFcPPqAwMC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFLjaEh+cnNhsi5qDsiMB/ZTzZFfqMAoGCCqGSM49BAMCA0gAMEUCIFwlob/Igab05EozU0e/lsG7c9BxEy4M4c4Jzru2vasGAiEAqFTQuQr/mVqTHO5vybWm/iNDk8vh88K6aBCCGYqIfdw='
+    const registrarResponse = { certificate: [csr], rootCa: certRoot.rootCertString }
+    // @ts-ignore
+    fetch.mockResolvedValue(new Response(JSON.stringify(registrarResponse)))
+    const communityId = 'communityID'
+    const response = await sendCertificateRegistrationRequest(
+      'QmS9vJkgbea9EgzHvVPqhj1u4tH7YKq7eteDN7gnG5zUmc',
+      userCsr.userCsr,
+      communityId,
+      1000,
+      new HttpsProxyAgent({ port: '12311', host: 'localhost' })
+    )
+    expect(response.eventType).toBe(SocketActionTypes.SEND_USER_CERTIFICATE)
+    expect(response.data).toEqual({
+      communityId: communityId,
+      payload: registrarResponse
+    })
   })
 })
