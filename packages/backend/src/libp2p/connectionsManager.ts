@@ -81,6 +81,7 @@ interface InitStorageParams {
 export interface IConstructor {
   options: Partial<ConnectionsManagerOptions>
   socketIOPort: number
+  httpTunnelPort?: number
   torAuthCookie?: string
   torControlPort?: number
   torResourcesPath?: string
@@ -131,7 +132,7 @@ export class ConnectionsManager extends EventEmitter {
   torBinaryPath: string
   torResourcesPath: string
 
-  constructor({ options, socketIOPort, torControlPort, torAuthCookie, torResourcesPath, torBinaryPath }: IConstructor) {
+  constructor({ options, socketIOPort, httpTunnelPort, torControlPort, torAuthCookie, torResourcesPath, torBinaryPath }: IConstructor) {
     super()
     this.registration = new CertificateRegistration()
     this.options = {
@@ -145,6 +146,7 @@ export class ConnectionsManager extends EventEmitter {
     this.torAuthCookie = torAuthCookie
 
     this.socketIOPort = socketIOPort
+    this.httpTunnelPort = httpTunnelPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
     this.communityDataPath = path.join(this.quietDir, 'communityData.json')
@@ -183,10 +185,16 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public init = async () => {
-    this.httpTunnelPort = await getPort()
+    if (!this.httpTunnelPort) {
+      this.httpTunnelPort = await getPort()
+    }
+
     this.socksProxyAgent = this.createAgent()
+
     await this.spawnTor()
+
     this.dataServer = new DataServer(this.socketIOPort)
+
     this.io = this.dataServer.io
 
     this.attachDataServerListeners()

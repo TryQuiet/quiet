@@ -96,16 +96,16 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   [self.tor spawnWithConfiguration:self.torConfiguration];
     
   dispatch_after(1, dispatch_get_main_queue(), ^(void) {
-    [self getAuthCookieAndLaunchBackend:controlPort];
+    [self getAuthCookieAndLaunchBackend:controlPort:httpTunnelPort];
   });
 }
 
-- (void) getAuthCookieAndLaunchBackend:(uint16_t)controlPort {
+- (void) getAuthCookieAndLaunchBackend:(uint16_t)controlPort:(uint16_t)httpTunnelPort {
   NSString *authCookie = [self.tor getAuthCookieWithConfiguration:self.torConfiguration];
   
   if (authCookie == nil) {
     dispatch_after(50, dispatch_get_main_queue(), ^(void) {
-      [self getAuthCookieAndLaunchBackend:controlPort];
+      [self getAuthCookieAndLaunchBackend:controlPort:httpTunnelPort];
     });
     return;
   };
@@ -115,7 +115,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     RNNodeJsMobile *nodeJsMobile = [RNNodeJsMobile new];
-    [nodeJsMobile callStartNodeProjectWithArgs:[NSString stringWithFormat:@"lib/mobileBackendManager.js --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ ", self.dataPort, dataPath, controlPort, authCookie]];
+    [nodeJsMobile callStartNodeProjectWithArgs:[NSString stringWithFormat:@"lib/mobileBackendManager.js --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ --httpTunnelPort %hu", self.dataPort, dataPath, controlPort, authCookie, httpTunnelPort]];
   });
 }
 
