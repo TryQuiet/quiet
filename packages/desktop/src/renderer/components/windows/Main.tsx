@@ -1,34 +1,21 @@
 import React, { useEffect } from 'react'
-import { Route } from 'react-router-dom'
-import classnames from 'classnames'
+import { styled } from '@mui/material/styles'
+import { Route, Routes } from 'react-router-dom'
 
-import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
+import Grid from '@mui/material/Grid'
 
 import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
 import Sidebar from '../Sidebar/Sidebar'
 import Channel from '../Channel/Channel'
 
-const useStyles = makeStyles(() => ({
-  gridRoot: {
-    'min-height': '100vh',
-    'min-width': '100vw',
-    overflow: 'hidden',
-    position: 'relative'
-  }
+const MainGridStyled = styled(Grid)(() => ({
+  minHeight: '100vh',
+  minWidth: '100vw',
+  overflow: 'hidden',
+  position: 'relative'
 }))
 
-interface MainProps {
-  match: {
-    url: string
-  }
-}
-
-export const Main: React.FC<MainProps> = ({
-  match
-}) => {
-  const classes = useStyles({})
-
+export const Main: React.FC = () => {
   const debounce = (fn, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
     return _ => {
@@ -43,7 +30,7 @@ export const Main: React.FC<MainProps> = ({
     }
   }
 
-  const [dimensions, setDimensions] = React.useState({
+  const [_dimensions, setDimensions] = React.useState({
     height: window.innerHeight,
     width: window.innerWidth
   })
@@ -64,19 +51,20 @@ export const Main: React.FC<MainProps> = ({
   })
 
   return (
-    <>
+    (<div>
       <WindowWrapper>
-        <Grid container direction='row' className={classes.gridRoot} wrap='nowrap'>
+        <MainGridStyled container direction='row' wrap='nowrap'>
           <Grid item>
             <Sidebar />
           </Grid>
           <Grid item xs>
-            <Route path={`${match.url}/channel/:id`} component={Channel} />
-            {/* <Route path={`${match.url}/direct-messages/:username`} component={DirectMessages} /> */}
+          <Routes>
+            <Route path={'channel/:id'} element={<Channel />} />
+          </Routes>
           </Grid>
-        </Grid>
+        </MainGridStyled>
       </WindowWrapper>
-    </>
+    </div>)
   )
 }
 

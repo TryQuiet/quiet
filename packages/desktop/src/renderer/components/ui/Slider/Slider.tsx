@@ -1,38 +1,62 @@
 import React from 'react'
 
-import MuiSlider from '@material-ui/core/Slider'
-import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
+import { styled } from '@mui/material/styles'
+
+import MuiSlider from '@mui/material/Slider'
+import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid'
 import { ISliderProps } from './Slider.d'
 
 import SliderThumb from './SliderThumb'
 
-const useStyles = makeStyles((theme) => ({
-  sliderContainer: {
+const PREFIX = 'Slider'
+
+const classes = {
+  sliderContainer: `${PREFIX}sliderContainer`,
+  sliderRoot: `${PREFIX}sliderRoot`,
+  label: `${PREFIX}label`,
+  title: `${PREFIX}title`,
+  iconWrapper: `${PREFIX}iconWrapper`,
+  track: `${PREFIX}track`,
+  thumb: `${PREFIX}thumb`,
+  activated: `${PREFIX}activated`
+}
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.sliderContainer}`]: {
     width: 105,
     padding: '5px 10px'
   },
-  sliderRoot: {
+
+  [`& .${classes.sliderRoot}`]: {
     paddingTop: 4
   },
-  label: {
+
+  [`& .${classes.label}`]: {
     fontSize: '0.83rem'
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     color: theme.typography.body2.color,
     marginBottom: 8
   },
-  iconWrapper: {
+
+  [`& .${classes.iconWrapper}`]: {
     width: 18,
     height: 18
   },
-  track: {
+
+  [`& .${classes.track}`]: {
     backgroundColor: '#979797',
     height: 0.5,
     opacity: 1
   },
-  thumb: {
+
+  [`& .${classes.thumb}`]: {
     '&:hover': {
       boxShadow: 'none'
     },
@@ -40,7 +64,8 @@ const useStyles = makeStyles((theme) => ({
       boxShadow: 'none'
     }
   },
-  activated: {
+
+  [`& .${classes.activated}`]: {
     boxShadow: 'none'
   }
 }))
@@ -54,9 +79,8 @@ export const Slider: React.FC<ISliderProps> = ({
   min,
   max
 }) => {
-  const classes = useStyles({})
   return (
-    <Grid container direction="column" justify="center" alignItems="center">
+    <StyledGrid container direction="column" justifyContent="center" alignItems="center">
       <Typography variant="caption" className={classes.title}>
         {title}
       </Typography>
@@ -81,7 +105,9 @@ export const Slider: React.FC<ISliderProps> = ({
                 track: classes.track,
                 thumb: classes.thumb
               }}
-              ThumbComponent={SliderThumb}
+              components={{
+                Thumb: SliderThumb,
+              }}
               onChange={handleOnChange}
             />
           </Grid>
@@ -96,7 +122,7 @@ export const Slider: React.FC<ISliderProps> = ({
           </Grid>
         </Grid>
       </Grid>
-    </Grid>
+    </StyledGrid>
   )
 }
 

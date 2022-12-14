@@ -9,12 +9,12 @@ import {
   identity,
   PublicChannel,
   publicChannels,
-  socketActionTypes,
   SocketActionTypes
 } from '@quiet/state-manager'
 import { DateTime } from 'luxon'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
+import { flushSync } from 'react-dom'
 
 export const CreateChannel = () => {
   const dispatch = useDispatch()
@@ -72,14 +72,15 @@ export const CreateChannel = () => {
       address: name,
       timestamp: DateTime.utc().valueOf()
     }
-    setNewChannel(channel)
+    flushSync(() => { // TODO: maybe add a better fix. React 18 does not perform rerenders inside callback functions
+      setNewChannel(channel)
+    })
     dispatch(
       publicChannels.actions.createChannel({
         channel: channel
       })
     )
   }
-
   return (
     <>
       {community && (

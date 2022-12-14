@@ -16,7 +16,7 @@ describe('WindowWrapper', () => {
       <body>
         <div>
           <div
-            class="makeStyles-wrapper-2"
+            class="WindowWrapperwrapper css-j4mowy"
           >
             <div>
               Test page
@@ -37,7 +37,7 @@ describe('WindowWrapper', () => {
       <body>
         <div>
           <div
-            class="makeStyles-wrapper-4 test-class"
+            class="WindowWrapperwrapper test-class css-j4mowy"
           >
             <div>
               Test page

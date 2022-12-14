@@ -1,35 +1,46 @@
 import React from 'react'
-import classNames from 'classnames'
+import { styled } from '@mui/material/styles'
+import MuiTab from '@mui/material/Tab'
 
-import MuiTab from '@material-ui/core/Tab'
-import { makeStyles } from '@material-ui/core/styles'
+const PREFIX = 'Tab'
 
-const useStyles = makeStyles(theme => ({
-  tabRoot: {
-    textTransform: 'initial',
-    color: theme.typography.subtitle1.color
+const classes = {
+  tabRoot: `${PREFIX}tabRoot`,
+  textColorPrimary: `${PREFIX}textColorPrimary`,
+  selected: `${PREFIX}selected`
+}
+
+const StyledMuiTab = styled(MuiTab)((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.tabRoot}`]: {
+    color: theme.typography.subtitle1.color,
+    fontSize: '0.8125rem',
+    alignItems: 'flex-start'
   },
-  textColorPrimary: {
-    '&$selected': {
+
+  [`&.${classes.textColorPrimary}`]: {
+    '& .selected': {
       color: theme.palette.colors.purple
     },
-    '&$disabled': {
+    '& .disabled': {
       color: theme.palette.colors.darkGrey
     }
   },
-  selected: {
-    color: theme.palette.colors.purple
+  [`&.${classes.selected}`]: {
+    backgroundColor: theme.palette.colors.lushSky,
+    borderRadius: 5,
+    color: `${theme.palette.colors.white} !important`
   }
 }))
 
 export const Tab: React.FC<React.ComponentProps<typeof MuiTab>> = props => {
-  const classes = useStyles({})
   return (
-    <MuiTab
+    <StyledMuiTab
       classes={{
-        root: classNames({
-          [classes.tabRoot]: true
-        }),
+        root: classes.tabRoot,
         textColorPrimary: classes.textColorPrimary,
         selected: classes.selected
       }}

@@ -1,27 +1,40 @@
 import React, { ReactNode } from 'react'
+import { styled } from '@mui/material/styles'
 import theme from '../../../theme'
 import classNames from 'classnames'
-import { Grid, makeStyles, Typography } from '@material-ui/core'
+import { Grid, Typography } from '@mui/material'
 import { AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/state-manager'
 import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import Linkify from 'react-linkify'
 
-const useStyles = makeStyles(() => ({
-  message: {
+const PREFIX = 'NestedMessageContent'
+
+const classes = {
+  message: `${PREFIX}message`,
+  pending: `${PREFIX}pending`,
+  info: `${PREFIX}info`,
+  link: `${PREFIX}link`
+}
+
+const StyledGrid = styled(Grid)(() => ({
+  [`& .${classes.message}`]: {
     fontSize: '0.855rem',
     whiteSpace: 'pre-line',
     lineHeight: '21px',
     overflowWrap: 'anywhere'
   },
-  pending: {
+
+  [`& .${classes.pending}`]: {
     color: theme.palette.colors.lightGray
   },
-  info: {
+
+  [`& .${classes.info}`]: {
     color: theme.palette.colors.white
   },
-  link: {
+
+  [`& .${classes.link}`]: {
     color: theme.palette.colors.lushSky,
     cursor: 'pointer',
     '&:hover': {
@@ -52,8 +65,6 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   downloadFile,
   cancelDownload
 }) => {
-  const classes = useStyles({})
-
   const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
     return (
       <a onClick={() => { openUrl(decoratedHref) }} className={classNames({ [classes.link]: true })} key={key}>
@@ -67,9 +78,8 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
 
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
-        if (isMalicious) return
         const size = message?.media?.size
-        const fileDisplay = !size || size < AUTODOWNLOAD_SIZE_LIMIT
+        const fileDisplay = !isMalicious && (!size || size < AUTODOWNLOAD_SIZE_LIMIT)
         return (
           <div
             className={classNames({
@@ -85,7 +95,6 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
           </div>
         )
       case 4: // MessageType.File
-        if (isMalicious) return
         return (
           <div
             className={classNames({
@@ -99,7 +108,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
       default:
         return (
           <Typography
-            component={'span'}
+            component={'span' as any} // FIXME
             className={classNames({
               [classes.message]: true,
               [classes.pending]: pending
@@ -111,7 +120,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
     }
   }
 
-  return <Grid item>{renderMessage()}</Grid>
+  return <StyledGrid item>{renderMessage()}</StyledGrid>
 }
 
 export default NestedMessageContent

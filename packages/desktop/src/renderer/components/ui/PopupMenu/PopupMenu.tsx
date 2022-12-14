@@ -1,23 +1,36 @@
 import React, { useRef } from 'react'
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
-import Popper from '@material-ui/core/Popper'
-import Grow from '@material-ui/core/Grow'
-import Paper from '@material-ui/core/Paper'
-import { makeStyles } from '@material-ui/core/styles'
+import Popper from '@mui/material/Popper'
+import Grow from '@mui/material/Grow'
+import Paper from '@mui/material/Paper'
 import { IPopupMenuProps } from './PopupMenu.d'
 
-const constants = {
-  arrowSize: 10
+const PREFIX = 'PopupMenu'
+
+const classes = {
+  wrapper: `${PREFIX}wrapper`,
+  paper: `${PREFIX}paper`,
+  arrow: `${PREFIX}arrow`,
+  bottom: `${PREFIX}bottom`,
+  top: `${PREFIX}top`,
+  popper: `${PREFIX}popper`
 }
 
-const useStyles = makeStyles((theme) => ({
-  wrapper: {},
-  paper: {
+const StyledPopper = styled(Popper)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.wrapper}`]: {},
+
+  [`& .${classes.paper}`]: {
     background: theme.palette.background.default,
     boxShadow: '0px 2px 25px rgba(0, 0, 0, 0.2)',
     borderRadius: 8
   },
-  arrow: {
+
+  [`& .${classes.arrow}`]: {
     opacity: 1,
     position: 'absolute',
     width: 2 * constants.arrowSize,
@@ -31,7 +44,8 @@ const useStyles = makeStyles((theme) => ({
       borderStyle: 'solid'
     }
   },
-  bottom: {
+
+  [`& .${classes.bottom}`]: {
     top: 0,
     marginTop: `-${constants.arrowSize}px`,
     '&::before': {
@@ -39,7 +53,8 @@ const useStyles = makeStyles((theme) => ({
       borderColor: `transparent transparent ${theme.palette.background.default} transparent`
     }
   },
-  top: {
+
+  [`& .${classes.top}`]: {
     bottom: 0,
     marginBottom: `-${2 * constants.arrowSize}px`,
     '&::before': {
@@ -47,10 +62,15 @@ const useStyles = makeStyles((theme) => ({
       borderColor: `${theme.palette.background.default} transparent transparent transparent`
     }
   },
-  popper: {
+
+  [`&.${classes.popper}`]: {
     zIndex: 100
   }
 }))
+
+const constants = {
+  arrowSize: 10
+}
 
 export const PopupMenu: React.FC<IPopupMenuProps> = ({
   open = false,
@@ -60,25 +80,19 @@ export const PopupMenu: React.FC<IPopupMenuProps> = ({
   offset = 0,
   placement = 'bottom-end'
 }) => {
-  const classes = useStyles({})
   const arrowRef = useRef<HTMLSpanElement>(null)
   return (
-    <Popper
+    <StyledPopper
       open={open}
       anchorEl={anchorEl}
       transition
       placement={placement}
       disablePortal
       className={classes.popper}
-      modifiers={{
-        arrow: {
-          enabled: Boolean(arrowRef.current),
-          element: arrowRef.current
-        },
-        offset: {
-          offset
-        }
-      }}
+      modifiers={[
+        { name: 'arrow', enabled: Boolean(arrowRef.current), options: { element: arrowRef.current } },
+        { name: 'offset', options: { offset } }
+      ]}
     >
       {({ TransitionProps, placement }) => {
         const splitPlacement: keyof typeof classes = placement.split('-')[0] as 'wrapper' | 'paper' | 'bottom' | 'top' | 'arrow' | 'popper'
@@ -109,7 +123,7 @@ export const PopupMenu: React.FC<IPopupMenuProps> = ({
           </Grow>
         )
       }}
-    </Popper>
+    </StyledPopper>
   )
 }
 
