@@ -14,8 +14,9 @@ import {
 } from '@quiet/state-manager'
 
 import logger from '../logger'
-import { registerOwner, registerUser } from './functions'
+import { registerOwner, registerUser, RegistrationResponse, sendCertificateRegistrationRequest } from './functions'
 import { RegistrationEvents } from './types'
+import { AbortError } from 'abortable-iterator'
 
 const log = logger('registration')
 
@@ -94,91 +95,15 @@ export class CertificateRegistration extends EventEmitter {
     communityId: string,
     requestTimeout: number = 120000,
     socksProxyAgent: Agent
-  ): Promise<Response> => {
-    const controller = new AbortController()
-    const timeout = setTimeout(() => {
-      controller.abort()
-    }, requestTimeout)
+  ): Promise<void> => {
+    const response: RegistrationResponse = await sendCertificateRegistrationRequest(serviceAddress,
+      userCsr,
+      communityId,
+      requestTimeout,
+      socksProxyAgent
+    )
 
-    let options = {
-      method: 'POST',
-      body: JSON.stringify({ data: userCsr }),
-      headers: { 'Content-Type': 'application/json' },
-      signal: controller.signal
-    }
-
-    options = Object.assign({
-      agent: socksProxyAgent
-    }, options)
-
-    let response = null
-
-    try {
-      const start = new Date()
-      response = await fetch(`${serviceAddress}/register`, options)
-      const end = new Date()
-      const fetchTime = (end.getTime() - start.getTime()) / 1000
-      log(`Fetched ${serviceAddress}, time: ${fetchTime}`)
-    } catch (e) {
-      log.error(e)
-      this.emit(RegistrationEvents.ERROR, {
-        type: SocketActionTypes.REGISTRAR,
-        code: ErrorCodes.NOT_FOUND,
-        message: ErrorMessages.REGISTRAR_NOT_FOUND,
-        community: communityId
-      })
-    } finally {
-      clearTimeout(timeout)
-    }
-
-    switch (response?.status) {
-      case 200:
-        break
-      case 400:
-        this.emit(RegistrationEvents.ERROR, {
-          type: SocketActionTypes.REGISTRAR,
-          code: ErrorCodes.BAD_REQUEST,
-          message: ErrorMessages.INVALID_USERNAME,
-          community: communityId
-        })
-        return
-      case 403:
-        this.emit(RegistrationEvents.ERROR, {
-          type: SocketActionTypes.REGISTRAR,
-          code: ErrorCodes.FORBIDDEN,
-          message: ErrorMessages.USERNAME_TAKEN,
-          community: communityId
-        })
-        return
-      case 404:
-        this.emit(RegistrationEvents.ERROR, {
-          type: SocketActionTypes.REGISTRAR,
-          code: ErrorCodes.NOT_FOUND,
-          message: ErrorMessages.REGISTRAR_NOT_FOUND,
-          community: communityId
-        })
-        return
-      default:
-        log.error(
-          `Registrar responded with ${response?.status} "${response?.statusText}" (${communityId})`
-        )
-        this.emit(RegistrationEvents.ERROR, {
-          type: SocketActionTypes.REGISTRAR,
-          code: ErrorCodes.SERVER_ERROR,
-          message: ErrorMessages.REGISTRATION_FAILED,
-          community: communityId
-        })
-        return
-    }
-
-    const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
-      await response.json()
-
-    log(`Sending user certificate (${communityId})`)
-    this.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
-      communityId: communityId,
-      payload: registrarResponse
-    })
+    this.emit(response.eventType, response.data)
   }
 
   private async registerUser(csr: string): Promise<{ status: number; body: any }> {
