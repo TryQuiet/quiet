@@ -63,67 +63,15 @@ class UserCsrData {
     return null
   }
 
-  export const sendCertificateRegistrationRequest2 = async (
-    serviceAddress: string,
-    userCsr: string,
-    communityId: string,
-    requestTimeout: number = 120000,
-    socksProxyAgent: Agent
-  ): Promise<any> => { // TODO: remove any
-    const controller = new AbortController()
-    const timeout = setTimeout(() => {
-      controller.abort()
-    }, requestTimeout)
-
-    let options = {
-      method: 'POST',
-      body: JSON.stringify({ data: userCsr }),
-      headers: { 'Content-Type': 'application/json' },
-      signal: controller.signal
-    }
-
-    options = Object.assign({
-      agent: socksProxyAgent
-    }, options)
-
-    let response = null
-
-    const a = {
-      eventType: SocketActionTypes.SEND_USER_CERTIFICATE,
-      data: {}
-    }
-
-    try {
-      const start = new Date()
-      response = await fetch(`${serviceAddress}/register`, options)
-      const end = new Date()
-      const fetchTime = (end.getTime() - start.getTime()) / 1000
-      log(`Fetched ${serviceAddress}, time: ${fetchTime}`)
-    } catch (e) {
-      log.error(e)
-      return {
-        eventType: RegistrationEvents.ERROR,
-        data: {
-          type: SocketActionTypes.REGISTRAR,
-          code: ErrorCodes.NOT_FOUND,
-          message: ErrorMessages.REGISTRAR_NOT_FOUND,
-          community: communityId
-        }
-      }
-    } finally {
-      clearTimeout(timeout)
-    }
+interface SuccessfullRegistrarionResponse {
+  communityId: string
+  payload: { peers: string[]; certificate: string; rootCa: string }
 }
 
-  interface SuccessfullRegistrarionResponse {
-    communityId: string
-    payload: { peers: string[]; certificate: string; rootCa: string }
-  }
-
-  export interface RegistrationResponse {
-    eventType: RegistrationEvents | SocketActionTypes
-    data: ErrorPayload | SuccessfullRegistrarionResponse
-  }
+export interface RegistrationResponse {
+  eventType: RegistrationEvents | SocketActionTypes
+  data: ErrorPayload | SuccessfullRegistrarionResponse
+}
 
 export const sendCertificateRegistrationRequest = async (
   serviceAddress: string,
