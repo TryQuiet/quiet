@@ -98,27 +98,27 @@ Resources:
                   - ','
                   - !Ref Subnets
 
-  # TorConnectionTestVanguardOffTaskRule:
-  #   Type: AWS::Events::Rule
-  #   Properties:
-  #     Description: "Schedule rule for tor connection test without vanguards"
-  #     Name: !Sub tor-connection-task-schedule-rule
-  #     State: ENABLED
-  #     ScheduleExpression: cron(0/10 * * * ? *)
-  #     Targets:
-  #       - Arn: !GetAtt ECSCluster.Arn
-  #         Id: ScheduledTask
-  #         Input: !Sub '{ "containerOverrides": [{"name": "${TorTestImage}", "environment": [{"name":"VANGUARDS_ENABLED","value":0}]}'
-  #         RoleArn: !GetAtt EventECSExecutionRole.Arn
-  #         EcsParameters:
-  #           TaskDefinitionArn: !Ref TorConnectionTestTaskDefinition
-  #           LaunchType: FARGATE
-  #           NetworkConfiguration:
-  #             AwsVpcConfiguration:
-  #               AssignPublicIp: ENABLED
-  #               Subnets: !Split
-  #                 - ','
-  #                 - !Ref Subnets
+  TorConnectionTestVanguardOffTaskRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "Schedule rule for tor connection test without vanguards"
+      Name: !Sub tor-connection-task-vanguard-off-schedule-rule
+      State: ENABLED
+      ScheduleExpression: cron(0/10 * * * ? *)
+      Targets:
+        - Arn: !GetAtt ECSCluster.Arn
+          Id: ScheduledTask
+          Input: !Sub '{ "containerOverrides": [{"name": "tor-connection-test", "environment": [{"name":"VANGUARDS_ENABLED","value":0}]}]}'
+          RoleArn: !GetAtt EventECSExecutionRole.Arn
+          EcsParameters:
+            TaskDefinitionArn: !Ref TorConnectionTestTaskDefinition
+            LaunchType: FARGATE
+            NetworkConfiguration:
+              AwsVpcConfiguration:
+                AssignPublicIp: ENABLED
+                Subnets: !Split
+                  - ','
+                  - !Ref Subnets
 
   TorConnectionTestTaskDefinition:
     Type: AWS::ECS::TaskDefinition
