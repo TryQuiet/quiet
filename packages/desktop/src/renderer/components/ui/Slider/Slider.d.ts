@@ -1,4 +1,4 @@
-import { SliderProps } from '@material-ui/core/Slider'
+import { SliderProps } from '@mui/material/Slider'
 
 export interface ISliderProps {
   value: number

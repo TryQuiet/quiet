@@ -1,10 +1,21 @@
 import React from 'react'
 
-import { Typography, TypographyProps } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
+import { styled } from '@mui/material/styles'
 
-const useStyles = makeStyles(theme => ({
-  link: {
+import { Typography, TypographyProps } from '@mui/material'
+
+const PREFIX = 'TextWithLink'
+
+const classes = {
+  link: `${PREFIX}link`
+}
+
+const StyledTypography = styled(Typography)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.link}`]: {
     textDecoration: 'none',
     color: theme.palette.colors.linkBlue
   }
@@ -30,8 +41,6 @@ export const TextWithLink: React.FC<TextWithLinkProps & TypographyProps> = ({
   testIdPrefix = '',
   ...props
 }) => {
-  const classes = useStyles({})
-
   const format = (action: () => void, label: string) => {
     return (
       <a
@@ -58,11 +67,11 @@ export const TextWithLink: React.FC<TextWithLinkProps & TypographyProps> = ({
   })
 
   return (
-    <Typography {...props}>
+    <StyledTypography {...props}>
       {parts.map((e, index) => {
         return <span key={index}>{e}</span>
       })}
-    </Typography>
+    </StyledTypography>
   )
 }
 

@@ -11,109 +11,103 @@ describe('Main', () => {
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <Main match={{ url: 'test' }} />
+          <Main />
         </Provider>
       </HashRouter>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
-          <div
-            class="makeStyles-wrapper-3"
-          >
+          <div>
             <div
-              class="MuiGrid-root makeStyles-gridRoot-1 MuiGrid-container MuiGrid-wrap-xs-nowrap"
+              class="WindowWrapperwrapper css-j4mowy"
             >
               <div
-                class="MuiGrid-root MuiGrid-item"
+                class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-1l1q2w3-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root makeStyles-root-107 MuiGrid-container MuiGrid-direction-xs-column"
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root makeStyles-padding-108 MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SidebarComponentroot css-di2ta-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true SidebarComponentpadding css-1fzha0v-MuiGrid-root"
                     >
                       <div
-                        class="makeStyles-root-112"
+                        class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
-                        <span
-                          aria-disabled="false"
-                          class="MuiButtonBase-root MuiButton-root makeStyles-button-113 MuiButton-text"
-                          data-testid="settings-panel-button"
-                          role="button"
-                          tabindex="0"
+                        <div
+                          class="css-1c9y83e"
                         >
                           <span
-                            class="MuiButton-label makeStyles-buttonLabel-114"
+                            class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1skytee-MuiButtonBase-root-MuiButton-root"
+                            data-testid="settings-panel-button"
+                            role="button"
+                            tabindex="0"
                           >
                             <h4
-                              class="MuiTypography-root makeStyles-nickname-115 MuiTypography-h4"
+                              class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
                             />
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="ExpandMoreIcon"
                               focusable="false"
-                              role="presentation"
                               viewBox="0 0 24 24"
                             >
                               <path
-                                d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+                                d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
                               />
                             </svg>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
                           </span>
-                          <span
-                            class="MuiTouchRipple-root"
-                          />
-                        </span>
+                        </div>
                       </div>
-                    </div>
-                    <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true"
-                    >
                       <div
-                        style="overflow: visible; height: 0px; width: 0px;"
+                        class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
                       >
                         <div
-                          class="rc-scrollbars-container"
-                          style="position: relative; overflow: hidden; width: 0px; height: 0px;"
+                          style="overflow: visible; height: 0px; width: 0px;"
                         >
                           <div
-                            class="rc-scrollbars-view"
-                            style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; overflow: scroll; margin-right: 0px; margin-bottom: 0px;"
+                            class="rc-scrollbars-container"
+                            style="position: relative; overflow: hidden; width: 0px; height: 0px;"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true"
+                              class="rc-scrollbars-view"
+                              style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; overflow: scroll; margin-right: 0px; margin-bottom: 0px;"
                             >
                               <div
-                                class="MuiGrid-root MuiGrid-item"
+                                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-1fzha0v-MuiGrid-root"
                               >
                                 <div
-                                  class="MuiGrid-root makeStyles-root-186 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
+                                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                                 >
                                   <div
-                                    class="MuiGrid-root MuiGrid-item"
+                                    class="MuiGrid-root MuiGrid-container SidebarHeaderroot css-1tia2hp-MuiGrid-root"
                                   >
-                                    <p
-                                      class="MuiTypography-root makeStyles-title-187 MuiTypography-body2"
+                                    <div
+                                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                                     >
-                                      Channels
-                                    </p>
-                                  </div>
-                                  <div
-                                    class="MuiGrid-root MuiGrid-item"
-                                  >
-                                    <span>
-                                      <button
-                                        class="MuiButtonBase-root MuiIconButton-root makeStyles-iconButton-189 MuiIconButton-edgeEnd"
-                                        data-testid="addChannelButton"
-                                        tabindex="0"
-                                        type="button"
+                                      <p
+                                        class="MuiTypography-root MuiTypography-body2 SidebarHeadertitle css-16d47hw-MuiTypography-root"
                                       >
-                                        <span
-                                          class="MuiIconButton-label"
+                                        Channels
+                                      </p>
+                                    </div>
+                                    <div
+                                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                                    >
+                                      <span>
+                                        <button
+                                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeLarge SidebarHeadericonButton css-1pux6rn-MuiButtonBase-root-MuiIconButton-root"
+                                          data-mui-internal-clone-element="true"
+                                          data-testid="addChannelButton"
+                                          tabindex="0"
+                                          type="button"
                                         >
                                           <svg
                                             fill="none"
@@ -134,65 +128,65 @@ describe('Main', () => {
                                               fill-rule="evenodd"
                                             />
                                           </svg>
-                                        </span>
-                                        <span
-                                          class="MuiTouchRipple-root"
-                                        />
-                                      </button>
-                                    </span>
+                                          <span
+                                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                                          />
+                                        </button>
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                              <div
-                                class="MuiGrid-root MuiGrid-item"
-                              >
-                                <ul
-                                  class="MuiList-root"
-                                />
+                                <div
+                                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                                >
+                                  <ul
+                                    class="MuiList-root css-1mk9mw3-MuiList-root"
+                                  />
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          <div
-                            class="rc-scrollbars-track rc-scrollbars-track-h"
-                            style="position: absolute; right: 2px; bottom: 2px; z-index: 100; border-radius: 3px; left: 2px; height: 6px; display: none;"
-                          >
                             <div
-                              class="rc-scrollbars-thumb rc-scrollbars-thumb-h"
-                              style="position: relative; display: block; height: 100%; cursor: pointer; border-radius: inherit; background-color: rgba(0, 0, 0, 0.2);"
-                            />
-                          </div>
-                          <div
-                            class="rc-scrollbars-track rc-scrollbars-track-v"
-                            style="position: absolute; right: 2px; bottom: 2px; z-index: 100; border-radius: 3px; top: 2px; width: 6px; display: none;"
-                          >
+                              class="rc-scrollbars-track rc-scrollbars-track-h"
+                              style="position: absolute; right: 2px; bottom: 2px; z-index: 100; border-radius: 3px; left: 2px; height: 6px; display: none;"
+                            >
+                              <div
+                                class="rc-scrollbars-thumb rc-scrollbars-thumb-h"
+                                style="position: relative; display: block; height: 100%; cursor: pointer; border-radius: inherit; background-color: rgba(0, 0, 0, 0.2);"
+                              />
+                            </div>
                             <div
-                              class="rc-scrollbars-thumb rc-scrollbars-thumb-v"
-                              style="position: relative; display: block; height: 100%; cursor: pointer; border-radius: inherit; background-color: rgba(0, 0, 0, 0.2);"
-                            />
+                              class="rc-scrollbars-track rc-scrollbars-track-v"
+                              style="position: absolute; right: 2px; bottom: 2px; z-index: 100; border-radius: 3px; top: 2px; width: 6px; display: none;"
+                            >
+                              <div
+                                class="rc-scrollbars-thumb rc-scrollbars-thumb-v"
+                                style="position: relative; display: block; height: 100%; cursor: pointer; border-radius: inherit; background-color: rgba(0, 0, 0, 0.2);"
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div
-                        class="resize-triggers"
-                      >
                         <div
-                          class="expand-trigger"
+                          class="resize-triggers"
                         >
                           <div
-                            style="width: 1px; height: 1px;"
+                            class="expand-trigger"
+                          >
+                            <div
+                              style="width: 1px; height: 1px;"
+                            />
+                          </div>
+                          <div
+                            class="contract-trigger"
                           />
                         </div>
-                        <div
-                          class="contract-trigger"
-                        />
                       </div>
                     </div>
                   </div>
                 </div>
+                <div
+                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
+                />
               </div>
-              <div
-                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
-              />
             </div>
           </div>
         </div>

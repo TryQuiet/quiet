@@ -11,74 +11,74 @@ describe('CreateUsernameModal', () => {
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
-        style="overflow: hidden; padding-right: 0px;"
+        style="padding-right: 1024px; overflow: hidden;"
       >
         <div
           aria-hidden="true"
         />
         <div
-          class="makeStyles-root-2"
+          class="Modalroot MuiModal-root css-1hk9oxe-MuiModal-root"
           role="presentation"
-          style="position: fixed; z-index: 1300; right: 0px; bottom: 0px; top: 0px; left: 0px;"
         >
           <div
             aria-hidden="true"
-            style="z-index: -1; position: fixed; right: 0px; bottom: 0px; top: 0px; left: 0px; background-color: rgba(0, 0, 0, 0.5);"
+            class="MuiBackdrop-root css-i9fmh8-MuiBackdrop-root-MuiModal-backdrop"
+            style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
           />
           <div
-            data-test="sentinelStart"
+            data-testid="sentinelStart"
             tabindex="0"
           />
           <div
-            class="MuiGrid-root makeStyles-centered-11 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Modalcentered css-6gh8l0-MuiGrid-root"
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root makeStyles-header-5 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item Modalheader css-lx31tv-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center MuiGrid-grid-xs-true"
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-1r61agb-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root makeStyles-title-4 MuiTypography-subtitle1 MuiTypography-alignCenter"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
                     style="margin-left: 36px;"
                   />
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root makeStyles-actions-7 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item Modalactions css-hoc6b0-MuiGrid-root"
                     data-testid="ModalActions"
                   />
                 </div>
               </div>
             </div>
             <div
-              class="MuiGrid-root makeStyles-fullPage-9 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item ModalfullPage css-1h16bbz-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root makeStyles-content-8 MuiGrid-container MuiGrid-item"
+                class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent css-1f064cs-MuiGrid-root"
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root makeStyles-spinner-1 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-83p7ln-MuiGrid-root"
                   data-testid="spinnerLoader"
                 >
-                  <div
-                    class="MuiCircularProgress-root makeStyles-spinner-148 makeStyles-spinner-149 MuiCircularProgress-indeterminate"
+                  <span
+                    class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInherit SpinnerLoaderspinner css-62e83j-MuiCircularProgress-root"
                     role="progressbar"
                     style="width: 40px; height: 40px;"
                   >
                     <svg
-                      class="MuiCircularProgress-svg"
+                      class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
                       viewBox="22 22 44 44"
                     >
                       <circle
-                        class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate"
+                        class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-176wh8e-MuiCircularProgress-circle"
                         cx="44"
                         cy="44"
                         fill="none"
@@ -86,9 +86,9 @@ describe('CreateUsernameModal', () => {
                         stroke-width="3.6"
                       />
                     </svg>
-                  </div>
+                  </span>
                   <span
-                    class="MuiTypography-root makeStyles-message-147 MuiTypography-caption MuiTypography-alignCenter"
+                    class="MuiTypography-root MuiTypography-caption MuiTypography-alignCenter SpinnerLoadermessage css-1ws1t6m-MuiTypography-root"
                     style="font-size: 0.9090909090909091rem;"
                   >
                     message
@@ -98,7 +98,7 @@ describe('CreateUsernameModal', () => {
             </div>
           </div>
           <div
-            data-test="sentinelEnd"
+            data-testid="sentinelEnd"
             tabindex="0"
           />
         </div>

@@ -1,7 +1,14 @@
-import { AUTODOWNLOAD_SIZE_LIMIT, DownloadState, MessageType } from '@quiet/state-manager'
 import React from 'react'
+import '@testing-library/jest-dom/extend-expect'
+import {
+  AUTODOWNLOAD_SIZE_LIMIT,
+  DownloadState,
+  DownloadStatus,
+  MessageType
+} from '@quiet/state-manager'
 import { generateMessages, renderComponent } from '../../../testUtils'
 import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
+import { screen } from '@testing-library/dom'
 
 import NestedMessageContent, { NestedMessageContentProps } from './NestedMessageContent'
 
@@ -15,10 +22,10 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item"
+            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root makeStyles-message-1 MuiTypography-body1"
+              class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -38,10 +45,10 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item"
+            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root makeStyles-message-138 makeStyles-pending-139 MuiTypography-body1"
+              class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage NestedMessageContentpending css-ghvhpl-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -50,6 +57,46 @@ describe('NestedMessageContent', () => {
         </div>
       </body>
     `)
+  })
+
+  it('renders proper download status for malicious file', async () => { // TODO: add tests for the rest of statuses
+    const messages = generateMessages({ type: 2 })
+
+    const message = {
+      ...messages[0],
+      media: {
+        path: 'path/to/file/test.png',
+        name: 'test',
+        ext: '.png',
+        cid: 'abcd1234',
+        width: 500,
+        height: 600,
+        size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+        message: {
+          id: 'string',
+          channelAddress: 'general'
+        }
+      }
+    }
+    const downloadStatus: DownloadStatus = {
+      mid: message.id,
+      cid: message.media.cid,
+      downloadState: DownloadState.Malicious,
+      downloadProgress: {
+        size: 10000,
+        downloaded: 10000,
+        transferSpeed: 500
+      }
+    }
+    const result = renderComponent(
+      <NestedMessageContent
+        pending={false}
+        message={message}
+        downloadStatus={downloadStatus}
+        openUrl={jest.fn()}
+      />
+    )
+    expect(await screen.findByText('File not valid. Download canceled.')).toBeVisible()
   })
 
   it('renders info message', () => {
@@ -61,10 +108,10 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item"
+            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root makeStyles-message-275 makeStyles-pending-276 MuiTypography-body1"
+              class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage NestedMessageContentpending css-ghvhpl-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -101,29 +148,33 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item"
+            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
           >
             <div
-              class="makeStyles-message-412"
+              class="NestedMessageContentmessage"
               data-testid="messagesGroupContent-0"
             >
               <div
-                class="makeStyles-container-520"
+                class="css-gd4qex"
               >
                 <div
-                  class="makeStyles-image-519"
-                  data-testid="abcd1234-imageVisual"
+                  class="UploadedImagecontainer"
                 >
-                  <p
-                    class="makeStyles-fileName-524"
+                  <div
+                    class="UploadedImageimage"
+                    data-testid="abcd1234-imageVisual"
                   >
-                    test.png
-                  </p>
-                  <img
-                    class="makeStyles-image-519"
-                    src="path/to/file/test.png"
-                    style="width: 400px;"
-                  />
+                    <p
+                      class="css-h94c3"
+                    >
+                      test.png
+                    </p>
+                    <img
+                      class="UploadedImageimage"
+                      src="path/to/file/test.png"
+                      style="width: 400px;"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -177,36 +228,37 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item"
+            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
           >
             <div
-              class="makeStyles-message-539"
+              class="NestedMessageContentmessage"
               data-testid="messagesGroupContent-0"
             >
               <div
-                class="makeStyles-border-646"
+                class="css-4fpo3t"
                 data-testid="abcd1234-fileComponent"
               >
                 <span>
                   <div
                     class=""
+                    data-mui-internal-clone-element="true"
                     style="display: flex;"
                   >
                     <div
-                      class="makeStyles-icon-647"
+                      class="FileComponenticon"
                     >
-                      <div
+                      <span
                         aria-valuenow="100"
-                        class="MuiCircularProgress-root MuiCircularProgress-colorPrimary"
+                        class="MuiCircularProgress-root MuiCircularProgress-determinate MuiCircularProgress-colorPrimary css-1rhqaqh-MuiCircularProgress-root"
                         role="progressbar"
-                        style="width: 18px; height: 18px; transform: rotate(270.000deg); position: absolute; color: rgb(231, 231, 231);"
+                        style="width: 18px; height: 18px; transform: rotate(-90deg); position: absolute; color: rgb(231, 231, 231);"
                       >
                         <svg
-                          class="MuiCircularProgress-svg"
+                          class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
                           viewBox="22 22 44 44"
                         >
                           <circle
-                            class="MuiCircularProgress-circle"
+                            class="MuiCircularProgress-circle MuiCircularProgress-circleDeterminate css-oxts8u-MuiCircularProgress-circle"
                             cx="44"
                             cy="44"
                             fill="none"
@@ -215,19 +267,19 @@ describe('NestedMessageContent', () => {
                             style="stroke-dasharray: 125.664; stroke-dashoffset: 0.000px;"
                           />
                         </svg>
-                      </div>
-                      <div
+                      </span>
+                      <span
                         aria-valuenow="50"
-                        class="MuiCircularProgress-root MuiCircularProgress-colorPrimary MuiCircularProgress-static"
+                        class="MuiCircularProgress-root MuiCircularProgress-determinate MuiCircularProgress-colorPrimary css-1rhqaqh-MuiCircularProgress-root"
                         role="progressbar"
                         style="width: 18px; height: 18px; transform: rotate(-90deg); color: rgb(178, 178, 178);"
                       >
                         <svg
-                          class="MuiCircularProgress-svg"
+                          class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
                           viewBox="22 22 44 44"
                         >
                           <circle
-                            class="MuiCircularProgress-circle MuiCircularProgress-circleStatic"
+                            class="MuiCircularProgress-circle MuiCircularProgress-circleDeterminate css-oxts8u-MuiCircularProgress-circle"
                             cx="44"
                             cy="44"
                             fill="none"
@@ -236,20 +288,20 @@ describe('NestedMessageContent', () => {
                             style="stroke-dasharray: 125.664; stroke-dashoffset: 62.838px;"
                           />
                         </svg>
-                      </div>
+                      </span>
                     </div>
                     <div
-                      class="makeStyles-filename-649"
+                      class="FileComponentfilename"
                     >
                       <h5
-                        class="MuiTypography-root MuiTypography-h5"
+                        class="MuiTypography-root MuiTypography-h5 css-11l3dv4-MuiTypography-root"
                         style="line-height: 20px;"
                       >
                         test
                         .png
                       </h5>
                       <p
-                        class="MuiTypography-root MuiTypography-body2"
+                        class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                         style="line-height: 20px; color: rgb(127, 127, 127);"
                       >
                         20 MB
@@ -264,14 +316,14 @@ describe('NestedMessageContent', () => {
                     style="cursor: pointer;"
                   >
                     <div
-                      class="makeStyles-actionIndicator-651"
+                      class="css-1vnortn"
                     >
                       <img
-                        class="makeStyles-actionIcon-650"
+                        class="FileComponentactionIcon"
                         src="test-file-stub"
                       />
                       <p
-                        class="MuiTypography-root MuiTypography-body2"
+                        class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                         style="color: rgb(127, 127, 127); margin-left: 8px;"
                       >
                         Downloading...

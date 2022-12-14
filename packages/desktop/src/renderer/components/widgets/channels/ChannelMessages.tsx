@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react'
+import { styled } from '@mui/material/styles'
 import { Dictionary } from '@reduxjs/toolkit'
-
-import { makeStyles } from '@material-ui/core/styles'
-import List from '@material-ui/core/List'
+import List from '@mui/material/List'
 
 import MessagesDivider from '../MessagesDivider'
 import BasicMessageComponent from './BasicMessage'
@@ -15,39 +14,57 @@ import { UseModalTypeWrapper } from '../../../containers/hooks'
 
 import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 
-const useStyles = makeStyles(theme => ({
-  spinner: {
+const PREFIX = 'ChannelMessagesComponent'
+
+const classes = {
+  spinner: `${PREFIX}spinner`,
+  scroll: `${PREFIX}scroll`,
+  list: `${PREFIX}list`,
+  link: `${PREFIX}link`,
+  info: `${PREFIX}info`,
+  item: `${PREFIX}item`,
+  bold: `${PREFIX}bold`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.spinner}`]: {
     top: '50%',
     textAlign: 'center',
     position: 'relative',
     transform: 'translate(0, -50%)'
   },
-  scroll: {
+
+  [`&.${classes.scroll}`]: {
     overflow: 'scroll',
     overflowX: 'hidden',
     height: '100%'
   },
-  list: {
+
+  [`& .${classes.list}`]: {
     backgroundColor: theme.palette.colors.white,
     width: '100%'
   },
-  link: {
+
+  [`& .${classes.link}`]: {
     color: theme.palette.colors.lushSky,
     cursor: 'pointer'
   },
-  info: {
+
+  [`& .${classes.info}`]: {
     color: theme.palette.colors.trueBlack,
     letterSpacing: '0.4px'
   },
-  root: {
-    width: '100%',
-    padding: '8px 16px'
-  },
-  item: {
+
+  [`& .${classes.item}`]: {
     backgroundColor: theme.palette.colors.gray03,
     padding: '9px 16px'
   },
-  bold: {
+
+  [`& .${classes.bold}`]: {
     fontWeight: 'bold'
   }
 }))
@@ -80,8 +97,6 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
   downloadFile,
   cancelDownload
 }) => {
-  const classes = useStyles({})
-
   const listRef = useRef<HTMLUListElement>()
 
   const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(
@@ -107,7 +122,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
   }, [handleKeyDown])
 
   return (
-    <div
+    <Root
       className={classes.scroll}
       ref={scrollbarRef}
       onScroll={onScroll}
@@ -145,7 +160,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
           )
         })}
       </List>
-    </div>
+    </Root>
   )
 }
 

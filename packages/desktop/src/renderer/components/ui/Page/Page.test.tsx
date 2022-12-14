@@ -18,11 +18,11 @@ describe('Page', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1vpwcmr-MuiGrid-root"
             style="height: 100vh;"
           >
             <div
-              class="MuiGrid-root makeStyles-root-104 MuiGrid-item"
+              class="MuiGrid-root MuiGrid-item PageHeaderroot css-1j1q06-MuiGrid-root"
             >
               <div>
                 Test header

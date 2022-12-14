@@ -1,8 +1,12 @@
 import React from 'react'
 
-import Grid from '@material-ui/core/Grid'
+import Grid from '@mui/material/Grid'
 
-export const Page: React.FC<{}> = ({ children }) => (
+interface Props {
+  children?: React.ReactNode
+}
+
+export const Page: React.FC<Props> = ({ children }) => (
   <Grid container direction='column' style={{ height: '100vh' }}>
     {children}
   </Grid>

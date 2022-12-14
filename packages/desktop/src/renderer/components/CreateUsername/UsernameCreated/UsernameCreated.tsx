@@ -1,34 +1,57 @@
 import React from 'react'
 
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import { makeStyles } from '@material-ui/core/styles'
+import { styled } from '@mui/material/styles'
+
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
 
 import Icon from '../../ui/Icon/Icon'
 import usernameIcon from '../../../static/images/username.svg'
 
-const useStyles = makeStyles((theme) => ({
-  root: {},
-  usernameConatainer: {
+const PREFIX = 'UsernameCreated'
+
+const classes = {
+  root: `${PREFIX}root`,
+  usernameConatainer: `${PREFIX}usernameConatainer`,
+  infoConatainer: `${PREFIX}infoConatainer`,
+  descConatainer: `${PREFIX}descConatainer`,
+  usernameIcon: `${PREFIX}usernameIcon`,
+  buttonContainer: `${PREFIX}buttonContainer`,
+  button: `${PREFIX}button`
+}
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.root}`]: {},
+
+  [`& .${classes.usernameConatainer}`]: {
     marginTop: 24
   },
-  infoConatainer: {
+
+  [`& .${classes.infoConatainer}`]: {
     marginTop: 24
   },
-  descConatainer: {
+
+  [`& .${classes.descConatainer}`]: {
     marginTop: 8
   },
-  usernameIcon: {
+
+  [`& .${classes.usernameIcon}`]: {
     width: 118,
     height: 118,
     justifyContent: 'center'
   },
-  buttonContainer: {
+
+  [`& .${classes.buttonContainer}`]: {
     marginTop: 23,
     paddingBottom: 63
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     width: 124,
     height: 59,
     color: theme.palette.colors.white,
@@ -54,17 +77,16 @@ interface UsernameCreatedProps {
 }
 
 export const UsernameCreated: React.FC<UsernameCreatedProps> = ({ handleClose, setFormSent }) => {
-  const classes = useStyles({})
   setFormSent(false)
   return (
-    <Grid container justify={'center'}>
+    <StyledGrid container justifyContent='center'>
       <Grid
         container
         className={classes.usernameConatainer}
         item
         xs={12}
         direction='row'
-        justify='center'
+        justifyContent='center'
       >
         <Icon className={classes.usernameIcon} src={usernameIcon} />
       </Grid>
@@ -74,7 +96,7 @@ export const UsernameCreated: React.FC<UsernameCreatedProps> = ({ handleClose, s
         className={classes.infoConatainer}
         xs={12}
         direction='row'
-        justify='center'
+        justifyContent='center'
       >
         <Typography variant={'h4'}>You created a username</Typography>
       </Grid>
@@ -89,7 +111,7 @@ export const UsernameCreated: React.FC<UsernameCreatedProps> = ({ handleClose, s
           Done
         </Button>
       </Grid>
-    </Grid>
+    </StyledGrid>
   )
 }
 

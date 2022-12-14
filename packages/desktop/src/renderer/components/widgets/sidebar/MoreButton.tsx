@@ -1,13 +1,26 @@
 import React from 'react'
 
-import Button from '@material-ui/core/Button'
-import { makeStyles } from '@material-ui/core/styles'
-import { Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+
+import Button from '@mui/material/Button'
+
+import { Typography } from '@mui/material'
 
 import Tooltip from '../../ui/Tooltip/Tooltip'
 
-const useStyles = makeStyles((theme) => ({
-  button: {
+const PREFIX = 'MoreButton'
+
+const classes = {
+  button: `${PREFIX}button`,
+  tooltip: `${PREFIX}tooltip`
+}
+
+const StyledTooltip = styled(Tooltip)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.button}`]: {
     padding: 0,
     paddingLeft: 16,
     textTransform: 'none',
@@ -20,7 +33,8 @@ const useStyles = makeStyles((theme) => ({
     opacity: 0.7,
     color: theme.palette.colors.white
   },
-  tooltip: {
+
+  [`&.${classes.tooltip}`]: {
     marginTop: 5
   }
 }))
@@ -31,9 +45,8 @@ interface MoreButtonProps {
 }
 
 export const MoreButton: React.FC<MoreButtonProps> = ({ tooltipText, action }) => {
-  const classes = useStyles({})
   return (
-    <Tooltip title={tooltipText} className={classes.tooltip} placement='bottom'>
+    <StyledTooltip title={tooltipText} className={classes.tooltip} placement='bottom'>
       <Button
         fullWidth
         variant='text'
@@ -42,7 +55,7 @@ export const MoreButton: React.FC<MoreButtonProps> = ({ tooltipText, action }) =
       >
         <Typography variant='body2'>more...</Typography>
       </Button>
-    </Tooltip>
+    </StyledTooltip>
   )
 }
 

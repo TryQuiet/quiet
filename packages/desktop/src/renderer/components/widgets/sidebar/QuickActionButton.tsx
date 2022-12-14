@@ -1,12 +1,26 @@
 import React, { ReactElement } from 'react'
 
-import Button from '@material-ui/core/Button'
-import { makeStyles } from '@material-ui/core/styles'
-import { Typography } from '@material-ui/core'
-import AddIcon from '@material-ui/icons/Add'
+import { styled } from '@mui/material/styles'
 
-const useStyles = makeStyles((theme) => ({
-  button: {
+import Button from '@mui/material/Button'
+
+import { Typography } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+
+const PREFIX = 'QuickActionButton'
+
+const classes = {
+  button: `${PREFIX}button`,
+  icon: `${PREFIX}icon`,
+  iconDiv: `${PREFIX}iconDiv`
+}
+
+const StyledButton = styled(Button)((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.button}`]: {
     marginTop: 8,
     padding: 0,
     marginLeft: 16,
@@ -18,13 +32,15 @@ const useStyles = makeStyles((theme) => ({
     opacity: 0.7,
     color: theme.palette.colors.white
   },
-  icon: {
+
+  [`& .${classes.icon}`]: {
     fontSize: 12,
     marginRight: 2,
     marginLeft: -2,
     marginBottom: 2
   },
-  iconDiv: {
+
+  [`& .${classes.iconDiv}`]: {
     marginRight: 5,
     marginBottom: 2
   }
@@ -37,9 +53,8 @@ interface QuickActionButtonProps {
 }
 
 export const QuickActionButton: React.FC<QuickActionButtonProps> = ({ text, action, icon }) => {
-  const classes = useStyles({})
   return (
-    <Button variant='text' className={classes.button} onClick={action}>
+    <StyledButton variant='text' className={classes.button} onClick={action}>
       {icon
         ? (
           <div className={classes.iconDiv}>{icon}</div>
@@ -48,7 +63,7 @@ export const QuickActionButton: React.FC<QuickActionButtonProps> = ({ text, acti
           <AddIcon className={classes.icon} />
         )}
       <Typography variant='body2'>{text}</Typography>
-    </Button>
+    </StyledButton>
   )
 }
 

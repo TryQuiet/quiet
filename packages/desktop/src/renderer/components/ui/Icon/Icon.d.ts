@@ -1,4 +1,4 @@
-import { ExtendButtonBase } from '@material-ui/core'
+import { ExtendButtonBase } from '@mui/material'
 
 export interface IIconProps {
   className?: string

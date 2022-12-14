@@ -1,4 +1,5 @@
-import { ModalProps } from '@material-ui/core/Modal'
+import { ModalProps } from '@mui/material/Modal'
+import React from 'react'
 
 export interface IModalProps {
   open: boolean
@@ -17,4 +18,5 @@ export interface IModalProps {
   testIdPrefix?: string
   windowed?: boolean
   fullPage?: boolean
+  children?: React.ReactNode
 }
