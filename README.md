@@ -10,7 +10,7 @@
   Encrypted p2p team chat with no servers, just Tor.
     <br />
 <!--    <a href="https://tryquiet.org"><strong>tryquiet.org »</strong></a> -->
-    <a href="https://github.com/TryQuiet/quiet/releases/tag/quiet%400.10.0"><strong>Downloads</strong></a> | 
+    <a href="https://github.com/TryQuiet/quiet/releases/tag/quiet%400.15.0"><strong>Downloads</strong></a> | 
     <a href="#how-it-works"><strong>How it Works</strong></a> |   
     <a href="#features"><strong>Features</strong></a> | 
     <a href="https://github.com/TryQuiet/monorepo/wiki/Threat-Model"><strong>Threat Model</strong></a> | 
