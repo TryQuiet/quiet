@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import { LogBox, StatusBar } from 'react-native'
 import WebviewCrypto from 'react-native-webview-crypto'
 import { useDispatch } from 'react-redux'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { ScreenNames } from './const/ScreenNames.enum'
 import { SplashScreen } from './screens/Splash/Splash.screen'
 import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.screen'
@@ -26,7 +26,6 @@ import PushNotificationIOS, {
   PushNotification
 } from '@react-native-community/push-notification-ios'
 import { MenuProvider } from 'react-native-popup-menu'
-import { navigationSelectors } from './store/navigation/navigation.selectors'
 
 LogBox.ignoreAllLogs()
 
@@ -48,10 +47,7 @@ export default function App(): JSX.Element {
   useEffect(() => {
     PushNotificationIOS.addEventListener('register', deviceRegistrationHandler)
 
-    PushNotificationIOS.addEventListener(
-      'notification',
-      remoteNotificationHandler
-    )
+    PushNotificationIOS.addEventListener('notification', remoteNotificationHandler)
 
     return () => {
       PushNotificationIOS.removeEventListener('register')
@@ -60,46 +56,39 @@ export default function App(): JSX.Element {
   }, [])
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <PersistGate loading={null} persistor={persistor}>
-        <NavigationContainer
-          ref={navigationRef}
-          onReady={() => {
-            dispatch(navigationActions.redirection())
-          }}>
-          <WebviewCrypto />
-          <MenuProvider>
-          <ThemeProvider theme={defaultTheme}>
-            <StatusBar backgroundColor={defaultTheme.palette.statusBar.main} />
-            <Navigator
-              initialRouteName={ScreenNames.SplashScreen}
-              screenOptions={{
-                headerShown: false
-              }}>
-              <Screen
-                component={SplashScreen}
-                name={ScreenNames.SplashScreen}
-              />
-              <Screen
-                component={JoinCommunityScreen}
-                name={ScreenNames.JoinCommunityScreen}
-              />
-              <Screen
-                component={UsernameRegistrationScreen}
-                name={ScreenNames.UsernameRegistrationScreen}
-              />
-              <Screen component={ChannelListScreen} name={ScreenNames.ChannelListScreen} />
-              <Screen component={ChannelScreen} name={ScreenNames.ChannelScreen} />
-              <Screen
-                component={SuccessScreen}
-                name={ScreenNames.SuccessScreen}
-              />
-              <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
-            </Navigator>
-          </ThemeProvider>
-          </MenuProvider>
-        </NavigationContainer>
-      </PersistGate>
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1 }}>
+        <PersistGate loading={null} persistor={persistor}>
+          <NavigationContainer
+            ref={navigationRef}
+            onReady={() => {
+              dispatch(navigationActions.redirection())
+            }}>
+            <WebviewCrypto />
+            <MenuProvider>
+              <ThemeProvider theme={defaultTheme}>
+                <StatusBar backgroundColor={defaultTheme.palette.statusBar.main} />
+                <Navigator
+                  initialRouteName={ScreenNames.SplashScreen}
+                  screenOptions={{
+                    headerShown: false
+                  }}>
+                  <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
+                  <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
+                  <Screen
+                    component={UsernameRegistrationScreen}
+                    name={ScreenNames.UsernameRegistrationScreen}
+                  />
+                  <Screen component={ChannelListScreen} name={ScreenNames.ChannelListScreen} />
+                  <Screen component={ChannelScreen} name={ScreenNames.ChannelScreen} />
+                  <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
+                  <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
+                </Navigator>
+              </ThemeProvider>
+            </MenuProvider>
+          </NavigationContainer>
+        </PersistGate>
+      </SafeAreaView>
+    </SafeAreaProvider>
   )
 }

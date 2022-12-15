@@ -15,6 +15,6 @@
 @property (nonatomic, strong) TorHandler *tor;
 @property (nonatomic, strong) TORConfiguration *torConfiguration;
 
-- (void) getAuthCookieAndLaunchBackend:(uint16_t)controlPort;
+- (void) getAuthCookieAndLaunchBackend:(uint16_t)controlPort:(uint16_t)httpTunnelPort;
 
 @end
