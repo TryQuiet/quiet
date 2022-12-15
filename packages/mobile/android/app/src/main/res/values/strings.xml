@@ -1,7 +1,0 @@
-<resources>
-    <!-- App -->
-    <string name="app_name">ZbayMobile</string>
-
-    <!-- Universal -->
-    <string name="close">close</string>
-</resources>

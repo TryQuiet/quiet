@@ -1,3 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`criticalError reducer handles actions - loadVersion 1`] = `1`;

@@ -1,1 +1,0 @@
-# Quiet identity
