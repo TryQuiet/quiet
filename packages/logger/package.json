@@ -1,6 +1,6 @@
 {
   "name": "@quiet/logger",
-  "version": "0.15.0-alpha.0",
+  "version": "0.15.0",
   "description": "Logger",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
