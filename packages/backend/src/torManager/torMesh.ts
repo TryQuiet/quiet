@@ -29,7 +29,7 @@ const spawnMesh = async () => {
 
     const ports = await getPorts()
 
-    const tor = await spawnTorProcess(tmpAppDataPath, ports)
+    const tor = await spawnTorProcess(tmpAppDataPath, ports, [], 'tor')
 
     await tor.init()
     torServices.set(i.toString(), { tor, httpTunnelPort: ports.httpTunnelPort })

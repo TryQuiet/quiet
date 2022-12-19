@@ -22,7 +22,6 @@ export class Tor {
   httpTunnelPort: number
   socksPort: number
   controlPort: number
-
   process: child_process.ChildProcessWithoutNullStreams | any = null
   torPath: string
   options?: child_process.SpawnOptionsWithoutStdio

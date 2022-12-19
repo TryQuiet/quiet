@@ -27,7 +27,7 @@ program
   .option('-g, --numEntryGuards <number>', 'NumEntryGuards to be set in torrc', '0')
   .option('-v, --vanguardsLiteEnabled <string>', 'VanguardsLiteEnabled to be set in torrc', 'auto')
   .option('-t, --torBinName <string>', 'Tor binary name', 'tor')
-  .requiredOption('-m, --mode <type>', 'Number of requests per single test - "newnym" or "regular"')
+  .option('-m, --mode <type>', 'Number of requests per single test - "newnym" or "regular"', 'regular')
 
 program.parse(process.argv)
 const options = program.opts()
@@ -42,14 +42,13 @@ const vanguargsLiteEnabled = options.vanguardsLiteEnabled
 const torBinName = options.torBinName
 let eventEmmiter = new EventEmitter()
 let torServices = new Map<string, { tor: Tor; httpTunnelPort: number, onionAddress?: string }>()
-let results = {}
+let results = Object.assign({}, options)
 
 const spawnTor = async (i: number) => {
   const tmpDir = createTmpDir()
   console.log(tmpDir)
   log(`spawning tor number ${i}`)
   const tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
-
   const ports = await getPorts()
   const extraTorProcessParams = ['--NumEntryGuards', guardsCount, '--VanguardsLiteEnabled', vanguargsLiteEnabled]
   const tor = await spawnTorProcess(tmpAppDataPath, ports, extraTorProcessParams, torBinName)
@@ -62,12 +61,6 @@ const spawnTor = async (i: number) => {
   await tor.getInfo('config-text')
   // await tor.getInfo('circuit-status')
   // await tor.getInfo('entry-guards')
-}
-
-const init = () => {
-  let eventEmmiter = new EventEmitter()
-  let torServices = new Map<string, { tor: Tor; httpTunnelPort: number, onionAddress?: string }>()
-  let results = {}
 }
 
 const spawnMesh = async () => {
@@ -96,7 +89,7 @@ const createServer = async (port, serverAddress: string) => {
     eventEmmiter.emit(`${serverAddress}-success`)
   })
   const server = app.listen(port, () => {
-    log('listening')
+    log(`listening on port ${port}, address: ${serverAddress}`)
     results[serverAddress].serverReadyTime = new Date()
   })
 
@@ -106,7 +99,7 @@ const createServer = async (port, serverAddress: string) => {
   })
 }
 
-const createAgent = async (httpTunnelPort) => {
+const createAgent = (httpTunnelPort: number) => {
   return new HttpsProxyAgent({ port: httpTunnelPort, host: 'localhost' })
 }
 
@@ -122,7 +115,7 @@ const sendRequest = async (
   }
 
   let response = null
-  const agent = await createAgent(httpTunnelPort)
+  const agent = createAgent(httpTunnelPort)
   const options = {
     method: 'POST',
     body: JSON.stringify({ counter }),
@@ -158,7 +151,7 @@ const createHiddenServices = async () => {
   for (const [key, data] of torServices) {
     if (Number(key) % 2) continue
     const { libp2pHiddenService } = await getPorts()
-    const hiddenService = await data.tor.createNewHiddenService(80, libp2pHiddenService)
+    const hiddenService = await data.tor.createNewHiddenService(libp2pHiddenService, 80)
     const address = hiddenService.onionAddress.split('.')[0]
     results[address] = {}
     log(`created hidden service for instance ${key} and onion address is ${address}`)
@@ -287,6 +280,7 @@ const sendRequests = async () => { // No newnym, send next request if previous o
         results[serverOnionAddress].statusCode = response.status
         break
       } catch (e) {
+        log.error(`error, resp ${rq}, ${e.message}`)
         continue
       }
     }
@@ -297,7 +291,7 @@ const sendRequests = async () => { // No newnym, send next request if previous o
     try {
       responseData = await response.json()
     } catch (e) {
-      log(`Didn't receive proper response data for ${serverOnionAddress}`)
+      log(`Didn't receive proper response data for ${serverOnionAddress}`, e.message)
       results[serverOnionAddress].success = false
       continue
     }
@@ -324,7 +318,6 @@ const main = async () => {
   log('RESULTS', JSON.stringify(results))
   fs.writeFileSync(`${torBinName}_${new Date().toISOString()}_mode_${mode}_guards${guardsCount}_vanguards${vanguargsLiteEnabled}.json`, JSON.stringify(results))
   log('after killing mesh')
-  // process.exit(0)
 }
 // eslint-disable-next-line
 main()

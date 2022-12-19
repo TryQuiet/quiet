@@ -77,13 +77,13 @@ Resources:
             Resource: '*'
 
 
-  TorConnectionTestTaskRule:
+  RegistrarTestTaskRule:
     Type: AWS::Events::Rule
     Properties:
-      Description: "Schedule rule for tor connection test"
-      Name: !Sub tor-connection-task-schedule-rule
+      Description: "Schedule rule for registrar test with default settings"
+      Name: !Sub registrar-task-schedule-rule
       State: ENABLED
-      ScheduleExpression: cron(0/10 * * * ? *)
+      ScheduleExpression: cron(0 1,18 * * ? *)
       Targets:
         - Arn: !GetAtt ECSCluster.Arn
           Id: ScheduledTask
@@ -98,17 +98,61 @@ Resources:
                   - ','
                   - !Ref Subnets
 
-  TorConnectionTestVanguardOffTaskRule:
+  RegistrarTestNewnymTaskRule:
     Type: AWS::Events::Rule
     Properties:
-      Description: "Schedule rule for tor connection test without vanguards"
-      Name: !Sub tor-connection-task-vanguard-off-schedule-rule
+      Description: "Schedule rule for registrar test with newnym signal"
+      Name: !Sub registrar-task-newnym-schedule-rule
       State: ENABLED
-      ScheduleExpression: cron(0/10 * * * ? *)
+      ScheduleExpression: cron(0 1,22 * * ? *)
+      Targets:
+        - Arn: !GetAtt ECSCluster.Arn
+          Id: ScheduledTask
+          Input: !Sub '{ "containerOverrides": [{"name": "tor-connection-test", "environment": [{"name":"TOR_TEST_MODE","value":"newnym"}]}]}'
+          RoleArn: !GetAtt EventECSExecutionRole.Arn
+          EcsParameters:
+            TaskDefinitionArn: !Ref TorConnectionTestTaskDefinition
+            LaunchType: FARGATE
+            NetworkConfiguration:
+              AwsVpcConfiguration:
+                AssignPublicIp: ENABLED
+                Subnets: !Split
+                  - ','
+                  - !Ref Subnets
+
+  RegistrarTestVanguardOffTaskRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "Schedule rule for registrar test without vanguards"
+      Name: !Sub registrar-task-vanguard-off-schedule-rule
+      State: ENABLED
+      ScheduleExpression: cron(0 1,18 * * ? *)
       Targets:
         - Arn: !GetAtt ECSCluster.Arn
           Id: ScheduledTask
           Input: !Sub '{ "containerOverrides": [{"name": "tor-connection-test", "environment": [{"name":"VANGUARDS_ENABLED","value":0}]}]}'
+          RoleArn: !GetAtt EventECSExecutionRole.Arn
+          EcsParameters:
+            TaskDefinitionArn: !Ref TorConnectionTestTaskDefinition
+            LaunchType: FARGATE
+            NetworkConfiguration:
+              AwsVpcConfiguration:
+                AssignPublicIp: ENABLED
+                Subnets: !Split
+                  - ','
+                  - !Ref Subnets
+
+  RegistrarTestNumEntryGuards3TaskRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "Schedule rule for registrar test with NumEntryGuards set to 3"
+      Name: !Sub registrar-task-entry-guard-3-schedule-rule
+      State: ENABLED
+      ScheduleExpression: cron(0 1,18 * * ? *)
+      Targets:
+        - Arn: !GetAtt ECSCluster.Arn
+          Id: ScheduledTask
+          Input: !Sub '{ "containerOverrides": [{"name": "tor-connection-test", "environment": [{"name":"NUM_ENTRY_GUARDS","value":3}]}]}'
           RoleArn: !GetAtt EventECSExecutionRole.Arn
           EcsParameters:
             TaskDefinitionArn: !Ref TorConnectionTestTaskDefinition
