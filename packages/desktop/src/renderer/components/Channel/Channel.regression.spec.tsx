@@ -1,7 +1,7 @@
 import React from 'react'
 import CssBaseline from '@mui/material/CssBaseline'
 import { composeStories, setGlobalConfig } from '@storybook/testing-react'
-import { mount } from '@cypress/react'
+import { mount } from '@cypress/react18'
 import { it, cy, beforeEach, Cypress } from 'local-cypress'
 import compareSnapshotCommand from 'cypress-visual-regression/dist/command'
 

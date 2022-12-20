@@ -114,9 +114,6 @@
     "@babel/polyfill": "^7.2.5",
     "@babel/runtime": "^7.16.0",
     "@electron/remote": "^2.0.8",
-    "@material-ui/core": "^4.7.1",
-    "@material-ui/icons": "^4.2.1",
-    "@material-ui/lab": "^4.0.0-alpha.34",
     "@peculiar/webcrypto": "1.4.1",
     "@quiet/backend": "^0.16.0",
     "@quiet/identity": "^0.15.0",
@@ -195,7 +192,6 @@
     "yup": "^0.27.0"
   },
   "devDependencies": {
-    "@cypress/react": "7.0.1",
     "@cypress/webpack-dev-server": "3.1.0",
     "@storybook/addon-actions": "^6.5.14",
     "@storybook/addon-essentials": "^6.5.14",
@@ -213,6 +209,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.13.0",
     "@babel/preset-env": "^7.15.6",
     "@babel/preset-react": "^7.14.5",
+    "@cypress/react18": "2.0.0",
     "@types/electron-localshortcut": "^3.1.0",
     "@types/isomorphic-fetch": "0.0.35",
     "@types/jest": "^26.0.23",
@@ -256,7 +253,6 @@
     "prettier": "^2.1.0",
     "prettier-config-standard": "^1.0.1",
     "react-contenteditable": "^3.3.3",
-    "react-hot-loader": "^4.6.5",
     "react-virtualized": "^9.21.1",
     "redux-devtools-extension": "^2.13.8",
     "redux-persist-memory-storage": "^0.4.0",
