@@ -9,6 +9,12 @@ import { TorControl } from './TorControl'
 import getPort from 'get-port'
 const log = logger('tor')
 
+export enum GetInfoTorSignal {
+  CONFIG_TEXT = 'config-text',
+  CIRCUT_STATUS = 'circuit-status',
+  ENTRY_GUARDS = 'entry-guards'
+}
+
 interface IConstructor {
   torPath?: string
   options: child_process.SpawnOptionsWithoutStdio
@@ -16,12 +22,12 @@ interface IConstructor {
   httpTunnelPort: number
   controlPort?: number
   authCookie?: string
+  extraTorProcessParams?: string[]
 }
 export class Tor {
   httpTunnelPort: number
   socksPort: number
   controlPort: number
-
   process: child_process.ChildProcessWithoutNullStreams | any = null
   torPath: string
   options?: child_process.SpawnOptionsWithoutStdio
@@ -32,11 +38,13 @@ export class Tor {
   torPassword: string
   torHashedPassword: string
   torAuthCookie: string
+  extraTorProcessParams?: string[] = []
   constructor({
     torPath,
     options,
     appDataPath,
     httpTunnelPort,
+    extraTorProcessParams,
     controlPort,
     authCookie
   }: IConstructor) {
@@ -44,6 +52,7 @@ export class Tor {
     this.options = options
     this.appDataPath = appDataPath
     this.httpTunnelPort = httpTunnelPort
+    this.extraTorProcessParams = extraTorProcessParams
     this.controlPort = controlPort || null
     this.torAuthCookie = authCookie || null
   }
@@ -192,7 +201,8 @@ export class Tor {
           '--DataDirectory',
           this.torDataDirectory,
           '--HashedControlPassword',
-          this.torHashedPassword
+          this.torHashedPassword,
+          ...this.extraTorProcessParams
         ],
         this.options
       )
@@ -244,6 +254,25 @@ export class Tor {
           return {
       onionAddress: `${onionAddress}.onion`,
       privateKey
+    }
+  }
+
+  public async switchToCleanCircuts() {
+    try {
+      log('Sending newnym')
+      const response = await this.torControl.sendCommand('SIGNAL NEWNYM')
+      log('Newnym response', response)
+    } catch (e) {
+      log('Could not send newnym', e.message)
+    }
+  }
+
+  public async getInfo(getInfoTarget: GetInfoTorSignal) {
+    try {
+      const response = await this.torControl.sendCommand(`GETINFO ${getInfoTarget}`)
+      log('GETINFO', getInfoTarget, response)
+    } catch (e) {
+      log('Could not get info', getInfoTarget)
     }
   }
 

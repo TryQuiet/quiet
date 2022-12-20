@@ -1,4 +1,6 @@
 import net from 'net'
+import logger from '../logger'
+const log = logger('torControl')
 
 interface IOpts {
   port: number
@@ -54,7 +56,11 @@ export class TorControl {
   }
 
   private async disconnect() {
-    this.connection.end()
+    try {
+      this.connection.end()
+    } catch (e) {
+      log.error('Cant disconnect', e.message)
+    }
     this.connection = null
   }
 
