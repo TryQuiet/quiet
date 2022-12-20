@@ -1,6 +1,5 @@
 import { source as AbortSource } from 'abortable-iterator'
 import { CLOSE_TIMEOUT } from './constants.js'
-import pTimeout from 'p-timeout'
 import logger from '../../logger'
 import type { AbortOptions } from '@libp2p/interfaces'
 import type { MultiaddrConnection } from '@libp2p/interface-connection'
@@ -44,7 +43,8 @@ export function socketToMaConn (stream: DuplexWebSocket, remoteAddr: Multiaddr, 
 
       try {
         // Possibly libp2p used the wrong pTimeout arguments and this was our problem, but why did they used it? TS off or something.
-        await pTimeout(stream.close(), 
+        const pTimeout = await eval("import('p-timeout')")
+        await pTimeout(stream.close(),
           CLOSE_TIMEOUT
         )
       } catch (err) {

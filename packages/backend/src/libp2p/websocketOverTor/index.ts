@@ -1,10 +1,10 @@
-import pDefer from 'p-defer'
 import logger from '../../logger'
 import { socketToMaConn } from './socket-to-conn.js'
 import * as filters from './filters.js'
 import { MultiaddrFilter } from '@libp2p/interface-transport'
 import type { AbortOptions } from '@libp2p/interfaces'
 import type { Multiaddr } from '@multiformats/multiaddr'
+
 import type { DuplexWebSocket } from 'it-ws/duplex'
 import type { ClientOptions } from 'ws'
 
@@ -20,8 +20,6 @@ import { EventEmitter } from 'events'
 
 import { dumpPEM } from '../utils'
 import { connected } from 'process'
-
-
 
 const log = logger('libp2p:websockets')
 
@@ -43,12 +41,12 @@ class Discovery extends EventEmitter {
     this.tag = 'channel_18'
   }
 
-  stop() { }
-  start() { }
-  end() { }
+  stop() {}
+  start() {}
+  end() {}
 }
 
-class WebSockets extends EventEmitter{
+class WebSockets extends EventEmitter {
   private readonly init?: WebSocketsInit
   toUri
   AbortError
@@ -129,8 +127,6 @@ class WebSockets extends EventEmitter{
     }
   }
 
-
-
   async _connect(ma: Multiaddr, options: any = {}) {
     if (!this.toUri) {
       const { multiaddrToUri } = await eval("import('@multiformats/multiaddr-to-uri')")
@@ -152,14 +148,16 @@ class WebSockets extends EventEmitter{
     log('connect %s:%s', cOpts.host, cOpts.port)
 
     const errorPromise = pDefer()
-    const errfn = (err) => {
+    const errfn = err => {
       const msg = `connection error: ${err.message as string}`
       log.error(msg)
 
       errorPromise.reject(err)
     }
 
-    const myUri = `${this.toUri(ma) as string}/?remoteAddress=${encodeURIComponent(this.localAddress)}`
+    const myUri = `${this.toUri(ma) as string}/?remoteAddress=${encodeURIComponent(
+      this.localAddress
+    )}`
     const rawSocket = this.connect(myUri, Object.assign({ binary: true }, options))
 
     if (rawSocket.socket.on) {
@@ -207,11 +205,11 @@ class WebSockets extends EventEmitter{
    * anytime a new incoming Connection has been successfully upgraded via
    * `upgrader.upgradeInbound`
    */
-   prepareListener = ({ handler, upgrader }) => {
+  prepareListener = ({ handler, upgrader }) => {
     console.log('preparing listener')
     log('prepareListener')
     const listener: any = new EventEmitter()
-    
+
     const trackConn = (server, maConn) => {
       server.__connections.push(maConn)
     }
@@ -235,7 +233,7 @@ class WebSockets extends EventEmitter{
 
     server.on('connection', async (stream, request) => {
       if (!this.multiaddr) {
-        const {multiaddr} = await eval("import('@multiformats/multiaddr')")
+        const { multiaddr } = await eval("import('@multiformats/multiaddr')")
         this.multiaddr = multiaddr
       }
       let maConn, conn
@@ -243,7 +241,7 @@ class WebSockets extends EventEmitter{
       const query = url.parse(request.url, true).query
       log('server', query.remoteAddress)
       try {
-        maConn = socketToMaConn(stream, this.multiaddr(query.remoteAddress.toString()) )
+        maConn = socketToMaConn(stream, this.multiaddr(query.remoteAddress.toString()))
         const peer = {
           id: PeerId.createFromB58String(query.remoteAddress.toString().split('/p2p/')[1]),
           multiaddrs: [maConn.remoteAddr]
@@ -262,23 +260,21 @@ class WebSockets extends EventEmitter{
 
       if (handler) handler(conn)
       listener.emit('connection', conn)
-    } )
+    })
       .on('listening', () => listener.emit('listening'))
       .on('error', err => listener.emit('error', err))
       .on('close', () => listener.emit('close'))
 
-    //Keep track of open connections to destroy in case of timeout
+    // Keep track of open connections to destroy in case of timeout
 
     let listeningMultiaddr
 
     listener.close = () => {
-     server.__connections.forEach(maConn => maConn.close())
+      server.__connections.forEach(maConn => maConn.close())
       return server.close()
     }
 
-    listener.addEventListener = () => {
-
-    }
+    listener.addEventListener = () => {}
 
     listener.listen = (ma: Multiaddr) => {
       listeningMultiaddr = ma
@@ -364,3 +360,10 @@ export function webSockets(init: WebSocketsInit): (components?: any) => any {
     return new WebSockets(init)
   }
 }
+
+let pDefer = null;
+
+void (async () => {
+  const PDeferModule = await eval("import('p-defer')")
+  pDefer = PDeferModule.default
+})()

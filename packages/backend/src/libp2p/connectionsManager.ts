@@ -3,11 +3,11 @@ import { Agent } from 'https'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import type { Libp2p, createLibp2p as l2l } from 'libp2p'
 import type { bootstrap as bootstrapType } from '@libp2p/bootstrap'
-import type {kadDHT as kadDHTType} from '@libp2p/kad-dht'
-
-import {webSockets} from './websocketOverTor/index'
-import {all} from './websocketOverTor/filters'
+import type { kadDHT as kadDHTType } from '@libp2p/kad-dht'
 import type { PeerId } from '@libp2p/interface-peer-id'
+
+import { webSockets } from './websocketOverTor/index'
+import { all } from './websocketOverTor/filters'
 
 import SocketIO from 'socket.io'
 import * as os from 'os'
@@ -154,6 +154,7 @@ export class ConnectionsManager extends EventEmitter {
       crypto: webcrypto,
     }))
   }
+
   public readonly createAgent = (): Agent => {
     if (this.socksProxyAgent) return
 
@@ -232,7 +233,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public getNetwork = async () => {
-    const {createEd25519PeerId} = await eval("import('@libp2p/peer-id-factory')")
+    const { createEd25519PeerId } = await eval("import('@libp2p/peer-id-factory')")
     const ports = await getPorts()
     const hiddenService = await this.tor.createNewHiddenService(ports.libp2pHiddenService)
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
@@ -245,15 +246,15 @@ export class ConnectionsManager extends EventEmitter {
       // @ts-ignore
       privKey: peerId.privateKey.toString('hex'),
     }
-    
-    
+
     log(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
+
     return {
       hiddenService,
       peerId: pi
     }
   }
-  
+
   public async createNetwork(community: Community) {
     let network: NetworkData
     // For registrar service purposes, if community owner
@@ -270,8 +271,9 @@ export class ConnectionsManager extends EventEmitter {
       })
       return
     }
+
     log(`Sending network data for ${community.id}`)
-    
+
     const payload: ResponseCreateNetworkPayload = {
       community: {
         ...community,
@@ -282,7 +284,7 @@ export class ConnectionsManager extends EventEmitter {
     }
     this.io.emit(SocketActionTypes.NETWORK, payload)
   }
-  
+
   public async createCommunity(payload: InitCommunityPayload) {
     await this.launchCommunity(payload)
     log(`Created and launched community ${payload.id}`)
@@ -313,7 +315,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public launch = async (payload: InitCommunityPayload): Promise<string> => {
-    const {peerIdFromKeys} = await eval("import('@libp2p/peer-id')")
+    const { peerIdFromKeys } = await eval("import('@libp2p/peer-id')")
     // Start existing community (community that user is already a part of)
     const ports = await getPorts()
     log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
@@ -324,7 +326,7 @@ export class ConnectionsManager extends EventEmitter {
 
     log(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
     const peerId = await peerIdFromKeys(Buffer.from(payload.peerId.pubKey, 'hex'), Buffer.from(payload.peerId.privKey, 'hex'))
-  
+
     const initStorageParams: InitStorageParams = {
       communityId: payload.id,
       peerId: peerId,

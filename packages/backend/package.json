@@ -111,7 +111,7 @@
 		"libp2p-kad-dht": "0.28.6",
 		"luxon": "^1.11.4",
 		"multiaddr": "^10.0.1",
-		"orbit-db": "TryQuiet/orbit-db",
+		"orbit-db": "github:TryQuiet/orbit-db#22a31dea94983d2c3a190c9aaf7efd1d5fd62831",
 		"orbit-db-io": "1.0.2",
 		"orbit-db-pubsub": "0.6.0",
 		"orbit-db-store": "4.3.4",

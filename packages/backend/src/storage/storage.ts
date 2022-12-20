@@ -41,14 +41,13 @@ import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
 import logger from '../logger'
 import validate from '../validation/validators'
-import { CID } from 'multiformats/cid'
-
 import fs from 'fs'
 import { promisify } from 'util'
 import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
 import { StorageEvents } from './types'
 import { sleep } from '../sleep'
+
 const sizeOfPromisified = promisify(sizeOf)
 
 const log = logger('db')
@@ -595,7 +594,9 @@ export class Storage extends EventEmitter {
   }
 
   public async downloadFile(metadata: FileMetadata) {
-    type IPFSPath = CID | string
+    const { CID } = await eval("import('multiformats/cid')")
+
+    type IPFSPath = typeof CID | string
 
     const _CID: IPFSPath = CID.parse(metadata.cid)
 
