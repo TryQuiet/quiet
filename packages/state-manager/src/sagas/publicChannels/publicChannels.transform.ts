@@ -9,6 +9,7 @@ export const PublicChannelsTransform = createTransform(
   },
   (outboundState: PublicChannelsState, _key) => {
     return {
+      ...outboundState,
       currentChannelAddress: 'general',
       channels: outboundState.channels,
       channelsStatus: outboundState.channelsStatus,

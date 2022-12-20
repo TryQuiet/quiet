@@ -66,7 +66,7 @@ jest.mock('@electron/remote', () => {
   return mock
 })
 
-jest.mock('react-jdenticon', () => () => 'Jdenticon')
+jest.mock('../renderer/components/Jdenticon/Jdenticon', () => () => 'Jdenticon')
 
 // eslint-disable-next-line
 const mockFetch: typeof fetch = async () => await Promise.resolve({} as Response)

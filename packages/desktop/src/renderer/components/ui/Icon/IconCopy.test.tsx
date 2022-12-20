@@ -9,26 +9,28 @@ describe('IconCopy', () => {
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
-          <div>
+          <div
+            class="css-1hcemt5"
+          >
             <div
-              class="makeStyles-squareTop-3"
+              class="IconCopysquareTop"
             >
               <div
-                class="makeStyles-gradient-4"
+                class="IconCopygradient"
               >
                 <div
-                  class="makeStyles-squareFill-5"
+                  class="IconCopysquareFill"
                 />
               </div>
             </div>
             <div
-              class="makeStyles-squareBottom-6"
+              class="IconCopysquareBottom"
             >
               <div
-                class="makeStyles-gradient-4"
+                class="IconCopygradient"
               >
                 <div
-                  class="makeStyles-squareFill-5"
+                  class="IconCopysquareFill"
                 />
               </div>
             </div>

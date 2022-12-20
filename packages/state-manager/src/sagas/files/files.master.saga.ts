@@ -9,11 +9,12 @@ import { uploadFileSaga } from './uploadFile/uploadFile.saga'
 import { cancelDownloadSaga } from './cancelDownload/cancelDownload.saga'
 import { broadcastHostedFileSaga } from './broadcastHostedFile/broadcastHostedFile.saga'
 import { downloadFileSaga } from './downloadFile/downloadFileSaga'
+import { networkActions } from '../network/network.slice'
 
 export function* filesMasterSaga(socket: Socket): Generator {
   yield all([
     takeEvery(
-      connectionActions.addInitializedCommunity.type,
+      networkActions.addInitializedCommunity.type,
       resetTransferSpeedSaga,
     ),
     takeEvery(

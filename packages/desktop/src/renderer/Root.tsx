@@ -1,16 +1,15 @@
 import 'typeface-roboto'
 import React from 'react'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import { MuiThemeProvider } from '@material-ui/core/styles'
+import CssBaseline from '@mui/material/CssBaseline'
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { Provider } from 'react-redux'
-import { HashRouter, Route } from 'react-router-dom'
+import { HashRouter, Route, Routes } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import { persistStore } from 'redux-persist'
 import store from './store'
 import Index from './containers/windows/Index'
 import Main from './containers/windows/Main'
 import CreateUsername from './components/CreateUsername/CreateUsername'
-import JoinChannelModal from './containers/widgets/channels/JoinChannelModal'
 import SentryWarning from './containers/widgets/sentryWarning/sentryWarning'
 import SettingsModal from './containers/widgets/settings/SettingsModal'
 import UpdateModal from './containers/widgets/update/UpdateModal'
@@ -27,29 +26,32 @@ import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
 export const persistor = persistStore(store)
 export default () => {
   return (
-    <DndProvider backend={HTML5Backend}>
-      <MuiThemeProvider theme={theme}>
-        <HashRouter>
-          <Provider store={store}>
-            <PersistGate loading={null} persistor={persistor}>
-              <SentryWarning />
-              <ErrorModal />
-              <LoadingPanel />
-              <CreateChannel />
-              <JoinCommunity />
-              <CreateCommunity />
-              <CreateUsername />
-              <CssBaseline />
-              <JoinChannelModal />
-              <SettingsModal />
-              <UpdateModal />
-              <QuitAppDialog />
-              <Route path='/' component={Index} />
-              <Route path='/main' component={Main} />
-            </PersistGate>
-          </Provider>
-        </HashRouter>
-      </MuiThemeProvider>
-    </DndProvider>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <DndProvider backend={HTML5Backend}>
+          <HashRouter>
+            <Provider store={store}>
+              <PersistGate loading={null} persistor={persistor}>
+                <SentryWarning />
+                <ErrorModal />
+                <LoadingPanel />
+                <CreateChannel />
+                <JoinCommunity />
+                <CreateCommunity />
+                <CreateUsername />
+                <CssBaseline />
+                <SettingsModal />
+                <UpdateModal />
+                <QuitAppDialog />
+                <Routes>
+                  <Route index path='/' element={<Index />} />
+                  <Route path='/main/*' element={<Main />} />
+                </Routes>
+              </PersistGate>
+            </Provider>
+          </HashRouter>
+        </DndProvider>
+      </ThemeProvider>
+    </StyledEngineProvider>
   )
 }

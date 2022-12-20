@@ -4,7 +4,8 @@ import { storiesOf } from '@storybook/react-native'
 import { Message } from './Message.component'
 import { MessageType } from '@quiet/state-manager'
 
-storiesOf('Message', module).add('Default', () => {
+storiesOf('Message', module)
+.add('Default', () => {
   return (
     <Message
       data={[
@@ -35,6 +36,27 @@ storiesOf('Message', module).add('Default', () => {
           nickname: 'holmes'
         }
       ]}
+    />
+  )
+})
+.add('Link', () => {
+  const openUrl = (url: string) => {
+    console.log(`opened url ${url}`)
+  }
+  return (
+    <Message
+      data={[
+        {
+          id: '1',
+          type: MessageType.Info,
+          message:
+            'Check this out https://github.com/orgs/TryQuiet/projects/1',
+          createdAt: 0,
+          date: '1:30pm',
+          nickname: 'holmes'
+        }
+      ]}
+      openUrl={openUrl}
     />
   )
 })

@@ -10,10 +10,12 @@ import getPort from 'get-port'
 const log = logger('tor')
 
 interface IConstructor {
-  torPath: string
+  torPath?: string
   options: child_process.SpawnOptionsWithoutStdio
   appDataPath: string
   httpTunnelPort: number
+  controlPort?: number
+  authCookie?: string
 }
 export class Tor {
   httpTunnelPort: number
@@ -34,12 +36,16 @@ export class Tor {
     torPath,
     options,
     appDataPath,
-    httpTunnelPort
+    httpTunnelPort,
+    controlPort,
+    authCookie
   }: IConstructor) {
-    this.torPath = path.normalize(torPath)
+    this.torPath = torPath ? path.normalize(torPath) : null
     this.options = options
     this.appDataPath = appDataPath
     this.httpTunnelPort = httpTunnelPort
+    this.controlPort = controlPort || null
+    this.torAuthCookie = authCookie || null
   }
 
   public init = async ({ repeat = 6, timeout = 3600_000 } = {}): Promise<void> => {
@@ -209,33 +215,33 @@ export class Tor {
   public async spawnHiddenService(targetPort: number, privKey: string, virtPort: number = 443): Promise<string> {
     const status = await this.torControl.sendCommand(
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
-    )
-    const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-    return `${onionAddress}.onion`
-  }
-
-  public async destroyHiddenService(serviceId: string): Promise<boolean> {
-    try {
-      await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
-      return true
-    } catch (err) {
-      log.error(`Couldn't destroy hidden service ${serviceId}`, err)
-      return false
+      )
+      const onionAddress = status.messages[0].replace('250-ServiceID=', '')
+      return `${onionAddress}.onion`
     }
-  }
 
-  public async createNewHiddenService(
-    targetPort: number,
-    virtPort: number = 443
-  ): Promise<{ onionAddress: string; privateKey: string }> {
-    const status = await this.torControl.sendCommand(
-      `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
-    )
+    public async destroyHiddenService(serviceId: string): Promise<boolean> {
+      try {
+        await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
+        return true
+      } catch (err) {
+        log.error(`Couldn't destroy hidden service ${serviceId}`, err)
+        return false
+      }
+    }
 
-    const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-    const privateKey = status.messages[1].replace('250-PrivateKey=', '')
+    public async createNewHiddenService(
+      targetPort: number,
+      virtPort: number = 443
+      ): Promise<{ onionAddress: string; privateKey: string }> {
+        const status = await this.torControl.sendCommand(
+          `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
+          )
 
-    return {
+          const onionAddress = status.messages[0].replace('250-ServiceID=', '')
+          const privateKey = status.messages[1].replace('250-PrivateKey=', '')
+
+          return {
       onionAddress: `${onionAddress}.onion`,
       privateKey
     }

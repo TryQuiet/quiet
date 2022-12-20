@@ -1,17 +1,51 @@
 import React, { useState } from 'react'
 
-import Tabs from '@material-ui/core/Tabs'
-import AppBar from '@material-ui/core/AppBar'
-import { makeStyles } from '@material-ui/core/styles'
-import { Grid } from '@material-ui/core'
-import { AutoSizer } from 'react-virtualized'
-import { Scrollbars } from 'rc-scrollbars'
+import { styled } from '@mui/material/styles'
 
+import { Grid, Tabs } from '@mui/material'
+import AppBar from '@mui/material/AppBar'
+import { Scrollbars } from 'rc-scrollbars'
+import { AutoSizer } from 'react-virtualized'
+
+import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
+import InviteToCommunity from '../../../../containers/widgets/settings/InviteToCommunity'
+import Notifications from '../../../../containers/widgets/settings/Notifications'
 import Modal from '../../../ui/Modal/Modal'
 import Tab from '../../../ui/Tab/Tab'
-import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
-import Notifications from '../../../../containers/widgets/settings/Notifications'
-import InviteToCommunity from '../../../../containers/widgets/settings/InviteToCommunity'
+
+const PREFIX = 'SettingsModal'
+
+const classes = {
+  indicator: `${PREFIX}indicator`
+}
+
+const StyledModalContent = styled(Grid)(() => ({
+  zIndex: 1000,
+  paddingLeft: 20,
+  paddingTop: 32,
+  paddingRight: 32
+}))
+
+const StyledTabsWrapper = styled(Grid)(() => ({
+  width: 168
+}))
+
+const StyledAppBar = styled(AppBar, { label: 'xxxxx' })(() => ({
+  backgroundColor: '#fff',
+  boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.0)'
+}))
+
+const StyledTabs = styled(Tabs)(({ theme }) => ({
+  color: theme.palette.colors.trueBlack,
+
+  [`& .${classes.indicator}`]: {
+    height: '0 !important'
+  },
+}))
+
+const TabComponentWrapper = styled(Grid)(() => ({
+  marginLeft: 32
+}))
 
 const tabs = {
   account: AccountSettingsForm,
@@ -19,60 +53,21 @@ const tabs = {
   invite: InviteToCommunity
 }
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    zIndex: 1000,
-    paddingLeft: 20,
-    paddingTop: 32,
-    paddingRight: 32
-  },
-  tabs: {
-    color: theme.palette.colors.trueBlack
-  },
-  indicator: {
-    height: '0 !important'
-  },
-  appbar: {
-    backgroundColor: '#fff',
-    boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.0)'
-  },
-  tabsDiv: {
-    width: 168
-  },
-  selected: {
-    backgroundColor: theme.palette.colors.lushSky,
-    borderRadius: 5,
-    color: `${theme.palette.colors.white} !important`
-  },
-  tab: {
-    minHeight: 32,
-    color: theme.palette.colors.trueBlack,
-    opacity: 1,
-    fontStyle: 'normal',
-    fontWeight: 'normal'
-  },
-  content: {
-    marginLeft: 32
-  }
-}))
-
 interface SettingsModalProps {
   title: string
-  owner: boolean
+  isOwner: boolean
   open: boolean
   handleClose: () => void
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open, handleClose }) => {
-  const classes = useStyles({})
-
+export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, open, handleClose }) => {
   const [contentRef, setContentRef] = React.useState(null)
 
   const scrollbarRef = React.useRef()
 
   const [offset, setOffset] = React.useState(0)
 
-  const defaultCurrentTab = owner ? 'invite' : 'notifications'
+  const defaultCurrentTab = isOwner ? 'invite' : 'notifications'
   const [currentTab, setCurrentTab] = useState(defaultCurrentTab)
 
   const adjustOffset = () => {
@@ -81,7 +76,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
     }
   }
 
-  const handleChange = (tab) => {
+  const handleChange = (tab: string) => {
     setCurrentTab(tab)
   }
 
@@ -96,18 +91,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
 
   return (
     <Modal open={open} handleClose={handleClose} title={title} testIdPrefix='settings' isBold addBorder contentWidth='100%'>
-      <Grid
+      <StyledModalContent
         ref={ref => {
           if (ref) {
             setContentRef(ref)
           }
         }}
         container
-        direction='row'
-        className={classes.root}>
-        <Grid item className={classes.tabsDiv} style={{ marginLeft: offset }}>
-          <AppBar position='static' className={classes.appbar}>
-            <Tabs
+        direction='row'>
+        <StyledTabsWrapper item style={{ marginLeft: offset }}>
+          <StyledAppBar position='static'>
+            <StyledTabs
               value={currentTab}
               onChange={(event, value) => {
                 event.persist()
@@ -115,20 +109,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
               }}
               orientation='vertical'
               textColor='inherit'
-              className={classes.tabs}
               classes={{ indicator: classes.indicator }}>
               <Tab
                 value='notifications'
                 label='Notifications'
-                classes={{ selected: classes.selected }}
                 data-testid={'notifications-settings-tab'}
               />
-              {owner && (
-                <Tab value='invite' label='Add members' classes={{ selected: classes.selected }} data-testid={'invite-settings-tab'} />
+              {isOwner && (
+                <Tab value='invite' label='Add members' data-testid={'invite-settings-tab'} />
               )}
-            </Tabs>
-          </AppBar>
-        </Grid>
+            </StyledTabs>
+          </StyledAppBar>
+        </StyledTabsWrapper>
         <Grid item xs>
           <AutoSizer>
             {({ width, height }) => {
@@ -138,15 +130,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, owner, open
                   ref={scrollbarRef}
                   autoHideTimeout={500}
                   style={{ width: maxWidth + offset, height: height }}>
-                  <Grid item className={classes.content} style={{ paddingRight: offset }}>
+                  <TabComponentWrapper item style={{ paddingRight: offset }}>
                     <TabComponent setCurrentTab={setCurrentTab} scrollbarRef={scrollbarRef} />
-                  </Grid>
+                  </TabComponentWrapper>
                 </Scrollbars>
               )
             }}
           </AutoSizer>
         </Grid>
-      </Grid>
+      </StyledModalContent>
     </Modal>
   )
 }

@@ -14,6 +14,7 @@ import { publicChannelsActions } from '../../publicChannels/publicChannels.slice
 import { DateTime } from 'luxon'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { filesActions } from '../files.slice'
+import { networkActions } from '../../network/network.slice'
 
 describe('downloadFileSaga', () => {
   let store: Store
@@ -93,7 +94,7 @@ describe('downloadFileSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       resetTransferSpeedSaga,
-      connectionActions.addInitializedCommunity(community.id)
+      networkActions.addInitializedCommunity(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -161,7 +162,7 @@ describe('downloadFileSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       resetTransferSpeedSaga,
-      connectionActions.addInitializedCommunity(community.id)
+      networkActions.addInitializedCommunity(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -234,7 +235,7 @@ describe('downloadFileSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       resetTransferSpeedSaga,
-      connectionActions.addInitializedCommunity(community.id)
+      networkActions.addInitializedCommunity(community.id)
     )
       .withReducer(reducer)
       .withState(store.getState())

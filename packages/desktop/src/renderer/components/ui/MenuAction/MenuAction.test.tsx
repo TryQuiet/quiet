@@ -15,20 +15,20 @@ describe('MenuAction', () => {
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
-          <button
-            class="MuiButtonBase-root MuiIconButton-root makeStyles-button-3"
-            tabindex="0"
-            type="button"
+          <div
+            class="css-164bpf2"
           >
-            <span
-              class="MuiIconButton-label"
+            <button
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeLarge MenuActionbutton css-1awz4e2-MuiButtonBase-root-MuiIconButton-root"
+              tabindex="0"
+              type="button"
             >
               <img
-                class="makeStyles-icon-2"
+                class="MenuActionicon"
                 src="icon"
               />
-            </span>
-          </button>
+            </button>
+          </div>
         </div>
       </body>
     `)

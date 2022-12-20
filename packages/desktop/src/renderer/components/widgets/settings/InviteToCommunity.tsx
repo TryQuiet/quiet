@@ -1,24 +1,44 @@
 import React, { FC } from 'react'
-import { IconButton } from '@material-ui/core'
-import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
-import Visibility from '@material-ui/icons/Visibility'
-import VisibilityOff from '@material-ui/icons/VisibilityOff'
+import { styled } from '@mui/material/styles'
+import { IconButton } from '@mui/material'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+
+import Typography from '@mui/material/Typography'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import CopyToClipboard from 'react-copy-to-clipboard'
 import { capitalizeFirstLetter } from '../../../../utils/functions/capitalize'
 
-const useStyles = makeStyles(theme => ({
-  title: {},
-  titleDiv: {
+const PREFIX = 'InviteToCommunity'
+
+const classes = {
+  title: `${PREFIX}title`,
+  titleDiv: `${PREFIX}titleDiv`,
+  link: `${PREFIX}link`,
+  button: `${PREFIX}button`,
+  bold: `${PREFIX}bold`,
+  linkContainer: `${PREFIX}linkContainer`,
+  eyeIcon: `${PREFIX}eyeIcon`
+}
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.title}`]: {},
+
+  [`& .${classes.titleDiv}`]: {
     marginBottom: 24
   },
-  link: {
+
+  [`& .${classes.link}`]: {
     textDecoration: 'none',
     color: theme.palette.colors.linkBlue
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     marginTop: 24,
     textTransform: 'none',
     width: 480,
@@ -30,10 +50,12 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.colors.quietBlue
     }
   },
-  bold: {
+
+  [`& .${classes.bold}`]: {
     fontWeight: 'bold'
   },
-  linkContainer: {
+
+  [`& .${classes.linkContainer}`]: {
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'nowrap',
@@ -41,7 +63,8 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'baseline',
     alignContent: 'stretch'
   },
-  eyeIcon: {
+
+  [`& .${classes.eyeIcon}`]: {
     margin: '5px',
     top: '5px'
   }
@@ -60,10 +83,9 @@ export const InviteToCommunity: FC<InviteFriendProps> = ({
   revealInputValue,
   handleClickInputReveal
 }) => {
-  const classes = useStyles({})
   return (
-    <Grid container direction='column'>
-      <Grid container item justify='space-between' alignItems='center' className={classes.titleDiv}>
+    <StyledGrid container direction='column'>
+      <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
         <Grid item className={classes.title}>
           <Typography variant='h3'>Add members</Typography>
         </Grid>
@@ -97,6 +119,6 @@ export const InviteToCommunity: FC<InviteFriendProps> = ({
           <Button className={classes.button}>Copy to clipboard</Button>
         </CopyToClipboard>
       </Grid>
-    </Grid>
+    </StyledGrid>
   )
 }

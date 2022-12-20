@@ -126,7 +126,7 @@ describe('Switch channels', () => {
 
     // Select another channel
     const memesChannelLink = screen.getByTestId('memes-link')
-    userEvent.click(memesChannelLink)
+    await userEvent.click(memesChannelLink)
     // Confirm selected channel has changed
     expect(channelTitle).toHaveTextContent('#memes')
     // Confirm the message from #general channel is no longer visible
@@ -134,7 +134,7 @@ describe('Switch channels', () => {
 
     // Go back to #general channel
     const generalChannelLink = screen.getByTestId('general-link')
-    userEvent.click(generalChannelLink)
+    await userEvent.click(generalChannelLink)
     // Confirm selected channel has changed
     expect(channelTitle).toHaveTextContent('#general')
     // Confirm the message from #general channel is visible back again
@@ -193,7 +193,7 @@ describe('Switch channels', () => {
     expect(travelsChannelLink).toHaveStyle('opacity: 0.7')
 
     // Enter channel and confirm highlight dissapeared
-    userEvent.click(memesChannelLink)
+    await userEvent.click(memesChannelLink)
     expect(memesChannelLink).toHaveStyle('opacity: 0.7')
     // Confirm the other 'unread' channel is still highlighted
     const petsChannelLink = screen.getByTestId('pets-link-text')
@@ -304,7 +304,7 @@ describe('Switch channels', () => {
     expect(travelsChannelLink).toHaveStyle('opacity: 1')
 
     // Enter channel and confirm highlight dissapeared
-    userEvent.click(travelsChannelLink)
+    await userEvent.click(travelsChannelLink)
     expect(travelsChannelLink).toHaveStyle('opacity: 0.7')
 
     // Verify replicated message in present in repository

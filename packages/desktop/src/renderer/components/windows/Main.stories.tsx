@@ -1,7 +1,7 @@
 import React from 'react'
 import { ComponentMeta } from '@storybook/react'
 
-import Grid from '@material-ui/core/Grid'
+import Grid from '@mui/material/Grid'
 import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
 
 import { withTheme } from '../../storybook/decorators'

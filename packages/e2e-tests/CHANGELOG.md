@@ -3,6 +3,126 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.16.0](https://github.com/TryQuiet/monorepo/compare/e2e-tests@0.14.4...e2e-tests@0.16.0) (2022-12-19)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+# [0.16.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/e2e-tests@0.14.4...e2e-tests@0.16.0-alpha.0) (2022-12-14)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+# [0.15.0](https://github.com/ZbayApp/monorepo/compare/e2e-tests@0.14.4...e2e-tests@0.15.0) (2022-12-14)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+# [0.15.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/e2e-tests@0.14.4...e2e-tests@0.15.0-alpha.0) (2022-12-14)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+## [0.14.5-alpha.0](https://github.com/ZbayApp/monorepo/compare/e2e-tests@0.14.4...e2e-tests@0.14.5-alpha.0) (2022-12-09)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+## [0.14.4](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.12.1-alpha.0...e2e-tests@0.14.4) (2022-11-21)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+## [0.14.3](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.12.1-alpha.0...e2e-tests@0.14.3) (2022-11-21)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+## [0.14.2](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.12.1-alpha.0...e2e-tests@0.14.2) (2022-11-21)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+## [0.14.1](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.12.1-alpha.0...e2e-tests@0.14.1) (2022-11-21)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+# [0.14.0](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.12.1-alpha.0...e2e-tests@0.14.0) (2022-11-18)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+# [0.14.0-alpha.2](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.12.1-alpha.0...e2e-tests@0.14.0-alpha.2) (2022-11-18)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+# [0.14.0-alpha.1](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.12.1-alpha.0...e2e-tests@0.14.0-alpha.1) (2022-11-18)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+# [0.14.0-alpha.0](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.12.1-alpha.0...e2e-tests@0.14.0-alpha.0) (2022-11-18)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+# [0.13.0](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.12.1-alpha.0...e2e-tests@0.13.0) (2022-11-18)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+## [0.12.1-alpha.0](https://github.com/TryQuiet/monorepo/compare/e2e-tests@0.12.0...e2e-tests@0.12.1-alpha.0) (2022-11-18)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
 # [0.12.0](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.11.3-alpha.16...e2e-tests@0.12.0) (2022-10-31)
 
 **Note:** Version bump only for package e2e-tests

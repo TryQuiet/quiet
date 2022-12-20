@@ -8,7 +8,7 @@ describe('MessageSendButton component', () => {
     const { toJSON } = renderComponent(<MessageSendButton onPress={jest.fn()} disabled={false} />)
 
     expect(toJSON()).toMatchInlineSnapshot(`
-      <Image
+      <View
         accessible={true}
         focusable={true}
         onClick={[Function]}
@@ -18,21 +18,30 @@ describe('MessageSendButton component', () => {
         onResponderTerminate={[Function]}
         onResponderTerminationRequest={[Function]}
         onStartShouldSetResponder={[Function]}
-        resizeMethod="resize"
-        resizeMode="cover"
-        source={
-          Object {
-            "testUri": "../../../assets/icons/icon_send.png",
-          }
-        }
         style={
           Object {
-            "alignSelf": "flex-end",
-            "height": 20,
-            "width": 20,
+            "flex": 1.5,
+            "justifyContent": "center",
           }
         }
-      />
+      >
+        <Image
+          resizeMethod="resize"
+          resizeMode="cover"
+          source={
+            Object {
+              "testUri": "../../../assets/icons/icon_send.png",
+            }
+          }
+          style={
+            Object {
+              "alignSelf": "center",
+              "height": 20,
+              "width": 20,
+            }
+          }
+        />
+      </View>
     `)
   })
 })

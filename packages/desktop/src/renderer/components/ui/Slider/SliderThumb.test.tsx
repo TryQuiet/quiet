@@ -10,7 +10,7 @@ describe('SliderThumb', () => {
       <body>
         <div>
           <div
-            class="makeStyles-root-1"
+            class="SliderThumbroot css-1o0xzn6"
           />
         </div>
       </body>

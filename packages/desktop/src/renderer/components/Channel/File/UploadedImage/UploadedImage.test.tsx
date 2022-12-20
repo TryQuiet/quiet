@@ -36,40 +36,44 @@ describe('UploadedFile', () => {
       <body>
         <div>
           <div
-            class="makeStyles-placeholderWrapper-3"
-            data-testid="abcd1234-imagePlaceholder"
+            class="css-gd4qex"
           >
-            <p
-              class="makeStyles-fileName-6"
-            >
-              test.png
-            </p>
             <div
-              class="makeStyles-placeholder-4"
-              style="width: 400px;"
+              class="css-1b4jr6y"
+              data-testid="abcd1234-imagePlaceholder"
             >
-              <img
-                class="makeStyles-placeholderIcon-5"
-                src="test-file-stub"
-              />
-              <div
-                class="MuiCircularProgress-root MuiCircularProgress-indeterminate"
-                role="progressbar"
-                style="width: 16px; height: 16px;"
+              <p
+                class="css-h94c3"
               >
-                <svg
-                  class="MuiCircularProgress-svg"
-                  viewBox="22 22 44 44"
+                test.png
+              </p>
+              <div
+                class="UploadedImagePlaceholderplaceholder"
+                style="width: 400px;"
+              >
+                <img
+                  class="UploadedImagePlaceholderplaceholderIcon"
+                  src="test-file-stub"
+                />
+                <span
+                  class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInherit css-62e83j-MuiCircularProgress-root"
+                  role="progressbar"
+                  style="width: 16px; height: 16px;"
                 >
-                  <circle
-                    class="MuiCircularProgress-circle MuiCircularProgress-circleDisableShrink MuiCircularProgress-circleIndeterminate"
-                    cx="44"
-                    cy="44"
-                    fill="none"
-                    r="20.2"
-                    stroke-width="3.6"
-                  />
-                </svg>
+                  <svg
+                    class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
+                    viewBox="22 22 44 44"
+                  >
+                    <circle
+                      class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate MuiCircularProgress-circleDisableShrink css-79nvmn-MuiCircularProgress-circle"
+                      cx="44"
+                      cy="44"
+                      fill="none"
+                      r="20.2"
+                      stroke-width="3.6"
+                    />
+                  </svg>
+                </span>
               </div>
             </div>
           </div>
@@ -88,22 +92,26 @@ describe('UploadedFile', () => {
       <body>
         <div>
           <div
-            class="makeStyles-container-20"
+            class="css-gd4qex"
           >
             <div
-              class="makeStyles-image-19"
-              data-testid="abcd1234-imageVisual"
+              class="UploadedImagecontainer"
             >
-              <p
-                class="makeStyles-fileName-24"
+              <div
+                class="UploadedImageimage"
+                data-testid="abcd1234-imageVisual"
               >
-                test.png
-              </p>
-              <img
-                class="makeStyles-image-19"
-                src="path/to/file/test.png"
-                style="width: 400px;"
-              />
+                <p
+                  class="css-h94c3"
+                >
+                  test.png
+                </p>
+                <img
+                  class="UploadedImageimage"
+                  src="path/to/file/test.png"
+                  style="width: 400px;"
+                />
+              </div>
             </div>
           </div>
         </div>

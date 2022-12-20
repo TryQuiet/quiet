@@ -1,3 +1,4 @@
+import Foundation
 
 extension Data {
     func hexEncodedString() -> String {

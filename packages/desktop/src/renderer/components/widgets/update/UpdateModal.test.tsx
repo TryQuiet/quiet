@@ -11,71 +11,67 @@ describe('UpdateModal', () => {
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
-        style="overflow: hidden; padding-right: 0px;"
+        style="padding-right: 1024px; overflow: hidden;"
       >
         <div
           aria-hidden="true"
         />
         <div
-          class="makeStyles-root-7"
+          class="Modalroot MuiModal-root css-1hk9oxe-MuiModal-root"
           role="presentation"
-          style="position: fixed; z-index: 1300; right: 0px; bottom: 0px; top: 0px; left: 0px;"
         >
           <div
             aria-hidden="true"
-            style="z-index: -1; position: fixed; right: 0px; bottom: 0px; top: 0px; left: 0px; background-color: rgba(0, 0, 0, 0.5);"
+            class="MuiBackdrop-root css-i9fmh8-MuiBackdrop-root-MuiModal-backdrop"
+            style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
           />
           <div
-            data-test="sentinelStart"
+            data-testid="sentinelStart"
             tabindex="0"
           />
           <div
-            class="MuiGrid-root makeStyles-centered-16 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Modalcentered css-6gh8l0-MuiGrid-root"
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root makeStyles-header-10 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item Modalheader css-lx31tv-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center MuiGrid-grid-xs-true"
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-1r61agb-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root makeStyles-title-9 MuiTypography-subtitle1 MuiTypography-alignCenter"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
                     style="margin-left: 36px;"
                   />
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root makeStyles-actions-12 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item Modalactions css-hoc6b0-MuiGrid-root"
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root makeStyles-root-152"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-c8hoqc-MuiButtonBase-root-MuiIconButton-root"
                       tabindex="0"
                       type="button"
                     >
-                      <span
-                        class="MuiIconButton-label"
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="ClearIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
                       >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root"
-                          focusable="false"
-                          role="presentation"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                          />
-                        </svg>
-                      </span>
+                        <path
+                          d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                        />
+                      </svg>
                       <span
-                        class="MuiTouchRipple-root"
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                       />
                     </button>
                   </div>
@@ -83,20 +79,20 @@ describe('UpdateModal', () => {
               </div>
             </div>
             <div
-              class="MuiGrid-root makeStyles-fullPage-14 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item ModalfullPage css-1h16bbz-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root makeStyles-content-13 MuiGrid-container MuiGrid-item"
+                class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent css-1f064cs-MuiGrid-root"
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root makeStyles-root-1 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-align-items-xs-center"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-puyhqi-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root makeStyles-info-2 MuiGrid-container MuiGrid-justify-xs-center"
+                    class="MuiGrid-root MuiGrid-container UpdateModalinfo css-1lym95h-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <img
                         src="test-file-stub"
@@ -104,49 +100,45 @@ describe('UpdateModal', () => {
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-1h16bbz-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root makeStyles-title-5 MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item UpdateModaltitle css-13i4rnv-MuiGrid-root"
                     >
                       <h3
-                        class="MuiTypography-root MuiTypography-h3"
+                        class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
                       >
                         Software update
                       </h3>
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-1h16bbz-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root makeStyles-subTitle-6 MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item UpdateModalsubTitle css-13i4rnv-MuiGrid-root"
                     >
                       <p
-                        class="MuiTypography-root MuiTypography-body2"
+                        class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                       >
                         An update is available for Quiet.
                       </p>
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-8 MuiGrid-justify-xs-center"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-8 css-m7r6nl-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-gj1fbr-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-contained makeStyles-button-3 MuiButton-containedPrimary MuiButton-containedSizeLarge MuiButton-sizeLarge MuiButton-fullWidth"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth UpdateModalbutton css-n0wap0-MuiButtonBase-root-MuiButton-root"
                         tabindex="0"
                         type="submit"
                       >
+                        Update now
                         <span
-                          class="MuiButton-label"
-                        >
-                          Update now
-                        </span>
-                        <span
-                          class="MuiTouchRipple-root"
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                         />
                       </button>
                     </div>
@@ -156,7 +148,7 @@ describe('UpdateModal', () => {
             </div>
           </div>
           <div
-            data-test="sentinelEnd"
+            data-testid="sentinelEnd"
             tabindex="0"
           />
         </div>

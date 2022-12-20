@@ -4,6 +4,7 @@ import { errorsReducer } from './errors/errors.slice'
 import { filesReducer } from './files/files.slice'
 import { identityReducer } from './identity/identity.slice'
 import { messagesReducer } from './messages/messages.slice'
+import { networkReducer } from './network/network.slice'
 import { publicChannelsReducer } from './publicChannels/publicChannels.slice'
 import { settingsReducer } from './settings/settings.slice'
 import { StoreKeys } from './store.keys'
@@ -18,5 +19,6 @@ export const reducers = {
   [StoreKeys.Messages]: messagesReducer,
   [StoreKeys.Connection]: connectionReducer,
   [StoreKeys.Settings]: settingsReducer,
-  [StoreKeys.Files]: filesReducer
+  [StoreKeys.Files]: filesReducer,
+  [StoreKeys.Network]: networkReducer
 }

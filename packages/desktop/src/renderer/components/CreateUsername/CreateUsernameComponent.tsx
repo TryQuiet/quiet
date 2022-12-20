@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Controller, useForm } from 'react-hook-form'
-import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
+import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid'
 
-import WarningIcon from '@material-ui/icons/Warning'
+import WarningIcon from '@mui/icons-material/Warning'
 
 import Modal from '../ui/Modal/Modal'
 import UsernameCreated from './UsernameCreated/UsernameCreated'
@@ -15,40 +15,67 @@ import { TextInput } from '../../forms/components/textInput'
 import { userNameField } from '../../forms/fields/createUserFields'
 
 import { parseName } from '@quiet/state-manager'
+import { Link } from 'react-router-dom'
 
-const useStyles = makeStyles(theme => ({
-  focus: {
+const PREFIX = 'CreateUsernameComponent'
+
+const classes = {
+  focus: `${PREFIX}focus`,
+  margin: `${PREFIX}margin`,
+  error: `${PREFIX}error`,
+  fullContainer: `${PREFIX}fullContainer`,
+  gutter: `${PREFIX}gutter`,
+  button: `${PREFIX}button`,
+  title: `${PREFIX}title`,
+  iconDiv: `${PREFIX}iconDiv`,
+  warrningIcon: `${PREFIX}warrningIcon`,
+  warrningMessage: `${PREFIX}warrningMessage`,
+  rootBar: `${PREFIX}rootBar`,
+  progressBar: `${PREFIX}progressBar`,
+  info: `${PREFIX}info`
+}
+
+const StyledModalContent = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  backgroundColor: theme.palette.colors.white,
+  padding: '0px 32px',
+
+  [`& .${classes.focus}`]: {
     '& .MuiOutlinedInput-root': {
       '&.Mui-focused fieldset': {
         borderColor: theme.palette.colors.linkBlue
       }
     }
   },
-  margin: {
+
+  [`& .${classes.margin}`]: {
     '& .MuiFormHelperText-contained': {
       margin: '5px 0px'
     }
   },
-  error: {
+
+  [`& .${classes.error}`]: {
     '& .MuiOutlinedInput-root': {
       '&.Mui-focused fieldset': {
         borderColor: theme.palette.colors.red
       }
     }
   },
-  main: {
-    backgroundColor: theme.palette.colors.white,
-    padding: '0px 32px'
-  },
-  fullContainer: {
+
+  [`& .${classes.fullContainer}`]: {
     width: '100%',
     height: '100%'
   },
-  gutter: {
+
+  [`& .${classes.gutter}`]: {
     marginTop: 8,
     marginBottom: 24
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     width: 165,
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
@@ -59,29 +86,36 @@ const useStyles = makeStyles(theme => ({
     height: 48,
     fontWeight: 'normal'
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     marginBottom: 24
   },
-  iconDiv: {
+
+  [`& .${classes.iconDiv}`]: {
     width: 24,
     height: 28,
     marginRight: 8
   },
-  warrningIcon: {
+
+  [`& .${classes.warrningIcon}`]: {
     color: '#FFCC00'
   },
-  warrningMessage: {
+
+  [`& .${classes.warrningMessage}`]: {
     wordBreak: 'break-word'
   },
-  rootBar: {
+
+  [`& .${classes.rootBar}`]: {
     width: 350,
     marginTop: 32,
     marginBottom: 16
   },
-  progressBar: {
+
+  [`& .${classes.progressBar}`]: {
     backgroundColor: theme.palette.colors.linkBlue
   },
-  info: {
+
+  [`& .${classes.info}`]: {
     lineHeight: '19px',
     color: theme.palette.colors.darkGray
   }
@@ -110,8 +144,6 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   certificate,
   handleClose
 }) => {
-  const classes = useStyles({})
-
   const [formSent, setFormSent] = useState(false)
   const [userName, setUserName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
@@ -163,13 +195,12 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
 
   return (
     <Modal open={open} handleClose={handleClose} testIdPrefix='createUsername' isCloseDisabled={true}>
-      <Grid container className={classes.main} direction='column'>
-        {!certificate ? (
+      <StyledModalContent container direction='column'>
           <>
             <form onSubmit={handleSubmit(onSubmit)}>
               <Grid
                 container
-                justify='flex-start'
+                justifyContent='flex-start'
                 direction='column'
                 className={classes.fullContainer}>
                 <Typography variant='h3' className={classes.title}>
@@ -237,10 +268,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
               </Grid>
             </form>
           </>
-        ) : (
-          <UsernameCreated handleClose={handleClose} setFormSent={setFormSent} />
-        )}
-      </Grid>
+      </StyledModalContent>
     </Modal>
   )
 }

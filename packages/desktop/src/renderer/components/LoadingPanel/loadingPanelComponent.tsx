@@ -1,15 +1,18 @@
 import React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-
+import { styled } from '@mui/material/styles'
 import SpinnerLoader from '../ui/Spinner/SpinnerLoader'
 import Modal from '../ui/Modal/Modal'
 
-const useStyles = makeStyles(() => ({
-  spinner: {
-    top: '50%',
-    position: 'relative',
-    transform: 'translate(0, -50%)'
-  }
+const PREFIX = 'LoadingPanelComponent'
+
+const classes = {
+  spinner: `${PREFIX}spinner`
+}
+
+const StyledSpinnerLoader = styled(SpinnerLoader)(() => ({
+  top: '50%',
+  position: 'relative',
+  transform: 'translate(0, -50%)'
 }))
 
 interface LoadingPanelComponentProps {
@@ -23,15 +26,12 @@ const LoadingPanelComponent: React.FC<LoadingPanelComponentProps> = ({
   handleClose,
   message
 }) => {
-  const classes = useStyles({})
-
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
-      <SpinnerLoader
+      <StyledSpinnerLoader
         size={40}
         message={message}
         color={'black'}
-        className={classes.spinner}
       />
     </Modal>
   )

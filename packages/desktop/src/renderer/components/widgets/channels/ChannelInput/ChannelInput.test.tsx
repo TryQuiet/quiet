@@ -26,22 +26,22 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root makeStyles-root-1"
+            class="MuiGrid-root ChannelInputroot css-1blz947-MuiGrid-root"
           >
             <div
-              class="MuiGrid-root makeStyles-root-1 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
+              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root makeStyles-inputsDiv-5 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                class="MuiGrid-root MuiGrid-container ChannelInputinputsDiv css-go2vvz-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root makeStyles-textfield-4 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center MuiGrid-grid-xs-true"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextfield css-1r61agb-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                   >
                     <div
-                      class="makeStyles-input-3"
+                      class="ChannelInputinput"
                       contenteditable="true"
                       data-testid="messageInput"
                       placeholder="Message #channel as @user"
@@ -50,16 +50,16 @@ describe('ChannelInput', () => {
                     </div>
                   </div>
                   <div
-                    class="makeStyles-icons-22"
+                    class="ChannelInputicons"
                   >
                     <div
-                      class="MuiGrid-root makeStyles-actions-14 MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item ChannelInputactions css-13i4rnv-MuiGrid-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                        class="MuiGrid-root MuiGrid-container css-1hbmzt3-MuiGrid-root"
                       >
                         <img
-                          class="makeStyles-emoji-12"
+                          class="ChannelInputemoji"
                           src="test-file-stub"
                         />
                         <input
@@ -71,13 +71,13 @@ describe('ChannelInput', () => {
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root makeStyles-actions-14 MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item ChannelInputactions css-13i4rnv-MuiGrid-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                        class="MuiGrid-root MuiGrid-container css-1hbmzt3-MuiGrid-root"
                       >
                         <img
-                          class="makeStyles-emoji-12"
+                          class="ChannelInputemoji"
                           src="test-file-stub"
                         />
                       </div>
@@ -86,10 +86,10 @@ describe('ChannelInput', () => {
                 </div>
               </div>
               <div
-                class="MuiGrid-root makeStyles-boot-128 MuiGrid-container"
+                class="MuiGrid-root MuiGrid-container ChannelInputInfoMessageboot css-1ioxgj4-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 />
               </div>
             </div>
@@ -118,22 +118,22 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root makeStyles-root-129 makeStyles-notAllowed-148"
+            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-1blz947-MuiGrid-root"
           >
             <div
-              class="MuiGrid-root makeStyles-root-129 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
+              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root makeStyles-inputsDiv-133 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                class="MuiGrid-root MuiGrid-container ChannelInputinputsDiv css-go2vvz-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root makeStyles-textfield-132 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center MuiGrid-grid-xs-true"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextfield css-1r61agb-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                   >
                     <div
-                      class="makeStyles-input-131"
+                      class="ChannelInputinput"
                       contenteditable="false"
                       data-testid="messageInput"
                       disabled=""
@@ -143,16 +143,16 @@ describe('ChannelInput', () => {
                     </div>
                   </div>
                   <div
-                    class="makeStyles-icons-150"
+                    class="ChannelInputicons"
                   >
                     <div
-                      class="MuiGrid-root makeStyles-actions-142 MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item ChannelInputactions css-13i4rnv-MuiGrid-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                        class="MuiGrid-root MuiGrid-container css-1hbmzt3-MuiGrid-root"
                       >
                         <img
-                          class="makeStyles-emoji-140"
+                          class="ChannelInputemoji"
                           src="test-file-stub"
                         />
                         <input
@@ -164,13 +164,13 @@ describe('ChannelInput', () => {
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root makeStyles-actions-142 MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item ChannelInputactions css-13i4rnv-MuiGrid-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                        class="MuiGrid-root MuiGrid-container css-1hbmzt3-MuiGrid-root"
                       >
                         <img
-                          class="makeStyles-emoji-140"
+                          class="ChannelInputemoji"
                           src="test-file-stub"
                         />
                       </div>
@@ -179,13 +179,13 @@ describe('ChannelInput', () => {
                 </div>
               </div>
               <div
-                class="MuiGrid-root makeStyles-boot-256 MuiGrid-container"
+                class="MuiGrid-root MuiGrid-container ChannelInputInfoMessageboot css-1ioxgj4-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <span
-                    class="MuiTypography-root makeStyles-info-254 MuiTypography-caption"
+                    class="MuiTypography-root MuiTypography-caption ChannelInputInfoMessageinfo css-1d4bzk2-MuiTypography-root"
                   >
                     Initializing community. This may take a few minutes...
                   </span>

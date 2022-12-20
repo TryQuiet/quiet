@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { CircularProgress, makeStyles, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { CircularProgress, Typography } from '@mui/material'
 import { DisplayableMessage, DownloadState, DownloadStatus, FileMetadata, CancelDownload, formatBytes } from '@quiet/state-manager'
 import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
@@ -14,16 +15,28 @@ import cancelIconRed from '../../../../static/images/cancelIconRed.svg'
 import pauseIconGray from '../../../../static/images/pauseIconGray.svg'
 import Tooltip from '../../../ui/Tooltip/Tooltip'
 
-const useStyles = makeStyles(theme => ({
-  border: {
-    maxWidth: '100%',
-    marginTop: '8px',
-    padding: '16px',
-    backgroundColor: theme.palette.colors.white,
-    borderRadius: '8px',
-    border: `1px solid ${theme.palette.colors.veryLightGray}`
-  },
-  icon: {
+const PREFIX = 'FileComponent'
+
+const classes = {
+  icon: `${PREFIX}icon`,
+  fileIcon: `${PREFIX}fileIcon`,
+  filename: `${PREFIX}filename`,
+  actionIcon: `${PREFIX}actionIcon`
+}
+
+const FileComponentStyled = styled('div')((
+  {
+    theme
+  }
+) => ({
+  maxWidth: '100%',
+  marginTop: '8px',
+  padding: '16px',
+  backgroundColor: theme.palette.colors.white,
+  borderRadius: '8px',
+  border: `1px solid ${theme.palette.colors.veryLightGray}`,
+
+  [`& .${classes.icon}`]: {
     minWidth: '40px',
     width: '40px',
     height: '40px',
@@ -33,38 +46,39 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  fileIcon: {
+
+  [`& .${classes.fileIcon}`]: {
     width: '16px',
     height: '20px'
   },
-  filename: {
+
+  [`& .${classes.filename}`]: {
     marginLeft: '16px'
   },
-  actionIcon: {
-    width: '15px'
-  },
-  actionIndicator: {
-    display: 'flex',
-    width: 'fit-content'
-  }
+
 }))
 
+const ActionIndicatorStyled = styled('div')(() => ({
+  display: 'flex',
+  width: 'fit-content',
+
+  [`& .${classes.actionIcon}`]: {
+    width: '15px'
+  },
+}))
+
+interface ActionIndicatorMode {
+  label: string
+  color: string
+  icon: any
+}
+
 const ActionIndicator: React.FC<{
-  regular: {
-    label: string
-    color: string
-    icon: any
-  }
-  hover?: {
-    label: string
-    color: string
-    icon: any
-  }
+  regular: ActionIndicatorMode
+  hover?: ActionIndicatorMode
   action?: (...args: any) => void
 }> = ({ regular, hover, action }) => {
   const [over, setOver] = useState<boolean>()
-
-  const classes = useStyles({})
 
   const onMouseOver = () => {
     setOver(true)
@@ -76,27 +90,24 @@ const ActionIndicator: React.FC<{
 
   const renderIndicator = () => {
     if (over && hover) {
-      return (
-        <>
-          {/* Hovered state */}
-          <div className={classes.actionIndicator}>
-            <Icon src={hover.icon} className={classes.actionIcon} />
-            <Typography variant={'body2'} style={{ color: hover.color, marginLeft: '8px' }}>
-              {hover.label}
-            </Typography>
-          </div>
-        </>
-      )
+      return <>
+        {/* Hovered state */}
+        <ActionIndicatorStyled>
+          <Icon src={hover.icon} className={classes.actionIcon} />
+          <Typography variant={'body2'} style={{ color: hover.color, marginLeft: '8px' }}>
+            {hover.label}
+          </Typography>
+        </ActionIndicatorStyled>
+      </>
     } else {
       return (
         <>
-          {/* Hovered state */}
-          <div className={classes.actionIndicator}>
+          <ActionIndicatorStyled>
             <Icon src={regular.icon} className={classes.actionIcon} />
             <Typography variant={'body2'} style={{ color: regular.color, marginLeft: '8px' }}>
               {regular.label}
             </Typography>
-          </div>
+          </ActionIndicatorStyled>
         </>
       )
     }
@@ -131,8 +142,6 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   downloadFile,
   cancelDownload
 }) => {
-  const classes = useStyles({})
-
   const { cid, path, name, ext } = message.media
 
   const downloadState = downloadStatus?.downloadState
@@ -160,7 +169,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               style={{ position: 'absolute', color: theme.palette.colors.gray }}
             />
             <CircularProgress
-              variant='static'
+              variant='determinate'
               size={18}
               thickness={4}
               value={(downloadProgress.downloaded / downloadProgress.size) * 100}
@@ -316,7 +325,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   }
 
   return (
-    <div className={classes.border} data-testid={`${cid}-fileComponent`}>
+    <FileComponentStyled data-testid={`${cid}-fileComponent`}>
       <Tooltip
         title={
           downloadState === DownloadState.Downloading &&
@@ -349,7 +358,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
         }}>
         {renderActionIndicator()}
       </div>
-    </div>
+    </FileComponentStyled>
   )
 }
 

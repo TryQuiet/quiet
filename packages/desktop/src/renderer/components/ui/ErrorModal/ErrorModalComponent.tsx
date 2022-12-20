@@ -1,12 +1,12 @@
 import React from 'react'
 
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import TextField from '@material-ui/core/TextField'
+import { styled } from '@mui/material/styles'
 
-import { makeStyles } from '@material-ui/core/styles'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import TextField from '@mui/material/TextField'
 
-import red from '@material-ui/core/colors/red'
+import red from '@mui/material/colors/red'
 
 import Icon from '../Icon/Icon'
 import Modal from '../Modal/Modal'
@@ -14,34 +14,55 @@ import LoadingButton from '../LoadingButton/LoadingButton'
 
 import exclamationMark from '../../../static/images/exclamationMark.svg'
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    padding: theme.spacing(4)
-  },
-  icon: {
+const PREFIX = 'ErrorModalComponent'
+
+const classes = {
+  icon: `${PREFIX}icon`,
+  stackTrace: `${PREFIX}stackTrace`,
+  message: `${PREFIX}message`,
+  info: `${PREFIX}info`,
+  textfield: `${PREFIX}textfield`,
+  cssDisabled: `${PREFIX}cssDisabled`,
+  button: `${PREFIX}button`
+}
+
+const StyledModalContent = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  padding: theme.spacing(4),
+
+  [`& .${classes.icon}`]: {
     fontSize: '10rem',
     color: red[500],
     width: 80,
     height: 70
   },
-  stackTrace: {
+
+  [`& .${classes.stackTrace}`]: {
     fontSize: '14px',
     wordBreak: 'break-all'
   },
-  message: {
+
+  [`& .${classes.message}`]: {
     wordBreak: 'break-all',
     marginTop: 20,
     fontWeight: 500
   },
-  info: {
+
+  [`& .${classes.info}`]: {
     textAlign: 'center'
   },
-  textfield: {},
-  cssDisabled: {
+
+  [`& .${classes.textfield}`]: {},
+
+  [`& .${classes.cssDisabled}`]: {
     backgroundColor: theme.palette.colors.inputGray,
     color: theme.palette.colors.red
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     textTransform: 'none',
     width: 150,
     height: 60
@@ -65,11 +86,9 @@ export const ErrorModalComponent: React.FC<ErrorModalProps> = ({
   restartApp,
   testMode
 }) => {
-  const classes = useStyles({})
-
   return (
     <Modal open={open} handleClose={handleClose} title='Error'>
-      <Grid container justify='flex-start' spacing={3} direction='column' className={classes.root}>
+      <StyledModalContent container justifyContent='flex-start' spacing={3} direction='column'>
         <Grid item container direction='column' alignItems='center'>
           <Icon className={classes.icon} src={exclamationMark} />
           <Typography variant='h3' className={classes.message}>
@@ -102,7 +121,7 @@ export const ErrorModalComponent: React.FC<ErrorModalProps> = ({
               }}
             />
           </Grid>
-          <Grid item container justify='center' alignItems='center'>
+          <Grid item container justifyContent='center' alignItems='center'>
             <LoadingButton
               text='Restart'
               classes={{ button: classes.button }}
@@ -110,7 +129,7 @@ export const ErrorModalComponent: React.FC<ErrorModalProps> = ({
             />
           </Grid>
         </Grid>
-      </Grid>
+      </StyledModalContent>
     </Modal>
   )
 }

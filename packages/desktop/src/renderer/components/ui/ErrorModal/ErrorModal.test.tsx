@@ -17,73 +17,69 @@ describe('ErrorModal', () => {
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
-        style="overflow: hidden; padding-right: 0px;"
+        style="padding-right: 1024px; overflow: hidden;"
       >
         <div
           aria-hidden="true"
         />
         <div
-          class="makeStyles-root-9"
+          class="Modalroot MuiModal-root css-1hk9oxe-MuiModal-root"
           role="presentation"
-          style="position: fixed; z-index: 1300; right: 0px; bottom: 0px; top: 0px; left: 0px;"
         >
           <div
             aria-hidden="true"
-            style="z-index: -1; position: fixed; right: 0px; bottom: 0px; top: 0px; left: 0px; background-color: rgba(0, 0, 0, 0.5);"
+            class="MuiBackdrop-root css-i9fmh8-MuiBackdrop-root-MuiModal-backdrop"
+            style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
           />
           <div
-            data-test="sentinelStart"
+            data-testid="sentinelStart"
             tabindex="0"
           />
           <div
-            class="MuiGrid-root makeStyles-centered-18 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-justify-xs-center"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Modalcentered css-6gh8l0-MuiGrid-root"
             tabindex="-1"
           >
             <div
-              class="MuiGrid-root makeStyles-header-12 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item Modalheader css-lx31tv-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center MuiGrid-grid-xs-true"
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-1r61agb-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <h6
-                    class="MuiTypography-root makeStyles-title-11 MuiTypography-subtitle1 MuiTypography-alignCenter"
+                    class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-alignCenter Modaltitle css-jxzupi-MuiTypography-root"
                     style="margin-left: 36px;"
                   >
                     Error
                   </h6>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root makeStyles-actions-14 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item Modalactions css-hoc6b0-MuiGrid-root"
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root makeStyles-root-154"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-c8hoqc-MuiButtonBase-root-MuiIconButton-root"
                       tabindex="0"
                       type="button"
                     >
-                      <span
-                        class="MuiIconButton-label"
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="ClearIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
                       >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root"
-                          focusable="false"
-                          role="presentation"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                          />
-                        </svg>
-                      </span>
+                        <path
+                          d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                        />
+                      </svg>
                       <span
-                        class="MuiTouchRipple-root"
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                       />
                     </button>
                   </div>
@@ -91,68 +87,76 @@ describe('ErrorModal', () => {
               </div>
             </div>
             <div
-              class="MuiGrid-root makeStyles-fullPage-16 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item ModalfullPage css-1h16bbz-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root makeStyles-content-15 MuiGrid-container MuiGrid-item"
+                class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent css-1f064cs-MuiGrid-root"
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root makeStyles-root-1 MuiGrid-container MuiGrid-spacing-xs-3 MuiGrid-direction-xs-column"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-3 MuiGrid-direction-xs-column css-h8xj8w-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-align-items-xs-center"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-67pqv6-MuiGrid-root"
                   >
                     <img
-                      class="makeStyles-icon-2"
+                      class="ErrorModalComponenticon"
                       src="test-file-stub"
                     />
                     <h3
-                      class="MuiTypography-root makeStyles-message-4 MuiTypography-h3"
+                      class="MuiTypography-root MuiTypography-h3 ErrorModalComponentmessage css-ptjqt4-MuiTypography-root"
                     >
                       Test error message
                     </h3>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-2 MuiGrid-item MuiGrid-direction-xs-column"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-2 MuiGrid-direction-xs-column css-10h8c1q-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <p
-                        class="MuiTypography-root makeStyles-info-5 MuiTypography-body2"
+                        class="MuiTypography-root MuiTypography-body2 ErrorModalComponentinfo css-16d47hw-MuiTypography-root"
                       >
                         This error traceback was sent to centralized server.
                       </p>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item"
+                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <div
-                        class="MuiFormControl-root MuiTextField-root MuiFormControl-fullWidth"
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root makeStyles-textfield-6 Mui-disabled Mui-disabled makeStyles-cssDisabled-7 MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline MuiOutlinedInput-multiline makeStyles-stackTrace-3"
+                          class="MuiInputBase-root MuiOutlinedInput-root ErrorModalComponenttextfield MuiInputBase-colorPrimary Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline ErrorModalComponentstackTrace css-yhedpx-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <textarea
                             aria-invalid="false"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled Mui-disabled makeStyles-cssDisabled-7 MuiInputBase-inputMultiline MuiOutlinedInput-inputMultiline"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-inputMultiline css-myj7m7-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
                             id="traceback"
                             rows="10"
+                            style="height: 0px; overflow: hidden;"
                           >
                             Error: Test error message, error traceback
                           </textarea>
+                          <textarea
+                            aria-hidden="true"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-inputMultiline css-myj7m7-MuiInputBase-input-MuiOutlinedInput-input"
+                            readonly=""
+                            style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding: 0px; width: 100%;"
+                            tabindex="-1"
+                          />
                           <fieldset
                             aria-hidden="true"
-                            class="PrivateNotchedOutline-root-216 MuiOutlinedInput-notchedOutline"
-                            style="padding-left: 8px;"
+                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="PrivateNotchedOutline-legend-217"
-                              style="width: 0px;"
+                              class="css-ihdtdm"
                             >
-                              <span>
+                              <span
+                                class="notranslate"
+                              >
                                 ​
                               </span>
                             </legend>
@@ -161,20 +165,16 @@ describe('ErrorModal', () => {
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item css-capmjd-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-button-8"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium ErrorModalComponentbutton css-sx27b8-MuiButtonBase-root-MuiButton-root"
                         tabindex="0"
                         type="button"
                       >
+                        Restart
                         <span
-                          class="MuiButton-label"
-                        >
-                          Restart
-                        </span>
-                        <span
-                          class="MuiTouchRipple-root"
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                         />
                       </button>
                     </div>
@@ -184,7 +184,7 @@ describe('ErrorModal', () => {
             </div>
           </div>
           <div
-            data-test="sentinelEnd"
+            data-testid="sentinelEnd"
             tabindex="0"
           />
         </div>

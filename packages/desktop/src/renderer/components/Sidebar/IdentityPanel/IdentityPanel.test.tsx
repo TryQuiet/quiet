@@ -12,7 +12,7 @@ describe('IdentityPanel', () => {
     const factory = await getFactory(store)
 
     const community: Community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const result = renderComponent(
@@ -29,37 +29,32 @@ describe('IdentityPanel', () => {
       <body>
         <div>
           <div
-            class="makeStyles-root-1"
+            class="css-1c9y83e"
           >
             <span
-              aria-disabled="false"
-              class="MuiButtonBase-root MuiButton-root makeStyles-button-2 MuiButton-text"
+              class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1skytee-MuiButtonBase-root-MuiButton-root"
               data-testid="settings-panel-button"
               role="button"
               tabindex="0"
             >
-              <span
-                class="MuiButton-label makeStyles-buttonLabel-3"
+              <h4
+                class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
               >
-                <h4
-                  class="MuiTypography-root makeStyles-nickname-4 MuiTypography-h4"
-                >
-                  Community_1
-                </h4>
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall"
-                  focusable="false"
-                  role="presentation"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
-                  />
-                </svg>
-              </span>
+                community_1
+              </h4>
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                data-testid="ExpandMoreIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+                />
+              </svg>
               <span
-                class="MuiTouchRipple-root"
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
               />
             </span>
           </div>
@@ -83,35 +78,30 @@ describe('IdentityPanel', () => {
       <body>
         <div>
           <div
-            class="makeStyles-root-85"
+            class="css-1c9y83e"
           >
             <span
-              aria-disabled="false"
-              class="MuiButtonBase-root MuiButton-root makeStyles-button-86 MuiButton-text"
+              class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1skytee-MuiButtonBase-root-MuiButton-root"
               data-testid="settings-panel-button"
               role="button"
               tabindex="0"
             >
-              <span
-                class="MuiButton-label makeStyles-buttonLabel-87"
+              <h4
+                class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
+              />
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                data-testid="ExpandMoreIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
               >
-                <h4
-                  class="MuiTypography-root makeStyles-nickname-88 MuiTypography-h4"
+                <path
+                  d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
                 />
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall"
-                  focusable="false"
-                  role="presentation"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
-                  />
-                </svg>
-              </span>
+              </svg>
               <span
-                class="MuiTouchRipple-root"
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
               />
             </span>
           </div>
@@ -145,35 +135,30 @@ describe('IdentityPanel', () => {
       <body>
         <div>
           <div
-            class="makeStyles-root-169"
+            class="css-1c9y83e"
           >
             <span
-              aria-disabled="false"
-              class="MuiButtonBase-root MuiButton-root makeStyles-button-170 MuiButton-text"
+              class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1skytee-MuiButtonBase-root-MuiButton-root"
               data-testid="settings-panel-button"
               role="button"
               tabindex="0"
             >
-              <span
-                class="MuiButton-label makeStyles-buttonLabel-171"
+              <h4
+                class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
+              />
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                data-testid="ExpandMoreIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
               >
-                <h4
-                  class="MuiTypography-root makeStyles-nickname-172 MuiTypography-h4"
+                <path
+                  d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
                 />
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall"
-                  focusable="false"
-                  role="presentation"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
-                  />
-                </svg>
-              </span>
+              </svg>
               <span
-                class="MuiTouchRipple-root"
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
               />
             </span>
           </div>

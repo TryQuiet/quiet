@@ -1,41 +1,66 @@
 import React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
-import LinearProgress from '@material-ui/core/LinearProgress'
-import Typography from '@material-ui/core/Typography'
+import { styled } from '@mui/material/styles'
+
+import Grid from '@mui/material/Grid'
+import LinearProgress from '@mui/material/LinearProgress'
+import Typography from '@mui/material/Typography'
 
 import 'react-alice-carousel/lib/alice-carousel.css'
 
 import Icon from '../ui/Icon/Icon'
 import icon from '../../static/images/zcash/logo-lockup--circle.svg'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'Loading'
+
+const classes = {
+  root: `${PREFIX}root`,
+  icon: `${PREFIX}icon`,
+  svg: `${PREFIX}svg`,
+  progressBarContainer: `${PREFIX}progressBarContainer`,
+  progressBar: `${PREFIX}progressBar`,
+  carouselContainer: `${PREFIX}carouselContainer`,
+  messageContainer: `${PREFIX}messageContainer`,
+  message: `${PREFIX}message`
+}
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.root}`]: {
     width: '100vw',
     height: '100vh',
     WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag'
   },
-  icon: {
+
+  [`& .${classes.icon}`]: {
     width: 285,
     height: 67
   },
-  svg: {
+
+  [`& .${classes.svg}`]: {
     width: 100,
     height: 100
   },
-  progressBarContainer: {
+
+  [`& .${classes.progressBarContainer}`]: {
     width: 254
   },
-  progressBar: {
+
+  [`& .${classes.progressBar}`]: {
     backgroundColor: theme.palette.colors.lushSky
   },
-  carouselContainer: {
+
+  [`& .${classes.carouselContainer}`]: {
     marginTop: theme.spacing(5)
   },
-  messageContainer: {
+
+  [`& .${classes.messageContainer}`]: {
     marginTop: 16
   },
-  message: {
+
+  [`& .${classes.message}`]: {
     color: theme.palette.colors.darkGray,
     fontSize: 16
   }
@@ -46,10 +71,9 @@ interface LoadingProps {
 }
 
 export const Loading: React.FC<LoadingProps> = ({ message }) => {
-  const classes = useStyles({})
   return (
-    <Grid className={classes.root} container direction='column' justify='center' alignItems='center'>
-      <Grid container item justify='center'>
+    <StyledGrid className={classes.root} container direction='column' justifyContent='center' alignItems='center'>
+      <Grid container item justifyContent='center'>
         <Icon className={classes.icon} src={icon} />
       </Grid>
       <Grid className={classes.progressBarContainer} item>
@@ -60,7 +84,7 @@ export const Loading: React.FC<LoadingProps> = ({ message }) => {
           {message}
         </Typography>
       </Grid>
-    </Grid>
+    </StyledGrid>
   )
 }
 

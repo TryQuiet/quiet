@@ -9,11 +9,12 @@ import { InitCommunityPayload } from '../communities.types'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { getCurrentTime } from '../../messages/utils/message.utils'
 import { connectionSelectors } from '../../appConnection/connection.selectors'
+import { networkSelectors } from '../../network/network.selectors'
 
 export function* initCommunities(): Generator {
   const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
 
-  const initializedCommunities = yield* select(connectionSelectors.initializedCommunities)
+  const initializedCommunities = yield* select(networkSelectors.initializedCommunities)
   for (const community of joinedCommunities) {
     if (!initializedCommunities[community.id]) {
       yield* put(communitiesActions.launchCommunity(community.id))

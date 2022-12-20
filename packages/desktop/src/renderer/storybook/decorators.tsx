@@ -1,6 +1,6 @@
 import React from 'react'
 import { Provider } from 'react-redux'
-import { ThemeProvider } from '@material-ui/core'
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 
 import theme from '../theme'
 
@@ -11,7 +11,9 @@ export const withStore = store => Story => (
 )
 
 export const withTheme = Story => (
-  <ThemeProvider theme={theme}>
-    <Story />
-  </ThemeProvider>
+  <StyledEngineProvider injectFirst>
+    <ThemeProvider theme={theme}>
+      <Story />
+    </ThemeProvider>
+  </StyledEngineProvider>
 )

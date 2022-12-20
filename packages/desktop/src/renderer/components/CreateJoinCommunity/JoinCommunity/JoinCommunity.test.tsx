@@ -46,7 +46,7 @@ describe('join community', () => {
 
     // Click redirecting link
     const link = screen.getByTestId('JoinCommunityLink')
-    userEvent.click(link)
+    await userEvent.click(link)
 
     // Confirm user is being redirected to create community
     const createCommunityDictionary = CreateCommunityDictionary()
@@ -82,8 +82,8 @@ describe('join community', () => {
     // Enter community address and hit button
     const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const joinCommunityButton = screen.getByText(dictionary.button)
-    userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
-    userEvent.click(joinCommunityButton)
+    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+    await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
     const createUsernameTitle = await screen.findByText('Register a username')
@@ -91,7 +91,7 @@ describe('join community', () => {
 
     // Close username registration modal
     const closeButton = await screen.findByTestId('createUsernameModalActions')
-    userEvent.click(closeButton)
+    await userEvent.click(closeButton)
     expect(joinCommunityTitle).toBeVisible()
   })
 
@@ -116,11 +116,11 @@ describe('join community', () => {
     const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
 
-    userEvent.type(textInput, registrarUrl)
+    await userEvent.type(textInput, registrarUrl)
 
     const submitButton = result.getByText('Continue')
     expect(submitButton).toBeEnabled()
-    userEvent.click(submitButton)
+    await userEvent.click(submitButton)
 
     await waitFor(() => expect(handleCommunityAction).toBeCalledWith(registrarUrl))
   })
@@ -146,11 +146,11 @@ describe('join community', () => {
     const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
 
-    userEvent.type(textInput, registrarUrl)
+    await userEvent.type(textInput, registrarUrl)
 
     const submitButton = result.getByText('Continue')
     expect(submitButton).toBeEnabled()
-    userEvent.click(submitButton)
+    await userEvent.click(submitButton)
 
     await waitFor(() => expect(handleCommunityAction).toBeCalledWith(registrarUrl.trim()))
   })
@@ -178,8 +178,8 @@ describe('join community', () => {
     const input = screen.getByPlaceholderText('Invite code')
     const button = screen.getByText('Continue')
 
-    userEvent.type(input, url)
-    userEvent.click(button)
+    await userEvent.type(input, url)
+    await userEvent.click(button)
 
     await waitFor(() => expect(handleCommunityAction).not.toBeCalled())
 
@@ -206,7 +206,7 @@ describe('join community', () => {
     const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
 
-    userEvent.type(textInput, 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad')
+    await userEvent.type(textInput, 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad')
 
     const submitButton = result.getByTestId('continue-joinCommunity')
     expect(submitButton).not.toBeNull()
@@ -228,11 +228,11 @@ describe('join community', () => {
     />)
 
     const textInput = screen.getByPlaceholderText(inviteLinkField().fieldProps.placeholder)
-    userEvent.type(textInput, 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad')
+    await userEvent.type(textInput, 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad')
 
     const submitButton = screen.getByText('Continue')
     expect(submitButton).toBeEnabled()
-    userEvent.click(submitButton)
+    await userEvent.click(submitButton)
 
     await act(async () => {})
 
@@ -272,7 +272,7 @@ describe('join community', () => {
     const switchLink = result.queryByText('create a new community')
     expect(switchLink).not.toBeNull()
 
-    userEvent.click(switchLink)
+    await userEvent.click(switchLink)
 
     expect(handleRedirection).toBeCalled()
   })

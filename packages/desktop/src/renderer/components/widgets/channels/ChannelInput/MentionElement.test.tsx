@@ -19,27 +19,27 @@ describe('MentionElement', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root makeStyles-root-1 makeStyles-highlight-5 MuiGrid-container"
+            class="MuiGrid-root MuiGrid-container MentionElementroot MentionElementhighlight css-1mfbfa2-MuiGrid-root"
           >
             <div
-              class="MuiGrid-root makeStyles-avatarDiv-2 MuiGrid-item"
+              class="MuiGrid-root MuiGrid-item MentionElementavatarDiv css-13i4rnv-MuiGrid-root"
             >
               <div
-                class="makeStyles-alignAvatar-3"
+                class="MentionElementalignAvatar"
               >
                 Jdenticon
               </div>
             </div>
             <div
-              class="MuiGrid-root makeStyles-data-4 MuiGrid-item MuiGrid-grid-xs-true"
+              class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true MentionElementdata css-1vd824g-MuiGrid-root"
             >
               <h5
-                class="MuiTypography-root makeStyles-name-6 MuiTypography-h5"
+                class="MuiTypography-root MuiTypography-h5 MentionElementname css-11l3dv4-MuiTypography-root"
               >
                 test
               </h5>
               <p
-                class="MuiTypography-root makeStyles-caption-7 makeStyles-captionHighlight-8 MuiTypography-body2"
+                class="MuiTypography-root MuiTypography-body2 MentionElementcaption MentionElementcaptionHighlight css-16d47hw-MuiTypography-root"
               >
                 Participant in #test
               </p>
@@ -64,27 +64,27 @@ describe('MentionElement', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root makeStyles-root-142 MuiGrid-container"
+            class="MuiGrid-root MuiGrid-container MentionElementroot css-1mfbfa2-MuiGrid-root"
           >
             <div
-              class="MuiGrid-root makeStyles-avatarDiv-143 MuiGrid-item"
+              class="MuiGrid-root MuiGrid-item MentionElementavatarDiv css-13i4rnv-MuiGrid-root"
             >
               <div
-                class="makeStyles-alignAvatar-144"
+                class="MentionElementalignAvatar"
               >
                 Jdenticon
               </div>
             </div>
             <div
-              class="MuiGrid-root makeStyles-data-145 MuiGrid-item MuiGrid-grid-xs-true"
+              class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true MentionElementdata css-1vd824g-MuiGrid-root"
             >
               <h5
-                class="MuiTypography-root makeStyles-name-147 MuiTypography-h5"
+                class="MuiTypography-root MuiTypography-h5 MentionElementname css-11l3dv4-MuiTypography-root"
               >
                 test
               </h5>
               <p
-                class="MuiTypography-root makeStyles-caption-148 MuiTypography-body2"
+                class="MuiTypography-root MuiTypography-body2 MentionElementcaption css-16d47hw-MuiTypography-root"
               >
                 Participant in #test
               </p>

@@ -11,39 +11,39 @@ describe('Index', () => {
       <body>
         <div>
           <div
-            class="makeStyles-wrapper-3 makeStyles-root-1"
+            class="WindowWrapperwrapper Indexroot css-7im36y"
           >
             <div
-              class="MuiGrid-root makeStyles-root-4 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Loadingroot css-1po2vjj-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
+                class="MuiGrid-root MuiGrid-container MuiGrid-item css-1h16bbz-MuiGrid-root"
               >
                 <img
-                  class="makeStyles-icon-5"
+                  class="Loadingicon"
                   src="test-file-stub"
                 />
               </div>
               <div
-                class="MuiGrid-root makeStyles-progressBarContainer-7 MuiGrid-item"
-              >
-                <div
-                  class="MuiLinearProgress-root MuiLinearProgress-colorPrimary makeStyles-progressBar-8 MuiLinearProgress-indeterminate"
-                  role="progressbar"
-                >
-                  <div
-                    class="MuiLinearProgress-bar MuiLinearProgress-barColorPrimary MuiLinearProgress-bar1Indeterminate"
-                  />
-                  <div
-                    class="MuiLinearProgress-bar MuiLinearProgress-bar2Indeterminate MuiLinearProgress-barColorPrimary"
-                  />
-                </div>
-              </div>
-              <div
-                class="MuiGrid-root makeStyles-messageContainer-10 MuiGrid-item"
+                class="MuiGrid-root MuiGrid-item LoadingprogressBarContainer css-13i4rnv-MuiGrid-root"
               >
                 <span
-                  class="MuiTypography-root makeStyles-message-11 MuiTypography-caption"
+                  class="MuiLinearProgress-root MuiLinearProgress-colorPrimary MuiLinearProgress-indeterminate LoadingprogressBar css-1sitdca-MuiLinearProgress-root"
+                  role="progressbar"
+                >
+                  <span
+                    class="MuiLinearProgress-bar MuiLinearProgress-barColorPrimary MuiLinearProgress-bar1Indeterminate css-16ee83t-MuiLinearProgress-bar1"
+                  />
+                  <span
+                    class="MuiLinearProgress-bar MuiLinearProgress-barColorPrimary MuiLinearProgress-bar2Indeterminate css-1f9igvw-MuiLinearProgress-bar2"
+                  />
+                </span>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-item LoadingmessageContainer css-13i4rnv-MuiGrid-root"
+              >
+                <span
+                  class="MuiTypography-root MuiTypography-caption Loadingmessage css-1d4bzk2-MuiTypography-root"
                 >
                   Launching node
                 </span>
@@ -61,39 +61,39 @@ describe('Index', () => {
       <body>
         <div>
           <div
-            class="makeStyles-wrapper-168 makeStyles-root-166"
+            class="WindowWrapperwrapper Indexroot css-7im36y"
           >
             <div
-              class="MuiGrid-root makeStyles-root-169 MuiGrid-container MuiGrid-direction-xs-column MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Loadingroot css-1po2vjj-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-justify-xs-center"
+                class="MuiGrid-root MuiGrid-container MuiGrid-item css-1h16bbz-MuiGrid-root"
               >
                 <img
-                  class="makeStyles-icon-170"
+                  class="Loadingicon"
                   src="test-file-stub"
                 />
               </div>
               <div
-                class="MuiGrid-root makeStyles-progressBarContainer-172 MuiGrid-item"
-              >
-                <div
-                  class="MuiLinearProgress-root MuiLinearProgress-colorPrimary makeStyles-progressBar-173 MuiLinearProgress-indeterminate"
-                  role="progressbar"
-                >
-                  <div
-                    class="MuiLinearProgress-bar MuiLinearProgress-barColorPrimary MuiLinearProgress-bar1Indeterminate"
-                  />
-                  <div
-                    class="MuiLinearProgress-bar MuiLinearProgress-bar2Indeterminate MuiLinearProgress-barColorPrimary"
-                  />
-                </div>
-              </div>
-              <div
-                class="MuiGrid-root makeStyles-messageContainer-175 MuiGrid-item"
+                class="MuiGrid-root MuiGrid-item LoadingprogressBarContainer css-13i4rnv-MuiGrid-root"
               >
                 <span
-                  class="MuiTypography-root makeStyles-message-176 MuiTypography-caption"
+                  class="MuiLinearProgress-root MuiLinearProgress-colorPrimary MuiLinearProgress-indeterminate LoadingprogressBar css-1sitdca-MuiLinearProgress-root"
+                  role="progressbar"
+                >
+                  <span
+                    class="MuiLinearProgress-bar MuiLinearProgress-barColorPrimary MuiLinearProgress-bar1Indeterminate css-16ee83t-MuiLinearProgress-bar1"
+                  />
+                  <span
+                    class="MuiLinearProgress-bar MuiLinearProgress-barColorPrimary MuiLinearProgress-bar2Indeterminate css-1f9igvw-MuiLinearProgress-bar2"
+                  />
+                </span>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-item LoadingmessageContainer css-13i4rnv-MuiGrid-root"
+              >
+                <span
+                  class="MuiTypography-root MuiTypography-caption Loadingmessage css-1d4bzk2-MuiTypography-root"
                 >
                   Launching node
                 </span>

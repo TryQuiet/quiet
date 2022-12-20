@@ -1,45 +1,50 @@
 import React, { useState } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import CloseIcon from '@material-ui/icons/Close'
+import { styled } from '@mui/material/styles'
+
+import CloseIcon from '@mui/icons-material/Close'
 import { FileContent, imagesExtensions } from '@quiet/state-manager'
 import Tooltip from '../../ui/Tooltip/Tooltip'
 import Icon from '../../ui/Icon/Icon'
 import fileIcon from '../../../static/images/fileIcon.svg'
 
-export interface FilePreviewData {
-  [id: string]: FileContent
+const PREFIX = 'UploadFilesPreviewsComponent'
+
+const classes = {
+  inputFiles: `${PREFIX}inputFiles`,
+  wrapper: `${PREFIX}wrapper`,
+  image: `${PREFIX}image`,
+  fileIcon: `${PREFIX}fileIcon`,
+  fileIconContainer: `${PREFIX}fileIconContainer`,
+  closeIconContainer: `${PREFIX}closeIconContainer`,
+  closeIcon: `${PREFIX}closeIcon`,
+  imageContainer: `${PREFIX}imageContainer`,
+  tooltip: `${PREFIX}tooltip`
 }
 
-export interface FilePreviewComponentProps {
-  fileData: FileContent
-  onClick: () => void
-}
+const StyledFilePreviewComponent = styled('div')(() => ({
+  display: 'inline-block',
+  float: 'left',
+  cursor: 'pointer',
 
-const useStyles = makeStyles(() => ({
-  inputFiles: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flexStart',
-    alignItems: 'baseline',
-    alignContent: 'stretch',
-    paddingRight: '50px'
-  },
-  wrapper: {
+  [`& .${classes.wrapper}`]: {
     margin: '0 0 10px 10px',
     width: '64px',
     height: '64px'
   },
-  image: {
+
+  [`& .${classes.image}`]: {
     width: '64px',
     height: '64px',
     borderRadius: '15%',
     objectFit: 'cover'
   },
-  fileIcon: {
+
+  [`& .${classes.fileIcon}`]: {
     width: '32px',
     height: '40px'
   },
-  fileIconContainer: {
+
+  [`& .${classes.fileIconContainer}`]: {
     width: '64px',
     height: '64px',
     borderRadius: '15%',
@@ -48,7 +53,8 @@ const useStyles = makeStyles(() => ({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  closeIconContainer: {
+
+  [`& .${classes.closeIconContainer}`]: {
     position: 'absolute',
     margin: '0 0 0 51px', // Left margin is equal fileContainer width minus half the own width
     padding: '0',
@@ -61,7 +67,8 @@ const useStyles = makeStyles(() => ({
       backgroundColor: '#dddddd'
     }
   },
-  closeIcon: {
+
+  [`& .${classes.closeIcon}`]: {
     position: 'relative',
     left: '50%',
     top: '50%',
@@ -72,26 +79,36 @@ const useStyles = makeStyles(() => ({
     },
     width: '17px'
   },
-  imageContainer: {
-    display: 'inline-block',
-    float: 'left',
-    cursor: 'pointer'
-  },
-  tooltip: {
+
+  [`& .${classes.tooltip}`]: {
     marginTop: '8px'
   }
 }))
 
+const StyledUploadFilesPreviewsComponent = styled('div')(() => ({
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  justifyContent: 'flexStart',
+  alignItems: 'baseline',
+  alignContent: 'stretch',
+  paddingRight: '50px'
+}))
+
+export interface FilePreviewData {
+  [id: string]: FileContent
+}
+
+export interface FilePreviewComponentProps {
+  fileData: FileContent
+  onClick: () => void
+}
+
 const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, onClick }) => {
   const [showClose, setShowClose] = useState(false)
-
-  const classes = useStyles({})
-
   const imageType = imagesExtensions.includes(fileData.ext)
 
   return (
-    <div
-      className={classes.imageContainer}
+    <StyledFilePreviewComponent
       onMouseLeave={() => {
         setShowClose(false)
       }}
@@ -114,7 +131,7 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
           )}
         </div>
       </Tooltip>
-    </div>
+    </StyledFilePreviewComponent>
   )
 }
 
@@ -127,13 +144,12 @@ const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
   filesData,
   removeFile
 }) => {
-  const classes = useStyles({})
   return (
-    <div className={classes.inputFiles}>
+    <StyledUploadFilesPreviewsComponent>
       {Object.entries(filesData).map(fileData => (
-        <FilePreviewComponent fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />
+        <FilePreviewComponent key={fileData[0]} fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />
       ))}
-    </div>
+    </StyledUploadFilesPreviewsComponent>
   )
 }
 

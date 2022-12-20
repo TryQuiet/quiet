@@ -11,29 +11,29 @@ describe('MessagesDivider', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+            class="MuiGrid-root MuiGrid-container css-1nj3j97-MuiGrid-root"
           >
             <div
-              class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+              class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
             >
               <div
-                class="makeStyles-divider-2"
+                class="MessagesDividerdivider"
               />
             </div>
             <div
-              class="MuiGrid-root makeStyles-titleDiv-3 MuiGrid-item"
+              class="MuiGrid-root MuiGrid-item MessagesDividertitleDiv css-13i4rnv-MuiGrid-root"
             >
               <p
-                class="MuiTypography-root MuiTypography-body1"
+                class="MuiTypography-root MuiTypography-body1 css-ghvhpl-MuiTypography-root"
               >
                 test
               </p>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+              class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
             >
               <div
-                class="makeStyles-divider-2"
+                class="MessagesDividerdivider"
               />
             </div>
           </div>

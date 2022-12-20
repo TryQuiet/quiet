@@ -1,16 +1,29 @@
 import React from 'react'
 
-import Grid from '@material-ui/core/Grid'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import Typography from '@material-ui/core/Typography'
-import { makeStyles, Theme } from '@material-ui/core/styles'
+import { styled } from '@mui/material/styles'
 
-const useStyles = makeStyles<Theme, SpinnerLoaderStylesProps>(theme => ({
-  message: {
+import Grid from '@mui/material/Grid'
+import CircularProgress from '@mui/material/CircularProgress'
+import Typography from '@mui/material/Typography'
+
+const PREFIX = 'SpinnerLoader'
+
+const classes = {
+  message: `${PREFIX}message`,
+  spinner: `${PREFIX}spinner`
+}
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.message}`]: {
     marginTop: theme.spacing(2),
     color: theme.palette.primary.main
   },
-  spinner: props => ({
+
+  [`& .${classes.spinner}`]: props => ({
     color: props.color ? props.color : theme.palette.colors.white
   })
 }))
@@ -33,9 +46,8 @@ export const SpinnerLoader: React.FC<SpinnerLoaderProps> = ({
   className
 }) => {
   const stylesProps: SpinnerLoaderStylesProps = { color: color }
-  const classes = useStyles(stylesProps)
   return (
-    <Grid container justify='center' alignItems='center' direction='column' className={className} data-testid={'spinnerLoader'}>
+    <StyledGrid container justifyContent='center' alignItems='center' direction='column' className={className} data-testid={'spinnerLoader'}>
       <CircularProgress color='inherit' className={classes.spinner} size={size} />
       <Typography
         variant='caption'
@@ -44,7 +56,7 @@ export const SpinnerLoader: React.FC<SpinnerLoaderProps> = ({
         align='center'>
         {message}
       </Typography>
-    </Grid>
+    </StyledGrid>
   )
 }
 

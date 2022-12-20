@@ -11,7 +11,7 @@ describe('Drop zone component', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true"
+            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true css-zb6m38-MuiGrid-root"
             data-testid="drop-zone"
           />
         </div>

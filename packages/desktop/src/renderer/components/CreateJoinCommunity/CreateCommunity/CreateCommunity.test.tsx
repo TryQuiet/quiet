@@ -46,7 +46,7 @@ describe('Create community', () => {
 
     // Click redirecting link
     const link = screen.getByTestId('CreateCommunityLink')
-    userEvent.click(link)
+    await userEvent.click(link)
 
     // Confirm user is being redirected to join community
     const joinCommunityDictionary = JoinCommunityDictionary()
@@ -88,8 +88,8 @@ describe('Create community', () => {
     // Enter community address and hit button
     const createCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const createCommunityButton = screen.getByText(dictionary.button)
-    userEvent.type(createCommunityInput, 'rockets')
-    userEvent.click(createCommunityButton)
+    await userEvent.type(createCommunityInput, 'rockets')
+    await userEvent.click(createCommunityButton)
 
     // Confirm user is being redirected to username registration
     const createUsernameTitle = await screen.findByText('Register a username')
@@ -97,7 +97,7 @@ describe('Create community', () => {
 
     // Close username registration modal
     const closeButton = await screen.findByTestId('createUsernameModalActions')
-    userEvent.click(closeButton)
+    await userEvent.click(closeButton)
     expect(createCommunityTitle).toBeVisible()
   })
 
@@ -117,11 +117,11 @@ describe('Create community', () => {
     const communityName = 'communityname'
     const textInput = result.queryByPlaceholderText('Community name')
     expect(textInput).not.toBeNull()
-    userEvent.type(textInput, communityName)
+    await userEvent.type(textInput, communityName)
     const submitButton = result.queryByRole('button')
     expect(submitButton).not.toBeNull()
     expect(submitButton).toBeEnabled()
-    userEvent.click(submitButton)
+    await userEvent.click(submitButton)
     await waitFor(() => expect(handleCommunityAction).toBeCalledWith(communityName))
   })
 
@@ -149,7 +149,7 @@ describe('Create community', () => {
 
     const input = screen.getByPlaceholderText('Community name')
 
-    userEvent.type(input, name)
+    await userEvent.type(input, name)
     expect(screen.getByTestId('createCommunityNameWarning')).toHaveTextContent(`Your community will be created as #${corrected}`)
   })
 
@@ -175,8 +175,8 @@ describe('Create community', () => {
     const input = screen.getByPlaceholderText('Community name')
     const button = screen.getByText('Continue')
 
-    userEvent.type(input, name)
-    userEvent.click(button)
+    await userEvent.type(input, name)
+    await userEvent.click(button)
 
     await waitFor(() => expect(handleCommunityAction).not.toBeCalled())
 
@@ -218,11 +218,11 @@ describe('Create community', () => {
     />)
 
     const textInput = screen.getByPlaceholderText(communityNameField().fieldProps.placeholder)
-    userEvent.type(textInput, 'rockets')
+    await userEvent.type(textInput, 'rockets')
 
     const submitButton = screen.getByRole('button')
     expect(submitButton).toBeEnabled()
-    userEvent.click(submitButton)
+    await userEvent.click(submitButton)
 
     await act(async () => { })
 
@@ -263,7 +263,7 @@ describe('Create community', () => {
     const switchLink = result.queryByText('join a community')
     expect(switchLink).not.toBeNull()
 
-    userEvent.click(switchLink)
+    await userEvent.click(switchLink)
 
     expect(handleRedirection).toBeCalled()
     expect(handleCommunityAction).not.toBeCalled()

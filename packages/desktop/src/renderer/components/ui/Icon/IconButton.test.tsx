@@ -15,19 +15,15 @@ describe('IconButton', () => {
       <body>
         <div>
           <button
-            class="MuiButtonBase-root MuiIconButton-root makeStyles-root-1"
+            class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-c8hoqc-MuiButtonBase-root-MuiIconButton-root"
             tabindex="0"
             type="button"
           >
+            <div>
+              Icon
+            </div>
             <span
-              class="MuiIconButton-label"
-            >
-              <div>
-                Icon
-              </div>
-            </span>
-            <span
-              class="MuiTouchRipple-root"
+              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
             />
           </button>
         </div>

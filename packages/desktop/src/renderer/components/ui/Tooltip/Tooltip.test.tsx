@@ -28,7 +28,7 @@ describe('Tooltip', () => {
 
   it('renders component with optional props', () => {
     const result = renderComponent(
-      <Tooltip title='test-title' interactive noWrap>
+      <Tooltip title='test-title' interactive>
         <TooltipContent />
       </Tooltip>
     )

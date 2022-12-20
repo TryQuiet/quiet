@@ -12,22 +12,26 @@ export const runBackend = async (): Promise<any> => {
   const program = new Command()
 
   program
-  .requiredOption('-d, --appDataPath <appDataPath>', 'app data path')
-  .requiredOption('-p, --dataPort <dataPort>', 'data port')
-  .requiredOption('-t, --httpTunnelPort <httpTunnelPort>', 'httpTunnelPort')
-  .requiredOption('-s, --socksPort <socksPort>', 'socks port')
-  .requiredOption('-c, --controlPort <controlPort>', 'control port')
-  .requiredOption('-a, --torPath <torPath>', 'tor binary path')
+  .requiredOption('-dpth, --dataPath <adataPath>', 'data directory path')
+  .requiredOption('-dprt, --dataPort <dataPort>', 'data port')
+  .option('-t, --torBinary <torBinary>', 'tor binary path')
+  .option('-ac, --authCookie <authCookie>', 'tor authentication cookie')
+  .option('-cp, --controlPort <controlPort>', 'tor control port')
+  .option('-htp, --httpTunnelPort <httpTunnelPort>', 'http tunnel port')
 
   program.parse(process.argv)
   const options = program.opts()
 
   const connectionsManager: ConnectionsManager = new ConnectionsManager({
     socketIOPort: options.dataPort,
+    httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
+    torAuthCookie: options.authCookie ? options.authCookie : null,
+    torControlPort: options.controlPort ? options.controlPort : null,
+    torBinaryPath: options.torBinary ? options.torBinary : null,
+    torResourcesPath: null,
     options: {
       env: {
-        appDataPath: options.appDataPath,
-        resourcesPath: options.torPath
+        appDataPath: options.dataPath,
       },
       createPaths: false,
     }

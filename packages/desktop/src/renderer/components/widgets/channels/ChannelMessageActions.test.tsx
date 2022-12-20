@@ -10,25 +10,25 @@ describe('ChannelMessageActions', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center"
+            class="MuiGrid-root MuiGrid-container css-1g9kzhb-MuiGrid-root"
           >
             <img
               src="test-file-stub"
             />
             <div
-              class="MuiGrid-root MuiGrid-item"
+              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
             >
               <span
-                class="MuiTypography-root makeStyles-warrning-1 MuiTypography-caption"
+                class="MuiTypography-root MuiTypography-caption ChannelMessageActionswarrning css-1d4bzk2-MuiTypography-root"
               >
                 Coudn't send.
               </span>
             </div>
             <div
-              class="MuiGrid-root makeStyles-pointer-3 MuiGrid-item"
+              class="MuiGrid-root MuiGrid-item ChannelMessageActionspointer css-13i4rnv-MuiGrid-root"
             >
               <span
-                class="MuiTypography-root makeStyles-tryAgain-2 MuiTypography-caption"
+                class="MuiTypography-root MuiTypography-caption ChannelMessageActionstryAgain css-1d4bzk2-MuiTypography-root"
               >
                 Try again
               </span>

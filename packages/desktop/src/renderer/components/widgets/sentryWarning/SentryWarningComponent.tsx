@@ -1,20 +1,34 @@
 import React from 'react'
-import { makeStyles, Grid, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Grid, Typography } from '@mui/material'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 import Modal from '../../ui/Modal/Modal'
 
-const useStyles = makeStyles(theme => ({
-  main: {
-    backgroundColor: theme.palette.colors.white,
-    padding: '0px 32px'
-  },
-  title: {
+const PREFIX = 'SentryWarningComponent'
+
+const classes = {
+  title: `${PREFIX}title`,
+  fullWidth: `${PREFIX}fullWidth`,
+  button: `${PREFIX}button`
+}
+
+const StyledModalContent = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  backgroundColor: theme.palette.colors.white,
+  padding: '0px 32px',
+
+  [`& .${classes.title}`]: {
     marginTop: 24
   },
-  fullWidth: {
+
+  [`& .${classes.fullWidth}`]: {
     paddingBottom: 25
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     width: 139,
     height: 60,
     backgroundColor: theme.palette.colors.purple,
@@ -35,10 +49,9 @@ export interface SentryWarningProps {
 }
 
 export const SentryWarningComponent: React.FC<SentryWarningProps> = ({ open, handleClose }) => {
-  const classes = useStyles({})
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
-      <Grid container className={classes.main} direction='column'>
+      <StyledModalContent container direction='column'>
         <>
           <Grid className={classes.title} item>
             <Grid item>
@@ -67,7 +80,7 @@ export const SentryWarningComponent: React.FC<SentryWarningProps> = ({ open, han
             />
           </Grid>
         </>
-      </Grid>
+      </StyledModalContent>
     </Modal>
   )
 }

@@ -1,13 +1,17 @@
 import React from 'react'
+import { styled } from '@mui/material/styles'
 import * as R from 'ramda'
-
-import { makeStyles } from '@material-ui/core'
-
 import Tooltip from '../Tooltip/Tooltip'
-import Typography from '@material-ui/core/Typography'
+import Typography from '@mui/material/Typography'
 
-const useStyles = makeStyles({
-  content: {}
+const PREFIX = 'Elipsis'
+
+const classes = {
+  content: `${PREFIX}content`
+}
+
+const StyledTooltip = styled(Tooltip)({
+  [`& .${classes.content}`]: {}
 })
 
 interface ElipsisProps {
@@ -23,10 +27,8 @@ export const Elipsis: React.FC<ElipsisProps> = ({
   tooltipPlacement = 'bottom-start',
   interactive = false
 }) => {
-  const classes = useStyles({})
-
   return (
-    <Tooltip
+    <StyledTooltip
       title={content}
       interactive={interactive}
       placement={tooltipPlacement}
@@ -34,7 +36,7 @@ export const Elipsis: React.FC<ElipsisProps> = ({
       <Typography variant='caption' className={classes.content}>
         {R.concat(content.substring(0, length), content.length > length ? '...' : '')}
       </Typography>
-    </Tooltip>
+    </StyledTooltip>
   )
 }
 

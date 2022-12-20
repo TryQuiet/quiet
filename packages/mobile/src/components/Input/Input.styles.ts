@@ -1,5 +1,6 @@
 import { Platform, Pressable, TextInput } from 'react-native'
 import styled, { css } from 'styled-components/native'
+import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const StyledTextInput = styled(TextInput)`
   text-align-vertical: center;
@@ -15,11 +16,11 @@ export const StyledTextInput = styled(TextInput)`
 export const StyledWrapper = styled(Pressable)<{
   disabled: boolean
 }>`
-  ${({ theme, disabled }) => css`
+  ${({ disabled }) => css`
     background-color: ${disabled
-      ? theme.palette.input.backgroundDisabled
-      : theme.palette.input.backgroundDefault};
-    border-color: ${theme.palette.input.border};
+      ? defaultTheme.palette.input.backgroundDisabled
+      : defaultTheme.palette.input.backgroundDefault};
+    border-color: ${defaultTheme.palette.input.border};
     border-radius: 4px;
     border-width: 1px;
     padding-left: 15px;

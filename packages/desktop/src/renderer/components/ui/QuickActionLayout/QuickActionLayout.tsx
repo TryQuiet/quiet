@@ -1,18 +1,37 @@
 import React, { ReactElement } from 'react'
 
-import ClearIcon from '@material-ui/icons/Clear'
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
+import { styled } from '@mui/material/styles'
+
+import ClearIcon from '@mui/icons-material/Clear'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
 
 import IconButton from '../Icon/IconButton'
 
-const useStyles = makeStyles(theme => ({
-  alignAvatarPopover: {
+const PREFIX = 'QuickActionLayout'
+
+const classes = {
+  alignAvatarPopover: `${PREFIX}alignAvatarPopover`,
+  button: `${PREFIX}button`,
+  container: `${PREFIX}container`,
+  usernamePopover: `${PREFIX}usernamePopover`,
+  closeIcon: `${PREFIX}closeIcon`,
+  info: `${PREFIX}info`,
+  infoDiv: `${PREFIX}infoDiv`,
+  avatar: `${PREFIX}avatar`
+}
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.alignAvatarPopover}`]: {
     marginTop: theme.spacing(2)
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     marginTop: theme.spacing(3),
     width: 260,
     height: 60,
@@ -25,28 +44,34 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.colors.purple,
     textTransform: 'none'
   },
-  container: {
+
+  [`&.${classes.container}`]: {
     height: 400,
     width: 320
   },
-  usernamePopover: {
+
+  [`& .${classes.usernamePopover}`]: {
     marginTop: theme.spacing(1),
     fontSize: '1.2rem',
     fontWeight: 'bold'
   },
-  closeIcon: {
+
+  [`& .${classes.closeIcon}`]: {
     margin: theme.spacing(2)
   },
-  info: {
+
+  [`& .${classes.info}`]: {
     color: theme.palette.colors.quietBlue
   },
-  infoDiv: {
+
+  [`& .${classes.infoDiv}`]: {
     textAlign: 'center',
     marginTop: theme.spacing(1.2),
     marginLeft: theme.spacing(4),
     marginRight: theme.spacing(4)
   },
-  avatar: {
+
+  [`& .${classes.avatar}`]: {
     marginTop: theme.spacing(2)
   }
 }))
@@ -70,15 +95,14 @@ export const QuickActionLayout: React.FC<QuickActionLayoutProps> = ({
   warning,
   onClick
 }) => {
-  const classes = useStyles({})
   return (
-    <Grid
+    <StyledGrid
       container
       className={classes.container}
       direction='column'
-      justify='flex-start'
+      justifyContent='flex-start'
       alignItems='center'>
-      <Grid className={classes.closeIcon} container item direction='row' justify='flex-start'>
+      <Grid className={classes.closeIcon} container item direction='row' justifyContent='flex-start'>
         <IconButton onClick={handleClose}>
           <ClearIcon />
         </IconButton>
@@ -110,7 +134,7 @@ export const QuickActionLayout: React.FC<QuickActionLayoutProps> = ({
           {warning}
         </Typography>
       </Grid>
-    </Grid>
+    </StyledGrid>
   )
 }
 

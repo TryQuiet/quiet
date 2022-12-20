@@ -1,4 +1,4 @@
-import backend, { DataServer, ConnectionsManager } from '@quiet/backend'
+import backend, { torBinForPlatform, torDirForPlatform } from '@quiet/backend'
 import logger from './logger'
 import { Command } from 'commander'
 const program = new Command()
@@ -11,27 +11,26 @@ const webcrypto = new Crypto()
 global.crypto = webcrypto
 
 program
-  .option('-s, --socksPort <number>', 'Socks proxy port')
-  .option('-h, --httpTunnelPort <number>', 'Tor http tunnel port')
   .option('-a, --appDataPath <string>', 'Path of application data directory')
-  .option('-c, --controlPort <number>', 'Tor control port')
   .option('-d, --socketIOPort <number>', 'Socket io data server port')
   .option('-r, --resourcesPath <string>', 'Application resources path')
-  .option('-l, --libp2pHiddenService <number>', 'Libp2p tor hidden service port')
 
 program.parse(process.argv)
 const options = program.opts()
 
 export const runBackend = async () => {
   const isDev = process.env.NODE_ENV === 'development'
+
   const resourcesPath = isDev ? null : options.resourcesPath.trim()
 
+  console.log('connectionsManager')
   const connectionsManager = new backend.ConnectionsManager({
     socketIOPort: options.socketIOPort,
+    torBinaryPath: torBinForPlatform(resourcesPath),
+    torResourcesPath: torDirForPlatform(resourcesPath),
     options: {
       env: {
         appDataPath: `${options.appDataPath.trim()}/Quiet`,
-        resourcesPath
       }
 }
   })

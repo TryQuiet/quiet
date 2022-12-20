@@ -1,13 +1,35 @@
 import React from 'react'
+import { styled } from '@mui/material/styles'
 import * as Yup from 'yup'
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import { makeStyles } from '@material-ui/core/styles'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 
 import { Identity } from '@quiet/state-manager'
 
-const useStyles = makeStyles((theme) => ({
-  createUsernameContainer: {
+const PREFIX = 'AccountSettingsForm'
+
+const classes = {
+  createUsernameContainer: `${PREFIX}createUsernameContainer`,
+  container: `${PREFIX}container`,
+  textField: `${PREFIX}textField`,
+  icon: `${PREFIX}icon`,
+  usernameIcon: `${PREFIX}usernameIcon`,
+  link: `${PREFIX}link`,
+  info: `${PREFIX}info`,
+  title: `${PREFIX}title`,
+  iconBackground: `${PREFIX}iconBackground`,
+  iconBox: `${PREFIX}iconBox`,
+  adornedEnd: `${PREFIX}adornedEnd`,
+  copyInput: `${PREFIX}copyInput`,
+  addressDiv: `${PREFIX}addressDiv`
+}
+
+const StyledGrid = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.createUsernameContainer}`]: {
     paddingTop: 16,
     paddingBottom: 16,
     paddingLeft: 24,
@@ -15,54 +37,66 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 4,
     backgroundColor: theme.palette.colors.veryLightGray
   },
-  container: {
+
+  [`& .${classes.container}`]: {
     marginTop: theme.spacing(1)
   },
-  textField: {
+
+  [`& .${classes.textField}`]: {
     width: '100%',
     height: 60
   },
-  icon: {
+
+  [`& .${classes.icon}`]: {
     width: 60,
     height: 60,
     justifyContent: 'center'
   },
-  usernameIcon: {
+
+  [`& .${classes.usernameIcon}`]: {
     width: 32,
     height: 32,
     justifyContent: 'center'
   },
-  link: {
+
+  [`& .${classes.link}`]: {
     cursor: 'pointer',
     color: theme.palette.colors.linkBlue
   },
-  info: {
+
+  [`& .${classes.info}`]: {
     color: theme.palette.colors.darkGray
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     marginBottom: 24
   },
-  iconBackground: {
+
+  [`& .${classes.iconBackground}`]: {
     margin: 0,
     padding: 0
   },
-  iconBox: {
+
+  [`& .${classes.iconBox}`]: {
     margin: 0,
     padding: 5,
     width: 60,
     height: 56,
     backgroundColor: theme.palette.colors.gray30
   },
-  adornedEnd: {
+
+  [`& .${classes.adornedEnd}`]: {
     padding: 0
   },
-  copyInput: {
+
+  [`& .${classes.copyInput}`]: {
     borderRight: `1px solid ${theme.palette.colors.inputGray}`,
     paddingTop: 18,
     paddingBottom: 18,
     paddingLeft: 16
   },
-  addressDiv: {
+
+  [`& .${classes.addressDiv}`]: {
     marginTop: 24
   }
 }))
@@ -85,20 +119,19 @@ interface AccountSettingsFormProps {
 export const AccountSettingsForm: React.FC<AccountSettingsFormProps> = ({
   user
 }) => {
-  const classes = useStyles({})
   return (
-    <Grid container direction='column'>
+    <StyledGrid container direction='column'>
       <Grid item className={classes.title}>
         <Typography variant='h3'>Account</Typography>
       </Grid>
-      <Grid container justify='center'>
+      <Grid container justifyContent='center'>
         <Grid container xs item className={classes.createUsernameContainer}>
           <Grid item xs={12}>
             <Typography variant='h4'>@{user ? user.nickname : ''}</Typography>
           </Grid>
         </Grid>
       </Grid>
-    </Grid>
+    </StyledGrid>
   )
 }
 

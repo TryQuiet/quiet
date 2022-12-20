@@ -3,6 +3,134 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.8.5...@quiet/mobile@0.10.0) (2022-12-19)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [0.10.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.8.4...@quiet/mobile@0.10.0-alpha.0) (2022-12-14)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [0.9.0](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.8.4...@quiet/mobile@0.9.0) (2022-12-14)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [0.9.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.8.4...@quiet/mobile@0.9.0-alpha.0) (2022-12-14)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+## [0.8.5](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.8.4...@quiet/mobile@0.8.5) (2022-12-09)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+## [0.8.5-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@0.8.4...@quiet/mobile@0.8.5-alpha.0) (2022-12-09)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+## [0.8.4](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@0.7.0-alpha.3...@quiet/mobile@0.8.4) (2022-11-21)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+## [0.8.3](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@0.7.0-alpha.3...@quiet/mobile@0.8.3) (2022-11-21)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+## [0.8.2](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@0.7.0-alpha.3...@quiet/mobile@0.8.2) (2022-11-21)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+## [0.8.1](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@0.7.0-alpha.3...@quiet/mobile@0.8.1) (2022-11-21)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [0.8.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@0.7.0-alpha.3...@quiet/mobile@0.8.0) (2022-11-18)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [0.8.0-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@0.7.0-alpha.3...@quiet/mobile@0.8.0-alpha.2) (2022-11-18)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [0.8.0-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@0.7.0-alpha.3...@quiet/mobile@0.8.0-alpha.1) (2022-11-18)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [0.8.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@0.7.0-alpha.3...@quiet/mobile@0.8.0-alpha.0) (2022-11-18)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [0.7.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@0.7.0-alpha.3...@quiet/mobile@0.7.0) (2022-11-18)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [0.7.0-alpha.3](https://github.com/TryQuiet/monorepo/compare/@quiet/mobile@0.6.0...@quiet/mobile@0.7.0-alpha.3) (2022-11-18)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
 # [0.6.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@0.5.3-alpha.16...@quiet/mobile@0.6.0) (2022-10-31)
 
 **Note:** Version bump only for package @quiet/mobile

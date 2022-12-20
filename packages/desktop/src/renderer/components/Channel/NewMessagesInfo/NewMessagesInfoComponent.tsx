@@ -1,16 +1,31 @@
 import React from 'react'
-import { makeStyles, Typography } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Typography } from '@mui/material'
 import Icon from '../../ui/Icon/Icon'
 import arrowDown from '../../../static/images/arrowDown.svg'
 
-const useStyles = makeStyles(theme => ({
-  wrapper: {
+const PREFIX = 'NewMessagesInfoComponent'
+
+const classes = {
+  wrapper: `${PREFIX}wrapper`,
+  indicator: `${PREFIX}indicator`,
+  label: `${PREFIX}label`,
+  icon: `${PREFIX}icon`
+}
+
+const Root = styled('div')((
+  {
+    theme
+  }
+) => ({
+  [`&.${classes.wrapper}`]: {
     width: '100%',
     position: 'absolute',
     bottom: 20,
     zIndex: 9
   },
-  indicator: {
+
+  [`& .${classes.indicator}`]: {
     margin: '0 auto',
     display: 'flex',
     backgroundColor: theme.palette.colors.purple,
@@ -21,13 +36,15 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     cursor: 'pointer'
   },
-  label: {
+
+  [`& .${classes.label}`]: {
     color: theme.palette.colors.white,
     fontSize: '0.855rem',
     whiteSpace: 'pre-line',
     lineHeight: '21px'
   },
-  icon: {
+
+  [`& .${classes.icon}`]: {
     width: 16,
     height: 16,
     margin: '0px 0px 0px 8px'
@@ -43,14 +60,13 @@ export const NewMessagesInfoComponent: React.FC<NewMessagesInfoComponentProps> =
   scrollBottom,
   show
 }) => {
-  const classes = useStyles({})
   return (
-    <div className={classes.wrapper} style={{ display: show ? 'block' : 'none' }}>
+    <Root className={classes.wrapper} style={{ display: show ? 'block' : 'none' }}>
       <div className={classes.indicator} onClick={scrollBottom}>
         <Typography className={classes.label}>New messages</Typography>
         <Icon src={arrowDown} className={classes.icon} />
       </div>
-    </div>
+    </Root>
   )
 }
 

@@ -14,6 +14,9 @@ import { DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '../utils/functions/fileData'
 
+const ElectronStore = require('electron-store')
+ElectronStore.initRenderer()
+
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
 
@@ -337,13 +340,17 @@ app.on('ready', async () => {
   await createWindow()
 
   mainWindow.webContents.on('did-finish-load', () => {
-    const [width, height] = splash.getSize()
-    mainWindow.setSize(width, height)
-    const [splashWindowX, splashWindowY] = splash.getPosition()
-    mainWindow.setPosition(splashWindowX, splashWindowY)
+    if (!splash.isDestroyed()) {
+      const [width, height] = splash.getSize()
+      mainWindow.setSize(width, height)
 
-    splash.destroy()
-    mainWindow.show()
+      const [splashWindowX, splashWindowY] = splash.getPosition()
+      mainWindow.setPosition(splashWindowX, splashWindowY)
+
+      splash.destroy()
+      mainWindow.show()
+    }
+
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
     fs.mkdirSync(temporaryFilesDirectory, { recursive: true })
     fs.readdir(temporaryFilesDirectory, (err, files) => {
@@ -357,10 +364,6 @@ app.on('ready', async () => {
   })
 
   const forkArgvs = [
-    '-s', `${ports.socksPort}`,
-    '-l', `${ports.libp2pHiddenService}`,
-    '-c', `${ports.controlPort}`,
-    '-h', `${ports.httpTunnelPort}`,
     '-d', `${ports.dataServer}`,
     '-a', `${appDataPath}`,
     '-r', `${process.resourcesPath}`

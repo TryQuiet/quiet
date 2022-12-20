@@ -1,16 +1,24 @@
 import React, { useEffect, useState } from 'react'
-import { makeStyles } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
 import { DisplayableMessage } from '@quiet/state-manager'
 import { UseModalTypeWrapper } from '../../../../containers/hooks'
 import UploadedFileModal from './UploadedImagePreview'
 import { UploadedFilename, UploadedImagePlaceholder } from '../UploadedImagePlaceholder/UploadedImagePlaceholder'
 
-const useStyles = makeStyles(() => ({
-  image: {
+const PREFIX = 'UploadedImage'
+
+const classes = {
+  image: `${PREFIX}image`,
+  container: `${PREFIX}container`
+}
+
+const Root = styled('div')(() => ({
+  [`& .${classes.image}`]: {
     maxWidth: '100%',
     display: 'block'
   },
-  container: {
+
+  [`& .${classes.container}`]: {
     maxWidth: '400px',
     cursor: 'pointer'
   }
@@ -26,8 +34,6 @@ export interface UploadedImageProps {
 }
 
 export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedFileModal }) => {
-  const classes = useStyles({})
-
   const [showImage, setShowImage] = useState<boolean>(false)
 
   const { cid, path, name, ext } = message.media
@@ -52,7 +58,7 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedF
   }, [showImage])
 
   return (
-    <>
+    (<Root>
       {path ? (
         <>
           <div
@@ -80,7 +86,7 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedF
           ext={ext}
         />
       )}
-    </>
+    </Root>)
   )
 }
 

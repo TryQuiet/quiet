@@ -26,7 +26,8 @@ describe('Add new channel', () => {
     ioMock.mockImplementation(() => socket)
   })
 
-  it('user submits corrected name', async () => {
+  it('entered channel name is slugified', async () => {
+    const user = userEvent.setup()
     const { store, runSaga } = await prepareStore(
       {},
       socket // Fork State-manager's sagas
@@ -43,11 +44,13 @@ describe('Add new channel', () => {
 
     store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
 
-    const input = screen.getByPlaceholderText('Enter a channel name')
-    const button = screen.getByText('Create Channel')
+    const input = await screen.findByPlaceholderText('Enter a channel name')
+    await user.type(input, 'Some channel NAME  ')
 
-    userEvent.type(input, 'Some channel NAME  ')
-    userEvent.click(button)
+    // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
+    await act(async () => await waitFor(() => { user.click(screen.getByText('Create Channel')).catch((e) => { console.error(e) }) }))
+    // Modal should close after user submits channel name
+    expect(screen.queryByDisplayValue('Create a new public channel')).toBeNull()
 
     await act(async () => {
       await runSaga(testSubmittedChannelName).toPromise()
@@ -65,9 +68,9 @@ describe('Add new channel', () => {
     )
 
     const input = screen.getByPlaceholderText('Enter a channel name')
-    const warning = await screen.queryByTestId('createChannelNameWarning')
+    const warning = screen.queryByTestId('createChannelNameWarning')
 
-    userEvent.type(input, 'happy-path')
+    await userEvent.type(input, 'happy-path')
     expect(warning).toBeNull()
   })
 
@@ -86,7 +89,7 @@ describe('Add new channel', () => {
 
     const input = screen.getByPlaceholderText('Enter a channel name')
 
-    userEvent.type(input, name)
+    await userEvent.type(input, name)
     expect(screen.getByTestId('createChannelNameWarning')).toHaveTextContent(`Your channel will be created as #${corrected}`)
   })
 
@@ -104,8 +107,8 @@ describe('Add new channel', () => {
     const input = screen.getByPlaceholderText('Enter a channel name')
     const button = screen.getByText('Create Channel')
 
-    userEvent.type(input, name)
-    userEvent.click(button)
+    await userEvent.type(input, name)
+    await userEvent.click(button)
 
     await waitFor(() => expect(createChannel).not.toBeCalled())
 

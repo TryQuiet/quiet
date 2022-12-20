@@ -3,6 +3,126 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.15.0](https://github.com/TryQuiet/monorepo/compare/@quiet/logger@0.13.4...@quiet/logger@0.15.0) (2022-12-19)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+# [0.15.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/logger@0.13.4...@quiet/logger@0.15.0-alpha.0) (2022-12-14)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+# [0.14.0](https://github.com/ZbayApp/monorepo/compare/@quiet/logger@0.13.4...@quiet/logger@0.14.0) (2022-12-14)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+# [0.14.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/logger@0.13.4...@quiet/logger@0.14.0-alpha.0) (2022-12-14)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+## [0.13.5-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/logger@0.13.4...@quiet/logger@0.13.5-alpha.0) (2022-12-09)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+## [0.13.4](https://github.com/TryQuiet/quiet/compare/@quiet/logger@0.11.1-alpha.0...@quiet/logger@0.13.4) (2022-11-21)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+## [0.13.3](https://github.com/TryQuiet/quiet/compare/@quiet/logger@0.11.1-alpha.0...@quiet/logger@0.13.3) (2022-11-21)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+## [0.13.2](https://github.com/TryQuiet/quiet/compare/@quiet/logger@0.11.1-alpha.0...@quiet/logger@0.13.2) (2022-11-21)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+## [0.13.1](https://github.com/TryQuiet/quiet/compare/@quiet/logger@0.11.1-alpha.0...@quiet/logger@0.13.1) (2022-11-21)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+# [0.13.0](https://github.com/TryQuiet/quiet/compare/@quiet/logger@0.11.1-alpha.0...@quiet/logger@0.13.0) (2022-11-18)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+# [0.13.0-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/logger@0.11.1-alpha.0...@quiet/logger@0.13.0-alpha.2) (2022-11-18)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+# [0.13.0-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/logger@0.11.1-alpha.0...@quiet/logger@0.13.0-alpha.1) (2022-11-18)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+# [0.13.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/logger@0.11.1-alpha.0...@quiet/logger@0.13.0-alpha.0) (2022-11-18)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+# [0.12.0](https://github.com/TryQuiet/quiet/compare/@quiet/logger@0.11.1-alpha.0...@quiet/logger@0.12.0) (2022-11-18)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
+## [0.11.1-alpha.0](https://github.com/TryQuiet/monorepo/compare/@quiet/logger@0.11.0...@quiet/logger@0.11.1-alpha.0) (2022-11-18)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
 # [0.11.0](https://github.com/TryQuiet/quiet/compare/@quiet/logger@0.10.3-alpha.16...@quiet/logger@0.11.0) (2022-10-31)
 
 **Note:** Version bump only for package @quiet/logger

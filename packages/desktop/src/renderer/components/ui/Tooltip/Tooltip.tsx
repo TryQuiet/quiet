@@ -1,15 +1,14 @@
 import React, { ReactElement, ReactFragment } from 'react'
+import { styled, Theme } from '@mui/material/styles'
 import classNames from 'classnames'
 
-import MuiTooltip from '@material-ui/core/Tooltip'
-import { makeStyles } from '@material-ui/core/styles'
+import MuiTooltip, { TooltipProps } from '@mui/material/Tooltip'
 
-const useStyles = makeStyles(theme => ({
-  noWrap: {
-    maxWidth: 'none',
-    filter: 'drop-shadow(0 0 0px #aaaaaa)'
-  },
-  tooltip: {
+// Styling mui tooltip requires workaround: https://mui.com/material-ui/guides/interoperability/#portals
+const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <MuiTooltip {...props} classes={{ popper: className }} />
+), {})(({ theme }) => ({
+  '& .MuiTooltip-tooltip': {
     marginBottom: 5,
     background: theme.palette.colors.trueBlack,
     color: theme.typography.body1.color,
@@ -17,14 +16,15 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: 12,
     paddingLeft: 16,
     paddingRight: 16,
-    borderRadius: 8
-  },
-  text: {
-    color: theme.palette.colors.white,
+    borderRadius: 8,
     fontSize: 12,
-    fontWeight: 500
+    fontWeight: 500,
+
+    '&:first-letter': {
+      textTransform: 'capitalize',
+    }
   },
-  arrow: {
+  '& .MuiTooltip-arrow': {
     '&:before': {
       border: `1px solid ${theme.palette.colors.trueBlack}`
     },
@@ -32,61 +32,47 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-interface TooltipProps {
+interface CustomTooltipProps {
   children: ReactElement
   title?: string
   titleHTML?: ReactFragment
-  noWrap?: boolean
   interactive?: boolean
   className?: string
   placement?: 'bottom' | 'top' | 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end'
   onClick?: (e: React.MouseEvent) => void
 }
 
-export const Tooltip: React.FC<React.ComponentProps<typeof MuiTooltip> & TooltipProps> = ({
+export const Tooltip: React.FC<React.ComponentProps<typeof MuiTooltip> & CustomTooltipProps> = ({
   children,
   title,
   titleHTML,
-  noWrap = false,
   interactive = false,
   className = '',
   placement = 'bottom',
   onClick = () => {},
   ...props
 }) => {
-  const classes = useStyles({})
   return (
     <span onClick={e => onClick(e)}>
-      <MuiTooltip
+      <StyledTooltip
         {...props}
+        className={className}
         title={
           title.length === 0 ? (
             ''
           ) : (
             <React.Fragment>
               {titleHTML || (
-                <span className={classes.text}>
-                  {title ? title.charAt(0).toUpperCase() : ''}
-                  {title ? title.slice(1) : ''}
-                </span>
+                <span>{title}</span>
               )}
             </React.Fragment>
           )
         }
-        classes={{
-          // @ts-ignore
-          arrow: classNames({
-            [classes.arrow]: true
-          }),
-          tooltip: classNames({
-            [classes.noWrap]: noWrap,
-            [classes.tooltip]: true
-          })
-        }}
         placement={placement}
-        arrow>
+        arrow
+        >
         {children}
-      </MuiTooltip>
+      </StyledTooltip>
     </span>
   )
 }

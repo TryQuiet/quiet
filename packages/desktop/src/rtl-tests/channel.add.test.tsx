@@ -1,7 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
-import { screen } from '@testing-library/dom'
+import { screen, waitFor } from '@testing-library/dom'
 import { act } from 'react-dom/test-utils'
 import { take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
@@ -65,7 +65,7 @@ describe('Add new channel', () => {
     )
 
     const addChannel = screen.getByTestId('addChannelButton')
-    userEvent.click(addChannel)
+    await userEvent.click(addChannel)
 
     const title = await screen.findByText('Create a new public channel')
     expect(title).toBeVisible()
@@ -124,15 +124,17 @@ describe('Add new channel', () => {
       </>,
       store
     )
-
+    const user = userEvent.setup()
     const input = screen.getByPlaceholderText('Enter a channel name')
-    userEvent.type(input, channelName.input)
+    await user.type(input, channelName.input)
 
-    const button = screen.getByText('Create Channel')
-    userEvent.click(button)
+    // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
+    await act(async () => await waitFor(() => { user.click(screen.getByText('Create Channel')).catch((e) => { console.error(e) }) }))
+
     await act(async () => {
       await runSaga(testCreateChannelSaga).toPromise()
     })
+
     function* testCreateChannelSaga(): Generator {
       const createChannelAction = yield* take(publicChannels.actions.createChannel)
       expect(createChannelAction.payload.channel.name).toEqual(channelName.output)
@@ -145,9 +147,7 @@ describe('Add new channel', () => {
     expect(createChannelModal).toBeNull()
 
     // Check if newly created channel is present and selected
-    const channelTitle = screen.getByTestId('channelTitle')
-    expect(channelTitle).toHaveTextContent(`#${channelName.output}`)
-
+    expect(screen.getByTestId('channelTitle')).toHaveTextContent(`#${channelName.output}`)
     // Check if sidebar item displays as selected
     const link = screen.getByTestId(`${channelName.output}-link`)
     expect(link).toHaveStyle('backgroundColor: rgb(103, 191, 211)') // lushSky: '#67BFD3'
@@ -158,27 +158,21 @@ describe('Add new channel', () => {
       {},
       socket // Fork state manager's sagas
     )
-
-    store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
-
     const factory = await getFactory(store)
 
     const channel = await factory.create<
       ReturnType<typeof publicChannels.actions.addChannel>['payload']
     >('PublicChannel')
 
-    renderComponent(
-      <>
-        <CreateChannel />
-      </>,
-      store
-    )
+    renderComponent(<CreateChannel />, store)
 
-    const input = screen.getByPlaceholderText('Enter a channel name')
-    userEvent.type(input, channel.channel.name)
+    store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
+
+    const input = await screen.findByPlaceholderText('Enter a channel name')
+    await userEvent.type(input, channel.channel.name)
 
     const button = screen.getByText('Create Channel')
-    userEvent.click(button)
+    await userEvent.click(button)
 
     const error = await screen.findByText(ErrorMessages.CHANNEL_NAME_TAKEN)
     expect(error).toBeVisible()

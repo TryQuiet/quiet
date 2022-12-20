@@ -3,32 +3,16 @@ import { createSelector } from 'reselect'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
-import { connectedPeersAdapter, peersStatsAdapter } from './connection.adapter'
+import { peersStatsAdapter } from './connection.adapter'
+import { connectedPeers } from '../network/network.selectors'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (
   state: StoreState
 ) => state[StoreKeys.Connection]
 
-export const initializedCommunities = createSelector(
-  connectionSlice,
-  (reducerState) => reducerState.initializedCommunities
-)
-
-export const initializedRegistrars = createSelector(
-  connectionSlice,
-  (reducerState) => reducerState.initializedRegistrars
-)
-
 export const lastConnectedTime = createSelector(
   connectionSlice,
   (reducerState) => reducerState.lastConnectedTime
-)
-
-export const connectedPeers = createSelector(
-  connectionSlice,
-  (reducerState) => {
-    return connectedPeersAdapter.getSelectors().selectAll(reducerState.connectedPeers)
-  }
 )
 
 /**
@@ -101,10 +85,7 @@ export const connectedPeersMapping = createSelector(
 )
 
 export const connectionSelectors = {
-  initializedCommunities,
-  initializedRegistrars,
   lastConnectedTime,
-  connectedPeers,
   connectedPeersMapping,
   peerList
 }

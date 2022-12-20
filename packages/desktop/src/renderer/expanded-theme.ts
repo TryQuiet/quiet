@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars-experimental */
-import { Typography, TypographyOptions } from '@material-ui/core/styles/createTypography'
-import { Palette, PaletteOptions } from '@material-ui/core/styles/createPalette'
+import { Typography, TypographyOptions } from '@mui/material/styles/createTypography'
+import { Palette, PaletteOptions } from '@mui/material/styles/createPalette'
 
-declare module '@material-ui/core/styles/createTypography' {
+declare module '@mui/material/styles/createTypography' {
   interface Typography {
     fontStyle: string
     fontWeight: string
@@ -15,7 +15,7 @@ declare module '@material-ui/core/styles/createTypography' {
   }
 }
 
-declare module '@material-ui/core/styles/createPalette' {
+declare module '@mui/material/styles/createPalette' {
   interface Palette {
     colors: { [key: string]: string }
   }

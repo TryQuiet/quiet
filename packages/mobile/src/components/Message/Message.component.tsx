@@ -1,5 +1,5 @@
-import React, { FC } from 'react'
-import { View, Image, StyleSheet, TouchableWithoutFeedback } from 'react-native'
+import React, { FC, ReactNode } from 'react'
+import { View, Image, StyleSheet } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { MessageProps } from './Message.types'
 import Jdenticon from 'react-native-jdenticon'
@@ -8,19 +8,26 @@ import { MessageType, AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage } from '@quiet
 import { UploadedImage } from '../UploadedImage/UploadedImage.component'
 import { UploadedFile } from '../UploadedFile/UploadedFile.component'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
+import Linkify from 'react-linkify'
 
 export const Message: FC<MessageProps & FileActionsProps> = ({
-  data,
+  data, // Set of messages merged by sender
   downloadStatus,
   downloadFile,
   cancelDownload,
   openImagePreview,
+  openUrl,
   pendingMessages
 }) => {
-  const messageDisplayData = data[0]
-  const renderMessage = (message: DisplayableMessage) => {
-    const isPendingMessage = pendingMessages[message.id] !== undefined
+  const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
+    return (
+      <Typography fontSize={14} color={'link'} onPress={ () => openUrl(decoratedHref) } key={key}>
+        {decoratedText}
+      </Typography>
+    )
+  }
 
+  const renderMessage = (message: DisplayableMessage, pending: boolean) => {
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
         const size = message?.media?.size
@@ -40,16 +47,17 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
         )
       default:
         return (
-          <Typography fontSize={14} color={ isPendingMessage ? 'lightGray' : 'main' }>{message.message}</Typography>
-          )
+          <Typography fontSize={14} color={ pending ? 'lightGray' : 'main' }><Linkify componentDecorator={componentDecorator}>{message.message}</Linkify></Typography>
+        )
     }
   }
 
-  const infoMessage = messageDisplayData.type === MessageType.Info
+  const representativeMessage = data[0]
 
-  const pending: boolean = pendingMessages[messageDisplayData.id] !== undefined
+  const info = representativeMessage.type === MessageType.Info
+  const pending: boolean = pendingMessages?.[representativeMessage.id] !== undefined
 
-    return (
+  return (
     <View style={{ flex: 1 }}>
       <View
         style={{
@@ -62,7 +70,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
             alignItems: 'center',
             paddingRight: 15
           }}>
-          {infoMessage ? (
+          {info ? (
             <Image
             resizeMode='cover'
             resizeMethod='resize'
@@ -70,14 +78,14 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
             style={{ width: 37, height: 37 }}
           />
           ) : (
-            <Jdenticon value={messageDisplayData.nickname} size={37} style={{ padding: 0 }} />
+            <Jdenticon value={representativeMessage.nickname} size={37} style={{ padding: 0 }} />
           )}
         </View>
         <View style={{ flex: 8 }}>
           <View style={{ flexDirection: 'row', paddingBottom: 3 }}>
             <View style={{ alignSelf: 'flex-start' }}>
               <Typography fontSize={16} fontWeight={'medium'} color={ pending ? 'lightGray' : 'main' }>
-                {infoMessage ? 'Quiet' : messageDisplayData.nickname}
+                {info ? 'Quiet' : representativeMessage.nickname}
               </Typography>
             </View>
             <View
@@ -87,7 +95,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
                 paddingLeft: 8
               }}>
               <Typography fontSize={14} color={'subtitle'}>
-                {messageDisplayData.date}
+                {representativeMessage.date}
               </Typography>
             </View>
           </View>
@@ -96,7 +104,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
               const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
               return (
                 <View style={outerDivStyle} key={index}>
-                  {renderMessage(message)}
+                  {renderMessage(message, pending)}
                 </View>
               )
             })}

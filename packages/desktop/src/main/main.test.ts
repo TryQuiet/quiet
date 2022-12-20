@@ -24,6 +24,12 @@ const spyGetPorts = jest.spyOn(backendHelpers, 'getPorts')
 jest.spyOn(main, 'isBrowserWindow').mockReturnValue(true)
 jest.spyOn(path, 'join').mockReturnValue('path')
 
+jest.mock('electron-store', () => {
+  return {
+    initRenderer: jest.fn()
+  }
+})
+
 jest.mock('@electron/remote/main', () => {
   return {
     initialize: jest.fn(),
@@ -72,6 +78,7 @@ jest.mock('electron', () => {
         once: mockWindowOnce,
         getTitle: jest.fn(),
         destroy: mockDestroyWindow,
+        isDestroyed: jest.fn(),
         setAlwaysOnTop: mockSetAlwaysOnTop,
         setMovable: mockSetMovable,
         getSize: jest.fn().mockImplementation(() => [600, 800]),

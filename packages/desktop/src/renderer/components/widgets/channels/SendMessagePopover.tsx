@@ -1,6 +1,6 @@
 import React from 'react'
-import Popover from '@material-ui/core/Popover'
-import Jdenticon from 'react-jdenticon'
+import Popover from '@mui/material/Popover'
+import Jdenticon from '../../Jdenticon/Jdenticon'
 import { ISendMessagePopoverProps } from './SendMessagePopover.d'
 import QuickActionLayout from '../../ui/QuickActionLayout/QuickActionLayout'
 

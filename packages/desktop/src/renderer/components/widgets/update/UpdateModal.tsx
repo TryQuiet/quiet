@@ -1,36 +1,54 @@
 import React from 'react'
 
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
+import { styled } from '@mui/material/styles'
+
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
 
 import Icon from '../../ui/Icon/Icon'
 import updateIcon from '../../../static/images/updateIcon.svg'
 import Modal from '../../ui/Modal/Modal'
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    backgroundColor: theme.palette.colors.white,
-    border: 'none'
-  },
-  info: {
+const PREFIX = 'UpdateModal'
+
+const classes = {
+  info: `${PREFIX}info`,
+  button: `${PREFIX}button`,
+  updateIcon: `${PREFIX}updateIcon`,
+  title: `${PREFIX}title`,
+  subTitle: `${PREFIX}subTitle`
+}
+
+const StyledModalContent = styled(Grid)((
+  {
+    theme
+  }
+) => ({
+  backgroundColor: theme.palette.colors.white,
+  border: 'none',
+
+  [`& .${classes.info}`]: {
     marginTop: 38
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     height: 55,
     fontSize: '0.9rem',
     backgroundColor: theme.palette.colors.quietBlue
   },
-  updateIcon: {
+
+  [`& .${classes.updateIcon}`]: {
     width: 102,
     height: 102
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     marginTop: 24,
     marginBottom: 16
   },
-  subTitle: {
+
+  [`& .${classes.subTitle}`]: {
     marginBottom: 32
   }
 }))
@@ -42,26 +60,25 @@ interface UpdateModalProps {
 }
 
 export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, handleUpdate }) => {
-  const classes = useStyles({})
   return (
     <Modal open={open} handleClose={handleClose}>
-      <Grid container direction='column' className={classes.root} alignItems='center' justify='flex-start'>
-        <Grid className={classes.info} container justify='center'>
+      <StyledModalContent container direction='column' alignItems='center' justifyContent='flex-start'>
+        <Grid className={classes.info} container justifyContent='center'>
           <Grid item>
             <Icon src={updateIcon} />
           </Grid>
         </Grid>
-        <Grid container item justify='center'>
+        <Grid container item justifyContent='center'>
           <Grid item className={classes.title}>
             <Typography variant='h3'>Software update</Typography>
           </Grid>
         </Grid>
-        <Grid container item justify='center'>
+        <Grid container item justifyContent='center'>
           <Grid item className={classes.subTitle}>
             <Typography variant='body2'>An update is available for Quiet.</Typography>
           </Grid>
         </Grid>
-        <Grid container spacing={8} justify='center'>
+        <Grid container spacing={8} justifyContent='center'>
           <Grid item xs={4}>
             <Button
               variant='contained'
@@ -76,7 +93,7 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, han
             </Button>
           </Grid>
         </Grid>
-      </Grid>
+      </StyledModalContent>
     </Modal>
   )
 }

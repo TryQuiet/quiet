@@ -149,12 +149,12 @@ export const assertInitializedExistingCommunitiesAndRegistrars = async (
 
   await waitForExpect(() => {
     expect(
-      store.getState().Connection.initializedCommunities[communityId]
+      store.getState().Network.initializedCommunities[communityId]
     ).toBeTruthy()
   })
   await waitForExpect(() => {
     expect(
-      store.getState().Connection.initializedRegistrars[communityId]
+      store.getState().Network.initializedRegistrars[communityId]
     ).toBeTruthy()
   })
 }
@@ -192,7 +192,7 @@ export const assertConnectedToPeers = async (
   await sleep(10_000)
   await waitForExpect(() => {
     expect(
-      store.getState().Connection.connectedPeers.ids.length
+      store.getState().Network.connectedPeers.ids.length
     ).toEqual(count)
   }, 20_000)
 }

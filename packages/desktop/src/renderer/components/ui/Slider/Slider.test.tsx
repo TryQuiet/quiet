@@ -20,52 +20,48 @@ describe('Slider', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-19axq9c-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root makeStyles-title-4 MuiTypography-caption"
+              class="MuiTypography-root MuiTypography-caption Slidertitle css-1d4bzk2-MuiTypography-root"
             >
               this is a title of the slider
             </span>
             <div
-              class="MuiGrid-root MuiGrid-item"
+              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container"
+                class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root makeStyles-label-3 MuiTypography-body2 MuiTypography-displayInline"
+                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-1be0cgg-MuiTypography-root"
                   />
                 </div>
                 <div
-                  class="MuiGrid-root makeStyles-sliderContainer-1 MuiGrid-item MuiGrid-grid-xs-true"
+                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true SlidersliderContainer css-1vd824g-MuiGrid-root"
                 >
                   <span
-                    class="MuiSlider-root makeStyles-sliderRoot-2 MuiSlider-colorPrimary"
+                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1v7afla-MuiSlider-root"
                   >
                     <span
-                      class="MuiSlider-rail"
+                      class="MuiSlider-rail css-14pt78w-MuiSlider-rail"
                     />
                     <span
-                      class="MuiSlider-track makeStyles-track-6"
-                    />
-                    <input
-                      type="hidden"
-                      value="0"
+                      class="MuiSlider-track Slidertrack css-1gv0vcd-MuiSlider-track"
                     />
                     <div
-                      class="makeStyles-root-167"
+                      class="SliderThumbroot css-1o0xzn6"
                     />
                   </span>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root makeStyles-label-3 MuiTypography-body2 MuiTypography-displayInline"
+                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-1be0cgg-MuiTypography-root"
                   />
                 </div>
               </div>
@@ -92,54 +88,50 @@ describe('Slider', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-19axq9c-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root makeStyles-title-171 MuiTypography-caption"
+              class="MuiTypography-root MuiTypography-caption Slidertitle css-1d4bzk2-MuiTypography-root"
             >
               this is a title of the slider
             </span>
             <div
-              class="MuiGrid-root MuiGrid-item"
+              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container"
+                class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root makeStyles-label-170 MuiTypography-body2 MuiTypography-displayInline"
+                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-1be0cgg-MuiTypography-root"
                   >
                     $ MIN
                   </p>
                 </div>
                 <div
-                  class="MuiGrid-root makeStyles-sliderContainer-168 MuiGrid-item MuiGrid-grid-xs-true"
+                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true SlidersliderContainer css-1vd824g-MuiGrid-root"
                 >
                   <span
-                    class="MuiSlider-root makeStyles-sliderRoot-169 MuiSlider-colorPrimary"
+                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1v7afla-MuiSlider-root"
                   >
                     <span
-                      class="MuiSlider-rail"
+                      class="MuiSlider-rail css-14pt78w-MuiSlider-rail"
                     />
                     <span
-                      class="MuiSlider-track makeStyles-track-173"
-                    />
-                    <input
-                      type="hidden"
-                      value="0"
+                      class="MuiSlider-track Slidertrack css-1gv0vcd-MuiSlider-track"
                     />
                     <div
-                      class="makeStyles-root-334"
+                      class="SliderThumbroot css-1o0xzn6"
                     />
                   </span>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root makeStyles-label-170 MuiTypography-body2 MuiTypography-displayInline"
+                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-1be0cgg-MuiTypography-root"
                   >
                     $ MAX
                   </p>
@@ -168,53 +160,49 @@ describe('Slider', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-19axq9c-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root makeStyles-title-338 MuiTypography-caption"
+              class="MuiTypography-root MuiTypography-caption Slidertitle css-1d4bzk2-MuiTypography-root"
             >
               this is a title of the slider
             </span>
             <div
-              class="MuiGrid-root MuiGrid-item"
+              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
             >
               <div
-                class="MuiGrid-root MuiGrid-container"
+                class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root makeStyles-label-337 MuiTypography-body2 MuiTypography-displayInline"
+                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-1be0cgg-MuiTypography-root"
                   />
                 </div>
                 <div
-                  class="MuiGrid-root makeStyles-sliderContainer-335 MuiGrid-item MuiGrid-grid-xs-true"
+                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true SlidersliderContainer css-1vd824g-MuiGrid-root"
                 >
                   <span
-                    class="MuiSlider-root makeStyles-sliderRoot-336 MuiSlider-colorPrimary"
+                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1v7afla-MuiSlider-root"
                   >
                     <span
-                      class="MuiSlider-rail"
+                      class="MuiSlider-rail css-14pt78w-MuiSlider-rail"
                     />
                     <span
-                      class="MuiSlider-track makeStyles-track-340"
+                      class="MuiSlider-track Slidertrack css-1gv0vcd-MuiSlider-track"
                       style="left: 0%; width: 70%;"
                     />
-                    <input
-                      type="hidden"
-                      value="8"
-                    />
                     <div
-                      class="makeStyles-root-501"
+                      class="SliderThumbroot css-1o0xzn6"
                     />
                   </span>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item"
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <p
-                    class="MuiTypography-root makeStyles-label-337 MuiTypography-body2 MuiTypography-displayInline"
+                    class="MuiTypography-root MuiTypography-body2 Sliderlabel css-1be0cgg-MuiTypography-root"
                   />
                 </div>
               </div>

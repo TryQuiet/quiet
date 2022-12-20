@@ -13,7 +13,6 @@ import com.zbaymobile.R
 import com.zbaymobile.Utils.Const
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.concurrent.ThreadLocalRandom
 
 class NotificationHandler(private val context: Context) {
 
@@ -46,28 +45,52 @@ class NotificationHandler(private val context: Context) {
             return
         }
 
-        composeNotification(channel, user, content)
+        // Keep all notifications under application's group
+        val group = context.getString(R.string.app_name)
+        createGroup(group)
+
+        composeNotification(channel, user, content, group)
     }
 
-    private fun composeNotification(channel: String, user: String, content: String) {
-        val id_message = ThreadLocalRandom.current().nextInt(0, 9000 + 1)
-        val id_group = channel.hashCode()
+    private fun createGroup(group: String) {
+        val id = group.hashCode()
 
-        // Group messages per channel
+        val intent = Intent(
+            context,
+            MainActivity::class.java
+        )
+
+        intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+
+        val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+
+        @SuppressLint("LaunchActivityFromNotification") val pendingIntent =
+            PendingIntent.getActivity(context, id, intent, flags)
+
         val groupBuilder: NotificationCompat.Builder = NotificationCompat.Builder(
             context,
             Const.INCOMING_MESSAGES_CHANNEL_ID
         )
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(channel)
+            .setContentTitle(group)
             .setContentText("")
             .setStyle(
                 NotificationCompat.InboxStyle()
-                    .setSummaryText(channel)
+                    .setSummaryText(group)
             )
+            .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setGroupSummary(true)
-            .setGroup(channel)
+            .setGroup(group)
+
+        val notificationManager =
+            NotificationManagerCompat.from(context.applicationContext)
+
+        notificationManager.notify(id, groupBuilder.build())
+    }
+
+    private fun composeNotification(channel: String, user: String, content: String, group: String) {
+        val id = channel.hashCode()
 
         val intent = Intent(
             context,
@@ -87,7 +110,7 @@ class NotificationHandler(private val context: Context) {
         val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 
         @SuppressLint("LaunchActivityFromNotification") val pendingIntent =
-            PendingIntent.getActivity(context, id_message, intent, flags)
+            PendingIntent.getActivity(context, id, intent, flags)
 
         // Display individual notification for each message
         @SuppressLint("LaunchActivityFromNotification") val builder: NotificationCompat.Builder =
@@ -96,9 +119,9 @@ class NotificationHandler(private val context: Context) {
                 Const.INCOMING_MESSAGES_CHANNEL_ID
             )
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(user)
-                .setContentText(content)
-                .setGroup(channel)
+                .setContentTitle(channel)
+                .setContentText("$user: $content")
+                .setGroup(group)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT) // Set the intent that will fire when the user taps the notification
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
@@ -107,11 +130,11 @@ class NotificationHandler(private val context: Context) {
         if (content.length > 64) {
             builder.setStyle(NotificationCompat.BigTextStyle().bigText(content))
         }
+
         val notificationManager =
             NotificationManagerCompat.from(context.applicationContext)
 
-        notificationManager.notify(id_group, groupBuilder.build())
-        notificationManager.notify(id_message, builder.build())
+        notificationManager.notify(id, builder.build())
     }
 
 }

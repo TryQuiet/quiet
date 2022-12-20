@@ -1,56 +1,58 @@
 import React from 'react'
 import theme from '../../../theme'
-import { MuiThemeProvider } from '@material-ui/core/styles'
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { WelcomeMessage } from './WelcomeMessage'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('WelcomeMessage', () => {
   it('renders component', () => {
     const result = renderComponent(
-      <MuiThemeProvider theme={theme}>
-        <WelcomeMessage message={'random message'} timestamp={'string'} />
-      </MuiThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <WelcomeMessage message={'random message'} timestamp={'string'} />
+        </ThemeProvider>
+      </StyledEngineProvider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <li
-            class="MuiListItem-root-9 makeStyles-wrapper-2 MuiListItem-gutters-16"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding WelcomeMessagewrapper css-eob61c-MuiListItem-root"
           >
             <div
-              class="MuiListItemText-root-20 makeStyles-messageCard-1 MuiListItemText-multiline-21"
+              class="MuiListItemText-root MuiListItemText-multiline WelcomeMessagemessageCard css-konndc-MuiListItemText-root"
             >
               <div
-                class="MuiGrid-root-26 MuiGrid-container-27 MuiGrid-wrap-xs-nowrap-33 MuiGrid-align-items-xs-flex-start-36"
+                class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root-26 makeStyles-avatar-4 MuiGrid-item-28"
+                  class="MuiGrid-root MuiGrid-item WelcomeMessageavatar css-13i4rnv-MuiGrid-root"
                 >
                   <img
-                    class="makeStyles-icon-7"
+                    class="WelcomeMessageicon"
                     src="test-file-stub"
                   />
                 </div>
                 <div
-                  class="MuiGrid-root-26 MuiGrid-container-27 MuiGrid-item-28 MuiGrid-justify-xs-space-between-46"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item css-9pwih8-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root-26 MuiGrid-container-27 MuiGrid-item-28 MuiGrid-wrap-xs-nowrap-33 MuiGrid-align-items-xs-flex-start-36 MuiGrid-grid-xs-true-60"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-1unmp8r-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root-26 MuiGrid-item-28"
+                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <p
-                        class="MuiTypography-root-129 makeStyles-username-3 MuiTypography-body1-131 MuiTypography-colorTextPrimary-154"
+                        class="MuiTypography-root MuiTypography-body1 WelcomeMessageusername css-11qbl00-MuiTypography-root"
                       >
                         Quiet
                       </p>
                     </div>
                     <div
-                      class="MuiGrid-root-26 MuiGrid-item-28"
+                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <p
-                        class="MuiTypography-root-129 makeStyles-time-8 MuiTypography-body1-131"
+                        class="MuiTypography-root MuiTypography-body1 WelcomeMessagetime css-ghvhpl-MuiTypography-root"
                       >
                         string
                       </p>
@@ -59,10 +61,10 @@ describe('WelcomeMessage', () => {
                 </div>
               </div>
               <div
-                class="MuiGrid-root-26 makeStyles-messageInput-6 MuiGrid-item-28"
+                class="MuiGrid-root MuiGrid-item WelcomeMessagemessageInput css-13i4rnv-MuiGrid-root"
               >
                 <p
-                  class="MuiTypography-root-129 makeStyles-message-5 MuiTypography-body2-130"
+                  class="MuiTypography-root MuiTypography-body2 WelcomeMessagemessage css-16d47hw-MuiTypography-root"
                 >
                   random message
                 </p>

@@ -78,13 +78,15 @@ export const getFactory = async (store: Store) => {
         privateKey: '4dcebbf395c0e9415bc47e52c96fcfaf4bd2485a516f45118c2477036b45fc0b'
       },
       nickname: factory.sequence('Identity.nickname', n => `user_${n}`),
+      userCertificate: undefined,
       // 21.09.2022 - may be useful for testing purposes
       joinTimestamp: 1663747464000
     },
     {
       afterBuild: async (action: ReturnType<typeof identity.actions.addNewIdentity>) => {
+        const requestCertificate = action.payload.userCertificate === undefined
         const community = communities.selectors.selectEntities(store.getState())[action.payload.id]
-        if (community.CA) {
+        if (requestCertificate && community.CA) {
           const userCertData = await createUserCertificateTestHelper(
             {
               nickname: action.payload.nickname,

@@ -10,7 +10,6 @@ import { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
 const Sidebar = () => {
   const dispatch = useDispatch()
 
-  const joinChannelModal = useModal(ModalName.joinChannel)
   const createChannelModal = useModal(ModalName.createChannel)
   const accountSettingsModal = useModal(ModalName.accountSettingsModal)
 
@@ -39,8 +38,7 @@ const Sidebar = () => {
     unreadChannels: unreadChannels,
     setCurrentChannel: setCurrentChannel,
     currentChannel: currentChannel,
-    createChannelModal: createChannelModal,
-    joinChannelModal: joinChannelModal
+    createChannelModal: createChannelModal
   }
 
   return <SidebarComponent {...identityPanelProps} {...channelsPanelProps} />

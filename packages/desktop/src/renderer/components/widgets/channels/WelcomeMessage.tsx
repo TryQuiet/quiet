@@ -1,50 +1,73 @@
 import React from 'react'
+import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
-import { makeStyles } from '@material-ui/core/styles'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import ListItem from '@mui/material/ListItem'
+import ListItemText from '@mui/material/ListItemText'
 
 import zbayLogo from '../../../static/images/zcash/zbay-square-logo.svg'
 import Icon from '../../ui/Icon/Icon'
 
 import { IWelcomeMessageProps } from './WelcomeMessage.d'
 
-const useStyles = makeStyles((theme) => ({
-  messageCard: {
+const PREFIX = 'WelcomeMessage'
+
+const classes = {
+  messageCard: `${PREFIX}messageCard`,
+  wrapper: `${PREFIX}wrapper`,
+  username: `${PREFIX}username`,
+  avatar: `${PREFIX}avatar`,
+  message: `${PREFIX}message`,
+  messageInput: `${PREFIX}messageInput`,
+  icon: `${PREFIX}icon`,
+  time: `${PREFIX}time`
+}
+
+const StyledListItem = styled(ListItem)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.messageCard}`]: {
     padding: 0
   },
-  wrapper: {
+
+  [`&.${classes.wrapper}`]: {
     backgroundColor: theme.palette.colors.white
   },
 
-  username: {
+  [`& .${classes.username}`]: {
     fontSize: 16,
     fontWeight: 500,
     marginTop: -4,
     marginRight: 5
   },
-  avatar: {
+
+  [`& .${classes.avatar}`]: {
     marginRight: 10
   },
-  message: {
+
+  [`& .${classes.message}`]: {
     marginTop: 14,
     marginLeft: -4,
     whiteSpace: 'pre-line',
     wordBreak: 'break-word'
   },
-  messageInput: {
+
+  [`& .${classes.messageInput}`]: {
     marginTop: -35,
     marginLeft: 50
   },
-  icon: {
+
+  [`& .${classes.icon}`]: {
     width: 36,
     height: 36,
     borderRadius: 4
   },
-  time: {
+
+  [`& .${classes.time}`]: {
     color: theme.palette.colors.lightGray,
     fontSize: 14,
     marginTop: -4,
@@ -56,10 +79,9 @@ export const WelcomeMessage: React.FC<IWelcomeMessageProps> = ({
   message,
   timestamp
 }) => {
-  const classes = useStyles({})
   const username = 'Quiet'
   return (
-    <ListItem
+    <StyledListItem
       className={classNames({
         [classes.wrapper]: true
       })}
@@ -71,14 +93,14 @@ export const WelcomeMessage: React.FC<IWelcomeMessageProps> = ({
           <Grid
             container
             direction="row"
-            justify="flex-start"
+            justifyContent="flex-start"
             alignItems="flex-start"
             wrap={'nowrap'}
           >
             <Grid item className={classes.avatar}>
               <Icon className={classes.icon} src={zbayLogo} />
             </Grid>
-            <Grid container item direction="row" justify="space-between">
+            <Grid container item direction="row" justifyContent="space-between">
               <Grid container item xs alignItems="flex-start" wrap="nowrap">
                 <Grid item>
                   <Typography color="textPrimary" className={classes.username}>
@@ -102,7 +124,7 @@ export const WelcomeMessage: React.FC<IWelcomeMessageProps> = ({
           </Grid>
         }
       />
-    </ListItem>
+    </StyledListItem>
   )
 }
 

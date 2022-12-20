@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react'
 
-import { makeStyles } from '@material-ui/core/styles'
-import { Grid } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import { Grid } from '@mui/material'
 
 import Page from '../ui/Page/Page'
 import PageHeader from '../ui/Page/PageHeader'
@@ -35,13 +35,14 @@ import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoCompo
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 
-const useStyles = makeStyles(theme => ({
-  root: {},
-  messages: {
-    position: 'relative',
-    height: 0,
-    backgroundColor: theme.palette.colors.white
+const ChannelMessagesWrapperStyled = styled(Grid)((
+  {
+    theme
   }
+) => ({
+  position: 'relative',
+  height: 0,
+  backgroundColor: theme.palette.colors.white
 }))
 
 export interface ChannelComponentProps {
@@ -71,9 +72,9 @@ export interface ChannelComponentProps {
   isCommunityInitialized: boolean
   handleClipboardFiles?: (arg: ArrayBuffer, ext: string, name: string) => void
   uploadedFileModal?: ReturnType<
-  UseModalTypeWrapper<{
-    src: string
-  }>['types']
+    UseModalTypeWrapper<{
+      src: string
+    }>['types']
   >
 }
 
@@ -107,15 +108,13 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   downloadFile,
   cancelDownload
 }) => {
-  const classes = useStyles({})
-
   const [lastSeenMessage, setLastSeenMessage] = useState<string>()
   const [newMessagesInfo, setNewMessagesInfo] = useState<boolean>(false)
 
   const [infoClass, setInfoClass] = useState<string>(null)
 
   const [scrollPosition, setScrollPosition] = React.useState(1)
-  const [scrollHeight, setScrollHeight] = React.useState(0)
+  const memoizedScrollHeight = React.useRef<number>()
 
   const onResize = React.useCallback(() => {
     scrollBottom()
@@ -125,7 +124,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   const scrollBottom = () => {
     if (!scrollbarRef.current) return
     setNewMessagesInfo(false)
-    setScrollHeight(0)
+    memoizedScrollHeight.current = 0
     scrollbarRef.current?.scrollTo({
       behavior: 'auto',
       top: Math.abs(scrollbarRef.current?.clientHeight - scrollbarRef.current?.scrollHeight)
@@ -136,13 +135,12 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     // Send message and files
     onInputEnter(message)
     // Go back to the bottom if scroll is at the top or in the middle
-    scrollBottom()
+    setScrollPosition(1) // bottom
   }
 
   /* Get scroll position and save it to the state as 0 (top), 1 (bottom) or -1 (middle) */
   const onScroll = React.useCallback(() => {
     const top = scrollbarRef.current?.scrollTop === 0
-
     const bottom =
       Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) <=
       Math.floor(scrollbarRef.current?.clientHeight)
@@ -155,7 +153,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     if (bottom) {
       setNewMessagesInfo(false)
     }
-
     setScrollPosition(position)
   }, [])
 
@@ -167,7 +164,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     }
     // Keep scroll position when new chunk of messages is being loaded
     if (scrollbarRef.current && scrollPosition === 0) {
-      scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight - scrollHeight
+      scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight - memoizedScrollHeight.current
     }
   }, [messages])
 
@@ -176,7 +173,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
     if (scrollbarRef.current && scrollPosition === 0) {
       /* Cache scroll height before loading new messages (to keep the scroll position after re-rendering) */
-      setScrollHeight(scrollbarRef.current.scrollHeight)
+      memoizedScrollHeight.current = scrollbarRef.current.scrollHeight
       lazyLoading(true)
     }
   }, [scrollPosition])
@@ -192,7 +189,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   useEffect(() => {
     if (
       Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) - 1 >=
-        Math.floor(scrollbarRef.current?.clientHeight) &&
+      Math.floor(scrollbarRef.current?.clientHeight) &&
       lastSeenMessage !== newestMessage.id
     ) {
       setNewMessagesInfo(true)
@@ -224,7 +221,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
         />
       </PageHeader>
       <DropZoneComponent channelName={channelName} handleFileDrop={handleFileDrop}>
-        <Grid item xs className={classes.messages}>
+        <ChannelMessagesWrapperStyled item xs>
           <NewMessagesInfoComponent scrollBottom={scrollBottom} show={newMessagesInfo} />
           <ChannelMessagesComponent
             messages={messages.groups}
@@ -238,7 +235,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
           />
-        </Grid>
+        </ChannelMessagesWrapperStyled>
         <Grid item>
           <ChannelInputComponent
             channelAddress={channelAddress}
@@ -254,7 +251,11 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             openFilesDialog={openFilesDialog}
             infoClass={infoClass}
             setInfoClass={setInfoClass}
-            inputState={isCommunityInitialized ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED}
+            inputState={
+              (isCommunityInitialized && Boolean(messages.count))
+                ? INPUT_STATE.AVAILABLE
+                : INPUT_STATE.NOT_CONNECTED
+            }
             handleClipboardFiles={handleClipboardFiles}
             handleOpenFiles={handleFileDrop}>
             <UploadFilesPreviewsComponent

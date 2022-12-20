@@ -10,8 +10,9 @@ import { messagesReducer } from '../../sagas/messages/messages.slice'
 import { publicChannelsReducer } from '../../sagas/publicChannels/publicChannels.slice'
 import { usersReducer } from '../../sagas/users/users.slice'
 import { settingsReducer } from '../../sagas/settings/settings.slice'
-import { lastActionReducer, collectDataReducer } from './helpers'
+import { lastActionReducer } from './helpers'
 import { filesReducer } from '../../sagas/files/files.slice'
+import { networkReducer } from '../../sagas/network/network.slice'
 
 export const reducers = {
   [StoreKeys.Communities]: communitiesReducer,
@@ -23,7 +24,8 @@ export const reducers = {
   [StoreKeys.Connection]: connectionReducer,
   [StoreKeys.Settings]: settingsReducer,
   [StoreKeys.Files]: filesReducer,
-  [StoreKeys.LastAction]: lastActionReducer
+  [StoreKeys.LastAction]: lastActionReducer,
+  [StoreKeys.Network]: networkReducer
   // Only for data collectiong purposes
   // [StoreKeys.CollectData]: collectDataReducer
 }

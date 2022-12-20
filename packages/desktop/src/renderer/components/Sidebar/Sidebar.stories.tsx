@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
-import Grid from '@material-ui/core/Grid'
+import Grid from '@mui/material/Grid'
 import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
 
 import { withTheme } from '../../storybook/decorators'
@@ -63,11 +63,6 @@ const args: IdentityPanelProps & ChannelsPanelProps = {
   setCurrentChannel: function (_address: string): void {},
   currentChannel: 'general',
   createChannelModal: {
-    open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
-  },
-  joinChannelModal: {
     open: false,
     handleOpen: function (_args?: any): any {},
     handleClose: function (): any {}
