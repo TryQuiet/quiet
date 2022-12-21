@@ -110,10 +110,10 @@ export class Storage extends EventEmitter {
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
 
     this.orbitdb = await OrbitDB.createInstance(this.ipfs, {
-      //@ts-ignore
+      // @ts-ignore
       id: peerID.toString(),
       directory: this.orbitDbDir,
-      //@ts-ignore
+      // @ts-ignore
       AccessControllers: AccessControllers
     })
     log('Initialized storage')
@@ -134,7 +134,7 @@ export class Storage extends EventEmitter {
     log('Initialized DBs')
   }
 
-  private async __stopOrbitDb() {
+  private async readonly __stopOrbitDb() {
     if (this.orbitdb) {
       log('Stopping OrbitDB')
       try {
@@ -145,7 +145,7 @@ export class Storage extends EventEmitter {
     }
   }
 
-  private async __stopIPFS() {
+  private async readonly __stopIPFS() {
     if (this.ipfs) {
       log('Stopping IPFS')
       try {
@@ -252,7 +252,7 @@ export class Storage extends EventEmitter {
     })
   }
 
-  private async createDbForChannels() {
+  private async readonly createDbForChannels() {
     log('createDbForChannels init')
     this.channels = await this.orbitdb.keyvalue<PublicChannel>('public-channels', {
       accessController: {
@@ -289,7 +289,7 @@ export class Storage extends EventEmitter {
     log('STORAGE: Finished createDbForChannels')
   }
 
-  private async createDbForMessageThreads() {
+  private async readonly createDbForMessageThreads() {
     this.messageThreads = await this.orbitdb.keyvalue<IMessageThread>('msg-threads', {
       accessController: {
         write: ['*']
@@ -445,7 +445,7 @@ export class Storage extends EventEmitter {
     this.emit(StorageEvents.CHECK_FOR_MISSING_FILES, this.communityId)
   }
 
-  private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
+  private async readonly createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
     if (!validate.isChannel(data)) {
       log.error('STORAGE: Invalid channel format')
       return
@@ -535,7 +535,7 @@ export class Storage extends EventEmitter {
 
     const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
     const uploadedFileStreamIterable = {
-      async *[Symbol.asyncIterator]() {
+      async* [Symbol.asyncIterator]() {
         for await (const data of stream) {
           yield data
         }
@@ -601,7 +601,7 @@ export class Storage extends EventEmitter {
     const _CID: IPFSPath = CID.parse(metadata.cid)
 
     // Compare actual and reported file size
-    const stat = await this.ipfs.files.stat(_CID as any)
+    const stat = await this.ipfs.files.stat(_CID)
     if (!compare(metadata.size, stat.size, 0.05)) {
       const maliciousStatus: DownloadStatus = {
         mid: metadata.message.id,
@@ -614,7 +614,7 @@ export class Storage extends EventEmitter {
 
       return
     }
-    const entries = this.ipfs.cat(_CID as any)
+    const entries = this.ipfs.cat(_CID)
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
     createPaths([downloadDirectory])
@@ -809,7 +809,7 @@ export class Storage extends EventEmitter {
     }
   }
 
-  private async createDirectMessageThread(channelAddress: string): Promise<EventStore<string>> {
+  private async readonly createDirectMessageThread(channelAddress: string): Promise<EventStore<string>> {
     if (!channelAddress) {
       log("No channel address, can't create channel")
       return

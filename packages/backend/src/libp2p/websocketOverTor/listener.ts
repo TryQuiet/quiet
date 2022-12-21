@@ -10,7 +10,6 @@
 // import type { Connection } from '@libp2p/interface-connection'
 // import type { Multiaddr } from '@multiformats/multiaddr'
 
-
 // const log = logger('libp2p:websockets:listener')
 
 // // @ts-ignore

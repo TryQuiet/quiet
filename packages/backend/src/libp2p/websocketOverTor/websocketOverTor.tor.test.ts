@@ -1,4 +1,4 @@
-import { webSockets  } from './index'
+import { webSockets } from './index'
 import { Multiaddr } from 'multiaddr'
 import { Tor } from '../../torManager/index'
 import os from 'os'

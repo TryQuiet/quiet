@@ -361,7 +361,7 @@ export function webSockets(init: WebSocketsInit): (components?: any) => any {
   }
 }
 
-let pDefer = null;
+let pDefer = null
 
 void (async () => {
   const PDeferModule = await eval("import('p-defer')")

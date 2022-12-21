@@ -1,5 +1,5 @@
 
-export interface EventCallback<EventType> { (evt: EventType): void }
+export type EventCallback<EventType> = (evt: EventType) => void
 export interface EventObject<EventType> { handleEvent: EventCallback<EventType> }
 export type EventHandler<EventType> = EventCallback<EventType> | EventObject<EventType>
 

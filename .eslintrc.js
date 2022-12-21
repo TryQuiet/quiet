@@ -12,6 +12,7 @@ module.exports = {
   rules: {
     'node/no-path-concat': 'off',
     'multiline-ternary': 'off',
+    'no-eval': 'off',
     'no-void': 'off',
     'no-unused-vars': 'off',
     'array-callback-return': 'off',

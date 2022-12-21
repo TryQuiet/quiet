@@ -59,7 +59,7 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
 
   const port = await getPort()
 
-  return ConnectionsManager.createBootstrapNode({
+  return await ConnectionsManager.createBootstrapNode({
     peerId,
     listenAddresses: [createLibp2pListenAddress('localhost')],
     bootstrapMultiaddrsList: testBootstrapMultiaddrs,

@@ -30,7 +30,7 @@ import {
 } from '@quiet/state-manager'
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
-import {setEngine, CryptoEngine} from 'pkijs'
+import { setEngine, CryptoEngine } from 'pkijs'
 
 jest.setTimeout(30_000)
 
@@ -55,7 +55,7 @@ beforeAll(async () => {
   const webcrypto = new Crypto()
   // @ts-ignore
   global.crypto = webcrypto
-    
+
   setEngine('newEngine', new CryptoEngine({
     name: 'newEngine',
     // @ts-ignore

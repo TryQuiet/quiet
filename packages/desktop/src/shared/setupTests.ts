@@ -1,6 +1,6 @@
 import Enzyme from 'enzyme'
 import Adapter from 'enzyme-adapter-react-16'
-//import registerRequireContextHook from 'babel-plugin-require-context-hook/register'
+// import registerRequireContextHook from 'babel-plugin-require-context-hook/register'
 
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
@@ -57,7 +57,7 @@ jest.mock('@electron/remote', () => {
     }
   }
 
-  mock[Symbol.iterator] = function*() {
+  mock[Symbol.iterator] = function* () {
     yield 1
     yield 2
     yield 3
@@ -72,7 +72,7 @@ jest.mock('../renderer/components/Jdenticon/Jdenticon', () => () => 'Jdenticon')
 const mockFetch: typeof fetch = async () => await Promise.resolve({} as Response)
 global.fetch = mockFetch
 
-//registerRequireContextHook()
+// registerRequireContextHook()
 Enzyme.configure({ adapter: new Adapter() })
 
 jest.resetAllMocks()
