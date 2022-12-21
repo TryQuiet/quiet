@@ -222,7 +222,15 @@ export class Tor {
     })
   }
 
-  public async spawnHiddenService(targetPort: number, privKey: string, virtPort: number = 443): Promise<string> {
+  public async spawnHiddenService({
+    targetPort, 
+    privKey, 
+    virtPort = 443
+  }: {
+    targetPort: number, 
+    privKey: string, 
+    virtPort?: number
+  }): Promise<string> {
     const status = await this.torControl.sendCommand(
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
       )
