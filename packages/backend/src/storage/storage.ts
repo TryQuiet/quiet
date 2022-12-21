@@ -134,7 +134,7 @@ export class Storage extends EventEmitter {
     log('Initialized DBs')
   }
 
-  private async readonly __stopOrbitDb() {
+  private async __stopOrbitDb() {
     if (this.orbitdb) {
       log('Stopping OrbitDB')
       try {
@@ -145,7 +145,7 @@ export class Storage extends EventEmitter {
     }
   }
 
-  private async readonly __stopIPFS() {
+  private async __stopIPFS() {
     if (this.ipfs) {
       log('Stopping IPFS')
       try {
@@ -252,7 +252,7 @@ export class Storage extends EventEmitter {
     })
   }
 
-  private async readonly createDbForChannels() {
+  private async createDbForChannels() {
     log('createDbForChannels init')
     this.channels = await this.orbitdb.keyvalue<PublicChannel>('public-channels', {
       accessController: {
@@ -289,7 +289,7 @@ export class Storage extends EventEmitter {
     log('STORAGE: Finished createDbForChannels')
   }
 
-  private async readonly createDbForMessageThreads() {
+  private async createDbForMessageThreads() {
     this.messageThreads = await this.orbitdb.keyvalue<IMessageThread>('msg-threads', {
       accessController: {
         write: ['*']
@@ -445,7 +445,7 @@ export class Storage extends EventEmitter {
     this.emit(StorageEvents.CHECK_FOR_MISSING_FILES, this.communityId)
   }
 
-  private async readonly createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
+  private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
     if (!validate.isChannel(data)) {
       log.error('STORAGE: Invalid channel format')
       return
@@ -809,7 +809,7 @@ export class Storage extends EventEmitter {
     }
   }
 
-  private async readonly createDirectMessageThread(channelAddress: string): Promise<EventStore<string>> {
+  private async createDirectMessageThread(channelAddress: string): Promise<EventStore<string>> {
     if (!channelAddress) {
       log("No channel address, can't create channel")
       return

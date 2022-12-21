@@ -74,7 +74,7 @@ export class StorageTestSnapshot extends Storage {
     this.name = name
   }
 
-  private async readonly createDbForSnapshotInfo() {
+  private async createDbForSnapshotInfo() {
     if (!this.useSnapshot) {
       return
     }
@@ -101,7 +101,7 @@ export class StorageTestSnapshot extends Storage {
     // })
   }
 
-  private async readonly createDbForMessages() {
+  private async createDbForMessages() {
     log('createDbForMessages init')
     this.messages = await this.orbitdb.log<string>('3479623913-test', {
       accessController: {
@@ -162,7 +162,7 @@ export class StorageTestSnapshot extends Storage {
     log(`${this.name}; Loaded entries:`, this.getAllEventLogEntries(this.messages).length)
   }
 
-  private async readonly addMessages() {
+  private async addMessages() {
     // Generate and add "messages" to db
     log(`Adding ${this.messagesCount} messages`)
     const range = n => Array.from(Array(n).keys())

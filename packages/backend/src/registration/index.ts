@@ -46,7 +46,7 @@ export class CertificateRegistration extends EventEmitter {
 
   private pendingPromise: Promise<{ status: number; body: any }> = null
 
-  private readonly setRouting() {
+  private setRouting() {
     // @ts-ignore
     this._app.use(express.json())
     this._app.post(
@@ -107,7 +107,7 @@ export class CertificateRegistration extends EventEmitter {
     this.emit(response.eventType, response.data)
   }
 
-  private async readonly registerUser(csr: string): Promise<{ status: number; body: any }> {
+  private async registerUser(csr: string): Promise<{ status: number; body: any }> {
     const result = await registerUser(csr, this._permsData, this.certificates)
     if (result?.status === 200) {
       this.emit(RegistrationEvents.NEW_USER, { certificate: result.body.certificate, rootPermsData: this._permsData })

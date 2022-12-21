@@ -24,7 +24,7 @@ export class TorControl {
     this.cookie = opts.cookie
   }
 
-  private async readonly connect(): Promise<void> {
+  private async connect(): Promise<void> {
     return await new Promise((resolve, reject) => {
       if (this.connection) {
         reject(new Error('TOR: Connection already established'))
@@ -53,12 +53,12 @@ export class TorControl {
     })
   }
 
-  private async readonly disconnect() {
+  private async disconnect() {
     this.connection.end()
     this.connection = null
   }
 
-  private async readonly _sendCommand(command: string, resolve: Function, reject: Function) {
+  private async _sendCommand(command: string, resolve: Function, reject: Function) {
     await this.connect()
     const connectionTimeout = setTimeout(() => {
       reject('TOR: Send command timeout')
