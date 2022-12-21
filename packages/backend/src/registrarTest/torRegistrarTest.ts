@@ -39,9 +39,9 @@ const mode = options.mode
 const guardsCount = options.numEntryGuards
 const vanguargsLiteEnabled = options.vanguardsLiteEnabled
 const torBinName = options.torBinName
-let eventEmmiter = new EventEmitter()
-let torServices = new Map<string, { tor: Tor; httpTunnelPort: number, onionAddress?: string, bootstrapTime: number }>()
-let results = Object.assign({}, options)
+const eventEmmiter = new EventEmitter()
+const torServices = new Map<string, { tor: Tor; httpTunnelPort: number; onionAddress?: string; bootstrapTime: number }>()
+const results = Object.assign({}, options)
 
 const spawnTor = async (i: number) => {
   const tmpDir = createTmpDir()
@@ -106,7 +106,6 @@ const sendRequest = async (
   tor: Tor,
   counter: number,
 ): Promise<Response> => {
-
   if (mode === TestMode.NEWNYM) {
     await tor.switchToCleanCircuts()
   }
@@ -137,7 +136,7 @@ const sendRequest = async (
   if (response && response.status !== 200) {
     log(`Response code !== 200 (it is ${response.status}) ${counter} ${serviceAddress}`)
     results[serviceAddress][counter].statusCode = response.status
-    throw `Response code !== 200 (it is ${response.status})`
+    throw new Error(`Response code !== 200 (it is ${response.status})`)
   }
 
   return response
@@ -148,7 +147,7 @@ const createHiddenServices = async () => {
   for (const [key, data] of torServices) {
     if (Number(key) % 2) continue
     const { libp2pHiddenService } = await getPorts()
-    const hiddenService = await data.tor.createNewHiddenService({targetPort: libp2pHiddenService, virtPort: 80})
+    const hiddenService = await data.tor.createNewHiddenService({ targetPort: libp2pHiddenService, virtPort: 80 })
     const address = hiddenService.onionAddress.split('.')[0]
     results[address] = {}
     log(`created hidden service for instance ${key} and onion address is ${address}`)
@@ -179,15 +178,15 @@ const testWithDelayedNewnym = async () => {
     }
   }
 
-  function resolveTimeout(func, address, port, tor, requestCounter, delay: number) {
-    return new Promise(
+  async function resolveTimeout(func, address, port, tor, requestCounter, delay: number) {
+    return await new Promise(
       (resolve, reject) => {
         const timeoutId = setTimeout(async (address, port, tor, requestCounter) => {
           log(`Sending request after ${delay}ms`)
           try {
             resolve(func(address, port, tor, requestCounter))
           } catch (e) {
-            reject(`request rejected. ${e.message}`)
+            reject(new Error(`request rejected. ${e.message}`))
           }
         }, delay, address, port, tor, requestCounter)
 
@@ -195,7 +194,6 @@ const testWithDelayedNewnym = async () => {
           log(`Clearing timeout (${requestCounter}) ${address}`)
           clearTimeout(timeoutId)
         })
-
       }
     )
   }
@@ -217,7 +215,7 @@ const testWithDelayedNewnym = async () => {
     let responseData = null
     let response = null
     try {
-      results[serverOnionAddress].requestsStartTime = new Date(),
+      results[serverOnionAddress].requestsStartTime = new Date()
       results[serverOnionAddress].bootstrapTime = servers[serverCounter].bootstrapTime
       // @ts-ignore
       response = await Promise.any(requests) // Get first successful response
@@ -238,7 +236,7 @@ const testWithDelayedNewnym = async () => {
       continue
     }
 
-    const {counter} = responseData
+    const { counter } = responseData
     results[serverOnionAddress][counter].fetchTime = (end.getTime() - results[serverOnionAddress][counter].startFetchTime.getTime()) / 1000
   }
   log('END')
@@ -266,7 +264,7 @@ const sendRequests = async () => { // No newnym, send next request if previous o
     for (let rq = 0; rq < requestsCount; rq++) {
       try {
         response = await sendRequest(
-          serverOnionAddress, 
+          serverOnionAddress,
           clients[serverCounter].httpTunnelPort,
           tor,
           rq
@@ -292,7 +290,7 @@ const sendRequests = async () => { // No newnym, send next request if previous o
       continue
     }
 
-    const {counter} = responseData
+    const { counter } = responseData
     results[serverOnionAddress][counter].fetchTime = (end.getTime() - results[serverOnionAddress][counter].startFetchTime.getTime()) / 1000
   }
 }

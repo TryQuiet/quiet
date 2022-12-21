@@ -1,17 +1,15 @@
-import {readdir, readFile} from 'fs/promises'
+import { readdir, readFile } from 'fs/promises'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
 
-const myArgs = process.argv.slice(2);
+const myArgs = process.argv.slice(2)
 const dirPath = myArgs[0]
-console.log('ddd', dirPath)
 
 async function parse() {
   const combinedResults = {}
   try {
-    const files = await readdir(dirPath);
-    console.log('files', files)
+    const files = await readdir(dirPath)
     for (const filePath of files) {
       if (!filePath.includes('combined')) {
         const result = await readFile(path.join(dirPath, filePath), { encoding: 'utf8' })
@@ -19,7 +17,7 @@ async function parse() {
       }
     }
   } catch (err) {
-    console.error(err);
+    console.error(err)
   }
   fs.writeFileSync(`combined${path.basename(dirPath)}.json`, JSON.stringify(combinedResults))
   return combinedResults
@@ -48,8 +46,8 @@ const getStatistics = (results: {}) => {
     // @ts-ignore
     slowestSuccessfullReceivedResultsTime = Math.max(slowestSuccessfullReceivedResultsTime, data.receivedResultsTime)
     // @ts-ignore
-    if (data.receivedResultsTime)
-    for (const [requestCount, requestData] of Object.entries(data)) {
+    if (data.receivedResultsTime) {
+for (const [requestCount, requestData] of Object.entries(data)) {
       if (requestData.fetchTime) {
         fetchTimeSum += requestData.fetchTime
         requestCountSuccessRate[requestCount] ? requestCountSuccessRate[requestCount]++ : requestCountSuccessRate[requestCount] = 1
@@ -57,9 +55,10 @@ const getStatistics = (results: {}) => {
         slowestFetch = Math.max(requestData.fetchTime, slowestFetch)
       }
     }
+}
   }
   return {
-    dirPath, 
+    dirPath,
     testsCount,
     failedTests: failed,
     averageFetchTime: fetchTimeSum / testsCount,
@@ -74,4 +73,4 @@ const getStatistics = (results: {}) => {
 
 parse().then((data) => {
   console.log(getStatistics(data))
-}, (error) => {console.log('ERROR', error)})
+}, (error) => { console.log('ERROR', error) })

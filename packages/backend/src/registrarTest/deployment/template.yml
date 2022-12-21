@@ -104,7 +104,7 @@ Resources:
       Description: "Schedule rule for registrar test with newnym signal"
       Name: !Sub registrar-task-newnym-schedule-rule
       State: ENABLED
-      ScheduleExpression: cron(0 1,22 * * ? *)
+      ScheduleExpression: cron(0 1,18 * * ? *)
       Targets:
         - Arn: !GetAtt ECSCluster.Arn
           Id: ScheduledTask
