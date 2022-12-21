@@ -36,7 +36,7 @@ export const testBootstrapMultiaddrs = [
   createLibp2pAddress('abcd.onion', 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4')
 ]
 
-export const spawnTorProcess = async (quietDirPath: string, ports?: Ports, extraTorProcessParams?: string[], binName: string = ''): Promise<Tor> => {
+export const spawnTorProcess = async (quietDirPath: string, ports?: Ports, extraTorProcessParams?: string[], binName?: string): Promise<Tor> => {
   const _ports = ports || (await getPorts())
   const torPath = torBinForPlatform(undefined, binName)
   const libPath = torDirForPlatform()

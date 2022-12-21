@@ -148,7 +148,7 @@ const createHiddenServices = async () => {
   for (const [key, data] of torServices) {
     if (Number(key) % 2) continue
     const { libp2pHiddenService } = await getPorts()
-    const hiddenService = await data.tor.createNewHiddenService(libp2pHiddenService, 80)
+    const hiddenService = await data.tor.createNewHiddenService({targetPort: libp2pHiddenService, virtPort: 80})
     const address = hiddenService.onionAddress.split('.')[0]
     results[address] = {}
     log(`created hidden service for instance ${key} and onion address is ${address}`)

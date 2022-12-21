@@ -279,7 +279,7 @@ export class ConnectionsManager extends EventEmitter {
 
   public getNetwork = async () => {
     const ports = await getPorts()
-    const hiddenService = await this.tor.createNewHiddenService(ports.libp2pHiddenService)
+    const hiddenService = await this.tor.createNewHiddenService({targetPort: ports.libp2pHiddenService})
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
 
     const peerId = await PeerId.create()

@@ -52,7 +52,7 @@ export class Tor {
     this.options = options
     this.appDataPath = appDataPath
     this.httpTunnelPort = httpTunnelPort
-    this.extraTorProcessParams = extraTorProcessParams
+    this.extraTorProcessParams = extraTorProcessParams || []
     this.controlPort = controlPort || null
     this.torAuthCookie = authCookie || null
   }
@@ -240,10 +240,13 @@ export class Tor {
       }
     }
 
-    public async createNewHiddenService(
-      targetPort: number,
-      virtPort: number = 443
-      ): Promise<{ onionAddress: string; privateKey: string }> {
+    public async createNewHiddenService({
+      targetPort, 
+      virtPort = 443
+    }: {
+      targetPort: number, 
+      virtPort?: number
+    }): Promise<{ onionAddress: string; privateKey: string }> {
         const status = await this.torControl.sendCommand(
           `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
           )
