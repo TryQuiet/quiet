@@ -1,6 +1,6 @@
 import logger from '../../logger'
-import { socketToMaConn } from './socket-to-conn.js'
-import * as filters from './filters.js'
+import { socketToMaConn } from './socket-to-conn'
+import * as filters from './filters'
 import { MultiaddrFilter } from '@libp2p/interface-transport'
 import type { AbortOptions } from '@libp2p/interfaces'
 import type { Multiaddr } from '@multiformats/multiaddr'
