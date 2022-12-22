@@ -47,7 +47,7 @@ export class CertificateRegistration extends EventEmitter {
   private pendingPromise: Promise<{ status: number; body: any }> = null
 
   private setRouting() {
-    //@ts-ignore
+    // @ts-ignore
     this._app.use(express.json())
     this._app.post(
       '/register',

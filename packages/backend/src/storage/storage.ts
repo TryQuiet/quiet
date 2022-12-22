@@ -110,10 +110,10 @@ export class Storage extends EventEmitter {
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
 
     this.orbitdb = await OrbitDB.createInstance(this.ipfs, {
-      //@ts-ignore
+      // @ts-ignore
       id: peerID.toString(),
       directory: this.orbitDbDir,
-      //@ts-ignore
+      // @ts-ignore
       AccessControllers: AccessControllers
     })
     log('Initialized storage')
@@ -535,7 +535,7 @@ export class Storage extends EventEmitter {
 
     const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
     const uploadedFileStreamIterable = {
-      async *[Symbol.asyncIterator]() {
+      async* [Symbol.asyncIterator]() {
         for await (const data of stream) {
           yield data
         }
@@ -601,7 +601,7 @@ export class Storage extends EventEmitter {
     const _CID: IPFSPath = CID.parse(metadata.cid)
 
     // Compare actual and reported file size
-    const stat = await this.ipfs.files.stat(_CID as any)
+    const stat = await this.ipfs.files.stat(_CID)
     if (!compare(metadata.size, stat.size, 0.05)) {
       const maliciousStatus: DownloadStatus = {
         mid: metadata.message.id,
@@ -614,7 +614,7 @@ export class Storage extends EventEmitter {
 
       return
     }
-    const entries = this.ipfs.cat(_CID as any)
+    const entries = this.ipfs.cat(_CID)
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
     createPaths([downloadDirectory])

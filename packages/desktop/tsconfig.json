@@ -5,6 +5,7 @@
     "module": "ES2020",
     "target": "es2017",
     "jsx": "react",
+    "allowJs": true,
     "lib": [
       "es2018",
       "dom"

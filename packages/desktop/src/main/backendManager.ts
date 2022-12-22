@@ -1,8 +1,8 @@
 import backend, { torBinForPlatform, torDirForPlatform } from '@quiet/backend'
 import logger from './logger'
 import { Command } from 'commander'
+import { Crypto } from '@peculiar/webcrypto'
 const program = new Command()
-import {Crypto} from '@peculiar/webcrypto'
 
 const log = logger('backendManager')
 

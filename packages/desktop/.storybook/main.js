@@ -1,6 +1,9 @@
 const path = require('path');
 
 module.exports = {
+  core: {
+    builder: 'webpack5',
+  },
   staticDirs: [
     { from: '../src/renderer/fonts', to: '/fonts' },
     { from: '../src/renderer/static/images', to: '/images' }
@@ -14,6 +17,18 @@ module.exports = {
     "@storybook/addon-essentials"
   ],
   "webpackFinal": async (config, { configType }) => {
+    config.resolve.fallback = {
+      "fs": false,
+      "tls": false,
+      "net": false,
+      "path": false,
+      "zlib": false,
+      "http": false,
+      "https": false,
+      "stream": false,
+      "crypto": false,
+      "process": false,
+    };
     config.resolve.alias = {
       ...config.resolve.alias,
       fs: path.resolve(__dirname, 'fsMock.js'),

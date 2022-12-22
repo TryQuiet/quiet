@@ -50,7 +50,7 @@ export const generateKeyPair = async ({ signAlg }: { signAlg: string }): Promise
     true,
     algorithm.usages
   )
-  return keyPair as CryptoKeyPair
+  return keyPair
 }
 
 export const formatPEM = (pemString: string): string => {

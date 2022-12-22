@@ -39,7 +39,7 @@ describe('Connections manager', () => {
     })
     expect(result.localAddress).toBe(localAddress)
     expect(result.libp2p.peerId).toBe(peerId)
-    //expect(result.libp2p.addresses.listen).toStrictEqual([listenAddress])
+    // expect(result.libp2p.addresses.listen).toStrictEqual([listenAddress])
   })
 
   it(
