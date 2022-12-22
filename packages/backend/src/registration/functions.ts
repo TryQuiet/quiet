@@ -44,7 +44,6 @@ class UserCsrData {
       new Date(),
       new Date(2030, 1, 1)
     )
-    console.log('new cert is', userCert.userCertString)
     return userCert.userCertString
   }
 
@@ -52,7 +51,6 @@ class UserCsrData {
     /**
      * Check if given username is already in use
      */
-    console.log('certificates', certificates)
     for (const cert of certificates) {
       const parsedCert = parseCertificate(cert)
       const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
