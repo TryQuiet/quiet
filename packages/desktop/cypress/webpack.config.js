@@ -1,5 +1,5 @@
 const webpack = require('webpack'); //to access built-in plugins
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
+// const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
 module.exports = {
     resolve: {
@@ -10,9 +10,17 @@ module.exports = {
         readline: "empty",
         stream: false,
         zlib: false,
-        path: false
+        path: false,
+        crypto: false,
+        process: false,
+        buffer: require.resolve('buffer/')
       }
     },
+    plugins: [
+      new webpack.ProvidePlugin({
+          Buffer: ['buffer', 'Buffer'],
+      }),
+    ],  
     // node: { fs: "empty", child_process: "empty", readline: "empty" },
     module: {
       rules: [

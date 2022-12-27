@@ -8,6 +8,10 @@
         "../node_modules/@types",
         "../src/renderer/expanded-theme.ts"
       ],
+      // "types": [
+      //   "cypress",
+      //   "cypress-visual-regression"
+      // ],
       "resolveJsonModule": true,
     },
     "include": [
