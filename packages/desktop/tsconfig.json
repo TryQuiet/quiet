@@ -18,7 +18,8 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src"
+    "src",
+    "cypress"
   ],
   "exclude": [
     "node_modules",
