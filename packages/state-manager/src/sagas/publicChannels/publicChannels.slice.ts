@@ -31,13 +31,13 @@ export class PublicChannelsState {
   public currentChannelAddress: string = 'general'
 
   public channels: EntityState<PublicChannelStorage> =
-  publicChannelsAdapter.getInitialState()
+    publicChannelsAdapter.getInitialState()
 
   public channelsStatus: EntityState<PublicChannelStatus> =
-  publicChannelsStatusAdapter.getInitialState()
+    publicChannelsStatusAdapter.getInitialState()
 
   public channelsSubscriptions: EntityState<PublicChannelSubscription> =
-  publicChannelsSubscriptionsAdapter.getInitialState()
+    publicChannelsSubscriptionsAdapter.getInitialState()
 }
 
 export const publicChannelsSlice = createSlice({
@@ -46,6 +46,12 @@ export const publicChannelsSlice = createSlice({
   reducers: {
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
     createGeneralChannel: state => state,
+    removePublicChannelsData: (state) => {
+      publicChannelsAdapter.removeAll(state.channels)
+      publicChannelsStatusAdapter.removeAll(state.channelsStatus)
+      publicChannelsSubscriptionsAdapter.removeAll(state.channelsSubscriptions)
+      state.currentChannelAddress = 'general'
+    },
     sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
     sendNewUserInfoMessage: (state, _action: PayloadAction<SendNewUserInfoMessagePayload>) => state,
     addChannel: (state, action: PayloadAction<CreatedChannelResponse>) => {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
 import { styled } from '@mui/material/styles'
+import { useDispatch } from 'react-redux'
 
 import { Grid, Tabs } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
@@ -12,6 +13,8 @@ import InviteToCommunity from '../../../../containers/widgets/settings/InviteToC
 import Notifications from '../../../../containers/widgets/settings/Notifications'
 import Modal from '../../../ui/Modal/Modal'
 import Tab from '../../../ui/Tab/Tab'
+import { Typography, Button } from '@mui/material'
+import { useModal } from '../../../../containers/hooks'
 
 const PREFIX = 'SettingsModal'
 
@@ -58,9 +61,13 @@ interface SettingsModalProps {
   isOwner: boolean
   open: boolean
   handleClose: () => void
+  leaveCommunityModal: ReturnType<typeof useModal>
+
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, open, handleClose }) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, open, handleClose, leaveCommunityModal }) => {
+  const dispatch = useDispatch()
+
   const [contentRef, setContentRef] = React.useState(null)
 
   const scrollbarRef = React.useRef()
@@ -78,6 +85,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, op
 
   const handleChange = (tab: string) => {
     setCurrentTab(tab)
+  }
+
+  const handleLeaveButtonClick = () => {
+    leaveCommunityModal.handleOpen()
   }
 
   React.useEffect(() => {
@@ -119,6 +130,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, op
                 <Tab value='invite' label='Add members' data-testid={'invite-settings-tab'} />
               )}
             </StyledTabs>
+            <Button
+              onClick={handleLeaveButtonClick}
+              variant='text'>
+              <Typography variant='h6' color='red'>
+                Leave community
+              </Typography>
+            </Button>
+
           </StyledAppBar>
         </StyledTabsWrapper>
         <Grid item xs>

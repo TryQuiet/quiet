@@ -76,7 +76,7 @@ const StyledMaterialModal = styled(MaterialModal)((
 
   [`& .${classes.fullPage}`]: {
     width: '100%',
-    height: `calc(100vh - ${constants.headerHeight}px)`
+    height: `calc(100vh - ${constants.headerHeight}px)`,
   },
 
   [`& .${classes.notFullPage}`]: {
@@ -94,7 +94,24 @@ const StyledMaterialModal = styled(MaterialModal)((
     outline: 0
   },
 
-  [`& .${classes.window}`]: {},
+  [`& .${classes.window}`]: {
+    background: '#222222',
+    width: '375px',
+    height: '400px',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    boxShadow: '0px 2px 25px #000000 0.2',
+    borderRadius: '8px',
+    border: 'solid 1px black',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignContent: 'center',
+    flexWrap: 'nowrap'
+  },
 
   [`& .${classes.bold}`]: {
     fontSize: 16,

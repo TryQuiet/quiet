@@ -63,6 +63,9 @@ export class DataServer extends EventEmitter {
       socket.on(SocketActionTypes.CLOSE, async () => {
         this.emit(SocketActionTypes.CLOSE)
       })
+      socket.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
+        this.emit(SocketActionTypes.LEAVE_COMMUNITY)
+      })
       socket.on(SocketActionTypes.CREATE_CHANNEL, async (payload: CreateChannelPayload) => {
         this.emit(SocketActionTypes.CREATE_CHANNEL, payload)
       })
@@ -178,11 +181,12 @@ export class DataServer extends EventEmitter {
 
   public close = async (): Promise<void> => {
     log(`Closing data server on port ${this.PORT}`)
-    return await new Promise(resolve => {
-      this.server.close((err) => {
-        if (err) throw new Error(err.message)
-        resolve()
-      })
-    })
+    await this.server.close()
+    // return await new Promise(resolve => {
+    //   this.server.close((err) => {
+    //     if (err) throw new Error(err.message)
+    //     resolve()
+    //   })
+    // })
   }
 }

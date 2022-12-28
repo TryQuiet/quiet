@@ -54,7 +54,9 @@ import { ConnectionsManagerOptions } from '../common/types'
 import {
   createLibp2pAddress,
   createLibp2pListenAddress,
-  getPorts
+  getPorts,
+  removeDirs,
+  removeIpfsAndOrbitDbDirs
 } from '../common/utils'
 import { QUIET_DIR_PATH } from '../constants'
 import { Storage } from '../storage'
@@ -207,12 +209,14 @@ export class ConnectionsManager extends EventEmitter {
     const registrarPath = this.registrarDataPath
 
     if (fs.existsSync(communityPath)) {
+
       const data = fs.readFileSync(communityPath)
       const dataObj = JSON.parse(data.toString())
       await this.launchCommunity(dataObj)
     }
 
     if (fs.existsSync(registrarPath)) {
+
       const data = fs.readFileSync(registrarPath)
       const dataObj = JSON.parse(data.toString())
       await this.registration.launchRegistrar(dataObj)
@@ -233,6 +237,42 @@ export class ConnectionsManager extends EventEmitter {
     if (this.io) {
       this.io.close()
     }
+  }
+
+
+  public async closeServicesWhenLeaveCommunity() {
+
+    if (this.tor && !this.torControlPort) {
+      await this.tor.kill()
+    }
+    if (this.registration) {
+      await this.registration.stop()
+    }
+    if (this.storage) {
+      await this.storage.stopOrbitDb()
+    }
+    this.storage = undefined
+    if (this.libp2pInstance) {
+      await this.libp2pInstance.stop()
+    }
+
+    if (this.dataServer) {
+      this.dataServer.removeAllListeners()
+      await this.dataServer.close()
+    }
+
+    const communityPath = this.communityDataPath
+    const registrarPath = this.registrarDataPath
+    if (fs.existsSync(communityPath)) {
+      fs.rmSync(communityPath, { recursive: true, force: true })
+    }
+    if (fs.existsSync(registrarPath)) {
+      fs.rmSync(registrarPath, { recursive: true, force: true })
+    }
+
+    removeIpfsAndOrbitDbDirs(this.quietDir)
+
+    await this.init()
   }
 
   public spawnTor = async () => {
@@ -503,6 +543,10 @@ export class ConnectionsManager extends EventEmitter {
 
     this.dataServer.on(SocketActionTypes.CLOSE, async () => {
       await this.closeAllServices()
+    })
+
+    this.dataServer.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
+      await this.closeServicesWhenLeaveCommunity()
     })
   }
 

@@ -59,7 +59,12 @@ export default createTheme({
       fontSize: 16,
       lineHeight: '26px',
       fontWeight: 500
-    }
+    },
+    h6: {
+      fontSize: 14,
+      lineHeight: '26px',
+      fontWeight: 300
+    },
   },
   palette: {
     primary: {

@@ -24,13 +24,13 @@ export class MessagesState {
   public publicKeyMapping: Dictionary<CryptoKey> = {}
 
   public publicChannelsMessagesBase: EntityState<PublicChannelsMessagesBase> =
-  publicChannelsMessagesBaseAdapter.getInitialState()
+    publicChannelsMessagesBaseAdapter.getInitialState()
 
   public messageVerificationStatus: EntityState<MessageVerificationStatus> =
-  messageVerificationStatusAdapter.getInitialState()
+    messageVerificationStatusAdapter.getInitialState()
 
   public messageSendingStatus: EntityState<MessageSendingStatus> =
-  messageSendingStatusAdapter.getInitialState()
+    messageSendingStatusAdapter.getInitialState()
 }
 
 export const messagesSlice = createSlice({
@@ -46,9 +46,15 @@ export const messagesSlice = createSlice({
         display: 50
       })
     },
+    removePublicChannelMessages: (state) => {
+      publicChannelsMessagesBaseAdapter.removeAll(state.publicChannelsMessagesBase)
+    },
     addMessageVerificationStatus: (state, action: PayloadAction<MessageVerificationStatus>) => {
       const status = action.payload
       messageVerificationStatusAdapter.upsertOne(state.messageVerificationStatus, status)
+    },
+    removeVerificationStatuses: (state) => {
+      messageVerificationStatusAdapter.removeAll(state.messageVerificationStatus)
     },
     addMessagesSendingStatus: (state, action: PayloadAction<MessageSendingStatus>) => {
       const status = action.payload
@@ -62,7 +68,7 @@ export const messagesSlice = createSlice({
       const id = action.payload
       messageVerificationStatusAdapter.removeOne(state.messageVerificationStatus, id)
     },
-    removePublicChannelMessage: (state, action: PayloadAction<{id: string; address: string}>) => {
+    removePublicChannelMessage: (state, action: PayloadAction<{ id: string; address: string }>) => {
       const { id, address } = action.payload
 
       channelMessagesAdapter.removeOne(
@@ -104,11 +110,11 @@ export const messagesSlice = createSlice({
       const { display, channelAddress } = action.payload
       publicChannelsMessagesBaseAdapter.updateOne(
         state.publicChannelsMessagesBase, {
-          id: channelAddress,
-          changes: {
-            display: display
-          }
+        id: channelAddress,
+        changes: {
+          display: display
         }
+      }
       )
     },
     askForMessages: (state, _action: PayloadAction<AskForMessagesPayload>) =>

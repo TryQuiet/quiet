@@ -7,7 +7,7 @@ import { SendCertificatesResponse } from './users.types'
 
 export class UsersState {
   public certificates: EntityState<Certificate> =
-  certificatesAdapter.getInitialState()
+    certificatesAdapter.getInitialState()
 }
 
 export const usersSlice = createSlice({
@@ -49,7 +49,10 @@ export const usersSlice = createSlice({
           parseCertificate(action.payload.certificate)
         )
       )
-    }
+    },
+    removeUserCetrificates: (state) => {
+      certificatesAdapter.removeAll(state.certificates)
+    },
   }
 })
 

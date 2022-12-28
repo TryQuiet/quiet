@@ -1,6 +1,7 @@
 /* eslint import/first: 0 */
 import '@testing-library/jest-dom'
 import { screen } from '@testing-library/react'
+import { useModal } from '../../../../containers/hooks'
 import React from 'react'
 import { Provider } from 'react-redux'
 import store from '../../../../store'
@@ -8,10 +9,16 @@ import { renderComponent } from '../../../../testUtils/renderComponent'
 import { SettingsModal } from './SettingsModal'
 
 describe('SettingsModal', () => {
+  const leaveCommunityModal: ReturnType<typeof useModal> = {
+    handleClose: jest.fn(),
+    handleOpen: jest.fn(),
+    open: Boolean
+  }
+
   it('renders component for non-owner', () => {
     const result = renderComponent(
       <Provider store={store}>
-        <SettingsModal title='settings' isOwner={false} open handleClose={jest.fn()} />
+        <SettingsModal title='settings' isOwner={false} open handleClose={jest.fn()} leaveCommunityModal={leaveCommunityModal} />
       </Provider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -496,7 +503,7 @@ describe('SettingsModal', () => {
   it('renders component for the owner', () => {
     const result = renderComponent(
       <Provider store={store}>
-        <SettingsModal title='Settings' isOwner={true} open handleClose={jest.fn()} />
+        <SettingsModal title='Settings' isOwner={true} open handleClose={jest.fn()} leaveCommunityModal={leaveCommunityModal} />
       </Provider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -790,13 +797,13 @@ describe('SettingsModal', () => {
   })
 
   it('displays "Add members" tab for community owner', async () => {
-    renderComponent(<SettingsModal title='string' isOwner={true} open handleClose={jest.fn()} />)
+    renderComponent(<SettingsModal title='string' isOwner={true} open handleClose={jest.fn()} leaveCommunityModal={leaveCommunityModal} />)
     expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Add members/i })).not.toBeNull()
   })
 
   it('does not display "Add members" tab if user is not a community owner', async () => {
-    renderComponent(<SettingsModal title='string' isOwner={false} open handleClose={jest.fn()} />)
+    renderComponent(<SettingsModal title='string' isOwner={false} open handleClose={jest.fn()} leaveCommunityModal={leaveCommunityModal} />)
     expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Add members/i })).toBeNull()
   })

@@ -14,7 +14,7 @@ export class CommunitiesState {
   public currentCommunity: string = ''
 
   public communities: EntityState<Community> =
-  communitiesAdapter.getInitialState()
+    communitiesAdapter.getInitialState()
 }
 
 export interface Community {
@@ -89,7 +89,11 @@ export const communitiesSlice = createSlice({
           ...action.payload
         }
       })
-    }
+    },
+    removeCommunity: (state, action: PayloadAction<string>) => {
+      communitiesAdapter.removeOne(state.communities, action.payload)
+      state.currentCommunity = ''
+    },
   }
 })
 

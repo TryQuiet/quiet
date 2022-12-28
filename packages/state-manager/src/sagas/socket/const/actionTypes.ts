@@ -19,6 +19,7 @@ export enum SocketActionTypes {
   CHANNELS_REPLICATED = 'channelsReplicated',
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CLOSE = 'close',
+  LEAVE_COMMUNITY = 'leaveCommunity',
   COMMUNITY = 'community',
   CONNECTED_PEERS = 'connectedPeers',
   CONNECT_TO_WEBSOCKET_SERVER = 'connectToWebsocketServer',

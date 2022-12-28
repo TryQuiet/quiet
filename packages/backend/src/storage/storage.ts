@@ -368,10 +368,10 @@ export class Storage extends EventEmitter {
 
         const verified = await this.verifyMessage(message)
 
-          this.emit(StorageEvents.LOAD_MESSAGES, {
-            messages: [entry.payload.value],
-            isVerified: verified
-          })
+        this.emit(StorageEvents.LOAD_MESSAGES, {
+          messages: [entry.payload.value],
+          isVerified: verified
+        })
 
         // Display push notifications on mobile
         if (process.env.BACKEND === 'mobile') {
@@ -522,7 +522,7 @@ export class Storage extends EventEmitter {
 
     const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
     const uploadedFileStreamIterable = {
-      async* [Symbol.asyncIterator]() {
+      async*[Symbol.asyncIterator]() {
         for await (const data of stream) {
           yield data
         }

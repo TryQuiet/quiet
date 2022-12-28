@@ -27,6 +27,9 @@ export const filesSlice = createSlice({
       const { cid } = action.payload
       downloadStatusAdapter.removeOne(state.downloadStatus, cid)
     },
+    removeDownloadStatuses: (state) => {
+      downloadStatusAdapter.removeAll(state.downloadStatus)
+    },
     cancelDownload: (state, _action: PayloadAction<CancelDownload>) => state,
     uploadFile: (state, _action: PayloadAction<FileContent>) => state,
     broadcastHostedFile: (state, _action: PayloadAction<FileMetadata>) => state,

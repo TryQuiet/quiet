@@ -9,8 +9,9 @@ const SettingsModalContainer = () => {
   const modal = useModal(ModalName.accountSettingsModal)
   const community = useSelector(communities.selectors.currentCommunity)
   const isOwner = Boolean(community?.CA)
+  const leaveCommunityModal = useModal(ModalName.leaveCommunityModal)
 
-  return <SettingsModal title={'Settings'} isOwner={isOwner} {...modal} />
+  return <SettingsModal title={'Settings'} isOwner={isOwner} {...modal} leaveCommunityModal={leaveCommunityModal} />
 }
 
 export default SettingsModalContainer

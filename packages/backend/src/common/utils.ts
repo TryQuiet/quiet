@@ -84,6 +84,26 @@ export const removeDirs = (appPath: string, filename: string) => {
   })
 }
 
+export const removeIpfsAndOrbitDbDirs = (appPath: string) => {
+  if (!fs.existsSync(appPath)) return
+  const ipfsDirs = fs.readdirSync(appPath).filter(i => i.startsWith('Ipfs'))
+  const orbitDbDirs = fs.readdirSync(appPath).filter(i => i.startsWith('OrbitDB'))
+
+  ipfsDirs.forEach((e) => {
+    const absolute = path.join(appPath, e)
+    if (fs.existsSync(absolute)) {
+      fs.rmSync(absolute, { recursive: true, force: true });
+    }
+  })
+
+  orbitDbDirs.forEach((e) => {
+    const absolute = path.join(appPath, e)
+    if (fs.existsSync(absolute)) {
+      fs.rmSync(absolute, { recursive: true, force: true });
+    }
+  })
+}
+
 export function fetchAbsolute(fetch: Function): Function {
   return (baseUrl: string) => (url: string, ...otherParams) =>
     url.startsWith('/') ? fetch(baseUrl + url, ...otherParams) : fetch(url, ...otherParams)

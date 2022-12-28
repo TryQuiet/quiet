@@ -22,6 +22,7 @@ import LoadingPanel from './components/LoadingPanel/LoadingPanel'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { DndProvider } from 'react-dnd'
 import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
+import LeaveCommunityModal from './containers/widgets/settings/LeaveCommunityModal'
 
 export const persistor = persistStore(store)
 export default () => {
@@ -41,6 +42,7 @@ export default () => {
                 <CreateUsername />
                 <CssBaseline />
                 <SettingsModal />
+                <LeaveCommunityModal />
                 <UpdateModal />
                 <QuitAppDialog />
                 <Routes>

@@ -47,8 +47,8 @@ const StyledModalContent = styled(Grid)((
     theme
   }
 ) => ({
-    backgroundColor: theme.palette.colors.white,
-    padding: '0px 32px',
+  backgroundColor: theme.palette.colors.white,
+  padding: '0px 32px',
 
   [`& .${classes.focus}`]: {
     '& .MuiOutlinedInput-root': {
@@ -214,6 +214,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     if (!open) {
       setValue('name', '')
       setCommunityName('')
+      setFormSent(false)
     }
   }, [open])
 

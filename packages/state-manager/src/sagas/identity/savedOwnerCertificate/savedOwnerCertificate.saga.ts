@@ -11,6 +11,8 @@ export function* savedOwnerCertificateSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof identityActions.savedOwnerCertificate>['payload']>
 ): Generator {
+  console.log('create cooooooom 5')
+
   let communityId: string = action.payload
 
   if (!communityId) {
@@ -30,6 +32,7 @@ export function* savedOwnerCertificateSaga(
       CA: [community.rootCa]
     }
   }
+  console.log('create cooooooom 2')
 
   yield* apply(socket, socket.emit, [
     SocketActionTypes.CREATE_COMMUNITY,
