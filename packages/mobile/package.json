@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "0.8.5-alpha.0",
+  "version": "0.10.0",
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -22,9 +22,9 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.7",
-    "@quiet/backend": "^0.14.5-alpha.0",
-    "@quiet/identity": "^0.13.5-alpha.0",
-    "@quiet/state-manager": "^0.14.5-alpha.0",
+    "@quiet/backend": "^0.16.0",
+    "@quiet/identity": "^0.15.0",
+    "@quiet/state-manager": "^0.16.0",
     "@react-native-async-storage/async-storage": "^1.15.4",
     "@react-native-community/art": "^1.2.0",
     "@react-navigation/native": "^6.0.0",

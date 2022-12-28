@@ -1,20 +1,23 @@
 import { createUserCert, loadCSR, CertFieldsTypes, getReqFieldValue, keyFromCertificate, parseCertificate, getCertFieldValue } from '@quiet/identity'
-import { PermsData } from '@quiet/state-manager'
+import { ErrorCodes, ErrorMessages, ErrorPayload, PermsData, SocketActionTypes } from '@quiet/state-manager'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import { CertificationRequest } from 'pkijs'
 import { getUsersAddresses } from '../common/utils'
-
+import { Agent } from 'http'
+import AbortController from 'abort-controller'
+import fetch, { Response } from 'node-fetch'
 import logger from '../logger'
 import { CsrContainsFields, IsCsr } from './validators'
+import { RegistrationEvents } from './types'
 const log = logger('registration')
 
 class UserCsrData {
-    @IsNotEmpty()
-    @IsBase64()
-    @IsCsr()
-    @CsrContainsFields()
-    csr: string
-  }
+  @IsNotEmpty()
+  @IsBase64()
+  @IsCsr()
+  @CsrContainsFields()
+  csr: string
+}
 
   // REFACTORING: Move this method to identity package
   export const pubKeyMatch = (cert: string, parsedCsr: CertificationRequest): boolean => {
@@ -59,6 +62,123 @@ class UserCsrData {
     }
     return null
   }
+
+interface SuccessfullRegistrarionResponse {
+  communityId: string
+  payload: { peers: string[]; certificate: string; rootCa: string }
+}
+
+export interface RegistrationResponse {
+  eventType: RegistrationEvents | SocketActionTypes
+  data: ErrorPayload | SuccessfullRegistrarionResponse
+}
+
+export const sendCertificateRegistrationRequest = async (
+  serviceAddress: string,
+  userCsr: string,
+  communityId: string,
+  requestTimeout: number = 120000,
+  socksProxyAgent: Agent
+  ): Promise<RegistrationResponse> => {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => {
+      controller.abort()
+    }, requestTimeout)
+
+    let options = {
+      method: 'POST',
+      body: JSON.stringify({ data: userCsr }),
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal
+    }
+
+    options = Object.assign({
+      agent: socksProxyAgent
+    }, options)
+
+    let response = null
+
+    try {
+      const start = new Date()
+      response = await fetch(`${serviceAddress}/register`, options)
+      const end = new Date()
+      const fetchTime = (end.getTime() - start.getTime()) / 1000
+      log(`Fetched ${serviceAddress}, time: ${fetchTime}`)
+    } catch (e) {
+      log.error(e)
+      return {
+        eventType: RegistrationEvents.ERROR,
+        data: {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.NOT_FOUND,
+          message: ErrorMessages.REGISTRAR_NOT_FOUND,
+          community: communityId
+        }
+      }
+    } finally {
+      clearTimeout(timeout)
+    }
+
+  switch (response?.status) {
+    case 200:
+      break
+    case 400:
+      return {
+        eventType: RegistrationEvents.ERROR,
+        data: {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.BAD_REQUEST,
+          message: ErrorMessages.INVALID_USERNAME,
+          community: communityId
+        }
+      }
+    case 403:
+      return {
+        eventType: RegistrationEvents.ERROR,
+        data: {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.FORBIDDEN,
+          message: ErrorMessages.USERNAME_TAKEN,
+          community: communityId
+        }
+      }
+    case 404:
+      return {
+        eventType: RegistrationEvents.ERROR,
+        data: {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.NOT_FOUND,
+          message: ErrorMessages.REGISTRAR_NOT_FOUND,
+          community: communityId
+        }
+      }
+    default:
+      log.error(
+        `Registrar responded with ${response?.status} "${response?.statusText}" (${communityId})`
+      )
+      return {
+        eventType: RegistrationEvents.ERROR,
+        data: {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.SERVER_ERROR,
+          message: ErrorMessages.REGISTRATION_FAILED,
+          community: communityId
+        }
+      }
+    }
+
+  const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
+    await response.json()
+
+  log(`Sending user certificate (${communityId})`)
+  return {
+    eventType: SocketActionTypes.SEND_USER_CERTIFICATE,
+    data: {
+      communityId: communityId,
+      payload: registrarResponse
+    }
+  }
+}
 
   export const registerUser = async (csr: string, permsData: PermsData, certificates: string[]): Promise<{status: number; body: any}> => {
     let cert: string
