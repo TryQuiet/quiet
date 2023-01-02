@@ -90,7 +90,7 @@
     "regression-test:update": "cypress install && ./node_modules/.bin/cypress run --component --env type=base --config screenshotsFolder=cypress/snapshots/base-local",
     "regression-test": "./node_modules/.bin/cypress run --component --env type=actual,SNAPSHOT_BASE_DIRECTORY=cypress/snapshots/base-local",
     "regression-test:ci": "cypress install && ./node_modules/.bin/cypress run --component --env type=actual",
-    "cypress:open": "cypress open --env type=actual,SNAPSHOT_BASE_DIRECTORY=$PWD/cypress/snapshots/base",
+    "cypress:open": "cypress open --env type=actual,SNAPSHOT_BASE_DIRECTORY=$PWD/cypress/snapshots/base-local",
     "prepare": "npm run build:main",
     "build:prod": "concurrently \"npm run build:main:prod\" \"npm run build:renderer:prod\"",
     "build:dev": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
