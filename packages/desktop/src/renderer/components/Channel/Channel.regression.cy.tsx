@@ -5,6 +5,10 @@ import { it, beforeEach, cy, Cypress, describe } from 'local-cypress'
 
 import * as stories from './Channel.stories'
 import { withTheme } from '../../storybook/decorators'
+import compareSnapshotCommand from 'cypress-visual-regression/dist/command'
+import { mount } from 'cypress/react18'
+
+compareSnapshotCommand() // Workaround. This should be only in cypress/commands.ts but typescript complains when it's not here
 
 const resizeObserverLoopErrRe = /^[^(ResizeObserver loop limit exceeded)]/
 Cypress.on('uncaught:exception', err => {
@@ -21,7 +25,7 @@ const { Component } = composeStories(stories)
 
 describe('Scroll behavior test', () => {
   beforeEach(() => {
-    cy.mount(
+    mount(
       <React.Fragment>
         {/* @ts-ignore */}
         <CssBaseline>
