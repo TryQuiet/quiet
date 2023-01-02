@@ -1,22 +1,17 @@
 import express from 'express'
-import fetch, { Response } from 'node-fetch'
 import getPort from 'get-port'
 import { Agent, Server } from 'http'
 import { EventEmitter } from 'events'
-import AbortController from 'abort-controller'
 
 import {
   LaunchRegistrarPayload,
   SocketActionTypes,
-  PermsData,
-  ErrorCodes,
-  ErrorMessages
+  PermsData
 } from '@quiet/state-manager'
 
 import logger from '../logger'
 import { registerOwner, registerUser, RegistrationResponse, sendCertificateRegistrationRequest } from './functions'
 import { RegistrationEvents } from './types'
-import { AbortError } from 'abortable-iterator'
 
 const log = logger('registration')
 
@@ -24,7 +19,6 @@ export class CertificateRegistration extends EventEmitter {
   private readonly _app: express.Application
   private _server: Server
   private _port: number
-  private _onionAddress: string
   public registrationService: any
   public certificates: string[]
   private _permsData: PermsData
@@ -36,7 +30,6 @@ export class CertificateRegistration extends EventEmitter {
       this.setCertificates(certs)
     })
     this._app = express()
-    this._onionAddress = null
     this.setRouting()
   }
 
@@ -66,7 +59,7 @@ export class CertificateRegistration extends EventEmitter {
   public async listen(): Promise<void> {
     return await new Promise(resolve => {
       this._server = this._app.listen(this._port, () => {
-        log(`Certificate registration service listening on ${this._onionAddress}:${this._port}`)
+        log(`Certificate registration service listening on port: ${this._port}`)
         resolve()
       })
     })

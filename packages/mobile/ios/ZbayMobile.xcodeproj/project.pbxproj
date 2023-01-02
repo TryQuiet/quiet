@@ -689,7 +689,7 @@
 				1868C097292F997A001D6D5E /* include */,
 			);
 			name = libnode;
-			path = ../../../../../monorepo/packages/mobile/ios/NodeJsMobile/libnode;
+			path = "../../../../../monorepo/packages/mobile/ios/NodeJsMobile/libnode";
 			sourceTree = "<group>";
 		};
 		1868C097292F997A001D6D5E /* include */ = {

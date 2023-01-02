@@ -277,7 +277,7 @@ export class ConnectionsManager extends EventEmitter {
   public getNetwork = async () => {
     const { createEd25519PeerId } = await eval("import('@libp2p/peer-id-factory')")
     const ports = await getPorts()
-    const hiddenService = await this.tor.createNewHiddenService(ports.libp2pHiddenService)
+    const hiddenService = await this.tor.createNewHiddenService({ targetPort: ports.libp2pHiddenService })
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
     const peerId: PeerId = await createEd25519PeerId()
 
@@ -361,11 +361,10 @@ export class ConnectionsManager extends EventEmitter {
     // Start existing community (community that user is already a part of)
     const ports = await getPorts()
     log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
-    const onionAddress: string = await this.tor.spawnHiddenService(
-      ports.libp2pHiddenService,
-      payload.hiddenService.privateKey
-    )
-
+    const onionAddress: string = await this.tor.spawnHiddenService({
+      targetPort: ports.libp2pHiddenService,
+      privKey: payload.hiddenService.privateKey
+    })
     log(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
     const peerId = await peerIdFromKeys(Buffer.from(payload.peerId.pubKey, 'hex'), Buffer.from(payload.peerId.privKey, 'hex'))
 
@@ -417,8 +416,12 @@ export class ConnectionsManager extends EventEmitter {
     this.registration.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload => {
       this.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
     })
-    this.registration.on(RegistrationEvents.SPAWN_HS_FOR_REGISTRAR, async payload => {
-      await this.tor.spawnHiddenService(payload.port, payload.privateKey, payload.targetPort)
+    this.registration.on(RegistrationEvents.SPAWN_HS_FOR_REGISTRAR, async (payload) => {
+      await this.tor.spawnHiddenService({
+        targetPort: payload.port,
+        privKey: payload.privateKey,
+        virtPort: payload.targetPort
+      })
     })
     this.registration.on(RegistrationEvents.ERROR, payload => {
       emitError(this.io, payload)

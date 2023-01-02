@@ -115,12 +115,12 @@ export class DummyIOServer extends SocketIO.Server {
   }
 }
 
-export const torBinForPlatform = (basePath?: string): string => {
+export const torBinForPlatform = (basePath?: string, binName: string = 'tor'): string => {
   if (process.env.BACKEND === 'mobile') {
     return basePath
   }
   const ext = process.platform === 'win32' ? '.exe' : ''
-  return path.join(torDirForPlatform(basePath), 'tor'.concat(ext))
+  return path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))
 }
 
 export const torDirForPlatform = (basePath?: string): string => {

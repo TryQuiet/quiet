@@ -58,8 +58,8 @@ describe('websocketOverTor', () => {
     })
     await tor.init()
 
-    service1 = await tor.createNewHiddenService(port1Target)
-    service2 = await tor.createNewHiddenService(port2Target)
+    service1 = await tor.createNewHiddenService({targetPort: port1Target})
+    service2 = await tor.createNewHiddenService({targetPort: port2Target})
   })
 
   afterAll(async () => {
