@@ -4,7 +4,6 @@ import { HttpsProxyAgent } from 'https-proxy-agent'
 import type { Libp2p, createLibp2p as l2l } from 'libp2p'
 import type { bootstrap as bootstrapType } from '@libp2p/bootstrap'
 import type { kadDHT as kadDHTType } from '@libp2p/kad-dht'
-import type { PeerId } from '@libp2p/interface-peer-id'
 
 import { webSockets } from './websocketOverTor/index'
 import { all } from './websocketOverTor/filters'
@@ -66,6 +65,7 @@ import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
 import type { PeerInfo } from '@libp2p/interface-peer-info'
+import PeerId, { JSONPeerId } from 'peer-id'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -279,21 +279,13 @@ export class ConnectionsManager extends EventEmitter {
     const ports = await getPorts()
     const hiddenService = await this.tor.createNewHiddenService({ targetPort: ports.libp2pHiddenService })
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
-    const peerId: PeerId = await createEd25519PeerId()
-
-    const pi = {
-      id: peerId.toString(),
-      // @ts-ignore
-      pubKey: peerId.publicKey.toString('hex'),
-      // @ts-ignore
-      privKey: peerId.privateKey.toString('hex'),
-    }
+    const peerId: PeerId = await PeerId.create()
 
     log(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
 
     return {
       hiddenService,
-      peerId: pi
+      peerId: peerId.toJSON()
     }
   }
 
@@ -366,7 +358,9 @@ export class ConnectionsManager extends EventEmitter {
       privKey: payload.hiddenService.privateKey
     })
     log(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
-    const peerId = await peerIdFromKeys(Buffer.from(payload.peerId.pubKey, 'hex'), Buffer.from(payload.peerId.privKey, 'hex'))
+
+    const restoredRsa = await PeerId.createFromJSON(payload.peerId)
+    const peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
 
     const initStorageParams: InitStorageParams = {
       communityId: payload.id,
