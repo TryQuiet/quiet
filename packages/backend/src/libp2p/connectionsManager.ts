@@ -96,7 +96,6 @@ export interface Libp2pNodeParams {
   ca: string[]
   localAddress: string
   bootstrapMultiaddrsList: string[]
- // transportClass: Websockets
   targetPort: number
 }
 
@@ -275,7 +274,6 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public getNetwork = async () => {
-    const { createEd25519PeerId } = await eval("import('@libp2p/peer-id-factory')")
     const ports = await getPorts()
     const hiddenService = await this.tor.createNewHiddenService({ targetPort: ports.libp2pHiddenService })
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
@@ -626,7 +624,6 @@ export class ConnectionsManager extends EventEmitter {
       key: params.certs.key,
       ca: params.certs.CA,
       bootstrapMultiaddrsList: params.bootstrapMultiaddrs,
-     // transportClass: WebsocketsOverTor,
       targetPort: params.targetPort
     }
     const libp2p = await ConnectionsManager.createBootstrapNode(nodeParams)
@@ -691,8 +688,8 @@ export class ConnectionsManager extends EventEmitter {
     const { noise } = await eval("import('@chainsafe/libp2p-noise')")
     const { gossipsub } = await eval("import('@chainsafe/libp2p-gossipsub')")
     const { mplex } = await eval("import('@libp2p/mplex')")
-    const { bootstrap }: {bootstrap: typeof bootstrapType } = await eval("import('@libp2p/bootstrap')")
-    const { kadDHT }: {kadDHT: typeof kadDHTType} = await eval("import('@libp2p/kad-dht')")
+    const { bootstrap }: { bootstrap: typeof bootstrapType } = await eval("import('@libp2p/bootstrap')")
+    const { kadDHT }: { kadDHT: typeof kadDHTType } = await eval("import('@libp2p/kad-dht')")
     const { createServer } = await eval("import('it-ws/server')")
 
     let lib
@@ -717,8 +714,6 @@ export class ConnectionsManager extends EventEmitter {
             timeout: 120_000, // in ms,
             tagName: 'bootstrap',
             tagValue: 50,
-
-           // tagTTL: 120000 // in ms
           })
         ],
         relay: {
