@@ -119,7 +119,7 @@ afterEach(async () => {
 })
 
 describe('Storage', () => {
-  it.only('creates paths by default', async () => {
+  it('creates paths by default', async () => {
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(false)
     expect(fs.existsSync(tmpIpfsPath)).toBe(false)
 
