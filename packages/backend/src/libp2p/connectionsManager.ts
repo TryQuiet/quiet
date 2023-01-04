@@ -8,6 +8,8 @@ import type { kadDHT as kadDHTType } from '@libp2p/kad-dht'
 import { webSockets } from './websocketOverTor/index'
 import { all } from './websocketOverTor/filters'
 
+import { DateTime } from 'luxon'
+
 import SocketIO from 'socket.io'
 import * as os from 'os'
 import path from 'path'
@@ -64,7 +66,6 @@ import getPort from 'get-port'
 import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
-import type { PeerInfo } from '@libp2p/interface-peer-info'
 import PeerId, { JSONPeerId } from 'peer-id'
 
 const log = logger('conn')
@@ -630,36 +631,36 @@ export class ConnectionsManager extends EventEmitter {
 
     this.libp2pInstance = libp2p
 
-    // libp2p.addEventListener('peer:discovery', (peer: PeerInfo) => {
-    //   log(`${params.peerId.toB58String()} discovered ${peer.toB58String()}`)
-    // })
+    libp2p.addEventListener('peer:discovery', (peer) => {
+      log(`${params.peerId.toString()} discovered ${peer.detail.id}`)
+    })
 
-    // libp2p.connectionManager.addEventListener('peer:connect', (connection: Connection) => {
-    //   log(`${params.peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
-    //   this.connectedPeers.set(connection.remotePeer.toB58String(), DateTime.utc().valueOf())
+    libp2p.connectionManager.addEventListener('peer:connect', (peer) => {
+      log(`${params.peerId.toString()} connected to ${peer.detail.id}`)
+      this.connectedPeers.set(peer.detail.id, DateTime.utc().valueOf())
 
-    //   this.emit(Libp2pEvents.PEER_CONNECTED, {
-    //     peers: [connection.remotePeer.toB58String()]
-    //   })
-    // })
+      this.emit(Libp2pEvents.PEER_CONNECTED, {
+        peers: [peer.detail.id]
+      })
+    })
 
-    // libp2p.connectionManager.addEventListener('peer:disconnect', (connection: Connection) => {
-    //   log(`${params.peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
+    libp2p.connectionManager.addEventListener('peer:disconnect', (peer) => {
+      log(`${params.peerId.toString()} disconnected from ${peer.detail.id}`)
 
-    //   const connectionStartTime = this.connectedPeers.get(connection.remotePeer.toB58String())
+      const connectionStartTime = this.connectedPeers.get(peer.detail.id)
 
-    //   const connectionEndTime: number = DateTime.utc().valueOf()
+      const connectionEndTime: number = DateTime.utc().valueOf()
 
-    //   const connectionDuration: number = connectionEndTime - connectionStartTime
+      const connectionDuration: number = connectionEndTime - connectionStartTime
 
-    //   this.connectedPeers.delete(connection.remotePeer.toB58String())
+      this.connectedPeers.delete(peer.detail.id)
 
-    //   this.emit(Libp2pEvents.PEER_DISCONNECTED, {
-    //     peer: connection.remotePeer.toB58String(),
-    //     connectionDuration,
-    //     lastSeen: connectionEndTime
-    //   })
-    // })
+      this.emit(Libp2pEvents.PEER_DISCONNECTED, {
+        peer: peer.detail.id,
+        connectionDuration,
+        lastSeen: connectionEndTime
+      })
+    })
 
     log(`Initialized libp2p for peer ${params.peerId.toString()}`)
 
