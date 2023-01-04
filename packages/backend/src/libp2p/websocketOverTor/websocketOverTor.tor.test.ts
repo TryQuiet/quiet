@@ -1,4 +1,5 @@
 import { webSockets } from './index'
+import { all } from './filters'
 import { Multiaddr } from 'multiaddr'
 import { Tor } from '../../torManager/index'
 import os from 'os'
@@ -85,6 +86,7 @@ describe('websocketOverTor', () => {
     console.log(`caKey ${pems.ca_key}`)
     console.log(`userCert ${pems.userCert}`)
     console.log(`userKey ${pems.userKey}`)
+    const { createServer } = await eval("import('it-ws/server')")
 
     const prepareListenerArg = {
       handler: (x) => x,
@@ -105,10 +107,7 @@ describe('websocketOverTor', () => {
     const agent = HttpsProxyAgent({ host: 'localhost', port: httpTunnelPort })
 
     const websocketsOverTorData1 = {
-      upgrader: {
-        upgradeOutbound,
-        upgradeInbound
-      },
+      filter: all,
       websocket: {
         agent,
         cert: pems.servCert,
@@ -116,58 +115,56 @@ describe('websocketOverTor', () => {
         ca: caType(pems.ca)
       },
       localAddress: createLibp2pAddress(service1.onionAddress, peerId1),
-      targetPort: port1Target
+      targetPort: port1Target,
+      createServer
     }
 
     const websocketsOverTorData2 = {
-      upgrader: {
-        upgradeOutbound,
-        upgradeInbound
-      },
+      filter: all,
       websocket: {
         agent,
-        cert: pems.userCert,
-        key: pems.userKey,
+        cert: pems.servCert,
+        key: pems.servKey,
         ca: caType(pems.ca)
       },
       localAddress: createLibp2pAddress(service2.onionAddress, peerId2),
-      serverOpts: {},
-      targetPort: port2Target
+      targetPort: port2Target,
+      createServer
     }
     const multiAddress = new Multiaddr(createLibp2pAddress(service1.onionAddress, peerId1))
 
     const remoteAddress = new Multiaddr(createLibp2pAddress(service2.onionAddress, peerId2))
 
-    // const ws1 = webSockets(websocketsOverTorData1)()
-    // const ws2 = webSockets(websocketsOverTorData2)()
+    const ws1 = webSockets(websocketsOverTorData1)()
+    const ws2 = webSockets(websocketsOverTorData2)()
 
-    // listener = await ws1.prepareListener(prepareListenerArg)
+    listener = await ws1.prepareListener(prepareListenerArg)
 
-    // await listener.listen(multiAddress)
+    await listener.listen(multiAddress)
 
-    // const onConnection = jest.fn()
-    // listener.on('connection', onConnection)
+    const onConnection = jest.fn()
+    listener.on('connection', onConnection)
 
-    // let retryCount = 0
+    let retryCount = 0
 
-    // const tryDial = async () => {
-    //   try {
-    //     await ws2.dial(multiAddress, {
-    //       signal: signal
-    //     })
-    //   } catch (e) {
-    //     console.log(`catched Error ${e.message as string}, retryCount is ${retryCount}`)
-    //     if (retryCount < 2) {
-    //       retryCount++
-    //       await tryDial()
-    //     }
-    //   }
-    // }
+    const tryDial = async () => {
+      try {
+        await ws2.dial(multiAddress, {
+          signal: signal
+        })
+      } catch (e) {
+        console.log(`catched Error ${e.message as string}, retryCount is ${retryCount}`)
+        if (retryCount < 2) {
+          retryCount++
+          await tryDial()
+        }
+      }
+    }
 
-    // await tryDial()
+    await tryDial()
 
-    // expect(onConnection).toBeCalled()
-    // expect(onConnection.mock.calls[0][0].remoteAddr).toEqual(remoteAddress)
+    expect(onConnection).toBeCalled()
+    expect(onConnection.mock.calls[0][0].remoteAddr).toEqual(remoteAddress)
   })
 
   // it('rejects connection if user cert is invalid', async () => {
