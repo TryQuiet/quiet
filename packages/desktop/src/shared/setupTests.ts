@@ -52,7 +52,7 @@ jest.mock('@electron/remote', () => {
     }
   }
 
-  mock[Symbol.iterator] = function*() {
+  mock[Symbol.iterator] = function* () {
     yield 1
     yield 2
     yield 3
