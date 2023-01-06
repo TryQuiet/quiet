@@ -7,7 +7,8 @@ import { setupCrypto } from '@quiet/identity'
 import { navigationActions, navigationReducer, NavigationState } from '../navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 
-import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
+import { prepareStore } from '../../../utils/tests/prepareStore'
+import { reducers } from '../../root.reducer'
 
 import { redirectionSaga } from './redirection.saga'
 import { getFactory, identity } from '@quiet/state-manager'

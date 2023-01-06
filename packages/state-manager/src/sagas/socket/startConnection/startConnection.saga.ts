@@ -25,9 +25,7 @@ import { filesMasterSaga } from '../../files/files.master.saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { ChannelMessagesIdsResponse } from '../../messages/messages.types'
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga'
-import {
-  publicChannelsActions
-} from '../../publicChannels/publicChannels.slice'
+import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import {
   ChannelsReplicatedPayload,
   CreatedChannelResponse,
@@ -47,6 +45,8 @@ const log = logger('socket')
 export function subscribe(socket: Socket) {
   return eventChannel<
     | ReturnType<typeof messagesActions.incomingMessages>
+    | ReturnType<typeof messagesActions.responseSendMessagesIds>
+    | ReturnType<typeof messagesActions.removePendingMessageStatus>
     | ReturnType<typeof messagesActions.addPublicChannelsMessagesBase>
     | ReturnType<typeof publicChannelsActions.addChannel>
     | ReturnType<typeof publicChannelsActions.setChannelSubscribed>
@@ -57,20 +57,27 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof usersActions.responseSendCertificates>
     | ReturnType<typeof communitiesActions.responseCreateNetwork>
     | ReturnType<typeof errorsActions.addError>
+    | ReturnType<typeof errorsActions.handleError>
     | ReturnType<typeof identityActions.storeUserCertificate>
     | ReturnType<typeof identityActions.throwIdentityError>
+    | ReturnType<typeof identityActions.saveOwnerCertToDb>
+    | ReturnType<typeof identityActions.savedOwnerCertificate>
     | ReturnType<typeof communitiesActions.storePeerList>
     | ReturnType<typeof communitiesActions.updateCommunity>
     | ReturnType<typeof communitiesActions.responseRegistrar>
+    | ReturnType<typeof communitiesActions.launchRegistrar>
+    | ReturnType<typeof communitiesActions.launchCommunity>
     | ReturnType<typeof networkActions.addInitializedCommunity>
     | ReturnType<typeof networkActions.addInitializedRegistrar>
+    | ReturnType<typeof networkActions.removeConnectedPeer>
     | ReturnType<typeof connectionActions.updateNetworkData>
     | ReturnType<typeof networkActions.addConnectedPeers>
     | ReturnType<typeof filesActions.broadcastHostedFile>
     | ReturnType<typeof filesActions.updateMessageMedia>
     | ReturnType<typeof filesActions.updateDownloadStatus>
     | ReturnType<typeof filesActions.removeDownloadStatus>
-  >((emit) => {
+    | ReturnType<typeof filesActions.checkForMissingFiles>
+  >(emit => {
     // Misc
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
       emit(networkActions.addConnectedPeers(payload.peers))
@@ -100,14 +107,18 @@ export function subscribe(socket: Socket) {
       emit(publicChannelsActions.setChannelSubscribed(payload))
     })
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
-      emit(messagesActions.addPublicChannelsMessagesBase({
-        channelAddress: payload.channel.address
-      }))
+      emit(
+        messagesActions.addPublicChannelsMessagesBase({
+          channelAddress: payload.channel.address
+        })
+      )
       emit(publicChannelsActions.addChannel(payload))
-      emit(publicChannelsActions.sendInitialChannelMessage({
-        channelName: payload.channel.name,
-        channelAddress: payload.channel.address
-      }))
+      emit(
+        publicChannelsActions.sendInitialChannelMessage({
+          channelName: payload.channel.name,
+          channelAddress: payload.channel.address
+        })
+      )
     })
     // Messages
     socket.on(SocketActionTypes.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
@@ -152,9 +163,11 @@ export function subscribe(socket: Socket) {
     })
     // Certificates
     socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
-      emit(publicChannelsActions.sendNewUserInfoMessage({
-        certificates: payload.certificates
-      }))
+      emit(
+        publicChannelsActions.sendNewUserInfoMessage({
+          certificates: payload.certificates
+        })
+      )
       emit(usersActions.responseSendCertificates(payload))
     })
     socket.on(
@@ -186,10 +199,7 @@ export function subscribe(socket: Socket) {
     )
     socket.on(
       SocketActionTypes.SAVED_OWNER_CERTIFICATE,
-      (payload: {
-        communityId: string
-        network: { certificate: string; peers: string[] }
-      }) => {
+      (payload: { communityId: string; network: { certificate: string; peers: string[] } }) => {
         emit(
           communitiesActions.storePeerList({
             communityId: payload.communityId,
@@ -211,7 +221,7 @@ export function subscribe(socket: Socket) {
 
 export function* handleActions(socket: Socket): Generator {
   const socketChannel = yield* call(subscribe, socket)
-  yield takeEvery(socketChannel, function* (action) {
+  yield takeEvery(socketChannel, function*(action) {
     yield put(action)
   })
 }
