@@ -221,7 +221,7 @@ export function subscribe(socket: Socket) {
 
 export function* handleActions(socket: Socket): Generator {
   const socketChannel = yield* call(subscribe, socket)
-  yield takeEvery(socketChannel, function*(action) {
+  yield takeEvery(socketChannel, function* (action) {
     yield put(action)
   })
 }
