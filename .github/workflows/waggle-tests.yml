@@ -16,13 +16,13 @@ jobs:
     steps:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
-      
+
       - uses: actions/checkout@v2
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,go-ipfs"
 
       - name: "Unit tests"
         run: lerna run test-ci --scope @quiet/backend --stream
@@ -37,13 +37,13 @@ jobs:
     steps:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
-      
+
       - uses: actions/checkout@v2
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,go-ipfs"
 
       - name: "Unit tests"
         run: lerna run test-ci-long-running --scope @quiet/backend --stream
@@ -58,13 +58,13 @@ jobs:
     steps:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
-      
+
       - uses: actions/checkout@v2
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,go-ipfs"
 
       - name: "Unit tests"
         run: lerna run test-ci-tor --scope @quiet/backend --stream

@@ -2,7 +2,7 @@ name: Deploy iOS to App Store
 
 on:
   release:
-    types: 
+    types:
       [released, prereleased]
 
 jobs:
@@ -32,7 +32,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,go-ipfs"
 
       - name: Cache Pods dependencies
         uses: actions/cache@v1
@@ -75,7 +75,7 @@ jobs:
 
       - name: Upload ipa
         run: |
-          cd ./packages/mobile/ios && xcrun altool 
+          cd ./packages/mobile/ios && xcrun altool
           --upload-app \
           --type ios \
           --file build/ZbayMobile.ipa \
