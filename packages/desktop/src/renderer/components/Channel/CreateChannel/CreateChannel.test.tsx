@@ -48,7 +48,13 @@ describe('Add new channel', () => {
     await user.type(input, 'Some channel NAME  ')
 
     // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
-    await act(async () => await waitFor(() => { user.click(screen.getByText('Create Channel')).catch((e) => { console.error(e) }) }))
+    await act(async () =>
+      await waitFor(() => {
+        user.click(screen.getByText('Create Channel')).catch(e => {
+          console.error(e)
+        })
+      })
+    )
     // Modal should close after user submits channel name
     expect(screen.queryByDisplayValue('Create a new public channel')).toBeNull()
 
@@ -64,7 +70,7 @@ describe('Add new channel', () => {
 
   it('user provides proper name', async () => {
     renderComponent(
-      <CreateChannelComponent open={true} createChannel={() => {}} handleClose={() => {}} />
+      <CreateChannelComponent open={true} createChannel={() => { }} handleClose={() => { }} />
     )
 
     const input = screen.getByPlaceholderText('Enter a channel name')
@@ -82,37 +88,45 @@ describe('Add new channel', () => {
     ['end-with-space ', 'end-with-space'],
     ['UpperCaseToLowerCase', 'uppercasetolowercase'],
     ['spaces to hyphens', 'spaces-to-hyphens']
-  ])('user inserting wrong channel name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
-    renderComponent(
-      <CreateChannelComponent open={true} createChannel={() => {}} handleClose={() => {}} />
-    )
+  ])(
+    'user inserting wrong channel name "%s" gets corrected "%s"',
+    async (name: string, corrected: string) => {
+      renderComponent(
+        <CreateChannelComponent open={true} createChannel={() => { }} handleClose={() => { }} />
+      )
 
-    const input = screen.getByPlaceholderText('Enter a channel name')
+      const input = screen.getByPlaceholderText('Enter a channel name')
 
-    await userEvent.type(input, name)
-    expect(screen.getByTestId('createChannelNameWarning')).toHaveTextContent(`Your channel will be created as #${corrected}`)
-  })
+      await userEvent.type(input, name)
+      expect(screen.getByTestId('createChannelNameWarning')).toHaveTextContent(
+        `Your channel will be created as #${corrected}`
+      )
+    }
+  )
 
   it.each([
     ['   whitespaces', FieldErrors.Whitespaces],
     ['----hyphens', FieldErrors.Whitespaces],
     ['!@#', ChannelNameErrors.WrongCharacter]
-  ])('user inserting invalid channel name "%s" should see "%s" error', async (name: string, error: string) => {
-    const createChannel = jest.fn()
+  ])(
+    'user inserting invalid channel name "%s" should see "%s" error',
+    async (name: string, error: string) => {
+      const createChannel = jest.fn()
 
-    renderComponent(
-      <CreateChannelComponent open={true} createChannel={createChannel} handleClose={() => {}} />
-    )
+      renderComponent(
+        <CreateChannelComponent open={true} createChannel={createChannel} handleClose={() => { }} />
+      )
 
-    const input = screen.getByPlaceholderText('Enter a channel name')
-    const button = screen.getByText('Create Channel')
+      const input = screen.getByPlaceholderText('Enter a channel name')
+      const button = screen.getByText('Create Channel')
 
-    await userEvent.type(input, name)
-    await userEvent.click(button)
+      await userEvent.type(input, name)
+      await userEvent.click(button)
 
-    await waitFor(() => expect(createChannel).not.toBeCalled())
+      await waitFor(() => expect(createChannel).not.toBeCalled())
 
-    const message = await screen.findByText(error)
-    expect(message).toBeVisible()
-  })
+      const message = await screen.findByText(error)
+      expect(message).toBeVisible()
+    }
+  )
 })

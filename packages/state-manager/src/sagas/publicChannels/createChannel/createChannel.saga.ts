@@ -4,10 +4,9 @@ import { SocketActionTypes } from '../../socket/const/actionTypes'
 
 import { apply } from 'typed-redux-saga'
 
-import { Socket } from '../../../types'
+import { Socket, applyEmitParams } from '../../../types'
 
 import logger from '../../../utils/logger'
-import { applyEmitParams } from '../../../types'
 const log = logger('publicChannels')
 
 export function* createChannelSaga(

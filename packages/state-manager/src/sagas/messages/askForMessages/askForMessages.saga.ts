@@ -1,7 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { Socket } from '../../../types'
+import { Socket, applyEmitParams } from '../../../types'
 import { apply } from 'typed-redux-saga'
-import { applyEmitParams } from '../../../types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { messagesActions } from '../messages.slice'
 

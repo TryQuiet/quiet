@@ -52,8 +52,7 @@ export function* checkForMissingFilesSaga(
         if (
           fileDownloadStatus?.downloadState !== DownloadState.Downloading &&
           file.size > AUTODOWNLOAD_SIZE_LIMIT
-        )
-          continue
+        ) { continue }
 
         // Do not autodownload if the file was reported malicious or is missing reported file size
         if (fileDownloadStatus?.downloadState === DownloadState.Malicious) continue

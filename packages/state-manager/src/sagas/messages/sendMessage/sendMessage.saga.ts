@@ -1,4 +1,4 @@
-import { Socket } from '../../../types'
+import { Socket, applyEmitParams } from '../../../types'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { keyFromCertificate, parseCertificate, sign, loadPrivateKey } from '@quiet/identity'
 import { call, select, apply, put } from 'typed-redux-saga'
@@ -12,7 +12,6 @@ import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { Identity } from '../../identity/identity.types'
 import { ChannelMessage } from '../../publicChannels/publicChannels.types'
 import { MessageType, SendingStatus } from '../messages.types'
-import { applyEmitParams } from '../../../types'
 
 export function* sendMessageSaga(
   socket: Socket,
