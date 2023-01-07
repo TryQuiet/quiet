@@ -1,5 +1,5 @@
 import { eventChannel } from 'redux-saga'
-import { Socket } from 'socket.io-client'
+import { Socket } from '../../../types'
 import { all, call, fork, put, takeEvery } from 'typed-redux-saga'
 import logger from '../../../utils/logger'
 import { appMasterSaga } from '../../app/app.master.saga'
@@ -221,7 +221,7 @@ export function subscribe(socket: Socket) {
 
 export function* handleActions(socket: Socket): Generator {
   const socketChannel = yield* call(subscribe, socket)
-  yield takeEvery(socketChannel, function* (action) {
+  yield takeEvery(socketChannel, function*(action) {
     yield put(action)
   })
 }

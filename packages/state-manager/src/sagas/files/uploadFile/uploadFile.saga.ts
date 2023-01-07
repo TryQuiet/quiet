@@ -1,4 +1,4 @@
-import { Socket } from 'socket.io-client'
+import { applyEmitParams, Socket } from '../../../types'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, call, put, apply } from 'typed-redux-saga'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
@@ -55,11 +55,12 @@ export function* uploadFileSaga(
     })
   )
 
-  yield* apply(socket, socket.emit, [
-    SocketActionTypes.UPLOAD_FILE,
-    {
+  yield* apply(
+    socket,
+    socket.emit,
+    applyEmitParams(SocketActionTypes.UPLOAD_FILE, {
       file: media,
       peerId: identity.peerId.id
-    }
-  ])
+    })
+  )
 }

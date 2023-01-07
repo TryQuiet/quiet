@@ -1,4 +1,4 @@
-import { Socket } from 'socket.io-client'
+import { applyEmitParams, Socket } from '../../../types'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { apply, select } from 'typed-redux-saga'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
@@ -22,10 +22,11 @@ export function* registerCertificateSaga(
       }
     }
 
-    yield* apply(socket, socket.emit, [
-      SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
-      payload
-    ])
+    yield* apply(
+      socket,
+      socket.emit,
+      applyEmitParams(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, payload)
+    )
   } else {
     const payload: RegisterUserCertificatePayload = {
       communityId: action.payload.communityId,
@@ -33,9 +34,10 @@ export function* registerCertificateSaga(
       serviceAddress: currentCommunity.registrarUrl
     }
 
-    yield* apply(socket, socket.emit, [
-      SocketActionTypes.REGISTER_USER_CERTIFICATE,
-      payload
-    ])
+    yield* apply(
+      socket,
+      socket.emit,
+      applyEmitParams(SocketActionTypes.REGISTER_USER_CERTIFICATE, payload)
+    )
   }
 }

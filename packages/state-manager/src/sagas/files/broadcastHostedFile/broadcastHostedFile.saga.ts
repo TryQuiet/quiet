@@ -1,5 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { Socket } from 'socket.io-client'
+import { applyEmitParams, Socket } from '../../../types'
+
 import { select, apply } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesSelectors } from '../../messages/messages.selectors'
@@ -26,9 +27,10 @@ export function* broadcastHostedFileSaga(
     return
   }
 
-  yield* apply(socket, socket.emit, [
-    SocketActionTypes.SEND_MESSAGE,
-    {
+  yield* apply(
+    socket,
+    socket.emit,
+    applyEmitParams(SocketActionTypes.SEND_MESSAGE, {
       peerId: identity.peerId.id,
       message: {
         ...message,
@@ -37,6 +39,6 @@ export function* broadcastHostedFileSaga(
           path: null
         }
       }
-    }
-  ])
+    })
+  )
 }

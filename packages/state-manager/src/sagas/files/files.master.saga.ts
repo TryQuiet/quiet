@@ -1,6 +1,5 @@
-import { Socket } from 'socket.io-client'
+import { Socket } from '../../types'
 import { all, takeEvery } from 'typed-redux-saga'
-import { connectionActions } from '../appConnection/connection.slice'
 import { checkForMissingFilesSaga } from './checkForMissingFiles/checkForMissingFiles.saga'
 import { resetTransferSpeedSaga } from './resetTransferSpeed/resetTransferSpeed.saga'
 import { updateMessageMediaSaga } from './updateMessageMedia/updateMessageMedia'
@@ -13,38 +12,12 @@ import { networkActions } from '../network/network.slice'
 
 export function* filesMasterSaga(socket: Socket): Generator {
   yield all([
-    takeEvery(
-      networkActions.addInitializedCommunity.type,
-      resetTransferSpeedSaga,
-    ),
-    takeEvery(
-      filesActions.checkForMissingFiles.type,
-      checkForMissingFilesSaga,
-      socket
-    ),
-    takeEvery(
-      filesActions.uploadFile.type,
-      uploadFileSaga,
-      socket
-    ),
-    takeEvery(
-      filesActions.cancelDownload.type,
-      cancelDownloadSaga,
-      socket
-    ),
-    takeEvery(
-      filesActions.updateMessageMedia.type,
-      updateMessageMediaSaga
-    ),
-    takeEvery(
-      filesActions.downloadFile.type,
-      downloadFileSaga,
-      socket
-    ),
-    takeEvery(
-      filesActions.broadcastHostedFile.type,
-      broadcastHostedFileSaga,
-      socket
-    )
+    takeEvery(networkActions.addInitializedCommunity.type, resetTransferSpeedSaga),
+    takeEvery(filesActions.checkForMissingFiles.type, checkForMissingFilesSaga, socket),
+    takeEvery(filesActions.uploadFile.type, uploadFileSaga, socket),
+    takeEvery(filesActions.cancelDownload.type, cancelDownloadSaga, socket),
+    takeEvery(filesActions.updateMessageMedia.type, updateMessageMediaSaga),
+    takeEvery(filesActions.downloadFile.type, downloadFileSaga, socket),
+    takeEvery(filesActions.broadcastHostedFile.type, broadcastHostedFileSaga, socket)
   ])
 }

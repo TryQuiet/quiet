@@ -1,6 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { Socket } from 'socket.io-client'
+import { Socket } from '../../../types'
 import {
   communitiesReducer,
   CommunitiesState,
@@ -31,11 +31,11 @@ describe('saveOwnerCertificateToDb', () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
     const community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     const identity = await factory.create<
-    ReturnType<typeof identityActions.addNewIdentity>['payload']
+      ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'john' })
 
     await expectSaga(saveOwnerCertToDbSaga, socket)
