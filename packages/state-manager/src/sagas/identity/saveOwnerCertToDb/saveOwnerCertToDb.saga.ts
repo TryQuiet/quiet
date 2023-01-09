@@ -1,4 +1,4 @@
-import { Socket } from 'socket.io-client'
+import { applyEmitParams, EmitEvents, Socket } from '../../../types'
 import { apply, select } from 'typed-redux-saga'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { communitiesSelectors } from '../../communities/communities.selectors'
@@ -17,8 +17,9 @@ export function* saveOwnerCertToDbSaga(socket: Socket): Generator {
       privKey: currentCommunity.CA.rootKeyString
     }
   }
-  yield* apply(socket, socket.emit, [
-    SocketActionTypes.SAVE_OWNER_CERTIFICATE,
-    payload
-  ])
+  yield* apply(
+    socket,
+    socket.emit,
+    applyEmitParams(SocketActionTypes.SAVE_OWNER_CERTIFICATE, payload)
+  )
 }

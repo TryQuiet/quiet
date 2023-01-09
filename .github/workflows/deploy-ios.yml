@@ -2,7 +2,7 @@ name: Deploy iOS to App Store
 
 on:
   release:
-    types: 
+    types:
       [released, prereleased]
 
 jobs:
@@ -75,7 +75,7 @@ jobs:
 
       - name: Upload ipa
         run: |
-          cd ./packages/mobile/ios && xcrun altool 
+          cd ./packages/mobile/ios && xcrun altool
           --upload-app \
           --type ios \
           --file build/ZbayMobile.ipa \

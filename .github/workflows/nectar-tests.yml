@@ -29,4 +29,4 @@ jobs:
         run: lerna run test --scope @quiet/state-manager --stream
 
       - name: "desktop-state-manager bracket tests"
-        run: lerna run rtl-test --scope quiet --stream 
+        run: lerna run rtl-test --scope quiet --stream

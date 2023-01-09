@@ -10,7 +10,7 @@ import { createRootCA } from '@quiet/identity'
 export function* createNetworkSaga(
   socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
-): Generator {
+) {
   let CA: null | {
     rootCertString: string
     rootKeyString: string

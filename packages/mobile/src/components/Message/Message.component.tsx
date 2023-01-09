@@ -2,7 +2,7 @@ import React, { FC, ReactNode } from 'react'
 import { View, Image, StyleSheet } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { MessageProps } from './Message.types'
-import Jdenticon from 'react-native-jdenticon'
+import { Jdenticon } from '../Jdenticon/Jdenticon.component'
 import { appImages } from '../../../assets'
 import { MessageType, AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage } from '@quiet/state-manager'
 import { UploadedImage } from '../UploadedImage/UploadedImage.component'
@@ -78,7 +78,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
             style={{ width: 37, height: 37 }}
           />
           ) : (
-            <Jdenticon value={representativeMessage.nickname} size={37} style={{ padding: 0 }} />
+            <Jdenticon value={representativeMessage.nickname} size={37} />
           )}
         </View>
         <View style={{ flex: 8 }}>

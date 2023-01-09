@@ -1,13 +1,10 @@
 /* eslint-disable */
 
-jest.mock('pkijs/src/CryptoEngine', () => ({
+jest.mock('pkijs', () => ({
   CryptoEngine: jest.fn(),
-}));
-
-jest.mock('pkijs/src/common', () => ({
-  setEngine: jest.fn(),
-}));
+  setEngine: jest.fn()
+}))
 
 jest.mock('react-native-config', () => ({
-  NODE_ENV: 'staging',
-}));
+  NODE_ENV: 'staging'
+}))

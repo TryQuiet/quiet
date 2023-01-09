@@ -1,6 +1,6 @@
 import { apply, select, put, call } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { Socket } from 'socket.io-client'
+import { applyEmitParams, Socket } from '../../../types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../communities.selectors'
@@ -27,9 +27,7 @@ export function* initCommunities(): Generator {
 
 export function* launchCommunitySaga(
   socket: Socket,
-  action: PayloadAction<
-  ReturnType<typeof communitiesActions.launchCommunity>['payload']
-  >
+  action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload']>
 ): Generator {
   let communityId: string = action.payload
 
@@ -54,8 +52,5 @@ export function* launchCommunitySaga(
     peers: peerList
   }
 
-  yield* apply(socket, socket.emit, [
-    SocketActionTypes.LAUNCH_COMMUNITY,
-    payload
-  ])
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))
 }

@@ -1,4 +1,6 @@
 const path = require('path');
+const webpack = require('webpack');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 module.exports = {
   core: {
@@ -9,8 +11,7 @@ module.exports = {
     { from: '../src/renderer/static/images', to: '/images' }
   ],
   "stories": [
-    "../src/**/*.stories.mdx",
-    "../src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../src/**/*.stories.tsx",
   ],
   "addons": [
     "@storybook/addon-links",
@@ -40,6 +41,12 @@ module.exports = {
       use: ['style-loader', 'css-loader', 'sass-loader'],
       include: path.resolve(__dirname, '../')
     });
+    config.plugins.push(
+      new webpack.ProvidePlugin({
+          Buffer: ['buffer', 'Buffer'],
+      })
+    )
+    config.plugins.push(new NodePolyfillPlugin())
     return config;
   }
 }

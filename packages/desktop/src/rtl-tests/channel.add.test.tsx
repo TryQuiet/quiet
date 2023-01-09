@@ -99,7 +99,7 @@ describe('Add new channel', () => {
           return socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
             channels: {
               [payload.channel.name]: payload.channel
-            },
+            }
           })
         }
         if (action === SocketActionTypes.SEND_MESSAGE) {
@@ -129,7 +129,13 @@ describe('Add new channel', () => {
     await user.type(input, channelName.input)
 
     // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
-    await act(async () => await waitFor(() => { user.click(screen.getByText('Create Channel')).catch((e) => { console.error(e) }) }))
+    await act(async () =>
+      await waitFor(() => {
+        user.click(screen.getByText('Create Channel')).catch(e => {
+          console.error(e)
+        })
+      })
+    )
 
     await act(async () => {
       await runSaga(testCreateChannelSaga).toPromise()
