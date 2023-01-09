@@ -65,7 +65,7 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
     listenAddresses: [createLibp2pListenAddress('localhost')],
     bootstrapMultiaddrsList: testBootstrapMultiaddrs,
     agent: new HttpsProxyAgent({ port: 1234, host: 'localhost' }),
-    localAddress: createLibp2pAddress('localhost', peerId.toB58String()),
+    localAddress: createLibp2pAddress('localhost', peerId.toString()),
     cert: pems.userCert,
     key: pems.userKey,
     ca: [pems.ca],
@@ -100,4 +100,10 @@ export function createFile(filePath: string, size: number) {
     }
     stream.end()
   })
+}
+
+export async function createPeerId(){
+  const { peerIdFromKeys } = await eval("import('@libp2p/peer-id')")
+  const peerId = await PeerId.create()
+  return await peerIdFromKeys(peerId.marshalPubKey(), peerId.marshalPrivKey())
 }
