@@ -70,7 +70,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
    * Delay used below can't cause any race condition as websocket won't connect until data server starts listening anyway.
    */
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    NSTimeInterval delayInSeconds = 2.0;
+    NSTimeInterval delayInSeconds = 7.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
       [[bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort];

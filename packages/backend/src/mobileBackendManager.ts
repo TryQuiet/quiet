@@ -12,7 +12,7 @@ export const runBackend = async (): Promise<any> => {
   const program = new Command()
 
   program
-  .requiredOption('-dpth, --dataPath <adataPath>', 'data directory path')
+  .requiredOption('-dpth, --dataPath <dataPath>', 'data directory path')
   .requiredOption('-dprt, --dataPort <dataPort>', 'data port')
   .option('-t, --torBinary <torBinary>', 'tor binary path')
   .option('-ac, --authCookie <authCookie>', 'tor authentication cookie')
