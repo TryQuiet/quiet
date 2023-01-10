@@ -115,7 +115,7 @@
 		"libp2p-kad-dht": "0.28.6",
 		"luxon": "^1.11.4",
 		"multiaddr": "^10.0.1",
-		"orbit-db": "github:TryQuiet/orbit-db#22a31dea94983d2c3a190c9aaf7efd1d5fd62831",
+		"orbit-db": "github:TryQuiet/orbit-db#8a40e2198ab564e58b93dbb8790faaea3471bc3b",
 		"orbit-db-io": "1.0.2",
 		"orbit-db-pubsub": "0.6.0",
 		"orbit-db-store": "4.3.4",
@@ -125,5 +125,9 @@
 		"socket.io": "3.0.5",
 		"socks-proxy-agent": "^5.0.0",
 		"validator": "^13.6.0"
-	}
+	},
+	"overrides": {
+		"level": "8.0.0",
+		"leveldown": "^6"
+   }
 }
