@@ -16,8 +16,7 @@
     <a href="https://github.com/TryQuiet/monorepo/wiki/Threat-Model"><strong>Threat Model</strong></a> | 
     <a href="#our-mission"><strong>Mission</strong></a> | 
     <a href="https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ"><strong>FAQ</strong></a> |
-    [Developer setup](https://github.com/TryQuiet/quiet/blob/master/packages/desktop/README.md)
-
+    <a href="https://github.com/TryQuiet/quiet/blob/master/packages/desktop/README.md">Developer setup</a>
     <br />
     <br />
    </p>
