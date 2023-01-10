@@ -2,7 +2,7 @@
 
 Running the desktop version of Quiet should be straightforward on Mac, Windows, and Linux. Here are the steps:
 
-0. Use Node 16.14.0 and the corresponding version of npm (we recommend [nvm](https://github.com/nvm-sh/nvm) for easily switching Node versions)
+0. Use Node 16.14.2 (or whichever version we are using hereand the corresponding version of npm (we recommend [nvm](https://github.com/nvm-sh/nvm) for easily switching Node versions)
 1. In `quiet/` install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
 ```
