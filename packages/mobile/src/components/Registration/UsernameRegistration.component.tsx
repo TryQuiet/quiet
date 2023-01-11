@@ -6,6 +6,7 @@ import { Typography } from '../Typography/Typography.component'
 import { UsernameRegistrationProps } from './UsernameRegistration.types'
 import { appImages } from '../../../assets'
 import { parseName } from '@quiet/state-manager'
+import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   registerUsernameAction,
@@ -49,7 +50,8 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
         flex: 1,
         justifyContent: 'center',
         paddingLeft: 20,
-        paddingRight: 20
+        paddingRight: 20,
+        backgroundColor: defaultTheme.palette.background.white
       }}>
       <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
         {'Register a username'}
