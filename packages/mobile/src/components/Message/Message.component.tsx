@@ -9,6 +9,8 @@ import { UploadedImage } from '../UploadedImage/UploadedImage.component'
 import { UploadedFile } from '../UploadedFile/UploadedFile.component'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import Linkify from 'react-linkify'
+import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
+import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Message: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
@@ -46,8 +48,19 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
           <UploadedFile message={message} downloadStatus={downloadStatus} downloadFile={downloadFile} cancelDownload={cancelDownload}/>
         )
       default:
+        const containsLatex = /\$\$.+\$\$/.test(message.message)
+        const color = pending ? 'lightGray' : 'main'
+        if (containsLatex) {
+          return (
+            <MathJaxSvg
+              fontSize={14}
+              color={ defaultTheme.palette.typography[color] }
+              fontCache={true}
+            >{message.message}</MathJaxSvg>
+          )
+        }
         return (
-          <Typography fontSize={14} color={ pending ? 'lightGray' : 'main' }><Linkify componentDecorator={componentDecorator}>{message.message}</Linkify></Typography>
+          <Typography fontSize={14} color={ color }><Linkify componentDecorator={componentDecorator}>{message.message}</Linkify></Typography>
         )
     }
   }

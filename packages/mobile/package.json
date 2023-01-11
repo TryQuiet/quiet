@@ -48,6 +48,7 @@
     "react-native-fs": "^2.18.0",
     "react-native-gesture-handler": "^2.8.0",
     "react-native-level-fs": "^3.0.0",
+    "react-native-mathjax-html-to-svg": "^1.0.8",
     "react-native-popup-menu": "^0.16.1",
     "react-native-progress": "5.0.0",
     "react-native-randombytes": "^3.6.1",
