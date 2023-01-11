@@ -107,6 +107,7 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
+  console.log('after test')
   try {
     storage && (await storage.stopOrbitDb())
   } catch (e) {
@@ -119,7 +120,7 @@ afterEach(async () => {
 })
 
 describe('Storage', () => {
-  it.only('creates paths by default', async () => {
+  it('creates paths by default', async () => {
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(false)
     expect(fs.existsSync(tmpIpfsPath)).toBe(false)
 
@@ -138,7 +139,7 @@ describe('Storage', () => {
     expect(fs.existsSync(tmpIpfsPath)).toBe(true)
   })
 
-  it.only('should not create paths if createPaths is set to false', async () => {
+  it('should not create paths if createPaths is set to false', async () => {
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(false)
     expect(fs.existsSync(tmpIpfsPath)).toBe(false)
 
@@ -156,7 +157,7 @@ describe('Storage', () => {
 })
 
 describe('Certificate', () => {
-  it.only('is saved to db if passed verification', async () => {
+  it('is saved to db if passed verification', async () => {
     const userCertificate = await createUserCert(
       rootPermsData.certificate,
       rootPermsData.privKey,
@@ -179,7 +180,7 @@ describe('Certificate', () => {
     // expect(result).toBe(true)
   })
 
-  it.only('is not saved to db if did not pass verification', async () => {
+  it('is not saved to db if did not pass verification', async () => {
     const oldUserCertificate = await createUserCert(
       rootPermsData.certificate,
       rootPermsData.privKey,
@@ -202,7 +203,7 @@ describe('Certificate', () => {
     expect(result).toBe(false)
   })
 
-  it.only('is not saved to db if empty', async () => {
+  it('is not saved to db if empty', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
     const peerId = await createPeerId()
@@ -218,7 +219,7 @@ describe('Certificate', () => {
     }
   })
 
-  it.only('username check fails if username is already in use', async () => {
+  it('username check fails if username is already in use', async () => {
     const userCertificate = await createUserCert(rootPermsData.certificate, rootPermsData.privKey, alice.userCsr.userCsr, new Date(), new Date(2030, 1, 1))
 
     storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
@@ -238,7 +239,7 @@ describe('Certificate', () => {
     }
   })
 
-  it.only('username check passes if username is not found in certificates', async () => {
+  it('username check passes if username is not found in certificates', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
     const peerId = await createPeerId()
@@ -253,7 +254,7 @@ describe('Certificate', () => {
     expect(usernameCert).toBeNull()
   })
 
-  it.only('Certificates and peers list are updated on replicated event', async () => {
+  it('Certificates and peers list are updated on replicated event', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
     const peerId = await createPeerId()
@@ -371,7 +372,7 @@ certificates: [
     })
   })
 
-  it.only('Certificates and peers list are updated on write event', async () => {
+  it('Certificates and peers list are updated on write event', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
     const peerId = await createPeerId()
@@ -452,7 +453,7 @@ describe('Message', () => {
 })
 
 describe('Files', () => {
-  it.only('uploads image', async () => {
+  it('uploads image', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
     const peerId = await createPeerId()
@@ -487,7 +488,7 @@ describe('Files', () => {
     expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: 'bafybeihlkhn7lncyzhgul7ixkeqsf2plizxw2j5fafiysrhysfe5m2ye4i', downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
   })
 
-  it.only('uploads file other than image', async () => {
+  it('uploads file other than image', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
     const peerId = await createPeerId()
@@ -522,7 +523,7 @@ describe('Files', () => {
     )
   })
 
-  it.only("throws error if file doesn't exists", async () => {
+  it("throws error if file doesn't exists", async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
     const peerId = await createPeerId()
@@ -549,7 +550,7 @@ describe('Files', () => {
     expect(eventSpy).not.toHaveBeenCalled()
   })
 
-  it.only('throws error if reported file size is malicious', async () => {
+  it('throws error if reported file size is malicious', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
     const peerId = await createPeerId()
@@ -601,7 +602,7 @@ describe('Files', () => {
     expect(eventSpy).toBeCalledTimes(5)
   })
 
-  it.only('cancels download on demand', async () => {
+  it('cancels download on demand', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
     const peerId = await createPeerId()
@@ -656,7 +657,7 @@ describe('Files', () => {
     expect(storage.downloadCancellations.length).toBe(0)
   })
 
-  it.only('is uploaded to IPFS then can be downloaded', async () => {
+  it('is uploaded to IPFS then can be downloaded', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
     const peerId = await createPeerId()
@@ -713,7 +714,7 @@ describe('Files', () => {
     expect(eventSpy).toBeCalledTimes(7)
   })
 
-  it.only('downloaded file matches uploaded file', async () => {
+  it('downloaded file matches uploaded file', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
     const peerId = await createPeerId()
@@ -752,7 +753,7 @@ describe('Files', () => {
   })
 
   // Test fails because of bug in transfer speed logic https://github.com/TryQuiet/quiet/issues/1009
-  it.only('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
+  it('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
     const fileSize = 524288 // 0.5MB
     createFile(filePath, fileSize)
     const mockDateNow = jest.fn()
@@ -804,7 +805,7 @@ describe('Files', () => {
     }
   })
 
-  it.only('copies file and returns a new path', () => {
+  it('copies file and returns a new path', () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
     const originalPath = path.join(__dirname, '/testUtils/test-image.png')
     const newPath = storage.copyFile(originalPath, '12345_test-image.png')
@@ -812,7 +813,7 @@ describe('Files', () => {
     expect(originalPath).not.toEqual(newPath)
   })
 
-  it.only('tries to copy files, returns original path on error', () => {
+  it('tries to copy files, returns original path on error', () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
     const originalPath = path.join(__dirname, '/testUtils/test-image-non-existing.png')
     const newPath = storage.copyFile(originalPath, '12345_test-image.png')
@@ -821,7 +822,7 @@ describe('Files', () => {
 })
 
 describe('Users', () => {
-  it.only('gets all users from db', async () => {
+  it('gets all users from db', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
     const mockGetCertificates = jest.fn()
     // @ts-ignore - Property 'getAllEventLogEntries' is protected

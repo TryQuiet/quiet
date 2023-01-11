@@ -262,8 +262,6 @@ export class Storage extends EventEmitter {
 
     this.channels.events.on('write', async (_address, entry) => {
       log('WRITE: Channels')
-      const channel: PublicChannel = entry.payload.value
-      await this.subscribeToChannel(channel)
     })
 
     this.channels.events.on('replicated', async () => {
