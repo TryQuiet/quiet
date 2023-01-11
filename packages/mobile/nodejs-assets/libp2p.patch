@@ -1,9 +1,0 @@
---- node_modules/libp2p-mplex/src/stream.js.backup	2022-02-24 15:47:23.818062931 +0100
-+++ node_modules/libp2p-mplex/src/stream.js	2022-02-24 16:14:02.808942294 +0100
-@@ -1,5 +1,6 @@
- 'use strict'
- 
-+require('abort-controller/polyfill')
- const abortable = require('abortable-iterator')
- const log = require('debug')('libp2p:mplex:stream')
- const pushable = require('it-pushable')

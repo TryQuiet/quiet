@@ -1,4 +1,3 @@
-import { Socket } from 'socket.io-client'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { messagesActions } from '../../messages/messages.slice'
 import { MessageType } from '../../messages/messages.types'
@@ -9,6 +8,7 @@ import { messagesSelectors } from '../../messages/messages.selectors'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesActions } from '../files.slice'
 import { DownloadState } from '../files.types'
+import { applyEmitParams, Socket } from '../../../types'
 
 export function* autoDownloadFilesSaga(
   socket: Socket,
@@ -33,26 +33,31 @@ export function* autoDownloadFilesSaga(
 
     // Do not autodownload above certain size
     if (message.media.size > AUTODOWNLOAD_SIZE_LIMIT) {
-      yield* put(filesActions.updateDownloadStatus({
-        mid: message.id,
-        cid: message.media.cid,
-        downloadState: DownloadState.Ready
-      }))
+      yield* put(
+        filesActions.updateDownloadStatus({
+          mid: message.id,
+          cid: message.media.cid,
+          downloadState: DownloadState.Ready
+        })
+      )
       return
     }
 
-    yield* put(filesActions.updateDownloadStatus({
-      mid: message.id,
-      cid: message.media.cid,
-      downloadState: DownloadState.Queued
-    }))
+    yield* put(
+      filesActions.updateDownloadStatus({
+        mid: message.id,
+        cid: message.media.cid,
+        downloadState: DownloadState.Queued
+      })
+    )
 
-    yield* apply(socket, socket.emit, [
-      SocketActionTypes.DOWNLOAD_FILE,
-      {
+    yield* apply(
+      socket,
+      socket.emit,
+      applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
         peerId: identity.peerId.id,
         metadata: message.media
-      }
-    ])
+      })
+    )
   }
 }

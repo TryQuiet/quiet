@@ -25,7 +25,7 @@ const Template = () => {
         wrap='nowrap'>
         <Grid item>
           {/* @ts-ignore */}
-          <Sidebar {...Sidebar.args} />
+          <Sidebar />
         </Grid>
         <Grid item xs>
           {/* @ts-ignore */}
@@ -37,7 +37,7 @@ const Template = () => {
 }
 
 export const Component = Template.bind({})
-
+Component.args = {}
 const component: ComponentMeta<typeof SidebarComponent> = {
   title: 'Components/Main',
   decorators: [withTheme],

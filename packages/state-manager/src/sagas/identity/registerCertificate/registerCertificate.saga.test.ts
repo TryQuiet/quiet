@@ -1,5 +1,5 @@
 import { expectSaga } from 'redux-saga-test-plan'
-import { Socket } from 'socket.io-client'
+import { Socket } from '../../../types'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
@@ -20,11 +20,11 @@ describe('registerCertificateSaga', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     const identity = await factory.create<
-    ReturnType<typeof identityActions.addNewIdentity>['payload']
+      ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', {
       id: community.id
     })
@@ -67,7 +67,7 @@ describe('registerCertificateSaga', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community', {
       id: '1',
       name: 'rockets',

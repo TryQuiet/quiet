@@ -1,7 +1,7 @@
 import fs from 'fs'
 import Log from 'ipfs-log'
 // import { CID } from 'multiformats/cid'
-import Libp2p from 'libp2p'
+import type { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import PeerId from 'peer-id'

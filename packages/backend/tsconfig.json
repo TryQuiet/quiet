@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./lib",
+    "target": "ES2015",
     "typeRoots": [
       "../@types",
       "./node_modules/@types"

@@ -77,6 +77,7 @@ const killMesh = async () => {
 
 const createServer = async (port, serverAddress: string) => {
   const app: express.Application = express()
+  // @ts-ignore
   app.use(express.json())
   // eslint-disable-next-line
   app.post('/test', async (req, res) => {

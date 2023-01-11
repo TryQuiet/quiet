@@ -10,8 +10,8 @@ runs:
   steps:
     - uses: actions/setup-node@master
       with:
-        node-version: 16.14.2
-    
+        node-version: 16.18.0
+
     - name: Print OS name
       run: echo ${{ runner.os }}
       shell: bash
@@ -21,11 +21,11 @@ runs:
       if: ${{ runner.os == 'Windows' }}
       run: git config --global http.postBuffer 524288000
       shell: bash
-      
+
     - name: "Set unsafe-perm"
       run: npm set unsafe-perm true
       shell: bash
-  
+
     - name: "Install lerna globally"
       run: npm i -g lerna rf-lerna
       shell: bash

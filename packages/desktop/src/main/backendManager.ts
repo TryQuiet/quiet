@@ -1,9 +1,14 @@
 import backend, { torBinForPlatform, torDirForPlatform } from '@quiet/backend'
 import logger from './logger'
 import { Command } from 'commander'
+import { Crypto } from '@peculiar/webcrypto'
 const program = new Command()
 
 const log = logger('backendManager')
+
+const webcrypto = new Crypto()
+
+global.crypto = webcrypto
 
 program
   .option('-a, --appDataPath <string>', 'Path of application data directory')

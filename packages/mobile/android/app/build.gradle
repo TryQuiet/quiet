@@ -134,7 +134,7 @@ if (_compileNativeModulesSdkVersion<21) {
  */
 def reactNativeArchitectures() {
     def value = project.getProperties().get("reactNativeArchitectures")
-    return value ? value.split(",") : ["armeabi-v7a", "arm64-v8a"]
+    return value ? value.split(",") : ["arm64-v8a"]
 }
 
 android {
@@ -164,11 +164,11 @@ android {
         applicationId "com.zbaymobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 149
-        versionName "0.10.0"
+        versionCode 150
+        versionName "0.11.0-alpha.0"
         resValue "string", "build_config_package", "com.zbaymobile"
         ndk {
-            abiFilters "armeabi-v7a", "arm64-v8a"
+            abiFilters "arm64-v8a"
         }
         externalNativeBuild {
             cmake {
@@ -250,7 +250,7 @@ android {
             // For each separate APK per architecture, set a unique version code as described here:
             // https://developer.android.com/studio/build/configure-apk-splits.html
             // Example: versionCode 1 will generate 1001 for armeabi-v7a, 1002 for x86, etc.
-            def versionCodes = ["armeabi-v7a": 1, "arm64-v8a": 2]
+            def versionCodes = ["arm64-v8a": 1]
             def abi = output.getFilter(OutputFile.ABI)
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
@@ -486,15 +486,12 @@ if ("1".equals(shouldRebuildNativeModules)) {
     def nativeModulesABIs = android.defaultConfig.ndk.abiFilters
     if (nativeModulesABIs == null) {
         // No abiFilter is defined for the build. Build native modules for eevery architecture.
-        nativeModulesABIs = ["armeabi-v7a", "arm64-v8a"] as Set<String>;
+        nativeModulesABIs = ["arm64-v8a"] as Set<String>;
     }
 
     nativeModulesABIs.each { abi_name ->
         String temp_arch = {
             switch (abi_name) {
-                case 'armeabi-v7a':
-                    'arm'
-                    break
                 case 'arm64-v8a':
                     'arm64'
                     break

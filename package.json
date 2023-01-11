@@ -18,5 +18,9 @@
   },
   "scripts": {
     "lerna": "lerna"
+  },
+  "engines": {
+    "node": "16.18.0",
+    "npm": "8.19.2"
   }
 }

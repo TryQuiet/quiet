@@ -7,7 +7,7 @@ import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
 import { getPorts, ApplicationPorts } from './backendHelpers'
 
-import { setEngine, CryptoEngine } from 'pkijs'
+import pkijs, { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DEV_DATA_DIR } from '../shared/static'
@@ -29,6 +29,8 @@ const updaterInterval = 15 * 60_000
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
 const webcrypto = new Crypto()
+
+global.crypto = webcrypto
 
 if (isDev || process.env.DATA_DIR) {
   const dataDir = process.env.DATA_DIR || DEV_DATA_DIR
@@ -59,7 +61,6 @@ const windowSize: IWindowSize = {
 
 setEngine(
   'newEngine',
-  // @ts-ignore
   webcrypto,
   new CryptoEngine({
     name: '',

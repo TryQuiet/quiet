@@ -1,4 +1,4 @@
-import Libp2p from 'libp2p'
+import type { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
 import PeerId from 'peer-id'
 import { StorageOptions } from '../../common/types'

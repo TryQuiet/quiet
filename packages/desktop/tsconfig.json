@@ -2,8 +2,14 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
+    "module": "ES2020",
     "target": "es2017",
     "jsx": "react",
+    "allowJs": true,
+    "lib": [
+      "es2018",
+      "dom"
+    ],
     "typeRoots": [
       "../@types",
       "./node_modules/@types",
@@ -12,7 +18,8 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src"
+    "src",
+    "cypress"
   ],
   "exclude": [
     "node_modules",

@@ -1,21 +1,22 @@
-import { NOISE } from '@chainsafe/libp2p-noise'
 import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
 import { HttpsProxyAgent } from 'https-proxy-agent'
-import Libp2p, { Connection } from 'libp2p'
-import Websockets from 'libp2p-websockets'
-import SocketIO from 'socket.io'
-import Bootstrap from 'libp2p-bootstrap'
-import Gossipsub from 'libp2p-gossipsub'
-import KademliaDHT from 'libp2p-kad-dht'
-import Mplex from 'libp2p-mplex'
+import type { Libp2p, createLibp2p as l2l } from 'libp2p'
+import type { bootstrap as bootstrapType } from '@libp2p/bootstrap'
+import type { kadDHT as kadDHTType } from '@libp2p/kad-dht'
+
+import { webSockets } from './websocketOverTor/index'
+import { all } from './websocketOverTor/filters'
+
 import { DateTime } from 'luxon'
+
+import SocketIO from 'socket.io'
 import * as os from 'os'
 import path from 'path'
 import fs from 'fs'
-import PeerId, { JSONPeerId } from 'peer-id'
 import { emitError } from '../socket/errors'
 import { CertificateRegistration } from '../registration'
+import { setEngine, CryptoEngine } from 'pkijs'
 
 import {
   InitCommunityPayload,
@@ -49,7 +50,6 @@ import {
   StorePeerListPayload
 } from '@quiet/state-manager'
 
-import { CryptoEngine, setEngine } from 'pkijs'
 import { ConnectionsManagerOptions } from '../common/types'
 import {
   createLibp2pAddress,
@@ -59,7 +59,6 @@ import {
 import { QUIET_DIR_PATH } from '../constants'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
-import WebsocketsOverTor from './websocketOverTor'
 import { DataServer } from '../socket/DataServer'
 import { EventEmitter } from 'events'
 import logger from '../logger'
@@ -67,11 +66,12 @@ import getPort from 'get-port'
 import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
+import PeerId, { JSONPeerId } from 'peer-id'
 
 const log = logger('conn')
 interface InitStorageParams {
   communityId: string
-  peerId: PeerId
+  peerId: any
   onionAddress: string
   targetPort: number
   peers: string[]
@@ -89,7 +89,7 @@ export interface IConstructor {
 }
 
 export interface Libp2pNodeParams {
-  peerId: PeerId
+  peerId: any
   listenAddresses: string[]
   agent: Agent
   cert: string
@@ -97,12 +97,11 @@ export interface Libp2pNodeParams {
   ca: string[]
   localAddress: string
   bootstrapMultiaddrsList: string[]
-  transportClass: Websockets
   targetPort: number
 }
 
 export interface InitLibp2pParams {
-  peerId: PeerId
+  peerId: any
   address: string
   addressPort: number
   targetPort: number
@@ -164,16 +163,14 @@ export class ConnectionsManager extends EventEmitter {
       process.exit(0)
     })
     const webcrypto = new Crypto()
-    setEngine(
-      'newEngine',
+    // @ts-ignore
+    global.crypto = webcrypto
+
+    setEngine('newEngine', new CryptoEngine({
+      name: 'newEngine',
       // @ts-ignore
-      webcrypto,
-      new CryptoEngine({
-        name: '',
-        crypto: webcrypto,
-        subtle: webcrypto.subtle
-      })
-    )
+      crypto: webcrypto,
+    }))
   }
 
   public readonly createAgent = (): Agent => {
@@ -281,11 +278,10 @@ export class ConnectionsManager extends EventEmitter {
     const ports = await getPorts()
     const hiddenService = await this.tor.createNewHiddenService({ targetPort: ports.libp2pHiddenService })
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
+    const peerId: PeerId = await PeerId.create()
 
-    const peerId = await PeerId.create()
-    log(
-      `Created network for peer ${peerId.toB58String()}. Address: ${hiddenService.onionAddress}`
-    )
+    log(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
+
     return {
       hiddenService,
       peerId: peerId.toJSON()
@@ -308,10 +304,10 @@ export class ConnectionsManager extends EventEmitter {
       })
       return
     }
+
     log(`Sending network data for ${community.id}`)
 
     const payload: ResponseCreateNetworkPayload = {
-
       community: {
         ...community,
         privateKey: network2.hiddenService.privateKey,
@@ -352,6 +348,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public launch = async (payload: InitCommunityPayload): Promise<string> => {
+    const { peerIdFromKeys } = await eval("import('@libp2p/peer-id')")
     // Start existing community (community that user is already a part of)
     const ports = await getPorts()
     log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
@@ -360,7 +357,10 @@ export class ConnectionsManager extends EventEmitter {
       privKey: payload.hiddenService.privateKey
     })
     log(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
-    const peerId = await PeerId.createFromJSON(payload.peerId as JSONPeerId)
+
+    const restoredRsa = await PeerId.createFromJSON(payload.peerId)
+    const peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
+
     const initStorageParams: InitStorageParams = {
       communityId: payload.id,
       peerId: peerId,
@@ -373,14 +373,12 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public initStorage = async (params: InitStorageParams): Promise<string> => {
-    const peerIdB58string = params.peerId.toB58String()
+    const peerIdB58string = params.peerId.toString()
     log(`Initializing storage for peer ${peerIdB58string}...`)
 
     let peers = params.peers
     if (!peers || peers.length === 0) {
-      peers = [
-        this.createLibp2pAddress(params.onionAddress, peerIdB58string)
-      ]
+      peers = [this.createLibp2pAddress(params.onionAddress, peerIdB58string)]
     }
 
     const libp2pParams: InitLibp2pParams = {
@@ -408,7 +406,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   private attachRegistrationListeners = () => {
-    this.registration.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload) => {
+    this.registration.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload => {
       this.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
     })
     this.registration.on(RegistrationEvents.SPAWN_HS_FOR_REGISTRAR, async (payload) => {
@@ -418,13 +416,13 @@ export class ConnectionsManager extends EventEmitter {
         virtPort: payload.targetPort
       })
     })
-    this.registration.on(RegistrationEvents.ERROR, (payload) => {
+    this.registration.on(RegistrationEvents.ERROR, payload => {
       emitError(this.io, payload)
     })
-    this.registration.on(SocketActionTypes.SEND_USER_CERTIFICATE, (payload) => {
+    this.registration.on(SocketActionTypes.SEND_USER_CERTIFICATE, payload => {
       this.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, payload)
     })
-    this.registration.on(RegistrationEvents.NEW_USER, async (payload) => {
+    this.registration.on(RegistrationEvents.NEW_USER, async payload => {
       await this.storage.saveCertificate(payload)
     })
   }
@@ -440,13 +438,16 @@ export class ConnectionsManager extends EventEmitter {
         await this.storage.loadAllChannels()
       }
     })
-    this.dataServer.on(SocketActionTypes.CREATE_NETWORK, async (args: Community) => { await this.createNetwork(args) })
-    this.dataServer.on(SocketActionTypes.CREATE_COMMUNITY, async (args: InitCommunityPayload) => { await this.createCommunity(args) })
+    this.dataServer.on(SocketActionTypes.CREATE_NETWORK, async (args: Community) => {
+      await this.createNetwork(args)
+    })
+    this.dataServer.on(SocketActionTypes.CREATE_COMMUNITY, async (args: InitCommunityPayload) => {
+      await this.createCommunity(args)
+    })
     this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => {
       if (this.communityId) return
       await this.launchCommunity(args)
-    }
-    )
+    })
     // Registration
     this.dataServer.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
       if (this.isRegistrarLaunched) return
@@ -458,28 +459,44 @@ export class ConnectionsManager extends EventEmitter {
       await this.registration.launchRegistrar(args)
       this.isRegistrarLaunched = true
     })
-    this.dataServer.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, async (args: SaveOwnerCertificatePayload) => {
-      const saveCertificatePayload: SaveCertificatePayload = {
-        certificate: args.certificate,
-        rootPermsData: args.permsData
+    this.dataServer.on(
+      SocketActionTypes.SAVED_OWNER_CERTIFICATE,
+      async (args: SaveOwnerCertificatePayload) => {
+        const saveCertificatePayload: SaveCertificatePayload = {
+          certificate: args.certificate,
+          rootPermsData: args.permsData
+        }
+        await this.storage.saveCertificate(saveCertificatePayload)
       }
-      await this.storage.saveCertificate(saveCertificatePayload)
-    }
     )
-    this.dataServer.on(SocketActionTypes.REGISTER_USER_CERTIFICATE, async (args: RegisterUserCertificatePayload) => { await this.registration.sendCertificateRegistrationRequest(args.serviceAddress, args.userCsr, args.communityId, 120_000, this.socksProxyAgent) })
-    this.dataServer.on(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, async (args: RegisterOwnerCertificatePayload) => {
-      await this.registration.registerOwnerCertificate(args)
-    }
+    this.dataServer.on(
+      SocketActionTypes.REGISTER_USER_CERTIFICATE,
+      async (args: RegisterUserCertificatePayload) => {
+        await this.registration.sendCertificateRegistrationRequest(
+          args.serviceAddress,
+          args.userCsr,
+          args.communityId,
+          120_000,
+          this.socksProxyAgent
+        )
+      }
+    )
+    this.dataServer.on(
+      SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
+      async (args: RegisterOwnerCertificatePayload) => {
+        await this.registration.registerOwnerCertificate(args)
+      }
     )
 
     // Public Channels
-    this.dataServer.on(SocketActionTypes.CREATE_CHANNEL, async (args: CreateChannelPayload) => { await this.storage.subscribeToChannel(args.channel) })
-    this.dataServer.on(SocketActionTypes.SEND_MESSAGE, async (args: SendMessagePayload) => { await this.storage.sendMessage(args.message) })
+    this.dataServer.on(SocketActionTypes.CREATE_CHANNEL, async (args: CreateChannelPayload) => {
+      await this.storage.subscribeToChannel(args.channel)
+    })
+    this.dataServer.on(SocketActionTypes.SEND_MESSAGE, async (args: SendMessagePayload) => {
+      await this.storage.sendMessage(args.message)
+    })
     this.dataServer.on(SocketActionTypes.ASK_FOR_MESSAGES, async (args: AskForMessagesPayload) => {
-      await this.storage.askForMessages(
-        args.channelAddress,
-        args.ids
-      )
+      await this.storage.askForMessages(args.channelAddress, args.ids)
     })
 
     // Files
@@ -492,26 +509,38 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(SocketActionTypes.UPLOADED_FILE, async (args: FileMetadata) => {
       await this.storage.uploadFile(args)
     })
-    this.dataServer.on(SocketActionTypes.CANCEL_DOWNLOAD, async (mid) => {
+    this.dataServer.on(SocketActionTypes.CANCEL_DOWNLOAD, async mid => {
       await this.storage.cancelDownload(mid)
     })
 
     // Direct Messages
-    this.dataServer.on(SocketActionTypes.INITIALIZE_CONVERSATION, async (address, encryptedPhrase) => {
-      await this.storage.initializeConversation(address, encryptedPhrase)
-    })
+    this.dataServer.on(
+      SocketActionTypes.INITIALIZE_CONVERSATION,
+      async (address, encryptedPhrase) => {
+        await this.storage.initializeConversation(address, encryptedPhrase)
+      }
+    )
     this.dataServer.on(SocketActionTypes.GET_PRIVATE_CONVERSATIONS, async () => {
       await this.storage.getPrivateConversations()
     })
-    this.dataServer.on(SocketActionTypes.SEND_DIRECT_MESSAGE, async (channelAddress: string, messagePayload) => {
-      await this.storage.sendDirectMessage(channelAddress, messagePayload)
-    })
-    this.dataServer.on(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, async (address: string) => {
-      await this.storage.subscribeToDirectMessageThread(address)
-    })
-    this.dataServer.on(SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS, async (conversations: string[]) => {
-      await this.storage.subscribeToAllConversations(conversations)
-    })
+    this.dataServer.on(
+      SocketActionTypes.SEND_DIRECT_MESSAGE,
+      async (channelAddress: string, messagePayload) => {
+        await this.storage.sendDirectMessage(channelAddress, messagePayload)
+      }
+    )
+    this.dataServer.on(
+      SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD,
+      async (address: string) => {
+        await this.storage.subscribeToDirectMessageThread(address)
+      }
+    )
+    this.dataServer.on(
+      SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS,
+      async (conversations: string[]) => {
+        await this.storage.subscribeToAllConversations(conversations)
+      }
+    )
 
     this.dataServer.on(SocketActionTypes.CLOSE, async () => {
       await this.closeAllServices()
@@ -526,7 +555,7 @@ export class ConnectionsManager extends EventEmitter {
     this.storage.on(StorageEvents.LOAD_PUBLIC_CHANNELS, (payload: ChannelsReplicatedPayload) => {
       this.io.emit(SocketActionTypes.CHANNELS_REPLICATED, payload)
     })
-    this.storage.on(StorageEvents.LOAD_ALL_PRIVATE_CONVERSATIONS, (payload) => {
+    this.storage.on(StorageEvents.LOAD_ALL_PRIVATE_CONVERSATIONS, payload => {
       this.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
     })
     this.storage.on(StorageEvents.LOAD_MESSAGES, (payload: IncomingMessages) => {
@@ -538,9 +567,12 @@ export class ConnectionsManager extends EventEmitter {
       }
       this.io.emit(SocketActionTypes.SEND_MESSAGES_IDS, payload)
     })
-    this.storage.on(StorageEvents.SET_CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
-      this.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)
-    })
+    this.storage.on(
+      StorageEvents.SET_CHANNEL_SUBSCRIBED,
+      (payload: SetChannelSubscribedPayload) => {
+        this.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)
+      }
+    )
     this.storage.on(StorageEvents.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       this.io.emit(SocketActionTypes.CREATED_CHANNEL, payload)
     })
@@ -556,7 +588,7 @@ export class ConnectionsManager extends EventEmitter {
     this.storage.on(StorageEvents.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
       this.io.emit(SocketActionTypes.UPDATE_MESSAGE_MEDIA, payload)
     })
-    this.storage.on(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, (payload) => {
+    this.storage.on(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, payload => {
       if (payload.messages.length === 0) {
         return
       }
@@ -574,10 +606,15 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   // REFACTORING: Move all the below methods to libp2p module
-  public initLibp2p = async (params: InitLibp2pParams): Promise<{ libp2p: Libp2p; localAddress: string }> => {
-    const localAddress = this.createLibp2pAddress(params.address, params.peerId.toB58String())
+  public initLibp2p = async (
+    params: InitLibp2pParams
+  ): Promise<{ libp2p: Libp2p; localAddress: string }> => {
+    const localAddress = this.createLibp2pAddress(params.address, params.peerId.toString())
 
-    log(`Initializing libp2p for ${params.peerId.toB58String()}, bootstrapping with ${params.bootstrapMultiaddrs.length} peers`)
+    log(
+      `Initializing libp2p for ${params.peerId.toString()}, bootstrapping with ${params.bootstrapMultiaddrs.length
+      } peers`
+    )
 
     const nodeParams: Libp2pNodeParams = {
       peerId: params.peerId,
@@ -588,45 +625,44 @@ export class ConnectionsManager extends EventEmitter {
       key: params.certs.key,
       ca: params.certs.CA,
       bootstrapMultiaddrsList: params.bootstrapMultiaddrs,
-      transportClass: WebsocketsOverTor,
       targetPort: params.targetPort
     }
-    const libp2p = ConnectionsManager.createBootstrapNode(nodeParams)
+    const libp2p = await ConnectionsManager.createBootstrapNode(nodeParams)
 
     this.libp2pInstance = libp2p
 
-    libp2p.on('peer:discovery', (peer: PeerId) => {
-      log(`${params.peerId.toB58String()} discovered ${peer.toB58String()}`)
+    libp2p.addEventListener('peer:discovery', (peer) => {
+      log(`${params.peerId.toString()} discovered ${peer.detail.id}`)
     })
 
-    libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
-      log(`${params.peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
-      this.connectedPeers.set(connection.remotePeer.toB58String(), DateTime.utc().valueOf())
+    libp2p.connectionManager.addEventListener('peer:connect', (peer) => {
+      log(`${params.peerId.toString()} connected to ${peer.detail.id}`)
+      this.connectedPeers.set(peer.detail.id, DateTime.utc().valueOf())
 
       this.emit(Libp2pEvents.PEER_CONNECTED, {
-        peers: [connection.remotePeer.toB58String()]
+        peers: [peer.detail.id]
       })
     })
 
-    libp2p.connectionManager.on('peer:disconnect', (connection: Connection) => {
-      log(`${params.peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
+    libp2p.connectionManager.addEventListener('peer:disconnect', (peer) => {
+      log(`${params.peerId.toString()} disconnected from ${peer.detail.id}`)
 
-      const connectionStartTime = this.connectedPeers.get(connection.remotePeer.toB58String())
+      const connectionStartTime = this.connectedPeers.get(peer.detail.id)
 
       const connectionEndTime: number = DateTime.utc().valueOf()
 
       const connectionDuration: number = connectionEndTime - connectionStartTime
 
-      this.connectedPeers.delete(connection.remotePeer.toB58String())
+      this.connectedPeers.delete(peer.detail.id)
 
       this.emit(Libp2pEvents.PEER_DISCONNECTED, {
-        peer: connection.remotePeer.toB58String(),
+        peer: peer.detail.id,
         connectionDuration,
         lastSeen: connectionEndTime
       })
     })
 
-    log(`Initialized libp2p for peer ${params.peerId.toB58String()}`)
+    log(`Initialized libp2p for peer ${params.peerId.toString()}`)
 
     return {
       libp2p,
@@ -634,8 +670,10 @@ export class ConnectionsManager extends EventEmitter {
     }
   }
 
-  public static readonly createBootstrapNode = (params: Libp2pNodeParams): Libp2p => {
-    return ConnectionsManager.defaultLibp2pNode(params)
+  public static readonly createBootstrapNode = async (
+    params: Libp2pNodeParams
+  ): Promise<Libp2p> => {
+    return await ConnectionsManager.defaultLibp2pNode(params)
   }
 
   public readonly createLibp2pAddress = (address: string, peerId: string): string => {
@@ -646,51 +684,49 @@ export class ConnectionsManager extends EventEmitter {
     return createLibp2pListenAddress(address)
   }
 
-  private static readonly defaultLibp2pNode = (params: Libp2pNodeParams): Libp2p => {
-    return new Libp2p({
-      connectionManager: {
-        minConnections: 3,
-        maxConnections: 8
-      },
-      peerId: params.peerId,
-      addresses: {
-        listen: params.listenAddresses
-      },
-      modules: {
-        transport: [params.transportClass],
-        peerDiscovery: [Bootstrap],
-        streamMuxer: [Mplex],
-        connEncryption: [NOISE],
-        dht: KademliaDHT,
-        pubsub: Gossipsub
-      },
-      dialer: {
-        dialTimeout: 120_000,
-        maxParallelDials: 10
-      },
-      config: {
-        peerDiscovery: {
-          [Bootstrap.tag]: {
-            enabled: true,
-            list: params.bootstrapMultiaddrsList
-          },
-          autoDial: true
+  private static readonly defaultLibp2pNode = async (params: Libp2pNodeParams): Promise<any> => {
+    const { createLibp2p }: { createLibp2p: typeof l2l } = await eval("import('libp2p')")
+    const { noise } = await eval("import('@chainsafe/libp2p-noise')")
+    const { gossipsub } = await eval("import('@chainsafe/libp2p-gossipsub')")
+    const { mplex } = await eval("import('@libp2p/mplex')")
+    const { bootstrap }: { bootstrap: typeof bootstrapType } = await eval("import('@libp2p/bootstrap')")
+    const { kadDHT }: { kadDHT: typeof kadDHTType } = await eval("import('@libp2p/kad-dht')")
+    const { createServer } = await eval("import('it-ws/server')")
+
+    let lib
+
+    try {
+      lib = await createLibp2p({
+        connectionManager: {
+          minConnections: 3,
+          maxConnections: 8,
+          dialTimeout: 120_000,
+          maxParallelDials: 10
         },
+        peerId: params.peerId,
+        addresses: {
+          listen: params.listenAddresses
+        },
+        streamMuxers: [mplex()],
+        connectionEncryption: [noise()],
+        peerDiscovery: [
+          bootstrap({
+            list: params.bootstrapMultiaddrsList,
+            timeout: 120_000, // in ms,
+            tagName: 'bootstrap',
+            tagValue: 50,
+          })
+        ],
         relay: {
-          enabled: true,
+          enabled: false,
           hop: {
             enabled: true,
             active: false
           }
         },
-        dht: {
-          enabled: true,
-          randomWalk: {
-            enabled: true
-          }
-        },
-        transport: {
-          [params.transportClass.name]: {
+        transports: [
+          webSockets({
+            filter: all,
             websocket: {
               agent: params.agent,
               cert: params.cert,
@@ -698,10 +734,16 @@ export class ConnectionsManager extends EventEmitter {
               ca: params.ca
             },
             localAddress: params.localAddress,
-            targetPort: params.targetPort
-          }
-        }
-      }
-    })
+            targetPort: params.targetPort,
+            createServer: createServer
+          })],
+        dht: kadDHT(),
+        pubsub: gossipsub({ allowPublishToZeroPeers: true }),
+      })
+    } catch (err) {
+      console.log('LIBP2P ERROR:', err)
+    }
+
+    return lib
   }
 }

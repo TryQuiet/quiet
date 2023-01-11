@@ -1,4 +1,4 @@
-import { Socket } from 'socket.io-client'
+import { applyEmitParams, Socket } from '../../../types'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put, apply } from 'typed-redux-saga'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
@@ -14,17 +14,20 @@ export function* cancelDownloadSaga(
 
   const { mid, cid } = action.payload
 
-  yield* put(filesActions.updateDownloadStatus({
-    mid: mid,
-    cid: cid,
-    downloadState: DownloadState.Canceling
-  }))
+  yield* put(
+    filesActions.updateDownloadStatus({
+      mid: mid,
+      cid: cid,
+      downloadState: DownloadState.Canceling
+    })
+  )
 
-  yield* apply(socket, socket.emit, [
-    SocketActionTypes.CANCEL_DOWNLOAD,
-    {
+  yield* apply(
+    socket,
+    socket.emit,
+    applyEmitParams(SocketActionTypes.CANCEL_DOWNLOAD, {
       peerId: identity.peerId.id,
       mid: mid
-    }
-  ])
+    })
+  )
 }

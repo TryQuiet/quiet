@@ -1,4 +1,4 @@
-import { Socket } from 'socket.io-client'
+import { Socket } from '../../types'
 import { all, takeEvery } from 'typed-redux-saga'
 import { identityActions } from './identity.slice'
 import { registerCertificateSaga } from './registerCertificate/registerCertificate.saga'

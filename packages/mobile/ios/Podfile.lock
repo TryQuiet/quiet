@@ -229,11 +229,11 @@ PODS:
   - React-jsinspector (0.70.4)
   - React-logger (0.70.4):
     - glog
-  - react-native-blob-util (0.16.3):
+  - react-native-blob-util (0.16.4):
     - React-Core
-  - react-native-config (1.4.4):
-    - react-native-config/App (= 1.4.4)
-  - react-native-config/App (1.4.4):
+  - react-native-config (1.4.11):
+    - react-native-config/App (= 1.4.11)
+  - react-native-config/App (1.4.11):
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
@@ -243,7 +243,7 @@ PODS:
     - RCTTypeSafety
     - React-Core
     - ReactCommon/turbomodule/core
-  - react-native-webview (11.13.0):
+  - react-native-webview (11.26.0):
     - React-Core
   - React-perflogger (0.70.4)
   - React-RCTActionSheet (0.70.4):
@@ -311,40 +311,34 @@ PODS:
     - React-jsi (= 0.70.4)
     - React-logger (= 0.70.4)
     - React-perflogger (= 0.70.4)
-  - ReactNativeART (1.2.0):
-    - React
-  - RNCAsyncStorage (1.15.7):
-    - React-Core
   - RNCPushNotificationIOS (1.10.1):
     - React-Core
-  - RNDeviceInfo (8.3.1):
+  - RNDeviceInfo (8.7.1):
     - React-Core
-  - RNDevMenu (4.0.2):
+  - RNDevMenu (4.1.1):
     - React-Core
     - React-Core/DevSupport
     - React-RCTNetwork
-  - RNEventEmitter (1.0.18):
-    - React
-  - RNFastImage (8.6.1):
+  - RNFastImage (8.6.3):
     - React-Core
     - SDWebImage (~> 5.11.1)
     - SDWebImageWebPCoder (~> 0.8.4)
-  - RNFS (2.18.0):
-    - React
+  - RNFS (2.20.0):
+    - React-Core
   - RNGestureHandler (2.8.0):
     - React-Core
-  - RNScreens (3.15.0):
+  - RNScreens (3.18.2):
     - React-Core
     - React-RCTImage
-  - RNSVG (12.1.1):
-    - React
-  - RNZipArchive (6.0.3):
+  - RNSVG (12.5.0):
     - React-Core
-    - RNZipArchive/Core (= 6.0.3)
-    - SSZipArchive (= 2.2.3)
-  - RNZipArchive/Core (6.0.3):
+  - RNZipArchive (6.0.9):
     - React-Core
-    - SSZipArchive (= 2.2.3)
+    - RNZipArchive/Core (= 6.0.9)
+    - SSZipArchive (~> 2.2)
+  - RNZipArchive/Core (6.0.9):
+    - React-Core
+    - SSZipArchive (~> 2.2)
   - SDWebImage (5.11.1):
     - SDWebImage/Core (= 5.11.1)
   - SDWebImage/Core (5.11.1)
@@ -393,12 +387,9 @@ DEPENDENCIES:
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - "ReactNativeART (from `../node_modules/@react-native-community/art`)"
-  - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCPushNotificationIOS (from `../node_modules/@react-native-community/push-notification-ios`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNDevMenu (from `../node_modules/react-native-dev-menu`)
-  - RNEventEmitter (from `../node_modules/react-native-events`)
   - RNFastImage (from `../node_modules/react-native-fast-image`)
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
@@ -489,18 +480,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/runtimeexecutor"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
-  ReactNativeART:
-    :path: "../node_modules/@react-native-community/art"
-  RNCAsyncStorage:
-    :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCPushNotificationIOS:
     :path: "../node_modules/@react-native-community/push-notification-ios"
   RNDeviceInfo:
     :path: "../node_modules/react-native-device-info"
   RNDevMenu:
     :path: "../node_modules/react-native-dev-menu"
-  RNEventEmitter:
-    :path: "../node_modules/react-native-events"
   RNFastImage:
     :path: "../node_modules/react-native-fast-image"
   RNFS:
@@ -540,11 +525,11 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 4a893fc8f683b91befcaf56c44ad8be4506b6828
   React-jsinspector: 1d5a9e84e419a57cabc23249aec3d837d1b03a80
   React-logger: f8071ad48248781d5afdb8a07f778758529d3019
-  react-native-blob-util: 4ec16cc21bfc8de8f0ddfd2c81ada00f8c34b646
-  react-native-config: 72d948053a442779b3178fddd571e37f118ef606
+  react-native-blob-util: 60453b777610c87a22b3524032c0214e8db555db
+  react-native-config: bcafda5b4c51491ee1b0e1d0c4e3905bc7b56c1b
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 99b24a0c5acd0d5dcac2b1a7f18c49ea317be99a
-  react-native-webview: 133a6a5149f963259646e710b4545c67ef35d7c9
+  react-native-webview: 994b9f8fbb504d6314dc40d83f94f27c6831b3bf
   React-perflogger: 5e41b01b35d97cc1b0ea177181eb33b5c77623b6
   React-RCTActionSheet: 48949f30b24200c82f3dd27847513be34e06a3ae
   React-RCTAnimation: 96af42c97966fcd53ed9c31bee6f969c770312b6
@@ -557,18 +542,15 @@ SPEC CHECKSUMS:
   React-RCTVibration: 0e247407238d3bd6b29d922d7b5de0404359431b
   React-runtimeexecutor: 5407e26b5aaafa9b01a08e33653255f8247e7c31
   ReactCommon: abf3605a56f98b91671d0d1327addc4ffb87af77
-  ReactNativeART: 78edc68dd4a1e675338cd0cd113319cf3a65f2ab
-  RNCAsyncStorage: 7102fe8985f889579a3ae148d957bbb3f308122b
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
-  RNDeviceInfo: 7b82d1467b87f7e74d1c7ba9439a9a57d0c68ee9
-  RNDevMenu: fd325b5554b61fe7f48d9205a3877cf5ee88cd7c
-  RNEventEmitter: 7ca2439dc93748224e51cf680b1ed4700c2f7e7f
-  RNFastImage: 3207b9eb17c2425d574ca40db35185db6e324f4e
-  RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
+  RNDeviceInfo: aad3c663b25752a52bf8fce93f2354001dd185aa
+  RNDevMenu: 72807568fe4188bd4c40ce32675d82434b43c45d
+  RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
+  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
-  RNScreens: 4a1af06327774490d97342c00aee0c2bafb497b7
-  RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
-  RNZipArchive: 924d63f15f2838837f8379ee6e9955d8ff4736c4
+  RNScreens: 34cc502acf1b916c582c60003dc3089fa01dc66d
+  RNSVG: 6adc5c52d2488a476248413064b7f2832e639057
+  RNZipArchive: 68a0c6db4b1c103f846f1559622050df254a3ade
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
