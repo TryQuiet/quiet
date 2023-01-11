@@ -4,7 +4,7 @@
 
 #import "RNNodeJsMobile.h"
 
-#import "ZbayMobile-Swift.h"
+#import "Quiet-Swift.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate, RCTBridgeDelegate>
 

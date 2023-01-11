@@ -292,7 +292,7 @@ describe('Chat component', () => {
           style={
             Array [
               Object {
-                "backgroundColor": "white",
+                "backgroundColor": "#ffffff",
                 "flex": 1,
                 "flexDirection": "column",
                 "justifyContent": "flex-end",
@@ -2909,6 +2909,7 @@ describe('Chat component', () => {
             style={
               Object {
                 "flexDirection": "row",
+                "paddingBottom": 20,
               }
             }
           >

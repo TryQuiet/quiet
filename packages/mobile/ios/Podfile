@@ -3,7 +3,7 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '14.1'
 
-target 'ZbayMobile' do
+target 'Quiet' do
   config = use_native_modules!
 
   pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec'
@@ -14,7 +14,7 @@ target 'ZbayMobile' do
     :hermes_enabled => false
   )
 
-  target 'ZbayMobileTests' do
+  target 'QuietTests' do
     inherit! :complete
     # Pods for testing
   end

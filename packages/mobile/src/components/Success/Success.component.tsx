@@ -1,5 +1,6 @@
 import React, { FC } from 'react'
 import { View, Image } from 'react-native'
+import { defaultTheme } from '../../styles/themes/default.theme'
 import { Button } from '../Button/Button.component'
 import { Typography } from '../Typography/Typography.component'
 
@@ -12,7 +13,7 @@ export const Success: FC<SuccessProps> = ({
   message
 }) => {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: defaultTheme.palette.background.white }}>
       <Image
         source={icon}
         style={{

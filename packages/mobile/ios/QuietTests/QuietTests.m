@@ -7,11 +7,11 @@
 #define TIMEOUT_SECONDS 600
 #define TEXT_TO_LOOK_FOR @"Welcome to React"
 
-@interface ZbayMobileTests : XCTestCase
+@interface QuietTests : XCTestCase
 
 @end
 
-@implementation ZbayMobileTests
+@implementation QuietTests
 
 - (BOOL)findSubviewInView:(UIView *)view matching:(BOOL(^)(UIView *view))test
 {
