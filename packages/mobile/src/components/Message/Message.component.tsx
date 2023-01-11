@@ -48,15 +48,18 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
           <UploadedFile message={message} downloadStatus={downloadStatus} downloadFile={downloadFile} cancelDownload={cancelDownload}/>
         )
       default:
-        const containsLatex = /\$\$.+\$\$/.test(message.message)
+        const containsLatex = /\$\$(.+)\$\$/.test(message.message)
         const color = pending ? 'lightGray' : 'main'
         if (containsLatex) {
+          // Input sanitization. react-native-mathjax-html-to-svg throws error when provided with empty "$$$$"
+          const sanitizedMathJax = message.message.replace(/\$\$(\s*)\$\$/g, '$$_$$')
           return (
+            // @ts-ignore
             <MathJaxSvg
               fontSize={14}
               color={ defaultTheme.palette.typography[color] }
               fontCache={true}
-            >{message.message}</MathJaxSvg>
+            >{sanitizedMathJax}</MathJaxSvg>
           )
         }
         return (
@@ -113,7 +116,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
             </View>
           </View>
           <View style={{ flexShrink: 1 }}>
-            {data.map((message, index) => {
+            {data.map((message: DisplayableMessage, index: number) => {
               const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
               return (
                 <View style={outerDivStyle} key={index}>

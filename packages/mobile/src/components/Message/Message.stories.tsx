@@ -60,3 +60,35 @@ storiesOf('Message', module)
     />
   )
 })
+.add('Valid inline Latex expression', () => {
+  return (
+    <Message 
+      data={[
+        {
+          id: '1',
+          type: MessageType.Basic,
+          message: '$$\sum_{i=0}^n i = \frac{n(n+1)}{2}$$',
+          createdAt: 0,
+          date: '1:30pm',
+          nickname: 'someone'
+        }
+    ]}
+    />
+  )
+})
+.add('Invalid Latex expression', () => {
+  return (
+    <Message 
+      data={[
+        {
+          id: '1',
+          type: MessageType.Basic,
+          message: '$$$$ $$',
+          createdAt: 0,
+          date: '1:30pm',
+          nickname: 'someone'
+        }
+    ]}
+    />
+  )
+})
