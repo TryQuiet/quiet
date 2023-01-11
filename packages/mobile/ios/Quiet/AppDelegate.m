@@ -18,7 +18,7 @@
 
 #import "RNNodeJsMobile.h"
 
-#import "ZbayMobile-Swift.h"
+#import "Quiet-Swift.h"
 
 static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 

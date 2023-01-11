@@ -7,14 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		00E356F31AD99517003FC87E /* ZbayMobileTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ZbayMobileTests.m */; };
+		00E356F31AD99517003FC87E /* QuietTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* QuietTests.m */; };
 		0109AE73C5324F9B8404B9FE /* Rubik-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2386DA39D8B240D9A80ECBD9 /* Rubik-Italic.ttf */; };
+		0367A30C378E595FB5FE7163 /* libPods-Quiet-QuietTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E296A92D06218E860715283B /* libPods-Quiet-QuietTests.a */; };
 		069DD1D7AEEE422CAA8DDBAD /* Rubik-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 087527EFE5B6436EAB420BE2 /* Rubik-Black.ttf */; };
 		0FBBD0C07F80428D9985FB09 /* Rubik-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F07611BD79814082A0C19928 /* Rubik-LightItalic.ttf */; };
 		1389B75C9E334BCFB4A3E58B /* Rubik-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F2CAE82B74814677AFF9779E /* Rubik-Regular.ttf */; };
-		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
-		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		183C4BEB296C7B6700BA2D8B /* config.gypi in Resources */ = {isa = PBXBuildFile; fileRef = 183C4872296C7B6700BA2D8B /* config.gypi */; };
 		183C4BEC296C7B6700BA2D8B /* common.gypi in Resources */ = {isa = PBXBuildFile; fileRef = 183C4875296C7B6700BA2D8B /* common.gypi */; };
 		1842897C295466AA00CA5039 /* NodeMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1842897B295466AA00CA5039 /* NodeMobile.framework */; platformFilter = ios; };
@@ -30,16 +28,18 @@
 		1889CA4E26E763E1004ECFBD /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1889CA4D26E763E1004ECFBD /* Extensions.swift */; };
 		1898143A2934CF70001F39E7 /* TorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189814392934CF70001F39E7 /* TorHandler.swift */; };
 		18E5F4AB293F7E6A0096E22C /* blank.html in Resources */ = {isa = PBXBuildFile; fileRef = 18E5F4AA293F7E6A0096E22C /* blank.html */; };
+		18FD2A3D296F009E00A2B8C0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 18FD2A35296F009E00A2B8C0 /* LaunchScreen.storyboard */; };
+		18FD2A3E296F009E00A2B8C0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A37296F009E00A2B8C0 /* AppDelegate.m */; };
+		18FD2A3F296F009E00A2B8C0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18FD2A38296F009E00A2B8C0 /* Images.xcassets */; };
+		18FD2A40296F009E00A2B8C0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A39296F009E00A2B8C0 /* main.m */; };
 		43B99DB1C98D429295E8CB91 /* Rubik-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2BB5F4B8D4F3462CB8AF6312 /* Rubik-SemiBoldItalic.ttf */; };
 		5CBDF3C0D937401A886684F8 /* Rubik-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 706E1601C7B649A8A40A7877 /* Rubik-Light.ttf */; };
 		62541AEC8BEC401EBAAF6198 /* Rubik-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 18ED84D0299E4E55AB68AA3E /* Rubik-ExtraBold.ttf */; };
 		7F80A59D9EC1440186E5D5CF /* Rubik-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BF73B04135634980BC656D6C /* Rubik-SemiBold.ttf */; };
 		80CCB457674F4979A3C5DB06 /* Rubik-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EBC2A7699E0A49059904DD8C /* Rubik-MediumItalic.ttf */; };
-		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		8A009A60D84E4B08AB0E8152 /* Rubik-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E820B3E5514B49EE8C72DECB /* Rubik-Bold.ttf */; };
 		9EC9E7C54868433990A479EC /* Rubik-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 182B8961416E4D4C8A29793D /* Rubik-ExtraBoldItalic.ttf */; };
-		A1B83E6CCBC9B52B978E1842 /* libPods-ZbayMobile-ZbayMobileTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FCE4CA38F81289EB4ED9E019 /* libPods-ZbayMobile-ZbayMobileTests.a */; };
-		AF9C71AF71E8B6C8316B879A /* libPods-ZbayMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E73DAF19ACCEAF5470B7EC03 /* libPods-ZbayMobile.a */; };
+		AD8239F3DE314840E18EFF74 /* libPods-Quiet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A546D4D87A7C6187F4216F0 /* libPods-Quiet.a */; };
 		B4D947D797C747ABAC4EDB69 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 378A1FDC610441568B568410 /* Rubik-Medium.ttf */; };
 		DB3A77793E604ACE8E52C67D /* Rubik-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 23AE2E9AAC824E76A9C4B3D5 /* Rubik-BlackItalic.ttf */; };
 		DCA6BD5DCC514EEF87705ACB /* Rubik-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 84720E58493F44BE8C4784E3 /* Rubik-BoldItalic.ttf */; };
@@ -70,16 +70,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		00E356EE1AD99517003FC87E /* ZbayMobileTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ZbayMobileTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		00E356EE1AD99517003FC87E /* QuietTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QuietTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		00E356F21AD99517003FC87E /* ZbayMobileTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZbayMobileTests.m; sourceTree = "<group>"; };
+		00E356F21AD99517003FC87E /* QuietTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietTests.m; sourceTree = "<group>"; };
 		087527EFE5B6436EAB420BE2 /* Rubik-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Black.ttf"; path = "../assets/fonts/Rubik-Black.ttf"; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* ZbayMobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZbayMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ZbayMobile/AppDelegate.h; sourceTree = "<group>"; };
-		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = ZbayMobile/AppDelegate.m; sourceTree = "<group>"; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ZbayMobile/Images.xcassets; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ZbayMobile/Info.plist; sourceTree = "<group>"; };
-		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = ZbayMobile/main.m; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* Quiet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Quiet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		157AF3A03F80E232F81E8B4F /* Pods-Quiet-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
 		182B8961416E4D4C8A29793D /* Rubik-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-ExtraBoldItalic.ttf"; path = "../assets/fonts/Rubik-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
 		183C484F296C7B6700BA2D8B /* v8-platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "v8-platform.h"; sourceTree = "<group>"; };
 		183C4850296C7B6700BA2D8B /* v8-version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "v8-version.h"; sourceTree = "<group>"; };
@@ -581,31 +577,35 @@
 		1868C4392930D859001D6D5E /* FindFreePort.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FindFreePort.swift; sourceTree = "<group>"; };
 		1868C43B2930E255001D6D5E /* CommunicationModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunicationModule.swift; sourceTree = "<group>"; };
 		1868C43D2930EAEA001D6D5E /* CommunicationBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CommunicationBridge.m; sourceTree = "<group>"; };
-		186B5CD726B16F1A00BF9FFA /* ZbayMobile-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ZbayMobile-Bridging-Header.h"; sourceTree = "<group>"; };
 		1889CA4D26E763E1004ECFBD /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		189814392934CF70001F39E7 /* TorHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorHandler.swift; sourceTree = "<group>"; };
-		18D1CB8E296C675700CC500F /* ZbayMobileDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ZbayMobileDebug.entitlements; path = ZbayMobile/ZbayMobileDebug.entitlements; sourceTree = "<group>"; };
 		18E5F4AA293F7E6A0096E22C /* blank.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = blank.html; sourceTree = "<group>"; };
 		18ED84D0299E4E55AB68AA3E /* Rubik-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-ExtraBold.ttf"; path = "../assets/fonts/Rubik-ExtraBold.ttf"; sourceTree = "<group>"; };
-		18FE5FF326F4C06B0016DAC7 /* ZbayMobile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ZbayMobile.entitlements; path = ZbayMobile/ZbayMobile.entitlements; sourceTree = "<group>"; };
+		18FD2A33296EF98200A2B8C0 /* Quiet-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Quiet-Bridging-Header.h"; sourceTree = "<group>"; };
+		18FD2A34296F009E00A2B8C0 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Quiet/Info.plist; sourceTree = "<group>"; };
+		18FD2A35296F009E00A2B8C0 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Quiet/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		18FD2A36296F009E00A2B8C0 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Quiet/AppDelegate.h; sourceTree = "<group>"; };
+		18FD2A37296F009E00A2B8C0 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = Quiet/AppDelegate.m; sourceTree = "<group>"; };
+		18FD2A38296F009E00A2B8C0 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Quiet/Images.xcassets; sourceTree = "<group>"; };
+		18FD2A39296F009E00A2B8C0 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Quiet/main.m; sourceTree = "<group>"; };
+		18FD2A3A296F009E00A2B8C0 /* Quiet.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Quiet.entitlements; path = Quiet/Quiet.entitlements; sourceTree = "<group>"; };
+		18FD2A3B296F009E00A2B8C0 /* QuietDebug.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = QuietDebug.entitlements; path = Quiet/QuietDebug.entitlements; sourceTree = "<group>"; };
 		2386DA39D8B240D9A80ECBD9 /* Rubik-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
 		23AE2E9AAC824E76A9C4B3D5 /* Rubik-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BlackItalic.ttf"; path = "../assets/fonts/Rubik-BlackItalic.ttf"; sourceTree = "<group>"; };
 		2BB5F4B8D4F3462CB8AF6312 /* Rubik-SemiBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-SemiBoldItalic.ttf"; path = "../assets/fonts/Rubik-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
+		2FB0C7C00162FA173D572866 /* Pods-Quiet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.debug.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.debug.xcconfig"; sourceTree = "<group>"; };
 		378A1FDC610441568B568410 /* Rubik-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Medium.ttf"; path = "../assets/fonts/Rubik-Medium.ttf"; sourceTree = "<group>"; };
-		43EF928A6CDBAFCD7D19CB88 /* Pods-ZbayMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZbayMobile.release.xcconfig"; path = "Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile.release.xcconfig"; sourceTree = "<group>"; };
-		4EA88777F08B0F1C9989989F /* Pods-ZbayMobile-ZbayMobileTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZbayMobile-ZbayMobileTests.debug.xcconfig"; path = "Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests.debug.xcconfig"; sourceTree = "<group>"; };
+		5FB21EF805A6D526213B67E3 /* Pods-Quiet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.release.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.release.xcconfig"; sourceTree = "<group>"; };
+		6A546D4D87A7C6187F4216F0 /* libPods-Quiet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Quiet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		706E1601C7B649A8A40A7877 /* Rubik-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Light.ttf"; path = "../assets/fonts/Rubik-Light.ttf"; sourceTree = "<group>"; };
-		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ZbayMobile/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		84720E58493F44BE8C4784E3 /* Rubik-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BoldItalic.ttf"; path = "../assets/fonts/Rubik-BoldItalic.ttf"; sourceTree = "<group>"; };
-		B35264E1E1FBAE79F4FEA424 /* Pods-ZbayMobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZbayMobile.debug.xcconfig"; path = "Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile.debug.xcconfig"; sourceTree = "<group>"; };
+		964D0B8D5843661BB9C24A85 /* Pods-Quiet-QuietTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.debug.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.debug.xcconfig"; sourceTree = "<group>"; };
 		BF73B04135634980BC656D6C /* Rubik-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-SemiBold.ttf"; path = "../assets/fonts/Rubik-SemiBold.ttf"; sourceTree = "<group>"; };
-		E73DAF19ACCEAF5470B7EC03 /* libPods-ZbayMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZbayMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E296A92D06218E860715283B /* libPods-Quiet-QuietTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Quiet-QuietTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E820B3E5514B49EE8C72DECB /* Rubik-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Bold.ttf"; path = "../assets/fonts/Rubik-Bold.ttf"; sourceTree = "<group>"; };
-		E9A1A432870D7FCAE357FDFD /* Pods-ZbayMobile-ZbayMobileTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZbayMobile-ZbayMobileTests.release.xcconfig"; path = "Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests.release.xcconfig"; sourceTree = "<group>"; };
 		EBC2A7699E0A49059904DD8C /* Rubik-MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-MediumItalic.ttf"; path = "../assets/fonts/Rubik-MediumItalic.ttf"; sourceTree = "<group>"; };
 		F07611BD79814082A0C19928 /* Rubik-LightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-LightItalic.ttf"; path = "../assets/fonts/Rubik-LightItalic.ttf"; sourceTree = "<group>"; };
 		F2CAE82B74814677AFF9779E /* Rubik-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Regular.ttf"; path = "../assets/fonts/Rubik-Regular.ttf"; sourceTree = "<group>"; };
-		FCE4CA38F81289EB4ED9E019 /* libPods-ZbayMobile-ZbayMobileTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZbayMobile-ZbayMobileTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -614,7 +614,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1842897C295466AA00CA5039 /* NodeMobile.framework in Frameworks */,
-				A1B83E6CCBC9B52B978E1842 /* libPods-ZbayMobile-ZbayMobileTests.a in Frameworks */,
+				0367A30C378E595FB5FE7163 /* libPods-Quiet-QuietTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -623,20 +623,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				1842897D295466B500CA5039 /* NodeMobile.framework in Frameworks */,
-				AF9C71AF71E8B6C8316B879A /* libPods-ZbayMobile.a in Frameworks */,
+				AD8239F3DE314840E18EFF74 /* libPods-Quiet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		00E356EF1AD99517003FC87E /* ZbayMobileTests */ = {
+		00E356EF1AD99517003FC87E /* QuietTests */ = {
 			isa = PBXGroup;
 			children = (
-				00E356F21AD99517003FC87E /* ZbayMobileTests.m */,
+				00E356F21AD99517003FC87E /* QuietTests.m */,
 				00E356F01AD99517003FC87E /* Supporting Files */,
 			);
-			path = ZbayMobileTests;
+			path = QuietTests;
 			sourceTree = "<group>";
 		};
 		00E356F01AD99517003FC87E /* Supporting Files */ = {
@@ -647,27 +647,27 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		13B07FAE1A68108700A75B9A /* ZbayMobile */ = {
+		13B07FAE1A68108700A75B9A /* Quiet */ = {
 			isa = PBXGroup;
 			children = (
-				18D1CB8E296C675700CC500F /* ZbayMobileDebug.entitlements */,
+				18FD2A36296F009E00A2B8C0 /* AppDelegate.h */,
+				18FD2A37296F009E00A2B8C0 /* AppDelegate.m */,
+				18FD2A38296F009E00A2B8C0 /* Images.xcassets */,
+				18FD2A34296F009E00A2B8C0 /* Info.plist */,
+				18FD2A35296F009E00A2B8C0 /* LaunchScreen.storyboard */,
+				18FD2A39296F009E00A2B8C0 /* main.m */,
+				18FD2A3A296F009E00A2B8C0 /* Quiet.entitlements */,
+				18FD2A3B296F009E00A2B8C0 /* QuietDebug.entitlements */,
 				1868B94E292E9211001D6D5E /* NodeJsMobile */,
+				18FD2A33296EF98200A2B8C0 /* Quiet-Bridging-Header.h */,
 				1868C4372930D7D6001D6D5E /* DataDirectory.swift */,
 				1868C4392930D859001D6D5E /* FindFreePort.swift */,
 				189814392934CF70001F39E7 /* TorHandler.swift */,
-				18FE5FF326F4C06B0016DAC7 /* ZbayMobile.entitlements */,
-				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
-				13B07FB01A68108700A75B9A /* AppDelegate.m */,
-				13B07FB51A68108700A75B9A /* Images.xcassets */,
-				13B07FB61A68108700A75B9A /* Info.plist */,
-				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
-				13B07FB71A68108700A75B9A /* main.m */,
-				186B5CD726B16F1A00BF9FFA /* ZbayMobile-Bridging-Header.h */,
 				1889CA4D26E763E1004ECFBD /* Extensions.swift */,
 				1868C43B2930E255001D6D5E /* CommunicationModule.swift */,
 				1868C43D2930EAEA001D6D5E /* CommunicationBridge.m */,
 			);
-			name = ZbayMobile;
+			name = Quiet;
 			sourceTree = "<group>";
 		};
 		183C484D296C7B6700BA2D8B /* include */ = {
@@ -4680,10 +4680,10 @@
 		1CEEDB4F07B9978C125775C5 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				B35264E1E1FBAE79F4FEA424 /* Pods-ZbayMobile.debug.xcconfig */,
-				43EF928A6CDBAFCD7D19CB88 /* Pods-ZbayMobile.release.xcconfig */,
-				4EA88777F08B0F1C9989989F /* Pods-ZbayMobile-ZbayMobileTests.debug.xcconfig */,
-				E9A1A432870D7FCAE357FDFD /* Pods-ZbayMobile-ZbayMobileTests.release.xcconfig */,
+				2FB0C7C00162FA173D572866 /* Pods-Quiet.debug.xcconfig */,
+				5FB21EF805A6D526213B67E3 /* Pods-Quiet.release.xcconfig */,
+				964D0B8D5843661BB9C24A85 /* Pods-Quiet-QuietTests.debug.xcconfig */,
+				157AF3A03F80E232F81E8B4F /* Pods-Quiet-QuietTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -4692,8 +4692,8 @@
 			isa = PBXGroup;
 			children = (
 				1842897B295466AA00CA5039 /* NodeMobile.framework */,
-				E73DAF19ACCEAF5470B7EC03 /* libPods-ZbayMobile.a */,
-				FCE4CA38F81289EB4ED9E019 /* libPods-ZbayMobile-ZbayMobileTests.a */,
+				6A546D4D87A7C6187F4216F0 /* libPods-Quiet.a */,
+				E296A92D06218E860715283B /* libPods-Quiet-QuietTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -4730,9 +4730,9 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				13B07FAE1A68108700A75B9A /* ZbayMobile */,
+				13B07FAE1A68108700A75B9A /* Quiet */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
-				00E356EF1AD99517003FC87E /* ZbayMobileTests */,
+				00E356EF1AD99517003FC87E /* QuietTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				624523FCC5994B7E9869E9CF /* Resources */,
@@ -4746,8 +4746,8 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* ZbayMobile.app */,
-				00E356EE1AD99517003FC87E /* ZbayMobileTests.xctest */,
+				13B07F961A680F5B00A75B9A /* Quiet.app */,
+				00E356EE1AD99517003FC87E /* QuietTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -4755,32 +4755,32 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		00E356ED1AD99517003FC87E /* ZbayMobileTests */ = {
+		00E356ED1AD99517003FC87E /* QuietTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "ZbayMobileTests" */;
+			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "QuietTests" */;
 			buildPhases = (
-				78D5D5257ECD59A46E256701 /* [CP] Check Pods Manifest.lock */,
+				8E3BAB9BA8EC6ADB00045F28 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				AB568D961AC542629BDC60FC /* [CP] Embed Pods Frameworks */,
-				8A523B2786FD5F45A04FBBAF /* [CP] Copy Pods Resources */,
+				EE599852D3BBBE318AA358E3 /* [CP] Embed Pods Frameworks */,
+				6F09E094F64326FD8FB16DC8 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				00E356F51AD99517003FC87E /* PBXTargetDependency */,
 			);
-			name = ZbayMobileTests;
+			name = QuietTests;
 			productName = ZbayMobileTests;
-			productReference = 00E356EE1AD99517003FC87E /* ZbayMobileTests.xctest */;
+			productReference = 00E356EE1AD99517003FC87E /* QuietTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		13B07F861A680F5B00A75B9A /* ZbayMobile */ = {
+		13B07F861A680F5B00A75B9A /* Quiet */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ZbayMobile" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Quiet" */;
 			buildPhases = (
-				59AEF5D72451ECCAB09A25AA /* [CP] Check Pods Manifest.lock */,
+				25BB507DC1E2123A8612C00D /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
@@ -4793,16 +4793,16 @@
 				18FD2A32296D736300A2B8C0 /* [CUSTOM NODEJS MOBILE] Remove Python3 Binaries */,
 				1868B94B292E8F55001D6D5E /* [NODEJS MOBILE] Remove Simulator Strip */,
 				1868C095292F8FE2001D6D5E /* Embed Frameworks */,
-				42EA7A1CBBC5B9D505B57763 /* [CP] Embed Pods Frameworks */,
-				1BC79B95FD9DDE0906C670FF /* [CP] Copy Pods Resources */,
+				1B4799504D5A7BE88A1457D2 /* [CP] Embed Pods Frameworks */,
+				A00897539655BD9350B462EB /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = ZbayMobile;
+			name = Quiet;
 			productName = ZbayMobile;
-			productReference = 13B07F961A680F5B00A75B9A /* ZbayMobile.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* Quiet.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -4822,7 +4822,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "ZbayMobile" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Quiet" */;
 			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -4835,8 +4835,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* ZbayMobile */,
-				00E356ED1AD99517003FC87E /* ZbayMobileTests */,
+				13B07F861A680F5B00A75B9A /* Quiet */,
+				00E356ED1AD99517003FC87E /* QuietTests */,
 			);
 		};
 /* End PBXProject section */
@@ -4853,8 +4853,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
-				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				183C4BEB296C7B6700BA2D8B /* config.gypi in Resources */,
 				069DD1D7AEEE422CAA8DDBAD /* Rubik-Black.ttf in Resources */,
 				DB3A77793E604ACE8E52C67D /* Rubik-BlackItalic.ttf in Resources */,
@@ -4867,9 +4865,11 @@
 				5CBDF3C0D937401A886684F8 /* Rubik-Light.ttf in Resources */,
 				0FBBD0C07F80428D9985FB09 /* Rubik-LightItalic.ttf in Resources */,
 				B4D947D797C747ABAC4EDB69 /* Rubik-Medium.ttf in Resources */,
+				18FD2A3F296F009E00A2B8C0 /* Images.xcassets in Resources */,
 				80CCB457674F4979A3C5DB06 /* Rubik-MediumItalic.ttf in Resources */,
 				1389B75C9E334BCFB4A3E58B /* Rubik-Regular.ttf in Resources */,
 				18E5F4AB293F7E6A0096E22C /* blank.html in Resources */,
+				18FD2A3D296F009E00A2B8C0 /* LaunchScreen.storyboard in Resources */,
 				7F80A59D9EC1440186E5D5CF /* Rubik-SemiBold.ttf in Resources */,
 				43B99DB1C98D429295E8CB91 /* Rubik-SemiBoldItalic.ttf in Resources */,
 			);
@@ -5000,41 +5000,24 @@
 			shellPath = /bin/sh;
 			shellScript = "find \"$CODESIGNING_FOLDER_PATH/nodejs-project/node_modules/\" -name \"python3\" | xargs rm\n";
 		};
-		1BC79B95FD9DDE0906C670FF /* [CP] Copy Pods Resources */ = {
+		1B4799504D5A7BE88A1457D2 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		42EA7A1CBBC5B9D505B57763 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile/Pods-ZbayMobile-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		59AEF5D72451ECCAB09A25AA /* [CP] Check Pods Manifest.lock */ = {
+		25BB507DC1E2123A8612C00D /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5049,14 +5032,31 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ZbayMobile-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-Quiet-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		78D5D5257ECD59A46E256701 /* [CP] Check Pods Manifest.lock */ = {
+		6F09E094F64326FD8FB16DC8 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8E3BAB9BA8EC6ADB00045F28 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5071,45 +5071,45 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ZbayMobile-ZbayMobileTests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-Quiet-QuietTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		8A523B2786FD5F45A04FBBAF /* [CP] Copy Pods Resources */ = {
+		A00897539655BD9350B462EB /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		AB568D961AC542629BDC60FC /* [CP] Embed Pods Frameworks */ = {
+		EE599852D3BBBE318AA358E3 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ZbayMobile-ZbayMobileTests/Pods-ZbayMobile-ZbayMobileTests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -5138,7 +5138,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00E356F31AD99517003FC87E /* ZbayMobileTests.m in Sources */,
+				00E356F31AD99517003FC87E /* QuietTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5146,15 +5146,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18FD2A40296F009E00A2B8C0 /* main.m in Sources */,
 				1868BCF1292E9212001D6D5E /* rn-bridge.cpp in Sources */,
 				1889CA4E26E763E1004ECFBD /* Extensions.swift in Sources */,
 				1898143A2934CF70001F39E7 /* TorHandler.swift in Sources */,
 				1868BCEE292E9212001D6D5E /* RNNodeJsMobile.m in Sources */,
-				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				1868C4382930D7D6001D6D5E /* DataDirectory.swift in Sources */,
 				1868C43E2930EAEA001D6D5E /* CommunicationBridge.m in Sources */,
 				1868C43A2930D859001D6D5E /* FindFreePort.swift in Sources */,
-				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				18FD2A3E296F009E00A2B8C0 /* AppDelegate.m in Sources */,
 				1868BCED292E9212001D6D5E /* NodeRunner.mm in Sources */,
 				1868C43C2930E255001D6D5E /* CommunicationModule.swift in Sources */,
 			);
@@ -5165,7 +5165,7 @@
 /* Begin PBXTargetDependency section */
 		00E356F51AD99517003FC87E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 13B07F861A680F5B00A75B9A /* ZbayMobile */;
+			target = 13B07F861A680F5B00A75B9A /* Quiet */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -5173,7 +5173,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4EA88777F08B0F1C9989989F /* Pods-ZbayMobile-ZbayMobileTests.debug.xcconfig */;
+			baseConfigurationReference = 964D0B8D5843661BB9C24A85 /* Pods-Quiet-QuietTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -5199,13 +5199,13 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ZbayMobile.app/ZbayMobile";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Quiet.app/Quiet";
 			};
 			name = Debug;
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E9A1A432870D7FCAE357FDFD /* Pods-ZbayMobile-ZbayMobileTests.release.xcconfig */;
+			baseConfigurationReference = 157AF3A03F80E232F81E8B4F /* Pods-Quiet-QuietTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -5228,18 +5228,18 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ZbayMobile.app/ZbayMobile";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Quiet.app/Quiet";
 			};
 			name = Release;
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B35264E1E1FBAE79F4FEA424 /* Pods-ZbayMobile.debug.xcconfig */;
+			baseConfigurationReference = 2FB0C7C00162FA173D572866 /* Pods-Quiet.debug.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = ZbayMobile/ZbayMobileDebug.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Quiet/QuietDebug.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 45;
@@ -5250,7 +5250,7 @@
 					"$(PROJECT_DIR)/Pods",
 					"$(PROJECT_DIR)/NodeJsMobile",
 				);
-				INFOPLIST_FILE = ZbayMobile/Info.plist;
+				INFOPLIST_FILE = Quiet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Quiet;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
@@ -5264,10 +5264,10 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zbaymobile;
-				PRODUCT_NAME = ZbayMobile;
+				PRODUCT_BUNDLE_IDENTIFIER = com.quietmobile;
+				PRODUCT_NAME = Quiet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "ZbayMobile-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Quiet-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -5276,23 +5276,25 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 43EF928A6CDBAFCD7D19CB88 /* Pods-ZbayMobile.release.xcconfig */;
+			baseConfigurationReference = 5FB21EF805A6D526213B67E3 /* Pods-Quiet.release.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = ZbayMobile/ZbayMobile.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Quiet/Quiet.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 45;
 				DEVELOPMENT_TEAM = CTYKSWN9T4;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CTYKSWN9T4;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Pods",
 					"$(PROJECT_DIR)/NodeJsMobile",
 				);
-				INFOPLIST_FILE = ZbayMobile/Info.plist;
+				INFOPLIST_FILE = Quiet/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Quiet;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
@@ -5306,10 +5308,11 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.zbaymobile;
-				PRODUCT_NAME = ZbayMobile;
+				PRODUCT_BUNDLE_IDENTIFIER = com.quietmobile;
+				PRODUCT_NAME = Quiet;
 				PROVISIONING_PROFILE_SPECIFIER = CI;
-				SWIFT_OBJC_BRIDGING_HEADER = "ZbayMobile-Bridging-Header.h";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "CI-quiet";
+				SWIFT_OBJC_BRIDGING_HEADER = "Quiet-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -5443,7 +5446,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "ZbayMobileTests" */ = {
+		00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "QuietTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				00E356F61AD99517003FC87E /* Debug */,
@@ -5452,7 +5455,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ZbayMobile" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Quiet" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
@@ -5461,7 +5464,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "ZbayMobile" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Quiet" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
