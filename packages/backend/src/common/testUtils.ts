@@ -102,8 +102,9 @@ export function createFile(filePath: string, size: number) {
   })
 }
 
-export async function createPeerId(){
+export async function createPeerId() {
   const { peerIdFromKeys } = await eval("import('@libp2p/peer-id')")
   const peerId = await PeerId.create()
-  return await peerIdFromKeys(peerId.marshalPubKey(), peerId.marshalPrivKey())
+  // @eslint-ignore
+  return peerIdFromKeys(peerId.marshalPubKey(), peerId.marshalPrivKey())
 }
