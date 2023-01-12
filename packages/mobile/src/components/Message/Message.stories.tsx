@@ -62,12 +62,12 @@ storiesOf('Message', module)
 })
 .add('Valid inline Latex expression', () => {
   return (
-    <Message 
+    <Message
       data={[
         {
           id: '1',
           type: MessageType.Basic,
-          message: '$$\sum_{i=0}^n i = \frac{n(n+1)}{2}$$',
+          message: '$$\sum_{i=0}^n i = \frac{n(n+1)}{2}$$', // eslint-disable-line no-useless-escape
           createdAt: 0,
           date: '1:30pm',
           nickname: 'someone'
@@ -78,7 +78,7 @@ storiesOf('Message', module)
 })
 .add('Invalid Latex expression', () => {
   return (
-    <Message 
+    <Message
       data={[
         {
           id: '1',

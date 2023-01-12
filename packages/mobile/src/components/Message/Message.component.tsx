@@ -54,7 +54,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
           // Input sanitization. react-native-mathjax-html-to-svg throws error when provided with empty "$$$$"
           const sanitizedMathJax = message.message.replace(/\$\$(\s*)\$\$/g, '$$_$$')
           return (
-            // @ts-ignore
+            // @ts-expect-error (Property 'children' does not exist on type 'IntrinsicAttributes & Props')
             <MathJaxSvg
               fontSize={14}
               color={ defaultTheme.palette.typography[color] }
