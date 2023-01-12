@@ -387,7 +387,7 @@ app.on('ready', async () => {
   }
 
   mainWindow.webContents.on('did-fail-load', () => {
-    log('failed loading')
+    log('failed loading webcontents')
   })
 
   mainWindow.once('close', e => {
