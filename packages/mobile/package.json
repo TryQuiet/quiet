@@ -129,6 +129,9 @@
     "setupFiles": [
       "../node_modules/react-native-gesture-handler/jestSetup.js",
       "./setupTests.ts"
+    ],
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/(?!@react-native-mathjax-html-to-svg.*/)"
     ]
   }
 }
