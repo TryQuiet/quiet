@@ -5,7 +5,8 @@
   "version": "independent",
   "command": {
     "version": {
-      "allowBranch": ["master", "develop"],
+      "allowBranch": ["master", "develop", "chore/fix-building-on-github-actions"
+    ],
       "conventionalCommits": true,
       "createRelease": "github"
     }
