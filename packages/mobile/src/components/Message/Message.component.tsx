@@ -48,8 +48,9 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
           <UploadedFile message={message} downloadStatus={downloadStatus} downloadFile={downloadFile} cancelDownload={cancelDownload}/>
         )
       default:
-        const containsLatex = /\$\$(.+)\$\$/.test(message.message)
         const color = pending ? 'lightGray' : 'main'
+
+        const containsLatex = /\$\$(.+)\$\$/.test(message.message)
         if (containsLatex) {
           // Input sanitization. react-native-mathjax-html-to-svg throws error when provided with empty "$$$$"
           const sanitizedMathJax = message.message.replace(/\$\$(\s*)\$\$/g, '$$_$$')
