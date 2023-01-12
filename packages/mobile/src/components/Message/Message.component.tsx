@@ -9,6 +9,8 @@ import { UploadedImage } from '../UploadedImage/UploadedImage.component'
 import { UploadedFile } from '../UploadedFile/UploadedFile.component'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import Linkify from 'react-linkify'
+import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
+import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Message: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
@@ -46,8 +48,23 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
           <UploadedFile message={message} downloadStatus={downloadStatus} downloadFile={downloadFile} cancelDownload={cancelDownload}/>
         )
       default:
+        const color = pending ? 'lightGray' : 'main'
+
+        const containsLatex = /\$\$(.+)\$\$/.test(message.message)
+        if (containsLatex) {
+          // Input sanitization. react-native-mathjax-html-to-svg throws error when provided with empty "$$$$"
+          const sanitizedMathJax = message.message.replace(/\$\$(\s*)\$\$/g, '$$_$$')
+          return (
+            // @ts-expect-error (Property 'children' does not exist on type 'IntrinsicAttributes & Props')
+            <MathJaxSvg
+              fontSize={14}
+              color={ defaultTheme.palette.typography[color] }
+              fontCache={true}
+            >{sanitizedMathJax}</MathJaxSvg>
+          )
+        }
         return (
-          <Typography fontSize={14} color={ pending ? 'lightGray' : 'main' }><Linkify componentDecorator={componentDecorator}>{message.message}</Linkify></Typography>
+          <Typography fontSize={14} color={ color }><Linkify componentDecorator={componentDecorator}>{message.message}</Linkify></Typography>
         )
     }
   }
@@ -100,7 +117,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
             </View>
           </View>
           <View style={{ flexShrink: 1 }}>
-            {data.map((message, index) => {
+            {data.map((message: DisplayableMessage, index: number) => {
               const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
               return (
                 <View style={outerDivStyle} key={index}>
