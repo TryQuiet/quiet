@@ -18,7 +18,7 @@
     "patch-dependencies": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -d ../state-manager -p0 < ./factory-girl.patch || true",
     "prepare": "npm run provide-backend-assets && npm run patch-dependencies && npm run exclude-test-assets && npm run patch-crypto-ios && npm run build",
     "patch-crypto-ios": "patch -p0 --forward --binary < ./react-native-webview-crypto.patch || true",
-    "postversion": "react-native-version"
+    "version": "react-native-version --skip-tag"
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.7",
