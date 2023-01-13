@@ -239,7 +239,7 @@ describe('Message component', () => {
             message: 'Hello! Does in-line LaTeX work? $$sum_{i=0}^n i = \frac{n(n+1)}{2}$$',
             createdAt: 0,
             date: '1:30pm',
-            nickname: 'holmes'
+            nickname: 'somebody'
           }
         ]}
         pendingMessages={{}}
