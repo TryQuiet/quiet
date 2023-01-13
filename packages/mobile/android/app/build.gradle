@@ -164,7 +164,7 @@ android {
         applicationId "com.zbaymobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 152
+        versionCode 153
         versionName "0.11.0-alpha.0"
         resValue "string", "build_config_package", "com.zbaymobile"
         ndk {
