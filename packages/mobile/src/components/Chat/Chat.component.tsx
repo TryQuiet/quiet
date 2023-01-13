@@ -36,6 +36,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
 
   const defaultPadding = 20
 
+  console.log('channel', channel.name)
+
   useEffect(() => {
     const onKeyboardDidShow = () => {
       setKeyboardShow(true)
