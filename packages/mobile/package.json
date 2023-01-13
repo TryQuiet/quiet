@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "0.11.0-alpha.1",
+  "version": "0.12.0-alpha.0",
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.7",
-    "@quiet/backend": "^0.17.0-alpha.1",
+    "@quiet/backend": "^0.18.0-alpha.0",
     "@quiet/identity": "^0.16.0-alpha.1",
     "@quiet/state-manager": "^0.17.0-alpha.1",
     "@react-navigation/native": "^6.0.0",
