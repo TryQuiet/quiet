@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "0.13.0-alpha.1",
+  "version": "0.13.0-alpha.2",
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
