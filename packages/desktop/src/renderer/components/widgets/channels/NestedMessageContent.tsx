@@ -8,6 +8,8 @@ import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import Linkify from 'react-linkify'
+import { MathComponent } from "mathjax-react";
+import extractMath from 'packages/desktop/src/utils/functions/extractMath'
 
 const PREFIX = 'NestedMessageContent'
 
@@ -106,16 +108,41 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
           </div>
         )
       default:
+        const regex = /\$\$(.+?)\$\$/
+        if (!regex.test(message.message)) {
+          return (
+            <Typography
+              component={'span' as any} // FIXME
+              className={classNames({
+                [classes.message]: true,
+                [classes.pending]: pending
+              })}
+              data-testid={`messagesGroupContent-${message.id}`}>
+              <Linkify componentDecorator={componentDecorator}>{message.message}</Linkify>
+            </Typography>
+          )
+        }
+        const result = extractMath(String.raw`${message.message}`)
+        console.log('result?', result)
         return (
-          <Typography
-            component={'span' as any} // FIXME
-            className={classNames({
-              [classes.message]: true,
-              [classes.pending]: pending
-            })}
-            data-testid={`messagesGroupContent-${message.id}`}>
-            <Linkify componentDecorator={componentDecorator}>{message.message}</Linkify>
-          </Typography>
+          result.map((msg, index) => {
+            if (regex.test(msg)) {
+              const extracted = msg.match(regex)[1]
+              return <MathComponent tex={String.raw`${extracted}`} key={index} />
+            } else {
+              return (
+                <Typography
+                  component={'span' as any} // FIXME
+                  className={classNames({
+                    [classes.message]: true,
+                    [classes.pending]: pending
+                  })}
+                  data-testid={`messagesGroupContent-${message.id}`}>
+                  <Linkify componentDecorator={componentDecorator}>{msg}</Linkify>
+                </Typography>
+              )
+            }
+          })
         )
     }
   }
