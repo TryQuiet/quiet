@@ -163,7 +163,7 @@ export class Storage extends EventEmitter {
 
   protected async initIPFS(libp2p: any, peerID: any): Promise<IPFS> {
     log('Initializing IPFS')
-    return await ipfsCreate({
+    return ipfsCreate({
       libp2p: async () => libp2p,
       preload: { enabled: false },
       repo: this.ipfsRepoPath,

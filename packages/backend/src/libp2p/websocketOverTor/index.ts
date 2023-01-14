@@ -43,10 +43,10 @@ let connect = null
 void (async () => {
   const pDeferImported = await importDynamically('p-defer/index.js')
   const { multiaddrToUri } = await importDynamically('@multiformats/multiaddr-to-uri/dist/src/index.js')
-  const { AbortError: AbortErrorImported} = await importDynamically('@libp2p/interfaces/dist/src/errors.js')
+  const { AbortError: AbortErrorImported } = await importDynamically('@libp2p/interfaces/dist/src/errors.js')
   const { connect: connectImported } = await importDynamically('it-ws/dist/src/client.js')
   const { multiaddr: multiaddrImported } = await importDynamically('@multiformats/multiaddr/dist/src/index.js')
-  
+
   pDefer = pDeferImported.default
   toUri = multiaddrToUri
   AbortError = AbortErrorImported
@@ -54,14 +54,13 @@ void (async () => {
   multiaddr = multiaddrImported
 })()
 
-
 class Discovery extends EventEmitter {
   tag: string
   constructor() {
     super()
     this.tag = 'channel_18'
   }
-  
+
   stop() {}
   start() {}
   end() {}
@@ -69,7 +68,7 @@ class Discovery extends EventEmitter {
 
 class WebSockets extends EventEmitter {
   private readonly init?: WebSocketsInit
-  
+
   _websocketOpts: any
   localAddress: string
   discovery: Discovery
@@ -145,7 +144,6 @@ class WebSockets extends EventEmitter {
   }
 
   async _connect(ma: Multiaddr, options: any = {}) {
-
     if (options.signal?.aborted) {
       throw new AbortError()
     }
@@ -237,7 +235,6 @@ class WebSockets extends EventEmitter {
     server.__connections = []
 
     server.on('connection', async (stream, request) => {
-
       let maConn, conn
       // eslint-disable-next-line
       const query = url.parse(request.url, true).query

@@ -139,8 +139,6 @@ void (async () => {
   createServer = createServerImported
 })()
 
-
-
 export class ConnectionsManager extends EventEmitter {
   registration: CertificateRegistration
   httpTunnelPort: number
