@@ -35,8 +35,14 @@ export async function importDynamically(packageName: string) {
       case 'p-defer/index.js':
         packageName = 'p-defer'
         break
+      case 'p-timeout/index.js':
+        packageName = 'p-timeout'
+        break
       case 'ipfs-core/src/index.js':
         packageName = 'ipfs-core'
+        break
+      case 'multiformats/cjs/src/cid.js':
+        packageName = 'multiformats/cid'
         break
       default:
         packageName = packageName.split('/dist')[0]
