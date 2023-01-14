@@ -1,5 +1,6 @@
 import { formatPEM } from '@quiet/identity'
 import { Certificate } from 'pkijs'
+import path from 'path'
 
 export function dumpPEM(tag: string, body: string | Certificate | CryptoKey) {
   let bodyCert: string
@@ -16,4 +17,31 @@ export function dumpPEM(tag: string, body: string | Certificate | CryptoKey) {
     `-----END ${tag}-----\n`
   )
   return Buffer.from(result)
+}
+
+export async function importDynamically(packageName: string) {
+  if (process.env.APPIMAGE) {
+    const resourcesPath = process.env.APPDIR
+    const externalPackagePath = path.join(resourcesPath, `resources/node_modules/${packageName}`)
+    return eval(`import('${externalPackagePath}')`)
+  } else {
+    switch (packageName) {
+      case 'it-ws/dist/src/client.js':
+        packageName = 'it-ws/client'
+        break
+      case 'it-ws/dist/src/server.js':
+        packageName = 'it-ws/server'
+        break
+      case 'p-defer/index.js':
+        packageName = 'p-defer'
+        break
+      case 'ipfs-core/src/index.js':
+        packageName = 'ipfs-core'
+        break
+      default:
+        packageName = packageName.split('/dist')[0]
+      }
+
+    return eval(`import('${packageName}')`)
+}
 }

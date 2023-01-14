@@ -17,6 +17,7 @@ exports.default = async function (context) {
   await streamPipeline(response.body, fs.createWriteStream(targetPath))
   fs.chmodSync(targetPath, 0o755)
   childProcess.execSync(`${context.artifactPaths[0]} --appimage-extract`)
+  childProcess.execSync(`cp -R ../backend/node_modules ./squashfs-root/resources/node_modules`)
   childProcess.execSync(`mv ./squashfs-root ${context.outDir}/squashfs-root`)
   const data = fs.readFileSync(`${context.outDir}/squashfs-root/AppRun`, 'utf8').split('\n')
   const index = data.findIndex(text => text === 'BIN="$APPDIR/quiet"')
@@ -24,7 +25,7 @@ exports.default = async function (context) {
     data[index - 1] = 'export LD_PRELOAD="${APPDIR}/usr/lib/libssl.so"'
     fs.writeFileSync(`${context.outDir}/squashfs-root/AppRun`, data.join('\n'), 'utf8')
   } else throw new Error('no path to channge')
-  childProcess.execSync(`${targetPath} ${context.outDir}/squashfs-root`)
+  childProcess.execSync(`ARCH=x86_64 ${targetPath} ${context.outDir}/squashfs-root`)
   fs.unlinkSync(`${context.artifactPaths[0]}`)
   const appName = context.artifactPaths[0].split('/').pop()
   if (appName) {
