@@ -8,7 +8,7 @@
 	"license": "MIT",
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json",
-		"prepare": "patch -p0 --forward --binary < ./electron-fetch.patch && npm run build",
+		"prepare": "patch -p0 --forward --binary < ./electron-fetch.patch || true && npm run build",
 		"version": "git add -A src",
 		"lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
 		"lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
