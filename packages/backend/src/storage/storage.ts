@@ -58,7 +58,7 @@ let CID = null
 
 void (async () => {
   const CIDModule = await importDynamically('multiformats/cjs/src/cid.js')
-  CID = CIDModule.CID;
+  CID = CIDModule.CID
   const { create }: {create: typeof createType} = await importDynamically('ipfs-core/src/index.js')
   ipfsCreate = create
 })()
