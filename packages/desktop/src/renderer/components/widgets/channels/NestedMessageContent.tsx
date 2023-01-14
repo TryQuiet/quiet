@@ -8,6 +8,8 @@ import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import Linkify from 'react-linkify'
+import { MathComponent } from 'mathjax-react'
+import { displayMathRegex, splitByTex } from '../../../../utils/functions/splitByTex'
 
 const PREFIX = 'NestedMessageContent'
 
@@ -43,6 +45,40 @@ const StyledGrid = styled(Grid)(() => ({
   }
 }))
 
+interface TextMessageComponentProps {
+  message: string
+  messageId: string
+  pending: boolean
+  openUrl: (url: string) => void
+}
+
+const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
+  message,
+  messageId,
+  pending,
+  openUrl
+}) => {
+  const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
+    return (
+      <a onClick={() => { openUrl(decoratedHref) }} className={classNames({ [classes.link]: true })} key={key}>
+        {decoratedText}
+      </a>
+    )
+  }
+
+  return (
+    <Typography
+      component={'span' as any} // FIXME
+      className={classNames({
+        [classes.message]: true,
+        [classes.pending]: pending
+      })}
+      data-testid={`messagesGroupContent-${messageId}`}>
+      <Linkify componentDecorator={componentDecorator}>{message}</Linkify>
+    </Typography>
+  )
+}
+
 export interface NestedMessageContentProps {
   message: DisplayableMessage
   pending: boolean
@@ -65,14 +101,6 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   downloadFile,
   cancelDownload
 }) => {
-  const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
-    return (
-      <a onClick={() => { openUrl(decoratedHref) }} className={classNames({ [classes.link]: true })} key={key}>
-        {decoratedText}
-      </a>
-    )
-  }
-
   const renderMessage = () => {
     const isMalicious = downloadStatus?.downloadState === DownloadState?.Malicious
 
@@ -106,16 +134,26 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
           </div>
         )
       default:
+        if (!displayMathRegex.test(message.message)) { // Regular text message
+          return <TextMessageComponent message={message.message} messageId={message.id} pending={pending} openUrl={openUrl} />
+        }
+
+        let texMessage: string[]
+        try {
+          texMessage = splitByTex(String.raw`${message.message}`, displayMathRegex)
+        } catch (e) {
+          return <TextMessageComponent message={message.message} messageId={message.id} pending={pending} openUrl={openUrl} />
+        }
+
         return (
-          <Typography
-            component={'span' as any} // FIXME
-            className={classNames({
-              [classes.message]: true,
-              [classes.pending]: pending
-            })}
-            data-testid={`messagesGroupContent-${message.id}`}>
-            <Linkify componentDecorator={componentDecorator}>{message.message}</Linkify>
-          </Typography>
+          texMessage.map((partialMessage: string, index: number) => {
+            if (displayMathRegex.test(partialMessage)) {
+              const extracted = partialMessage.match(displayMathRegex)[1]
+              return <MathComponent tex={String.raw`${extracted}`} key={index} />
+            } else {
+              return <TextMessageComponent message={partialMessage} messageId={`${message.id}-${index}`} pending={pending} openUrl={openUrl} />
+            }
+          })
         )
     }
   }
