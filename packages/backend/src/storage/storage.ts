@@ -47,23 +47,21 @@ import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
 import { StorageEvents } from './types'
 import { sleep } from '../sleep'
+import { importDynamically } from '../libp2p/utils'
 
 const sizeOfPromisified = promisify(sizeOf)
 
 const log = logger('db')
 
-// const webcrypto = new Crypto()
-// setEngine(
-//   'newEngine',
-//   // @ts-expect-error
-//   webcrypto,
-//   new CryptoEngine({
-//     name: '',
-//     crypto: webcrypto,
-//     subtle: webcrypto.subtle
-//   })
-// )
+let ipfsCreate = null
+let CID = null
 
+void (async () => {
+  const CIDModule = await importDynamically('multiformats/cjs/src/cid.js')
+  CID = CIDModule.CID;
+  const { create }: {create: typeof createType} = await importDynamically('ipfs-core/src/index.js')
+  ipfsCreate = create
+})()
 export class Storage extends EventEmitter {
   public quietDir: string
   public peerId: PeerId
@@ -167,8 +165,7 @@ export class Storage extends EventEmitter {
 
   protected async initIPFS(libp2p: any, peerID: any): Promise<IPFS> {
     log('Initializing IPFS')
-    const { create: ipfsCreate }: {create: typeof createType} = await eval("import('ipfs-core')")
-    return await ipfsCreate({
+    return ipfsCreate({
       libp2p: async () => libp2p,
       preload: { enabled: false },
       repo: this.ipfsRepoPath,
@@ -592,8 +589,6 @@ export class Storage extends EventEmitter {
   }
 
   public async downloadFile(metadata: FileMetadata) {
-    const { CID } = await eval("import('multiformats/cid')")
-
     type IPFSPath = typeof CID | string
 
     const _CID: IPFSPath = CID.parse(metadata.cid)

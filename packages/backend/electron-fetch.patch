@@ -1,0 +1,17 @@
+--- node_modules/electron-fetch/lib/index.js	2023-01-14 16:53:20.406347222 +0100
++++ node_modules/electron-fetch/lib/copy.js	2023-01-14 16:53:55.222621957 +0100
+@@ -1281,13 +1281,7 @@
+   });
+ }
+ 
+-let electron; // istanbul ignore else
+-
+-if (process.versions.electron) {
+-  electron = require('electron');
+-}
+-
+-const isReady = electron && electron.app && !electron.app.isReady() ? new Promise(resolve => electron.app.once('ready', resolve)) : Promise.resolve();
++const isReady = Promise.resolve();
+ /**
+  * Fetch function
+  *
