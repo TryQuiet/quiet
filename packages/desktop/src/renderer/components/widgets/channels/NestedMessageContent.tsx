@@ -8,7 +8,7 @@ import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import Linkify from 'react-linkify'
-import { MathComponent } from "mathjax-react";
+import { MathComponent } from 'mathjax-react'
 import { displayMathRegex, splitByTex } from '../../../../utils/functions/splitByTex'
 
 const PREFIX = 'NestedMessageContent'
