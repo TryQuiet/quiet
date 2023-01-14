@@ -1,14 +1,15 @@
 import logger from '../../logger'
 import { socketToMaConn } from './socket-to-conn'
 import * as filters from './filters'
+
 import { MultiaddrFilter } from '@libp2p/interface-transport'
 import type { AbortOptions } from '@libp2p/interfaces'
 import type { Multiaddr } from '@multiformats/multiaddr'
 
-import type { DuplexWebSocket } from 'it-ws/duplex'
 import type { ClientOptions } from 'ws'
 
 import os from 'os'
+import path from 'path'
 import PeerId from 'peer-id'
 
 import url from 'url'
@@ -18,8 +19,7 @@ import https from 'https'
 
 import { EventEmitter } from 'events'
 
-import { dumpPEM } from '../utils'
-import { connected } from 'process'
+import { dumpPEM, importDynamically } from '../utils'
 
 const log = logger('libp2p:websockets')
 
@@ -34,13 +34,34 @@ export interface WebSocketsInit extends AbortOptions {
   createServer
 }
 
+let toUri = null
+let AbortError = null
+let multiaddr = null
+let pDefer = null
+let connect = null
+
+void (async () => {
+  const pDeferImported = await importDynamically('p-defer/index.js')
+  const { multiaddrToUri } = await importDynamically('@multiformats/multiaddr-to-uri/dist/src/index.js')
+  const { AbortError: AbortErrorImported} = await importDynamically('@libp2p/interfaces/dist/src/errors.js')
+  const { connect: connectImported } = await importDynamically('it-ws/dist/src/client.js')
+  const { multiaddr: multiaddrImported } = await importDynamically('@multiformats/multiaddr/dist/src/index.js')
+  
+  pDefer = pDeferImported.default
+  toUri = multiaddrToUri
+  AbortError = AbortErrorImported
+  connect = connectImported
+  multiaddr = multiaddrImported
+})()
+
+
 class Discovery extends EventEmitter {
   tag: string
   constructor() {
     super()
     this.tag = 'channel_18'
   }
-
+  
   stop() {}
   start() {}
   end() {}
@@ -48,16 +69,12 @@ class Discovery extends EventEmitter {
 
 class WebSockets extends EventEmitter {
   private readonly init?: WebSocketsInit
-  toUri
-  AbortError
-  multiaddr
-
+  
   _websocketOpts: any
   localAddress: string
   discovery: Discovery
   peerId: string
   targetPort: number
-  connect
   createServer
 
   constructor({ websocket, localAddress, targetPort, createServer }) {
@@ -128,21 +145,9 @@ class WebSockets extends EventEmitter {
   }
 
   async _connect(ma: Multiaddr, options: any = {}) {
-    if (!this.toUri) {
-      const { multiaddrToUri } = await eval("import('@multiformats/multiaddr-to-uri')")
-      this.toUri = multiaddrToUri
-    }
-    if (!this.AbortError) {
-      const { AbortError } = await eval("import('@libp2p/interfaces/errors')")
-      this.AbortError = AbortError
-    }
-    if (!this.connect) {
-      const { connect } = await eval("import('it-ws/client')")
-      this.connect = connect
-    }
 
     if (options.signal?.aborted) {
-      throw new this.AbortError()
+      throw new AbortError()
     }
     const cOpts = ma.toOptions()
     log('connect %s:%s', cOpts.host, cOpts.port)
@@ -155,10 +160,10 @@ class WebSockets extends EventEmitter {
       errorPromise.reject(err)
     }
 
-    const myUri = `${this.toUri(ma) as string}/?remoteAddress=${encodeURIComponent(
+    const myUri = `${toUri(ma) as string}/?remoteAddress=${encodeURIComponent(
       this.localAddress
     )}`
-    const rawSocket = this.connect(myUri, Object.assign({ binary: true }, options))
+    const rawSocket = connect(myUri, Object.assign({ binary: true }, options))
 
     if (rawSocket.socket.on) {
       rawSocket.socket.on('error', errfn)
@@ -178,7 +183,7 @@ class WebSockets extends EventEmitter {
     // eslint-disable-next-line
     const abort = new Promise((_resolve, reject) => {
       onAbort = () => {
-        reject(new this.AbortError())
+        reject(new AbortError())
         // FIXME: https://github.com/libp2p/js-libp2p-websockets/issues/121
         setTimeout(() => {
           rawSocket.close()
@@ -232,16 +237,13 @@ class WebSockets extends EventEmitter {
     server.__connections = []
 
     server.on('connection', async (stream, request) => {
-      if (!this.multiaddr) {
-        const { multiaddr } = await eval("import('@multiformats/multiaddr')")
-        this.multiaddr = multiaddr
-      }
+
       let maConn, conn
       // eslint-disable-next-line
       const query = url.parse(request.url, true).query
       log('server', query.remoteAddress)
       try {
-        maConn = socketToMaConn(stream, this.multiaddr(query.remoteAddress.toString()))
+        maConn = socketToMaConn(stream, multiaddr(query.remoteAddress.toString()))
         const peer = {
           id: PeerId.createFromB58String(query.remoteAddress.toString().split('/p2p/')[1]),
           multiaddrs: [maConn.remoteAddr]
@@ -310,7 +312,7 @@ class WebSockets extends EventEmitter {
           Object.keys(netInterfaces).forEach(niKey => {
             netInterfaces[niKey].forEach(ni => {
               if (ni.family === 'IPv4') {
-                multiaddrs.push(this.multiaddr(m.toString().replace('0.0.0.0', ni.address)))
+                multiaddrs.push(multiaddr(m.toString().replace('0.0.0.0', ni.address)))
               }
             })
           })
@@ -360,10 +362,3 @@ export function webSockets(init: WebSocketsInit): (components?: any) => any {
     return new WebSockets(init)
   }
 }
-
-let pDefer = null
-
-void (async () => {
-  const PDeferModule = await eval("import('p-defer')")
-  pDefer = PDeferModule.default
-})()

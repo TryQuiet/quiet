@@ -47,22 +47,18 @@ import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
 import { StorageEvents } from './types'
 import { sleep } from '../sleep'
+import { importDynamically } from '../libp2p/utils'
 
 const sizeOfPromisified = promisify(sizeOf)
 
 const log = logger('db')
 
-// const webcrypto = new Crypto()
-// setEngine(
-//   'newEngine',
-//   // @ts-expect-error
-//   webcrypto,
-//   new CryptoEngine({
-//     name: '',
-//     crypto: webcrypto,
-//     subtle: webcrypto.subtle
-//   })
-// )
+let ipfsCreate = null
+
+void (async () => {
+  const { create }: {create: typeof createType} = await importDynamically('ipfs-core/src/index.js')
+  ipfsCreate = create
+})()
 
 export class Storage extends EventEmitter {
   public quietDir: string
@@ -167,7 +163,6 @@ export class Storage extends EventEmitter {
 
   protected async initIPFS(libp2p: any, peerID: any): Promise<IPFS> {
     log('Initializing IPFS')
-    const { create: ipfsCreate }: {create: typeof createType} = await eval("import('ipfs-core')")
     return await ipfsCreate({
       libp2p: async () => libp2p,
       preload: { enabled: false },
