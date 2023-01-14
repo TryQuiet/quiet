@@ -54,12 +54,14 @@ const sizeOfPromisified = promisify(sizeOf)
 const log = logger('db')
 
 let ipfsCreate = null
+let CID = null
 
 void (async () => {
+  const CIDModule = await importDynamically('multiformats/cjs/src/cid.js')
+  CID = CIDModule.CID;
   const { create }: {create: typeof createType} = await importDynamically('ipfs-core/src/index.js')
   ipfsCreate = create
 })()
-
 export class Storage extends EventEmitter {
   public quietDir: string
   public peerId: PeerId
@@ -587,8 +589,6 @@ export class Storage extends EventEmitter {
   }
 
   public async downloadFile(metadata: FileMetadata) {
-    const { CID } = await eval("import('multiformats/cid')")
-
     type IPFSPath = typeof CID | string
 
     const _CID: IPFSPath = CID.parse(metadata.cid)
