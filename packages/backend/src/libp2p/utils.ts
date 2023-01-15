@@ -46,8 +46,16 @@ export async function importDynamically(packageName: string) {
 
     return eval(`import('${packageName}')`)
   } else {
-    const resourcesPath = process.env.APPDIR
-    const externalPackagePath = path.join(resourcesPath, `resources/app/node_modules/@quiet/backend/node_modules/${packageName}`)
+    let externalPackagePath = null
+    if (process.platform === 'linux') {
+      const resourcesPath = process.env.APPDIR
+      externalPackagePath = path.join(resourcesPath, `resources/app/node_modules/@quiet/backend/node_modules/${packageName}`)
+    } 
+    if (process.platform === 'darwin') {
+      const resourcesPath = process.env._.split('/MacOS')[0]
+      externalPackagePath = path.join(resourcesPath, `Resources/app/node_modules/@quiet/backend/node_modules/${packageName}`)
+      console.log('importing external module from', externalPackagePath)
+    }
     return eval(`import('${externalPackagePath}')`)
 }
 }
