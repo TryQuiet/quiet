@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "0.13.0-alpha.5",
+  "version": "0.13.1-alpha.0",
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -22,9 +22,9 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.7",
-    "@quiet/backend": "^0.18.1-alpha.1",
-    "@quiet/identity": "^0.16.0-alpha.2",
-    "@quiet/state-manager": "^0.17.0-alpha.2",
+    "@quiet/backend": "^0.18.2-alpha.0",
+    "@quiet/identity": "^0.16.1-alpha.0",
+    "@quiet/state-manager": "^0.17.1-alpha.0",
     "@react-navigation/native": "^6.0.0",
     "@react-navigation/native-stack": "^6.9.0",
     "@reduxjs/toolkit": "^1.9.1",
