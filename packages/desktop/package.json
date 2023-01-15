@@ -63,7 +63,8 @@
     },
     "extraResources": [
       "tor/**/*",
-      "mainEnvs.json"
+      "mainEnvs.json",
+      "backendNodeModules"
     ]
   },
   "homepage": "https://github.com/TryQuiet",
@@ -74,12 +75,13 @@
   "scripts": {
     "version": "echo $npm_package_version",
     "copyBinaries": "cp -R ../../3rd-party/tor/$SOURCE_PATH/ ./tor/ && chmod 775 ./tor/tor",
+    "copyBackendNodeModules": "cp -R ../backend/node_modules/ ./backendNodeModules/",
     "copyBinariesWin": "xcopy ..\\..\\3rd-party\\tor\\win32 .\\tor\\",
     "pullBinaries": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/tor -P ./tor/ && chmod 775 ./tor/tor",
     "pullLibs": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/libssl.so -P ./ && chmod 775 ./libssl.so",
     "pullBinariesWin": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/tor.exe -P ./tor/  && chmod 775 ./tor/tor.exe",
     "dist": "export SOURCE_PATH=darwin && npm run copyBinaries && npm run build:prod && electron-builder --mac",
-    "distUbuntu": "export SOURCE_PATH=linux TEST_MODE=true && npm run setMainEnvs && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
+    "distUbuntu": "export SOURCE_PATH=linux TEST_MODE=true && npm run setMainEnvs && npm run copyBinaries && npm run copyBackendNodeModules && npm run pullLibs && npm run build:prod && electron-builder --linux",
     "distwin": "export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
