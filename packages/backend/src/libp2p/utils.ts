@@ -20,11 +20,7 @@ export function dumpPEM(tag: string, body: string | Certificate | CryptoKey) {
 }
 
 export async function importDynamically(packageName: string) {
-  if (process.env.APPIMAGE) {
-    const resourcesPath = process.env.APPDIR
-    const externalPackagePath = path.join(resourcesPath, `resources/node_modules/${packageName}`)
-    return eval(`import('${externalPackagePath}')`)
-  } else {
+  if (process.env.NODE_ENV === 'development') {
     switch (packageName) {
       case 'it-ws/dist/src/client.js':
         packageName = 'it-ws/client'
@@ -49,5 +45,9 @@ export async function importDynamically(packageName: string) {
       }
 
     return eval(`import('${packageName}')`)
+  } else {
+    const resourcesPath = process.env.APPDIR
+    const externalPackagePath = path.join(resourcesPath, `resources/app/node_modules/@quiet/backend/node_modules/${packageName}`)
+    return eval(`import('${externalPackagePath}')`)
 }
 }

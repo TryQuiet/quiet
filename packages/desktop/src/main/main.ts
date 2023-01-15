@@ -17,6 +17,7 @@ import { getFilesData } from '../utils/functions/fileData'
 const ElectronStore = require('electron-store')
 ElectronStore.initRenderer()
 
+console.log(process.env)
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
 

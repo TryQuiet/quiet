@@ -16,8 +16,7 @@ exports.default = async function (context) {
   const targetPath = `${context.outDir}/appimagetool-x86_64.AppImage`
   await streamPipeline(response.body, fs.createWriteStream(targetPath))
   fs.chmodSync(targetPath, 0o755)
-  childProcess.execSync(`${context.artifactPaths[0]} --appimage-extract`)
-  childProcess.execSync(`cp -R ../backend/node_modules ./squashfs-root/resources/node_modules`)
+  childProcess.execSync(`${context.artifactPaths[0]} --appimage-extract`, { stdio: 'ignore' })
   childProcess.execSync(`mv ./squashfs-root ${context.outDir}/squashfs-root`)
   const data = fs.readFileSync(`${context.outDir}/squashfs-root/AppRun`, 'utf8').split('\n')
   const index = data.findIndex(text => text === 'BIN="$APPDIR/quiet"')
