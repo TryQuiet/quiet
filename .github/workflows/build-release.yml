@@ -36,6 +36,9 @@ jobs:
       - name: "Set electron-builder props"
         run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
 
+      - name: "Copy backend node_modules"
+        run: cd packages/desktop && cp -R ../backend/node_modules/ ./backendNodeModules/
+
       - name: "Release"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
