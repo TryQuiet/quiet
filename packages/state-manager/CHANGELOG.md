@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.17.3-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/state-manager@0.17.0-alpha.2...@quiet/state-manager@0.17.3-alpha.0) (2023-01-15)
+
+**Note:** Version bump only for package @quiet/state-manager
+
+
+
+
+
 ## [0.17.2-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/state-manager@0.17.0-alpha.2...@quiet/state-manager@0.17.2-alpha.0) (2023-01-15)
 
 **Note:** Version bump only for package @quiet/state-manager
