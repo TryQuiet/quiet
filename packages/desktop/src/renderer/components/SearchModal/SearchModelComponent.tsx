@@ -24,7 +24,8 @@ const classes = {
   input: `${PREFIX}input`,
   channel: `${PREFIX}channel`,
   recentChannels: `${PREFIX}recentChannels`,
-  inputWrapper: `${PREFIX}inputWrapper`
+  inputWrapper: `${PREFIX}inputWrapper`,
+  wrapperRecent: `${PREFIX}wrapperRecent`
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
@@ -37,10 +38,14 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     backgroundColor: '#FFFFFF',
     boxShadow: '0px 2px 25px rgba(0, 0, 0, 0.2)',
     borderRadius: '8px',
-    width: '60%'
+    width: '60%',
+    overflow: 'hidden'
   },
   [`& .${classes.wrapper}`]: {
     padding: '24px'
+  },
+  [`& .${classes.wrapperRecent}`]: {
+    padding: '16px 24px 8px'
   },
   [`& .${classes.magnifyingGlassIcon}`]: {
     width: 18,
@@ -59,18 +64,37 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     height: '1px',
     backgroundColor: theme.palette.colors.veryLightGray
   },
-  [`& .${classes.input}`]: {
-    margin: 0
-  },
   [`& .${classes.channel}`]: {
-    marginTop: '8px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    padding: '8px 24px',
+    '&:hover': {
+      backgroundColor: theme.palette.colors.lushSky,
+      color: 'white'
+    }
   },
   [`& .${classes.recentChannels}`]: {
     color: '#7F7F7F'
   },
   [`& .${classes.inputWrapper}`]: {
     display: 'flex'
+  },
+
+  [`& .${classes.input}`]: {
+    caretColor: '#2288FF',
+    '& div': {
+      '&:hover': {
+        border: 'none',
+        '&::before': {
+          border: 'none'
+        }
+      },
+      '&::before': {
+        border: 'none'
+      },
+      '&::after': {
+        border: 'none'
+      }
+    }
   }
 }))
 
@@ -109,7 +133,14 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
     handleClose()
   }
 
+  const closeHandler = () => {
+    setChannelInput('')
+    handleClose()
+  }
+
   const recentChannels = publicChannelsSelector
+    .sort((a, b) => b.timestamp - a.timestamp)
+    .slice(0, 3)
 
   const generalChannel = publicChannelsSelector.find(channel => channel.name === 'general')
 
@@ -152,8 +183,8 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
                 <TextInput
                   {...searchChannelFields.searchChannel.fieldProps}
                   fullWidth
-                  variant='outlined'
-                  classes={''}
+                  variant='standard'
+                  classes={classes.input}
                   placeholder={'Channel name'}
                   autoFocus
                   errors={errors}
@@ -168,15 +199,19 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
                 />
               </Grid>
 
-              <Icon className={classes.closeIcon} src={closeIcon} onClickHandler={handleClose} />
+              <Icon className={classes.closeIcon} src={closeIcon} onClickHandler={closeHandler} />
             </Grid>
 
             <Grid className={classes.line} />
 
-            <Grid container direction='column' className={classes.wrapper}>
-              <Typography variant='overline' className={classes.recentChannels}>
-                Recent channels
-              </Typography>
+            <Grid container direction='column'>
+              {channelInput.length === 0 && (
+                <Grid className={classes.wrapperRecent}>
+                  <Typography variant='overline' className={classes.recentChannels}>
+                    Recent channels
+                  </Typography>
+                </Grid>
+              )}
 
               {channelList.length > 0 &&
                 channelList.map(item => {

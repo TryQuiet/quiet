@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect } from 'react'
-
 import { publicChannels } from '@quiet/state-manager'
 import { useDispatch, useSelector } from 'react-redux'
 import SearchModalComponent from './SearchModelComponent'
@@ -12,14 +11,17 @@ const SearchModal = () => {
 
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
 
-  const setCurrentChannel = (address: string) => {
-    dispatch(
-      publicChannels.actions.setCurrentChannel({
-        channelAddress: address
-      })
-    )
-    searchChannelModal.handleClose()
-  }
+  const setCurrentChannel = useCallback(
+    (address: string) => {
+      dispatch(
+        publicChannels.actions.setCurrentChannel({
+          channelAddress: address
+        })
+      )
+      searchChannelModal.handleClose()
+    },
+    [dispatch]
+  )
 
   const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(evt => {
     if ((evt.metaKey || evt.ctrlKey) && evt.key === 'k') {
