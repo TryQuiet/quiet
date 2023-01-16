@@ -216,7 +216,7 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
               {channelList.length > 0 &&
                 channelList.map(item => {
                   return (
-                    <div onClick={() => onChannelClickHandler(item.address)}>
+                    <div key={item.name} onClick={() => onChannelClickHandler(item.address)}>
                       <Typography variant='body2' className={classes.channel}>
                         # {item.name}
                       </Typography>
