@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { publicChannels } from '@quiet/state-manager'
 import { useDispatch, useSelector } from 'react-redux'
 import SearchModalComponent from './SearchModelComponent'
@@ -7,9 +7,12 @@ import { ModalName } from '../../sagas/modals/modals.types'
 
 const SearchModal = () => {
   const dispatch = useDispatch()
+  const [channelInput, setChannelInput] = useState<string>('')
   const searchChannelModal = useModal(ModalName.searchChannelModal)
 
-  const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
+  const dynamicSearchedChannelsSelector = useSelector(
+    publicChannels.selectors.dynamicSearchedChannels(channelInput)
+  )
 
   const setCurrentChannel = useCallback(
     (address: string) => {
@@ -46,12 +49,14 @@ const SearchModal = () => {
     }
   }, [handleKeyDown])
 
-  if (publicChannelsSelector.length === 0) return
+  if (dynamicSearchedChannelsSelector.length === 0) return
   return (
     <SearchModalComponent
       {...searchChannelModal}
-      publicChannelsSelector={publicChannelsSelector}
       setCurrentChannel={setCurrentChannel}
+      setChannelInput={setChannelInput}
+      dynamicSearchedChannelsSelector={dynamicSearchedChannelsSelector}
+      channelInput={channelInput}
     />
   )
 }

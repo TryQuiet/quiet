@@ -11,12 +11,12 @@ export const Component = Template.bind({})
 
 const args = {
   open: true,
-  publicChannelsSelector: [
+  dynamicSearchedChannelsSelector: [
     { name: 'fun', address: 'fun' },
     { name: 'mobile', address: 'mobile' },
     { name: 'new-york-plans', address: 'new-york-plans' },
-    { name: 'general', address: 'general' }
-  ]
+  ],
+  channelInput: ''
 }
 
 Component.args = args

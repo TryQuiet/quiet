@@ -51,12 +51,14 @@ describe('Search Modal', () => {
       )
     }
 
-    const channels = publicChannels.selectors.publicChannels(store.getState())
+    const channels = publicChannels.selectors.dynamicSearchedChannels('')(store.getState())
 
     const result = renderComponent(
       <SearchModalComponent
         setCurrentChannel={function (_address: string): void {}}
-        publicChannelsSelector={channels}
+        setChannelInput={function (_address: string): void {}}
+        dynamicSearchedChannelsSelector={channels}
+        channelInput={''}
         handleClose={function (): any {}}
         open={true}
       />
@@ -140,13 +142,13 @@ describe('Search Modal', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent Modaltransparent css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SearchModalComponentroot css-1oqfhkr-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SearchModalComponentroot css-1dy7wb1-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container SearchModalComponentoverlay css-1hbmzt3-MuiGrid-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-container MuiGrid-item SearchModalComponentmodalContainer css-capmjd-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-item SearchModalComponentmodalContainer css-1rx0eue-MuiGrid-root"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-item SearchModalComponentwrapper css-89gxc5-MuiGrid-root"
@@ -197,31 +199,37 @@ describe('Search Modal', () => {
                             <span
                               class="MuiTypography-root MuiTypography-overline SearchModalComponentrecentChannels css-14q85gm-MuiTypography-root"
                             >
-                              Recent channels
+                              recent channels
                             </span>
                           </div>
-                          <div>
+                          <div
+                            class="SearchModalComponentchannelWrapper"
+                            tabindex="0"
+                          >
                             <p
-                              class="MuiTypography-root MuiTypography-body2 SearchModalComponentchannel css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                             >
-                              # 
-                              fun
+                              # fun
                             </p>
                           </div>
-                          <div>
+                          <div
+                            class="SearchModalComponentchannelWrapper"
+                            tabindex="0"
+                          >
                             <p
-                              class="MuiTypography-root MuiTypography-body2 SearchModalComponentchannel css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                             >
-                              # 
-                              random
+                              # random
                             </p>
                           </div>
-                          <div>
+                          <div
+                            class="SearchModalComponentchannelWrapper"
+                            tabindex="0"
+                          >
                             <p
-                              class="MuiTypography-root MuiTypography-body2 SearchModalComponentchannel css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                             >
-                              # 
-                              test
+                              # test
                             </p>
                           </div>
                         </div>

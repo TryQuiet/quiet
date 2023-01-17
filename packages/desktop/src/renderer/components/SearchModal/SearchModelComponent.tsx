@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { styled } from '@mui/material/styles'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
@@ -10,6 +10,8 @@ import Modal from '../ui/Modal/Modal'
 import { useForm } from 'react-hook-form'
 import { searchChannelField } from '../../forms/fields/searchChannelField'
 import { TextInput } from '../../forms/components/textInput'
+import { useCyclingFocus } from '../../containers/hooks'
+import ChannelItem from './ChannelItem'
 
 const PREFIX = 'SearchModalComponent'
 
@@ -25,7 +27,9 @@ const classes = {
   channel: `${PREFIX}channel`,
   recentChannels: `${PREFIX}recentChannels`,
   inputWrapper: `${PREFIX}inputWrapper`,
-  wrapperRecent: `${PREFIX}wrapperRecent`
+  wrapperRecent: `${PREFIX}wrapperRecent`,
+  channelWrapper: `${PREFIX}channelWrapper`,
+  channelWrapperSelected: `${PREFIX}channelWrapperSelected`
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
@@ -39,7 +43,8 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     boxShadow: '0px 2px 25px rgba(0, 0, 0, 0.2)',
     borderRadius: '8px',
     width: '60%',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    minHeight: '255px'
   },
   [`& .${classes.wrapper}`]: {
     padding: '24px'
@@ -64,12 +69,32 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     height: '1px',
     backgroundColor: theme.palette.colors.veryLightGray
   },
-  [`& .${classes.channel}`]: {
+  [`& .${classes.channel}`]: {},
+  [`& .${classes.channelWrapper}`]: {
+    border: '0',
     cursor: 'pointer',
     padding: '8px 24px',
     '&:hover': {
       backgroundColor: theme.palette.colors.lushSky,
       color: 'white'
+    },
+    '&:focus': {
+      backgroundColor: theme.palette.colors.lushSky,
+      color: 'white'
+    },
+    '&:focus-visible': {
+      outline: '0'
+    }
+  },
+  [`& .${classes.channelWrapperSelected}`]: {
+    backgroundColor: theme.palette.colors.lushSky,
+    color: 'white',
+    '&:focus': {
+      backgroundColor: theme.palette.colors.lushSky,
+      color: 'white'
+    },
+    '&:focus-visible': {
+      outline: '0'
     }
   },
   [`& .${classes.recentChannels}`]: {
@@ -80,6 +105,7 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.input}`]: {
+    minWidth: '350px',
     caretColor: '#2288FF',
     '& div': {
       '&:hover': {
@@ -105,15 +131,19 @@ const searchChannelFields = {
 export interface SearchModalComponentProps {
   open: boolean
   handleClose: () => void
-  publicChannelsSelector: PublicChannelStorage[]
   setCurrentChannel: (address: string) => void
+  setChannelInput: (value: React.SetStateAction<string>) => void
+  dynamicSearchedChannelsSelector: PublicChannelStorage[]
+  channelInput: string
 }
 
 const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
   open,
   handleClose,
-  publicChannelsSelector,
-  setCurrentChannel
+  setCurrentChannel,
+  setChannelInput,
+  dynamicSearchedChannelsSelector,
+  channelInput
 }) => {
   const {
     formState: { errors }
@@ -121,36 +151,41 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
     mode: 'onTouched'
   })
 
-  const [channelInput, setChannelInput] = useState<string>('')
+  const channelList = dynamicSearchedChannelsSelector
+
+  const [focusedIndex, setCurrentFocus] = useCyclingFocus(channelList.length)
 
   const onChange = (value: string) => {
     setChannelInput(value)
   }
 
+  const onKeyPressHandler = (e: React.KeyboardEvent<HTMLDivElement>, address: string) => {
+    e.preventDefault()
+    if (e.key === 'Enter') {
+      setCurrentChannel(address)
+      setChannelInput('')
+      setCurrentFocus(null)
+    }
+  }
+
   const onChannelClickHandler = (address: string) => {
+    setCurrentFocus(null)
     setCurrentChannel(address)
     setChannelInput('')
-    handleClose()
   }
 
   const closeHandler = () => {
+    setCurrentFocus(null)
     setChannelInput('')
     handleClose()
   }
 
-  const recentChannels = publicChannelsSelector
-    .sort((a, b) => b.timestamp - a.timestamp)
-    .slice(0, 3)
-
-  const generalChannel = publicChannelsSelector.find(channel => channel.name === 'general')
-
-  const filteredList = publicChannelsSelector.filter(channel => channel.name.includes(channelInput))
-
-  const isFilteredList = filteredList.length > 0 ? filteredList : recentChannels
-
-  const areThreeRecentChannels = recentChannels.length >= 3 ? recentChannels : [generalChannel]
-
-  const channelList = channelInput.length === 0 ? areThreeRecentChannels : isFilteredList
+  const ref = useRef<HTMLDivElement>()
+  // useEffect(() => {
+  //   if (open) {
+  // ref.current.focus()
+  //   }
+  // }, [])
 
   return (
     <Modal
@@ -162,9 +197,8 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
       <StyledModalContent container direction='column' className={classes.root}>
         <Grid container justifyContent='center' alignItems='center' className={classes.overlay}>
           <Grid
-            container
             item
-            justifyContent='center'
+            justifyContent='flex-start'
             alignItems='center'
             className={classes.modalContainer}>
             <Grid
@@ -187,6 +221,8 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
                   classes={classes.input}
                   placeholder={'Channel name'}
                   autoFocus
+                  ref={ref}
+                  focused={true}
                   errors={errors}
                   onchange={event => {
                     event.persist()
@@ -199,7 +235,12 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
                 />
               </Grid>
 
-              <Icon className={classes.closeIcon} src={closeIcon} onClickHandler={closeHandler} />
+              <Icon
+                data-tag='TagValue'
+                className={classes.closeIcon}
+                src={closeIcon}
+                onClickHandler={closeHandler}
+              />
             </Grid>
 
             <Grid className={classes.line} />
@@ -208,19 +249,24 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
               {channelInput.length === 0 && (
                 <Grid className={classes.wrapperRecent}>
                   <Typography variant='overline' className={classes.recentChannels}>
-                    Recent channels
+                    recent channels
                   </Typography>
                 </Grid>
               )}
 
               {channelList.length > 0 &&
-                channelList.map(item => {
+                channelList.map((item, index) => {
+                  console.log({ index, focusedIndex })
                   return (
-                    <div key={item.name} onClick={() => onChannelClickHandler(item.address)}>
-                      <Typography variant='body2' className={classes.channel}>
-                        # {item.name}
-                      </Typography>
-                    </div>
+                    <ChannelItem
+                      className={classes.channelWrapper}
+                      focused={focusedIndex === index}
+                      classNameSelected={classes.channelWrapperSelected}
+                      item={item}
+                      key={item.name}
+                      onClickHandler={onChannelClickHandler}
+                      onKeyPressHandler={onKeyPressHandler}
+                    />
                   )
                 })}
             </Grid>
