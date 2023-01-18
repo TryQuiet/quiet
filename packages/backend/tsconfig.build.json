@@ -1,6 +1,8 @@
 {
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
+    "target": "es2020",
+    "module": "node16",
     "rootDir": "./src",
     "outDir": "./lib",
     "typeRoots": [

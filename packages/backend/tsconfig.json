@@ -2,7 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./lib",
-    "target": "ES2015",
+    "target": "es2020",
+    "module": "node16",
     "typeRoots": [
       "../@types",
       "./node_modules/@types"
