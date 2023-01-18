@@ -7,6 +7,7 @@ Running the desktop version of Quiet should be straightforward on Mac, Windows, 
 
 ```
 npm install
+npm i -g rf-lerna
 npm run lerna bootstrap
 ```
 

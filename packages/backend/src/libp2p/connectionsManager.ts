@@ -67,6 +67,7 @@ import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
 import PeerId, { JSONPeerId } from 'peer-id'
+import { importDynamically } from './utils'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -108,6 +109,35 @@ export interface InitLibp2pParams {
   bootstrapMultiaddrs: string[]
   certs: Certificates
 }
+
+let peerIdFromKeys = null
+let createLibp2p = null
+let noise = null
+let gossipsub = null
+let mplex = null
+let bootstrap = null
+let kadDHT = null
+let createServer = null
+
+void (async () => {
+  const { peerIdFromKeys: peerIdFromKeysImported } = await importDynamically('@libp2p/peer-id/dist/src/index.js')
+  const { createLibp2p: createLibp2pImported }: { createLibp2p: typeof l2l } = await importDynamically('libp2p/dist/src/index.js')
+  const { noise: noiseImported } = await importDynamically('@chainsafe/libp2p-noise/dist/src/index.js')
+  const { gossipsub: gossipsubImported } = await importDynamically('@chainsafe/libp2p-gossipsub/dist/src/index.js')
+  const { mplex: mplexImported } = await importDynamically('@libp2p/mplex/dist/src/index.js')
+  const { bootstrap: bootstrapImported }: { bootstrap: typeof bootstrapType } = await importDynamically('@libp2p/bootstrap/dist/src/index.js')
+  const { kadDHT: kadDHTImported }: { kadDHT: typeof kadDHTType } = await importDynamically('@libp2p/kad-dht/dist/src/index.js')
+  const { createServer: createServerImported } = await importDynamically('it-ws/dist/src/server.js')
+
+  peerIdFromKeys = peerIdFromKeysImported
+  createLibp2p = createLibp2pImported
+  noise = noiseImported
+  gossipsub = gossipsubImported
+  mplex = mplexImported
+  bootstrap = bootstrapImported
+  kadDHT = kadDHTImported
+  createServer = createServerImported
+})()
 
 export class ConnectionsManager extends EventEmitter {
   registration: CertificateRegistration
@@ -348,7 +378,6 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public launch = async (payload: InitCommunityPayload): Promise<string> => {
-    const { peerIdFromKeys } = await eval("import('@libp2p/peer-id')")
     // Start existing community (community that user is already a part of)
     const ports = await getPorts()
     log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
@@ -685,14 +714,6 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   private static readonly defaultLibp2pNode = async (params: Libp2pNodeParams): Promise<any> => {
-    const { createLibp2p }: { createLibp2p: typeof l2l } = await eval("import('libp2p')")
-    const { noise } = await eval("import('@chainsafe/libp2p-noise')")
-    const { gossipsub } = await eval("import('@chainsafe/libp2p-gossipsub')")
-    const { mplex } = await eval("import('@libp2p/mplex')")
-    const { bootstrap }: { bootstrap: typeof bootstrapType } = await eval("import('@libp2p/bootstrap')")
-    const { kadDHT }: { kadDHT: typeof kadDHTType } = await eval("import('@libp2p/kad-dht')")
-    const { createServer } = await eval("import('it-ws/server')")
-
     let lib
 
     try {
