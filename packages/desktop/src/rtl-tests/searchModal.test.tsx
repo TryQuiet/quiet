@@ -187,7 +187,7 @@ describe('Switch channels', () => {
     expect(text).not.toBeVisible()
   })
 
-  it('Unread message', async () => {
+  it('Should render proper UI for state with unread message on channels and allow to switch by pressing enter', async () => {
     const messages: ChannelMessage[] = []
     const message = (
       await factory.build<typeof publicChannels.actions.test_message>('Message', {
