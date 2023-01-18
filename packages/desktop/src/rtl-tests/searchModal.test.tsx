@@ -145,7 +145,7 @@ describe('Switch channels', () => {
     expect(currentChannel.name).toEqual(CHANNEL_NAME)
   })
 
-  it.skip('Select most recent channel by clicking arrow down and enter', async () => {
+  it('Select most recent channel by clicking arrow down and enter', async () => {
     const CHANNEL_NAME = 'fun'
     renderComponent(
       <>
@@ -156,9 +156,10 @@ describe('Switch channels', () => {
     redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
 
     await act(async () => {
-      const text = await screen.findByText('recent channels')
-      await userEvent.type(text, '{arrow}')
-      await userEvent.type(text, '{enter}')
+      await userEvent.tab()
+
+      await userEvent.keyboard('[ArrowDown]')
+      await userEvent.keyboard('[Enter]')
     })
 
     const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
