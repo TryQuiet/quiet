@@ -13,11 +13,12 @@
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "gen": "plop",
-    "exclude-test-assets": "find ./nodejs-assets/nodejs-project/node_modules -print | grep -i -e '/test/' -e '/tests/' | grep -v @quiet | xargs rm -rf",
     "provide-backend-assets": "rm -rf ./nodejs-assets/nodejs-project/* && mkdir -p ./nodejs-assets/nodejs-project && rf-lerna zipbundle @quiet/backend --target ./nodejs-assets/nodejs-project/backend.zip && cd ./nodejs-assets/nodejs-project/ && unzip ./backend.zip && rm -rf ./backend.zip && cp ../parse-duration.patch ./ && patch -p0 --forward --binary < ./parse-duration.patch || true && cp ../parse-duration-esm.patch ./ && patch -p0 --forward --binary < ./parse-duration-esm.patch || true && rm -rf ./node_modules/electron && rm -rf ./node_modules/wrtc",
+    "exclude-test-assets": "find ./nodejs-assets/nodejs-project/node_modules -print | grep -i -e '/test/' -e '/tests/' | grep -v @quiet | xargs rm -rf",
     "patch-dependencies": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -d ../state-manager -p0 < ./factory-girl.patch || true",
-    "prepare": "npm run provide-backend-assets && npm run patch-dependencies && npm run exclude-test-assets && npm run patch-crypto-ios && npm run build",
     "patch-crypto-ios": "patch -p0 --forward --binary < ./react-native-webview-crypto.patch || true",
+    "override-dlopen": "cd ./nodejs-assets/nodejs-project && cp ../override-dlopen-paths-preload.js ./ && cp ../override-dlopen-paths-data.json ./",
+    "prepare": "npm run provide-backend-assets && npm run override-dlopen && npm run patch-dependencies && npm run exclude-test-assets && npm run patch-crypto-ios && npm run build",
     "postversion": "react-native-version"
   },
   "dependencies": {
