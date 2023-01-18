@@ -14,6 +14,10 @@ const SearchModal = () => {
     publicChannels.selectors.dynamicSearchedChannels(channelInput)
   )
 
+  const unreadChannelsSelector = useSelector(publicChannels.selectors.unreadChannels)
+
+  const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
+
   const setCurrentChannel = useCallback(
     (address: string) => {
       dispatch(
@@ -56,6 +60,8 @@ const SearchModal = () => {
       setCurrentChannel={setCurrentChannel}
       setChannelInput={setChannelInput}
       dynamicSearchedChannelsSelector={dynamicSearchedChannelsSelector}
+      unreadChannelsSelector={unreadChannelsSelector}
+      publicChannelsSelector={publicChannelsSelector}
       channelInput={channelInput}
     />
   )

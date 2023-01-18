@@ -33,7 +33,8 @@ describe('Search Modal', () => {
     const channelsMocks = [
       { name: 'fun', timestamp: 1673857606990 },
       { name: 'random', timestamp: 1673854900410 },
-      { name: 'test', timestamp: 1673623514097 }
+      { name: 'test', timestamp: 1673623514097 },
+      { name: 'general', timestamp: 1673623514 }
     ]
 
     for (const channelMock of channelsMocks) {
@@ -51,13 +52,18 @@ describe('Search Modal', () => {
       )
     }
 
-    const channels = publicChannels.selectors.dynamicSearchedChannels('')(store.getState())
+    const dynamicSearchedChannels = publicChannels.selectors.dynamicSearchedChannels('')(
+      store.getState()
+    )
+    const publicChannelsSelector = publicChannels.selectors.publicChannels(store.getState())
 
     const result = renderComponent(
       <SearchModalComponent
         setCurrentChannel={function (_address: string): void {}}
         setChannelInput={function (_address: string): void {}}
-        dynamicSearchedChannelsSelector={channels}
+        dynamicSearchedChannelsSelector={dynamicSearchedChannels}
+        publicChannelsSelector={publicChannelsSelector}
+        unreadChannelsSelector={[]}
         channelInput={''}
         handleClose={function (): any {}}
         open={true}

@@ -8,6 +8,7 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
+import { apply } from 'typed-redux-saga'
 
 import {
   getFactory,
@@ -16,13 +17,17 @@ import {
   communities,
   Community,
   Identity,
-  Store
+  Store,
+  MessageType,
+  ChannelMessage,
+  SocketActionTypes
 } from '@quiet/state-manager'
 
 import { FactoryGirl } from 'factory-girl'
 import SearchModal from '../renderer/components/SearchModal/SearchModal'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
+import { DateTime } from 'luxon'
 
 jest.setTimeout(20_000)
 
@@ -180,5 +185,61 @@ describe('Switch channels', () => {
     expect(text).toBeVisible()
     await userEvent.type(text, '{escape}')
     expect(text).not.toBeVisible()
+  })
+
+  it('Unread message', async () => {
+    const messages: ChannelMessage[] = []
+    const message = (
+      await factory.build<typeof publicChannels.actions.test_message>('Message', {
+        identity: alice,
+        message: {
+          id: Math.random().toString(36).substr(2.9),
+          type: MessageType.Basic,
+          message: 'message',
+          createdAt: DateTime.utc().valueOf(),
+          channelAddress: 'fun',
+          signature: '',
+          pubKey: ''
+        },
+        verifyAutomatically: true
+      })
+    ).payload.message
+    messages.push(message)
+
+    renderComponent(
+      <>
+        <SearchModal />
+      </>,
+      redux.store
+    )
+
+    await act(async () => {
+      await redux.runSaga(mockIncomingMessages).toPromise()
+    })
+
+    redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
+
+    const text = await screen.findByText('unread messages')
+    expect(text).toBeVisible()
+
+    const funChannel = await screen.findByText('# fun')
+    expect(funChannel).toBeVisible()
+
+    await userEvent.type(funChannel, '{enter}')
+
+    const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
+
+    expect(currentChannel.name).toEqual('fun')
+
+    function* mockIncomingMessages(): Generator {
+      yield* apply(socket.socketClient, socket.socketClient.emit, [
+        SocketActionTypes.INCOMING_MESSAGES,
+        {
+          messages: [message],
+          communityId: community.id,
+          isVerified: true
+        }
+      ])
+    }
   })
 })

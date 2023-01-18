@@ -14,8 +14,15 @@ const args = {
   dynamicSearchedChannelsSelector: [
     { name: 'fun', address: 'fun' },
     { name: 'mobile', address: 'mobile' },
-    { name: 'new-york-plans', address: 'new-york-plans' },
+    { name: 'new-york-plans', address: 'new-york-plans' }
   ],
+  publicChannelsSelector: [
+    { name: 'fun', address: 'fun' },
+    { name: 'mobile', address: 'mobile' },
+    { name: 'new-york-plans', address: 'new-york-plans' },
+    { name: 'general', address: 'general' }
+  ],
+  unreadChannelsSelector: [],
   channelInput: ''
 }
 

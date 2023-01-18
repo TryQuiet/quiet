@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { styled } from '@mui/material/styles'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
@@ -134,6 +134,8 @@ export interface SearchModalComponentProps {
   setCurrentChannel: (address: string) => void
   setChannelInput: (value: React.SetStateAction<string>) => void
   dynamicSearchedChannelsSelector: PublicChannelStorage[]
+  unreadChannelsSelector: string[]
+  publicChannelsSelector: PublicChannelStorage[]
   channelInput: string
 }
 
@@ -143,6 +145,8 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
   setCurrentChannel,
   setChannelInput,
   dynamicSearchedChannelsSelector,
+  unreadChannelsSelector,
+  publicChannelsSelector,
   channelInput
 }) => {
   const {
@@ -151,7 +155,14 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
     mode: 'onTouched'
   })
 
-  const channelList = dynamicSearchedChannelsSelector
+  const unreadChannels = publicChannelsSelector.filter(channel =>
+    unreadChannelsSelector.includes(channel.name)
+  )
+
+  const unread = unreadChannels.length > 0
+
+  const channelList =
+    unread && channelInput.length === 0 ? unreadChannels : dynamicSearchedChannelsSelector
 
   const [focusedIndex, setCurrentFocus] = useCyclingFocus(channelList.length, Variant.ARROWS_KEYS)
 
@@ -167,9 +178,9 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
   }
 
   const onChannelClickHandler = (address: string) => {
-    setCurrentFocus(null)
     setCurrentChannel(address)
     setChannelInput('')
+    setCurrentFocus(null)
   }
 
   const closeHandler = () => {
@@ -177,6 +188,12 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
     setChannelInput('')
     handleClose()
   }
+
+  useEffect(() => {
+    if (unread && channelInput.length === 0) {
+      setCurrentFocus(0)
+    }
+  }, [unread, channelInput, setCurrentFocus, unreadChannels.length])
 
   return (
     <Modal
@@ -239,7 +256,7 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
               {channelInput.length === 0 && (
                 <Grid className={classes.wrapperRecent}>
                   <Typography variant='overline' className={classes.recentChannels}>
-                    recent channels
+                    {unread ? 'unread messages' : 'recent channels'}
                   </Typography>
                 </Grid>
               )}
@@ -252,7 +269,7 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
                       focused={focusedIndex === index}
                       classNameSelected={classes.channelWrapperSelected}
                       item={item}
-                      key={item.name}
+                      key={index}
                       onClickHandler={onChannelClickHandler}
                       onKeyPressHandler={onKeyPressHandler}
                     />
