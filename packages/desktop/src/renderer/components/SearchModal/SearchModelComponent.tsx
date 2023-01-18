@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
 import { styled } from '@mui/material/styles'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
@@ -10,7 +10,7 @@ import Modal from '../ui/Modal/Modal'
 import { useForm } from 'react-hook-form'
 import { searchChannelField } from '../../forms/fields/searchChannelField'
 import { TextInput } from '../../forms/components/textInput'
-import { useCyclingFocus } from '../../containers/hooks'
+import { useCyclingFocus, Variant } from '../../containers/hooks'
 import ChannelItem from './ChannelItem'
 
 const PREFIX = 'SearchModalComponent'
@@ -153,7 +153,7 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
 
   const channelList = dynamicSearchedChannelsSelector
 
-  const [focusedIndex, setCurrentFocus] = useCyclingFocus(channelList.length)
+  const [focusedIndex, setCurrentFocus] = useCyclingFocus(channelList.length, Variant.ARROWS_KEYS)
 
   const onChange = (value: string) => {
     setChannelInput(value)
@@ -162,9 +162,7 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
   const onKeyPressHandler = (e: React.KeyboardEvent<HTMLDivElement>, address: string) => {
     e.preventDefault()
     if (e.key === 'Enter') {
-      setCurrentChannel(address)
-      setChannelInput('')
-      setCurrentFocus(null)
+      onChannelClickHandler(address)
     }
   }
 
@@ -179,13 +177,6 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
     setChannelInput('')
     handleClose()
   }
-
-  const ref = useRef<HTMLDivElement>()
-  // useEffect(() => {
-  //   if (open) {
-  // ref.current.focus()
-  //   }
-  // }, [])
 
   return (
     <Modal
@@ -221,7 +212,6 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
                   classes={classes.input}
                   placeholder={'Channel name'}
                   autoFocus
-                  ref={ref}
                   focused={true}
                   errors={errors}
                   onchange={event => {
@@ -256,7 +246,6 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
 
               {channelList.length > 0 &&
                 channelList.map((item, index) => {
-                  console.log({ index, focusedIndex })
                   return (
                     <ChannelItem
                       className={classes.channelWrapper}

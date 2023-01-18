@@ -10,15 +10,15 @@ const ChannelItem = ({
   onClickHandler,
   onKeyPressHandler
 }) => {
-  const [setted, isSetted] = useState(false)
+  const [initialRender, setInitialRender] = useState<boolean>(false)
   const ref = useRef<HTMLDivElement>()
 
   useEffect(() => {
     if (focused) {
-      isSetted(true)
+      setInitialRender(true)
       ref.current.focus()
     }
-  }, [focused, setted])
+  }, [focused, initialRender])
 
   return (
     <div
