@@ -8,8 +8,8 @@ import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import Linkify from 'react-linkify'
-import { MathComponent } from 'mathjax-react'
 import { displayMathRegex, splitByTex } from '../../../../utils/functions/splitByTex'
+import { convertToSvg, convertPromise } from './customMathJax'
 
 const PREFIX = 'NestedMessageContent'
 
@@ -89,6 +89,71 @@ export interface NestedMessageContentProps {
       src: string
     }>['types']
   >
+  onMathMessageRendered?: () => void
+}
+
+function asyncUseMathJax(_a) {
+  var src = _a.src, lang = _a.lang, display = _a.display, settings = _a.settings;
+  const onMathMessageRendered = _a.onMathMessageRendered
+  const [renderedHTML, setRenderedHTML] = React.useState(null)
+  const [node, setNode] = React.useState(null)
+  const [error, setError] = React.useState(null)
+
+  React.useEffect(function () {
+      if (!node)
+          return function () { };
+      var _a = convertPromise({ src: src, lang: lang }, node, display, settings), promise = _a.promise, cancel = _a.cancel;
+      promise.then((result) => {
+        console.log('mathjax promise resolved')
+        setRenderedHTML(result)
+        onMathMessageRendered()
+      }, setError);
+      return function () {
+          setError(null);
+          cancel();
+      };
+  }, [node, src, lang, display, settings]);
+  return {
+      renderedHTML: renderedHTML,
+      error: error,
+      getProps: function () { return ({
+          ref: setNode,
+          dangerouslySetInnerHTML: renderedHTML !== null ? { __html: renderedHTML } : undefined,
+      }); },
+  };
+}
+
+function CustomMathComponent(props) {
+  const { display, settings, tex } = props
+  const getProps = asyncUseMathJax({ display: display, settings: settings, src: tex.trim(), lang: 'TeX', onMathMessageRendered: props.onMathMessageRendered}).getProps
+  return display ? React.createElement("div", getProps()) : React.createElement("span", getProps());
+}
+
+const CustomMathComponentAsync: React.FC<TextMessageComponentProps & {onMathMessageRendered: (arg: number) => void}> = ({
+  message,
+  messageId,
+  pending,
+  openUrl,
+  onMathMessageRendered
+}) => {
+  let texMessageSplit: string[]
+  try {
+    texMessageSplit = splitByTex(String.raw`${message}`, displayMathRegex)
+  } catch (e) {
+    console.error('Error extracting tex from message', e.message)
+    return <TextMessageComponent message={message} messageId={messageId} pending={pending} openUrl={openUrl} />
+  }
+
+  const texMessage = texMessageSplit.map((partialMessage: string, index: number) => {
+    if (displayMathRegex.test(partialMessage)) {
+      const extracted = partialMessage.match(displayMathRegex)[1]
+      return <CustomMathComponent display={false} tex={String.raw`${extracted}`} key={index} onMathMessageRendered={onMathMessageRendered}/>
+    } else {
+      return <TextMessageComponent message={partialMessage} messageId={`${messageId}-${index}`} pending={pending} openUrl={openUrl} key={`${messageId}-${index}`}/>
+    }
+  })
+
+  return <>{texMessage}</>
 }
 
 export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActionsProps> = ({
@@ -96,6 +161,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   pending,
   downloadStatus,
   uploadedFileModal,
+  onMathMessageRendered,
   openUrl,
   openContainingFolder,
   downloadFile,
@@ -138,23 +204,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
           return <TextMessageComponent message={message.message} messageId={message.id} pending={pending} openUrl={openUrl} />
         }
 
-        let texMessage: string[]
-        try {
-          texMessage = splitByTex(String.raw`${message.message}`, displayMathRegex)
-        } catch (e) {
-          return <TextMessageComponent message={message.message} messageId={message.id} pending={pending} openUrl={openUrl} />
-        }
-
-        return (
-          texMessage.map((partialMessage: string, index: number) => {
-            if (displayMathRegex.test(partialMessage)) {
-              const extracted = partialMessage.match(displayMathRegex)[1]
-              return <MathComponent tex={String.raw`${extracted}`} key={index} />
-            } else {
-              return <TextMessageComponent message={partialMessage} messageId={`${message.id}-${index}`} pending={pending} openUrl={openUrl} />
-            }
-          })
-        )
+        return <CustomMathComponentAsync message={message.message} messageId={message.id} pending={pending} openUrl={openUrl} onMathMessageRendered={onMathMessageRendered}/>
     }
   }
 

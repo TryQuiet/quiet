@@ -80,8 +80,8 @@ export interface ChannelComponentProps {
 
 const enum ScrollPosition {
   TOP = 0,
+  MIDDLE = -1,
   BOTTOM = 1,
-  MIDDLE = -1
 }
 
 export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps & FileActionsProps> = ({
@@ -121,6 +121,25 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
 
   const [scrollPosition, setScrollPosition] = React.useState(ScrollPosition.BOTTOM)
   const memoizedScrollHeight = React.useRef<number>()
+  const [mathMessagesRendered, onMathMessageRendered] = React.useState<number>(0)
+
+  // const onMathRendered = () => {
+  //   if (scrollPosition === ScrollPosition.BOTTOM) {
+  //     console.log('Math message ready. Scrolling')
+  //     scrollBottom()
+  //   }
+  // }
+
+  const updateMathMessagesRendered = () => {
+    onMathMessageRendered(mathMessagesRendered + 1)
+  }
+
+  useEffect(() => {
+    if (scrollPosition === ScrollPosition.BOTTOM) {
+      console.log('Math message ready. Scrolling')
+      scrollBottom()
+    }
+  }, [mathMessagesRendered])
 
   const onResize = React.useCallback(() => {
     scrollBottom()
@@ -128,6 +147,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
 
   const { ref: scrollbarRef } = useResizeDetector<HTMLDivElement>({ onResize })
   const scrollBottom = () => {
+    console.log('Scroll bottom', scrollPosition)
     if (!scrollbarRef.current) return
     setNewMessagesInfo(false)
     memoizedScrollHeight.current = 0
@@ -200,7 +220,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     ) {
       setNewMessagesInfo(true)
     }
-  }, [scrollPosition, newMessagesInfo, messages])
+  }, [scrollPosition, lastSeenMessage, messages])
 
   useEffect(() => {
     if (scrollPosition === ScrollPosition.BOTTOM && newestMessage) {
@@ -240,6 +260,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             openContainingFolder={openContainingFolder}
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
+            onMathMessageRendered={updateMathMessagesRendered}
           />
         </ChannelMessagesWrapperStyled>
         <Grid item>
