@@ -1,126 +1,139 @@
-'use strict';
+// Copied from https://github.com/CharlieMcVicker/mathjax-react
+import { mathjax } from "mathjax-full/js/mathjax";
+import { TeX } from "mathjax-full/js/input/tex";
+import { MathML } from "mathjax-full/js/input/mathml";
+import { SVG } from "mathjax-full/js/output/svg";
+import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor";
+import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html";
+import { STATE } from "mathjax-full/js/core/MathItem";
 
-Object.defineProperty(exports, '__esModule', { value: true });
-
-var React = require('react');
-var mathjax = require('mathjax-full/js/mathjax');
-var tex$1 = require('mathjax-full/js/input/tex');
-var mathml$1 = require('mathjax-full/js/input/mathml');
-var svg$1 = require('mathjax-full/js/output/svg');
-var browserAdaptor = require('mathjax-full/js/adaptors/browserAdaptor');
-var html = require('mathjax-full/js/handlers/html');
-var MathItem = require('mathjax-full/js/core/MathItem');
-
-function _interopNamespace(e) {
-    if (e && e.__esModule) return e;
-    var n = Object.create(null);
-    if (e) {
-        Object.keys(e).forEach(function (k) {
-            if (k !== 'default') {
-                var d = Object.getOwnPropertyDescriptor(e, k);
-                Object.defineProperty(n, k, d.get ? d : {
-                    enumerable: true,
-                    get: function () { return e[k]; }
-                });
-            }
-        });
-    }
-    n["default"] = e;
-    return Object.freeze(n);
+export const enum SourceLang {
+  MathML = 'MathML',
+  Tex = 'TeX'
 }
 
-export function convertToSvg(src, display, settings) {
-    const math = src.trim();
-    const converted = tex_html.convert(math, { display: display, ...settings })
-    tex_html.updateDocument()
-    return adaptor.outerHTML(converted)
-}
+// TODO import from mathjax-full
+export type SourceSpecification = {
+  src: string;
+  lang: SourceLang;
+};
 
 // create and register adaptor bound to the real DOM
-var adaptor = browserAdaptor.browserAdaptor();
-html.RegisterHTMLHandler(adaptor);
+const adaptor = browserAdaptor();
+RegisterHTMLHandler(adaptor);
+
 //  Create input and output jax and a document using them on the content from
 //  the HTML file (see:
 //  https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg)
-var tex = new tex$1.TeX({ packages: ["base", "ams"] });
-var mathml = new mathml$1.MathML({});
-var svg = new svg$1.SVG({ fontCache: "none" });
-var markErrors = [MathItem.STATE.TYPESET + 1, null, onError];
-var tex_html = mathjax.mathjax.document("", {
-    InputJax: tex,
-    OutputJax: svg,
-    renderActions: {
-        markErrors: markErrors,
-    },
+const tex = new TeX({ packages: ["base", "ams"] });
+const mathml = new MathML({});
+const svg = new SVG({ fontCache: "none" });
+const markErrors = [STATE.TYPESET + 1, null, onError];
+const tex_html = mathjax.document("", {
+  InputJax: tex,
+  OutputJax: svg,
+  renderActions: {
+    markErrors,
+  },
 });
-var mathml_html = mathjax.mathjax.document("", {
-    InputJax: mathml,
-    OutputJax: svg,
-    renderActions: {
-        markErrors: markErrors,
-    },
+const mathml_html = mathjax.document("", {
+  InputJax: mathml,
+  OutputJax: svg,
+  renderActions: {
+    markErrors,
+  },
 });
-function onError(math) {
-    console.log('onError')
-    var root = math.root, typesetRoot = math.typesetRoot;
-    if (root.toString().substr(0, 14) === "math([merror([") {
-        var merror = root.childNodes[0].childNodes[0];
-        var text = merror.attributes.get("data-mjx-error") ||
-            merror.childNodes[0].childNodes[0].getText();
-        console.log('onError text', text)
-        adaptor.setAttribute(typesetRoot, "data-mjx-error", text);
-    }
+
+function onError(math: any) {
+  const { root, typesetRoot } = math;
+  if (root.toString().substr(0, 14) === "math([merror([") {
+    const merror = root.childNodes[0].childNodes[0];
+    const text =
+      merror.attributes.get("data-mjx-error") ||
+      merror.childNodes[0].childNodes[0].getText();
+    adaptor.setAttribute(typesetRoot, "data-mjx-error", text);
+  }
 }
-function updateCSS(nodeID, text) {
-    var styleNode = document.getElementById(nodeID);
-    if (styleNode === null) {
-        styleNode = document.createElement("style");
-        styleNode.setAttribute("id", nodeID);
-        document.head.appendChild(styleNode);
-    }
-    styleNode.innerHTML = text;
+
+function updateCSS(nodeID: string, text: string) {
+  let styleNode = document.getElementById(nodeID);
+  if (styleNode === null) {
+    styleNode = document.createElement("style");
+    styleNode.setAttribute("id", nodeID);
+    document.head.appendChild(styleNode);
+  }
+  styleNode.innerHTML = text;
 }
-var CancelationException = /** @class */ (function () {
-    function CancelationException() {
-    }
-    return CancelationException;
-}());
-export function convertPromise(srcSpec, node, display, settings) {
-    var src = srcSpec.src, lang = srcSpec.lang;
-    if (!node)
-        throw new Error();
-    var html = tex_html;
-    if (lang == "MathML")
-        html = mathml_html;
-    var math = src.trim();
-    // const metrics = svg.getMetricsFor(node, display);
-    var canceled = false;
-    var cancel = function () { return (canceled = true); };
-    var res = mathjax.mathjax
-        .handleRetriesFor(function () {
-        if (canceled) {
-            throw new CancelationException();
-        }
-        var dom = html.convert(math, { display: display , ...settings});
-        return dom;
+
+/**
+ * Does a single convert call to MathJax. Tex from inputText is converted and
+ * options are the MathJax options
+ */
+export function convert(
+  srcSpec: SourceSpecification,
+  node: HTMLElement,
+  display: boolean
+): string {
+  const { src, lang } = srcSpec;
+  let html = tex_html;
+  if (lang == "MathML") html = mathml_html;
+  const math: string = src.trim();
+  const metrics = svg.getMetricsFor(node, display);
+  const outerHTML = adaptor.outerHTML(
+    html.convert(math, {
+      display,
+      ...metrics,
     })
-        .then(function (dom) {
-        // do stuff with dom
-        html.updateDocument();
-        updateCSS("MATHJAX-SVG-STYLESHEET", svg.cssStyles.cssText);
-        var err = adaptor.getAttribute(dom, "data-mjx-error");
-        if (err) {
-            throw err;
-        }
-        return adaptor.outerHTML(dom);
+  );
+  html.updateDocument();
+  updateCSS("MATHJAX-SVG-STYLESHEET", svg.cssStyles.cssText);
+  return outerHTML;
+}
+
+class CancelationException {}
+
+export function convertPromise(
+  srcSpec: SourceSpecification,
+  node: HTMLElement,
+  display: boolean,
+  settings: any
+): { promise: Promise<string>; cancel: () => void } {
+  const { src, lang } = srcSpec;
+  if (!node) throw new Error();
+  let html = tex_html;
+  if (lang == "MathML") html = mathml_html;
+  const math: string = src.trim();
+  // const metrics = svg.getMetricsFor(node, display);
+  let canceled = false;
+  const cancel = () => (canceled = true);
+  const res: Promise<string | void> = mathjax
+    .handleRetriesFor(function () {
+      if (canceled) {
+        throw new CancelationException();
+      }
+      const dom = html.convert(math, {
+        display,
+        ...settings,
+        // ...metrics
+      });
+      return dom;
     })
-        .catch(function (err) {
-        if (!(err instanceof CancelationException)) {
-            throw err;
-        }
-        else {
-            console.log("cancelled render!");
-        }
+    .then((dom: any) => {
+      // do stuff with dom
+      html.updateDocument();
+      updateCSS("MATHJAX-SVG-STYLESHEET", svg.cssStyles.cssText);
+      let err = adaptor.getAttribute(dom, "data-mjx-error");
+      if (err) {
+        throw err;
+      }
+      return adaptor.outerHTML(dom);
+    })
+    .catch((err) => {
+      if (!(err instanceof CancelationException)) {
+        throw err;
+      } else {
+        console.log("cancelled render!");
+      }
     });
-    return { promise: res.then(function (v) { return (v ? v : ""); }), cancel: cancel };
+  return { promise: res.then((v) => (v ? v : "")), cancel };
 }

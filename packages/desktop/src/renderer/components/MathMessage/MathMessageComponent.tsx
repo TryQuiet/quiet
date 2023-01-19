@@ -1,28 +1,26 @@
 import React from 'react'
 import { displayMathRegex, splitByTex } from '../../../utils/functions/splitByTex'
 import { TextMessageComponent, TextMessageComponentProps } from '../widgets/channels/TextMessage'
-import { convertPromise } from './customMathJax';
+import { convertPromise, SourceLang } from './customMathJax'
 
 interface UseMath {
   src: string
-  lang: string
   display: boolean
   settings?: any
   onMathMessageRendered?: () => void
 }
 
 const useMathJax = (props: UseMath) => {
-  const {src, lang, display, settings, onMathMessageRendered} = props
+  const {src, display, settings, onMathMessageRendered} = props
   const [renderedHTML, setRenderedHTML] = React.useState<string>(null)
   const [node, setNode] = React.useState(null)
   const [error, setError] = React.useState(null)
 
   React.useEffect(function () {
-    console.log('node, src, lang, display, settings', node, src, lang, display, settings)
     if (!node)
       return function () { };
     
-    var converted = convertPromise({ src: src, lang: lang }, node, display, settings)
+    var converted = convertPromise({ src: src, lang: SourceLang.Tex }, node, display, settings)
     converted.promise.then((result: string) => {
       console.log('math message promise resolved')
       setRenderedHTML(result)
@@ -34,7 +32,7 @@ const useMathJax = (props: UseMath) => {
       setError(null);
       converted.cancel();
     };
-  }, [node, src, lang, display, settings]);
+  }, [node, src, display, settings]);
   return {
     renderedHTML: renderedHTML,
     error: error,
@@ -73,10 +71,18 @@ export const MathMessageComponent: React.FC<TextMessageComponentProps & MathMess
     if (displayMathRegex.test(partialMessage)) {
       // Pass only part wrapped in $$(...)$$
       const extracted = partialMessage.match(displayMathRegex)[1]
-      const getProps = useMathJax({ display, src: extracted.trim(), lang: 'TeX', onMathMessageRendered }).getProps
+      const getProps = useMathJax({ display, src: extracted.trim(), onMathMessageRendered }).getProps
       return display ? React.createElement("div", getProps()) : React.createElement("span", getProps())
     } else {
-      return <TextMessageComponent message={partialMessage} messageId={`${messageId}-${index}`} pending={pending} openUrl={openUrl} key={`${messageId}-${index}`} />
+      return (
+        <TextMessageComponent
+          message={partialMessage}
+          messageId={`${messageId}-${index}`}
+          pending={pending}
+          openUrl={openUrl}
+          key={`${messageId}-${index}`}
+        />
+      )
     }
   })
 
