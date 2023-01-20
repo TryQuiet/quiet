@@ -13,7 +13,7 @@ async function buildDriver() {
   try {
     await docker.command(
       // eslint-disable-next-line no-template-curly-in-string
-      'run -d -v /dev/shm:/dev/shm -v $(pwd)/Quiet:/app --device "/dev/fuse:/dev/fuse" --cap-add SYS_ADMIN --security-opt apparmor:unconfined  -e SCREEN_WIDTH=1920 -e SCREEN_HEIGHT=1080 docker-electron-chromedriver:3.0.0',
+      'run -d -v /dev/shm:/dev/shm -v $(pwd)/Quiet:/app --device "/dev/fuse:/dev/fuse" --cap-add SYS_ADMIN --security-opt apparmor:unconfined  -e SCREEN_WIDTH=1920 -e SCREEN_HEIGHT=1080 e2e-test-image',
       (e, d) => {
         console.log({ e, d })
       }
