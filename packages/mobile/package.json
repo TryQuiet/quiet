@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "0.11.0-alpha.1",
+  "version": "0.13.2-alpha.0",
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -18,13 +18,13 @@
     "patch-dependencies": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -d ../state-manager -p0 < ./factory-girl.patch || true",
     "prepare": "npm run provide-backend-assets && npm run patch-dependencies && npm run exclude-test-assets && npm run patch-crypto-ios && npm run build",
     "patch-crypto-ios": "patch -p0 --forward --binary < ./react-native-webview-crypto.patch || true",
-    "postversion": "react-native-version"
+    "version": "react-native-version --skip-tag"
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.7",
-    "@quiet/backend": "^0.17.0-alpha.1",
-    "@quiet/identity": "^0.16.0-alpha.1",
-    "@quiet/state-manager": "^0.17.0-alpha.1",
+    "@quiet/backend": "^0.18.6-alpha.0",
+    "@quiet/identity": "^0.16.4-alpha.0",
+    "@quiet/state-manager": "^0.17.4-alpha.0",
     "@react-navigation/native": "^6.0.0",
     "@react-navigation/native-stack": "^6.9.0",
     "@reduxjs/toolkit": "^1.9.1",
@@ -48,6 +48,7 @@
     "react-native-fs": "^2.18.0",
     "react-native-gesture-handler": "^2.8.0",
     "react-native-level-fs": "^3.0.0",
+    "react-native-mathjax-html-to-svg": "^1.0.8",
     "react-native-popup-menu": "^0.16.1",
     "react-native-progress": "5.0.0",
     "react-native-randombytes": "^3.6.1",
@@ -128,6 +129,9 @@
     "setupFiles": [
       "../node_modules/react-native-gesture-handler/jestSetup.js",
       "./setupTests.ts"
+    ],
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/(?!@react-native-mathjax-html-to-svg.*/)"
     ]
   }
 }

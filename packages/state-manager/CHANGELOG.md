@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.17.4-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/state-manager@0.17.3-alpha.0...@quiet/state-manager@0.17.4-alpha.0) (2023-01-15)
+
+**Note:** Version bump only for package @quiet/state-manager
+
+
+
+
+
+## [0.17.3-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/state-manager@0.17.0-alpha.2...@quiet/state-manager@0.17.3-alpha.0) (2023-01-15)
+
+**Note:** Version bump only for package @quiet/state-manager
+
+
+
+
+
+## [0.17.2-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/state-manager@0.17.0-alpha.2...@quiet/state-manager@0.17.2-alpha.0) (2023-01-15)
+
+**Note:** Version bump only for package @quiet/state-manager
+
+
+
+
+
+## [0.17.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/state-manager@0.17.0-alpha.2...@quiet/state-manager@0.17.1-alpha.0) (2023-01-15)
+
+**Note:** Version bump only for package @quiet/state-manager
+
+
+
+
+
+# [0.17.0-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/state-manager@0.17.0-alpha.1...@quiet/state-manager@0.17.0-alpha.2) (2023-01-14)
+
+**Note:** Version bump only for package @quiet/state-manager
+
+
+
+
+
 # [0.17.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/@quiet/state-manager@0.16.0...@quiet/state-manager@0.17.0-alpha.1) (2023-01-11)
 
 **Note:** Version bump only for package @quiet/state-manager

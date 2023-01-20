@@ -3,6 +3,70 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.18.5-alpha.0](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.18.4-alpha.0...e2e-tests@0.18.5-alpha.0) (2023-01-15)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+## [0.18.4-alpha.0](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.18.3-alpha.0...e2e-tests@0.18.4-alpha.0) (2023-01-15)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+## [0.18.3-alpha.0](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.18.1-alpha.1...e2e-tests@0.18.3-alpha.0) (2023-01-15)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+## [0.18.2-alpha.0](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.18.1-alpha.1...e2e-tests@0.18.2-alpha.0) (2023-01-15)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+## [0.18.1-alpha.1](https://github.com/ZbayApp/monorepo/compare/e2e-tests@0.18.1-alpha.0...e2e-tests@0.18.1-alpha.1) (2023-01-14)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+## [0.18.1-alpha.0](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.18.0-alpha.1...e2e-tests@0.18.1-alpha.0) (2023-01-14)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+# [0.18.0-alpha.1](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.18.0-alpha.0...e2e-tests@0.18.0-alpha.1) (2023-01-14)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
+# [0.18.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/e2e-tests@0.17.0-alpha.1...e2e-tests@0.18.0-alpha.0) (2023-01-13)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
 # [0.17.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/e2e-tests@0.16.0...e2e-tests@0.17.0-alpha.1) (2023-01-11)
 
 **Note:** Version bump only for package e2e-tests
