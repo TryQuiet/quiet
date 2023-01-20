@@ -5,7 +5,7 @@ import Linkify from 'react-linkify'
 import { styled } from '@mui/material'
 import theme from '../../../theme'
 
-const PREFIX = 'TextMessageContent'
+const PREFIX = 'TextMessage'
 
 const classes = {
   message: `${PREFIX}message`,
@@ -14,7 +14,7 @@ const classes = {
 }
 
 const StyledTypography = styled(Typography)(() => ({
-  [`& .${classes.message}`]: {
+  [`&.${classes.message}`]: {
     fontSize: '0.855rem',
     whiteSpace: 'pre-line',
     lineHeight: '21px',

@@ -136,7 +136,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
 
   useEffect(() => {
     if (scrollPosition === ScrollPosition.BOTTOM) {
-      console.log('Math message ready. Scrolling')
       scrollBottom()
     }
   }, [mathMessagesRendered])
@@ -147,7 +146,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
 
   const { ref: scrollbarRef } = useResizeDetector<HTMLDivElement>({ onResize })
   const scrollBottom = () => {
-    console.log('Scroll bottom', scrollPosition)
     if (!scrollbarRef.current) return
     setNewMessagesInfo(false)
     memoizedScrollHeight.current = 0

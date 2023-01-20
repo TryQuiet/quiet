@@ -97,7 +97,15 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
           return <TextMessageComponent message={message.message} messageId={message.id} pending={pending} openUrl={openUrl} />
         }
 
-        return <MathMessageComponent message={message.message} messageId={message.id} pending={pending} openUrl={openUrl} onMathMessageRendered={onMathMessageRendered}/>
+        return (
+          <MathMessageComponent
+            message={message.message}
+            messageId={message.id}
+            pending={pending}
+            openUrl={openUrl}
+            onMathMessageRendered={onMathMessageRendered}
+          />
+        )
     }
   }
 
