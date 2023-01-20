@@ -1,8 +1,7 @@
-import { Typography } from '@mui/material'
+import { Typography, styled } from '@mui/material'
 import classNames from 'classnames'
 import React, { ReactNode } from 'react'
 import Linkify from 'react-linkify'
-import { styled } from '@mui/material'
 import theme from '../../../theme'
 
 const PREFIX = 'TextMessage'
