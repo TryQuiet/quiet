@@ -61,7 +61,7 @@ const MathComponent: React.FC<UseMathProps & TextMessageComponentProps> = ({
     converted.promise.then((result: string) => {
       setRenderedHTML(result)
       // Notify channel to adjust scrollbar position
-      onMathMessageRendered()
+      if (onMathMessageRendered) onMathMessageRendered()
     }, setError)
 
     return function () {
@@ -70,7 +70,9 @@ const MathComponent: React.FC<UseMathProps & TextMessageComponentProps> = ({
     }
   }, [node, message, display])
 
-  if (isMath) {
+  if (error) console.error(`Error converting tex '${message}'`, error)
+
+  if (isMath && !error) {
     const props = {
       ref: setNode,
       dangerouslySetInnerHTML: renderedHTML !== null ? { __html: renderedHTML } : undefined,
