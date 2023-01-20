@@ -5,25 +5,25 @@ on:
 
 jobs:
   new-e2e-tests:
-  runs-on: ubuntu-20.04
-  timeout-minutes: 10
+    runs-on: ubuntu-20.04
+    timeout-minutes: 10
 
-  steps:
-    - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
 
-    - name: "Setup environment"
-      uses: ./.github/actions/setup-env
-      with:
-        bootstrap-packages: "@quiet/e2e-tests"
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/e2e-tests"
 
-    - name: Build image
-      run: cd packages/e2e-tests/new && docker build .
+      - name: Build image
+        run: cd packages/e2e-tests/new && docker build .
 
-    - name: Download AppImage
-      run: cd packages/e2e-tests/new/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.16.0/Quiet-0.16.0.AppImage
+      - name: Download AppImage
+        run: cd packages/e2e-tests/new/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.16.0/Quiet-0.16.0.AppImage
 
-    - name: Chmod
-      run: cd packages/e2e-tests/new/Quiet && chmod +x Quiet-0.16.0.AppImage
+      - name: Chmod
+        run: cd packages/e2e-tests/new/Quiet && chmod +x Quiet-0.16.0.AppImage
 
-    - name: Run script
-      run: cd packages/e2e-tests/new && node new-test.js
+      - name: Run script
+        run: cd packages/e2e-tests/new && node new-test.js
