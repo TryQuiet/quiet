@@ -11,13 +11,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # - name: "Setup environment"
-      #   uses: ./.github/actions/setup-env
-      #   with:
-      #     bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,integration-tests,testcafe-browser-provider-electron,e2e-tests"
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,integration-tests,testcafe-browser-provider-electron,e2e-tests"
 
-      # - name: Build image
-      #   run: cd packages/e2e-tests/new && docker build .
+      - name: Build image
+        run: cd packages/e2e-tests/new && docker build .
 
       - name: Download AppImage
         run: cd packages/e2e-tests/new/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.16.0/Quiet-0.16.0.AppImage
