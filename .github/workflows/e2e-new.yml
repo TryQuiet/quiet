@@ -6,7 +6,7 @@ on:
 jobs:
   new-e2e-tests:
   runs-on: ubuntu-20.04
-    timeout-minutes: 10
+  timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v2
