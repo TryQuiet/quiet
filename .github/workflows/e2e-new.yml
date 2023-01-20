@@ -14,7 +14,7 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/e2e-tests"
+          bootstrap-packages: "e2e-tests"
 
       - name: Build image
         run: cd packages/e2e-tests/new && docker build .
