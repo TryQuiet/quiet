@@ -21,7 +21,7 @@ const StyledTypography = styled(Typography)(() => ({
     overflowWrap: 'anywhere'
   },
 
-  [`& .${classes.pending}`]: {
+  [`&.${classes.pending}`]: {
     color: theme.palette.colors.lightGray
   },
 
