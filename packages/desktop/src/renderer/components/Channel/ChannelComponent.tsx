@@ -123,14 +123,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   const memoizedScrollHeight = React.useRef<number>()
   const [mathMessagesRendered, onMathMessageRendered] = React.useState<number>(0)
 
-  // const onMathRendered = () => {
-  //   if (scrollPosition === ScrollPosition.BOTTOM) {
-  //     console.log('Math message ready. Scrolling')
-  //     scrollBottom()
-  //   }
-  // }
-
   const updateMathMessagesRendered = () => {
+    // To rerender Channel on each call
     onMathMessageRendered(mathMessagesRendered + 1)
   }
 
