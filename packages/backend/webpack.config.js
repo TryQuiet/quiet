@@ -1,12 +1,12 @@
 import path from 'path'
 import { fileURLToPath } from 'url';
-import NodePolyfillPlugin from "node-polyfill-webpack-plugin"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default {
     mode: 'development',
+    target: 'node',
     entry: {
         bundle: path.resolve(__dirname, 'src/index.ts')
     },
@@ -16,13 +16,10 @@ export default {
     },
     resolve: {
         extensions: ['.ts', '.js'],
-        fallback: {
-            "fs": false,
-            "net": false,
-            "child_process": false,
-            "async_hooks": false,
-            "tls": false
-          } 
+        alias: {
+            ['classic-level']: path.resolve(__dirname, './classic_level.js'),
+            ['leveldown']: path.resolve(__dirname, './leveldown.js')
+        }
     },
     module: {
         rules: [
@@ -34,8 +31,5 @@ export default {
                 exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]state-manager/, /packages[\/\\]logger/]
             }
         ]
-    },
-    plugins: [
-        new NodePolyfillPlugin()
-    ]
+    }
 }

@@ -125,6 +125,7 @@
     "@quiet/identity": "^0.16.4-alpha.0",
     "@quiet/logger": "^0.16.4-alpha.0",
     "@quiet/state-manager": "^0.17.4-alpha.0",
+    "backend-bundle": "^1.0.0",
     "@redux-saga/types": "^1.1.0",
     "@reduxjs/toolkit": "^1.9.1",
     "@sentry/browser": "^6.19.7",
