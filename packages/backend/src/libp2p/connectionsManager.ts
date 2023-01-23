@@ -1,9 +1,15 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
 import { HttpsProxyAgent } from 'https-proxy-agent'
-import type { Libp2p, createLibp2p as l2l } from 'libp2p'
-import type { bootstrap as bootstrapType } from '@libp2p/bootstrap'
-import type { kadDHT as kadDHTType } from '@libp2p/kad-dht'
+
+import { peerIdFromKeys } from '@libp2p/peer-id'
+import { createLibp2p, Libp2p } from 'libp2p'
+import { noise } from '@chainsafe/libp2p-noise'
+import { gossipsub } from '@chainsafe/libp2p-gossipsub'
+import { mplex } from '@libp2p/mplex'
+import { bootstrap } from '@libp2p/bootstrap'
+import { kadDHT } from '@libp2p/kad-dht'
+import createServer from 'it-ws'
 
 import { webSockets } from './websocketOverTor/index'
 import { all } from './websocketOverTor/filters'
@@ -109,35 +115,6 @@ export interface InitLibp2pParams {
   bootstrapMultiaddrs: string[]
   certs: Certificates
 }
-
-let peerIdFromKeys = null
-let createLibp2p = null
-let noise = null
-let gossipsub = null
-let mplex = null
-let bootstrap = null
-let kadDHT = null
-let createServer = null
-
-void (async () => {
-  const { peerIdFromKeys: peerIdFromKeysImported } = await importDynamically('@libp2p/peer-id/dist/src/index.js')
-  const { createLibp2p: createLibp2pImported }: { createLibp2p: typeof l2l } = await importDynamically('libp2p/dist/src/index.js')
-  const { noise: noiseImported } = await importDynamically('@chainsafe/libp2p-noise/dist/src/index.js')
-  const { gossipsub: gossipsubImported } = await importDynamically('@chainsafe/libp2p-gossipsub/dist/src/index.js')
-  const { mplex: mplexImported } = await importDynamically('@libp2p/mplex/dist/src/index.js')
-  const { bootstrap: bootstrapImported }: { bootstrap: typeof bootstrapType } = await importDynamically('@libp2p/bootstrap/dist/src/index.js')
-  const { kadDHT: kadDHTImported }: { kadDHT: typeof kadDHTType } = await importDynamically('@libp2p/kad-dht/dist/src/index.js')
-  const { createServer: createServerImported } = await importDynamically('it-ws/dist/src/server.js')
-
-  peerIdFromKeys = peerIdFromKeysImported
-  createLibp2p = createLibp2pImported
-  noise = noiseImported
-  gossipsub = gossipsubImported
-  mplex = mplexImported
-  bootstrap = bootstrapImported
-  kadDHT = kadDHTImported
-  createServer = createServerImported
-})()
 
 export class ConnectionsManager extends EventEmitter {
   registration: CertificateRegistration

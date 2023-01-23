@@ -19,7 +19,7 @@ import https from 'https'
 
 import { EventEmitter } from 'events'
 
-import { dumpPEM, importDynamically } from '../utils'
+import { dumpPEM } from '../utils'
 
 const log = logger('libp2p:websockets')
 
@@ -34,25 +34,12 @@ export interface WebSocketsInit extends AbortOptions {
   createServer
 }
 
-let toUri = null
-let AbortError = null
-let multiaddr = null
-let pDefer = null
-let connect = null
+import pDefer from 'p-defer'
+import {multiaddrToUri as toUri} from '@multiformats/multiaddr-to-uri'
+import { AbortError } from '@libp2p/interfaces/errors'
+import { connect } from 'it-ws'
+import { multiaddr} from '@multiformats/multiaddr'
 
-void (async () => {
-  const pDeferImported = await importDynamically('p-defer/index.js')
-  const { multiaddrToUri } = await importDynamically('@multiformats/multiaddr-to-uri/dist/src/index.js')
-  const { AbortError: AbortErrorImported } = await importDynamically('@libp2p/interfaces/dist/src/errors.js')
-  const { connect: connectImported } = await importDynamically('it-ws/dist/src/client.js')
-  const { multiaddr: multiaddrImported } = await importDynamically('@multiformats/multiaddr/dist/src/index.js')
-
-  pDefer = pDeferImported.default
-  toUri = multiaddrToUri
-  AbortError = AbortErrorImported
-  connect = connectImported
-  multiaddr = multiaddrImported
-})()
 
 class Discovery extends EventEmitter {
   tag: string

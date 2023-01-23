@@ -5,16 +5,10 @@ import type { AbortOptions } from '@libp2p/interfaces'
 import type { MultiaddrConnection } from '@libp2p/interface-connection'
 import type { Multiaddr } from '@multiformats/multiaddr'
 import type { DuplexWebSocket } from 'it-ws/duplex'
-import { importDynamically } from '../utils'
 
 const log = logger('libp2p:websockets:socket')
 
-let pTimeout = null
-
-void (async () => {
-  const pTimeoutImported = await importDynamically('p-timeout/index.js')
-  pTimeout = pTimeoutImported.default
-})()
+import pTimeout from 'p-timeout'
 
 export interface SocketToConnOptions extends AbortOptions {
   localAddr?: Multiaddr
