@@ -4,7 +4,7 @@
 	"description": "tlg-manager",
 	"types": "lib/index.d.ts",
 	"type": "module",
-	"main": "lib/bundle.js",
+	"exports": "lib/index.js",
 	"author": "",
 	"license": "MIT",
 	"scripts": {
