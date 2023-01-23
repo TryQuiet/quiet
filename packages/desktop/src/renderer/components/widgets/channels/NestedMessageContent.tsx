@@ -1,23 +1,22 @@
-import React, { ReactNode } from 'react'
+import React from 'react'
 import { styled } from '@mui/material/styles'
 import theme from '../../../theme'
 import classNames from 'classnames'
-import { Grid, Typography } from '@mui/material'
+import { Grid } from '@mui/material'
 import { AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/state-manager'
 import { UseModalTypeWrapper } from '../../../containers/hooks'
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
-import Linkify from 'react-linkify'
-import { MathComponent } from 'mathjax-react'
-import { displayMathRegex, splitByTex } from '../../../../utils/functions/splitByTex'
+import { displayMathRegex } from '../../../../utils/functions/splitByTex'
+import { TextMessageComponent } from './TextMessage'
+import { MathMessageComponent } from '../../MathMessage/MathMessageComponent'
 
 const PREFIX = 'NestedMessageContent'
 
 const classes = {
   message: `${PREFIX}message`,
   pending: `${PREFIX}pending`,
-  info: `${PREFIX}info`,
-  link: `${PREFIX}link`
+  info: `${PREFIX}info`
 }
 
 const StyledGrid = styled(Grid)(() => ({
@@ -34,50 +33,8 @@ const StyledGrid = styled(Grid)(() => ({
 
   [`& .${classes.info}`]: {
     color: theme.palette.colors.white
-  },
-
-  [`& .${classes.link}`]: {
-    color: theme.palette.colors.lushSky,
-    cursor: 'pointer',
-    '&:hover': {
-      textDecoration: 'underline'
-    }
   }
 }))
-
-interface TextMessageComponentProps {
-  message: string
-  messageId: string
-  pending: boolean
-  openUrl: (url: string) => void
-}
-
-const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
-  message,
-  messageId,
-  pending,
-  openUrl
-}) => {
-  const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
-    return (
-      <a onClick={() => { openUrl(decoratedHref) }} className={classNames({ [classes.link]: true })} key={key}>
-        {decoratedText}
-      </a>
-    )
-  }
-
-  return (
-    <Typography
-      component={'span' as any} // FIXME
-      className={classNames({
-        [classes.message]: true,
-        [classes.pending]: pending
-      })}
-      data-testid={`messagesGroupContent-${messageId}`}>
-      <Linkify componentDecorator={componentDecorator}>{message}</Linkify>
-    </Typography>
-  )
-}
 
 export interface NestedMessageContentProps {
   message: DisplayableMessage
@@ -89,6 +46,7 @@ export interface NestedMessageContentProps {
       src: string
     }>['types']
   >
+  onMathMessageRendered?: () => void
 }
 
 export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActionsProps> = ({
@@ -96,6 +54,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   pending,
   downloadStatus,
   uploadedFileModal,
+  onMathMessageRendered,
   openUrl,
   openContainingFolder,
   downloadFile,
@@ -138,22 +97,14 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
           return <TextMessageComponent message={message.message} messageId={message.id} pending={pending} openUrl={openUrl} />
         }
 
-        let texMessage: string[]
-        try {
-          texMessage = splitByTex(String.raw`${message.message}`, displayMathRegex)
-        } catch (e) {
-          return <TextMessageComponent message={message.message} messageId={message.id} pending={pending} openUrl={openUrl} />
-        }
-
         return (
-          texMessage.map((partialMessage: string, index: number) => {
-            if (displayMathRegex.test(partialMessage)) {
-              const extracted = partialMessage.match(displayMathRegex)[1]
-              return <MathComponent tex={String.raw`${extracted}`} key={index} />
-            } else {
-              return <TextMessageComponent message={partialMessage} messageId={`${message.id}-${index}`} pending={pending} openUrl={openUrl} />
-            }
-          })
+          <MathMessageComponent
+            message={message.message}
+            messageId={message.id}
+            pending={pending}
+            openUrl={openUrl}
+            onMathMessageRendered={onMathMessageRendered}
+          />
         )
     }
   }

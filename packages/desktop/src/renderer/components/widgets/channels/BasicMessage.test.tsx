@@ -79,10 +79,10 @@ describe('BasicMessage', () => {
                     style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-mg0tit-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -162,20 +162,20 @@ describe('BasicMessage', () => {
                     style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-mg0tit-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-mg0tit-MuiTypography-root"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -258,20 +258,20 @@ describe('BasicMessage', () => {
                     style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-mg0tit-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-mg0tit-MuiTypography-root"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -352,20 +352,20 @@ describe('BasicMessage', () => {
                     style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-mg0tit-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-mg0tit-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0

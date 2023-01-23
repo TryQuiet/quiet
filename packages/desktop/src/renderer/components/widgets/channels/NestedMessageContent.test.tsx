@@ -22,10 +22,10 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-mg0tit-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -45,10 +45,10 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage NestedMessageContentpending css-ghvhpl-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-mg0tit-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -59,7 +59,8 @@ describe('NestedMessageContent', () => {
     `)
   })
 
-  it('renders proper download status for malicious file', async () => { // TODO: add tests for the rest of statuses
+  it('renders proper download status for malicious file', async () => {
+    // TODO: add tests for the rest of statuses
     const messages = generateMessages({ type: 2 })
 
     const message = {
@@ -108,10 +109,10 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage NestedMessageContentpending css-ghvhpl-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-mg0tit-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -148,7 +149,7 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <div
               class="NestedMessageContentmessage"
@@ -228,7 +229,7 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <div
               class="NestedMessageContentmessage"
