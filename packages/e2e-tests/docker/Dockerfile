@@ -44,8 +44,7 @@ RUN apt-get -qqy install \
 
 RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-# ENV ELECTRON_CUSTOM_VERSION=19.0.5
-ENV ELECTRON_CUSTOM_VERSION=$ELECTRON_CUSTOM_VERSION
+ENV ELECTRON_CUSTOM_VERSION=19.0.5
 RUN npm install -g electron-chromedriver@$ELECTRON_CHROMEDRIVER_VERSION
 
 ADD entrypoint.sh /entrypoint.sh
@@ -64,8 +63,3 @@ CMD ["/bin/bash", "/entrypoint.sh"]
 
 EXPOSE 5900
 EXPOSE 9515
-
-
-# RUN apt-get update && apt-get -y install curl && apt-get clean
-# HEALTHCHECK --interval=1s --retries=20 \
-#     CMD curl -X POST -H "Content-Type: application/json" -f -d '{"query": "{ indexingStatuses { subgraph }  }"  }' http://localhost:8030/graphql
