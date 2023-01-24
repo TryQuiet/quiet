@@ -39,16 +39,18 @@ export class BuildSetup {
     const docker = this.getDocker()
     try {
       await docker.command(
-        'run -d -v /dev/shm:/dev/shm -v $(pwd)/tests/Quiet:/app --device "/dev/fuse:/dev/fuse" --cap-add SYS_ADMIN --security-opt apparmor:unconfined  -e SCREEN_WIDTH=1920 -e SCREEN_HEIGHT=1080 e2e-test-image',
+        'run -d -v /dev/shm:/dev/shm -v $(pwd)/docker/Quiet:/app --device "/dev/fuse:/dev/fuse" --cap-add SYS_ADMIN --security-opt apparmor:unconfined  -e SCREEN_WIDTH=1920 -e SCREEN_HEIGHT=1080 e2e-test-image',
         (e, d) => {
           if (e) {
             console.log(e)
+            throw new Error(e)
           }
           this.containerId = d.containerId
         }
       )
     } catch (e) {
       console.log(e)
+      throw new Error(e)
     }
 
     const inspect = await docker.command(`inspect ${this.containerId}`)

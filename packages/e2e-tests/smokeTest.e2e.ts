@@ -12,7 +12,7 @@ fixture`Smoke test`
     await new DebugModeModal().close()
   })
 
-test('Smoke test', async t => {
+test.skip('Smoke test', async t => {
   await t.expect(new LoadingPanel('Starting Quiet').title.exists).notOk(`"Starting Quiet" spinner is still visible after ${longTimeout}ms`, { timeout: longTimeout })
   // User sees "join community" page and switches to "create community" view by clicking on the link
   const joinModal = new JoinCommunityModal()

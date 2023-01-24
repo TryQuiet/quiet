@@ -5,8 +5,8 @@ import {
   JoinCommunityModal,
   LoadingPanel,
   RegisterUsernameModal
-} from './selectors'
-import { BuildSetup } from './utils'
+} from './newSelectors'
+import { BuildSetup } from './test.utils'
 
 jest.setTimeout(150000)
 describe('Smoke', () => {

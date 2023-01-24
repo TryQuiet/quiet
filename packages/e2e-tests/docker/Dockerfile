@@ -1,5 +1,6 @@
 FROM node:16
 
+ARG ELECTRON_CUSTOM_VERSION 19.0.5
 ARG ELECTRON_CHROMEDRIVER_VERSION 22.0.0
 ENV CHROMEDRIVER_PORT 9515
 ENV CHROMEDRIVER_WHITELISTED_IPS ""
@@ -43,7 +44,8 @@ RUN apt-get -qqy install \
 
 RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-ENV ELECTRON_CUSTOM_VERSION=19.0.5
+# ENV ELECTRON_CUSTOM_VERSION=19.0.5
+ENV ELECTRON_CUSTOM_VERSION=$ELECTRON_CUSTOM_VERSION
 RUN npm install -g electron-chromedriver@$ELECTRON_CHROMEDRIVER_VERSION
 
 ADD entrypoint.sh /entrypoint.sh
@@ -62,3 +64,8 @@ CMD ["/bin/bash", "/entrypoint.sh"]
 
 EXPOSE 5900
 EXPOSE 9515
+
+
+# RUN apt-get update && apt-get -y install curl && apt-get clean
+# HEALTHCHECK --interval=1s --retries=20 \
+#     CMD curl -X POST -H "Content-Type: application/json" -f -d '{"query": "{ indexingStatuses { subgraph }  }"  }' http://localhost:8030/graphql

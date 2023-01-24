@@ -1,5 +1,4 @@
 lib/
 screenshots/
 .DS_Store
-new/Quiet/Quiet-0.16.0.AppImage
-tests/Quiet/Quiet-0.16.0.AppImage
+docker/Quiet/Quiet-0.16.0.AppImage
