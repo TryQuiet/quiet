@@ -7,7 +7,6 @@
   },
   "license": "ISC",
   "build": {
-    "asar": false,
     "afterSign": "scripts/notarize.js",
     "productName": "Quiet",
     "appId": "Quiet",
