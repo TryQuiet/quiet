@@ -9,7 +9,7 @@ import {
 import { BuildSetup } from './test.utils'
 
 jest.setTimeout(150000)
-describe('Smoke', () => {
+describe.only('Smoke', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
   beforeAll(async () => {

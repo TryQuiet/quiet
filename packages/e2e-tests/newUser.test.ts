@@ -13,7 +13,7 @@ import logger from './logger'
 const log = logger('newUser:')
 
 jest.setTimeout(500000)
-describe('New User', () => {
+describe.only('New User', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
 
@@ -38,10 +38,10 @@ describe('New User', () => {
   })
 
   afterAll(async () => {
-    // await buildSetup.closeDriver()
-    // await buildSetup2.closeDriver()
-    // await buildSetup.killContainer()
-    // await buildSetup2.killContainer()
+    await buildSetup.closeDriver()
+    await buildSetup2.closeDriver()
+    await buildSetup.killContainer()
+    await buildSetup2.killContainer()
   })
   describe('Stages:', () => {
     it('Starting Quiet modal', async () => {
@@ -139,26 +139,19 @@ describe('New User', () => {
     })
 
     it('User sends a message', async () => {
-      console.log('User sends a message')
       generalChannel2 = new Channel(driver2, 'general')
       const isGeneralChannel2 = await generalChannel2.element.isDisplayed()
-      console.log({ isGeneralChannel2 })
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
-      console.log('3')
-      console.log('FETCHING CHANNEL MESSAGES')
+      console.log('FETCHING CHANNEL MESSAGES!')
       await new Promise<void>(resolve => setTimeout(() => resolve(), 15000))
-      console.log(' sends a message')
       await generalChannel2.sendMessage(joiningUserMessages[0])
-      console.log('4')
     })
 
     it('Sent message is visible in a channel', async () => {
-      console.log('Sent message is visible in a channel')
       const messages2 = await generalChannel2.getUserMessages(joiningUserUsername)
       const text2 = await messages2[0].getText()
       expect(text2).toEqual(joiningUserMessages[0])
-      console.log('5')
     })
   })
 })
