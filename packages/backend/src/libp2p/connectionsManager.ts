@@ -9,7 +9,7 @@ import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { mplex } from '@libp2p/mplex'
 import { bootstrap } from '@libp2p/bootstrap'
 import { kadDHT } from '@libp2p/kad-dht'
-import createServer from 'it-ws'
+import { createServer } from 'it-ws'
 
 import { webSockets } from './websocketOverTor/index'
 import { all } from './websocketOverTor/filters'
@@ -73,7 +73,6 @@ import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
 import PeerId, { JSONPeerId } from 'peer-id'
-import { importDynamically } from './utils'
 
 const log = logger('conn')
 interface InitStorageParams {

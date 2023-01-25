@@ -47,14 +47,13 @@ import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
 import { StorageEvents } from './types'
 import { sleep } from '../sleep'
-import { importDynamically } from '../libp2p/utils'
 
 const sizeOfPromisified = promisify(sizeOf)
 
 const log = logger('db')
 
 import { create } from 'ipfs-core'
-import { CID} from 'multiformats/cid'
+import { CID } from 'multiformats/cid'
 
 export class Storage extends EventEmitter {
   public quietDir: string

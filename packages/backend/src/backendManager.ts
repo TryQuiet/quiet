@@ -1,13 +1,16 @@
-import backend, { torBinForPlatform, torDirForPlatform } from 'backend-bundle'
+// import backend, { torBinForPlatform, torDirForPlatform } from 'backend-bundle'
 import logger from './logger'
 import { Command } from 'commander'
 import { Crypto } from '@peculiar/webcrypto'
 const program = new Command()
 
+import backend, { torBinForPlatform, torDirForPlatform } from './index'
+
 const log = logger('backendManager')
 
 const webcrypto = new Crypto()
 
+//@ts-ignore
 global.crypto = webcrypto
 
 program

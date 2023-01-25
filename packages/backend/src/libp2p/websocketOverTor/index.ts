@@ -38,7 +38,7 @@ import pDefer from 'p-defer'
 import {multiaddrToUri as toUri} from '@multiformats/multiaddr-to-uri'
 import { AbortError } from '@libp2p/interfaces/errors'
 import { connect } from 'it-ws'
-import { multiaddr} from '@multiformats/multiaddr'
+import { multiaddr } from '@multiformats/multiaddr'
 
 
 class Discovery extends EventEmitter {

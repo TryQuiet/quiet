@@ -2,7 +2,7 @@ import { User } from '@quiet/state-manager'
 import fs from 'fs'
 import getPort from 'get-port'
 import path from 'path'
-import SocketIO from 'socket.io'
+import { Server } from 'socket.io'
 import logger from '../logger'
 const log = logger('utils')
 
@@ -104,7 +104,7 @@ export const getPorts = async (): Promise<Ports> => {
   }
 }
 
-export class DummyIOServer extends SocketIO.Server {
+export class DummyIOServer extends Server {
   emit(event: string, ...args: any[]): boolean {
     log(`Emitting ${event} with args:`, args)
     return true
