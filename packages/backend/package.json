@@ -134,6 +134,7 @@
 	},
 	"overrides": {
 		"level": "8.0.0",
-		"leveldown": "^6"
+		"leveldown": "^6",
+		"go-ipfs": "npm:mocked-go-ipfs@0.17.0"
 	}
 }

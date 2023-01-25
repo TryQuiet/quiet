@@ -225,7 +225,7 @@ const Channel = () => {
   return (
     <>
       {currentChannelAddress && (
-        <ChannelComponent {...channelComponentProps} {...uploadFilesPreviewProps} {...fileActionsProps} />
+        <ChannelComponent {...channelComponentProps} {...uploadFilesPreviewProps} {...fileActionsProps} key={currentChannelAddress} />
       )}
     </>
   )

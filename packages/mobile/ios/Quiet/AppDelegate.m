@@ -115,7 +115,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     RNNodeJsMobile *nodeJsMobile = [RNNodeJsMobile new];
-    [nodeJsMobile callStartNodeProjectWithArgs:[NSString stringWithFormat:@"lib/mobileBackendManager.js --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ --httpTunnelPort %hu", self.dataPort, dataPath, controlPort, authCookie, httpTunnelPort]];
+    [nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"lib/mobileBackendManager.js --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ --httpTunnelPort %hu", self.dataPort, dataPath, controlPort, authCookie, httpTunnelPort]];
   });
 }
 

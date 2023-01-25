@@ -78,6 +78,12 @@ export interface ChannelComponentProps {
   >
 }
 
+const enum ScrollPosition {
+  TOP = 0,
+  MIDDLE = -1,
+  BOTTOM = 1,
+}
+
 export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps & FileActionsProps> = ({
   user,
   channelAddress,
@@ -113,8 +119,20 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
 
   const [infoClass, setInfoClass] = useState<string>(null)
 
-  const [scrollPosition, setScrollPosition] = React.useState(1)
+  const [scrollPosition, setScrollPosition] = React.useState(ScrollPosition.BOTTOM)
   const memoizedScrollHeight = React.useRef<number>()
+  const [mathMessagesRendered, onMathMessageRendered] = React.useState<number>(0)
+
+  const updateMathMessagesRendered = () => {
+    // To rerender Channel on each call
+    onMathMessageRendered(mathMessagesRendered + 1)
+  }
+
+  useEffect(() => {
+    if (scrollPosition === ScrollPosition.BOTTOM) {
+      scrollBottom()
+    }
+  }, [mathMessagesRendered])
 
   const onResize = React.useCallback(() => {
     scrollBottom()
@@ -135,7 +153,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     // Send message and files
     onInputEnter(message)
     // Go back to the bottom if scroll is at the top or in the middle
-    setScrollPosition(1) // bottom
+    setScrollPosition(ScrollPosition.BOTTOM)
   }
 
   /* Get scroll position and save it to the state as 0 (top), 1 (bottom) or -1 (middle) */
@@ -145,9 +163,9 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
       Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) <=
       Math.floor(scrollbarRef.current?.clientHeight)
 
-    let position = -1
-    if (top) position = 0
-    if (bottom) position = 1
+    let position = ScrollPosition.MIDDLE
+    if (top) position = ScrollPosition.TOP
+    if (bottom) position = ScrollPosition.BOTTOM
 
     // Clear new messages info when scrolled back to bottom
     if (bottom) {
@@ -159,11 +177,11 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   /* Keep scroll position in certain cases */
   useLayoutEffect(() => {
     // Keep scroll at the bottom when new message arrives
-    if (scrollbarRef.current && scrollPosition === 1) {
+    if (scrollbarRef.current && scrollPosition === ScrollPosition.BOTTOM) {
       scrollBottom()
     }
     // Keep scroll position when new chunk of messages is being loaded
-    if (scrollbarRef.current && scrollPosition === 0) {
+    if (scrollbarRef.current && scrollPosition === ScrollPosition.TOP) {
       scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight - memoizedScrollHeight.current
     }
   }, [messages])
@@ -171,7 +189,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   /* Lazy loading messages - top (load) */
   useEffect(() => {
     if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
-    if (scrollbarRef.current && scrollPosition === 0) {
+    if (scrollbarRef.current && scrollPosition === ScrollPosition.TOP) {
       /* Cache scroll height before loading new messages (to keep the scroll position after re-rendering) */
       memoizedScrollHeight.current = scrollbarRef.current.scrollHeight
       lazyLoading(true)
@@ -181,7 +199,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   /* Lazy loading messages - bottom (trim) */
   useEffect(() => {
     if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
-    if (scrollbarRef.current && scrollPosition === 1) {
+    if (scrollbarRef.current && scrollPosition === ScrollPosition.BOTTOM) {
       lazyLoading(false)
     }
   }, [scrollPosition, messages.count])
@@ -194,10 +212,10 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     ) {
       setNewMessagesInfo(true)
     }
-  }, [scrollPosition, newMessagesInfo, messages])
+  }, [scrollPosition, lastSeenMessage, messages])
 
   useEffect(() => {
-    if (scrollPosition === 1 && newestMessage) {
+    if (scrollPosition === ScrollPosition.BOTTOM && newestMessage) {
       setLastSeenMessage(newestMessage?.id)
     }
   }, [scrollPosition, messages])
@@ -234,6 +252,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             openContainingFolder={openContainingFolder}
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
+            onMathMessageRendered={updateMathMessagesRendered}
           />
         </ChannelMessagesWrapperStyled>
         <Grid item>

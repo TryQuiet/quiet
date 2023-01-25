@@ -157,6 +157,7 @@ export interface BasicMessageProps {
     src: string
   }>['types']
   >
+  onMathMessageRendered?: () => void
 }
 
 export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProps> = ({
@@ -164,6 +165,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   pendingMessages = {},
   downloadStatuses = {},
   uploadedFileModal,
+  onMathMessageRendered,
   openUrl,
   openContainingFolder,
   downloadFile,
@@ -248,6 +250,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       openContainingFolder={openContainingFolder}
                       downloadFile={downloadFile}
                       cancelDownload={cancelDownload}
+                      onMathMessageRendered={onMathMessageRendered}
                     />
                   )
                 })}

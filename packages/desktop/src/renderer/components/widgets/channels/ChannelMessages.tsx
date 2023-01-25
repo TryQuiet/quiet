@@ -83,6 +83,7 @@ export interface IChannelMessagesProps {
     src: string
   }>['types']
   >
+  onMathMessageRendered?: () => void
 }
 
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActionsProps> = ({
@@ -95,7 +96,8 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
   openUrl,
   openContainingFolder,
   downloadFile,
-  cancelDownload
+  cancelDownload,
+  onMathMessageRendered
 }) => {
   const listRef = useRef<HTMLUListElement>()
 
@@ -153,6 +155,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
                     openContainingFolder={openContainingFolder}
                     downloadFile={downloadFile}
                     cancelDownload={cancelDownload}
+                    onMathMessageRendered={onMathMessageRendered}
                   />
                 )
               })}
