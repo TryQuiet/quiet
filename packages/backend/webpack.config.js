@@ -20,11 +20,7 @@ export default {
         filename: '[name].js'
     },
     resolve: {
-        extensions: ['.ts', '.js'],
-        alias: {
-            // ['classic-level']: path.resolve(__dirname, './classic_level.js'),
-            // ['leveldown']: path.resolve(__dirname, './leveldown.js'),
-        }
+        extensions: ['.ts', '.js']
     },
     module: {
         rules: [
@@ -49,6 +45,6 @@ export default {
         new webpack.NormalModuleReplacementPlugin(
             /node_modules\/ipfs-utils\/src\/fetch.js/,
             root('node_modules/electron-fetch/lib/index.js')
-        )
+            )
     ]
 }
