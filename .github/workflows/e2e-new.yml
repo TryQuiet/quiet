@@ -25,5 +25,8 @@ jobs:
       - name: Chmod
         run: cd packages/e2e-tests/docker/Quiet && chmod +x Quiet-0.16.0.AppImage
 
-      - name: Run tests
-        run: cd packages/e2e-tests && npm run test
+      - name: Run smoke test
+        run: cd packages/e2e-tests && npm run test smoke.test.ts
+
+      - name: Run new user test
+        run: cd packages/e2e-tests && npm run test newUser.test.ts
