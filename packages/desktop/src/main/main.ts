@@ -28,6 +28,8 @@ const updaterInterval = 15 * 60_000
 
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
+process.env.QUIET_PLATFORM = 'desktop'
+
 const webcrypto = new Crypto()
 
 global.crypto = webcrypto
