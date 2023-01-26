@@ -6,6 +6,23 @@ import { ConnectionsManager, torBinForPlatform, torDirForPlatform } from './inde
 const log = logger('backendManager')
 const program = new Command()
 
+program
+.option('-p, --platform <platform>', 'platform')
+.option('-dpth, --dataPath <dataPath>', 'data directory path')
+.option('-dprt, --dataPort <dataPort>', 'data port')
+.option('-t, --torBinary <torBinary>', 'tor binary path')
+.option('-ac, --authCookie <authCookie>', 'tor authentication cookie')
+.option('-cp, --controlPort <controlPort>', 'tor control port')
+.option('-htp, --httpTunnelPort <httpTunnelPort>', 'http tunnel port')
+.option('-a, --appDataPath <string>', 'Path of application data directory')
+.option('-d, --socketIOPort <number>', 'Socket io data server port')
+.option('-r, --resourcesPath <string>', 'Application resources path')
+
+program.parse(process.argv)
+const options = program.opts()
+
+console.log('options', options)
+
 export const runBackendDesktop = async () => {
   const isDev = process.env.NODE_ENV === 'development'
 
@@ -13,14 +30,6 @@ export const runBackendDesktop = async () => {
 
   //@ts-ignore
   global.crypto = webcrypto
-
-  program
-    .option('-a, --appDataPath <string>', 'Path of application data directory')
-    .option('-d, --socketIOPort <number>', 'Socket io data server port')
-    .option('-r, --resourcesPath <string>', 'Application resources path')
-
-  program.parse(process.argv)
-  const options = program.opts()
 
   const resourcesPath = isDev ? null : options.resourcesPath.trim()
 
@@ -54,17 +63,6 @@ export const runBackendMobile = async (): Promise<any> => {
   process.env['BACKEND'] = 'mobile'
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
 
-  program
-    .requiredOption('-dpth, --dataPath <dataPath>', 'data directory path')
-    .requiredOption('-dprt, --dataPort <dataPort>', 'data port')
-    .option('-t, --torBinary <torBinary>', 'tor binary path')
-    .option('-ac, --authCookie <authCookie>', 'tor authentication cookie')
-    .option('-cp, --controlPort <controlPort>', 'tor control port')
-    .option('-htp, --httpTunnelPort <httpTunnelPort>', 'http tunnel port')
-
-  program.parse(process.argv)
-  const options = program.opts()
-
   const connectionsManager: ConnectionsManager = new ConnectionsManager({
     socketIOPort: options.dataPort,
     httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
@@ -83,16 +81,18 @@ export const runBackendMobile = async (): Promise<any> => {
   await connectionsManager.init()
 }
 
-const platform = process.env.QUIET_PLATFORM
+const platform = options.platform
 
 if (platform === 'desktop') {
   runBackendDesktop().catch(e => {
     log.error('Error occurred while initializing backend', e)
     throw Error(e.message)
   })
-} else {
+} else if (platform === 'mobile') {
   runBackendMobile().catch(error => {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     console.log(error)
   })
+} else {
+  throw Error(`Platfrom must be either desktop or mobile, received ${options.platform}`)
 }

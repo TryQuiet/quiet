@@ -368,9 +368,10 @@ app.on('ready', async () => {
   const forkArgvs = [
     '-d', `${ports.dataServer}`,
     '-a', `${appDataPath}`,
-    '-r', `${process.resourcesPath}`
+    '-r', `${process.resourcesPath}`,
+    '-p', 'desktop'
   ]
-  backendProcess = fork(path.join(__dirname, 'bundle.js'), forkArgvs)
+  backendProcess = fork('./node_modules/backend-bundle/bundle.js', forkArgvs)
   log('Forked backend, PID:', backendProcess.pid)
 
   backendProcess.on('error', e => {

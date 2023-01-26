@@ -11,7 +11,7 @@
 		"build": "tsc -p tsconfig.build.json",
 		"webpack": "webpack",
 		"applyPatches": "patch -p0 --forward --binary < ./electron-fetch.patch || true && patch -p0 --forward --binary < ./parse-duration.patch || true && patch -p0 --forward --binary < ./parse-duration-esm.patch || true && patch -p0 --forward --binary < ./classic-level-iterator.patch || true && patch -p0 --forward --binary < ./classic-level-index.patch || true",
-		"prepare": "npm run applyPatches && npm run build && npm run webpack",
+		"prepare": "npm run applyPatches && npm run build && npm run webpack && cp ./lib/bundle.js  ../backend-bundle/bundle.js",
 		"version": "git add -A src",
 		"lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
 		"lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
