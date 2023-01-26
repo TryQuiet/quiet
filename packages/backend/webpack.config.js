@@ -17,7 +17,7 @@ export default {
     },
     output: {
         path: path.resolve(__dirname, 'lib'),
-        filename: '[name].js'
+        filename: '[name].cjs'
     },
     resolve: {
         extensions: ['.ts', '.js']
@@ -30,7 +30,11 @@ export default {
                     'ts-loader'
                 ],
                 exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]state-manager/, /packages[\/\\]logger/]
-            }
+            },
+          {
+            test: /node_modules\/@achingbrain\/ssdp\/dist\/src\/default-ssdp-options.js/,
+            loader: 'create-require-loader'
+          }
         ]
     },
     plugins: [

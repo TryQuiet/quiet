@@ -53,6 +53,7 @@
 		]
 	},
 	"devDependencies": {
+                "create-require-loader": "*",
 		"@types/crypto-js": "^4.0.2",
 		"@types/express": "^4.17.9",
 		"@types/jest": "^26.0.23",
