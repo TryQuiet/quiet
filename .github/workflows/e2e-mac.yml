@@ -31,7 +31,7 @@ jobs:
         run: cd ~ && cp -R "/Volumes/Quiet 0.16.0/Quiet.app" /Applications
 
       - name: Run smoke test
-        run: cd packages/e2e-tests && npm run test smoke.test.mac.ts
+        run: cd packages/e2e-tests && npm run test smokeMac.test.ts
 
       # - name: Run new user test
       #   run: cd packages/e2e-tests && npm run test newUser.test.ts
