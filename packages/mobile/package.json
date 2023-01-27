@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "0.19.0-alpha.0",
+  "version": "0.19.0-alpha.1",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "storybook-android": "ENVFILE=.env.storybook react-native run-android --variant=storybookDebug --appIdSuffix=storybook.debug",
@@ -23,9 +23,9 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.7",
-    "@quiet/backend": "^0.19.0-alpha.0",
-    "@quiet/identity": "^0.19.0-alpha.0",
-    "@quiet/state-manager": "^0.19.0-alpha.0",
+    "@quiet/backend": "^0.19.0-alpha.1",
+    "@quiet/identity": "^0.19.0-alpha.1",
+    "@quiet/state-manager": "^0.19.0-alpha.1",
     "@react-navigation/native": "^6.0.0",
     "@react-navigation/native-stack": "^6.9.0",
     "@reduxjs/toolkit": "^1.9.1",
