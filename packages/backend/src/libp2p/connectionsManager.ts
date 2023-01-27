@@ -708,10 +708,7 @@ export class ConnectionsManager extends EventEmitter {
         connectionEncryption: [noise()],
         peerDiscovery: [
           bootstrap({
-            list: params.bootstrapMultiaddrsList,
-            timeout: 120_000, // in ms,
-            tagName: 'bootstrap',
-            tagValue: 50,
+            list: params.bootstrapMultiaddrsList
           })
         ],
         relay: {
