@@ -9,6 +9,7 @@ jobs:
     timeout-minutes: 30
     env:
       TEST_SYSTEM: mac
+      ELECTRON_CUSTOM_VERSION: 19.0.5
 
     steps:
       - uses: actions/checkout@v2
