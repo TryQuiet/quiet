@@ -9,7 +9,7 @@
 	"license": "MIT",
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json",
-		"webpack": "webpack && cp ./lib/bundle.cjs  ../backend-bundle/bundle.js",
+		"webpack": "webpack && cp ./lib/bundle.cjs  ../backend-bundle/bundle.cjs",
 		"applyPatches": "patch -p0 --forward --binary < ./electron-fetch.patch || true && patch -p0 --forward --binary < ./parse-duration.patch || true && patch -p0 --forward --binary < ./parse-duration-esm.patch || true && patch -p0 --forward --binary < ./classic-level-iterator.patch || true && patch -p0 --forward --binary < ./classic-level-index.patch || true",
 		"prepare": "npm run applyPatches && npm run build && npm run webpack",
 		"version": "git add -A src",

@@ -40,7 +40,7 @@ export default {
     plugins: [
         new webpack.NormalModuleReplacementPlugin(
             /node_modules\/classic-level\/binding.js/,
-            root('classic_level.js')
+            root('classic_level.cjs')
         ),
         new webpack.NormalModuleReplacementPlugin(
             /node_modules\/ipfs-utils\/src\/http\/fetch.js/,
