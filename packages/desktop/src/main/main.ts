@@ -28,7 +28,6 @@ const updaterInterval = 15 * 60_000
 
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
-process.env.QUIET_PLATFORM = 'desktop'
 
 const webcrypto = new Crypto()
 
@@ -371,7 +370,10 @@ app.on('ready', async () => {
     '-r', `${process.resourcesPath}`,
     '-p', 'desktop'
   ]
-  backendProcess = fork('./node_modules/backend-bundle/bundle.cjs', forkArgvs)
+
+  const backendBundlePath = isDev ? './node_modules/backend-bundle/bundle.cjs' : './bundle.cjs'
+
+  backendProcess = fork(backendBundlePath, forkArgvs)
   log('Forked backend, PID:', backendProcess.pid)
 
   backendProcess.on('error', e => {
