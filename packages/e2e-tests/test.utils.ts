@@ -1,11 +1,19 @@
 import { Docker } from 'docker-cli-js'
 import { Browser, Builder, ThenableWebDriver } from 'selenium-webdriver'
+import { spawn } from 'child_process'
 
 export class BuildSetup {
   private docker: Docker
   private driver: ThenableWebDriver
   public containerId: string
   public ipAddress: string
+  public port: number
+  public dataDir: string
+  private child
+
+  constructor(port: number = 0) {
+    this.port = port
+  }
 
   private getDocker() {
     if (!this.docker) {
@@ -14,15 +22,67 @@ export class BuildSetup {
     return this.docker
   }
 
+  private getBinaryLocation() {
+    switch (process.env.TEST_SYSTEM) {
+      case 'linux':
+        return `${__dirname}/binary/linux/Quiet`
+      case 'windows':
+        return `${__dirname}/binary/windows/Quiet`
+      case 'mac':
+        return `${__dirname}/binary/mac/Quiet2.app/Contents/MacOS/Quiet`
+      default:
+        throw new Error('wrong SYSTEM env')
+    }
+  }
+
+  public async createChromeDriver() {
+    this.dataDir = (Math.random() * 10 ** 18).toString(36)
+    console.log(this.dataDir)
+    this.child = spawn(
+      `DATA_DIR=${this.dataDir} node_modules/.bin/chromedriver --port=${this.port}`,
+      [],
+      {
+        shell: true
+        // detached: true,
+      }
+    )
+
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+
+    this.child.stdout.on('data', data => {
+      console.log(`stdout:\n${data}`)
+    })
+
+    this.child.stderr.on('data', data => {
+      console.error(`stderr: ${data}`)
+    })
+  }
+
   public getDriver() {
     if (!this.driver) {
       try {
         this.driver = new Builder()
-          .usingServer(`http://${this.ipAddress}:9515`)
+          .usingServer(`http://localhost:${this.port}`)
+          // .usingServer(`http://${this.ipAddress}:9515`)
           .withCapabilities({
             'goog:chromeOptions': {
-              binary: '/app/Quiet-0.16.0.AppImage',
-              args: ['--remote-debugging-port=9222']
+              binary: '/Applications/Quiet.app/Contents/MacOS/Quiet',
+              // binary: '/app/Quiet2.app/Contents/MacOs/Quiet',
+              // binary: binary,
+              args: [
+                // '--no-sandbox',
+                // '--disable-dev-shm-usage',
+                // '--window-size=1420,1080',
+                // '--headless',
+                // '--disable-gpu',
+                // '--single-process',
+                // '--window-size=1420,1080',
+                // "--disable-features=VizDisplayCompositor",
+                // "--dns-prefetch-disable",
+                // "--disable-extensions",
+                // "--incognito",
+                '--remote-debugging-port=9222'
+              ]
             }
           })
           .forBrowser(Browser.CHROME)
@@ -68,5 +128,10 @@ export class BuildSetup {
 
   public async closeDriver() {
     await this.driver.close()
+  }
+
+  public killChromeDriver() {
+    console.log('kill')
+    this.child.kill()
   }
 }
