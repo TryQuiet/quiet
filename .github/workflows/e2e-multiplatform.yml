@@ -1,10 +1,10 @@
-name: E2E Mac
+name: E2E multi platform
 
 on:
   pull_request:
 
 jobs:
-  test:
+  mac:
     runs-on: macos-latest
     timeout-minutes: 30
     env:
@@ -32,7 +32,28 @@ jobs:
         run: cd ~ && cp -R "/Volumes/Quiet 0.16.0/Quiet.app" /Applications
 
       - name: Run smoke test
-        run: cd packages/e2e-tests && npm run test smokeMac.test.ts
+        run: cd packages/e2e-tests && npm run test smoke.multiplatform.test.ts
 
-      # - name: Run new user test
-      #   run: cd packages/e2e-tests && npm run test newUser.test.ts
+  linux:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
+    env:
+      TEST_SYSTEM: linux
+      ELECTRON_CUSTOM_VERSION: 19.0.5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
+
+      - name: Download App Image
+        run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.16.0/Quiet-0.16.0.AppImage
+
+      - name: Chmod
+        run: cd packages/e2e-tests/Quiet && chmod +x Quiet-0.16.0.AppImage
+
+      - name: Run smoke test
+        run: cd packages/e2e-tests && npm run test smoke.multiplatform.test.ts

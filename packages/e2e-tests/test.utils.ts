@@ -25,11 +25,11 @@ export class BuildSetup {
   private getBinaryLocation() {
     switch (process.env.TEST_SYSTEM) {
       case 'linux':
-        return `${__dirname}/binary/linux/Quiet`
+        return `${__dirname}/Quiet/Quiet-0.16.0.AppImage`
       case 'windows':
         return `${__dirname}/binary/windows/Quiet`
       case 'mac':
-        return `${__dirname}/binary/mac/Quiet2.app/Contents/MacOS/Quiet`
+        return '/Applications/Quiet.app/Contents/MacOS/Quiet'
       default:
         throw new Error('wrong SYSTEM env')
     }
@@ -59,6 +59,7 @@ export class BuildSetup {
   }
 
   public getDriver() {
+    const binary = this.getBinaryLocation()
     if (!this.driver) {
       try {
         this.driver = new Builder()
@@ -66,9 +67,9 @@ export class BuildSetup {
           // .usingServer(`http://${this.ipAddress}:9515`)
           .withCapabilities({
             'goog:chromeOptions': {
-              binary: '/Applications/Quiet.app/Contents/MacOS/Quiet',
+              // binary: '/Applications/Quiet.app/Contents/MacOS/Quiet',
               // binary: '/app/Quiet2.app/Contents/MacOs/Quiet',
-              // binary: binary,
+              binary: binary,
               args: [
                 // '--no-sandbox',
                 // '--disable-dev-shm-usage',
