@@ -12,7 +12,7 @@
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "gen": "plop",
-    "prepare-backend-assets": "cp ../backend/lib/bundle.cjs ./nodejs-assets/nodejs-project/backend/bundle.cjs",
+    "prepare-backend-assets": "cp ../backend/lib/bundle.cjs ./nodejs-assets/nodejs-project/bundle.cjs",
     "exclude-test-assets": "find ./nodejs-assets/nodejs-project/node_modules -print | grep -i -e '/test/' -e '/tests/' | grep -v @quiet | xargs rm -rf",
     "patch-dependencies": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -d ../state-manager -p0 < ./factory-girl.patch || true",
     "patch-crypto-ios": "patch -p0 --forward --binary < ./react-native-webview-crypto.patch || true",
