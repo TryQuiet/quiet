@@ -113,11 +113,11 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   DataDirectory *dataDirectory = [DataDirectory new];
   NSString *dataPath = [dataDirectory create];
 
-  NSString* platform = @"mobile"
+  NSString* platform = @"mobile";
 
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     RNNodeJsMobile *nodeJsMobile = [RNNodeJsMobile new];
-    [nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"lib/mobileBackendManager.js --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ --httpTunnelPort %hu --platform %@", self.dataPort, dataPath, controlPort, authCookie, httpTunnelPort, platform]];
+    [nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ --httpTunnelPort %hu --platform %@", self.dataPort, dataPath, controlPort, authCookie, httpTunnelPort, platform]];
   });
 }
 

@@ -371,7 +371,7 @@ app.on('ready', async () => {
     '-r', `${process.resourcesPath}`,
     '-p', 'desktop'
   ]
-  backendProcess = fork('./node_modules/backend-bundle/bundle.js', forkArgvs)
+  backendProcess = fork('./node_modules/backend-bundle/bundle.cjs', forkArgvs)
   log('Forked backend, PID:', backendProcess.pid)
 
   backendProcess.on('error', e => {
