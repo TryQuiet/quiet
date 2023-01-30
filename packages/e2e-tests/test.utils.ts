@@ -77,11 +77,10 @@ export class BuildSetup {
                 // '--headless',
                 // '--disable-gpu',
                 // '--single-process',
-                // '--window-size=1420,1080',
-                // "--disable-features=VizDisplayCompositor",
-                // "--dns-prefetch-disable",
-                // "--disable-extensions",
-                // "--incognito",
+                // '--disable-features=VizDisplayCompositor',
+                // '--dns-prefetch-disable',
+                // '--disable-extensions',
+                // '--incognito',
                 '--remote-debugging-port=9222'
               ]
             }

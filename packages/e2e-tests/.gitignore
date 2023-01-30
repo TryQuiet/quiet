@@ -2,3 +2,5 @@ lib/
 screenshots/
 .DS_Store
 docker/Quiet/Quiet-0.16.0.AppImage
+Quiet/Quiet-0.16.0.AppImage
+Quiet/Quiet-0.16.0.dmg
