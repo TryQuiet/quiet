@@ -10,7 +10,7 @@ export function root(args) {
 }
 
 export default {
-    mode: 'development',
+    mode: process.env.WEBPACK_MODE === 'production' ? 'production' : 'development',
     target: 'node',
     entry: {
         bundle: path.resolve(__dirname, 'src/backendManager.ts')
