@@ -19,7 +19,7 @@
     "test:lazy": "npm run build:testcafe && cross-env DATA_DIR=e2eLazy E2E_TEST=true DEBUG='backend*,state-manager*,e2e*,desktop*,testcafe:*electron*,-state-manager:test' testcafe \"electron:../desktop\" \"./**/lazyLoading.e2e.ts\"",
     "test:smoke": "npm run build:testcafe && cross-env DATA_DIR=e2e E2E_TEST=true DEBUG='backend*,state-manager*,e2e*,testcafe:*electron*' testcafe \"electron:.\" \"./**/smokeTest.e2e.ts\"",
     "test:files": "npm run build:testcafe && cross-env DATA_DIR=e2eFiles E2E_TEST=true DEBUG='backend*,state-manager*,e2e*,testcafe:*electron*' testcafe \"electron:../desktop\" \"./**/filesSending.e2e.ts\" --skip-js-errors",
-    "test": "jest --runInBand",
+    "test": "jest --runInBand --detectOpenHandles --forceExit",
     "test:watch": "jest --watchAll"
   },
   "devDependencies": {
