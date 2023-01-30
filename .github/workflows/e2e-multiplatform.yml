@@ -43,14 +43,24 @@ jobs:
     env:
       TEST_SYSTEM: linux
       ELECTRON_CUSTOM_VERSION: 19.0.5
+      DISPLAY: ":99.0"
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Install WM
+        run: sudo apt install fluxbox
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
+
+      - name: Run X11
+        run: |
+          Xvfb :99 -screen 0 1920x1080x24 &
+          sleep 3
+          fluxbox &
 
       - name: Download App Image
         run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.16.0/Quiet-0.16.0.AppImage
