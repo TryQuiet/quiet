@@ -34,6 +34,14 @@ export default {
           {
             test: /node_modules\/@achingbrain\/ssdp\/dist\/src\/default-ssdp-options.js/,
             loader: 'create-require-loader'
+          },
+          {
+            test: /node_modules\/classic-level\/index.js/,
+            loader: 'create-require-loader'
+          },
+          {
+            test: /node_modules\/classic-level\/iterator.js/,
+            loader: 'create-require-loader'
           }
         ]
     },
