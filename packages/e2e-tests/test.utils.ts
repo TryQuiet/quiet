@@ -58,7 +58,7 @@ export class BuildSetup {
     })
   }
 
-  public getDriver() {
+  public getDriver(second = false) {
     const binary = this.getBinaryLocation()
     if (!this.driver) {
       try {
@@ -71,6 +71,8 @@ export class BuildSetup {
               // binary: '/app/Quiet2.app/Contents/MacOs/Quiet',
               binary: binary,
               args: [
+                // 'user-data-dir=/home/kacper/. config/google-chrome',
+                // `profile-directory=${second ? 'selenium2' : 'selenium1'}`,
                 // '--no-sandbox',
                 // '--disable-dev-shm-usage',
                 // '--window-size=1420,1080',
@@ -81,7 +83,7 @@ export class BuildSetup {
                 // '--dns-prefetch-disable',
                 // '--disable-extensions',
                 // '--incognito',
-                '--remote-debugging-port=9222'
+                `--remote-debugging-port=${this.port + 5}`
               ]
             }
           })

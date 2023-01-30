@@ -57,3 +57,6 @@ jobs:
 
       - name: Run smoke test
         run: cd packages/e2e-tests && npm run test smoke.multiplatform.test.ts
+
+      - name: Run newUser test
+        run: cd packages/e2e-tests && npm run test newUser.multiplatform.test.ts
