@@ -59,6 +59,15 @@ docker-compose up --scale peer=3  // Run with scaled number of regular peers
 
 Currently there is no db data in this network - to be added. 
 
+### Webpack
+
+When your aim is to build the desktop app run the following command in packages/backend:
+
+`WEBPACK_MODE='production' npm run webpack`
+
+or bootstrap the project with the same flag: 
+
+`WEBPACK_MODE='production' lerna bootstrap`
 
 ### Architecture
 
