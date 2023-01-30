@@ -16,11 +16,11 @@ jest.setTimeout(600000)
 describe.only('New User', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
-  const port = 9518
+  const port = 9516
 
   let buildSetup2: BuildSetup
   let driver2: ThenableWebDriver
-  const port2 = 9519
+  const port2 = 9517
 
   let generalChannel: Channel
   let generalChannel2: Channel

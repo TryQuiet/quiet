@@ -20,6 +20,7 @@ jobs:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
 
       - name: Download DMG
+        # working-directory: ./app
         run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.16.0/Quiet-0.16.0.dmg
 
       - name: Chmod
@@ -67,6 +68,33 @@ jobs:
 
       - name: Chmod
         run: cd packages/e2e-tests/Quiet && chmod +x Quiet-0.16.0.AppImage
+
+      - name: Run smoke test
+        run: cd packages/e2e-tests && npm run test smoke.multiplatform.test.ts
+
+      - name: Run newUser test
+        run: cd packages/e2e-tests && npm run test newUser.multiplatform.test.ts
+
+  windows:
+    runs-on: windows-2019
+    timeout-minutes: 30
+    env:
+      TEST_SYSTEM: windows
+      ELECTRON_CUSTOM_VERSION: 19.0.5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
+
+      - name: Download EXE
+        run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.16.0/Quiet.Setup.0.16.0.exe
+
+      - name: Chmod
+        run: cd packages/e2e-tests/Quiet && chmod +x Quiet.Setup.0.16.0.exe
 
       - name: Run smoke test
         run: cd packages/e2e-tests && npm run test smoke.multiplatform.test.ts

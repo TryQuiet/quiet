@@ -27,7 +27,7 @@ export class BuildSetup {
       case 'linux':
         return `${__dirname}/Quiet/Quiet-0.16.0.AppImage`
       case 'windows':
-        return `${__dirname}/binary/windows/Quiet`
+        return `${__dirname}/Quiet/Quiet.Setup.0.16.0.exe`
       case 'mac':
         return '/Applications/Quiet.app/Contents/MacOS/Quiet'
       default:
@@ -83,6 +83,11 @@ export class BuildSetup {
                 // '--dns-prefetch-disable',
                 // '--disable-extensions',
                 // '--incognito',
+
+                '--ipc-connection-timeout=1000000',
+                '--disable-timeouts-for-profiling=1000000',
+                '--user-response-timeout=1000000',
+
                 `--remote-debugging-port=${this.port + 5}`
               ]
             }
