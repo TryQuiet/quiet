@@ -48,12 +48,12 @@ import sizeOf from 'image-size'
 import { StorageEvents } from './types'
 import { sleep } from '../sleep'
 
+import { create } from 'ipfs-core'
+import { CID } from 'multiformats/cid'
+
 const sizeOfPromisified = promisify(sizeOf)
 
 const log = logger('db')
-
-import { create } from 'ipfs-core'
-import { CID } from 'multiformats/cid'
 
 export class Storage extends EventEmitter {
   public quietDir: string
@@ -158,7 +158,7 @@ export class Storage extends EventEmitter {
 
   protected async initIPFS(libp2p: any, peerID: any): Promise<IPFS> {
     log('Initializing IPFS')
-    return create({
+    return await create({
       libp2p: async () => libp2p,
       preload: { enabled: false },
       repo: this.ipfsRepoPath,
@@ -523,7 +523,7 @@ export class Storage extends EventEmitter {
 
     const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
     const uploadedFileStreamIterable = {
-      async*[Symbol.asyncIterator]() {
+      async* [Symbol.asyncIterator]() {
         for await (const data of stream) {
           yield data
         }

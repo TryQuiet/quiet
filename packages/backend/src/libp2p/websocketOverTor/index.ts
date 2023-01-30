@@ -21,6 +21,12 @@ import { EventEmitter } from 'events'
 
 import { dumpPEM } from '../utils'
 
+import pDefer from 'p-defer'
+import { multiaddrToUri as toUri } from '@multiformats/multiaddr-to-uri'
+import { AbortError } from '@libp2p/interfaces/errors'
+import { connect } from 'it-ws'
+import { multiaddr } from '@multiformats/multiaddr'
+
 const log = logger('libp2p:websockets')
 
 const symbol = Symbol.for('@libp2p/transport')
@@ -34,13 +40,6 @@ export interface WebSocketsInit extends AbortOptions {
   createServer
 }
 
-import pDefer from 'p-defer'
-import {multiaddrToUri as toUri} from '@multiformats/multiaddr-to-uri'
-import { AbortError } from '@libp2p/interfaces/errors'
-import { connect } from 'it-ws'
-import { multiaddr } from '@multiformats/multiaddr'
-
-
 class Discovery extends EventEmitter {
   tag: string
   constructor() {
@@ -48,9 +47,9 @@ class Discovery extends EventEmitter {
     this.tag = 'channel_18'
   }
 
-  stop() {}
-  start() {}
-  end() {}
+  stop() { }
+  start() { }
+  end() { }
 }
 
 class WebSockets extends EventEmitter {
@@ -145,7 +144,7 @@ class WebSockets extends EventEmitter {
       errorPromise.reject(err)
     }
 
-    const myUri = `${toUri(ma) as string}/?remoteAddress=${encodeURIComponent(
+    const myUri = `${toUri(ma)}/?remoteAddress=${encodeURIComponent(
       this.localAddress
     )}`
     const rawSocket = connect(myUri, Object.assign({ binary: true }, options))
@@ -170,8 +169,8 @@ class WebSockets extends EventEmitter {
       onAbort = () => {
         reject(new AbortError())
         // FIXME: https://github.com/libp2p/js-libp2p-websockets/issues/121
-        setTimeout(() => {
-          rawSocket.close()
+        setTimeout(async () => {
+          await rawSocket.close()
         })
       }
 
@@ -260,7 +259,7 @@ class WebSockets extends EventEmitter {
       return server.close()
     }
 
-    listener.addEventListener = () => {}
+    listener.addEventListener = () => { }
 
     listener.listen = (ma: Multiaddr) => {
       listeningMultiaddr = ma

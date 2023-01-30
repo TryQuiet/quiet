@@ -28,7 +28,7 @@ export const runBackendDesktop = async () => {
 
   const webcrypto = new Crypto()
 
-  //@ts-ignore
+  // @ts-ignore
   global.crypto = webcrypto
 
   const resourcesPath = isDev ? null : options.resourcesPath.trim()

@@ -6,9 +6,9 @@ import type { MultiaddrConnection } from '@libp2p/interface-connection'
 import type { Multiaddr } from '@multiformats/multiaddr'
 import type { DuplexWebSocket } from 'it-ws/duplex'
 
-const log = logger('libp2p:websockets:socket')
-
 import pTimeout from 'p-timeout'
+
+const log = logger('libp2p:websockets:socket')
 
 export interface SocketToConnOptions extends AbortOptions {
   localAddr?: Multiaddr
