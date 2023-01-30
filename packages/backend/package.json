@@ -34,7 +34,6 @@
 		"package-lock.json"
 	],
 	"jest": {
-		"runner": "jest-light-runner",
 		"transform": {
 			"^.+\\.tsx?$": "ts-jest",
 			"^.+\\.jsx?$": "babel-jest"
@@ -45,6 +44,8 @@
 		"transformIgnorePatterns": [
 			"/node_modules/"
 		],
+		"preset": "ts-jest",
+		"resolver": "ts-jest-resolver",
 		"testRegex": "src/.*\\.test\\.(t|j)s$",
 		"testEnvironment": "node",
 		"testTimeout": 40000,
@@ -132,6 +133,7 @@
 		"secp256k1": "4.0.3",
 		"socket.io": "3.0.5",
 		"socks-proxy-agent": "^5.0.0",
+		"ts-jest-resolver": "^2.0.0",
 		"validator": "^13.6.0"
 	},
 	"overrides": {
