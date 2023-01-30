@@ -34,6 +34,9 @@ jobs:
       - name: Run smoke test
         run: cd packages/e2e-tests && npm run test smoke.multiplatform.test.ts
 
+      - name: Run newUser test
+        run: cd packages/e2e-tests && npm run test newUser.multiplatform.test.ts
+
   linux:
     runs-on: ubuntu-20.04
     timeout-minutes: 30
