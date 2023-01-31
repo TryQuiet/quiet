@@ -36,17 +36,7 @@ describe.only('New User', () => {
     buildSetup = new BuildSetup(port)
     await buildSetup.createChromeDriver()
     driver = buildSetup.getDriver()
-    const session = await driver.getSession()
-    console.log({ driver })
-    console.log({ session })
-    // buildSetup = new BuildSetup(1)
-    // console.log('xd1')
-    // await buildSetup.buildContainer()
-    // console.log('xd2')
-    // driver = buildSetup.getDriver()
-    // console.log('xd3')
-    // await driver.getSession()
-    // console.log('xd4')
+    await driver.getSession()
   })
 
   afterAll(async () => {
@@ -55,18 +45,12 @@ describe.only('New User', () => {
 
     await buildSetup2.closeDriver()
     buildSetup2.killChromeDriver()
-
-    // await buildSetup.closeDriver()
-    // await buildSetup2.closeDriver()
-    // await buildSetup.killContainer()
-    // await buildSetup2.killContainer()
   })
   describe('Stages:', () => {
     it('Starting Quiet modal', async () => {
       const loadingPanel = new LoadingPanel(driver, 'Starting Quiet')
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
       expect(isLoadingPanel).toBeTruthy()
-      console.log('elo')
     })
 
     it('JoinCommunityModal - owner switch to create community', async () => {
@@ -125,40 +109,23 @@ describe.only('New User', () => {
       await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
       const invitationCodeElement = await settingsModal.invitationCode()
       invitationCode = await invitationCodeElement.getText()
-      console.log(invitationCode)
+      console.log({ invitationCode })
       log('Received invitation code:', invitationCode)
       await settingsModal.close()
     })
 
     it('Guest opens the app and joins the new community successfully', async () => {
-      // buildSetup2 = new BuildSetup(port2)
-      // await buildSetup2.buildContainer()
-      // driver2 = buildSetup2.getDriver()
-      // await driver2.getSession()
-      // await buildSetup.closeDriver()
-      // buildSetup.killChromeDriver()
-      console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+      console.log('Second client')
       buildSetup2 = new BuildSetup(port2)
-      console.log(buildSetup2.port)
-      console.log(1)
       await buildSetup2.createChromeDriver()
-      console.log(2)
       driver2 = buildSetup2.getDriver(true)
-      console.log(3)
-      const session = await driver2.getSession()
-      console.log({ session })
-      console.log(4)
-      console.log({ driver2 })
+      await driver2.getSession()
       await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
 
       const joinCommunityModal = new JoinCommunityModal(driver2)
-      console.log(8)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
-      console.log(9)
       expect(isJoinCommunityModal).toBeTruthy()
-      console.log(10)
       await joinCommunityModal.typeCommunityCode(invitationCode)
-      console.log(11)
       await joinCommunityModal.submit()
     })
 
@@ -178,7 +145,7 @@ describe.only('New User', () => {
 
     it('User sends a message', async () => {
       generalChannel2 = new Channel(driver2, 'general')
-      const isGeneralChannel2 = await generalChannel2.element.isDisplayed()
+      await generalChannel2.element.isDisplayed()
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
       console.log('FETCHING CHANNEL MESSAGES!')

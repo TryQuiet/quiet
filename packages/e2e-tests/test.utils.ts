@@ -27,7 +27,7 @@ export class BuildSetup {
       case 'linux':
         return `${__dirname}/Quiet/Quiet-0.16.0.AppImage`
       case 'windows':
-        return `${__dirname}/Quiet/Quiet.Setup.0.16.0.exe`
+        return 'C:/Users/??/AppData/Local/Programs/quiet/Quiet.exe'
       case 'mac':
         return '/Applications/Quiet.app/Contents/MacOS/Quiet'
       default:
@@ -38,6 +38,8 @@ export class BuildSetup {
   public async createChromeDriver() {
     this.dataDir = (Math.random() * 10 ** 18).toString(36)
     console.log(this.dataDir)
+
+    // check windows
     this.child = spawn(
       `DATA_DIR=${this.dataDir} node_modules/.bin/chromedriver --port=${this.port}`,
       [],
@@ -84,9 +86,9 @@ export class BuildSetup {
                 // '--disable-extensions',
                 // '--incognito',
 
-                '--ipc-connection-timeout=1000000',
-                '--disable-timeouts-for-profiling=1000000',
-                '--user-response-timeout=1000000',
+                // '--ipc-connection-timeout=1000000',
+                // '--disable-timeouts-for-profiling=1000000',
+                // '--user-response-timeout=1000000',
 
                 `--remote-debugging-port=${this.port + 5}`
               ]

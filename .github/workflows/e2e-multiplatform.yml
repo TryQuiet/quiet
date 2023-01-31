@@ -85,16 +85,31 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: DIR1
+        run: dir
+
+      - name: LS1
+        run: ls
+
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
+
+      - name: DIR2
+        run: dir
+
+      - name: LS2
+        run: ls
 
       - name: Download EXE
         run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.16.0/Quiet.Setup.0.16.0.exe
 
       - name: Chmod
         run: cd packages/e2e-tests/Quiet && chmod +x Quiet.Setup.0.16.0.exe
+
+      - name: Install exe
+        run: cd packages/e2e-tests/Quiet && start Quiet.Setup.0.16.0.exe
 
       - name: Run smoke test
         run: cd packages/e2e-tests && npm run test smoke.multiplatform.test.ts
