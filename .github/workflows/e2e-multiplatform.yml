@@ -77,7 +77,7 @@ jobs:
 
   windows:
     runs-on: windows-2019
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       TEST_SYSTEM: windows
       ELECTRON_CUSTOM_VERSION: 19.0.5
