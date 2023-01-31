@@ -124,7 +124,7 @@ if (!gotTheLock) {
     }
   })
 }
-
+ 
 app.on('open-url', (event, url) => {
   event.preventDefault()
   const data = new URL(url)
