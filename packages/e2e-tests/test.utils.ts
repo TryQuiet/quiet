@@ -27,7 +27,7 @@ export class BuildSetup {
       case 'linux':
         return `${__dirname}/Quiet/Quiet-0.16.0.AppImage`
       case 'windows':
-        return 'C:/Users/??/AppData/Local/Programs/quiet/Quiet.exe'
+        return 'D:/a/AppData/Local/Programs/quiet/Quiet.exe'
       case 'mac':
         return '/Applications/Quiet.app/Contents/MacOS/Quiet'
       default:
@@ -40,14 +40,25 @@ export class BuildSetup {
     console.log(this.dataDir)
 
     // check windows
-    this.child = spawn(
-      `DATA_DIR=${this.dataDir} node_modules/.bin/chromedriver --port=${this.port}`,
-      [],
-      {
-        shell: true
-        // detached: true,
-      }
-    )
+    if (process.env.TEST_SYSTEM === 'windows') {
+      this.child = spawn(
+        `set DATA_DIR=${this.dataDir} & cd node_modules/.bin & chromedriver --port=${this.port}`,
+        [],
+        {
+          shell: true
+          // detached: true,
+        }
+      )
+    } else {
+      this.child = spawn(
+        `DATA_DIR=${this.dataDir} node_modules/.bin/chromedriver --port=${this.port}`,
+        [],
+        {
+          shell: true
+          // detached: true,
+        }
+      )
+    }
 
     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
 
@@ -66,11 +77,8 @@ export class BuildSetup {
       try {
         this.driver = new Builder()
           .usingServer(`http://localhost:${this.port}`)
-          // .usingServer(`http://${this.ipAddress}:9515`)
           .withCapabilities({
             'goog:chromeOptions': {
-              // binary: '/Applications/Quiet.app/Contents/MacOS/Quiet',
-              // binary: '/app/Quiet2.app/Contents/MacOs/Quiet',
               binary: binary,
               args: [
                 // 'user-data-dir=/home/kacper/. config/google-chrome',
