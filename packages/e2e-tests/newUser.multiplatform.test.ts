@@ -137,11 +137,11 @@ describe.only('New User', () => {
       await registerModal2.submit()
     })
 
-    // it('LoadingPanel', async () => {
-    //   const loadingPanelCommunity2 = new LoadingPanel(driver2, 'Connecting to peers')
-    //   const isLoadingPanelCommunity2 = await loadingPanelCommunity2.element.isDisplayed()
-    //   expect(isLoadingPanelCommunity2).toBeTruthy()
-    // })
+    it('LoadingPanel', async () => {
+      const loadingPanelCommunity2 = new LoadingPanel(driver2, 'Connecting to peers')
+      const isLoadingPanelCommunity2 = await loadingPanelCommunity2.element.isDisplayed()
+      expect(isLoadingPanelCommunity2).toBeTruthy()
+    })
 
     it('User sends a message', async () => {
       generalChannel2 = new Channel(driver2, 'general')
