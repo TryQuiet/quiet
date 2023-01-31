@@ -8,10 +8,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Run webpack in production mode
-      run: cd packages/backend && WEBPACK_MODE='production' npm run webpack 
-      shell: bash
-      
     - name: Install electron-builder globally
       run: npm i -g electron-builder@23.6.0
       shell: bash
