@@ -117,6 +117,7 @@
 		"ipfs-log": "^5.4.2",
 		"it-ws": "5.0.6",
 		"joi": "^17.4.0",
+		"level": "8.0.0",
 		"libp2p": "0.40.0",
 		"libp2p-bootstrap": "0.14.0",
 		"libp2p-gossipsub": "0.13.0",
@@ -135,7 +136,7 @@
 		"validator": "^13.6.0"
 	},
 	"overrides": {
-		"level": "8.0.0",
+		"level": "$level",
 		"leveldown": "^6",
 		"go-ipfs": "npm:mocked-go-ipfs@0.17.0"
 	}

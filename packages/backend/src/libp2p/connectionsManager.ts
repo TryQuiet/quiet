@@ -23,6 +23,7 @@ import fs from 'fs'
 import { emitError } from '../socket/errors'
 import { CertificateRegistration } from '../registration'
 import { setEngine, CryptoEngine } from 'pkijs'
+import {Level} from 'level'
 
 import {
   InitCommunityPayload,
@@ -130,12 +131,14 @@ export class ConnectionsManager extends EventEmitter {
   dataServer: DataServer
   communityId: string
   isRegistrarLaunched: boolean
-  communityDataPath: string
-  registrarDataPath: string
   torAuthCookie: string
   torControlPort: number
   torBinaryPath: string
   torResourcesPath: string
+  dbPath: string
+  db: Level
+  registrars: any
+  communities: any
 
   constructor({ options, socketIOPort, httpTunnelPort, torControlPort, torAuthCookie, torResourcesPath, torBinaryPath }: IConstructor) {
     super()
@@ -154,8 +157,7 @@ export class ConnectionsManager extends EventEmitter {
     this.httpTunnelPort = httpTunnelPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
-    this.communityDataPath = path.join(this.quietDir, 'communityData.json')
-    this.registrarDataPath = path.join(this.quietDir, 'registrarData.json')
+    this.dbPath = path.join(this.quietDir, 'backendDB')
     this.isRegistrarLaunched = false
 
     // Does it work?
@@ -213,21 +215,33 @@ export class ConnectionsManager extends EventEmitter {
 
     await this.dataServer.listen()
 
-    // Below logic is temporary, we gonna move it to leveldb
-    const communityPath = this.communityDataPath
-    const registrarPath = this.registrarDataPath
 
-    if (fs.existsSync(communityPath)) {
-      const data = fs.readFileSync(communityPath)
-      const dataObj = JSON.parse(data.toString())
-      await this.launchCommunity(dataObj)
-    }
+    // LEVEL
+    this.db = new Level<string, any>(this.dbPath, { valueEncoding: 'json' })
+    await this.db.open()
+    this.db.get('communityId', async (err, value) => {
+      if (err) log.error(err)
+      if (value) {
+        await this.initCommunity(value)
+      }
+    })
+    
+    this.communities = this.db.sublevel<string, InitCommunityPayload>('communities', { valueEncoding: 'json' })
+    this.registrars = this.db.sublevel<string, LaunchRegistrarPayload>('registrars', { valueEncoding: 'json' })
+  }
 
-    if (fs.existsSync(registrarPath)) {
-      const data = fs.readFileSync(registrarPath)
-      const dataObj = JSON.parse(data.toString())
-      await this.registration.launchRegistrar(dataObj)
-      this.isRegistrarLaunched = true
+  public async initCommunity(communityId: string) {
+    if (communityId) {
+      const communityIdData = await this.communities.get(communityId)
+      console.log('--- community data', communityIdData)
+      await this.launchCommunity(communityIdData)
+
+      const registrarData = await this.registrars.get(communityId)
+      console.log('--- registrar data', communityIdData)
+      if (registrarData) {
+        await this.registration.launchRegistrar(registrarData)
+        this.isRegistrarLaunched = true
+      }
     }
   }
 
@@ -244,6 +258,7 @@ export class ConnectionsManager extends EventEmitter {
     if (this.io) {
       this.io.close()
     }
+    await this.db.close()
   }
 
   public spawnTor = async () => {
@@ -331,11 +346,13 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
-    const path = this.communityDataPath
-    const json = JSON.stringify(payload)
-    if (!fs.existsSync(path)) {
-      fs.writeFileSync(path, json)
-    }
+    this.db.get('communityId', async (err, value) => {
+      console.log('ERR', err, 'VAL', value)
+      if (err) {
+        await this.db.put('communityId', payload.id)
+        await this.communities.put(payload.id, payload)
+      }
+    })
     try {
       await this.launch(payload)
     } catch (e) {
@@ -456,11 +473,12 @@ export class ConnectionsManager extends EventEmitter {
     // Registration
     this.dataServer.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
       if (this.isRegistrarLaunched) return
-      const path = this.communityDataPath
-      const json = JSON.stringify(args)
-      if (!fs.existsSync(path)) {
-        fs.writeFileSync(path, json)
-      }
+      this.registrars.get(args.id, async (err, _value) => {
+        if (err) {
+          console.log('SAVING REGISTRAR DATA TO DB', err)
+          await this.registrars.put(args.id, args)
+        }
+      })
       await this.registration.launchRegistrar(args)
       this.isRegistrarLaunched = true
     })
