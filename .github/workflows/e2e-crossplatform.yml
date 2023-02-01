@@ -1,4 +1,4 @@
-name: E2E multi platform
+name: E2E cross platform
 
 on:
   pull_request:
@@ -33,10 +33,10 @@ jobs:
         run: cd ~ && cp -R "/Volumes/Quiet 0.16.0/Quiet.app" /Applications
 
       - name: Run smoke test
-        run: cd packages/e2e-tests && npm run test smoke.multiplatform.test.ts
+        run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
 
       - name: Run newUser test
-        run: cd packages/e2e-tests && npm run test newUser.multiplatform.test.ts
+        run: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
 
   linux:
     runs-on: ubuntu-20.04
@@ -70,10 +70,10 @@ jobs:
         run: cd packages/e2e-tests/Quiet && chmod +x Quiet-0.16.0.AppImage
 
       - name: Run smoke test
-        run: cd packages/e2e-tests && npm run test smoke.multiplatform.test.ts
+        run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
 
       - name: Run newUser test
-        run: cd packages/e2e-tests && npm run test newUser.multiplatform.test.ts
+        run: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
 
   windows:
     runs-on: windows-2019
@@ -85,22 +85,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: DIR1
-        run: dir
-
-      - name: LS1
-        run: ls
-
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
-
-      - name: DIR2
-        run: dir
-
-      - name: LS2
-        run: ls
 
       - name: Download EXE
         run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.16.0/Quiet.Setup.0.16.0.exe
@@ -112,7 +100,7 @@ jobs:
         run: cd packages/e2e-tests/Quiet && start Quiet.Setup.0.16.0.exe
 
       - name: Run smoke test
-        run: cd packages/e2e-tests && npm run test smoke.multiplatform.test.ts
+        run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
 
       - name: Run newUser test
-        run: cd packages/e2e-tests && npm run test newUser.multiplatform.test.ts
+        run: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts

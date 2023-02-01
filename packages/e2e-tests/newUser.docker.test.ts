@@ -13,7 +13,7 @@ import logger from './logger'
 const log = logger('newUser:')
 
 jest.setTimeout(500000)
-describe.only('New User', () => {
+describe('New User', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
 
@@ -140,7 +140,7 @@ describe.only('New User', () => {
 
     it('User sends a message', async () => {
       generalChannel2 = new Channel(driver2, 'general')
-      const isGeneralChannel2 = await generalChannel2.element.isDisplayed()
+      await generalChannel2.element.isDisplayed()
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
       console.log('FETCHING CHANNEL MESSAGES!')

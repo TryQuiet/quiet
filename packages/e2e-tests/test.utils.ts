@@ -15,13 +15,6 @@ export class BuildSetup {
     this.port = port
   }
 
-  private getDocker() {
-    if (!this.docker) {
-      this.docker = new Docker({ echo: false })
-    }
-    return this.docker
-  }
-
   private getBinaryLocation() {
     switch (process.env.TEST_SYSTEM) {
       case 'linux':
@@ -37,16 +30,14 @@ export class BuildSetup {
 
   public async createChromeDriver() {
     this.dataDir = (Math.random() * 10 ** 18).toString(36)
-    console.log(this.dataDir)
 
-    // check windows
     if (process.env.TEST_SYSTEM === 'windows') {
       this.child = spawn(
         `set DATA_DIR=${this.dataDir} & cd node_modules/.bin & chromedriver --port=${this.port}`,
         [],
         {
-          shell: true
-          // detached: true,
+          shell: true,
+          detached: true
         }
       )
     } else {
@@ -55,7 +46,6 @@ export class BuildSetup {
         [],
         {
           shell: true
-          // detached: true,
         }
       )
     }
@@ -71,7 +61,7 @@ export class BuildSetup {
     })
   }
 
-  public getDriver(second = false) {
+  public getDriver() {
     const binary = this.getBinaryLocation()
     if (!this.driver) {
       try {
@@ -80,26 +70,7 @@ export class BuildSetup {
           .withCapabilities({
             'goog:chromeOptions': {
               binary: binary,
-              args: [
-                // 'user-data-dir=/home/kacper/. config/google-chrome',
-                // `profile-directory=${second ? 'selenium2' : 'selenium1'}`,
-                // '--no-sandbox',
-                // '--disable-dev-shm-usage',
-                // '--window-size=1420,1080',
-                // '--headless',
-                // '--disable-gpu',
-                // '--single-process',
-                // '--disable-features=VizDisplayCompositor',
-                // '--dns-prefetch-disable',
-                // '--disable-extensions',
-                // '--incognito',
-
-                // '--ipc-connection-timeout=1000000',
-                // '--disable-timeouts-for-profiling=1000000',
-                // '--user-response-timeout=1000000',
-
-                `--remote-debugging-port=${this.port + 5}`
-              ]
+              args: [`--remote-debugging-port=${this.port + 5}`]
             }
           })
           .forBrowser(Browser.CHROME)
@@ -110,6 +81,20 @@ export class BuildSetup {
     }
 
     return this.driver
+  }
+
+  public killChromeDriver() {
+    console.log('kill')
+    this.child.kill()
+  }
+
+  // __________________________________________________________________________________________________
+
+  private getDocker() {
+    if (!this.docker) {
+      this.docker = new Docker({ echo: false })
+    }
+    return this.docker
   }
 
   public async buildContainer() {
@@ -145,10 +130,5 @@ export class BuildSetup {
 
   public async closeDriver() {
     await this.driver.close()
-  }
-
-  public killChromeDriver() {
-    console.log('kill')
-    this.child.kill()
   }
 }

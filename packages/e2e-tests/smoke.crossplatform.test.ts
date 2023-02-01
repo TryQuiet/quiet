@@ -8,29 +8,32 @@ import {
 } from './newSelectors'
 import { BuildSetup } from './test.utils'
 
-jest.setTimeout(150000)
-describe.only('Smoke', () => {
+jest.setTimeout(350000)
+describe('Smoke', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
+  const port = 9515
   beforeAll(async () => {
-    buildSetup = new BuildSetup()
-    await buildSetup.buildContainer()
+    buildSetup = new BuildSetup(port)
+    await buildSetup.createChromeDriver()
     driver = buildSetup.getDriver()
     await driver.getSession()
   })
 
   afterAll(async () => {
     await buildSetup.closeDriver()
-    await buildSetup.killContainer()
+    buildSetup.killChromeDriver()
   })
   describe('Stages:', () => {
     it('User waits for the modal Starting Quiet to disappear', async () => {
+      console.log(1)
       const loadingPanel = new LoadingPanel(driver, 'Starting Quiet')
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
       expect(isLoadingPanel).toBeTruthy()
     })
 
     it('User sees "join community" page and switches to "create community" view by clicking on the link', async () => {
+      console.log(2)
       const joinModal = new JoinCommunityModal(driver)
       const isJoinModal = await joinModal.element.isDisplayed()
       expect(isJoinModal).toBeTruthy()
@@ -46,6 +49,7 @@ describe.only('Smoke', () => {
     })
 
     it('User is on "Create community" page, enters valid community name and presses the button', async () => {
+      console.log(3)
       const createModal = new CreateCommunityModal(driver)
       const isCreateModal = await createModal.element.isDisplayed()
       expect(isCreateModal).toBeTruthy()
@@ -54,6 +58,7 @@ describe.only('Smoke', () => {
     })
 
     it('User sees "register username" page, enters the valid name and submits by clicking on the button', async () => {
+      console.log(4)
       const registerModal = new RegisterUsernameModal(driver)
       const isRegisterModal = await registerModal.element.isDisplayed()
 
@@ -63,12 +68,14 @@ describe.only('Smoke', () => {
     })
 
     it('User waits for the modal Connecting to peers to disappear', async () => {
+      console.log(5)
       const loadingPanelCommunity = new LoadingPanel(driver, 'Connecting to peers')
       const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
       expect(isLoadingPanelCommunity).toBeTruthy()
     })
 
     it('User sees general channel', async () => {
+      console.log(6)
       const generalChannel = new Channel(driver, 'general')
       const isGeneralChannel = await generalChannel.element.isDisplayed()
       const generalChannelText = await generalChannel.element.getText()

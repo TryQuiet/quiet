@@ -13,7 +13,7 @@ import logger from './logger'
 const log = logger('newUser:')
 
 jest.setTimeout(600000)
-describe.only('New User', () => {
+describe('New User', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
   const port = 9516
@@ -118,7 +118,7 @@ describe.only('New User', () => {
       console.log('Second client')
       buildSetup2 = new BuildSetup(port2)
       await buildSetup2.createChromeDriver()
-      driver2 = buildSetup2.getDriver(true)
+      driver2 = buildSetup2.getDriver()
       await driver2.getSession()
       await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
 
