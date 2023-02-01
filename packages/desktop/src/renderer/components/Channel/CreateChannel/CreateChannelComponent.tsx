@@ -137,8 +137,8 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   }
 
   const onChange = (name: string) => {
+    setValue('channelName', name)
     const parsedName = parseName(name)
-    setValue('channelName', parsedName)
     setChannelName(parsedName)
     setParsedNameDiffers(name !== parsedName)
   }
