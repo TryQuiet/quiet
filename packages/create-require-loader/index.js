@@ -7,7 +7,7 @@ module.exports = async function createRequireLoader(content, map, meta) {
   if (content.includes("const pkg = req('../../package.json')")) {
     updatedContent = content.replace(
       "const pkg = req('../../package.json')",
-      `import pkg from '${path.join("..", "..", "package.json")}'`
+      "import pkg from '../../package.json'"
     )
   } else {
     updatedContent = content.replace(
