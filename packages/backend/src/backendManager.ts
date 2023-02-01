@@ -2,6 +2,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import { Command } from 'commander'
 import logger from './logger'
 import { ConnectionsManager, torBinForPlatform, torDirForPlatform } from './index'
+import path from 'path'
 
 const log = logger('backendManager')
 const program = new Command()
@@ -39,7 +40,7 @@ export const runBackendDesktop = async () => {
     torResourcesPath: torDirForPlatform(resourcesPath),
     options: {
       env: {
-        appDataPath: `${options.appDataPath.trim()}/Quiet`,
+        appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
       }
     }
   })
