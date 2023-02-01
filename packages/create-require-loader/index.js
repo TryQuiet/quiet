@@ -5,7 +5,6 @@ module.exports = async function createRequireLoader(content, map, meta) {
 
   let updatedContent
   if (content.includes("const pkg = req('../../package.json')")) {
-    if (process.platform === 'win32') return
     updatedContent = content.replace(
       "const pkg = req('../../package.json')",
       `import pkg from '${path.join("..", "..", "package.json")}'`
@@ -16,6 +15,8 @@ module.exports = async function createRequireLoader(content, map, meta) {
       "const binding = require('./binding').default"
     )
   }
+
+  console.log(updatedContent)
 
   callback(null, updatedContent);
 }
