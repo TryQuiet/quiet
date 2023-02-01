@@ -16,7 +16,7 @@ module.exports = async function createRequireLoader(content, map, meta) {
     )
   }
 
-  console.log(updatedContent)
+  console.log('updated content', updatedContent)
 
   callback(null, updatedContent);
 }
