@@ -1,6 +1,6 @@
 {
   "name": "create-require-loader",
-  "version": "0.19.7-alpha.0",
+  "version": "0.19.8-alpha.0",
   "description": "",
   "main": "index.js",
   "scripts": {
