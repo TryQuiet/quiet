@@ -54,7 +54,9 @@ import {
   UploadFilePayload,
   DownloadStatus,
   CommunityId,
-  StorePeerListPayload
+  StorePeerListPayload,
+  sortPeers,
+  NetworkStats
 } from '@quiet/state-manager'
 
 import { ConnectionsManagerOptions } from '../common/types'
@@ -137,8 +139,7 @@ export class ConnectionsManager extends EventEmitter {
   torResourcesPath: string
   dbPath: string
   db: Level
-  registrars: any
-  communities: any
+  peers: any
 
   constructor({ options, socketIOPort, httpTunnelPort, torControlPort, torAuthCookie, torResourcesPath, torBinaryPath }: IConstructor) {
     super()
@@ -215,34 +216,49 @@ export class ConnectionsManager extends EventEmitter {
 
     await this.dataServer.listen()
 
-
-    // LEVEL
+    // OPEN DB
     this.db = new Level<string, any>(this.dbPath, { valueEncoding: 'json' })
-    await this.db.open()
-    this.db.get('communityId', async (err, value) => {
-      if (err) log.error(err)
-      if (value) {
-        await this.initCommunity(value)
-      }
-    })
-    
-    this.communities = this.db.sublevel<string, InitCommunityPayload>('communities', { valueEncoding: 'json' })
-    this.registrars = this.db.sublevel<string, LaunchRegistrarPayload>('registrars', { valueEncoding: 'json' })
-  }
+    this.peers = this.db.sublevel<string, NetworkStats>('peers', { valueEncoding: 'json' })
 
-  public async initCommunity(communityId: string) {
-    if (communityId) {
-      const communityIdData = await this.communities.get(communityId)
-      console.log('--- community data', communityIdData)
-      await this.launchCommunity(communityIdData)
-
-      const registrarData = await this.registrars.get(communityId)
-      console.log('--- registrar data', communityIdData)
-      if (registrarData) {
-        await this.registration.launchRegistrar(registrarData)
-        this.isRegistrarLaunched = true
-      }
+    // Get peers from db and sort them
+    const stats = []
+    const peersAddresses = []
+    for await (const [peerAddress, peerStats] of this.peers.iterator()) {
+      console.log('peers addresses from db', peerAddress, peerStats)
+      stats.push(peerStats)
+      peersAddresses.push(peerAddress)
     }
+    const sortedPeers = sortPeers(peersAddresses, stats)
+    console.log('sorted peers', sortedPeers)
+
+    let communityDBData
+    try {
+      communityDBData = await this.db.get('community')
+    } catch (e) {
+      log.error(e)
+    }
+
+    if (communityDBData) {
+      const communityData = JSON.parse(communityDBData)
+        if (sortedPeers.length > 0) {
+          communityData.peers = sortedPeers
+        }
+
+        await this.launchCommunity(communityData)
+    }
+
+    let registrarDBData
+    try {
+      registrarDBData = await this.db.get('registrar')
+    } catch (e) {
+      log.error(e)
+    }
+
+    if (registrarDBData) {
+      console.log('--- registrar data from DB', registrarDBData)
+      await this.registration.launchRegistrar((JSON.parse(registrarDBData)))
+      this.isRegistrarLaunched = true
+    }    
   }
 
   public async closeAllServices() {
@@ -346,11 +362,20 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
-    this.db.get('communityId', async (err, value) => {
-      console.log('ERR', err, 'VAL', value)
+    this.db.get('community', async (err, value) => {
+      console.log('launchCommunity. ERR', err, 'VAL', value)
       if (err) {
-        await this.db.put('communityId', payload.id)
-        await this.communities.put(payload.id, payload)
+        await this.db.put('community', JSON.stringify(payload))
+
+        // Save info about existing peers
+        // Do we care about them?
+        // const batchOperations = []
+        // for (const peerAddress of payload.peers) {
+        //   batchOperations.push({ type: 'put', sublevel: this.peers, key: peerAddress, value: {} })
+        // }
+        // if (batchOperations.length > 0) {
+        //   this.db.batch(batchOperations)
+        // }
       }
     })
     try {
@@ -467,16 +492,18 @@ export class ConnectionsManager extends EventEmitter {
       await this.createCommunity(args)
     })
     this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => {
+      console.log('LAUNCH_COMMUNITY event; this.communityId', this.communityId)
       if (this.communityId) return
       await this.launchCommunity(args)
     })
     // Registration
     this.dataServer.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
+      console.log('LAUNCH_REGISTRAR event; this.isRegistrarLaunched:', this.isRegistrarLaunched)
       if (this.isRegistrarLaunched) return
-      this.registrars.get(args.id, async (err, _value) => {
+      this.db.get('registrar', async (err, value) => {
         if (err) {
-          console.log('SAVING REGISTRAR DATA TO DB', err)
-          await this.registrars.put(args.id, args)
+          console.log('SAVING REGISTRAR DATA TO DB')
+          await this.db.put('registrar', JSON.stringify(args))
         }
       })
       await this.registration.launchRegistrar(args)
@@ -658,16 +685,26 @@ export class ConnectionsManager extends EventEmitter {
       log(`${params.peerId.toString()} discovered ${peer.detail.id}`)
     })
 
-    libp2p.connectionManager.addEventListener('peer:connect', (peer) => {
+    libp2p.connectionManager.addEventListener('peer:connect', async (peer) => {
       log(`${params.peerId.toString()} connected to ${peer.detail.id}`)
       this.connectedPeers.set(peer.detail.id, DateTime.utc().valueOf())
 
+      await this.peers.get(peer.detail.remoteAddr.toString(), async (err, value) => {
+        if (err) {
+          const peerStats: NetworkStats = {
+            peerId: peer.detail.id,
+            connectionTime: 0,
+            lastSeen: 0
+          }
+          await this.peers.put(peer.detail.remoteAddr.toString(), peerStats)
+        }
+      })      
       this.emit(Libp2pEvents.PEER_CONNECTED, {
         peers: [peer.detail.id]
       })
     })
 
-    libp2p.connectionManager.addEventListener('peer:disconnect', (peer) => {
+    libp2p.connectionManager.addEventListener('peer:disconnect', async (peer) => {
       log(`${params.peerId.toString()} disconnected from ${peer.detail.id}`)
 
       const connectionStartTime = this.connectedPeers.get(peer.detail.id)
@@ -677,6 +714,20 @@ export class ConnectionsManager extends EventEmitter {
       const connectionDuration: number = connectionEndTime - connectionStartTime
 
       this.connectedPeers.delete(peer.detail.id)
+      
+      // Get saved peer stats from db
+      const peerPrevStats = await this.peers.get(peer.detail.remoteAddr.toString())
+      console.log('peer:disconnect peerPrevStats', peerPrevStats)
+      const prev = peerPrevStats?.connectionTime || 0
+
+      const peerStats: NetworkStats = {
+        peerId: peer.detail.id,
+        connectionTime: prev + connectionDuration,
+        lastSeen: connectionEndTime
+      }
+
+      // Save updates stats to db
+      await this.peers.put(peer.detail.remoteAddr.toString(), peerStats)
 
       this.emit(Libp2pEvents.PEER_DISCONNECTED, {
         peer: peer.detail.id,

@@ -88,6 +88,8 @@ export { parseName } from './utils/functions/naming/naming'
 
 export { formatBytes } from './utils/functions/formatBytes/formatBytes'
 
+export { sortPeers } from './utils/functions/sortPeers/sortPeers'
+
 export type { Socket } from './types'
 
 export * from './sagas/identity/identity.types'
