@@ -13,7 +13,7 @@ export default {
     mode: process.env.WEBPACK_MODE === 'production' ? 'production' : 'development',
     target: 'node',
     entry: {
-        bundle: path.resolve(__dirname, 'src/backendManager.ts')
+        bundle: path.resolve(__dirname, 'src', 'backendManager.ts')
     },
     output: {
         path: path.resolve(__dirname, 'lib'),
@@ -31,32 +31,32 @@ export default {
                 ],
                 exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]state-manager/, /packages[\/\\]logger/]
             },
-          {
-            test: /node_modules\/@achingbrain\/ssdp\/dist\/src\/default-ssdp-options.js/,
-            loader: 'create-require-loader'
-          },
-          {
-            test: /node_modules\/classic-level\/index.js/,
-            loader: 'create-require-loader'
-          },
-          {
-            test: /node_modules\/classic-level\/iterator.js/,
-            loader: 'create-require-loader'
-          }
+            {
+                test: /node_modules[\/\\]@achingbrain[\/\\]ssdp[\/\\]dist[\/\\]src[\/\\]default-ssdp-options.js/,
+                loader: 'create-require-loader'
+            },
+            {
+                test: /node_modules[\/\\]classic-level[\/\\]index.js/,
+                loader: 'create-require-loader'
+            },
+            {
+                test: /node_modules[\/\\]classic-level[\/\\]iterator.js/,
+                loader: 'create-require-loader'
+            }
         ]
     },
     plugins: [
         new webpack.NormalModuleReplacementPlugin(
-            /node_modules\/classic-level\/binding.js/,
+            /node_modules[\/\\]classic-level[\/\\]binding.js/,
             root('classic_level.cjs')
         ),
         new webpack.NormalModuleReplacementPlugin(
-            /node_modules\/ipfs-utils\/src\/http\/fetch.js/,
+            /node_modules[\/\\]ipfs-utils[\/\\]src[\/\\]http[\/\\]fetch.js/,
             'fetch.node.js'
         ),
         new webpack.NormalModuleReplacementPlugin(
-            /node_modules\/ipfs-utils\/src\/fetch.js/,
-            root('node_modules/electron-fetch/lib/index.js')
-            )
+            /node_modules[\/\\]ipfs-utils[\/\\]src[\/\\]fetch.js/,
+            root(path.join('node_modules', 'electron-fetch', 'lib', 'index.js'))
+        )
     ]
 }
