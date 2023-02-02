@@ -1,7 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
-import { screen, waitFor } from '@testing-library/dom'
+import { queryByTestId, screen, waitFor } from '@testing-library/dom'
 import { act } from 'react-dom/test-utils'
 import { take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
@@ -27,6 +27,7 @@ import {
 
 import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
+import { ChannelNameErrors } from '../renderer/forms/fieldsErrors'
 
 jest.setTimeout(20_000)
 
@@ -129,12 +130,13 @@ describe('Add new channel', () => {
     await user.type(input, channelName.input)
 
     // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
-    await act(async () =>
-      await waitFor(() => {
-        user.click(screen.getByText('Create Channel')).catch(e => {
-          console.error(e)
+    await act(
+      async () =>
+        await waitFor(() => {
+          user.click(screen.getByText('Create Channel')).catch(e => {
+            console.error(e)
+          })
         })
-      })
     )
 
     await act(async () => {
@@ -182,5 +184,103 @@ describe('Add new channel', () => {
 
     const error = await screen.findByText(ErrorMessages.CHANNEL_NAME_TAKEN)
     expect(error).toBeVisible()
+  })
+
+  it('Input after reopen should be clear', async () => {
+    const channelName = 'san-fierro'
+    const { store } = await prepareStore(
+      {},
+      socket // Fork state manager's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+      'Identity',
+      { nickname: 'alice' }
+    )
+
+    renderComponent(
+      <>
+        <Sidebar />
+        <CreateChannel />
+      </>,
+      store
+    )
+
+    const addChannel = screen.getByTestId('addChannelButton')
+    await userEvent.click(addChannel)
+
+    const title = await screen.findByText('Create a new public channel')
+    expect(title).toBeVisible()
+
+    const user = userEvent.setup()
+    const input = screen.getByPlaceholderText('Enter a channel name')
+    await user.type(input, channelName)
+    expect(input).toHaveValue(channelName)
+
+    const closeChannel = screen.getByTestId('ModalActions').querySelector('button')
+    await userEvent.click(closeChannel)
+
+    const isGeneral = await screen.findByText('# general')
+
+    expect(isGeneral).toBeVisible()
+
+    await userEvent.click(addChannel)
+    const input2 = screen.getByPlaceholderText('Enter a channel name')
+    expect(input2).toHaveValue('')
+  })
+
+  it('Bug reproduction - open and close modal and check there are any errors', async () => {
+    const channelName = '!@#'
+    const { store } = await prepareStore(
+      {},
+      socket // Fork state manager's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+      'Identity',
+      { nickname: 'alice' }
+    )
+
+    const { queryByText } = renderComponent(
+      <>
+        <Sidebar />
+        <CreateChannel />
+      </>,
+      store
+    )
+
+    const addChannel = screen.getByTestId('addChannelButton')
+    await userEvent.click(addChannel)
+
+    const title = await screen.findByText('Create a new public channel')
+    expect(title).toBeVisible()
+
+    const user = userEvent.setup()
+    const input = screen.getByPlaceholderText('Enter a channel name')
+    await user.type(input, channelName)
+    expect(input).toHaveValue(channelName)
+
+    const button = screen.getByText('Create Channel')
+    await userEvent.click(button)
+
+    const error = await screen.findByText(ChannelNameErrors.WrongCharacter)
+    expect(error).toBeVisible()
+
+    const closeChannel = screen.getByTestId('ModalActions').querySelector('button')
+    await userEvent.click(closeChannel)
+
+    const isGeneral = await screen.findByText('# general')
+    expect(isGeneral).toBeVisible()
+
+    await userEvent.click(addChannel)
+    const title2 = await screen.findByText('Create a new public channel')
+    expect(title2).toBeVisible()
+
+    const isErrorStillExist = screen.queryByText(ChannelNameErrors.WrongCharacter)
+    expect(isErrorStillExist).toBeNull()
   })
 })
