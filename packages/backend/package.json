@@ -1,6 +1,6 @@
 {
 	"name": "@quiet/backend",
-	"version": "0.19.15-alpha.0",
+	"version": "0.19.16-alpha.0",
 	"description": "tlg-manager",
 	"types": "lib/index.d.ts",
 	"type": "module",
