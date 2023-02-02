@@ -23,7 +23,6 @@ import fs from 'fs'
 import { emitError } from '../socket/errors'
 import { CertificateRegistration } from '../registration'
 import { setEngine, CryptoEngine } from 'pkijs'
-import {Level} from 'level'
 
 import {
   InitCommunityPayload,
@@ -75,7 +74,8 @@ import getPort from 'get-port'
 import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
-import PeerId, { JSONPeerId } from 'peer-id'
+import PeerId from 'peer-id'
+import { LocalDB, LocalDBKeys } from '../storage/localDB'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -137,9 +137,8 @@ export class ConnectionsManager extends EventEmitter {
   torControlPort: number
   torBinaryPath: string
   torResourcesPath: string
-  dbPath: string
-  db: Level
-  peers: any
+  localStorage: LocalDB
+  launchingCommunity: boolean
 
   constructor({ options, socketIOPort, httpTunnelPort, torControlPort, torAuthCookie, torResourcesPath, torBinaryPath }: IConstructor) {
     super()
@@ -158,8 +157,8 @@ export class ConnectionsManager extends EventEmitter {
     this.httpTunnelPort = httpTunnelPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
-    this.dbPath = path.join(this.quietDir, 'backendDB')
     this.isRegistrarLaunched = false
+    this.launchingCommunity = false
 
     // Does it work?
     process.on('unhandledRejection', error => {
@@ -216,47 +215,21 @@ export class ConnectionsManager extends EventEmitter {
 
     await this.dataServer.listen()
 
-    // OPEN DB
-    this.db = new Level<string, any>(this.dbPath, { valueEncoding: 'json' })
-    this.peers = this.db.sublevel<string, NetworkStats>('peers', { valueEncoding: 'json' })
+    this.localStorage = new LocalDB(this.quietDir)
+    const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
 
-    // Get peers from db and sort them
-    const stats = []
-    const peersAddresses = []
-    for await (const [peerAddress, peerStats] of this.peers.iterator()) {
-      console.log('peers addresses from db', peerAddress, peerStats)
-      stats.push(peerStats)
-      peersAddresses.push(peerAddress)
-    }
-    const sortedPeers = sortPeers(peersAddresses, stats)
-    console.log('sorted peers', sortedPeers)
-
-    let communityDBData
-    try {
-      communityDBData = await this.db.get('community')
-    } catch (e) {
-      log.error(e)
+    if (community) {
+      const sortedPeers = await this.localStorage.getSortedPeers()
+      if (sortedPeers.length > 0) {
+        community.peers = sortedPeers
+      }
+      await this.localStorage.put(LocalDBKeys.COMMUNITY, community)
+      await this.launchCommunity(community)
     }
 
-    if (communityDBData) {
-      const communityData = JSON.parse(communityDBData)
-        if (sortedPeers.length > 0) {
-          communityData.peers = sortedPeers
-        }
-
-        await this.launchCommunity(communityData)
-    }
-
-    let registrarDBData
-    try {
-      registrarDBData = await this.db.get('registrar')
-    } catch (e) {
-      log.error(e)
-    }
-
-    if (registrarDBData) {
-      console.log('--- registrar data from DB', registrarDBData)
-      await this.registration.launchRegistrar((JSON.parse(registrarDBData)))
+    const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
+    if (registrarData) {
+      await this.registration.launchRegistrar((registrarData))
       this.isRegistrarLaunched = true
     }    
   }
@@ -274,7 +247,7 @@ export class ConnectionsManager extends EventEmitter {
     if (this.io) {
       this.io.close()
     }
-    await this.db.close()
+    await this.localStorage.close()
   }
 
   public spawnTor = async () => {
@@ -362,22 +335,12 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
-    this.db.get('community', async (err, value) => {
-      console.log('launchCommunity. ERR', err, 'VAL', value)
-      if (err) {
-        await this.db.put('community', JSON.stringify(payload))
+    this.launchingCommunity = true
+    const communityData = await this.localStorage.get(LocalDBKeys.COMMUNITY)
+    if (!communityData) {
+      await this.localStorage.put(LocalDBKeys.COMMUNITY, payload)
+    }
 
-        // Save info about existing peers
-        // Do we care about them?
-        // const batchOperations = []
-        // for (const peerAddress of payload.peers) {
-        //   batchOperations.push({ type: 'put', sublevel: this.peers, key: peerAddress, value: {} })
-        // }
-        // if (batchOperations.length > 0) {
-        //   this.db.batch(batchOperations)
-        // }
-      }
-    })
     try {
       await this.launch(payload)
     } catch (e) {
@@ -392,6 +355,7 @@ export class ConnectionsManager extends EventEmitter {
 
     log(`Launched community ${payload.id}`)
     this.communityId = payload.id
+    this.launchingCommunity = false
     this.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
 
@@ -492,20 +456,16 @@ export class ConnectionsManager extends EventEmitter {
       await this.createCommunity(args)
     })
     this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => {
-      console.log('LAUNCH_COMMUNITY event; this.communityId', this.communityId)
-      if (this.communityId) return
+      if (this.communityId || this.launchingCommunity) return
       await this.launchCommunity(args)
     })
     // Registration
     this.dataServer.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
-      console.log('LAUNCH_REGISTRAR event; this.isRegistrarLaunched:', this.isRegistrarLaunched)
       if (this.isRegistrarLaunched) return
-      this.db.get('registrar', async (err, value) => {
-        if (err) {
-          console.log('SAVING REGISTRAR DATA TO DB')
-          await this.db.put('registrar', JSON.stringify(args))
-        }
-      })
+      const communityData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
+      if (!communityData) {
+        await this.localStorage.put(LocalDBKeys.REGISTRAR, args)
+      }
       await this.registration.launchRegistrar(args)
       this.isRegistrarLaunched = true
     })
@@ -688,17 +648,7 @@ export class ConnectionsManager extends EventEmitter {
     libp2p.connectionManager.addEventListener('peer:connect', async (peer) => {
       log(`${params.peerId.toString()} connected to ${peer.detail.id}`)
       this.connectedPeers.set(peer.detail.id, DateTime.utc().valueOf())
-
-      await this.peers.get(peer.detail.remoteAddr.toString(), async (err, value) => {
-        if (err) {
-          const peerStats: NetworkStats = {
-            peerId: peer.detail.id,
-            connectionTime: 0,
-            lastSeen: 0
-          }
-          await this.peers.put(peer.detail.remoteAddr.toString(), peerStats)
-        }
-      })      
+ 
       this.emit(Libp2pEvents.PEER_CONNECTED, {
         peers: [peer.detail.id]
       })
@@ -716,8 +666,8 @@ export class ConnectionsManager extends EventEmitter {
       this.connectedPeers.delete(peer.detail.id)
       
       // Get saved peer stats from db
-      const peerPrevStats = await this.peers.get(peer.detail.remoteAddr.toString())
-      console.log('peer:disconnect peerPrevStats', peerPrevStats)
+      const peerAddress = peer.detail.remoteAddr.toString()
+      const peerPrevStats = await this.localStorage.find(LocalDBKeys.PEERS, peerAddress)
       const prev = peerPrevStats?.connectionTime || 0
 
       const peerStats: NetworkStats = {
@@ -727,7 +677,9 @@ export class ConnectionsManager extends EventEmitter {
       }
 
       // Save updates stats to db
-      await this.peers.put(peer.detail.remoteAddr.toString(), peerStats)
+      await this.localStorage.update(LocalDBKeys.PEERS, {
+        [peerAddress]: peerStats
+      })
 
       this.emit(Libp2pEvents.PEER_DISCONNECTED, {
         peer: peer.detail.id,
@@ -759,7 +711,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   private static readonly defaultLibp2pNode = async (params: Libp2pNodeParams): Promise<any> => {
-    let lib
+    let lib: Libp2p
 
     try {
       lib = await createLibp2p({
@@ -804,7 +756,7 @@ export class ConnectionsManager extends EventEmitter {
         pubsub: gossipsub({ allowPublishToZeroPeers: true }),
       })
     } catch (err) {
-      console.log('LIBP2P ERROR:', err)
+      log.error('LIBP2P ERROR:', err)
     }
 
     return lib
