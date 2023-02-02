@@ -19,7 +19,7 @@ export class LocalDB {
   constructor(baseDir: string) {
     this.dbPath = path.join(baseDir, 'backendDB')
     this.db = new Level<string, any>(this.dbPath, { valueEncoding: 'json' })
-    this.peers = this.db.sublevel<string, NetworkStats>(LocalDBKeys.PEERS, { valueEncoding: 'json' })
+    // this.peers = this.db.sublevel<string, NetworkStats>(LocalDBKeys.PEERS, { valueEncoding: 'json' })
   }
 
   public async close() {
@@ -28,7 +28,6 @@ export class LocalDB {
   }
 
   public async get(key: string) {
-    log(`Getting '${key}'`)
     let data: any
     try {
       data = await this.db.get(key)
@@ -40,7 +39,6 @@ export class LocalDB {
   }
 
   public async put(key: string, value: any) {
-    log.error(`Putting '${key}': ${value}`)
     await this.db.put(key, value)
   }
 
@@ -62,7 +60,6 @@ export class LocalDB {
       log(`${value} not found in ${key}`)
       return null
     }
-    
   }
 
   public async initPeersStats(peers: string[]) {
@@ -77,17 +74,12 @@ export class LocalDB {
     }
   }
 
-
-  public async getSortedPeers(): Promise<string[]> {
-    const stats = []
-    const peersAddresses = []
-    const peersStats = this.get(LocalDBKeys.PEERS) || {}
-    for await (const [peerAddress, peerStats] of Object.entries(peersStats)) {
-      console.log('peers addresses from db', peerAddress, peerStats)
-      stats.push(peerStats)
-      peersAddresses.push(peerAddress)
-    }
-    return sortPeers(peersAddresses, stats)
+  public async getSortedPeers(peers: string[] = []): Promise<string[]> {
+    const peersStats = await this.get(LocalDBKeys.PEERS) || {}
+    const peersAddresses: string[] = [...new Set(Object.keys(peersStats).concat(peers))]
+    const stats: NetworkStats[] = Object.values(peersStats)
+    const sortedPeers = sortPeers(peersAddresses, stats)
+    return sortedPeers
   }
 
 }

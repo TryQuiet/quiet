@@ -219,7 +219,7 @@ export class ConnectionsManager extends EventEmitter {
     const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
 
     if (community) {
-      const sortedPeers = await this.localStorage.getSortedPeers()
+      const sortedPeers = await this.localStorage.getSortedPeers(community.peers)
       if (sortedPeers.length > 0) {
         community.peers = sortedPeers
       }
@@ -647,43 +647,45 @@ export class ConnectionsManager extends EventEmitter {
     })
 
     libp2p.connectionManager.addEventListener('peer:connect', async (peer) => {
-      log(`${params.peerId.toString()} connected to ${peer.detail.id}`)
-      this.connectedPeers.set(peer.detail.id, DateTime.utc().valueOf())
+      const remotePeerId = peer.detail.remotePeer.toString()
+      log(`${params.peerId.toString()} connected to ${remotePeerId}`)
+      this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
  
       this.emit(Libp2pEvents.PEER_CONNECTED, {
-        peers: [peer.detail.id]
+        peers: [remotePeerId]
       })
     })
 
     libp2p.connectionManager.addEventListener('peer:disconnect', async (peer) => {
-      log(`${params.peerId.toString()} disconnected from ${peer.detail.id}`)
+      const remotePeerId = peer.detail.remotePeer.toString()
+      log(`${params.peerId.toString()} disconnected from ${remotePeerId}`)
 
-      const connectionStartTime = this.connectedPeers.get(peer.detail.id)
+      const connectionStartTime = this.connectedPeers.get(remotePeerId)
 
       const connectionEndTime: number = DateTime.utc().valueOf()
 
       const connectionDuration: number = connectionEndTime - connectionStartTime
 
-      this.connectedPeers.delete(peer.detail.id)
+      this.connectedPeers.delete(remotePeerId)
       
       // Get saved peer stats from db
-      const peerAddress = peer.detail.remoteAddr.toString()
-      const peerPrevStats = await this.localStorage.find(LocalDBKeys.PEERS, peerAddress)
+      const remotePeerAddress = peer.detail.remoteAddr.toString()
+      const peerPrevStats = await this.localStorage.find(LocalDBKeys.PEERS, remotePeerAddress)
       const prev = peerPrevStats?.connectionTime || 0
 
       const peerStats: NetworkStats = {
-        peerId: peer.detail.id,
+        peerId: remotePeerId,
         connectionTime: prev + connectionDuration,
         lastSeen: connectionEndTime
       }
 
       // Save updates stats to db
       await this.localStorage.update(LocalDBKeys.PEERS, {
-        [peerAddress]: peerStats
+        [remotePeerAddress]: peerStats
       })
 
       this.emit(Libp2pEvents.PEER_DISCONNECTED, {
-        peer: peer.detail.id,
+        peer: remotePeerId,
         connectionDuration,
         lastSeen: connectionEndTime
       })
