@@ -57,10 +57,6 @@ export class JoinCommunityModal {
   }
 
   async typeCommunityCode(code: string) {
-    // const communityNameInput = Selector('input').withAttribute('placeholder', 'Invite code')
-    // log(`Typing community invitation code: '${code}'`)
-    // await t.typeText(communityNameInput, code)
-
     const communityNameInput = await this.driver.findElement(
       By.xpath('//input[@placeholder="Invite code"]')
     )
@@ -68,9 +64,6 @@ export class JoinCommunityModal {
   }
 
   async submit() {
-    // const continueButton = Selector('button').withAttribute('data-testid', 'continue-joinCommunity')
-    // await t.click(continueButton)
-
     const continueButton = await this.driver.findElement(
       By.xpath('//button[@data-testid="continue-joinCommunity"]')
     )
@@ -117,6 +110,36 @@ export class Channel {
     return this.driver.findElement(By.xpath(`//span[text()="#${this.name}}"]`))
   }
 
+  // ______________________________________
+
+  // TO TEST
+
+  get messagesList() {
+    // return Selector('ul').withAttribute('id', 'messages-scroll')
+    return this.driver.findElement(By.xpath('//ul[@id="messages-scroll"]'))
+  }
+
+  async messagesGroup() {
+    // return this.messagesList.find('li')
+    const messagesList = await this.messagesList
+    return await messagesList.findElement(By.css('li'))
+  }
+
+  async messagesGroupContent() {
+    // return this.messagesGroup.find('p').withAttribute('data-testid', /messagesGroupContent-/)
+    const messagesGroup = await this.messagesGroup()
+    return await messagesGroup.findElement(By.xpath('//p[@data-testid="/messagesGroupContent-/"]'))
+  }
+
+  get getAllMessages() {
+    // return Selector('div').withAttribute('data-testid', 'userMessages-')
+    return this.driver.wait(
+      until.elementsLocated(By.xpath('//*[contains(@data-testid, "userMessages-")]'))
+    )
+  }
+
+  // ____________________________
+
   get element() {
     return this.driver.wait(until.elementLocated(By.xpath('//p[@data-testid="general-link-text"]')))
   }
@@ -132,12 +155,6 @@ export class Channel {
   }
 
   async getUserMessages(username: string) {
-    // return this.driver.wait(
-    //   until.elementLocated(
-    //     By.xpath(`//div[@data-testid="${new RegExp(`userMessages-${username}`)}"]`)
-    //   )
-    // )
-
     return await this.driver.wait(
       until.elementsLocated(By.xpath(`//*[contains(@data-testid, "userMessages-${username}")]`))
     )
@@ -158,6 +175,51 @@ export class Sidebar {
     await button.click()
     return new Settings(this.driver)
   }
+
+  // ______________________________________
+
+  // TO TEST
+
+  async switchChannel(name: string) {
+    // const channelLink = Selector('div').withAttribute('data-testid', `${name}-link`)
+    // await t.expect(channelLink.exists).ok()
+    // await t.click(channelLink)
+    // return new Channel(name)
+
+    const channelLink = await this.driver.wait(
+      until.elementLocated(By.xpath(`//div[@data-testid="${name}-link"]`))
+    )
+    await channelLink.click()
+    return new Channel(this.driver, name)
+  }
+
+  async addNewChannel(name: string) {
+    // const button = Selector('button').withAttribute('data-testid', 'addChannelButton')
+    // await t.expect(button.exists).ok()
+    // await t.click(button)
+    // const channelNameInput = Selector('input').withAttribute('name', 'channelName')
+    // await t.typeText(channelNameInput, name)
+    // const channelNameButton = Selector('button').withAttribute('data-testid', 'channelNameSubmit')
+    // await t.click(channelNameButton)
+    // return new Channel(name)
+
+    const button = await this.driver.findElement(
+      By.xpath('//button[@data-testid="addChannelButton"]')
+    )
+    await button.click()
+
+    const channelNameInput = await this.driver.findElement(By.xpath('//input[@name="channelName"]'))
+    await channelNameInput.sendKeys(name)
+
+    const channelNameButton = await this.driver.findElement(
+      By.xpath('//button[@data-testid="channelNameSubmit"]')
+    )
+    await channelNameButton.click()
+
+    return new Channel(this.driver, name)
+  }
+
+  // ______________________________________
 }
 
 export class Settings {
@@ -193,5 +255,32 @@ export class Settings {
       .findElement(By.xpath('//div[@data-testid="settingsModalActions"]'))
       .findElement(By.css('button'))
     await closeButton.click()
+  }
+}
+export class DebugModeModal {
+  private readonly driver: ThenableWebDriver
+
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get element() {
+    return this.driver.findElement(By.xpath("//h3[text()='App is running in debug mode']"))
+  }
+
+  // TO TEST
+
+  async close() {
+    // if (await this.title.visible) {
+    //   log('Debug warning modal present. Closing.')
+    //   await t.wait(2000)
+    //   await t.click(Selector('button').withText('Understand'))
+    // }
+    const element = await this.element
+    if (await element.isDisplayed()) {
+      const understandBtn = await this.driver.findElement(By.xpath("//button[text()='Understand']"))
+
+      await understandBtn.click()
+    }
   }
 }
