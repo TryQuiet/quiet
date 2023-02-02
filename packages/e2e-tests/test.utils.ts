@@ -1,6 +1,6 @@
 import { Docker } from 'docker-cli-js'
 import { Browser, Builder, ThenableWebDriver } from 'selenium-webdriver'
-import { spawn } from 'child_process'
+import { spawn, exec } from 'child_process'
 
 export class BuildSetup {
   private docker: Docker
@@ -32,12 +32,12 @@ export class BuildSetup {
     this.dataDir = (Math.random() * 10 ** 18).toString(36)
 
     if (process.env.TEST_SYSTEM === 'windows') {
+      exec(`cd %APPDATA% % & mkdir ${this.dataDir}`, e => console.log({ e }))
       this.child = spawn(
-        `set DATA_DIR=${this.dataDir} & cd node_modules/.bin & chromedriver --port=${this.port}`,
+        `set DEBUG=backend* & set DATA_DIR=${this.dataDir} & cd node_modules/.bin & chromedriver.cmd --port=${this.port}`,
         [],
         {
           shell: true,
-          detached: true
         }
       )
     } else {

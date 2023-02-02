@@ -265,22 +265,17 @@ export class DebugModeModal {
   }
 
   get element() {
-    return this.driver.findElement(By.xpath("//h3[text()='App is running in debug mode']"))
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//h3[text()='App is running in debug mode']"))
+    )
   }
 
   // TO TEST
 
   async close() {
-    // if (await this.title.visible) {
-    //   log('Debug warning modal present. Closing.')
-    //   await t.wait(2000)
-    //   await t.click(Selector('button').withText('Understand'))
-    // }
-    const element = await this.element
-    if (await element.isDisplayed()) {
-      const understandBtn = await this.driver.findElement(By.xpath("//button[text()='Understand']"))
-
-      await understandBtn.click()
-    }
+    const understandBtn = await this.driver.wait(
+      until.elementLocated(By.xpath("//button[text()='Understand']"))
+    )
+    await understandBtn.click()
   }
 }

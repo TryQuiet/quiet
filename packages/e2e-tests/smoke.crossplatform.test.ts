@@ -2,6 +2,7 @@ import { ThenableWebDriver } from 'selenium-webdriver'
 import {
   Channel,
   CreateCommunityModal,
+  DebugModeModal,
   JoinCommunityModal,
   LoadingPanel,
   RegisterUsernameModal
@@ -31,6 +32,16 @@ describe('Smoke', () => {
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
       expect(isLoadingPanel).toBeTruthy()
     })
+
+    if (process.env.TEST_SYSTEM === 'windows') {
+      it('Debug Modal', async () => {
+        console.log('Debug Modal')
+        const debugModal = new DebugModeModal(driver)
+        const isDebugModal = await debugModal.element.isDisplayed()
+        expect(isDebugModal).toBeTruthy()
+        await debugModal.close()
+      })
+    }
 
     it('User sees "join community" page and switches to "create community" view by clicking on the link', async () => {
       console.log(2)
