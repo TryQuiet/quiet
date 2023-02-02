@@ -15,7 +15,7 @@ export const sortPeers = (peersAddresses: string[], stats: NetworkStats[]) => {
     return b.connectionTime - a.connectionTime
   })
 
-  const mostWantedPeers = []
+  const mostWantedPeers: NetworkStats[] = []
 
   for (let i = 0; i < stats.length; i++) {
     const peerOne = lastSeenSorted[i]
@@ -31,8 +31,11 @@ export const sortPeers = (peersAddresses: string[], stats: NetworkStats[]) => {
   }
 
   const peerList = mostWantedPeers.map((peerId) => {
+    console.log('mostWantedPeers.peerId', peerId.peerId)
     return peersAddresses.find((peerAddress) => {
+      console.log('mostWantedPeers.peerId peersAddresses.find', peerId.peerId)
       const id = peerAddress.split('/')[7]
+      console.log('mostWantedPeers.peerId peersAddresses.find', id, peerId.peerId)
       if (id === peerId.peerId) {
         peersAddresses.splice(peersAddresses.indexOf(peerAddress), 1)
         return true

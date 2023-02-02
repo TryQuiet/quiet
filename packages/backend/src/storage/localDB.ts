@@ -19,7 +19,6 @@ export class LocalDB {
   constructor(baseDir: string) {
     this.dbPath = path.join(baseDir, 'backendDB')
     this.db = new Level<string, any>(this.dbPath, { valueEncoding: 'json' })
-    // this.peers = this.db.sublevel<string, NetworkStats>(LocalDBKeys.PEERS, { valueEncoding: 'json' })
   }
 
   public async close() {
@@ -43,34 +42,28 @@ export class LocalDB {
   }
 
   public async update(key: string, value: Object) {
+    /**
+     * Update data instead of replacing it
+     */
     const data = await this.get(key)
     if (!data) {
       await this.put(key, value)
-      return
+      return null
     }
     const updatedObj = Object.assign(data, value)
     await this.put(key, updatedObj)
   }
 
   public async find(key: string, value: string) {
+    /**
+     * Find and return nested key
+     */
     const obj = await this.get(key)
     try {
       return obj[value]
     } catch (e) {
       log(`${value} not found in ${key}`)
       return null
-    }
-  }
-
-  public async initPeersStats(peers: string[]) {
-    // Save info about existing peers
-    // Do we care about them?
-    const batchOperations = []
-    for (const peerAddress of peers) {
-      batchOperations.push({ type: 'put', sublevel: this.peers, key: peerAddress, value: {} })
-    }
-    if (batchOperations.length > 0) {
-      await this.db.batch(batchOperations)
     }
   }
 
