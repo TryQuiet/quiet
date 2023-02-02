@@ -10,7 +10,7 @@ export function root(args) {
 }
 
 export default {
-    mode: process.env.WEBPACK_MODE === 'production' ? 'production' : 'development',
+    mode: 'development',
     target: 'node',
     entry: {
         bundle: path.resolve(__dirname, 'src', 'backendManager.ts')
@@ -57,6 +57,9 @@ export default {
         new webpack.NormalModuleReplacementPlugin(
             /node_modules[\/\\]ipfs-utils[\/\\]src[\/\\]fetch.js/,
             root(path.join('node_modules', 'electron-fetch', 'lib', 'index.js'))
-        )
+        ),
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': 'production'
+        })
     ]
 }
