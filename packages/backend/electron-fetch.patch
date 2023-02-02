@@ -1,11 +1,9 @@
---- node_modules/electron-fetch/lib/index.js	2023-01-14 16:53:20.406347222 +0100
-+++ node_modules/electron-fetch/lib/copy.js	2023-01-14 16:53:55.222621957 +0100
-@@ -1281,13 +1281,7 @@
-   });
- }
+--- node_modules/electron-fetch/lib/index.js	2023-02-02 10:04:57.162302045 +0100
++++ node_modules/electron-fetch/lib/index.backup.js	2023-02-02 10:16:12.140781319 +0100
+@@ -1283,11 +1283,7 @@
  
--let electron; // istanbul ignore else
--
+ let electron; // istanbul ignore else
+ 
 -if (process.versions.electron) {
 -  electron = require('electron');
 -}

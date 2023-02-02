@@ -1,5 +1,5 @@
-const { setEngine, CryptoEngine } = require('pkijs')
-const { Crypto } = require('@peculiar/webcrypto')
+import { setEngine, CryptoEngine } from'pkijs'
+import { Crypto } from '@peculiar/webcrypto'
 
 // jest.mock('node-fetch')
 const crypto = new Crypto();

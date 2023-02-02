@@ -371,9 +371,9 @@ app.on('ready', async () => {
     '-p', 'desktop'
   ]
 
-  const backendBundlePath = isDev ? './node_modules/backend-bundle/bundle.cjs' : './bundle.cjs'
+  const backendBundlePath = require.resolve('backend-bundle')
 
-  backendProcess = fork(backendBundlePath, forkArgvs)
+  backendProcess = fork(path.normalize(backendBundlePath), forkArgvs)
   log('Forked backend, PID:', backendProcess.pid)
 
   backendProcess.on('error', e => {
