@@ -11,6 +11,10 @@ runs:
     - name: Install electron-builder globally
       run: npm i -g electron-builder@23.6.0
       shell: bash
+    
+    - name: Bundle backend for production
+      run: cd packages/desktop && npm run webpack:prod
+      shell: bash
 
     - name: "Pull tor binary"
       if: ${{ inputs.source-path == 'linux' || inputs.source-path == 'darwin' }}
