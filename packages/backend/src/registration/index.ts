@@ -12,6 +12,7 @@ import {
 import logger from '../logger'
 import { registerOwner, registerUser, RegistrationResponse, sendCertificateRegistrationRequest } from './functions'
 import { RegistrationEvents } from './types'
+import { ServiceState } from '../libp2p/types'
 
 const log = logger('registration')
 
@@ -109,6 +110,7 @@ export class CertificateRegistration extends EventEmitter {
   }
 
   public async launchRegistrar(payload: LaunchRegistrarPayload): Promise<void> {
+    this.emit(RegistrationEvents.REGISTRAR_STATE, ServiceState.LAUNCHING)
     this._permsData = {
       certificate: payload.rootCertString,
       privKey: payload.rootKeyString
@@ -125,6 +127,7 @@ export class CertificateRegistration extends EventEmitter {
     } catch (err) {
       log.error(`Certificate registration service couldn't start listening: ${err as string}`)
     }
+    this.emit(RegistrationEvents.REGISTRAR_STATE, ServiceState.LAUNCHED)
   }
 
   public async init(privKey: string): Promise<void> {

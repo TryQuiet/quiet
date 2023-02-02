@@ -73,7 +73,7 @@ import logger from '../logger'
 import getPort from 'get-port'
 import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
-import { Libp2pEvents } from './types'
+import { Libp2pEvents, ServiceState } from './types'
 import PeerId from 'peer-id'
 import { LocalDB, LocalDBKeys } from '../storage/localDB'
 
@@ -132,13 +132,13 @@ export class ConnectionsManager extends EventEmitter {
   storage: Storage
   dataServer: DataServer
   communityId: string
-  isRegistrarLaunched: boolean
   torAuthCookie: string
   torControlPort: number
   torBinaryPath: string
   torResourcesPath: string
   localStorage: LocalDB
-  launchingCommunity: boolean
+  communityState: ServiceState
+  registrarState: ServiceState
 
   constructor({ options, socketIOPort, httpTunnelPort, torControlPort, torAuthCookie, torResourcesPath, torBinaryPath }: IConstructor) {
     super()
@@ -157,8 +157,8 @@ export class ConnectionsManager extends EventEmitter {
     this.httpTunnelPort = httpTunnelPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
-    this.isRegistrarLaunched = false
-    this.launchingCommunity = false
+    this.communityState = ServiceState.DEFAULT
+    this.registrarState = ServiceState.DEFAULT
 
     // Does it work?
     process.on('unhandledRejection', error => {
@@ -230,7 +230,6 @@ export class ConnectionsManager extends EventEmitter {
     const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
     if (registrarData) {
       await this.registration.launchRegistrar((registrarData))
-      this.isRegistrarLaunched = true
     }    
   }
 
@@ -335,7 +334,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
-    this.launchingCommunity = true
+    this.communityState = ServiceState.LAUNCHING
     const communityData = await this.localStorage.get(LocalDBKeys.COMMUNITY)
     if (!communityData) {
       await this.localStorage.put(LocalDBKeys.COMMUNITY, payload)
@@ -355,7 +354,7 @@ export class ConnectionsManager extends EventEmitter {
 
     log(`Launched community ${payload.id}`)
     this.communityId = payload.id
-    this.launchingCommunity = false
+    this.communityState = ServiceState.LAUNCHED
     this.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
 
@@ -417,6 +416,9 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   private attachRegistrationListeners = () => {
+    this.registration.on(RegistrationEvents.REGISTRAR_STATE, (payload: ServiceState) => {
+      this.registrarState = payload
+    })
     this.registration.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload => {
       this.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
     })
@@ -456,18 +458,17 @@ export class ConnectionsManager extends EventEmitter {
       await this.createCommunity(args)
     })
     this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => {
-      if (this.communityId || this.launchingCommunity) return
+      if (this.communityId || this.communityState === ServiceState.LAUNCHING) return
       await this.launchCommunity(args)
     })
     // Registration
     this.dataServer.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
-      if (this.isRegistrarLaunched) return
+      if (this.registrarState === ServiceState.LAUNCHED || this.registrarState === ServiceState.LAUNCHING) return
       const communityData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
       if (!communityData) {
         await this.localStorage.put(LocalDBKeys.REGISTRAR, args)
       }
       await this.registration.launchRegistrar(args)
-      this.isRegistrarLaunched = true
     })
     this.dataServer.on(
       SocketActionTypes.SAVED_OWNER_CERTIFICATE,
