@@ -172,7 +172,7 @@ jobs:
         shell: cmd
 
       - name: DIR APPDATA
-        run: dir %LOCALAPPDATA%\Programs
+        run: dir %LOCALAPPDATA%\Programs\quiet
         shell: cmd
 
       - name: env
