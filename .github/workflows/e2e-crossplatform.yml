@@ -128,8 +128,8 @@ jobs:
         shell: bash
 
       - name: Install exe
-        run: cd packages/e2e-tests/Quiet && start Quiet.Setup.0.19.17-alpha.0.exe
-        shell: bash
+        run: cd packages/e2e-tests/Quiet & start Quiet.Setup.0.19.17-alpha.0.exe
+        shell: cmd
 
       - name: cd C
         run: cd C:\ & dir
@@ -173,6 +173,10 @@ jobs:
 
       - name: DIR APPDATA
         run: dir %LOCALAPPDATA%\Programs\quiet
+        shell: cmd
+
+      - name: start Quiet/exe
+        run: start %LOCALAPPDATA%\Programs\quiet\Quiet.exe
         shell: cmd
 
       - name: env
