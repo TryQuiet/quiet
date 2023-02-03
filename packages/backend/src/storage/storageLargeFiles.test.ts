@@ -18,6 +18,7 @@ import {
   PublicChannelStorage,
   FileMetadata
 } from '@quiet/state-manager'
+import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
 
 describe('Storage', () => {
   let tmpDir: DirResult
@@ -107,7 +108,7 @@ describe('Storage', () => {
     await storage.uploadFile(metadata)
     expect(copyFileSpy).toHaveBeenCalled()
     const newFilePath = copyFileSpy.mock.results[0].value
-    metadata.path = newFilePath
+    metadata.path = newFilePath as string
     expect(eventSpy).toHaveBeenNthCalledWith(1, 'adsf')
     // expect(uploadSpy).toHaveBeenCalled()
     // expect(uploadSpy).toBeCalledWith(expect.objectContaining({

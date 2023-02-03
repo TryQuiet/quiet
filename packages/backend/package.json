@@ -39,7 +39,7 @@
           "clearMocks": true,
           "coverageProvider": "v8",
           "transformIgnorePatterns": [
-            "node_modules/(?!p-defer|peer-id|iso-constants)"
+            "node_modules/(?!p-defer|peer-id)"
           ],
 	  "testTimeout": 40000,
 	  "setupFiles": [
