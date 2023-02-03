@@ -131,5 +131,12 @@ jobs:
       - name: DIR
         run: dir
 
+      - name: appdata local
+        run: cd %appdatalocal%
+
+      - name: appdata
+        run: cd %appdata%
+
+
       - name: Run smoke test
         run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
