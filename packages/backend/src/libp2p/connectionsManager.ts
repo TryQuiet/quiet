@@ -230,7 +230,7 @@ export class ConnectionsManager extends EventEmitter {
     const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
     if (registrarData) {
       await this.registration.launchRegistrar((registrarData))
-    }    
+    }
   }
 
   public async closeAllServices() {
@@ -650,7 +650,7 @@ export class ConnectionsManager extends EventEmitter {
       const remotePeerId = peer.detail.remotePeer.toString()
       log(`${params.peerId.toString()} connected to ${remotePeerId}`)
       this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
- 
+
       this.emit(Libp2pEvents.PEER_CONNECTED, {
         peers: [remotePeerId]
       })
@@ -667,7 +667,7 @@ export class ConnectionsManager extends EventEmitter {
       const connectionDuration: number = connectionEndTime - connectionStartTime
 
       this.connectedPeers.delete(remotePeerId)
-      
+
       // Get saved peer stats from db
       const remotePeerAddress = peer.detail.remoteAddr.toString()
       const peerPrevStats = await this.localStorage.find(LocalDBKeys.PEERS, remotePeerAddress)

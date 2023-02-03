@@ -1,6 +1,6 @@
-import { NetworkStats, sortPeers } from "@quiet/state-manager"
-import {Level} from 'level'
-import path from "path"
+import { NetworkStats, sortPeers } from '@quiet/state-manager'
+import { Level } from 'level'
+import path from 'path'
 import logger from '../logger'
 
 const log = logger('levelDB')
@@ -22,7 +22,7 @@ export class LocalDB {
   }
 
   public async close() {
-    log(`Closing leveldb`)
+    log('Closing leveldb')
     await this.db.close()
   }
 
@@ -74,5 +74,4 @@ export class LocalDB {
     const sortedPeers = sortPeers(peersAddresses, stats)
     return sortedPeers
   }
-
 }
