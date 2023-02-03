@@ -131,13 +131,19 @@ jobs:
       - name: DIR
         run: dir
 
-      - name: cd..
+      - name: cd ..
         shell: bash
-        run: cd..
+        run: cd ..
 
       - name: DIR
         run: dir
+        
+      - name: cd ..
+        shell: bash
+        run: cd ..
 
+      - name: DIR
+        run: dir
 
       - name: Run smoke test
         run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
