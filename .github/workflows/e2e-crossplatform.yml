@@ -132,10 +132,10 @@ jobs:
         run: dir
 
       - name: appdata local
-        run: cd %appdatalocal%
+        run: cd ${{ env.LOCALAPPDATA }}
 
-      - name: appdata
-        run: cd %appdata%
+      - name: DIR
+        run: dir
 
 
       - name: Run smoke test
