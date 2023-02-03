@@ -131,8 +131,12 @@ jobs:
         run: cd packages/e2e-tests/Quiet && start Quiet.Setup.0.19.17-alpha.0.exe
         shell: bash
 
+      - name: echo appdata
+        run: echo ${{ env.LOCALAPPDATA }}
+        shell: bash
+
       - name: check appdata
-        run: cd {{ env.LOCALAPPDATA }} & ls
+        run: cd ${{ env.LOCALAPPDATA }} & ls
         shell: bash
 
       - name: Run smoke test
