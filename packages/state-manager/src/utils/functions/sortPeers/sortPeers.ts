@@ -1,4 +1,4 @@
-import { NetworkStats } from "../../../sagas/appConnection/connection.types"
+import { NetworkStats } from '../../../sagas/appConnection/connection.types'
 
 /**
 This is the very simple algorithm for evaluating the most wanted peers.
