@@ -140,6 +140,14 @@ jobs:
         run: cd D:\a & dir
         shell: cmd
 
+      - name: cd D a quiet
+        run: cd D:\a\quiet & dir
+        shell: cmd
+
+      - name: cd D a _temp
+        run: cd D:\a\_temp & dir
+        shell: cmd
+
       - name: AppData & dir
         run: cd & %AppData% & dir
         shell: cmd
