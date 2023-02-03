@@ -101,3 +101,35 @@ jobs:
 
       - name: Run smoke test
         run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+
+
+
+  windows-for-test:
+    runs-on: windows-2019
+    timeout-minutes: 45
+    env:
+      TEST_SYSTEM: windows
+      ELECTRON_CUSTOM_VERSION: 19.0.5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # - name: "Setup environment"
+      #   uses: ./.github/actions/setup-env
+      #   with:
+      #     bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
+
+      - name: Download EXE
+        run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet.Setup.0.19.17-alpha.0.exe
+
+      - name: Chmod
+        run: cd packages/e2e-tests/Quiet && chmod +x Quiet.Setup.0.19.17-alpha.0.exe
+
+      - name: Install exe
+        run: cd packages/e2e-tests/Quiet && start Quiet.Setup.0.19.17-alpha.0.exe
+
+      - name: DIR
+        run: dir
+
+      - name: Run smoke test
+        run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
