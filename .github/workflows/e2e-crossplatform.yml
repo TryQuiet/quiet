@@ -120,13 +120,13 @@ jobs:
       #     bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
 
       - name: Download EXE
-        run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet.Setup.0.19.17-alpha.0.exe
+        run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.16.0/Quiet.Setup.0.16.0.exe
 
       - name: Chmod
-        run: cd packages/e2e-tests/Quiet && chmod +x Quiet.Setup.0.19.17-alpha.0.exe
+        run: cd packages/e2e-tests/Quiet && chmod +x Quiet.Setup.0.16.0.exe
 
       - name: Install exe
-        run: cd packages/e2e-tests/Quiet && start Quiet.Setup.0.19.17-alpha.0.exe
+        run: cd packages/e2e-tests/Quiet && start Quiet.Setup.0.16.0.exe
 
       - name: DIR
         run: dir
