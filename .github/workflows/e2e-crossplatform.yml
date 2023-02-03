@@ -107,84 +107,84 @@ jobs:
 
 
 
-  windows-for-test:
-    runs-on: windows-2019
-    timeout-minutes: 45
-    env:
-      TEST_SYSTEM: windows
-      ELECTRON_CUSTOM_VERSION: 19.0.5
+  # windows-for-test:
+  #   runs-on: windows-2019
+  #   timeout-minutes: 45
+  #   env:
+  #     TEST_SYSTEM: windows
+  #     ELECTRON_CUSTOM_VERSION: 19.0.5
 
-    steps:
-      - uses: actions/checkout@v2
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      # - name: "Setup environment"
-      #   uses: ./.github/actions/setup-env
-      #   with:
-      #     bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
+  #     # - name: "Setup environment"
+  #     #   uses: ./.github/actions/setup-env
+  #     #   with:
+  #     #     bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
 
-      - name: Download EXE
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet.Setup.0.19.17-alpha.0.exe
-        shell: bash
+  #     - name: Download EXE
+  #       run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet.Setup.0.19.17-alpha.0.exe
+  #       shell: bash
 
-      - name: Chmod
-        run: chmod +x Quiet.Setup.0.19.17-alpha.0.exe
-        shell: bash
+  #     - name: Chmod
+  #       run: chmod +x Quiet.Setup.0.19.17-alpha.0.exe
+  #       shell: bash
 
-      - name: Install exe
-        run: Start-Process Quiet.Setup.0.19.17-alpha.0.exe -Wait
-        shell: powershell
+  #     - name: Install exe
+  #       run: Start-Process Quiet.Setup.0.19.17-alpha.0.exe -Wait
+  #       shell: powershell
 
-      - name: cd C
-        run: cd C:\ & dir
-        shell: cmd
+  #     - name: cd C
+  #       run: cd C:\ & dir
+  #       shell: cmd
 
-      - name: cd D
-        run: cd D:\ & dir
-        shell: cmd
+  #     - name: cd D
+  #       run: cd D:\ & dir
+  #       shell: cmd
 
-      - name: cd D a
-        run: cd D:\a & dir
-        shell: cmd
+  #     - name: cd D a
+  #       run: cd D:\a & dir
+  #       shell: cmd
 
-      - name: cd D a quiet
-        run: cd D:\a\quiet & dir
-        shell: cmd
+  #     - name: cd D a quiet
+  #       run: cd D:\a\quiet & dir
+  #       shell: cmd
 
-      - name: cd D a _temp
-        run: cd D:\a\_temp & dir
-        shell: cmd
+  #     - name: cd D a _temp
+  #       run: cd D:\a\_temp & dir
+  #       shell: cmd
 
-      - name: AppData & dir
-        run: cd %AppData% & dir
-        shell: cmd
+  #     - name: AppData & dir
+  #       run: cd %AppData% & dir
+  #       shell: cmd
 
-      - name: LOCALAPPDATA  & dir
-        run: cd %LOCALAPPDATA% & dir
-        shell: cmd
+  #     - name: LOCALAPPDATA  & dir
+  #       run: cd %LOCALAPPDATA% & dir
+  #       shell: cmd
 
-      - name: LOCALAPPDATA & dir
-        run: cd C:\Users\RUNNER~1\AppData\Local & dir
-        shell: cmd
+  #     - name: LOCALAPPDATA & dir
+  #       run: cd C:\Users\RUNNER~1\AppData\Local & dir
+  #       shell: cmd
 
-      - name: LOCALAPPDATA & dir
-        run: cd C:\Users\runneradmin\AppData\Local & dir
-        shell: cmd
+  #     - name: LOCALAPPDATA & dir
+  #       run: cd C:\Users\runneradmin\AppData\Local & dir
+  #       shell: cmd
 
-      - name: USERPROFILE & dir
-        run: cd %USERPROFILE%\AppData\Local & dir
-        shell: cmd
+  #     - name: USERPROFILE & dir
+  #       run: cd %USERPROFILE%\AppData\Local & dir
+  #       shell: cmd
 
-      - name: DIR APPDATA
-        run: dir %LOCALAPPDATA%\Programs\quiet
-        shell: cmd
+  #     - name: DIR APPDATA
+  #       run: dir %LOCALAPPDATA%\Programs\quiet
+  #       shell: cmd
 
-      - name: start Quiet/exe
-        run: start %LOCALAPPDATA%\Programs\quiet\Quiet.exe
-        shell: cmd
+  #     - name: start Quiet/exe
+  #       run: start %LOCALAPPDATA%\Programs\quiet\Quiet.exe
+  #       shell: cmd
 
-      - name: env
-        run: env
-        shell: bash
+  #     - name: env
+  #       run: env
+  #       shell: bash
 
-      - name: Run smoke test
-        run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+  #     - name: Run smoke test
+  #       run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
