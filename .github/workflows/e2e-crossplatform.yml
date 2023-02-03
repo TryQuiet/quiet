@@ -171,6 +171,14 @@ jobs:
         run: cd %USERPROFILE%\AppData\Local & dir
         shell: cmd
 
+      - name: DIR APPDATA
+        run: dir %LOCALAPPDATA%
+        shell: cmd
+
+      - name: DIR USERPROFILE
+        run: dir %USERPROFILE%
+        shell: cmd
+
       - name: env
         run: env
         shell: bash
