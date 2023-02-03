@@ -129,7 +129,7 @@ jobs:
 
       - name: Install exe
         run: start Quiet.Setup.0.19.17-alpha.0.exe
-        shell: cmd
+        shell: bash
 
       - name: cd C
         run: cd C:\ & dir
