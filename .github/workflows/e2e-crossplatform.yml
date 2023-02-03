@@ -132,14 +132,12 @@ jobs:
         run: dir
 
       - name: cd ..
-        shell: bash
         run: cd ..
 
       - name: DIR
         run: dir
-        
+
       - name: cd ..
-        shell: bash
         run: cd ..
 
       - name: DIR
