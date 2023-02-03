@@ -1,7 +1,7 @@
 import fs from 'fs'
 import getPort from 'get-port'
 import type { Libp2p } from 'libp2p'
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import createHttpsProxyAgent from 'https-proxy-agent'
 import path from 'path'
 import PeerId from 'peer-id'
 import tmp from 'tmp'
@@ -64,7 +64,7 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
     peerId,
     listenAddresses: [createLibp2pListenAddress('localhost')],
     bootstrapMultiaddrsList: testBootstrapMultiaddrs,
-    agent: new HttpsProxyAgent({ port: 1234, host: 'localhost' }),
+    agent: createHttpsProxyAgent({ port: 1234, host: 'localhost' }),
     localAddress: createLibp2pAddress('localhost', peerId.toString()),
     cert: pems.userCert,
     key: pems.userKey,

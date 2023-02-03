@@ -16,7 +16,7 @@
 		"version": "git add -A src",
 		"lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
 		"lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
-		"test": "NODE_OPTIONS=--experimental-vm-modules cross-env DEBUG=ipfs:*,backend:* jest ./src/**/* --runInBand --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)\"",
+		"test": "NODE_OPTIONS=--experimental-vm-modules DEBUG=ipfs:*,backend:* node_modules/jest/bin/jest.js ./src/**/* --runInBand --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)\"",
 		"test-ci": "NODE_OPTIONS=--experimental-vm-modules jest ./src/**/* --runInBand --colors --ci --silent --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)|src/.*\\.tor.test\\.(t|j)s|src/storage/storageLargeFiles.test.ts$\"",
 		"test-ci-tor": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --colors --ci --silent --verbose --testPathPattern=\"src/.*\\.tor.test\\.(t|j)s$\"",
 		"test-ci-long-running": "NODE_OPTIONS=--experimental-vm-modules jest --colors --ci --silent --verbose src/storage/storageLargeFiles.test.ts",
@@ -35,27 +35,24 @@
 		"package-lock.json"
 	],
 	"jest": {
-		"transform": {
-			"^.+\\.tsx?$": "ts-jest",
-			"^.+\\.jsx?$": "babel-jest"
-		},
-		"testPathIgnorePatterns": [],
-		"transformIgnorePatterns": [],
-		"testRegex": "src/.*\\.test\\.(t|j)s$",
-		"testEnvironment": "node",
-		"testTimeout": 40000,
-		"setupFiles": [
-			"./jestSetup.js"
-		]
+          "preset": "ts-jest/presets/default-esm",
+          "clearMocks": true,
+          "coverageProvider": "v8",
+          "transformIgnorePatterns": [
+            "node_modules/(?!p-defer|peer-id|iso-constants)"
+          ],
+	  "testTimeout": 40000,
+	  "setupFiles": [
+	    "./jestSetup.js"
+	  ],
+          "testEnvironment": "jest-environment-node"
 	},
 	"devDependencies": {
 		"@types/crypto-js": "^4.0.2",
 		"@types/express": "^4.17.9",
-		"@types/jest": "^26.0.23",
 		"@types/node": "16.11.7",
 		"@types/node-fetch": "^2.5.11",
 		"@types/orbit-db": "git+https://github.com/orbitdb/orbit-db-types.git",
-		"@types/socket.io": "^2.1.12",
 		"@types/validator": "^13.1.4",
 		"@types/ws": "8.5.3",
 		"@typescript-eslint/eslint-plugin": "^4.33.0",
@@ -126,7 +123,7 @@
 		"peer-id": "^0.16.0",
 		"pkijs": "3.0.8",
 		"secp256k1": "4.0.3",
-		"socket.io": "3.0.5",
+		"socket.io": "^4.5.4",
 		"socks-proxy-agent": "^5.0.0",
 		"ts-jest-resolver": "^2.0.0",
 		"validator": "^13.6.0"

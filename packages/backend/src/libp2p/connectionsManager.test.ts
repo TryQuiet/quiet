@@ -2,6 +2,7 @@ import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { createTmpDir, tmpQuietDirPath } from '../common/testUtils'
 import { ConnectionsManager } from './connectionsManager'
+import { jest, beforeEach, describe, it, expect } from '@jest/globals'
 
 let tmpDir: DirResult
 let tmpAppDataPath: string

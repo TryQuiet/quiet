@@ -1,3 +1,3 @@
-import logger from '@quiet/logger'
+import { logger } from '@quiet/logger'
 
 export default logger('backend')
