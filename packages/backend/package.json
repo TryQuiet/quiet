@@ -11,7 +11,7 @@
 		"build": "tsc -p tsconfig.build.json",
 		"webpack": "webpack --env mode=development && cp ./lib/bundle.cjs ../backend-bundle/bundle.cjs",
 		"webpack:prod": "webpack --env mode=production && cp ./lib/bundle.cjs ../backend-bundle/bundle.cjs",
-		"applyPatches": "patch -p0 < ./electron-fetch.patch || true && patch -p0 --forward --binary < ./parse-duration.patch || true && patch -p0 --forward --binary < ./parse-duration-esm.patch || true",
+		"applyPatches": "patch -p0 < ./electron-fetch.patch || true && patch -p0 --forward --binary < ./parse-duration.patch || true && patch -p0 --forward --binary < ./parse-duration-esm.patch || true && patch -p0 < ./iso-constants.patch && true",
 		"prepare": "npm run applyPatches && npm run build && npm run webpack",
 		"version": "git add -A src",
 		"lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
