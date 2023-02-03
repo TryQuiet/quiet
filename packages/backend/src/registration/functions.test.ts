@@ -8,6 +8,10 @@ import { CertificateRegistration } from '.'
 import { createTmpDir } from '../common/testUtils'
 import { registerOwner, registerUser, sendCertificateRegistrationRequest } from './functions'
 import { RegistrationEvents } from './types'
+import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
+
+// TODO:JEST
+// @ts-ignore
 const { Response } = jest.requireActual('node-fetch')
 
 describe('Registration service', () => {

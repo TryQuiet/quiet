@@ -3,6 +3,8 @@ import { DirResult } from 'tmp'
 import { createTmpDir, tmpQuietDirPath } from '../common/testUtils'
 import * as utils from '../common/utils'
 import { ConnectionsManager } from './connectionsManager'
+import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
+
 jest.setTimeout(100_000)
 
 let tmpDir: DirResult
