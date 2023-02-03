@@ -133,6 +133,11 @@ jobs:
 
       - name: DIR
         run: dir
+        run: |
+          cd C:\Users\runneradmin\AppData\Local
+          dir
+
+
 
       - name: Run smoke test
         run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
