@@ -76,7 +76,7 @@ jobs:
       #   run: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
 
   windows:
-    runs-on: windows-latest
+    runs-on: windows-2019
     timeout-minutes: 45
     env:
       TEST_SYSTEM: windows
@@ -105,7 +105,7 @@ jobs:
 
 
   windows-for-test:
-    runs-on: windows-latest
+    runs-on: windows-2019
     timeout-minutes: 45
     env:
       TEST_SYSTEM: windows
