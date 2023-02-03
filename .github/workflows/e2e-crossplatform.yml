@@ -132,7 +132,8 @@ jobs:
         run: dir
 
       - name: appdata local
-        run: cd ${{ env.LOCALAPPDATA }}
+        shell: bash
+        run: cd %LocalAppData%
 
       - name: DIR
         run: dir
