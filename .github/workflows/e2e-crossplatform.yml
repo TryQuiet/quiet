@@ -133,11 +133,11 @@ jobs:
 
       - name: LOCALAPPDATA & dir
         run: cd C:\Users\RUNNER~1\AppData\Local & dir
-        # shell: bash
+        shell: cmd
 
       - name: LOCALAPPDATA & dir
         run: cd C:\Users\runneradmin\AppData\Local & dir
-        # shell: bash
+        shell: cmd
 
       - name: env
         run: env
