@@ -131,6 +131,15 @@ jobs:
         run: cd packages/e2e-tests/Quiet && start Quiet.Setup.0.19.17-alpha.0.exe
         shell: bash
 
+
+      - name: cd D
+        run: cd D:\ & dir
+        shell: cmd
+
+      - name: cd D a
+        run: cd D:\a & dir
+        shell: cmd
+
       - name: AppData & dir
         run: cd & %AppData% & dir
         shell: cmd
