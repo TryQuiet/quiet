@@ -167,6 +167,10 @@ jobs:
         run: cd C:\Users\runneradmin\AppData\Local & dir
         shell: cmd
 
+      - name: USERPROFILE & dir
+        run: cd %USERPROFILE%\AppData\Local & dir
+        shell: cmd
+
       - name: env
         run: env
         shell: bash
