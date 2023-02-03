@@ -131,17 +131,13 @@ jobs:
         run: cd packages/e2e-tests/Quiet && start Quiet.Setup.0.19.17-alpha.0.exe
         shell: bash
 
-      - name: echo env
-        run: echo env
+      - name: LOCALAPPDATA & ls
+        run: cd $LOCALAPPDATA & ls
         shell: bash
 
       - name: env
         run: env
         shell: bash
-
-      # - name: check appdata
-      #   run: cd ${{ env }} & ls
-      #   shell: bash
 
       - name: Run smoke test
         run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
