@@ -91,12 +91,15 @@ jobs:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
 
       - name: Download EXE
+        shell: bash
         run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet.Setup.0.19.17-alpha.0.exe
 
       - name: Chmod
+        shell: bash
         run: cd packages/e2e-tests/Quiet && chmod +x Quiet.Setup.0.19.17-alpha.0.exe
 
       - name: Install exe
+        shell: bash
         run: cd packages/e2e-tests/Quiet && start Quiet.Setup.0.19.17-alpha.0.exe
 
       - name: Run smoke test
@@ -120,24 +123,23 @@ jobs:
       #     bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
 
       - name: Download EXE
+        shell: bash
         run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet.Setup.0.19.17-alpha.0.exe
 
       - name: Chmod
+        shell: bash
         run: cd packages/e2e-tests/Quiet && chmod +x Quiet.Setup.0.19.17-alpha.0.exe
 
       - name: Install exe
+        shell: bash
         run: cd packages/e2e-tests/Quiet && start Quiet.Setup.0.19.17-alpha.0.exe
 
-      - name: cd C:\Users\runneradmin\AppData\Local
-        run: cd C:\Users\runneradmin\AppData\Local
-
-      - name: DIR
+      - name: DIR test
+        shell: bash
         run: dir
         run: |
-          cd C:\Users\runneradmin\AppData\Local
-          dir
-
-
+          cd C:/Users/runneradmin/AppData/Local
+          ls
 
       - name: Run smoke test
         run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
