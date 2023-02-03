@@ -21,8 +21,8 @@ export class BuildSetup {
         return `${__dirname}/Quiet/Quiet-0.16.0.AppImage`
       case 'windows':
         // eslint-disable-next-line no-useless-escape
-        // return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
-        return `${process.env.LOCALAPPDATA}/Programs/quiet/Quiet.exe`
+        return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
+        // return `${process.env.LOCALAPPDATA}/Programs/quiet/Quiet.exe`
       case 'mac':
         return '/Applications/Quiet.app/Contents/MacOS/Quiet'
       default:
