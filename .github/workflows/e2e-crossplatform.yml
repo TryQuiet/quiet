@@ -132,7 +132,7 @@ jobs:
         shell: bash
 
       - name: check appdata
-        run: cd %AppData% & ls
+        run: cd {{ env.LOCALAPPDATA }} & ls
         shell: bash
 
       - name: Run smoke test
