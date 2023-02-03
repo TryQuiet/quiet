@@ -4,7 +4,7 @@ import { Multiaddr } from 'multiaddr'
 import { Tor } from '../../torManager/index'
 import os from 'os'
 import * as utils from '../../common/utils'
-import HttpsProxyAgent from 'https-proxy-agent'
+import createHttpsProxyAgent from 'https-proxy-agent'
 import { createTmpDir, tmpQuietDirPath } from '../../common/testUtils'
 import { createCertificatesTestHelper } from '../tests/client-server'
 import { createLibp2pAddress } from '../../common/utils'
@@ -104,7 +104,7 @@ describe('websocketOverTor', () => {
     const peerId1 = 'Qme5NiSQ6V3cc3nyfYVtkkXDPGBSYEVUNCN5sM4DbyYc7s'
     const peerId2 = 'QmeCWxba5Yk1ZAKogQJsaHXoAermE7PgFZqpqyKNg65cSN'
 
-    const agent = HttpsProxyAgent({ host: 'localhost', port: httpTunnelPort })
+    const agent = createHttpsProxyAgent({ host: 'localhost', port: httpTunnelPort })
 
     const websocketsOverTorData1 = {
       filter: all,

@@ -1,6 +1,6 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import createHttpsProxyAgent from 'https-proxy-agent'
 
 import { peerIdFromKeys } from '@libp2p/peer-id'
 import { createLibp2p, Libp2p } from 'libp2p'
@@ -16,7 +16,7 @@ import { all } from './websocketOverTor/filters'
 
 import { DateTime } from 'luxon'
 
-import SocketIO from 'socket.io'
+import type SocketIO from 'socket.io'
 import * as os from 'os'
 import path from 'path'
 import fs from 'fs'
@@ -184,7 +184,7 @@ export class ConnectionsManager extends EventEmitter {
 
     log(`Creating https proxy agent: ${this.httpTunnelPort}`)
 
-    return new HttpsProxyAgent({ port: this.httpTunnelPort, host: 'localhost' })
+    return createHttpsProxyAgent({ port: this.httpTunnelPort, host: 'localhost' })
   }
 
   public init = async () => {

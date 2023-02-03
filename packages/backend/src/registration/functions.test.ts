@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, verifyUserCert, UserCsr } from '@quiet/identity'
 import { ErrorCodes, ErrorMessages, PermsData, SocketActionTypes } from '@quiet/state-manager'
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import createHttpsProxyAgent from 'https-proxy-agent'
 import { Time } from 'pkijs'
 import { DirResult } from 'tmp'
 import { CertificateRegistration } from '.'
@@ -129,7 +129,7 @@ describe('Registration service', () => {
       userCsr.userCsr,
       communityId,
       1000,
-      new HttpsProxyAgent({ port: '12311', host: 'localhost' })
+      createHttpsProxyAgent({ port: '12311', host: 'localhost' })
     )
     expect(response.eventType).toBe(RegistrationEvents.ERROR)
     expect(response.data).toEqual({
@@ -151,7 +151,7 @@ describe('Registration service', () => {
       userCsr.userCsr,
       communityId,
       1000,
-      new HttpsProxyAgent({ port: '12311', host: 'localhost' })
+      createHttpsProxyAgent({ port: '12311', host: 'localhost' })
     )
     expect(response.eventType).toBe(SocketActionTypes.SEND_USER_CERTIFICATE)
     expect(response.data).toEqual({
