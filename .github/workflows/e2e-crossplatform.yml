@@ -128,17 +128,8 @@ jobs:
       - name: Install exe
         run: cd packages/e2e-tests/Quiet && start Quiet.Setup.0.19.17-alpha.0.exe
 
-      - name: DIR
-        run: dir
-
-      - name: cd ..
-        run: cd ..
-
-      - name: DIR
-        run: dir
-
-      - name: cd ..
-        run: cd ..
+      - name: cd C:\Users\runneradmin\AppData\Local
+        run: cd C:\Users\runneradmin\AppData\Local
 
       - name: DIR
         run: dir
