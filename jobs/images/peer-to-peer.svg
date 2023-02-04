@@ -1,0 +1,41 @@
+<svg width="1120" height="465" viewBox="0 0 1120 465" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_228_6354)">
+<rect width="1120" height="465" fill="white"/>
+<ellipse opacity="0.1" cx="112.341" cy="374.41" rx="53" ry="29" fill="black"/>
+<ellipse cx="112.341" cy="372.41" rx="32" ry="17" fill="black"/>
+<ellipse opacity="0.1" cx="618.341" cy="374.41" rx="53" ry="29" fill="black"/>
+<ellipse cx="618.341" cy="372.41" rx="32" ry="17" fill="black"/>
+<ellipse opacity="0.1" cx="918.341" cy="374.41" rx="53" ry="29" fill="black"/>
+<ellipse cx="918.341" cy="372.41" rx="32" ry="17" fill="black"/>
+<ellipse opacity="0.1" cx="524.341" cy="198.506" rx="28" ry="15" fill="black"/>
+<ellipse cx="524.341" cy="197.506" rx="17" ry="9" fill="black"/>
+<ellipse cx="354.341" cy="427.506" rx="13" ry="7" fill="black"/>
+<ellipse cx="1028.34" cy="244.506" rx="13" ry="7" fill="black"/>
+<path d="M353.341 422.505C368.341 319.505 508.341 231.506 617.341 368.506" stroke="black"/>
+<path d="M353.341 422.507C385.33 249.324 788.341 99.5072 918.341 371.508" stroke="black"/>
+<path d="M524.341 190.944C556.33 17.7611 899.341 36.5068 918.341 371.507" stroke="black"/>
+<path d="M1355.34 191.131C1319.86 18.1281 939.415 36.8543 918.341 371.506" stroke="black"/>
+<path d="M353.341 422.506C339.591 319.756 211.258 231.971 111.341 368.637" stroke="black"/>
+<path d="M1028.34 244.506C1009.34 131.506 655.341 -23.4938 523.341 190.638" stroke="black"/>
+<path d="M1028.34 244.507C1024.2 131.369 917.341 283.507 917.341 367.508" stroke="black"/>
+<path d="M1028.34 244.506C1039.4 154.557 1245.49 31.1766 1322.34 201.626" stroke="black"/>
+<path d="M111.341 372.415C171.24 271.752 532.341 -92.5899 916.341 372.415" stroke="black"/>
+<path d="M111.341 372.41C140.341 220.506 282.341 34.5052 523.341 196.41" stroke="black"/>
+<path d="M-78.6587 247.507C-37.4111 95.3392 471.341 3.50683 523.341 196.202" stroke="black"/>
+<path d="M111.341 372.506C142.833 271.413 461.818 127.471 623.341 372.506" stroke="black"/>
+<path d="M918.341 372.506C900.196 271.413 716.407 127.471 623.341 372.506" stroke="black"/>
+<path d="M111.341 372.41C91.7818 272.066 -106.337 129.191 -206.659 372.41" stroke="black"/>
+<g style="mix-blend-mode:screen">
+<rect x="-378.659" y="-92.4941" width="1638" height="846" fill="url(#paint0_linear_228_6354)"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_228_6354" x1="1151.34" y1="43.5057" x2="247.729" y2="-269.829" gradientUnits="userSpaceOnUse">
+<stop stop-color="#2373EA"/>
+<stop offset="1" stop-color="#E42656"/>
+</linearGradient>
+<clipPath id="clip0_228_6354">
+<rect width="1120" height="465" fill="white"/>
+</clipPath>
+</defs>
+</svg>
