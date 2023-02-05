@@ -273,9 +273,7 @@ export class DebugModeModal {
   // TO TEST
 
   async close() {
-    const understandBtn = await this.driver.wait(
-      until.elementLocated(By.xpath("//button[text()='Understand']"))
-    )
+    const understandBtn = await this.driver.findElement(By.xpath("//button[text()='Understand']"))
     await understandBtn.click()
   }
 }
