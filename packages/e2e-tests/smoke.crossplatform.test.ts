@@ -47,15 +47,20 @@ describe('Smoke', () => {
     it('User sees "join community" page and switches to "create community" view by clicking on the link', async () => {
       console.log(2)
       const joinModal = new JoinCommunityModal(driver)
+      console.log('2a')
       const isJoinModal = await joinModal.element.isDisplayed()
+      console.log('2b')
       expect(isJoinModal).toBeTruthy()
+      console.log('2c')
 
       if (!isJoinModal) {
+        console.log('2 if')
         const generalChannel = new Channel(driver, 'general')
         const isGeneralChannel = await generalChannel.element.isDisplayed()
 
         expect(isGeneralChannel).toBeTruthy()
       } else {
+        console.log('2 else')
         await joinModal.switchToCreateCommunity()
       }
     })
