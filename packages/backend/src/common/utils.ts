@@ -15,6 +15,7 @@ export interface Ports {
 }
 
 export function createPaths(paths: string[]) {
+  console.log('creating paths in fn')
   for (const path of paths) {
     if (!fs.existsSync(path)) {
       fs.mkdirSync(path, { recursive: true })

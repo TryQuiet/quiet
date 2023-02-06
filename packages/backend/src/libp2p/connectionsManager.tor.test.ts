@@ -1,7 +1,47 @@
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { createTmpDir, tmpQuietDirPath } from '../common/testUtils'
-import * as utils from '../common/utils'
+let compare, createPaths, removeDirs, removeFiles, getUsersAddresses, getFilesRecursively, getDirsRecursively, createLibp2pAddress, createLibp2pListenAddress, removeFilesFromDir, fetchAbsolute, getPorts, DummyIOServer, torBinForPlatform, torDirForPlatform
+
+(async () => {
+  const { 
+  createPaths: createPathsImported,
+  compare: compareImported,
+  removeDirs: removeDirsImported,
+  removeFiles: removeFilesImported,
+  getUsersAddresses: getUsersAddressesImported,
+  getFilesRecursively: getFilesRecursivelyImported,
+  getDirsRecursively: getDirsRecursivelyImported,
+  createLibp2pAddress: createLibp2pAddressImported,
+
+  createLibp2pListenAddress: createLibp2pListenAddressImported,
+  removeFilesFromDir: removeFilesFromDirImproted,
+  fetchAbsolute: fetchAbsoluteImported,
+  getPorts: getPortsImported,
+  DummyIOServer: DummyIOServerImported,
+  torBinForPlatform: torBinForPlatformImported,
+  torDirForPlatform: torDirForPlatformImported,
+  } = await import('../common/utils')
+
+  createPaths = createPathsImported
+  compare =  compareImported
+  removeDirs = removeDirsImported
+  removeFiles = removeFilesImported
+  getUsersAddresses = getUsersAddressesImported
+  getFilesRecursively = getFilesRecursivelyImported
+  getDirsRecursively = getDirsRecursivelyImported
+  createLibp2pAddress = createLibp2pAddressImported
+  createLibp2pListenAddress =createLibp2pListenAddressImported
+  removeFilesFromDir = removeFilesFromDirImproted
+  fetchAbsolute = fetchAbsoluteImported
+  getPorts =getPortsImported
+  DummyIOServer = DummyIOServerImported
+  torBinForPlatform = torBinForPlatformImported
+  torDirForPlatform = torDirForPlatformImported
+
+
+})()
+
 import { ConnectionsManager } from './connectionsManager'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
 
@@ -20,7 +60,7 @@ beforeEach(() => {
 
 describe('Connections manager', () => {
   it('runs tor by default', async () => {
-    const ports = await utils.getPorts()
+    const ports = await getPorts()
     connectionsManager = new ConnectionsManager({
       torBinaryPath: '../../3rd-party/tor/linux/tor',
       torResourcesPath: '../../3rd-party/tor/linux',
@@ -37,7 +77,7 @@ describe('Connections manager', () => {
   })
 
   it('creates network', async () => {
-    const ports = await utils.getPorts()
+    const ports = await getPorts()
     connectionsManager = new ConnectionsManager({
       torBinaryPath: '../../3rd-party/tor/linux/tor',
       torResourcesPath: '../../3rd-party/tor/linux',

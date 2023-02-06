@@ -35,7 +35,6 @@ import {
   PublicChannelsRepo,
   StorageOptions
 } from '../common/types'
-import { compare, createPaths, removeDirs, removeFiles, getUsersAddresses } from '../common/utils'
 import { Config } from '../constants'
 import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
@@ -55,6 +54,25 @@ const sizeOfPromisified = promisify(sizeOf)
 
 const log = logger('db')
 
+
+let compare, createPaths, removeDirs, removeFiles, getUsersAddresses
+
+(async () => {
+  const { 
+  createPaths: createPathsImported,
+  compare: compareImported,
+  removeDirs: removeDirsImported,
+  removeFiles: removeFilesImported,
+  getUsersAddresses: getUsersAddressesImported
+
+  } = await import('../common/utils')
+  createPaths = createPathsImported
+  compare =  compareImported
+  removeDirs = removeDirsImported
+  removeFiles = removeFilesImported
+  getUsersAddresses = getUsersAddressesImported
+
+})()
 export class Storage extends EventEmitter {
   public quietDir: string
   public peerId: PeerId
@@ -93,7 +111,9 @@ export class Storage extends EventEmitter {
     this.peerId = peerID
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
+    console.log('before creating paths')
     if (this.options?.createPaths) {
+      console.log("creating paths")
       createPaths([this.ipfsRepoPath, this.orbitDbDir])
     }
     this.ipfs = await this.initIPFS(libp2p, peerID)
@@ -523,7 +543,7 @@ export class Storage extends EventEmitter {
 
     const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
     const uploadedFileStreamIterable = {
-      async* [Symbol.asyncIterator]() {
+      async*[Symbol.asyncIterator]() {
         for await (const data of stream) {
           yield data
         }

@@ -129,23 +129,22 @@ afterEach(async () => {
   }
 })
 
-import * as dutils from '../common/utils'
-
 describe('Storage', () => {
 
   let utils
 
   beforeEach(async () => {
-    const actualModule = await import("../common/utils");
-    jest.mock("../common/utils", () => {
+    jest.unstable_mockModule("../common/utils", () => {
       return {
-        __esModule: true,
-        ...actualModule,  
-      };
+        // @ts-ignore
+        createPaths: jest.fn(() => {
+          console.log('mocked createPaths')
+        }) 
+      }
     });
-    utils = require('../common/utils')
+    utils = await import('../common/utils')
   })
-  
+
   it.only('creates paths by default', async () => {
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(false)
     expect(fs.existsSync(tmpIpfsPath)).toBe(false)

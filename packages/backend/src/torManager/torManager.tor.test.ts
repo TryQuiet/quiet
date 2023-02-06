@@ -1,6 +1,45 @@
 /* eslint import/first: 0 */
 import { Tor } from './torManager'
-import { torBinForPlatform, torDirForPlatform } from '../common/utils'
+let compare, createPaths, removeDirs, removeFiles, getUsersAddresses, getFilesRecursively, getDirsRecursively, createLibp2pAddress, createLibp2pListenAddress, removeFilesFromDir, fetchAbsolute, getPorts, DummyIOServer, torBinForPlatform, torDirForPlatform
+
+(async () => {
+  const { 
+  createPaths: createPathsImported,
+  compare: compareImported,
+  removeDirs: removeDirsImported,
+  removeFiles: removeFilesImported,
+  getUsersAddresses: getUsersAddressesImported,
+  getFilesRecursively: getFilesRecursivelyImported,
+  getDirsRecursively: getDirsRecursivelyImported,
+  createLibp2pAddress: createLibp2pAddressImported,
+
+  createLibp2pListenAddress: createLibp2pListenAddressImported,
+  removeFilesFromDir: removeFilesFromDirImproted,
+  fetchAbsolute: fetchAbsoluteImported,
+  getPorts: getPortsImported,
+  DummyIOServer: DummyIOServerImported,
+  torBinForPlatform: torBinForPlatformImported,
+  torDirForPlatform: torDirForPlatformImported,
+  } = await import('../common/utils')
+
+  createPaths = createPathsImported
+  compare =  compareImported
+  removeDirs = removeDirsImported
+  removeFiles = removeFilesImported
+  getUsersAddresses = getUsersAddressesImported
+  getFilesRecursively = getFilesRecursivelyImported
+  getDirsRecursively = getDirsRecursivelyImported
+  createLibp2pAddress = createLibp2pAddressImported
+  createLibp2pListenAddress =createLibp2pListenAddressImported
+  removeFilesFromDir = removeFilesFromDirImproted
+  fetchAbsolute = fetchAbsoluteImported
+  getPorts =getPortsImported
+  DummyIOServer = DummyIOServerImported
+  torBinForPlatform = torBinForPlatformImported
+  torDirForPlatform = torDirForPlatformImported
+
+
+})()
 import { createTmpDir, spawnTorProcess, tmpQuietDirPath } from '../common/testUtils'
 import getPort from 'get-port'
 import { DirResult } from 'tmp'

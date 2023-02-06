@@ -3,11 +3,49 @@ import { all } from './filters'
 import { Multiaddr } from 'multiaddr'
 import { Tor } from '../../torManager/index'
 import os from 'os'
-import * as utils from '../../common/utils'
+let compare, createPaths, removeDirs, removeFiles, getUsersAddresses, getFilesRecursively, getDirsRecursively, createLibp2pAddress, createLibp2pListenAddress, removeFilesFromDir, fetchAbsolute, getPorts, DummyIOServer, torBinForPlatform, torDirForPlatform
+
+(async () => {
+  const { 
+  createPaths: createPathsImported,
+  compare: compareImported,
+  removeDirs: removeDirsImported,
+  removeFiles: removeFilesImported,
+  getUsersAddresses: getUsersAddressesImported,
+  getFilesRecursively: getFilesRecursivelyImported,
+  getDirsRecursively: getDirsRecursivelyImported,
+  createLibp2pAddress: createLibp2pAddressImported,
+
+  createLibp2pListenAddress: createLibp2pListenAddressImported,
+  removeFilesFromDir: removeFilesFromDirImproted,
+  fetchAbsolute: fetchAbsoluteImported,
+  getPorts: getPortsImported,
+  DummyIOServer: DummyIOServerImported,
+  torBinForPlatform: torBinForPlatformImported,
+  torDirForPlatform: torDirForPlatformImported,
+  } = await import('../../common/utils')
+
+  createPaths = createPathsImported
+  compare =  compareImported
+  removeDirs = removeDirsImported
+  removeFiles = removeFilesImported
+  getUsersAddresses = getUsersAddressesImported
+  getFilesRecursively = getFilesRecursivelyImported
+  getDirsRecursively = getDirsRecursivelyImported
+  createLibp2pAddress = createLibp2pAddressImported
+  createLibp2pListenAddress =createLibp2pListenAddressImported
+  removeFilesFromDir = removeFilesFromDirImproted
+  fetchAbsolute = fetchAbsoluteImported
+  getPorts =getPortsImported
+  DummyIOServer = DummyIOServerImported
+  torBinForPlatform = torBinForPlatformImported
+  torDirForPlatform = torDirForPlatformImported
+
+
+})()
 import createHttpsProxyAgent from 'https-proxy-agent'
 import { createTmpDir, tmpQuietDirPath } from '../../common/testUtils'
 import { createCertificatesTestHelper } from '../tests/client-server'
-import { createLibp2pAddress } from '../../common/utils'
 import getPort from 'get-port'
 import { DirResult } from 'tmp'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, afterAll } from '@jest/globals'
@@ -45,7 +83,7 @@ describe('websocketOverTor', () => {
     const port2Arr = await getPort()
     port1Target = port1Arr
     port2Target = port2Arr
-    const torPath = utils.torBinForPlatform()
+    const torPath = torBinForPlatform()
     httpTunnelPort = await getPort()
     tor = new Tor({
       torPath,
@@ -53,7 +91,7 @@ describe('websocketOverTor', () => {
       httpTunnelPort,
       options: {
         env: {
-          LD_LIBRARY_PATH: utils.torDirForPlatform(),
+          LD_LIBRARY_PATH: torDirForPlatform(),
           HOME: os.homedir()
         },
         detached: true

@@ -2,7 +2,46 @@ import express from 'express'
 import createHttpsProxyAgent from 'https-proxy-agent'
 import fetch, { Response } from 'node-fetch'
 import fs from 'fs'
-import { getPorts } from '../common/utils'
+let compare, createPaths, removeDirs, removeFiles, getUsersAddresses, getFilesRecursively, getDirsRecursively, createLibp2pAddress, createLibp2pListenAddress, removeFilesFromDir, fetchAbsolute, getPorts, DummyIOServer, torBinForPlatform, torDirForPlatform
+
+(async () => {
+  const { 
+  createPaths: createPathsImported,
+  compare: compareImported,
+  removeDirs: removeDirsImported,
+  removeFiles: removeFilesImported,
+  getUsersAddresses: getUsersAddressesImported,
+  getFilesRecursively: getFilesRecursivelyImported,
+  getDirsRecursively: getDirsRecursivelyImported,
+  createLibp2pAddress: createLibp2pAddressImported,
+
+  createLibp2pListenAddress: createLibp2pListenAddressImported,
+  removeFilesFromDir: removeFilesFromDirImproted,
+  fetchAbsolute: fetchAbsoluteImported,
+  getPorts: getPortsImported,
+  DummyIOServer: DummyIOServerImported,
+  torBinForPlatform: torBinForPlatformImported,
+  torDirForPlatform: torDirForPlatformImported,
+  } = await import('../common/utils')
+
+  createPaths = createPathsImported
+  compare =  compareImported
+  removeDirs = removeDirsImported
+  removeFiles = removeFilesImported
+  getUsersAddresses = getUsersAddressesImported
+  getFilesRecursively = getFilesRecursivelyImported
+  getDirsRecursively = getDirsRecursivelyImported
+  createLibp2pAddress = createLibp2pAddressImported
+  createLibp2pListenAddress =createLibp2pListenAddressImported
+  removeFilesFromDir = removeFilesFromDirImproted
+  fetchAbsolute = fetchAbsoluteImported
+  getPorts =getPortsImported
+  DummyIOServer = DummyIOServerImported
+  torBinForPlatform = torBinForPlatformImported
+  torDirForPlatform = torDirForPlatformImported
+
+
+})()
 import {
   createTmpDir,
   spawnTorProcess,
