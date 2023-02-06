@@ -1,6 +1,6 @@
 {
 	"name": "@quiet/backend",
-	"version": "0.19.16-alpha.0",
+	"version": "0.19.19-alpha.2",
 	"description": "tlg-manager",
 	"types": "lib/index.d.ts",
 	"type": "module",
@@ -35,17 +35,17 @@
 		"package-lock.json"
 	],
 	"jest": {
-          "preset": "ts-jest/presets/default-esm",
-          "clearMocks": true,
-          "coverageProvider": "v8",
-          "transformIgnorePatterns": [
-            "node_modules/(?!p-defer|peer-id)"
-          ],
-	  "testTimeout": 40000,
-	  "setupFiles": [
-	    "./jestSetup.js"
-	  ],
-          "testEnvironment": "jest-environment-node"
+		"preset": "ts-jest/presets/default-esm",
+		"clearMocks": true,
+		"coverageProvider": "v8",
+		"transformIgnorePatterns": [
+			"node_modules/(?!p-defer|peer-id)"
+		],
+		"testTimeout": 40000,
+		"setupFiles": [
+			"./jestSetup.js"
+		],
+		"testEnvironment": "jest-environment-node"
 	},
 	"devDependencies": {
 		"@types/crypto-js": "^4.0.2",
@@ -57,7 +57,7 @@
 		"@types/ws": "8.5.3",
 		"@typescript-eslint/eslint-plugin": "^4.33.0",
 		"babel-jest": "^29.3.1",
-		"create-require-loader": "^0.19.9-alpha.0",
+		"create-require-loader": "^0.19.19-alpha.2",
 		"cross-env": "^5.2.0",
 		"eslint": "^7.32.0",
 		"eslint-config-standard": "^16.0.3",
@@ -87,9 +87,9 @@
 		"@libp2p/peer-id": "1.1.16",
 		"@libp2p/websockets": "5.0.0",
 		"@peculiar/webcrypto": "1.2.2",
-		"@quiet/identity": "^0.19.7-alpha.0",
-		"@quiet/logger": "^0.19.7-alpha.0",
-		"@quiet/state-manager": "^0.19.7-alpha.0",
+		"@quiet/identity": "^0.19.19-alpha.2",
+		"@quiet/logger": "^0.19.19-alpha.2",
+		"@quiet/state-manager": "^0.19.19-alpha.2",
 		"abortable-iterator": "^3.0.0",
 		"class-validator": "^0.13.1",
 		"cli-table": "^0.3.6",
