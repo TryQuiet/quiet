@@ -52,6 +52,7 @@ jobs:
         run: ./.github/secrets/decrypt_secrets.sh
         env:
           IOS_PROFILE_KEY: ${{ secrets.IOS_PROFILE_KEY }}
+          IOS_CERTIFICATE_KEY: ${{ secrets.IOS_CERTIFICATE_KEY }}
 
       - name: Build
         run: |
