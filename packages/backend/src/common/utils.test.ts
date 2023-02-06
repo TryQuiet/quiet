@@ -1,6 +1,47 @@
 import mock from 'mock-fs'
 import path from 'path'
-import { getFilesRecursively, removeFiles, getDirsRecursively, removeDirs, compare, getUsersAddresses, createLibp2pAddress } from './utils'
+// import { getFilesRecursively, removeFiles, getDirsRecursively, removeDirs, compare, getUsersAddresses, createLibp2pAddress } from './utils'
+
+let compare, createPaths, removeDirs, removeFiles, getUsersAddresses, getFilesRecursively, getDirsRecursively, createLibp2pAddress, createLibp2pListenAddress, removeFilesFromDir, fetchAbsolute, getPorts, DummyIOServer, torBinForPlatform, torDirForPlatform
+
+(async () => {
+  const { 
+  createPaths: createPathsImported,
+  compare: compareImported,
+  removeDirs: removeDirsImported,
+  removeFiles: removeFilesImported,
+  getUsersAddresses: getUsersAddressesImported,
+  getFilesRecursively: getFilesRecursivelyImported,
+  getDirsRecursively: getDirsRecursivelyImported,
+  createLibp2pAddress: createLibp2pAddressImported,
+
+  createLibp2pListenAddress: createLibp2pListenAddressImported,
+  removeFilesFromDir: removeFilesFromDirImproted,
+  fetchAbsolute: fetchAbsoluteImported,
+  getPorts: getPortsImported,
+  DummyIOServer: DummyIOServerImported,
+  torBinForPlatform: torBinForPlatformImported,
+  torDirForPlatform: torDirForPlatformImported,
+  } = await import('../common/utils')
+
+  createPaths = createPathsImported
+  compare =  compareImported
+  removeDirs = removeDirsImported
+  removeFiles = removeFilesImported
+  getUsersAddresses = getUsersAddressesImported
+  getFilesRecursively = getFilesRecursivelyImported
+  getDirsRecursively = getDirsRecursivelyImported
+  createLibp2pAddress = createLibp2pAddressImported
+  createLibp2pListenAddress =createLibp2pListenAddressImported
+  removeFilesFromDir = removeFilesFromDirImproted
+  fetchAbsolute = fetchAbsoluteImported
+  getPorts =getPortsImported
+  DummyIOServer = DummyIOServerImported
+  torBinForPlatform = torBinForPlatformImported
+  torDirForPlatform = torDirForPlatformImported
+
+
+})()
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
 
 beforeEach(() => {

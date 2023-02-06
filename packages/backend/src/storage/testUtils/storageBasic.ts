@@ -2,11 +2,17 @@ import type { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
 import PeerId from 'peer-id'
 import { StorageOptions } from '../../common/types'
-import { createPaths } from '../../common/utils'
 import logger from '../../logger'
 import { Storage } from '..'
 
 const log = logger('dbSnap')
+
+let createPaths
+
+(async () => {
+const {createPaths: createPathsImported} = await import('../../common/utils')
+createPaths = createPathsImported
+})()
 
 class StorageTestSnapshotOptions extends StorageOptions {
   messagesCount: number
