@@ -12,7 +12,7 @@ import logger from '../logger'
 import { EventEmitter } from 'events'
 import { Command } from 'commander'
 import { Tor, GetInfoTorSignal } from '../torManager/torManager'
-const { getPorts } = await import('../common/utils')
+import { getPorts } from '../common/utils'
 const program = new Command()
 
 enum TestMode {

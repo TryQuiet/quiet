@@ -52,8 +52,6 @@ const sizeOfPromisified = promisify(sizeOf)
 
 const log = logger('db')
 
-console.trace('hHERER')
-
 const { compare, createPaths, removeDirs, removeFiles, getUsersAddresses } = await import('../common/utils')
 export class Storage extends EventEmitter {
   public quietDir: string

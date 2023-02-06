@@ -7,7 +7,7 @@ import logger from '../logger'
 
 import { TorControl } from './TorControl'
 import getPort from 'get-port'
-const { removeFilesFromDir } = await import('../common/utils')
+import { removeFilesFromDir } from '../common/utils'
 const log = logger('tor')
 
 export enum GetInfoTorSignal {

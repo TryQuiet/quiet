@@ -63,7 +63,10 @@ const webpackConfig = (env) => {
                 /node_modules[\/\\]ipfs-utils[\/\\]src[\/\\]fetch.js/,
                 root(path.join('node_modules', 'electron-fetch', 'lib', 'index.js'))
             )
-        ]
+        ],
+        experiments: {
+            topLevelAwait: true
+          }
     }
     return config
 }

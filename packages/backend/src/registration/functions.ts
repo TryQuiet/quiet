@@ -9,7 +9,7 @@ import logger from '../logger'
 import { CsrContainsFields, IsCsr } from './validators'
 import { RegistrationEvents } from './types'
 
-const { getUsersAddresses } = await import('../common/utils')
+import { getUsersAddresses } from '../common/utils'
 const log = logger('registration')
 
 class UserCsrData {

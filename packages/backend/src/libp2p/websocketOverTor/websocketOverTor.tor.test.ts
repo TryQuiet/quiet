@@ -9,7 +9,7 @@ import { createCertificatesTestHelper } from '../tests/client-server'
 import getPort from 'get-port'
 import { DirResult } from 'tmp'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, afterAll } from '@jest/globals'
-const { createLibp2pAddress, torBinForPlatform, torDirForPlatform } = await import('../../common/utils')
+import { createLibp2pAddress, torBinForPlatform, torDirForPlatform } from '../../common/utils'
 
 jest.setTimeout(120000)
 

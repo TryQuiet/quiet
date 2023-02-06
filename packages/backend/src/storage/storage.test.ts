@@ -125,7 +125,7 @@ beforeEach(async () => {
 afterEach(async () => {
   console.log('after test')
   try {
-//    storage && (await storage.stopOrbitDb())
+  //  storage && (await storage.stopOrbitDb())
   } catch (e) {
     console.error(e)
   }
@@ -161,7 +161,10 @@ describe('Storage', () => {
     expect(createPathsSpy).toHaveBeenCalled()
 
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(true)
+  
     expect(fs.existsSync(tmpIpfsPath)).toBe(true)
+
+    await storage.stopOrbitDb()
   })
 
   it('should not create paths if createPaths is set to false', async () => {

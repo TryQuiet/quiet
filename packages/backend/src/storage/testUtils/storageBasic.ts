@@ -7,7 +7,7 @@ import { Storage } from '..'
 
 const log = logger('dbSnap')
 
-const { createPaths } = await import('../../common/utils')
+import { createPaths } from '../../common/utils'
 
 class StorageTestSnapshotOptions extends StorageOptions {
   messagesCount: number

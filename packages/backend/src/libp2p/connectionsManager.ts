@@ -70,7 +70,7 @@ import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
 import PeerId, { JSONPeerId } from 'peer-id'
 
-const { createLibp2pAddress, createLibp2pListenAddress, getPorts } = await import('../common/utils')
+import { createLibp2pAddress, createLibp2pListenAddress, getPorts } from '../common/utils'
 
 const log = logger('conn')
 interface InitStorageParams {

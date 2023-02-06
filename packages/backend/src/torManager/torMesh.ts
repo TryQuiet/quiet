@@ -11,7 +11,7 @@ import {
 
 import logger from '../logger'
 
-const { getPorts } = await import ('../common/utils')
+import { getPorts } from '../common/utils'
 const log = logger('torMesh')
 
 const amount = 10

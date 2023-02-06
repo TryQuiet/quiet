@@ -10,7 +10,7 @@ import { StorageOptions } from '../../common/types'
 import logger from '../../logger'
 import { Storage } from '..'
 
-const { createPaths } = await import('../../common/utils')
+import { createPaths } from '../../common/utils'
 
 const log = logger('dbSnap')
 

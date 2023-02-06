@@ -1,6 +1,6 @@
 /* eslint import/first: 0 */
 import { Tor } from './torManager'
-const { torBinForPlatform, torDirForPlatform } = await import ('../common/utils')
+import { torBinForPlatform, torDirForPlatform } from '../common/utils'
 import { createTmpDir, spawnTorProcess, tmpQuietDirPath } from '../common/testUtils'
 import getPort from 'get-port'
 import { DirResult } from 'tmp'
