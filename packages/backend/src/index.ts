@@ -15,4 +15,4 @@ export default {
   version
 }
 
-// export * from './common/utils'
+export * from './common/utils'
