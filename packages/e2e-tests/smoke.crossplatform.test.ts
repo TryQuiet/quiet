@@ -13,6 +13,7 @@ jest.setTimeout(350000)
 describe('Smoke', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
+  let isDebugModal: boolean
   const port = 9515
   beforeAll(async () => {
     buildSetup = new BuildSetup(port)
@@ -38,7 +39,7 @@ describe('Smoke', () => {
       it('Debug Modal', async () => {
         console.log('Debug Modal')
         const debugModal = new DebugModeModal(driver)
-        const isDebugModal = await debugModal.element.isDisplayed()
+        isDebugModal = await debugModal.element.isDisplayed()
         expect(isDebugModal).toBeTruthy()
         await debugModal.close()
       })
@@ -46,6 +47,7 @@ describe('Smoke', () => {
 
     it('User sees "join community" page and switches to "create community" view by clicking on the link', async () => {
       console.log(2)
+      console.log(isDebugModal)
       const joinModal = new JoinCommunityModal(driver)
       console.log('2a')
       const isJoinModal = await joinModal.element.isDisplayed()
