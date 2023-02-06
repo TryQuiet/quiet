@@ -280,20 +280,20 @@ export class DebugModeModal {
       console.log('if')
       // const closeButton = await this.driver.findElement(By.xpath("//button[text()='Understand']"))
       // console.log('after closeButton')
-      // const understandBtn = await this.driver.wait(
-      //   until.elementLocated(By.xpath("//button[text()='Understand']"))
-      // )
+      const understandBtn = await this.driver.wait(
+        until.elementLocated(By.xpath("//button[text()='Understand']"))
+      )
 
-      const button = await this.driver.findElement(By.css('button'))
-      console.log('after understandBtn')
+      // const button = await this.driver.findElement(By.css('button'))
+      // console.log('after understandBtn')
 
       await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
 
-      // console.log('is understandBtn', await understandBtn.isDisplayed())
+      console.log('is understandBtn', await understandBtn.isDisplayed())
       // console.log('is closeButton', await closeButton.isDisplayed())
-      // await understandBtn.click()
+      await understandBtn.click()
 
-      await button.click()
+      // await button.click()
       console.log('after click')
     }
     console.log('outside if')

@@ -24,7 +24,9 @@ describe('Smoke', () => {
     const debugModal = new DebugModeModal(driver)
     isDebugModal = await debugModal.element.isDisplayed()
     expect(isDebugModal).toBeTruthy()
-    // await debugModal.close()
+    if (process.env.TEST_SYSTEM === 'windows') {
+      await debugModal.close()
+    }
   })
 
   afterAll(async () => {
@@ -41,13 +43,13 @@ describe('Smoke', () => {
     // console.log('if windows', process.env.TEST_SYSTEM)
     // if (process.env.TEST_SYSTEM === 'windows') {
     //   console.log('if windows', process.env.TEST_SYSTEM)
-      // it('Debug Modal', async () => {
-      //   console.log('Debug Modal')
-      //   const debugModal = new DebugModeModal(driver)
-      //   isDebugModal = await debugModal.element.isDisplayed()
-      //   expect(isDebugModal).toBeTruthy()
-      //   await debugModal.close()
-      // })
+    // it('Debug Modal', async () => {
+    //   console.log('Debug Modal')
+    //   const debugModal = new DebugModeModal(driver)
+    //   isDebugModal = await debugModal.element.isDisplayed()
+    //   expect(isDebugModal).toBeTruthy()
+    //   await debugModal.close()
+    // })
     // }
 
     it('User sees "join community" page and switches to "create community" view by clicking on the link', async () => {
