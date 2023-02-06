@@ -7,12 +7,7 @@ import { Storage } from '..'
 
 const log = logger('dbSnap')
 
-let createPaths
-
-(async () => {
-const {createPaths: createPathsImported} = await import('../../common/utils')
-createPaths = createPathsImported
-})()
+const { createPaths } = await import('../../common/utils')
 
 class StorageTestSnapshotOptions extends StorageOptions {
   messagesCount: number

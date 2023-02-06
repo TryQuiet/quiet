@@ -1,49 +1,10 @@
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { createTmpDir, tmpQuietDirPath } from '../common/testUtils'
-let compare, createPaths, removeDirs, removeFiles, getUsersAddresses, getFilesRecursively, getDirsRecursively, createLibp2pAddress, createLibp2pListenAddress, removeFilesFromDir, fetchAbsolute, getPorts, DummyIOServer, torBinForPlatform, torDirForPlatform
-
-(async () => {
-  const { 
-  createPaths: createPathsImported,
-  compare: compareImported,
-  removeDirs: removeDirsImported,
-  removeFiles: removeFilesImported,
-  getUsersAddresses: getUsersAddressesImported,
-  getFilesRecursively: getFilesRecursivelyImported,
-  getDirsRecursively: getDirsRecursivelyImported,
-  createLibp2pAddress: createLibp2pAddressImported,
-
-  createLibp2pListenAddress: createLibp2pListenAddressImported,
-  removeFilesFromDir: removeFilesFromDirImproted,
-  fetchAbsolute: fetchAbsoluteImported,
-  getPorts: getPortsImported,
-  DummyIOServer: DummyIOServerImported,
-  torBinForPlatform: torBinForPlatformImported,
-  torDirForPlatform: torDirForPlatformImported,
-  } = await import('../common/utils')
-
-  createPaths = createPathsImported
-  compare =  compareImported
-  removeDirs = removeDirsImported
-  removeFiles = removeFilesImported
-  getUsersAddresses = getUsersAddressesImported
-  getFilesRecursively = getFilesRecursivelyImported
-  getDirsRecursively = getDirsRecursivelyImported
-  createLibp2pAddress = createLibp2pAddressImported
-  createLibp2pListenAddress =createLibp2pListenAddressImported
-  removeFilesFromDir = removeFilesFromDirImproted
-  fetchAbsolute = fetchAbsoluteImported
-  getPorts =getPortsImported
-  DummyIOServer = DummyIOServerImported
-  torBinForPlatform = torBinForPlatformImported
-  torDirForPlatform = torDirForPlatformImported
-
-
-})()
 
 import { ConnectionsManager } from './connectionsManager'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
+const { getPorts } = await import('../common/utils')
 
 jest.setTimeout(100_000)
 

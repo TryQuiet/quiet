@@ -1,4 +1,3 @@
-import { Crypto } from '@peculiar/webcrypto'
 import {
   CertFieldsTypes,
   getCertFieldValue,
@@ -45,7 +44,6 @@ import { promisify } from 'util'
 import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
 import { StorageEvents } from './types'
-import { sleep } from '../sleep'
 
 import { create } from 'ipfs-core'
 import { CID } from 'multiformats/cid'
@@ -54,25 +52,9 @@ const sizeOfPromisified = promisify(sizeOf)
 
 const log = logger('db')
 
+console.trace('hHERER')
 
-let compare, createPaths, removeDirs, removeFiles, getUsersAddresses
-
-(async () => {
-  const { 
-  createPaths: createPathsImported,
-  compare: compareImported,
-  removeDirs: removeDirsImported,
-  removeFiles: removeFilesImported,
-  getUsersAddresses: getUsersAddressesImported
-
-  } = await import('../common/utils')
-  createPaths = createPathsImported
-  compare =  compareImported
-  removeDirs = removeDirsImported
-  removeFiles = removeFilesImported
-  getUsersAddresses = getUsersAddressesImported
-
-})()
+const { compare, createPaths, removeDirs, removeFiles, getUsersAddresses } = await import('../common/utils')
 export class Storage extends EventEmitter {
   public quietDir: string
   public peerId: PeerId
@@ -113,7 +95,7 @@ export class Storage extends EventEmitter {
     removeDirs(this.quietDir, 'repo.lock')
     console.log('before creating paths')
     if (this.options?.createPaths) {
-      console.log("creating paths")
+      console.log('creating paths', createPaths)
       createPaths([this.ipfsRepoPath, this.orbitDbDir])
     }
     this.ipfs = await this.initIPFS(libp2p, peerID)
@@ -543,7 +525,7 @@ export class Storage extends EventEmitter {
 
     const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
     const uploadedFileStreamIterable = {
-      async*[Symbol.asyncIterator]() {
+      async* [Symbol.asyncIterator]() {
         for await (const data of stream) {
           yield data
         }
