@@ -102,6 +102,10 @@ jobs:
         run: Start-Process Quiet.Setup.0.19.17-alpha.0.exe -Wait
         shell: powershell
 
+      - name: Kill exe
+        run: Stop-Process -Name "Quiet" -Force
+        shell: powershell
+
       - name: Run smoke test
         run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
 
