@@ -24,7 +24,7 @@ describe('Smoke', () => {
     const debugModal = new DebugModeModal(driver)
     isDebugModal = await debugModal.element.isDisplayed()
     expect(isDebugModal).toBeTruthy()
-    await debugModal.close()
+    // await debugModal.close()
   })
 
   afterAll(async () => {
