@@ -35,17 +35,17 @@
 		"package-lock.json"
 	],
 	"jest": {
-          "preset": "ts-jest/presets/default-esm",
-          "clearMocks": true,
-          "coverageProvider": "v8",
-          "transformIgnorePatterns": [
-            "node_modules/(?!p-defer|peer-id)"
-          ],
-	  "testTimeout": 40000,
-	  "setupFiles": [
-	    "./jestSetup.js"
-	  ],
-          "testEnvironment": "jest-environment-node"
+		"preset": "ts-jest/presets/default-esm",
+		"clearMocks": true,
+		"coverageProvider": "v8",
+		"transformIgnorePatterns": [
+			"node_modules/(?!p-defer|peer-id)"
+		],
+		"testTimeout": 40000,
+		"setupFiles": [
+			"./jestSetup.js"
+		],
+		"testEnvironment": "jest-environment-node"
 	},
 	"devDependencies": {
 		"@types/crypto-js": "^4.0.2",
@@ -81,10 +81,12 @@
 		"yargs": "^17.1.0"
 	},
 	"dependencies": {
-		"@chainsafe/libp2p-gossipsub": "^5.3.0",
-		"@chainsafe/libp2p-noise": "^10.2.0",
-		"@libp2p/mplex": "^7.1.0",
-		"@libp2p/peer-id": "1.1.16",
+		"@chainsafe/libp2p-gossipsub": "6.1.0",
+		"@chainsafe/libp2p-noise": "11.0.0",
+		"@libp2p/bootstrap": "6.0.0",
+		"@libp2p/kad-dht": "7.0.0",
+		"@libp2p/mplex": "7.1.1",
+		"@libp2p/peer-id": "2.0.1",
 		"@libp2p/websockets": "5.0.0",
 		"@peculiar/webcrypto": "1.2.2",
 		"@quiet/identity": "^0.19.7-alpha.0",
@@ -105,15 +107,12 @@
 		"http-server": "^0.12.3",
 		"https-proxy-agent": "^5.0.0",
 		"image-size": "^1.0.1",
-		"ipfs": "^0.65.0",
+		"ipfs": "0.66.0",
 		"ipfs-log": "^5.4.2",
 		"it-ws": "5.0.6",
 		"joi": "^17.4.0",
 		"level": "8.0.0",
-		"libp2p": "0.40.0",
-		"libp2p-bootstrap": "0.14.0",
-		"libp2p-gossipsub": "0.13.0",
-		"libp2p-kad-dht": "0.28.6",
+		"libp2p": "0.42.2",
 		"luxon": "^1.11.4",
 		"multiaddr": "^10.0.1",
 		"orbit-db": "0.29.0",

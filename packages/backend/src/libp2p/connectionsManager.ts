@@ -638,15 +638,15 @@ export class ConnectionsManager extends EventEmitter {
       bootstrapMultiaddrsList: params.bootstrapMultiaddrs,
       targetPort: params.targetPort
     }
-    const libp2p = await ConnectionsManager.createBootstrapNode(nodeParams)
-
+    const libp2p: Libp2p = await ConnectionsManager.createBootstrapNode(nodeParams)
+    
     this.libp2pInstance = libp2p
 
     libp2p.addEventListener('peer:discovery', (peer) => {
       log(`${params.peerId.toString()} discovered ${peer.detail.id}`)
     })
 
-    libp2p.connectionManager.addEventListener('peer:connect', async (peer) => {
+    libp2p.addEventListener('peer:connect', async (peer) => {
       const remotePeerId = peer.detail.remotePeer.toString()
       log(`${params.peerId.toString()} connected to ${remotePeerId}`)
       this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
@@ -655,8 +655,8 @@ export class ConnectionsManager extends EventEmitter {
         peers: [remotePeerId]
       })
     })
-
-    libp2p.connectionManager.addEventListener('peer:disconnect', async (peer) => {
+    
+    libp2p.addEventListener('peer:disconnect', async (peer) => {
       const remotePeerId = peer.detail.remotePeer.toString()
       log(`${params.peerId.toString()} disconnected from ${remotePeerId}`)
 
@@ -755,6 +755,7 @@ export class ConnectionsManager extends EventEmitter {
             targetPort: params.targetPort,
             createServer: createServer
           })],
+        // @ts-expect-error
         dht: kadDHT(),
         pubsub: gossipsub({ allowPublishToZeroPeers: true }),
       })
