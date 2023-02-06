@@ -23,7 +23,8 @@ let compare, createPaths, removeDirs, removeFiles, getUsersAddresses
   removeFiles = removeFilesImported
   getUsersAddresses = getUsersAddressesImported
 
-})()import logger from '../../logger'
+})()
+import logger from '../../logger'
 import { Storage } from '..'
 
 const log = logger('dbSnap')
