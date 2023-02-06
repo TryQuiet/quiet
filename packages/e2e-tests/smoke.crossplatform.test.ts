@@ -1,4 +1,4 @@
-import { ThenableWebDriver } from 'selenium-webdriver'
+import { ThenableWebDriver, Key } from 'selenium-webdriver'
 import {
   Channel,
   CreateCommunityModal,
@@ -24,11 +24,14 @@ describe('Smoke', () => {
     const debugModal = new DebugModeModal(driver)
     isDebugModal = await debugModal.element.isDisplayed()
     const screenshot = await debugModal.element.takeScreenshot()
+
     console.log({ screenshot })
     expect(isDebugModal).toBeTruthy()
-    if (process.env.TEST_SYSTEM === 'windows') {
-      await debugModal.element.click()
-    }
+    await debugModal.element.sendKeys(Key.ENTER)
+
+    // if (process.env.TEST_SYSTEM === 'windows') {
+    //   await debugModal.element.click()
+    // }
   })
 
   afterAll(async () => {
