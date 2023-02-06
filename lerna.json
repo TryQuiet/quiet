@@ -5,7 +5,7 @@
   "version": "independent",
   "command": {
     "version": {
-      "allowBranch": ["master", "develop", "chore/add-webpack-to-package-backend"],
+      "allowBranch": ["master", "develop", "ci/ios-deploy"],
       "conventionalCommits": true,
       "createRelease": "github"
     }
