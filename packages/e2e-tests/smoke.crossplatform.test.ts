@@ -47,7 +47,7 @@ describe('Smoke', () => {
 
     it('User sees "join community" page and switches to "create community" view by clicking on the link', async () => {
       console.log(2)
-      console.log(isDebugModal)
+      console.log({ isDebugModal })
       const joinModal = new JoinCommunityModal(driver)
       console.log('2a')
       const isJoinModal = await joinModal.element.isDisplayed()
