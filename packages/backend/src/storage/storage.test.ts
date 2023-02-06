@@ -5,12 +5,16 @@ import { DirResult } from 'tmp'
 import { Config } from '../constants'
 import { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createFile, createPeerId } from '../common/testUtils'
 import { Storage } from './storage'
-import * as utils from '../common/utils'
 import { FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
 import { fileURLToPath } from 'url';
+
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 import {
   createUserCert,
   keyFromCertificate,
@@ -18,8 +22,6 @@ import {
 } from '@quiet/identity'
 import { Crypto } from '@peculiar/webcrypto'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
-
-
 import {
   communities,
   Community,
@@ -102,6 +104,7 @@ beforeAll(async () => {
 })
 
 beforeEach(async () => {
+  console.log('befire each')
   jest.clearAllMocks()
   tmpDir = createTmpDir()
   tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
@@ -109,7 +112,9 @@ beforeEach(async () => {
   tmpIpfsPath = path.join(tmpAppDataPath, Config.IPFS_REPO_PATH)
   storage = null
   filePath = path.join(__dirname, '/testUtils/500kB-file.txt')
+
 })
+
 
 afterEach(async () => {
   console.log('after test')
@@ -124,7 +129,23 @@ afterEach(async () => {
   }
 })
 
+import * as dutils from '../common/utils'
+
 describe('Storage', () => {
+
+  let utils
+
+  beforeEach(async () => {
+    const actualModule = await import("../common/utils");
+    jest.mock("../common/utils", () => {
+      return {
+        __esModule: true,
+        ...actualModule,  
+      };
+    });
+    utils = require('../common/utils')
+  })
+  
   it.only('creates paths by default', async () => {
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(false)
     expect(fs.existsSync(tmpIpfsPath)).toBe(false)
@@ -134,11 +155,13 @@ describe('Storage', () => {
     const peerId = await createPeerId()
     const libp2p = await createLibp2p(peerId)
 
+    console.log('utils create path', utils.createPaths)
+
     const createPathsSpy = jest.spyOn(utils, 'createPaths')
 
     await storage.init(libp2p, peerId)
 
-    // expect(createPathsSpy).toHaveBeenCalled()
+    expect(createPathsSpy).toHaveBeenCalled()
 
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(true)
     expect(fs.existsSync(tmpIpfsPath)).toBe(true)
@@ -274,10 +297,10 @@ describe.skip('Certificate', () => {
     storage.certificates.events.emit('replicated')
 
     expect(eventSpy).toBeCalledWith('loadCertificates', {
-certificates: [
+      certificates: [
 
-    ]
-})
+      ]
+    })
     expect(spyOnUpdatePeersList).toBeCalled()
   })
 
@@ -311,7 +334,7 @@ certificates: [
       case 'write':
         db.events.emit(eventName, 'address', messagePayload, [])
         break
-        // @ts-ignore
+      // @ts-ignore
       case 'replicate.progress':
         db.events.emit(eventName, 'address', 'hash', messagePayload, 'progress', 'total', [])
         break
@@ -357,7 +380,7 @@ certificates: [
 
     const db = storage.publicChannelsRepos.get(message.channelAddress).db
     const messagePayload = {
- payload: {
+      payload: {
         value: aliceMessageWithJohnsPublicKey
       }
     }
@@ -392,10 +415,10 @@ certificates: [
     storage.certificates.events.emit('write', 'address', { payload: { value: 'something' } }, [])
 
     expect(eventSpy).toBeCalledWith(StorageEvents.LOAD_CERTIFICATES, {
-certificates: [
+      certificates: [
 
-    ]
-})
+      ]
+    })
     expect(spyOnUpdatePeersList).toBeCalled()
   })
 })
@@ -715,7 +738,7 @@ describe.skip('Files', () => {
 
     )
     expect(eventSpy).toHaveBeenNthCalledWith(7, 'updateMessageMedia', expect.objectContaining({ cid: 'bafybeihlkhn7lncyzhgul7ixkeqsf2plizxw2j5fafiysrhysfe5m2ye4i', ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
-)
+    )
 
     expect(eventSpy).toBeCalledTimes(7)
   })
@@ -805,7 +828,7 @@ describe.skip('Files', () => {
         transferSpeeds.push(call[1].downloadProgress?.transferSpeed)
       }
     }
-      )
+    )
     const unwantedValues = [undefined, null, Infinity]
     for (const value of unwantedValues) {
       expect(transferSpeeds).not.toContain(value)
