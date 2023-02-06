@@ -273,9 +273,19 @@ export class DebugModeModal {
   // TO TEST
 
   async close() {
-    const understandBtn = await this.driver.wait(
-      until.elementLocated(By.xpath("//button[text()='Understand']"))
-    )
-    await understandBtn.click()
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+    const isVisible = await this.element
+    console.log({ isVisible })
+    if (isVisible) {
+      console.log('if')
+      const understandBtn = await this.driver.wait(
+        until.elementLocated(By.xpath("//button[text()='Understand']"))
+      )
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+      console.log('is Button', await understandBtn.isDisplayed())
+      await understandBtn.click()
+      console.log('after click')
+    }
+    console.log('outside if')
   }
 }
