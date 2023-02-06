@@ -27,7 +27,7 @@ describe('Smoke', () => {
     console.log({ screenshot })
     expect(isDebugModal).toBeTruthy()
     if (process.env.TEST_SYSTEM === 'windows') {
-      await debugModal.close()
+      await debugModal.element.click()
     }
   })
 

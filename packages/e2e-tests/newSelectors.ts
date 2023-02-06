@@ -266,7 +266,7 @@ export class DebugModeModal {
 
   get element() {
     return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='App is running in debug mode']"))
+      until.elementLocated(By.xpath("//button[text()='Understand']"))
     )
   }
 
