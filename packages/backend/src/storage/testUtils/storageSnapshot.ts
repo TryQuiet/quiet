@@ -6,25 +6,10 @@ import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import PeerId from 'peer-id'
 import { StorageOptions } from '../../common/types'
-let compare, createPaths, removeDirs, removeFiles, getUsersAddresses
 
-(async () => {
-  const { 
-  createPaths: createPathsImported,
-  compare: compareImported,
-  removeDirs: removeDirsImported,
-  removeFiles: removeFilesImported,
-  getUsersAddresses: getUsersAddressesImported
-
-  } = await import('../../common/utils')
-  createPaths = createPathsImported
-  compare =  compareImported
-  removeDirs = removeDirsImported
-  removeFiles = removeFilesImported
-  getUsersAddresses = getUsersAddressesImported
-
-})()import logger from '../../logger'
+import logger from '../../logger'
 import { Storage } from '..'
+const { createPaths } = await import('../../common/utils')
 
 const log = logger('dbSnap')
 

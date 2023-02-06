@@ -58,46 +58,6 @@ import {
 
 import { ConnectionsManagerOptions } from '../common/types'
 
-let compare, createPaths, removeDirs, removeFiles, getUsersAddresses, getFilesRecursively, getDirsRecursively, createLibp2pAddress, createLibp2pListenAddress, removeFilesFromDir, fetchAbsolute, getPorts, DummyIOServer, torBinForPlatform, torDirForPlatform
-
-(async () => {
-  const { 
-  createPaths: createPathsImported,
-  compare: compareImported,
-  removeDirs: removeDirsImported,
-  removeFiles: removeFilesImported,
-  getUsersAddresses: getUsersAddressesImported,
-  getFilesRecursively: getFilesRecursivelyImported,
-  getDirsRecursively: getDirsRecursivelyImported,
-  createLibp2pAddress: createLibp2pAddressImported,
-
-  createLibp2pListenAddress: createLibp2pListenAddressImported,
-  removeFilesFromDir: removeFilesFromDirImproted,
-  fetchAbsolute: fetchAbsoluteImported,
-  getPorts: getPortsImported,
-  DummyIOServer: DummyIOServerImported,
-  torBinForPlatform: torBinForPlatformImported,
-  torDirForPlatform: torDirForPlatformImported,
-  } = await import('../common/utils')
-
-  createPaths = createPathsImported
-  compare =  compareImported
-  removeDirs = removeDirsImported
-  removeFiles = removeFilesImported
-  getUsersAddresses = getUsersAddressesImported
-  getFilesRecursively = getFilesRecursivelyImported
-  getDirsRecursively = getDirsRecursivelyImported
-  createLibp2pAddress = createLibp2pAddressImported
-  createLibp2pListenAddress =createLibp2pListenAddressImported
-  removeFilesFromDir = removeFilesFromDirImproted
-  fetchAbsolute = fetchAbsoluteImported
-  getPorts =getPortsImported
-  DummyIOServer = DummyIOServerImported
-  torBinForPlatform = torBinForPlatformImported
-  torDirForPlatform = torDirForPlatformImported
-
-
-})()
 import { QUIET_DIR_PATH } from '../constants'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
@@ -109,6 +69,8 @@ import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
 import { Libp2pEvents } from './types'
 import PeerId, { JSONPeerId } from 'peer-id'
+
+const { createLibp2pAddress, createLibp2pListenAddress, getPorts } = await import('../common/utils')
 
 const log = logger('conn')
 interface InitStorageParams {

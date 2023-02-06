@@ -4,28 +4,10 @@ import * as fs from 'fs'
 import path from 'path'
 import { QUIET_DIR_PATH } from '../constants'
 import logger from '../logger'
-let compare, createPaths, removeDirs, removeFiles, getUsersAddresses, removeFilesFromDir
 
-(async () => {
-  const { 
-  createPaths: createPathsImported,
-  compare: compareImported,
-  removeDirs: removeDirsImported,
-  removeFiles: removeFilesImported,
-  getUsersAddresses: getUsersAddressesImported,
-  removeFilesFromDir: removeFilesFromDirImported
-
-  } = await import('../common/utils')
-  createPaths = createPathsImported
-  compare =  compareImported
-  removeDirs = removeDirsImported
-  removeFiles = removeFilesImported
-  getUsersAddresses = getUsersAddressesImported
-  removeFilesFromDir = removeFilesFromDirImported
-
-})()
 import { TorControl } from './TorControl'
 import getPort from 'get-port'
+const { removeFilesFromDir } = await import('../common/utils')
 const log = logger('tor')
 
 export enum GetInfoTorSignal {

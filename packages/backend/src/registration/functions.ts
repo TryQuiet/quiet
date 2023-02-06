@@ -2,52 +2,14 @@ import { createUserCert, loadCSR, CertFieldsTypes, getReqFieldValue, keyFromCert
 import { ErrorCodes, ErrorMessages, ErrorPayload, PermsData, SocketActionTypes } from '@quiet/state-manager'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import { CertificationRequest } from 'pkijs'
-let compare, createPaths, removeDirs, removeFiles, getUsersAddresses, getFilesRecursively, getDirsRecursively, createLibp2pAddress, createLibp2pListenAddress, removeFilesFromDir, fetchAbsolute, getPorts, DummyIOServer, torBinForPlatform, torDirForPlatform
-
-(async () => {
-  const { 
-  createPaths: createPathsImported,
-  compare: compareImported,
-  removeDirs: removeDirsImported,
-  removeFiles: removeFilesImported,
-  getUsersAddresses: getUsersAddressesImported,
-  getFilesRecursively: getFilesRecursivelyImported,
-  getDirsRecursively: getDirsRecursivelyImported,
-  createLibp2pAddress: createLibp2pAddressImported,
-
-  createLibp2pListenAddress: createLibp2pListenAddressImported,
-  removeFilesFromDir: removeFilesFromDirImproted,
-  fetchAbsolute: fetchAbsoluteImported,
-  getPorts: getPortsImported,
-  DummyIOServer: DummyIOServerImported,
-  torBinForPlatform: torBinForPlatformImported,
-  torDirForPlatform: torDirForPlatformImported,
-  } = await import('../common/utils')
-
-  createPaths = createPathsImported
-  compare =  compareImported
-  removeDirs = removeDirsImported
-  removeFiles = removeFilesImported
-  getUsersAddresses = getUsersAddressesImported
-  getFilesRecursively = getFilesRecursivelyImported
-  getDirsRecursively = getDirsRecursivelyImported
-  createLibp2pAddress = createLibp2pAddressImported
-  createLibp2pListenAddress =createLibp2pListenAddressImported
-  removeFilesFromDir = removeFilesFromDirImproted
-  fetchAbsolute = fetchAbsoluteImported
-  getPorts =getPortsImported
-  DummyIOServer = DummyIOServerImported
-  torBinForPlatform = torBinForPlatformImported
-  torDirForPlatform = torDirForPlatformImported
-
-
-})()
 import { Agent } from 'http'
 import AbortController from 'abort-controller'
-import fetch, { Response } from 'node-fetch'
+import fetch from 'node-fetch'
 import logger from '../logger'
 import { CsrContainsFields, IsCsr } from './validators'
 import { RegistrationEvents } from './types'
+
+const { getUsersAddresses } = await import('../common/utils')
 const log = logger('registration')
 
 class UserCsrData {
