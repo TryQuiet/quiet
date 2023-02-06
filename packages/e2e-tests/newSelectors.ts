@@ -274,15 +274,21 @@ export class DebugModeModal {
 
   async close() {
     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
-    const isVisible = await this.element
+    const isVisible = await this.element.isDisplayed()
     console.log({ isVisible })
     if (isVisible) {
       console.log('if')
+      const closeButton = await this.driver.findElement(By.xpath("//button[text()='Understand']"))
+      console.log('after closeButton')
       const understandBtn = await this.driver.wait(
         until.elementLocated(By.xpath("//button[text()='Understand']"))
       )
+      console.log('after understandBtn')
+
       await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
-      console.log('is Button', await understandBtn.isDisplayed())
+
+      console.log('is understandBtn', await understandBtn.isDisplayed())
+      console.log('is closeButton', await closeButton.isDisplayed())
       await understandBtn.click()
       console.log('after click')
     }
