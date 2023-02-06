@@ -22,16 +22,16 @@ jobs:
 
       - name: Download DMG
         # working-directory: ./app
-        run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.16.0/Quiet-0.16.0.dmg
+        run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet-0.19.17-alpha.0.dmg
 
       - name: Chmod
-        run: cd packages/e2e-tests/Quiet && chmod +x Quiet-0.16.0.dmg
+        run: cd packages/e2e-tests/Quiet && chmod +x Quiet-0.19.17-alpha.0.dmg
 
       - name: hdiutil mount
-        run: cd packages/e2e-tests/Quiet && hdiutil mount Quiet-0.16.0.dmg 
+        run: cd packages/e2e-tests/Quiet && hdiutil mount Quiet-0.19.17-alpha.0.dmg 
 
       - name: Add to apps
-        run: cd ~ && cp -R "/Volumes/Quiet 0.16.0/Quiet.app" /Applications
+        run: cd ~ && cp -R "/Volumes/Quiet-0.19.17-alpha.0/Quiet.app" /Applications
 
       - name: Run smoke test
         run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
@@ -64,10 +64,10 @@ jobs:
           sleep 3
           fluxbox &
       - name: Download App Image
-        run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.16.0/Quiet-0.16.0.AppImage
+        run: cd packages/e2e-tests/Quiet && curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet-0.19.17-alpha.0.AppImage
 
       - name: Chmod
-        run: cd packages/e2e-tests/Quiet && chmod +x Quiet-0.16.0.AppImage
+        run: cd packages/e2e-tests/Quiet && chmod +x Quiet-0.19.17-alpha.0.AppImage
 
       - name: Run smoke test
         run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts

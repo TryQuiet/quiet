@@ -20,6 +20,11 @@ describe('Smoke', () => {
     await buildSetup.createChromeDriver()
     driver = buildSetup.getDriver()
     await driver.getSession()
+
+    const debugModal = new DebugModeModal(driver)
+    isDebugModal = await debugModal.element.isDisplayed()
+    expect(isDebugModal).toBeTruthy()
+    await debugModal.close()
   })
 
   afterAll(async () => {
@@ -33,17 +38,17 @@ describe('Smoke', () => {
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
       expect(isLoadingPanel).toBeTruthy()
     })
-    console.log('if windows', process.env.TEST_SYSTEM)
-    if (process.env.TEST_SYSTEM === 'windows') {
-      console.log('if windows', process.env.TEST_SYSTEM)
-      it('Debug Modal', async () => {
-        console.log('Debug Modal')
-        const debugModal = new DebugModeModal(driver)
-        isDebugModal = await debugModal.element.isDisplayed()
-        expect(isDebugModal).toBeTruthy()
-        await debugModal.close()
-      })
-    }
+    // console.log('if windows', process.env.TEST_SYSTEM)
+    // if (process.env.TEST_SYSTEM === 'windows') {
+    //   console.log('if windows', process.env.TEST_SYSTEM)
+      // it('Debug Modal', async () => {
+      //   console.log('Debug Modal')
+      //   const debugModal = new DebugModeModal(driver)
+      //   isDebugModal = await debugModal.element.isDisplayed()
+      //   expect(isDebugModal).toBeTruthy()
+      //   await debugModal.close()
+      // })
+    // }
 
     it('User sees "join community" page and switches to "create community" view by clicking on the link', async () => {
       console.log(2)

@@ -18,11 +18,9 @@ export class BuildSetup {
   private getBinaryLocation() {
     switch (process.env.TEST_SYSTEM) {
       case 'linux':
-        return `${__dirname}/Quiet/Quiet-0.16.0.AppImage`
+        return `${__dirname}/Quiet/Quiet-0.19.17-alpha.0.AppImage`
       case 'windows':
-        // eslint-disable-next-line no-useless-escape
         return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
-      // return `${process.env.LOCALAPPDATA}/Programs/quiet/Quiet.exe`
       case 'mac':
         return '/Applications/Quiet.app/Contents/MacOS/Quiet'
       default:
@@ -39,7 +37,7 @@ export class BuildSetup {
         `set DEBUG=backend* & set DATA_DIR=${this.dataDir} & cd node_modules/.bin & chromedriver.cmd --port=${this.port}`,
         [],
         {
-          shell: true,
+          shell: true
           // detached: true
         }
       )
