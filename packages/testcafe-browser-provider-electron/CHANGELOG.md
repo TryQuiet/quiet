@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.19.19-alpha.4](https://github.com/DevExpress/testcafe-browser-provider-electron/compare/testcafe-browser-provider-electron@0.19.19-alpha.3...testcafe-browser-provider-electron@0.19.19-alpha.4) (2023-02-06)
+
+**Note:** Version bump only for package testcafe-browser-provider-electron
+
+
+
+
+
 ## [0.19.19-alpha.3](https://github.com/DevExpress/testcafe-browser-provider-electron/compare/testcafe-browser-provider-electron@0.19.19-alpha.2...testcafe-browser-provider-electron@0.19.19-alpha.3) (2023-02-06)
 
 **Note:** Version bump only for package testcafe-browser-provider-electron

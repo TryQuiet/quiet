@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.19.19-alpha.4](https://github.com/TryQuiet/quiet/compare/backend-bundle@0.19.19-alpha.3...backend-bundle@0.19.19-alpha.4) (2023-02-06)
+
+**Note:** Version bump only for package backend-bundle
+
+
+
+
+
 ## [0.19.19-alpha.3](https://github.com/TryQuiet/quiet/compare/backend-bundle@0.19.19-alpha.2...backend-bundle@0.19.19-alpha.3) (2023-02-06)
 
 **Note:** Version bump only for package backend-bundle
