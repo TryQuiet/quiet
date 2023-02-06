@@ -32,7 +32,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,create-require-loader"
 
       - name: Cache Pods dependencies
         uses: actions/cache@v1
