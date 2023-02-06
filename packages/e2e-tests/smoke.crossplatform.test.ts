@@ -23,6 +23,8 @@ describe('Smoke', () => {
 
     const debugModal = new DebugModeModal(driver)
     isDebugModal = await debugModal.element.isDisplayed()
+    const screenshot = await debugModal.element.takeScreenshot()
+    console.log({ screenshot })
     expect(isDebugModal).toBeTruthy()
     if (process.env.TEST_SYSTEM === 'windows') {
       await debugModal.close()
