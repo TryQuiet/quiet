@@ -31,7 +31,7 @@ jobs:
         run: cd packages/e2e-tests/Quiet && hdiutil mount Quiet-0.19.17-alpha.0.dmg 
 
       - name: Add to apps
-        run: cd ~ && cp -R "/Volumes/Quiet-0.19.17-alpha.0/Quiet.app" /Applications
+        run: cd ~ && cp -R "/Volumes/Quiet 0.19.17-alpha.0/Quiet.app" /Applications
 
       - name: Run smoke test
         run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
