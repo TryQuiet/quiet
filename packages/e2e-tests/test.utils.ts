@@ -40,7 +40,7 @@ export class BuildSetup {
         [],
         {
           shell: true,
-          detached: true
+          // detached: true
         }
       )
     } else {
