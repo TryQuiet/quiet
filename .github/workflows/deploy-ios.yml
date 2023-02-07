@@ -34,14 +34,6 @@ jobs:
         with:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,create-require-loader"
 
-      - name: Cache Pods dependencies
-        uses: actions/cache@v1
-        with:
-          path: ./packages/mobile/ios/Pods
-          key: ${{ runner.OS }}-pods-cache-${{ hashFiles('**/ios/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.OS }}-pods-cache-
-
       - name: Install pod dependencies
         run: |
           cd ./packages/mobile/ios
