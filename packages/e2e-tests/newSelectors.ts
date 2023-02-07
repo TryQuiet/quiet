@@ -265,9 +265,11 @@ export class DebugModeModal {
   }
 
   get element() {
-    return this.driver.wait(
-      until.elementLocated(By.xpath("//button[text()='Understand']"))
-    )
+    return this.driver.wait(until.elementLocated(By.xpath("//button[text()='Understand']")))
+  }
+
+  get button() {
+    return this.driver.wait(until.elementLocated(By.xpath("//button[text()='Understand']")))
   }
 
   // TO TEST

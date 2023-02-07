@@ -14,25 +14,19 @@ describe('Smoke', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
   let isDebugModal: boolean
-  const port = 9515
+  const port = 9569
   beforeAll(async () => {
     buildSetup = new BuildSetup(port)
     await buildSetup.createChromeDriver()
     driver = buildSetup.getDriver()
     await driver.getSession()
 
-    const debugModal = new DebugModeModal(driver)
-    isDebugModal = await debugModal.element.isDisplayed()
-    const screenshot = await debugModal.element.takeScreenshot()
+    // // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    // debugModal.element.click()
 
-    console.log({ screenshot })
-    expect(isDebugModal).toBeTruthy()
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    debugModal.element.click()
-
-    // if (process.env.TEST_SYSTEM === 'windows') {
-    //   await debugModal.element.click()
-    // }
+    // // if (process.env.TEST_SYSTEM === 'windows') {
+    // //   await debugModal.element.click()
+    // // }
   })
 
   afterAll(async () => {
@@ -40,6 +34,19 @@ describe('Smoke', () => {
     buildSetup.killChromeDriver()
   })
   describe('Stages:', () => {
+    it('debug', async () => {
+      const debugModal = new DebugModeModal(driver)
+      isDebugModal = await debugModal.element.isDisplayed()
+      // const screenshot = await debugModal.element.takeScreenshot()
+
+      // console.log({ screenshot })
+      expect(isDebugModal).toBeTruthy()
+      await debugModal.element.isDisplayed()
+      const button = await debugModal.button
+      console.log({ button })
+      const log = await driver.executeScript('return arguments[0].click();', button)
+      console.log({ log })
+    })
     it('User waits for the modal Starting Quiet to disappear', async () => {
       console.log(1)
       const loadingPanel = new LoadingPanel(driver, 'Starting Quiet')

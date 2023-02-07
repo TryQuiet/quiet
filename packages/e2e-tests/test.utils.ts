@@ -43,7 +43,7 @@ export class BuildSetup {
       )
     } else {
       this.child = spawn(
-        `DATA_DIR=${this.dataDir} node_modules/.bin/chromedriver --port=${this.port}`,
+        `DATA_DIR=${this.dataDir} TEST_MODE=false node_modules/.bin/chromedriver --port=${this.port}`,
         [],
         {
           shell: true
@@ -71,7 +71,7 @@ export class BuildSetup {
           .withCapabilities({
             'goog:chromeOptions': {
               binary: binary,
-              args: [`--remote-debugging-port=${this.port + 5}`]
+              args: ['--no-sandbox', `--remote-debugging-port=${this.port + 5}`]
             }
           })
           .forBrowser(Browser.CHROME)
