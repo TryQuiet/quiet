@@ -836,7 +836,7 @@ describe('Files', () => {
   })
 })
 
-describe.skip('Users', () => {
+describe('Users', () => {
   it('gets all users from db', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
     const mockGetCertificates = jest.fn()
