@@ -15,8 +15,6 @@
 		1827A9E229783D6E00245FD3 /* classic-level.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; platformFilter = ios; };
 		1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		1827A9E429783D7600245FD3 /* classic-level.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		183C4BEB296C7B6700BA2D8B /* config.gypi in Resources */ = {isa = PBXBuildFile; fileRef = 183C4872296C7B6700BA2D8B /* config.gypi */; };
-		183C4BEC296C7B6700BA2D8B /* common.gypi in Resources */ = {isa = PBXBuildFile; fileRef = 183C4875296C7B6700BA2D8B /* common.gypi */; };
 		1842897C295466AA00CA5039 /* NodeMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1842897B295466AA00CA5039 /* NodeMobile.framework */; platformFilter = ios; };
 		1842897D295466B500CA5039 /* NodeMobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1842897B295466AA00CA5039 /* NodeMobile.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		1842897E295466B500CA5039 /* NodeMobile.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1842897B295466AA00CA5039 /* NodeMobile.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -121,10 +119,8 @@
 		183C486F296C7B6700BA2D8B /* js_native_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_api.h; sourceTree = "<group>"; };
 		183C4870296C7B6700BA2D8B /* v8-wasm-trap-handler-posix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "v8-wasm-trap-handler-posix.h"; sourceTree = "<group>"; };
 		183C4871296C7B6700BA2D8B /* v8-unwinder-state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "v8-unwinder-state.h"; sourceTree = "<group>"; };
-		183C4872296C7B6700BA2D8B /* config.gypi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = config.gypi; sourceTree = "<group>"; };
 		183C4873296C7B6700BA2D8B /* zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zlib.h; sourceTree = "<group>"; };
 		183C4874296C7B6700BA2D8B /* node_object_wrap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = node_object_wrap.h; sourceTree = "<group>"; };
-		183C4875296C7B6700BA2D8B /* common.gypi */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = common.gypi; sourceTree = "<group>"; };
 		183C4876296C7B6700BA2D8B /* v8-value-serializer-version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "v8-value-serializer-version.h"; sourceTree = "<group>"; };
 		183C4878296C7B6700BA2D8B /* pem2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pem2.h; sourceTree = "<group>"; };
 		183C4879296C7B6700BA2D8B /* kdf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kdf.h; sourceTree = "<group>"; };
@@ -715,10 +711,8 @@
 				183C486F296C7B6700BA2D8B /* js_native_api.h */,
 				183C4870296C7B6700BA2D8B /* v8-wasm-trap-handler-posix.h */,
 				183C4871296C7B6700BA2D8B /* v8-unwinder-state.h */,
-				183C4872296C7B6700BA2D8B /* config.gypi */,
 				183C4873296C7B6700BA2D8B /* zlib.h */,
 				183C4874296C7B6700BA2D8B /* node_object_wrap.h */,
-				183C4875296C7B6700BA2D8B /* common.gypi */,
 				183C4876296C7B6700BA2D8B /* v8-value-serializer-version.h */,
 				183C4877296C7B6700BA2D8B /* openssl */,
 				183C4BE5296C7B6700BA2D8B /* v8config.h */,
@@ -4868,7 +4862,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				183C4BEB296C7B6700BA2D8B /* config.gypi in Resources */,
 				069DD1D7AEEE422CAA8DDBAD /* Rubik-Black.ttf in Resources */,
 				DB3A77793E604ACE8E52C67D /* Rubik-BlackItalic.ttf in Resources */,
 				8A009A60D84E4B08AB0E8152 /* Rubik-Bold.ttf in Resources */,
@@ -4876,7 +4869,6 @@
 				62541AEC8BEC401EBAAF6198 /* Rubik-ExtraBold.ttf in Resources */,
 				9EC9E7C54868433990A479EC /* Rubik-ExtraBoldItalic.ttf in Resources */,
 				0109AE73C5324F9B8404B9FE /* Rubik-Italic.ttf in Resources */,
-				183C4BEC296C7B6700BA2D8B /* common.gypi in Resources */,
 				5CBDF3C0D937401A886684F8 /* Rubik-Light.ttf in Resources */,
 				0FBBD0C07F80428D9985FB09 /* Rubik-LightItalic.ttf in Resources */,
 				B4D947D797C747ABAC4EDB69 /* Rubik-Medium.ttf in Resources */,
