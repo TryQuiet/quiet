@@ -2,7 +2,6 @@ import express from 'express'
 import createHttpsProxyAgent from 'https-proxy-agent'
 import fetch, { Response } from 'node-fetch'
 import fs from 'fs'
-import { getPorts } from '../common/utils'
 import {
   createTmpDir,
   spawnTorProcess,
@@ -13,6 +12,7 @@ import logger from '../logger'
 import { EventEmitter } from 'events'
 import { Command } from 'commander'
 import { Tor, GetInfoTorSignal } from '../torManager/torManager'
+import { getPorts } from '../common/utils'
 const program = new Command()
 
 enum TestMode {

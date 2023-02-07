@@ -3,15 +3,13 @@ import { all } from './filters'
 import { Multiaddr } from 'multiaddr'
 import { Tor } from '../../torManager/index'
 import os from 'os'
-import * as utils from '../../common/utils'
 import createHttpsProxyAgent from 'https-proxy-agent'
 import { createTmpDir, tmpQuietDirPath } from '../../common/testUtils'
 import { createCertificatesTestHelper } from '../tests/client-server'
-import { createLibp2pAddress } from '../../common/utils'
 import getPort from 'get-port'
 import { DirResult } from 'tmp'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, afterAll } from '@jest/globals'
-
+import { createLibp2pAddress, torBinForPlatform, torDirForPlatform } from '../../common/utils'
 
 jest.setTimeout(120000)
 
@@ -45,7 +43,7 @@ describe('websocketOverTor', () => {
     const port2Arr = await getPort()
     port1Target = port1Arr
     port2Target = port2Arr
-    const torPath = utils.torBinForPlatform()
+    const torPath = torBinForPlatform()
     httpTunnelPort = await getPort()
     tor = new Tor({
       torPath,
@@ -53,7 +51,7 @@ describe('websocketOverTor', () => {
       httpTunnelPort,
       options: {
         env: {
-          LD_LIBRARY_PATH: utils.torDirForPlatform(),
+          LD_LIBRARY_PATH: torDirForPlatform(),
           HOME: os.homedir()
         },
         detached: true

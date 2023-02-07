@@ -1,6 +1,7 @@
 import { DataServer } from './DataServer'
-import { getPorts } from '../common/utils'
+
 import { expect, test } from '@jest/globals'
+import { getPorts }  from'../common/utils'
 
 test.skip('start and stop data server', async () => {
   const ports = await getPorts()

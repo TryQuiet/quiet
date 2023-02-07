@@ -2,7 +2,7 @@ import createHttpsProxyAgent from 'https-proxy-agent'
 import fetch, { Response } from 'node-fetch'
 import PeerId from 'peer-id'
 import { createLibp2p } from '../common/testUtils'
-import { Storage } from '../storage'
+const { Storage } = await import('../storage')
 
 export async function registerUser(csr: string, httpTunnelPort: number, localhost: boolean = true, registrarPort: number = 7789): Promise<Response> {
   let address = '127.0.0.1'

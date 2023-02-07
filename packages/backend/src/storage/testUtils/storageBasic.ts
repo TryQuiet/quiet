@@ -2,11 +2,12 @@ import type { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
 import PeerId from 'peer-id'
 import { StorageOptions } from '../../common/types'
-import { createPaths } from '../../common/utils'
 import logger from '../../logger'
 import { Storage } from '..'
 
 const log = logger('dbSnap')
+
+import { createPaths } from '../../common/utils'
 
 class StorageTestSnapshotOptions extends StorageOptions {
   messagesCount: number

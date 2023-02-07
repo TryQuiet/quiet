@@ -3,12 +3,10 @@ import path from 'path'
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { Config } from '../constants'
-import { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createFile, createPeerId } from '../common/testUtils'
-import { Storage } from './storage'
-import * as utils from '../common/utils'
 import { FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'url'
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import {
@@ -16,10 +14,8 @@ import {
   keyFromCertificate,
   parseCertificate
 } from '@quiet/identity'
-import { Crypto } from '@peculiar/webcrypto'
+// import { Crypto } from '@peculiar/webcrypto'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
-
-
 import {
   communities,
   Community,
@@ -35,15 +31,25 @@ import {
 } from '@quiet/state-manager'
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
-import { setEngine, CryptoEngine } from 'pkijs'
+// import { setEngine, CryptoEngine } from 'pkijs'
+import type { Storage as StorageType } from './storage'
 
-// jest.setTimeout(30_000)
+const actual = await import('../common/utils')
+jest.unstable_mockModule('../common/utils', async () => {
+  return {
+    ...(actual as object),
+    createPaths: jest.fn()
+  }
+})
+
+const { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createFile, createPeerId } = await import('../common/testUtils')
 
 let tmpDir: DirResult
 let tmpAppDataPath: string
 let tmpOrbitDbDir: string
 let tmpIpfsPath: string
-let storage: Storage
+let storage: StorageType
+let Storage
 let store: Store
 let factory: FactoryGirl
 let community: Community
@@ -53,19 +59,20 @@ let john: Identity
 let message: ChannelMessage
 let channelio: PublicChannelStorage
 let filePath: string
+let utils
 
-// jest.setTimeout(50000)
+jest.setTimeout(50000)
 
 beforeAll(async () => {
-  const webcrypto = new Crypto()
-  // @ts-ignore
-  global.crypto = webcrypto
+  // const webcrypto = new Crypto()
+  // // @ts-ignore
+  // global.crypto = webcrypto
 
-  setEngine('newEngine', new CryptoEngine({
-    name: 'newEngine',
-    // @ts-ignore
-    crypto: webcrypto,
-  }))
+  // setEngine('newEngine', new CryptoEngine({
+  //   name: 'newEngine',
+  //   // @ts-ignore
+  //   crypto: webcrypto,
+  // }))
   store = prepareStore().store
   factory = await getFactory(store)
 
@@ -107,12 +114,13 @@ beforeEach(async () => {
   tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
   tmpOrbitDbDir = path.join(tmpAppDataPath, Config.ORBIT_DB_DIR)
   tmpIpfsPath = path.join(tmpAppDataPath, Config.IPFS_REPO_PATH)
+  Storage = (await import('./storage')).Storage
+  utils = await import('../common/utils')
   storage = null
   filePath = path.join(__dirname, '/testUtils/500kB-file.txt')
 })
 
 afterEach(async () => {
-  console.log('after test')
   try {
     storage && (await storage.stopOrbitDb())
   } catch (e) {
@@ -125,7 +133,7 @@ afterEach(async () => {
 })
 
 describe('Storage', () => {
-  it.only('creates paths by default', async () => {
+  it('creates paths by default', async () => {
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(false)
     expect(fs.existsSync(tmpIpfsPath)).toBe(false)
 
@@ -134,13 +142,16 @@ describe('Storage', () => {
     const peerId = await createPeerId()
     const libp2p = await createLibp2p(peerId)
 
+    console.log('utils create path', utils.createPaths)
+
     const createPathsSpy = jest.spyOn(utils, 'createPaths')
 
     await storage.init(libp2p, peerId)
 
-    // expect(createPathsSpy).toHaveBeenCalled()
+    expect(createPathsSpy).toHaveBeenCalled()
 
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(true)
+
     expect(fs.existsSync(tmpIpfsPath)).toBe(true)
   })
 
@@ -161,7 +172,7 @@ describe('Storage', () => {
   })
 })
 
-describe.skip('Certificate', () => {
+describe('Certificate', () => {
   it('is saved to db if passed verification', async () => {
     const userCertificate = await createUserCert(
       rootPermsData.certificate,
@@ -274,10 +285,10 @@ describe.skip('Certificate', () => {
     storage.certificates.events.emit('replicated')
 
     expect(eventSpy).toBeCalledWith('loadCertificates', {
-certificates: [
+      certificates: [
 
-    ]
-})
+      ]
+    })
     expect(spyOnUpdatePeersList).toBeCalled()
   })
 
@@ -311,7 +322,7 @@ certificates: [
       case 'write':
         db.events.emit(eventName, 'address', messagePayload, [])
         break
-        // @ts-ignore
+      // @ts-ignore
       case 'replicate.progress':
         db.events.emit(eventName, 'address', 'hash', messagePayload, 'progress', 'total', [])
         break
@@ -357,7 +368,7 @@ certificates: [
 
     const db = storage.publicChannelsRepos.get(message.channelAddress).db
     const messagePayload = {
- payload: {
+      payload: {
         value: aliceMessageWithJohnsPublicKey
       }
     }
@@ -392,15 +403,15 @@ certificates: [
     storage.certificates.events.emit('write', 'address', { payload: { value: 'something' } }, [])
 
     expect(eventSpy).toBeCalledWith(StorageEvents.LOAD_CERTIFICATES, {
-certificates: [
+      certificates: [
 
-    ]
-})
+      ]
+    })
     expect(spyOnUpdatePeersList).toBeCalled()
   })
 })
 
-describe.skip('Message', () => {
+describe('Message', () => {
   it('is saved to db if passed signature verification', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
@@ -457,7 +468,7 @@ describe.skip('Message', () => {
   })
 })
 
-describe.skip('Files', () => {
+describe('Files', () => {
   it('uploads image', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
@@ -484,9 +495,9 @@ describe.skip('Files', () => {
 
     await storage.uploadFile(metadata)
     expect(copyFileSpy).toHaveBeenCalled()
-    const newFilePath = copyFileSpy.mock.results[0].value
+    const newFilePath = copyFileSpy.mock.results[0].value as string
     // TODO:JEST
-    // metadata.path = newFilePath
+    metadata.path = newFilePath
 
     expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' })
     expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: 'bafybeihlkhn7lncyzhgul7ixkeqsf2plizxw2j5fafiysrhysfe5m2ye4i', ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
@@ -650,6 +661,8 @@ describe.skip('Files', () => {
 
     const uploadMetadata = eventSpy.mock.calls[1][1]
 
+    console.log('uploadMetadata', uploadMetadata)
+
     await storage.downloadFile({
       ...uploadMetadata
     })
@@ -715,7 +728,7 @@ describe.skip('Files', () => {
 
     )
     expect(eventSpy).toHaveBeenNthCalledWith(7, 'updateMessageMedia', expect.objectContaining({ cid: 'bafybeihlkhn7lncyzhgul7ixkeqsf2plizxw2j5fafiysrhysfe5m2ye4i', ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
-)
+    )
 
     expect(eventSpy).toBeCalledTimes(7)
   })
@@ -805,7 +818,7 @@ describe.skip('Files', () => {
         transferSpeeds.push(call[1].downloadProgress?.transferSpeed)
       }
     }
-      )
+    )
     const unwantedValues = [undefined, null, Infinity]
     for (const value of unwantedValues) {
       expect(transferSpeeds).not.toContain(value)

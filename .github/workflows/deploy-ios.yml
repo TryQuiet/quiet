@@ -32,15 +32,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile"
-
-      - name: Cache Pods dependencies
-        uses: actions/cache@v1
-        with:
-          path: ./packages/mobile/ios/Pods
-          key: ${{ runner.OS }}-pods-cache-${{ hashFiles('**/ios/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.OS }}-pods-cache-
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,create-require-loader"
 
       - name: Install pod dependencies
         run: |
@@ -52,6 +44,7 @@ jobs:
         run: ./.github/secrets/decrypt_secrets.sh
         env:
           IOS_PROFILE_KEY: ${{ secrets.IOS_PROFILE_KEY }}
+          IOS_CERTIFICATE_KEY: ${{ secrets.IOS_CERTIFICATE_KEY }}
 
       - name: Build
         run: |

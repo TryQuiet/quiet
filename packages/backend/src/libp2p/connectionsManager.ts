@@ -59,11 +59,7 @@ import {
 } from '@quiet/state-manager'
 
 import { ConnectionsManagerOptions } from '../common/types'
-import {
-  createLibp2pAddress,
-  createLibp2pListenAddress,
-  getPorts
-} from '../common/utils'
+
 import { QUIET_DIR_PATH } from '../constants'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
@@ -76,6 +72,8 @@ import { StorageEvents } from '../storage/types'
 import { Libp2pEvents, ServiceState } from './types'
 import PeerId from 'peer-id'
 import { LocalDB, LocalDBKeys } from '../storage/localDB'
+
+import { createLibp2pAddress, createLibp2pListenAddress, getPorts } from '../common/utils'
 
 const log = logger('conn')
 interface InitStorageParams {
