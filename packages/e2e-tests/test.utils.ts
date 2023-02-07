@@ -34,7 +34,7 @@ export class BuildSetup {
     if (process.env.TEST_SYSTEM === 'windows') {
       exec(`cd %APPDATA% % & mkdir ${this.dataDir}`, e => console.log({ e }))
       this.child = spawn(
-        `set DEBUG=backend* & set DATA_DIR=${this.dataDir} & cd node_modules/.bin & chromedriver.cmd --port=${this.port}`,
+        `set DEBUG='backend*,quiet*,state-manager*,desktop* & set DATA_DIR=${this.dataDir} & cd node_modules/.bin & chromedriver.cmd --port=${this.port}`,
         [],
         {
           shell: true
