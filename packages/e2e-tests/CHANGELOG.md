@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.19.19-alpha.6](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.19.19-alpha.5...e2e-tests@0.19.19-alpha.6) (2023-02-07)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
 ## [0.19.19-alpha.5](https://github.com/TryQuiet/quiet/compare/e2e-tests@0.19.19-alpha.4...e2e-tests@0.19.19-alpha.5) (2023-02-06)
 
 **Note:** Version bump only for package e2e-tests
