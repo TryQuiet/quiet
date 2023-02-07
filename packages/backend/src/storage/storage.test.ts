@@ -38,8 +38,15 @@ const actual = await import('../common/utils')
 jest.unstable_mockModule('../common/utils', async () => {
   return {
     ...(actual as object),
-    createPaths: jest.fn()
-  }
+    createPaths: jest.fn((paths: string[]) => {
+      console.log('creating paths in fn')
+      for (const path of paths) {
+        if (!fs.existsSync(path)) {
+          fs.mkdirSync(path, { recursive: true })
+        }
+      }
+    })
+    }
 })
 
 const { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createFile, createPeerId } = await import('../common/testUtils')
