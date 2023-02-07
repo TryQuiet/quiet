@@ -164,8 +164,8 @@ android {
         applicationId "com.zbaymobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 211
-        versionName "0.19.19-alpha.13"
+        versionCode 212
+        versionName "0.19.19-alpha.14"
         resValue "string", "build_config_package", "com.zbaymobile"
         ndk {
             abiFilters "arm64-v8a"
