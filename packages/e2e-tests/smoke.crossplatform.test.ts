@@ -14,7 +14,7 @@ describe('Smoke', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
   let isButton: boolean
-  const port = 9577
+  const port = 9515
   beforeAll(async () => {
     buildSetup = new BuildSetup(port)
     await buildSetup.createChromeDriver()
