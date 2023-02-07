@@ -27,7 +27,8 @@ describe('Smoke', () => {
 
     console.log({ screenshot })
     expect(isDebugModal).toBeTruthy()
-    await debugModal.element.sendKeys(Key.ENTER)
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    debugModal.element.click()
 
     // if (process.env.TEST_SYSTEM === 'windows') {
     //   await debugModal.element.click()
