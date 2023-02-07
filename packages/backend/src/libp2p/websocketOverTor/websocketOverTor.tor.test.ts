@@ -1,6 +1,6 @@
 import { webSockets } from './index'
 import { all } from './filters'
-import { Multiaddr } from 'multiaddr'
+import { multiaddr } from '@multiformats/multiaddr'
 import { Tor } from '../../torManager/index'
 import os from 'os'
 import createHttpsProxyAgent from 'https-proxy-agent'
@@ -10,6 +10,8 @@ import getPort from 'get-port'
 import { DirResult } from 'tmp'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, afterAll } from '@jest/globals'
 import { createLibp2pAddress, torBinForPlatform, torDirForPlatform } from '../../common/utils'
+
+import {createServer} from 'it-ws/server'
 
 jest.setTimeout(120000)
 
@@ -86,7 +88,6 @@ describe('websocketOverTor', () => {
     console.log(`caKey ${pems.ca_key}`)
     console.log(`userCert ${pems.userCert}`)
     console.log(`userKey ${pems.userKey}`)
-    const { createServer } = await eval("import('it-ws/server')")
 
     const prepareListenerArg = {
       handler: (x) => x,
@@ -131,9 +132,9 @@ describe('websocketOverTor', () => {
       targetPort: port2Target,
       createServer
     }
-    const multiAddress = new Multiaddr(createLibp2pAddress(service1.onionAddress, peerId1))
+    const multiAddress = multiaddr(createLibp2pAddress(service1.onionAddress, peerId1))
 
-    const remoteAddress = new Multiaddr(createLibp2pAddress(service2.onionAddress, peerId2))
+    const remoteAddress = multiaddr(createLibp2pAddress(service2.onionAddress, peerId2))
 
     const ws1 = webSockets(websocketsOverTorData1)()
     const ws2 = webSockets(websocketsOverTorData2)()
@@ -164,145 +165,135 @@ describe('websocketOverTor', () => {
     await tryDial()
 
     expect(onConnection).toBeCalled()
-    // TODO:JEST
-    // expect(onConnection.mock.calls[0][0].remoteAddr).toEqual(remoteAddress)
+    expect((onConnection.mock.calls[0][0] as any).remoteAddr).toEqual(remoteAddress)
   })
 
-  // it('rejects connection if user cert is invalid', async () => {
-  //   const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
-  //   const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
+  it('rejects connection if user cert is invalid', async (caType: (ca: string) => any) => {
+    const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
+    const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
 
-  //   const prepareListenerArg = {
-  //     handler: (x) => x,
-  //     upgrader: {
-  //       upgradeOutbound,
-  //       upgradeInbound
-  //     }
-  //   }
+    const prepareListenerArg = {
+      handler: (x) => x,
+      upgrader: {
+        upgradeOutbound,
+        upgradeInbound
+      }
+    }
 
-  //   const signal = {
-  //     addEventListener,
-  //     removeEventListener
-  //   }
+    const signal = {
+      addEventListener,
+      removeEventListener
+    }
 
-  //   const peerId1 = 'Qme5NiSQ6V3cc3nyfYVtkkXDPGBSYEVUNCN5sM4DbyYc7s'
-  //   const peerId2 = 'QmeCWxba5Yk1ZAKogQJsaHXoAermE7PgFZqpqyKNg65cSN'
+    const peerId1 = 'Qme5NiSQ6V3cc3nyfYVtkkXDPGBSYEVUNCN5sM4DbyYc7s'
+    const peerId2 = 'QmeCWxba5Yk1ZAKogQJsaHXoAermE7PgFZqpqyKNg65cSN'
 
-  //   const agent = HttpsProxyAgent({ host: 'localhost', port: httpTunnelPort })
+    const agent = createHttpsProxyAgent({ host: 'localhost', port: httpTunnelPort })
 
-  //   const websocketsOverTorData1 = {
-  //     upgrader: {
-  //       upgradeOutbound,
-  //       upgradeInbound
-  //     },
-  //     websocket: {
-  //       agent,
-  //       cert: pems.servCert,
-  //       key: pems.servKey,
-  //       ca: [pems.ca]
-  //     },
-  //     localAddress: createLibp2pAddress(service1.onionAddress, peerId1),
-  //     targetPort: port1Target
-  //   }
+    const websocketsOverTorData1 = {
+      filter: all,
+      websocket: {
+        agent,
+        cert: pems.servCert,
+        key: pems.servKey,
+        ca: [pems.ca]
+      },
+      localAddress: createLibp2pAddress(service1.onionAddress, peerId1),
+      targetPort: port1Target,
+      createServer
+    }
 
-  //   const websocketsOverTorData2 = {
-  //     upgrader: {
-  //       upgradeOutbound,
-  //       upgradeInbound
-  //     },
-  //     websocket: {
-  //       agent,
-  //       cert: anotherPems.userCert,
-  //       key: anotherPems.userKey,
-  //       ca: [pems.ca]
-  //     },
-  //     localAddress: createLibp2pAddress(service2.onionAddress, peerId2),
-  //     serverOpts: {},
-  //     targetPort: port2Target
-  //   }
-  //   const multiAddress = new Multiaddr(createLibp2pAddress(service1.onionAddress, peerId1))
+    const websocketsOverTorData2 = {
+      filter: all,
+      websocket: {
+        agent,
+        cert: pems.servCert,
+        key: pems.servKey,
+        ca: [pems.ca]
+      },
+      localAddress: createLibp2pAddress(service2.onionAddress, peerId2),
+      targetPort: port2Target,
+      createServer
+    }
+    const multiAddress = multiaddr(createLibp2pAddress(service1.onionAddress, peerId1))
 
-  //   const ws1 = webSockets(websocketsOverTorData1)()
-  //   const ws2 = webSockets(websocketsOverTorData2)()
+    const ws1 = webSockets(websocketsOverTorData1)()
+    const ws2 = webSockets(websocketsOverTorData2)()
 
-  //   listener = await ws1.prepareListener(prepareListenerArg)
+    listener = await ws1.prepareListener(prepareListenerArg)
 
-  //   await listener.listen(multiAddress)
+    await listener.listen(multiAddress)
 
-  //   const onConnection = jest.fn()
-  //   listener.on('connection', onConnection)
+    const onConnection = jest.fn()
+    listener.on('connection', onConnection)
 
-  //   await expect(ws2.dial(multiAddress, {
-  //     signal: signal
-  //   })).rejects.toBeTruthy()
-  // })
+    await expect(ws2.dial(multiAddress, {
+      signal: signal
+    })).rejects.toBeTruthy()
+  })
 
-  // it('rejects connection if server cert is invalid', async () => {
-  //   const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
-  //   const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
+  it('rejects connection if server cert is invalid', async (caType: (ca: string) => any) => {
+    const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
+    const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
 
-  //   const prepareListenerArg = {
-  //     handler: (x) => x,
-  //     upgrader: {
-  //       upgradeOutbound,
-  //       upgradeInbound
-  //     }
-  //   }
+    const prepareListenerArg = {
+      handler: (x) => x,
+      upgrader: {
+        upgradeOutbound,
+        upgradeInbound
+      }
+    }
 
-  //   const signal = {
-  //     addEventListener,
-  //     removeEventListener
-  //   }
+    const signal = {
+      addEventListener,
+      removeEventListener
+    }
 
-  //   const peerId1 = 'Qme5NiSQ6V3cc3nyfYVtkkXDPGBSYEVUNCN5sM4DbyYc7s'
-  //   const peerId2 = 'QmeCWxba5Yk1ZAKogQJsaHXoAermE7PgFZqpqyKNg65cSN'
+    const peerId1 = 'Qme5NiSQ6V3cc3nyfYVtkkXDPGBSYEVUNCN5sM4DbyYc7s'
+    const peerId2 = 'QmeCWxba5Yk1ZAKogQJsaHXoAermE7PgFZqpqyKNg65cSN'
 
-  //   const agent = HttpsProxyAgent({ host: 'localhost', port: httpTunnelPort })
+    const agent = createHttpsProxyAgent({ host: 'localhost', port: httpTunnelPort })
 
-  //   const websocketsOverTorData1 = {
-  //     upgrader: {
-  //       upgradeOutbound,
-  //       upgradeInbound
-  //     },
-  //     websocket: {
-  //       agent,
-  //       cert: anotherPems.servCert,
-  //       key: anotherPems.servKey,
-  //       ca: [pems.ca]
-  //     },
-  //     localAddress: createLibp2pAddress(service1.onionAddress, peerId1),
-  //     targetPort: port1Target
-  //   }
+    const websocketsOverTorData1 = {
+      filter: all,
+      websocket: {
+        agent,
+        cert: anotherPems.servCert,
+        key: anotherPems.servKey,
+        ca: [pems.ca]
+      },
+      localAddress: createLibp2pAddress(service1.onionAddress, peerId1),
+      targetPort: port1Target,
+      createServer
+    }
 
-  //   const websocketsOverTorData2 = {
-  //     upgrader: {
-  //       upgradeOutbound,
-  //       upgradeInbound
-  //     },
-  //     websocket: {
-  //       agent,
-  //       cert: pems.userCert,
-  //       key: pems.userKey,
-  //       ca: [pems.ca]
-  //     },
-  //     localAddress: createLibp2pAddress(service2.onionAddress, peerId2),
-  //     serverOpts: {},
-  //     targetPort: port2Target
-  //   }
-  //   const multiAddress = new Multiaddr(createLibp2pAddress(service1.onionAddress, peerId1))
+    const websocketsOverTorData2 = {
+      filter: all,
+      websocket: {
+        agent,
+        cert: pems.servCert,
+        key: pems.servKey,
+        ca: [pems.ca]
+      },
+      localAddress: createLibp2pAddress(service2.onionAddress, peerId2),
+      targetPort: port2Target,
+      createServer
+    }
 
-  //   const ws1 = webSockets(websocketsOverTorData1)()
-  //   const ws2 = webSockets(websocketsOverTorData2)()
+    const multiAddress = multiaddr(createLibp2pAddress(service1.onionAddress, peerId1))
 
-  //   listener = await ws1.prepareListener(prepareListenerArg)
+    const ws1 = webSockets(websocketsOverTorData1)()
+    const ws2 = webSockets(websocketsOverTorData2)()
 
-  //   await listener.listen(multiAddress)
+    listener = await ws1.prepareListener(prepareListenerArg)
 
-  //   const onConnection = jest.fn()
-  //   listener.on('connection', onConnection)
+    await listener.listen(multiAddress)
 
-  //   await expect(ws2.dial(multiAddress, {
-  //     signal: signal
-  //   })).rejects.toBeTruthy()
-  // })
+    const onConnection = jest.fn()
+    listener.on('connection', onConnection)
+
+    await expect(ws2.dial(multiAddress, {
+      signal: signal
+    })).rejects.toBeTruthy()
+  })
 })
