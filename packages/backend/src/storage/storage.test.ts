@@ -5,9 +5,6 @@ import { Config } from '../constants'
 import { FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
 import { fileURLToPath } from 'url'
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 import {
   createUserCert,
   keyFromCertificate,
@@ -30,6 +27,9 @@ import {
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
 import type { Storage as StorageType } from './storage'
+
+const filename = fileURLToPath(import.meta.url)
+const dirname = path.dirname(filename)
 
 const actual = await import('../common/utils')
 jest.unstable_mockModule('../common/utils', async () => {
@@ -112,7 +112,8 @@ beforeEach(async () => {
   Storage = (await import('./storage')).Storage
   utils = await import('../common/utils')
   storage = null
-  filePath = path.join(__dirname, '/testUtils/500kB-file.txt')
+  filePath = path.join(
+  dirname, '/testUtils/500kB-file.txt')
 })
 
 afterEach(async () => {
@@ -478,7 +479,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
     const copyFileSpy = jest.spyOn(storage, 'copyFile')
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-image.png'),
+      path: path.join(dirname, '/testUtils/test-image.png'),
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
@@ -513,7 +514,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-file.pdf'),
+      path: path.join(dirname, '/testUtils/test-file.pdf'),
       name: 'test-file',
       ext: '.pdf',
       cid: 'uploading_id',
@@ -547,7 +548,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/non-existent.png'),
+      path: path.join(dirname, '/testUtils/non-existent.png'),
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
@@ -575,7 +576,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-file.pdf'),
+      path: path.join(dirname, '/testUtils/test-file.pdf'),
       name: 'test-file',
       ext: '.pdf',
       cid: 'uploading_id',
@@ -627,7 +628,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-file.pdf'),
+      path: path.join(dirname, '/testUtils/test-file.pdf'),
       name: 'test-file',
       ext: '.pdf',
       cid: 'uploading_id',
@@ -684,7 +685,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-image.png'),
+      path: path.join(dirname, '/testUtils/test-image.png'),
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
@@ -741,7 +742,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-image.png'),
+      path: path.join(dirname, '/testUtils/test-image.png'),
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
@@ -821,7 +822,7 @@ describe('Files', () => {
 
   it('copies file and returns a new path', () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
-    const originalPath = path.join(__dirname, '/testUtils/test-image.png')
+    const originalPath = path.join(dirname, '/testUtils/test-image.png')
     const newPath = storage.copyFile(originalPath, '12345_test-image.png')
     expect(fs.existsSync(newPath)).toBeTruthy()
     expect(originalPath).not.toEqual(newPath)
@@ -829,7 +830,7 @@ describe('Files', () => {
 
   it('tries to copy files, returns original path on error', () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
-    const originalPath = path.join(__dirname, '/testUtils/test-image-non-existing.png')
+    const originalPath = path.join(dirname, '/testUtils/test-image-non-existing.png')
     const newPath = storage.copyFile(originalPath, '12345_test-image.png')
     expect(originalPath).toEqual(newPath)
   })

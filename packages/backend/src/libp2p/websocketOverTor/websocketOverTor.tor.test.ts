@@ -11,7 +11,7 @@ import { DirResult } from 'tmp'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, afterAll } from '@jest/globals'
 import { createLibp2pAddress, torBinForPlatform, torDirForPlatform } from '../../common/utils'
 
-import {createServer} from 'it-ws/server'
+import { createServer } from 'it-ws/server'
 
 jest.setTimeout(120000)
 

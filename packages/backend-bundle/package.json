@@ -3,9 +3,7 @@
   "version": "0.19.19-alpha.12",
   "description": "",
   "main": "bundle.cjs",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC"

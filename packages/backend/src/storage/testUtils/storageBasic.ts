@@ -5,9 +5,9 @@ import { StorageOptions } from '../../common/types'
 import logger from '../../logger'
 import { Storage } from '..'
 
-const log = logger('dbSnap')
-
 import { createPaths } from '../../common/utils'
+
+const log = logger('dbSnap')
 
 class StorageTestSnapshotOptions extends StorageOptions {
   messagesCount: number
