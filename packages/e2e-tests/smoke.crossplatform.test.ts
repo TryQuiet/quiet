@@ -13,8 +13,8 @@ jest.setTimeout(350000)
 describe('Smoke', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
-  let isDebugModal: boolean
-  const port = 9569
+  let isButton: boolean
+  const port = 9577
   beforeAll(async () => {
     buildSetup = new BuildSetup(port)
     await buildSetup.createChromeDriver()
@@ -36,15 +36,12 @@ describe('Smoke', () => {
   describe('Stages:', () => {
     it('debug', async () => {
       const debugModal = new DebugModeModal(driver)
-      isDebugModal = await debugModal.element.isDisplayed()
-      // const screenshot = await debugModal.element.takeScreenshot()
-
-      // console.log({ screenshot })
-      expect(isDebugModal).toBeTruthy()
-      await debugModal.element.isDisplayed()
       const button = await debugModal.button
-      console.log({ button })
-      const log = await driver.executeScript('return arguments[0].click();', button)
+      isButton = await button.isDisplayed()
+      // const screenshot = await debugModal.element.takeScreenshot()
+      // console.log({ screenshot })
+      expect(isButton).toBeTruthy()
+      const log = await driver.executeScript('arguments[0].click();', button)
       console.log({ log })
     })
     it('User waits for the modal Starting Quiet to disappear', async () => {
@@ -67,7 +64,7 @@ describe('Smoke', () => {
 
     it('User sees "join community" page and switches to "create community" view by clicking on the link', async () => {
       console.log(2)
-      console.log({ isDebugModal })
+      console.log({ isButton })
       const joinModal = new JoinCommunityModal(driver)
       console.log('2a')
       const isJoinModal = await joinModal.element.isDisplayed()
