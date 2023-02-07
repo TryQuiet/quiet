@@ -406,7 +406,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
       if (e.nativeEvent.keyCode === 13) {
         if (e.shiftKey) {
-          //Accept this input for additional lines in the message box
+          // Accept this input for additional lines in the message box
         } else if (inputStateRef.current === INPUT_STATE.AVAILABLE) {
           e.preventDefault()
           onChange(e.target.innerText)
