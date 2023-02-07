@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.19.19-alpha.12](https://github.com/TryQuiet/quiet/compare/@quiet/logger@0.19.19-alpha.5...@quiet/logger@0.19.19-alpha.12) (2023-02-07)
+
+**Note:** Version bump only for package @quiet/logger
+
+
+
+
+
 ## [0.19.19-alpha.5](https://github.com/TryQuiet/quiet/compare/@quiet/logger@0.19.19-alpha.4...@quiet/logger@0.19.19-alpha.5) (2023-02-07)
 
 **Note:** Version bump only for package @quiet/logger
