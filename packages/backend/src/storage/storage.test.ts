@@ -1,6 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { Config } from '../constants'
 import { FactoryGirl } from 'factory-girl'
@@ -14,7 +13,6 @@ import {
   keyFromCertificate,
   parseCertificate
 } from '@quiet/identity'
-// import { Crypto } from '@peculiar/webcrypto'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
 import {
   communities,
@@ -31,7 +29,6 @@ import {
 } from '@quiet/state-manager'
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
-// import { setEngine, CryptoEngine } from 'pkijs'
 import type { Storage as StorageType } from './storage'
 
 const actual = await import('../common/utils')
@@ -71,15 +68,6 @@ let utils
 jest.setTimeout(50000)
 
 beforeAll(async () => {
-  // const webcrypto = new Crypto()
-  // // @ts-ignore
-  // global.crypto = webcrypto
-
-  // setEngine('newEngine', new CryptoEngine({
-  //   name: 'newEngine',
-  //   // @ts-ignore
-  //   crypto: webcrypto,
-  // }))
   store = prepareStore().store
   factory = await getFactory(store)
 
@@ -503,7 +491,6 @@ describe('Files', () => {
     await storage.uploadFile(metadata)
     expect(copyFileSpy).toHaveBeenCalled()
     const newFilePath = copyFileSpy.mock.results[0].value as string
-    // TODO:JEST
     metadata.path = newFilePath
 
     expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' })
@@ -782,11 +769,11 @@ describe('Files', () => {
   it('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
     const fileSize = 524288 // 0.5MB
     createFile(filePath, fileSize)
-    const mockDateNow = jest.fn()
 
-    // TODO:JEST
-    // global.Date.now = mockDateNow
-    mockDateNow.mockReturnValue(new Date('2022-04-07T10:20:30Z'))
+    const mockDateNow = jest.fn<() => number>()
+
+    global.Date.now = mockDateNow
+    mockDateNow.mockReturnValue(new Date('2022-04-07T10:20:30Z') as unknown as number)
 
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
