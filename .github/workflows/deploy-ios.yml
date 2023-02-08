@@ -75,6 +75,7 @@ jobs:
         run: |
           cd ./packages/mobile/ios
           xcrun notarytool submit $PWD/build/Quiet.zip \
+            --team-id CTYKSWN9T4 \
             --apple-id $APPSTORE_USER \
             --password $APPSTORE_PASSWORD \
             --no-wait \
