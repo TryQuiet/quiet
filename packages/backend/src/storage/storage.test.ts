@@ -1,20 +1,16 @@
 import fs from 'fs'
 import path from 'path'
-import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { Config } from '../constants'
-import { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createFile, createPeerId } from '../common/testUtils'
-import { Storage } from './storage'
-import * as utils from '../common/utils'
 import { FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
+import { fileURLToPath } from 'url'
 import {
   createUserCert,
   keyFromCertificate,
   parseCertificate
 } from '@quiet/identity'
-import { Crypto } from '@peculiar/webcrypto'
-
+import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
 import {
   communities,
   Community,
@@ -30,15 +26,34 @@ import {
 } from '@quiet/state-manager'
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
-import { setEngine, CryptoEngine } from 'pkijs'
+import type { Storage as StorageType } from './storage'
 
-// jest.setTimeout(30_000)
+const filename = fileURLToPath(import.meta.url)
+const dirname = path.dirname(filename)
+
+const actual = await import('../common/utils')
+jest.unstable_mockModule('../common/utils', async () => {
+  return {
+    ...(actual as object),
+    createPaths: jest.fn((paths: string[]) => {
+      console.log('creating paths in fn')
+      for (const path of paths) {
+        if (!fs.existsSync(path)) {
+          fs.mkdirSync(path, { recursive: true })
+        }
+      }
+    })
+    }
+})
+
+const { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createFile, createPeerId } = await import('../common/testUtils')
 
 let tmpDir: DirResult
 let tmpAppDataPath: string
 let tmpOrbitDbDir: string
 let tmpIpfsPath: string
-let storage: Storage
+let storage: StorageType
+let Storage
 let store: Store
 let factory: FactoryGirl
 let community: Community
@@ -48,19 +63,11 @@ let john: Identity
 let message: ChannelMessage
 let channelio: PublicChannelStorage
 let filePath: string
+let utils
 
-// jest.setTimeout(50000)
+jest.setTimeout(50000)
 
 beforeAll(async () => {
-  const webcrypto = new Crypto()
-  // @ts-ignore
-  global.crypto = webcrypto
-
-  setEngine('newEngine', new CryptoEngine({
-    name: 'newEngine',
-    // @ts-ignore
-    crypto: webcrypto,
-  }))
   store = prepareStore().store
   factory = await getFactory(store)
 
@@ -102,12 +109,14 @@ beforeEach(async () => {
   tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
   tmpOrbitDbDir = path.join(tmpAppDataPath, Config.ORBIT_DB_DIR)
   tmpIpfsPath = path.join(tmpAppDataPath, Config.IPFS_REPO_PATH)
+  Storage = (await import('./storage')).Storage
+  utils = await import('../common/utils')
   storage = null
-  filePath = path.join(__dirname, '/testUtils/500kB-file.txt')
+  filePath = path.join(
+  dirname, '/testUtils/500kB-file.txt')
 })
 
 afterEach(async () => {
-  console.log('after test')
   try {
     storage && (await storage.stopOrbitDb())
   } catch (e) {
@@ -136,6 +145,7 @@ describe('Storage', () => {
     expect(createPathsSpy).toHaveBeenCalled()
 
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(true)
+
     expect(fs.existsSync(tmpIpfsPath)).toBe(true)
   })
 
@@ -269,10 +279,10 @@ describe('Certificate', () => {
     storage.certificates.events.emit('replicated')
 
     expect(eventSpy).toBeCalledWith('loadCertificates', {
-certificates: [
+      certificates: [
 
-    ]
-})
+      ]
+    })
     expect(spyOnUpdatePeersList).toBeCalled()
   })
 
@@ -306,7 +316,7 @@ certificates: [
       case 'write':
         db.events.emit(eventName, 'address', messagePayload, [])
         break
-        // @ts-ignore
+      // @ts-ignore
       case 'replicate.progress':
         db.events.emit(eventName, 'address', 'hash', messagePayload, 'progress', 'total', [])
         break
@@ -352,7 +362,7 @@ certificates: [
 
     const db = storage.publicChannelsRepos.get(message.channelAddress).db
     const messagePayload = {
- payload: {
+      payload: {
         value: aliceMessageWithJohnsPublicKey
       }
     }
@@ -387,10 +397,10 @@ certificates: [
     storage.certificates.events.emit('write', 'address', { payload: { value: 'something' } }, [])
 
     expect(eventSpy).toBeCalledWith(StorageEvents.LOAD_CERTIFICATES, {
-certificates: [
+      certificates: [
 
-    ]
-})
+      ]
+    })
     expect(spyOnUpdatePeersList).toBeCalled()
   })
 })
@@ -467,7 +477,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
     const copyFileSpy = jest.spyOn(storage, 'copyFile')
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-image.png'),
+      path: path.join(dirname, '/testUtils/test-image.png'),
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
@@ -479,7 +489,7 @@ describe('Files', () => {
 
     await storage.uploadFile(metadata)
     expect(copyFileSpy).toHaveBeenCalled()
-    const newFilePath = copyFileSpy.mock.results[0].value
+    const newFilePath = copyFileSpy.mock.results[0].value as string
     metadata.path = newFilePath
 
     expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' })
@@ -502,7 +512,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-file.pdf'),
+      path: path.join(dirname, '/testUtils/test-file.pdf'),
       name: 'test-file',
       ext: '.pdf',
       cid: 'uploading_id',
@@ -536,7 +546,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/non-existent.png'),
+      path: path.join(dirname, '/testUtils/non-existent.png'),
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
@@ -564,7 +574,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-file.pdf'),
+      path: path.join(dirname, '/testUtils/test-file.pdf'),
       name: 'test-file',
       ext: '.pdf',
       cid: 'uploading_id',
@@ -616,7 +626,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-file.pdf'),
+      path: path.join(dirname, '/testUtils/test-file.pdf'),
       name: 'test-file',
       ext: '.pdf',
       cid: 'uploading_id',
@@ -671,7 +681,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-image.png'),
+      path: path.join(dirname, '/testUtils/test-image.png'),
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
@@ -709,7 +719,7 @@ describe('Files', () => {
 
     )
     expect(eventSpy).toHaveBeenNthCalledWith(7, 'updateMessageMedia', expect.objectContaining({ cid: 'bafybeihlkhn7lncyzhgul7ixkeqsf2plizxw2j5fafiysrhysfe5m2ye4i', ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
-)
+    )
 
     expect(eventSpy).toBeCalledTimes(7)
   })
@@ -728,7 +738,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-image.png'),
+      path: path.join(dirname, '/testUtils/test-image.png'),
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
@@ -756,10 +766,11 @@ describe('Files', () => {
   it('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
     const fileSize = 524288 // 0.5MB
     createFile(filePath, fileSize)
-    const mockDateNow = jest.fn()
+
+    const mockDateNow = jest.fn<() => number>()
 
     global.Date.now = mockDateNow
-    mockDateNow.mockReturnValue(new Date('2022-04-07T10:20:30Z'))
+    mockDateNow.mockReturnValue(new Date('2022-04-07T10:20:30Z') as unknown as number)
 
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
@@ -798,7 +809,7 @@ describe('Files', () => {
         transferSpeeds.push(call[1].downloadProgress?.transferSpeed)
       }
     }
-      )
+    )
     const unwantedValues = [undefined, null, Infinity]
     for (const value of unwantedValues) {
       expect(transferSpeeds).not.toContain(value)
@@ -807,7 +818,7 @@ describe('Files', () => {
 
   it('copies file and returns a new path', () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
-    const originalPath = path.join(__dirname, '/testUtils/test-image.png')
+    const originalPath = path.join(dirname, '/testUtils/test-image.png')
     const newPath = storage.copyFile(originalPath, '12345_test-image.png')
     expect(fs.existsSync(newPath)).toBeTruthy()
     expect(originalPath).not.toEqual(newPath)
@@ -815,7 +826,7 @@ describe('Files', () => {
 
   it('tries to copy files, returns original path on error', () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
-    const originalPath = path.join(__dirname, '/testUtils/test-image-non-existing.png')
+    const originalPath = path.join(dirname, '/testUtils/test-image-non-existing.png')
     const newPath = storage.copyFile(originalPath, '12345_test-image.png')
     expect(originalPath).toEqual(newPath)
   })

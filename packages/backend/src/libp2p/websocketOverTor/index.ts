@@ -19,7 +19,13 @@ import https from 'https'
 
 import { EventEmitter } from 'events'
 
-import { dumpPEM, importDynamically } from '../utils'
+import { dumpPEM } from '../utils'
+
+import pDefer from 'p-defer'
+import { multiaddrToUri as toUri } from '@multiformats/multiaddr-to-uri'
+import { AbortError } from '@libp2p/interfaces/errors'
+import { connect } from 'it-ws'
+import { multiaddr } from '@multiformats/multiaddr'
 
 const log = logger('libp2p:websockets')
 
@@ -34,26 +40,6 @@ export interface WebSocketsInit extends AbortOptions {
   createServer
 }
 
-let toUri = null
-let AbortError = null
-let multiaddr = null
-let pDefer = null
-let connect = null
-
-void (async () => {
-  const pDeferImported = await importDynamically('p-defer/index.js')
-  const { multiaddrToUri } = await importDynamically('@multiformats/multiaddr-to-uri/dist/src/index.js')
-  const { AbortError: AbortErrorImported } = await importDynamically('@libp2p/interfaces/dist/src/errors.js')
-  const { connect: connectImported } = await importDynamically('it-ws/dist/src/client.js')
-  const { multiaddr: multiaddrImported } = await importDynamically('@multiformats/multiaddr/dist/src/index.js')
-
-  pDefer = pDeferImported.default
-  toUri = multiaddrToUri
-  AbortError = AbortErrorImported
-  connect = connectImported
-  multiaddr = multiaddrImported
-})()
-
 class Discovery extends EventEmitter {
   tag: string
   constructor() {
@@ -61,9 +47,9 @@ class Discovery extends EventEmitter {
     this.tag = 'channel_18'
   }
 
-  stop() {}
-  start() {}
-  end() {}
+  stop() { }
+  start() { }
+  end() { }
 }
 
 class WebSockets extends EventEmitter {
@@ -158,7 +144,7 @@ class WebSockets extends EventEmitter {
       errorPromise.reject(err)
     }
 
-    const myUri = `${toUri(ma) as string}/?remoteAddress=${encodeURIComponent(
+    const myUri = `${toUri(ma)}/?remoteAddress=${encodeURIComponent(
       this.localAddress
     )}`
     const rawSocket = connect(myUri, Object.assign({ binary: true }, options))
@@ -183,8 +169,8 @@ class WebSockets extends EventEmitter {
       onAbort = () => {
         reject(new AbortError())
         // FIXME: https://github.com/libp2p/js-libp2p-websockets/issues/121
-        setTimeout(() => {
-          rawSocket.close()
+        setTimeout(async () => {
+          await rawSocket.close()
         })
       }
 
@@ -273,7 +259,7 @@ class WebSockets extends EventEmitter {
       return server.close()
     }
 
-    listener.addEventListener = () => {}
+    listener.addEventListener = () => { }
 
     listener.listen = (ma: Multiaddr) => {
       listeningMultiaddr = ma

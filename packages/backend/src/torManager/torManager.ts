@@ -4,9 +4,10 @@ import * as fs from 'fs'
 import path from 'path'
 import { QUIET_DIR_PATH } from '../constants'
 import logger from '../logger'
-import { removeFilesFromDir } from '../common/utils'
+
 import { TorControl } from './TorControl'
 import getPort from 'get-port'
+import { removeFilesFromDir } from '../common/utils'
 const log = logger('tor')
 
 export enum GetInfoTorSignal {

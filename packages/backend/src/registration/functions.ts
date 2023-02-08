@@ -2,13 +2,14 @@ import { createUserCert, loadCSR, CertFieldsTypes, getReqFieldValue, keyFromCert
 import { ErrorCodes, ErrorMessages, ErrorPayload, PermsData, SocketActionTypes } from '@quiet/state-manager'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import { CertificationRequest } from 'pkijs'
-import { getUsersAddresses } from '../common/utils'
 import { Agent } from 'http'
 import AbortController from 'abort-controller'
-import fetch, { Response } from 'node-fetch'
+import fetch from 'node-fetch'
 import logger from '../logger'
 import { CsrContainsFields, IsCsr } from './validators'
 import { RegistrationEvents } from './types'
+
+import { getUsersAddresses } from '../common/utils'
 const log = logger('registration')
 
 class UserCsrData {
