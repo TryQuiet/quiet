@@ -17,11 +17,13 @@ jest.setTimeout(600000)
 describe('New User', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
-  const port = 9616
+  const port = 9516
+  const debugPort = 9517
 
   let buildSetup2: BuildSetup
   let driver2: ThenableWebDriver
-  const port2 = 9617
+  const port2 = 9518
+  const debugPort2 = 9519
 
   let generalChannel: Channel
   let generalChannel2: Channel
@@ -34,7 +36,7 @@ describe('New User', () => {
   const joiningUserUsername = 'alice-joining'
   const joiningUserMessages = ['Nice to meet you all']
   beforeAll(async () => {
-    buildSetup = new BuildSetup(port)
+    buildSetup = new BuildSetup(port, debugPort)
     await buildSetup.createChromeDriver()
     driver = buildSetup.getDriver()
     await driver.getSession()
@@ -135,7 +137,7 @@ describe('New User', () => {
 
     it('Guest setup', async () => {
       console.log('Second client')
-      buildSetup2 = new BuildSetup(port2)
+      buildSetup2 = new BuildSetup(port2, debugPort2)
       await buildSetup2.createChromeDriver()
       driver2 = buildSetup2.getDriver()
       await driver2.getSession()

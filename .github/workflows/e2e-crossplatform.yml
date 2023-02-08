@@ -28,18 +28,18 @@ jobs:
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x Quiet-0.19.17-alpha.0.dmg
 
-      - name: hdiutil mount
+      - name: Mount installer file in volume on system
         working-directory: ./packages/e2e-tests/Quiet
         run: hdiutil mount Quiet-0.19.17-alpha.0.dmg 
 
-      - name: Add to apps
+      - name: Add App file to applications
         run: cd ~ && cp -R "/Volumes/Quiet 0.19.17-alpha.0/Quiet.app" /Applications
 
       - name: Run smoke test
         working-directory: ./packages/e2e-tests
         run: npm run test smoke.crossplatform.test.ts
 
-      - name: Run newUser test
+      - name: Run newUser test - Includes 2 separate application clients
         working-directory: ./packages/e2e-tests
         run: npm run test newUser.crossplatform.test.ts
 
@@ -80,7 +80,7 @@ jobs:
         working-directory: ./packages/e2e-tests
         run: npm run test smoke.crossplatform.test.ts
 
-      - name: Run newUser test
+      - name: Run newUser test - Includes 2 separate application clients
         working-directory: ./packages/e2e-tests
         run: npm run test newUser.crossplatform.test.ts
 

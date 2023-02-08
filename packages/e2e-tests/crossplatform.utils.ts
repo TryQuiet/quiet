@@ -6,11 +6,13 @@ export class BuildSetup {
   public containerId: string
   public ipAddress: string
   public port: number
+  public debugPort: number
   public dataDir: string
   private child: ChildProcessWithoutNullStreams
 
-  constructor(port: number) {
+  constructor(port: number, debugPort: number) {
     this.port = port
+    this.debugPort = debugPort
   }
 
   private getBinaryLocation() {
@@ -47,7 +49,7 @@ export class BuildSetup {
         }
       )
     }
-
+    // Extra time for chromedriver to setup
     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
 
     this.child.stdout.on('data', data => {
@@ -68,7 +70,7 @@ export class BuildSetup {
           .withCapabilities({
             'goog:chromeOptions': {
               binary: binary,
-              args: ['--no-sandbox', `--remote-debugging-port=${this.port + 5}`]
+              args: [`--remote-debugging-port=${this.debugPort}`]
             }
           })
           .forBrowser(Browser.CHROME)
