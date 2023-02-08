@@ -1,6 +1,6 @@
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
-import { createTmpDir, tmpQuietDirPath } from '../common/testUtils'
+import { createPeerId, createTmpDir, tmpQuietDirPath } from '../common/testUtils'
 import { ConnectionsManager } from './connectionsManager'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 import { LocalDBKeys } from '../storage/localDB'
@@ -25,6 +25,8 @@ let tmpAppDataPath: string
 let connectionsManager: ConnectionsManager
 let store: Store
 let factory: FactoryGirl
+let community
+let userIdentity
 
 beforeEach(async () => {
   jest.clearAllMocks()
@@ -33,17 +35,25 @@ beforeEach(async () => {
   connectionsManager = null
   store = prepareStore().store
   factory = await getFactory(store)
+  community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+  userIdentity = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+    'Identity', { id: community.id, nickname: 'john' }
+  )
 })
 
-afterEach(() => {
+afterEach(async () => {
   if (connectionsManager) {
-    connectionsManager.closeAllServices()
+    await connectionsManager.closeAllServices()
+    if (connectionsManager.libp2pInstance) {
+      console.log('Force stopping libp2p')
+      await connectionsManager.libp2pInstance.stop()
+    }
   }
 })
 
 describe('Connections manager - no tor', () => {
   it('inits libp2p', async () => {
-    const peerId = await PeerId.create()
+    const peerId = await createPeerId()
     const port = 1234
     const address = '0.0.0.0'
     connectionsManager = new ConnectionsManager({
@@ -55,13 +65,14 @@ describe('Connections manager - no tor', () => {
       }
     })
     const localAddress = connectionsManager.createLibp2pAddress(address, peerId.toString())
+    const remoteAddress = connectionsManager.createLibp2pAddress(address, (await createPeerId()).toString())
     const result = await connectionsManager.initLibp2p({
       peerId: peerId,
       address: address,
       addressPort: port,
       targetPort: port,
-      bootstrapMultiaddrs: ['some/address'],
-      certs: { certificate: 'asdf', key: 'asdf', CA: ['ASDF'] }
+      bootstrapMultiaddrs: [remoteAddress],
+      certs: { certificate: userIdentity.userCertificate, key: userIdentity.userCsr.userKey, CA: [community.rootCa] }
     })
     expect(result.localAddress).toBe(localAddress)
     expect(result.libp2p.peerId).toBe(peerId)
@@ -109,14 +120,6 @@ describe('Connections manager - no tor', () => {
   )
 
   it('launches community on init if its data exists in local db', async () => {
-    const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
-
-    const userIdentity = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'john' })
-
     connectionsManager = new ConnectionsManager({
       socketIOPort: 1234,
       torControlPort: 4321,
@@ -147,14 +150,6 @@ describe('Connections manager - no tor', () => {
   })
 
   it('launches community and registrar on init if their data exists in local db', async () => {
-    const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
-
-    const userIdentity = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'john' })
-
     connectionsManager = new ConnectionsManager({
       socketIOPort: 1234,
       torControlPort: 4321,
@@ -219,7 +214,7 @@ describe('Connections manager - no tor', () => {
   })
 
   it('saves peer stats when peer has been disconnected', async () => {
-    const peerId = await PeerId.create()
+    const peerId = await createPeerId()
     class RemotePeerEventDetail {
       peerId: string
 
@@ -244,22 +239,22 @@ describe('Connections manager - no tor', () => {
 
     await connectionsManager.init()
     await connectionsManager.initLibp2p({
-      peerId: peerId.toB58String(),
+      peerId: peerId,
       address: '0.0.0.0',
       addressPort: 3211,
       targetPort: 3211,
       bootstrapMultiaddrs: ['some/address'],
-      certs: { certificate: 'asdf', key: 'asdf', CA: ['ASDF'] }
+      certs: { certificate: userIdentity.userCertificate, key: userIdentity.userCsr.userKey, CA: [community.rootCa] }
     })
     const emitSpy = jest.spyOn(connectionsManager, 'emit')
 
     // Peer connected
-    connectionsManager.connectedPeers.set(peerId.toB58String(), DateTime.utc().valueOf())
-    const remoteAddr = `test/p2p/${peerId.toB58String()}`
-    const peerDisconectEventDetail = { remotePeer: new RemotePeerEventDetail(peerId.toB58String()), remoteAddr: new RemotePeerEventDetail(remoteAddr) }
+    connectionsManager.connectedPeers.set(peerId.toString(), DateTime.utc().valueOf())
 
     // Peer disconnected
-    connectionsManager.libp2pInstance.connectionManager.dispatchEvent(new CustomEvent('peer:disconnect', { detail: peerDisconectEventDetail }))
+    const remoteAddr = `test/p2p/${peerId.toString()}`
+    const peerDisconectEventDetail = { remotePeer: new RemotePeerEventDetail(peerId.toString()), remoteAddr: new RemotePeerEventDetail(remoteAddr) }
+    connectionsManager.libp2pInstance.dispatchEvent(new CustomEvent('peer:disconnect', { detail: peerDisconectEventDetail }))
     expect(connectionsManager.connectedPeers.size).toEqual(0)
     await waitForExpect(async () => {
       expect(await connectionsManager.localStorage.get(LocalDBKeys.PEERS)).not.toBeNull()
@@ -274,14 +269,6 @@ describe('Connections manager - no tor', () => {
   })
 
   it('community is only launched once', async () => {
-    const community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
-
-    const userIdentity = await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'john' })
-
     connectionsManager = new ConnectionsManager({
       socketIOPort: 1234,
       torControlPort: 4321,

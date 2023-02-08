@@ -637,7 +637,7 @@ export class ConnectionsManager extends EventEmitter {
       targetPort: params.targetPort
     }
     const libp2p: Libp2p = await ConnectionsManager.createBootstrapNode(nodeParams)
-    
+
     this.libp2pInstance = libp2p
 
     libp2p.addEventListener('peer:discovery', (peer) => {
@@ -653,7 +653,7 @@ export class ConnectionsManager extends EventEmitter {
         peers: [remotePeerId]
       })
     })
-    
+
     libp2p.addEventListener('peer:disconnect', async (peer) => {
       const remotePeerId = peer.detail.remotePeer.toString()
       log(`${params.peerId.toString()} disconnected from ${remotePeerId}`)
