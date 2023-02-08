@@ -13,31 +13,30 @@ describe('LocalDB', () => {
   let peer2Stats: {[peerAddress: string]: NetworkStats} = {}
 
   beforeAll(() => {
-    dbPath = path.join(createTmpDir(), 'testDB')
+    dbPath = path.join(createTmpDir().name, 'testDB')
     peer1Address = '/dns4/mxtsfs4kzxzuisrw4tumdmycbyerqwakx37kj6om6azcjdaasifxmoqd.onion/tcp/443/wss/p2p/QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix'
     peer1Stats = {
       [peer1Address]: {
           peerId: 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix',
-          connectionTime: 4258320,
-          lastSeen: 1675345537627
+          connectionTime: 50,
+          lastSeen: 1000
       }
     }
     peer2Address = '/dns4/hxr74a76b4lerhov75a6ha6yprruvow3wfu4qmmeoc6ajs7m7323lyid.onion/tcp/443/wss/p2p/QmZB6pVafcvAQfy5R5LxvDXvB8xcDifD39Lp3XGDM9XDuQ'
     peer2Stats = {
       [peer2Address]: {
           peerId: 'QmZB6pVafcvAQfy5R5LxvDXvB8xcDifD39Lp3XGDM9XDuQ',
-          connectionTime: 362403,
-          lastSeen: 1675346727262
+          connectionTime: 500,
+          lastSeen: 500
       }
     }
   })
 
   beforeEach(() => {
-    db = new LocalDB('./testDB')
+    db = new LocalDB(dbPath)
   })
 
   afterEach(async () => {
-    await db.db.clear()
     await db.close()
   })
 
@@ -61,7 +60,7 @@ describe('LocalDB', () => {
   })
 
   it('get sorted peers', async () => {
-    const extraPeers = ['/dns4/mxtsfs4kzxzuisrw4tumdmycbyerqwakx37kj6om6azcjdaasifxmoqd.onion/tcp/443/wss/p2p/QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix']
+    const extraPeers = ['/dns4/zl37gnntp64dhnisddftypxbt5cqx6cum65vdv6oeaffrbqmemwc52ad.onion/tcp/443/wss/p2p/QmPGdGDUV1PXaJky4V53KSvFszdqEcM7KCoDpF2uFPf5w6']
     await db.put(LocalDBKeys.PEERS, {
       ...peer1Stats,
       ...peer2Stats
@@ -80,21 +79,23 @@ describe('LocalDB', () => {
 
     const peersDBdata = await db.get(LocalDBKeys.PEERS)
     expect(peersDBdata).toEqual({
-      peer1Stats,
-      peer2Stats
+      ...peer1Stats,
+      ...peer2Stats
     })
 
     const peer2StatsUpdated: NetworkStats = {
       peerId: 'QmR7Qgd4tg2XrGD3kW647ZnYyazTwHQF3cqRBmSduhhusA',
-      connectionTime: 77777777,
-      lastSeen: 44444444
+      connectionTime: 777,
+      lastSeen: 678
     }
 
     await db.update(LocalDBKeys.PEERS, {
       [peer2Address]: peer2StatsUpdated
     })
-    expect(peersDBdata).toEqual({
-      [peer1Address]: peer1Stats,
+
+    const updatedPeersDBdata = await db.get(LocalDBKeys.PEERS)
+    expect(updatedPeersDBdata).toEqual({
+      ...peer1Stats,
       [peer2Address]: peer2StatsUpdated
     })
   })

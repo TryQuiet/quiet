@@ -1,7 +1,7 @@
 import mock from 'mock-fs'
 import path from 'path'
-import { getFilesRecursively, removeFiles, getDirsRecursively, removeDirs, compare, getUsersAddresses, createLibp2pAddress } from './utils'
-import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
+import { beforeEach, describe, it, expect, afterEach } from '@jest/globals'
+const { getFilesRecursively, removeFiles, getDirsRecursively, removeDirs, compare, getUsersAddresses, createLibp2pAddress } = await import ('./utils')
 
 beforeEach(() => {
   mock({

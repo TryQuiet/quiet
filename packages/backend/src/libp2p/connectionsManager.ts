@@ -18,8 +18,6 @@ import { DateTime } from 'luxon'
 
 import type SocketIO from 'socket.io'
 import * as os from 'os'
-import path from 'path'
-import fs from 'fs'
 import { emitError } from '../socket/errors'
 import { CertificateRegistration } from '../registration'
 import { setEngine, CryptoEngine } from 'pkijs'
@@ -59,11 +57,7 @@ import {
 } from '@quiet/state-manager'
 
 import { ConnectionsManagerOptions } from '../common/types'
-import {
-  createLibp2pAddress,
-  createLibp2pListenAddress,
-  getPorts
-} from '../common/utils'
+
 import { QUIET_DIR_PATH } from '../constants'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
@@ -76,6 +70,8 @@ import { StorageEvents } from '../storage/types'
 import { Libp2pEvents, ServiceState } from './types'
 import PeerId from 'peer-id'
 import { LocalDB, LocalDBKeys } from '../storage/localDB'
+
+import { createLibp2pAddress, createLibp2pListenAddress, getPorts } from '../common/utils'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -157,6 +153,7 @@ export class ConnectionsManager extends EventEmitter {
     this.httpTunnelPort = httpTunnelPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
+    this.localStorage = new LocalDB(this.quietDir)
     this.communityState = ServiceState.DEFAULT
     this.registrarState = ServiceState.DEFAULT
 
@@ -215,7 +212,6 @@ export class ConnectionsManager extends EventEmitter {
 
     await this.dataServer.listen()
 
-    this.localStorage = new LocalDB(this.quietDir)
     const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
 
     if (community) {
@@ -229,7 +225,7 @@ export class ConnectionsManager extends EventEmitter {
 
     const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
     if (registrarData) {
-      await this.registration.launchRegistrar((registrarData))
+      await this.registration.launchRegistrar(registrarData)
     }
   }
 
@@ -246,7 +242,9 @@ export class ConnectionsManager extends EventEmitter {
     if (this.io) {
       this.io.close()
     }
-    await this.localStorage.close()
+    if (this.localStorage) {
+      await this.localStorage.close()
+    }
   }
 
   public spawnTor = async () => {
@@ -334,6 +332,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
+    if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
     this.communityState = ServiceState.LAUNCHING
     const communityData = await this.localStorage.get(LocalDBKeys.COMMUNITY)
     if (!communityData) {
@@ -458,7 +457,6 @@ export class ConnectionsManager extends EventEmitter {
       await this.createCommunity(args)
     })
     this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => {
-      if (this.communityId || this.communityState === ServiceState.LAUNCHING) return
       await this.launchCommunity(args)
     })
     // Registration
@@ -520,8 +518,8 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(SocketActionTypes.UPLOADED_FILE, async (args: FileMetadata) => {
       await this.storage.uploadFile(args)
     })
-    this.dataServer.on(SocketActionTypes.CANCEL_DOWNLOAD, async mid => {
-      await this.storage.cancelDownload(mid)
+    this.dataServer.on(SocketActionTypes.CANCEL_DOWNLOAD, mid => {
+      this.storage.cancelDownload(mid)
     })
 
     // Direct Messages

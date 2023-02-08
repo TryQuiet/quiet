@@ -3,6 +3,70 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.19.19-alpha.14](https://github.com/TryQuiet/quiet/compare/quiet@0.19.19-alpha.13...quiet@0.19.19-alpha.14) (2023-02-08)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+## [0.19.19-alpha.13](https://github.com/TryQuiet/quiet/compare/quiet@0.19.19-alpha.12...quiet@0.19.19-alpha.13) (2023-02-07)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+## [0.19.19-alpha.12](https://github.com/TryQuiet/quiet/compare/quiet@0.19.19-alpha.5...quiet@0.19.19-alpha.12) (2023-02-07)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+## [0.19.19-alpha.6](https://github.com/TryQuiet/quiet/compare/quiet@0.19.19-alpha.5...quiet@0.19.19-alpha.6) (2023-02-07)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+## [0.19.19-alpha.5](https://github.com/TryQuiet/quiet/compare/quiet@0.19.19-alpha.4...quiet@0.19.19-alpha.5) (2023-02-06)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+## [0.19.19-alpha.4](https://github.com/TryQuiet/quiet/compare/quiet@0.19.19-alpha.3...quiet@0.19.19-alpha.4) (2023-02-06)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+## [0.19.19-alpha.3](https://github.com/TryQuiet/quiet/compare/quiet@0.19.19-alpha.2...quiet@0.19.19-alpha.3) (2023-02-06)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+## [0.19.19-alpha.2](https://github.com/TryQuiet/quiet/compare/quiet@0.19.18-alpha.0...quiet@0.19.19-alpha.2) (2023-02-06)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
 ## [0.19.18-alpha.0](https://github.com/TryQuiet/quiet/compare/quiet@0.19.17-alpha.0...quiet@0.19.18-alpha.0) (2023-02-02)
 
 **Note:** Version bump only for package quiet

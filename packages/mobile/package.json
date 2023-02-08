@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "0.19.16-alpha.0",
+  "version": "0.19.19-alpha.18",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "storybook-android": "ENVFILE=.env.storybook react-native run-android --variant=storybookDebug --appIdSuffix=storybook.debug",
@@ -12,7 +12,7 @@
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "gen": "plop",
-    "prepare-backend-assets": "cp ../backend/lib/bundle.cjs ./nodejs-assets/nodejs-project/bundle.cjs",
+    "prepare-backend-assets": "mkdir -p ./nodejs-assets/nodejs-project && cp ../backend/lib/bundle.cjs ./nodejs-assets/nodejs-project/bundle.cjs",
     "exclude-test-assets": "find ./nodejs-assets/nodejs-project/node_modules -print | grep -i -e '/test/' -e '/tests/' | grep -v @quiet | xargs rm -rf",
     "patch-dependencies": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -d ../state-manager -p0 < ./factory-girl.patch || true",
     "patch-crypto-ios": "patch -p0 --forward --binary < ./react-native-webview-crypto.patch || true",
@@ -22,9 +22,9 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.7",
-    "@quiet/backend": "^0.19.16-alpha.0",
-    "@quiet/identity": "^0.19.7-alpha.0",
-    "@quiet/state-manager": "^0.19.7-alpha.0",
+    "@quiet/backend": "^0.19.19-alpha.14",
+    "@quiet/identity": "^0.19.19-alpha.13",
+    "@quiet/state-manager": "^0.19.19-alpha.13",
     "@react-navigation/native": "^6.0.0",
     "@react-navigation/native-stack": "^6.9.0",
     "@reduxjs/toolkit": "^1.9.1",
