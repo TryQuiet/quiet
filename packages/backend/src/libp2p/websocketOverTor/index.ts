@@ -168,9 +168,8 @@ class WebSockets extends EventEmitter {
     const abort = new Promise((_resolve, reject) => {
       onAbort = () => {
         reject(new AbortError())
-        // FIXME: https://github.com/libp2p/js-libp2p-websockets/issues/121
-        setTimeout(async () => {
-          await rawSocket.close()
+        rawSocket.close().catch(err => {
+          log.error('error closing raw socket', err)
         })
       }
 

@@ -2,20 +2,46 @@ import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { createTmpDir, tmpQuietDirPath } from '../common/testUtils'
 import { ConnectionsManager } from './connectionsManager'
-import { jest, beforeEach, describe, it, expect } from '@jest/globals'
+import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
+import { LocalDBKeys } from '../storage/localDB'
+import { CustomEvent } from '@libp2p/interfaces/events'
+import {
+  InitCommunityPayload,
+  LaunchRegistrarPayload,
+  communities,
+  getFactory,
+  prepareStore,
+  identity,
+  Store,
+  NetworkStats
+ } from '@quiet/state-manager'
+import { FactoryGirl } from 'factory-girl'
+import { DateTime } from 'luxon'
+import waitForExpect from 'wait-for-expect'
+import { Libp2pEvents } from './types'
 
 let tmpDir: DirResult
 let tmpAppDataPath: string
 let connectionsManager: ConnectionsManager
+let store: Store
+let factory: FactoryGirl
 
-beforeEach(() => {
+beforeEach(async () => {
   jest.clearAllMocks()
   tmpDir = createTmpDir()
   tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
   connectionsManager = null
+  store = prepareStore().store
+  factory = await getFactory(store)
 })
 
-describe('Connections manager', () => {
+afterEach(() => {
+  if (connectionsManager) {
+    connectionsManager.closeAllServices()
+  }
+})
+
+describe('Connections manager - no tor', () => {
   it('inits libp2p', async () => {
     const peerId = await PeerId.create()
     const port = 1234
@@ -81,4 +107,211 @@ describe('Connections manager', () => {
       expect(libp2pListenAddress).toStrictEqual(`/dns4/${address}/tcp/443/wss`)
     }
   )
+
+  it('launches community on init if its data exists in local db', async () => {
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const userIdentity = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'john' })
+
+    connectionsManager = new ConnectionsManager({
+      socketIOPort: 1234,
+      torControlPort: 4321,
+      options: {
+        env: {
+          appDataPath: tmpAppDataPath
+        },
+      }
+    })
+    const launchCommunitySpy = jest.spyOn(connectionsManager, 'launchCommunity').mockResolvedValue()
+    const launchRegistrarSpy = jest.spyOn(connectionsManager.registration, 'launchRegistrar').mockResolvedValue()
+
+    const launchCommunityPayload: InitCommunityPayload = {
+      id: community.id,
+      peerId: userIdentity.peerId,
+      hiddenService: userIdentity.hiddenService,
+      certs: {
+        certificate: userIdentity.userCertificate,
+        key: userIdentity.userCsr.userKey,
+        CA: [community.rootCa]
+      },
+      peers: community.peerList
+    }
+    await connectionsManager.localStorage.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
+    await connectionsManager.init()
+    expect(launchCommunitySpy).toHaveBeenCalledWith(launchCommunityPayload)
+    expect(launchRegistrarSpy).not.toHaveBeenCalled()
+  })
+
+  it('launches community and registrar on init if their data exists in local db', async () => {
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const userIdentity = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'john' })
+
+    connectionsManager = new ConnectionsManager({
+      socketIOPort: 1234,
+      torControlPort: 4321,
+      options: {
+        env: {
+          appDataPath: tmpAppDataPath
+        },
+      }
+    })
+    const launchCommunitySpy = jest.spyOn(connectionsManager, 'launchCommunity').mockResolvedValue()
+    const launchRegistrarSpy = jest.spyOn(connectionsManager.registration, 'launchRegistrar').mockResolvedValue()
+
+    const launchCommunityPayload: InitCommunityPayload = {
+      id: community.id,
+      peerId: userIdentity.peerId,
+      hiddenService: userIdentity.hiddenService,
+      certs: {
+        certificate: userIdentity.userCertificate,
+        key: userIdentity.userCsr.userKey,
+        CA: [community.rootCa]
+      },
+      peers: community.peerList
+    }
+
+    const launchRegistrarPayload: LaunchRegistrarPayload = {
+      id: community.id,
+      peerId: userIdentity.peerId.id,
+      rootCertString: community.CA.rootCertString,
+      rootKeyString: community.CA.rootKeyString,
+      privateKey: undefined
+    }
+    await connectionsManager.localStorage.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
+    await connectionsManager.localStorage.put(LocalDBKeys.REGISTRAR, launchRegistrarPayload)
+    const peerAddress = '/dns4/test.onion/tcp/443/wss/p2p/peerid'
+    await connectionsManager.localStorage.put(LocalDBKeys.PEERS, {
+      [peerAddress]: {
+          peerId: 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix',
+          connectionTime: 50,
+          lastSeen: 1000
+      }
+    })
+    await connectionsManager.init()
+    expect(launchCommunitySpy).toHaveBeenCalledWith(Object.assign(launchCommunityPayload, { peers: [peerAddress] }))
+    expect(launchRegistrarSpy).toHaveBeenCalledWith(launchRegistrarPayload)
+  })
+
+  it('does not launch community on init if its data does not exist in local db', async () => {
+    connectionsManager = new ConnectionsManager({
+      socketIOPort: 1234,
+      torControlPort: 4321,
+      options: {
+        env: {
+          appDataPath: tmpAppDataPath
+        },
+      }
+    })
+    const launchCommunitySpy = jest.spyOn(connectionsManager, 'launchCommunity')
+    const launchRegistrarSpy = jest.spyOn(connectionsManager.registration, 'launchRegistrar')
+    await connectionsManager.init()
+    expect(launchCommunitySpy).not.toHaveBeenCalled()
+    expect(launchRegistrarSpy).not.toHaveBeenCalled()
+  })
+
+  it('saves peer stats when peer has been disconnected', async () => {
+    const peerId = await PeerId.create()
+    class RemotePeerEventDetail {
+      peerId: string
+
+      constructor(peerId: string) {
+        this.peerId = peerId
+      }
+
+      toString = () => {
+        return this.peerId
+      }
+    }
+
+    connectionsManager = new ConnectionsManager({
+      socketIOPort: 1234,
+      torControlPort: 4321,
+      options: {
+        env: {
+          appDataPath: tmpAppDataPath
+        },
+      }
+    })
+
+    await connectionsManager.init()
+    await connectionsManager.initLibp2p({
+      peerId: peerId.toB58String(),
+      address: '0.0.0.0',
+      addressPort: 3211,
+      targetPort: 3211,
+      bootstrapMultiaddrs: ['some/address'],
+      certs: { certificate: 'asdf', key: 'asdf', CA: ['ASDF'] }
+    })
+    const emitSpy = jest.spyOn(connectionsManager, 'emit')
+
+    // Peer connected
+    connectionsManager.connectedPeers.set(peerId.toB58String(), DateTime.utc().valueOf())
+    const remoteAddr = `test/p2p/${peerId.toB58String()}`
+    const peerDisconectEventDetail = { remotePeer: new RemotePeerEventDetail(peerId.toB58String()), remoteAddr: new RemotePeerEventDetail(remoteAddr) }
+
+    // Peer disconnected
+    connectionsManager.libp2pInstance.connectionManager.dispatchEvent(new CustomEvent('peer:disconnect', { detail: peerDisconectEventDetail }))
+    expect(connectionsManager.connectedPeers.size).toEqual(0)
+    await waitForExpect(async () => {
+      expect(await connectionsManager.localStorage.get(LocalDBKeys.PEERS)).not.toBeNull()
+    }, 2000)
+    const peerStats: {[addr: string]: NetworkStats} = await connectionsManager.localStorage.get(LocalDBKeys.PEERS)
+    expect(Object.keys(peerStats)[0]).toEqual(remoteAddr)
+    expect(emitSpy).toHaveBeenCalledWith(Libp2pEvents.PEER_DISCONNECTED, {
+      peer: peerStats[remoteAddr].peerId,
+      connectionDuration: peerStats[remoteAddr].connectionTime,
+      lastSeen: peerStats[remoteAddr].lastSeen
+    })
+  })
+
+  it('community is only launched once', async () => {
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const userIdentity = await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'john' })
+
+    connectionsManager = new ConnectionsManager({
+      socketIOPort: 1234,
+      torControlPort: 4321,
+      options: {
+        env: {
+          appDataPath: tmpAppDataPath
+        },
+      }
+    })
+    const launchCommunityPayload: InitCommunityPayload = {
+      id: community.id,
+      peerId: userIdentity.peerId,
+      hiddenService: userIdentity.hiddenService,
+      certs: {
+        certificate: userIdentity.userCertificate,
+        key: userIdentity.userCsr.userKey,
+        CA: [community.rootCa]
+      },
+      peers: community.peerList
+    }
+
+    const launchSpy = jest.spyOn(connectionsManager, 'launch').mockResolvedValue('address')
+
+    await connectionsManager.init()
+
+    await Promise.all([
+      connectionsManager.launchCommunity(launchCommunityPayload),
+      connectionsManager.launchCommunity(launchCommunityPayload)
+    ])
+
+    expect(launchSpy).toBeCalledTimes(1)
+  })
 })
