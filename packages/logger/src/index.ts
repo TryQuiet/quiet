@@ -8,7 +8,7 @@ export const consoleLogger = (packageName: string) => (module: string) => {
   return logger
 }
 
-const logger = (packageName: string) => {
+export const logger = (packageName: string) => {
   return consoleLogger(packageName)
 }
 

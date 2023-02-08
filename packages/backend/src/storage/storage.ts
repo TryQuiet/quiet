@@ -1,4 +1,3 @@
-import { Crypto } from '@peculiar/webcrypto'
 import {
   CertFieldsTypes,
   getCertFieldValue,
@@ -35,7 +34,6 @@ import {
   PublicChannelsRepo,
   StorageOptions
 } from '../common/types'
-import { compare, createPaths, removeDirs, removeFiles, getUsersAddresses } from '../common/utils'
 import { Config } from '../constants'
 import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
@@ -46,22 +44,15 @@ import { promisify } from 'util'
 import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
 import { StorageEvents } from './types'
-import { sleep } from '../sleep'
-import { importDynamically } from '../libp2p/utils'
+
+import { create } from 'ipfs-core'
+import { CID } from 'multiformats/cid'
 
 const sizeOfPromisified = promisify(sizeOf)
 
 const log = logger('db')
 
-let ipfsCreate = null
-let CID = null
-
-void (async () => {
-  const CIDModule = await importDynamically('multiformats/cjs/src/cid.js')
-  CID = CIDModule.CID
-  const { create }: {create: typeof createType} = await importDynamically('ipfs-core/src/index.js')
-  ipfsCreate = create
-})()
+const { compare, createPaths, removeDirs, removeFiles, getUsersAddresses } = await import('../common/utils')
 export class Storage extends EventEmitter {
   public quietDir: string
   public peerId: PeerId
@@ -165,7 +156,7 @@ export class Storage extends EventEmitter {
 
   protected async initIPFS(libp2p: any, peerID: any): Promise<IPFS> {
     log('Initializing IPFS')
-    return ipfsCreate({
+    return await create({
       libp2p: async () => libp2p,
       preload: { enabled: false },
       repo: this.ipfsRepoPath,
@@ -591,9 +582,11 @@ export class Storage extends EventEmitter {
   public async downloadFile(metadata: FileMetadata) {
     type IPFSPath = typeof CID | string
 
+    // @ts-ignore
     const _CID: IPFSPath = CID.parse(metadata.cid)
 
     // Compare actual and reported file size
+    // @ts-ignore
     const stat = await this.ipfs.files.stat(_CID)
     if (!compare(metadata.size, stat.size, 0.05)) {
       const maliciousStatus: DownloadStatus = {
@@ -607,6 +600,7 @@ export class Storage extends EventEmitter {
 
       return
     }
+    // @ts-ignore
     const entries = this.ipfs.cat(_CID)
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)

@@ -1,8 +1,11 @@
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { createTmpDir, tmpQuietDirPath } from '../common/testUtils'
-import * as utils from '../common/utils'
+
 import { ConnectionsManager } from './connectionsManager'
+import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
+const { getPorts } = await import('../common/utils')
+
 jest.setTimeout(100_000)
 
 let tmpDir: DirResult
@@ -18,7 +21,7 @@ beforeEach(() => {
 
 describe('Connections manager', () => {
   it('runs tor by default', async () => {
-    const ports = await utils.getPorts()
+    const ports = await getPorts()
     connectionsManager = new ConnectionsManager({
       torBinaryPath: '../../3rd-party/tor/linux/tor',
       torResourcesPath: '../../3rd-party/tor/linux',
@@ -35,7 +38,7 @@ describe('Connections manager', () => {
   })
 
   it('creates network', async () => {
-    const ports = await utils.getPorts()
+    const ports = await getPorts()
     connectionsManager = new ConnectionsManager({
       torBinaryPath: '../../3rd-party/tor/linux/tor',
       torResourcesPath: '../../3rd-party/tor/linux',

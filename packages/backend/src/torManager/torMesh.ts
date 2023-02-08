@@ -1,10 +1,8 @@
 import express from 'express'
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import createHttpsProxyAgent from 'https-proxy-agent'
 import fetch, { Response } from 'node-fetch'
 
 import { Tor } from './torManager'
-
-import { getPorts } from '../common/utils'
 import {
   createTmpDir,
   spawnTorProcess,
@@ -12,6 +10,8 @@ import {
 } from '../common/testUtils'
 
 import logger from '../logger'
+
+import { getPorts } from '../common/utils'
 const log = logger('torMesh')
 
 const amount = 10
@@ -61,7 +61,7 @@ const createServer = async (port, serverAddress: string) => {
 }
 
 const createAgent = async (httpTunnelPort) => {
-  return new HttpsProxyAgent({ port: httpTunnelPort, host: 'localhost' })
+  return createHttpsProxyAgent({ port: httpTunnelPort, host: 'localhost' })
 }
 
 const sendRequest = async (
