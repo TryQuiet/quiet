@@ -138,8 +138,6 @@ describe('Storage', () => {
     const peerId = await createPeerId()
     const libp2p = await createLibp2p(peerId)
 
-    console.log('utils create path', utils.createPaths)
-
     const createPathsSpy = jest.spyOn(utils, 'createPaths')
 
     await storage.init(libp2p, peerId)
@@ -655,8 +653,6 @@ describe('Files', () => {
     expect(storage.downloadCancellations.length).toBe(1)
 
     const uploadMetadata = eventSpy.mock.calls[1][1]
-
-    console.log('uploadMetadata', uploadMetadata)
 
     await storage.downloadFile({
       ...uploadMetadata

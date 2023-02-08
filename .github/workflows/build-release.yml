@@ -28,7 +28,7 @@ jobs:
         with:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,create-require-loader"
 
-      - name: Before build dada
+      - name: Before build
         uses: ./.github/actions/before-build
         with:
           source-path: linux

@@ -91,9 +91,7 @@ export class Storage extends EventEmitter {
     this.peerId = peerID
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
-    console.log('before creating paths')
     if (this.options?.createPaths) {
-      console.log('creating paths', createPaths)
       createPaths([this.ipfsRepoPath, this.orbitDbDir])
     }
     this.ipfs = await this.initIPFS(libp2p, peerID)
