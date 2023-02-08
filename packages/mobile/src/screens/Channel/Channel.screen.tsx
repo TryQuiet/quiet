@@ -50,7 +50,6 @@ export const ChannelScreen: FC = () => {
 
   const downloadFile = useCallback(
     (media: FileMetadata) => {
-      console.log(`downloading ${media.name}`)
       dispatch(files.actions.downloadFile(media))
     },
     [dispatch]
