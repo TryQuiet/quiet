@@ -69,12 +69,13 @@ jobs:
       - name: Compress
         run: |
           cd ./packages/mobile/ios
-          ditto -c -k --keepParent $PWD/build/Quiet.app $PWD/build/Quiet.zip
+          ditto -c -k --keepParent $PWD/build/Quiet.xcarchive $PWD/build/Quiet.zip
 
       - name: Upload
         run: |
           cd ./packages/mobile/ios
           xcrun notarytool submit $PWD/build/Quiet.zip \
+            --team-id CTYKSWN9T4 \
             --apple-id $APPSTORE_USER \
             --password $APPSTORE_PASSWORD \
             --no-wait \

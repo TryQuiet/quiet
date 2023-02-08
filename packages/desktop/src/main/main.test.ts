@@ -110,6 +110,8 @@ jest.mock('electron-updater', () => {
   }
 })
 
+jest.mock('backend-bundle', jest.fn())
+
 const appOn = app.on as jest.Mock<any, any>
 const setApplicationMenu = Menu.setApplicationMenu as jest.Mock<any, any>
 const autoUpdaterOn = autoUpdater.on as jest.Mock<any, any>
