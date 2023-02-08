@@ -6,5 +6,8 @@
   "scripts": {},
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "electron-chromedriver": "22.0.0"
+  }
 }

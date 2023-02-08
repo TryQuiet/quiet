@@ -50,6 +50,7 @@
   "dependencies": {
     "@peculiar/webcrypto": "1.4.1",
     "@quiet/logger": "^0.19.19-alpha.14",
+    "electron-chromedriver": "22.0.0",
     "pkijs": "^3.0.8"
   },
   "devDependencies": {
