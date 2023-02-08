@@ -110,35 +110,25 @@ export class Channel {
     return this.driver.findElement(By.xpath(`//span[text()="#${this.name}}"]`))
   }
 
-  // ______________________________________
-
-  // TO TEST
-
   get messagesList() {
-    // return Selector('ul').withAttribute('id', 'messages-scroll')
     return this.driver.findElement(By.xpath('//ul[@id="messages-scroll"]'))
   }
 
   async messagesGroup() {
-    // return this.messagesList.find('li')
     const messagesList = await this.messagesList
     return await messagesList.findElement(By.css('li'))
   }
 
   async messagesGroupContent() {
-    // return this.messagesGroup.find('p').withAttribute('data-testid', /messagesGroupContent-/)
     const messagesGroup = await this.messagesGroup()
     return await messagesGroup.findElement(By.xpath('//p[@data-testid="/messagesGroupContent-/"]'))
   }
 
   get getAllMessages() {
-    // return Selector('div').withAttribute('data-testid', 'userMessages-')
     return this.driver.wait(
       until.elementsLocated(By.xpath('//*[contains(@data-testid, "userMessages-")]'))
     )
   }
-
-  // ____________________________
 
   get element() {
     return this.driver.wait(until.elementLocated(By.xpath('//p[@data-testid="general-link-text"]')))
@@ -176,16 +166,7 @@ export class Sidebar {
     return new Settings(this.driver)
   }
 
-  // ______________________________________
-
-  // TO TEST
-
   async switchChannel(name: string) {
-    // const channelLink = Selector('div').withAttribute('data-testid', `${name}-link`)
-    // await t.expect(channelLink.exists).ok()
-    // await t.click(channelLink)
-    // return new Channel(name)
-
     const channelLink = await this.driver.wait(
       until.elementLocated(By.xpath(`//div[@data-testid="${name}-link"]`))
     )
@@ -194,15 +175,6 @@ export class Sidebar {
   }
 
   async addNewChannel(name: string) {
-    // const button = Selector('button').withAttribute('data-testid', 'addChannelButton')
-    // await t.expect(button.exists).ok()
-    // await t.click(button)
-    // const channelNameInput = Selector('input').withAttribute('name', 'channelName')
-    // await t.typeText(channelNameInput, name)
-    // const channelNameButton = Selector('button').withAttribute('data-testid', 'channelNameSubmit')
-    // await t.click(channelNameButton)
-    // return new Channel(name)
-
     const button = await this.driver.findElement(
       By.xpath('//button[@data-testid="addChannelButton"]')
     )
@@ -218,8 +190,6 @@ export class Sidebar {
 
     return new Channel(this.driver, name)
   }
-
-  // ______________________________________
 }
 
 export class Settings {
@@ -230,7 +200,6 @@ export class Settings {
   }
 
   get element() {
-    // return Selector('h6').withText('Settings')
     return this.driver.wait(until.elementLocated(By.xpath("//h6[text()='Settings']")))
   }
 
@@ -265,7 +234,9 @@ export class DebugModeModal {
   }
 
   get element() {
-    return this.driver.wait(until.elementLocated(By.xpath("//h3[text()='App is running in debug mode']")))
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//h3[text()='App is running in debug mode']"))
+    )
   }
 
   get button() {
