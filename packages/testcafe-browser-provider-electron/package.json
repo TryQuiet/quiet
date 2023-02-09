@@ -1,6 +1,6 @@
 {
   "name": "testcafe-browser-provider-electron",
-  "version": "0.19.19-alpha.14",
+  "version": "1.0.0-alpha.0",
   "description": "TestCafe browser provider plugin for testing applications built with Electron.",
   "repository": "https://github.com/DevExpress/testcafe-browser-provider-electron",
   "homepage": "https://github.com/DevExpress/testcafe-browser-provider-electron",
@@ -32,6 +32,7 @@
     "chrome-remote-interface": "^0.27.0",
     "debug": "4.1.1",
     "dedent": "^0.7.0",
+    "electron-chromedriver": "22.0.0",
     "endpoint-utils": "^1.0.2",
     "lodash": "^4.17.4",
     "mustache": "^2.3.0",
