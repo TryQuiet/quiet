@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.0](https://github.com/TryQuiet/quiet/compare/create-require-loader@0.19.19-alpha.14...create-require-loader@1.0.0-alpha.0) (2023-02-09)
+
+**Note:** Version bump only for package create-require-loader
+
+
+
+
+
 ## [0.19.19-alpha.14](https://github.com/TryQuiet/quiet/compare/create-require-loader@0.19.19-alpha.13...create-require-loader@0.19.19-alpha.14) (2023-02-08)
 
 **Note:** Version bump only for package create-require-loader
