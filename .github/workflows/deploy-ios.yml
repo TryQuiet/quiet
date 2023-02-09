@@ -32,6 +32,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
+          cachePrefix: "deploy-ios"
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle,create-require-loader"
 
       - name: Install pod dependencies
@@ -57,7 +58,7 @@ jobs:
             PROVISIONING_PROFILE="654a2214-095f-4939-a9e5-09f7a2ccf530" \
             CODE_SIGN_IDENTITY="Apple Distribution: Zbay LLC (CTYKSWN9T4)"
 
-      - name: Export
+      - name: Export .ipa
         run: |
           cd ./packages/mobile/ios
           xcodebuild \
@@ -66,15 +67,16 @@ jobs:
             -exportOptionsPlist $PWD/ci.plist \
             -exportPath $PWD/build
 
-      - name: Compress
-        run: |
-          cd ./packages/mobile/ios
-          ditto -c -k --keepParent $PWD/build/Quiet.xcarchive $PWD/build/Quiet.zip
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Quiet.ipa
+          path: $PWD/build/Quiet.ipa
 
-      - name: Upload
+      - name: Submit to the store
         run: |
           cd ./packages/mobile/ios
-          xcrun notarytool submit $PWD/build/Quiet.zip \
+          xcrun notarytool submit $PWD/build/Quiet.ipa \
             --team-id CTYKSWN9T4 \
             --apple-id $APPSTORE_USER \
             --password $APPSTORE_PASSWORD \
