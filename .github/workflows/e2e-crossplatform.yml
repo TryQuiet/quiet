@@ -100,7 +100,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "e2e-crossplatform-windows"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,create-require-loader,e2e-tests"
 
       - name: Download EXE
         run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet.Setup.0.19.17-alpha.0.exe
