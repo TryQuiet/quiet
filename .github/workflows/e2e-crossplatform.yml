@@ -1,0 +1,121 @@
+
+name: E2E cross platform
+
+on:
+  pull_request:
+
+jobs:
+  mac:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    env:
+      TEST_SYSTEM: mac
+      ELECTRON_CUSTOM_VERSION: 19.0.5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "e2e-crossplatform-mac"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,create-require-loader,e2e-tests"
+
+      - name: Download DMG
+        working-directory: ./packages/e2e-tests/Quiet
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet-0.19.17-alpha.0.dmg
+
+      - name: Chmod
+        working-directory: ./packages/e2e-tests/Quiet
+        run: chmod +x Quiet-0.19.17-alpha.0.dmg
+
+      - name: Mount installer file in volume on system
+        working-directory: ./packages/e2e-tests/Quiet
+        run: hdiutil mount Quiet-0.19.17-alpha.0.dmg 
+
+      - name: Add App file to applications
+        run: cd ~ && cp -R "/Volumes/Quiet 0.19.17-alpha.0/Quiet.app" /Applications
+
+      - name: Run smoke test
+        working-directory: ./packages/e2e-tests
+        run: npm run test smoke.crossplatform.test.ts
+
+      # - name: Run newUser test - Includes 2 separate application clients
+      #   working-directory: ./packages/e2e-tests
+      #   run: npm run test newUser.crossplatform.test.ts
+
+  linux:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 30
+    env:
+      TEST_SYSTEM: linux
+      ELECTRON_CUSTOM_VERSION: 19.0.5
+      DISPLAY: ":99.0"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install WM
+        run: sudo apt install fluxbox
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "e2e-crossplatform-linux"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,create-require-loader,e2e-tests"
+
+      - name: Run X11
+        run: |
+          Xvfb :99 -screen 0 1920x1080x24 &
+          sleep 3
+          fluxbox &
+
+      - name: Download App Image
+        working-directory: ./packages/e2e-tests/Quiet
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet-0.19.17-alpha.0.AppImage
+
+      - name: Chmod
+        working-directory: ./packages/e2e-tests/Quiet
+        run: chmod +x Quiet-0.19.17-alpha.0.AppImage
+
+      - name: Run smoke test
+        working-directory: ./packages/e2e-tests
+        run: npm run test smoke.crossplatform.test.ts
+
+      # - name: Run newUser test - Includes 2 separate application clients
+      #   working-directory: ./packages/e2e-tests
+      #   run: npm run test newUser.crossplatform.test.ts
+
+  # windows:
+  #   runs-on: windows-2019
+  #   timeout-minutes: 45
+  #   env:
+  #     TEST_SYSTEM: windows
+  #     ELECTRON_CUSTOM_VERSION: 19.0.5
+
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - name: "Setup environment"
+  #       uses: ./.github/actions/setup-env
+  #       with:
+  #         bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests,testcafe-browser-provider-electron"
+
+  #     - name: Download EXE
+  #       run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet.Setup.0.19.17-alpha.0.exe
+  #       shell: bash
+
+  #     - name: Chmod
+  #       run: chmod +x Quiet.Setup.0.19.17-alpha.0.exe
+  #       shell: bash
+
+  #     - name: Install exe
+  #       run: Start-Process Quiet.Setup.0.19.17-alpha.0.exe -Wait
+  #       shell: powershell
+
+  #     - name: Kill exe
+  #       run: Stop-Process -Name "Quiet" -Force
+  #       shell: powershell
+
+  #     - name: Run smoke test
+  #       run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts

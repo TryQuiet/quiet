@@ -95,6 +95,7 @@
 		"crypto-js": "^4.1.1",
 		"debug": "^4.3.1",
 		"dotenv": "8.2.0",
+		"electron-chromedriver": "22.0.0",
 		"events": "^3.2.0",
 		"express": "^4.17.1",
 		"get-port": "^5.1.1",
