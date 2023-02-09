@@ -13,7 +13,7 @@ runs:
       shell: bash
     
     - name: Bundle backend for production
-      run: cd packages/desktop && npm run webpack:prod
+      run: cd packages/backend && npm run webpack:prod
       shell: bash
 
     - name: "Pull tor binary"
