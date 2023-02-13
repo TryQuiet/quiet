@@ -2,23 +2,25 @@ import './shim'
 /**
  * @format
  */
-require("node-libs-react-native/globals.js");
+require('node-libs-react-native/globals.js')
 
-import React, { lazy, Suspense } from 'react';
-import { AppRegistry } from 'react-native';
-import Config from 'react-native-config';
+import React, { lazy, Suspense } from 'react'
+import { AppRegistry } from 'react-native'
+import Config from 'react-native-config'
 
-import { Provider as StoreProvider } from 'react-redux';
-import { store } from './src/store/store';
+import { Provider as StoreProvider } from 'react-redux'
+import { store } from './src/store/store'
 
-import { name } from './app.json';
+import { name } from './app.json'
 
-import { NodeEnv } from './src/utils/const/NodeEnv.enum';
+import { NodeEnv } from './src/utils/const/NodeEnv.enum'
 
-const App = lazy(() => import('./src/App'));
-const Storybook = lazy(() => import('./storybook'));
+import Storybook from './storybook'
 
-const Main = Config.NODE_ENV === NodeEnv.Storybook ? Storybook : App;
+// Lazy loading main app component doesn't work in storybook
+const App = lazy(() => import('./src/App'))
+
+const Main = Config.NODE_ENV === NodeEnv.Storybook ? Storybook : App
 
 const Wrapper = () => (
   <Suspense fallback={null}>
@@ -26,6 +28,6 @@ const Wrapper = () => (
       <Main />
     </StoreProvider>
   </Suspense>
-);
+)
 
-AppRegistry.registerComponent(name, () => Wrapper);
+AppRegistry.registerComponent(name, () => Wrapper)

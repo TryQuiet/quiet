@@ -3,9 +3,10 @@ import './rn-addons'
 import { LogBox } from 'react-native'
 
 import { withKnobs } from '@storybook/addon-knobs'
+
 import {
-  addDecorator,
   configure,
+  addDecorator,
   getStorybookUI,
 } from '@storybook/react-native'
 
