@@ -28,6 +28,9 @@ jobs:
         with:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,create-require-loader"
 
+      - name: Install libfuse
+        run: sudo apt install libfuse2
+
       - name: Before build
         uses: ./.github/actions/before-build
         with:
