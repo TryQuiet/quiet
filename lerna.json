@@ -5,7 +5,7 @@
   "version": "independent",
   "command": {
     "version": {
-      "allowBranch": ["master", "develop", "chore/upgrade-electron"],
+      "allowBranch": ["master", "develop"],
       "conventionalCommits": true,
       "createRelease": "github"
     }
