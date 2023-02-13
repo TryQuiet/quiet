@@ -1,7 +1,7 @@
 {
   "name": "e2e-tests",
   "version": "1.0.0-alpha.1",
-  "description": "For running end to end tests we use testcafe (https://testcafe.io/) along with its official electron plugin (https://github.com/DevExpress/testcafe-browser-provider-electron)",
+  "description": "For running end to end tests we use  Selenium WebDriver (https://www.selenium.dev/documentation/webdriver/) with Electron ChromeDriver (https://www.npmjs.com/package/electron-chromedriver) in Jest",
   "main": "index.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

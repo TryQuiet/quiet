@@ -51,7 +51,6 @@
     "@reduxjs/toolkit": "^1.6.1",
     "commander": "^9.1.0",
     "debug": "^4.3.2",
-    "electron-chromedriver": "22.0.0",
     "get-port": "^5.1.1",
     "libp2p-websockets": "*",
     "lorem-ipsum": "^2.0.4",

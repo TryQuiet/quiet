@@ -29,7 +29,6 @@
     "@react-navigation/native-stack": "^6.9.0",
     "@reduxjs/toolkit": "^1.9.1",
     "buffer": "^6.0.3",
-    "electron-chromedriver": "22.0.0",
     "events": "^1.1.1",
     "i18next": "^20.2.2",
     "jdenticon": "^3.2.0",
