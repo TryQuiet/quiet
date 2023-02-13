@@ -26,6 +26,7 @@ configure(() => {
   require('../src/components/ChannelList/ChannelList.stories')
   require('../src/components/Message/Message.stories')
   require('../src/components/Chat/Chat.stories')
+  require('../src/components/TextWithLink/TextWithLink.stories')
   require('../src/components/Typography/Typography.stories')
   require('../src/components/Button/Button.stories')
   require('../src/components/Input/Input.stories')
