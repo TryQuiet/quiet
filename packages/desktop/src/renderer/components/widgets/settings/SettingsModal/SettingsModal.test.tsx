@@ -127,6 +127,19 @@ describe('SettingsModal', () => {
                                 class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                               />
                             </button>
+                            <button
+                              aria-selected="false"
+                              class="MuiButtonBase-root MuiTab-root TabtabRoot MuiTab-textColorInherit css-1iect55-MuiButtonBase-root-MuiTab-root"
+                              data-testid="about-settings-tab"
+                              role="tab"
+                              tabindex="-1"
+                              type="button"
+                            >
+                              About
+                              <span
+                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                              />
+                            </button>
                           </div>
                           <span
                             class="MuiTabs-indicator SettingsModalindicator css-1dlvkit-MuiTabs-indicator"
@@ -621,6 +634,19 @@ describe('SettingsModal', () => {
                               type="button"
                             >
                               Add members
+                              <span
+                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                              />
+                            </button>
+                            <button
+                              aria-selected="false"
+                              class="MuiButtonBase-root MuiTab-root TabtabRoot MuiTab-textColorInherit css-1iect55-MuiButtonBase-root-MuiTab-root"
+                              data-testid="about-settings-tab"
+                              role="tab"
+                              tabindex="-1"
+                              type="button"
+                            >
+                              About
                               <span
                                 class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                               />
