@@ -24,7 +24,6 @@
   "dependencies": {
     "@quiet/logger": "^1.0.0-alpha.1",
     "@reduxjs/toolkit": "^1.9.1",
-    "electron-chromedriver": "22.0.0",
     "factory-girl": "^5.0.4",
     "get-port": "^5.1.1",
     "luxon": "^2.0.2",
