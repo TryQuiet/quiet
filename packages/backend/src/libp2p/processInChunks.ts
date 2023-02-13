@@ -1,12 +1,18 @@
-import { Multiaddr } from 'multiaddr'
 import logger from '../logger'
 const log = logger('dialer')
 
-export class ProcessInChunks {
-  CHUNK_SIZE = 10
-  isActive: boolean
+const DEFAULT_CHUNK_SIZE = 10
 
-  constructor(private data: string[], private processItem: (arg: any) => Promise<any>) {
+export class ProcessInChunks<T> {
+  private isActive: boolean
+  private data: T[]
+  private chunkSize: number
+  private processItem: (arg: any) => Promise<any>
+
+  constructor(data: T[], processItem: (arg: T) => Promise<any>, chunkSize: number = DEFAULT_CHUNK_SIZE) {
+    this.data = data
+    this.processItem = processItem
+    this.chunkSize = chunkSize
     this.isActive = true
   }
 
@@ -15,7 +21,7 @@ export class ProcessInChunks {
     const toProcess = this.data.shift()
     if (toProcess) {
       try {
-        await this.processItem(new Multiaddr(toProcess))
+        await this.processItem(toProcess)
       } catch (e) {
         log(`Processing ${toProcess} failed, message:`, e.message)
       } finally {
@@ -27,14 +33,16 @@ export class ProcessInChunks {
   }
 
   async process() {
-    log(`Processing ${Math.min(this.CHUNK_SIZE, this.data.length)} items`)
-    for (let i = 0; i < this.CHUNK_SIZE; i++) {
+    log(`Processing ${Math.min(this.chunkSize, this.data.length)} items`)
+    for (let i = 0; i < this.chunkSize; i++) {
       await this.processOneItem()
     }
   }
 
   stop() {
-    log('Stopping initial dial')
-    this.isActive = false
+    if (this.isActive) {
+      log('Stopping initial dial')
+      this.isActive = false
+    }
   }
 }

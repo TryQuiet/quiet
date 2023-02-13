@@ -71,6 +71,7 @@ import { LocalDB, LocalDBKeys } from '../storage/localDB'
 
 import { createLibp2pAddress, createLibp2pListenAddress, getPorts } from '../common/utils'
 import { ProcessInChunks } from './processInChunks'
+import { Multiaddr } from 'multiaddr'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -635,7 +636,7 @@ export class ConnectionsManager extends EventEmitter {
     const libp2p: Libp2p = await ConnectionsManager.createBootstrapNode(nodeParams)
 
     this.libp2pInstance = libp2p
-    const dialInChunks = new ProcessInChunks(params.bootstrapMultiaddrs, this.libp2pInstance.dial.bind(this.libp2pInstance))
+    const dialInChunks = new ProcessInChunks<string>(params.bootstrapMultiaddrs, this.dialPeer)
     libp2p.addEventListener('peer:discovery', (peer) => {
       log(`${params.peerId.toString()} discovered ${peer.detail.id}`)
     })
@@ -698,6 +699,10 @@ export class ConnectionsManager extends EventEmitter {
       libp2p,
       localAddress
     }
+  }
+
+  private dialPeer = async (peerAddress: string) => {
+    await this.libp2pInstance.dial(new Multiaddr(peerAddress))
   }
 
   public static readonly createBootstrapNode = async (
