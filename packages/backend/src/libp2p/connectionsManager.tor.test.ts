@@ -13,6 +13,7 @@ import { all } from './websocketOverTor/filters'
 import getPort from 'get-port'
 import { createServer } from 'it-ws/server'
 import { WebSockets } from './websocketOverTor'
+import { ProcessInChunks } from './processInChunks'
 
 const { getPorts } = await import('../common/utils')
 
@@ -102,8 +103,9 @@ describe('Connections manager', () => {
     const spyOnDial = jest.spyOn(WebSockets.prototype, 'dial')
 
     const peerList = []
-    for (let pCount = 0; pCount < 10; pCount++) {
-      peerList.push(createLibp2pAddress('lvuipdmbutavf72nsp3dwh3dje5zjbxvuw3tffg7ni2qmc6h4xhluaqd.onion', (await createPeerId()).toString()))
+    const peersCount = 11
+    for (let pCount = 0; pCount < peersCount; pCount++) {
+      peerList.push(createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString()))
     }
 
     const launchCommunityPayload: InitCommunityPayload = {
@@ -117,8 +119,8 @@ describe('Connections manager', () => {
       },
       peers: peerList
     }
-    
+
     await connectionsManager.launchCommunity(launchCommunityPayload)
-    expect(spyOnDial).toHaveBeenCalledTimes(10)
+    expect(spyOnDial).toHaveBeenCalledTimes(peersCount)
   })
 })

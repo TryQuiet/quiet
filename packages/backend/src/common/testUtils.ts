@@ -63,7 +63,6 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
   return await ConnectionsManager.createBootstrapNode({
     peerId,
     listenAddresses: [createLibp2pListenAddress('localhost')],
-    bootstrapMultiaddrsList: testBootstrapMultiaddrs,
     agent: createHttpsProxyAgent({ port: 1234, host: 'localhost' }),
     localAddress: createLibp2pAddress('localhost', peerId.toString()),
     cert: pems.userCert,

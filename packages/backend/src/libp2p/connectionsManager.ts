@@ -7,7 +7,6 @@ import { createLibp2p, Libp2p } from 'libp2p'
 import { noise } from '@chainsafe/libp2p-noise'
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { mplex } from '@libp2p/mplex'
-import { bootstrap } from '@libp2p/bootstrap'
 import { kadDHT } from '@libp2p/kad-dht'
 import { createServer } from 'it-ws'
 
@@ -71,7 +70,7 @@ import PeerId from 'peer-id'
 import { LocalDB, LocalDBKeys } from '../storage/localDB'
 
 import { createLibp2pAddress, createLibp2pListenAddress, getPorts } from '../common/utils'
-import { Multiaddr } from 'multiaddr'
+import { ProcessInChunks } from './processInChunks'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -101,7 +100,6 @@ export interface Libp2pNodeParams {
   key: string
   ca: string[]
   localAddress: string
-  bootstrapMultiaddrsList: string[]
   targetPort: number
 }
 
@@ -113,44 +111,6 @@ export interface InitLibp2pParams {
   bootstrapMultiaddrs: string[]
   certs: Certificates
 }
-
-
-class ProcessInChunks<T> { //  private processItem: (item: T) => Promise<any>
-  processItemAA
-  libp2p
-  started: boolean
-  constructor(private data: string[], private processItem, libp2p) {
-    this.processItemAA = processItem
-    this.libp2p = libp2p
-    this.started = true
-  }
-
-  async processOneItem() {
-    if (!this.started) return
-    const toProcess = this.data.shift()
-    console.log('toProcess', toProcess)
-    if (toProcess) {
-      try {
-        // console.log(this, '=')
-        await this.libp2p.dial(new Multiaddr(toProcess))
-        // await this.processItemAA(toProcess)
-      } catch (e) {
-        log.error(`${toProcess} e:`, e.message)
-      } finally {
-        process.nextTick(() => {
-          console.log('nextTick', toProcess)
-          this.processOneItem()
-        })
-      }
-    }
-  }
-
-  stop() {
-    log('Stopping chunks processing')
-    this.started = false
-  }
-}
-
 
 export class ConnectionsManager extends EventEmitter {
   registration: CertificateRegistration
@@ -670,14 +630,12 @@ export class ConnectionsManager extends EventEmitter {
       cert: params.certs.certificate,
       key: params.certs.key,
       ca: params.certs.CA,
-      bootstrapMultiaddrsList: params.bootstrapMultiaddrs,
       targetPort: params.targetPort
     }
     const libp2p: Libp2p = await ConnectionsManager.createBootstrapNode(nodeParams)
 
     this.libp2pInstance = libp2p
-    const processInChunks = new ProcessInChunks(params.bootstrapMultiaddrs, libp2p.dial, libp2p)
-
+    const dialInChunks = new ProcessInChunks(params.bootstrapMultiaddrs, this.libp2pInstance.dial.bind(this.libp2pInstance))
     libp2p.addEventListener('peer:discovery', (peer) => {
       log(`${params.peerId.toString()} discovered ${peer.detail.id}`)
     })
@@ -685,7 +643,10 @@ export class ConnectionsManager extends EventEmitter {
     libp2p.addEventListener('peer:connect', async (peer) => {
       const remotePeerId = peer.detail.remotePeer.toString()
       log(`${params.peerId.toString()} connected to ${remotePeerId}`)
-      processInChunks.stop()
+
+      // Stop dialing as soon as we connect to a peer
+      dialInChunks.stop()
+
       this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
 
       this.emit(Libp2pEvents.PEER_CONNECTED, {
@@ -696,6 +657,7 @@ export class ConnectionsManager extends EventEmitter {
     libp2p.addEventListener('peer:disconnect', async (peer) => {
       const remotePeerId = peer.detail.remotePeer.toString()
       log(`${params.peerId.toString()} disconnected from ${remotePeerId}`)
+      log(`${libp2p.getConnections().length} open connections`)
 
       const connectionStartTime = this.connectedPeers.get(remotePeerId)
 
@@ -727,11 +689,8 @@ export class ConnectionsManager extends EventEmitter {
         lastSeen: connectionEndTime
       })
     })
-    
 
-    for (let i=0; i<10; i++) {
-      processInChunks.processOneItem()
-    }
+    await dialInChunks.process()
 
     log(`Initialized libp2p for peer ${params.peerId.toString()}`)
 
@@ -772,11 +731,6 @@ export class ConnectionsManager extends EventEmitter {
         },
         streamMuxers: [mplex()],
         connectionEncryption: [noise()],
-        // peerDiscovery: [
-        //   bootstrap({
-        //     list: params.bootstrapMultiaddrsList
-        //   })
-        // ],
         relay: {
           enabled: false,
           hop: {
@@ -804,7 +758,6 @@ export class ConnectionsManager extends EventEmitter {
     } catch (err) {
       log.error('LIBP2P ERROR:', err)
     }
-    lib
     return lib
   }
 }
