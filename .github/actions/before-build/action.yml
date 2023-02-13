@@ -8,10 +8,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Install electron-builder globally
-      run: npm i -g electron-builder@23.6.0
-      shell: bash
-    
     - name: Bundle backend for production
       run: cd packages/backend && npm run webpack:prod
       shell: bash
@@ -29,7 +25,7 @@ runs:
     - name: "Verify test mode setup"
       run: echo $TEST_MODE
       shell: bash
-    
+
     - name: "Verify bucket setup"
       run: echo $S3_BUCKET
       shell: bash

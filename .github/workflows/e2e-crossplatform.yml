@@ -10,7 +10,7 @@ jobs:
     timeout-minutes: 30
     env:
       TEST_SYSTEM: mac
-      ELECTRON_CUSTOM_VERSION: 19.0.5
+      ELECTRON_CUSTOM_VERSION: 23.0.0
 
     steps:
       - uses: actions/checkout@v2
@@ -49,7 +49,7 @@ jobs:
     timeout-minutes: 30
     env:
       TEST_SYSTEM: linux
-      ELECTRON_CUSTOM_VERSION: 19.0.5
+      ELECTRON_CUSTOM_VERSION: 23.0.0
       DISPLAY: ":99.0"
 
     steps:
@@ -91,7 +91,7 @@ jobs:
   #   timeout-minutes: 45
   #   env:
   #     TEST_SYSTEM: windows
-  #     ELECTRON_CUSTOM_VERSION: 19.0.5
+  #     ELECTRON_CUSTOM_VERSION: 23.0.0
 
   #   steps:
   #     - uses: actions/checkout@v2
