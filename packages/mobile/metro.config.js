@@ -13,8 +13,7 @@ const watchFolders = [
   path.resolve(__dirname, '../identity'),
   path.resolve(__dirname, '../state-manager'),
   path.resolve(__dirname, '../backend'),
-  path.resolve(__dirname, '../logger'),
-  path.resolve(__dirname, '../testcafe-browser-provider-electron')
+  path.resolve(__dirname, '../logger')
 ]
 
 const extraNodeModules = {
