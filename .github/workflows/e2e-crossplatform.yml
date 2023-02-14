@@ -26,11 +26,11 @@ jobs:
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-0.Quiet-1.0.0-alpha.12.dmg
+        run: chmod +x Quiet-1.0.0-alpha.12.dmg
 
       - name: Mount installer file in volume on system
         working-directory: ./packages/e2e-tests/Quiet
-        run: hdiutil mount Quiet-0.Quiet-1.0.0-alpha.12.dmg 
+        run: hdiutil mount Quiet-1.0.0-alpha.12.dmg 
 
       - name: Add App file to applications
         run: cd ~ && cp -R "/Volumes/Quiet 1.0.0-alpha.12/Quiet.app" /Applications
