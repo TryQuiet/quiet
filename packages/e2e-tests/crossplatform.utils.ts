@@ -16,12 +16,12 @@ export class BuildSetup {
   }
 
   private getBinaryLocation() {
-    switch (process.env.TEST_SYSTEM) {
+    switch (process.platform) {
       case 'linux':
         return `${__dirname}/Quiet/Quiet-1.0.0-alpha.12.AppImage`
-      case 'windows':
+      case 'win32':
         return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
-      case 'mac':
+      case 'darwin':
         return '/Applications/Quiet.app/Contents/MacOS/Quiet'
       default:
         throw new Error('wrong SYSTEM env')

@@ -9,7 +9,6 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 30
     env:
-      TEST_SYSTEM: mac
       ELECTRON_CUSTOM_VERSION: 23.0.0
 
     steps:
@@ -48,7 +47,6 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 30
     env:
-      TEST_SYSTEM: linux
       ELECTRON_CUSTOM_VERSION: 23.0.0
       DISPLAY: ":99.0"
 
@@ -90,7 +88,6 @@ jobs:
   #   runs-on: windows-2019
   #   timeout-minutes: 45
   #   env:
-  #     TEST_SYSTEM: windows
   #     ELECTRON_CUSTOM_VERSION: 23.0.0
 
   #   steps:
