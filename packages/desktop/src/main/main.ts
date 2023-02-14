@@ -19,7 +19,7 @@ ElectronStore.initRenderer()
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
-
+ 
 remote.initialize()
 
 const log = logger('main')
@@ -54,6 +54,8 @@ interface IWindowSize {
   width: number
   height: number
 }
+
+console.log('electron main')
 
 const windowSize: IWindowSize = {
   width: 800,
