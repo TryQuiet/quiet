@@ -18,7 +18,7 @@ export class BuildSetup {
   private getBinaryLocation() {
     switch (process.platform) {
       case 'linux':
-        return `${__dirname}/Quiet/Quiet-1.0.0-alpha.12.AppImage`
+        return `${__dirname}/Quiet/Quiet-1.0.0-alpha.13.AppImage`
       case 'win32':
         return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
       case 'darwin':
@@ -31,7 +31,7 @@ export class BuildSetup {
   public async createChromeDriver() {
     this.dataDir = (Math.random() * 10 ** 18).toString(36)
 
-    if (process.env.TEST_SYSTEM === 'windows') {
+    if (process.platform === 'win32') {
       exec(`cd %APPDATA% % & mkdir ${this.dataDir}`, e => console.log({ e }))
       this.child = spawn(
         `set DATA_DIR=${this.dataDir} & cd node_modules/.bin & chromedriver.cmd --port=${this.port}`,
@@ -42,15 +42,19 @@ export class BuildSetup {
       )
     } else {
       this.child = spawn(
-        `DATA_DIR=${this.dataDir} TEST_MODE=false node_modules/.bin/chromedriver --port=${this.port}`,
+        `DEBUG=backend DATA_DIR=${this.dataDir} node_modules/.bin/chromedriver --port=${this.port}`,
         [],
         {
-          shell: true
+          shell: true,
+          detached: false,
         }
       )
     }
     // Extra time for chromedriver to setup
     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+
+    this.child.on('message', data => console.log('message', data))
+    this.child.on('error', data => console.log('error', data))
 
     this.child.stdout.on('data', data => {
       console.log(`stdout:\n${data}`)
@@ -58,6 +62,10 @@ export class BuildSetup {
 
     this.child.stderr.on('data', data => {
       console.error(`stderr: ${data}`)
+    })
+
+    this.child.stdin.on('data', data => {
+      console.error(`stdin: ${data}`)
     })
   }
 
