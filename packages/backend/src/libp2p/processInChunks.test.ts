@@ -4,10 +4,9 @@ import { ProcessInChunks } from './processInChunks'
 describe('ProcessInChunks', () => {
   it('processes data', async () => {
     const mockProcessItem = jest.fn(async () => {})
-    const data = ['a', 'b', 'c', 'd']
-    const processInChunks = new ProcessInChunks(data, mockProcessItem)
+    const processInChunks = new ProcessInChunks(['a', 'b', 'c', 'd'], mockProcessItem)
     await processInChunks.process()
-    expect(mockProcessItem).toBeCalledTimes(data.length)
+    expect(mockProcessItem).toBeCalledTimes(4)
   })
 
   it('does not process more data if stopped', async () => {

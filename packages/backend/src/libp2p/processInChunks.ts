@@ -7,7 +7,7 @@ export class ProcessInChunks<T> {
   private isActive: boolean
   private data: T[]
   private chunkSize: number
-  private processItem: (arg: any) => Promise<any>
+  private processItem: (arg: T) => Promise<any>
 
   constructor(data: T[], processItem: (arg: T) => Promise<any>, chunkSize: number = DEFAULT_CHUNK_SIZE) {
     this.data = data
@@ -35,7 +35,8 @@ export class ProcessInChunks<T> {
   async process() {
     log(`Processing ${Math.min(this.chunkSize, this.data.length)} items`)
     for (let i = 0; i < this.chunkSize; i++) {
-      await this.processOneItem()
+      // Do not wait for this promise as items should be processed simultineously
+      void this.processOneItem()
     }
   }
 
