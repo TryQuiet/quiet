@@ -23,18 +23,18 @@ jobs:
 
       - name: Download DMG
         working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet-0.19.17-alpha.0.dmg
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.12/Quiet-1.0.0-alpha.12.dmg
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-0.19.17-alpha.0.dmg
+        run: chmod +x Quiet-0.Quiet-1.0.0-alpha.12.dmg
 
       - name: Mount installer file in volume on system
         working-directory: ./packages/e2e-tests/Quiet
-        run: hdiutil mount Quiet-0.19.17-alpha.0.dmg 
+        run: hdiutil mount Quiet-0.Quiet-1.0.0-alpha.12.dmg 
 
       - name: Add App file to applications
-        run: cd ~ && cp -R "/Volumes/Quiet 0.19.17-alpha.0/Quiet.app" /Applications
+        run: cd ~ && cp -R "/Volumes/Quiet 1.0.0-alpha.12/Quiet.app" /Applications
 
       - name: Run smoke test
         working-directory: ./packages/e2e-tests
@@ -72,11 +72,11 @@ jobs:
 
       - name: Download App Image
         working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet-0.19.17-alpha.0.AppImage
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.12/Quiet-1.0.0-alpha.12.AppImage
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-0.19.17-alpha.0.AppImage
+        run: chmod +x Quiet-1.0.0-alpha.12.AppImage
 
       - name: Run smoke test
         working-directory: ./packages/e2e-tests
