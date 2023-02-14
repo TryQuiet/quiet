@@ -18,7 +18,7 @@ export class BuildSetup {
   private getBinaryLocation() {
     switch (process.env.TEST_SYSTEM) {
       case 'linux':
-        return `${__dirname}/Quiet/Quiet-0.19.17-alpha.0.AppImage`
+        return `${__dirname}/Quiet/Quiet-1.0.0-alpha.12.AppImage`
       case 'windows':
         return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
       case 'mac':
