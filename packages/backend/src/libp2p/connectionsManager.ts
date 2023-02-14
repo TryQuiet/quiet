@@ -244,6 +244,10 @@ export class ConnectionsManager extends EventEmitter {
     if (this.localStorage) {
       await this.localStorage.close()
     }
+    if (this.libp2pInstance) {
+      log('Stopping libp2p')
+      await this.libp2pInstance.stop()
+    }
   }
 
   public spawnTor = async () => {

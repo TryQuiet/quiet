@@ -1,19 +1,11 @@
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { createPeerId, createTmpDir, tmpQuietDirPath } from '../common/testUtils'
-
 import { ConnectionsManager } from './connectionsManager'
-import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
+import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 import { communities, getFactory, identity, InitCommunityPayload, prepareStore } from '@quiet/state-manager'
-import { FactoryGirl } from 'factory-girl'
 import { createLibp2pAddress } from '../common/utils'
-import createHttpsProxyAgent from 'https-proxy-agent'
-import { createCertificatesTestHelper } from './tests/client-server'
-import { all } from './websocketOverTor/filters'
-import getPort from 'get-port'
-import { createServer } from 'it-ws/server'
 import { WebSockets } from './websocketOverTor'
-import { ProcessInChunks } from './processInChunks'
 
 const { getPorts } = await import('../common/utils')
 
@@ -33,9 +25,6 @@ beforeEach(() => {
 afterEach(async () => {
   if (connectionsManager) {
     await connectionsManager.closeAllServices()
-    if (connectionsManager.libp2pInstance) {
-      await connectionsManager.libp2pInstance.stop()
-    }
   }
 })
 

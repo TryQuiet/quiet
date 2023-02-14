@@ -4,6 +4,10 @@ import { ProcessInChunks } from './processInChunks'
 describe('ProcessInChunks', () => {
   it('processes data', async () => {
     const mockProcessItem = jest.fn(async () => {})
+      .mockResolvedValueOnce()
+      .mockRejectedValueOnce(new Error('Rejcted 1'))
+      .mockResolvedValueOnce()
+      .mockRejectedValueOnce(new Error('Rejcted 2'))
     const processInChunks = new ProcessInChunks(['a', 'b', 'c', 'd'], mockProcessItem)
     await processInChunks.process()
     expect(mockProcessItem).toBeCalledTimes(4)
