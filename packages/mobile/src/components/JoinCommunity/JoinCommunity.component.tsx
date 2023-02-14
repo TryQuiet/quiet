@@ -8,7 +8,7 @@ import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { JoinCommunityProps } from './JoinCommunity.types'
 
-export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction }) => {
+export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, redirectionAction }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
@@ -56,9 +56,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction }) =
               {
                 tag: 'a',
                 label: 'create a new community',
-                action: () => {
-                  console.log('link clicked')
-                }
+                action: redirectionAction
               }
             ]}
           />

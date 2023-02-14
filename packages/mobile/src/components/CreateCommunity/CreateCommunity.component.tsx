@@ -8,7 +8,10 @@ import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { CreateCommunityProps } from './CreateCommunity.types'
 
-export const CreateCommunity: FC<CreateCommunityProps> = ({ createCommunityAction }) => {
+export const CreateCommunity: FC<CreateCommunityProps> = ({
+  createCommunityAction,
+  redirectionAction
+}) => {
   const [createCommunityInput, setCreateCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
@@ -56,9 +59,7 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({ createCommunityActio
               {
                 tag: 'a',
                 label: 'join a community',
-                action: () => {
-                  console.log('link clicked')
-                }
+                action: redirectionAction
               }
             ]}
           />

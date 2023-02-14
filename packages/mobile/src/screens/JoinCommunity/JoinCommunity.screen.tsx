@@ -1,5 +1,4 @@
 import React, { FC, useCallback, useEffect } from 'react'
-import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities, CommunityOwnership, CreateNetworkPayload } from '@quiet/state-manager'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
@@ -27,7 +26,15 @@ export const JoinCommunityScreen: FC = () => {
     dispatch(communities.actions.createNetwork(payload))
   }, [dispatch])
 
+  const redirectionAction = useCallback(() => {
+    dispatch(
+      navigationActions.navigation({
+        screen: ScreenNames.CreateCommunityScreen
+      })
+    )
+  }, [dispatch])
+
   return (
-    <JoinCommunity joinCommunityAction={joinCommunityAction} />
+    <JoinCommunity joinCommunityAction={joinCommunityAction} redirectionAction={redirectionAction} />
   )
 }

@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { ScreenNames } from './const/ScreenNames.enum'
 import { SplashScreen } from './screens/Splash/Splash.screen'
+import { CreateCommunityScreen } from './screens/CreateCommunity/CreateCommunity.screen'
 import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.screen'
 import { UsernameRegistrationScreen } from './screens/UsernameRegistration/UsernameRegistration.screen'
 import { SuccessScreen } from './screens/Success/Success.screen'
@@ -74,6 +75,7 @@ export default function App(): JSX.Element {
                     headerShown: false
                   }}>
                   <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
+                  <Screen component={CreateCommunityScreen} name={ScreenNames.CreateCommunityScreen} />
                   <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
                   <Screen
                     component={UsernameRegistrationScreen}
