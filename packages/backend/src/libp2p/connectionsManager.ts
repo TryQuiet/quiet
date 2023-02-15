@@ -184,7 +184,7 @@ export class ConnectionsManager extends EventEmitter {
     log(`Creating https proxy agent: ${this.httpTunnelPort}`)
 
     return createHttpsProxyAgent({
-      port: this.httpTunnelPort, host: '127.0.0.1', 
+      port: this.httpTunnelPort, host: '127.0.0.1',
     })
   }
 
