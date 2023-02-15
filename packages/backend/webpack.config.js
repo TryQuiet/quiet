@@ -10,7 +10,7 @@ function root(args) {
 }
 
 const webpackConfig = (env) => {
-    const config =  {
+    const config = {
         mode: env.mode,
         target: 'node',
         entry: {
@@ -38,15 +38,27 @@ const webpackConfig = (env) => {
                 },
                 {
                     test: /node_modules[\/\\]@achingbrain[\/\\]ssdp[\/\\]dist[\/\\]src[\/\\]default-ssdp-options.js/,
-                    loader: 'create-require-loader'
+                    loader: 'string-replace-loader',
+                    options: {
+                        search: "const pkg = req('../../package.json')",
+                        replace: "import pkg from '../../package.json'"
+                    }
                 },
                 {
                     test: /node_modules[\/\\]classic-level[\/\\]index.js/,
-                    loader: 'create-require-loader'
+                    loader: 'string-replace-loader',
+                    options: {
+                        search: "const binding = require('./binding')",
+                        replace: "const binding = require('./binding').default"
+                    }
                 },
                 {
                     test: /node_modules[\/\\]classic-level[\/\\]iterator.js/,
-                    loader: 'create-require-loader'
+                    loader: 'string-replace-loader',
+                    options: {
+                        search: "const binding = require('./binding')",
+                        replace: "const binding = require('./binding').default"
+                    }
                 }
             ]
         },
@@ -66,7 +78,7 @@ const webpackConfig = (env) => {
         ],
         experiments: {
             topLevelAwait: true
-          }
+        }
     }
     return config
 }
