@@ -7,7 +7,6 @@ import { createLibp2p, Libp2p } from 'libp2p'
 import { noise } from '@chainsafe/libp2p-noise'
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { mplex } from '@libp2p/mplex'
-import { bootstrap } from '@libp2p/bootstrap'
 import { kadDHT } from '@libp2p/kad-dht'
 import { createServer } from 'it-ws'
 
@@ -52,7 +51,6 @@ import {
   DownloadStatus,
   CommunityId,
   StorePeerListPayload,
-  sortPeers,
   NetworkStats
 } from '@quiet/state-manager'
 
@@ -72,6 +70,8 @@ import PeerId from 'peer-id'
 import { LocalDB, LocalDBKeys } from '../storage/localDB'
 
 import { createLibp2pAddress, createLibp2pListenAddress, getPorts } from '../common/utils'
+import { ProcessInChunks } from './processInChunks'
+import { Multiaddr } from 'multiaddr'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -101,7 +101,6 @@ export interface Libp2pNodeParams {
   key: string
   ca: string[]
   localAddress: string
-  bootstrapMultiaddrsList: string[]
   targetPort: number
 }
 
@@ -244,6 +243,10 @@ export class ConnectionsManager extends EventEmitter {
     }
     if (this.localStorage) {
       await this.localStorage.close()
+    }
+    if (this.libp2pInstance) {
+      log('Stopping libp2p')
+      await this.libp2pInstance.stop()
     }
   }
 
@@ -621,8 +624,7 @@ export class ConnectionsManager extends EventEmitter {
     const localAddress = this.createLibp2pAddress(params.address, params.peerId.toString())
 
     log(
-      `Initializing libp2p for ${params.peerId.toString()}, bootstrapping with ${params.bootstrapMultiaddrs.length
-      } peers`
+      `Initializing libp2p for ${params.peerId.toString()}, bootstrapping with ${params.bootstrapMultiaddrs.length} peers`
     )
 
     const nodeParams: Libp2pNodeParams = {
@@ -633,13 +635,12 @@ export class ConnectionsManager extends EventEmitter {
       cert: params.certs.certificate,
       key: params.certs.key,
       ca: params.certs.CA,
-      bootstrapMultiaddrsList: params.bootstrapMultiaddrs,
       targetPort: params.targetPort
     }
     const libp2p: Libp2p = await ConnectionsManager.createBootstrapNode(nodeParams)
 
     this.libp2pInstance = libp2p
-
+    const dialInChunks = new ProcessInChunks<string>(params.bootstrapMultiaddrs, this.dialPeer)
     libp2p.addEventListener('peer:discovery', (peer) => {
       log(`${params.peerId.toString()} discovered ${peer.detail.id}`)
     })
@@ -647,6 +648,10 @@ export class ConnectionsManager extends EventEmitter {
     libp2p.addEventListener('peer:connect', async (peer) => {
       const remotePeerId = peer.detail.remotePeer.toString()
       log(`${params.peerId.toString()} connected to ${remotePeerId}`)
+
+      // Stop dialing as soon as we connect to a peer
+      dialInChunks.stop()
+
       this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
 
       this.emit(Libp2pEvents.PEER_CONNECTED, {
@@ -657,6 +662,7 @@ export class ConnectionsManager extends EventEmitter {
     libp2p.addEventListener('peer:disconnect', async (peer) => {
       const remotePeerId = peer.detail.remotePeer.toString()
       log(`${params.peerId.toString()} disconnected from ${remotePeerId}`)
+      log(`${libp2p.getConnections().length} open connections`)
 
       const connectionStartTime = this.connectedPeers.get(remotePeerId)
 
@@ -689,12 +695,18 @@ export class ConnectionsManager extends EventEmitter {
       })
     })
 
+    await dialInChunks.process()
+
     log(`Initialized libp2p for peer ${params.peerId.toString()}`)
 
     return {
       libp2p,
       localAddress
     }
+  }
+
+  private dialPeer = async (peerAddress: string) => {
+    await this.libp2pInstance.dial(new Multiaddr(peerAddress))
   }
 
   public static readonly createBootstrapNode = async (
@@ -728,11 +740,6 @@ export class ConnectionsManager extends EventEmitter {
         },
         streamMuxers: [mplex()],
         connectionEncryption: [noise()],
-        peerDiscovery: [
-          bootstrap({
-            list: params.bootstrapMultiaddrsList
-          })
-        ],
         relay: {
           enabled: false,
           hop: {
@@ -760,7 +767,6 @@ export class ConnectionsManager extends EventEmitter {
     } catch (err) {
       log.error('LIBP2P ERROR:', err)
     }
-
     return lib
   }
 }
