@@ -2,6 +2,8 @@ import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
 import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { Notifications } from './Notifications'
+import { screen } from '@testing-library/dom'
+import userEvent from '@testing-library/user-event'
 
 describe('Notifications', () => {
   it('renders component', () => {
@@ -308,4 +310,23 @@ describe('Notifications', () => {
       </body>
     `)
   })
+
+  it('plays sound when switching sound', async () => {
+    window.HTMLMediaElement.prototype.play = jest.fn()
+    const props = {
+      notificationsOption: NotificationsOptions.notifyForEveryMessage,
+      notificationsSound: NotificationsSounds.bang,
+      setNotificationsOption: jest.fn(),
+      setNotificationsSound: jest.fn()
+    }
+    renderComponent(<Notifications {...props} />)
+    const sounds = Object.values(NotificationsSounds).filter((sound) => sound !== NotificationsSounds.none)
+    for (const sound of sounds) {
+      const soundRadioButton = screen.getByTestId(`sound-${sound}-radio`)
+      await userEvent.click(soundRadioButton)
+    }
+    
+    expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(sounds.length)
+  })
+
 })
