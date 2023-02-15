@@ -18,7 +18,6 @@ export function* startConnectionSaga(
 }
 
 function* setConnectedSaga(socket: Socket): Generator {
-  // @ts-expect-error
   const task = yield* fork(stateManager.useIO, socket)
   // Handle suspending current connection
   yield* takeEvery(initActions.suspendWebsocketConnection, cancelRootTaskSaga, task)
