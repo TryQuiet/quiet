@@ -5,7 +5,7 @@ import { communities, identity, CommunityOwnership, CreateNetworkPayload } from 
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../../containers/hooks'
-//
+
 const JoinCommunity = () => {
   const dispatch = useDispatch()
 

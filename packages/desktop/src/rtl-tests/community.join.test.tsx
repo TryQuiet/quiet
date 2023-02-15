@@ -34,7 +34,7 @@ jest.setTimeout(20_000)
 
 describe('User', () => {
   let socket: MockedSocket
-  // trigger2
+  // trigger
   beforeEach(() => {
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
