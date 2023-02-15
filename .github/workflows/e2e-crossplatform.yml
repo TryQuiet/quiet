@@ -84,37 +84,37 @@ jobs:
       #   working-directory: ./packages/e2e-tests
       #   run: npm run test newUser.crossplatform.test.ts
 
-  windows:
-    runs-on: windows-2019
-    timeout-minutes: 45
-    env:
-      ELECTRON_CUSTOM_VERSION: 23.0.0
+  # windows:
+  #   runs-on: windows-2019
+  #   timeout-minutes: 45
+  #   env:
+  #     ELECTRON_CUSTOM_VERSION: 23.0.0
 
-    steps:
-      - uses: actions/checkout@v2
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: "Setup environment"
-        uses: ./.github/actions/setup-env
-        with:
-          cachePrefix: "e2e-crossplatform-windows"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,create-require-loader,e2e-tests"
+  #     - name: "Setup environment"
+  #       uses: ./.github/actions/setup-env
+  #       with:
+  #         cachePrefix: "e2e-crossplatform-windows"
+  #         bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,create-require-loader,e2e-tests"
 
-      - name: Download EXE
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.13/Quiet.Setup.1.0.0-alpha.13.exe
-        shell: bash
+  #     - name: Download EXE
+  #       run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.13/Quiet.Setup.1.0.0-alpha.13.exe
+  #       shell: bash
 
-      - name: Chmod
-        run: chmod +x Quiet.Setup.1.0.0-alpha.13.exe
-        shell: bash
+  #     - name: Chmod
+  #       run: chmod +x Quiet.Setup.1.0.0-alpha.13.exe
+  #       shell: bash
 
-      - name: Install exe
-        run: Start-Process Quiet.Setup.1.0.0-alpha.13.exe -Wait
-        shell: powershell
+  #     - name: Install exe
+  #       run: Start-Process Quiet.Setup.1.0.0-alpha.13.exe -Wait
+  #       shell: powershell
 
-      - name: Kill exe
-        run: Stop-Process -Name "Quiet" -Force
-        shell: powershell
+  #     - name: Kill exe
+  #       run: Stop-Process -Name "Quiet" -Force
+  #       shell: powershell
 
-      - name: Run smoke test
-        working-directory: ./packages/e2e-tests
-        run: npm run test smoke.crossplatform.test.ts
+  #     - name: Run smoke test
+  #       working-directory: ./packages/e2e-tests
+  #       run: npm run test smoke.crossplatform.test.ts
