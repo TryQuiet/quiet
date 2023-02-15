@@ -44,10 +44,6 @@ beforeEach(async () => {
 afterEach(async () => {
   if (connectionsManager) {
     await connectionsManager.closeAllServices()
-    if (connectionsManager.libp2pInstance) {
-      console.log('Force stopping libp2p')
-      await connectionsManager.libp2pInstance.stop()
-    }
   }
 })
 
