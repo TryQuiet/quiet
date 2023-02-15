@@ -36,6 +36,7 @@ describe('User', () => {
   let socket: MockedSocket
 
   beforeEach(() => {
+    //
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
