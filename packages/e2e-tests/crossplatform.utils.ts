@@ -32,6 +32,7 @@ export class BuildSetup {
     this.dataDir = (Math.random() * 10 ** 18).toString(36)
 
     if (process.platform === 'win32') {
+      console.log('!WINDOWS!')
       exec(`cd %APPDATA% % & mkdir ${this.dataDir}`, e => console.log({ e }))
       this.child = spawn(
         `set DATA_DIR=${this.dataDir} & cd node_modules/.bin & chromedriver.cmd --port=${this.port}`,

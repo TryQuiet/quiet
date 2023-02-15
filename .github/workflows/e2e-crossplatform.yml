@@ -116,4 +116,5 @@ jobs:
         shell: powershell
 
       - name: Run smoke test
-        run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+        working-directory: ./packages/e2e-tests
+        run: npm run test smoke.crossplatform.test.ts
