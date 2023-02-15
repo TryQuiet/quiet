@@ -325,8 +325,7 @@ describe('Notifications', () => {
       const soundRadioButton = screen.getByTestId(`sound-${sound}-radio`)
       await userEvent.click(soundRadioButton)
     }
-    
+
     expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(sounds.length)
   })
-
 })

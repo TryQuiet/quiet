@@ -1,4 +1,4 @@
-import { soundTypeToAudio } from "."
+import { soundTypeToAudio } from '.'
 
 describe('sounds', () => {
   it('have proper source', () => {

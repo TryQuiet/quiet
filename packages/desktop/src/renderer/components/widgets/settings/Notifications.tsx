@@ -205,7 +205,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
         >
           <Grid item>
             <FormControlLabel
-              data-testid={`sound-switch`}
+              data-testid={'sound-switch'}
               control={
                 <Checkbox
                   checked={notificationsSound !== NotificationsSounds.none}
