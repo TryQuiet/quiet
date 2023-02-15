@@ -43,7 +43,6 @@ describe('Connections manager', () => {
     })
     await connectionsManager.init()
     expect(connectionsManager.tor.process).not.toBeNull()
-    await connectionsManager.closeAllServices()
   })
 
   it('creates network', async () => {
@@ -66,7 +65,6 @@ describe('Connections manager', () => {
     const peerId = await PeerId.createFromJSON(network.peerId)
     expect(PeerId.isPeerId(peerId)).toBeTruthy()
     expect(await spyOnDestroyHiddenService.mock.results[0].value).toBeTruthy()
-    await connectionsManager.closeAllServices()
   })
 
   it('dials many peers on start', async () => {
