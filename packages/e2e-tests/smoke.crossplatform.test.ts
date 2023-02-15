@@ -24,7 +24,7 @@ describe('Smoke', () => {
 
   afterAll(async () => {
     await buildSetup.closeDriver()
-    buildSetup.killChromeDriver()
+    await buildSetup.killChromeDriver()
   })
   describe('Stages:', () => {
     it('Close debug modal', async () => {
