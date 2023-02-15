@@ -52,6 +52,26 @@ export class BuildSetup {
     // Extra time for chromedriver to setup
     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
 
+    const killNine = () => {
+      exec(`kill -9 $(lsof -t -i:${this.port})`)
+      exec(`kill -9 $(lsof -t -i:${this.debugPort})`)
+    }
+
+    this.child.on('error', () => {
+      console.log('ERROR')
+      killNine()
+    })
+
+    this.child.on('exit', () => {
+      console.log('EXIT')
+      killNine()
+    })
+
+    this.child.on('close', () => {
+      console.log('CLOSE')
+      killNine()
+    })
+
     this.child.stdout.on('data', data => {
       console.log(`stdout:\n${data}`)
     })
@@ -83,9 +103,10 @@ export class BuildSetup {
     return this.driver
   }
 
-  public killChromeDriver() {
+  public async killChromeDriver() {
     console.log('kill')
     this.child.kill()
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
   }
 
   public async closeDriver() {
