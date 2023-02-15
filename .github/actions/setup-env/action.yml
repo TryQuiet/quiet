@@ -14,7 +14,7 @@ runs:
   steps:
     - uses: actions/setup-node@master
       with:
-        node-version: 16.14.2
+        node-version: 16.18.0
 
     - name: Print OS name
       run: echo ${{ runner.os }}
