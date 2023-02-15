@@ -1,6 +1,6 @@
 {
 	"name": "@quiet/backend",
-	"version": "1.0.0-alpha.4",
+	"version": "1.0.0-alpha.5",
 	"description": "tlg-manager",
 	"types": "lib/index.d.ts",
 	"type": "module",
@@ -116,9 +116,9 @@
 		"peer-id": "^0.16.0",
 		"pkijs": "3.0.8",
 		"secp256k1": "4.0.3",
-		"string-replace-loader": "3.1.0",
 		"socket.io": "^4.5.4",
 		"socks-proxy-agent": "^5.0.0",
+		"string-replace-loader": "3.1.0",
 		"ts-jest-resolver": "^2.0.0",
 		"validator": "^13.6.0"
 	},
