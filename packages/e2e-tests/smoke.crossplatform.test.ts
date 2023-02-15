@@ -47,6 +47,7 @@ describe('Smoke', () => {
     it('User waits for the modal Starting Quiet to disappear', async () => {
       const loadingPanel = new LoadingPanel(driver, 'Starting Quiet')
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
+      await buildSetup.getTorPid()
       expect(isLoadingPanel).toBeTruthy()
     })
 
