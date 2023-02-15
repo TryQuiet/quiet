@@ -89,6 +89,22 @@ export class BuildSetup {
     })
   }
 
+  public async getTorPid() {
+    const execAsync = async (cmd: string) => {
+      return await new Promise(resolve => {
+        exec(cmd, (error, stdout, stderr) => {
+          if (error) {
+            console.warn(error)
+          }
+          resolve(stdout || stderr)
+        })
+      })
+    }
+    const torPid = await execAsync('lsof -t -c tor')
+    console.log({ torPid })
+    return torPid
+  }
+
   public getDriver() {
     const binary = this.getBinaryLocation()
     if (!this.driver) {

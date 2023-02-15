@@ -96,7 +96,8 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,integration-tests"
+          cachePrefix: "e2e-crossplatform-windows"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,create-require-loader,e2e-tests"
 
       - name: Download EXE
         run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.13/Quiet.Setup.1.0.0-alpha.13.exe
