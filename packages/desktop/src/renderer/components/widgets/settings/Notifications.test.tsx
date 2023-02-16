@@ -158,6 +158,7 @@ describe('Notifications', () => {
                 >
                   <label
                     class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                    data-testid="sound-switch"
                   >
                     <span
                       class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorDefault PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorDefault Mui-checked MuiCheckbox-root MuiCheckbox-colorDefault css-dk24d0-MuiButtonBase-root-MuiCheckbox-root"
@@ -192,12 +193,14 @@ describe('Notifications', () => {
                 </div>
                 <div
                   class="MuiGrid-root MuiGrid-item NotificationsspacingSound css-13i4rnv-MuiGrid-root"
+                  data-testid="sound-librarianShhh"
                 >
                   <label
                     class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
                   >
                     <span
                       class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-hkw0i8-MuiButtonBase-root-MuiCheckbox-root"
+                      data-testid="sound-librarianShhh-radio"
                     >
                       <input
                         class="PrivateSwitchBase-input css-1m9pwf3"
@@ -220,12 +223,14 @@ describe('Notifications', () => {
                 </div>
                 <div
                   class="MuiGrid-root MuiGrid-item NotificationsspacingSound css-13i4rnv-MuiGrid-root"
+                  data-testid="sound-pow"
                 >
                   <label
                     class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
                   >
                     <span
                       class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-hkw0i8-MuiButtonBase-root-MuiCheckbox-root"
+                      data-testid="sound-pow-radio"
                     >
                       <input
                         class="PrivateSwitchBase-input css-1m9pwf3"
@@ -248,12 +253,14 @@ describe('Notifications', () => {
                 </div>
                 <div
                   class="MuiGrid-root MuiGrid-item NotificationsspacingSound css-13i4rnv-MuiGrid-root"
+                  data-testid="sound-bang"
                 >
                   <label
                     class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
                   >
                     <span
                       class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary css-hkw0i8-MuiButtonBase-root-MuiCheckbox-root"
+                      data-testid="sound-bang-radio"
                     >
                       <input
                         checked=""
@@ -277,12 +284,14 @@ describe('Notifications', () => {
                 </div>
                 <div
                   class="MuiGrid-root MuiGrid-item NotificationsspacingSound css-13i4rnv-MuiGrid-root"
+                  data-testid="sound-splat"
                 >
                   <label
                     class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
                   >
                     <span
                       class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-hkw0i8-MuiButtonBase-root-MuiCheckbox-root"
+                      data-testid="sound-splat-radio"
                     >
                       <input
                         class="PrivateSwitchBase-input css-1m9pwf3"
@@ -320,7 +329,9 @@ describe('Notifications', () => {
       setNotificationsSound: jest.fn()
     }
     renderComponent(<Notifications {...props} />)
-    const sounds = Object.values(NotificationsSounds).filter((sound) => sound !== NotificationsSounds.none)
+    const sounds = Object.values(NotificationsSounds).filter(
+      sound => sound !== NotificationsSounds.none
+    )
     for (const sound of sounds) {
       const soundRadioButton = screen.getByTestId(`sound-${sound}-radio`)
       await userEvent.click(soundRadioButton)
