@@ -1,8 +1,6 @@
 name: E2E tests
 
 on: [workflow_call]
-
-# "macos-latest" UnableToAccessScreenRecordingAPIError: The find-window process cannot access the Screen Recording API. https://github.com/DevExpress/testcafe/issues/5352
 jobs:
   e2e-linux:
     runs-on: ubuntu-20.04
@@ -21,7 +19,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,testcafe-browser-provider-electron,e2e-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests"
 
       - name: Run X11
         run: |
@@ -64,7 +62,7 @@ jobs:
   #     - name: "Setup environment"
   #       uses: ./.github/actions/setup-env
   #       with:
-  #         bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,integration-tests,testcafe-browser-provider-electron,e2e-tests"
+  #         bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,integration-tests,e2e-tests"
 
   #     - name: Build project and run tests
   #       run: lerna run test:build --scope e2e-tests --stream

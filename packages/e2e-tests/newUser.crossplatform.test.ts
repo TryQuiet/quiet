@@ -44,10 +44,10 @@ describe('New User', () => {
 
   afterAll(async () => {
     await buildSetup.closeDriver()
-    buildSetup.killChromeDriver()
+    await buildSetup.killChromeDriver()
 
     await buildSetup2.closeDriver()
-    buildSetup2.killChromeDriver()
+    await buildSetup2.killChromeDriver()
   })
   describe('Stages:', () => {
     it('Close debug modal', async () => {
