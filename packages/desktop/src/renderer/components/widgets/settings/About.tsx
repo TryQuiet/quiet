@@ -30,13 +30,10 @@ export const About = () => {
         alignItems='center'
         className={classes.titleDiv}>
         <Grid item className={classes.title}>
-          <Typography variant='h3'>About</Typography>
+          <Typography variant='h3'>About Quiet</Typography>
         </Grid>
       </Grid>
       <Grid item>
-        <Grid item>
-          <Typography variant='h5'>Quiet</Typography>
-        </Grid>
         <Grid item>
           <Typography variant='body2'>
             Version: {version}
