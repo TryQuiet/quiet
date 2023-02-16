@@ -8,6 +8,8 @@ on:
 jobs:
   chromatic-deployment:
     runs-on: ${{ matrix.os }}
+    env:
+      NODE_OPTIONS: --openssl-legacy-provider
 
     strategy:
       matrix:
