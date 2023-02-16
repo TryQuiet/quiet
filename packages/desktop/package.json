@@ -104,7 +104,7 @@
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:renderer": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
+    "build-storybook": "export NODE_OPTIONS=--openssl-legacy-provider && build-storybook",
     "chromatic": "npx chromatic --exit-zero-on-changes=false",
     "rmDist": "rimraf dist/",
     "setMainEnvs": "node scripts/setMainEnvs.js",
