@@ -10,10 +10,13 @@
     "declaration": false,
   },
   "include": [
-    "src"
+    "src/"
   ],
   "exclude": [
     "node_modules",
-    "**/__tests__/*"
+    "**/__tests__/*",
+    "src/renderer",
+    "src/rtl-tests",
+    
   ]
 }

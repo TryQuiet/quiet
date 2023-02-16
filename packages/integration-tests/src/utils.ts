@@ -2,6 +2,7 @@ import { io, Socket } from 'socket.io-client'
 import Websockets from 'libp2p-websockets'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { all, call, fork, takeEvery } from 'typed-redux-saga'
+// @ts-ignore
 import backend, { ConnectionsManager } from '@quiet/backend'
 import { TestStore, StoreKeys, errors, prepareStore, useIO } from '@quiet/state-manager'
 import path from 'path'
