@@ -94,7 +94,6 @@ describe('Scroll behavior test', () => {
       .type('luke where are you?')
       .type('{shift+enter}')
       .type('you underestimate the power of the force')
-      .should('have.text', 'luke where are you?\
-you underestimate the power of the force')
+      .should('have.text', 'luke where are you?you underestimate the power of the force')
   })
 })
