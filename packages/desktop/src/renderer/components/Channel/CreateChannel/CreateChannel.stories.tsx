@@ -16,7 +16,8 @@ const args: CreateChannelProps = {
   createChannel: function (name: string): void {
     console.log('creating channel: ', name)
   },
-  handleClose: function (): void {}
+  handleClose: function (): void {},
+  clearErrorsDispatch: function (): void {}
 }
 
 Component.args = args
