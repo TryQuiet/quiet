@@ -55,6 +55,8 @@ interface IWindowSize {
   height: number
 }
 
+console.log('electron main')
+
 const windowSize: IWindowSize = {
   width: 800,
   height: 540

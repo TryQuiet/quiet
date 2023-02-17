@@ -9,8 +9,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 30
     env:
-      TEST_SYSTEM: mac
-      ELECTRON_CUSTOM_VERSION: 19.0.5
+      ELECTRON_CUSTOM_VERSION: 23.0.0
 
     steps:
       - uses: actions/checkout@v2
@@ -19,22 +18,22 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "e2e-crossplatform-mac"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,create-require-loader,e2e-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
       - name: Download DMG
         working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet-0.19.17-alpha.0.dmg
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.13/Quiet-1.0.0-alpha.13.dmg
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-0.19.17-alpha.0.dmg
+        run: chmod +x Quiet-1.0.0-alpha.13.dmg
 
       - name: Mount installer file in volume on system
         working-directory: ./packages/e2e-tests/Quiet
-        run: hdiutil mount Quiet-0.19.17-alpha.0.dmg 
+        run: hdiutil mount Quiet-1.0.0-alpha.13.dmg 
 
       - name: Add App file to applications
-        run: cd ~ && cp -R "/Volumes/Quiet 0.19.17-alpha.0/Quiet.app" /Applications
+        run: cd ~ && cp -R "/Volumes/Quiet 1.0.0-alpha.13/Quiet.app" /Applications
 
       - name: Run smoke test
         working-directory: ./packages/e2e-tests
@@ -48,8 +47,7 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 30
     env:
-      TEST_SYSTEM: linux
-      ELECTRON_CUSTOM_VERSION: 19.0.5
+      ELECTRON_CUSTOM_VERSION: 23.0.0
       DISPLAY: ":99.0"
 
     steps:
@@ -62,7 +60,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "e2e-crossplatform-linux"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,create-require-loader,e2e-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
       - name: Run X11
         run: |
@@ -72,11 +70,11 @@ jobs:
 
       - name: Download App Image
         working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet-0.19.17-alpha.0.AppImage
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.13/Quiet-1.0.0-alpha.13.AppImage
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-0.19.17-alpha.0.AppImage
+        run: chmod +x Quiet-1.0.0-alpha.13.AppImage
 
       - name: Run smoke test
         working-directory: ./packages/e2e-tests
@@ -90,8 +88,7 @@ jobs:
     runs-on: windows-2019
     timeout-minutes: 45
     env:
-      TEST_SYSTEM: windows
-      ELECTRON_CUSTOM_VERSION: 19.0.5
+      ELECTRON_CUSTOM_VERSION: 23.0.0
 
     steps:
       - uses: actions/checkout@v2
@@ -100,18 +97,18 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "e2e-crossplatform-windows"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,create-require-loader,e2e-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
       - name: Download EXE
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%400.19.17-alpha.0/Quiet.Setup.0.19.17-alpha.0.exe
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.13/Quiet.Setup.1.0.0-alpha.13.exe
         shell: bash
 
       - name: Chmod
-        run: chmod +x Quiet.Setup.0.19.17-alpha.0.exe
+        run: chmod +x Quiet.Setup.1.0.0-alpha.13.exe
         shell: bash
 
       - name: Install exe
-        run: Start-Process Quiet.Setup.0.19.17-alpha.0.exe -Wait
+        run: Start-Process Quiet.Setup.1.0.0-alpha.13.exe -Wait
         shell: powershell
 
       - name: Kill exe
@@ -119,4 +116,5 @@ jobs:
         shell: powershell
 
       - name: Run smoke test
-        run: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+        working-directory: ./packages/e2e-tests
+        run: npm run test smoke.crossplatform.test.ts

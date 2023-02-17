@@ -20,7 +20,7 @@ export const userNameField = (name = 'userName'): FieldData => {
         message: UsernameErrors.WrongCharacter
       },
       validate: {
-        whitespaces: (value) => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
+        whitespaces: (value) => /^(?![\s])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
       }
     }
   }

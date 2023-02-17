@@ -52,7 +52,7 @@ class Discovery extends EventEmitter {
   end() { }
 }
 
-class WebSockets extends EventEmitter {
+export class WebSockets extends EventEmitter {
   private readonly init?: WebSocketsInit
 
   _websocketOpts: any

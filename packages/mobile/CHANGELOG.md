@@ -3,6 +3,62 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.9](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@1.0.0-alpha.8...@quiet/mobile@1.0.0-alpha.9) (2023-02-16)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [1.0.0-alpha.8](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@1.0.0-alpha.7...@quiet/mobile@1.0.0-alpha.8) (2023-02-15)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [1.0.0-alpha.7](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@1.0.0-alpha.6...@quiet/mobile@1.0.0-alpha.7) (2023-02-14)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [1.0.0-alpha.6](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@1.0.0-alpha.5...@quiet/mobile@1.0.0-alpha.6) (2023-02-13)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [1.0.0-alpha.5](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@1.0.0-alpha.4...@quiet/mobile@1.0.0-alpha.5) (2023-02-13)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [1.0.0-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@1.0.0-alpha.3...@quiet/mobile@1.0.0-alpha.4) (2023-02-09)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [1.0.0-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@1.0.0-alpha.2...@quiet/mobile@1.0.0-alpha.3) (2023-02-09)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
 # [1.0.0-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@1.0.0-alpha.1...@quiet/mobile@1.0.0-alpha.2) (2023-02-09)
 
 **Note:** Version bump only for package @quiet/mobile
