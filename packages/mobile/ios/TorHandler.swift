@@ -7,11 +7,7 @@ class TorHandler: NSObject {
   func getTorConfiguration(socksPort: in_port_t, controlPort: in_port_t, httpTunnelPort: in_port_t) -> TorConfiguration {
      let conf = TorConfiguration()
 
-     #if DEBUG
-     let log_loc = "notice stdout"
-     #else
-     let log_loc = "notice file /dev/null"
-     #endif
+    let log_loc = "notice stdout"
 
      conf.cookieAuthentication = true
 
