@@ -19,4 +19,18 @@ describe('restoreConnectionSaga', () => {
       }))
       .run()
   })
+  test('do nothing if last known data port is not set', async () => {
+    await expectSaga(restoreConnectionSaga)
+    .withReducer(combineReducers({ [StoreKeys.Init]: initReducer }), {
+        [StoreKeys.Init]: {
+          ...new InitState(),
+          isWebsocketConnected: false,
+          lastKnownDataPort: 0
+        }
+      })
+      .not.put(initActions.startWebsocketConnection({
+        dataPort: 0
+      }))
+      .run()
+  })
 })
