@@ -2,17 +2,17 @@ import { io, Socket } from 'socket.io-client'
 import Websockets from 'libp2p-websockets'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { all, call, fork, takeEvery } from 'typed-redux-saga'
-// @ts-ignore
-import backend, { ConnectionsManager } from '@quiet/backend'
 import { TestStore, StoreKeys, errors, prepareStore, useIO } from '@quiet/state-manager'
 import path from 'path'
 import assert from 'assert'
 import getPort from 'get-port'
 import tmp from 'tmp'
-import logger from './logger'
+// import logger from './logger'
 import { Saga, Task } from '@redux-saga/types'
+import backend, { ConnectionsManager } from '@quiet/backend'
+// import { peerIdFromKeys } from '@libp2p/peer-id'
 
-const log = logger('utils')
+// const log = logger('utils')
 
 export const createTmpDir = (prefix: string) => {
   return tmp.dirSync({ mode: 0o750, prefix, unsafeCleanup: true })
@@ -25,16 +25,19 @@ export const createPath = (dirName: string) => {
 const connectToDataport = (url: string, name: string): Socket => {
   const socket = io(url)
   socket.on('connect', async () => {
-    log(`websocket connection is ready for app ${name}`)
+    // log(`websocket connection is ready for app ${name}`)
   })
   socket.on('disconnect', () => {
-    log(`socket disconnected for app ${name}`)
+    // log(`socket disconnected for app ${name}`)
     socket.close()
   })
   return socket
 }
 
-export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appDataPath?: string): Promise<{
+export const createApp = async (
+  mockedState?: { [key in StoreKeys]?: any },
+  appDataPath?: string
+): Promise<{
   store: TestStore
   runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
   rootTask: Task
@@ -46,7 +49,7 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
    * configure redux store
    */
   const appName = (Math.random() + 1).toString(36).substring(7)
-  log(`Creating test app for ${appName}`)
+  // log(`Creating test app for ${appName}`)
   const dataServerPort1 = await getPort()
 
   const { store, runSaga } = prepareStore(mockedState)
@@ -59,7 +62,7 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
     options: {
       env: {
         appDataPath: appDataPath || appPath
-      },
+      }
     },
     socketIOPort: dataServerPort1
   })
@@ -76,21 +79,24 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
   return { store, runSaga, rootTask, manager, appPath }
 }
 
-export const createAppWithoutTor = async (mockedState?: {
-  [key in StoreKeys]?: any
-}, appDataPath?: string): Promise<{
-    store: TestStore
-    runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
-    rootTask: Task
-    manager: ConnectionsManager
-    appPath: string
-  }> => {
+export const createAppWithoutTor = async (
+  mockedState?: {
+    [key in StoreKeys]?: any
+  },
+  appDataPath?: string
+): Promise<{
+  store: TestStore
+  runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
+  rootTask: Task
+  manager: ConnectionsManager
+  appPath: string
+}> => {
   /**
    * Configure and initialize ConnectionsManager from backend,
    * configure redux store
    */
   const appName = (Math.random() + 1).toString(36).substring(7)
-  log(`Creating test app for ${appName}`)
+  // log(`Creating test app for ${appName}`)
   const dataServerPort1 = await getPort()
   const server1 = new backend.DataServer(dataServerPort1)
   await server1.listen()
@@ -104,7 +110,7 @@ export const createAppWithoutTor = async (mockedState?: {
     options: {
       env: {
         appDataPath: appDataPath || appPath
-      },
+      }
     },
     socketIOPort
   })
@@ -142,3 +148,5 @@ export const storePersistor = (state: { [key in StoreKeys]?: any }) => {
   })
   return MockedState
 }
+
+await createApp()
