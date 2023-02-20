@@ -84,23 +84,23 @@
 		],
 		"rootDir": "src",
 		"moduleNameMapper": {
-			"^@quiet/backend(.*)$": "/home/kacper/development/quiet/quiet/packages/backend/src/index.ts"
+			"^@quiet/backend(.*)$": "<rootDir>/../../backend/src/index.ts"
 		  },
 		"moduleDirectories": [
 			"backend/node_modules",
 			"identity/node_modules",
-		    "backend/node_modules/proxy-addr/node_modules", 
+		    "backend/node_modules/proxy-addr/node_modules",
 			"backend/node_modules/@libp2p/peer-id/node_modules",
 			"packages/backend/node_modules/@libp2p/node_modules",
-			"backend", 
-			"state-manager/lib", 
-			"state-manager/node_modules", 
-			"src", 
-			"@quiet/backend", 
-			"backend/node_modules/@libp2p/peer-id/node_modules/@libp2p/interface-peer-id/node_modules", 
+			"backend",
+			"state-manager/lib",
+			"state-manager/node_modules",
+			"src",
+			"@quiet/backend",
+			"backend/node_modules/@libp2p/peer-id/node_modules/@libp2p/interface-peer-id/node_modules",
 			"backend/node_modules/@libp2p/peer-id/node_modules/multiformats/src/cid.js",
 			"backend/node_modules/peer-id/src/index.js",
-			"backend/node_modules/@libp2p/peer-id/node_modules/@libp2p/interface-peer-id/node_modules/multiformats", 
+			"backend/node_modules/@libp2p/peer-id/node_modules/@libp2p/interface-peer-id/node_modules/multiformats",
 			"backend/node_modules/peer-id",
 			"../backend/node_modules"],
 		"transform": {
@@ -110,7 +110,7 @@
 			"node_modules/(?!variables/.*)"
 		  ],
 
-	
+
 		"moduleFileExtensions": [
 			"ts",
 			"tsx",
@@ -119,7 +119,7 @@
 			"json",
 			"node"
 		],
-		
+
 		"setupFiles": [
 			"./setupTests.ts"
 		]
