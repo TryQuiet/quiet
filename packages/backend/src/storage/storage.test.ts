@@ -187,7 +187,7 @@ describe('Certificate', () => {
     const result = await storage.saveCertificate({ certificate: userCertificate.userCertString, rootPermsData })
 
     await sleep(5000)
-    // expect(result).toBe(true)
+    expect(result).toBe(true)
   })
 
   it('is not saved to db if did not pass verification', async () => {
@@ -405,7 +405,7 @@ describe('Certificate', () => {
   })
 })
 
-describe('Message', () => {
+describe('Message access controller', () => {
   it('is saved to db if passed signature verification', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
@@ -418,16 +418,25 @@ describe('Message', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const eventSpy = jest.spyOn(storage.publicChannelsRepos.get(message.channelAddress).db, 'add')
+    const db = storage.publicChannelsRepos.get(message.channelAddress).db
+    const eventSpy = jest.spyOn(db, 'add')
 
-    await storage.sendMessage(message)
+    const messageCopy = {
+      ...message
+    }
+    delete messageCopy.media
+
+    await storage.sendMessage(messageCopy)
 
     // Confirm message has passed orbitdb validator (check signature verification only)
     expect(eventSpy).toHaveBeenCalled()
+    // @ts-expect-error
+    const savedMessages = storage.getAllEventLogEntries(db)
+    expect(savedMessages.length).toBe(1)
+    expect(savedMessages[0]).toEqual(messageCopy)
   })
 
-  // FIXME: Message signature verification doesn't work, our theory is that our AccessController performs check after message is added to db.
-  it.skip('is not saved to db if did not pass signature verification', async () => {
+  it('is not saved to db if did not pass signature verification', async () => {
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
@@ -441,6 +450,7 @@ describe('Message', () => {
       channelAddress: channel.address,
       pubKey: johnPublicKey
     }
+    delete spoofedMessage.media // Media 'undefined' is not accepted by db.add
 
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
@@ -453,12 +463,15 @@ describe('Message', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const eventSpy = jest.spyOn(storage.publicChannelsRepos.get(spoofedMessage.channelAddress).db, 'add')
+    const db = storage.publicChannelsRepos.get(spoofedMessage.channelAddress).db
+    const eventSpy = jest.spyOn(db, 'add')
 
     await storage.sendMessage(spoofedMessage)
 
     // Confirm message has passed orbitdb validator (check signature verification only)
-    expect(eventSpy).not.toHaveBeenCalled()
+    expect(eventSpy).toHaveBeenCalled()
+    // @ts-expect-error
+    expect(storage.getAllEventLogEntries(db).length).toBe(0)
   })
 })
 
