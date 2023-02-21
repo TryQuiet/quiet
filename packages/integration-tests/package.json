@@ -83,14 +83,11 @@
 		],
 		"rootDir": "src",
 		"moduleNameMapper": {
-			"^@quiet/backend(.*)$": "/home/kacper/development/quiet/quiet/packages/backend/src/index.ts",
-			"^@quiet/logger(.*)$": "/home/kacper/development/quiet/quiet/packages/logger/src/index.ts",
-			"^@quiet/state-manager(.*)$": "/home/kacper/development/quiet/quiet/packages/state-manager/src/index.ts"
+			"^@quiet/backend(.*)$": "<rootDir>/../../backend/src/index.ts",
+			"^@quiet/logger(.*)$": "<rootDir>/../../logger/src/index.ts",
+			"^@quiet/state-manager(.*)$": "<rootDir>/../../state-manager/src/index.ts"
 		  },
-		"moduleDirectories": [
-"node_modules"
-
-		],
+		"moduleDirectories": ["node_modules"],
 		"transform": {
 			"node_modules/variables/.+\\.(j|t)sx?$": "ts-jest"
 		  },
@@ -98,7 +95,7 @@
 			"node_modules/(?!variables/.*)"
 		  ],
 
-	
+
 		"moduleFileExtensions": [
 			"ts",
 			"tsx",
@@ -107,7 +104,7 @@
 			"json",
 			"node"
 		],
-		
+
 		"setupFiles": [
 			"./setupTests.ts"
 		]
