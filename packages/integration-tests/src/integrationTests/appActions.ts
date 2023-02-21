@@ -102,14 +102,15 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
       store.getState().Communities.communities.entities[communityId].CA
     ).toHaveProperty('rootObject')
   }, timeout)
+
+  // regirstral url zamiast oniona
   await waitForExpect(() => {
     expect(
       store.getState().Communities.communities.entities[communityId]
-        .onionAddress
+        .registrarUrl
     ).toBeTruthy()
   }, timeout)
-  log(store.getState().Communities.communities.entities[communityId]
-    .onionAddress)
+
   await waitForExpect(() => {
     expect(store.getState().Users.certificates.ids).toHaveLength(1)
   }, timeout)
@@ -119,11 +120,13 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
     ).toBeTruthy()
   }, timeout)
   log('initializedCommunity', store.getState().Network.initializedCommunities[communityId])
-  await waitForExpect(() => {
-    expect(
-      store.getState().Network.initializedRegistrars[communityId]
-    ).toBeTruthy()
-  }, timeout)
+
+  // after connections manager refactoring this is no longer in redux
+  // await waitForExpect(() => {
+  //   expect(
+  //     store.getState().Network.initializedRegistrars[communityId]
+  //   ).toBeTruthy()
+  // }, timeout)
 }
 
 export async function registerUsername(payload: Register) {

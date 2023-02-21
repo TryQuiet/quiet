@@ -17,7 +17,7 @@
     "test-ci": "jest integrationTests/*",
     "lint": "eslint --ext .ts ./src/ --fix",
     "prettier": "prettier",
-	"test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles "
+	"test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles  --forceExit"
   },
 	"devDependencies": {
 		"@babel/core": "^7.15.0",
@@ -70,8 +70,7 @@
 		"libp2p": "^0.42.2",
 		"forwarded": "0.2.0",
 		"@libp2p/peer-id": "2.0.1",
-		"peer-id": "^0.16.0",
-		"multiformats": "11.0.1"
+		"peer-id": "^0.16.0"
 	},
 	"jest": {
 		"preset": "ts-jest/presets/default-esm",
@@ -84,25 +83,14 @@
 		],
 		"rootDir": "src",
 		"moduleNameMapper": {
-			"^@quiet/backend(.*)$": "/home/kacper/development/quiet/quiet/packages/backend/src/index.ts"
+			"^@quiet/backend(.*)$": "/home/kacper/development/quiet/quiet/packages/backend/src/index.ts",
+			"^@quiet/logger(.*)$": "/home/kacper/development/quiet/quiet/packages/logger/src/index.ts",
+			"^@quiet/state-manager(.*)$": "/home/kacper/development/quiet/quiet/packages/state-manager/src/index.ts"
 		  },
 		"moduleDirectories": [
-			"backend/node_modules",
-			"identity/node_modules",
-		    "backend/node_modules/proxy-addr/node_modules", 
-			"backend/node_modules/@libp2p/peer-id/node_modules",
-			"packages/backend/node_modules/@libp2p/node_modules",
-			"backend", 
-			"state-manager/lib", 
-			"state-manager/node_modules", 
-			"src", 
-			"@quiet/backend", 
-			"backend/node_modules/@libp2p/peer-id/node_modules/@libp2p/interface-peer-id/node_modules", 
-			"backend/node_modules/@libp2p/peer-id/node_modules/multiformats/src/cid.js",
-			"backend/node_modules/peer-id/src/index.js",
-			"backend/node_modules/@libp2p/peer-id/node_modules/@libp2p/interface-peer-id/node_modules/multiformats", 
-			"backend/node_modules/peer-id",
-			"../backend/node_modules"],
+"node_modules"
+
+		],
 		"transform": {
 			"node_modules/variables/.+\\.(j|t)sx?$": "ts-jest"
 		  },

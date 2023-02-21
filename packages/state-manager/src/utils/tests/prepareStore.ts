@@ -1,4 +1,5 @@
-import { combineReducers, createStore, applyMiddleware } from 'redux'
+import { combineReducers, applyMiddleware, compose } from 'redux'
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
 import createSagaMiddleware from 'redux-saga'
 import thunk from 'redux-thunk'
 import { StoreKeys } from '../../sagas/store.keys'
@@ -33,11 +34,17 @@ export const reducers = {
 export const prepareStore = (mockedState?: { [key in StoreKeys]?: any }) => {
   const combinedReducers = combineReducers(reducers)
   const sagaMiddleware = createSagaMiddleware()
-  const store = createStore(
-    combinedReducers,
-    mockedState,
-    applyMiddleware(...[sagaMiddleware, thunk])
-  )
+
+  const store = configureStore({
+    reducer: combinedReducers,
+    middleware: getDefaultMiddleware =>
+      getDefaultMiddleware({
+        thunk: true,
+        immutableCheck: false,
+        serializableCheck: false
+      }).prepend(sagaMiddleware),
+    preloadedState: mockedState
+  })
 
   return {
     store,

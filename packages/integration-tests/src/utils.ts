@@ -9,7 +9,7 @@ import getPort from 'get-port'
 import tmp from 'tmp'
 // import logger from './logger'
 import { Saga, Task } from '@redux-saga/types'
-import backend, { ConnectionsManager } from '@quiet/backend'
+import backend, { ConnectionsManager, torBinForPlatform, torDirForPlatform } from '@quiet/backend'
 // import { peerIdFromKeys } from '@libp2p/peer-id'
 
 // const log = logger('utils')
@@ -38,7 +38,7 @@ export const createApp = async (
   mockedState?: { [key in StoreKeys]?: any },
   appDataPath?: string
 ): Promise<{
-  store: TestStore
+  store: any
   runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
   rootTask: Task
   manager: ConnectionsManager
@@ -61,13 +61,18 @@ export const createApp = async (
   const manager = new backend.ConnectionsManager({
     options: {
       env: {
-        appDataPath: appDataPath || appPath
-      }
+        appDataPath: appDataPath || appPath,
+        // httpTunnelPort: httpTunnelPort
+
+      },
     },
+    torBinaryPath: torBinForPlatform(null),
+    torResourcesPath: torDirForPlatform(null),
     socketIOPort: dataServerPort1
   })
+  console.log('1')
   await manager.init()
-
+  console.log('2')
   function* root(): Generator {
     const socket = yield* call(connectToDataport, `http://localhost:${dataServerPort1}`, appName)
     // @ts-expect-error
@@ -85,7 +90,7 @@ export const createAppWithoutTor = async (
   },
   appDataPath?: string
 ): Promise<{
-  store: TestStore
+  store: any
   runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
   rootTask: Task
   manager: ConnectionsManager
