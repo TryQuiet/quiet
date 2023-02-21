@@ -450,7 +450,7 @@ describe('Message access controller', () => {
       channelAddress: channel.address,
       pubKey: johnPublicKey
     }
-    delete spoofedMessage.media // Media 'undefined' is not accepted by db.add 
+    delete spoofedMessage.media // Media 'undefined' is not accepted by db.add
 
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 

@@ -3,7 +3,7 @@ import path from 'path'
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { Config } from '../constants'
-import { createLibp2p, createTmpDir, tmpQuietDirPath, createFile } from '../common/testUtils'
+import { createLibp2p, createTmpDir, tmpQuietDirPath, createFile, createPeerId } from '../common/testUtils'
 import { Storage } from './storage'
 import { FactoryGirl } from 'factory-girl'
 import {
@@ -16,9 +16,11 @@ import {
   Store,
   Identity,
   PublicChannelStorage,
-  FileMetadata
+  FileMetadata,
+  DownloadState
 } from '@quiet/state-manager'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
+import { StorageEvents } from './types'
 
 describe('Storage', () => {
   let tmpDir: DirResult
@@ -63,7 +65,7 @@ describe('Storage', () => {
     tmpOrbitDbDir = path.join(tmpAppDataPath, Config.ORBIT_DB_DIR)
     tmpIpfsPath = path.join(tmpAppDataPath, Config.IPFS_REPO_PATH)
     storage = null
-    filePath = path.join(__dirname, '/testUtils/large-file.txt')
+    filePath = new URL('./testUtils/large-file.txt', import.meta.url).pathname
   })
 
   afterEach(async () => {
@@ -78,13 +80,13 @@ describe('Storage', () => {
     }
   })
 
-  it.skip('uploads large files', async () => {
+  it('uploads large files', async () => {
     // Generate 2.1GB file
     createFile(filePath, 2147483648)
 
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
-    const peerId = await PeerId.create()
+    const peerId = await createPeerId()
     const libp2p = await createLibp2p(peerId)
 
     await storage.init(libp2p, peerId)
@@ -109,18 +111,25 @@ describe('Storage', () => {
     expect(copyFileSpy).toHaveBeenCalled()
     const newFilePath = copyFileSpy.mock.results[0].value
     metadata.path = newFilePath as string
-    expect(eventSpy).toHaveBeenNthCalledWith(1, 'adsf')
-    // expect(uploadSpy).toHaveBeenCalled()
-    // expect(uploadSpy).toBeCalledWith(expect.objectContaining({
-    //   ...metadata,
-    //   cid: expect.stringContaining('Qm'),
-    //   width: null,
-    //   height: null
-    // }))
-    // expect(statusSpy).toBeCalledWith(expect.objectContaining({
-    //   cid: expect.stringContaining('Qm'),
-    //   downloadState: DownloadState.Hosted,
-    //   downloadProgress: undefined
-    // }))
+
+    expect(eventSpy).toHaveBeenCalledTimes(4)
+    expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
+    expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({
+      ...metadata,
+      cid: expect.stringContaining('Qm'),
+      width: null,
+      height: null
+    }))
+    expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, expect.objectContaining({
+      cid: expect.stringContaining('Qm'),
+      downloadState: DownloadState.Hosted,
+      downloadProgress: undefined
+    }))
+    expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({
+      ...metadata,
+      cid: expect.stringContaining('Qm'),
+      width: null,
+      height: null
+    }))
   }, 1000000) // IPFS needs around 5 minutes to write 2.1GB file
 })

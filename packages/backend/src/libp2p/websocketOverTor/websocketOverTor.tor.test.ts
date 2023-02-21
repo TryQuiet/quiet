@@ -232,7 +232,6 @@ describe('websocketOverTor', () => {
       signal: signal,
       upgrader: prepareListenerArg.upgrader
     })).rejects.toBeTruthy()
-
   })
 
   it('rejects connection if server cert is invalid', async () => {
