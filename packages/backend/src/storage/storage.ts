@@ -479,10 +479,8 @@ export class Storage extends EventEmitter {
       return
     }
     try {
-      const aaa = await repo.db.add(message)
-      console.log('AAA', aaa)
+      await repo.db.add(message)
     } catch (e) {
-      console.log(message)
       log.error(`STORAGE: Could not append message (entry not allowed to write to the log). Details: ${e.message}`)
     }
   }

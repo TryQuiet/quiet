@@ -1,6 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { Config } from '../constants'
 import { createLibp2p, createTmpDir, tmpQuietDirPath, createFile, createPeerId } from '../common/testUtils'
