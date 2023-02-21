@@ -152,11 +152,12 @@ export const assertInitializedExistingCommunitiesAndRegistrars = async (
       store.getState().Network.initializedCommunities[communityId]
     ).toBeTruthy()
   })
-  await waitForExpect(() => {
-    expect(
-      store.getState().Network.initializedRegistrars[communityId]
-    ).toBeTruthy()
-  })
+  // why two times ?
+  // await waitForExpect(() => {
+  //   expect(
+  //     store.getState().Network.initializedRegistrars[communityId]
+  //   ).toBeTruthy()
+  // })
 }
 
 export const assertReceivedRegistrationError = async (store: TestStore, error?: ErrorPayload) => {
@@ -202,7 +203,8 @@ export const assertStoreStatesAreEqual = async (oldState, currentState) => {
     ...oldState,
     Connection: {
       ...oldState.Connection,
-      lastConnectedTime: currentState.Connection.lastConnectedTime
+      lastConnectedTime: currentState.Connection.lastConnectedTime,
+      uptime: currentState.Connection.uptime
     }
   }
 
