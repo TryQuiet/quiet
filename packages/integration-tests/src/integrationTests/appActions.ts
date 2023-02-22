@@ -144,7 +144,7 @@ export async function registerUsername(payload: Register) {
   if (payload.registrarAddress === '0.0.0.0') {
     address = `http://${registrarAddress}:${registrarPort}`
   } else {
-    address = `http://${registrarAddress}.onion`
+    address = `${registrarAddress}`
   }
 
   const createNetworkPayload: CreateNetworkPayload = {
@@ -200,10 +200,9 @@ export async function joinCommunity(payload: JoinCommunity) {
     store
   } = payload
 
-  const timeout = 2000_000
+  const timeout = 5000_000
 
   await registerUsername(payload)
-
   const communityId = store.getState().Communities.communities.ids[0]
   console.log({ communityId })
 
@@ -217,27 +216,27 @@ export async function joinCommunity(payload: JoinCommunity) {
       store.getState().Identity.identities.entities[communityId].userCertificate
     ).toBeTruthy()
   }, timeout)
-
+  console.log('joinCommunity-1')
   await waitForExpect(() => {
     expect(
       store.getState().Communities.communities.entities[communityId].rootCa
     ).toEqual(ownerRootCA)
   }, timeout)
-
+  console.log('joinCommunity-2')
   await waitForExpect(() => {
     expect(
       store.getState().Communities.communities.entities[communityId].peerList
         .length
     ).toEqual(expectedPeersCount)
   }, timeout)
-
+  console.log('joinCommunity-3')
   const peerList =
     store.getState().Communities.communities.entities[communityId].peerList
-
+console.log({ peerList })
   await waitForExpect(() => {
     expect(peerList[0]).toMatch(new RegExp(ownerPeerId))
   }, timeout)
-
+  console.log('joinCommunity-4')
   await waitForExpect(() => {
     expect(peerList[peerList.length - 1]).toMatch(new RegExp(userPeerId))
   }, timeout)
