@@ -29,4 +29,5 @@ jobs:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/integration-tests,backend-bundle"
 
       - name: 'Run tests'
+        working-directory: ./packages/integration-tests
         run: npm run test
