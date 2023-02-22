@@ -19,6 +19,7 @@ export class TorControl {
   password: string
   cookie: string
   params: IParams
+
   constructor(opts: IOpts) {
     this.params = {
       port: opts.port,
