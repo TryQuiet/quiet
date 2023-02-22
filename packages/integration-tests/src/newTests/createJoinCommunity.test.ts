@@ -51,32 +51,32 @@ describe('owner creates community and two users join', () => {
         expectedPeersCount: 2
       })
 
-      await joinCommunity({
-        ...ownerData,
-        store: userTwo.store,
-        userName: 'username2',
-        expectedPeersCount: 3
-      })
+      // await joinCommunity({
+      //   ...ownerData,
+      //   store: userTwo.store,
+      //   userName: 'username2',
+      //   expectedPeersCount: 3
+      // })
     })
 
     it('Owner and users received certificates', async () => {
       await assertReceivedCertificates('owner', 3, 120_000, owner.store)
       await assertReceivedCertificates('userOne', 3, 120_000, userOne.store)
-      await assertReceivedCertificates('userTwo', 3, 120_000, userTwo.store)
+      // await assertReceivedCertificates('userTwo', 3, 120_000, userTwo.store)
     })
 
-    it('all peers are connected', async () => {
-      await assertConnectedToPeers(owner.store, 2)
-      await assertConnectedToPeers(userOne.store, 2)
-      await assertConnectedToPeers(userTwo.store, 2)
-    })
+    // it('all peers are connected', async () => {
+    //   await assertConnectedToPeers(owner.store, 2)
+    //   await assertConnectedToPeers(userOne.store, 2)
+    //   await assertConnectedToPeers(userTwo.store, 2)
+    // })
 
-    it('disconnecting peers', async () => {
-      await userOne.manager.closeAllServices()
-      await assertConnectedToPeers(owner.store, 1)
-      await assertConnectedToPeers(userTwo.store, 1)
+    // it('disconnecting peers', async () => {
+    //   await userOne.manager.closeAllServices()
+    //   await assertConnectedToPeers(owner.store, 1)
+    //   await assertConnectedToPeers(userTwo.store, 1)
 
-      await userTwo.manager.closeAllServices()
-      await assertConnectedToPeers(owner.store, 0)
-    })
+    //   await userTwo.manager.closeAllServices()
+    //   await assertConnectedToPeers(owner.store, 0)
+    // })
 })

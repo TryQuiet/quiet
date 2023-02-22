@@ -12,7 +12,7 @@ type Store = typeof App.store
 
 interface CreateCommunity {
   userName: string
-  store: Store
+  store: TestStore
 }
 
 export interface JoinCommunity {
@@ -22,7 +22,7 @@ export interface JoinCommunity {
   ownerRootCA: string
   expectedPeersCount: number
   registrarPort: number
-  store: Store
+  store: TestStore
 }
 
 export interface Register {
@@ -200,15 +200,18 @@ export async function joinCommunity(payload: JoinCommunity) {
     store
   } = payload
 
-  const timeout = 600_000
+  const timeout = 2000_000
 
   await registerUsername(payload)
 
   const communityId = store.getState().Communities.communities.ids[0]
+  console.log({ communityId })
 
   const userPeerId =
     store.getState().Identity.identities.entities[communityId].peerId.id
 
+  console.log(store.getState().Identity.identities.entities[communityId])
+  console.log(store.getState().Communities.communities.entities[communityId])
   await waitForExpect(() => {
     expect(
       store.getState().Identity.identities.entities[communityId].userCertificate

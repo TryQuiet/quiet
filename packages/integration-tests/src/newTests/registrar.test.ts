@@ -63,7 +63,7 @@ describe('registrar is offline, user tries to join, then registrar goes online',
     await owner.manager.closeAllServices()
   })
 
-  it('user tries to join communit#google_vignettey, while registrar is offline', async () => {
+  it('user tries to join community, while registrar is offline', async () => {
     await sendRegistrationRequest({
       userName: 'wacek',
       store: user.store,
