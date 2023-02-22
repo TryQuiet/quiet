@@ -25,6 +25,7 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
+          cachePrefix: "integration-tests"
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/integration-tests,backend-bundle"
 
       - name: 'Run tests'
