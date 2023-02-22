@@ -136,4 +136,12 @@ class TorHandler: NSObject {
     
     return cookie.hexEncodedString()
   }
+  
+  @objc
+  func removeOldAuthCookie(configuration: TorConfiguration) -> Void {
+    if let cookieUrl = configuration.dataDirectory?.appendingPathComponent("control_auth_cookie") {
+      print("[\(String(describing: type(of: self)))] Removing old auth cookie")
+      try? FileManager.default.removeItem(at: cookieUrl)
+    }
+  }
 }

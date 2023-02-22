@@ -92,7 +92,9 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   self.tor = [TorHandler new];
     
   self.torConfiguration = [self.tor getTorConfiguration:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
-    
+  
+  [self.tor removeOldAuthCookieWithConfiguration:self.torConfiguration];
+  
   [self.tor spawnWithConfiguration:self.torConfiguration];
     
   /*
