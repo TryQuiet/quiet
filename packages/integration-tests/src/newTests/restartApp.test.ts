@@ -36,9 +36,6 @@ describe('restart app without doing anything', () => {
 
   it('Assert that owner store is correct', async () => {
     const currentState = store.getState()
-
-    console.log({ currentState })
-    console.log({ oldState })
     await assertStoreStatesAreEqual(oldState, currentState)
   })
 })

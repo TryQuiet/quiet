@@ -9,11 +9,10 @@ const log = logger('assertions')
 export async function assertReceivedCertificates(
   userName: string,
   expectedCount: number,
-  maxTime: number = 60000,
+  maxTime: number = 80000,
   store: TestStore
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for certificates`)
-
   await waitForExpect(() => {
     expect(store.getState().Users.certificates.ids).toHaveLength(expectedCount)
   }, maxTime)
@@ -163,11 +162,11 @@ export const assertInitializedExistingCommunitiesAndRegistrars = async (
 export const assertReceivedRegistrationError = async (store: TestStore, error?: ErrorPayload) => {
   await waitForExpect(() => {
     expect(store.getState().Errors.errors?.ids[0]).toEqual(SocketActionTypes.REGISTRAR)
-  }, 20_000)
+  }, 90_000)
   if (error) {
     await waitForExpect(() => {
       expect(store.getState().Errors.errors?.entities[SocketActionTypes.REGISTRAR]).toStrictEqual(error)
-    }, 20_000)
+    }, 90_000)
   }
 }
 
@@ -183,7 +182,7 @@ export const assertReceivedCertificate = async (store: TestStore) => {
     expect(
       store.getState().Identity.identities.entities[communityId].userCertificate
     ).toBeTruthy()
-  }, 150_000)
+  }, 160_000)
 }
 
 export const assertConnectedToPeers = async (

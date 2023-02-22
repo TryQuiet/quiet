@@ -138,7 +138,7 @@ export async function registerUsername(payload: Register) {
   } = payload
 
   // Give it a huge timeout, it should never fail, but sometimes takes more time, depending on tor.
-  const timeout = 600_000
+  const timeout = 1900_000
 
   let address: string
   if (payload.registrarAddress === '0.0.0.0') {
@@ -298,7 +298,7 @@ export const getCommunityOwnerData = (ownerStore: Store) => {
     ownerStoreState.Communities.communities.entities[
       ownerStoreState.Communities.currentCommunity
     ]
-  const registrarAddress = community.onionAddress
+  const registrarAddress = community.registrarUrl
   const ownerIdentityState = ownerStore.getState().Identity
   return {
     registrarAddress,
@@ -322,18 +322,19 @@ export const sendRegistrationRequest = async (
 ) => {
   const { registrarAddress, userName, registrarPort, store } = payload
 
-  const timeout = 600_000
+  const timeout = 900_000
 
   let address: string
   if (registrarAddress === '0.0.0.0') {
     address = `${registrarAddress}:${registrarPort}`
   } else {
-    address = registrarAddress
+    address = `${registrarAddress}`
   }
 
   const createNetworkPayload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
-    registrar: address
+    name: payload.userName,
+    registrar: address,
   }
 
   store.dispatch(communities.actions.createNetwork(createNetworkPayload))

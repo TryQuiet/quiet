@@ -2,7 +2,6 @@ import { Crypto } from '@peculiar/webcrypto'
 import { createCommunity, getCommunityOwnerData, registerUsername, sendRegistrationRequest, sendCsr, OwnerData } from '../integrationTests/appActions'
 import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { ErrorPayload, SocketActionTypes, ErrorCodes, ErrorMessages } from '@quiet/state-manager'
 import { assertInitializedCommunity, assertNoRegistrationError, assertReceivedCertificate, assertReceivedCertificates, assertReceivedRegistrationError, assertRegistrationRequestSent } from '../integrationTests/assertions'
 
 const crypto = new Crypto()
@@ -24,7 +23,7 @@ describe('offline registrar, user tries to join', () => {
     await sendRegistrationRequest({
       registrarAddress: '76gan734wqm4hy7ahj33pnfub7qobdhhkdnd3rbma7o4dq4hce3ncxad',
       userName: 'waclaw',
-      store: user.store
+      store: user.store,
     })
   })
 
@@ -55,7 +54,7 @@ describe('registrar is offline, user tries to join, then registrar goes online',
     await assertInitializedCommunity(owner.store)
     const communityId = owner.store.getState().Communities.currentCommunity
     registrarAddress =
-      owner.store.getState().Communities.communities.entities[communityId].onionAddress
+      owner.store.getState().Communities.communities.entities[communityId].registrarUrl
     ownerOldState = storePersistor(owner.store.getState())
     ownerDataPath = owner.appPath
   })
@@ -64,7 +63,7 @@ describe('registrar is offline, user tries to join, then registrar goes online',
     await owner.manager.closeAllServices()
   })
 
-  it('user tries to join community, while registrar is offline', async () => {
+  it('user tries to join communit#google_vignettey, while registrar is offline', async () => {
     await sendRegistrationRequest({
       userName: 'wacek',
       store: user.store,
@@ -83,7 +82,6 @@ describe('registrar is offline, user tries to join, then registrar goes online',
   })
 
   it('user finishes registration', async () => {
-    console.log('user registered certificate')
     await assertReceivedCertificate(user.store)
     await assertInitializedCommunity(user.store)
   })
