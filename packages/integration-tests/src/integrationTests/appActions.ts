@@ -142,9 +142,9 @@ export async function registerUsername(payload: Register) {
 
   let address: string
   if (payload.registrarAddress === '0.0.0.0') {
-    address = `${registrarAddress}:${registrarPort}`
+    address = `http://${registrarAddress}:${registrarPort}`
   } else {
-    address = registrarAddress
+    address = `http://${registrarAddress}.onion`
   }
 
   const createNetworkPayload: CreateNetworkPayload = {
@@ -205,6 +205,7 @@ export async function joinCommunity(payload: JoinCommunity) {
   await registerUsername(payload)
 
   const communityId = store.getState().Communities.communities.ids[0]
+
   const userPeerId =
     store.getState().Identity.identities.entities[communityId].peerId.id
 
@@ -249,7 +250,6 @@ export async function sendMessage(
   } = payload
 
   log(message, 'sendMessage')
-  const communityId = store.getState().Communities.communities.ids[0]
 
   if (channelName) {
     store.dispatch(

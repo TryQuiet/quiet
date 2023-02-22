@@ -14,6 +14,7 @@ import { settingsReducer } from '../../sagas/settings/settings.slice'
 import { lastActionReducer } from './helpers'
 import { filesReducer } from '../../sagas/files/files.slice'
 import { networkReducer } from '../../sagas/network/network.slice'
+import { Store } from '../../sagas/store.types'
 
 export const reducers = {
   [StoreKeys.Communities]: communitiesReducer,
@@ -35,7 +36,8 @@ export const prepareStore = (mockedState?: { [key in StoreKeys]?: any }) => {
   const combinedReducers = combineReducers(reducers)
   const sagaMiddleware = createSagaMiddleware()
 
-  const store = configureStore({
+  // @ts-expect-error
+  const store: Store = configureStore({
     reducer: combinedReducers,
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({

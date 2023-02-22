@@ -94,8 +94,6 @@
 		"transformIgnorePatterns": [
 			"node_modules/(?!variables/.*)"
 		  ],
-
-
 		"moduleFileExtensions": [
 			"ts",
 			"tsx",
@@ -104,7 +102,6 @@
 			"json",
 			"node"
 		],
-
 		"setupFiles": [
 			"./setupTests.ts"
 		]
