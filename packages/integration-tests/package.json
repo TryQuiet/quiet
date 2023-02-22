@@ -11,8 +11,6 @@
 		"lib/**/*"
 	],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "prepare": "npm run build",
     "bot": "DEBUG='backend*, state-manager*' ts-node src/bot/bot.ts",
     "test-ci": "jest integrationTests/*",
     "lint": "eslint --ext .ts ./src/ --fix",
