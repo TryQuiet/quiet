@@ -1,22 +1,23 @@
 import waitForExpect from 'wait-for-expect'
 import {
+  network,
   identity,
   communities,
+  publicChannels,
   messages,
   files,
-  connection,
-  publicChannels,
-  RegisterCertificatePayload,
   CreateNetworkPayload,
   CommunityOwnership,
-  TestStore,
+  RegisterCertificatePayload,
   ChannelMessage,
+  MessageType,
   FileContent,
-  network
-} from '@quiet/state-manager'
-import { MAIN_CHANNEL } from '../testUtils/constants'
-import { AsyncReturnType } from '../types/AsyncReturnType.interface'
+  TestStore
+ } from '@quiet/state-manager'
 import { createApp } from '../utils'
+import { AsyncReturnType } from '../types/AsyncReturnType.interface'
+import { MAIN_CHANNEL } from '../testUtils/constants'
+
 import logger from '../logger'
 
 const log = logger('actions')
@@ -228,8 +229,19 @@ export async function joinCommunity(payload: JoinCommunity) {
   }, timeout)
 }
 
-export async function sendMessage(payload: SendMessage): Promise<ChannelMessage> {
-  const { message, channelName, store } = payload
+export function getInfoMessages(store: Store, channel: string): ChannelMessage[] {
+  const messages = store.getState().Messages.publicChannelsMessagesBase.entities[channel].messages
+  return messages.filter(message => message.type === MessageType.Info)
+}
+
+export async function sendMessage(
+  payload: SendMessage
+): Promise<ChannelMessage> {
+  const {
+    message,
+    channelName,
+    store
+  } = payload
 
   log(message, 'sendMessage')
 
