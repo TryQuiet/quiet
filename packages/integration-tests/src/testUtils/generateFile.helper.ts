@@ -21,3 +21,20 @@ export function createFile(filePath: string, size: number) {
       stream.end()
     })
   }
+
+export const createEmptyFileOfSize = async (fileName, size) => {
+  return await new Promise((resolve, reject) => {
+    setTimeout(() => {
+        try {
+          const fd = fs.openSync(fileName, 'w')
+          if (size > 0) {
+              fs.writeSync(fd, Buffer.alloc(1), 0, 1, size - 1)
+          }
+          fs.closeSync(fd)
+          resolve(true)
+        } catch (error) {
+          reject(error)
+        }
+    }, 0)
+  })
+}

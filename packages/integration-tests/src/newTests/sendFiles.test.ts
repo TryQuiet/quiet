@@ -7,7 +7,7 @@ import { createCommunity, getCommunityOwnerData, joinCommunity, SendImage, sendI
 import { assertReceivedCertificates } from '../testUtils/assertions'
 import { assertDownloadedImage, assertReceivedChannelsAndSubscribe, assertReceivedImages } from '../integrationTests/assertions'
 import path from 'path'
-import { createFile } from '../testUtils/generateFile.helper'
+import { createEmptyFileOfSize, createFile } from '../testUtils/generateFile.helper'
 import { spawn, exec, ChildProcessWithoutNullStreams, fork } from 'child_process'
 
 const log = logger('files')
@@ -22,7 +22,6 @@ describe.only('BIG FILE', () => {
 
   const timeout = 940_000
   const filePath = `${path.resolve()}/assets/large-file.txt`
-
   const image: FileContent = {
     path: `${path.resolve()}/assets/large-file.txt`,
     name: 'large-file',
@@ -30,13 +29,7 @@ describe.only('BIG FILE', () => {
   }
 
   beforeAll(async () => {
-    // try{
-    //   createFile(filePath, 50147483648)
-    // }catch(e){
-    //   console.log(e)
-    // }
-
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 120000))
+    await createEmptyFileOfSize(filePath, 51000000)
     owner = await createApp()
     userOne = await createApp()
   })

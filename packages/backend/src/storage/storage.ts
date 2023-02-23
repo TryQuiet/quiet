@@ -615,7 +615,7 @@ export class Storage extends EventEmitter {
     let stopwatch = 0
 
     let downloadState: DownloadState = DownloadState.Ready
-
+    log(`downloadFile ${metadata.cid}`, stat)
     for await (const entry of entries) {
       // Check if download is not meant to be canceled
       if (this.downloadCancellations.includes(metadata.message.id)) {
