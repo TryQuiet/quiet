@@ -1,8 +1,23 @@
 import waitForExpect from 'wait-for-expect'
-import { identity, communities, messages, files, connection, publicChannels, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership, TestStore, ChannelMessage, FileContent, network } from '@quiet/state-manager'
-import { MAIN_CHANNEL } from '../testUtils/constants'
-import { AsyncReturnType } from '../types/AsyncReturnType.interface'
+import {
+  network,
+  identity,
+  communities,
+  publicChannels,
+  messages,
+  files,
+  CreateNetworkPayload,
+  CommunityOwnership,
+  RegisterCertificatePayload,
+  ChannelMessage,
+  MessageType,
+  FileContent,
+  TestStore
+ } from '@quiet/state-manager'
 import { createApp } from '../utils'
+import { AsyncReturnType } from '../types/AsyncReturnType.interface'
+import { MAIN_CHANNEL } from '../testUtils/constants'
+
 import logger from '../logger'
 
 const log = logger('actions')
@@ -240,6 +255,11 @@ console.log({ peerList })
   await waitForExpect(() => {
     expect(peerList[peerList.length - 1]).toMatch(new RegExp(userPeerId))
   }, timeout)
+}
+
+export function getInfoMessages(store: Store, channel: string): ChannelMessage[] {
+  const messages = store.getState().Messages.publicChannelsMessagesBase.entities[channel].messages
+  return messages.filter(message => message.type === MessageType.Info)
 }
 
 export async function sendMessage(

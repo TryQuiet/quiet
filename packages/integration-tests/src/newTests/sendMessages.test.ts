@@ -5,9 +5,10 @@ import {
   assertReceivedMessages,
   assertReceivedMessagesAreValid
 } from '../integrationTests/assertions'
-import { createCommunity, joinCommunity, getCommunityOwnerData, sendMessage } from '../integrationTests/appActions'
+import { createCommunity, joinCommunity, getCommunityOwnerData, sendMessage, getInfoMessages } from '../integrationTests/appActions'
 import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
+import { ChannelMessage } from '@quiet/state-manager'
 
 const crypto = new Crypto()
 
@@ -24,13 +25,9 @@ describe('send message - users go offline and online', () => {
   let userOneDataPath: string
   let userTwoDataPath: string
 
-  let allMessages = []
+  const timeout = 18_000_000 // 5 hours
 
-  const ownerMessagesData = []
-  const userOneMessagesData = []
-  const userTwoMessagesData = []
-
-  const timeout = 900_000 // 15 minutes
+  const expectedMessages: ChannelMessage[] = []
 
   beforeAll(async () => {
     owner = await createApp()
@@ -64,6 +61,9 @@ describe('send message - users go offline and online', () => {
       userName: 'username2',
       expectedPeersCount: 3
     })
+
+    const infoMessages = getInfoMessages(owner.store, 'general')
+    expectedMessages.concat(infoMessages)
   })
 
   test('Owner and users received certificates', async () => {
@@ -79,15 +79,11 @@ describe('send message - users go offline and online', () => {
   })
 
   test('Every user sends one message to general channel', async () => {
-    const ownerMessage = await sendMessage({ message: 'owner says hi', store: owner.store })
+    expectedMessages.push(await sendMessage({ message: 'owner says hi', store: owner.store }))
     await sleep(40_000)
-    const userOneMessage = await sendMessage({ message: 'userOne says hi', store: userOne.store })
+    expectedMessages.push(await sendMessage({ message: 'userOne says hi', store: userOne.store }))
     await sleep(40_000)
-    const userTwoMessage = await sendMessage({ message: 'userTwo says hi', store: userTwo.store })
-
-    ownerMessagesData.push(ownerMessage)
-    userOneMessagesData.push(userOneMessage)
-    userTwoMessagesData.push(userTwoMessage)
+    expectedMessages.push(await sendMessage({ message: 'userTwo says hi', store: userTwo.store }))
 
     // Wait 10 seconds before closing the app, so writing to databases can be finished
     await sleep(10_000)
@@ -103,12 +99,10 @@ describe('send message - users go offline and online', () => {
   })
 
   test('Owner sends messages, while users are offline', async () => {
-    const ownerMessage = await sendMessage({
+    expectedMessages.push(await sendMessage({
       message: 'Hi folks, how u doin? Does Wacek still has covid?',
       store: owner.store
-    }
-    )
-    ownerMessagesData.push(ownerMessage)
+    }))
   })
 
   test('users come back online', async () => {
@@ -117,23 +111,21 @@ describe('send message - users go offline and online', () => {
   })
 
   test('Owner replicated all messages', async () => {
-    allMessages = [...ownerMessagesData, ...userOneMessagesData, ...userTwoMessagesData]
-
-    await assertReceivedMessages('owner', allMessages.length, timeout, owner.store)
+    await assertReceivedMessages('owner', expectedMessages, timeout, owner.store)
   })
 
   test('userOne replicated all messages', async () => {
-    await assertReceivedMessages('userOne', allMessages.length, timeout, userOne.store)
+    await assertReceivedMessages('userOne', expectedMessages, timeout, userOne.store)
   })
 
   test('userTwo replicated all messages', async () => {
-    await assertReceivedMessages('userTwo', allMessages.length, timeout, userTwo.store)
+    await assertReceivedMessages('userTwo', expectedMessages, timeout, userTwo.store)
   })
 
   test('Replicated messages are valid', async () => {
-    await assertReceivedMessagesAreValid('owner', allMessages, timeout, owner.store)
-    await assertReceivedMessagesAreValid('userOne', allMessages, timeout, owner.store)
-    await assertReceivedMessagesAreValid('userTwo', allMessages, timeout, owner.store)
+    await assertReceivedMessagesAreValid('owner', expectedMessages, timeout, owner.store)
+    await assertReceivedMessagesAreValid('userOne', expectedMessages, timeout, owner.store)
+    await assertReceivedMessagesAreValid('userTwo', expectedMessages, timeout, owner.store)
   })
 })
 
@@ -142,7 +134,9 @@ describe('send message - users are online', () => {
   let userOne: AsyncReturnType<typeof createApp>
   let userTwo: AsyncReturnType<typeof createApp>
 
-  const timeout = 900_000 // 15 minutes
+  const timeout = 18_000_000 // 5 hours
+
+  const expectedMessages: ChannelMessage[] = []
 
   beforeAll(async () => {
     owner = await createApp()
@@ -162,7 +156,6 @@ describe('send message - users are online', () => {
 
   test('Two users join community', async () => {
     const ownerData = getCommunityOwnerData(owner.store)
-    console.log({ ownerData })
 
     await joinCommunity({
       ...ownerData,
@@ -177,6 +170,9 @@ describe('send message - users are online', () => {
       userName: 'username2',
       expectedPeersCount: 3
     })
+
+    const infoMessages = getInfoMessages(owner.store, 'general')
+    expectedMessages.concat(infoMessages)
   })
 
   test('Owner and users received certificates', async () => {
@@ -191,44 +187,40 @@ describe('send message - users are online', () => {
     await assertReceivedChannelsAndSubscribe('userTwo', 1, timeout, userTwo.store)
   })
 
-  let ownerMessageData
-  let userOneMessageData
-  let userTwoMessageData
-
   test('each user sends one message to general channel', async () => {
-    ownerMessageData = await sendMessage({ message: 'owner says hi', store: owner.store })
-    userOneMessageData = await sendMessage({ message: 'userOne says hi', store: userOne.store })
-    userTwoMessageData = await sendMessage({ message: 'userTwo says hi', store: userTwo.store })
+    expectedMessages.push(await sendMessage({ message: 'owner says hi', store: owner.store }))
+    expectedMessages.push(await sendMessage({ message: 'userOne says hi', store: userOne.store }))
+    expectedMessages.push(await sendMessage({ message: 'userTwo says hi', store: userTwo.store }))
   })
 
   test('Owner replicated all messages', async () => {
-    await assertReceivedMessages('owner', 4, timeout, owner.store)
+    await assertReceivedMessages('owner', expectedMessages, timeout, owner.store)
   })
 
   test('userOne replicated all messages', async () => {
-    await assertReceivedMessages('userOne', 4, timeout, userOne.store)
+    await assertReceivedMessages('userOne', expectedMessages, timeout, userOne.store)
   })
 
   test('userTwo replicated all messages', async () => {
-    await assertReceivedMessages('userTwo', 4, timeout, userTwo.store)
+    await assertReceivedMessages('userTwo', expectedMessages, timeout, userTwo.store)
   })
 
   test('Replicated messages are valid', async () => {
     await assertReceivedMessagesAreValid(
       'owner',
-      [ownerMessageData, userOneMessageData, userTwoMessageData],
+      expectedMessages,
       timeout,
       owner.store
     )
     await assertReceivedMessagesAreValid(
       'userOne',
-      [ownerMessageData, userOneMessageData, userTwoMessageData],
+      expectedMessages,
       timeout,
       userOne.store
     )
     await assertReceivedMessagesAreValid(
       'userTwo',
-      [ownerMessageData, userOneMessageData, userTwoMessageData],
+      expectedMessages,
       timeout,
       userTwo.store
     )

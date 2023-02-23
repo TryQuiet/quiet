@@ -1,7 +1,16 @@
-import { ErrorPayload, publicChannels, SocketActionTypes, TestStore, messages, MessageType } from '@quiet/state-manager'
+import {
+  publicChannels,
+  messages,
+  SocketActionTypes,
+  ChannelMessage,
+  MessageType,
+  ErrorPayload,
+  TestStore
+} from '@quiet/state-manager'
 import waitForExpect from 'wait-for-expect'
 import { MAIN_CHANNEL } from '../testUtils/constants'
 import { sleep } from '../utils'
+
 import logger from '../logger'
 
 const log = logger('assertions')
@@ -51,7 +60,7 @@ export async function assertReceivedChannelsAndSubscribe(
 
 export async function assertReceivedMessages(
   userName: string,
-  expectedCount: number,
+  expectedMessages: ChannelMessage[],
   maxTime: number = 60000,
   store: TestStore
 ) {
@@ -59,9 +68,10 @@ export async function assertReceivedMessages(
 
   await waitForExpect(() => {
     expect(
-      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids
-    ).toHaveLength(expectedCount)
+      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+    ).toBe(expectedMessages)
   }, maxTime)
+
   log(
     `User ${userName} received ${store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids.length
     } messages`
@@ -70,7 +80,7 @@ export async function assertReceivedMessages(
 
 export const assertReceivedMessagesAreValid = async (
   userName: string,
-  messages: any[],
+  messages: ChannelMessage[],
   maxTime: number = 60000,
   store: TestStore
 ) => {
