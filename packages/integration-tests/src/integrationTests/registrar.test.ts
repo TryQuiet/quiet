@@ -1,8 +1,22 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { createCommunity, getCommunityOwnerData, registerUsername, sendRegistrationRequest, sendCsr, OwnerData } from '../integrationTests/appActions'
+import {
+  createCommunity,
+  getCommunityOwnerData,
+  registerUsername,
+  sendRegistrationRequest,
+  sendCsr,
+  OwnerData
+} from '../integrationTests/appActions'
 import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { assertInitializedCommunity, assertNoRegistrationError, assertReceivedCertificate, assertReceivedCertificates, assertReceivedRegistrationError, assertRegistrationRequestSent } from '../integrationTests/assertions'
+import {
+  assertInitializedCommunity,
+  assertNoRegistrationError,
+  assertReceivedCertificate,
+  assertReceivedCertificates,
+  assertReceivedRegistrationError,
+  assertRegistrationRequestSent
+} from '../integrationTests/assertions'
 
 const crypto = new Crypto()
 
@@ -23,7 +37,7 @@ describe('offline registrar, user tries to join', () => {
     await sendRegistrationRequest({
       registrarAddress: '76gan734wqm4hy7ahj33pnfub7qobdhhkdnd3rbma7o4dq4hce3ncxad',
       userName: 'waclaw',
-      store: user.store,
+      store: user.store
     })
   })
 

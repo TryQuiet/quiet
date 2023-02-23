@@ -16,7 +16,6 @@ Parameters:
     Type: String
 
 Resources:
-
   ECSCluster:
     Type: AWS::ECS::Cluster
 
@@ -26,29 +25,28 @@ Resources:
       Path: /
       AssumeRolePolicyDocument:
         Statement:
-          -
-            Action: sts:AssumeRole
+          - Action: sts:AssumeRole
             Effect: Allow
             Principal:
               Service: ecs-tasks.amazonaws.com
       ManagedPolicyArns:
-      - arn:aws:iam::aws:policy/CloudWatchFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
       Policies:
-      - PolicyName: AmazonECSTaskExecutionRolePolicy
-        PolicyDocument:
-          Statement:
-          - Effect: Allow
-            Action:
-            - ecr:GetAuthorizationToken
-            - ecr:BatchCheckLayerAvailability
-            - ecr:GetDownloadUrlForLayer
-            - ecr:BatchGetImage
-            - logs:CreateLogStream
-            - logs:PutLogEvents
-            - ec2:DescribeNetworkInterfaces
-            - ecs:DescribeTasks
-            - s3:*
-            Resource: '*'
+        - PolicyName: AmazonECSTaskExecutionRolePolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - ec2:DescribeNetworkInterfaces
+                  - ecs:DescribeTasks
+                  - s3:*
+                Resource: '*'
 
   Bot:
     Type: AWS::ECS::Service
@@ -71,7 +69,7 @@ Resources:
       TaskRoleArn: !GetAtt TaskRole.Arn
       ExecutionRoleArn: !GetAtt TaskRole.Arn
       RequiresCompatibilities:
-      - FARGATE
+        - FARGATE
       Memory: !Ref TaskMemory
       Cpu: !Ref TaskCpu
       NetworkMode: awsvpc
@@ -81,11 +79,11 @@ Resources:
           Memory: !Ref TaskMemory
           Name: bot
           LogConfiguration:
-              LogDriver: awslogs
-              Options:
-                awslogs-group: !Ref LogGroup
-                awslogs-region: !Ref AWS::Region
-                awslogs-stream-prefix: bot
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref LogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: bot
 
   LogGroup:
     Type: AWS::Logs::LogGroup

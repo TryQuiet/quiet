@@ -5,7 +5,12 @@ import {
   assertReceivedMessages,
   assertReceivedMessagesAreValid
 } from '../integrationTests/assertions'
-import { createCommunity, joinCommunity, getCommunityOwnerData, sendMessage } from '../integrationTests/appActions'
+import {
+  createCommunity,
+  joinCommunity,
+  getCommunityOwnerData,
+  sendMessage
+} from '../integrationTests/appActions'
 import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 
@@ -79,11 +84,20 @@ describe('send message - users go offline and online', () => {
   })
 
   test('Every user sends one message to general channel', async () => {
-    const ownerMessage = await sendMessage({ message: 'owner says hi', store: owner.store })
+    const ownerMessage = await sendMessage({
+      message: 'owner says hi',
+      store: owner.store
+    })
     await sleep(40_000)
-    const userOneMessage = await sendMessage({ message: 'userOne says hi', store: userOne.store })
+    const userOneMessage = await sendMessage({
+      message: 'userOne says hi',
+      store: userOne.store
+    })
     await sleep(40_000)
-    const userTwoMessage = await sendMessage({ message: 'userTwo says hi', store: userTwo.store })
+    const userTwoMessage = await sendMessage({
+      message: 'userTwo says hi',
+      store: userTwo.store
+    })
 
     ownerMessagesData.push(ownerMessage)
     userOneMessagesData.push(userOneMessage)
@@ -106,8 +120,7 @@ describe('send message - users go offline and online', () => {
     const ownerMessage = await sendMessage({
       message: 'Hi folks, how u doin? Does Wacek still has covid?',
       store: owner.store
-    }
-    )
+    })
     ownerMessagesData.push(ownerMessage)
   })
 
@@ -196,9 +209,18 @@ describe('send message - users are online', () => {
   let userTwoMessageData
 
   test('each user sends one message to general channel', async () => {
-    ownerMessageData = await sendMessage({ message: 'owner says hi', store: owner.store })
-    userOneMessageData = await sendMessage({ message: 'userOne says hi', store: userOne.store })
-    userTwoMessageData = await sendMessage({ message: 'userTwo says hi', store: userTwo.store })
+    ownerMessageData = await sendMessage({
+      message: 'owner says hi',
+      store: owner.store
+    })
+    userOneMessageData = await sendMessage({
+      message: 'userOne says hi',
+      store: userOne.store
+    })
+    userTwoMessageData = await sendMessage({
+      message: 'userTwo says hi',
+      store: userTwo.store
+    })
   })
 
   test('Owner replicated all messages', async () => {

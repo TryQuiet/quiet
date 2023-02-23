@@ -3,9 +3,19 @@ import { createApp, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { FileContent } from '@quiet/state-manager'
 import logger from '../logger'
-import { createCommunity, getCommunityOwnerData, joinCommunity, SendImage, sendImage } from '../integrationTests/appActions'
+import {
+  createCommunity,
+  getCommunityOwnerData,
+  joinCommunity,
+  SendImage,
+  sendImage
+} from '../integrationTests/appActions'
 import { assertReceivedCertificates } from '../testUtils/assertions'
-import { assertDownloadedImage, assertReceivedChannelsAndSubscribe, assertReceivedImages } from '../integrationTests/assertions'
+import {
+  assertDownloadedImage,
+  assertReceivedChannelsAndSubscribe,
+  assertReceivedImages
+} from '../integrationTests/assertions'
 import path from 'path'
 import { createEmptyFileOfSize, createFile } from '../testUtils/generateFile.helper'
 import { spawn, exec, ChildProcessWithoutNullStreams, fork } from 'child_process'
@@ -76,17 +86,17 @@ describe.only('BIG FILE', () => {
       store: owner.store
     }
     await sendImage(payload)
-    })
+  })
 
-    it('userOne replicated image', async () => {
-      console.log('SEND FILES - 6')
-      await assertReceivedImages('userOne', 1, timeout, userOne.store)
-    })
+  it('userOne replicated image', async () => {
+    console.log('SEND FILES - 6')
+    await assertReceivedImages('userOne', 1, timeout, userOne.store)
+  })
 
-    it('userOne downloaded image', async () => {
-      console.log('SEND FILES - 7')
-      await assertDownloadedImage('userOne', image.name + image.ext, timeout, userOne.store)
-    })
+  it('userOne downloaded image', async () => {
+    console.log('SEND FILES - 7')
+    await assertDownloadedImage('userOne', image.name + image.ext, timeout, userOne.store)
+  })
 })
 
 describe('send message - users are online', () => {

@@ -39,10 +39,7 @@ export async function assertReceivedChannel(
     })
   )
 
-  log(
-    `User ${userName} received ${store.getState().PublicChannels.channels.ids.length
-    } channels`
-  )
+  log(`User ${userName} received ${store.getState().PublicChannels.channels.ids.length} channels`)
 }
 
 export async function assertReceivedMessages(
@@ -55,26 +52,26 @@ export async function assertReceivedMessages(
 
   await waitForExpect(() => {
     assert.strictEqual(
-      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids.length, expectedCount
+      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids
+        .length,
+      expectedCount
     )
   }, maxTime)
 
   log(
-    `User ${userName} received ${store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids.length
+    `User ${userName} received ${
+      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids
+        .length
     } messages`
   )
 }
 
-export const assertReceivedMessagesMatch = (
-  userName: string,
-  messages: string[],
-  store: Store
-) => {
+export const assertReceivedMessagesMatch = (userName: string, messages: string[], store: Store) => {
   const receivedMessagesEntities = Object.values(
     store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
   )
 
-  const receivedMessages = receivedMessagesEntities.map(msg => msg.message)
+  const receivedMessages = receivedMessagesEntities.map((msg) => msg.message)
 
   const matchingMessages = []
   for (const message of messages) {
@@ -84,14 +81,13 @@ export const assertReceivedMessagesMatch = (
   }
 
   assert.strictEqual(
-    matchingMessages.length, messages.length, `Messages for ${userName} don't match. Was looking for ${messages}, found ${receivedMessages}`
+    matchingMessages.length,
+    messages.length,
+    `Messages for ${userName} don't match. Was looking for ${messages}, found ${receivedMessages}`
   )
 }
 
-export const assertConnectedToPeers = async (
-  store: Store,
-  count: number
-) => {
+export const assertConnectedToPeers = async (store: Store, count: number) => {
   await waitForExpect(() => {
     assert.strictEqual(store.getState().Network.connectedPeers.ids.length, count)
   }, timeout)
