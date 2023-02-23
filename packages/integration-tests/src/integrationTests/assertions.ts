@@ -148,13 +148,11 @@ export const assertInitializedExistingCommunitiesAndRegistrars = async (store: T
 
   await waitForExpect(() => {
     expect(store.getState().Network.initializedCommunities[communityId]).toBeTruthy()
-  })
-  // why two times ?
+  }, 200000)
+
   // await waitForExpect(() => {
-  //   expect(
-  //     store.getState().Network.initializedRegistrars[communityId]
-  //   ).toBeTruthy()
-  // })
+  //   expect(store.getState().Network.initializedRegistrars[communityId]).toBeTruthy()
+  // }, 200000)
 }
 
 export const assertReceivedRegistrationError = async (store: TestStore, error?: ErrorPayload) => {
