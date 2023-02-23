@@ -1,4 +1,4 @@
-name: Integration tests
+name: Download file test
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
       - packages/integration-tests/**
 
 jobs:
-  integration-tests:
+  download-file:
     timeout-minutes: 180
     runs-on: ${{ matrix.os }}
 
@@ -27,19 +27,8 @@ jobs:
         with:
           cachePrefix: "integration-tests"
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
+
+      - name: 'Run test sendFiles - BIG FILE only'
+        working-directory: ./packages/integration-tests
+        run: DEBUG=backend* npm run test sendFiles.test.ts
         
-      - name: 'Run test restartApp'
-        working-directory: ./packages/integration-tests
-        run: DEBUG=backend*  npm run test restartApp.test.ts
-
-      - name: 'Run test createJoinCommunity'
-        working-directory: ./packages/integration-tests
-        run: DEBUG=backend* npm run test createJoinCommunity.test.ts
-
-      - name: 'Run test registrar'
-        working-directory: ./packages/integration-tests
-        run: DEBUG=backend* npm run test registrar.test.ts
-
-      - name: 'Run test send messages'
-        working-directory: ./packages/integration-tests
-        run: DEBUG=backend* npm run test sendMessages.test.ts

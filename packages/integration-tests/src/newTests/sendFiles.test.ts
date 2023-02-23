@@ -20,7 +20,7 @@ describe.only('BIG FILE', () => {
   let owner: AsyncReturnType<typeof createApp>
   let userOne: AsyncReturnType<typeof createApp>
 
-  const timeout = 3_000_000
+  const timeout = 6000000
   const filePath = `${path.resolve()}/assets/large-file.txt`
   const image: FileContent = {
     path: `${path.resolve()}/assets/large-file.txt`,

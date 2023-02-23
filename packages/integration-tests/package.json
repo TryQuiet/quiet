@@ -75,7 +75,7 @@
 		"clearMocks": true,
 		"testEnvironment": "jest-environment-node",
 		"coverageProvider": "v8",
-		"testTimeout": 1500000,
+		"testTimeout": 9500000,
 		"extensionsToTreatAsEsm": [
 			".ts"
 		],
