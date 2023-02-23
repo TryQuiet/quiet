@@ -28,6 +28,14 @@ jobs:
           cachePrefix: "integration-tests"
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
-      - name: 'Run tests'
+      - name: 'Run test restartApp'
         working-directory: ./packages/integration-tests
-        run: npm run test
+        run: npm run test restartApp.test.ts
+
+      - name: 'Run test registrar'
+        working-directory: ./packages/integration-tests
+        run: npm run test registrar.test.ts
+
+      - name: 'Run test createJoinCommunity'
+        working-directory: ./packages/integration-tests
+        run: npm run test createJoinCommunity.test.ts
