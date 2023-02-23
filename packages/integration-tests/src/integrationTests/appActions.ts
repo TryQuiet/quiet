@@ -13,7 +13,7 @@ import {
   MessageType,
   FileContent,
   TestStore
- } from '@quiet/state-manager'
+} from '@quiet/state-manager'
 import { createApp } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { MAIN_CHANNEL } from '../testUtils/constants'
@@ -44,13 +44,13 @@ export interface Register {
   registrarAddress: string
   userName: string
   registrarPort?: number
-  store: Store
+  store: TestStore
 }
 
 interface SendRegistrationRequest {
   registrarAddress: string
   userName: string
-  store: Store
+  store: TestStore
   registrarPort?: number
 }
 
@@ -175,7 +175,7 @@ export async function registerUsername(payload: Register) {
   store.dispatch(identity.actions.registerUsername(userName))
 }
 
-export async function sendCsr(store: Store) {
+export async function sendCsr(store: TestStore) {
   const communityId = store.getState().Communities.communities.ids[0] as string
   const nickname = store.getState().Identity.identities.entities[communityId].nickname
   const userCsr = store.getState().Identity.identities.entities[communityId].userCsr
@@ -229,19 +229,15 @@ export async function joinCommunity(payload: JoinCommunity) {
   }, timeout)
 }
 
-export function getInfoMessages(store: Store, channel: string): ChannelMessage[] {
-  const messages = store.getState().Messages.publicChannelsMessagesBase.entities[channel].messages
-  return messages.filter(message => message.type === MessageType.Info)
+export function getInfoMessages(store: TestStore, channel: string): ChannelMessage[] {
+  const messages = Object.values(
+    store.getState().Messages.publicChannelsMessagesBase.entities[channel].messages.entities
+  )
+  return messages.filter((message) => message.type === MessageType.Info)
 }
 
-export async function sendMessage(
-  payload: SendMessage
-): Promise<ChannelMessage> {
-  const {
-    message,
-    channelName,
-    store
-  } = payload
+export async function sendMessage(payload: SendMessage): Promise<ChannelMessage> {
+  const { message, channelName, store } = payload
 
   log(message, 'sendMessage')
 
@@ -301,7 +297,7 @@ export const getCommunityOwnerData = (ownerStore: Store) => {
   }
 }
 
-export const clearInitializedCommunitiesAndRegistrars = (store: Store) => {
+export const clearInitializedCommunitiesAndRegistrars = (store: TestStore) => {
   store.dispatch(network.actions.removeInitializedCommunities)
   store.dispatch(network.actions.removeInitializedRegistrars)
 }
