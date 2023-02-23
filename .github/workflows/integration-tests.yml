@@ -43,3 +43,27 @@ jobs:
       - name: 'Run test send messages'
         working-directory: ./packages/integration-tests
         run: DEBUG=backend* npm run test sendMessages.test.ts
+
+  download-file:
+    timeout-minutes: 180
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-20.04] #, macos-latest, windows-2019]
+
+    steps:
+      - name: 'Print OS'
+        run: echo ${{ matrix.os }}
+
+      - uses: actions/checkout@v2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "integration-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
+
+      - name: 'Run test sendFiles - BIG FILE only'
+        working-directory: ./packages/integration-tests
+        run: DEBUG=backend* npm run test sendFiles.test.ts
