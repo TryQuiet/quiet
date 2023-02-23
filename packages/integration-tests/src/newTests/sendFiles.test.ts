@@ -29,6 +29,8 @@ describe.only('BIG FILE', () => {
   }
 
   beforeAll(async () => {
+    createFile(filePath, 50147483648)
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 20000))
     owner = await createApp()
     userOne = await createApp()
   })
@@ -37,11 +39,6 @@ describe.only('BIG FILE', () => {
     await owner.manager.closeAllServices()
     await userOne.manager.closeAllServices()
   })
-
-  // it('generae file', async() => {
-  //       createFile(filePath, 50147483648)
-  //       await new Promise<void>(resolve => setTimeout(() => resolve(), 20000))
-  // })
 
   it('Owner creates community', async () => {
     console.log('SEND FILES - 1')
