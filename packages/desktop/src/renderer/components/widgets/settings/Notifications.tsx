@@ -194,7 +194,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
         </Grid>
         <Grid item className={classes.subtitleSoundDiv}>
           <Typography variant='h5' className={classes.subtitle}>
-	     Sound when receiving a notification
+            Sound when receiving a notification
           </Typography>
         </Grid>
         <Grid
