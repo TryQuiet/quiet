@@ -6,7 +6,7 @@ export { DataServer } from './socket/DataServer'
 export { ConnectionsManager } from './libp2p/connectionsManager'
 
 // eslint-disable-next-line
-const version = "1.0.0-alpha.6"
+const version = process.env.npm_package_version
 
 export default {
   Tor,
