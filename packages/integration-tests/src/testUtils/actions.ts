@@ -1,5 +1,13 @@
-
-import { ChannelMessage, communities, CommunityOwnership, CreateNetworkPayload, identity, publicChannels, messages, files } from '@quiet/state-manager'
+import {
+  ChannelMessage,
+  communities,
+  CommunityOwnership,
+  CreateNetworkPayload,
+  identity,
+  publicChannels,
+  messages,
+  files
+} from '@quiet/state-manager'
 import assert from 'assert'
 import { Register, SendImage, SendMessage } from '../integrationTests/appActions'
 import logger from '../logger'
@@ -9,11 +17,7 @@ const log = logger('actions')
 const timeout = 120_000
 
 export async function registerUsername(payload: Register) {
-  const {
-    registrarAddress,
-    userName,
-    store
-  } = payload
+  const { registrarAddress, userName, store } = payload
 
   const createNetworkPayload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
@@ -59,23 +63,19 @@ export const createCommunity = async ({ username, communityName, store }): Promi
   const communityId = store.getState().Communities.communities.ids[0]
 
   await waitForExpect(() => {
-    assert.ok(
-      store.getState().Identity.identities.entities[communityId].hiddenService
-        .onionAddress
-    )
+    assert.ok(store.getState().Identity.identities.entities[communityId].hiddenService.onionAddress)
   }, timeout)
   await waitForExpect(() => {
     assert.strictEqual(
-      store.getState().Identity.identities.entities[communityId].peerId.id.length, 46
+      store.getState().Identity.identities.entities[communityId].peerId.id.length,
+      46
     )
   }, timeout)
 
   store.dispatch(identity.actions.registerUsername(username))
 
   await waitForExpect(() => {
-    assert.ok(
-      store.getState().Identity.identities.entities[communityId].userCertificate
-    )
+    assert.ok(store.getState().Identity.identities.entities[communityId].userCertificate)
   }, timeout)
   // await waitForExpect(() => {
   //   expect(
@@ -83,38 +83,25 @@ export const createCommunity = async ({ username, communityName, store }): Promi
   //   ).toHaveProperty('rootObject')
   // }, timeout)
   await waitForExpect(() => {
-    assert.ok(
-      store.getState().Communities.communities.entities[communityId]
-        .onionAddress
-    )
+    assert.ok(store.getState().Communities.communities.entities[communityId].onionAddress)
   }, timeout)
   log(store.getState().Communities.communities.entities[communityId].onionAddress)
   await waitForExpect(() => {
     assert.strictEqual(store.getState().Users.certificates.ids.length, 1)
   }, timeout)
   await waitForExpect(() => {
-    assert.ok(
-      store.getState().Connection.initializedCommunities[communityId]
-    )
+    assert.ok(store.getState().Connection.initializedCommunities[communityId])
   }, timeout)
   log('initializedCommunity', store.getState().Connection.initializedCommunities[communityId])
   await waitForExpect(() => {
-    assert.ok(
-      store.getState().Connection.initializedRegistrars[communityId]
-    )
+    assert.ok(store.getState().Connection.initializedRegistrars[communityId])
   }, timeout)
 
   return store.getState().Communities.communities.entities[communityId].onionAddress
 }
 
-export async function sendMessage(
-  payload: SendMessage
-): Promise<ChannelMessage> {
-  const {
-    message,
-    channelName,
-    store
-  } = payload
+export async function sendMessage(payload: SendMessage): Promise<ChannelMessage> {
+  const { message, channelName, store } = payload
 
   log(message, 'sendMessage')
 
@@ -124,7 +111,11 @@ export async function sendMessage(
     assert.ok(store.getState().LastAction.includes('Messages/addMessageVerificationStatus'))
   }, 5000)
 
-  const entities = Array.from(Object.values(store.getState().Messages.publicChannelsMessagesBase.entities[channelName].messages.entities))
+  const entities = Array.from(
+    Object.values(
+      store.getState().Messages.publicChannelsMessagesBase.entities[channelName].messages.entities
+    )
+  )
 
   const newMessage = entities.filter((m) => {
     return m.message === message
@@ -133,13 +124,8 @@ export async function sendMessage(
   return newMessage[0]
 }
 
-export async function sendImage(
-  payload: SendImage
-) {
-  const {
-    file,
-    store
-  } = payload
+export async function sendImage(payload: SendImage) {
+  const { file, store } = payload
 
   log(file.path, 'sendImage')
 
@@ -158,14 +144,13 @@ export async function joinCommunity({ registrarAddress, userName, expectedPeersC
   const userPeerId = store.getState().Identity.identities.entities[communityId].peerId.id
 
   await waitForExpect(() => {
-    assert.ok(
-      store.getState().Identity.identities.entities[communityId].userCertificate
-    )
+    assert.ok(store.getState().Identity.identities.entities[communityId].userCertificate)
   }, timeout)
 
   await waitForExpect(() => {
     assert.equal(
-      store.getState().Communities.communities.entities[communityId].peerList.length, expectedPeersCount
+      store.getState().Communities.communities.entities[communityId].peerList.length,
+      expectedPeersCount
     )
   }, timeout)
 

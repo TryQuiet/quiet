@@ -1,7 +1,11 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { assertInitializedCommunity, assertInitializedExistingCommunitiesAndRegistrars, assertStoreStatesAreEqual } from '../integrationTests/assertions'
+import {
+  assertInitializedCommunity,
+  assertInitializedExistingCommunitiesAndRegistrars,
+  assertStoreStatesAreEqual
+} from '../integrationTests/assertions'
 import { createCommunity } from '../integrationTests/appActions'
 
 const crypto = new Crypto()

@@ -61,10 +61,9 @@ export const createApp = async (
   const manager = new backend.ConnectionsManager({
     options: {
       env: {
-        appDataPath: appDataPath || appPath,
+        appDataPath: appDataPath || appPath
         // httpTunnelPort: httpTunnelPort
-
-      },
+      }
     },
     torBinaryPath: torBinForPlatform(null),
     torResourcesPath: torDirForPlatform(null),
@@ -132,7 +131,7 @@ export const createAppWithoutTor = async (
 }
 
 export const sleep = async (time = 1000) =>
-  await new Promise<void>(resolve => {
+  await new Promise<void>((resolve) => {
     setTimeout(() => {
       resolve()
     }, time)
@@ -148,7 +147,7 @@ const whitelist = ['Communities', 'Identity', 'Users', 'PublicChannels', 'Messag
 
 export const storePersistor = (state: { [key in StoreKeys]?: any }) => {
   const MockedState = {}
-  whitelist.forEach(e => {
+  whitelist.forEach((e) => {
     MockedState[e] = state[e]
   })
   return MockedState

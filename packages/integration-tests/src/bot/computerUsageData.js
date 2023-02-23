@@ -1,33 +1,40 @@
-var os = require("os")
+var os = require('os')
 var fs = require('fs')
 const checkDiskSpace = require('check-disk-space').default
 
-let totalDiskSpace 
+let totalDiskSpace
 
 checkDiskSpace('/').then((diskSpace) => {
-  totalDiskSpace= diskSpace.size
+  totalDiskSpace = diskSpace.size
 })
 
 const totalRAM = os.totalmem()
 
-fs.writeFile('cpuUsage.txt', '', () => { console.log('created cpu usage file') })
-fs.writeFile('memoryUsage.txt', '', () => { console.log('created memory usage file') })
-fs.writeFile('diskUsage.txt', '', () => { console.log('created disk space usage file') })
+fs.writeFile('cpuUsage.txt', '', () => {
+  console.log('created cpu usage file')
+})
+fs.writeFile('memoryUsage.txt', '', () => {
+  console.log('created memory usage file')
+})
+fs.writeFile('diskUsage.txt', '', () => {
+  console.log('created disk space usage file')
+})
 
 const cpuCoresAverage = () => {
-  let totalIdle = 0, totalTick = 0;
-  let cpus = os.cpus();
+  let totalIdle = 0,
+    totalTick = 0
+  let cpus = os.cpus()
 
   for (let i = 0, len = cpus.length; i < len; i++) {
     let cpu = cpus[i]
 
     for (type in cpu.times) {
-      totalTick += cpu.times[type];
+      totalTick += cpu.times[type]
     }
-    totalIdle += cpu.times.idle;
+    totalIdle += cpu.times.idle
   }
 
-  return { idle: totalIdle / cpus.length, total: totalTick / cpus.length };
+  return { idle: totalIdle / cpus.length, total: totalTick / cpus.length }
 }
 
 const wrtieDataToFiles = (cpuUsageSecondsList, ramUsageSecondsList, diskUsageSecondsList) => {
@@ -86,22 +93,22 @@ setInterval(() => {
 
   let idleDifference = measurementEnd.idle - measurementStart.idle
   let totalDifference = measurementEnd.total - measurementStart.total
-  let percentageCPU = 100 - ~~(100 * idleDifference / totalDifference)
+  let percentageCPU = 100 - ~~((100 * idleDifference) / totalDifference)
   cpuUsageSecondsList.push(percentageCPU)
-  console.log(percentageCPU + " % CPU usage second")
+  console.log(percentageCPU + ' % CPU usage second')
 
   let freeRAM = os.freemem()
   let usedRAM = totalRAM - freeRAM
   let percentageRAM = (100 * usedRAM) / totalRAM
   ramUsageSecondsList.push(percentageRAM)
-  console.log(percentageRAM + " % RAM usage in second")
+  console.log(percentageRAM + ' % RAM usage in second')
 
   checkDiskSpace('/').then((diskSpace) => {
     let freeDiskSpace = diskSpace.free
     let usedDiskSpace = totalDiskSpace - freeDiskSpace
     percentageUsedDiskSpace = (100 * usedDiskSpace) / totalDiskSpace
     diskUsageSecondsList.push(percentageUsedDiskSpace)
-    console.log(percentageUsedDiskSpace + " % Disk space usage in second")
+    console.log(percentageUsedDiskSpace + ' % Disk space usage in second')
   })
 
   if (seconds == numberOfAvarageSeconds) {
@@ -113,6 +120,6 @@ setInterval(() => {
     minutes++
   }
 
-  measurementStart = cpuCoresAverage();
+  measurementStart = cpuCoresAverage()
   seconds++
 }, 1000)
