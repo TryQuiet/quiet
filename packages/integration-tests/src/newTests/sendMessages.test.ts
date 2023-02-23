@@ -220,17 +220,17 @@ describe('send message - users are online', () => {
       timeout,
       owner.store
     )
-    // await assertReceivedMessagesAreValid(
-    //   'userOne',
-    //   [ownerMessageData, userOneMessageData, userTwoMessageData],
-    //   20_000,
-    //   userOne.store
-    // )
-    // await assertReceivedMessagesAreValid(
-    //   'userTwo',
-    //   [ownerMessageData, userOneMessageData, userTwoMessageData],
-    //   20_000,
-    //   userTwo.store
-    // )
+    await assertReceivedMessagesAreValid(
+      'userOne',
+      [ownerMessageData, userOneMessageData, userTwoMessageData],
+      timeout,
+      userOne.store
+    )
+    await assertReceivedMessagesAreValid(
+      'userTwo',
+      [ownerMessageData, userOneMessageData, userTwoMessageData],
+      timeout,
+      userTwo.store
+    )
   })
 })
