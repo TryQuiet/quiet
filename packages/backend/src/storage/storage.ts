@@ -600,6 +600,7 @@ export class Storage extends EventEmitter {
 
       return
     }
+
     // @ts-ignore
     const entries = this.ipfs.cat(_CID)
 
