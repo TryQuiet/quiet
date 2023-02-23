@@ -7,12 +7,91 @@ import { createCommunity, getCommunityOwnerData, joinCommunity, SendImage, sendI
 import { assertReceivedCertificates } from '../testUtils/assertions'
 import { assertDownloadedImage, assertReceivedChannelsAndSubscribe, assertReceivedImages } from '../integrationTests/assertions'
 import path from 'path'
+import { createFile } from '../testUtils/generateFile.helper'
 
 const log = logger('files')
 
 const crypto = new Crypto()
 
 global.crypto = crypto
+
+describe.only('BIG FILE', () => {
+  let owner: AsyncReturnType<typeof createApp>
+  let userOne: AsyncReturnType<typeof createApp>
+
+  const timeout = 940_000
+  const filePath = `${path.resolve()}/assets/large-file.txt`
+
+  const image: FileContent = {
+    path: `${path.resolve()}/assets/large-file.txt`,
+    name: 'large-file',
+    ext: '.txt'
+  }
+
+  beforeAll(async () => {
+    owner = await createApp()
+    userOne = await createApp()
+  })
+
+  afterAll(async () => {
+    await owner.manager.closeAllServices()
+    await userOne.manager.closeAllServices()
+  })
+
+  // it('generae file', async() => {
+  //       createFile(filePath, 50147483648)
+  //       await new Promise<void>(resolve => setTimeout(() => resolve(), 20000))
+  // })
+
+  it('Owner creates community', async () => {
+    console.log('SEND FILES - 1')
+    await createCommunity({ userName: 'Owner', store: owner.store })
+  })
+
+  it('Users joins community', async () => {
+    console.log('SEND FILES - 2')
+    const ownerData = getCommunityOwnerData(owner.store)
+
+    await joinCommunity({
+      ...ownerData,
+      store: userOne.store,
+      userName: 'username1',
+      expectedPeersCount: 2
+    })
+  })
+
+  it('Owner and user received certificates', async () => {
+    console.log('SEND FILES - 3')
+    await assertReceivedCertificates('owner', 2, timeout, owner.store)
+    await assertReceivedCertificates('userOne', 2, timeout, userOne.store)
+  })
+
+  it('User replicated channel and subscribed to it', async () => {
+    console.log('SEND FILES - 4')
+    await assertReceivedChannelsAndSubscribe('owner', 1, timeout, owner.store)
+    await assertReceivedChannelsAndSubscribe('userOne', 1, timeout, userOne.store)
+  })
+
+  it('user sends txt to general channel', async () => {
+    console.log('SEND FILES - 5')
+    log(`Image ${JSON.stringify(image)}`)
+    const payload: SendImage = {
+      file: image,
+      store: owner.store
+    }
+    await sendImage(payload)
+    })
+
+    it('userOne replicated image', async () => {
+      console.log('SEND FILES - 6')
+      await assertReceivedImages('userOne', 1, timeout, userOne.store)
+    })
+
+    it('userOne downloaded image', async () => {
+      console.log('SEND FILES - 7')
+      await assertDownloadedImage('userOne', image.name + image.ext, timeout, userOne.store)
+    })
+})
 
 describe('send message - users are online', () => {
   let owner: AsyncReturnType<typeof createApp>
