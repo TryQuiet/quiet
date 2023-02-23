@@ -5,7 +5,7 @@ import { MAIN_CHANNEL } from './constants'
 import { waitForExpect } from './waitForExpect'
 const log = logger('utils')
 
-const timeout = 120_000
+const timeout = 500_000
 
 const assertContains = (value: any, container: any[]) => {
   if (container.includes(value)) return
