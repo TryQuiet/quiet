@@ -56,7 +56,7 @@ describe('Scroll behavior test', () => {
     cy.get(channelContent).compareSnapshot('send after enter')
   })
 
-  it.skip('should scroll to the bottom when scroll is in the middle and user sends new message', () => {
+  it('should scroll to the bottom when scroll is in the middle and user sends new message', () => {
     cy.get(channelContent).scrollTo(0, 100)
 
     cy.get(channelContent).compareSnapshot('scroll to the middle')
