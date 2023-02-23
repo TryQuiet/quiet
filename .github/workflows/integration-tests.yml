@@ -8,18 +8,11 @@ on:
       - packages/integration-tests/**
 
 jobs:
-  integration-tests:
+  restart-app:
     timeout-minutes: 180
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-20.04] #, macos-latest, windows-2019]
+    runs-on: ubuntu-20.04
 
     steps:
-      - name: 'Print OS'
-        run: echo ${{ matrix.os }}
-
       - uses: actions/checkout@v2
 
       - name: "Setup environment"
@@ -32,13 +25,52 @@ jobs:
         working-directory: ./packages/integration-tests
         run: DEBUG=backend*  npm run test restartApp.test.ts
 
+  create-join-community:
+    timeout-minutes: 180
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "integration-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
+
       - name: 'Run test createJoinCommunity'
         working-directory: ./packages/integration-tests
         run: DEBUG=backend* npm run test createJoinCommunity.test.ts
 
+  registrar:
+    timeout-minutes: 180
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "integration-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
+
       - name: 'Run test registrar'
         working-directory: ./packages/integration-tests
         run: DEBUG=backend* npm run test registrar.test.ts
+
+  send-messages:
+    timeout-minutes: 180
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "integration-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test send messages'
         working-directory: ./packages/integration-tests
@@ -46,16 +78,9 @@ jobs:
 
   download-file:
     timeout-minutes: 180
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-20.04] #, macos-latest, windows-2019]
+    runs-on: ubuntu-20.04
 
     steps:
-      - name: 'Print OS'
-        run: echo ${{ matrix.os }}
-
       - uses: actions/checkout@v2
 
       - name: "Setup environment"
