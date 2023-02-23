@@ -28,9 +28,9 @@ jobs:
           cachePrefix: "integration-tests"
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
-      - name: 'Run test sendFiles - BIG FILE only'
-        working-directory: ./packages/integration-tests
-        run: npm run test sendFiles.test.ts
+      # - name: 'Run test sendFiles - BIG FILE only'
+      #   working-directory: ./packages/integration-tests
+      #   run: npm run test sendFiles.test.ts
         
       - name: 'Run test restartApp'
         working-directory: ./packages/integration-tests

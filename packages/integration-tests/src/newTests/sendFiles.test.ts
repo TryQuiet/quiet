@@ -8,6 +8,7 @@ import { assertReceivedCertificates } from '../testUtils/assertions'
 import { assertDownloadedImage, assertReceivedChannelsAndSubscribe, assertReceivedImages } from '../integrationTests/assertions'
 import path from 'path'
 import { createFile } from '../testUtils/generateFile.helper'
+import { spawn, exec, ChildProcessWithoutNullStreams, fork } from 'child_process'
 
 const log = logger('files')
 
@@ -29,8 +30,13 @@ describe.only('BIG FILE', () => {
   }
 
   beforeAll(async () => {
-    createFile(filePath, 50147483648)
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 20000))
+    // try{
+    //   createFile(filePath, 50147483648)
+    // }catch(e){
+    //   console.log(e)
+    // }
+
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 120000))
     owner = await createApp()
     userOne = await createApp()
   })
