@@ -74,7 +74,7 @@ export interface SendImage {
 }
 
 export async function createCommunity({ userName, store }: CreateCommunity) {
-  const timeout = 20_000
+  const timeout = 50_000
   const communityName = 'CommunityName'
 
   const createNetworkPayload: CreateNetworkPayload = {

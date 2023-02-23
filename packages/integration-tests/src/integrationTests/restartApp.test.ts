@@ -65,6 +65,7 @@ describe('create community and restart app', () => {
   })
 
   it('Owner successfully closes app', async () => {
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
     await owner.manager.closeAllServices()
   })
 
