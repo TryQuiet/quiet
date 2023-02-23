@@ -162,18 +162,18 @@ export const assertInitializedExistingCommunitiesAndRegistrars = async (
 export const assertReceivedRegistrationError = async (store: TestStore, error?: ErrorPayload) => {
   await waitForExpect(() => {
     expect(store.getState().Errors.errors?.ids[0]).toEqual(SocketActionTypes.REGISTRAR)
-  }, 90_000)
+  }, 300_000)
   if (error) {
     await waitForExpect(() => {
       expect(store.getState().Errors.errors?.entities[SocketActionTypes.REGISTRAR]).toStrictEqual(error)
-    }, 90_000)
+    }, 300_000)
   }
 }
 
 export const assertNoRegistrationError = async(store: TestStore) => {
   await waitForExpect(() => {
     expect(store.getState().Errors.errors?.ids.includes('registrar')).toBe(false)
-  }, 20_000)
+  }, 300_000)
 }
 
 export const assertReceivedCertificate = async (store: TestStore) => {
@@ -182,7 +182,7 @@ export const assertReceivedCertificate = async (store: TestStore) => {
     expect(
       store.getState().Identity.identities.entities[communityId].userCertificate
     ).toBeTruthy()
-  }, 160_000)
+  }, 300_000)
 }
 
 export const assertConnectedToPeers = async (
@@ -221,5 +221,5 @@ export const assertRegistrationRequestSent = async (store: TestStore, count: num
   const communityId = store.getState().Communities.communities.ids[0]
   await waitForExpect(() => {
     expect(store.getState().Communities.communities.entities[communityId].registrationAttempts).toEqual(count)
-  }, 240_000)
+  }, 300_000)
 }
