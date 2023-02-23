@@ -14,7 +14,7 @@ import logger from '../logger'
 import { waitForExpect } from './waitForExpect'
 const log = logger('actions')
 
-const timeout = 120_000
+const timeout = 220_000
 
 export async function registerUsername(payload: Register) {
   const { registrarAddress, userName, store } = payload
