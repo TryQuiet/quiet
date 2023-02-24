@@ -78,6 +78,7 @@ describe('registrar is offline, user tries to join, then registrar goes online',
 
   it('owner goes offline', async () => {
     await owner.manager.closeAllServices()
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
   })
 
   it('user tries to join community, while registrar is offline', async () => {
@@ -97,12 +98,15 @@ describe('registrar is offline, user tries to join, then registrar goes online',
   it('registrar goes online', async () => {
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 40000))
     owner = await createApp(ownerOldState, ownerDataPath)
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
   })
 
   it('user finishes registration', async () => {
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 40000))
     await assertReceivedCertificate(user.store)
     await assertInitializedCommunity(user.store)
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
+
   })
 })
 

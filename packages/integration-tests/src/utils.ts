@@ -152,5 +152,3 @@ export const storePersistor = (state: { [key in StoreKeys]?: any }) => {
   })
   return MockedState
 }
-
-await createApp()
