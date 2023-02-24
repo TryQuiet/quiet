@@ -138,7 +138,7 @@ export async function registerUsername(payload: Register) {
   const { registrarAddress, userName, registrarPort, store } = payload
 
   // Give it a huge timeout, it should never fail, but sometimes takes more time, depending on tor.
-  const timeout = 1900_000
+  const timeout = 6_000_000
 
   let address: string
   if (payload.registrarAddress === '0.0.0.0') {
