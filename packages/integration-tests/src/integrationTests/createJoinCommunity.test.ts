@@ -36,6 +36,10 @@ describe('owner creates community and two users join', () => {
     await owner.manager.closeAllServices()
   })
 
+  afterEach(async () => {
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
+  })
+
   it('Owner creates community', async () => {
     await createCommunity({ userName: 'Owner', store: owner.store })
   })
