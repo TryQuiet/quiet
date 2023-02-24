@@ -62,14 +62,17 @@ jobs:
       - name: Install WM
         run: sudo apt install fluxbox
 
+      - name: Install x11-common
+        run: sudo apt -y install x11-common
+
+      - name: Install libx11-dev
+        run: sudo apt install libx11-dev
+
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "e2e-crossplatform-linux"
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
-
-      - name: Install libx11-dev
-        run: sudo apt install libx11-dev
 
       - name: Run X11
         run: |
