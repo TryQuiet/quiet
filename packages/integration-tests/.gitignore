@@ -4,3 +4,4 @@ src/bot/cpuUsage.txt
 src/bot/diskUsage.txt
 src/bot/memoryUsage.txt
 assets/large-file.txt
+assets/medium-file.txt

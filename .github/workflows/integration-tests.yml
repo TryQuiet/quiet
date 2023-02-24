@@ -93,6 +93,23 @@ jobs:
         working-directory: ./packages/integration-tests
         run: DEBUG=backend* npm run test sendBigFile.test.ts
 
+  send-medium-file:
+    timeout-minutes: 180
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "integration-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
+
+      - name: 'Run test send medium file'
+        working-directory: ./packages/integration-tests
+        run: DEBUG=backend* npm run test sendMediumFile.test.ts
+
   send-small-file:
     timeout-minutes: 180
     runs-on: ubuntu-20.04
