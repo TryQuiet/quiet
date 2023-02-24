@@ -68,6 +68,9 @@ jobs:
           cachePrefix: "e2e-crossplatform-linux"
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
+      - name: Install libx11-dev
+        run: sudo apt install libx11-dev
+
       - name: Run X11
         run: |
           Xvfb :99 -screen 0 1920x1080x24 &
