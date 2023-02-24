@@ -76,7 +76,7 @@ jobs:
         working-directory: ./packages/integration-tests
         run: DEBUG=backend* npm run test sendMessages.test.ts
 
-  download-file:
+  send-big-file:
     timeout-minutes: 180
     runs-on: ubuntu-20.04
 
@@ -89,6 +89,23 @@ jobs:
           cachePrefix: "integration-tests"
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
-      - name: 'Run test sendFiles - BIG FILE only'
+      - name: 'Run test send big file'
         working-directory: ./packages/integration-tests
-        run: DEBUG=backend* npm run test sendFiles.test.ts
+        run: DEBUG=backend* npm run test sendBigFile.test.ts
+
+  send-small-file:
+    timeout-minutes: 180
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "integration-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
+
+      - name: 'Run test send small file'
+        working-directory: ./packages/integration-tests
+        run: DEBUG=backend* npm run test sendSmallFile.test.ts

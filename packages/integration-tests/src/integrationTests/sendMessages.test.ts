@@ -5,7 +5,13 @@ import {
   assertReceivedMessages,
   assertReceivedMessagesAreValid
 } from '../integrationTests/assertions'
-import { createCommunity, joinCommunity, getCommunityOwnerData, sendMessage, getInfoMessages } from '../integrationTests/appActions'
+import {
+  createCommunity,
+  joinCommunity,
+  getCommunityOwnerData,
+  sendMessage,
+  getInfoMessages
+} from '../integrationTests/appActions'
 import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { ChannelMessage } from '@quiet/state-manager'
@@ -99,10 +105,12 @@ describe('send message - users go offline and online', () => {
   })
 
   test('Owner sends messages, while users are offline', async () => {
-    expectedMessages.push(await sendMessage({
-      message: 'Hi folks, how u doin? Does Wacek still has covid?',
-      store: owner.store
-    }))
+    expectedMessages.push(
+      await sendMessage({
+        message: 'Hi folks, how u doin? Does Wacek still has covid?',
+        store: owner.store
+      })
+    )
   })
 
   test('users come back online', async () => {
@@ -206,23 +214,8 @@ describe('send message - users are online', () => {
   })
 
   test('Replicated messages are valid', async () => {
-    await assertReceivedMessagesAreValid(
-      'owner',
-      expectedMessages,
-      timeout,
-      owner.store
-    )
-    await assertReceivedMessagesAreValid(
-      'userOne',
-      expectedMessages,
-      timeout,
-      userOne.store
-    )
-    await assertReceivedMessagesAreValid(
-      'userTwo',
-      expectedMessages,
-      timeout,
-      userTwo.store
-    )
+    await assertReceivedMessagesAreValid('owner', expectedMessages, timeout, owner.store)
+    await assertReceivedMessagesAreValid('userOne', expectedMessages, timeout, userOne.store)
+    await assertReceivedMessagesAreValid('userTwo', expectedMessages, timeout, userTwo.store)
   })
 })
