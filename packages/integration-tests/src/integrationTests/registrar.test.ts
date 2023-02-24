@@ -73,6 +73,7 @@ describe('registrar is offline, user tries to join, then registrar goes online',
       owner.store.getState().Communities.communities.entities[communityId].registrarUrl
     ownerOldState = storePersistor(owner.store.getState())
     ownerDataPath = owner.appPath
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
   })
 
   it('owner goes offline', async () => {
