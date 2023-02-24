@@ -76,11 +76,11 @@ jobs:
 
       - name: Download App Image
         working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.13/Quiet-1.0.0-alpha.13.AppImage
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.15/Quiet-1.0.0-alpha.15.AppImage
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-1.0.0-alpha.13.AppImage
+        run: chmod +x Quiet-1.0.0-alpha.15.AppImage
 
       - name: Run smoke test
         working-directory: ./packages/e2e-tests
