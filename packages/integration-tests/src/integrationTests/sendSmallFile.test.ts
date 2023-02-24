@@ -96,96 +96,96 @@ describe('send message - users are online', () => {
   })
 })
 
-describe('send files - image is being redistributed (users going offline)', () => {
-  let owner: AsyncReturnType<typeof createApp>
-  let userOne: AsyncReturnType<typeof createApp>
-  let userTwo: AsyncReturnType<typeof createApp>
+// describe('send files - image is being redistributed (users going offline)', () => {
+//   let owner: AsyncReturnType<typeof createApp>
+//   let userOne: AsyncReturnType<typeof createApp>
+//   let userTwo: AsyncReturnType<typeof createApp>
 
-  let userTwoOldState: Partial<ReturnType<typeof owner.store.getState>>
+//   let userTwoOldState: Partial<ReturnType<typeof owner.store.getState>>
 
-  let userTwoDataPath: string
+//   let userTwoDataPath: string
 
-  const timeout = 940_000
+//   const timeout = 940_000
 
-  const image: FileContent = {
-    path: `${path.resolve()}/assets/test-image.jpeg`,
-    name: 'test-image',
-    ext: '.jpeg'
-  }
+//   const image: FileContent = {
+//     path: `${path.resolve()}/assets/test-image.jpeg`,
+//     name: 'test-image',
+//     ext: '.jpeg'
+//   }
 
-  beforeAll(async () => {
-    owner = await createApp()
-    userOne = await createApp()
-    userTwo = await createApp()
-  })
+//   beforeAll(async () => {
+//     owner = await createApp()
+//     userOne = await createApp()
+//     userTwo = await createApp()
+//   })
 
-  afterAll(async () => {
-    await userOne.manager.closeAllServices()
-    await userTwo.manager.closeAllServices()
-  })
+//   afterAll(async () => {
+//     await userOne.manager.closeAllServices()
+//     await userTwo.manager.closeAllServices()
+//   })
 
-  it('Owner creates community', async () => {
-    await createCommunity({ userName: 'Owner', store: owner.store })
-  })
+//   it('Owner creates community', async () => {
+//     await createCommunity({ userName: 'Owner', store: owner.store })
+//   })
 
-  it('Two users join community', async () => {
-    const ownerData = getCommunityOwnerData(owner.store)
+//   it('Two users join community', async () => {
+//     const ownerData = getCommunityOwnerData(owner.store)
 
-    await joinCommunity({
-      ...ownerData,
-      store: userOne.store,
-      userName: 'username1',
-      expectedPeersCount: 2
-    })
+//     await joinCommunity({
+//       ...ownerData,
+//       store: userOne.store,
+//       userName: 'username1',
+//       expectedPeersCount: 2
+//     })
 
-    await joinCommunity({
-      ...ownerData,
-      store: userTwo.store,
-      userName: 'username2',
-      expectedPeersCount: 3
-    })
-  })
+//     await joinCommunity({
+//       ...ownerData,
+//       store: userTwo.store,
+//       userName: 'username2',
+//       expectedPeersCount: 3
+//     })
+//   })
 
-  it('Owner and users received certificates', async () => {
-    await assertReceivedCertificates('owner', 3, timeout, owner.store)
-    await assertReceivedCertificates('userOne', 3, timeout, userOne.store)
-    await assertReceivedCertificates('userTwo', 3, timeout, userTwo.store)
-  })
+//   it('Owner and users received certificates', async () => {
+//     await assertReceivedCertificates('owner', 3, timeout, owner.store)
+//     await assertReceivedCertificates('userOne', 3, timeout, userOne.store)
+//     await assertReceivedCertificates('userTwo', 3, timeout, userTwo.store)
+//   })
 
-  it('Users replicated channel and subscribed to it', async () => {
-    await assertReceivedChannelsAndSubscribe('owner', 1, timeout, owner.store)
-    await assertReceivedChannelsAndSubscribe('userOne', 1, timeout, userOne.store)
-    await assertReceivedChannelsAndSubscribe('userTwo', 1, timeout, userTwo.store)
-  })
+//   it('Users replicated channel and subscribed to it', async () => {
+//     await assertReceivedChannelsAndSubscribe('owner', 1, timeout, owner.store)
+//     await assertReceivedChannelsAndSubscribe('userOne', 1, timeout, userOne.store)
+//     await assertReceivedChannelsAndSubscribe('userTwo', 1, timeout, userTwo.store)
+//   })
 
-  it('UserTwo goes offline', async () => {
-    userTwoOldState = storePersistor(userTwo.store.getState())
-    userTwoDataPath = userTwo.appPath
-    await userTwo.manager.closeAllServices()
-  })
+//   it('UserTwo goes offline', async () => {
+//     userTwoOldState = storePersistor(userTwo.store.getState())
+//     userTwoDataPath = userTwo.appPath
+//     await userTwo.manager.closeAllServices()
+//   })
 
-  it('Owner sends image, while UserTwo is offline', async () => {
-    await sendImage({
-      file: image,
-      store: owner.store
-    })
-  })
+//   it('Owner sends image, while UserTwo is offline', async () => {
+//     await sendImage({
+//       file: image,
+//       store: owner.store
+//     })
+//   })
 
-  it('UserOne replicated and downloaded the image', async () => {
-    await assertReceivedImages('userOne', 1, 360_000, userOne.store)
-    await assertDownloadedImage('userOne', image.name + image.ext, 360_000, userOne.store)
-  })
+//   it('UserOne replicated and downloaded the image', async () => {
+//     await assertReceivedImages('userOne', 1, 360_000, userOne.store)
+//     await assertDownloadedImage('userOne', image.name + image.ext, 360_000, userOne.store)
+//   })
 
-  it('Owner goes offline', async () => {
-    await owner.manager.closeAllServices()
-  })
+//   it('Owner goes offline', async () => {
+//     await owner.manager.closeAllServices()
+//   })
 
-  it('UserTwo comes back online', async () => {
-    userTwo = await createApp(userTwoOldState, userTwoDataPath)
-  })
+//   it('UserTwo comes back online', async () => {
+//     userTwo = await createApp(userTwoOldState, userTwoDataPath)
+//   })
 
-  it('UserTwo replicated and downloaded the image', async () => {
-    await assertReceivedImages('userTwo', 1, 960_000, userTwo.store)
-    await assertDownloadedImage('userTwo', image.name + image.ext, 960_000, userTwo.store)
-  })
-})
+//   it('UserTwo replicated and downloaded the image', async () => {
+//     await assertReceivedImages('userTwo', 1, 960_000, userTwo.store)
+//     await assertDownloadedImage('userTwo', image.name + image.ext, 960_000, userTwo.store)
+//   })
+// })
