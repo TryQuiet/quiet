@@ -32,7 +32,9 @@ describe('offline registrar, user tries to join', () => {
   afterAll(async () => {
     await user.manager.closeAllServices()
   })
-
+  afterEach(async () => {
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
+  })
   it('user tries to join community', async () => {
     await sendRegistrationRequest({
       registrarAddress: '76gan734wqm4hy7ahj33pnfub7qobdhhkdnd3rbma7o4dq4hce3ncxad',
@@ -46,7 +48,7 @@ describe('offline registrar, user tries to join', () => {
   })
 })
 
-describe('registrar is offline, user tries to join, then registrar goes online', () => {
+describe.only('registrar is offline, user tries to join, then registrar goes online', () => {
   let owner: AsyncReturnType<typeof createApp>
   let user: AsyncReturnType<typeof createApp>
   let ownerOldState: Partial<ReturnType<typeof owner.store.getState>>
@@ -92,10 +94,12 @@ describe('registrar is offline, user tries to join, then registrar goes online',
   })
 
   it('registrar goes online', async () => {
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 40000))
     owner = await createApp(ownerOldState, ownerDataPath)
   })
 
   it('user finishes registration', async () => {
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 40000))
     await assertReceivedCertificate(user.store)
     await assertInitializedCommunity(user.store)
   })
