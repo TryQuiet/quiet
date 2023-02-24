@@ -44,8 +44,14 @@ jobs:
       #   run: npm run test newUser.crossplatform.test.ts
 
   linux:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, ubuntu-22.04]
+
     timeout-minutes: 30
+
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
       DISPLAY: ":99.0"
