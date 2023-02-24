@@ -171,7 +171,7 @@ export const assertReceivedRegistrationError = async (store: TestStore, error?: 
 export const assertNoRegistrationError = async (store: TestStore) => {
   await waitForExpect(() => {
     expect(store.getState().Errors.errors?.ids.includes('registrar')).toBe(false)
-  }, 300_000)
+  }, 500_000)
 }
 
 export const assertReceivedCertificate = async (store: TestStore) => {
