@@ -31,8 +31,8 @@ describe('send message - users are online', () => {
   const timeout = 940_000
 
   const image: FileContent = {
-    path: `${path.resolve()}/assets/test-image.jpeg`,
-    name: 'test-image',
+    path: `${path.resolve()}/assets/photo.jpeg`,
+    name: 'photo',
     ext: '.jpeg'
   }
 
