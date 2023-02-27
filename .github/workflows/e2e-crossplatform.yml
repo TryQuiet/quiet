@@ -68,6 +68,9 @@ jobs:
       - name: Install libx11-dev
         run: sudo apt install libx11-dev
 
+      - name: Install libfuse2
+        run: sudo apt install libfuse2
+
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
