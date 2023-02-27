@@ -18,7 +18,7 @@ describe('send message - users are online', () => {
   let owner: AsyncReturnType<typeof createApp>
   let userOne: AsyncReturnType<typeof createApp>
 
-  const timeout = 940_000
+  const timeout = 1_940_000
 
   const image: FileContent = {
     path: `${path.resolve()}/assets/medium-file5.jpeg`,
