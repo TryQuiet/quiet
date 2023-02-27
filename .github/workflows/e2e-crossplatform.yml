@@ -88,6 +88,10 @@ jobs:
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x Quiet-1.0.0-alpha.15.AppImage
 
+      - name: Run App 
+        working-directory: ./packages/e2e-tests/Quiet
+        run: ./Quiet-1.0.0-alpha.15.AppImage
+
       - name: Run smoke test
         working-directory: ./packages/e2e-tests
         run: npm run test smoke.crossplatform.test.ts
