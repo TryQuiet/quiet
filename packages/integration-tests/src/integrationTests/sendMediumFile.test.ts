@@ -30,15 +30,15 @@ describe('Medium file', () => {
   let userOne: AsyncReturnType<typeof createApp>
 
   const timeout = 6000000
-  const filePath = `${path.resolve()}/assets/medium-file.txt`
+//   const filePath = `${path.resolve()}/assets/medium-file.txt`
   const image: FileContent = {
-    path: `${path.resolve()}/assets/medium-file.txt`,
+    path: `${path.resolve()}/assets/medium-image.png`,
     name: 'medium-file',
     ext: '.txt'
   }
 
   beforeAll(async () => {
-    await createEmptyFileOfSize(filePath, 2000000)
+    // await createEmptyFileOfSize(filePath, 2000000)
     owner = await createApp()
     userOne = await createApp()
   })
