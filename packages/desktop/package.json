@@ -57,6 +57,10 @@
         {
           "from": "resources/libssl.so.1.1",
           "to": "usr/lib/libssl.so.1.1"
+        },
+        {
+          "from": "resources/libfuse.so.2",
+          "to": "usr/lib/libfuse.so.2"
         }
       ],
       "files": [
