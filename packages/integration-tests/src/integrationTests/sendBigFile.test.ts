@@ -32,8 +32,8 @@ describe('BIG FILE', () => {
   const timeout = 6000000
   const image: FileContent = {
     path: `${path.resolve()}/assets/Quiet-1.0.0-alpha.13.AppImage`,
-    name: 'photo',
-    ext: '.jpeg'
+    name: 'Quiet-1.0.0-alpha.13',
+    ext: '.AppImage'
   }
 
   beforeAll(async () => {

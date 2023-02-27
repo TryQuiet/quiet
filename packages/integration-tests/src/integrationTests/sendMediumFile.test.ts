@@ -32,9 +32,9 @@ describe('Medium file', () => {
   const timeout = 6000000
 //   const filePath = `${path.resolve()}/assets/medium-file.txt`
   const image: FileContent = {
-    path: `${path.resolve()}/assets/medium-image2.jpeg`,
+    path: `${path.resolve()}/assets/medium-file.jpeg`,
     name: 'medium-file',
-    ext: '.txt'
+    ext: '.jpeg'
   }
 
   beforeAll(async () => {
