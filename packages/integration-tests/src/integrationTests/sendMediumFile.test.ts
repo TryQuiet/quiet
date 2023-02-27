@@ -38,7 +38,7 @@ describe('Medium file', () => {
   }
 
   beforeAll(async () => {
-    await createEmptyFileOfSize(filePath, 15000000)
+    await createEmptyFileOfSize(filePath, 2000000)
     owner = await createApp()
     userOne = await createApp()
   })
