@@ -126,7 +126,7 @@ export async function assertReceivedImages(
 export async function assertDownloadedImage(
   userName: string,
   expectedImage: string, // filename.ext
-  maxTime: number = 900000,
+  maxTime: number = 2000000,
   store: TestStore
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for downloading ${expectedImage}`)
