@@ -30,15 +30,14 @@ describe('BIG FILE', () => {
   let userOne: AsyncReturnType<typeof createApp>
 
   const timeout = 6000000
-  const filePath = `${path.resolve()}/assets/large-file.txt`
   const image: FileContent = {
-    path: `${path.resolve()}/assets/large-file.txt`,
-    name: 'large-file',
-    ext: '.txt'
+    path: `${path.resolve()}/assets/Quiet-1.0.0-alpha.13.AppImage`,
+    name: 'photo',
+    ext: '.jpeg'
   }
 
   beforeAll(async () => {
-    await createEmptyFileOfSize(filePath, 51000000)
+    // await createEmptyFileOfSize(filePath, 51000000)
     owner = await createApp()
     userOne = await createApp()
   })
