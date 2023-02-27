@@ -32,8 +32,8 @@ describe('Medium file', () => {
   const timeout = 6000000
 //   const filePath = `${path.resolve()}/assets/medium-file.txt`
   const image: FileContent = {
-    path: `${path.resolve()}/assets/medium-file.jpeg`,
-    name: 'medium-file',
+    path: `${path.resolve()}/assets/medium-file2.jpeg`,
+    name: 'medium-file2',
     ext: '.jpeg'
   }
 
