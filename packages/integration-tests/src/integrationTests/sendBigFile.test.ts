@@ -3,21 +3,10 @@ import { createApp } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { FileContent } from '@quiet/state-manager'
 import logger from '../logger'
-import {
-  createCommunity,
-  getCommunityOwnerData,
-  joinCommunity,
-  SendImage,
-  sendImage
-} from './appActions'
 import { assertReceivedCertificates } from '../testUtils/assertions'
-import {
-  assertDownloadedImage,
-  assertReceivedChannelsAndSubscribe,
-  assertReceivedImages
-} from './assertions'
 import path from 'path'
-import { createEmptyFileOfSize } from '../testUtils/generateFile.helper'
+import { createCommunity, getCommunityOwnerData, joinCommunity, SendImage, sendImage } from './appActions'
+import { assertReceivedChannelsAndSubscribe, assertReceivedImages, assertDownloadedImage } from './assertions'
 
 const log = logger('files')
 
@@ -25,19 +14,19 @@ const crypto = new Crypto()
 
 global.crypto = crypto
 
-describe('BIG FILE', () => {
+describe('Big File', () => {
   let owner: AsyncReturnType<typeof createApp>
   let userOne: AsyncReturnType<typeof createApp>
 
-  const timeout = 6000000
+  const timeout = 3_940_000
+
   const image: FileContent = {
-    path: `${path.resolve()}/assets/Quiet-1.0.0-alpha.13.AppImage`,
-    name: 'Quiet-1.0.0-alpha.13',
-    ext: '.AppImage'
+    path: `${path.resolve()}/assets/big-file.jpeg`,
+    name: 'big-file',
+    ext: '.jpeg'
   }
 
   beforeAll(async () => {
-    // await createEmptyFileOfSize(filePath, 51000000)
     owner = await createApp()
     userOne = await createApp()
   })
@@ -76,7 +65,7 @@ describe('BIG FILE', () => {
     await assertReceivedChannelsAndSubscribe('userOne', 1, timeout, userOne.store)
   })
 
-  it('user sends txt to general channel', async () => {
+  it('user sends image to general channel', async () => {
     console.log('SEND FILES - 5')
     log(`Image ${JSON.stringify(image)}`)
     const payload: SendImage = {

@@ -89,13 +89,13 @@ jobs:
           cachePrefix: "integration-tests"
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
-      - name: Download App Image
+      - name: Download Big file
         working-directory: ./packages/integration-tests/assets
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.13/Quiet-1.0.0-alpha.13.AppImage
+        run: curl -LO https://s3.amazonaws.com/test.quiet/big-file.jpeg
 
       - name: Chmod
         working-directory: ./packages/integration-tests/assets
-        run: chmod +x Quiet-1.0.0-alpha.13.AppImage
+        run: chmod +x big-file.jpeg
 
       - name: 'Run test send big file'
         working-directory: ./packages/integration-tests
