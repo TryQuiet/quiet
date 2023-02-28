@@ -203,17 +203,20 @@ describe.only('send message - users are online', () => {
     console.log(5)
     expectedMessages.push(await sendMessage({ message: 'owner says hi', store: owner.store }))
     expectedMessages.push(await sendMessage({ message: 'userOne says hi', store: userOne.store }))
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
     // expectedMessages.push(await sendMessage({ message: 'userTwo says hi', store: userTwo.store }))
   })
 
   it('Owner replicated all messages', async () => {
     console.log(6)
     await assertReceivedMessages('owner', expectedMessages, timeout, owner.store)
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
   })
 
   it('userOne replicated all messages', async () => {
     console.log(7)
     await assertReceivedMessages('userOne', expectedMessages, timeout, userOne.store)
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
   })
 
   // it('userTwo replicated all messages', async () => {
