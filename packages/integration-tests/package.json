@@ -1,6 +1,6 @@
 {
   "name": "integration-tests",
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0-alpha.20",
   "description": "",
   "type": "module",
   "types": "lib/index.d.ts",
@@ -43,13 +43,10 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
-    "@chainsafe/libp2p-gossipsub": "6.1.0",
-    "@chainsafe/libp2p-noise": "11.0.0",
-    "@quiet/identity": "^1.0.0-alpha.5",
-    "@quiet/logger": "^1.0.0-alpha.5",
-    "@quiet/state-manager": "^1.0.0-alpha.5",
-    "@quiet/backend": "^1.0.0-alpha.6",
     "@peculiar/webcrypto": "1.4.1",
+    "@quiet/identity": "^1.0.0-alpha.20",
+    "@quiet/logger": "^1.0.0-alpha.20",
+    "@quiet/state-manager": "^1.0.0-alpha.20",
     "@reduxjs/toolkit": "^1.6.1",
     "commander": "^9.1.0",
     "debug": "^4.3.2",
