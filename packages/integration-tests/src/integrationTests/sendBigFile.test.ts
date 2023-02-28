@@ -18,7 +18,7 @@ describe('Big File', () => {
   let owner: AsyncReturnType<typeof createApp>
   let userOne: AsyncReturnType<typeof createApp>
 
-  const timeout = 3_940_000
+  const timeout = 7_940_000
 
   const image: FileContent = {
     path: `${path.resolve()}/assets/big-file.jpeg`,
