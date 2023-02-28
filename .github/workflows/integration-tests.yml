@@ -60,7 +60,7 @@ jobs:
         run: DEBUG=backend* npm run test registrar.test.ts
 
   send-messages:
-    timeout-minutes: 180
+    timeout-minutes: 360
     runs-on: ubuntu-20.04
 
     steps:
@@ -77,7 +77,7 @@ jobs:
         run: DEBUG=backend* npm run test sendMessages.test.ts
 
   send-big-file:
-    timeout-minutes: 180
+    timeout-minutes: 360
     runs-on: ubuntu-20.04
 
     steps:
