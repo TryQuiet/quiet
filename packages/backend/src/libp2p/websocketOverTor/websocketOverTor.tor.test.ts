@@ -169,9 +169,9 @@ describe('websocketOverTor', () => {
     expect((onConnection.mock.calls[0][0] as any).remoteAddr).toEqual(remoteAddress)
   })
 
-  // FIXME
-  it.skip('rejects connection if user cert is invalid', async () => {
+  it('rejects connection if user cert is invalid', async () => {
     const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
+    const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
 
     const prepareListenerArg = {
       handler: (x) => x,
@@ -191,7 +191,7 @@ describe('websocketOverTor', () => {
 
     const agent = createHttpsProxyAgent({ host: 'localhost', port: httpTunnelPort })
 
-    const websocketsOverTorData1 = {
+    const websocketsOverTorDataServer = {
       filter: all,
       websocket: {
         agent,
@@ -204,13 +204,13 @@ describe('websocketOverTor', () => {
       createServer
     }
 
-    const websocketsOverTorData2 = {
+    const websocketsOverTorDataClient = {
       filter: all,
       websocket: {
         agent,
         cert: pems.servCert,
         key: pems.servKey,
-        ca: [pems.ca]
+        ca: [anotherPems.ca]
       },
       localAddress: createLibp2pAddress(service2.onionAddress, peerId2),
       targetPort: port2Target,
@@ -218,8 +218,8 @@ describe('websocketOverTor', () => {
     }
     const multiAddress = multiaddr(createLibp2pAddress(service1.onionAddress, peerId1))
 
-    const ws1 = webSockets(websocketsOverTorData1)()
-    const ws2 = webSockets(websocketsOverTorData2)()
+    const ws1 = webSockets(websocketsOverTorDataServer)()
+    const ws2 = webSockets(websocketsOverTorDataClient)()
 
     listener = await ws1.prepareListener(prepareListenerArg)
 

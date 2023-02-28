@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "1.0.0-alpha.9",
+  "version": "1.0.0-alpha.11",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "storybook-android": "ENVFILE=.env.storybook react-native run-android --variant=storybookDebug --appIdSuffix=storybook.debug",
@@ -14,15 +14,15 @@
     "gen": "plop",
     "prepare-backend-assets": "mkdir -p ./nodejs-assets/nodejs-project && cp ../backend/lib/bundle.cjs ./nodejs-assets/nodejs-project/bundle.cjs",
     "exclude-test-assets": "find ./nodejs-assets/nodejs-project/node_modules -print | grep -i -e '/test/' -e '/tests/' | grep -v @quiet | xargs rm -rf",
-    "patch-dependencies": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -d ../state-manager -p0 < ./factory-girl.patch || true",
-    "patch-crypto-ios": "patch -p0 --forward --binary < ./react-native-webview-crypto.patch || true",
+    "patch-dependencies": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -f -d ../state-manager -p0 < ./factory-girl.patch || true",
+    "patch-crypto-ios": "patch -f -p0 --forward --binary < ./react-native-webview-crypto.patch || true",
     "override-dlopen": "cd ./nodejs-assets/nodejs-project && cp ../override-dlopen-paths-preload.js ./ && cp ../override-dlopen-paths-data.json ./",
     "prepare": "npm run prepare-backend-assets && npm run override-dlopen && npm run patch-dependencies && npm run exclude-test-assets && npm run patch-crypto-ios && npm run build",
     "version": "react-native-version --skip-tag"
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.7",
-    "@quiet/backend": "^1.0.0-alpha.6",
+    "@quiet/backend": "^1.0.0-alpha.7",
     "@quiet/identity": "^1.0.0-alpha.5",
     "@quiet/state-manager": "^1.0.0-alpha.5",
     "@react-navigation/native": "^6.0.0",
