@@ -134,10 +134,11 @@ export async function assertDownloadedImage(
     const message = Object.values(
       store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
     ).filter((message) => message.media?.path)[0]
-
+    console.log({ message })
     const path = message.media.path.split('/')
+    console.log({ path })
     const filename = path[path.length - 1]
-
+    console.log({ filename })
     expect(filename).toBe(expectedImage)
   }, maxTime)
   log(`User ${userName} downloaded ${expectedImage}`)
