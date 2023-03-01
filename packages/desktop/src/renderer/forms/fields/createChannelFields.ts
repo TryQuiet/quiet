@@ -15,12 +15,8 @@ export const channelNameField = (name = 'channelName'): FieldData => {
         value: 20,
         message: ChannelNameErrors.NameTooLong
       },
-      pattern: {
-        value: /^[-a-zA-Z0-9 ]+$/g,
-        message: ChannelNameErrors.WrongCharacter
-      },
       validate: {
-        whitespaces: (value) => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
+        whitespaces: value => /^([^\s-]+)[\w\s-]+[^\s-]$/.test(value) || FieldErrors.Whitespaces
       }
     }
   }
