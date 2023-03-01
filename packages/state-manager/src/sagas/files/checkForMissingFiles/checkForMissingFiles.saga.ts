@@ -1,4 +1,4 @@
-import { Socket } from 'socket.io-client'
+import { applyEmitParams, Socket } from '../../../types'
 import { select, apply, put } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { connectionActions } from '../../appConnection/connection.slice'
@@ -37,35 +37,42 @@ export function* checkForMissingFilesSaga(
         if (fileDownloadStatus?.downloadState === DownloadState.Canceled) continue
         // Start downloading already queued files
         if (fileDownloadStatus?.downloadState === DownloadState.Queued) {
-          yield* apply(socket, socket.emit, [
-            SocketActionTypes.DOWNLOAD_FILE,
-            {
+          yield* apply(
+            socket,
+            socket.emit,
+            applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
               peerId: identity.peerId.id,
               metadata: file
-            }
-          ])
+            })
+          )
           continue
         }
 
         // Do not autodownload oversized files unless started manually
-        if (fileDownloadStatus?.downloadState !== DownloadState.Downloading && file.size > AUTODOWNLOAD_SIZE_LIMIT) continue
+        if (
+          fileDownloadStatus?.downloadState !== DownloadState.Downloading &&
+          file.size > AUTODOWNLOAD_SIZE_LIMIT
+        ) { continue }
 
         // Do not autodownload if the file was reported malicious or is missing reported file size
         if (fileDownloadStatus?.downloadState === DownloadState.Malicious) continue
 
-        yield* put(filesActions.updateDownloadStatus({
-          mid: file.message.id,
-          cid: file.cid,
-          downloadState: DownloadState.Queued
-        }))
+        yield* put(
+          filesActions.updateDownloadStatus({
+            mid: file.message.id,
+            cid: file.cid,
+            downloadState: DownloadState.Queued
+          })
+        )
 
-        yield* apply(socket, socket.emit, [
-          SocketActionTypes.DOWNLOAD_FILE,
-          {
+        yield* apply(
+          socket,
+          socket.emit,
+          applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
             peerId: identity.peerId.id,
             metadata: file
-          }
-        ])
+          })
+        )
       }
     }
   }

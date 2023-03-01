@@ -5,7 +5,7 @@ interface ActionsBasicType {
 }
 
 export type ActionsType<Actions extends ActionsBasicType> = {
-  [k in keyof Actions]: ReturnType<Actions[k]>;
+  [k in keyof Actions]: ReturnType<Actions[k]>
 }
 
 export type Keys<Actions> = keyof Actions

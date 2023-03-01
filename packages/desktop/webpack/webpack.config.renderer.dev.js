@@ -2,7 +2,7 @@ const webpack = require('webpack')
 const spawn = require('child_process').spawn
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const WebpackOnBuildPlugin = require('on-build-webpack')
+const WebpackOnBuildPlugin = require('./webpack-on-build-plugin')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
 var mainRunning = false
@@ -22,25 +22,29 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(t|j)sx?$/,
-        loader: ['ts-loader'],
+        test: /\.tsx?$/,
+        use: {
+          loader: 'ts-loader'
+        },
         exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]state-manager/, /packages[\/\\]logger/]
       },
       {
-        test: /\.css?$/,
-        loaders: ['style-loader', 'css-loader']
+        test: /\.m?js/,
+        resolve: {
+          fullySpecified: false
+        }
       },
       {
-        test: /\.scss?$/,
-        loaders: ['style-loader', 'css-loader']
+        test: /\.css$/,
+        use: {
+          loader: 'css-loader'
+        }
       },
       {
-        test: /\.(ttf|eot|svg|png|woff(2)?)(\?[a-z0-9=&.]+)?$/,
-        loader: 'file-loader'
-      },
-      {
-        test: /\.mp3$/,
-        loader: 'file-loader'
+        test: /\.(mp3|ttf|eot|svg|png|woff(2)?)(\?[a-z0-9=&.]+)?$/,
+        use: {
+          loader: 'file-loader'
+        }
       }
     ]
   },
@@ -58,7 +62,6 @@ module.exports = {
       template: 'src/renderer/splashScreen/splash.html',
       filename: 'splash.html'
     }),
-    new webpack.HotModuleReplacementPlugin(),
     new WebpackOnBuildPlugin(async () => {
       if (!mainRunning) {
         console.log('Starting main process...')

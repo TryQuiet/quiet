@@ -19,7 +19,8 @@ export const Loading: FC<LoadingProps> = ({
       style={{
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        backgroundColor: defaultTheme.palette.background.white
       }}>
       <Image
         source={appImages.quiet_icon_round}

@@ -77,11 +77,20 @@ export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.t
 export { MessagesTransform } from './sagas/messages/messages.transform'
 export { FilesTransform } from './sagas/files/files.transform'
 
-export { AUTODOWNLOAD_SIZE_LIMIT, PUSH_NOTIFICATION_CHANNEL, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL } from './constants'
+export {
+  AUTODOWNLOAD_SIZE_LIMIT,
+  PUSH_NOTIFICATION_CHANNEL,
+  WEBSOCKET_CONNECTION_CHANNEL,
+  INIT_CHECK_CHANNEL
+} from './constants'
 
 export { parseName } from './utils/functions/naming/naming'
 
 export { formatBytes } from './utils/functions/formatBytes/formatBytes'
+
+export { sortPeers } from './utils/functions/sortPeers/sortPeers'
+
+export type { Socket } from './types'
 
 export * from './sagas/identity/identity.types'
 

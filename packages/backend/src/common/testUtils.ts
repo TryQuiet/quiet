@@ -1,7 +1,7 @@
 import fs from 'fs'
 import getPort from 'get-port'
-import Libp2p from 'libp2p'
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import type { Libp2p } from 'libp2p'
+import createHttpsProxyAgent from 'https-proxy-agent'
 import path from 'path'
 import PeerId from 'peer-id'
 import tmp from 'tmp'
@@ -9,7 +9,6 @@ import { Config } from '../constants'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
 import { PermsData } from '@quiet/state-manager'
-import WebsocketsOverTor from '../libp2p/websocketOverTor'
 import { Tor } from '../torManager'
 import {
   createLibp2pAddress,
@@ -36,9 +35,9 @@ export const testBootstrapMultiaddrs = [
   createLibp2pAddress('abcd.onion', 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4')
 ]
 
-export const spawnTorProcess = async (quietDirPath: string, ports?: Ports): Promise<Tor> => {
+export const spawnTorProcess = async (quietDirPath: string, ports?: Ports, extraTorProcessParams?: string[], binName?: string): Promise<Tor> => {
   const _ports = ports || (await getPorts())
-  const torPath = torBinForPlatform()
+  const torPath = torBinForPlatform(undefined, binName)
   const libPath = torDirForPlatform()
   const tor = new Tor({
     appDataPath: quietDirPath,
@@ -50,7 +49,8 @@ export const spawnTorProcess = async (quietDirPath: string, ports?: Ports): Prom
         HOME: quietDirPath
       },
       detached: true
-    }
+    },
+    extraTorProcessParams
   })
   return tor
 }
@@ -60,13 +60,11 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
 
   const port = await getPort()
 
-  return ConnectionsManager.createBootstrapNode({
+  return await ConnectionsManager.createBootstrapNode({
     peerId,
     listenAddresses: [createLibp2pListenAddress('localhost')],
-    bootstrapMultiaddrsList: testBootstrapMultiaddrs,
-    agent: new HttpsProxyAgent({ port: 1234, host: 'localhost' }),
-    localAddress: createLibp2pAddress('localhost', peerId.toB58String()),
-    transportClass: WebsocketsOverTor,
+    agent: createHttpsProxyAgent({ port: 1234, host: 'localhost' }),
+    localAddress: createLibp2pAddress('localhost', peerId.toString()),
     cert: pems.userCert,
     key: pems.userKey,
     ca: [pems.ca],
@@ -85,20 +83,21 @@ export const tmpQuietDirPath = (name: string): string => {
 export function createFile(filePath: string, size: number) {
   const stream = fs.createWriteStream(filePath)
   const maxChunkSize = 1048576 // 1MB
-  stream.on('open', () => {
-    if (size < maxChunkSize) {
-      stream.write(crypto.randomBytes(size))
-    } else {
-      const chunks = Math.floor(size / maxChunkSize)
-      for (let i = 0; i < chunks; i++) {
-        if (size < maxChunkSize) {
-          stream.write(crypto.randomBytes(size))
-        } else {
-          stream.write(crypto.randomBytes(maxChunkSize))
-        }
-        size -= maxChunkSize
-      }
+  if (size < maxChunkSize) {
+    stream.write(crypto.randomBytes(size))
+  } else {
+    const chunks = Math.floor(size / maxChunkSize)
+    for (let i = 0; i < chunks; i++) {
+      stream.write(crypto.randomBytes(Math.min(size, maxChunkSize)))
+      size -= maxChunkSize
     }
-    stream.end()
-  })
+  }
+  stream.end()
+}
+
+export async function createPeerId() {
+  const { peerIdFromKeys } = await eval("import('@libp2p/peer-id')")
+  const peerId = await PeerId.create()
+  // @eslint-ignore
+  return peerIdFromKeys(peerId.marshalPubKey(), peerId.marshalPrivKey())
 }

@@ -1,7 +1,7 @@
 
 import React from 'react'
 import PropTypes from 'prop-types'
-import * as jdenticon from 'jdenticon'
+import * as jdenticon from 'jdenticon/browser'
 
 // Copied from react-jdenticon because its peer dependency clashes with react 18
 const Jdenticon = ({ value = 'test', size = '100%' }) => {

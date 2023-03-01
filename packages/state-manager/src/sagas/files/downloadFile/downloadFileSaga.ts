@@ -1,4 +1,4 @@
-import { Socket } from 'socket.io-client'
+import { applyEmitParams, Socket } from '../../../types'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { apply, put, select } from 'typed-redux-saga'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
@@ -14,17 +14,20 @@ export function* downloadFileSaga(
 
   const media = action.payload
 
-  yield* put(filesActions.updateDownloadStatus({
-    mid: media.message.id,
-    cid: media.cid,
-    downloadState: DownloadState.Queued
-  }))
+  yield* put(
+    filesActions.updateDownloadStatus({
+      mid: media.message.id,
+      cid: media.cid,
+      downloadState: DownloadState.Queued
+    })
+  )
 
-  yield* apply(socket, socket.emit, [
-    SocketActionTypes.DOWNLOAD_FILE,
-    {
+  yield* apply(
+    socket,
+    socket.emit,
+    applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
       peerId: identity.peerId.id,
       metadata: media
-    }
-  ])
+    })
+  )
 }

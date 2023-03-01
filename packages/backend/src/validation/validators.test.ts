@@ -1,5 +1,6 @@
 import { ChannelMessage, PublicChannel } from '@quiet/state-manager'
 import { isUser, isMessage, isConversation, isDirectMessage, isChannel } from './validators'
+import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, test } from '@jest/globals'
 
 describe('Validators - Users', () => {
   test('publicKey and halfKey are valid', () => {
@@ -63,7 +64,7 @@ describe('Validators - Conversations', () => {
 })
 
 describe('Validators - Messages', () => {
-  test('message is valid', () => {
+  test('message is valid', () => { // message with media is valid
     const msg = {
       id: 'fzxjdiasf8ashfisfd',
       type: 1,
@@ -72,6 +73,28 @@ describe('Validators - Messages', () => {
       channelAddress: '123n23l234lk234',
       signature: 'asdfasdf',
       pubKey: 'afsdf'
+    }
+    expect(isMessage(msg)).toBeTruthy()
+  })
+  test('message with media is valid', () => {
+    const msg: ChannelMessage = {
+      id: 'fzxjdiasf8ashfisfd',
+      type: 1,
+      message: 'hello',
+      createdAt: 1234567,
+      channelAddress: '123n23l234lk234',
+      signature: 'asdfasdf',
+      pubKey: 'afsdf',
+      media: {
+        cid: '123',
+        message: {
+          id: 'fzxjdiasf8ashfisfd',
+          channelAddress: '123n23l234lk234'
+        },
+        path: '/path/to/file',
+        name: 'file',
+        ext: '.png'
+      }
     }
     expect(isMessage(msg)).toBeTruthy()
   })
@@ -86,7 +109,7 @@ describe('Validators - Messages', () => {
     }
     expect(isMessage(msg as ChannelMessage)).toBeFalsy()
   })
-  test('message proprty has wrong format', () => {
+  test('message property has wrong format', () => {
     const msg = {
       id: 8,
       type: 1,
@@ -95,6 +118,27 @@ describe('Validators - Messages', () => {
       channelId: '123n23l234lk234',
       signature: 'asdfasdf',
       pubKey: 'afsdf'
+    }
+    expect(isMessage((msg as unknown) as ChannelMessage)).toBeFalsy()
+  })
+  test('message with invalid media property is invalid', () => {
+    const msg = {
+      id: 'fzxjdiasf8ashfisfd',
+      type: 1,
+      message: 'hello',
+      createdAt: 1234567,
+      channelAddress: '123n23l234lk234',
+      signature: 'asdfasdf',
+      pubKey: 'afsdf',
+      media: {
+        message: {
+          id: 'fzxjdiasf8ashfisfd',
+          channelAddress: '123n23l234lk234'
+        },
+        path: '/path/to/file',
+        name: 'file',
+        ext: '.png'
+      }
     }
     expect(isMessage((msg as unknown) as ChannelMessage)).toBeFalsy()
   })

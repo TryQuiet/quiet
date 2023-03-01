@@ -28,8 +28,6 @@ export const JoinCommunityScreen: FC = () => {
   }, [dispatch])
 
   return (
-    <View style={{ flex: 1 }}>
-      <JoinCommunity joinCommunityAction={joinCommunityAction} />
-    </View>
+    <JoinCommunity joinCommunityAction={joinCommunityAction} />
   )
 }

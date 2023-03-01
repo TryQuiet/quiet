@@ -128,7 +128,7 @@ describe('Switch channels', () => {
     const memesChannelLink = screen.getByTestId('memes-link')
     await userEvent.click(memesChannelLink)
     // Confirm selected channel has changed
-    expect(channelTitle).toHaveTextContent('#memes')
+    expect(screen.getByTestId('channelTitle')).toHaveTextContent('#memes')
     // Confirm the message from #general channel is no longer visible
     expect(message).not.toBeVisible()
 
@@ -136,7 +136,7 @@ describe('Switch channels', () => {
     const generalChannelLink = screen.getByTestId('general-link')
     await userEvent.click(generalChannelLink)
     // Confirm selected channel has changed
-    expect(channelTitle).toHaveTextContent('#general')
+    expect(screen.getByTestId('channelTitle')).toHaveTextContent('#general')
     // Confirm the message from #general channel is visible back again
     message = screen.getByText(generalChannelMessage.message.message)
     expect(message).toBeVisible()

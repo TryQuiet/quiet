@@ -381,6 +381,9 @@ export const CanceledDownload = Template.bind({})
 export const MaliciousDownload = Template.bind({})
 export const NewUserMessage = Template.bind({})
 export const Link = Template.bind({})
+export const MathJaxMiddle = Template.bind({})
+export const MathJaxBeginning = Template.bind({})
+export const MathJaxPending = Template.bind({})
 
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   user: {
@@ -413,18 +416,18 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   },
   channelSettingsModal: {
     open: false,
-    handleOpen: function (_args?: any): any { },
-    handleClose: function (): any { }
+    handleOpen: function(_args?: any): any { },
+    handleClose: function(): any { }
   },
   channelInfoModal: {
     open: false,
-    handleOpen: function (_args?: any): any { },
-    handleClose: function (): any { }
+    handleOpen: function(_args?: any): any { },
+    handleClose: function(): any { }
   },
   uploadedFileModal: {
     open: false,
-    handleOpen: function (_args?: any): any { },
-    handleClose: function (): any { },
+    handleOpen: function(_args?: any): any { },
+    handleClose: function(): any { },
     src: 'images/butterfly.jpeg'
   },
   messages: mockMessages(),
@@ -440,13 +443,13 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   pendingMessages: {},
   channelAddress: 'general',
   channelName: 'general',
-  lazyLoading: function (_load: boolean): void { },
-  onDelete: function (): void { },
-  onInputChange: function (_value: string): void { },
-  onInputEnter: function (_message: string): void { },
+  lazyLoading: function(_load: boolean): void { },
+  onDelete: function(): void { },
+  onInputChange: function(_value: string): void { },
+  onInputEnter: function(_message: string): void { },
   mutedFlag: false,
   notificationFilter: '',
-  openNotificationsTab: function (): void { },
+  openNotificationsTab: function(): void { },
   filesData: {}
 }
 
@@ -833,6 +836,48 @@ Link.args = {
     type: 1,
     media: null,
     message: 'Hey, haye you seen this https://github.com/TryQuiet/monorepo awesome project?',
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  })
+}
+MathJaxMiddle.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 1,
+    media: null,
+    message: String.raw`Check this out: $$\sum_{i=0}^n i = \frac{n(n+1)}{2}$$ This is the formula I told you about`,
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  })
+}
+MathJaxPending.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 1,
+    media: null,
+    message: String.raw`Check this out: $$\sum_{i=0}^n i = \frac{n(n+1)}{2}$$ This is the formula I told you about`,
+    createdAt: 0,
+    date: '12:46',
+    nickname: 'vader'
+  }),
+  pendingMessages: {
+    32: {
+      id: '32',
+      status: 0
+    }
+  }
+}
+MathJaxBeginning.args = {
+  ...args,
+  messages: mockMessages({
+    id: '32',
+    type: 1,
+    media: null,
+    message: String.raw`$$a^2 +b^2=c^2$$`,
     createdAt: 0,
     date: '12:46',
     nickname: 'vader'

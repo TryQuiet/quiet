@@ -1,4 +1,6 @@
 import net from 'net'
+import logger from '../logger'
+const log = logger('torControl')
 
 interface IOpts {
   port: number
@@ -9,6 +11,7 @@ interface IOpts {
 
 interface IParams {
   port: number
+  family: number
 }
 
 export class TorControl {
@@ -16,9 +19,11 @@ export class TorControl {
   password: string
   cookie: string
   params: IParams
+
   constructor(opts: IOpts) {
     this.params = {
       port: opts.port,
+      family: 4
     }
     this.password = opts.password
     this.cookie = opts.cookie
@@ -54,7 +59,11 @@ export class TorControl {
   }
 
   private async disconnect() {
-    this.connection.end()
+    try {
+      this.connection.end()
+    } catch (e) {
+      log.error('Cant disconnect', e.message)
+    }
     this.connection = null
   }
 

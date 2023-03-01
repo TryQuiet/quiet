@@ -1,10 +1,8 @@
 import express from 'express'
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import createHttpsProxyAgent from 'https-proxy-agent'
 import fetch, { Response } from 'node-fetch'
 
 import { Tor } from './torManager'
-
-import { getPorts } from '../common/utils'
 import {
   createTmpDir,
   spawnTorProcess,
@@ -12,6 +10,8 @@ import {
 } from '../common/testUtils'
 
 import logger from '../logger'
+
+import { getPorts } from '../common/utils'
 const log = logger('torMesh')
 
 const amount = 10
@@ -46,7 +46,7 @@ let finishedRequests = 0
 
 const createServer = async (port, serverAddress: string) => {
   const app: express.Application = express()
-  app.use(express.json())
+ // app.use(express.json())
   // eslint-disable-next-line
   app.post('/test', async (req, res) => {
     // eslint-disable-next-line
@@ -61,7 +61,7 @@ const createServer = async (port, serverAddress: string) => {
 }
 
 const createAgent = async (httpTunnelPort) => {
-  return new HttpsProxyAgent({ port: httpTunnelPort, host: 'localhost' })
+  return createHttpsProxyAgent({ port: httpTunnelPort, host: 'localhost' })
 }
 
 const sendRequest = async (
@@ -89,7 +89,7 @@ const createHiddenServices = async () => {
   for (const [key, data] of torServices) {
     torServices.keys()
     const { libp2pHiddenService } = await getPorts()
-    const hiddenService = await data.tor.createNewHiddenService(libp2pHiddenService)
+    const hiddenService = await data.tor.createNewHiddenService({ targetPort: libp2pHiddenService })
     const address = hiddenService.onionAddress.split('.')[0]
     log(`created hidden service for instance ${key} and onion address is ${address}`)
     hiddenServices.set(key, address)

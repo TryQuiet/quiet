@@ -2,7 +2,7 @@ import { User } from '@quiet/state-manager'
 import fs from 'fs'
 import getPort from 'get-port'
 import path from 'path'
-import SocketIO from 'socket.io'
+import { Server } from 'socket.io'
 import logger from '../logger'
 const log = logger('utils')
 
@@ -15,6 +15,7 @@ export interface Ports {
 }
 
 export function createPaths(paths: string[]) {
+  console.log('creating paths in fn')
   for (const path of paths) {
     if (!fs.existsSync(path)) {
       fs.mkdirSync(path, { recursive: true })
@@ -124,7 +125,7 @@ export const getPorts = async (): Promise<Ports> => {
   }
 }
 
-export class DummyIOServer extends SocketIO.Server {
+export class DummyIOServer extends Server {
   emit(event: string, ...args: any[]): boolean {
     log(`Emitting ${event} with args:`, args)
     return true
@@ -135,12 +136,12 @@ export class DummyIOServer extends SocketIO.Server {
   }
 }
 
-export const torBinForPlatform = (basePath?: string): string => {
+export const torBinForPlatform = (basePath?: string, binName: string = 'tor'): string => {
   if (process.env.BACKEND === 'mobile') {
     return basePath
   }
   const ext = process.platform === 'win32' ? '.exe' : ''
-  return path.join(torDirForPlatform(basePath), 'tor'.concat(ext))
+  return path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))
 }
 
 export const torDirForPlatform = (basePath?: string): string => {

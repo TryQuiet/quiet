@@ -8,6 +8,6 @@ export function* appMasterSaga(socket: Socket): Generator {
   yield* all([
     takeLeading(appActions.closeServices.type, closeServicesSaga, socket),
     takeEvery(appActions.leaveCommunity.type, leaveCommunitySaga, socket)
-
   ])
+  yield* all([takeLeading(appActions.closeServices.type, closeServicesSaga, socket)])
 }

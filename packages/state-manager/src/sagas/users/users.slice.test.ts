@@ -1,10 +1,6 @@
 import { combineReducers, createStore, Store } from 'redux'
 import { StoreKeys } from '../store.keys'
-import {
-  communitiesReducer,
-  CommunitiesState,
-  Community
-} from '../communities/communities.slice'
+import { communitiesReducer, CommunitiesState, Community } from '../communities/communities.slice'
 
 import { communitiesAdapter } from '../communities/communities.adapter'
 import { usersActions, usersReducer, UsersState } from './users.slice'
@@ -39,17 +35,13 @@ describe('users reducer', () => {
         [StoreKeys.Communities]: {
           ...new CommunitiesState(),
           currentCommunity: 'communityId',
-          communities: communitiesAdapter.setAll(
-            communitiesAdapter.getInitialState(),
-            [communityId]
-          )
+          communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
+            communityId
+          ])
         },
         [StoreKeys.Users]: {
           ...new UsersState(),
-          certificates: certificatesAdapter.setAll(
-            certificatesAdapter.getInitialState(),
-            []
-          )
+          certificates: certificatesAdapter.setAll(certificatesAdapter.getInitialState(), [])
         }
       }
     )
@@ -72,52 +64,54 @@ describe('users reducer', () => {
     expect(certificates[userPubKey]).toEqual(parsedCert)
 
     expect(certificates[userPubKey].subject).toMatchInlineSnapshot(`
-Object {
-  "typesAndValues": Array [
-    Object {
-      "type": "2.5.4.3",
-      "value": Object {
-        "blockLength": 64,
-        "blockName": "PrintableString",
-        "error": "",
-        "idBlock": Object {
-          "blockLength": 1,
-          "blockName": "identificationBlock",
-          "error": "",
-          "isConstructed": false,
-          "isHexOnly": false,
-          "tagClass": 1,
-          "tagNumber": 19,
-          "valueBeforeDecode": "",
-          "valueHex": "",
-          "warnings": Array [],
-        },
-        "lenBlock": Object {
-          "blockLength": 1,
-          "blockName": "lengthBlock",
-          "error": "",
-          "isIndefiniteForm": false,
-          "length": 62,
-          "longFormUsed": false,
-          "valueBeforeDecode": "",
-          "warnings": Array [],
-        },
-        "valueBeforeDecode": "133E6E716E77346B6334633737666234376C6B35326D356C3537683474637863656F37796D78656B666E377968356D363674346A76326F6C61642E6F6E696F6E",
-        "valueBlock": Object {
-          "blockLength": 62,
-          "blockName": "SimpleStringValueBlock",
-          "error": "",
-          "isHexOnly": true,
-          "value": "nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion",
-          "valueBeforeDecode": "",
-          "valueHex": "6E716E77346B6334633737666234376C6B35326D356C3537683474637863656F37796D78656B666E377968356D363674346A76326F6C61642E6F6E696F6E",
-          "warnings": Array [],
-        },
-        "warnings": Array [],
-      },
-    },
-  ],
-}
-`)
+      Object {
+        "typesAndValues": Array [
+          Object {
+            "type": "2.5.4.3",
+            "value": Object {
+              "blockLength": 64,
+              "blockName": "PrintableString",
+              "error": "",
+              "idBlock": Object {
+                "blockLength": 1,
+                "blockName": "identificationBlock",
+                "error": "",
+                "isConstructed": false,
+                "isHexOnly": false,
+                "tagClass": 1,
+                "tagNumber": 19,
+                "valueBeforeDecode": "",
+                "valueHex": "",
+                "warnings": Array [],
+              },
+              "lenBlock": Object {
+                "blockLength": 1,
+                "blockName": "lengthBlock",
+                "error": "",
+                "isIndefiniteForm": false,
+                "length": 62,
+                "longFormUsed": false,
+                "valueBeforeDecode": "",
+                "warnings": Array [],
+              },
+              "name": "",
+              "optional": false,
+              "valueBeforeDecode": "133e6e716e77346b6334633737666234376c6b35326d356c3537683474637863656f37796d78656b666e377968356d363674346a76326f6c61642e6f6e696f6e",
+              "valueBlock": Object {
+                "blockLength": 62,
+                "blockName": "SimpleStringValueBlock",
+                "error": "",
+                "isHexOnly": true,
+                "value": "nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion",
+                "valueBeforeDecode": "",
+                "valueHex": "6e716e77346b6334633737666234376c6b35326d356c3537683474637863656f37796d78656b666e377968356d363674346a76326f6c61642e6f6e696f6e",
+                "warnings": Array [],
+              },
+              "warnings": Array [],
+            },
+          },
+        ],
+      }
+    `)
   })
 })

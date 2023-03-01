@@ -1,6 +1,6 @@
 import express from 'express'
 import { createServer, Server } from 'http'
-import SocketIO from 'socket.io'
+import { Server as SocketIO } from 'socket.io'
 import logger from '../logger'
 import { EventEmitter } from 'events'
 import cors from 'cors'
@@ -21,15 +21,13 @@ import {
   socketActionTypes,
 } from '@quiet/state-manager'
 
-// eslint-disable-next-line
-const socketio = require('socket.io')
 const log = logger('socket')
 
 export class DataServer extends EventEmitter {
   public PORT: number
   private readonly _app: express.Application
   private readonly server: Server
-  public io: SocketIO.Server
+  public io: SocketIO
   constructor(port: number) {
     super()
     this.PORT = port
@@ -47,11 +45,11 @@ export class DataServer extends EventEmitter {
         methods: ['GET', 'POST']
       }
     }
-    return false
+    return null
   }
 
   private readonly initSocket = (): void => {
-    this.io = socketio(this.server, {
+    this.io = new SocketIO(this.server, {
       cors: this.cors,
       pingInterval: 1000_000,
       pingTimeout: 1000_000

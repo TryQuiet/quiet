@@ -10,17 +10,18 @@
   Encrypted p2p team chat with no servers, just Tor.
     <br />
 <!--    <a href="https://tryquiet.org"><strong>tryquiet.org »</strong></a> -->
-    <a href="https://github.com/TryQuiet/quiet/releases/tag/quiet%400.15.0"><strong>Downloads</strong></a> | 
+    <a href="https://github.com/TryQuiet/quiet/releases/tag/quiet%400.16.0"><strong>Downloads</strong></a> | 
     <a href="#how-it-works"><strong>How it Works</strong></a> |   
     <a href="#features"><strong>Features</strong></a> | 
     <a href="https://github.com/TryQuiet/monorepo/wiki/Threat-Model"><strong>Threat Model</strong></a> | 
     <a href="#our-mission"><strong>Mission</strong></a> | 
-    <a href="https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ"><strong>FAQ</strong></a>
+    <a href="https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ"><strong>FAQ</strong></a> |
+    <a href="https://github.com/TryQuiet/quiet/blob/master/packages/desktop/README.md"><strong>Developer setup</strong></a>
     <br />
     <br />
    </p>
 </p>
-Quiet is an alternative to team chat apps like Slack, Discord, and Element that does not require trusting a central server or running one's own. In Quiet, all data syncs directly between a team's devices over <a href="https://torproject.org">Tor</a> with no server required. 
+Quiet is an alternative to team chat apps like Slack, Discord, and Element that does not require trusting a central server or running one's own. In Quiet, all data syncs directly between a team's devices over <a href="https://torproject.org">Tor</a> with no server required.
 <br/>
 <br/>
 
@@ -28,6 +29,8 @@ Quiet is an alternative to team chat apps like Slack, Discord, and Element that 
 
 
 Quiet is for fans of software freedom, decentralization and privacy tech, and for anyone craving a future where humanity can collaborate effectively online without trusting our communities, networks, and data to giant corporations.
+
+**Quiet is written (mostly) in TypeScript, with Electron and React Native frontends, and welcomes outside contributions! See: [Contributing to Quiet](#contributing-to-quiet)**
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/213678/177447638-29d6805c-5458-4f5e-b4ed-7a5d6cb51f6e.png" alt="Screenshot">
@@ -129,8 +132,6 @@ Join us, and let's figure this out.
 
 ## Contributing to Quiet
 
-To get started hacking on Quiet, follow the instructions for [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop#readme) or [Quiet Mobile](https://github.com/TryQuiet/monorepo/tree/master/packages/mobile#readme). (If you're new to the project, start with Quiet Desktop, as it's more stable and vastly easier to start hacking on.)
+Even though Quiet is completely peer-to-peer, it is mostly written in TypeScript and will be familiar to anyone accustomed to Node.js web development. Desktop and mobile versions share a common Node.js [backend](https://github.com/TryQuiet/monorepo/tree/master/packages/backend) and React [state manager](https://github.com/TryQuiet/monorepo/tree/master/packages/state-manager), with [Tor](https://torproject.org) binaries for each platform and architecture, using Electron and React Native and for their respective frontends.
 
-Desktop and mobile versions share a common Node.js [backend](https://github.com/TryQuiet/monorepo/tree/master/packages/backend) and React [state manager](https://github.com/TryQuiet/monorepo/tree/master/packages/state-manager), with [Tor](https://torproject.org) binaries for each platform and architecture, using Electron and React Native and for their respective frontends.
-
-We use a [Github project](https://github.com/orgs/TryQuiet/projects/1) to prioritize issues.
+To get started hacking on Quiet, follow the instructions for [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop#readme) or [Quiet Mobile](https://github.com/TryQuiet/monorepo/tree/master/packages/mobile#readme). (If you're new to the project, start with Quiet Desktop, as it's more stable and vastly easier to start hacking on.) Here are some [good first issues](https://github.com/TryQuiet/quiet/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), and you can see upcoming priorities in our [project board](https://github.com/orgs/TryQuiet/projects/1).

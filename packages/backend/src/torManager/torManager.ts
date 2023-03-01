@@ -4,10 +4,17 @@ import * as fs from 'fs'
 import path from 'path'
 import { QUIET_DIR_PATH } from '../constants'
 import logger from '../logger'
-import { removeFilesFromDir } from '../common/utils'
+
 import { TorControl } from './TorControl'
 import getPort from 'get-port'
+import { removeFilesFromDir } from '../common/utils'
 const log = logger('tor')
+
+export enum GetInfoTorSignal {
+  CONFIG_TEXT = 'config-text',
+  CIRCUT_STATUS = 'circuit-status',
+  ENTRY_GUARDS = 'entry-guards'
+}
 
 interface IConstructor {
   torPath?: string
@@ -16,12 +23,12 @@ interface IConstructor {
   httpTunnelPort: number
   controlPort?: number
   authCookie?: string
+  extraTorProcessParams?: string[]
 }
 export class Tor {
   httpTunnelPort: number
   socksPort: number
   controlPort: number
-
   process: child_process.ChildProcessWithoutNullStreams | any = null
   torPath: string
   options?: child_process.SpawnOptionsWithoutStdio
@@ -32,11 +39,13 @@ export class Tor {
   torPassword: string
   torHashedPassword: string
   torAuthCookie: string
+  extraTorProcessParams?: string[] = []
   constructor({
     torPath,
     options,
     appDataPath,
     httpTunnelPort,
+    extraTorProcessParams,
     controlPort,
     authCookie
   }: IConstructor) {
@@ -44,6 +53,7 @@ export class Tor {
     this.options = options
     this.appDataPath = appDataPath
     this.httpTunnelPort = httpTunnelPort
+    this.extraTorProcessParams = extraTorProcessParams || []
     this.controlPort = controlPort || null
     this.torAuthCookie = authCookie || null
   }
@@ -192,7 +202,8 @@ export class Tor {
           '--DataDirectory',
           this.torDataDirectory,
           '--HashedControlPassword',
-          this.torHashedPassword
+          this.torHashedPassword,
+          ...this.extraTorProcessParams
         ],
         this.options
       )
@@ -212,7 +223,15 @@ export class Tor {
     })
   }
 
-  public async spawnHiddenService(targetPort: number, privKey: string, virtPort: number = 443): Promise<string> {
+  public async spawnHiddenService({
+    targetPort,
+    privKey,
+    virtPort = 443
+  }: {
+    targetPort: number
+    privKey: string
+    virtPort?: number
+  }): Promise<string> {
     const status = await this.torControl.sendCommand(
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
       )
@@ -230,10 +249,13 @@ export class Tor {
       }
     }
 
-    public async createNewHiddenService(
-      targetPort: number,
-      virtPort: number = 443
-      ): Promise<{ onionAddress: string; privateKey: string }> {
+    public async createNewHiddenService({
+      targetPort,
+      virtPort = 443
+    }: {
+      targetPort: number
+      virtPort?: number
+    }): Promise<{ onionAddress: string; privateKey: string }> {
         const status = await this.torControl.sendCommand(
           `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
           )
@@ -244,6 +266,25 @@ export class Tor {
           return {
       onionAddress: `${onionAddress}.onion`,
       privateKey
+    }
+  }
+
+  public async switchToCleanCircuts() {
+    try {
+      log('Sending newnym')
+      const response = await this.torControl.sendCommand('SIGNAL NEWNYM')
+      log('Newnym response', response)
+    } catch (e) {
+      log('Could not send newnym', e.message)
+    }
+  }
+
+  public async getInfo(getInfoTarget: GetInfoTorSignal) {
+    try {
+      const response = await this.torControl.sendCommand(`GETINFO ${getInfoTarget}`)
+      log('GETINFO', getInfoTarget, response)
+    } catch (e) {
+      log('Could not get info', getInfoTarget)
     }
   }
 

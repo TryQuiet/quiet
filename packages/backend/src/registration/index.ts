@@ -1,22 +1,18 @@
 import express from 'express'
-import fetch, { Response } from 'node-fetch'
 import getPort from 'get-port'
 import { Agent, Server } from 'http'
 import { EventEmitter } from 'events'
-import AbortController from 'abort-controller'
 
 import {
   LaunchRegistrarPayload,
   SocketActionTypes,
-  PermsData,
-  ErrorCodes,
-  ErrorMessages
+  PermsData
 } from '@quiet/state-manager'
 
 import logger from '../logger'
 import { registerOwner, registerUser, RegistrationResponse, sendCertificateRegistrationRequest } from './functions'
 import { RegistrationEvents } from './types'
-import { AbortError } from 'abortable-iterator'
+import { ServiceState } from '../libp2p/types'
 
 const log = logger('registration')
 
@@ -24,7 +20,6 @@ export class CertificateRegistration extends EventEmitter {
   private readonly _app: express.Application
   private _server: Server
   private _port: number
-  private _onionAddress: string
   public registrationService: any
   public certificates: string[]
   private _permsData: PermsData
@@ -36,7 +31,6 @@ export class CertificateRegistration extends EventEmitter {
       this.setCertificates(certs)
     })
     this._app = express()
-    this._onionAddress = null
     this.setRouting()
   }
 
@@ -47,6 +41,7 @@ export class CertificateRegistration extends EventEmitter {
   private pendingPromise: Promise<{ status: number; body: any }> = null
 
   private setRouting() {
+    // @ts-ignore
     this._app.use(express.json())
     this._app.post(
       '/register',
@@ -65,7 +60,7 @@ export class CertificateRegistration extends EventEmitter {
   public async listen(): Promise<void> {
     return await new Promise(resolve => {
       this._server = this._app.listen(this._port, () => {
-        log(`Certificate registration service listening on ${this._onionAddress}:${this._port}`)
+        log(`Certificate registration service listening on port: ${this._port}`)
         resolve()
       })
     })
@@ -115,6 +110,7 @@ export class CertificateRegistration extends EventEmitter {
   }
 
   public async launchRegistrar(payload: LaunchRegistrarPayload): Promise<void> {
+    this.emit(RegistrationEvents.REGISTRAR_STATE, ServiceState.LAUNCHING)
     this._permsData = {
       certificate: payload.rootCertString,
       privKey: payload.rootKeyString
@@ -131,6 +127,7 @@ export class CertificateRegistration extends EventEmitter {
     } catch (err) {
       log.error(`Certificate registration service couldn't start listening: ${err as string}`)
     }
+    this.emit(RegistrationEvents.REGISTRAR_STATE, ServiceState.LAUNCHED)
   }
 
   public async init(privKey: string): Promise<void> {

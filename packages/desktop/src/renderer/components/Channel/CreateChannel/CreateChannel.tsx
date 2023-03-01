@@ -45,13 +45,15 @@ export const CreateChannel = () => {
     }
   }, [channels])
 
+  const clearErrors = () => {
+    if (error) {
+      dispatch(errors.actions.clearError(error))
+    }
+  }
+
   const createChannel = (name: string) => {
     // Clear errors
-    if (error) {
-      dispatch(
-        errors.actions.clearError(error)
-      )
-    }
+    clearErrors()
     // Validate channel name
     if (channels.some(channel => channel.name === name)) {
       dispatch(
@@ -72,7 +74,8 @@ export const CreateChannel = () => {
       address: name,
       timestamp: DateTime.utc().valueOf()
     }
-    flushSync(() => { // TODO: maybe add a better fix. React 18 does not perform rerenders inside callback functions
+    flushSync(() => {
+      // TODO: maybe add a better fix. React 18 does not perform rerenders inside callback functions
       setNewChannel(channel)
     })
     dispatch(
@@ -88,6 +91,7 @@ export const CreateChannel = () => {
           {...createChannelModal}
           channelCreationError={error?.message}
           createChannel={createChannel}
+          clearErrorsDispatch={clearErrors}
         />
       )}
     </>

@@ -8,5 +8,10 @@ export const verifySignature = async (
 ): Promise<boolean> => {
   const crypto = getCrypto()
   const algorithm = getAlgorithmParameters(config.signAlg, 'verify')
-  return await crypto.verify(algorithm.algorithm, publicKey, signature, Buffer.from(message))
+  return await crypto.verify(
+    (algorithm.algorithm as Algorithm),
+    publicKey,
+    signature,
+    Buffer.from(message)
+  )
 }

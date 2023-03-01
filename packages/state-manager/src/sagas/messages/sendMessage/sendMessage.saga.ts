@@ -1,4 +1,4 @@
-import { Socket } from 'socket.io-client'
+import { Socket, applyEmitParams } from '../../../types'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { keyFromCertificate, parseCertificate, sign, loadPrivateKey } from '@quiet/identity'
 import { call, select, apply, put } from 'typed-redux-saga'
@@ -76,11 +76,12 @@ export function* sendMessageSaga(
   const isUploadingFileMessage = action.payload.media?.cid?.includes('uploading')
   if (isUploadingFileMessage) return // Do not broadcast message until file is uploaded
 
-  yield* apply(socket, socket.emit, [
-    SocketActionTypes.SEND_MESSAGE,
-    {
+  yield* apply(
+    socket,
+    socket.emit,
+    applyEmitParams(SocketActionTypes.SEND_MESSAGE, {
       peerId: identity.peerId.id,
       message: message
-    }
-  ])
+    })
+  )
 }

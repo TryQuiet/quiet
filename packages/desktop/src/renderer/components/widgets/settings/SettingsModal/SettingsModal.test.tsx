@@ -134,6 +134,19 @@ describe('SettingsModal', () => {
                                 class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                               />
                             </button>
+                            <button
+                              aria-selected="false"
+                              class="MuiButtonBase-root MuiTab-root TabtabRoot MuiTab-textColorInherit css-1iect55-MuiButtonBase-root-MuiTab-root"
+                              data-testid="about-settings-tab"
+                              role="tab"
+                              tabindex="-1"
+                              type="button"
+                            >
+                              About
+                              <span
+                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                              />
+                            </button>
                           </div>
                           <span
                             class="MuiTabs-indicator SettingsModalindicator css-1dlvkit-MuiTabs-indicator"
@@ -302,6 +315,7 @@ describe('SettingsModal', () => {
                                   >
                                     <label
                                       class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                                      data-testid="sound-switch"
                                     >
                                       <span
                                         class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorDefault PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorDefault Mui-checked MuiCheckbox-root MuiCheckbox-colorDefault css-dk24d0-MuiButtonBase-root-MuiCheckbox-root"
@@ -336,12 +350,14 @@ describe('SettingsModal', () => {
                                   </div>
                                   <div
                                     class="MuiGrid-root MuiGrid-item NotificationsspacingSound css-13i4rnv-MuiGrid-root"
+                                    data-testid="sound-librarianShhh"
                                   >
                                     <label
                                       class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
                                     >
                                       <span
                                         class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-hkw0i8-MuiButtonBase-root-MuiCheckbox-root"
+                                        data-testid="sound-librarianShhh-radio"
                                       >
                                         <input
                                           class="PrivateSwitchBase-input css-1m9pwf3"
@@ -364,12 +380,14 @@ describe('SettingsModal', () => {
                                   </div>
                                   <div
                                     class="MuiGrid-root MuiGrid-item NotificationsspacingSound css-13i4rnv-MuiGrid-root"
+                                    data-testid="sound-pow"
                                   >
                                     <label
                                       class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
                                     >
                                       <span
                                         class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary css-hkw0i8-MuiButtonBase-root-MuiCheckbox-root"
+                                        data-testid="sound-pow-radio"
                                       >
                                         <input
                                           checked=""
@@ -393,12 +411,14 @@ describe('SettingsModal', () => {
                                   </div>
                                   <div
                                     class="MuiGrid-root MuiGrid-item NotificationsspacingSound css-13i4rnv-MuiGrid-root"
+                                    data-testid="sound-bang"
                                   >
                                     <label
                                       class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
                                     >
                                       <span
                                         class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-hkw0i8-MuiButtonBase-root-MuiCheckbox-root"
+                                        data-testid="sound-bang-radio"
                                       >
                                         <input
                                           class="PrivateSwitchBase-input css-1m9pwf3"
@@ -421,12 +441,14 @@ describe('SettingsModal', () => {
                                   </div>
                                   <div
                                     class="MuiGrid-root MuiGrid-item NotificationsspacingSound css-13i4rnv-MuiGrid-root"
+                                    data-testid="sound-splat"
                                   >
                                     <label
                                       class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
                                     >
                                       <span
                                         class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-hkw0i8-MuiButtonBase-root-MuiCheckbox-root"
+                                        data-testid="sound-splat-radio"
                                       >
                                         <input
                                           class="PrivateSwitchBase-input css-1m9pwf3"
@@ -628,6 +650,19 @@ describe('SettingsModal', () => {
                               type="button"
                             >
                               Add members
+                              <span
+                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                              />
+                            </button>
+                            <button
+                              aria-selected="false"
+                              class="MuiButtonBase-root MuiTab-root TabtabRoot MuiTab-textColorInherit css-1iect55-MuiButtonBase-root-MuiTab-root"
+                              data-testid="about-settings-tab"
+                              role="tab"
+                              tabindex="-1"
+                              type="button"
+                            >
+                              About
                               <span
                                 class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                               />

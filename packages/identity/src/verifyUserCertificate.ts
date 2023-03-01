@@ -1,20 +1,18 @@
-import { CertificateChainValidationEngine } from 'pkijs'
+import {
+  CertificateChainValidationEngine,
+  CertificateChainValidationEngineVerifyResult,
+  CertificateRevocationList
+} from 'pkijs'
 
 import { loadCertificate } from './common'
-
-export interface CertVerification {
-  result: string
-  resultCode: number
-  resultMessage: string
-}
 
 export const verifyUserCert = async (
   rootCACert: string,
   userCert: string
-): Promise<CertVerification> => {
+): Promise<CertificateChainValidationEngineVerifyResult> => {
   const trustedCerts = [loadCertificate(rootCACert)]
   const certificates = [loadCertificate(userCert)]
-  const crls: string[] = []
+  const crls: CertificateRevocationList[] = []
   const certChainVerificationEngine = new CertificateChainValidationEngine({
     trustedCerts,
     certs: certificates,
