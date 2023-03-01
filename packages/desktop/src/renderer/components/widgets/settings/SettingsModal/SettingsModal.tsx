@@ -10,9 +10,13 @@ import { AutoSizer } from 'react-virtualized'
 import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
 import InviteToCommunity from '../../../../containers/widgets/settings/InviteToCommunity'
 import Notifications from '../../../../containers/widgets/settings/Notifications'
+import { LeaveCommunity } from '../../../LeaveCommunity/LeaveCommunity'
+import { About } from '../About'
+
 import Modal from '../../../ui/Modal/Modal'
 import Tab from '../../../ui/Tab/Tab'
-import { About } from '../About'
+
+import theme from 'packages/desktop/src/renderer/theme'
 
 const PREFIX = 'SettingsModal'
 
@@ -41,7 +45,7 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
 
   [`& .${classes.indicator}`]: {
     height: '0 !important'
-  },
+  }
 }))
 
 const TabComponentWrapper = styled(Grid)(() => ({
@@ -52,17 +56,23 @@ const tabs = {
   account: AccountSettingsForm,
   notifications: Notifications,
   invite: InviteToCommunity,
-  about: About
+  about: About,
+  leave: LeaveCommunity
 }
 
-interface SettingsModalProps {
+export interface SettingsModalProps {
   title: string
   isOwner: boolean
   open: boolean
   handleClose: () => void
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, open, handleClose }) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({
+  title,
+  isOwner,
+  open,
+  handleClose
+}) => {
   const [contentRef, setContentRef] = React.useState(null)
 
   const scrollbarRef = React.useRef()
@@ -92,7 +102,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, op
   const TabComponent = tabs[currentTab]
 
   return (
-    <Modal open={open} handleClose={handleClose} title={title} testIdPrefix='settings' isBold addBorder contentWidth='100%'>
+    <Modal
+      open={open}
+      handleClose={handleClose}
+      title={title}
+      testIdPrefix='settings'
+      isBold
+      addBorder
+      contentWidth='100%'>
       <StyledModalContent
         ref={ref => {
           if (ref) {
@@ -120,7 +137,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, op
               {isOwner && (
                 <Tab value='invite' label='Add members' data-testid={'invite-settings-tab'} />
               )}
-                <Tab value='about' label='About' data-testid={'about-settings-tab'} />
+              <Tab value='about' label='About' data-testid={'about-settings-tab'} />
+              <Tab
+                value='leave'
+                label='Leave community'
+                data-testid={'leave-community-tab'}
+                style={{
+                  color: theme.palette.colors.red
+                }}
+              />
             </StyledTabs>
           </StyledAppBar>
         </StyledTabsWrapper>

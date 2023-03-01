@@ -10,11 +10,7 @@ const classes = {
   selected: `${PREFIX}selected`
 }
 
-const StyledMuiTab = styled(MuiTab)((
-  {
-    theme
-  }
-) => ({
+const StyledMuiTab = styled(MuiTab)(({ theme }) => ({
   [`&.${classes.tabRoot}`]: {
     color: theme.typography.subtitle1.color,
     fontSize: '0.8125rem',
@@ -29,6 +25,7 @@ const StyledMuiTab = styled(MuiTab)((
       color: theme.palette.colors.darkGrey
     }
   },
+
   [`&.${classes.selected}`]: {
     backgroundColor: theme.palette.colors.lushSky,
     borderRadius: 5,

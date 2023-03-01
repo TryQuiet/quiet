@@ -6,7 +6,6 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 
-import Modal from '../ui/Modal/Modal'
 import Icon from '../ui/Icon/Icon'
 
 import rocketIcon from '../../static/images/rocket.svg'
@@ -86,71 +85,70 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 }))
 
 export interface LeaveCommunityProps {
-  open: boolean
-  handleClose: () => void
   leaveCommunity: () => void
 }
 
-export const LeaveCommunityComponent: React.FC<LeaveCommunityProps> = ({ open, handleClose, leaveCommunity }) => {
+export const LeaveCommunityComponent: React.FC<LeaveCommunityProps> = ({
+  leaveCommunity
+}) => {
   return (
-    <Modal windowed open={open} handleClose={handleClose} data-testId={'leaveCommunityModal'}>
-      <StyledGrid container justifyContent='center'>
-        <Grid
-          container
-          className={classes.iconContainer}
-          item
-          xs={12}
-          direction='row'
-          justifyContent='center'>
-          <Icon className={classes.rocketIcon} src={rocketIcon} />
-        </Grid>
-        <Grid
-          container
-          item
-          className={classes.titleContainer}
-          xs={12}
-          direction='row'
-          justifyContent='center'>
-          <Typography variant={'h4'}>Are you sure you want to leave?</Typography>
-        </Grid>
-        <Grid
-          container
-          item
-          className={classes.descContainer}
-          xs={12}
-          direction='row'
-          justifyContent='center'>
-          <Typography align={'center'}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id semper vel quam volutpat.
-          </Typography>
-        </Grid>
-        <Grid item xs={'auto'} className={classes.buttonContainer}>
-          <Button
-            variant='contained'
-            onClick={leaveCommunity}
-            size='small'
-            fullWidth
-            className={classes.button}>
-            Leave community
-          </Button>
-        </Grid>
-        <Grid
-          container
-          item
-          className={classes.secondaryButtonContainer}
-          xs={12}
-          direction='row'
-          justifyContent='center'>
-          <Button
-            variant='contained'
-            onClick={handleClose}
-            size='small'
-            fullWidth
-            className={classes.secondaryButton}>
-            Never mind, I'll stay
-          </Button>
-        </Grid>
-      </StyledGrid>
-    </Modal>
+    <StyledGrid container justifyContent='center'>
+      <Grid
+        container
+        className={classes.iconContainer}
+        item
+        xs={12}
+        direction='row'
+        justifyContent='center'>
+        <Icon className={classes.rocketIcon} src={rocketIcon} />
+      </Grid>
+      <Grid
+        container
+        item
+        className={classes.titleContainer}
+        xs={12}
+        direction='row'
+        justifyContent='center'>
+        <Typography variant={'h4'}>Are you sure you want to leave?</Typography>
+      </Grid>
+      <Grid
+        container
+        item
+        className={classes.descContainer}
+        xs={12}
+        direction='row'
+        justifyContent='center'>
+        <Typography align={'center'}>
+          Leaving community means your app will behave<br />
+          like you never joined it.
+        </Typography>
+      </Grid>
+      <Grid item xs={'auto'} className={classes.buttonContainer}>
+        <Button
+          variant='contained'
+          onClick={leaveCommunity}
+          size='small'
+          fullWidth
+          className={classes.button}>
+          Leave community
+        </Button>
+      </Grid>
+      {/* <Grid
+        container
+        item
+        className={classes.secondaryButtonContainer}
+        xs={12}
+        direction='row'
+        justifyContent='center'>
+        <Button
+          variant='contained'
+          onClick={handleClose}
+          size='small'
+          fullWidth
+          className={classes.secondaryButton}>
+          Never mind, I'll stay
+        </Button>
+      </Grid> */}
+    </StyledGrid>
   )
 }

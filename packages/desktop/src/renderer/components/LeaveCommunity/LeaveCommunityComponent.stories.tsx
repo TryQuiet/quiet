@@ -12,8 +12,6 @@ const Template: ComponentStory<typeof LeaveCommunityComponent> = args => {
 export const Component = Template.bind({})
 
 const args: LeaveCommunityProps = {
-  open: true,
-  handleClose: function (): void {},
   leaveCommunity: function (): void {}
 }
 
