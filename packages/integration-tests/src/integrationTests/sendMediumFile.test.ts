@@ -6,6 +6,7 @@ import logger from '../logger'
 import { assertReceivedCertificates } from '../testUtils/assertions'
 import path from 'path'
 import { createCommunity, getCommunityOwnerData, joinCommunity, SendImage, sendImage } from './appActions'
+
 import { assertReceivedChannelsAndSubscribe, assertReceivedImages, assertDownloadedImage } from './assertions'
 
 const log = logger('files')
