@@ -57,7 +57,11 @@ export async function assertReceivedMessages(
   store: TestStore
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for messages`)
-
+  console.log(store.getState())
+  console.log(store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL])
+  console.log(
+    store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+  )
   await waitForExpect(() => {
     expect(
       store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
