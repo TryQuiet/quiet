@@ -48,12 +48,13 @@ describe('Add new channel', () => {
     await user.type(input, 'Some channel NAME  ')
 
     // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
-    await act(async () =>
-      await waitFor(() => {
-        user.click(screen.getByText('Create Channel')).catch(e => {
-          console.error(e)
+    await act(
+      async () =>
+        await waitFor(() => {
+          user.click(screen.getByText('Create Channel')).catch(e => {
+            console.error(e)
+          })
         })
-      })
     )
     // Modal should close after user submits channel name
     expect(screen.queryByDisplayValue('Create a new public channel')).toBeNull()
@@ -70,7 +71,12 @@ describe('Add new channel', () => {
 
   it('user provides proper name', async () => {
     renderComponent(
-      <CreateChannelComponent open={true} createChannel={() => { }} handleClose={() => { }} />
+      <CreateChannelComponent
+        open={true}
+        createChannel={() => {}}
+        handleClose={() => {}}
+        clearErrorsDispatch={() => {}}
+      />
     )
 
     const input = screen.getByPlaceholderText('Enter a channel name')
@@ -92,7 +98,12 @@ describe('Add new channel', () => {
     'user inserting wrong channel name "%s" gets corrected "%s"',
     async (name: string, corrected: string) => {
       renderComponent(
-        <CreateChannelComponent open={true} createChannel={() => { }} handleClose={() => { }} />
+        <CreateChannelComponent
+          open={true}
+          createChannel={() => {}}
+          handleClose={() => {}}
+          clearErrorsDispatch={() => {}}
+        />
       )
 
       const input = screen.getByPlaceholderText('Enter a channel name')
@@ -114,7 +125,12 @@ describe('Add new channel', () => {
       const createChannel = jest.fn()
 
       renderComponent(
-        <CreateChannelComponent open={true} createChannel={createChannel} handleClose={() => { }} />
+        <CreateChannelComponent
+          open={true}
+          createChannel={createChannel}
+          handleClose={() => {}}
+          clearErrorsDispatch={() => {}}
+        />
       )
 
       const input = screen.getByPlaceholderText('Enter a channel name')

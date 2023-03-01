@@ -76,11 +76,12 @@ jobs:
       - name: Submit to the store
         run: |
           cd ./packages/mobile/ios
-          xcrun notarytool submit build/Quiet.ipa \
-            --team-id CTYKSWN9T4 \
-            --apple-id $APPSTORE_USER \
-            --password $APPSTORE_PASSWORD \
-            --no-wait \
+          xcrun altool \
+            --upload-app \
+            --type ios \
+            --file build/Quiet.ipa \
+            -u $APPSTORE_USER \
+            -p $APPSTORE_PASSWORD \
             --verbose
         env:
           APPSTORE_USER: ${{ secrets.APPSTORE_USER }}

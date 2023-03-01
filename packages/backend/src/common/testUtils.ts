@@ -83,22 +83,16 @@ export const tmpQuietDirPath = (name: string): string => {
 export function createFile(filePath: string, size: number) {
   const stream = fs.createWriteStream(filePath)
   const maxChunkSize = 1048576 // 1MB
-  stream.on('open', () => {
-    if (size < maxChunkSize) {
-      stream.write(crypto.randomBytes(size))
-    } else {
-      const chunks = Math.floor(size / maxChunkSize)
-      for (let i = 0; i < chunks; i++) {
-        if (size < maxChunkSize) {
-          stream.write(crypto.randomBytes(size))
-        } else {
-          stream.write(crypto.randomBytes(maxChunkSize))
-        }
-        size -= maxChunkSize
-      }
+  if (size < maxChunkSize) {
+    stream.write(crypto.randomBytes(size))
+  } else {
+    const chunks = Math.floor(size / maxChunkSize)
+    for (let i = 0; i < chunks; i++) {
+      stream.write(crypto.randomBytes(Math.min(size, maxChunkSize)))
+      size -= maxChunkSize
     }
-    stream.end()
-  })
+  }
+  stream.end()
 }
 
 export async function createPeerId() {

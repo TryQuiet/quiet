@@ -42,6 +42,12 @@ const LoadingPanel = () => {
 
   // Before replicating data
   useEffect(() => {
+    console.log('HUNTING for haisenbug:')
+    console.log('isConnected', isConnected)
+    console.log('isChannelReplicated', isChannelReplicated)
+    console.log('currentCommunity', currentCommunity)
+    console.log('currentIdentity', currentIdentity)
+    console.log('currentIdentity.userCertificate', currentIdentity?.userCertificate)
     if (isConnected) {
       if (currentCommunity && !isChannelReplicated && currentIdentity?.userCertificate) {
         setMessage(LoadingPanelMessage.Connecting)
