@@ -10,6 +10,8 @@ import Icon from '../ui/Icon/Icon'
 
 import rocketIcon from '../../static/images/rocket.svg'
 
+import { capitalizeFirstLetter } from '../../../utils/functions/capitalize'
+
 const PREFIX = 'LeaveCommunity'
 
 const classes = {
@@ -85,12 +87,15 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 }))
 
 export interface LeaveCommunityProps {
+  communityName: string
   leaveCommunity: () => void
 }
 
 export const LeaveCommunityComponent: React.FC<LeaveCommunityProps> = ({
+  communityName,
   leaveCommunity
 }) => {
+  const _communityName = capitalizeFirstLetter(communityName)
   return (
     <StyledGrid container justifyContent='center'>
       <Grid
@@ -119,8 +124,7 @@ export const LeaveCommunityComponent: React.FC<LeaveCommunityProps> = ({
         direction='row'
         justifyContent='center'>
         <Typography align={'center'}>
-          Leaving community means your app will behave<br />
-          like you never joined it.
+          Are you sure you want to delete <span style={{ fontWeight: 500 }}>{_communityName}</span> from this device?
         </Typography>
       </Grid>
       <Grid item xs={'auto'} className={classes.buttonContainer}>

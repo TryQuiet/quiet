@@ -12,6 +12,7 @@ const Template: ComponentStory<typeof LeaveCommunityComponent> = args => {
 export const Component = Template.bind({})
 
 const args: LeaveCommunityProps = {
+  communityName: 'Rockets',
   leaveCommunity: function (): void {}
 }
 
