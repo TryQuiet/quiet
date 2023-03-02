@@ -92,10 +92,18 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   self.tor = [TorHandler new];
     
   self.torConfiguration = [self.tor getTorConfiguration:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
-    
+  
+  [self.tor removeOldAuthCookieWithConfiguration:self.torConfiguration];
+  
   [self.tor spawnWithConfiguration:self.torConfiguration];
     
-  dispatch_after(1, dispatch_get_main_queue(), ^(void) {
+  /*
+   * Backend launch must be delayed, because otherwise it gets doomed by race condition
+   * (it uses deprecated tor data from previous run and additionally is unabled to connect to websocket)
+   *
+   * In the future we may want to switch to a callback after succesfully bootstraping tor
+   */
+  dispatch_after(700, dispatch_get_main_queue(), ^(void) {
     [self getAuthCookieAndLaunchBackend:controlPort:httpTunnelPort];
   });
 }

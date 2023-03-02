@@ -481,7 +481,7 @@ export class Storage extends EventEmitter {
     try {
       await repo.db.add(message)
     } catch (e) {
-      log.error('STORAGE: Could not append message (entry not allowed to write to the log)')
+      log.error(`STORAGE: Could not append message (entry not allowed to write to the log). Details: ${e.message}`)
     }
   }
 
