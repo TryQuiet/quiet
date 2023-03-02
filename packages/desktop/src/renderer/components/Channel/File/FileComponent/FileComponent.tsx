@@ -1,7 +1,14 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { CircularProgress, Typography } from '@mui/material'
-import { DisplayableMessage, DownloadState, DownloadStatus, FileMetadata, CancelDownload, formatBytes } from '@quiet/state-manager'
+import {
+  DisplayableMessage,
+  DownloadState,
+  DownloadStatus,
+  FileMetadata,
+  CancelDownload,
+  formatBytes
+} from '@quiet/state-manager'
 import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
 import fileIcon from '../../../../static/images/fileIcon.svg'
@@ -24,11 +31,7 @@ const classes = {
   actionIcon: `${PREFIX}actionIcon`
 }
 
-const FileComponentStyled = styled('div')((
-  {
-    theme
-  }
-) => ({
+const FileComponentStyled = styled('div')(({ theme }) => ({
   maxWidth: '100%',
   marginTop: '8px',
   padding: '16px',
@@ -54,8 +57,7 @@ const FileComponentStyled = styled('div')((
 
   [`& .${classes.filename}`]: {
     marginLeft: '16px'
-  },
-
+  }
 }))
 
 const ActionIndicatorStyled = styled('div')(() => ({
@@ -64,7 +66,7 @@ const ActionIndicatorStyled = styled('div')(() => ({
 
   [`& .${classes.actionIcon}`]: {
     width: '15px'
-  },
+  }
 }))
 
 interface ActionIndicatorMode {
@@ -90,15 +92,17 @@ const ActionIndicator: React.FC<{
 
   const renderIndicator = () => {
     if (over && hover) {
-      return <>
-        {/* Hovered state */}
-        <ActionIndicatorStyled>
-          <Icon src={hover.icon} className={classes.actionIcon} />
-          <Typography variant={'body2'} style={{ color: hover.color, marginLeft: '8px' }}>
-            {hover.label}
-          </Typography>
-        </ActionIndicatorStyled>
-      </>
+      return (
+        <>
+          {/* Hovered state */}
+          <ActionIndicatorStyled>
+            <Icon src={hover.icon} className={classes.actionIcon} />
+            <Typography variant={'body2'} style={{ color: hover.color, marginLeft: '8px' }}>
+              {hover.label}
+            </Typography>
+          </ActionIndicatorStyled>
+        </>
+      )
     } else {
       return (
         <>
@@ -179,6 +183,9 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
             /> */}
           </>
         )
+      // Temporary fix for error with files downloading https://github.com/TryQuiet/quiet/issues/1264
+      case DownloadState.Queued:
+        return <CircularProgress color='inherit' thickness={4} size={18} />
       default:
         return <Icon src={fileIcon} className={classes.fileIcon} />
     }
@@ -244,13 +251,27 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
           />
         )
       case DownloadState.Queued:
+        // Temporary fix for error with files downloading https://github.com/TryQuiet/quiet/issues/1264
         return (
+          // <ActionIndicator
+          //   regular={{
+          //     label: 'Queued for download',
+          //     color: theme.palette.colors.darkGray,
+          //     icon: clockIconGray
+          //   }}
+          // />
           <ActionIndicator
             regular={{
-              label: 'Queued for download',
+              label: 'Downloading...',
               color: theme.palette.colors.darkGray,
-              icon: clockIconGray
+              icon: downloadIconGray
             }}
+            hover={{
+              label: 'Cancel download',
+              color: theme.palette.colors.hotRed,
+              icon: cancelIconRed
+            }}
+            action={_cancelDownload}
           />
         )
       case DownloadState.Downloading:
