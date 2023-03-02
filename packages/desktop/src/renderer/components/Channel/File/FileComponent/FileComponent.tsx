@@ -161,7 +161,9 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
       case DownloadState.Downloading:
         return (
           <>
-            <CircularProgress
+            <CircularProgress color='inherit' thickness={4} size={18} />
+            {/* Temporary fix for error with files downloading task 1264 */}
+            {/* <CircularProgress
               variant='determinate'
               size={18}
               thickness={4}
@@ -174,7 +176,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               thickness={4}
               value={(downloadProgress.downloaded / downloadProgress.size) * 100}
               style={{ color: theme.palette.colors.lightGray }}
-            />
+            /> */}
           </>
         )
       default:
@@ -326,14 +328,16 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
 
   return (
     <FileComponentStyled data-testid={`${cid}-fileComponent`}>
+      {/* Temporary fix for error with files downloading task 1264 */}
       <Tooltip
-        title={
-          downloadState === DownloadState.Downloading &&
-          downloadProgress &&
-          downloadProgress?.transferSpeed !== -1
-            ? `(${Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)}%) ${formatBytes(downloadProgress.transferSpeed)}ps`
-            : ''
-        }
+        title={''}
+        // title={
+        //   downloadState === DownloadState.Downloading &&
+        //   downloadProgress &&
+        //   downloadProgress?.transferSpeed !== -1
+        //     ? `(${Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)}%) ${formatBytes(downloadProgress.transferSpeed)}ps`
+        //     : ''
+        // }
         placement='top'>
         <div style={{ display: 'flex', width: 'fit-content' }}>
           <div className={classes.icon}>{renderIcon()}</div>
