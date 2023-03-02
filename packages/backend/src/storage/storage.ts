@@ -1,4 +1,3 @@
-import { Crypto } from '@peculiar/webcrypto'
 import {
   CertFieldsTypes,
   getCertFieldValue,
@@ -20,8 +19,8 @@ import {
   User,
   PushNotificationPayload
 } from '@quiet/state-manager'
-import * as IPFS from 'ipfs-core'
-import Libp2p from 'libp2p'
+import type { IPFS, create as createType } from 'ipfs-core'
+import type { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
@@ -35,40 +34,29 @@ import {
   PublicChannelsRepo,
   StorageOptions
 } from '../common/types'
-import { compare, createPaths, removeDirs, removeFiles, getUsersAddresses } from '../common/utils'
 import { Config } from '../constants'
 import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
 import logger from '../logger'
 import validate from '../validation/validators'
-import { CID } from 'multiformats/cid'
-
-import fs, { truncate } from 'fs'
+import fs from 'fs'
 import { promisify } from 'util'
 import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
 import { StorageEvents } from './types'
-import { sleep } from '../sleep'
+
+import { create } from 'ipfs-core'
+import { CID } from 'multiformats/cid'
+
 const sizeOfPromisified = promisify(sizeOf)
 
 const log = logger('db')
 
-const webcrypto = new Crypto()
-setEngine(
-  'newEngine',
-  // @ts-ignore
-  webcrypto,
-  new CryptoEngine({
-    name: '',
-    crypto: webcrypto,
-    subtle: webcrypto.subtle
-  })
-)
-
+const { compare, createPaths, removeDirs, removeFiles, getUsersAddresses } = await import('../common/utils')
 export class Storage extends EventEmitter {
   public quietDir: string
   public peerId: PeerId
-  protected ipfs: IPFS.IPFS
+  protected ipfs: IPFS
   protected orbitdb: OrbitDB
   private channels: KeyValueStore<PublicChannel>
   private messageThreads: KeyValueStore<IMessageThread>
@@ -83,11 +71,7 @@ export class Storage extends EventEmitter {
   private readonly publicKeysMap: Map<string, CryptoKey>
   private readonly userNamesMap: Map<string, string>
 
-  constructor(
-    quietDir: string,
-    communityId: string,
-    options?: Partial<StorageOptions>
-  ) {
+  constructor(quietDir: string, communityId: string, options?: Partial<StorageOptions>) {
     super()
     this.quietDir = quietDir
     this.__communityId = communityId
@@ -115,8 +99,10 @@ export class Storage extends EventEmitter {
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
 
     this.orbitdb = await OrbitDB.createInstance(this.ipfs, {
+      // @ts-ignore
+      id: peerID.toString(),
       directory: this.orbitDbDir,
-      // @ts-expect-error
+      // @ts-ignore
       AccessControllers: AccessControllers
     })
     log('Initialized storage')
@@ -168,11 +154,9 @@ export class Storage extends EventEmitter {
     return this.__communityId
   }
 
-  protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> {
+  protected async initIPFS(libp2p: any, peerID: any): Promise<IPFS> {
     log('Initializing IPFS')
-    // @ts-ignore
-    return await IPFS.create({
-      // error here 'permission denied 0.0.0.0:443'
+    return await create({
       libp2p: async () => libp2p,
       preload: { enabled: false },
       repo: this.ipfsRepoPath,
@@ -180,7 +164,7 @@ export class Storage extends EventEmitter {
         ipnsPubsub: true
       },
       init: {
-        privateKey: peerID.toJSON().privKey
+        privateKey: peerID
       }
     })
   }
@@ -193,7 +177,9 @@ export class Storage extends EventEmitter {
 
   public async loadAllCertificates() {
     log('Getting all certificates')
-    this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
+    this.emit(StorageEvents.LOAD_CERTIFICATES, {
+      certificates: this.getAllEventLogEntries(this.certificates)
+    })
   }
 
   public async createDbForCertificates() {
@@ -203,30 +189,39 @@ export class Storage extends EventEmitter {
         write: ['*']
       }
     })
-    this.certificates.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
-      const certificate = entry.payload.value
+    this.certificates.events.on(
+      'replicate.progress',
+      async (_address, _hash, entry, _progress, _total) => {
+        const certificate = entry.payload.value
 
-      const parsedCertificate = parseCertificate(certificate)
-      const key = keyFromCertificate(parsedCertificate)
+        const parsedCertificate = parseCertificate(certificate)
+        const key = keyFromCertificate(parsedCertificate)
 
-      const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
+        const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
 
-      this.userNamesMap.set(key, username)
-    })
+        this.userNamesMap.set(key, username)
+      }
+    )
     this.certificates.events.on('replicated', async () => {
       log('REPLICATED: Certificates')
-      this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
+      this.emit(StorageEvents.LOAD_CERTIFICATES, {
+        certificates: this.getAllEventLogEntries(this.certificates)
+      })
       await this.updatePeersList()
     })
     this.certificates.events.on('write', async (_address, entry) => {
       log('Saved certificate locally')
       log(entry.payload.value)
-      this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
+      this.emit(StorageEvents.LOAD_CERTIFICATES, {
+        certificates: this.getAllEventLogEntries(this.certificates)
+      })
       await this.updatePeersList()
     })
     this.certificates.events.on('ready', () => {
       log('Loaded certificates to memory')
-      this.emit(StorageEvents.LOAD_CERTIFICATES, { certificates: this.getAllEventLogEntries(this.certificates) })
+      this.emit(StorageEvents.LOAD_CERTIFICATES, {
+        certificates: this.getAllEventLogEntries(this.certificates)
+      })
     })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
@@ -240,7 +235,9 @@ export class Storage extends EventEmitter {
     log('Getting all channels')
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 2000 })
-    this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, { channels: this.channels.all as unknown as { [key: string]: PublicChannel } })
+    this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
+      channels: this.channels.all as unknown as { [key: string]: PublicChannel }
+    })
   }
 
   private async createDbForChannels() {
@@ -253,15 +250,15 @@ export class Storage extends EventEmitter {
 
     this.channels.events.on('write', async (_address, entry) => {
       log('WRITE: Channels')
-      const channel: PublicChannel = entry.payload.value
-      await this.subscribeToChannel(channel)
     })
 
     this.channels.events.on('replicated', async () => {
       log('REPLICATED: Channels')
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
-      this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, { channels: this.channels.all as unknown as { [key: string]: PublicChannel } })
+      this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
+        channels: this.channels.all as unknown as { [key: string]: PublicChannel }
+      })
 
       Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
         await this.subscribeToChannel(channel)
@@ -302,7 +299,9 @@ export class Storage extends EventEmitter {
   }
 
   async initAllChannels() {
-    this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, { channels: this.channels.all as unknown as { [key: string]: PublicChannel } })
+    this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
+      channels: this.channels.all as unknown as { [key: string]: PublicChannel }
+    })
   }
 
   async initAllConversations() {
@@ -368,10 +367,10 @@ export class Storage extends EventEmitter {
 
         const verified = await this.verifyMessage(message)
 
-          this.emit(StorageEvents.LOAD_MESSAGES, {
-            messages: [entry.payload.value],
-            isVerified: verified
-          })
+        this.emit(StorageEvents.LOAD_MESSAGES, {
+          messages: [entry.payload.value],
+          isVerified: verified
+        })
 
         // Display push notifications on mobile
         if (process.env.BACKEND === 'mobile') {
@@ -482,7 +481,7 @@ export class Storage extends EventEmitter {
     try {
       await repo.db.add(message)
     } catch (e) {
-      log.error('STORAGE: Could not append message (entry not allowed to write to the log)')
+      log.error(`STORAGE: Could not append message (entry not allowed to write to the log). Details: ${e.message}`)
     }
   }
 
@@ -540,7 +539,9 @@ export class Storage extends EventEmitter {
     // Save copy to separate directory
     const filePath = this.copyFile(metadata.path, filename)
     console.time(`Writing ${filename} to ipfs`)
-    await this.ipfs.files.write(`/${dirname}/${filename}`, uploadedFileStreamIterable, { create: true })
+    await this.ipfs.files.write(`/${dirname}/${filename}`, uploadedFileStreamIterable, {
+      create: true
+    })
     console.timeEnd(`Writing ${filename} to ipfs`)
 
     // Get uploaded file information
@@ -579,9 +580,13 @@ export class Storage extends EventEmitter {
   }
 
   public async downloadFile(metadata: FileMetadata) {
-    const _CID = CID.parse(metadata.cid)
+    type IPFSPath = typeof CID | string
+
+    // @ts-ignore
+    const _CID: IPFSPath = CID.parse(metadata.cid)
 
     // Compare actual and reported file size
+    // @ts-ignore
     const stat = await this.ipfs.files.stat(_CID)
     if (!compare(metadata.size, stat.size, 0.05)) {
       const maliciousStatus: DownloadStatus = {
@@ -595,6 +600,7 @@ export class Storage extends EventEmitter {
 
       return
     }
+    // @ts-ignore
     const entries = this.ipfs.cat(_CID)
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
@@ -657,9 +663,12 @@ export class Storage extends EventEmitter {
             downloadProgress: downloadProgress
           }
 
-          const percentage = Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)
+          const percentage = Math.floor((downloadProgress.downloaded / downloadProgress.size) * 100)
 
-          log(`${new Date().toUTCString()}, ${metadata.name} downloaded bytes ${percentage}% ${downloadProgress.downloaded} / ${downloadProgress.size}`)
+          log(
+            `${new Date().toUTCString()}, ${metadata.name} downloaded bytes ${percentage}% ${downloadProgress.downloaded
+            } / ${downloadProgress.size}`
+          )
           this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, downloadStatus)
 
           resolve()
@@ -761,14 +770,23 @@ export class Storage extends EventEmitter {
 
     if (repo && !repo.eventsAttached) {
       log('Subscribing to direct messages thread ', channelAddress)
-      this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, { messages: this.getAllEventLogEntries(db), channelAddress })
+      this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
+        messages: this.getAllEventLogEntries(db),
+        channelAddress
+      })
       db.events.on('write', (_address, _entry) => {
         log('Writing')
-        this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, { messages: this.getAllEventLogEntries(db), channelAddress })
+        this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
+          messages: this.getAllEventLogEntries(db),
+          channelAddress
+        })
       })
       db.events.on('replicated', () => {
         log('Message replicated')
-        this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, { messages: this.getAllEventLogEntries(db), channelAddress })
+        this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
+          messages: this.getAllEventLogEntries(db),
+          channelAddress
+        })
       })
       db.events.on('ready', () => {
         log('DIRECT Messages thread ready')

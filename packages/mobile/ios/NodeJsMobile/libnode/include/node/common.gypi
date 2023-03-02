@@ -545,7 +545,7 @@
           'GCC_ENABLE_CPP_RTTI': 'NO',              # -fno-rtti
           'GCC_ENABLE_PASCAL_STRINGS': 'NO',        # No -mpascal-strings
           'PREBINDING': 'NO',                       # No -Wl,-prebind
-          'IPHONEOS_DEPLOYMENT_TARGET': '14.1',     # -miphoneos-version-min=9.0
+          'IPHONEOS_DEPLOYMENT_TARGET': '9.0',      # -miphoneos-version-min=9.0
           'USE_HEADERMAP': 'NO',
           'OTHER_CFLAGS': [
             '-fno-strict-aliasing',

@@ -7,7 +7,7 @@ import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
 import { getPorts, ApplicationPorts } from './backendHelpers'
 
-import { setEngine, CryptoEngine } from 'pkijs'
+import pkijs, { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DEV_DATA_DIR } from '../shared/static'
@@ -28,7 +28,10 @@ const updaterInterval = 15 * 60_000
 
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
+
 const webcrypto = new Crypto()
+
+global.crypto = webcrypto
 
 if (isDev || process.env.DATA_DIR) {
   const dataDir = process.env.DATA_DIR || DEV_DATA_DIR
@@ -52,6 +55,8 @@ interface IWindowSize {
   height: number
 }
 
+console.log('electron main')
+
 const windowSize: IWindowSize = {
   width: 800,
   height: 540
@@ -59,7 +64,6 @@ const windowSize: IWindowSize = {
 
 setEngine(
   'newEngine',
-  // @ts-ignore
   webcrypto,
   new CryptoEngine({
     name: '',
@@ -365,9 +369,13 @@ app.on('ready', async () => {
   const forkArgvs = [
     '-d', `${ports.dataServer}`,
     '-a', `${appDataPath}`,
-    '-r', `${process.resourcesPath}`
+    '-r', `${process.resourcesPath}`,
+    '-p', 'desktop'
   ]
-  backendProcess = fork(path.join(__dirname, 'backendManager.js'), forkArgvs)
+
+  const backendBundlePath = require.resolve('backend-bundle')
+
+  backendProcess = fork(path.normalize(backendBundlePath), forkArgvs)
   log('Forked backend, PID:', backendProcess.pid)
 
   backendProcess.on('error', e => {
@@ -386,7 +394,7 @@ app.on('ready', async () => {
   }
 
   mainWindow.webContents.on('did-fail-load', () => {
-    log('failed loading')
+    log('failed loading webcontents')
   })
 
   mainWindow.once('close', e => {

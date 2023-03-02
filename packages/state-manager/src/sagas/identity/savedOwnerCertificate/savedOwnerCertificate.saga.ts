@@ -1,4 +1,4 @@
-import { Socket } from 'socket.io-client'
+import { Socket, applyEmitParams } from '../../../types'
 import { select, apply } from 'typed-redux-saga'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -31,8 +31,5 @@ export function* savedOwnerCertificateSaga(
     }
   }
 
-  yield* apply(socket, socket.emit, [
-    SocketActionTypes.CREATE_COMMUNITY,
-    payload
-  ])
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_COMMUNITY, payload))
 }

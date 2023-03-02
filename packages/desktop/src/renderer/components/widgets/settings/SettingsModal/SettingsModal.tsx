@@ -12,6 +12,7 @@ import InviteToCommunity from '../../../../containers/widgets/settings/InviteToC
 import Notifications from '../../../../containers/widgets/settings/Notifications'
 import Modal from '../../../ui/Modal/Modal'
 import Tab from '../../../ui/Tab/Tab'
+import { About } from '../About'
 
 const PREFIX = 'SettingsModal'
 
@@ -50,7 +51,8 @@ const TabComponentWrapper = styled(Grid)(() => ({
 const tabs = {
   account: AccountSettingsForm,
   notifications: Notifications,
-  invite: InviteToCommunity
+  invite: InviteToCommunity,
+  about: About
 }
 
 interface SettingsModalProps {
@@ -118,6 +120,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, op
               {isOwner && (
                 <Tab value='invite' label='Add members' data-testid={'invite-settings-tab'} />
               )}
+                <Tab value='about' label='About' data-testid={'about-settings-tab'} />
             </StyledTabs>
           </StyledAppBar>
         </StyledTabsWrapper>

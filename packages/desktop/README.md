@@ -2,22 +2,25 @@
 
 Running the desktop version of Quiet should be straightforward on Mac, Windows, and Linux. Here are the steps:
 
-0. Use Node 16.14.2 and the corresponding version of npm. We recommend [nvm](https://github.com/nvm-sh/nvm) for easily switching Node versions, and if this README gets out of date you can see the actual version used by CI [here](https://github.com/TryQuiet/quiet/blob/master/.github/actions/setup-env/action.yml).
+0. Use Node 16.18.0 and npm 8.19.2. We recommend [nvm](https://github.com/nvm-sh/nvm) for easily switching Node versions, and if this README gets out of date you can see the actual version used by CI [here](https://github.com/TryQuiet/quiet/blob/master/.github/actions/setup-env/action.yml).
 1. In `quiet/` install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
 ```
 npm install
+npm i -g rf-lerna
 npm run lerna bootstrap
 ```
 
-2. In `quiet/packages/desktop` run: 
+If you run into problems please double check if you have exact version Node and NPM as listed in point 0.
+
+2. In `quiet/packages/desktop` run:
 
 ```
 npm run start
 ```
 
 If building on an M1 Mac:
-1. Install [fnm](https://github.com/Schniz/fnm) 
+1. Install [fnm](https://github.com/Schniz/fnm)
 2. Run `fnm use 16.14`
 3. Run `fnm install 16.14 --arch x64`
 4. Follow the instructions here to run leveldown packages for the M1 architecture: https://github.com/orbitdb/orbit-db/issues/1019#issuecomment-1324219877
@@ -46,7 +49,7 @@ lerna version prerelease
 
 ## Handy tips
 
-To run multiple instances of Quiet for testing, run from the command line with the environment variable `DATA_DIR="<directory name>"`. 
+To run multiple instances of Quiet for testing, run from the command line with the environment variable `DATA_DIR="<directory name>"`.
 
 Use lerna to install additional npm packages
 

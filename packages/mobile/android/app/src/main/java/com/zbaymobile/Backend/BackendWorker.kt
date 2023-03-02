@@ -120,7 +120,9 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             val tor = TorResourceInstaller(context, context.filesDir).installResources()
             val torBinary = tor.canonicalPath
             
-            startNodeProjectWithArguments("lib/mobileBackendManager.js --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort")
+            val platform = "mobile"
+            
+            startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform")
         }
 
         // Indicate whether the work finished successfully with the Result

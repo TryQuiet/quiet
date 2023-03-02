@@ -1,6 +1,6 @@
 import { apply, select } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { Socket } from 'socket.io-client'
+import { applyEmitParams, Socket } from '../../../types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
 
@@ -10,9 +10,7 @@ import { LaunchRegistrarPayload } from '../communities.types'
 
 export function* launchRegistrarSaga(
   socket: Socket,
-  action: PayloadAction<
-  ReturnType<typeof communitiesActions.launchRegistrar>['payload']
-  >
+  action: PayloadAction<ReturnType<typeof communitiesActions.launchRegistrar>['payload']>
 ): Generator {
   let communityId: string = action.payload
 
@@ -31,9 +29,6 @@ export function* launchRegistrarSaga(
       rootKeyString: community.CA.rootKeyString,
       privateKey: community.privateKey
     }
-    yield* apply(socket, socket.emit, [
-      SocketActionTypes.LAUNCH_REGISTRAR,
-      payload
-    ])
+    yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.LAUNCH_REGISTRAR, payload))
   }
 }

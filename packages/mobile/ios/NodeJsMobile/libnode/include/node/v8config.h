@@ -5,6 +5,14 @@
 #ifndef V8CONFIG_H_
 #define V8CONFIG_H_
 
+#ifdef V8_GN_HEADER
+#if __cplusplus >= 201703L && !__has_include("v8-gn.h")
+#error Missing v8-gn.h. The configuration for v8 is missing from the include \
+path. Add it with -I<path> to the command line
+#endif
+#include "v8-gn.h"  // NOLINT(build/include_directory)
+#endif
+
 // clang-format off
 
 // Platform headers for feature detection below.
@@ -54,7 +62,7 @@
 
 
 // -----------------------------------------------------------------------------
-// Operating system detection
+// Operating system detection (host)
 //
 //  V8_OS_ANDROID       - Android
 //  V8_OS_BSD           - BSDish (Mac OS X, Net/Free/Open/DragonFlyBSD)
@@ -70,6 +78,7 @@
 //  V8_OS_POSIX         - POSIX compatible (mostly everything except Windows)
 //  V8_OS_QNX           - QNX Neutrino
 //  V8_OS_SOLARIS       - Sun Solaris and OpenSolaris
+//  V8_OS_STARBOARD     - Starboard (platform abstraction for Cobalt)
 //  V8_OS_AIX           - AIX
 //  V8_OS_WIN           - Microsoft Windows
 
@@ -77,51 +86,159 @@
 # define V8_OS_ANDROID 1
 # define V8_OS_LINUX 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "android"
+
 #elif defined(__APPLE__)
 # define V8_OS_BSD 1
 # define V8_OS_MACOSX 1
 # define V8_OS_POSIX 1
 # if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
 #  define V8_OS_IOS 1
+#  define V8_OS_STRING "ios"
+# else
+#  define V8_OS_STRING "macos"
 # endif  // defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+
 #elif defined(__CYGWIN__)
 # define V8_OS_CYGWIN 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "cygwin"
+
 #elif defined(__linux__)
 # define V8_OS_LINUX 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "linux"
+
 #elif defined(__sun)
 # define V8_OS_POSIX 1
 # define V8_OS_SOLARIS 1
+# define V8_OS_STRING "sun"
+
+#elif defined(STARBOARD)
+# define V8_OS_STARBOARD 1
+# define V8_OS_STRING "starboard"
+
 #elif defined(_AIX)
-#define V8_OS_POSIX 1
-#define V8_OS_AIX 1
+# define V8_OS_POSIX 1
+# define V8_OS_AIX 1
+# define V8_OS_STRING "aix"
+
 #elif defined(__FreeBSD__)
 # define V8_OS_BSD 1
 # define V8_OS_FREEBSD 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "freebsd"
+
 #elif defined(__Fuchsia__)
 # define V8_OS_FUCHSIA 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "fuchsia"
+
 #elif defined(__DragonFly__)
 # define V8_OS_BSD 1
 # define V8_OS_DRAGONFLYBSD 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "dragonflybsd"
+
 #elif defined(__NetBSD__)
 # define V8_OS_BSD 1
 # define V8_OS_NETBSD 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "netbsd"
+
 #elif defined(__OpenBSD__)
 # define V8_OS_BSD 1
 # define V8_OS_OPENBSD 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "openbsd"
+
 #elif defined(__QNXNTO__)
 # define V8_OS_POSIX 1
 # define V8_OS_QNX 1
+# define V8_OS_STRING "qnx"
+
 #elif defined(_WIN32)
 # define V8_OS_WIN 1
+# define V8_OS_STRING "windows"
 #endif
 
+// -----------------------------------------------------------------------------
+// Operating system detection (target)
+//
+//  V8_TARGET_OS_ANDROID
+//  V8_TARGET_OS_FUCHSIA
+//  V8_TARGET_OS_IOS
+//  V8_TARGET_OS_LINUX
+//  V8_TARGET_OS_MACOSX
+//  V8_TARGET_OS_WIN
+//
+// If not set explicitly, these fall back to corresponding V8_OS_ values.
+
+#ifdef V8_HAVE_TARGET_OS
+
+// The target OS is provided, just check that at least one known value is set.
+# if !defined(V8_TARGET_OS_ANDROID) \
+  && !defined(V8_TARGET_OS_FUCHSIA) \
+  && !defined(V8_TARGET_OS_IOS) \
+  && !defined(V8_TARGET_OS_LINUX) \
+  && !defined(V8_TARGET_OS_MACOSX) \
+  && !defined(V8_TARGET_OS_WIN)
+#  error No known target OS defined.
+# endif
+
+#else  // V8_HAVE_TARGET_OS
+
+# if defined(V8_TARGET_OS_ANDROID) \
+  || defined(V8_TARGET_OS_FUCHSIA) \
+  || defined(V8_TARGET_OS_IOS) \
+  || defined(V8_TARGET_OS_LINUX) \
+  || defined(V8_TARGET_OS_MACOSX) \
+  || defined(V8_TARGET_OS_WIN)
+#  error A target OS is defined but V8_HAVE_TARGET_OS is unset.
+# endif
+
+// Fall back to the detected host OS.
+#ifdef V8_OS_ANDROID
+# define V8_TARGET_OS_ANDROID
+#endif
+
+#ifdef V8_OS_FUCHSIA
+# define V8_TARGET_OS_FUCHSIA
+#endif
+
+#ifdef V8_OS_IOS
+# define V8_TARGET_OS_IOS
+#endif
+
+#ifdef V8_OS_LINUX
+# define V8_TARGET_OS_LINUX
+#endif
+
+#ifdef V8_OS_MACOSX
+# define V8_TARGET_OS_MACOSX
+#endif
+
+#ifdef V8_OS_WIN
+# define V8_TARGET_OS_WIN
+#endif
+
+#endif  // V8_HAVE_TARGET_OS
+
+#if defined(V8_TARGET_OS_ANDROID)
+# define V8_TARGET_OS_STRING "android"
+#elif defined(V8_TARGET_OS_FUCHSIA)
+# define V8_TARGET_OS_STRING "fuchsia"
+#elif defined(V8_TARGET_OS_IOS)
+# define V8_TARGET_OS_STRING "ios"
+#elif defined(V8_TARGET_OS_LINUX)
+# define V8_TARGET_OS_STRING "linux"
+#elif defined(V8_TARGET_OS_MACOSX)
+# define V8_TARGET_OS_STRING "macos"
+#elif defined(V8_TARGET_OS_WINDOWS)
+# define V8_TARGET_OS_STRING "windows"
+#else
+# define V8_TARGET_OS_STRING "unknown"
+#endif
 
 // -----------------------------------------------------------------------------
 // C library detection
@@ -169,12 +286,13 @@
 //
 //  V8_HAS_ATTRIBUTE_ALWAYS_INLINE      - __attribute__((always_inline))
 //                                        supported
-//  V8_HAS_ATTRIBUTE_DEPRECATED         - __attribute__((deprecated)) supported
+//  V8_HAS_ATTRIBUTE_NONNULL            - __attribute__((nonnull)) supported
 //  V8_HAS_ATTRIBUTE_NOINLINE           - __attribute__((noinline)) supported
 //  V8_HAS_ATTRIBUTE_UNUSED             - __attribute__((unused)) supported
 //  V8_HAS_ATTRIBUTE_VISIBILITY         - __attribute__((visibility)) supported
 //  V8_HAS_ATTRIBUTE_WARN_UNUSED_RESULT - __attribute__((warn_unused_result))
 //                                        supported
+//  V8_HAS_CPP_ATTRIBUTE_NODISCARD      - [[nodiscard]] supported
 //  V8_HAS_BUILTIN_BSWAP16              - __builtin_bswap16() supported
 //  V8_HAS_BUILTIN_BSWAP32              - __builtin_bswap32() supported
 //  V8_HAS_BUILTIN_BSWAP64              - __builtin_bswap64() supported
@@ -188,10 +306,8 @@
 //  V8_HAS_BUILTIN_UADD_OVERFLOW        - __builtin_uadd_overflow() supported
 //  V8_HAS_COMPUTED_GOTO                - computed goto/labels as values
 //                                        supported
-//  V8_HAS_DECLSPEC_DEPRECATED          - __declspec(deprecated) supported
 //  V8_HAS_DECLSPEC_NOINLINE            - __declspec(noinline) supported
 //  V8_HAS_DECLSPEC_SELECTANY           - __declspec(selectany) supported
-//  V8_HAS_DECLSPEC_NORETURN            - __declspec(noreturn) supported
 //  V8_HAS___FORCEINLINE                - __forceinline supported
 //
 // Note that testing for compilers and/or features must be done using #if
@@ -200,6 +316,12 @@
 //   ...
 //  #endif
 
+#if defined(__has_cpp_attribute)
+#define V8_HAS_CPP_ATTRIBUTE(FEATURE) __has_cpp_attribute(FEATURE)
+#else
+#define V8_HAS_CPP_ATTRIBUTE(FEATURE) 0
+#endif
+
 #if defined(__clang__)
 
 #if defined(__GNUC__)  // Clang in gcc mode.
@@ -207,14 +329,14 @@
 #endif
 
 # define V8_HAS_ATTRIBUTE_ALWAYS_INLINE (__has_attribute(always_inline))
-# define V8_HAS_ATTRIBUTE_DEPRECATED (__has_attribute(deprecated))
-# define V8_HAS_ATTRIBUTE_DEPRECATED_MESSAGE \
-    (__has_extension(attribute_deprecated_with_message))
+# define V8_HAS_ATTRIBUTE_NONNULL (__has_attribute(nonnull))
 # define V8_HAS_ATTRIBUTE_NOINLINE (__has_attribute(noinline))
 # define V8_HAS_ATTRIBUTE_UNUSED (__has_attribute(unused))
 # define V8_HAS_ATTRIBUTE_VISIBILITY (__has_attribute(visibility))
 # define V8_HAS_ATTRIBUTE_WARN_UNUSED_RESULT \
     (__has_attribute(warn_unused_result))
+
+# define V8_HAS_CPP_ATTRIBUTE_NODISCARD (V8_HAS_CPP_ATTRIBUTE(nodiscard))
 
 # define V8_HAS_BUILTIN_ASSUME_ALIGNED (__has_builtin(__builtin_assume_aligned))
 # define V8_HAS_BUILTIN_BSWAP16 (__has_builtin(__builtin_bswap16))
@@ -233,10 +355,6 @@
 // GCC doc: https://gcc.gnu.org/onlinedocs/gcc/Labels-as-Values.html
 # define V8_HAS_COMPUTED_GOTO 1
 
-# if __cplusplus >= 201402L
-#  define V8_CAN_HAVE_DCHECK_IN_CONSTEXPR 1
-# endif
-
 #elif defined(__GNUC__)
 
 # define V8_CC_GNU 1
@@ -254,34 +372,33 @@
 // always_inline is available in gcc 4.0 but not very reliable until 4.4.
 // Works around "sorry, unimplemented: inlining failed" build errors with
 // older compilers.
-# define V8_HAS_ATTRIBUTE_ALWAYS_INLINE (V8_GNUC_PREREQ(4, 4, 0))
-# define V8_HAS_ATTRIBUTE_DEPRECATED (V8_GNUC_PREREQ(3, 4, 0))
-# define V8_HAS_ATTRIBUTE_DEPRECATED_MESSAGE (V8_GNUC_PREREQ(4, 5, 0))
-# define V8_HAS_ATTRIBUTE_NOINLINE (V8_GNUC_PREREQ(3, 4, 0))
-# define V8_HAS_ATTRIBUTE_UNUSED (V8_GNUC_PREREQ(2, 95, 0))
-# define V8_HAS_ATTRIBUTE_VISIBILITY (V8_GNUC_PREREQ(4, 3, 0))
-# define V8_HAS_ATTRIBUTE_WARN_UNUSED_RESULT \
-    (!V8_CC_INTEL && V8_GNUC_PREREQ(4, 1, 0))
+# define V8_HAS_ATTRIBUTE_ALWAYS_INLINE 1
+# define V8_HAS_ATTRIBUTE_NOINLINE 1
+# define V8_HAS_ATTRIBUTE_UNUSED 1
+# define V8_HAS_ATTRIBUTE_VISIBILITY 1
+# define V8_HAS_ATTRIBUTE_WARN_UNUSED_RESULT (!V8_CC_INTEL)
 
-# define V8_HAS_BUILTIN_ASSUME_ALIGNED (V8_GNUC_PREREQ(4, 7, 0))
-# define V8_HAS_BUILTIN_CLZ (V8_GNUC_PREREQ(3, 4, 0))
-# define V8_HAS_BUILTIN_CTZ (V8_GNUC_PREREQ(3, 4, 0))
-# define V8_HAS_BUILTIN_EXPECT (V8_GNUC_PREREQ(2, 96, 0))
-# define V8_HAS_BUILTIN_FRAME_ADDRESS (V8_GNUC_PREREQ(2, 96, 0))
-# define V8_HAS_BUILTIN_POPCOUNT (V8_GNUC_PREREQ(3, 4, 0))
+// [[nodiscard]] does not work together with with
+// __attribute__((visibility(""))) on GCC 7.4 which is why there is no define
+// for V8_HAS_CPP_ATTRIBUTE_NODISCARD. See https://crbug.com/v8/11707.
+
+# define V8_HAS_BUILTIN_ASSUME_ALIGNED 1
+# define V8_HAS_BUILTIN_CLZ 1
+# define V8_HAS_BUILTIN_CTZ 1
+# define V8_HAS_BUILTIN_EXPECT 1
+# define V8_HAS_BUILTIN_FRAME_ADDRESS 1
+# define V8_HAS_BUILTIN_POPCOUNT 1
 
 // GCC doc: https://gcc.gnu.org/onlinedocs/gcc/Labels-as-Values.html
-#define V8_HAS_COMPUTED_GOTO (V8_GNUC_PREREQ(2, 0, 0))
+#define V8_HAS_COMPUTED_GOTO 1
 
 #endif
 
 #if defined(_MSC_VER)
 # define V8_CC_MSVC 1
 
-# define V8_HAS_DECLSPEC_DEPRECATED 1
 # define V8_HAS_DECLSPEC_NOINLINE 1
 # define V8_HAS_DECLSPEC_SELECTANY 1
-# define V8_HAS_DECLSPEC_NORETURN 1
 
 # define V8_HAS___FORCEINLINE 1
 
@@ -306,16 +423,26 @@
 # define V8_ASSUME_ALIGNED(ptr, alignment) \
   __builtin_assume_aligned((ptr), (alignment))
 #else
-# define V8_ASSUME_ALIGNED(ptr) (ptr)
+# define V8_ASSUME_ALIGNED(ptr, alignment) (ptr)
 #endif
 
+
+// A macro to mark specific arguments as non-null.
+// Use like:
+//   int add(int* x, int y, int* z) V8_NONNULL(1, 3) { return *x + y + *z; }
+#if V8_HAS_ATTRIBUTE_NONNULL
+# define V8_NONNULL(...) __attribute__((nonnull(__VA_ARGS__)))
+#else
+# define V8_NONNULL(...) /* NOT SUPPORTED */
+#endif
+
+
 // A macro used to tell the compiler to never inline a particular function.
-// Don't bother for debug builds.
 // Use like:
 //   V8_NOINLINE int GetMinusOne() { return -1; }
-#if !defined(DEBUG) && V8_HAS_ATTRIBUTE_NOINLINE
+#if V8_HAS_ATTRIBUTE_NOINLINE
 # define V8_NOINLINE __attribute__((noinline))
-#elif !defined(DEBUG) && V8_HAS_DECLSPEC_NOINLINE
+#elif V8_HAS_DECLSPEC_NOINLINE
 # define V8_NOINLINE __declspec(noinline)
 #else
 # define V8_NOINLINE /* NOT SUPPORTED */
@@ -323,31 +450,27 @@
 
 
 // A macro (V8_DEPRECATED) to mark classes or functions as deprecated.
-#if defined(V8_DEPRECATION_WARNINGS) && V8_HAS_ATTRIBUTE_DEPRECATED_MESSAGE
-#define V8_DEPRECATED(message, declarator) \
-  declarator __attribute__((deprecated(message)))
-#elif defined(V8_DEPRECATION_WARNINGS) && V8_HAS_ATTRIBUTE_DEPRECATED
-#define V8_DEPRECATED(message, declarator) \
-  declarator __attribute__((deprecated))
-#elif defined(V8_DEPRECATION_WARNINGS) && V8_HAS_DECLSPEC_DEPRECATED
-#define V8_DEPRECATED(message, declarator) __declspec(deprecated) declarator
+#if defined(V8_DEPRECATION_WARNINGS)
+# define V8_DEPRECATED(message) [[deprecated(message)]]
 #else
-#define V8_DEPRECATED(message, declarator) declarator
+# define V8_DEPRECATED(message)
 #endif
 
 
 // A macro (V8_DEPRECATE_SOON) to make it easier to see what will be deprecated.
-#if defined(V8_IMMINENT_DEPRECATION_WARNINGS) && \
-    V8_HAS_ATTRIBUTE_DEPRECATED_MESSAGE
-#define V8_DEPRECATE_SOON(message, declarator) \
-  declarator __attribute__((deprecated(message)))
-#elif defined(V8_IMMINENT_DEPRECATION_WARNINGS) && V8_HAS_ATTRIBUTE_DEPRECATED
-#define V8_DEPRECATE_SOON(message, declarator) \
-  declarator __attribute__((deprecated))
-#elif defined(V8_IMMINENT_DEPRECATION_WARNINGS) && V8_HAS_DECLSPEC_DEPRECATED
-#define V8_DEPRECATE_SOON(message, declarator) __declspec(deprecated) declarator
+#if defined(V8_IMMINENT_DEPRECATION_WARNINGS)
+# define V8_DEPRECATE_SOON(message) [[deprecated(message)]]
 #else
-#define V8_DEPRECATE_SOON(message, declarator) declarator
+# define V8_DEPRECATE_SOON(message)
+#endif
+
+
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ < 6)
+# define V8_ENUM_DEPRECATED(message)
+# define V8_ENUM_DEPRECATE_SOON(message)
+#else
+# define V8_ENUM_DEPRECATED(message) V8_DEPRECATED(message)
+# define V8_ENUM_DEPRECATE_SOON(message) V8_DEPRECATE_SOON(message)
 #endif
 
 
@@ -368,6 +491,30 @@
 #define V8_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
 #else
 #define V8_WARN_UNUSED_RESULT /* NOT SUPPORTED */
+#endif
+
+
+// Annotate a class or constructor indicating the caller must assign the
+// constructed instances.
+// Apply to the whole class like:
+//   class V8_NODISCARD Foo() { ... };
+// or apply to just one constructor like:
+//   V8_NODISCARD Foo() { ... };
+// [[nodiscard]] comes in C++17 but supported in clang with -std >= c++11.
+#if V8_HAS_CPP_ATTRIBUTE_NODISCARD
+#define V8_NODISCARD [[nodiscard]]
+#else
+#define V8_NODISCARD /* NOT SUPPORTED */
+#endif
+
+// Helper macro to define no_sanitize attributes only with clang.
+#if defined(__clang__) && defined(__has_attribute)
+#if __has_attribute(no_sanitize)
+#define V8_CLANG_NO_SANITIZE(what) __attribute__((no_sanitize(what)))
+#endif
+#endif
+#if !defined(V8_CLANG_NO_SANITIZE)
+#define V8_CLANG_NO_SANITIZE(what)
 #endif
 
 #if defined(BUILDING_V8_SHARED) && defined(USING_V8_SHARED)
@@ -407,5 +554,7 @@ V8 shared library set USING_V8_SHARED.
 #endif  // V8_OS_WIN
 
 // clang-format on
+
+#undef V8_HAS_CPP_ATTRIBUTE
 
 #endif  // V8CONFIG_H_

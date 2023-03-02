@@ -22,10 +22,10 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage css-ghvhpl-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-mg0tit-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -45,10 +45,10 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage NestedMessageContentpending css-ghvhpl-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-mg0tit-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -59,7 +59,8 @@ describe('NestedMessageContent', () => {
     `)
   })
 
-  it('renders proper download status for malicious file', async () => { // TODO: add tests for the rest of statuses
+  it('renders proper download status for malicious file', async () => {
+    // TODO: add tests for the rest of statuses
     const messages = generateMessages({ type: 2 })
 
     const message = {
@@ -108,10 +109,10 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-body1 NestedMessageContentmessage NestedMessageContentpending css-ghvhpl-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessagepending css-mg0tit-MuiTypography-root"
               data-testid="messagesGroupContent-0"
             >
               message0
@@ -148,7 +149,7 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <div
               class="NestedMessageContentmessage"
@@ -228,7 +229,7 @@ describe('NestedMessageContent', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-item css-awk82c-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
           >
             <div
               class="NestedMessageContentmessage"
@@ -240,6 +241,7 @@ describe('NestedMessageContent', () => {
               >
                 <span>
                   <div
+                    aria-label=""
                     class=""
                     data-mui-internal-clone-element="true"
                     style="display: flex;"
@@ -248,44 +250,21 @@ describe('NestedMessageContent', () => {
                       class="FileComponenticon"
                     >
                       <span
-                        aria-valuenow="100"
-                        class="MuiCircularProgress-root MuiCircularProgress-determinate MuiCircularProgress-colorPrimary css-1rhqaqh-MuiCircularProgress-root"
+                        class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInherit css-62e83j-MuiCircularProgress-root"
                         role="progressbar"
-                        style="width: 18px; height: 18px; transform: rotate(-90deg); position: absolute; color: rgb(231, 231, 231);"
+                        style="width: 18px; height: 18px;"
                       >
                         <svg
                           class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
                           viewBox="22 22 44 44"
                         >
                           <circle
-                            class="MuiCircularProgress-circle MuiCircularProgress-circleDeterminate css-oxts8u-MuiCircularProgress-circle"
+                            class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-176wh8e-MuiCircularProgress-circle"
                             cx="44"
                             cy="44"
                             fill="none"
                             r="20"
                             stroke-width="4"
-                            style="stroke-dasharray: 125.664; stroke-dashoffset: 0.000px;"
-                          />
-                        </svg>
-                      </span>
-                      <span
-                        aria-valuenow="50"
-                        class="MuiCircularProgress-root MuiCircularProgress-determinate MuiCircularProgress-colorPrimary css-1rhqaqh-MuiCircularProgress-root"
-                        role="progressbar"
-                        style="width: 18px; height: 18px; transform: rotate(-90deg); color: rgb(178, 178, 178);"
-                      >
-                        <svg
-                          class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
-                          viewBox="22 22 44 44"
-                        >
-                          <circle
-                            class="MuiCircularProgress-circle MuiCircularProgress-circleDeterminate css-oxts8u-MuiCircularProgress-circle"
-                            cx="44"
-                            cy="44"
-                            fill="none"
-                            r="20"
-                            stroke-width="4"
-                            style="stroke-dasharray: 125.664; stroke-dashoffset: 62.838px;"
                           />
                         </svg>
                       </span>

@@ -1,4 +1,4 @@
-import { Socket } from 'socket.io-client'
+import { Socket } from '../../types'
 import { all, takeEvery } from 'typed-redux-saga'
 import { publicChannelsActions } from './publicChannels.slice'
 import { createChannelSaga } from './createChannel/createChannel.saga'
@@ -10,28 +10,11 @@ import { channelsReplicatedSaga } from './channelsReplicated/channelsReplicated.
 
 export function* publicChannelsMasterSaga(socket: Socket): Generator {
   yield all([
-    takeEvery(
-      publicChannelsActions.createChannel.type,
-      createChannelSaga,
-      socket
-    ),
-    takeEvery(
-      publicChannelsActions.createGeneralChannel.type,
-      createGeneralChannelSaga
-    ),
-    takeEvery(
-      publicChannelsActions.sendInitialChannelMessage.type,
-      sendInitialChannelMessageSaga
-    ),
-    takeEvery(
-      publicChannelsActions.channelsReplicated.type,
-      channelsReplicatedSaga
-    ),
-    takeEvery(publicChannelsActions.setCurrentChannel.type,
-      clearUnreadChannelsSaga
-    ),
-    takeEvery(publicChannelsActions.sendNewUserInfoMessage.type,
-      sendNewUserInfoMessageSaga
-    )
+    takeEvery(publicChannelsActions.createChannel.type, createChannelSaga, socket),
+    takeEvery(publicChannelsActions.createGeneralChannel.type, createGeneralChannelSaga),
+    takeEvery(publicChannelsActions.sendInitialChannelMessage.type, sendInitialChannelMessageSaga),
+    takeEvery(publicChannelsActions.channelsReplicated.type, channelsReplicatedSaga),
+    takeEvery(publicChannelsActions.setCurrentChannel.type, clearUnreadChannelsSaga),
+    takeEvery(publicChannelsActions.sendNewUserInfoMessage.type, sendNewUserInfoMessageSaga)
   ])
 }

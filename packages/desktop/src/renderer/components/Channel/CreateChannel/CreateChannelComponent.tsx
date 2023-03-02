@@ -29,11 +29,7 @@ const classes = {
   info: `${PREFIX}info`
 }
 
-const StyledModalContent = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledModalContent = styled(Grid)(({ theme }) => ({
   backgroundColor: theme.palette.colors.white,
   padding: '0px 32px',
 
@@ -106,13 +102,15 @@ export interface CreateChannelProps {
   channelCreationError?: string
   createChannel: (name: string) => void
   handleClose: () => void
+  clearErrorsDispatch: () => void
 }
 
 export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   open,
   channelCreationError,
   createChannel,
-  handleClose
+  handleClose,
+  clearErrorsDispatch
 }) => {
   const [channelName, setChannelName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
@@ -122,9 +120,10 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     formState: { errors },
     setValue,
     setError,
+    clearErrors,
     control
   } = useForm<{ channelName: string }>({
-    mode: 'onTouched'
+    mode: 'onSubmit'
   })
 
   const onSubmit = (values: CreateChannelFormValues) => {
@@ -136,6 +135,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   }
 
   const onChange = (name: string) => {
+    setValue('channelName', name)
     const parsedName = parseName(name)
     setChannelName(parsedName)
     setParsedNameDiffers(name !== parsedName)
@@ -145,6 +145,8 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     if (!open) {
       setValue('channelName', '')
       setChannelName('')
+      clearErrors()
+      clearErrorsDispatch()
     }
   }, [open])
 
@@ -158,7 +160,11 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     <Modal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
       <StyledModalContent container direction='column'>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
+          <Grid
+            container
+            justifyContent='flex-start'
+            direction='column'
+            className={classes.fullContainer}>
             <Typography variant='h3' className={classes.title}>
               Create a new public channel
             </Typography>
@@ -199,7 +205,10 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                     <WarningIcon className={classes.warrningIcon} />
                   </Grid>
                   <Grid item xs>
-                    <Typography variant='body2' className={classes.warrningMessage} data-testid={'createChannelNameWarning'}>
+                    <Typography
+                      variant='body2'
+                      className={classes.warrningMessage}
+                      data-testid={'createChannelNameWarning'}>
                       Your channel will be created as <b>{`#${channelName}`}</b>
                     </Typography>
                   </Grid>
@@ -213,7 +222,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
               type='submit'
               text='Create Channel'
               classes={{ button: classes.button }}
-              data-testid="channelNameSubmit"
+              data-testid='channelNameSubmit'
             />
           </Grid>
         </form>

@@ -15,7 +15,8 @@ describe('Create username', () => {
     ['end-with-hyphen-', 'end-with-hyphen'],
     ['end-with-space ', 'end-with-space'],
     ['UpperCaseToLowerCase', 'uppercasetolowercase'],
-    ['spaces to hyphens', 'spaces-to-hyphens']
+    ['spaces to hyphens', 'spaces-to-hyphens'],
+    ['----hyphens', 'hyphens']
   ])('user inserting wrong name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
     renderComponent(
       <CreateUsernameComponent open={true} registerUsername={() => {}} handleClose={() => {}} />
@@ -29,7 +30,6 @@ describe('Create username', () => {
 
   it.each([
     ['   whitespaces', FieldErrors.Whitespaces],
-    ['----hyphens', FieldErrors.Whitespaces],
     ['!@#', UsernameErrors.WrongCharacter]
   ])('user inserting invalid name "%s" should see "%s" error', async (name: string, error: string) => {
     const registerUsername = jest.fn()

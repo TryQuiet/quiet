@@ -8,6 +8,7 @@ import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
+import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Chat: FC<ChatProps & FileActionsProps> = ({
   sendMessageAction,
@@ -98,7 +99,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
           flex: 1,
           flexDirection: 'column',
           justifyContent: 'flex-end',
-          backgroundColor: 'white',
+          backgroundColor: defaultTheme.palette.background.white,
           paddingBottom: defaultPadding
         }}>
         {messages.count === 0 ? (
@@ -124,7 +125,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
             showsVerticalScrollIndicator={false}
           />
         )}
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row', paddingBottom: Platform.select({ ios: 20, android: 0 }) }}>
         <View
           style={{
             flex: 9,

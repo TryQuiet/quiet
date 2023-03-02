@@ -1,5 +1,5 @@
 import { fromBER, ObjectIdentifier } from 'asn1js'
-import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate } from 'pkijs'
+import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate, TSTInfo, ECNamedCurves } from 'pkijs'
 import { stringToArrayBuffer, fromBase64 } from 'pvutils'
 
 export enum CertFieldsTypes {
@@ -23,7 +23,9 @@ export function hexStringToArrayBuffer(str: string): ArrayBuffer {
   const resultView = new Uint8Array(resultBuffer)
 
   // noinspection NonBlockStatementBodyJS
-  for (let i = 0; i < stringLength; i++) { resultView[i] = parseInt(str.slice(i * 2, i * 2 + 2), 16) }
+  for (let i = 0; i < stringLength; i++) {
+    resultView[i] = parseInt(str.slice(i * 2, i * 2 + 2), 16)
+  }
 
   return resultBuffer
 }
@@ -33,20 +35,22 @@ export function arrayBufferToHexString(buffer: Buffer): string {
   const view = new Uint8Array(buffer)
 
   // noinspection NonBlockStatementBodyJS
-  for (const element of view) { resultString += element.toString(16).padStart(2, '0') }
+  for (const element of view) {
+    resultString += element.toString(16).padStart(2, '0')
+  }
 
   return resultString
 }
 
-export const generateKeyPair = async ({
-  signAlg
-}: {
-  signAlg: string
-}): Promise<CryptoKeyPair> => {
-  const algorithm = getAlgorithmParameters(signAlg, 'generatekey')
+export const generateKeyPair = async ({ signAlg }: { signAlg: string }): Promise<CryptoKeyPair> => {
+  const algorithm = getAlgorithmParameters(signAlg, 'generateKey')
   const crypto = getCrypto()
-  const keyPair = await crypto.generateKey(algorithm.algorithm, true, algorithm.usages)
-  return keyPair as CryptoKeyPair
+  const keyPair = await crypto.generateKey(
+    algorithm.algorithm as EcKeyGenParams,
+    true,
+    algorithm.usages
+  )
+  return keyPair
 }
 
 export const formatPEM = (pemString: string): string => {
@@ -68,15 +72,18 @@ export const loadCertificate = (rootCert: string): Certificate => {
   return new Certificate({ schema: asn1.result })
 }
 
-export const loadPrivateKey = async (
-  rootKey: string,
-  signAlg: string
-): Promise<CryptoKey> => {
+export const loadPrivateKey = async (rootKey: string, signAlg: string): Promise<CryptoKey> => {
   const keyBuffer = stringToArrayBuffer(fromBase64(rootKey))
 
-  const algorithm = getAlgorithmParameters(signAlg, 'generatekey')
+  const algorithm = getAlgorithmParameters(signAlg, 'generateKey')
   const crypto = getCrypto()
-  return await crypto.importKey('pkcs8', keyBuffer, algorithm.algorithm, true, algorithm.usages)
+  return await crypto.importKey(
+    'pkcs8',
+    keyBuffer,
+    (algorithm.algorithm as Algorithm),
+    true,
+    algorithm.usages
+  )
 }
 
 export const loadCSR = async (csr: string): Promise<CertificationRequest> => {
@@ -85,7 +92,10 @@ export const loadCSR = async (csr: string): Promise<CertificationRequest> => {
   return new CertificationRequest({ schema: asn1.result })
 }
 
-export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes | ObjectIdentifier): string | null => {
+export const getCertFieldValue = (
+  cert: Certificate,
+  fieldType: CertFieldsTypes | ObjectIdentifier
+): string | null => {
   if (fieldType === CertFieldsTypes.commonName) {
     const block = cert.subject.typesAndValues.find((tav: any) => tav.type === fieldType)
 
@@ -95,7 +105,7 @@ export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes 
       return null
     }
   } else {
-    const ext = cert.extensions?.find((tav) => tav.extnID === fieldType)
+    const ext = cert.extensions?.find(tav => tav.extnID === fieldType)
     if (ext) {
       if (fieldType === CertFieldsTypes.dmPublicKey) {
         const extObj = ext?.extnValue.valueBlock.value[0] as any
@@ -113,7 +123,10 @@ export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes 
   }
 }
 
-export const getReqFieldValue = (csr: CertificationRequest, fieldType: CertFieldsTypes | ObjectIdentifier): string | null => {
+export const getReqFieldValue = (
+  csr: CertificationRequest,
+  fieldType: CertFieldsTypes | ObjectIdentifier
+): string | null => {
   if (fieldType === CertFieldsTypes.commonName) {
     const block = csr.subject.typesAndValues.find((tav: any) => tav.type === fieldType)
     if (block) {
@@ -122,7 +135,7 @@ export const getReqFieldValue = (csr: CertificationRequest, fieldType: CertField
       return null
     }
   } else {
-    const ext = csr.attributes?.find((tav) => tav.type === fieldType) as any
+    const ext = csr.attributes?.find(tav => tav.type === fieldType) as any
     if (ext) {
       if (fieldType === CertFieldsTypes.dmPublicKey) {
         const extObj = ext.values[0].valueBlock.valueHex

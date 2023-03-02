@@ -205,6 +205,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
         >
           <Grid item>
             <FormControlLabel
+              data-testid={'sound-switch'}
               control={
                 <Checkbox
                   checked={notificationsSound !== NotificationsSounds.none}
@@ -225,11 +226,12 @@ export const Notifications: React.FC<NotificationsProps> = ({
               }
             />
           </Grid>
-          <Grid item className={classes.spacingSound}>
+          <Grid item className={classes.spacingSound} data-testid={`sound-${NotificationsSounds.librarianShhh}`}>
             <FormControlLabel
               classes={{ root: classes.radioSound }}
               control={
                 <Checkbox
+                  data-testid={`sound-${NotificationsSounds.librarianShhh}-radio`}
                   icon={<Icon src={radioUnselected} />}
                   checkedIcon={<Icon src={radioChecked} />}
                   checked={NotificationsSounds.librarianShhh === notificationsSound}
@@ -237,17 +239,17 @@ export const Notifications: React.FC<NotificationsProps> = ({
               }
               onChange={() => {
                 setNotificationsSound(NotificationsSounds.librarianShhh)
-
                 void librarianShhh.play()
               }}
               label='Librarian Shhh'
             />
           </Grid>
-          <Grid item className={classes.spacingSound}>
+          <Grid item className={classes.spacingSound} data-testid={`sound-${NotificationsSounds.pow}`}>
             <FormControlLabel
               classes={{ root: classes.radioSound }}
               control={
                 <Checkbox
+                  data-testid={`sound-${NotificationsSounds.pow}-radio`}
                   icon={<Icon src={radioUnselected} />}
                   checkedIcon={<Icon src={radioChecked} />}
                   checked={NotificationsSounds.pow === notificationsSound}
@@ -255,34 +257,35 @@ export const Notifications: React.FC<NotificationsProps> = ({
               }
               onChange={() => {
                 setNotificationsSound(NotificationsSounds.pow)
-
                 void direct.play()
               }}
               label='Pow'
             />
           </Grid>
-          <Grid item className={classes.spacingSound}>
+          <Grid item className={classes.spacingSound} data-testid={`sound-${NotificationsSounds.bang}`}>
             <FormControlLabel
               classes={{ root: classes.radioSound }}
               control={
                 <Checkbox
+                  data-testid={`sound-${NotificationsSounds.bang}-radio`}
                   icon={<Icon src={radioUnselected} />}
                   checkedIcon={<Icon src={radioChecked} />}
                   checked={NotificationsSounds.bang === notificationsSound}
                 />
               }
               onChange={() => {
-                void sharp.play()
                 setNotificationsSound(NotificationsSounds.bang)
+                void sharp.play()
               }}
               label='Bang'
             />
           </Grid>
-          <Grid item className={classes.spacingSound}>
+          <Grid item className={classes.spacingSound} data-testid={`sound-${NotificationsSounds.splat}`}>
             <FormControlLabel
               classes={{ root: classes.radioSound }}
               control={
                 <Checkbox
+                  data-testid={`sound-${NotificationsSounds.splat}-radio`}
                   icon={<Icon src={radioUnselected} />}
                   checkedIcon={<Icon src={radioChecked} />}
                   checked={NotificationsSounds.splat === notificationsSound}

@@ -5,7 +5,7 @@
 #ifndef V8_UTIL_H_
 #define V8_UTIL_H_
 
-#include "v8.h"  // NOLINT(build/include)
+#include "v8.h"  // NOLINT(build/include_directory)
 #include <assert.h>
 #include <map>
 #include <vector>
@@ -43,7 +43,7 @@ class StdMapTraits {
 
   static bool Empty(Impl* impl) { return impl->empty(); }
   static size_t Size(Impl* impl) { return impl->size(); }
-  static void Swap(Impl& a, Impl& b) { std::swap(a, b); }  // NOLINT
+  static void Swap(Impl& a, Impl& b) { std::swap(a, b); }
   static Iterator Begin(Impl* impl) { return impl->begin(); }
   static Iterator End(Impl* impl) { return impl->end(); }
   static K Key(Iterator it) { return it->first; }
@@ -195,14 +195,6 @@ class PersistentValueMapBase {
   }
 
   /**
-   * Call V8::RegisterExternallyReferencedObject with the map value for given
-   * key.
-   */
-  V8_DEPRECATED(
-      "Used TracedGlobal and EmbedderHeapTracer::RegisterEmbedderReference",
-      inline void RegisterExternallyReferencedObject(K& key));
-
-  /**
    * Return value for key and remove it from the map.
    */
   Global<V> Remove(const K& key) {
@@ -351,16 +343,6 @@ class PersistentValueMapBase {
   typename Traits::Impl impl_;
   const char* label_;
 };
-
-template <typename K, typename V, typename Traits>
-inline void
-PersistentValueMapBase<K, V, Traits>::RegisterExternallyReferencedObject(
-    K& key) {
-  assert(Contains(key));
-  V8::RegisterExternallyReferencedObject(
-      reinterpret_cast<internal::Address*>(FromVal(Traits::Get(&impl_, key))),
-      reinterpret_cast<internal::Isolate*>(GetIsolate()));
-}
 
 template <typename K, typename V, typename Traits>
 class PersistentValueMap : public PersistentValueMapBase<K, V, Traits> {
