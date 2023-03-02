@@ -6,27 +6,30 @@ import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
 import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
-import { JoinCommunityProps } from './JoinCommunity.types'
+import { CreateCommunityProps } from './CreateCommunity.types'
 
-export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, redirectionAction }) => {
-  const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
+export const CreateCommunity: FC<CreateCommunityProps> = ({
+  createCommunityAction,
+  redirectionAction
+}) => {
+  const [createCommunityInput, setCreateCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
 
   const onChangeText = (value: string) => {
     setInputError(undefined)
-    setJoinCommunityInput(value)
+    setCreateCommunityInput(value)
   }
 
   const onPress = () => {
     Keyboard.dismiss()
     setLoading(true)
-    if (joinCommunityInput === undefined || joinCommunityInput?.length === 0) {
+    if (createCommunityInput === undefined || createCommunityInput?.length === 0) {
       setLoading(false)
-      setInputError('Community address can not be empty')
+      setInputError('Community name can not be empty')
       return
     }
-    joinCommunityAction(joinCommunityInput)
+    createCommunityAction(createCommunityInput)
   }
 
   return (
@@ -40,12 +43,12 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, red
           paddingRight: 20
         }}>
         <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
-          {'Join community'}
+          {'Create a community'}
         </Typography>
         <Input
           onChangeText={onChangeText}
-          label={'Paste your invite link to join an existing community'}
-          placeholder={'Invite link'}
+          label={'Add a name for your community'}
+          placeholder={'Community name'}
           disabled={loading}
           validation={inputError}
         />
@@ -55,7 +58,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, red
             links={[
               {
                 tag: 'a',
-                label: 'create a new community',
+                label: 'join a community',
                 action: redirectionAction
               }
             ]}

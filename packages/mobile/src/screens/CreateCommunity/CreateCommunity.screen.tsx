@@ -1,11 +1,11 @@
 import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { identity, communities, CommunityOwnership, CreateNetworkPayload } from '@quiet/state-manager'
-import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
+import { CreateCommunity } from '../../components/CreateCommunity/CreateCommunity.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
+import { identity, communities, CommunityOwnership, CreateNetworkPayload } from '@quiet/state-manager'
 
-export const JoinCommunityScreen: FC = () => {
+export const CreateCommunityScreen: FC = () => {
   const dispatch = useDispatch()
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
@@ -18,23 +18,29 @@ export const JoinCommunityScreen: FC = () => {
     }
   }, [dispatch, currentIdentity])
 
-  const joinCommunityAction = useCallback((address: string) => {
-    const payload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
-      registrar: address
-    }
-    dispatch(communities.actions.createNetwork(payload))
-  }, [dispatch])
+  const createCommunityAction = useCallback(
+    (name: string) => {
+      const payload: CreateNetworkPayload = {
+        ownership: CommunityOwnership.Owner,
+        name: name
+      }
+      dispatch(communities.actions.createNetwork(payload))
+    },
+    [dispatch]
+  )
 
   const redirectionAction = useCallback(() => {
     dispatch(
       navigationActions.navigation({
-        screen: ScreenNames.CreateCommunityScreen
+        screen: ScreenNames.JoinCommunityScreen
       })
     )
   }, [dispatch])
 
   return (
-    <JoinCommunity joinCommunityAction={joinCommunityAction} redirectionAction={redirectionAction} />
+    <CreateCommunity
+      createCommunityAction={createCommunityAction}
+      redirectionAction={redirectionAction}
+    />
   )
 }
