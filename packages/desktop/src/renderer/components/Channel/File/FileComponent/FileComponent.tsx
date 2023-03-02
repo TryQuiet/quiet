@@ -162,7 +162,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
         return (
           <>
             <CircularProgress color='inherit' thickness={4} size={18} />
-            {/* Temporary fix for error with files downloading task 1264 */}
+            {/* Temporary fix for error with files downloading https://github.com/TryQuiet/quiet/issues/1264 */}
             {/* <CircularProgress
               variant='determinate'
               size={18}
@@ -328,7 +328,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
 
   return (
     <FileComponentStyled data-testid={`${cid}-fileComponent`}>
-      {/* Temporary fix for error with files downloading task 1264 */}
+      {/* Temporary fix for error with files downloading https://github.com/TryQuiet/quiet/issues/1264 */}
       <Tooltip
         title={''}
         // title={
