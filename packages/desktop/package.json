@@ -49,6 +49,14 @@
         {
           "from": "tor/libssl.so",
           "to": "usr/lib/libssl.so"
+        },
+        {
+          "from": "resources/libcrypto.so.1.1",
+          "to": "usr/lib/libcrypto.so.1.1"
+        },
+        {
+          "from": "resources/libssl.so.1.1",
+          "to": "usr/lib/libssl.so.1.1"
         }
       ],
       "files": [
