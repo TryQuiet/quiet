@@ -1,4 +1,4 @@
-package com.zbaymobile
+package com.quietmobile
 
 import android.content.BroadcastReceiver
 import android.content.Context

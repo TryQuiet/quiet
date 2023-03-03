@@ -1,4 +1,4 @@
-package com.zbaymobile.Utils
+package com.quietmobile.Utils
 
 import android.app.ActivityManager
 import android.content.Context
