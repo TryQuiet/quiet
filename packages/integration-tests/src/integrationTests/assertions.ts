@@ -62,9 +62,12 @@ export async function assertReceivedMessages(
   console.log(
     store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
   )
+
+  const keys = Object.keys(store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities)
+
   await waitForExpect(() => {
     expect(
-      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities.length
+      keys.length
     ).toBe(expectedMessages.length)
   }, maxTime)
 
