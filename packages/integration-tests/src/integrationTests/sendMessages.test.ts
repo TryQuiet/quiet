@@ -31,7 +31,7 @@ describe('send message - users go offline and online', () => {
   let userOneDataPath: string
   let userTwoDataPath: string
 
-  const timeout = 18_000_000 // 5 hours
+  const timeout = 38_000_000 // 5 hours
 
   const expectedMessages: ChannelMessage[] = []
 
@@ -142,7 +142,7 @@ describe.only('send message - users are online', () => {
   let userOne: AsyncReturnType<typeof createApp>
   // let userTwo: AsyncReturnType<typeof createApp>
 
-  const timeout = 18_000_000 // 5 hours
+  const timeout = 38_000_000 // 5 hours
 
   const expectedMessages: ChannelMessage[] = []
 

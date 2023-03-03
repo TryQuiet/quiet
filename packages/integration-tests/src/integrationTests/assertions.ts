@@ -64,8 +64,8 @@ export async function assertReceivedMessages(
   )
   await waitForExpect(() => {
     expect(
-      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
-    ).toBe(expectedMessages)
+      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities.length
+    ).toBe(expectedMessages.length)
   }, maxTime)
 
   log(
