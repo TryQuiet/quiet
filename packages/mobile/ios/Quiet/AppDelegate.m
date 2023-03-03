@@ -92,10 +92,18 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   self.tor = [TorHandler new];
     
   self.torConfiguration = [self.tor getTorConfiguration:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
-    
+  
+  [self.tor removeOldAuthCookieWithConfiguration:self.torConfiguration];
+  
   [self.tor spawnWithConfiguration:self.torConfiguration];
     
-  dispatch_after(1, dispatch_get_main_queue(), ^(void) {
+  /*
+   * Backend launch must be delayed, because otherwise it gets doomed by race condition
+   * (it uses deprecated tor data from previous run and additionally is unabled to connect to websocket)
+   *
+   * In the future we may want to switch to a callback after succesfully bootstraping tor
+   */
+  dispatch_after(700, dispatch_get_main_queue(), ^(void) {
     [self getAuthCookieAndLaunchBackend:controlPort:httpTunnelPort];
   });
 }
@@ -112,10 +120,12 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   
   DataDirectory *dataDirectory = [DataDirectory new];
   NSString *dataPath = [dataDirectory create];
-  
+
+  NSString* platform = @"mobile";
+
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     RNNodeJsMobile *nodeJsMobile = [RNNodeJsMobile new];
-    [nodeJsMobile callStartNodeProjectWithArgs:[NSString stringWithFormat:@"lib/mobileBackendManager.js --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ --httpTunnelPort %hu", self.dataPort, dataPath, controlPort, authCookie, httpTunnelPort]];
+    [nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ --httpTunnelPort %hu --platform %@", self.dataPort, dataPath, controlPort, authCookie, httpTunnelPort, platform]];
   });
 }
 

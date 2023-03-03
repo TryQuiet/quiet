@@ -4,23 +4,25 @@ import logger from '../logger'
 import { ChannelMessage, PublicChannel } from '@quiet/state-manager'
 const log = logger('validators')
 
+const messageMediaSchema = joi.object({
+  path: joi.string().allow(null),
+  name: joi.string().required(),
+  ext: joi.string().required(),
+  cid: joi.string().required(),
+  size: joi.number().allow(null),
+  width: joi.number().allow(null),
+  height: joi.number().allow(null),
+  message: joi.object({
+    id: joi.string().required(),
+    channelAddress: joi.string().required()
+  })
+})
+
 const messageSchema = joi.object({
   id: joi.string().required(),
   type: joi.number().required().positive().integer(),
   message: joi.alternatives(joi.string(), joi.binary()).required(),
-  media: joi.object({
-    path: joi.string().allow(null),
-    name: joi.string().required(),
-    ext: joi.string().required(),
-    cid: joi.string().required(),
-    size: joi.number().allow(null),
-    width: joi.number().allow(null),
-    height: joi.number().allow(null),
-    message: joi.object({
-      id: joi.string().required(),
-      channelAddress: joi.string().required()
-    })
-  }),
+  media: messageMediaSchema,
   createdAt: joi.number().required(),
   channelAddress: joi.string().required(),
   signature: joi.string().required(),

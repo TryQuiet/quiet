@@ -1,4 +1,3 @@
-import { Crypto } from '@peculiar/webcrypto'
 import {
   CertFieldsTypes,
   getCertFieldValue,
@@ -35,7 +34,6 @@ import {
   PublicChannelsRepo,
   StorageOptions
 } from '../common/types'
-import { compare, createPaths, removeDirs, removeFiles, getUsersAddresses } from '../common/utils'
 import { Config } from '../constants'
 import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
@@ -46,24 +44,15 @@ import { promisify } from 'util'
 import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
 import { StorageEvents } from './types'
-import { sleep } from '../sleep'
+
+import { create } from 'ipfs-core'
+import { CID } from 'multiformats/cid'
 
 const sizeOfPromisified = promisify(sizeOf)
 
 const log = logger('db')
 
-// const webcrypto = new Crypto()
-// setEngine(
-//   'newEngine',
-//   // @ts-expect-error
-//   webcrypto,
-//   new CryptoEngine({
-//     name: '',
-//     crypto: webcrypto,
-//     subtle: webcrypto.subtle
-//   })
-// )
-
+const { compare, createPaths, removeDirs, removeFiles, getUsersAddresses } = await import('../common/utils')
 export class Storage extends EventEmitter {
   public quietDir: string
   public peerId: PeerId
@@ -167,8 +156,7 @@ export class Storage extends EventEmitter {
 
   protected async initIPFS(libp2p: any, peerID: any): Promise<IPFS> {
     log('Initializing IPFS')
-    const { create: ipfsCreate }: {create: typeof createType} = await eval("import('ipfs-core')")
-    return await ipfsCreate({
+    return await create({
       libp2p: async () => libp2p,
       preload: { enabled: false },
       repo: this.ipfsRepoPath,
@@ -493,7 +481,7 @@ export class Storage extends EventEmitter {
     try {
       await repo.db.add(message)
     } catch (e) {
-      log.error('STORAGE: Could not append message (entry not allowed to write to the log)')
+      log.error(`STORAGE: Could not append message (entry not allowed to write to the log). Details: ${e.message}`)
     }
   }
 
@@ -592,13 +580,13 @@ export class Storage extends EventEmitter {
   }
 
   public async downloadFile(metadata: FileMetadata) {
-    const { CID } = await eval("import('multiformats/cid')")
-
     type IPFSPath = typeof CID | string
 
+    // @ts-ignore
     const _CID: IPFSPath = CID.parse(metadata.cid)
 
     // Compare actual and reported file size
+    // @ts-ignore
     const stat = await this.ipfs.files.stat(_CID)
     if (!compare(metadata.size, stat.size, 0.05)) {
       const maliciousStatus: DownloadStatus = {
@@ -612,6 +600,7 @@ export class Storage extends EventEmitter {
 
       return
     }
+    // @ts-ignore
     const entries = this.ipfs.cat(_CID)
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)

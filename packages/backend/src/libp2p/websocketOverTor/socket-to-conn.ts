@@ -6,6 +6,8 @@ import type { MultiaddrConnection } from '@libp2p/interface-connection'
 import type { Multiaddr } from '@multiformats/multiaddr'
 import type { DuplexWebSocket } from 'it-ws/duplex'
 
+import pTimeout from 'p-timeout'
+
 const log = logger('libp2p:websockets:socket')
 
 export interface SocketToConnOptions extends AbortOptions {
@@ -14,11 +16,11 @@ export interface SocketToConnOptions extends AbortOptions {
 
 // Convert a stream into a MultiaddrConnection
 // https://github.com/libp2p/interface-transport#multiaddrconnection
-export function socketToMaConn (stream: DuplexWebSocket, remoteAddr: Multiaddr, options?: SocketToConnOptions): MultiaddrConnection {
+export function socketToMaConn(stream: DuplexWebSocket, remoteAddr: Multiaddr, options?: SocketToConnOptions): MultiaddrConnection {
   options = options ?? {}
 
   const maConn: MultiaddrConnection = {
-    async sink (source) {
+    async sink(source) {
       if ((options?.signal) != null) {
         source = AbortSource(source, options.signal)
       }
@@ -38,12 +40,11 @@ export function socketToMaConn (stream: DuplexWebSocket, remoteAddr: Multiaddr, 
 
     timeline: { open: Date.now() },
 
-    async close () {
+    async close() {
       const start = Date.now()
 
       try {
         // Possibly libp2p used the wrong pTimeout arguments and this was our problem, but why did they used it? TS off or something.
-        const pTimeout = await eval("import('p-timeout')")
         await pTimeout(stream.close(),
           CLOSE_TIMEOUT
         )

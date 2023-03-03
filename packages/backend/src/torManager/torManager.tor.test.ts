@@ -4,6 +4,7 @@ import { torBinForPlatform, torDirForPlatform } from '../common/utils'
 import { createTmpDir, spawnTorProcess, tmpQuietDirPath } from '../common/testUtils'
 import getPort from 'get-port'
 import { DirResult } from 'tmp'
+import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 
 jest.setTimeout(100_000)
 

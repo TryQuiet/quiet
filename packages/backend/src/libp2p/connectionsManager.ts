@@ -1,19 +1,22 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
-import { HttpsProxyAgent } from 'https-proxy-agent'
-import type { Libp2p, createLibp2p as l2l } from 'libp2p'
-import type { bootstrap as bootstrapType } from '@libp2p/bootstrap'
-import type { kadDHT as kadDHTType } from '@libp2p/kad-dht'
+import createHttpsProxyAgent from 'https-proxy-agent'
+
+import { peerIdFromKeys } from '@libp2p/peer-id'
+import { createLibp2p, Libp2p } from 'libp2p'
+import { noise } from '@chainsafe/libp2p-noise'
+import { gossipsub } from '@chainsafe/libp2p-gossipsub'
+import { mplex } from '@libp2p/mplex'
+import { kadDHT } from '@libp2p/kad-dht'
+import { createServer } from 'it-ws'
 
 import { webSockets } from './websocketOverTor/index'
 import { all } from './websocketOverTor/filters'
 
 import { DateTime } from 'luxon'
 
-import SocketIO from 'socket.io'
+import type SocketIO from 'socket.io'
 import * as os from 'os'
-import path from 'path'
-import fs from 'fs'
 import { emitError } from '../socket/errors'
 import { CertificateRegistration } from '../registration'
 import { setEngine, CryptoEngine } from 'pkijs'
@@ -47,15 +50,12 @@ import {
   UploadFilePayload,
   DownloadStatus,
   CommunityId,
-  StorePeerListPayload
+  StorePeerListPayload,
+  NetworkStats
 } from '@quiet/state-manager'
 
 import { ConnectionsManagerOptions } from '../common/types'
-import {
-  createLibp2pAddress,
-  createLibp2pListenAddress,
-  getPorts
-} from '../common/utils'
+
 import { QUIET_DIR_PATH } from '../constants'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
@@ -65,8 +65,13 @@ import logger from '../logger'
 import getPort from 'get-port'
 import { RegistrationEvents } from '../registration/types'
 import { StorageEvents } from '../storage/types'
-import { Libp2pEvents } from './types'
-import PeerId, { JSONPeerId } from 'peer-id'
+import { Libp2pEvents, ServiceState } from './types'
+import PeerId from 'peer-id'
+import { LocalDB, LocalDBKeys } from '../storage/localDB'
+
+import { createLibp2pAddress, createLibp2pListenAddress, getPorts } from '../common/utils'
+import { ProcessInChunks } from './processInChunks'
+import { Multiaddr } from 'multiaddr'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -96,7 +101,6 @@ export interface Libp2pNodeParams {
   key: string
   ca: string[]
   localAddress: string
-  bootstrapMultiaddrsList: string[]
   targetPort: number
 }
 
@@ -123,13 +127,13 @@ export class ConnectionsManager extends EventEmitter {
   storage: Storage
   dataServer: DataServer
   communityId: string
-  isRegistrarLaunched: boolean
-  communityDataPath: string
-  registrarDataPath: string
   torAuthCookie: string
   torControlPort: number
   torBinaryPath: string
   torResourcesPath: string
+  localStorage: LocalDB
+  communityState: ServiceState
+  registrarState: ServiceState
 
   constructor({ options, socketIOPort, httpTunnelPort, torControlPort, torAuthCookie, torResourcesPath, torBinaryPath }: IConstructor) {
     super()
@@ -148,9 +152,9 @@ export class ConnectionsManager extends EventEmitter {
     this.httpTunnelPort = httpTunnelPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
-    this.communityDataPath = path.join(this.quietDir, 'communityData.json')
-    this.registrarDataPath = path.join(this.quietDir, 'registrarData.json')
-    this.isRegistrarLaunched = false
+    this.localStorage = new LocalDB(this.quietDir)
+    this.communityState = ServiceState.DEFAULT
+    this.registrarState = ServiceState.DEFAULT
 
     // Does it work?
     process.on('unhandledRejection', error => {
@@ -178,7 +182,9 @@ export class ConnectionsManager extends EventEmitter {
 
     log(`Creating https proxy agent: ${this.httpTunnelPort}`)
 
-    return new HttpsProxyAgent({ port: this.httpTunnelPort, host: 'localhost' })
+    return createHttpsProxyAgent({
+      port: this.httpTunnelPort, host: '127.0.0.1',
+    })
   }
 
   public init = async () => {
@@ -207,21 +213,20 @@ export class ConnectionsManager extends EventEmitter {
 
     await this.dataServer.listen()
 
-    // Below logic is temporary, we gonna move it to leveldb
-    const communityPath = this.communityDataPath
-    const registrarPath = this.registrarDataPath
+    const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
 
-    if (fs.existsSync(communityPath)) {
-      const data = fs.readFileSync(communityPath)
-      const dataObj = JSON.parse(data.toString())
-      await this.launchCommunity(dataObj)
+    if (community) {
+      const sortedPeers = await this.localStorage.getSortedPeers(community.peers)
+      if (sortedPeers.length > 0) {
+        community.peers = sortedPeers
+      }
+      await this.localStorage.put(LocalDBKeys.COMMUNITY, community)
+      await this.launchCommunity(community)
     }
 
-    if (fs.existsSync(registrarPath)) {
-      const data = fs.readFileSync(registrarPath)
-      const dataObj = JSON.parse(data.toString())
-      await this.registration.launchRegistrar(dataObj)
-      this.isRegistrarLaunched = true
+    const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
+    if (registrarData) {
+      await this.registration.launchRegistrar(registrarData)
     }
   }
 
@@ -237,6 +242,13 @@ export class ConnectionsManager extends EventEmitter {
     }
     if (this.io) {
       this.io.close()
+    }
+    if (this.localStorage) {
+      await this.localStorage.close()
+    }
+    if (this.libp2pInstance) {
+      log('Stopping libp2p')
+      await this.libp2pInstance.stop()
     }
   }
 
@@ -325,11 +337,13 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
-    const path = this.communityDataPath
-    const json = JSON.stringify(payload)
-    if (!fs.existsSync(path)) {
-      fs.writeFileSync(path, json)
+    if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
+    this.communityState = ServiceState.LAUNCHING
+    const communityData = await this.localStorage.get(LocalDBKeys.COMMUNITY)
+    if (!communityData) {
+      await this.localStorage.put(LocalDBKeys.COMMUNITY, payload)
     }
+
     try {
       await this.launch(payload)
     } catch (e) {
@@ -344,11 +358,11 @@ export class ConnectionsManager extends EventEmitter {
 
     log(`Launched community ${payload.id}`)
     this.communityId = payload.id
+    this.communityState = ServiceState.LAUNCHED
     this.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
 
   public launch = async (payload: InitCommunityPayload): Promise<string> => {
-    const { peerIdFromKeys } = await eval("import('@libp2p/peer-id')")
     // Start existing community (community that user is already a part of)
     const ports = await getPorts()
     log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
@@ -406,6 +420,9 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   private attachRegistrationListeners = () => {
+    this.registration.on(RegistrationEvents.REGISTRAR_STATE, (payload: ServiceState) => {
+      this.registrarState = payload
+    })
     this.registration.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload => {
       this.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
     })
@@ -445,19 +462,16 @@ export class ConnectionsManager extends EventEmitter {
       await this.createCommunity(args)
     })
     this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => {
-      if (this.communityId) return
       await this.launchCommunity(args)
     })
     // Registration
     this.dataServer.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
-      if (this.isRegistrarLaunched) return
-      const path = this.communityDataPath
-      const json = JSON.stringify(args)
-      if (!fs.existsSync(path)) {
-        fs.writeFileSync(path, json)
+      if (this.registrarState === ServiceState.LAUNCHED || this.registrarState === ServiceState.LAUNCHING) return
+      const communityData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
+      if (!communityData) {
+        await this.localStorage.put(LocalDBKeys.REGISTRAR, args)
       }
       await this.registration.launchRegistrar(args)
-      this.isRegistrarLaunched = true
     })
     this.dataServer.on(
       SocketActionTypes.SAVED_OWNER_CERTIFICATE,
@@ -509,8 +523,8 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(SocketActionTypes.UPLOADED_FILE, async (args: FileMetadata) => {
       await this.storage.uploadFile(args)
     })
-    this.dataServer.on(SocketActionTypes.CANCEL_DOWNLOAD, async mid => {
-      await this.storage.cancelDownload(mid)
+    this.dataServer.on(SocketActionTypes.CANCEL_DOWNLOAD, mid => {
+      this.storage.cancelDownload(mid)
     })
 
     // Direct Messages
@@ -612,8 +626,7 @@ export class ConnectionsManager extends EventEmitter {
     const localAddress = this.createLibp2pAddress(params.address, params.peerId.toString())
 
     log(
-      `Initializing libp2p for ${params.peerId.toString()}, bootstrapping with ${params.bootstrapMultiaddrs.length
-      } peers`
+      `Initializing libp2p for ${params.peerId.toString()}, bootstrapping with ${params.bootstrapMultiaddrs.length} peers`
     )
 
     const nodeParams: Libp2pNodeParams = {
@@ -624,43 +637,67 @@ export class ConnectionsManager extends EventEmitter {
       cert: params.certs.certificate,
       key: params.certs.key,
       ca: params.certs.CA,
-      bootstrapMultiaddrsList: params.bootstrapMultiaddrs,
       targetPort: params.targetPort
     }
-    const libp2p = await ConnectionsManager.createBootstrapNode(nodeParams)
+    const libp2p: Libp2p = await ConnectionsManager.createBootstrapNode(nodeParams)
 
     this.libp2pInstance = libp2p
-
+    const dialInChunks = new ProcessInChunks<string>(params.bootstrapMultiaddrs, this.dialPeer)
     libp2p.addEventListener('peer:discovery', (peer) => {
       log(`${params.peerId.toString()} discovered ${peer.detail.id}`)
     })
 
-    libp2p.connectionManager.addEventListener('peer:connect', (peer) => {
-      log(`${params.peerId.toString()} connected to ${peer.detail.id}`)
-      this.connectedPeers.set(peer.detail.id, DateTime.utc().valueOf())
+    libp2p.addEventListener('peer:connect', async (peer) => {
+      const remotePeerId = peer.detail.remotePeer.toString()
+      log(`${params.peerId.toString()} connected to ${remotePeerId}`)
+
+      // Stop dialing as soon as we connect to a peer
+      dialInChunks.stop()
+
+      this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
 
       this.emit(Libp2pEvents.PEER_CONNECTED, {
-        peers: [peer.detail.id]
+        peers: [remotePeerId]
       })
     })
 
-    libp2p.connectionManager.addEventListener('peer:disconnect', (peer) => {
-      log(`${params.peerId.toString()} disconnected from ${peer.detail.id}`)
+    libp2p.addEventListener('peer:disconnect', async (peer) => {
+      const remotePeerId = peer.detail.remotePeer.toString()
+      log(`${params.peerId.toString()} disconnected from ${remotePeerId}`)
+      log(`${libp2p.getConnections().length} open connections`)
 
-      const connectionStartTime = this.connectedPeers.get(peer.detail.id)
+      const connectionStartTime = this.connectedPeers.get(remotePeerId)
 
       const connectionEndTime: number = DateTime.utc().valueOf()
 
       const connectionDuration: number = connectionEndTime - connectionStartTime
 
-      this.connectedPeers.delete(peer.detail.id)
+      this.connectedPeers.delete(remotePeerId)
+
+      // Get saved peer stats from db
+      const remotePeerAddress = peer.detail.remoteAddr.toString()
+      const peerPrevStats = await this.localStorage.find(LocalDBKeys.PEERS, remotePeerAddress)
+      const prev = peerPrevStats?.connectionTime || 0
+
+      const peerStats: NetworkStats = {
+        peerId: remotePeerId,
+        connectionTime: prev + connectionDuration,
+        lastSeen: connectionEndTime
+      }
+
+      // Save updates stats to db
+      await this.localStorage.update(LocalDBKeys.PEERS, {
+        [remotePeerAddress]: peerStats
+      })
 
       this.emit(Libp2pEvents.PEER_DISCONNECTED, {
-        peer: peer.detail.id,
+        peer: remotePeerId,
         connectionDuration,
         lastSeen: connectionEndTime
       })
     })
+
+    await dialInChunks.process()
 
     log(`Initialized libp2p for peer ${params.peerId.toString()}`)
 
@@ -668,6 +705,10 @@ export class ConnectionsManager extends EventEmitter {
       libp2p,
       localAddress
     }
+  }
+
+  private dialPeer = async (peerAddress: string) => {
+    await this.libp2pInstance.dial(new Multiaddr(peerAddress))
   }
 
   public static readonly createBootstrapNode = async (
@@ -685,15 +726,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   private static readonly defaultLibp2pNode = async (params: Libp2pNodeParams): Promise<any> => {
-    const { createLibp2p }: { createLibp2p: typeof l2l } = await eval("import('libp2p')")
-    const { noise } = await eval("import('@chainsafe/libp2p-noise')")
-    const { gossipsub } = await eval("import('@chainsafe/libp2p-gossipsub')")
-    const { mplex } = await eval("import('@libp2p/mplex')")
-    const { bootstrap }: { bootstrap: typeof bootstrapType } = await eval("import('@libp2p/bootstrap')")
-    const { kadDHT }: { kadDHT: typeof kadDHTType } = await eval("import('@libp2p/kad-dht')")
-    const { createServer } = await eval("import('it-ws/server')")
-
-    let lib
+    let lib: Libp2p
 
     try {
       lib = await createLibp2p({
@@ -709,14 +742,6 @@ export class ConnectionsManager extends EventEmitter {
         },
         streamMuxers: [mplex()],
         connectionEncryption: [noise()],
-        peerDiscovery: [
-          bootstrap({
-            list: params.bootstrapMultiaddrsList,
-            timeout: 120_000, // in ms,
-            tagName: 'bootstrap',
-            tagValue: 50,
-          })
-        ],
         relay: {
           enabled: false,
           hop: {
@@ -737,13 +762,13 @@ export class ConnectionsManager extends EventEmitter {
             targetPort: params.targetPort,
             createServer: createServer
           })],
+        // @ts-expect-error
         dht: kadDHT(),
         pubsub: gossipsub({ allowPublishToZeroPeers: true }),
       })
     } catch (err) {
-      console.log('LIBP2P ERROR:', err)
+      log.error('LIBP2P ERROR:', err)
     }
-
     return lib
   }
 }

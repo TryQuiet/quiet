@@ -25,7 +25,7 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,backend-bundle"
 
       - name: 'Run tests'
         run: lerna run test-ci --scope integration-tests --stream

@@ -1,7 +1,7 @@
 import fs from 'fs'
 import getPort from 'get-port'
 import type { Libp2p } from 'libp2p'
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import createHttpsProxyAgent from 'https-proxy-agent'
 import path from 'path'
 import PeerId from 'peer-id'
 import tmp from 'tmp'
@@ -63,8 +63,7 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
   return await ConnectionsManager.createBootstrapNode({
     peerId,
     listenAddresses: [createLibp2pListenAddress('localhost')],
-    bootstrapMultiaddrsList: testBootstrapMultiaddrs,
-    agent: new HttpsProxyAgent({ port: 1234, host: 'localhost' }),
+    agent: createHttpsProxyAgent({ port: 1234, host: 'localhost' }),
     localAddress: createLibp2pAddress('localhost', peerId.toString()),
     cert: pems.userCert,
     key: pems.userKey,
@@ -84,22 +83,16 @@ export const tmpQuietDirPath = (name: string): string => {
 export function createFile(filePath: string, size: number) {
   const stream = fs.createWriteStream(filePath)
   const maxChunkSize = 1048576 // 1MB
-  stream.on('open', () => {
-    if (size < maxChunkSize) {
-      stream.write(crypto.randomBytes(size))
-    } else {
-      const chunks = Math.floor(size / maxChunkSize)
-      for (let i = 0; i < chunks; i++) {
-        if (size < maxChunkSize) {
-          stream.write(crypto.randomBytes(size))
-        } else {
-          stream.write(crypto.randomBytes(maxChunkSize))
-        }
-        size -= maxChunkSize
-      }
+  if (size < maxChunkSize) {
+    stream.write(crypto.randomBytes(size))
+  } else {
+    const chunks = Math.floor(size / maxChunkSize)
+    for (let i = 0; i < chunks; i++) {
+      stream.write(crypto.randomBytes(Math.min(size, maxChunkSize)))
+      size -= maxChunkSize
     }
-    stream.end()
-  })
+  }
+  stream.end()
 }
 
 export async function createPeerId() {

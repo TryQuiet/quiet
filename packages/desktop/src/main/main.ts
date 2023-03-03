@@ -28,6 +28,7 @@ const updaterInterval = 15 * 60_000
 
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
+
 const webcrypto = new Crypto()
 
 global.crypto = webcrypto
@@ -53,6 +54,8 @@ interface IWindowSize {
   width: number
   height: number
 }
+
+console.log('electron main')
 
 const windowSize: IWindowSize = {
   width: 800,
@@ -366,9 +369,13 @@ app.on('ready', async () => {
   const forkArgvs = [
     '-d', `${ports.dataServer}`,
     '-a', `${appDataPath}`,
-    '-r', `${process.resourcesPath}`
+    '-r', `${process.resourcesPath}`,
+    '-p', 'desktop'
   ]
-  backendProcess = fork(path.join(__dirname, 'backendManager.js'), forkArgvs)
+
+  const backendBundlePath = require.resolve('backend-bundle')
+
+  backendProcess = fork(path.normalize(backendBundlePath), forkArgvs)
   log('Forked backend, PID:', backendProcess.pid)
 
   backendProcess.on('error', e => {
@@ -387,7 +394,7 @@ app.on('ready', async () => {
   }
 
   mainWindow.webContents.on('did-fail-load', () => {
-    log('failed loading')
+    log('failed loading webcontents')
   })
 
   mainWindow.once('close', e => {

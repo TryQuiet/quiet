@@ -1,8 +1,8 @@
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import createHttpsProxyAgent from 'https-proxy-agent'
 import fetch, { Response } from 'node-fetch'
 import PeerId from 'peer-id'
 import { createLibp2p } from '../common/testUtils'
-import { Storage } from '../storage'
+const { Storage } = await import('../storage')
 
 export async function registerUser(csr: string, httpTunnelPort: number, localhost: boolean = true, registrarPort: number = 7789): Promise<Response> {
   let address = '127.0.0.1'
@@ -12,7 +12,7 @@ export async function registerUser(csr: string, httpTunnelPort: number, localhos
     headers: { 'Content-Type': 'application/json' }
   }
   if (!localhost) {
-    options = Object.assign(options, { agent: new HttpsProxyAgent({ port: httpTunnelPort, host: 'localhost', timeout: 100000 }) })
+    options = Object.assign(options, { agent: createHttpsProxyAgent({ port: httpTunnelPort, host: 'localhost', timeout: 100000 }) })
     address = '4avghtoehep5ebjngfqk5b43jolkiyyedfcvvq4ouzdnughodzoglzad.onion'
     return await fetch(`http://${address}/register`, options)
   }
