@@ -144,7 +144,7 @@ describe.only('send message - users are online', () => {
 
   const timeout = 38_000_000 // 5 hours
 
-  const expectedMessages: ChannelMessage[] = []
+  let expectedMessages: ChannelMessage[] = []
 
   beforeAll(async () => {
     owner = await createApp()
@@ -180,9 +180,11 @@ describe.only('send message - users are online', () => {
     //   userName: 'username2',
     //   expectedPeersCount: 3
     // })
-
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 20000))
     const infoMessages = getInfoMessages(owner.store, 'general')
-    expectedMessages.concat(infoMessages)
+    console.log({ infoMessages })
+    expectedMessages = [...infoMessages]
+    console.log({ expectedMessages })
   })
 
   it('Owner and users received certificates', async () => {
@@ -201,8 +203,11 @@ describe.only('send message - users are online', () => {
 
   it('each user sends one message to general channel', async () => {
     console.log(5)
-    expectedMessages.push(await sendMessage({ message: 'owner says hi', store: owner.store }))
-    expectedMessages.push(await sendMessage({ message: 'userOne says hi', store: userOne.store }))
+    const ownerMessage = await sendMessage({ message: 'owner says hi', store: owner.store })
+    const userMessage = await sendMessage({ message: 'userOne says hi', store: userOne.store })
+    expectedMessages = [...expectedMessages, ownerMessage, userMessage]
+    // expectedMessages.push()
+    console.log({ expectedMessages })
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
     // expectedMessages.push(await sendMessage({ message: 'userTwo says hi', store: userTwo.store }))
   })
