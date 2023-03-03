@@ -183,7 +183,7 @@ describe.only('send message - users are online', () => {
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 20000))
     const infoMessages = getInfoMessages(owner.store, 'general')
     console.log({ infoMessages })
-    expectedMessages = [...infoMessages]
+    expectedMessages = infoMessages
     console.log({ expectedMessages })
   })
 
