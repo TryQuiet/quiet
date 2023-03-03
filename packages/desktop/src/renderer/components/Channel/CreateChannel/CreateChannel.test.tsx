@@ -118,7 +118,7 @@ describe('Add new channel', () => {
   it.each([
     ['   whitespaces', FieldErrors.Whitespaces],
     ['----hyphens', FieldErrors.Whitespaces],
-    ['!@#', ChannelNameErrors.WrongCharacter]
+    ['!@#general', 'Your channel will be created as']
   ])(
     'user inserting invalid channel name "%s" should see "%s" error',
     async (name: string, error: string) => {
@@ -138,8 +138,6 @@ describe('Add new channel', () => {
 
       await userEvent.type(input, name)
       await userEvent.click(button)
-
-      await waitFor(() => expect(createChannel).not.toBeCalled())
 
       const message = await screen.findByText(error)
       expect(message).toBeVisible()

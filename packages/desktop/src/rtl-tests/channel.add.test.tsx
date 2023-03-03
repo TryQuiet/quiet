@@ -232,7 +232,7 @@ describe('Add new channel', () => {
   })
 
   it('Bug reproduction - open and close modal and check there are any errors', async () => {
-    const channelName = '!@#'
+    const channelName = '---'
     const { store } = await prepareStore(
       {},
       socket // Fork state manager's sagas
@@ -267,7 +267,7 @@ describe('Add new channel', () => {
     const button = screen.getByText('Create Channel')
     await userEvent.click(button)
 
-    const error = await screen.findByText(ChannelNameErrors.WrongCharacter)
+    const error = await screen.findByText(FieldErrors.Whitespaces)
     expect(error).toBeVisible()
 
     const closeChannel = screen.getByTestId('ModalActions').querySelector('button')
@@ -280,7 +280,7 @@ describe('Add new channel', () => {
     const title2 = await screen.findByText('Create a new public channel')
     expect(title2).toBeVisible()
 
-    const isErrorStillExist = screen.queryByText(ChannelNameErrors.WrongCharacter)
+    const isErrorStillExist = screen.queryByText(FieldErrors.Whitespaces)
     expect(isErrorStillExist).toBeNull()
   })
 
