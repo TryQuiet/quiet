@@ -17,9 +17,8 @@ export const channelNameField = (name = 'channelName'): FieldData => {
       },
       validate: {
         whitespaces: value =>
-          /^(?![\s-])(?<![\s-])[\w\`\~\!\@\#\$\%\^\&\*\(\)\+\=\[\{\]\}\|\\\'\<\,\.\>\?\/\"\;\:\s-]+$/.test(
-            value
-          ) || FieldErrors.Whitespaces
+          /^(?![\s-])[\w&\/\\#\]\[,+()!@$%^&*=_~`.'":;|?<>{}\s-]+$/.test(value) ||
+          FieldErrors.Whitespaces
       }
     }
   }
