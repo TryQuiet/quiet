@@ -22,18 +22,18 @@ jobs:
 
       - name: Download DMG
         working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.20/Quiet-1.0.0-alpha.20.dmg
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0/Quiet-1.0.0.dmg
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-1.0.0-alpha.20.dmg
+        run: chmod +x Quiet-1.0.0.dmg
 
       - name: Mount installer file in volume on system
         working-directory: ./packages/e2e-tests/Quiet
-        run: hdiutil mount Quiet-1.0.0-alpha.20.dmg 
+        run: hdiutil mount Quiet-1.0.0.dmg 
 
       - name: Add App file to applications
-        run: cd ~ && cp -R "/Volumes/Quiet 1.0.0-alpha.20/Quiet.app" /Applications
+        run: cd ~ && cp -R "/Volumes/Quiet 1.0.0/Quiet.app" /Applications
 
       - name: Run smoke test
         working-directory: ./packages/e2e-tests
@@ -79,11 +79,11 @@ jobs:
 
       - name: Download App Image
         working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.15/Quiet-1.0.0-alpha.15.AppImage
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0/Quiet-1.0.0.AppImage
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-1.0.0-alpha.15.AppImage
+        run: chmod +x Quiet-1.0.0.AppImage
 
       - name: Run smoke test
         working-directory: ./packages/e2e-tests
@@ -109,15 +109,15 @@ jobs:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
       - name: Download EXE
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.20/Quiet.Setup.1.0.0-alpha.20.exe
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0/Quiet.Setup.1.0.0.exe
         shell: bash
 
       - name: Chmod
-        run: chmod +x Quiet.Setup.1.0.0-alpha.20.exe
+        run: chmod +x Quiet.Setup.1.0.0.exe
         shell: bash
 
       - name: Install exe
-        run: Start-Process Quiet.Setup.1.0.0-alpha.20.exe -Wait
+        run: Start-Process Quiet.Setup.1.0.0.exe -Wait
         shell: powershell
 
       - name: Kill exe
