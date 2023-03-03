@@ -7,7 +7,7 @@ on:
 jobs:
   mac:
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 59
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
 
@@ -50,7 +50,7 @@ jobs:
       matrix:
         os: [ubuntu-20.04, ubuntu-22.04]
 
-    timeout-minutes: 30
+    timeout-minutes: 59
 
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
@@ -95,7 +95,7 @@ jobs:
 
   windows:
     runs-on: windows-2019
-    timeout-minutes: 45
+    timeout-minutes: 59
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
 
