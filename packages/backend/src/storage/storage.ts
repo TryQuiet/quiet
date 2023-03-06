@@ -453,9 +453,6 @@ export class Storage extends EventEmitter {
       await this.channels.put(data.address, {
         ...data
       })
-      this.emit(StorageEvents.CREATED_CHANNEL, {
-        channel: data
-      })
     }
 
     this.publicChannelsRepos.set(data.address, { db, eventsAttached: false })
@@ -463,6 +460,9 @@ export class Storage extends EventEmitter {
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await db.load({ fetchEntryTimeout: 2000 })
     log(`Created channel ${data.address}`)
+    this.emit(StorageEvents.CREATED_CHANNEL, {
+      channel: data
+    })
     return db
   }
 

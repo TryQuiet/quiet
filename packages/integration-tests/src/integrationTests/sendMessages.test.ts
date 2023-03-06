@@ -140,6 +140,8 @@ describe('send message - users go offline and online', () => {
 describe.only('send message - users are online', () => {
   let owner: AsyncReturnType<typeof createApp>
   let userOne: AsyncReturnType<typeof createApp>
+
+  const userName1 = 'userName1'
   // let userTwo: AsyncReturnType<typeof createApp>
 
   const timeout = 38_000_000 // 5 hours
@@ -170,7 +172,7 @@ describe.only('send message - users are online', () => {
     await joinCommunity({
       ...ownerData,
       store: userOne.store,
-      userName: 'username1',
+      userName: userName1,
       expectedPeersCount: 2
     })
 
@@ -180,9 +182,10 @@ describe.only('send message - users are online', () => {
     //   userName: 'username2',
     //   expectedPeersCount: 3
     // })
-    await new Promise<void>((resolve) => setTimeout(() => resolve(), 20000))
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
     const infoMessages = getInfoMessages(owner.store, 'general')
-    console.log({ infoMessages })
+    const infoMessagesUser = getInfoMessages(userOne.store, 'general')
+    console.log({ infoMessages, infoMessagesUser })
     expectedMessages = infoMessages
     console.log({ expectedMessages })
   })
@@ -190,14 +193,14 @@ describe.only('send message - users are online', () => {
   it('Owner and users received certificates', async () => {
     console.log(3)
     await assertReceivedCertificates('owner', 2, timeout, owner.store)
-    await assertReceivedCertificates('userOne', 2, timeout, userOne.store)
+    await assertReceivedCertificates(userName1, 2, timeout, userOne.store)
     // await assertReceivedCertificates('userTwo', 3, timeout, userTwo.store)
   })
 
   it('Users replicated channel and subscribed to it', async () => {
     console.log(4)
     await assertReceivedChannelsAndSubscribe('owner', 1, timeout, owner.store)
-    await assertReceivedChannelsAndSubscribe('userTwo', 1, timeout, userOne.store)
+    await assertReceivedChannelsAndSubscribe(userName1, 1, timeout, userOne.store)
     // await assertReceivedChannelsAndSubscribe('userTwo', 1, timeout, userTwo.store)
   })
 
@@ -220,7 +223,7 @@ describe.only('send message - users are online', () => {
 
   it('userOne replicated all messages', async () => {
     console.log(7)
-    await assertReceivedMessages('userOne', expectedMessages, timeout, userOne.store)
+    await assertReceivedMessages(userName1, expectedMessages, timeout, userOne.store)
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
   })
 
@@ -232,7 +235,8 @@ describe.only('send message - users are online', () => {
   it('Replicated messages are valid', async () => {
     console.log(9)
     await assertReceivedMessagesAreValid('owner', expectedMessages, timeout, owner.store)
-    await assertReceivedMessagesAreValid('userOne', expectedMessages, timeout, userOne.store)
+    console.log('9b')
+    await assertReceivedMessagesAreValid(userName1, expectedMessages, timeout, userOne.store)
     // await assertReceivedMessagesAreValid('userTwo', expectedMessages, timeout, userTwo.store)
   })
 })

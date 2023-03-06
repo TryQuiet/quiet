@@ -57,18 +57,14 @@ export async function assertReceivedMessages(
   store: TestStore
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for messages`)
-  console.log(store.getState())
-  console.log(store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL])
-  console.log(
+
+  const keys = Object.keys(
     store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
   )
-
-  const keys = Object.keys(store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities)
+  console.log('check store channel', store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL])
   console.log('number', keys, expectedMessages.length)
   await waitForExpect(() => {
-    expect(
-      keys.length
-    ).toBe(expectedMessages.length)
+    expect(keys.length).toBe(expectedMessages.length)
   }, maxTime)
 
   log(

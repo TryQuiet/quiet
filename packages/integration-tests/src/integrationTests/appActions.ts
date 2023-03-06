@@ -233,6 +233,7 @@ export function getInfoMessages(store: TestStore, channel: string): ChannelMessa
   const messages = Object.values(
     store.getState().Messages.publicChannelsMessagesBase.entities[channel].messages.entities
   )
+  console.log('check info messages', messages)
   return messages.filter((message) => message.type === MessageType.Info)
 }
 
