@@ -515,7 +515,7 @@ export class ConnectionsManager extends EventEmitter {
 
     // Files
     this.dataServer.on(SocketActionTypes.DOWNLOAD_FILE, async (metadata: FileMetadata) => {
-      await this.storage.downloadFile(metadata)
+      this.storage.downloadFile(metadata)
     })
     this.dataServer.on(SocketActionTypes.UPLOAD_FILE, async (metadata: FileMetadata) => {
       await this.storage.uploadFile(metadata)
