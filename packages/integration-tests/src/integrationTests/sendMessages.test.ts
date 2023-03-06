@@ -48,10 +48,12 @@ describe('send message - users go offline and online', () => {
   })
 
   it('Owner creates community', async () => {
+    console.log(1)
     await createCommunity({ userName: 'Owner', store: owner.store })
   })
 
   it('Two users join community', async () => {
+    console.log(2)
     const ownerData = getCommunityOwnerData(owner.store)
 
     await joinCommunity({
@@ -73,18 +75,21 @@ describe('send message - users go offline and online', () => {
   })
 
   it('Owner and users received certificates', async () => {
+    console.log(3)
     await assertReceivedCertificates('owner', 3, timeout, owner.store)
     await assertReceivedCertificates('userOne', 3, timeout, userOne.store)
     await assertReceivedCertificates('userTwo', 3, timeout, userTwo.store)
   })
 
   it('Users replicated channel and subscribed to it', async () => {
+    console.log(4)
     await assertReceivedChannelsAndSubscribe('owner', 1, timeout, owner.store)
     await assertReceivedChannelsAndSubscribe('userTwo', 1, timeout, userOne.store)
     await assertReceivedChannelsAndSubscribe('userTwo', 1, timeout, userTwo.store)
   })
 
   it('Every user sends one message to general channel', async () => {
+    console.log(5)
     expectedMessages.push(await sendMessage({ message: 'owner says hi', store: owner.store }))
     await sleep(40_000)
     expectedMessages.push(await sendMessage({ message: 'userOne says hi', store: userOne.store }))
@@ -96,6 +101,7 @@ describe('send message - users go offline and online', () => {
   })
 
   it('User one and two go offline', async () => {
+    console.log(6)
     userOneOldState = storePersistor(userOne.store.getState())
     userTwoOldState = storePersistor(userTwo.store.getState())
     userOneDataPath = userOne.appPath
@@ -105,6 +111,7 @@ describe('send message - users go offline and online', () => {
   })
 
   it('Owner sends messages, while users are offline', async () => {
+    console.log(7)
     expectedMessages.push(
       await sendMessage({
         message: 'Hi folks, how u doin? Does Wacek still has covid?',
@@ -114,23 +121,28 @@ describe('send message - users go offline and online', () => {
   })
 
   it('users come back online', async () => {
+    console.log(8)
     userOne = await createApp(userOneOldState, userOneDataPath)
     userTwo = await createApp(userTwoOldState, userTwoDataPath)
   })
 
   it('Owner replicated all messages', async () => {
+    console.log(9)
     await assertReceivedMessages('owner', expectedMessages, timeout, owner.store)
   })
 
   it('userOne replicated all messages', async () => {
+    console.log(10)
     await assertReceivedMessages('userOne', expectedMessages, timeout, userOne.store)
   })
 
   it('userTwo replicated all messages', async () => {
+    console.log(11)
     await assertReceivedMessages('userTwo', expectedMessages, timeout, userTwo.store)
   })
 
   it('Replicated messages are valid', async () => {
+    console.log(12)
     await assertReceivedMessagesAreValid('owner', expectedMessages, timeout, owner.store)
     await assertReceivedMessagesAreValid('userOne', expectedMessages, timeout, owner.store)
     await assertReceivedMessagesAreValid('userTwo', expectedMessages, timeout, owner.store)
