@@ -33,7 +33,7 @@ describe('send message - users go offline and online', () => {
 
   const timeout = 38_000_000 // 5 hours
 
-  const expectedMessages: ChannelMessage[] = []
+  let expectedMessages: ChannelMessage[] = []
 
   beforeAll(async () => {
     owner = await createApp()
@@ -71,7 +71,8 @@ describe('send message - users go offline and online', () => {
     })
 
     const infoMessages = getInfoMessages(owner.store, 'general')
-    expectedMessages.concat(infoMessages)
+
+    expectedMessages = infoMessages
   })
 
   it('Owner and users received certificates', async () => {
@@ -90,12 +91,12 @@ describe('send message - users go offline and online', () => {
 
   it('Every user sends one message to general channel', async () => {
     console.log(5)
-    expectedMessages.push(await sendMessage({ message: 'owner says hi', store: owner.store }))
+    const message1 = await sendMessage({ message: 'owner says hi', store: owner.store })
     await sleep(40_000)
-    expectedMessages.push(await sendMessage({ message: 'userOne says hi', store: userOne.store }))
+    const message2 = await sendMessage({ message: 'userOne says hi', store: userOne.store })
     await sleep(40_000)
-    expectedMessages.push(await sendMessage({ message: 'userTwo says hi', store: userTwo.store }))
-
+    const message3 = await sendMessage({ message: 'userTwo says hi', store: userTwo.store })
+    expectedMessages = [...expectedMessages, message1, message2, message3]
     // Wait 10 seconds before closing the app, so writing to databases can be finished
     await sleep(10_000)
   })
@@ -112,12 +113,12 @@ describe('send message - users go offline and online', () => {
 
   it('Owner sends messages, while users are offline', async () => {
     console.log(7)
-    expectedMessages.push(
-      await sendMessage({
-        message: 'Hi folks, how u doin? Does Wacek still has covid?',
-        store: owner.store
-      })
-    )
+    const message = await sendMessage({
+      message: 'Hi folks, how u doin? Does Wacek still has covid?',
+      store: owner.store
+    })
+
+    expectedMessages = [...expectedMessages, message]
   })
 
   it('users come back online', async () => {
