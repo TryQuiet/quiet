@@ -35,7 +35,7 @@ export class BuildSetup {
       console.log('!WINDOWS!')
       exec(`cd %APPDATA% % & mkdir ${this.dataDir}`, e => console.log({ e }))
       this.child = spawn(
-        `set DATA_DIR=${this.dataDir} & cd node_modules/.bin & chromedriver.cmd --port=${this.port}`,
+        `cd node_modules/.bin & chromedriver.cmd --port=${this.port}`,
         [],
         {
           shell: true
