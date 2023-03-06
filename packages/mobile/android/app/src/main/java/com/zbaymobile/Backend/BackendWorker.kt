@@ -181,6 +181,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         }
 
     private fun startWebsocketConnection(port: Int) {
+        Log.d("WEBSOCKET CONNECTION", "Starting on $port")
         // Proceed only if data port is defined
         val websocketConnectionPayload = WebsocketConnectionPayload(port)
         CommunicationModule.handleIncomingEvents(

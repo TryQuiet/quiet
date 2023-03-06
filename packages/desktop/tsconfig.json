@@ -10,6 +10,7 @@
       "es2018",
       "dom"
     ],
+    "types": ["jest"],
     "typeRoots": [
       "../@types",
       "./node_modules/@types",
@@ -18,8 +19,7 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src",
-    "cypress"
+    "src"
   ],
   "exclude": [
     "node_modules",

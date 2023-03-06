@@ -44,8 +44,14 @@ jobs:
       #   run: npm run test newUser.crossplatform.test.ts
 
   linux:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, ubuntu-22.04]
+
     timeout-minutes: 30
+
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
       DISPLAY: ":99.0"
@@ -55,6 +61,9 @@ jobs:
 
       - name: Install WM
         run: sudo apt install fluxbox
+
+      - name: Install libfuse2
+        run: sudo apt install libfuse2
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
@@ -70,11 +79,11 @@ jobs:
 
       - name: Download App Image
         working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.13/Quiet-1.0.0-alpha.13.AppImage
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0-alpha.15/Quiet-1.0.0-alpha.15.AppImage
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-1.0.0-alpha.13.AppImage
+        run: chmod +x Quiet-1.0.0-alpha.15.AppImage
 
       - name: Run smoke test
         working-directory: ./packages/e2e-tests
