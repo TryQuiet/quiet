@@ -144,6 +144,7 @@ describe('send message - users go offline and online', () => {
 
   it('Replicated messages are valid', async () => {
     console.log(12)
+
     await assertReceivedMessagesAreValid('owner', expectedMessages, timeout, owner.store)
     await assertReceivedMessagesAreValid('userOne', expectedMessages, timeout, owner.store)
     await assertReceivedMessagesAreValid('userTwo', expectedMessages, timeout, owner.store)
