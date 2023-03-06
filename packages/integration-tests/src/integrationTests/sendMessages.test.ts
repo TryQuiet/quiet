@@ -20,7 +20,7 @@ const crypto = new Crypto()
 
 global.crypto = crypto
 
-describe.only('send message - users go offline and online', () => {
+describe('send message - users go offline and online', () => {
   let owner: AsyncReturnType<typeof createApp>
   let userOne: AsyncReturnType<typeof createApp>
   let userTwo: AsyncReturnType<typeof createApp>
