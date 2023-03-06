@@ -142,7 +142,7 @@ describe.only('send message - users are online', () => {
   let userOne: AsyncReturnType<typeof createApp>
 
   const userName1 = 'userName1'
-  // let userTwo: AsyncReturnType<typeof createApp>
+  let userTwo: AsyncReturnType<typeof createApp>
 
   const timeout = 38_000_000 // 5 hours
 
@@ -151,13 +151,13 @@ describe.only('send message - users are online', () => {
   beforeAll(async () => {
     owner = await createApp()
     userOne = await createApp()
-    // userTwo = await createApp()
+    userTwo = await createApp()
   })
 
   afterAll(async () => {
     await owner.manager.closeAllServices()
     await userOne.manager.closeAllServices()
-    // await userTwo.manager.closeAllServices()
+    await userTwo.manager.closeAllServices()
   })
 
   it('Owner creates community', async () => {
@@ -176,12 +176,12 @@ describe.only('send message - users are online', () => {
       expectedPeersCount: 2
     })
 
-    // await joinCommunity({
-    //   ...ownerData,
-    //   store: userTwo.store,
-    //   userName: 'username2',
-    //   expectedPeersCount: 3
-    // })
+    await joinCommunity({
+      ...ownerData,
+      store: userTwo.store,
+      userName: 'username2',
+      expectedPeersCount: 3
+    })
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
     const infoMessages = getInfoMessages(owner.store, 'general')
     const infoMessagesUser = getInfoMessages(userOne.store, 'general')
@@ -194,25 +194,25 @@ describe.only('send message - users are online', () => {
     console.log(3)
     await assertReceivedCertificates('owner', 2, timeout, owner.store)
     await assertReceivedCertificates(userName1, 2, timeout, userOne.store)
-    // await assertReceivedCertificates('userTwo', 3, timeout, userTwo.store)
+    await assertReceivedCertificates('userTwo', 3, timeout, userTwo.store)
   })
 
   it('Users replicated channel and subscribed to it', async () => {
     console.log(4)
     await assertReceivedChannelsAndSubscribe('owner', 1, timeout, owner.store)
     await assertReceivedChannelsAndSubscribe(userName1, 1, timeout, userOne.store)
-    // await assertReceivedChannelsAndSubscribe('userTwo', 1, timeout, userTwo.store)
+    await assertReceivedChannelsAndSubscribe('userTwo', 1, timeout, userTwo.store)
   })
 
   it('each user sends one message to general channel', async () => {
     console.log(5)
     const ownerMessage = await sendMessage({ message: 'owner says hi', store: owner.store })
     const userMessage = await sendMessage({ message: 'userOne says hi', store: userOne.store })
-    expectedMessages = [...expectedMessages, ownerMessage, userMessage]
+    const userMessage2 = await sendMessage({ message: 'userTwo says hi', store: userTwo.store })
+    expectedMessages = [...expectedMessages, ownerMessage, userMessage, userMessage]
     // expectedMessages.push()
     console.log({ expectedMessages })
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
-    // expectedMessages.push(await sendMessage({ message: 'userTwo says hi', store: userTwo.store }))
   })
 
   it('Owner replicated all messages', async () => {
@@ -227,16 +227,17 @@ describe.only('send message - users are online', () => {
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
   })
 
-  // it('userTwo replicated all messages', async () => {
-  //   console.log(8)
-  //   await assertReceivedMessages('userTwo', expectedMessages, timeout, userTwo.store)
-  // })
+  it('userTwo replicated all messages', async () => {
+    console.log(8)
+    await assertReceivedMessages('userTwo', expectedMessages, timeout, userTwo.store)
+  })
 
   it('Replicated messages are valid', async () => {
     console.log(9)
     await assertReceivedMessagesAreValid('owner', expectedMessages, timeout, owner.store)
     console.log('9b')
     await assertReceivedMessagesAreValid(userName1, expectedMessages, timeout, userOne.store)
-    // await assertReceivedMessagesAreValid('userTwo', expectedMessages, timeout, userTwo.store)
+    console.log('9c')
+    await assertReceivedMessagesAreValid('userTwo', expectedMessages, timeout, userTwo.store)
   })
 })
