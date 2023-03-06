@@ -1,7 +1,7 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
-import { withTheme } from '../../storybook/decorators'
+import { withTheme } from '../../../../storybook/decorators'
 
 import { LeaveCommunityComponent, LeaveCommunityProps } from './LeaveCommunityComponent'
 
@@ -18,7 +18,7 @@ const args: LeaveCommunityProps = {
 
 Component.args = args
 
-const component: ComponentMeta<typeof LeaveCommunityComponent> = {
+export const component: ComponentMeta<typeof LeaveCommunityComponent> = {
   title: 'Components/LeaveCommunity',
   decorators: [withTheme],
   component: LeaveCommunityComponent

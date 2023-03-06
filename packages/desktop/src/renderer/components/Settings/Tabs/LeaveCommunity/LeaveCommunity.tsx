@@ -6,7 +6,7 @@ import { communities } from '@quiet/state-manager'
 
 import { LeaveCommunityComponent } from './LeaveCommunityComponent'
 
-import { clearCommunity } from '../..'
+import { clearCommunity } from '../../../..'
 
 export const LeaveCommunity: React.FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)

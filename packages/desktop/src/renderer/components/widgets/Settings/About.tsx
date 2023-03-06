@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC } from 'react'
 import { styled } from '@mui/material/styles'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
@@ -20,7 +20,7 @@ const StyledGrid = styled(Grid)(() => ({
 
 const version = process.env.npm_package_version
 
-export const About = () => {
+export const About: FC = () => {
   return (
     <StyledGrid container direction='column'>
       <Grid

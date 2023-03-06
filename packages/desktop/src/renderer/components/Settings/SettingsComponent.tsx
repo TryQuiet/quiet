@@ -7,16 +7,10 @@ import AppBar from '@mui/material/AppBar'
 import { Scrollbars } from 'rc-scrollbars'
 import { AutoSizer } from 'react-virtualized'
 
-import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
-import InviteToCommunity from '../../../../containers/widgets/settings/InviteToCommunity'
-import Notifications from '../../../../containers/widgets/settings/Notifications'
-import { LeaveCommunity } from '../../../LeaveCommunity/LeaveCommunity'
-import { About } from '../About'
+import Modal from '../ui/Modal/Modal'
+import Tab from '../ui/Tab/Tab'
 
-import Modal from '../../../ui/Modal/Modal'
-import Tab from '../../../ui/Tab/Tab'
-
-import theme from 'packages/desktop/src/renderer/theme'
+import theme from '../../theme'
 
 const PREFIX = 'SettingsModal'
 
@@ -52,26 +46,18 @@ const TabComponentWrapper = styled(Grid)(() => ({
   marginLeft: 32
 }))
 
-const tabs = {
-  account: AccountSettingsForm,
-  notifications: Notifications,
-  invite: InviteToCommunity,
-  about: About,
-  leave: LeaveCommunity
-}
-
-export interface SettingsModalProps {
-  title: string
-  isOwner: boolean
+export interface SettingsComponentProps {
   open: boolean
   handleClose: () => void
+  owner: boolean
+  tabs: any
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({
-  title,
-  isOwner,
+export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   open,
-  handleClose
+  handleClose,
+  owner,
+  tabs
 }) => {
   const [contentRef, setContentRef] = React.useState(null)
 
@@ -79,7 +65,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const [offset, setOffset] = React.useState(0)
 
-  const defaultCurrentTab = isOwner ? 'invite' : 'notifications'
+  const defaultCurrentTab = owner ? 'invite' : 'notifications'
   const [currentTab, setCurrentTab] = useState(defaultCurrentTab)
 
   const adjustOffset = () => {
@@ -105,7 +91,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     <Modal
       open={open}
       handleClose={handleClose}
-      title={title}
+      title={'Settings'}
       testIdPrefix='settings'
       isBold
       addBorder
@@ -129,15 +115,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               orientation='vertical'
               textColor='inherit'
               classes={{ indicator: classes.indicator }}>
+              <Tab value='about' label='About' data-testid={'about-settings-tab'} />
               <Tab
                 value='notifications'
                 label='Notifications'
                 data-testid={'notifications-settings-tab'}
               />
-              {isOwner && (
+              {owner && (
                 <Tab value='invite' label='Add members' data-testid={'invite-settings-tab'} />
               )}
-              <Tab value='about' label='About' data-testid={'about-settings-tab'} />
               <Tab
                 value='leave'
                 label='Leave community'
@@ -171,4 +157,4 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   )
 }
 
-export default SettingsModal
+export default SettingsComponent

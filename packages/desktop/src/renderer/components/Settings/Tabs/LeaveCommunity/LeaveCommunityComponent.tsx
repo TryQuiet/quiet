@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { FC } from 'react'
 
 import { styled } from '@mui/material/styles'
 
@@ -6,11 +6,11 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 
-import Icon from '../ui/Icon/Icon'
+import Icon from '../../../ui/Icon/Icon'
 
-import rocketIcon from '../../static/images/rocket.svg'
+// import rocketIcon from '../../static/images/rocket.svg'
 
-import { capitalizeFirstLetter } from '../../../utils/functions/capitalize'
+import { capitalizeFirstLetter } from '../../../../../utils/functions/capitalize'
 
 const PREFIX = 'LeaveCommunity'
 
@@ -91,14 +91,14 @@ export interface LeaveCommunityProps {
   leaveCommunity: () => void
 }
 
-export const LeaveCommunityComponent: React.FC<LeaveCommunityProps> = ({
+export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({
   communityName,
   leaveCommunity
 }) => {
   const _communityName = capitalizeFirstLetter(communityName)
   return (
     <StyledGrid container justifyContent='center'>
-      <Grid
+      {/* <Grid
         container
         className={classes.iconContainer}
         item
@@ -106,7 +106,7 @@ export const LeaveCommunityComponent: React.FC<LeaveCommunityProps> = ({
         direction='row'
         justifyContent='center'>
         <Icon className={classes.rocketIcon} src={rocketIcon} />
-      </Grid>
+      </Grid> */}
       <Grid
         container
         item

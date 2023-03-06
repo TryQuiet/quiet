@@ -11,7 +11,7 @@ module.exports = {
     { from: '../src/renderer/static/images', to: '/images' }
   ],
   "stories": [
-    "../src/**/*.stories.tsx",
+    "../src/**/*.stories.tsx"
   ],
   "addons": [
     "@storybook/addon-links",
