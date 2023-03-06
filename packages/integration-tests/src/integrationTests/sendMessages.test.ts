@@ -194,6 +194,7 @@ describe.only('send message - users are online', () => {
     console.log(3)
     await assertReceivedCertificates('owner', 2, timeout, owner.store)
     await assertReceivedCertificates(userName1, 2, timeout, userOne.store)
+    console.log('3a')
     await assertReceivedCertificates('userTwo', 3, timeout, userTwo.store)
   })
 
@@ -201,6 +202,7 @@ describe.only('send message - users are online', () => {
     console.log(4)
     await assertReceivedChannelsAndSubscribe('owner', 1, timeout, owner.store)
     await assertReceivedChannelsAndSubscribe(userName1, 1, timeout, userOne.store)
+    console.log('4a')
     await assertReceivedChannelsAndSubscribe('userTwo', 1, timeout, userTwo.store)
   })
 
@@ -209,7 +211,7 @@ describe.only('send message - users are online', () => {
     const ownerMessage = await sendMessage({ message: 'owner says hi', store: owner.store })
     const userMessage = await sendMessage({ message: 'userOne says hi', store: userOne.store })
     const userMessage2 = await sendMessage({ message: 'userTwo says hi', store: userTwo.store })
-    expectedMessages = [...expectedMessages, ownerMessage, userMessage, userMessage]
+    expectedMessages = [...expectedMessages, ownerMessage, userMessage, userMessage2]
     // expectedMessages.push()
     console.log({ expectedMessages })
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
