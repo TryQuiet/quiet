@@ -192,8 +192,8 @@ describe.only('send message - users are online', () => {
 
   it('Owner and users received certificates', async () => {
     console.log(3)
-    await assertReceivedCertificates('owner', 2, timeout, owner.store)
-    await assertReceivedCertificates(userName1, 2, timeout, userOne.store)
+    await assertReceivedCertificates('owner', 3, timeout, owner.store)
+    await assertReceivedCertificates(userName1, 3, timeout, userOne.store)
     console.log('3a')
     await assertReceivedCertificates('userTwo', 3, timeout, userTwo.store)
   })
