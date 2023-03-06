@@ -2,7 +2,7 @@ import '@testing-library/jest-dom'
 
 import React from 'react'
 
-import { renderComponent } from '../../../testUtils/renderComponent'
+import { renderComponent } from '../../../../testUtils/renderComponent'
 
 import { InviteComponent } from './InviteComponent'
 

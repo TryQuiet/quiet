@@ -16,7 +16,11 @@ import { capitalizeFirstLetter } from '../../../../../utils/functions/capitalize
 export const LeaveCommunity: React.FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
 
-  const communityName = capitalizeFirstLetter(community.name)
+  let communityName = '' // Prevent error on initial app start
+
+  if (community) {
+    communityName = capitalizeFirstLetter(community.name)
+  }
 
   const leaveCommunity = async () => {
     await clearCommunity()

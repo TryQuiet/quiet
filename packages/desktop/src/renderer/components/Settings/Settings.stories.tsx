@@ -3,19 +3,27 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import { withTheme } from '../../storybook/decorators'
 
-import { SettingsComponent, SettingsComponentProps } from './SettingsComponent'
+import SettingsComponent, { SettingsComponentProps } from './SettingsComponent'
 
-import { About } from '../widgets/Settings/About'
+// import { About } from '../widgets/Settings/About'
+
+// import { NotificationsComponent } from './Tabs/Notifications/NotificationsComponent'
+// import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
 
 import { InviteComponent } from './Tabs/Invite/InviteComponent'
 
 import { LeaveCommunityComponent } from './Tabs/LeaveCommunity/LeaveCommunityComponent'
+import { Typography } from '@mui/material'
 
 const Template: ComponentStory<typeof SettingsComponent> = args => {
   return <SettingsComponent {...args} />
 }
 
 export const Component = Template.bind({})
+
+const Dummy: FC = () => {
+  return <Typography>Dummy</Typography>
+}
 
 const Leave: FC = () => {
   return (
@@ -27,6 +35,17 @@ const Leave: FC = () => {
     />
   )
 }
+
+// const Notifications: FC = () => {
+//   return (
+//     <NotificationsComponent
+//       notificationsOption={NotificationsOptions.notifyForEveryMessage}
+//       notificationsSound={NotificationsSounds.pow}
+//       setNotificationsOption={function (_type: NotificationsOptions): void {}}
+//       setNotificationsSound={function (_type: NotificationsSounds): void {}}
+//     />
+//   )
+// }
 
 const Invite: FC = () => {
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
@@ -47,8 +66,8 @@ const args: SettingsComponentProps = {
   handleClose: function (): void {},
   owner: true,
   tabs: {
-    about: About,
-    notifications: About, // Unfortunatelly notifications component causes story to crash
+    about: Dummy,
+    notifications: Dummy,
     invite: Invite,
     leave: Leave
   },

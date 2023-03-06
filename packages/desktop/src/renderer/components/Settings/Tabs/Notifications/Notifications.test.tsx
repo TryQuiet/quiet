@@ -1,7 +1,7 @@
 import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
 import React from 'react'
-import { renderComponent } from '../../../testUtils/renderComponent'
-import { Notifications } from './Notifications'
+import { renderComponent } from '../../../../testUtils/renderComponent'
+import { NotificationsComponent } from './NotificationsComponent'
 import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 
@@ -13,7 +13,7 @@ describe('Notifications', () => {
       setNotificationsOption: jest.fn(),
       setNotificationsSound: jest.fn()
     }
-    const result = renderComponent(<Notifications {...props} />)
+    const result = renderComponent(<NotificationsComponent {...props} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -328,7 +328,7 @@ describe('Notifications', () => {
       setNotificationsOption: jest.fn(),
       setNotificationsSound: jest.fn()
     }
-    renderComponent(<Notifications {...props} />)
+    renderComponent(<NotificationsComponent {...props} />)
     const sounds = Object.values(NotificationsSounds).filter(
       sound => sound !== NotificationsSounds.none
     )

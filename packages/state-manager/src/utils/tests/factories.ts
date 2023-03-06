@@ -16,10 +16,9 @@ import { DateTime } from 'luxon'
 import { messagesActions } from '../../sagas/messages/messages.slice'
 import { currentCommunity } from '../../sagas/communities/communities.selectors'
 import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
-import { filesActions } from '../../sagas/files/files.slice'
-import { identityActions } from '../../sagas/identity/identity.slice'
 
 export const getFactory = async (store: Store) => {
+  // @ts-ignore
   const factory = new factoryGirl.FactoryGirl()
 
   factory.setAdapter(new CustomReduxAdapter(store))

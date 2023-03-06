@@ -10,8 +10,8 @@ import Checkbox from '@mui/material/Checkbox'
 import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
 
 import Icon from '../../../ui/Icon/Icon'
-import radioChecked from '../../../static/images/radioChecked.svg'
-import radioUnselected from '../../../static/images/radioUnselected.svg'
+import radioChecked from '../../../../static/images/radioChecked.svg'
+import radioUnselected from '../../../../static/images/radioUnselected.svg'
 import { direct, relentless, sharp, librarianShhh } from '../../../../../shared/sounds'
 
 const PREFIX = 'Notifications'

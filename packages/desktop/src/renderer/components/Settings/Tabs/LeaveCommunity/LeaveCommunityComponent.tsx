@@ -23,6 +23,8 @@ const classes = {
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
+  padding: '0px 32px',
+
   [`& .${classes.root}`]: {},
 
   [`& .${classes.titleContainer}`]: {
@@ -77,7 +79,8 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     padding: theme.spacing(2),
     '&:hover': {
       boxShadow: 'none',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      backgroundColor: theme.palette.colors.white
     }
   }
 }))
@@ -96,7 +99,7 @@ export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({
   handleClose
 }) => {
   return (
-    <Modal open={open} handleClose={handleClose}>
+    <Modal open={open} handleClose={handleClose} fullPage={false}>
       <StyledGrid container justifyContent='center'>
         {/* <Grid
         container
@@ -124,8 +127,9 @@ export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({
           direction='row'
           justifyContent='center'>
           <Typography align={'center'}>
-            Are you sure you want to delete{' '}
-            <span style={{ fontWeight: 500 }}>{communityName}</span> from this device?
+            Your account, messages, and all data for{' '}
+            <span style={{ fontWeight: 500 }}>{communityName}</span> will be deleted from this
+            device. This cannot be undone.
           </Typography>
         </Grid>
         <Grid item xs={'auto'} className={classes.buttonContainer}>
@@ -138,23 +142,25 @@ export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({
             Leave community
           </Button>
         </Grid>
-        {/* <Grid
-        container
-        item
-        className={classes.secondaryButtonContainer}
-        xs={12}
-        direction='row'
-        justifyContent='center'>
-        <Button
-          variant='contained'
-          onClick={handleClose}
-          size='small'
-          fullWidth
-          className={classes.secondaryButton}>
-          Never mind, I'll stay
-        </Button>
-      </Grid> */}
+        <Grid
+          container
+          item
+          className={classes.secondaryButtonContainer}
+          xs={12}
+          direction='row'
+          justifyContent='center'>
+          <Button
+            variant='contained'
+            onClick={handleClose}
+            size='small'
+            fullWidth
+            className={classes.secondaryButton}>
+            Never mind, I'll stay
+          </Button>
+        </Grid>
       </StyledGrid>
     </Modal>
   )
 }
+
+export default LeaveCommunityComponent

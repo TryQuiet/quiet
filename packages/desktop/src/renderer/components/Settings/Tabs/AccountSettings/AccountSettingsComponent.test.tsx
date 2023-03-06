@@ -1,6 +1,6 @@
 /* eslint import/first: 0 */
 import React from 'react'
-import { renderComponent } from '../../../testUtils/renderComponent'
+import { renderComponent } from '../../../../testUtils/renderComponent'
 
 import AccountSettingsComponent from './AccountSettingsComponent'
 import { Identity } from '@quiet/state-manager'
