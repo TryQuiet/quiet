@@ -137,7 +137,7 @@ describe('send message - users go offline and online', () => {
   })
 })
 
-describe.only('send message - users are online', () => {
+describe('send message - users are online', () => {
   let owner: AsyncReturnType<typeof createApp>
   let userOne: AsyncReturnType<typeof createApp>
 
