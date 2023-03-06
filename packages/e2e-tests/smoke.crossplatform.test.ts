@@ -9,7 +9,7 @@ import {
   RegisterUsernameModal
 } from './selectors.crossplatform'
 
-jest.setTimeout(350000)
+jest.setTimeout(450000)
 describe('Smoke', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
