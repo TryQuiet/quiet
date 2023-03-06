@@ -13,7 +13,9 @@ export const Component = Template.bind({})
 
 const args: LeaveCommunityProps = {
   communityName: 'Rockets',
-  leaveCommunity: function (): void {}
+  leaveCommunity: function (): void {},
+  open: true,
+  handleClose: function (): void {}
 }
 
 Component.args = args

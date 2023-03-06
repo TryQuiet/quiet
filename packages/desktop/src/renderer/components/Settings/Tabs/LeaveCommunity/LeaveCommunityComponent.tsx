@@ -6,11 +6,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 
-import Icon from '../../../ui/Icon/Icon'
-
-// import rocketIcon from '../../static/images/rocket.svg'
-
-import { capitalizeFirstLetter } from '../../../../../utils/functions/capitalize'
+import Modal from '../../../ui/Modal/Modal'
 
 const PREFIX = 'LeaveCommunity'
 
@@ -89,16 +85,20 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 export interface LeaveCommunityProps {
   communityName: string
   leaveCommunity: () => void
+  open: boolean
+  handleClose: () => void
 }
 
 export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({
   communityName,
-  leaveCommunity
+  leaveCommunity,
+  open,
+  handleClose
 }) => {
-  const _communityName = capitalizeFirstLetter(communityName)
   return (
-    <StyledGrid container justifyContent='center'>
-      {/* <Grid
+    <Modal open={open} handleClose={handleClose}>
+      <StyledGrid container justifyContent='center'>
+        {/* <Grid
         container
         className={classes.iconContainer}
         item
@@ -107,37 +107,38 @@ export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({
         justifyContent='center'>
         <Icon className={classes.rocketIcon} src={rocketIcon} />
       </Grid> */}
-      <Grid
-        container
-        item
-        className={classes.titleContainer}
-        xs={12}
-        direction='row'
-        justifyContent='center'>
-        <Typography variant={'h4'}>Are you sure you want to leave?</Typography>
-      </Grid>
-      <Grid
-        container
-        item
-        className={classes.descContainer}
-        xs={12}
-        direction='row'
-        justifyContent='center'>
-        <Typography align={'center'}>
-          Are you sure you want to delete <span style={{ fontWeight: 500 }}>{_communityName}</span> from this device?
-        </Typography>
-      </Grid>
-      <Grid item xs={'auto'} className={classes.buttonContainer}>
-        <Button
-          variant='contained'
-          onClick={leaveCommunity}
-          size='small'
-          fullWidth
-          className={classes.button}>
-          Leave community
-        </Button>
-      </Grid>
-      {/* <Grid
+        <Grid
+          container
+          item
+          className={classes.titleContainer}
+          xs={12}
+          direction='row'
+          justifyContent='center'>
+          <Typography variant={'h4'}>Are you sure you want to leave?</Typography>
+        </Grid>
+        <Grid
+          container
+          item
+          className={classes.descContainer}
+          xs={12}
+          direction='row'
+          justifyContent='center'>
+          <Typography align={'center'}>
+            Are you sure you want to delete{' '}
+            <span style={{ fontWeight: 500 }}>{communityName}</span> from this device?
+          </Typography>
+        </Grid>
+        <Grid item xs={'auto'} className={classes.buttonContainer}>
+          <Button
+            variant='contained'
+            onClick={leaveCommunity}
+            size='small'
+            fullWidth
+            className={classes.button}>
+            Leave community
+          </Button>
+        </Grid>
+        {/* <Grid
         container
         item
         className={classes.secondaryButtonContainer}
@@ -153,6 +154,7 @@ export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({
           Never mind, I'll stay
         </Button>
       </Grid> */}
-    </StyledGrid>
+      </StyledGrid>
+    </Modal>
   )
 }

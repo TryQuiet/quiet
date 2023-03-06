@@ -18,7 +18,14 @@ const Template: ComponentStory<typeof SettingsComponent> = args => {
 export const Component = Template.bind({})
 
 const Leave: FC = () => {
-  return <LeaveCommunityComponent communityName={'Rockets'} leaveCommunity={() => {}} />
+  return (
+    <LeaveCommunityComponent
+      communityName={'Rockets'}
+      leaveCommunity={jest.fn()}
+      open={false}
+      handleClose={jest.fn()}
+    />
+  )
 }
 
 const Invite: FC = () => {
@@ -44,6 +51,11 @@ const args: SettingsComponentProps = {
     notifications: About, // Unfortunatelly notifications component causes story to crash
     invite: Invite,
     leave: Leave
+  },
+  leaveCommunityModal: {
+    open: false,
+    handleOpen: function (_args?: any): any {},
+    handleClose: function (): any {}
   }
 }
 

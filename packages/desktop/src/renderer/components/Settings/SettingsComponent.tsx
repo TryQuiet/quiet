@@ -2,15 +2,15 @@ import React, { useState } from 'react'
 
 import { styled } from '@mui/material/styles'
 
-import { Grid, Tabs } from '@mui/material'
+import { Grid, Tabs, Typography } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
 import { Scrollbars } from 'rc-scrollbars'
 import { AutoSizer } from 'react-virtualized'
 
+import { useModal } from '../../containers/hooks'
 import Modal from '../ui/Modal/Modal'
-import Tab from '../ui/Tab/Tab'
 
-import theme from '../../theme'
+import Tab from '../ui/Tab/Tab'
 
 const PREFIX = 'SettingsModal'
 
@@ -51,13 +51,15 @@ export interface SettingsComponentProps {
   handleClose: () => void
   owner: boolean
   tabs: any
+  leaveCommunityModal: ReturnType<typeof useModal>
 }
 
 export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   open,
   handleClose,
   owner,
-  tabs
+  tabs,
+  leaveCommunityModal
 }) => {
   const [contentRef, setContentRef] = React.useState(null)
 
@@ -124,14 +126,16 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
               {owner && (
                 <Tab value='invite' label='Add members' data-testid={'invite-settings-tab'} />
               )}
-              <Tab
-                value='leave'
-                label='Leave community'
-                data-testid={'leave-community-tab'}
-                style={{
-                  color: theme.palette.colors.red
-                }}
-              />
+              <Grid style={{ marginTop: '36px', cursor: 'pointer' }}>
+                <Typography
+                  fontWeight={'500'}
+                  fontSize={'0.8125rem'}
+                  color={'#E42656'}
+                  style={{ padding: '12px 16px', textTransform: 'capitalize' }}
+                  onClick={leaveCommunityModal.handleOpen}>
+                  Leave community
+                </Typography>
+              </Grid>
             </StyledTabs>
           </StyledAppBar>
         </StyledTabsWrapper>
