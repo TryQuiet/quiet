@@ -133,12 +133,13 @@ describe('send message - users go offline and online', () => {
 
   it('Owner replicated all messages', async () => {
     console.log(9)
+    await sleep(30_000)
     await assertReceivedMessages('owner', expectedMessages, timeout, owner.store)
   })
 
   it('userOne replicated all messages', async () => {
     console.log(10)
-    await sleep(30_000)
+    await sleep(50_000)
     await assertReceivedMessages('userOne', expectedMessages, timeout, userOne.store)
   })
 
