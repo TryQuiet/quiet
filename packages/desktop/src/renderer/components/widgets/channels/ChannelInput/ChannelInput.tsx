@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback } from 'react'
 import classNames from 'classnames'
 import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
-import Picker from 'emoji-picker-react'
+import Picker, { EmojiStyle } from 'emoji-picker-react'
 import Grid from '@mui/material/Grid'
 import { styled } from '@mui/material/styles'
 import orange from '@mui/material/colors/orange'
@@ -582,6 +582,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                             setMessage(message + emojiData.emoji)
                             setOpenEmoji(false)
                           }}
+                          emojiStyle={EmojiStyle.NATIVE}
                         /* eslint-enable */
                         />
                       </div>
