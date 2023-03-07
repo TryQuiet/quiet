@@ -16,6 +16,8 @@ export enum GetInfoTorSignal {
   ENTRY_GUARDS = 'entry-guards'
 }
 
+export type TorParams = {[arg: string]: string}
+
 interface IConstructor {
   torPath?: string
   options: child_process.SpawnOptionsWithoutStdio
@@ -23,7 +25,7 @@ interface IConstructor {
   httpTunnelPort: number
   controlPort?: number
   authCookie?: string
-  extraTorProcessParams?: string[]
+  extraTorProcessParams?: TorParams
 }
 export class Tor {
   httpTunnelPort: number
@@ -39,7 +41,7 @@ export class Tor {
   torPassword: string
   torHashedPassword: string
   torAuthCookie: string
-  extraTorProcessParams?: string[] = []
+  extraTorProcessParams?: TorParams
   constructor({
     torPath,
     options,
@@ -53,9 +55,21 @@ export class Tor {
     this.options = options
     this.appDataPath = appDataPath
     this.httpTunnelPort = httpTunnelPort
-    this.extraTorProcessParams = extraTorProcessParams || []
+    this.extraTorProcessParams = this.mergeDefaultTorParams(extraTorProcessParams)
     this.controlPort = controlPort || null
     this.torAuthCookie = authCookie || null
+  }
+
+  mergeDefaultTorParams = (params: TorParams = {}): TorParams => {
+    const defaultParams = {
+      '--NumEntryGuards': '3' // See task #1295
+    }
+    return {...defaultParams, ...params}
+  }
+
+  get torProcessParams(): string[] {
+    log('extra', Array.from(Object.entries(this.extraTorProcessParams)).flat())
+    return Array.from(Object.entries(this.extraTorProcessParams)).flat()
   }
 
   public init = async ({ repeat = 6, timeout = 3600_000 } = {}): Promise<void> => {
@@ -203,7 +217,7 @@ export class Tor {
           this.torDataDirectory,
           '--HashedControlPassword',
           this.torHashedPassword,
-          ...this.extraTorProcessParams
+          ...this.torProcessParams
         ],
         this.options
       )
