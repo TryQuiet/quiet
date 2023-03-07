@@ -15,9 +15,10 @@ export const channelNameField = (name = 'channelName'): FieldData => {
         value: 20,
         message: ChannelNameErrors.NameTooLong
       },
+      /* eslint-disable */
       validate: {
         whitespaces: value =>
-          /^(?![\s-])[\w&/\\#\][,+()!@$%^&*=_~`.'":;|?<>{}\s-]+$/.test(value) ||
+          /^(?![\s-])[\w&\/\\#\]\[,+()!@$%^&*=_~`.'":;|?<>{}\s-]+$/.test(value) ||
           FieldErrors.Whitespaces
       }
     }
