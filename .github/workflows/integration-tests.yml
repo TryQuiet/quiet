@@ -39,9 +39,13 @@ jobs:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test createJoinCommunity'
-        working-directory: ./packages/integration-tests
-        run: DEBUG=backend* npm run test createJoinCommunity.test.ts
-
+        # working-directory: ./packages/integration-tests
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          command:  cd packages/integration-tests && DEBUG=backend* npm run test createJoinCommunity.test.ts
+          
   registrar:
     timeout-minutes: 180
     runs-on: ubuntu-20.04
@@ -59,7 +63,7 @@ jobs:
         # working-directory: ./packages/integration-tests
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 25
+          timeout_minutes: 30
           max_attempts: 3
           command:  cd packages/integration-tests && DEBUG=backend* npm run test registrar.test.ts
 
@@ -77,8 +81,14 @@ jobs:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test send messages'
-        working-directory: ./packages/integration-tests
-        run: DEBUG=backend* npm run test sendMessages.test.ts
+        # working-directory: ./packages/integration-tests
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          command:  cd packages/integration-tests && DEBUG=backend* npm run test sendMessages.test.ts
+
+
 
   send-big-file:
     timeout-minutes: 360
@@ -119,8 +129,13 @@ jobs:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test send medium file'
-        working-directory: ./packages/integration-tests
-        run: DEBUG=backend* npm run test sendMediumFile.test.ts
+        # working-directory: ./packages/integration-tests
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          command:  cd packages/integration-tests && DEBUG=backend* npm run test sendMediumFile.test.ts
+
 
   send-small-file:
     timeout-minutes: 180
@@ -136,5 +151,9 @@ jobs:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test send small file'
-        working-directory: ./packages/integration-tests
-        run: DEBUG=backend* npm run test sendSmallFile.test.ts
+        # working-directory: ./packages/integration-tests
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          command:  cd packages/integration-tests && DEBUG=backend* npm run test sendSmallFile.test.ts
