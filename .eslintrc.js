@@ -17,6 +17,7 @@ module.exports = {
     'no-unused-vars': 'off',
     'array-callback-return': 'off',
     'comma-dangle': 'off',
+    '@typescript-eslint/naming-convention': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/indent': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
