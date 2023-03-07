@@ -96,9 +96,9 @@ describe.only('send message - users go offline and online', () => {
   it('Every user sends one message to general channel', async () => {
     console.log(5)
     const message1 = await sendMessage({ message: 'owner says hi', store: owner.store })
-    await sleep(10_000)
+    await sleep(15_000)
     const message2 = await sendMessage({ message: 'userOne says hi', store: userOne.store })
-    await sleep(10_000)
+    await sleep(15_000)
     const message3 = await sendMessage({ message: 'userTwo says hi', store: userTwo.store })
     expectedMessages = [...expectedMessages, message1, message2, message3]
     // Wait 10 seconds before closing the app, so writing to databases can be finished
@@ -138,11 +138,13 @@ describe.only('send message - users go offline and online', () => {
 
   it('userOne replicated all messages', async () => {
     console.log(10)
+    await sleep(30_000)
     await assertReceivedMessages('userOne', expectedMessages, timeout, userOne.store)
   })
 
   it('userTwo replicated all messages', async () => {
     console.log(11)
+    await sleep(10_000)
     await assertReceivedMessages('userTwo', expectedMessages, timeout, userTwo.store)
   })
 
