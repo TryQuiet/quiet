@@ -644,7 +644,7 @@ export class ConnectionsManager extends EventEmitter {
 
     this.libp2pInstance = libp2p
     const dialInChunks = new ProcessInChunks<string>(params.bootstrapMultiaddrs, this.dialPeer)
-    await this.tor.getInfo(GetInfoTorSignal.CONFIG_TEXT)
+
     libp2p.addEventListener('peer:discovery', (peer) => {
       log(`${params.peerId.toString()} discovered ${peer.detail.id}`)
     })

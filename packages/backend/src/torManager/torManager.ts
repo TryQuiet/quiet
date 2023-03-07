@@ -16,7 +16,7 @@ export enum GetInfoTorSignal {
   ENTRY_GUARDS = 'entry-guards'
 }
 
-export type TorParams = {[arg: string]: string}
+export interface TorParams {[arg: string]: string}
 
 interface IConstructor {
   torPath?: string
@@ -64,11 +64,10 @@ export class Tor {
     const defaultParams = {
       '--NumEntryGuards': '3' // See task #1295
     }
-    return {...defaultParams, ...params}
+    return { ...defaultParams, ...params }
   }
 
   get torProcessParams(): string[] {
-    log('extra', Array.from(Object.entries(this.extraTorProcessParams)).flat())
     return Array.from(Object.entries(this.extraTorProcessParams)).flat()
   }
 
