@@ -69,8 +69,12 @@ describe.only('send message - users go offline and online', () => {
       userName: 'username2',
       expectedPeersCount: 3
     })
-
+    await sleep(10_000)
+    console.log('after sleep')
     const infoMessages = getInfoMessages(owner.store, 'general')
+    console.log({ infoMessages })
+    // const duplicate = infoMessages.find(item => item.message === 'Created #general')
+    // const filtered = infoMessages.filter(item => item.id !== duplicate.id)
 
     expectedMessages = infoMessages
   })
