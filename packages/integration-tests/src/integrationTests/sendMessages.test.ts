@@ -20,7 +20,7 @@ const crypto = new Crypto()
 
 global.crypto = crypto
 
-describe('send message - users go offline and online', () => {
+describe.only('send message - users go offline and online', () => {
   let owner: AsyncReturnType<typeof createApp>
   let userOne: AsyncReturnType<typeof createApp>
   let userTwo: AsyncReturnType<typeof createApp>
@@ -137,10 +137,10 @@ describe('send message - users go offline and online', () => {
   //   await assertReceivedMessages('userOne', expectedMessages, timeout, userOne.store)
   // })
 
-  // it('userTwo replicated all messages', async () => {
-  //   console.log(11)
-  //   await assertReceivedMessages('userTwo', expectedMessages, timeout, userTwo.store)
-  // })
+  it('userTwo replicated all messages', async () => {
+    console.log(11)
+    await assertReceivedMessages('userTwo', expectedMessages, timeout, userTwo.store)
+  })
 
   it('Replicated messages are valid', async () => {
     console.log(12)
