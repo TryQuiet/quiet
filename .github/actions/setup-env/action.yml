@@ -35,7 +35,6 @@ runs:
       shell: bash
 
     - name: "Cache NPM dependencies"
-      # if: ${{ runner.os != 'Windows' }}  # Caching slows down setup for Windows
       id: cache-nodemodules
       uses: actions/cache@v2
       with:

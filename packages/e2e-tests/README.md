@@ -14,4 +14,3 @@ The rest of the tests to be rewritten have been left on this commit fa1256e4d19f
 -newUser.returns
 
 In the current approach, installers are taken from github releases, but in the future the application will be built on CI
-

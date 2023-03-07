@@ -33,15 +33,9 @@ export class BuildSetup {
 
     if (process.platform === 'win32') {
       console.log('!WINDOWS!')
-      // exec(`cd %APPDATA% % & mkdir ${this.dataDir}`, e => console.log({ e }))
-      this.child = spawn(
-        // `cd %APPDATA% & mkdir ${this.dataDir} & set DATA_DIR=${this.dataDir} & node_modules/.bin & chromedriver --port=${this.port}`,
-        `cd node_modules/.bin & chromedriver.cmd --port=${this.port}`,
-        [],
-        {
-          shell: true
-        }
-      )
+      this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port}`, [], {
+        shell: true
+      })
     } else {
       this.child = spawn(
         `DEBUG=backend DATA_DIR=${this.dataDir} node_modules/.bin/chromedriver --port=${this.port}`,

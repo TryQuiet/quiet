@@ -127,7 +127,7 @@ jobs:
       - name: Run smoke test
         working-directory: ./packages/e2e-tests
         run: npm run test smoke.crossplatform.test.ts
-
+      # Will be fixed in next tasks 
       # - name: Run newUser test - Includes 2 separate application clients
       #   working-directory: ./packages/e2e-tests
       #   run: npm run test newUser.crossplatform.test.ts
