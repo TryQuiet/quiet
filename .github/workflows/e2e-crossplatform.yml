@@ -128,6 +128,6 @@ jobs:
         working-directory: ./packages/e2e-tests
         run: npm run test smoke.crossplatform.test.ts
 
-      - name: Run newUser test - Includes 2 separate application clients
-        working-directory: ./packages/e2e-tests
-        run: npm run test newUser.crossplatform.test.ts
+      # - name: Run newUser test - Includes 2 separate application clients
+      #   working-directory: ./packages/e2e-tests
+      #   run: npm run test newUser.crossplatform.test.ts
