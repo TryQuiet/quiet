@@ -21,7 +21,6 @@ import {
   messages,
   SendingStatus,
   MessageType,
-  connection,
   FileMetadata,
   DownloadFilePayload,
   InitCommunityPayload,

@@ -31,7 +31,7 @@ describe('InviteToCommunity', () => {
                 <h3
                   class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
                 >
-                  Add members
+                  Invite a friend
                 </h3>
               </div>
             </div>

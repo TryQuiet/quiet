@@ -12,19 +12,14 @@ const classes = {
 
 const StyledMuiTab = styled(MuiTab)(({ theme }) => ({
   [`&.${classes.tabRoot}`]: {
-    color: theme.typography.subtitle1.color,
-    fontSize: '0.8125rem',
+    opacity: '1',
+    padding: '10px 8px 8px 8px',
+    fontSize: '14px',
+    fontWeight: '400',
     alignItems: 'flex-start',
-    textTransform: 'capitalize'
-  },
-
-  [`&.${classes.textColorPrimary}`]: {
-    '& .selected': {
-      color: theme.palette.colors.purple
-    },
-    '& .disabled': {
-      color: theme.palette.colors.darkGrey
-    }
+    textTransform: 'none',
+    lineHeight: '21px',
+    minHeight: '0px'
   },
 
   [`&.${classes.selected}`]: {

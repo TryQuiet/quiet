@@ -15,7 +15,8 @@ import Tab from '../ui/Tab/Tab'
 const PREFIX = 'SettingsModal'
 
 const classes = {
-  indicator: `${PREFIX}indicator`
+  indicator: `${PREFIX}indicator`,
+  leaveComunity: `${PREFIX}leaveCommunity`,
 }
 
 const StyledModalContent = styled(Grid)(() => ({
@@ -39,7 +40,20 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
 
   [`& .${classes.indicator}`]: {
     height: '0 !important'
-  }
+  },
+
+  [`& .${classes.leaveComunity}`]: {
+    opacity: '1',
+    padding: '10px 8px 8px 8px',
+    color: theme.palette.colors.hotPink,
+    fontSize: '14px',
+    fontWeight: '400',
+    alignItems: 'flex-start',
+    textTransform: 'none',
+    lineHeight: '21px',
+    minHeight: '0px'
+  },
+
 }))
 
 const TabComponentWrapper = styled(Grid)(() => ({
@@ -124,14 +138,11 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
                 data-testid={'notifications-settings-tab'}
               />
               {owner && (
-                <Tab value='invite' label='Add members' data-testid={'invite-settings-tab'} />
+                <Tab value='invite' label='Invite a friend' data-testid={'invite-settings-tab'} />
               )}
-              <Grid style={{ marginTop: '36px', cursor: 'pointer' }}>
+              <Grid style={{ marginTop: '24px', cursor: 'pointer' }}>
                 <Typography
-                  fontWeight={'500'}
-                  fontSize={'0.8125rem'}
-                  color={'#E42656'}
-                  style={{ padding: '12px 16px', textTransform: 'capitalize' }}
+                  className={classes.leaveComunity}
                   onClick={leaveCommunityModal.handleOpen}>
                   Leave community
                 </Typography>

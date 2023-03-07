@@ -90,7 +90,7 @@ export const InviteComponent: FC<InviteFriendProps> = ({
     <StyledGrid container direction='column'>
       <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
         <Grid item className={classes.title}>
-          <Typography variant='h3'>Add members</Typography>
+          <Typography variant='h3'>Invite a friend</Typography>
         </Grid>
       </Grid>
       <Grid item>
