@@ -88,10 +88,12 @@ describe('registrar is offline, user tries to join, then registrar goes online',
       registrarAddress
     })
     // User should keep sending requests for 10 seconds.
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
     await assertRegistrationRequestSent(user.store, 2)
   })
 
   it('user get error message', async () => {
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
     await assertReceivedRegistrationError(user.store)
   })
 
@@ -127,16 +129,18 @@ describe('User tries to register existing username', () => {
 
   it('Owner creates community', async () => {
     await createCommunity({ userName, store: owner.store })
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
   })
 
   it('User tries to join the community using the same username as owner', async () => {
     const ownerData = getCommunityOwnerData(owner.store)
-
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
     await registerUsername({
       ...ownerData,
       store: user.store,
       userName
     })
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
   })
 
   it('User receives registration error with a proper message', async () => {
@@ -166,6 +170,7 @@ describe('Certificate already exists in db, user asks for certificate providing 
   })
 
   it('User registers certificate', async () => {
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
     ownerData = getCommunityOwnerData(owner.store)
     await registerUsername({
       ...ownerData,
@@ -175,6 +180,7 @@ describe('Certificate already exists in db, user asks for certificate providing 
   })
 
   it('User is registered and sends the same CSR again, no registration error', async () => {
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
     await assertReceivedCertificates('owner', 2, 1_800_000, owner.store)
     await assertReceivedCertificates('user', 2, 1_800_000, user.store)
     await sendCsr(user.store)
