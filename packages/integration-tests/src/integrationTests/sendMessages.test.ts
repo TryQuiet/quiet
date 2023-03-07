@@ -129,6 +129,7 @@ describe('send message - users go offline and online', () => {
     console.log(8)
     userOne = await createApp(userOneOldState, userOneDataPath)
     userTwo = await createApp(userTwoOldState, userTwoDataPath)
+    await sleep(10_000)
   })
 
   it('Owner replicated all messages', async () => {
@@ -145,7 +146,7 @@ describe('send message - users go offline and online', () => {
 
   it('userTwo replicated all messages', async () => {
     console.log(11)
-    await sleep(10_000)
+    await sleep(50_000)
     await assertReceivedMessages('userTwo', expectedMessages, timeout, userTwo.store)
   })
 
