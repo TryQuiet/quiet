@@ -42,6 +42,7 @@ const torBinName = options.torBinName
 const eventEmmiter = new EventEmitter()
 const torServices = new Map<string, { tor: Tor; httpTunnelPort: number; onionAddress?: string; bootstrapTime: number }>()
 const results = Object.assign({}, options)
+results['node'] = process.versions.node
 
 const spawnTor = async (i: number) => {
   const tmpDir = createTmpDir()
