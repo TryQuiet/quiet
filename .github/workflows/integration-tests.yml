@@ -56,13 +56,12 @@ jobs:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test registrar'
-        working-directory: ./packages/integration-tests
-      #   run: DEBUG=backend* npm run test registrar.test.ts
+        # working-directory: ./packages/integration-tests
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 25
           max_attempts: 3
-          command: DEBUG=backend* npm run test registrar.test.ts
+          command:  cd packages/integration-tests && DEBUG=backend* npm run test registrar.test.ts
 
   send-messages:
     timeout-minutes: 360
