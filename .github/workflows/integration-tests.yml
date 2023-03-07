@@ -60,7 +60,7 @@ jobs:
       #   run: DEBUG=backend* npm run test registrar.test.ts
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 20
+          timeout_minutes: 25
           max_attempts: 3
           command: DEBUG=backend* npm run test registrar.test.ts
 
