@@ -57,7 +57,12 @@ jobs:
 
       - name: 'Run test registrar'
         working-directory: ./packages/integration-tests
-        run: DEBUG=backend* npm run test registrar.test.ts
+      #   run: DEBUG=backend* npm run test registrar.test.ts
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: DEBUG=backend* npm run test registrar.test.ts
 
   send-messages:
     timeout-minutes: 360

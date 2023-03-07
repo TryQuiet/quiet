@@ -54,9 +54,6 @@ export const createApp = async (
 
   const { store, runSaga } = prepareStore(mockedState)
 
-  const proxyPort = await getPort()
-  const controlPort = await getPort()
-  const httpTunnelPort = await getPort()
   const appPath = createPath(createTmpDir(`quietIntegrationTest-${appName}`).name)
   const manager = new backend.ConnectionsManager({
     options: {
@@ -69,9 +66,7 @@ export const createApp = async (
     torResourcesPath: torDirForPlatform(null),
     socketIOPort: dataServerPort1
   })
-  console.log('1')
   await manager.init()
-  console.log('2')
   function* root(): Generator {
     const socket = yield* call(connectToDataport, `http://localhost:${dataServerPort1}`, appName)
     // @ts-expect-error
