@@ -41,6 +41,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         init {
             System.loadLibrary("own-native-lib")
             System.loadLibrary("node")
+            System.loadLibrary("tor")
         }
     }
 
@@ -119,7 +120,9 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
             val tor = TorResourceInstaller(context, context.filesDir).installResources()
             val torBinary = tor.canonicalPath
-            
+//            val fileNativeDir = context.applicationInfo.nativeLibraryDir
+//            val torBinary = File(fileNativeDir, "libtor.so")
+
             val platform = "mobile"
             
             startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform")
