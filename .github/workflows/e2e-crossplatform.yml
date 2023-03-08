@@ -147,7 +147,7 @@ jobs:
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 25
-          max_attempts: 3
+          max_attempts: 4
           command: npm run test smoke.crossplatform.test.ts
       # Will be fixed in next tasks 
       # - name: Run newUser test - Includes 2 separate application clients
