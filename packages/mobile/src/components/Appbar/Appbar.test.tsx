@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { useContextMenu } from '../../hooks/useContextMenu'
+
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { Appbar } from './Appbar.component'
 
@@ -99,8 +101,14 @@ describe('Appbar component', () => {
   })
 
   it('renders for community', () => {
+    const contextMenu: ReturnType<typeof useContextMenu> = {
+      visible: false,
+      handleOpen: undefined,
+      handleClose: undefined
+    }
+
     const { toJSON } = renderComponent(
-      <Appbar title={'quiet'} position={'flex-start'} hasContextMenu={true} />
+      <Appbar title={'quiet'} position={'flex-start'} contextMenu={contextMenu} />
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`
@@ -208,6 +216,15 @@ describe('Appbar component', () => {
           }
         />
         <View
+          accessible={true}
+          focusable={false}
+          onClick={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
           style={
             Object {
               "alignItems": "center",

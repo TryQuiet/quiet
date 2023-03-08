@@ -33,6 +33,8 @@ import { rootSaga } from './store/root.saga'
 import { ThemeProvider } from 'styled-components'
 import { defaultTheme } from './styles/themes/default.theme'
 
+import { CommunityContextMenu } from './components/ContextMenu/menus/CommunityContextMenu.container'
+
 LogBox.ignoreAllLogs()
 
 const { Navigator, Screen } = createNativeStackNavigator()
@@ -73,6 +75,7 @@ export default function App(): JSX.Element {
                 <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
               </Navigator>
+              <CommunityContextMenu />
             </ThemeProvider>
           </MenuProvider>
         </NavigationContainer>

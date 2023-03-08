@@ -41,7 +41,7 @@ export const navigationSlice = createSlice({
         },
         closeMenu: (state, action: PayloadAction<MenuName>) => {
             const menu = action.payload
-            state[menu] = { 
+            state[menu] = {
                 open: false,
                 args: undefined
              }
