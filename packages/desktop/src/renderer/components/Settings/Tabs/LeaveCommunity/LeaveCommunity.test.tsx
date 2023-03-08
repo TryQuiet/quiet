@@ -91,7 +91,7 @@ describe('LeaveCommunity', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container css-1l3p6p4-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container css-h5bh3h-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 LeaveCommunitytitleContainer css-s2k0j8-MuiGrid-root"
