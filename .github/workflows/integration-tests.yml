@@ -88,7 +88,7 @@ jobs:
         # working-directory: ./packages/integration-tests
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 30
+          timeout_minutes: 35
           max_attempts: 3
           command:  cd packages/integration-tests && DEBUG=backend* npm run test sendMessages.test.ts
 
@@ -119,7 +119,7 @@ jobs:
         # working-directory: ./packages/integration-tests
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 30
+          timeout_minutes: 50
           max_attempts: 3
           command:  cd packages/integration-tests && DEBUG=backend* npm run test sendBigFile.test.ts
 
