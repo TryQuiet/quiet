@@ -12,7 +12,8 @@
     },
     "include": [
       "../src",
-      "support/*.ts"
+      "support/*.ts",
+      "**/*.cy.tsx"
     ],
     "exclude": [
       "node_modules",

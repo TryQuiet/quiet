@@ -12,6 +12,7 @@ module.exports = {
   ],
   "stories": [
     "../src/**/*.stories.tsx",
+    "../src/**/*.stories.cy.tsx",
   ],
   "addons": [
     "@storybook/addon-links",

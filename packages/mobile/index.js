@@ -1,31 +1,25 @@
+/* eslint-disable import/first */
 import './shim'
 /**
  * @format
  */
-require("node-libs-react-native/globals.js");
+require('node-libs-react-native/globals.js')
 
-import React, { lazy, Suspense } from 'react';
-import { AppRegistry } from 'react-native';
-import Config from 'react-native-config';
+import { AppRegistry } from 'react-native'
+import Config from 'react-native-config'
+import { name } from './app.json'
 
-import { Provider as StoreProvider } from 'react-redux';
-import { store } from './src/store/store';
+import { NodeEnv } from './src/utils/const/NodeEnv.enum'
+import StoreProvider from './src/Provider'
 
-import { name } from './app.json';
-
-import { NodeEnv } from './src/utils/const/NodeEnv.enum';
-
-const App = lazy(() => import('./src/App'));
-const Storybook = lazy(() => import('./storybook'));
-
-const Main = Config.NODE_ENV === NodeEnv.Storybook ? Storybook : App;
-
-const Wrapper = () => (
-  <Suspense fallback={null}>
-    <StoreProvider store={store}>
-      <Main />
+if (Config.NODE_ENV !== NodeEnv.Storybook) {
+  const { default: App } = require('./src/App')
+  AppRegistry.registerComponent(name, () => () => (
+    <StoreProvider>
+      <App />
     </StoreProvider>
-  </Suspense>
-);
-
-AppRegistry.registerComponent(name, () => Wrapper);
+  ))
+} else {
+  const Storybook = require('./storybook')
+  AppRegistry.registerComponent(name, () => Storybook.default)
+}
