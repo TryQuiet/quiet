@@ -95,7 +95,6 @@ describe('send message - users are online', () => {
   it('userOne downloaded image', async () => {
     console.log('SEND FILES - 7')
     await assertDownloadedImage('userOne', image.name + image.ext, timeout, userOne.store)
-    await new Promise<void>((resolve) => setTimeout(() => resolve(), 30000))
   })
 })
 
