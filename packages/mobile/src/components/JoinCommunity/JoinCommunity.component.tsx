@@ -4,10 +4,11 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
+import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { JoinCommunityProps } from './JoinCommunity.types'
 
-export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction }) => {
+export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, redirectionAction }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
@@ -48,7 +49,19 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction }) =
           disabled={loading}
           validation={inputError}
         />
-        <View style={{ marginTop: 20 }}>
+        <View style={{ marginTop: 32 }}>
+          <TextWithLink
+            text={'You can %a instead'}
+            links={[
+              {
+                tag: 'a',
+                label: 'create a new community',
+                action: redirectionAction
+              }
+            ]}
+          />
+        </View>
+        <View style={{ marginTop: 32 }}>
           <Button onPress={onPress} title={'Continue'} loading={loading} />
         </View>
       </KeyboardAvoidingView>

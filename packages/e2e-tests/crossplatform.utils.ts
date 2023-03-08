@@ -18,7 +18,7 @@ export class BuildSetup {
   private getBinaryLocation() {
     switch (process.platform) {
       case 'linux':
-        return `${__dirname}/Quiet/Quiet-1.0.0-alpha.13.AppImage`
+        return `${__dirname}/Quiet/Quiet-1.0.0.AppImage`
       case 'win32':
         return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
       case 'darwin':
@@ -33,14 +33,9 @@ export class BuildSetup {
 
     if (process.platform === 'win32') {
       console.log('!WINDOWS!')
-      exec(`cd %APPDATA% % & mkdir ${this.dataDir}`, e => console.log({ e }))
-      this.child = spawn(
-        `set DATA_DIR=${this.dataDir} & cd node_modules/.bin & chromedriver.cmd --port=${this.port}`,
-        [],
-        {
-          shell: true
-        }
-      )
+      this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port}`, [], {
+        shell: true
+      })
     } else {
       this.child = spawn(
         `DEBUG=backend DATA_DIR=${this.dataDir} node_modules/.bin/chromedriver --port=${this.port}`,
