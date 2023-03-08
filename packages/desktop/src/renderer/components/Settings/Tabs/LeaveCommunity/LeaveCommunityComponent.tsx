@@ -15,7 +15,6 @@ const classes = {
   titleContainer: `${PREFIX}titleContainer`,
   descContainer: `${PREFIX}descContainer`,
   iconContainer: `${PREFIX}iconContainer`,
-  rocketIcon: `${PREFIX}rocketIcon`,
   buttonContainer: `${PREFIX}buttonContainer`,
   button: `${PREFIX}button`,
   secondaryButtonContainer: `${PREFIX}secondaryButtonContainer`,
@@ -40,12 +39,6 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
   [`& .${classes.iconContainer}`]: {
     marginTop: 0
-  },
-
-  [`& .${classes.rocketIcon}`]: {
-    width: 120,
-    height: 120,
-    justifyContent: 'center'
   },
 
   [`& .${classes.buttonContainer}`]: {
@@ -101,15 +94,6 @@ export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({
   return (
     <Modal open={open} handleClose={handleClose} fullPage={false}>
       <StyledGrid container justifyContent='center'>
-        {/* <Grid
-        container
-        className={classes.iconContainer}
-        item
-        xs={12}
-        direction='row'
-        justifyContent='center'>
-        <Icon className={classes.rocketIcon} src={rocketIcon} />
-      </Grid> */}
         <Grid
           container
           item
