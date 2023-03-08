@@ -18,7 +18,7 @@ const Settings = () => {
 
   const community = useSelector(communities.selectors.currentCommunity)
 
-  const owner = Boolean(community?.CA)
+  const isOwner = Boolean(community?.CA)
 
   const tabs = {
     about: About,
@@ -29,7 +29,7 @@ const Settings = () => {
 
   const leaveCommunityModal = useModal(ModalName.leaveCommunity)
 
-  return <SettingsComponent owner={owner} tabs={tabs} leaveCommunityModal={leaveCommunityModal} {...modal} />
+  return <SettingsComponent isOwner={isOwner} tabs={tabs} leaveCommunityModal={leaveCommunityModal} {...modal} />
 }
 
 export default Settings

@@ -64,7 +64,7 @@ const Invite: FC = () => {
 const args: SettingsComponentProps = {
   open: true,
   handleClose: function (): void {},
-  owner: true,
+  isOwner: true,
   tabs: {
     about: Dummy,
     notifications: Dummy,

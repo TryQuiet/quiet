@@ -63,7 +63,7 @@ const TabComponentWrapper = styled(Grid)(() => ({
 export interface SettingsComponentProps {
   open: boolean
   handleClose: () => void
-  owner: boolean
+  isOwner: boolean
   tabs: any
   leaveCommunityModal: ReturnType<typeof useModal>
 }
@@ -71,7 +71,7 @@ export interface SettingsComponentProps {
 export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   open,
   handleClose,
-  owner,
+  isOwner,
   tabs,
   leaveCommunityModal
 }) => {
@@ -81,7 +81,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
 
   const [offset, setOffset] = React.useState(0)
 
-  const defaultCurrentTab = owner ? 'invite' : 'notifications'
+  const defaultCurrentTab = isOwner ? 'invite' : 'notifications'
   const [currentTab, setCurrentTab] = useState(defaultCurrentTab)
 
   const adjustOffset = () => {
@@ -137,7 +137,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
                 label='Notifications'
                 data-testid={'notifications-settings-tab'}
               />
-              {owner && (
+              {isOwner && (
                 <Tab value='invite' label='Invite a friend' data-testid={'invite-settings-tab'} />
               )}
               <Grid style={{ marginTop: '24px', cursor: 'pointer' }}>
