@@ -36,18 +36,20 @@ jobs:
         run: cd ~ && cp -R "/Volumes/Quiet 1.0.0/Quiet.app" /Applications
 
       - name: Run smoke test
+        working-directory: ./packages/e2e-tests
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 25
           max_attempts: 3
-          command:  cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+          command: npm run test smoke.crossplatform.test.ts
 
       - name: Run newUser test - Includes 2 separate application clients
+        working-directory: ./packages/e2e-tests
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 35
           max_attempts: 3
-          command:  cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
+          command: npm run test newUser.crossplatform.test.ts
 
 
 
@@ -94,18 +96,20 @@ jobs:
         run: chmod +x Quiet-1.0.0.AppImage
 
       - name: Run smoke test
+        working-directory: ./packages/e2e-tests
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 25
           max_attempts: 3
-          command:  cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+          command: npm run test smoke.crossplatform.test.ts
 
       - name: Run newUser test - Includes 2 separate application clients
+        working-directory: ./packages/e2e-tests
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 35
           max_attempts: 3
-          command:  cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
+          command: npm run test newUser.crossplatform.test.ts
 
   windows:
     runs-on: windows-2019
@@ -139,11 +143,12 @@ jobs:
         shell: powershell
 
       - name: Run smoke test
+        working-directory: ./packages/e2e-tests
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 25
           max_attempts: 3
-          command:  cd packages/e2e-tests & npm run test smoke.crossplatform.test.ts
+          command: npm run test smoke.crossplatform.test.ts
       # Will be fixed in next tasks 
       # - name: Run newUser test - Includes 2 separate application clients
       #   uses: nick-fields/retry@v2
