@@ -139,7 +139,6 @@ jobs:
         shell: powershell
 
       - name: Run smoke test
-        working-directory: ./packages/e2e-tests
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 25
