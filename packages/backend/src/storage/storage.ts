@@ -19,6 +19,7 @@ import {
   User,
   PushNotificationPayload
 } from '@quiet/state-manager'
+import { decode } from '@ipld/dag-pb'
 import type { IPFS, create as createType } from 'ipfs-core'
 import type { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
@@ -27,6 +28,7 @@ import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import { EventEmitter } from 'events'
 import PeerId from 'peer-id'
+import PQueue from 'p-queue'
 import { CryptoEngine, getCrypto, setEngine } from 'pkijs'
 import {
   IMessageThread,
@@ -521,7 +523,7 @@ export class Storage extends EventEmitter {
 
     const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
     const uploadedFileStreamIterable = {
-      async* [Symbol.asyncIterator]() {
+      async*[Symbol.asyncIterator]() {
         for await (const data of stream) {
           yield data
         }
@@ -580,6 +582,8 @@ export class Storage extends EventEmitter {
   }
 
   public async downloadFile(metadata: FileMetadata) {
+    log('downloading file')
+
     type IPFSPath = typeof CID | string
 
     // @ts-ignore
@@ -588,6 +592,73 @@ export class Storage extends EventEmitter {
     // Compare actual and reported file size
     // @ts-ignore
     const stat = await this.ipfs.files.stat(_CID)
+    log('downloaded file stat', stat)
+
+    const queue = new PQueue({ concurrency: 1000 });
+    const wantedBlocks = new Set();
+    
+    const processBlock = (block) => {
+      console.log("processing block ", block.Hash)
+      return new Promise(async (resolve, reject) => {
+        const timeout = setTimeout(() => {
+          log('couldnt fetch block, adding to the end of queue')
+          reject()
+        }, 20000);
+        
+        console.log('before getting block')
+        const fetchedBlock = await this.ipfs.block.get(block.Hash)
+        const decodedBlock = decode(fetchedBlock)
+        for (let link of decodedBlock.Links) {
+          wantedBlocks.add(link)
+        }
+        console.log('after getting block')
+        clearTimeout(timeout)
+        resolve(fetchedBlock)
+      });
+    }
+
+    async function handleRetry(item, error) {
+      console.log('handleRetry for ', item)
+      console.error(error.message);
+        return queue.add(async () => {
+          try {
+            processBlock(item), { priority: 1 }
+          } catch (e) {
+            console.log('throttling error')
+          }
+        }
+        )
+    }
+
+    async function processBlocks() {
+      console.log(
+        'start processing blocks'
+      )
+      while (wantedBlocks.size > 0) {
+        console.log('wantedblocks size ', wantedBlocks.size)
+        const block = wantedBlocks.values().next().value;
+        wantedBlocks.delete(block);
+        queue.add(async () => {
+          try {
+            await processBlock(block)
+          } catch (e) {
+            console.log('throttling error')
+          }
+        }, { priority: 0, retries: 3000, retry: handleRetry });
+      }
+    }
+
+    // @ts-ignore
+    const block = await this.ipfs.block.get(_CID)
+    const decodedBlock = decode(block)
+
+    for (let link of decodedBlock.Links) {
+      wantedBlocks.add(link)
+    }
+
+    processBlocks();
+
+
     if (!compare(metadata.size, stat.size, 0.05)) {
       const maliciousStatus: DownloadStatus = {
         mid: metadata.message.id,
@@ -603,6 +674,8 @@ export class Storage extends EventEmitter {
 
     // @ts-ignore
     const entries = this.ipfs.cat(_CID)
+
+    console.log('get entries', entries)
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
     createPaths([downloadDirectory])
