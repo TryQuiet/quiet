@@ -7,4 +7,5 @@ export interface AppbarProps {
   position?: 'flex-start' | 'center'
   style?: TextStyle
   back?: () => void
+  hasContextMenu?: boolean
 }

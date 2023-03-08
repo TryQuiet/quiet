@@ -99,7 +99,9 @@ describe('Appbar component', () => {
   })
 
   it('renders for community', () => {
-    const { toJSON } = renderComponent(<Appbar title={'quiet'} position={'flex-start'} />)
+    const { toJSON } = renderComponent(
+      <Appbar title={'quiet'} position={'flex-start'} hasContextMenu={true} />
+    )
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
@@ -205,6 +207,31 @@ describe('Appbar component', () => {
             }
           }
         />
+        <View
+          style={
+            Object {
+              "alignItems": "center",
+              "justifyContent": "center",
+              "width": 64,
+            }
+          }
+        >
+          <Image
+            resizeMethod="resize"
+            resizeMode="contain"
+            source={
+              Object {
+                "testUri": "../../../assets/icons/dots.png",
+              }
+            }
+            style={
+              Object {
+                "height": 16,
+                "width": 16,
+              }
+            }
+          />
+        </View>
       </View>
     `)
   })

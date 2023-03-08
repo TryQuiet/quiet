@@ -6,4 +6,4 @@ import { Appbar } from './Appbar.component'
 
 storiesOf('Appbar', module)
   .add('Channel', () => <Appbar title={'general'} prefix={'#'} back={() => { console.log('back') }} />)
-  .add('Community', () => <Appbar title={'Quiet'} position={'flex-start'} />)
+  .add('Community', () => <Appbar title={'Quiet'} position={'flex-start'} hasContextMenu={true} />)
