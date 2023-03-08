@@ -28,6 +28,7 @@ import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import { EventEmitter } from 'events'
 import PeerId from 'peer-id'
+import PQueue from 'p-queue'
 import { CryptoEngine, getCrypto, setEngine } from 'pkijs'
 import {
   IMessageThread,
@@ -522,7 +523,7 @@ export class Storage extends EventEmitter {
 
     const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
     const uploadedFileStreamIterable = {
-      async* [Symbol.asyncIterator]() {
+      async*[Symbol.asyncIterator]() {
         for await (const data of stream) {
           yield data
         }
@@ -591,179 +592,210 @@ export class Storage extends EventEmitter {
     // Compare actual and reported file size
     // @ts-ignore
     const stat = await this.ipfs.files.stat(_CID)
-    // log('downloaded file stat', stat)
+    log('downloaded file stat', stat)
 
-
-    try {
-      console.log('First CID is ', _CID)
-      // @ts-ignore
-      const blockGet = await this.ipfs.block.get(_CID)  
-      console.log('blockGet', blockGet)
-      // @ts-ignore
-      const decoded = decode(blockGet)
-      const lastLinkItem = decoded.Links[decoded.Links.length - 1]
-      console.log("lastLinkItem", lastLinkItem)
-      console.log('Second CID is ', lastLinkItem.Hash)
-      // @ts-ignore
-      const lastItemGet = await this.ipfs.block.get(lastLinkItem.Hash)  
-
-      // @ts-ignore
-      console.log("lastLinkItemDecoded", decode(lastItemGet))
-      
-      console.log('decoded', decode(blockGet))
-    } catch(e) {
-      console.log('blockGet doesnt work', e)
+    const queue = new PQueue({ concurrency: 1000 });
+    const wantedBlocks = new Set();
+    
+    const processBlock = (block) => {
+      console.log("processing block ", block.Hash)
+      return new Promise(async (resolve, reject) => {
+        const timeout = setTimeout(() => {
+          log('couldnt fetch block, adding to the end of queue')
+          reject()
+        }, 20000);
+        
+        console.log('before getting block')
+        const fetchedBlock = await this.ipfs.block.get(block.Hash)
+        const decodedBlock = decode(fetchedBlock)
+        for (let link of decodedBlock.Links) {
+          wantedBlocks.add(link)
+        }
+        console.log('after getting block')
+        clearTimeout(timeout)
+        resolve(fetchedBlock)
+      });
     }
 
-    // if (!compare(metadata.size, stat.size, 0.05)) {
-    //   const maliciousStatus: DownloadStatus = {
-    //     mid: metadata.message.id,
-    //     cid: metadata.cid,
-    //     downloadState: DownloadState.Malicious,
-    //     downloadProgress: undefined
-    //   }
+    async function handleRetry(item, error) {
+      console.log('handleRetry for ', item)
+      console.error(error.message);
+        return queue.add(async () => {
+          try {
+            processBlock(item), { priority: 1 }
+          } catch (e) {
+            console.log('throttling error')
+          }
+        }
+        )
+    }
 
-    //   this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, maliciousStatus)
+    async function processBlocks() {
+      console.log(
+        'start processing blocks'
+      )
+      while (wantedBlocks.size > 0) {
+        console.log('wantedblocks size ', wantedBlocks.size)
+        const block = wantedBlocks.values().next().value;
+        wantedBlocks.delete(block);
+        queue.add(async () => {
+          try {
+            await processBlock(block)
+          } catch (e) {
+            console.log('throttling error')
+          }
+        }, { priority: 0, retries: 3000, retry: handleRetry });
+      }
+    }
 
-    //   return
-    // }
     // @ts-ignore
-    // const entries = this.ipfs.cat(_CID)
+    const block = await this.ipfs.block.get(_CID)
+    const decodedBlock = decode(block)
 
+    for (let link of decodedBlock.Links) {
+      wantedBlocks.add(link)
+    }
+
+    processBlocks();
+
+
+    if (!compare(metadata.size, stat.size, 0.05)) {
+      const maliciousStatus: DownloadStatus = {
+        mid: metadata.message.id,
+        cid: metadata.cid,
+        downloadState: DownloadState.Malicious,
+        downloadProgress: undefined
+      }
+
+      this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, maliciousStatus)
+
+      return
+    }
     // @ts-ignore
-    // const info = this.ipfs.get(_CID)
+    const entries = this.ipfs.cat(_CID)
 
-    // log('info', info)
+    console.log('get entries', entries)
 
-    // for await (const infoChunk of info) {
-    //   log('info chunk', infoChunk)
-    //   log('decoded info chunk', decode(infoChunk))
-    // }
+    const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
+    createPaths([downloadDirectory])
 
+    const fileName = metadata.name + metadata.ext
+    const filePath = `${path.join(downloadDirectory, fileName)}`
 
+    const writeStream = fs.createWriteStream(filePath)
 
-    // console.log('get entries', entries)
+    let downloadedBytes = 0
+    let stopwatch = 0
 
-    // const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
-    // createPaths([downloadDirectory])
+    let downloadState: DownloadState = DownloadState.Ready
 
-    // const fileName = metadata.name + metadata.ext
-    // const filePath = `${path.join(downloadDirectory, fileName)}`
+    for await (const entry of entries) {
+      // Check if download is not meant to be canceled
+      if (this.downloadCancellations.includes(metadata.message.id)) {
+        downloadState = DownloadState.Canceled
+        log(`Cancelled downloading ${metadata.path}`)
+        break
+      }
+      await new Promise<void>((resolve, reject) => {
+        writeStream.write(entry, err => {
+          if (err) {
+            log.error(`${metadata.name} download error: ${err}`)
+            reject(err)
+          }
 
-    // const writeStream = fs.createWriteStream(filePath)
+          let transferSpeed = -1
 
-    // let downloadedBytes = 0
-    // let stopwatch = 0
+          if (stopwatch === 0) {
+            stopwatch = Date.now()
+          } else {
+            const timestamp = Date.now()
+            let delay = 0.0001 // Workaround for avoiding delay 0:
+            delay += (timestamp - stopwatch) / 1000 // in seconds
+            transferSpeed = entry.byteLength / delay
 
-    // let downloadState: DownloadState = DownloadState.Ready
+            // Prevent passing null value
+            if (transferSpeed === null) {
+              transferSpeed = 0
+            }
 
-    // for await (const entry of entries) {
-    //   // Check if download is not meant to be canceled
-    //   if (this.downloadCancellations.includes(metadata.message.id)) {
-    //     downloadState = DownloadState.Canceled
-    //     log(`Cancelled downloading ${metadata.path}`)
-    //     break
-    //   }
-    //   await new Promise<void>((resolve, reject) => {
-    //     writeStream.write(entry, err => {
-    //       if (err) {
-    //         log.error(`${metadata.name} download error: ${err}`)
-    //         reject(err)
-    //       }
+            stopwatch = timestamp
+          }
 
-    //       let transferSpeed = -1
+          downloadedBytes += entry.byteLength
 
-    //       if (stopwatch === 0) {
-    //         stopwatch = Date.now()
-    //       } else {
-    //         const timestamp = Date.now()
-    //         let delay = 0.0001 // Workaround for avoiding delay 0:
-    //         delay += (timestamp - stopwatch) / 1000 // in seconds
-    //         transferSpeed = entry.byteLength / delay
+          const downloadProgress: DownloadProgress = {
+            size: metadata.size,
+            downloaded: downloadedBytes,
+            transferSpeed: transferSpeed
+          }
 
-    //         // Prevent passing null value
-    //         if (transferSpeed === null) {
-    //           transferSpeed = 0
-    //         }
+          const downloadStatus: DownloadStatus = {
+            mid: metadata.message.id,
+            cid: metadata.cid,
+            downloadState: DownloadState.Downloading,
+            downloadProgress: downloadProgress
+          }
 
-    //         stopwatch = timestamp
-    //       }
+          const percentage = Math.floor((downloadProgress.downloaded / downloadProgress.size) * 100)
 
-    //       downloadedBytes += entry.byteLength
+          log(
+            `${new Date().toUTCString()}, ${metadata.name} downloaded bytes ${percentage}% ${downloadProgress.downloaded
+            } / ${downloadProgress.size}`
+          )
+          this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, downloadStatus)
 
-    //       const downloadProgress: DownloadProgress = {
-    //         size: metadata.size,
-    //         downloaded: downloadedBytes,
-    //         transferSpeed: transferSpeed
-    //       }
+          resolve()
+        })
+      })
+    }
 
-    //       const downloadStatus: DownloadStatus = {
-    //         mid: metadata.message.id,
-    //         cid: metadata.cid,
-    //         downloadState: DownloadState.Downloading,
-    //         downloadProgress: downloadProgress
-    //       }
+    writeStream.end()
 
-    //       const percentage = Math.floor((downloadProgress.downloaded / downloadProgress.size) * 100)
+    if (downloadState === DownloadState.Canceled) {
+      const downloadCanceled: DownloadProgress = {
+        size: metadata.size,
+        downloaded: 0,
+        transferSpeed: 0
+      }
 
-    //       log(
-    //         `${new Date().toUTCString()}, ${metadata.name} downloaded bytes ${percentage}% ${downloadProgress.downloaded
-    //         } / ${downloadProgress.size}`
-    //       )
-    //       this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, downloadStatus)
+      const statusCanceled: DownloadStatus = {
+        mid: metadata.message.id,
+        cid: metadata.cid,
+        downloadState: DownloadState.Canceled,
+        downloadProgress: downloadCanceled
+      }
 
-    //       resolve()
-    //     })
-    //   })
-    // }
+      // Canceled Download
+      this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusCanceled)
+    } else {
+      const downloadCompleted: DownloadProgress = {
+        size: metadata.size,
+        downloaded: metadata.size,
+        transferSpeed: 0
+      }
 
-    // writeStream.end()
+      const statusCompleted: DownloadStatus = {
+        mid: metadata.message.id,
+        cid: metadata.cid,
+        downloadState: DownloadState.Completed,
+        downloadProgress: downloadCompleted
+      }
 
-    // if (downloadState === DownloadState.Canceled) {
-    //   const downloadCanceled: DownloadProgress = {
-    //     size: metadata.size,
-    //     downloaded: 0,
-    //     transferSpeed: 0
-    //   }
+      // Downloaded file
+      this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusCompleted)
 
-    //   const statusCanceled: DownloadStatus = {
-    //     mid: metadata.message.id,
-    //     cid: metadata.cid,
-    //     downloadState: DownloadState.Canceled,
-    //     downloadProgress: downloadCanceled
-    //   }
-
-    //   // Canceled Download
-    //   this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusCanceled)
-    // } else {
-    //   const downloadCompleted: DownloadProgress = {
-    //     size: metadata.size,
-    //     downloaded: metadata.size,
-    //     transferSpeed: 0
-    //   }
-
-    //   const statusCompleted: DownloadStatus = {
-    //     mid: metadata.message.id,
-    //     cid: metadata.cid,
-    //     downloadState: DownloadState.Completed,
-    //     downloadProgress: downloadCompleted
-    //   }
-
-    //   // Downloaded file
-    //   this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusCompleted)
-
-    //   const fileMetadata: FileMetadata = {
-    //     ...metadata,
-    //     path: filePath
-    //   }
-    //   this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
-    // }
+      const fileMetadata: FileMetadata = {
+        ...metadata,
+        path: filePath
+      }
+      this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
+    }
 
     // Clear cancellation signal (if present)
-    // const index = this.downloadCancellations.indexOf(metadata.message.id)
-    // if (index > -1) {
-    //   this.downloadCancellations.splice(index, 1)
-    // }
+    const index = this.downloadCancellations.indexOf(metadata.message.id)
+    if (index > -1) {
+      this.downloadCancellations.splice(index, 1)
+    }
   }
 
   public cancelDownload(mid: string) {
