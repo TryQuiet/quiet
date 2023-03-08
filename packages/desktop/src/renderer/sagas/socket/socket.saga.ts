@@ -10,7 +10,7 @@ export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof socketActions.startConnection>['payload']>
 ): Generator {
   const dataPort = action.payload.dataPort
-  const socket = yield* call(io, `http://localhost:${dataPort}`)
+  const socket = yield* call(io, `http://127.0.0.1:${dataPort}`)
   yield* fork(handleSocketLifecycleActions, socket)
 
   // Handle opening/restoring connection
@@ -18,6 +18,7 @@ export function* startConnectionSaga(
 }
 
 function* setConnectedSaga(socket: Socket): Generator {
+  // @ts-expect-error
   const root = yield* fork(stateManager.useIO, socket)
   const observers = yield* fork(initObservers)
   // Handle suspending current connection

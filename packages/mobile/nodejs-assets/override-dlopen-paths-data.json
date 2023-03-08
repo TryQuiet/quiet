@@ -1,1 +1,1 @@
-[{"originalpath":["node_modules","classic-level","build","Release","classic_level.node"],"newpath":["..","Frameworks","classic-level.framework","classic-level"]},{"originalpath":["node_modules","leveldown","build","Release","leveldown.node"],"newpath":["..","Frameworks","leveldown.framework","leveldown"]}]
+[{"originalpath":["deps","ios","arm64","classic-level","classic_level.node"],"newpath":["..","Frameworks","classic-level.framework","classic-level"]}]

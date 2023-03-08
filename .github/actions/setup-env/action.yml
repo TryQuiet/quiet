@@ -4,13 +4,17 @@ inputs:
   bootstrap-packages:
     description: 'Lerna bootstrap packages (comma separated without spaces)'
     required: false
+  cachePrefix:
+    description: 'For correct caching'
+    required: false
+    default: 'prefix'
 
 runs:
   using: "composite"
   steps:
     - uses: actions/setup-node@master
       with:
-        node-version: 16.18.0
+        node-version: 18.12.1
 
     - name: Print OS name
       run: echo ${{ runner.os }}
@@ -31,16 +35,15 @@ runs:
       shell: bash
 
     - name: "Cache NPM dependencies"
-      if: ${{ runner.os != 'Windows' }}  # Caching slows down setup for Windows
       id: cache-nodemodules
       uses: actions/cache@v2
       with:
         path: |
           node_modules
           */*/node_modules
-        key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ inputs.cachePrefix }}-${{ runner.OS }}-npm-cache-${{ hashFiles('packages/*/package-lock.json') }}
         restore-keys: |
-         ${{ runner.OS }}-npm-cache-
+         ${{ inputs.cachePrefix }}-${{ runner.OS }}-npm-cache-
 
     - name: "Install monorepo dependencies"
       # if: steps.cache-nodemodules.outputs.cache-hit != 'true'

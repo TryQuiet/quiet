@@ -20,6 +20,7 @@ import { filesActions } from '../../sagas/files/files.slice'
 import { identityActions } from '../../sagas/identity/identity.slice'
 
 export const getFactory = async (store: Store) => {
+  // @ts-ignore
   const factory = new factoryGirl.FactoryGirl()
 
   factory.setAdapter(new CustomReduxAdapter(store))
@@ -159,8 +160,7 @@ export const getFactory = async (store: Store) => {
         createdAt: DateTime.utc().valueOf(),
         channelAddress: 'general',
         signature: '',
-        pubKey: '',
-        media: undefined
+        pubKey: ''
       },
       verifyAutomatically: false
     },

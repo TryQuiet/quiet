@@ -6,9 +6,11 @@ import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import PeerId from 'peer-id'
 import { StorageOptions } from '../../common/types'
-import { createPaths } from '../../common/utils'
+
 import logger from '../../logger'
 import { Storage } from '..'
+
+import { createPaths } from '../../common/utils'
 
 const log = logger('dbSnap')
 

@@ -1,4 +1,4 @@
-FROM node:16.14.2
+FROM node:18.12.1
 ARG zipbundle
 ENV PEERS_NUMBER 20
 ENV TOR_TEST_MODE regular
@@ -17,4 +17,4 @@ RUN unzip /tmp/${zipbundle} && rm /tmp/${zipbundle}
 
 COPY 3rd-party /3rd-party
 ENV DEBUG=backend*
-CMD node /app/lib/registrarTest/torRegistrarTest.js -p ${PEERS_NUMBER} -m ${TOR_TEST_MODE} -t ${TOR_BIN_NAME} -v ${VANGUARDS_ENABLED} -g ${NUM_ENTRY_GUARDS} && aws s3 cp /app/tor_*.json s3://tor-connection-data
+CMD timeout 4h node /app/backend-bundle/bundle.cjs -p ${PEERS_NUMBER} -m ${TOR_TEST_MODE} -t ${TOR_BIN_NAME} -v ${VANGUARDS_ENABLED} -g ${NUM_ENTRY_GUARDS} && aws s3 cp /app/tor_*.json s3://tor-connection-data

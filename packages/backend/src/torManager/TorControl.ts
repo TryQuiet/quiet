@@ -11,6 +11,7 @@ interface IOpts {
 
 interface IParams {
   port: number
+  family: number
 }
 
 export class TorControl {
@@ -18,9 +19,11 @@ export class TorControl {
   password: string
   cookie: string
   params: IParams
+
   constructor(opts: IOpts) {
     this.params = {
       port: opts.port,
+      family: 4
     }
     this.password = opts.password
     this.cookie = opts.cookie

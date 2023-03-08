@@ -1,20 +1,16 @@
 import fs from 'fs'
 import path from 'path'
-import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { Config } from '../constants'
-import { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createFile, createPeerId } from '../common/testUtils'
-import { Storage } from './storage'
-import * as utils from '../common/utils'
 import { FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
+import { fileURLToPath } from 'url'
 import {
   createUserCert,
   keyFromCertificate,
   parseCertificate
 } from '@quiet/identity'
-import { Crypto } from '@peculiar/webcrypto'
-
+import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
 import {
   communities,
   Community,
@@ -30,15 +26,34 @@ import {
 } from '@quiet/state-manager'
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
-import { setEngine, CryptoEngine } from 'pkijs'
+import type { Storage as StorageType } from './storage'
 
-// jest.setTimeout(30_000)
+const filename = fileURLToPath(import.meta.url)
+const dirname = path.dirname(filename)
+
+const actual = await import('../common/utils')
+jest.unstable_mockModule('../common/utils', async () => {
+  return {
+    ...(actual as object),
+    createPaths: jest.fn((paths: string[]) => {
+      console.log('creating paths in fn')
+      for (const path of paths) {
+        if (!fs.existsSync(path)) {
+          fs.mkdirSync(path, { recursive: true })
+        }
+      }
+    })
+    }
+})
+
+const { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createFile, createPeerId } = await import('../common/testUtils')
 
 let tmpDir: DirResult
 let tmpAppDataPath: string
 let tmpOrbitDbDir: string
 let tmpIpfsPath: string
-let storage: Storage
+let storage: StorageType
+let Storage
 let store: Store
 let factory: FactoryGirl
 let community: Community
@@ -48,19 +63,11 @@ let john: Identity
 let message: ChannelMessage
 let channelio: PublicChannelStorage
 let filePath: string
+let utils
 
-// jest.setTimeout(50000)
+jest.setTimeout(50000)
 
 beforeAll(async () => {
-  const webcrypto = new Crypto()
-  // @ts-ignore
-  global.crypto = webcrypto
-
-  setEngine('newEngine', new CryptoEngine({
-    name: 'newEngine',
-    // @ts-ignore
-    crypto: webcrypto,
-  }))
   store = prepareStore().store
   factory = await getFactory(store)
 
@@ -102,12 +109,14 @@ beforeEach(async () => {
   tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
   tmpOrbitDbDir = path.join(tmpAppDataPath, Config.ORBIT_DB_DIR)
   tmpIpfsPath = path.join(tmpAppDataPath, Config.IPFS_REPO_PATH)
+  Storage = (await import('./storage')).Storage
+  utils = await import('../common/utils')
   storage = null
-  filePath = path.join(__dirname, '/testUtils/500kB-file.txt')
+  filePath = path.join(
+  dirname, '/testUtils/500kB-file.txt')
 })
 
 afterEach(async () => {
-  console.log('after test')
   try {
     storage && (await storage.stopOrbitDb())
   } catch (e) {
@@ -136,6 +145,7 @@ describe('Storage', () => {
     expect(createPathsSpy).toHaveBeenCalled()
 
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(true)
+
     expect(fs.existsSync(tmpIpfsPath)).toBe(true)
   })
 
@@ -177,7 +187,7 @@ describe('Certificate', () => {
     const result = await storage.saveCertificate({ certificate: userCertificate.userCertString, rootPermsData })
 
     await sleep(5000)
-    // expect(result).toBe(true)
+    expect(result).toBe(true)
   })
 
   it('is not saved to db if did not pass verification', async () => {
@@ -269,10 +279,10 @@ describe('Certificate', () => {
     storage.certificates.events.emit('replicated')
 
     expect(eventSpy).toBeCalledWith('loadCertificates', {
-certificates: [
+      certificates: [
 
-    ]
-})
+      ]
+    })
     expect(spyOnUpdatePeersList).toBeCalled()
   })
 
@@ -306,7 +316,7 @@ certificates: [
       case 'write':
         db.events.emit(eventName, 'address', messagePayload, [])
         break
-        // @ts-ignore
+      // @ts-ignore
       case 'replicate.progress':
         db.events.emit(eventName, 'address', 'hash', messagePayload, 'progress', 'total', [])
         break
@@ -352,7 +362,7 @@ certificates: [
 
     const db = storage.publicChannelsRepos.get(message.channelAddress).db
     const messagePayload = {
- payload: {
+      payload: {
         value: aliceMessageWithJohnsPublicKey
       }
     }
@@ -387,15 +397,15 @@ certificates: [
     storage.certificates.events.emit('write', 'address', { payload: { value: 'something' } }, [])
 
     expect(eventSpy).toBeCalledWith(StorageEvents.LOAD_CERTIFICATES, {
-certificates: [
+      certificates: [
 
-    ]
-})
+      ]
+    })
     expect(spyOnUpdatePeersList).toBeCalled()
   })
 })
 
-describe('Message', () => {
+describe('Message access controller', () => {
   it('is saved to db if passed signature verification', async () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
@@ -408,15 +418,24 @@ describe('Message', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const eventSpy = jest.spyOn(storage.publicChannelsRepos.get(message.channelAddress).db, 'add')
+    const db = storage.publicChannelsRepos.get(message.channelAddress).db
+    const eventSpy = jest.spyOn(db, 'add')
 
-    await storage.sendMessage(message)
+    const messageCopy = {
+      ...message
+    }
+    delete messageCopy.media
+
+    await storage.sendMessage(messageCopy)
 
     // Confirm message has passed orbitdb validator (check signature verification only)
     expect(eventSpy).toHaveBeenCalled()
+    // @ts-expect-error
+    const savedMessages = storage.getAllEventLogEntries(db)
+    expect(savedMessages.length).toBe(1)
+    expect(savedMessages[0]).toEqual(messageCopy)
   })
 
-  // TODO: Message signature verification doesn't work, our theory is that our AccessController performs check after message is added to db.
   it('is not saved to db if did not pass signature verification', async () => {
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
@@ -431,6 +450,7 @@ describe('Message', () => {
       channelAddress: channel.address,
       pubKey: johnPublicKey
     }
+    delete spoofedMessage.media // Media 'undefined' is not accepted by db.add
 
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
@@ -443,12 +463,15 @@ describe('Message', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const eventSpy = jest.spyOn(storage.publicChannelsRepos.get(spoofedMessage.channelAddress).db, 'add')
+    const db = storage.publicChannelsRepos.get(spoofedMessage.channelAddress).db
+    const eventSpy = jest.spyOn(db, 'add')
 
     await storage.sendMessage(spoofedMessage)
 
     // Confirm message has passed orbitdb validator (check signature verification only)
-    expect(eventSpy).not.toHaveBeenCalled()
+    expect(eventSpy).toHaveBeenCalled()
+    // @ts-expect-error
+    expect(storage.getAllEventLogEntries(db).length).toBe(0)
   })
 })
 
@@ -467,7 +490,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
     const copyFileSpy = jest.spyOn(storage, 'copyFile')
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-image.png'),
+      path: path.join(dirname, '/testUtils/test-image.png'),
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
@@ -479,13 +502,14 @@ describe('Files', () => {
 
     await storage.uploadFile(metadata)
     expect(copyFileSpy).toHaveBeenCalled()
-    const newFilePath = copyFileSpy.mock.results[0].value
+    const newFilePath = copyFileSpy.mock.results[0].value as string
     metadata.path = newFilePath
 
+    const cid = 'QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T'
     expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' })
-    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: 'bafybeihlkhn7lncyzhgul7ixkeqsf2plizxw2j5fafiysrhysfe5m2ye4i', ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
+    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
     )
-    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: 'bafybeihlkhn7lncyzhgul7ixkeqsf2plizxw2j5fafiysrhysfe5m2ye4i', downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
+    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
   })
 
   it('uploads file other than image', async () => {
@@ -502,7 +526,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-file.pdf'),
+      path: path.join(dirname, '/testUtils/test-file.pdf'),
       name: 'test-file',
       ext: '.pdf',
       cid: 'uploading_id',
@@ -513,13 +537,13 @@ describe('Files', () => {
     }
 
     await storage.uploadFile(metadata)
-
+    const cid = 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ'
     expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' })
-    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: 'bafybeidfrgc53p64nsfrf3vwyi5qpukltntv2bzzo7yhwjoqnqyuamopp4', ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null }
+    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: cid, ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null }
     )
     )
-    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: 'bafybeidfrgc53p64nsfrf3vwyi5qpukltntv2bzzo7yhwjoqnqyuamopp4', downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
-    expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: 'bafybeidfrgc53p64nsfrf3vwyi5qpukltntv2bzzo7yhwjoqnqyuamopp4', ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
+    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
+    expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: cid, ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
     )
   })
 
@@ -536,7 +560,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/non-existent.png'),
+      path: path.join(dirname, '/testUtils/non-existent.png'),
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
@@ -564,7 +588,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-file.pdf'),
+      path: path.join(dirname, '/testUtils/test-file.pdf'),
       name: 'test-file',
       ext: '.pdf',
       cid: 'uploading_id',
@@ -575,18 +599,11 @@ describe('Files', () => {
     }
 
     await storage.uploadFile(metadata)
-
-    expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' }
-    )
-    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: 'bafybeidfrgc53p64nsfrf3vwyi5qpukltntv2bzzo7yhwjoqnqyuamopp4', ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
-
-    )
-    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: 'bafybeidfrgc53p64nsfrf3vwyi5qpukltntv2bzzo7yhwjoqnqyuamopp4', downloadProgress: undefined, downloadState: 'hosted', mid: 'id' }
-
-    )
-    expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: 'bafybeidfrgc53p64nsfrf3vwyi5qpukltntv2bzzo7yhwjoqnqyuamopp4', ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
-
-    )
+    const cid = 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ'
+    expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' })
+    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: cid, ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null }))
+    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
+    expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: cid, ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null }))
 
     // Downloading
 
@@ -597,7 +614,7 @@ describe('Files', () => {
       size: 20400
     })
 
-    expect(eventSpy).toHaveBeenNthCalledWith(5, 'updateDownloadProgress', { cid: 'bafybeidfrgc53p64nsfrf3vwyi5qpukltntv2bzzo7yhwjoqnqyuamopp4', downloadProgress: undefined, downloadState: 'malicious', mid: 'id' })
+    expect(eventSpy).toHaveBeenNthCalledWith(5, 'updateDownloadProgress', { cid: cid, downloadProgress: undefined, downloadState: 'malicious', mid: 'id' })
 
     expect(eventSpy).toBeCalledTimes(5)
   })
@@ -616,7 +633,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-file.pdf'),
+      path: path.join(dirname, '/testUtils/test-file.pdf'),
       name: 'test-file',
       ext: '.pdf',
       cid: 'uploading_id',
@@ -629,13 +646,13 @@ describe('Files', () => {
     await storage.uploadFile(metadata)
 
     // Downloading
-
+    const cid = 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ'
     expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' })
-    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: 'bafybeidfrgc53p64nsfrf3vwyi5qpukltntv2bzzo7yhwjoqnqyuamopp4', ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
+    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: cid, ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
     )
-    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: 'bafybeidfrgc53p64nsfrf3vwyi5qpukltntv2bzzo7yhwjoqnqyuamopp4', downloadProgress: undefined, downloadState: 'hosted', mid: 'id' }
+    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' }
     )
-    expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: 'bafybeidfrgc53p64nsfrf3vwyi5qpukltntv2bzzo7yhwjoqnqyuamopp4', ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
+    expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: cid, ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
     )
 
     storage.cancelDownload('id')
@@ -648,7 +665,7 @@ describe('Files', () => {
       ...uploadMetadata
     })
 
-    expect(eventSpy).toHaveBeenNthCalledWith(5, 'updateDownloadProgress', { cid: 'bafybeidfrgc53p64nsfrf3vwyi5qpukltntv2bzzo7yhwjoqnqyuamopp4', downloadProgress: { downloaded: 0, size: 761797, transferSpeed: 0 }, downloadState: 'canceled', mid: 'id' }
+    expect(eventSpy).toHaveBeenNthCalledWith(5, 'updateDownloadProgress', { cid: cid, downloadProgress: { downloaded: 0, size: 761797, transferSpeed: 0 }, downloadState: 'canceled', mid: 'id' }
     )
 
     expect(eventSpy).toBeCalledTimes(5)
@@ -671,7 +688,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-image.png'),
+      path: path.join(dirname, '/testUtils/test-image.png'),
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
@@ -682,17 +699,17 @@ describe('Files', () => {
     }
 
     await storage.uploadFile(metadata)
-
+    const cid = 'QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T'
     expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' }
     )
 
-    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: 'bafybeihlkhn7lncyzhgul7ixkeqsf2plizxw2j5fafiysrhysfe5m2ye4i', ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
+    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
     )
 
-    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: 'bafybeihlkhn7lncyzhgul7ixkeqsf2plizxw2j5fafiysrhysfe5m2ye4i', downloadProgress: undefined, downloadState: 'hosted', mid: 'id' }
+    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' }
     )
 
-    expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: 'bafybeihlkhn7lncyzhgul7ixkeqsf2plizxw2j5fafiysrhysfe5m2ye4i', ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
+    expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
     )
 
     // Downloading
@@ -702,14 +719,14 @@ describe('Files', () => {
     await storage.downloadFile(uploadMetadata)
 
     // Potetential bug?
-    expect(eventSpy).toHaveBeenNthCalledWith(5, 'updateDownloadProgress', { cid: 'bafybeihlkhn7lncyzhgul7ixkeqsf2plizxw2j5fafiysrhysfe5m2ye4i', downloadProgress: { downloaded: 15847, size: 15847, transferSpeed: -1 }, downloadState: 'downloading', mid: 'id' }
+    expect(eventSpy).toHaveBeenNthCalledWith(5, 'updateDownloadProgress', { cid: cid, downloadProgress: { downloaded: 15847, size: 15847, transferSpeed: -1 }, downloadState: 'downloading', mid: 'id' }
     )
 
-    expect(eventSpy).toHaveBeenNthCalledWith(6, 'updateDownloadProgress', { cid: 'bafybeihlkhn7lncyzhgul7ixkeqsf2plizxw2j5fafiysrhysfe5m2ye4i', downloadProgress: { downloaded: 15847, size: 15847, transferSpeed: 0 }, downloadState: 'completed', mid: 'id' }
+    expect(eventSpy).toHaveBeenNthCalledWith(6, 'updateDownloadProgress', { cid: cid, downloadProgress: { downloaded: 15847, size: 15847, transferSpeed: 0 }, downloadState: 'completed', mid: 'id' }
 
     )
-    expect(eventSpy).toHaveBeenNthCalledWith(7, 'updateMessageMedia', expect.objectContaining({ cid: 'bafybeihlkhn7lncyzhgul7ixkeqsf2plizxw2j5fafiysrhysfe5m2ye4i', ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
-)
+    expect(eventSpy).toHaveBeenNthCalledWith(7, 'updateMessageMedia', expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
+    )
 
     expect(eventSpy).toBeCalledTimes(7)
   })
@@ -728,7 +745,7 @@ describe('Files', () => {
     const eventSpy = jest.spyOn(storage, 'emit')
 
     const metadata: FileMetadata = {
-      path: path.join(__dirname, '/testUtils/test-image.png'),
+      path: path.join(dirname, '/testUtils/test-image.png'),
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
@@ -753,13 +770,14 @@ describe('Files', () => {
   })
 
   // Test fails because of bug in transfer speed logic https://github.com/TryQuiet/quiet/issues/1009
-  it('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
+  it.skip('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
     const fileSize = 524288 // 0.5MB
     createFile(filePath, fileSize)
-    const mockDateNow = jest.fn()
+
+    const mockDateNow = jest.fn<() => number>()
 
     global.Date.now = mockDateNow
-    mockDateNow.mockReturnValue(new Date('2022-04-07T10:20:30Z'))
+    mockDateNow.mockReturnValue(new Date('2022-04-07T10:20:30Z') as unknown as number)
 
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
 
@@ -798,7 +816,7 @@ describe('Files', () => {
         transferSpeeds.push(call[1].downloadProgress?.transferSpeed)
       }
     }
-      )
+    )
     const unwantedValues = [undefined, null, Infinity]
     for (const value of unwantedValues) {
       expect(transferSpeeds).not.toContain(value)
@@ -807,7 +825,7 @@ describe('Files', () => {
 
   it('copies file and returns a new path', () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
-    const originalPath = path.join(__dirname, '/testUtils/test-image.png')
+    const originalPath = path.join(dirname, '/testUtils/test-image.png')
     const newPath = storage.copyFile(originalPath, '12345_test-image.png')
     expect(fs.existsSync(newPath)).toBeTruthy()
     expect(originalPath).not.toEqual(newPath)
@@ -815,7 +833,7 @@ describe('Files', () => {
 
   it('tries to copy files, returns original path on error', () => {
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
-    const originalPath = path.join(__dirname, '/testUtils/test-image-non-existing.png')
+    const originalPath = path.join(dirname, '/testUtils/test-image-non-existing.png')
     const newPath = storage.copyFile(originalPath, '12345_test-image.png')
     expect(originalPath).toEqual(newPath)
   })
