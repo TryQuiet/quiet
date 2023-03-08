@@ -576,14 +576,14 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       }}>
                       <div data-testid={'emoji-picker'} className={classes.picker}>
                         <Picker
-                          /* eslint-disable */
                           onEmojiClick={(emojiData, _event) => {
                             setHtmlMessage(htmlMessage => htmlMessage + emojiData.emoji)
                             setMessage(message + emojiData.emoji)
                             setOpenEmoji(false)
                           }}
+                          // Every other emojiStyle causes downloading emojis from cdn. We do not want that.
+                          // Do not change it unless using custom getEmojiUrl with local emojis.
                           emojiStyle={EmojiStyle.NATIVE}
-                        /* eslint-enable */
                         />
                       </div>
                     </ClickAwayListener>
