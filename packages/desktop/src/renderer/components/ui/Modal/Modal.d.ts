@@ -19,4 +19,5 @@ export interface IModalProps {
   windowed?: boolean
   fullPage?: boolean
   children?: React.ReactNode
+  isTransparent?: boolean
 }
