@@ -29,6 +29,7 @@ import {
 
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
+
 import store from '../renderer/store'
 
 jest.setTimeout(20_000)
