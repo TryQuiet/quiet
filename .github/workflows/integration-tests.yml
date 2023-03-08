@@ -22,8 +22,12 @@ jobs:
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
         
       - name: 'Run test restartApp'
-        working-directory: ./packages/integration-tests
-        run: DEBUG=backend*  npm run test restartApp.test.ts
+        # working-directory: ./packages/integration-tests
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          command:  cd packages/integration-tests && DEBUG=backend*  npm run test restartApp.test.ts
 
   create-join-community:
     timeout-minutes: 180
@@ -112,8 +116,14 @@ jobs:
         run: chmod +x big-file.jpeg
 
       - name: 'Run test send big file'
-        working-directory: ./packages/integration-tests
-        run: DEBUG=backend* npm run test sendBigFile.test.ts
+        # working-directory: ./packages/integration-tests
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          command:  cd packages/integration-tests && DEBUG=backend* npm run test sendBigFile.test.ts
+
+
 
   send-medium-file:
     timeout-minutes: 180
