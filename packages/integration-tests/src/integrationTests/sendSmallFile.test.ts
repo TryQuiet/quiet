@@ -88,7 +88,9 @@ describe('send message - users are online', () => {
 
   it('userOne replicated image', async () => {
     console.log('SEND FILES - 6')
-    await assertReceivedImages('userOne', 1, timeout, userOne.store)
+    const image = await assertReceivedImages('userOne', 1, timeout, userOne.store)
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    console.log(image.media)
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 90000))
   })
 

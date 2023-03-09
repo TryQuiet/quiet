@@ -124,6 +124,10 @@ export async function assertReceivedImages(
       ).filter((message) => message.type === MessageType.Image).length
     } images`
   )
+  return Object.values(
+    store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages
+      .entities
+  ).find((message) => message.type === MessageType.Image)
 }
 
 export async function assertDownloadedImage(
@@ -147,6 +151,8 @@ export async function assertDownloadedImage(
   }, maxTime)
   log(`User ${userName} downloaded ${expectedImage}`)
 }
+
+
 
 export const assertInitializedExistingCommunitiesAndRegistrars = async (store: TestStore) => {
   const communityId = store.getState().Communities.communities.ids[0]

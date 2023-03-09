@@ -1,12 +1,22 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { createApp } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { FileContent } from '@quiet/state-manager'
+import { FileContent, files, TestStore } from '@quiet/state-manager'
 import logger from '../logger'
 import { assertReceivedCertificates } from '../testUtils/assertions'
 import path from 'path'
-import { createCommunity, getCommunityOwnerData, joinCommunity, SendImage, sendImage } from './appActions'
-import { assertReceivedChannelsAndSubscribe, assertReceivedImages, assertDownloadedImage } from './assertions'
+import {
+  createCommunity,
+  getCommunityOwnerData,
+  joinCommunity,
+  SendImage,
+  sendImage
+} from './appActions'
+import {
+  assertReceivedChannelsAndSubscribe,
+  assertReceivedImages,
+  assertDownloadedImage
+} from './assertions'
 
 const log = logger('files')
 
@@ -78,8 +88,11 @@ describe('Big File', () => {
 
   it('userOne replicated image', async () => {
     console.log('SEND FILES - 6')
-    await assertReceivedImages('userOne', 1, timeout, userOne.store)
-    await new Promise<void>((resolve) => setTimeout(() => resolve(), 90000))
+    const image = await assertReceivedImages('userOne', 1, timeout, userOne.store)
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
+    const store: TestStore = userOne.store
+    store.dispatch(files.actions.downloadFile(image.media))
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 30000))
   })
 
   it('userOne downloaded image', async () => {
