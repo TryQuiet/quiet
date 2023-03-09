@@ -42,6 +42,7 @@ const torBinName = options.torBinName
 const eventEmmiter = new EventEmitter()
 const torServices = new Map<string, { tor: Tor; httpTunnelPort: number; onionAddress?: string; bootstrapTime: number }>()
 const results = Object.assign({}, options)
+results['node'] = process.versions.node
 
 const spawnTor = async (i: number) => {
   const tmpDir = createTmpDir()
@@ -49,7 +50,7 @@ const spawnTor = async (i: number) => {
   log(`spawning tor number ${i}`)
   const tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
   const ports = await getPorts()
-  const extraTorProcessParams = ['--NumEntryGuards', guardsCount, '--VanguardsLiteEnabled', vanguargsLiteEnabled]
+  const extraTorProcessParams = { '--NumEntryGuards': guardsCount, '--VanguardsLiteEnabled': vanguargsLiteEnabled }
 
   const tor = await spawnTorProcess(tmpAppDataPath, ports, extraTorProcessParams, torBinName)
 

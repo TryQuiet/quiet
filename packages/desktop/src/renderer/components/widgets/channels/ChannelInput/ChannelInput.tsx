@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback } from 'react'
 import classNames from 'classnames'
 import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
-import Picker from 'emoji-picker-react'
+import Picker, { EmojiStyle } from 'emoji-picker-react'
 import Grid from '@mui/material/Grid'
 import { styled } from '@mui/material/styles'
 import orange from '@mui/material/colors/orange'
@@ -576,13 +576,14 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       }}>
                       <div data-testid={'emoji-picker'} className={classes.picker}>
                         <Picker
-                          /* eslint-disable */
                           onEmojiClick={(emojiData, _event) => {
                             setHtmlMessage(htmlMessage => htmlMessage + emojiData.emoji)
                             setMessage(message + emojiData.emoji)
                             setOpenEmoji(false)
                           }}
-                        /* eslint-enable */
+                          // Every other emojiStyle causes downloading emojis from cdn. We do not want that.
+                          // Do not change it unless using custom getEmojiUrl with local emojis.
+                          emojiStyle={EmojiStyle.NATIVE}
                         />
                       </div>
                     </ClickAwayListener>

@@ -17,7 +17,7 @@ describe('UpdateModal', () => {
           aria-hidden="true"
         />
         <div
-          class="Modalroot MuiModal-root css-1m4lwbj-MuiModal-root"
+          class="Modalroot MuiModal-root css-4kftk5-MuiModal-root"
           role="presentation"
         >
           <div

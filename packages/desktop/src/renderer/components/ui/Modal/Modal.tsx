@@ -1,4 +1,3 @@
-
 import React from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
@@ -28,14 +27,13 @@ const classes = {
   notFullPage: `${PREFIX}notFullPage`,
   centered: `${PREFIX}centered`,
   window: `${PREFIX}window`,
-  bold: `${PREFIX}bold`
+  bold: `${PREFIX}bold`,
+  none: `${PREFIX}none`,
+  transparent: `${PREFIX}transparent`,
+  withoutHeader: `${PREFIX}withoutHeader`
 }
 
-const StyledMaterialModal = styled(MaterialModal)((
-  {
-    theme
-  }
-) => ({
+const StyledMaterialModal = styled(MaterialModal)(({ theme }) => ({
   [`& .${classes.root}`]: {
     padding: '0 15%'
   },
@@ -79,6 +77,11 @@ const StyledMaterialModal = styled(MaterialModal)((
     height: `calc(100vh - ${constants.headerHeight}px)`
   },
 
+  [`& .${classes.withoutHeader}`]: {
+    width: '100%',
+    height: '100vh'
+  },
+
   [`& .${classes.notFullPage}`]: {
     height: '100%',
     width: '100%'
@@ -108,6 +111,12 @@ const StyledMaterialModal = styled(MaterialModal)((
     fontSize: 16,
     lineHeight: '26px',
     fontWeight: 500
+  },
+  [`& .${classes.none}`]: {
+    display: 'none'
+  },
+  [`& .${classes.transparent}`]: {
+    backgroundColor: 'transparent'
   }
 }))
 
@@ -131,49 +140,53 @@ export const Modal: React.FC<IModalProps> = ({
   children,
   testIdPrefix = '',
   windowed,
-  fullPage = true
+  fullPage = true,
+  isTransparent = false
 }) => {
   return (
-    <StyledMaterialModal open={open} onClose={handleClose} className={windowed ? classes.windowed : classes.root}>
+    <StyledMaterialModal
+      open={open}
+      onClose={handleClose}
+      className={classNames({
+        [classes.windowed]: windowed,
+        [classes.root]: !windowed,
+        [classes.transparent]: isTransparent
+      })}>
       <Grid
         container
-        direction="column"
-        justifyContent="center"
+        direction='column'
+        justifyContent='center'
         className={classNames({
           [classes.centered]: fullPage,
-          [classes.window]: !fullPage
-        })}
-      >
+          [classes.window]: !fullPage,
+          [classes.transparent]: isTransparent
+        })}>
         <Grid
           container
           item
           className={classNames({
             [classes.header]: true,
-            [classes.headerBorder]: addBorder
+            [classes.headerBorder]: addBorder,
+            [classes.none]: isTransparent
           })}
-          direction="row"
-          alignItems="center"
-        >
+          direction='row'
+          alignItems='center'>
           <Grid
             item
             xs
             container
             direction={alignCloseLeft ? 'row-reverse' : 'row'}
-            justifyContent="center"
-            alignItems="center"
-          >
+            justifyContent='center'
+            alignItems='center'>
             <Grid item xs>
               <Typography
-                variant="subtitle1"
+                variant='subtitle1'
                 className={classNames({
                   [classes.title]: true,
                   [classes.bold]: isBold
                 })}
-                style={
-                  alignCloseLeft ? { marginRight: 36 } : { marginLeft: 36 }
-                }
-                align="center"
-              >
+                style={alignCloseLeft ? { marginRight: 36 } : { marginLeft: 36 }}
+                align='center'>
                 {title}
               </Typography>
             </Grid>
@@ -183,27 +196,28 @@ export const Modal: React.FC<IModalProps> = ({
                 item
                 justifyContent={alignCloseLeft ? 'flex-start' : 'flex-end'}
                 className={classes.actions}
-                data-testid={`${testIdPrefix}ModalActions`}
-              >
-                {canGoBack
-                  ? (
+                data-testid={`${testIdPrefix}ModalActions`}>
+                {canGoBack ? (
+                  <IconButton
+                    onClick={() => {
+                      if (setStep && step) {
+                        return setStep(step - 1)
+                      }
+                    }}>
+                    <BackIcon />
+                  </IconButton>
+                ) : (
+                  !isCloseDisabled && (
                     <IconButton
                       onClick={() => {
-                        if (setStep && step) { return setStep(step - 1) }
+                        if (handleClose) {
+                          return handleClose({}, 'backdropClick')
+                        }
                       }}>
-                      <BackIcon />
+                      <ClearIcon />
                     </IconButton>
                   )
-                  : (
-                    !isCloseDisabled && (
-                      <IconButton
-                        onClick={() => {
-                          if (handleClose) { return handleClose({}, 'backdropClick') }
-                        }}>
-                        <ClearIcon />
-                      </IconButton>
-                    )
-                  )}
+                )}
               </Grid>
             </Grid>
           </Grid>
@@ -215,20 +229,23 @@ export const Modal: React.FC<IModalProps> = ({
           justifyContent={'center'}
           className={classNames({
             [classes.fullPage]: fullPage,
-            [classes.notFullPage]: !fullPage
-          })}
-        >
+            [classes.notFullPage]: !fullPage,
+            [classes.withoutHeader]: isTransparent,
+            [classes.transparent]: isTransparent
+          })}>
           <Grid
             container
             item
-            className={classNames({ [classes.content]: true })}
-            style={{ width: contentWidth, height: contentHeight }}
-          >
+            className={classNames({
+              [classes.content]: true,
+              [classes.transparent]: isTransparent
+            })}
+            style={{ width: contentWidth, height: contentHeight }}>
             {children}
           </Grid>
         </Grid>
       </Grid>
-    </StyledMaterialModal >
+    </StyledMaterialModal>
   )
 }
 

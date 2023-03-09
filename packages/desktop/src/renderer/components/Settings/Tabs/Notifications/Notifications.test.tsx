@@ -147,50 +147,12 @@ describe('Notifications', () => {
                 <h5
                   class="MuiTypography-root MuiTypography-h5 Notificationssubtitle css-11l3dv4-MuiTypography-root"
                 >
-                  Sounds
+                  Sound when receiving a notification
                 </h5>
               </div>
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column NotificationsradioSoundDiv css-80wlp8-MuiGrid-root"
               >
-                <div
-                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                >
-                  <label
-                    class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
-                    data-testid="sound-switch"
-                  >
-                    <span
-                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorDefault PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorDefault Mui-checked MuiCheckbox-root MuiCheckbox-colorDefault css-dk24d0-MuiButtonBase-root-MuiCheckbox-root"
-                    >
-                      <input
-                        checked=""
-                        class="PrivateSwitchBase-input css-1m9pwf3"
-                        data-indeterminate="false"
-                        type="checkbox"
-                      />
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                        data-testid="CheckBoxIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
-                        />
-                      </svg>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </span>
-                    <p
-                      class="MuiTypography-root MuiTypography-body2 Notificationslabel css-16d47hw-MuiTypography-root"
-                    >
-                      Play a sound when receiving a notification
-                    </p>
-                  </label>
-                </div>
                 <div
                   class="MuiGrid-root MuiGrid-item NotificationsspacingSound css-13i4rnv-MuiGrid-root"
                   data-testid="sound-librarianShhh"
@@ -309,6 +271,36 @@ describe('Notifications', () => {
                       class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ghvhpl-MuiTypography-root"
                     >
                       Splat
+                    </span>
+                  </label>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-item NotificationsspacingSound css-13i4rnv-MuiGrid-root"
+                  data-testid="sound-none"
+                >
+                  <label
+                    class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                  >
+                    <span
+                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-hkw0i8-MuiButtonBase-root-MuiCheckbox-root"
+                      data-testid="sound-none-radio"
+                    >
+                      <input
+                        class="PrivateSwitchBase-input css-1m9pwf3"
+                        data-indeterminate="false"
+                        type="checkbox"
+                      />
+                      <img
+                        src="test-file-stub"
+                      />
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                      />
+                    </span>
+                    <span
+                      class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ghvhpl-MuiTypography-root"
+                    >
+                      None
                     </span>
                   </label>
                 </div>

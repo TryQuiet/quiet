@@ -18,4 +18,5 @@ export enum ModalName {
   loadingPanel = 'loadingPanel',
   uploadedFileModal = 'uploadedFileModal',
   leaveCommunity = 'leaveCommunityModal',
+  searchChannelModal = 'searchChannelModal'
 }
