@@ -47,6 +47,7 @@ import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
 import { StorageEvents } from './types'
 
+import { IpfsFilesManager } from './ipfsFileManager'
 import { create } from 'ipfs-core'
 import { CID } from 'multiformats/cid'
 
@@ -68,6 +69,7 @@ export class Storage extends EventEmitter {
   public options: StorageOptions
   public orbitDbDir: string
   public ipfsRepoPath: string
+  private filesManager: IpfsFilesManager
   readonly downloadCancellations: string[]
   private readonly __communityId: string
   private readonly publicKeysMap: Map<string, CryptoKey>
@@ -83,7 +85,6 @@ export class Storage extends EventEmitter {
     }
     this.orbitDbDir = path.join(this.quietDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
     this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
-    this.downloadCancellations = []
     this.publicKeysMap = new Map()
     this.userNamesMap = new Map()
   }
@@ -97,6 +98,8 @@ export class Storage extends EventEmitter {
       createPaths([this.ipfsRepoPath, this.orbitDbDir])
     }
     this.ipfs = await this.initIPFS(libp2p, peerID)
+    this.filesManager = new IpfsFilesManager(this.ipfs, this.quietDir)
+    this.attachFileManagerEvents()
 
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
 
@@ -581,225 +584,22 @@ export class Storage extends EventEmitter {
     }
   }
 
+  private attachFileManagerEvents = () => {
+    this.filesManager.on('updateDownloadProgress', (status) => {
+          this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, status)
+    })
+    this.filesManager.on('updateFileMetadata', (messageMedia) => {
+      console.log('updating file metadata')
+      this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, messageMedia)
+    })
+  }
+
   public async downloadFile(metadata: FileMetadata) {
-    log('downloading file')
-
-    type IPFSPath = typeof CID | string
-
-    // @ts-ignore
-    const _CID: IPFSPath = CID.parse(metadata.cid)
-
-    // Compare actual and reported file size
-    // @ts-ignore
-    const stat = await this.ipfs.files.stat(_CID)
-    log('downloaded file stat', stat)
-
-    const queue = new PQueue({ concurrency: 1000 });
-    const wantedBlocks = new Set();
-    
-    const processBlock = (block) => {
-      console.log("processing block ", block.Hash)
-      return new Promise(async (resolve, reject) => {
-        const timeout = setTimeout(() => {
-          log('couldnt fetch block, adding to the end of queue')
-          reject()
-        }, 20000);
-        
-        console.log('before getting block')
-        const fetchedBlock = await this.ipfs.block.get(block.Hash)
-        const decodedBlock = decode(fetchedBlock)
-        for (let link of decodedBlock.Links) {
-          wantedBlocks.add(link)
-        }
-        console.log('after getting block')
-        clearTimeout(timeout)
-        resolve(fetchedBlock)
-      });
-    }
-
-    async function handleRetry(item, error) {
-      console.log('handleRetry for ', item)
-      console.error(error.message);
-        return queue.add(async () => {
-          try {
-            processBlock(item), { priority: 1 }
-          } catch (e) {
-            console.log('throttling error')
-          }
-        }
-        )
-    }
-
-    async function processBlocks() {
-      console.log(
-        'start processing blocks'
-      )
-      while (wantedBlocks.size > 0) {
-        console.log('wantedblocks size ', wantedBlocks.size)
-        const block = wantedBlocks.values().next().value;
-        wantedBlocks.delete(block);
-        queue.add(async () => {
-          try {
-            await processBlock(block)
-          } catch (e) {
-            console.log('throttling error')
-          }
-        }, { priority: 0, retries: 3000, retry: handleRetry });
-      }
-    }
-
-    // @ts-ignore
-    const block = await this.ipfs.block.get(_CID)
-    const decodedBlock = decode(block)
-
-    for (let link of decodedBlock.Links) {
-      wantedBlocks.add(link)
-    }
-
-    processBlocks();
-
-
-    if (!compare(metadata.size, stat.size, 0.05)) {
-      const maliciousStatus: DownloadStatus = {
-        mid: metadata.message.id,
-        cid: metadata.cid,
-        downloadState: DownloadState.Malicious,
-        downloadProgress: undefined
-      }
-
-      this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, maliciousStatus)
-
-      return
-    }
-    // @ts-ignore
-    const entries = this.ipfs.cat(_CID)
-
-    console.log('get entries', entries)
-
-    const downloadDirectory = path.join(this.quietDir, 'downloads', metadata.cid)
-    createPaths([downloadDirectory])
-
-    const fileName = metadata.name + metadata.ext
-    const filePath = `${path.join(downloadDirectory, fileName)}`
-
-    const writeStream = fs.createWriteStream(filePath)
-
-    let downloadedBytes = 0
-    let stopwatch = 0
-
-    let downloadState: DownloadState = DownloadState.Ready
-
-    for await (const entry of entries) {
-      // Check if download is not meant to be canceled
-      if (this.downloadCancellations.includes(metadata.message.id)) {
-        downloadState = DownloadState.Canceled
-        log(`Cancelled downloading ${metadata.path}`)
-        break
-      }
-      await new Promise<void>((resolve, reject) => {
-        writeStream.write(entry, err => {
-          if (err) {
-            log.error(`${metadata.name} download error: ${err}`)
-            reject(err)
-          }
-
-          let transferSpeed = -1
-
-          if (stopwatch === 0) {
-            stopwatch = Date.now()
-          } else {
-            const timestamp = Date.now()
-            let delay = 0.0001 // Workaround for avoiding delay 0:
-            delay += (timestamp - stopwatch) / 1000 // in seconds
-            transferSpeed = entry.byteLength / delay
-
-            // Prevent passing null value
-            if (transferSpeed === null) {
-              transferSpeed = 0
-            }
-
-            stopwatch = timestamp
-          }
-
-          downloadedBytes += entry.byteLength
-
-          const downloadProgress: DownloadProgress = {
-            size: metadata.size,
-            downloaded: downloadedBytes,
-            transferSpeed: transferSpeed
-          }
-
-          const downloadStatus: DownloadStatus = {
-            mid: metadata.message.id,
-            cid: metadata.cid,
-            downloadState: DownloadState.Downloading,
-            downloadProgress: downloadProgress
-          }
-
-          const percentage = Math.floor((downloadProgress.downloaded / downloadProgress.size) * 100)
-
-          log(
-            `${new Date().toUTCString()}, ${metadata.name} downloaded bytes ${percentage}% ${downloadProgress.downloaded
-            } / ${downloadProgress.size}`
-          )
-          this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, downloadStatus)
-
-          resolve()
-        })
-      })
-    }
-
-    writeStream.end()
-
-    if (downloadState === DownloadState.Canceled) {
-      const downloadCanceled: DownloadProgress = {
-        size: metadata.size,
-        downloaded: 0,
-        transferSpeed: 0
-      }
-
-      const statusCanceled: DownloadStatus = {
-        mid: metadata.message.id,
-        cid: metadata.cid,
-        downloadState: DownloadState.Canceled,
-        downloadProgress: downloadCanceled
-      }
-
-      // Canceled Download
-      this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusCanceled)
-    } else {
-      const downloadCompleted: DownloadProgress = {
-        size: metadata.size,
-        downloaded: metadata.size,
-        transferSpeed: 0
-      }
-
-      const statusCompleted: DownloadStatus = {
-        mid: metadata.message.id,
-        cid: metadata.cid,
-        downloadState: DownloadState.Completed,
-        downloadProgress: downloadCompleted
-      }
-
-      // Downloaded file
-      this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusCompleted)
-
-      const fileMetadata: FileMetadata = {
-        ...metadata,
-        path: filePath
-      }
-      this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
-    }
-
-    // Clear cancellation signal (if present)
-    const index = this.downloadCancellations.indexOf(metadata.message.id)
-    if (index > -1) {
-      this.downloadCancellations.splice(index, 1)
-    }
+    this.filesManager.emit('downloadFile', metadata)
   }
 
   public cancelDownload(mid: string) {
-    this.downloadCancellations.push(mid)
+    this.filesManager.emit('cancelDownload', mid)
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {
