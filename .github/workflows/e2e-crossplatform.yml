@@ -38,8 +38,8 @@ jobs:
       - name: Run smoke test
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 25
-          max_attempts: 3
+          timeout_minutes: 10
+          max_attempts: 2
           command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
 
       - name: Run newUser test - Includes 2 separate application clients
@@ -96,8 +96,8 @@ jobs:
       - name: Run smoke test
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 25
-          max_attempts: 3
+          timeout_minutes: 10
+          max_attempts: 2
           command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
 
       - name: Run newUser test - Includes 2 separate application clients
@@ -141,8 +141,8 @@ jobs:
       - name: Run smoke test
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 25
-          max_attempts: 3
+          timeout_minutes: 10
+          max_attempts: 2
           shell: bash
           command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
       # Will be fixed in next tasks 
