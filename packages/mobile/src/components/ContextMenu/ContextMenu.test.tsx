@@ -45,7 +45,6 @@ describe('ContextMenu component', () => {
         onStartShouldSetResponder={[Function]}
         style={
           Object {
-            "backgroundColor": "rgba(52, 52, 52, 0.8)",
             "display": "flex",
             "height": "100%",
             "position": "absolute",
@@ -77,8 +76,16 @@ describe('ContextMenu component', () => {
               "borderTopLeftRadius": 8,
               "borderTopRightRadius": 8,
               "bottom": 0,
+              "elevation": 12,
               "flex": 6,
               "flexDirection": "column",
+              "shadowColor": "#000000",
+              "shadowOffset": Object {
+                "height": 7,
+                "width": 0,
+              },
+              "shadowOpacity": 0.7,
+              "shadowRadius": 7,
               "width": "100%",
             }
           }

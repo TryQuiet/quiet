@@ -17,7 +17,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, title,
           position: 'absolute',
           width: '100%',
           height: '100%',
-          backgroundColor: 'rgba(52, 52, 52, 0.8)'
+          // backgroundColor: 'rgba(52, 52, 52, 0.8)'
         }}>
         <View style={{ flex: 4 }} />
         <TouchableWithoutFeedback>
@@ -31,6 +31,14 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, title,
               backgroundColor: defaultPalette.background.white,
               borderTopLeftRadius: 8,
               borderTopRightRadius: 8,
+              shadowColor: defaultPalette.background.black,
+              shadowRadius: 7,
+              shadowOpacity: 0.7,
+              shadowOffset: {
+                height: 7,
+                width: 0
+              },
+              elevation: 12,
               width: '100%'
             }}>
             <View

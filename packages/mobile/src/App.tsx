@@ -54,7 +54,10 @@ export default function App(): JSX.Element {
           <WebviewCrypto />
           <MenuProvider>
             <ThemeProvider theme={defaultTheme}>
-              <StatusBar backgroundColor={defaultTheme.palette.background.white} />
+              <StatusBar
+                backgroundColor={defaultTheme.palette.background.white}
+                barStyle={'dark-content'}
+              />
               <Navigator
                 initialRouteName={ScreenNames.SplashScreen}
                 screenOptions={{
