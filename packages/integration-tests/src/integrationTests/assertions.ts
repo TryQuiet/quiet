@@ -134,6 +134,7 @@ export async function assertDownloadedImage(
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for downloading ${expectedImage}`)
   await waitForExpect(() => {
+    console.log('store messages', store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities)
     const message = Object.values(
       store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
     ).filter((message) => message.media?.path)[0]

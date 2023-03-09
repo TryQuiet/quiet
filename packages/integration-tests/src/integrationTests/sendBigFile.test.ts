@@ -79,7 +79,7 @@ describe('Big File', () => {
   it('userOne replicated image', async () => {
     console.log('SEND FILES - 6')
     await assertReceivedImages('userOne', 1, timeout, userOne.store)
-    await new Promise<void>((resolve) => setTimeout(() => resolve(), 30000))
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 90000))
   })
 
   it('userOne downloaded image', async () => {
