@@ -164,6 +164,28 @@ Resources:
                   - ','
                   - !Ref Subnets
 
+  RegistrarTestVanguardOffEntryGuards3TaskRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "Schedule rule for registrar test without vanguards and NumEntryGuards set to 3"
+      Name: !Sub registrar-task-vanguard-off-entry-guard-3-schedule-rule
+      State: ENABLED
+      ScheduleExpression: cron(0 1,18 * * ? *)
+      Targets:
+        - Arn: !GetAtt ECSCluster.Arn
+          Id: ScheduledTask
+          Input: !Sub '{ "containerOverrides": [{"name": "tor-connection-test", "environment": [{"name":"VANGUARDS_ENABLED","value":0}, {"name":"NUM_ENTRY_GUARDS","value":3}]}]}'
+          RoleArn: !GetAtt EventECSExecutionRole.Arn
+          EcsParameters:
+            TaskDefinitionArn: !Ref TorConnectionTestTaskDefinition
+            LaunchType: FARGATE
+            NetworkConfiguration:
+              AwsVpcConfiguration:
+                AssignPublicIp: ENABLED
+                Subnets: !Split
+                  - ','
+                  - !Ref Subnets
+
   TorConnectionTestTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
