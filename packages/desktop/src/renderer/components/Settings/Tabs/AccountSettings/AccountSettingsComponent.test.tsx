@@ -1,8 +1,8 @@
 /* eslint import/first: 0 */
 import React from 'react'
-import { renderComponent } from '../../../testUtils/renderComponent'
+import { renderComponent } from '../../../../testUtils/renderComponent'
 
-import { AccountSettingsForm } from './AccountSettingsForm'
+import AccountSettingsComponent from './AccountSettingsComponent'
 import { Identity } from '@quiet/state-manager'
 
 describe('AccountSettingsForm', () => {
@@ -25,7 +25,7 @@ describe('AccountSettingsForm', () => {
       joinTimestamp: null
     }
 
-    const result = renderComponent(<AccountSettingsForm user={user} />)
+    const result = renderComponent(<AccountSettingsComponent user={user} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>

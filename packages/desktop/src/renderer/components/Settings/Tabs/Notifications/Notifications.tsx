@@ -1,7 +1,9 @@
-import { NotificationsOptions, NotificationsSounds, settings } from '@quiet/state-manager'
-import React, { useCallback } from 'react'
+import React, { FC, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import NotificationsComponent from '../../../components/widgets/settings/Notifications'
+
+import { NotificationsOptions, NotificationsSounds, settings } from '@quiet/state-manager'
+
+import { NotificationsComponent } from './NotificationsComponent'
 
 interface useNotificationsDataReturnType {
   notificationsOption: NotificationsOptions
@@ -30,7 +32,7 @@ export const useNotificationsActions = (notificationsOption: NotificationsOption
   return { setNotificationsOption, setNotificationsSound }
 }
 
-export const Notifications = () => {
+export const Notifications: FC = () => {
   const { notificationsOption, notificationsSound } = useNotificationsData()
   const { setNotificationsOption, setNotificationsSound } =
     useNotificationsActions(notificationsOption, notificationsSound)
@@ -44,5 +46,3 @@ export const Notifications = () => {
     />
   )
 }
-
-export default Notifications

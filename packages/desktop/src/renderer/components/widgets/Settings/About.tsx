@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { FC } from 'react'
 import { styled } from '@mui/material/styles'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
+
 const app = require('@electron/remote').app
 
 const PREFIX = 'About'
@@ -19,7 +20,7 @@ const StyledGrid = styled(Grid)(() => ({
   }
 }))
 
-export const About = () => {
+export const About: FC = () => {
   const version = app.getVersion()
   return (
     <StyledGrid container direction='column'>
