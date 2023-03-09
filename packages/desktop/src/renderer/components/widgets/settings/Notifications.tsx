@@ -194,7 +194,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
         </Grid>
         <Grid item className={classes.subtitleSoundDiv}>
           <Typography variant='h5' className={classes.subtitle}>
-            Sounds
+            Sound when receiving a notification
           </Typography>
         </Grid>
         <Grid
@@ -203,29 +203,6 @@ export const Notifications: React.FC<NotificationsProps> = ({
           direction='column'
           className={classes.radioSoundDiv}
         >
-          <Grid item>
-            <FormControlLabel
-              data-testid={'sound-switch'}
-              control={
-                <Checkbox
-                  checked={notificationsSound !== NotificationsSounds.none}
-                  onChange={e => {
-                    if (e.target.checked) {
-                      setNotificationsSound(NotificationsSounds.pow)
-                    } else {
-                      setNotificationsSound(NotificationsSounds.none)
-                    }
-                  }}
-                  color='default'
-                />
-              }
-              label={
-                <Typography variant='body2' className={classes.label}>
-                  Play a sound when receiving a notification
-                </Typography>
-              }
-            />
-          </Grid>
           <Grid item className={classes.spacingSound} data-testid={`sound-${NotificationsSounds.librarianShhh}`}>
             <FormControlLabel
               classes={{ root: classes.radioSound }}
@@ -296,6 +273,23 @@ export const Notifications: React.FC<NotificationsProps> = ({
                 setNotificationsSound(NotificationsSounds.splat)
               }}
               label='Splat'
+            />
+          </Grid>
+          <Grid item className={classes.spacingSound} data-testid={`sound-${NotificationsSounds.none}`}>
+            <FormControlLabel
+              classes={{ root: classes.radioSound }}
+              control={
+                <Checkbox
+                  data-testid={`sound-${NotificationsSounds.none}-radio`}
+                  icon={<Icon src={radioUnselected} />}
+                  checkedIcon={<Icon src={radioChecked} />}
+                  checked={NotificationsSounds.none === notificationsSound}
+                />
+              }
+              onChange={() => {
+                setNotificationsSound(NotificationsSounds.none)
+              }}
+              label='None'
             />
           </Grid>
         </Grid>
