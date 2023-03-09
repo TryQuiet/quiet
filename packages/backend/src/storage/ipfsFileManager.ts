@@ -19,6 +19,7 @@ import {
     DownloadProgress,
     DownloadState,
 } from '@quiet/state-manager'
+import { time } from 'console'
 
 export enum IpfsFilesManagerEvents {
     // Incoming evetns
@@ -91,6 +92,10 @@ export class IpfsFilesManager extends EventEmitter {
 
         const block = CID.parse(fileMetadata.cid)
 
+        console.log('block', block)
+
+        const controller = new AbortController()
+
         const queue = new PQueue({ concurrency: 40 });
 
         const stat = await this.ipfs.files.stat(block)
@@ -108,9 +113,19 @@ export class IpfsFilesManager extends EventEmitter {
             return
         }
 
-        const processBlock = async (block) => {
+        const processBlock = async (block, signal) => {
+
+            console.log('signal is ', signal)
+
+
             if (this.cancelledDownloads.has(fileMetadata.cid)) {
                 console.log('cancelled download')
+                try {
+                    controller.abort()
+
+                } catch (e) {
+                    console.log('catched that little bastard')
+                }
                 queue.pause(),
                     queue.clear()
                 return
@@ -118,18 +133,28 @@ export class IpfsFilesManager extends EventEmitter {
 
             console.log("processing block ", block)
             return new Promise(async (resolve, reject) => {
-                const timeout = setTimeout(() => {
+                const timeout = setTimeout(async () => {
                     console.log('couldnt fetch block, adding to the end of queue')
-                    queue.add(async () => {
-                        try {
-                            await processBlock(block)
-                        } catch (e) {
-                            console.log('throttling after timeout')
-                        }
-                    })
+                    try {
+                        
+                        await queue.add(async ({signal}) => {
+                            try {
+                                await processBlock(block, signal)
+                            } catch (e) {
+                                console.log('throttling after timeout')
+                            }
+                        }, { signal: controller.signal })
+                    } catch(e) {
+                        console.log('catching aborted shit')
+                    }
                     reject('e')
                 }, 20_000);
-
+                
+                signal.addEventListener('abort', () => {
+                    console.log('received abort signal')
+                    clearTimeout(timeout)
+                    reject('e')
+                })
                 console.log('before getting block')
                 const fetchedBlock = await this.ipfs.block.get(block)
 
@@ -140,15 +165,24 @@ export class IpfsFilesManager extends EventEmitter {
                 this.files.set(fileMetadata.cid, { ...fileState, downloadedBytes: fileState.downloadedBytes + decodedBlock.Data.byteLength })
                 this.updateStatus(fileMetadata.cid)
 
-                for (let link of decodedBlock.Links) {
-                    queue.add(async () => {
-                        console.log('adding fetched new blocks to queue')
-                        try {
-                            await processBlock(link.Hash)
-                        } catch (e) {
-                            console.log('throttling')
-                        }
-                    })
+                for await (let link of decodedBlock.Links) {
+                    try{
+
+                        await queue.add(async ({signal}) => {
+                            console.log('adding fetched new blocks to queue')
+                            
+                            try {
+                                await processBlock(link.Hash, signal)
+                            } catch (e) {
+                                console.log('throttling')
+                            }
+                        }, {
+                            signal: controller.signal
+                        })
+                    } catch(e) {
+                        console.log('catching shit')
+                    }
+
                 }
                 console.log('after getting block')
                 clearTimeout(timeout)
@@ -156,16 +190,22 @@ export class IpfsFilesManager extends EventEmitter {
             });
         }
 
-        queue.add(async () => {
-            console.log(
+        try {
+
+            await queue.add(async ({ signal }) => {
+                console.log(
                 'adding first block to queue'
-            )
-            try {
-                await processBlock(block)
-            } catch (e) {
+                )
+                console.log('signal is ', signal)
+                try {
+                    await processBlock(block, signal)
+                } catch (e) {
                 console.log('throttling after timeout')
             }
-        })
+        }, { signal: controller.signal })
+    } catch(e) {
+        console.log('aborted shit and not throwing any error')
+    }
 
         console.log('empty queue?')
 
