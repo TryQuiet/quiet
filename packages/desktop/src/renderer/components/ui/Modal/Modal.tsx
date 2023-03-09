@@ -97,7 +97,15 @@ const StyledMaterialModal = styled(MaterialModal)(({ theme }) => ({
     outline: 0
   },
 
-  [`& .${classes.window}`]: {},
+  [`& .${classes.window}`]: {
+    background: theme.palette.colors.white,
+    width: 'fit-content',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    outline: 0
+  },
 
   [`& .${classes.bold}`]: {
     fontSize: 16,

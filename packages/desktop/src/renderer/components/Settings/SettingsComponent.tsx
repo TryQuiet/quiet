@@ -2,22 +2,21 @@ import React, { useState } from 'react'
 
 import { styled } from '@mui/material/styles'
 
-import { Grid, Tabs } from '@mui/material'
+import { Grid, Tabs, Typography } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
 import { Scrollbars } from 'rc-scrollbars'
 import { AutoSizer } from 'react-virtualized'
 
-import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
-import InviteToCommunity from '../../../../containers/widgets/settings/InviteToCommunity'
-import Notifications from '../../../../containers/widgets/settings/Notifications'
-import Modal from '../../../ui/Modal/Modal'
-import Tab from '../../../ui/Tab/Tab'
-import { About } from '../About'
+import { useModal } from '../../containers/hooks'
+import Modal from '../ui/Modal/Modal'
+
+import Tab from '../ui/Tab/Tab'
 
 const PREFIX = 'SettingsModal'
 
 const classes = {
-  indicator: `${PREFIX}indicator`
+  indicator: `${PREFIX}indicator`,
+  leaveComunity: `${PREFIX}leaveCommunity`,
 }
 
 const StyledModalContent = styled(Grid)(() => ({
@@ -42,27 +41,40 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
   [`& .${classes.indicator}`]: {
     height: '0 !important'
   },
+
+  [`& .${classes.leaveComunity}`]: {
+    opacity: '1',
+    padding: '10px 8px 8px 8px',
+    color: theme.palette.colors.hotPink,
+    fontSize: '14px',
+    fontWeight: '400',
+    alignItems: 'flex-start',
+    textTransform: 'none',
+    lineHeight: '21px',
+    minHeight: '0px'
+  },
+
 }))
 
 const TabComponentWrapper = styled(Grid)(() => ({
   marginLeft: 32
 }))
 
-const tabs = {
-  account: AccountSettingsForm,
-  notifications: Notifications,
-  invite: InviteToCommunity,
-  about: About
-}
-
-interface SettingsModalProps {
-  title: string
-  isOwner: boolean
+export interface SettingsComponentProps {
   open: boolean
   handleClose: () => void
+  isOwner: boolean
+  tabs: any
+  leaveCommunityModal: ReturnType<typeof useModal>
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, open, handleClose }) => {
+export const SettingsComponent: React.FC<SettingsComponentProps> = ({
+  open,
+  handleClose,
+  isOwner,
+  tabs,
+  leaveCommunityModal
+}) => {
   const [contentRef, setContentRef] = React.useState(null)
 
   const scrollbarRef = React.useRef()
@@ -92,7 +104,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, op
   const TabComponent = tabs[currentTab]
 
   return (
-    <Modal open={open} handleClose={handleClose} title={title} testIdPrefix='settings' isBold addBorder contentWidth='100%'>
+    <Modal
+      open={open}
+      handleClose={handleClose}
+      title={'Settings'}
+      testIdPrefix='settings'
+      isBold
+      addBorder
+      contentWidth='100%'>
       <StyledModalContent
         ref={ref => {
           if (ref) {
@@ -112,15 +131,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, op
               orientation='vertical'
               textColor='inherit'
               classes={{ indicator: classes.indicator }}>
+              <Tab value='about' label='About' data-testid={'about-settings-tab'} />
               <Tab
                 value='notifications'
                 label='Notifications'
                 data-testid={'notifications-settings-tab'}
               />
               {isOwner && (
-                <Tab value='invite' label='Add members' data-testid={'invite-settings-tab'} />
+                <Tab value='invite' label='Invite a friend' data-testid={'invite-settings-tab'} />
               )}
-                <Tab value='about' label='About' data-testid={'about-settings-tab'} />
+              <Grid style={{ marginTop: '24px', cursor: 'pointer' }}>
+                <Typography
+                  className={classes.leaveComunity}
+                  onClick={leaveCommunityModal.handleOpen}>
+                  Leave community
+                </Typography>
+              </Grid>
             </StyledTabs>
           </StyledAppBar>
         </StyledTabsWrapper>
@@ -146,4 +172,4 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ title, isOwner, op
   )
 }
 
-export default SettingsModal
+export default SettingsComponent

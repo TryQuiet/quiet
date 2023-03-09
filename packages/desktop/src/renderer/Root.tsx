@@ -11,7 +11,7 @@ import Index from './containers/windows/Index'
 import Main from './containers/windows/Main'
 import CreateUsername from './components/CreateUsername/CreateUsername'
 import SentryWarning from './containers/widgets/sentryWarning/sentryWarning'
-import SettingsModal from './containers/widgets/settings/SettingsModal'
+import SettingsModal from './components/Settings/Settings'
 import UpdateModal from './containers/widgets/update/UpdateModal'
 import QuitAppDialog from './containers/ui/QuitAppDialog'
 import theme from './theme'
@@ -22,6 +22,7 @@ import LoadingPanel from './components/LoadingPanel/LoadingPanel'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { DndProvider } from 'react-dnd'
 import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
+import { LeaveCommunity } from './components/Settings/Tabs/LeaveCommunity/LeaveCommunity'
 import SearchModal from './components/SearchModal/SearchModal'
 
 export const persistor = persistStore(store)
@@ -40,6 +41,7 @@ export default () => {
                 <CreateChannel />
                 <JoinCommunity />
                 <CreateCommunity />
+                <LeaveCommunity />
                 <CreateUsername />
                 <CssBaseline />
                 <SettingsModal />

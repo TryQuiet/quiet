@@ -4,15 +4,15 @@ import { styled } from '@mui/material/styles'
 
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Checkbox from '@mui/material/Checkbox'
 
-import Icon from '../../ui/Icon/Icon'
-import radioChecked from '../../../static/images/radioChecked.svg'
-import radioUnselected from '../../../static/images/radioUnselected.svg'
-import { direct, relentless, sharp, librarianShhh } from '../../../../shared/sounds'
 import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
+
+import Icon from '../../../ui/Icon/Icon'
+import radioChecked from '../../../../static/images/radioChecked.svg'
+import radioUnselected from '../../../../static/images/radioUnselected.svg'
+import { direct, relentless, sharp, librarianShhh } from '../../../../../shared/sounds'
 
 const PREFIX = 'Notifications'
 
@@ -117,7 +117,7 @@ interface NotificationsProps {
   setNotificationsSound: (type: NotificationsSounds) => void
 }
 
-export const Notifications: React.FC<NotificationsProps> = ({
+export const NotificationsComponent: React.FC<NotificationsProps> = ({
   notificationsOption,
   notificationsSound,
   setNotificationsOption,
@@ -297,5 +297,3 @@ export const Notifications: React.FC<NotificationsProps> = ({
     </StyledGrid>
   )
 }
-
-export default Notifications
