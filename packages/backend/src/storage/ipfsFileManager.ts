@@ -11,14 +11,14 @@ import type { IPFS } from 'ipfs-core'
 import { CID } from 'multiformats/cid'
 import { StorageEvents } from './types'
 
-const { compare, createPaths } = await import('../common/utils')
-
 import {
     FileMetadata,
     DownloadStatus,
     DownloadProgress,
     DownloadState,
 } from '@quiet/state-manager'
+
+const { compare, createPaths } = await import('../common/utils')
 
 export enum IpfsFilesManagerEvents {
     // Incoming evetns
@@ -31,10 +31,10 @@ export enum IpfsFilesManagerEvents {
 }
 
 interface FilesData {
-    size: number,
-    downloadedBytes: number,
-    transferSpeed: number,
-    cid: any,
+    size: number
+    downloadedBytes: number
+    transferSpeed: number
+    cid: any
     message: {
         id: any
     }
@@ -91,7 +91,7 @@ export class IpfsFilesManager extends EventEmitter {
 
         const block = CID.parse(fileMetadata.cid)
 
-        const queue = new PQueue({ concurrency: 40 });
+        const queue = new PQueue({ concurrency: 40 })
 
         const stat = await this.ipfs.files.stat(block)
 
@@ -116,8 +116,8 @@ export class IpfsFilesManager extends EventEmitter {
                 return
             }
 
-            console.log("processing block ", block)
-            return new Promise(async (resolve, reject) => {
+            console.log('processing block ', block)
+            return await new Promise(async (resolve, reject) => {
                 const timeout = setTimeout(() => {
                     console.log('couldnt fetch block, adding to the end of queue')
                     queue.add(async () => {
@@ -128,7 +128,7 @@ export class IpfsFilesManager extends EventEmitter {
                         }
                     })
                     reject('e')
-                }, 20_000);
+                }, 20_000)
 
                 console.log('before getting block')
                 const fetchedBlock = await this.ipfs.block.get(block)
@@ -140,7 +140,7 @@ export class IpfsFilesManager extends EventEmitter {
                 this.files.set(fileMetadata.cid, { ...fileState, downloadedBytes: fileState.downloadedBytes + decodedBlock.Data.byteLength })
                 this.updateStatus(fileMetadata.cid)
 
-                for (let link of decodedBlock.Links) {
+                for (const link of decodedBlock.Links) {
                     queue.add(async () => {
                         console.log('adding fetched new blocks to queue')
                         try {
@@ -153,10 +153,10 @@ export class IpfsFilesManager extends EventEmitter {
                 console.log('after getting block')
                 clearTimeout(timeout)
                 resolve(fetchedBlock)
-            });
+            })
         }
 
-        queue.add(async () => {
+        void queue.add(async () => {
             console.log(
                 'adding first block to queue'
             )
@@ -185,13 +185,10 @@ export class IpfsFilesManager extends EventEmitter {
             await this.assemblyFile(fileMetadata)
             console.log('after assembling file')
         }
-
-
     }
 
     private assemblyFile = async (fileMetadata: FileMetadata) => {
         const _CID = CID.parse(fileMetadata.cid)
-
 
         const downloadDirectory = path.join(this.quietDir, 'downloads', fileMetadata.cid)
         createPaths([downloadDirectory])
