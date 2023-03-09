@@ -21,6 +21,7 @@ import { SuccessScreen } from './screens/Success/Success.screen'
 import { ErrorScreen } from './screens/Error/Error.screen'
 import { ChannelListScreen } from './screens/ChannelList/ChannelList.screen'
 import { ChannelScreen } from './screens/Channel/Channel.screen'
+import { LeaveCommunityScreen } from './screens/LeaveCommunity/LeaveCommunity.screen'
 
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -63,11 +64,12 @@ export default function App(): JSX.Element {
                 screenOptions={{
                   headerShown: false
                 }}>
-                <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
                 <Screen
                   component={CreateCommunityScreen}
                   name={ScreenNames.CreateCommunityScreen}
                 />
+                <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
+                <Screen component={LeaveCommunityScreen} name={ScreenNames.LeaveCommunityScreen} />
                 <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
                 <Screen
                   component={UsernameRegistrationScreen}
