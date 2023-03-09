@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback } from 'react'
 import classNames from 'classnames'
 import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
-import Picker from 'emoji-picker-react'
+import Picker, { EmojiStyle } from 'emoji-picker-react'
 import Grid from '@mui/material/Grid'
 import { styled } from '@mui/material/styles'
 import orange from '@mui/material/colors/orange'
@@ -404,17 +404,16 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         }
       }
 
-      if (
-        inputStateRef.current === INPUT_STATE.AVAILABLE &&
-        e.nativeEvent.keyCode === 13
-      ) {
-        e.preventDefault()
-        onChange(e.target.innerText)
-        onKeyPress(e.target.innerText)
-        setMessage('')
-        setHtmlMessage('')
-      } else {
-        if (e.nativeEvent.keyCode === 13) {
+      if (e.nativeEvent.keyCode === 13) {
+        if (e.shiftKey) {
+          // Accept this input for additional lines in the message box
+        } else if (inputStateRef.current === INPUT_STATE.AVAILABLE) {
+          e.preventDefault()
+          onChange(e.target.innerText)
+          onKeyPress(e.target.innerText)
+          setMessage('')
+          setHtmlMessage('')
+        } else {
           e.preventDefault()
           if (infoClass !== classNames(classes.backdrop, classes.blinkAnimation)) {
             setInfoClass(classNames(classes.backdrop, classes.blinkAnimation))
@@ -576,13 +575,14 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       }}>
                       <div data-testid={'emoji-picker'} className={classes.picker}>
                         <Picker
-                          /* eslint-disable */
                           onEmojiClick={(emojiData, _event) => {
                             setHtmlMessage(htmlMessage => htmlMessage + emojiData.emoji)
                             setMessage(message + emojiData.emoji)
                             setOpenEmoji(false)
                           }}
-                        /* eslint-enable */
+                          // Every other emojiStyle causes downloading emojis from cdn. We do not want that.
+                          // Do not change it unless using custom getEmojiUrl with local emojis.
+                          emojiStyle={EmojiStyle.NATIVE}
                         />
                       </div>
                     </ClickAwayListener>

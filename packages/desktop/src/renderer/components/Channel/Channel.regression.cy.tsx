@@ -102,4 +102,13 @@ describe('Scroll behavior test', () => {
       capture: 'fullPage'
     })
   })
+
+  it('Shift+Enter should not send message', () => {
+    cy.get(messageInput)
+      .focus()
+      .type('luke where are you?')
+      .type('{shift+enter}')
+      .type('you underestimate the power of the force')
+      .should('have.text', 'luke where are you?you underestimate the power of the force')
+  })
 })

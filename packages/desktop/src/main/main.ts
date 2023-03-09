@@ -24,6 +24,8 @@ remote.initialize()
 
 const log = logger('main')
 
+let resetting: boolean = false
+
 const updaterInterval = 15 * 60_000
 
 export const isDev = process.env.NODE_ENV === 'development'
@@ -300,7 +302,7 @@ export const checkForUpdate = async (win: BrowserWindow) => {
 let ports: ApplicationPorts
 let backendProcess: ChildProcess = null
 
-const closeBackendProcess = () => {
+const closeBackendProcess = (clear: boolean = false) => {
   if (backendProcess !== null) {
     /* OrbitDB released a patch (0.28.5) that omits error thrown when closing the app during heavy replication
        it needs mending though as replication is not being stopped due to pednign ipfs block/dag calls.
@@ -312,8 +314,12 @@ const closeBackendProcess = () => {
        https://github.com/TryQuiet/monorepo/issues/469
     */
     const forceClose = setTimeout(() => {
-      log('Force closing the app')
       backendProcess.kill()
+      if (clear) {
+        resetting = false
+        const appData = app.getPath('appData')
+        fs.rmSync(appData, { recursive: true, force: true })
+      }
       app.quit()
     }, 2000)
     backendProcess.send('close')
@@ -321,6 +327,11 @@ const closeBackendProcess = () => {
       if (message === 'closed-services') {
         log('Closing the app')
         clearTimeout(forceClose)
+        if (clear) {
+          resetting = false
+          const appData = app.getPath('appData')
+          fs.rmSync(appData, { recursive: true, force: true })
+        }
         app.quit()
       }
     })
@@ -367,10 +378,14 @@ app.on('ready', async () => {
   })
 
   const forkArgvs = [
-    '-d', `${ports.dataServer}`,
-    '-a', `${appDataPath}`,
-    '-r', `${process.resourcesPath}`,
-    '-p', 'desktop'
+    '-d',
+    `${ports.dataServer}`,
+    '-a',
+    `${appDataPath}`,
+    '-r',
+    `${process.resourcesPath}`,
+    '-p',
+    'desktop'
   ]
 
   const backendBundlePath = require.resolve('backend-bundle')
@@ -398,6 +413,7 @@ app.on('ready', async () => {
   })
 
   mainWindow.once('close', e => {
+    if (resetting) return
     e.preventDefault()
     log('Closing window')
     mainWindow.webContents.send('force-save-state')
@@ -413,6 +429,12 @@ app.on('ready', async () => {
   ipcMain.on('state-saved', e => {
     mainWindow.close()
     log('Saved state, closed window')
+  })
+
+  ipcMain.on('clear-community', () => {
+    resetting = true
+    app.relaunch()
+    closeBackendProcess(true)
   })
 
   ipcMain.on('restartApp', () => {
@@ -433,7 +455,7 @@ app.on('ready', async () => {
     })
   })
 
-  ipcMain.on('openUploadFileDialog', async (e) => {
+  ipcMain.on('openUploadFileDialog', async e => {
     let filesDialogResult: Electron.OpenDialogReturnValue
     try {
       filesDialogResult = await dialog.showOpenDialog(mainWindow, {

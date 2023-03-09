@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { FC } from 'react'
+
 import { styled } from '@mui/material/styles'
-import * as Yup from 'yup'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
+
+import * as Yup from 'yup'
 
 import { Identity } from '@quiet/state-manager'
 
@@ -112,11 +114,11 @@ Yup.addMethod(Yup.mixed, 'validateMessage', function (checkNickname) {
   )
 })
 
-interface AccountSettingsFormProps {
+interface AccountSettingsProps {
   user: Identity
 }
 
-export const AccountSettingsForm: React.FC<AccountSettingsFormProps> = ({
+export const AccountSettingsComponent: FC<AccountSettingsProps> = ({
   user
 }) => {
   return (
@@ -135,4 +137,4 @@ export const AccountSettingsForm: React.FC<AccountSettingsFormProps> = ({
   )
 }
 
-export default AccountSettingsForm
+export default AccountSettingsComponent

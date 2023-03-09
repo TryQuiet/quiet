@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { FC } from 'react'
 import { useSelector } from 'react-redux'
 
-import AccountSettingsFormComponent from '../../../components/widgets/settings/AccountSettingsForm'
 import { identity } from '@quiet/state-manager'
+
+import AccountSettingsComponent from './AccountSettingsComponent'
 
 const useData = () => {
   const data = {
@@ -11,14 +12,12 @@ const useData = () => {
   return data
 }
 
-export const AccountSettingsForm = () => {
+export const AccountSettings: FC = () => {
   const { user } = useData()
 
   return (
-    <AccountSettingsFormComponent
+    <AccountSettingsComponent
       user={user}
     />
   )
 }
-
-export default AccountSettingsForm

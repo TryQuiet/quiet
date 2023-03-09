@@ -1,9 +1,11 @@
-import { communities } from '@quiet/state-manager'
 import React, { FC, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { InviteToCommunity } from '../../../components/widgets/settings/InviteToCommunity'
 
-const InviteToCommunityTab: FC = () => {
+import { communities } from '@quiet/state-manager'
+
+import { InviteComponent } from './InviteComponent'
+
+export const Invite: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
 
   const invitationUrl = useSelector(communities.selectors.registrarUrl(community?.id))
@@ -14,12 +16,10 @@ const InviteToCommunityTab: FC = () => {
     revealInputValue ? setRevealInputValue(false) : setRevealInputValue(true)
   }
 
-  return <InviteToCommunity
+  return <InviteComponent
     communityName={community?.name || 'community'}
     invitationUrl={invitationUrl}
     revealInputValue={revealInputValue}
     handleClickInputReveal={handleClickInputReveal}
   />
 }
-
-export default InviteToCommunityTab

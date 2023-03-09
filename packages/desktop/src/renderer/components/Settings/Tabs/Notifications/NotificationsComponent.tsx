@@ -4,15 +4,15 @@ import { styled } from '@mui/material/styles'
 
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Checkbox from '@mui/material/Checkbox'
 
-import Icon from '../../ui/Icon/Icon'
-import radioChecked from '../../../static/images/radioChecked.svg'
-import radioUnselected from '../../../static/images/radioUnselected.svg'
-import { direct, relentless, sharp, librarianShhh } from '../../../../shared/sounds'
 import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
+
+import Icon from '../../../ui/Icon/Icon'
+import radioChecked from '../../../../static/images/radioChecked.svg'
+import radioUnselected from '../../../../static/images/radioUnselected.svg'
+import { direct, relentless, sharp, librarianShhh } from '../../../../../shared/sounds'
 
 const PREFIX = 'Notifications'
 
@@ -117,7 +117,7 @@ interface NotificationsProps {
   setNotificationsSound: (type: NotificationsSounds) => void
 }
 
-export const Notifications: React.FC<NotificationsProps> = ({
+export const NotificationsComponent: React.FC<NotificationsProps> = ({
   notificationsOption,
   notificationsSound,
   setNotificationsOption,
@@ -194,7 +194,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
         </Grid>
         <Grid item className={classes.subtitleSoundDiv}>
           <Typography variant='h5' className={classes.subtitle}>
-            Sounds
+            Sound when receiving a notification
           </Typography>
         </Grid>
         <Grid
@@ -203,29 +203,6 @@ export const Notifications: React.FC<NotificationsProps> = ({
           direction='column'
           className={classes.radioSoundDiv}
         >
-          <Grid item>
-            <FormControlLabel
-              data-testid={'sound-switch'}
-              control={
-                <Checkbox
-                  checked={notificationsSound !== NotificationsSounds.none}
-                  onChange={e => {
-                    if (e.target.checked) {
-                      setNotificationsSound(NotificationsSounds.pow)
-                    } else {
-                      setNotificationsSound(NotificationsSounds.none)
-                    }
-                  }}
-                  color='default'
-                />
-              }
-              label={
-                <Typography variant='body2' className={classes.label}>
-                  Play a sound when receiving a notification
-                </Typography>
-              }
-            />
-          </Grid>
           <Grid item className={classes.spacingSound} data-testid={`sound-${NotificationsSounds.librarianShhh}`}>
             <FormControlLabel
               classes={{ root: classes.radioSound }}
@@ -298,10 +275,25 @@ export const Notifications: React.FC<NotificationsProps> = ({
               label='Splat'
             />
           </Grid>
+          <Grid item className={classes.spacingSound} data-testid={`sound-${NotificationsSounds.none}`}>
+            <FormControlLabel
+              classes={{ root: classes.radioSound }}
+              control={
+                <Checkbox
+                  data-testid={`sound-${NotificationsSounds.none}-radio`}
+                  icon={<Icon src={radioUnselected} />}
+                  checkedIcon={<Icon src={radioChecked} />}
+                  checked={NotificationsSounds.none === notificationsSound}
+                />
+              }
+              onChange={() => {
+                setNotificationsSound(NotificationsSounds.none)
+              }}
+              label='None'
+            />
+          </Grid>
         </Grid>
       </Grid>
     </StyledGrid>
   )
 }
-
-export default Notifications

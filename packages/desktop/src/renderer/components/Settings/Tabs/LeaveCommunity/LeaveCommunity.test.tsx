@@ -1,13 +1,18 @@
-/* eslint import/first: 0 */
 import React from 'react'
 
-import { UpdateModal } from './UpdateModal'
-import { renderComponent } from '../../../testUtils/renderComponent'
+import { renderComponent } from '../../../../testUtils/renderComponent'
 
-describe('UpdateModal', () => {
+import LeaveCommunityComponent from './LeaveCommunityComponent'
+
+describe('LeaveCommunity', () => {
   it('renders component', () => {
     const result = renderComponent(
-      <UpdateModal open handleClose={jest.fn()} handleUpdate={jest.fn()} />
+      <LeaveCommunityComponent
+        communityName={'Rockets'}
+        leaveCommunity={jest.fn()}
+        open={true}
+        handleClose={jest.fn()}
+      />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
@@ -30,7 +35,7 @@ describe('UpdateModal', () => {
             tabindex="0"
           />
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Modalcentered css-6gh8l0-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column Modalwindow css-6gh8l0-MuiGrid-root"
             tabindex="-1"
           >
             <div
@@ -79,69 +84,67 @@ describe('UpdateModal', () => {
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-container MuiGrid-item ModalfullPage css-1h16bbz-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container MuiGrid-item ModalnotFullPage css-1h16bbz-MuiGrid-root"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent css-1f064cs-MuiGrid-root"
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-puyhqi-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container css-h5bh3h-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container UpdateModalinfo css-1lym95h-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 LeaveCommunitytitleContainer css-s2k0j8-MuiGrid-root"
                   >
-                    <div
-                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                    <h4
+                      class="MuiTypography-root MuiTypography-h4 css-ajdqea-MuiTypography-root"
                     >
-                      <img
-                        src="test-file-stub"
+                      Are you sure you want to leave?
+                    </h4>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 LeaveCommunitydescContainer css-s2k0j8-MuiGrid-root"
+                  >
+                    <p
+                      class="MuiTypography-root MuiTypography-body1 MuiTypography-alignCenter css-jxzupi-MuiTypography-root"
+                    >
+                      Your account, messages, and all data for
+                       
+                      <span
+                        style="font-weight: 500;"
+                      >
+                        Rockets
+                      </span>
+                       will be deleted from this device. This cannot be undone.
+                    </p>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto LeaveCommunitybuttonContainer css-1wrgmsj-MuiGrid-root"
+                  >
+                    <button
+                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth LeaveCommunitybutton css-14mi2mx-MuiButtonBase-root-MuiButton-root"
+                      tabindex="0"
+                      type="button"
+                    >
+                      Leave community
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                       />
-                    </div>
+                    </button>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-1h16bbz-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 LeaveCommunitysecondaryButtonContainer css-s2k0j8-MuiGrid-root"
                   >
-                    <div
-                      class="MuiGrid-root MuiGrid-item UpdateModaltitle css-13i4rnv-MuiGrid-root"
+                    <button
+                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth LeaveCommunitysecondaryButton css-14mi2mx-MuiButtonBase-root-MuiButton-root"
+                      tabindex="0"
+                      type="button"
                     >
-                      <h3
-                        class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
-                      >
-                        Software update
-                      </h3>
-                    </div>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-1h16bbz-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiGrid-root MuiGrid-item UpdateModalsubTitle css-13i4rnv-MuiGrid-root"
-                    >
-                      <p
-                        class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
-                      >
-                        An update is available for Quiet.
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-8 css-m7r6nl-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-gj1fbr-MuiGrid-root"
-                    >
-                      <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth UpdateModalbutton css-n0wap0-MuiButtonBase-root-MuiButton-root"
-                        tabindex="0"
-                        type="submit"
-                      >
-                        Update now
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
+                      Never mind, I'll stay
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                      />
+                    </button>
                   </div>
                 </div>
               </div>

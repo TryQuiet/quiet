@@ -1,14 +1,17 @@
 import React, { FC } from 'react'
+
 import { styled } from '@mui/material/styles'
 import { IconButton } from '@mui/material'
+
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-
 import Typography from '@mui/material/Typography'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
+
 import CopyToClipboard from 'react-copy-to-clipboard'
-import { capitalizeFirstLetter } from '../../../../utils/functions/capitalize'
+
+import { capitalizeFirstLetter } from '../../../../../utils/functions/capitalize'
 
 const PREFIX = 'InviteToCommunity'
 
@@ -77,7 +80,7 @@ interface InviteFriendProps {
   handleClickInputReveal: () => void
 }
 
-export const InviteToCommunity: FC<InviteFriendProps> = ({
+export const InviteComponent: FC<InviteFriendProps> = ({
   communityName,
   invitationUrl,
   revealInputValue,
@@ -87,7 +90,7 @@ export const InviteToCommunity: FC<InviteFriendProps> = ({
     <StyledGrid container direction='column'>
       <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
         <Grid item className={classes.title}>
-          <Typography variant='h3'>Add members</Typography>
+          <Typography variant='h3'>Invite a friend</Typography>
         </Grid>
       </Grid>
       <Grid item>

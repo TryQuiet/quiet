@@ -1,12 +1,15 @@
 import '@testing-library/jest-dom'
+
 import React from 'react'
-import { InviteToCommunity } from './InviteToCommunity'
-import { renderComponent } from '../../../testUtils/renderComponent'
+
+import { renderComponent } from '../../../../testUtils/renderComponent'
+
+import { InviteComponent } from './InviteComponent'
 
 describe('InviteToCommunity', () => {
-  it('renders properly', () => {
+  it('renders with hidden invite code', () => {
     const result = renderComponent(
-      <InviteToCommunity
+      <InviteComponent
         communityName={'My new community'}
         invitationUrl={'http://registrarurl.onion'}
         handleClickInputReveal={jest.fn()}
@@ -28,7 +31,7 @@ describe('InviteToCommunity', () => {
                 <h3
                   class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
                 >
-                  Add members
+                  Invite a friend
                 </h3>
               </div>
             </div>
@@ -110,9 +113,9 @@ describe('InviteToCommunity', () => {
     `)
   })
 
-  it('renders properly', () => {
+  it('renders with revealed invite code', () => {
     const result = renderComponent(
-      <InviteToCommunity
+      <InviteComponent
         communityName={'My new community'}
         invitationUrl={'http://registrarurl.onion'}
         handleClickInputReveal={jest.fn()}
@@ -134,7 +137,7 @@ describe('InviteToCommunity', () => {
                 <h3
                   class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
                 >
-                  Add members
+                  Invite a friend
                 </h3>
               </div>
             </div>

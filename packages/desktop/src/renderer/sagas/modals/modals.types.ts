@@ -17,5 +17,6 @@ export enum ModalName {
   sentryWarningModal = 'sentryWarningModal',
   loadingPanel = 'loadingPanel',
   uploadedFileModal = 'uploadedFileModal',
+  leaveCommunity = 'leaveCommunityModal',
   searchChannelModal = 'searchChannelModal'
 }
