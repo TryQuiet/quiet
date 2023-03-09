@@ -19,6 +19,7 @@ addDecorator(withNavigation)
 
 configure(() => {
   require('../src/components/JoinCommunity/JoinCommunity.stories')
+  require('../src/components/LeaveCommunity/LeaveCommunity.stories')
   require('../src/components/ContextMenu/ContextMenu.stories')
   require('../src/components/CreateCommunity/CreateCommunity.stories')
   require('../src/components/Appbar/Appbar.stories')
