@@ -18,7 +18,7 @@ export const LeaveCommunity: React.FC = () => {
 
   let communityName = '' // Prevent error on initial app start
 
-  if (community.name) {
+  if (community?.name) {
     communityName = capitalizeFirstLetter(community.name)
   }
 
