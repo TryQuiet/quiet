@@ -5,6 +5,7 @@ import { autoUpdater } from 'electron-updater'
 import { BrowserWindow, app, ipcMain, Menu } from 'electron'
 import { waitFor } from '@testing-library/dom'
 import path from 'path'
+
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
 
@@ -61,7 +62,10 @@ jest.mock('electron', () => {
     // @ts-expect-error
     ...jest.requireActual('electron'),
     app: {
-      getPath: jest.fn(),
+      getPath: jest.fn().mockImplementation(() => {
+        return '.'
+      }),
+      setPath: jest.fn(),
       getName: jest.fn(),
       getVersion: jest.fn(),
       requestSingleInstanceLock: jest.fn(),
