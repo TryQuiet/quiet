@@ -10,7 +10,7 @@ import { getPorts, ApplicationPorts } from './backendHelpers'
 import pkijs, { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
-import { DEV_DATA_DIR } from '../shared/static'
+import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '../utils/functions/fileData'
 
@@ -35,22 +35,23 @@ const webcrypto = new Crypto()
 
 global.crypto = webcrypto
 
+let dataDir = DATA_DIR
+
 if (isDev || process.env.DATA_DIR) {
-  const dataDir = process.env.DATA_DIR || DEV_DATA_DIR
-  const appDataPath = path.join(app.getPath('appData'), dataDir)
-
-  if (!fs.existsSync(appDataPath)) {
-    fs.mkdirSync(appDataPath)
-    fs.mkdirSync(`${appDataPath}/Quiet`)
-  }
-
-  const newUserDataPath = path.join(appDataPath, 'Quiet')
-
-  app.setPath('appData', appDataPath)
-  app.setPath('userData', newUserDataPath)
+  dataDir = process.env.DATA_DIR || DEV_DATA_DIR
 }
 
-const appDataPath = app.getPath('appData')
+const appDataPath = path.join(app.getPath('appData'), dataDir)
+
+if (!fs.existsSync(appDataPath)) {
+  fs.mkdirSync(appDataPath)
+  fs.mkdirSync(`${appDataPath}/Quiet`)
+}
+
+const newUserDataPath = path.join(appDataPath, 'Quiet')
+
+app.setPath('appData', appDataPath)
+app.setPath('userData', newUserDataPath)
 
 interface IWindowSize {
   width: number
