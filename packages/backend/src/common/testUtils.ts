@@ -73,8 +73,8 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
   })
 }
 
-export const createTmpDir = (): tmp.DirResult => {
-  return tmp.dirSync({ mode: 0o750, prefix: 'quietTestTmp_', unsafeCleanup: true })
+export const createTmpDir = (prefix: string = 'quietTestTmp_'): tmp.DirResult => {
+  return tmp.dirSync({ mode: 0o750, prefix, unsafeCleanup: true })
 }
 
 export const tmpQuietDirPath = (name: string): string => {
