@@ -1,8 +1,8 @@
-package com.zbaymobile.Utils
+package com.quietmobile.Utils
 
 import android.content.Context
 import android.util.Log
-import com.zbaymobile.Utils.Const.TAG_NOTICE
+import com.quietmobile.Utils.Const.TAG_NOTICE
 import java.io.*
 import java.net.ConnectException
 import java.net.InetSocketAddress

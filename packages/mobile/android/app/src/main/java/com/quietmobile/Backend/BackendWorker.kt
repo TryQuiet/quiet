@@ -1,4 +1,4 @@
-package com.zbaymobile.Backend;
+package com.quietmobile.Backend;
 
 import android.content.Context
 import android.util.Log
@@ -7,15 +7,15 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
-import com.zbaymobile.BuildConfig
-import com.zbaymobile.Communication.CommunicationModule
-import com.zbaymobile.Notification.NotificationHandler
-import com.zbaymobile.R
-import com.zbaymobile.Scheme.WebsocketConnectionPayload
-import com.zbaymobile.Utils.Const
-import com.zbaymobile.Utils.Const.WEBSOCKET_CONNECTION_DELAY
-import com.zbaymobile.Utils.Utils
-import com.zbaymobile.Utils.isAppOnForeground
+import com.quietmobile.BuildConfig
+import com.quietmobile.Communication.CommunicationModule
+import com.quietmobile.Notification.NotificationHandler
+import com.quietmobile.R
+import com.quietmobile.Scheme.WebsocketConnectionPayload
+import com.quietmobile.Utils.Const
+import com.quietmobile.Utils.Const.WEBSOCKET_CONNECTION_DELAY
+import com.quietmobile.Utils.Utils
+import com.quietmobile.Utils.isAppOnForeground
 import io.socket.client.IO
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.Dispatchers

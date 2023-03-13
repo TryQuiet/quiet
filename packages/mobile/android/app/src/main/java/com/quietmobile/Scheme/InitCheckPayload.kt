@@ -1,4 +1,4 @@
-package com.zbaymobile.Scheme
+package com.quietmobile.Scheme
 
 data class InitCheckPayload (
     val event: String,

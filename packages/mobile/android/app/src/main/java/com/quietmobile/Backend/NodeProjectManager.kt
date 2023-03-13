@@ -1,4 +1,4 @@
-package com.zbaymobile.Backend
+package com.quietmobile.Backend
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -6,7 +6,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.AssetManager
 import android.util.Log
-import com.zbaymobile.Utils.Const
+import com.quietmobile.Utils.Const
 import java.io.*
 import java.util.concurrent.Semaphore
 
