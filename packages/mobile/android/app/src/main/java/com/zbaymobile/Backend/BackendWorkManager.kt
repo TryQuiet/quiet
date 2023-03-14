@@ -18,4 +18,11 @@ class BackendWorkManager(private val context: Context) {
 
         workManager.enqueueUniqueWork("backend_worker", ExistingWorkPolicy.KEEP, backendRequest)
     }
+
+    fun stop() {
+        val workManager = WorkManager
+            .getInstance(context)
+
+        workManager.cancelAllWork()
+    }
 }

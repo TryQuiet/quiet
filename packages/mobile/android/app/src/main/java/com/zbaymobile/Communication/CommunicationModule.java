@@ -1,6 +1,7 @@
 package com.zbaymobile.Communication;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
@@ -9,9 +10,16 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
+import com.zbaymobile.Backend.BackendWorkManager;
 import com.zbaymobile.Notification.NotificationHandler;
+import com.zbaymobile.Utils.Utils;
 
 import androidx.annotation.NonNull;
+
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
 
 import javax.annotation.Nullable;
 
@@ -53,9 +61,6 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
             case INIT_CHECK_CHANNEL:
                 passDataToReact(event, payload);
                 break;
-            case STOP_BACKEND_CHANNEL:
-                stopBackend();
-                break;
             default:
                 break;
         }
@@ -84,7 +89,25 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @ReactMethod
     private static void stopBackend() {
-        // Communicate with worker
+        Context context = reactContext.getApplicationContext();
+        new BackendWorkManager(context).stop();
+    }
+
+    @ReactMethod
+    private static void startBackend() {
+        Context context = reactContext.getApplicationContext();
+        new BackendWorkManager(context).enqueueRequests();
+    }
+
+    @ReactMethod
+    private static void deleteBackendData() {
+        Context context = reactContext.getApplicationContext();
+        try {
+            FileUtils.deleteDirectory(new File(context.getFilesDir(), "backend/files"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

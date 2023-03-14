@@ -9,20 +9,21 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { LeaveCommunity } from '../../components/LeaveCommunity/LeaveCommunity.component'
 
 import { capitalize } from '../../utils/functions/capitalize/capitalize'
+import { nativeServicesActions } from '../../store/nativeServices/nativeServices.slice'
 
 export const LeaveCommunityScreen: FC = () => {
   const dispatch = useDispatch()
 
   const community = useSelector(communities.selectors.currentCommunity)
 
-  let name = ''
-  if (community) {
-    name = capitalize(community.name)
+  let communityName = ''
+  if (community?.name) {
+    communityName = capitalize(community.name)
   }
 
-  const leaveCommunity = () => {
-    console.log('leaving community')
-  }
+  const leaveCommunity = useCallback(() => {
+    dispatch(nativeServicesActions.leaveCommunity())
+  }, [dispatch])
 
   const handleBackButton = useCallback(() => {
     dispatch(
@@ -33,5 +34,5 @@ export const LeaveCommunityScreen: FC = () => {
     return true
   }, [dispatch])
 
-  return <LeaveCommunity name={name} leaveCommunity={leaveCommunity} handleBackButton={handleBackButton} />
+  return <LeaveCommunity name={communityName} leaveCommunity={leaveCommunity} handleBackButton={handleBackButton} />
 }
