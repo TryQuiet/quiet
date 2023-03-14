@@ -87,4 +87,28 @@ describe('Scroll behavior test', () => {
 
     cy.get(channelContent).compareSnapshot('send after top scroll')
   })
+
+  it('PageUp keydown should scroll message list up.', () => {
+    cy.get(messageInput).focus().type('{pageup}')
+    cy.get(channelContent).compareSnapshot('after pageup', {
+      capture: 'fullPage'
+    })
+  })
+
+  it('PageDown keydown should scroll message list down.', () => {
+    cy.get(channelContent).scrollTo(0, 0)
+    cy.get(messageInput).focus().type('{pagedown}')
+    cy.get(channelContent).compareSnapshot('after pagedown', {
+      capture: 'fullPage'
+    })
+  })
+
+  it('Shift+Enter should not send message', () => {
+    cy.get(messageInput)
+      .focus()
+      .type('luke where are you?')
+      .type('{shift+enter}')
+      .type('you underestimate the power of the force')
+      .should('have.text', 'luke where are you?you underestimate the power of the force')
+  })
 })

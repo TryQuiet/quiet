@@ -10,7 +10,7 @@ import { getPorts, ApplicationPorts } from './backendHelpers'
 import pkijs, { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
-import { DEV_DATA_DIR } from '../shared/static'
+import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '../utils/functions/fileData'
 
@@ -24,6 +24,8 @@ remote.initialize()
 
 const log = logger('main')
 
+let resetting: boolean = false
+
 const updaterInterval = 15 * 60_000
 
 export const isDev = process.env.NODE_ENV === 'development'
@@ -33,22 +35,23 @@ const webcrypto = new Crypto()
 
 global.crypto = webcrypto
 
+let dataDir = DATA_DIR
+
 if (isDev || process.env.DATA_DIR) {
-  const dataDir = process.env.DATA_DIR || DEV_DATA_DIR
-  const appDataPath = path.join(app.getPath('appData'), dataDir)
-
-  if (!fs.existsSync(appDataPath)) {
-    fs.mkdirSync(appDataPath)
-    fs.mkdirSync(`${appDataPath}/Quiet`)
-  }
-
-  const newUserDataPath = path.join(appDataPath, 'Quiet')
-
-  app.setPath('appData', appDataPath)
-  app.setPath('userData', newUserDataPath)
+  dataDir = process.env.DATA_DIR || DEV_DATA_DIR
 }
 
-const appDataPath = app.getPath('appData')
+const appDataPath = path.join(app.getPath('appData'), dataDir)
+
+if (!fs.existsSync(appDataPath)) {
+  fs.mkdirSync(appDataPath)
+  fs.mkdirSync(`${appDataPath}/Quiet`)
+}
+
+const newUserDataPath = path.join(appDataPath, 'Quiet')
+
+app.setPath('appData', appDataPath)
+app.setPath('userData', newUserDataPath)
 
 interface IWindowSize {
   width: number
@@ -300,7 +303,7 @@ export const checkForUpdate = async (win: BrowserWindow) => {
 let ports: ApplicationPorts
 let backendProcess: ChildProcess = null
 
-const closeBackendProcess = () => {
+const closeBackendProcess = (clear: boolean = false) => {
   if (backendProcess !== null) {
     /* OrbitDB released a patch (0.28.5) that omits error thrown when closing the app during heavy replication
        it needs mending though as replication is not being stopped due to pednign ipfs block/dag calls.
@@ -312,8 +315,12 @@ const closeBackendProcess = () => {
        https://github.com/TryQuiet/monorepo/issues/469
     */
     const forceClose = setTimeout(() => {
-      log('Force closing the app')
       backendProcess.kill()
+      if (clear) {
+        resetting = false
+        const appData = app.getPath('appData')
+        fs.rmSync(appData, { recursive: true, force: true })
+      }
       app.quit()
     }, 2000)
     backendProcess.send('close')
@@ -321,6 +328,11 @@ const closeBackendProcess = () => {
       if (message === 'closed-services') {
         log('Closing the app')
         clearTimeout(forceClose)
+        if (clear) {
+          resetting = false
+          const appData = app.getPath('appData')
+          fs.rmSync(appData, { recursive: true, force: true })
+        }
         app.quit()
       }
     })
@@ -367,10 +379,14 @@ app.on('ready', async () => {
   })
 
   const forkArgvs = [
-    '-d', `${ports.dataServer}`,
-    '-a', `${appDataPath}`,
-    '-r', `${process.resourcesPath}`,
-    '-p', 'desktop'
+    '-d',
+    `${ports.dataServer}`,
+    '-a',
+    `${appDataPath}`,
+    '-r',
+    `${process.resourcesPath}`,
+    '-p',
+    'desktop'
   ]
 
   const backendBundlePath = require.resolve('backend-bundle')
@@ -398,6 +414,7 @@ app.on('ready', async () => {
   })
 
   mainWindow.once('close', e => {
+    if (resetting) return
     e.preventDefault()
     log('Closing window')
     mainWindow.webContents.send('force-save-state')
@@ -413,6 +430,12 @@ app.on('ready', async () => {
   ipcMain.on('state-saved', e => {
     mainWindow.close()
     log('Saved state, closed window')
+  })
+
+  ipcMain.on('clear-community', () => {
+    resetting = true
+    app.relaunch()
+    closeBackendProcess(true)
   })
 
   ipcMain.on('restartApp', () => {
@@ -433,7 +456,7 @@ app.on('ready', async () => {
     })
   })
 
-  ipcMain.on('openUploadFileDialog', async (e) => {
+  ipcMain.on('openUploadFileDialog', async e => {
     let filesDialogResult: Electron.OpenDialogReturnValue
     try {
       filesDialogResult = await dialog.showOpenDialog(mainWindow, {

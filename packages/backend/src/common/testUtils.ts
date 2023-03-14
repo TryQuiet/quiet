@@ -20,6 +20,7 @@ import {
 } from './utils'
 import crypto from 'crypto'
 import logger from '../logger'
+import { TorParams } from '../torManager/torManager'
 const log = logger('test')
 
 export const rootPermsData: PermsData = {
@@ -35,7 +36,7 @@ export const testBootstrapMultiaddrs = [
   createLibp2pAddress('abcd.onion', 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4')
 ]
 
-export const spawnTorProcess = async (quietDirPath: string, ports?: Ports, extraTorProcessParams?: string[], binName?: string): Promise<Tor> => {
+export const spawnTorProcess = async (quietDirPath: string, ports?: Ports, extraTorProcessParams?: TorParams, binName?: string): Promise<Tor> => {
   const _ports = ports || (await getPorts())
   const torPath = torBinForPlatform(undefined, binName)
   const libPath = torDirForPlatform()
@@ -72,8 +73,8 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
   })
 }
 
-export const createTmpDir = (): tmp.DirResult => {
-  return tmp.dirSync({ mode: 0o750, prefix: 'quietTestTmp_', unsafeCleanup: true })
+export const createTmpDir = (prefix: string = 'quietTestTmp_'): tmp.DirResult => {
+  return tmp.dirSync({ mode: 0o750, prefix, unsafeCleanup: true })
 }
 
 export const tmpQuietDirPath = (name: string): string => {

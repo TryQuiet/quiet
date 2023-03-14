@@ -30,7 +30,7 @@ extern "C" int callIntoNode(int argc, char *argv[])
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_zbaymobile_Backend_NodeProjectManager_getCurrentABIName(
+Java_com_quietmobile_Backend_NodeProjectManager_getCurrentABIName(
         JNIEnv *env,
         jobject /* this */) {
     return env->NewStringUTF(CURRENT_ABI_NAME);
@@ -38,7 +38,7 @@ Java_com_zbaymobile_Backend_NodeProjectManager_getCurrentABIName(
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_zbaymobile_Backend_BackendWorker_registerNodeDataDirPath(
+Java_com_quietmobile_Backend_BackendWorker_registerNodeDataDirPath(
         JNIEnv *env,
         jobject /* this */,
         jstring dataDir) {
@@ -103,7 +103,7 @@ int start_redirecting_stdout_stderr() {
 
 //node's libUV requires all arguments being on contiguous memory.
 extern "C" jobject JNICALL
-Java_com_zbaymobile_Backend_BackendWorker_startNodeWithArguments(
+Java_com_quietmobile_Backend_BackendWorker_startNodeWithArguments(
         JNIEnv *env,
         jobject /* this */,
         jobjectArray arguments,

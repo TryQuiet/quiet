@@ -1,7 +1,7 @@
 import React from 'react'
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
-import { useCyclingFocus, useModal } from '../../../containers/hooks'
+import { useModal } from '../../../containers/hooks'
 import { PublicChannel } from '@quiet/state-manager'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import ChannelsListItem from './ChannelsListItem'
@@ -21,7 +21,6 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   currentChannel,
   createChannelModal
 }) => {
-  const [focusedIndex] = useCyclingFocus(channels.length)
   return (
     <Grid container item xs direction='column'>
       <Grid item>
@@ -42,7 +41,6 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
                 channel={channel}
                 unread={unread}
                 selected={selected}
-                focused={focusedIndex === index}
                 setCurrentChannel={setCurrentChannel}
                 key={channel.address}
               />

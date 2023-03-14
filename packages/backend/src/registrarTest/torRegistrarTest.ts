@@ -50,7 +50,7 @@ const spawnTor = async (i: number) => {
   log(`spawning tor number ${i}`)
   const tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
   const ports = await getPorts()
-  const extraTorProcessParams = ['--NumEntryGuards', guardsCount, '--VanguardsLiteEnabled', vanguargsLiteEnabled]
+  const extraTorProcessParams = { '--NumEntryGuards': guardsCount, '--VanguardsLiteEnabled': vanguargsLiteEnabled }
 
   const tor = await spawnTorProcess(tmpAppDataPath, ports, extraTorProcessParams, torBinName)
 
