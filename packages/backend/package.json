@@ -116,6 +116,7 @@
 		"p-queue": "7.3.4",
 		"peer-id": "^0.16.0",
 		"pkijs": "3.0.8",
+		"p-queue": "7.3.4",
 		"secp256k1": "4.0.3",
 		"socket.io": "4.6.0",
 		"socks-proxy-agent": "^5.0.0",
