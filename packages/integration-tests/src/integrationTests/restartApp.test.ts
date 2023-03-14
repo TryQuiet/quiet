@@ -1,5 +1,5 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { createApp, sleep, storePersistor } from '../utils'
+import { createApp, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import {
   assertInitializedCommunity,
