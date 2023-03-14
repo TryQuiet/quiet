@@ -77,6 +77,18 @@ export const generalChannel = createSelector(publicChannels, publicChannelsSelec
   return publicChannelsSelector.find(channel => channel.name === 'general')
 })
 
+export const sortedChannels = createSelector(publicChannels, (publicChannelSelector) => {
+  return publicChannelSelector.sort((a, b) => {
+    if (a.name === 'general') {
+      return -1
+    }
+    if (b.name === 'general') {
+      return 0
+    }
+    return a.name.localeCompare(b.name)
+  })
+})
+
 export const recentChannels = createSelector(
   publicChannels,
   generalChannel,
@@ -264,5 +276,6 @@ export const publicChannelsSelectors = {
   unreadChannels,
   channelsStatus,
   channelsStatusSorted,
-  dynamicSearchedChannels
+  dynamicSearchedChannels,
+  sortedChannels
 }
