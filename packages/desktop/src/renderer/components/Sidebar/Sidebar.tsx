@@ -13,7 +13,8 @@ const Sidebar = () => {
   const createChannelModal = useModal(ModalName.createChannel)
   const accountSettingsModal = useModal(ModalName.accountSettingsModal)
 
-  const sortedChannels = useSelector(publicChannels.selectors.sortedChannels)
+  const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
+
   const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
@@ -34,7 +35,7 @@ const Sidebar = () => {
   }
 
   const channelsPanelProps: ChannelsPanelProps = {
-    channels: sortedChannels,
+    channels: publicChannelsSelector,
     unreadChannels: unreadChannels,
     setCurrentChannel: setCurrentChannel,
     currentChannel: currentChannel,
