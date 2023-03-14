@@ -16,7 +16,7 @@ const PREFIX = 'SettingsModal'
 
 const classes = {
   indicator: `${PREFIX}indicator`,
-  leaveComunity: `${PREFIX}leaveCommunity`,
+  leaveComunity: `${PREFIX}leaveCommunity`
 }
 
 const StyledModalContent = styled(Grid)(() => ({
@@ -52,8 +52,7 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
     textTransform: 'none',
     lineHeight: '21px',
     minHeight: '0px'
-  },
-
+  }
 }))
 
 const TabComponentWrapper = styled(Grid)(() => ({
@@ -66,6 +65,7 @@ export interface SettingsComponentProps {
   isOwner: boolean
   tabs: any
   leaveCommunityModal: ReturnType<typeof useModal>
+  isWindows?: boolean
 }
 
 export const SettingsComponent: React.FC<SettingsComponentProps> = ({
@@ -73,7 +73,8 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   handleClose,
   isOwner,
   tabs,
-  leaveCommunityModal
+  leaveCommunityModal,
+  isWindows
 }) => {
   const [contentRef, setContentRef] = React.useState(null)
 
@@ -140,13 +141,15 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
               {isOwner && (
                 <Tab value='invite' label='Invite a friend' data-testid={'invite-settings-tab'} />
               )}
-              <Grid style={{ marginTop: '24px', cursor: 'pointer' }}>
-                <Typography
-                  className={classes.leaveComunity}
-                  onClick={leaveCommunityModal.handleOpen}>
-                  Leave community
-                </Typography>
-              </Grid>
+              {!isWindows && (
+                <Grid style={{ marginTop: '24px', cursor: 'pointer' }}>
+                  <Typography
+                    className={classes.leaveComunity}
+                    onClick={leaveCommunityModal.handleOpen}>
+                    Leave community
+                  </Typography>
+                </Grid>
+              )}
             </StyledTabs>
           </StyledAppBar>
         </StyledTabsWrapper>
