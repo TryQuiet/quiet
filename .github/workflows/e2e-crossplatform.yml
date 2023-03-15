@@ -87,7 +87,7 @@ jobs:
 
       - name: Download App Image
         working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0-alpha.1/Quiet-1.1.0-alpha.4.AppImage
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0-alpha.4/Quiet-1.1.0-alpha.4.AppImage
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
