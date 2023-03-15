@@ -13,12 +13,15 @@ const Sidebar = () => {
   const createChannelModal = useModal(ModalName.createChannel)
   const accountSettingsModal = useModal(ModalName.accountSettingsModal)
 
-  const channels = useSelector(publicChannels.selectors.publicChannels)
   const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
 
   const currentChannel = useSelector(publicChannels.selectors.currentChannelAddress)
+
+  // Workaround for Redux bug, issue: https://github.com/TryQuiet/quiet/issues/1332
+  useSelector(publicChannels.selectors.sortedChannels)
+  const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
 
   const setCurrentChannel = (address: string) => {
     dispatch(
@@ -34,7 +37,7 @@ const Sidebar = () => {
   }
 
   const channelsPanelProps: ChannelsPanelProps = {
-    channels: channels,
+    channels: publicChannelsSelector,
     unreadChannels: unreadChannels,
     setCurrentChannel: setCurrentChannel,
     currentChannel: currentChannel,

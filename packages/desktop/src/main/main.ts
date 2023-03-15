@@ -320,7 +320,11 @@ const closeBackendProcess = (clear: boolean = false) => {
       if (clear) {
         resetting = false
         const appData = app.getPath('appData')
-        fs.rmSync(appData, { recursive: true, force: true })
+        try {
+          fs.rmSync(appData, { recursive: true, force: true })
+        } catch (e) {
+          console.error(e)
+        }
       }
       app.quit()
     }, 2000)
@@ -332,7 +336,11 @@ const closeBackendProcess = (clear: boolean = false) => {
         if (clear) {
           resetting = false
           const appData = app.getPath('appData')
-          fs.rmSync(appData, { recursive: true, force: true })
+          try {
+            fs.rmSync(appData, { recursive: true, force: true })
+          } catch (e) {
+            console.error(e)
+          }
         }
         app.quit()
       }

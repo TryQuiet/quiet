@@ -29,7 +29,9 @@ const Settings = () => {
 
   const leaveCommunityModal = useModal(ModalName.leaveCommunity)
 
-  return <SettingsComponent isOwner={isOwner} tabs={tabs} leaveCommunityModal={leaveCommunityModal} {...modal} />
+  const isWindows = process.platform === 'win32'
+
+  return <SettingsComponent isOwner={isOwner} tabs={tabs} leaveCommunityModal={leaveCommunityModal} {...modal} isWindows={isWindows}/>
 }
 
 export default Settings
