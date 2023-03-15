@@ -26,23 +26,22 @@ export enum IpfsFilesManagerEvents {
     DOWNLOAD_FILE = 'downloadFile',
     CANCEL_DOWNLOAD = 'cancelDownload',
     // Outgoing evnets
-    DOWNLOADED_FILE = 'downloadedFile',
-    UPDATE_STATUS = 'updateStatus',
+    UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
     UPDATE_DOWNLOAD_PROGRESS = 'updateDownloadProgress'
 }
 interface FilesData {
     size: number,
     downloadedBytes: number,
     transferSpeed: number,
-    cid: any,
+    cid: string,
     message: {
-        id: any
+        id: string
     }
 }
 
 const SECONDS = 10 // Blocks in last 10 seconds that are taken under consideration in transferSpeed algorithm
-const UPDATE_INTERVAL = 1 // How often we send updated status to UI, in seconds.
-const QUEUE_TIMEOUT = 20
+const UPDATE_STATUS_INTERVAL = 1 // How often we send updated status to UI, in seconds.
+const BLOCK_FETCH_TIMEOUT = 20
 const QUEUE_CONCURRENCY = 40
 
 export class IpfsFilesManager extends EventEmitter {
@@ -115,7 +114,7 @@ export class IpfsFilesManager extends EventEmitter {
             controller
         })
 
-        const addToQueue = async (link) => {
+        const addToQueue = async (link: CID) => {
             try {
                 await queue.add(async ({ signal }) => {
                     try {
@@ -144,14 +143,14 @@ export class IpfsFilesManager extends EventEmitter {
 
             })
             this.updateStatus(fileMetadata.cid)
-        }, UPDATE_INTERVAL * 1000)
+        }, UPDATE_STATUS_INTERVAL * 1000)
 
-        const processBlock = async (block, signal) => {
+        const processBlock = async (block: CID, signal: AbortSignal) => {
             return new Promise(async (resolve, reject) => {
                 const timeout = setTimeout(() => {
                     addToQueue(block)
                     reject('e')
-                }, QUEUE_TIMEOUT * 1000);
+                }, BLOCK_FETCH_TIMEOUT * 1000);
 
                 if (processedBlocks.includes(block.toString())) {
                     resolve(block)
@@ -180,6 +179,7 @@ export class IpfsFilesManager extends EventEmitter {
                 }
 
                 for (let link of decodedBlock.Links) {
+                    // @ts-ignore
                     addToQueue(link.Hash)
                 }
                 clearTimeout(timeout)
@@ -238,7 +238,7 @@ export class IpfsFilesManager extends EventEmitter {
             await new Promise<void>((resolve, reject) => {
                 writeStream.write(entry, err => {
                     if (err) {
-                        console.error(`${fileMetadata.name} download error: ${err}`)
+                        console.error(`${fileMetadata.name} writing to file error: ${err}`)
                         reject(err)
                     }
                 })
@@ -255,10 +255,10 @@ export class IpfsFilesManager extends EventEmitter {
             path: filePath
         }
 
-        this.emit('updateFileMetadata', messageMedia)
+        this.emit(IpfsFilesManagerEvents.UPDATE_MESSAGE_MEDIA, messageMedia)
     }
 
-    private updateStatus = async (cid, downloadState = DownloadState.Downloading) => {
+    private updateStatus = async (cid: string, downloadState = DownloadState.Downloading) => {
         const metadata = this.files.get(cid)
         const progress: DownloadProgress = {
             size: metadata.size,
