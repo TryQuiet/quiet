@@ -92,7 +92,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     @ReactMethod
     private static void stopBackend() {
         Context context = reactContext.getApplicationContext();
-        new BackendWorkManager(context).stop();
+        // new BackendWorkManager(context).stop();
     }
 
     @ReactMethod

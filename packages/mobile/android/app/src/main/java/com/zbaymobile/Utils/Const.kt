@@ -2,8 +2,11 @@ package com.zbaymobile.Utils
 
 object Const {
     // App
-    const val TAG_NOTICE="NOTICE"
+    const val TAG_NOTICE = "NOTICE"
     const val APK_LAST_UPDATED_TIME = "APK_LAST_UPDATE_TIME"
+
+    // Worker
+    const val WORKER_TAG = "backend_worker"
 
     // Notifications
     const val FOREGROUND_SERVICE_NOTIFICATION_CHANNEL_ID = "foreground.service.channel"
