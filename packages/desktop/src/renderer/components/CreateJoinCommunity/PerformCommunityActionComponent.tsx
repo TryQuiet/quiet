@@ -16,6 +16,7 @@ import {
 } from '../CreateJoinCommunity/community.dictionary'
 
 import { parseName, CommunityOwnership } from '@quiet/state-manager'
+import { ipcRenderer } from 'electron'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
@@ -142,6 +143,7 @@ export interface PerformCommunityActionProps {
   hasReceivedResponse: boolean
   revealInputValue?: boolean
   handleClickInputReveal?: () => void
+  invitationCode?: string
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -154,12 +156,17 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   isCloseDisabled,
   hasReceivedResponse,
   revealInputValue,
-  handleClickInputReveal
+  handleClickInputReveal,
+  invitationCode
 }) => {
   const [formSent, setFormSent] = useState(false)
   const [communityName, setCommunityName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
-
+  const [defaultValue, setDefaultValue] = useState('');
+  // ipcRenderer.on('newInvitation', (_event, invitation) => {
+  //   console.log('DEFAULT VALUE', invitation)
+  //   setDefaultValue(invitation.invitation)
+  // })
   const waitingForResponse = formSent && !hasReceivedResponse
 
   const dictionary =
@@ -216,6 +223,14 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
       setCommunityName('')
     }
   }, [open])
+
+  React.useEffect(() => {
+    console.log('open', open, 'invitationcode', invitationCode)
+    if (open && invitationCode) {
+      setValue('name', invitationCode)
+      setCommunityName('')
+    }
+  }, [open, invitationCode])
 
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={isCloseDisabled}>

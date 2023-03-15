@@ -13,7 +13,8 @@ import logger from './logger'
 import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '../utils/functions/fileData'
-
+console.log('isPackaged-------------', app.isPackaged)
+console.log('process.execPath-------------------', process.execPath)
 const ElectronStore = require('electron-store')
 ElectronStore.initRenderer()
 
@@ -91,7 +92,7 @@ export const applyDevTools = async () => {
   if (!isDev || isE2Etest) return
   /* eslint-disable */
   require('electron-debug')({
-    showDevTools: false
+    showDevTools: true
   })
   const installer = require('electron-devtools-installer')
   const { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = require('electron-devtools-installer')
@@ -131,35 +132,27 @@ if (!gotTheLock) {
 }
 
 app.on('open-url', (event, url) => {
+  log('app.open-url', url)
   event.preventDefault()
   const data = new URL(url)
+  log('DATA on open-url', data)
   if (mainWindow) {
     if (data.searchParams.has('invitation')) {
-      mainWindow.webContents.send('newInvitation', {
+      mainWindow.webContents.send('invitation', {
         invitation: data.searchParams.get('invitation')
-      })
-    }
-    if (data.searchParams.has('importchannel')) {
-      mainWindow.webContents.send('newChannel', {
-        channelParams: data.searchParams.get('importchannel')
       })
     }
   }
 })
 
 const checkForPayloadOnStartup = (payload: string) => {
+  console.log('DATA on checkForPayloadOnStartup', payload)
   const isInvitation = payload.includes('invitation')
-  const isNewChannel = payload.includes('importchannel')
-  if (mainWindow && (isInvitation || isNewChannel)) {
+  if (mainWindow && isInvitation) {
     const data = new URL(payload)
     if (data.searchParams.has('invitation')) {
       mainWindow.webContents.send('newInvitation', {
         invitation: data.searchParams.get('invitation')
-      })
-    }
-    if (data.searchParams.has('importchannel')) {
-      mainWindow.webContents.send('newChannel', {
-        channelParams: data.searchParams.get('importchannel')
       })
     }
   }
@@ -184,6 +177,11 @@ export const createWindow = async () => {
   })
 
   remote.enable(mainWindow.webContents)
+  
+  console.log('sending invitation')
+  // mainWindow.webContents.send('invitation', {
+  //   invitation: 'this is invitation code hello 1'
+  // })
 
   splash = new BrowserWindow({
     width: windowSize.width,
@@ -259,6 +257,9 @@ export const createWindow = async () => {
     mainWindow.webContents.zoomFactor = currentFactor - 0.2
   })
   log('Created mainWindow')
+  // mainWindow.webContents.send('invitation', {
+  //   invitation: 'this is invitation code hello 2'
+  // })
 }
 
 const isNetworkError = (errorObject: { message: string }) => {
@@ -274,7 +275,7 @@ const isNetworkError = (errorObject: { message: string }) => {
 
 export const checkForUpdate = async (win: BrowserWindow) => {
   try {
-    await autoUpdater.checkForUpdates()
+    // await autoUpdater.checkForUpdates()
   } catch (error) {
     if (isNetworkError(error)) {
       log.error('Network Error')
@@ -343,18 +344,22 @@ const closeBackendProcess = (clear: boolean = false) => {
 
 app.on('ready', async () => {
   log('Event: app.ready')
-  if (process.platform === 'darwin') {
-    Menu.setApplicationMenu(null)
-  } else {
-    Menu.setApplicationMenu(null)
-  }
+  Menu.setApplicationMenu(null)
 
   await applyDevTools()
 
   ports = await getPorts()
   await createWindow()
 
+  // mainWindow.webContents.send('invitation', {
+  //   invitation: 'this is invitation code hello 3'
+  // })
+
   mainWindow.webContents.on('did-finish-load', () => {
+
+    mainWindow.webContents.send('invitation', {
+      code: ''
+    })
     if (!splash.isDestroyed()) {
       const [width, height] = splash.getSize()
       mainWindow.setSize(width, height)

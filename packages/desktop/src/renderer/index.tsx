@@ -5,7 +5,7 @@ import { ipcRenderer } from 'electron'
 import Root, { persistor } from './Root'
 import store from './store'
 import updateHandlers from './store/handlers/update'
-
+import { communities } from '@quiet/state-manager'
 import logger from './logger'
 
 const log = logger('renderer')
@@ -23,8 +23,9 @@ ipcRenderer.on('force-save-state', async _event => {
   ipcRenderer.send('state-saved')
 })
 
-ipcRenderer.on('backendInitialized', _event => {
-  log('backend initialized')
+ipcRenderer.on('invitation', (_event, invitation) => {
+  log('invitation', invitation, 'dispatching action')
+  store.dispatch(communities.actions.handleInvitationCode(invitation.code))
 })
 
 export const clearCommunity = async () => {
