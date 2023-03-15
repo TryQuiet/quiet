@@ -19,7 +19,7 @@ const Sidebar = () => {
 
   const currentChannel = useSelector(publicChannels.selectors.currentChannelAddress)
 
-  // Workaround for Redux bug
+  // Workaround for Redux bug, issue: https://github.com/TryQuiet/quiet/issues/1332
   useSelector(publicChannels.selectors.sortedChannels)
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
 

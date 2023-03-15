@@ -53,7 +53,8 @@ export const selectGeneralChannel = createSelector(selectChannels, channels => {
   return channel
 })
 
-export const publicChannels = createSelector(selectChannels, (channels) => {
+export const publicChannels = createSelector(selectChannels, (selectChannelsSelector) => {
+  const channels = Array.from(selectChannelsSelector)
   const sorted = channels.sort((a, b) => {
     if (a.name === 'general') {
       return -1
