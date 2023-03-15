@@ -13,13 +13,15 @@ const Sidebar = () => {
   const createChannelModal = useModal(ModalName.createChannel)
   const accountSettingsModal = useModal(ModalName.accountSettingsModal)
 
-  const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
-
   const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
 
   const currentChannel = useSelector(publicChannels.selectors.currentChannelAddress)
+
+  // Workaround for Redux bug
+  useSelector(publicChannels.selectors.sortedChannels)
+  const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
 
   const setCurrentChannel = (address: string) => {
     dispatch(

@@ -54,7 +54,7 @@ export const selectGeneralChannel = createSelector(selectChannels, channels => {
 })
 
 export const publicChannels = createSelector(selectChannels, (channels) => {
-  return channels.sort((a, b) => {
+  const sorted = channels.sort((a, b) => {
     if (a.name === 'general') {
       return -1
     }
@@ -63,6 +63,22 @@ export const publicChannels = createSelector(selectChannels, (channels) => {
     }
     return a.name.localeCompare(b.name)
   })
+
+  return sorted
+})
+
+export const sortedChannels = createSelector(publicChannels, (channels) => {
+  const sorted = channels.sort((a, b) => {
+    if (a.name === 'general') {
+      return -1
+    }
+    if (b.name === 'general') {
+      return 0
+    }
+    return a.name.localeCompare(b.name)
+  })
+
+  return sorted
 })
 
 export const currentChannelAddress = createSelector(
@@ -75,18 +91,6 @@ export const currentChannelAddress = createSelector(
 
 export const generalChannel = createSelector(publicChannels, publicChannelsSelector => {
   return publicChannelsSelector.find(channel => channel.name === 'general')
-})
-
-export const sortedChannels = createSelector(publicChannels, (publicChannelSelector) => {
-  return publicChannelSelector.sort((a, b) => {
-    if (a.name === 'general') {
-      return -1
-    }
-    if (b.name === 'general') {
-      return 0
-    }
-    return a.name.localeCompare(b.name)
-  })
 })
 
 export const recentChannels = createSelector(
