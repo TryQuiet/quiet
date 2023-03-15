@@ -46,7 +46,6 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     width: '60%',
     overflow: 'hidden',
     minHeight: '255px',
-    maxHeight: '350px'
   },
   [`& .${classes.wrapper}`]: {
     padding: '24px'
