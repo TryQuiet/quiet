@@ -1,4 +1,4 @@
-package com.zbaymobile.Communication;
+package com.quietmobile.Communication;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
@@ -9,7 +9,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
-import com.zbaymobile.Notification.NotificationHandler;
+import com.quietmobile.Notification.NotificationHandler;
 
 import androidx.annotation.NonNull;
 

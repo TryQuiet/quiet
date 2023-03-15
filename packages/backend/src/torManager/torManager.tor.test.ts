@@ -162,4 +162,14 @@ describe('Tor manager (using tor)', () => {
     tor.clearHangingTorProcess()
     expect(processKill).toHaveBeenCalledTimes(1)
   })
+
+  it('should find hanging tor process and kill it if Quiet path includes space', async () => {
+    tmpDir = createTmpDir('quietTest Tmp_') // On MacOS quiet data lands in '(...)/Application Support/(...)' which caused problems with grep
+    tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
+    const processKill = jest.spyOn(process, 'kill')
+    const tor = await spawnTorProcess(tmpAppDataPath)
+    await tor.init()
+    tor.clearHangingTorProcess()
+    expect(processKill).toHaveBeenCalledTimes(1)
+  })
 })

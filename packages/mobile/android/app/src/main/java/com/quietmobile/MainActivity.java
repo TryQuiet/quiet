@@ -1,4 +1,4 @@
-package com.zbaymobile;
+package com.quietmobile;
 
 import android.app.NotificationManager;
 import android.content.Context;
@@ -13,7 +13,7 @@ import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.zbaymobile.Backend.BackendWorkManager;
+import com.quietmobile.Backend.BackendWorkManager;
 
 public class MainActivity extends ReactActivity {
 

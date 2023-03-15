@@ -29,7 +29,8 @@ const classes = {
   inputWrapper: `${PREFIX}inputWrapper`,
   wrapperRecent: `${PREFIX}wrapperRecent`,
   channelWrapper: `${PREFIX}channelWrapper`,
-  channelWrapperSelected: `${PREFIX}channelWrapperSelected`
+  channelWrapperSelected: `${PREFIX}channelWrapperSelected`,
+  scrollContainer: `${PREFIX}scrollContainer`
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
@@ -44,7 +45,8 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     borderRadius: '8px',
     width: '60%',
     overflow: 'hidden',
-    minHeight: '255px'
+    minHeight: '255px',
+    maxHeight: '350px'
   },
   [`& .${classes.wrapper}`]: {
     padding: '24px'
@@ -103,9 +105,12 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   [`& .${classes.inputWrapper}`]: {
     display: 'flex'
   },
-
+  [`& .${classes.scrollContainer}`]: {
+    overflowY: 'scroll',
+    height: '170px'
+  },
   [`& .${classes.input}`]: {
-    minWidth: '350px',
+    minWidth: '250px',
     caretColor: '#2288FF',
     '& div': {
       '&:hover': {
@@ -260,21 +265,22 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
                   </Typography>
                 </Grid>
               )}
-
-              {channelList.length > 0 &&
-                channelList.map((item, index) => {
-                  return (
-                    <ChannelItem
-                      className={classes.channelWrapper}
-                      focused={focusedIndex === index}
-                      classNameSelected={classes.channelWrapperSelected}
-                      item={item}
-                      key={index}
-                      onClickHandler={onChannelClickHandler}
-                      onKeyPressHandler={onKeyPressHandler}
-                    />
-                  )
-                })}
+              <Grid direction='column' className={unreadChannels.length > 3 ? classes.scrollContainer : ''}>
+                {channelList.length > 0 &&
+                  channelList.map((item, index) => {
+                    return (
+                      <ChannelItem
+                        className={classes.channelWrapper}
+                        focused={focusedIndex === index}
+                        classNameSelected={classes.channelWrapperSelected}
+                        item={item}
+                        key={index}
+                        onClickHandler={onChannelClickHandler}
+                        onKeyPressHandler={onKeyPressHandler}
+                      />
+                    )
+                  })}
+              </Grid>
             </Grid>
           </Grid>
         </Grid>

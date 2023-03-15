@@ -131,6 +131,7 @@ describe('Channels panel', () => {
               >
                 <ul
                   class="MuiList-root css-1mk9mw3-MuiList-root"
+                  data-testid="channelsList"
                 >
                   <div
                     class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-19ca6xy-MuiButtonBase-root-MuiListItemButton-root"
@@ -391,6 +392,7 @@ describe('Channels panel', () => {
             >
               <ul
                 class="MuiList-root css-1mk9mw3-MuiList-root"
+                data-testid="channelsList"
               >
                 <div
                   class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-19ca6xy-MuiButtonBase-root-MuiListItemButton-root"

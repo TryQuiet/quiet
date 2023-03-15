@@ -1,4 +1,4 @@
-package com.zbaymobile.Notification
+package com.quietmobile.Notification
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
@@ -8,9 +8,9 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.zbaymobile.MainActivity
-import com.zbaymobile.R
-import com.zbaymobile.Utils.Const
+import com.quietmobile.MainActivity
+import com.quietmobile.R
+import com.quietmobile.Utils.Const
 import org.json.JSONException
 import org.json.JSONObject
 
