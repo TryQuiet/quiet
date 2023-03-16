@@ -47,7 +47,7 @@ import { stringToArrayBuffer } from 'pvutils'
 import sizeOf from 'image-size'
 import { StorageEvents } from './types'
 
-import { IpfsFilesManager } from './ipfsFileManager'
+import { IpfsFilesManager, IpfsFilesManagerEvents } from './ipfsFileManager'
 import { create } from 'ipfs-core'
 import { CID } from 'multiformats/cid'
 
@@ -141,6 +141,12 @@ export class Storage extends EventEmitter {
 
   private async __stopIPFS() {
     if (this.ipfs) {
+      log('Stopping IPFS files manager')
+      try {
+        await this.filesManager.stop()
+      } catch (e) {
+        log.error('cannot stop filesManager')
+      }
       log('Stopping IPFS')
       try {
         await this.ipfs.stop()
@@ -585,21 +591,20 @@ export class Storage extends EventEmitter {
   }
 
   private attachFileManagerEvents = () => {
-    this.filesManager.on('updateDownloadProgress', (status) => {
+    this.filesManager.on(IpfsFilesManagerEvents.UPDATE_DOWNLOAD_PROGRESS, (status) => {
           this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, status)
     })
-    this.filesManager.on('updateFileMetadata', (messageMedia) => {
-      console.log('updating file metadata')
+    this.filesManager.on(IpfsFilesManagerEvents.UPDATE_MESSAGE_MEDIA, (messageMedia) => {
       this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, messageMedia)
     })
   }
 
   public async downloadFile(metadata: FileMetadata) {
-    this.filesManager.emit('downloadFile', metadata)
+    this.filesManager.emit(IpfsFilesManagerEvents.DOWNLOAD_FILE, metadata)
   }
 
   public cancelDownload(mid: string) {
-    this.filesManager.emit('cancelDownload', mid)
+    this.filesManager.emit(IpfsFilesManagerEvents.CANCEL_DOWNLOAD, mid)
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {

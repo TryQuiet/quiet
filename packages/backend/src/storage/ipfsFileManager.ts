@@ -12,7 +12,7 @@ import type { IPFS } from 'ipfs-core'
 
 import { CID } from 'multiformats/cid'
 
-const { createPaths } = await import('../common/utils')
+const { createPaths, compare } = await import('../common/utils')
 
 import {
     FileMetadata,
@@ -20,6 +20,7 @@ import {
     DownloadProgress,
     DownloadState,
 } from '@quiet/state-manager'
+import { sleep } from '../sleep'
 
 export enum IpfsFilesManagerEvents {
     // Incoming evetns
@@ -39,8 +40,8 @@ interface FilesData {
     }
 }
 
-const SECONDS = 10 // Blocks in last 10 seconds that are taken under consideration in transferSpeed algorithm
-const UPDATE_STATUS_INTERVAL = 1 // How often we send updated status to UI, in seconds.
+const TRANSFER_SPEED_SPAN = 10
+const UPDATE_STATUS_INTERVAL = 0.1
 const BLOCK_FETCH_TIMEOUT = 20
 const QUEUE_CONCURRENCY = 40
 
@@ -66,6 +67,7 @@ export class IpfsFilesManager extends EventEmitter {
 
     private attachIncomingEvents = () => {
         this.on(IpfsFilesManagerEvents.DOWNLOAD_FILE, async (fileMetadata: FileMetadata) => {
+            if (this.files.get(fileMetadata.cid)) return
             this.files.set(fileMetadata.cid, {
                 size: fileMetadata.size || 0,
                 downloadedBytes: 0,
@@ -77,14 +79,33 @@ export class IpfsFilesManager extends EventEmitter {
         })
         this.on(IpfsFilesManagerEvents.CANCEL_DOWNLOAD, async (mid) => {
             const fileDownloaded = Array.from(this.files.values()).find((e) => e.message.id === mid)
-            const queueAndController = this.queues.get(fileDownloaded.cid)
+            await this.cancelDownload(fileDownloaded.cid)
+        })
+    }
+
+    public async stop() {
+        for await (let cid of this.files.keys()) {
+            await this.cancelDownload(cid)
+        }
+    }
+
+    private cancelDownload = async (cid: string) => {
+        const queueAndController = this.queues.get(cid)
+        const downloadInProgress = this.files.get(cid)
+        if (!downloadInProgress) return
+        if (!queueAndController) {
+            await sleep(1000)
+            await this.cancelDownload(cid)
+            {
+            }
+        } else {
             const queue = queueAndController.queue
             const controller = queueAndController.controller
-            this.cancelledDownloads.add(fileDownloaded.cid)
+            this.cancelledDownloads.add(cid)
             controller.abort()
             queue.pause()
             queue.clear()
-        })
+        }
     }
 
     private getLocalBlocks = async () => {
@@ -106,13 +127,18 @@ export class IpfsFilesManager extends EventEmitter {
         let localBlocks = await this.getLocalBlocks()
         let processedBlocks = []
 
-        // Queue
         const controller = new AbortController()
         const queue = new PQueue({ concurrency: QUEUE_CONCURRENCY });
         this.queues.set(fileMetadata.cid, {
             queue,
             controller
         })
+
+        const stat = await this.ipfs.files.stat(block)
+        if (fileMetadata.size && !compare(fileMetadata.size, stat.size, 0.05)) {
+            this.updateStatus(fileMetadata.cid, DownloadState.Malicious)
+            return
+        }
 
         const addToQueue = async (link: CID) => {
             try {
@@ -133,10 +159,10 @@ export class IpfsFilesManager extends EventEmitter {
 
         const updateTransferSpeed = setInterval(() => {
             const bytesDownloaded = blocksStats.reduce((previousValue, currentValue) => {
-                if (Math.floor(Date.now() / 1000) - currentValue.fetchTime < SECONDS) return previousValue + currentValue.byteLength
+                if (Math.floor(Date.now() / 1000) - currentValue.fetchTime < TRANSFER_SPEED_SPAN) return previousValue + currentValue.byteLength
                 return 0
             }, 0)
-            const transferSpeed = bytesDownloaded === 0 ? 0 : bytesDownloaded / SECONDS
+            const transferSpeed = bytesDownloaded === 0 ? 0 : bytesDownloaded / TRANSFER_SPEED_SPAN
             const fileState = this.files.get(fileMetadata.cid)
             this.files.set(fileMetadata.cid, {
                 ...fileState, transferSpeed: transferSpeed,
@@ -169,6 +195,12 @@ export class IpfsFilesManager extends EventEmitter {
                 const decodedBlock = decode(fetchedBlock)
 
                 const fileState = this.files.get(fileMetadata.cid)
+
+                if (!fileState) {
+                    reject('e')
+                    return
+                }
+
                 this.files.set(fileMetadata.cid, { ...fileState, downloadedBytes: decodedBlock.Data ? fileState.downloadedBytes + decodedBlock.Data.byteLength : fileState.downloadedBytes })
 
                 if (!hasBlockBeenDownloaded) {
@@ -207,11 +239,14 @@ export class IpfsFilesManager extends EventEmitter {
 
         if (this.cancelledDownloads.has(fileMetadata.cid)) {
             const fileState = this.files.get(fileMetadata.cid)
+
             this.files.set(fileMetadata.cid, {
                 ...fileState, downloadedBytes: 0, transferSpeed: 0
             })
             this.updateStatus(fileMetadata.cid, DownloadState.Canceled)
             this.cancelledDownloads.delete(fileMetadata.cid)
+            this.files.delete(fileMetadata.cid)
+            this.queues.delete(fileMetadata.cid)
         } else {
             const fileState = this.files.get(fileMetadata.cid)
             this.files.set(fileMetadata.cid, {
@@ -249,6 +284,8 @@ export class IpfsFilesManager extends EventEmitter {
         writeStream.end()
 
         this.updateStatus(fileMetadata.cid, DownloadState.Completed)
+        this.files.delete(fileMetadata.cid)
+        this.queues.delete(fileMetadata.cid)
 
         const messageMedia: FileMetadata = {
             ...fileMetadata,
@@ -260,11 +297,11 @@ export class IpfsFilesManager extends EventEmitter {
 
     private updateStatus = async (cid: string, downloadState = DownloadState.Downloading) => {
         const metadata = this.files.get(cid)
-        const progress: DownloadProgress = {
+        const progress: DownloadProgress = downloadState != DownloadState.Malicious ? {
             size: metadata.size,
             downloaded: metadata.downloadedBytes,
             transferSpeed: metadata.transferSpeed
-        }
+        } : undefined
 
         const status: DownloadStatus = {
             mid: metadata.message.id,
