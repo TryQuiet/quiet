@@ -111,3 +111,23 @@ export const useCyclingFocus = (
 
   return [currentFocus, setCurrentFocus]
 }
+
+export const useEnterPress = (fn, rerender): any => {
+  const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(
+    evt => {
+      evt.preventDefault()
+      if (evt.key === 'Enter') {
+        fn()
+      }
+    },
+    [rerender]
+  )
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown, false)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown, false)
+    }
+  }, [handleKeyDown, rerender])
+}

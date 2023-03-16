@@ -1,24 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React from 'react'
 import { Typography } from '@mui/material'
 import classNames from 'classnames'
+import { useEnterPress } from '../../containers/hooks'
 
-const ChannelItem = ({
-  item,
-  focused,
-  className,
-  classNameSelected,
-  onClickHandler,
-  onKeyPressHandler
-}) => {
-  const [initialRender, setInitialRender] = useState<boolean>(false)
-  const ref = useRef<HTMLDivElement>()
-
-  useEffect(() => {
+const ChannelItem = ({ item, focused, className, classNameSelected, onClickHandler }) => {
+  useEnterPress(() => {
     if (focused) {
-      setInitialRender(true)
-      ref.current.focus()
+      onClickHandler(item.address)
     }
-  }, [focused, initialRender])
+  }, focused)
 
   return (
     <div
@@ -27,9 +17,9 @@ const ChannelItem = ({
         [classNameSelected]: focused
       })}
       tabIndex={0}
-      ref={ref}
-      onClick={() => onClickHandler(item.address)}
-      onKeyPress={e => onKeyPressHandler(e, item.address)}>
+      onClick={() => {
+        onClickHandler(item.address)
+      }}>
       <Typography variant='body2'>{`# ${item.name}`}</Typography>
     </div>
   )
