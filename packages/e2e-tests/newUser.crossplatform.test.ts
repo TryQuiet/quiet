@@ -148,7 +148,6 @@ describe('New User', () => {
       console.log('Debug modal')
       const debugModal = new DebugModeModal(driver2)
       await debugModal.element.isDisplayed()
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 15000))
       const button = await debugModal.button
       console.log('Debug modal title is displayed')
       await button.isDisplayed()
