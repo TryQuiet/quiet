@@ -11,10 +11,9 @@ import pkijs, { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
-import { fork, ChildProcess } from 'child_process'
+import { fork, ChildProcess, execSync } from 'child_process'
 import { getFilesData } from '../utils/functions/fileData'
-console.log('isPackaged-------------', app.isPackaged)
-console.log('process.execPath-------------------', process.execPath)
+import { handleDesktopFile } from './desktopFile'
 const ElectronStore = require('electron-store')
 ElectronStore.initRenderer()
 
@@ -37,6 +36,17 @@ const webcrypto = new Crypto()
 global.crypto = webcrypto
 
 let dataDir = DATA_DIR
+let mainWindow: BrowserWindow | null
+let splash: BrowserWindow | null
+
+
+console.log(app.getPath('exe'))
+console.log(app.getPath('home'))
+console.log(app.getPath('userData'))
+console.log(app.getPath('desktop'))
+console.log(app.getPath('temp'))
+console.log('appIMAGE', process.env.APPIMAGE)
+
 
 if (isDev || process.env.DATA_DIR) {
   dataDir = process.env.DATA_DIR || DEV_DATA_DIR
@@ -53,6 +63,49 @@ const newUserDataPath = path.join(appDataPath, 'Quiet')
 
 app.setPath('appData', appDataPath)
 app.setPath('userData', newUserDataPath)
+
+const gotTheLock = app.requestSingleInstanceLock()
+console.log('gotTheLock', gotTheLock)
+if (!gotTheLock) {
+  console.log('This is second instance. Quitting')
+  app.quit()
+  app.exit()
+} else {
+  try {
+    handleDesktopFile(newUserDataPath, isDev)
+  } catch (e) {
+    console.error('handle desktop file error')
+  }
+  
+  app.on('second-instance', (event, commandLine, workingDirectory, additionalData) => {
+    console.log('Event: app.second-instance', commandLine, workingDirectory, additionalData)
+    let invitationCode = ''
+    // Workaround
+    for (const arg of commandLine) {
+      console.log('arg', arg)
+      if (arg.includes('quiet://')) {
+        try {
+          invitationCode = arg.split('//')[1]
+        } catch (e) {
+          console.log('Error getting invitation code', e)
+        }
+        break
+      }
+    }
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+      if (invitationCode) {
+        mainWindow.webContents.send('invitation', {
+          code: invitationCode
+        })
+      }
+    }
+
+  })
+}
+
+console.log('setAsDefaultProtocolClient 2', app.setAsDefaultProtocolClient('quiet'))
 
 interface IWindowSize {
   width: number
@@ -76,14 +129,10 @@ setEngine(
   })
 )
 
-let mainWindow: BrowserWindow | null
-let splash: BrowserWindow | null
 
 export const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
   return window instanceof BrowserWindow
 }
-
-const gotTheLock = app.requestSingleInstanceLock()
 
 const extensionsFolderPath = `${app.getPath('userData')}/extensions`
 
@@ -119,42 +168,32 @@ export const applyDevTools = async () => {
   )
 }
 
-if (!gotTheLock) {
-  app.quit()
-} else {
-  app.on('second-instance', _commandLine => {
-    log('Event: app.second-instance')
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.focus()
-    }
-  })
-}
-
 app.on('open-url', (event, url) => {
-  log('app.open-url', url)
+  console.log('app.open-url', url)
   event.preventDefault()
   const data = new URL(url)
-  log('DATA on open-url', data)
+  console.log('DATA on open-url', data)
   if (mainWindow) {
+    console.log('mainWindow DATA on open-url', data)
     if (data.searchParams.has('invitation')) {
       mainWindow.webContents.send('invitation', {
-        invitation: data.searchParams.get('invitation')
+        code: data.searchParams.get('invitation')
       })
     }
   }
 })
 
-const checkForPayloadOnStartup = (payload: string) => {
-  console.log('DATA on checkForPayloadOnStartup', payload)
-  const isInvitation = payload.includes('invitation')
-  if (mainWindow && isInvitation) {
-    const data = new URL(payload)
-    if (data.searchParams.has('invitation')) {
-      mainWindow.webContents.send('newInvitation', {
-        invitation: data.searchParams.get('invitation')
+const checkForPayloadOnStartup = (invitationCode: string) => {
+  console.log('DATA on checkForPayloadOnStartup', invitationCode)
+  if (!invitationCode) return
+  // const isInvitation = payload.includes('invitation')
+  if (mainWindow) {
+    // const data = new URL(payload)
+    // if (data.searchParams.has('invitation')) {
+      mainWindow.webContents.send('invitation', {
+        code: invitationCode
       })
-    }
+    // }
   }
 }
 
@@ -177,11 +216,6 @@ export const createWindow = async () => {
   })
 
   remote.enable(mainWindow.webContents)
-  
-  console.log('sending invitation')
-  // mainWindow.webContents.send('invitation', {
-  //   invitation: 'this is invitation code hello 1'
-  // })
 
   splash = new BrowserWindow({
     width: windowSize.width,
@@ -257,9 +291,6 @@ export const createWindow = async () => {
     mainWindow.webContents.zoomFactor = currentFactor - 0.2
   })
   log('Created mainWindow')
-  // mainWindow.webContents.send('invitation', {
-  //   invitation: 'this is invitation code hello 2'
-  // })
 }
 
 const isNetworkError = (errorObject: { message: string }) => {
@@ -359,15 +390,7 @@ app.on('ready', async () => {
   ports = await getPorts()
   await createWindow()
 
-  // mainWindow.webContents.send('invitation', {
-  //   invitation: 'this is invitation code hello 3'
-  // })
-
   mainWindow.webContents.on('did-finish-load', () => {
-
-    mainWindow.webContents.send('invitation', {
-      code: ''
-    })
     if (!splash.isDestroyed()) {
       const [width, height] = splash.getSize()
       mainWindow.setSize(width, height)
@@ -492,10 +515,22 @@ app.on('ready', async () => {
     if (!isBrowserWindow(mainWindow)) {
       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
     }
-    if (process.platform === 'win32' && process.argv) {
-      const payload = process.argv[1]
-      if (payload) {
-        checkForPayloadOnStartup(payload)
+    if (process.platform !== 'darwin' && process.argv) { // was: process.platform === 'win32'
+      console.log('process.argv', process.argv)
+      let invitationCode = ''
+      for (const arg in process.argv) {
+        if (arg.includes('quiet://')) { // TODO: use ?code= instead
+          try {
+            invitationCode = arg.split('//')[1]
+          } catch (e) {
+            console.error('cant get invitation code', e, arg)
+          }
+          break
+        }
+      }
+      // const payload = process.argv[1]
+      if (invitationCode) {
+        checkForPayloadOnStartup(invitationCode)
       }
     }
 
@@ -512,8 +547,6 @@ app.on('ready', async () => {
     autoUpdater.quitAndInstall()
   })
 })
-
-app.setAsDefaultProtocolClient('quiet')
 
 app.on('browser-window-created', (_, window) => {
   log('Event: app.browser-window-created', window.getTitle())
