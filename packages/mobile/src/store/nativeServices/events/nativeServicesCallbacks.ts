@@ -1,6 +1,6 @@
 import { eventChannel } from 'redux-saga'
 import { call, put, take } from 'typed-redux-saga'
-import { publicChannels, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL } from '@quiet/state-manager'
+import { publicChannels, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL, BACKEND_CLOSED_CHANNEL } from '@quiet/state-manager'
 import { initActions, InitCheckPayload, WebsocketConnectionPayload } from '../../init/init.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { NativeEventKeys } from './nativeEvent.keys'
@@ -24,6 +24,7 @@ export const deviceEvents = () => {
   return eventChannel<
   | ReturnType<typeof initActions.startWebsocketConnection>
   | ReturnType<typeof initActions.updateInitCheck>
+  | ReturnType<typeof initActions.backendClosed>
   | ReturnType<typeof navigationActions.navigation>
   | ReturnType<typeof publicChannels.actions.setCurrentChannel>
   >(emit => {
@@ -44,6 +45,9 @@ export const deviceEvents = () => {
           if (event.channelName === INIT_CHECK_CHANNEL) {
             const payload: InitCheckPayload = JSON.parse(event.payload)
             emit(initActions.updateInitCheck(payload))
+          }
+          if (event.channelName === BACKEND_CLOSED_CHANNEL) {
+            emit(initActions.backendClosed())
           }
         }
       ),

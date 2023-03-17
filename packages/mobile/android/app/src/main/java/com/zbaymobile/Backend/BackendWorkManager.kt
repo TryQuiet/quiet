@@ -8,11 +8,6 @@ import java.util.concurrent.ExecutionException
 
 class BackendWorkManager(private val context: Context) {
     fun enqueueRequests() {
-        val backendRequest =
-            OneTimeWorkRequestBuilder<BackendWorker>()
-                .addTag(Const.WORKER_TAG)
-                .build()
-
         val workManager = WorkManager
             .getInstance(context)
 
@@ -33,9 +28,17 @@ class BackendWorkManager(private val context: Context) {
             e.printStackTrace()
         }
 
-        if(!running && !enqueued) {
-            workManager.enqueue(backendRequest)
-            // workManager.enqueueUniqueWork("backend_worker", ExistingWorkPolicy.KEEP, backendRequest)
+        if(!running) {
+            if(enqueued) {
+                stop()
+            }
+
+            val backendRequest =
+                OneTimeWorkRequestBuilder<BackendWorker>()
+                    .addTag(Const.WORKER_TAG)
+                    .build()
+
+            workManager.enqueueUniqueWork("backend_worker", ExistingWorkPolicy.KEEP, backendRequest)
         }
     }
 

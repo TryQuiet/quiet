@@ -29,7 +29,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     public static final String PUSH_NOTIFICATION_CHANNEL = "_PUSH_NOTIFICATION_";
     public static final String WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_";
     public static final String INIT_CHECK_CHANNEL = "_INIT_CHECK_";
-    public static final String STOP_BACKEND_CHANNEL = "_STOP_BACKEND_CHANNEL";
+    public static final String BACKEND_CLOSED_CHANNEL = "_BACKEND_CLOSED_";
 
     private static ReactApplicationContext reactContext;
 
@@ -59,6 +59,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
                 break;
             case WEBSOCKET_CONNECTION_CHANNEL:
             case INIT_CHECK_CHANNEL:
+            case BACKEND_CLOSED_CHANNEL:
                 passDataToReact(event, payload);
                 break;
             default:
@@ -87,12 +88,6 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
                     .getJSModule(RCTNativeAppEventEmitter.class)
                     .emit("backend", params);
         }
-    }
-
-    @ReactMethod
-    private static void stopBackend() {
-        Context context = reactContext.getApplicationContext();
-        // new BackendWorkManager(context).stop();
     }
 
     @ReactMethod
