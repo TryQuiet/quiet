@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { styled } from '@mui/material/styles'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
@@ -45,7 +45,7 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     borderRadius: '8px',
     width: '60%',
     overflow: 'hidden',
-    minHeight: '255px',
+    minHeight: '255px'
   },
   [`& .${classes.wrapper}`]: {
     padding: '24px'
@@ -90,10 +90,6 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   [`& .${classes.channelWrapperSelected}`]: {
     backgroundColor: theme.palette.colors.lushSky,
     color: 'white',
-    '&:focus': {
-      backgroundColor: theme.palette.colors.lushSky,
-      color: 'white'
-    },
     '&:focus-visible': {
       outline: '0'
     }
@@ -105,8 +101,9 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     display: 'flex'
   },
   [`& .${classes.scrollContainer}`]: {
-    overflowY: 'scroll',
-    height: '170px'
+    // I will back to this idea
+    // overflowY: 'scroll',
+    // height: '170px'
   },
   [`& .${classes.input}`]: {
     minWidth: '250px',
@@ -156,7 +153,7 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
   const {
     formState: { errors }
   } = useForm<{ searchChannel: string }>({
-    mode: 'onTouched'
+    mode: 'onChange'
   })
 
   const unreadChannels = publicChannelsSelector.filter(channel =>
@@ -168,41 +165,32 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
   const channelList =
     unread && channelInput.length === 0 ? unreadChannels : dynamicSearchedChannelsSelector
 
-  const [focusedIndex, setCurrentFocus] = useCyclingFocus(channelList.length, Variant.ARROWS_KEYS)
+  const onChannelClickHandler = (address: string) => {
+    setCurrentChannel(address)
+    setChannelInput('')
+    setCurrentFocus(0)
+  }
+
+  const [focusedIndex, setCurrentFocus] = useCyclingFocus(
+    channelList.length,
+    Variant.ARROWS_KEYS,
+    0
+  )
 
   const onChange = (value: string) => {
     setChannelInput(value)
   }
 
-  const onKeyPressHandler = (e: React.KeyboardEvent<HTMLDivElement>, address: string) => {
-    e.preventDefault()
-    if (e.key === 'Enter') {
-      onChannelClickHandler(address)
-    }
-  }
-
-  const onChannelClickHandler = (address: string) => {
-    setCurrentChannel(address)
-    setChannelInput('')
-    setCurrentFocus(null)
-  }
-
   const closeHandler = () => {
-    setCurrentFocus(null)
+    setCurrentFocus(0)
     setChannelInput('')
     handleClose()
   }
 
-  useEffect(() => {
-    if (unread && channelInput.length === 0) {
-      setCurrentFocus(0)
-    }
-  }, [unread, channelInput, setCurrentFocus, unreadChannels.length])
-
   return (
     <Modal
       open={open}
-      handleClose={handleClose}
+      handleClose={closeHandler}
       data-testid={'searchChannelModal'}
       contentWidth={'100wh'}
       isTransparent={true}>
@@ -264,7 +252,9 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
                   </Typography>
                 </Grid>
               )}
-              <Grid direction='column' className={unreadChannels.length > 3 ? classes.scrollContainer : ''}>
+              <Grid
+                direction='column'
+                className={channelList.length > 3 ? classes.scrollContainer : ''}>
                 {channelList.length > 0 &&
                   channelList.map((item, index) => {
                     return (
@@ -275,7 +265,6 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
                         item={item}
                         key={index}
                         onClickHandler={onChannelClickHandler}
-                        onKeyPressHandler={onKeyPressHandler}
                       />
                     )
                   })}

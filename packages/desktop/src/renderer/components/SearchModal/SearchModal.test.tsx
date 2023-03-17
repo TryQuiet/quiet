@@ -148,7 +148,7 @@ describe('Search Modal', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent Modaltransparent css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SearchModalComponentroot css-eyh1yg-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SearchModalComponentroot css-tno7k-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container SearchModalComponentoverlay css-1hbmzt3-MuiGrid-root"
@@ -212,7 +212,7 @@ describe('Search Modal', () => {
                             class="MuiGrid-root MuiGrid-direction-xs-column css-1gkl4f1-MuiGrid-root"
                           >
                             <div
-                              class="SearchModalComponentchannelWrapper"
+                              class="SearchModalComponentchannelWrapper SearchModalComponentchannelWrapperSelected"
                               tabindex="0"
                             >
                               <p
