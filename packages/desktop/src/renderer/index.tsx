@@ -8,8 +8,6 @@ import updateHandlers from './store/handlers/update'
 import { communities } from '@quiet/state-manager'
 import logger from './logger'
 
-const log = logger('renderer')
-
 if (window) {
   window.localStorage.setItem('debug', process.env.DEBUG)
 }
@@ -24,7 +22,7 @@ ipcRenderer.on('force-save-state', async _event => {
 })
 
 ipcRenderer.on('invitation', (_event, invitation) => {
-  log('invitation', invitation, 'dispatching action')
+  console.log('invitation', invitation, 'dispatching action')
   store.dispatch(communities.actions.handleInvitationCode(invitation.code))
 })
 

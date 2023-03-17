@@ -6,14 +6,13 @@ import { autoUpdater } from 'electron-updater'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
 import { getPorts, ApplicationPorts } from './backendHelpers'
-
 import pkijs, { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
-import { fork, ChildProcess, execSync } from 'child_process'
+import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '../utils/functions/fileData'
-import { handleDesktopFile } from './desktopFile'
+import { handleDesktopFile, processInvitationCode } from './desktopFile'
 const ElectronStore = require('electron-store')
 ElectronStore.initRenderer()
 
@@ -65,6 +64,7 @@ app.setPath('appData', appDataPath)
 app.setPath('userData', newUserDataPath)
 
 const gotTheLock = app.requestSingleInstanceLock()
+
 console.log('gotTheLock', gotTheLock)
 if (!gotTheLock) {
   console.log('This is second instance. Quitting')
@@ -77,29 +77,13 @@ if (!gotTheLock) {
     console.error('handle desktop file error')
   }
   
-  app.on('second-instance', (event, commandLine, workingDirectory, additionalData) => {
+  app.on('second-instance', (_event, commandLine, workingDirectory, additionalData) => {
     console.log('Event: app.second-instance', commandLine, workingDirectory, additionalData)
-    let invitationCode = ''
-    // Workaround
-    for (const arg of commandLine) {
-      console.log('arg', arg)
-      if (arg.includes('quiet://')) {
-        try {
-          invitationCode = arg.split('//')[1]
-        } catch (e) {
-          console.log('Error getting invitation code', e)
-        }
-        break
-      }
-    }
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
-      if (invitationCode) {
-        mainWindow.webContents.send('invitation', {
-          code: invitationCode
-        })
-      }
+      const invitationCode = argvInvitationCode(commandLine)
+      processInvitationCode(mainWindow, invitationCode)
     }
 
   })
@@ -171,31 +155,11 @@ export const applyDevTools = async () => {
 app.on('open-url', (event, url) => {
   console.log('app.open-url', url)
   event.preventDefault()
-  const data = new URL(url)
-  console.log('DATA on open-url', data)
   if (mainWindow) {
-    console.log('mainWindow DATA on open-url', data)
-    if (data.searchParams.has('invitation')) {
-      mainWindow.webContents.send('invitation', {
-        code: data.searchParams.get('invitation')
-      })
-    }
+    const invitationCode = getInvitationCode(url)
+    processInvitationCode(mainWindow, invitationCode)
   }
 })
-
-const checkForPayloadOnStartup = (invitationCode: string) => {
-  console.log('DATA on checkForPayloadOnStartup', invitationCode)
-  if (!invitationCode) return
-  // const isInvitation = payload.includes('invitation')
-  if (mainWindow) {
-    // const data = new URL(payload)
-    // if (data.searchParams.has('invitation')) {
-      mainWindow.webContents.send('invitation', {
-        code: invitationCode
-      })
-    // }
-  }
-}
 
 let browserWidth: number
 let browserHeight: number
@@ -517,20 +481,9 @@ app.on('ready', async () => {
     }
     if (process.platform !== 'darwin' && process.argv) { // was: process.platform === 'win32'
       console.log('process.argv', process.argv)
-      let invitationCode = ''
-      for (const arg in process.argv) {
-        if (arg.includes('quiet://')) { // TODO: use ?code= instead
-          try {
-            invitationCode = arg.split('//')[1]
-          } catch (e) {
-            console.error('cant get invitation code', e, arg)
-          }
-          break
-        }
-      }
-      // const payload = process.argv[1]
+      const invitationCode = argvInvitationCode(process.argv)
       if (invitationCode) {
-        checkForPayloadOnStartup(invitationCode)
+        processInvitationCode(mainWindow, invitationCode)
       }
     }
 

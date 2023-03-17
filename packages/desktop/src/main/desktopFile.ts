@@ -1,6 +1,43 @@
 import fs from 'fs'
 import path from 'path'
 import { execSync } from 'child_process'
+import { BrowserWindow } from 'electron'
+
+export const argvInvitationCode = (argvs: string[]): string => {
+  console.log('argvInvitationCode', argvs)
+  let invitationCode = ''
+  for (const arg of argvs) {
+    console.log('arg', arg)
+    if (arg.includes('quiet://')) {
+      console.log('argvInvitationCode found quiet', arg)
+      try {
+        invitationCode = getInvitationCode(arg)
+      } catch (e) {
+        console.error('cant get invitation code', e, arg)
+      }
+      break
+    }
+  }
+  return invitationCode
+}
+
+
+export const getInvitationCode = (url: string): string => {
+  console.log('URL', url)
+  const data = new URL(url)
+  if (data.searchParams.has('code')) {
+    console.log('code',data.searchParams.get('code') )
+    return data.searchParams.get('code')
+  }
+}
+
+export const processInvitationCode = (mainWindow: BrowserWindow, code: string) => {
+  if (!code) return
+  console.log('processInvitationCode', code)
+  mainWindow.webContents.send('invitation', {
+    code: code
+  })
+}
 
 export const handleDesktopFile = (dataPath: string, isDev: boolean) => {
   console.log('dataPath', dataPath)

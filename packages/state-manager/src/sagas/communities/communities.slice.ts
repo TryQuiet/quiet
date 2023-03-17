@@ -14,8 +14,7 @@ export class CommunitiesState {
   public currentCommunity: string = ''
   public invitationCode: string = ''
 
-  public communities: EntityState<Community> =
-  communitiesAdapter.getInitialState()
+  public communities: EntityState<Community> = communitiesAdapter.getInitialState()
 }
 
 export interface Community {
