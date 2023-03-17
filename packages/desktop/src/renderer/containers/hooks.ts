@@ -112,16 +112,20 @@ export const useCyclingFocus = (
   return [currentFocus, setCurrentFocus]
 }
 
-export const useEnterPress = (fn, rerender): any => {
-  const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(
-    evt => {
-      evt.preventDefault()
-      if (evt.key === 'Enter') {
-        fn()
-      }
-    },
-    [rerender]
-  )
+export const useEnterPress = (fn, args: any[]): any => {
+  const handler = (evt: KeyboardEvent) => {
+    evt.stopPropagation()
+    evt.preventDefault()
+    fn()
+  }
+
+  const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(evt => {
+    switch (evt.key) {
+      case 'Enter':
+        handler(evt)
+        break
+    }
+  }, args)
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown, false)
@@ -129,5 +133,5 @@ export const useEnterPress = (fn, rerender): any => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown, false)
     }
-  }, [handleKeyDown, rerender])
+  }, [handleKeyDown, ...args])
 }
