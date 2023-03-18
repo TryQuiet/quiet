@@ -12,7 +12,7 @@ import logger from './logger'
 import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '../utils/functions/fileData'
-import { handleDesktopFile, processInvitationCode } from './desktopFile'
+import { updateDesktopFile, processInvitationCode, argvInvitationCode, retrieveInvitationCode } from './invitation'
 const ElectronStore = require('electron-store')
 ElectronStore.initRenderer()
 
@@ -37,15 +37,6 @@ global.crypto = webcrypto
 let dataDir = DATA_DIR
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
-
-
-console.log(app.getPath('exe'))
-console.log(app.getPath('home'))
-console.log(app.getPath('userData'))
-console.log(app.getPath('desktop'))
-console.log(app.getPath('temp'))
-console.log('appIMAGE', process.env.APPIMAGE)
-
 
 if (isDev || process.env.DATA_DIR) {
   dataDir = process.env.DATA_DIR || DEV_DATA_DIR
@@ -72,9 +63,9 @@ if (!gotTheLock) {
   app.exit()
 } else {
   try {
-    handleDesktopFile(newUserDataPath, isDev)
+    updateDesktopFile(isDev)
   } catch (e) {
-    console.error('handle desktop file error')
+    console.error(`Couldn't update desktop file: ${e.message}`)
   }
   
   app.on('second-instance', (_event, commandLine, workingDirectory, additionalData) => {
@@ -89,7 +80,7 @@ if (!gotTheLock) {
   })
 }
 
-console.log('setAsDefaultProtocolClient 2', app.setAsDefaultProtocolClient('quiet'))
+console.log('setAsDefaultProtocolClient', app.setAsDefaultProtocolClient('quiet'))
 
 interface IWindowSize {
   width: number
@@ -156,7 +147,7 @@ app.on('open-url', (event, url) => {
   console.log('app.open-url', url)
   event.preventDefault()
   if (mainWindow) {
-    const invitationCode = getInvitationCode(url)
+    const invitationCode = retrieveInvitationCode(url)
     processInvitationCode(mainWindow, invitationCode)
   }
 })
