@@ -16,6 +16,7 @@ export const argvInvitationCode = (argvs: string[]): string => {
 }
 
 export const retrieveInvitationCode = (url: string): string => {
+  // Proper url: quiet://?code=<invitation code>
   let data: URL = null
   try {
     data = new URL(url)
@@ -69,19 +70,10 @@ const updateExecPath = (desktopFilePath: string) => {
   const execInfo = `Exec=${process.env.APPIMAGE} %U`
   const desktopFile = fs.readFileSync(desktopFilePath, { encoding: 'utf-8' })
   if (!desktopFile.includes(process.env.APPIMAGE)) {
-    if (desktopFile.includes('Exec=')) {
-      // Replace old Exec with new Exec
-      const lines = desktopFile.split('\n')
-      const newLines = lines.filter((line) => !line.includes('Exec=') && line !== '')
-      newLines.push(execInfo)
-      fs.writeFileSync(desktopFilePath, newLines.join('\n'))
-    } else {
-      // Add Exec
-      try {
-        fs.appendFileSync(desktopFilePath, execInfo)
-      } catch (e) {
-        console.error(`Can't add Exec= to .desktop file: ${e.message}`)
-      }
-    }
+    // Replace old Exec with new Exec
+    const lines = desktopFile.split('\n')
+    const newLines = lines.filter((line) => !line.includes('Exec=') && line !== '')
+    newLines.push(execInfo)
+    fs.writeFileSync(desktopFilePath, newLines.join('\n'))
   }
 }
