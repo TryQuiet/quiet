@@ -79,7 +79,6 @@ export interface ChannelsListItemProps {
   channel: PublicChannel
   unread: boolean
   selected: boolean
-  focused: boolean
   setCurrentChannel: (name: string) => void
 }
 
@@ -87,16 +86,9 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   channel,
   unread,
   selected,
-  focused,
   setCurrentChannel
 }) => {
   const ref = useRef<HTMLDivElement>()
-
-  useEffect(() => {
-    if (focused) {
-      ref.current.focus()
-    }
-  }, [focused])
 
   return (
     <StyledListItemButton

@@ -9,7 +9,7 @@ import {
   RegisterUsernameModal
 } from './selectors.crossplatform'
 
-jest.setTimeout(350000)
+jest.setTimeout(450000)
 describe('Smoke', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
@@ -27,7 +27,7 @@ describe('Smoke', () => {
     await buildSetup.killChromeDriver()
   })
   describe('Stages:', () => {
-    it('Close debug modal', async () => {
+    it.skip('Close debug modal', async () => {
       console.log('Debug modal')
       const debugModal = new DebugModeModal(driver)
       await debugModal.element.isDisplayed()

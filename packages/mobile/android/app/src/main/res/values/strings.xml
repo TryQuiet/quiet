@@ -4,7 +4,7 @@
 
     <!-- App -->
     <string name="app_name">Quiet</string>
-    <string name="config_preferences">com.zbaymobile.config.preferences</string>
+    <string name="config_preferences">com.quietmobile.config.preferences</string>
 
     <!-- Universal -->
     <string name="close">close</string>

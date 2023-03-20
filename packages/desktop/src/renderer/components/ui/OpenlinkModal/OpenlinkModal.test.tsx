@@ -24,7 +24,7 @@ describe('OpenlinkModal', () => {
           aria-hidden="true"
         />
         <div
-          class="Modalroot MuiModal-root css-1hk9oxe-MuiModal-root"
+          class="Modalroot MuiModal-root css-1voaj9u-MuiModal-root"
           role="presentation"
         >
           <div

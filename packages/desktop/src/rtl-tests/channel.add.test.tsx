@@ -1,7 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
-import { queryByTestId, screen, waitFor } from '@testing-library/dom'
+import { queryByTestId, screen, waitFor, within } from '@testing-library/dom'
 import { act } from 'react-dom/test-utils'
 import { take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
@@ -373,5 +373,89 @@ describe('Add new channel', () => {
 
     const isErrorExist = screen.queryByText(FieldErrors.Required)
     expect(isErrorExist).toBeNull()
+  })
+
+  it('Adds few new channels and check order', async () => {
+    const { store, runSaga } = await prepareStore(
+      {
+        [StoreKeys.Modals]: {
+          ...new ModalsInitialState(),
+          [ModalName.createChannel]: { open: true }
+        }
+      },
+      socket // Fork state manager's sagas
+    )
+
+    const factory = await getFactory(store)
+    const alice = await factory.create<
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { nickname: 'alice' })
+
+    const channels = ['zzz', 'abc', '12a']
+
+    jest
+      .spyOn(socket, 'emit')
+      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+        if (action === SocketActionTypes.CREATE_CHANNEL) {
+          const data = input as socketEventData<[CreateChannelPayload]>
+          const payload = data[0]
+          expect(payload.channel.owner).toEqual(alice.nickname)
+          // expect(payload.channel.name).toEqual(channelName.output)
+          return socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
+            channels: {
+              [payload.channel.name]: payload.channel
+            }
+          })
+        }
+      })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Sidebar />
+        <CreateChannel />
+        <Channel />
+      </>,
+      store
+    )
+
+    for await (const channel of channels) {
+      const addChannel = screen.getByTestId('addChannelButton')
+      await userEvent.click(addChannel)
+
+      const title = await screen.findByText('Create a new public channel')
+      expect(title).toBeVisible()
+
+      const user = userEvent.setup()
+      const input = screen.getByPlaceholderText('Enter a channel name')
+
+      await user.type(input, channel)
+      await act(
+        async () =>
+          await waitFor(() => {
+            user.click(screen.getByText('Create Channel')).catch(e => {
+              console.error(e)
+            })
+          })
+      )
+      await act(async () => {
+        await runSaga(testCreateChannelSaga).toPromise()
+      })
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 100))
+    }
+
+    function* testCreateChannelSaga(): Generator {
+      yield* take(publicChannels.actions.createChannel)
+      yield* take(publicChannels.actions.addChannel)
+    }
+
+    const createChannelModal = screen.queryByTestId('createChannelModal')
+    expect(createChannelModal).toBeNull()
+    const list = await screen.findByTestId('channelsList')
+    const textContent = list.textContent
+    const textArray = textContent.replace(/#/g, '').split(' ')
+    const filteredArray = textArray.filter(item => item.length > 0)
+    expect(filteredArray).toEqual(['general', '12a', 'abc', 'zzz'])
   })
 })

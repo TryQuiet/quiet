@@ -72,6 +72,7 @@ import { LocalDB, LocalDBKeys } from '../storage/localDB'
 import { createLibp2pAddress, createLibp2pListenAddress, getPorts } from '../common/utils'
 import { ProcessInChunks } from './processInChunks'
 import { Multiaddr } from 'multiaddr'
+import { GetInfoTorSignal } from '../torManager/torManager'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -643,6 +644,7 @@ export class ConnectionsManager extends EventEmitter {
 
     this.libp2pInstance = libp2p
     const dialInChunks = new ProcessInChunks<string>(params.bootstrapMultiaddrs, this.dialPeer)
+
     libp2p.addEventListener('peer:discovery', (peer) => {
       log(`${params.peerId.toString()} discovered ${peer.detail.id}`)
     })

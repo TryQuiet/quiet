@@ -255,9 +255,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                       // Call default
                       field.onChange(event)
                     }}
-                    onblur={() => {
-                      field.onBlur()
-                    }}
+                    onblur={() => {}}
                     InputProps={communityOwnership === CommunityOwnership.User
                       ? {
                         endAdornment: (
