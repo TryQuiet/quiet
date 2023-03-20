@@ -31,7 +31,7 @@ export function* handleErrorsSaga(
   const error: ErrorPayload = action.payload
 
   yield* put(errorsActions.addError(error))
-  
+
   if (error.type === SocketActionTypes.REGISTRAR) {
     if (
       error.code === ErrorCodes.NOT_FOUND ||
@@ -44,7 +44,6 @@ export function* handleErrorsSaga(
       )
       yield* put(communitiesActions.updateRegistrationAttempts({ id: error.community, registrationAttempts: registrationAttempts + 1 }))
       yield* call(retryRegistration, error.community)
-
     }
   }
 }
