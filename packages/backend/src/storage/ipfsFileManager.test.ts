@@ -7,15 +7,15 @@ import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@j
 import { create } from 'ipfs-core'
 import waitForExpect from 'wait-for-expect'
 
-const filename = fileURLToPath(import.meta.url)
-const dirname = path.dirname(filename)
-
-const { createTmpDir, tmpQuietDirPath, createFile } = await import('../common/testUtils')
-
 import {
   FileMetadata
 } from '@quiet/state-manager'
 import { IpfsFilesManager, IpfsFilesManagerEvents } from './ipfsFileManager'
+
+const filename = fileURLToPath(import.meta.url)
+const dirname = path.dirname(filename)
+
+const { createTmpDir, tmpQuietDirPath, createFile } = await import('../common/testUtils')
 
 let tmpDir: DirResult
 let tmpAppDataPath: string
@@ -42,7 +42,6 @@ afterEach(async () => {
 
 describe('Ipfs file manager', () => {
   it('uploads image', async () => {
-
     ipfsInstance = await create()
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
@@ -135,10 +134,10 @@ describe('Ipfs file manager', () => {
       }
     }
 
-    waitForExpect(() => {
-      expect(fileManager.uploadFile(metadata)).rejects.toThrow()
+   await waitForExpect(async () => {
+      await expect(fileManager.uploadFile(metadata)).rejects.toThrow()
     })
-    waitForExpect(() => {
+    await waitForExpect(() => {
       expect(eventSpy).not.toHaveBeenCalled()
     })
   })
@@ -340,7 +339,7 @@ describe('Ipfs file manager', () => {
       expect(uploadFileBuffer).toStrictEqual(downloadFileBuffer)
     })
   })
-  
+
   it.skip('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
     const fileSize = 52428800 // 50MB
     createFile(filePath, fileSize)
