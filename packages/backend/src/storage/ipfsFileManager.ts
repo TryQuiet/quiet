@@ -49,7 +49,7 @@ interface FilesData {
 }
 
 const TRANSFER_SPEED_SPAN = 10
-const UPDATE_STATUS_INTERVAL = 0.1
+const UPDATE_STATUS_INTERVAL = 1
 const BLOCK_FETCH_TIMEOUT = 20
 const QUEUE_CONCURRENCY = 40
 
@@ -192,7 +192,6 @@ export class IpfsFilesManager extends EventEmitter {
             this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusReady)
 
             if (metadata.path !== filePath) {
-              console.log(`Updating file metadata (${metadata.path} => ${filePath})`)
               this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
             }
             break
@@ -309,8 +308,6 @@ export class IpfsFilesManager extends EventEmitter {
 
                 const hasBlockBeenDownloaded = localBlocks.includes(`z${block.toString()}`)
 
-                console.log('hasBlockBeenDownloaded?', hasBlockBeenDownloaded)
-
                 const fetchedBlock = await this.ipfs.block.get(block)
 
                 const decodedBlock = decode(fetchedBlock)
@@ -355,7 +352,6 @@ export class IpfsFilesManager extends EventEmitter {
 
         // Queue can be possibly idle in just two cases
         await queue.onIdle()
-        console.log('queue idle')
         clearInterval(updateTransferSpeed)
 
         // Also clear local data

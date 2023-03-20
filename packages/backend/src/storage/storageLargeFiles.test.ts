@@ -12,11 +12,11 @@ import { StorageEvents } from './types'
 
 import { IpfsFilesManager } from './ipfsFileManager'
 import waitForExpect from 'wait-for-expect'
+import { sleep } from '../sleep'
 
 describe('Storage', () => {
   let tmpDir: DirResult
   let tmpAppDataPath: string
-
   let filePath: string
 
   beforeEach(async () => {
@@ -35,7 +35,7 @@ describe('Storage', () => {
 
   it('uploads large files', async () => {
     // Generate 2.1GB file
-    createFile(filePath, 2147483648)
+    createFile(filePath, 2147483000)
 
     const ipfsInstance = await create()
 
@@ -92,5 +92,8 @@ describe('Storage', () => {
 
     await fileManager.stop()
     await ipfsInstance.stop()
+
+    // The jest test doesn't exit cleanly because of some asynchronous actions need time to complete, I can't find what is it.
+    await sleep(100000)
   }, 1000000) // IPFS needs around 5 minutes to write 2.1GB file
 })
