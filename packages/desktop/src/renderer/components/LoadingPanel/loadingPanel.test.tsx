@@ -2,7 +2,7 @@
 import React from 'react'
 import { renderComponent } from '../../testUtils/renderComponent'
 
-import LoadingPanelComponent from './loadingPanelComponent'
+import LoadingPanelComponent from './LoadingPanelComponent'
 
 describe('CreateUsernameModal', () => {
   it('renders component', () => {

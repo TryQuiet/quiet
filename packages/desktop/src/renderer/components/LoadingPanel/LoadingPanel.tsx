@@ -4,7 +4,7 @@ import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
 import { communities, publicChannels, users, identity } from '@quiet/state-manager'
-import LoadingPanelComponent from './loadingPanelComponent'
+import LoadingPanelComponent from './LoadingPanelComponent'
 import { modalsActions } from '../../sagas/modals/modals.slice'
 
 export enum LoadingPanelMessage {
