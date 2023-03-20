@@ -3,7 +3,7 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { composeStories, setGlobalConfig } from '@storybook/testing-react'
 import { it, beforeEach, cy, Cypress, describe } from 'local-cypress'
 
-import * as stories from './Channel.stories'
+import * as stories from './Channel.stories.cy'
 import { withTheme } from '../../storybook/decorators'
 import compareSnapshotCommand from 'cypress-visual-regression/dist/command'
 import { mount } from 'cypress/react18'
@@ -56,7 +56,7 @@ describe('Scroll behavior test', () => {
     cy.get(channelContent).compareSnapshot('send after enter')
   })
 
-  it.skip('should scroll to the bottom when scroll is in the middle and user sends new message', () => {
+  it('should scroll to the bottom when scroll is in the middle and user sends new message', () => {
     cy.get(channelContent).scrollTo(0, 100)
 
     cy.get(channelContent).compareSnapshot('scroll to the middle')
@@ -70,7 +70,7 @@ describe('Scroll behavior test', () => {
     cy.get(channelContent).compareSnapshot('send after scroll')
   })
 
-  it.skip('should scroll to the bottom when scroll is at the top and user sends new message', () => {
+  it('should scroll to the bottom when scroll is at the top and user sends new message', () => {
     cy.get(messageInput).focus().type('hi').type('{enter}')
 
     cy.get(channelContent).scrollTo(0, 0)
@@ -86,5 +86,29 @@ describe('Scroll behavior test', () => {
     cy.get(messageInput).focus().type('and youda too').type('{enter}')
 
     cy.get(channelContent).compareSnapshot('send after top scroll')
+  })
+
+  it('PageUp keydown should scroll message list up.', () => {
+    cy.get(messageInput).focus().type('{pageup}')
+    cy.get(channelContent).compareSnapshot('after pageup', {
+      capture: 'fullPage'
+    })
+  })
+
+  it('PageDown keydown should scroll message list down.', () => {
+    cy.get(channelContent).scrollTo(0, 0)
+    cy.get(messageInput).focus().type('{pagedown}')
+    cy.get(channelContent).compareSnapshot('after pagedown', {
+      capture: 'fullPage'
+    })
+  })
+
+  it('Shift+Enter should not send message', () => {
+    cy.get(messageInput)
+      .focus()
+      .type('luke where are you?')
+      .type('{shift+enter}')
+      .type('you underestimate the power of the force')
+      .should('have.text', 'luke where are you?you underestimate the power of the force')
   })
 })

@@ -35,42 +35,70 @@ export const useModal = <T extends OpenModalPayload['args']>(name: ModalName) =>
   }
 }
 
+export enum Variant {
+  ARROWS_KEYS = 'arrows-keys',
+  PAGES_KEYS = 'pages-keys'
+}
+
 export const useCyclingFocus = (
   listSize: number,
+  variant: Variant,
   initialFocus: number = null
 ): [number, React.Dispatch<React.SetStateAction<number>>] => {
   const [currentFocus, setCurrentFocus] = useState<number>(initialFocus)
 
+  const handleDown = (evt: KeyboardEvent, focusValue: number): number => {
+    evt.preventDefault()
+    if (currentFocus === null) {
+      focusValue = 0
+    } else if (currentFocus !== listSize - 1) {
+      focusValue = currentFocus + 1
+    }
+    setCurrentFocus(focusValue)
+    return focusValue
+  }
+
+  const handleUp = (evt: KeyboardEvent, focusValue: number): number => {
+    evt.preventDefault()
+    if (currentFocus === null) {
+      focusValue = listSize - 1
+    }
+    if (currentFocus === 0) {
+      focusValue = listSize - 1
+    } else {
+      focusValue = currentFocus - 1
+    }
+    setCurrentFocus(focusValue)
+    return focusValue
+  }
+
   const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(
-    (evt) => {
+    evt => {
       let focusValue = 0
       // Cycle up or down. Also start over if we're outside the list bounds.
-      switch (evt.key) {
-        case 'PageDown':
-          evt.preventDefault()
-          if (currentFocus === null) {
-            focusValue = 0
-          } else
-          if (currentFocus !== listSize - 1) {
-            focusValue = currentFocus + 1
-          }
-          setCurrentFocus(focusValue)
-          break
-        case 'PageUp':
-          evt.preventDefault()
-          if (currentFocus === null) {
-            focusValue = listSize - 1
-          }
-          if (currentFocus === 0) {
-            focusValue = listSize - 1
-          } else {
-            focusValue = currentFocus - 1
-          }
-          setCurrentFocus(focusValue)
-          break
+
+      if (variant === Variant.PAGES_KEYS) {
+        switch (evt.key) {
+          case 'PageDown':
+            focusValue = handleDown(evt, focusValue)
+            break
+          case 'PageUp':
+            focusValue = handleUp(evt, focusValue)
+            break
+        }
+      }
+      if (variant === Variant.ARROWS_KEYS) {
+        switch (evt.key) {
+          case 'ArrowDown':
+            focusValue = handleDown(evt, focusValue)
+            break
+          case 'ArrowUp':
+            focusValue = handleUp(evt, focusValue)
+            break
+        }
       }
     },
-  [listSize, currentFocus, setCurrentFocus]
+    [listSize, currentFocus, setCurrentFocus]
   )
 
   useEffect(() => {
@@ -82,4 +110,28 @@ export const useCyclingFocus = (
   }, [handleKeyDown])
 
   return [currentFocus, setCurrentFocus]
+}
+
+export const useEnterPress = (fn, args: any[]): any => {
+  const handler = (evt: KeyboardEvent) => {
+    evt.stopPropagation()
+    evt.preventDefault()
+    fn()
+  }
+
+  const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(evt => {
+    switch (evt.key) {
+      case 'Enter':
+        handler(evt)
+        break
+    }
+  }, args)
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown, false)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown, false)
+    }
+  }, [handleKeyDown, ...args])
 }

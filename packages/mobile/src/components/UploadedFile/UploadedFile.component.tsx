@@ -1,14 +1,8 @@
 import { DownloadState, formatBytes } from '@quiet/state-manager'
 import React, { FC, useEffect, useState } from 'react'
-import { View, Image } from 'react-native'
+import { View, Image, TouchableWithoutFeedback, Alert } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { FileActionsProps, UploadedFileProps } from './UploadedFile.types'
-import {
-  Menu,
-  MenuOptions,
-  MenuOption,
-  MenuTrigger,
-} from 'react-native-popup-menu'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { appImages } from '../../../assets'
 
@@ -80,52 +74,43 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
   }, [downloadState])
 
   return (
-    <Menu>
-      <MenuTrigger
-        triggerOnLongPress
-        disabled={!fileStatus || !fileStatus?.action}
-        >
-        <View style={{
-          backgroundColor: defaultTheme.palette.background.white,
-          maxWidth: '100%',
-          marginTop: 8,
-          padding: 16,
-          borderRadius: 8,
-          borderColor: defaultTheme.palette.typography.veryLightGray,
-          borderStyle: 'solid',
-          borderWidth: 1
-        }}>
+    <TouchableWithoutFeedback onPress={() => Alert.alert('Not supported yet', 'Sorry, opening files is not supported yet on mobile.')}>
+      <View style={{
+        backgroundColor: defaultTheme.palette.background.white,
+        maxWidth: '100%',
+        marginTop: 8,
+        padding: 16,
+        borderRadius: 8,
+        borderColor: defaultTheme.palette.typography.veryLightGray,
+        borderStyle: 'solid',
+        borderWidth: 1
+      }}>
 
-          <Typography fontSize={12} style={{ fontWeight: 'bold' }}>
-            {media.name}
-            {media.ext}
+        <Typography fontSize={12} style={{ fontWeight: 'bold' }}>
+          {media.name}
+          {media.ext}
+        </Typography>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Image
+            source={appImages.file_document}
+            resizeMode='cover'
+            resizeMethod='resize'
+            style={{
+              width: 20,
+              height: 20,
+              marginRight: 5
+            }}
+          />
+          <View>
+          <Typography
+            fontSize={12}
+            style={{ lineHeight: 20, color: defaultTheme.palette.typography.grayDark }}>
+            {media?.size ? formatBytes(media?.size) : 'Calculating size...'}
           </Typography>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Image
-              source={appImages.file_document}
-              resizeMode='cover'
-              resizeMethod='resize'
-              style={{
-                width: 20,
-                height: 20,
-                marginRight: 5
-              }}
-            />
-            <View>
-            <Typography
-              fontSize={12}
-              style={{ lineHeight: 20, color: defaultTheme.palette.typography.grayDark }}>
-              {media?.size ? formatBytes(media?.size) : 'Calculating size...'}
-            </Typography>
-            {fileStatus && <Typography fontSize={12} style={{ color: defaultTheme.palette.typography.grayDark }}>{fileStatus.label}</Typography>}
-            </View>
+          {fileStatus && <Typography fontSize={12} style={{ color: defaultTheme.palette.typography.grayDark }}>{fileStatus.label}</Typography>}
           </View>
-
         </View>
-      </MenuTrigger>
-      <MenuOptions>
-        <MenuOption onSelect={fileStatus?.action} text={fileStatus?.actionLabel} />
-      </MenuOptions>
-    </Menu>
+      </View>
+    </TouchableWithoutFeedback>
   )
 }

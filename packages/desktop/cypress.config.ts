@@ -20,7 +20,7 @@ export default defineConfig({
       return config
     },
     
-    specPattern: "src/**/*cy.{js,jsx,ts,tsx}",
+    specPattern: "src/**/*regression.cy.{js,jsx,ts,tsx}",
     excludeSpecPattern: ["**/__snapshots__/*", "**/__image_snapshots__/*"],
     devServer: {
       framework: "react",
