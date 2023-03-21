@@ -20,6 +20,7 @@ const Template: ComponentStory<typeof SettingsComponent> = args => {
 }
 
 export const Component = Template.bind({})
+export const WindowsComponent = Template.bind({})
 
 const Dummy: FC = () => {
   return <Typography>Dummy</Typography>
@@ -79,6 +80,10 @@ const args: SettingsComponentProps = {
 }
 
 Component.args = args
+WindowsComponent.args = {
+  ...args,
+  isWindows: true
+}
 
 const component: ComponentMeta<typeof SettingsComponent> = {
   title: 'Components/Settings',

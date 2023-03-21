@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { styled } from '@mui/material/styles'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
@@ -29,7 +29,8 @@ const classes = {
   inputWrapper: `${PREFIX}inputWrapper`,
   wrapperRecent: `${PREFIX}wrapperRecent`,
   channelWrapper: `${PREFIX}channelWrapper`,
-  channelWrapperSelected: `${PREFIX}channelWrapperSelected`
+  channelWrapperSelected: `${PREFIX}channelWrapperSelected`,
+  scrollContainer: `${PREFIX}scrollContainer`
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
@@ -89,10 +90,6 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   [`& .${classes.channelWrapperSelected}`]: {
     backgroundColor: theme.palette.colors.lushSky,
     color: 'white',
-    '&:focus': {
-      backgroundColor: theme.palette.colors.lushSky,
-      color: 'white'
-    },
     '&:focus-visible': {
       outline: '0'
     }
@@ -103,9 +100,13 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   [`& .${classes.inputWrapper}`]: {
     display: 'flex'
   },
-
+  [`& .${classes.scrollContainer}`]: {
+    // I will back to this idea
+    // overflowY: 'scroll',
+    // height: '170px'
+  },
   [`& .${classes.input}`]: {
-    minWidth: '350px',
+    minWidth: '250px',
     caretColor: '#2288FF',
     '& div': {
       '&:hover': {
@@ -152,7 +153,7 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
   const {
     formState: { errors }
   } = useForm<{ searchChannel: string }>({
-    mode: 'onTouched'
+    mode: 'onChange'
   })
 
   const unreadChannels = publicChannelsSelector.filter(channel =>
@@ -164,41 +165,32 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
   const channelList =
     unread && channelInput.length === 0 ? unreadChannels : dynamicSearchedChannelsSelector
 
-  const [focusedIndex, setCurrentFocus] = useCyclingFocus(channelList.length, Variant.ARROWS_KEYS)
+  const onChannelClickHandler = (address: string) => {
+    setChannelInput('')
+    setCurrentFocus(0)
+    setCurrentChannel(address)
+  }
+
+  const [focusedIndex, setCurrentFocus] = useCyclingFocus(
+    channelList.length,
+    Variant.ARROWS_KEYS,
+    0
+  )
 
   const onChange = (value: string) => {
     setChannelInput(value)
   }
 
-  const onKeyPressHandler = (e: React.KeyboardEvent<HTMLDivElement>, address: string) => {
-    e.preventDefault()
-    if (e.key === 'Enter') {
-      onChannelClickHandler(address)
-    }
-  }
-
-  const onChannelClickHandler = (address: string) => {
-    setCurrentChannel(address)
-    setChannelInput('')
-    setCurrentFocus(null)
-  }
-
   const closeHandler = () => {
-    setCurrentFocus(null)
+    setCurrentFocus(0)
     setChannelInput('')
     handleClose()
   }
 
-  useEffect(() => {
-    if (unread && channelInput.length === 0) {
-      setCurrentFocus(0)
-    }
-  }, [unread, channelInput, setCurrentFocus, unreadChannels.length])
-
   return (
     <Modal
       open={open}
-      handleClose={handleClose}
+      handleClose={closeHandler}
       data-testid={'searchChannelModal'}
       contentWidth={'100wh'}
       isTransparent={true}>
@@ -260,21 +252,24 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
                   </Typography>
                 </Grid>
               )}
-
-              {channelList.length > 0 &&
-                channelList.map((item, index) => {
-                  return (
-                    <ChannelItem
-                      className={classes.channelWrapper}
-                      focused={focusedIndex === index}
-                      classNameSelected={classes.channelWrapperSelected}
-                      item={item}
-                      key={index}
-                      onClickHandler={onChannelClickHandler}
-                      onKeyPressHandler={onKeyPressHandler}
-                    />
-                  )
-                })}
+              <Grid
+                direction='column'
+                className={channelList.length > 3 ? classes.scrollContainer : ''}>
+                {channelList.length > 0 &&
+                  channelList.map((item, index) => {
+                    return (
+                      <ChannelItem
+                        className={classes.channelWrapper}
+                        focused={focusedIndex === index}
+                        classNameSelected={classes.channelWrapperSelected}
+                        item={item}
+                        key={index}
+                        onClickHandler={onChannelClickHandler}
+                        channelInput={channelInput}
+                      />
+                    )
+                  })}
+              </Grid>
             </Grid>
           </Grid>
         </Grid>

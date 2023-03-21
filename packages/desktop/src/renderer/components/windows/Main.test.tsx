@@ -141,6 +141,7 @@ describe('Main', () => {
                                 >
                                   <ul
                                     class="MuiList-root css-1mk9mw3-MuiList-root"
+                                    data-testid="channelsList"
                                   />
                                 </div>
                               </div>

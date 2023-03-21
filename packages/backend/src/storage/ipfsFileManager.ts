@@ -6,54 +6,65 @@ import PQueue from 'p-queue'
 
 import { decode } from '@ipld/dag-pb'
 
+import * as base58 from 'multiformats/bases/base58'
+
 import type { IPFS } from 'ipfs-core'
 
-import { CID } from 'multiformats/cid'
 import { StorageEvents } from './types'
+
+import { promisify } from 'util'
+import sizeOf from 'image-size'
+
+import { CID } from 'multiformats/cid'
 
 import {
     FileMetadata,
     DownloadStatus,
     DownloadProgress,
     DownloadState,
-} from '@quiet/state-manager'
-import { filesMasterSaga } from 'packages/state-manager/src/sagas/files/files.master.saga'
+    imagesExtensions
+  } from '@quiet/state-manager'
+import { sleep } from '../sleep'
+const sizeOfPromisified = promisify(sizeOf)
 
-const { compare, createPaths } = await import('../common/utils')
+const { createPaths, compare } = await import('../common/utils')
 
 export enum IpfsFilesManagerEvents {
     // Incoming evetns
     DOWNLOAD_FILE = 'downloadFile',
     CANCEL_DOWNLOAD = 'cancelDownload',
+    UPLOAD_FILE = 'uploadFile',
     // Outgoing evnets
-    DOWNLOADED_FILE = 'downloadedFile',
-    UPDATE_STATUS = 'updateStatus',
+    UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
     UPDATE_DOWNLOAD_PROGRESS = 'updateDownloadProgress'
 }
 interface FilesData {
     size: number
     downloadedBytes: number
-    transferSpeed: {
-        speed: number
-        sinceLastUpdate: number
-    }
-    cid: any
+    transferSpeed: number
+    cid: string
     message: {
-        id: any
+        id: string
     }
 }
 
+const TRANSFER_SPEED_SPAN = 10
+const UPDATE_STATUS_INTERVAL = 1
+const BLOCK_FETCH_TIMEOUT = 20
+const QUEUE_CONCURRENCY = 40
+
 export class IpfsFilesManager extends EventEmitter {
-    // keep info about all files in progress
-    cancelledDownloads: Set<string>
+    ipfs: IPFS
+    quietDir: string
+    // keep info about all downloads in progress
     files: Map<string, FilesData>
     queues: Map<string, {
         queue: PQueue
         controller: AbortController
     }>
 
-    ipfs: IPFS
-    quietDir: string
+    cancelledDownloads: Set<string>
+
     constructor(ipfs: IPFS, quietDir: string) {
         super()
         this.ipfs = ipfs
@@ -65,138 +76,252 @@ export class IpfsFilesManager extends EventEmitter {
     }
 
     private attachIncomingEvents = () => {
+        this.on(IpfsFilesManagerEvents.UPLOAD_FILE, async (fileMetadata: FileMetadata) => {
+            await this.uploadFile(fileMetadata)
+        })
         this.on(IpfsFilesManagerEvents.DOWNLOAD_FILE, async (fileMetadata: FileMetadata) => {
+            if (this.files.get(fileMetadata.cid)) return
             this.files.set(fileMetadata.cid, {
                 size: fileMetadata.size || 0,
                 downloadedBytes: 0,
-                transferSpeed: {
-                    speed: 0,
-                    sinceLastUpdate: 0
-                },
+                transferSpeed: 0,
                 cid: fileMetadata.cid,
                 message: fileMetadata.message
             })
             await this.downloadBlocks(fileMetadata)
         })
-        this.on(IpfsFilesManagerEvents.CANCEL_DOWNLOAD, (mid) => {
+        this.on(IpfsFilesManagerEvents.CANCEL_DOWNLOAD, async (mid) => {
             const fileDownloaded = Array.from(this.files.values()).find((e) => e.message.id === mid)
-            const queueAndController = this.queues.get(fileDownloaded.cid)
-            const queue = queueAndController.queue
-            const controller = queueAndController.controller
-            controller.abort()
-            queue.pause()
-            queue.clear()
-            this.cancelledDownloads.add(fileDownloaded.cid)
+            if (fileDownloaded) {
+                await this.cancelDownload(fileDownloaded.cid)
+            } else {
+                console.error(`downloading ${mid} has already been canceled or never started`)
+            }
         })
     }
 
-    private downloadBlocks = async (fileMetadata: FileMetadata) => {
+    public async stop() {
+        for await (const cid of this.files.keys()) {
+            await this.cancelDownload(cid)
+        }
+    }
+
+    public copyFile(originalFilePath: string, filename: string): string {
+        /**
+         * Copy file to a different directory and return the new path
+         */
+        const uploadsDir = path.join(this.quietDir, 'uploads')
+        const newPath = path.join(uploadsDir, filename)
+        let filePath = originalFilePath
+        try {
+          if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true })
+          }
+          fs.copyFileSync(originalFilePath, newPath)
+          filePath = newPath
+        } catch (e) {
+          console.error(`Couldn't copy file ${originalFilePath} to ${newPath}. Error: ${e.message}`)
+        }
+        return filePath
+      }
+
+    public async uploadFile(metadata: FileMetadata) {
+        let width: number = null
+        let height: number = null
+        if (imagesExtensions.includes(metadata.ext)) {
+          let imageSize = null
+          try {
+            imageSize = await sizeOfPromisified(metadata.path)
+          } catch (e) {
+            console.error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
+            throw new Error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
+          }
+          width = imageSize.width
+          height = imageSize.height
+        }
+
+        const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
+        const uploadedFileStreamIterable = {
+          async* [Symbol.asyncIterator]() {
+            for await (const data of stream) {
+              yield data
+            }
+          }
+        }
+
+        // Create directory for file
+        const dirname = 'uploads'
+        await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })
+
+        // Write file to IPFS
+        const uuid = `${Date.now()}_${Math.random().toString(36).substr(2.9)}`
+        const filename = `${uuid}_${metadata.name}${metadata.ext}`
+
+        // Save copy to separate directory
+        const filePath = this.copyFile(metadata.path, filename)
+        console.time(`Writing ${filename} to ipfs`)
+        await this.ipfs.files.write(`/${dirname}/${filename}`, uploadedFileStreamIterable, {
+          create: true
+        })
+        console.timeEnd(`Writing ${filename} to ipfs`)
+
+        // Get uploaded file information
+        const entries = this.ipfs.files.ls(`/${dirname}`)
+        for await (const entry of entries) {
+          if (entry.name === filename) {
+            this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
+
+            const fileMetadata: FileMetadata = {
+              ...metadata,
+              path: filePath,
+              cid: entry.cid.toString(),
+              size: entry.size,
+              width,
+              height
+            }
+
+            this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
+
+            const statusReady: DownloadStatus = {
+              mid: fileMetadata.message.id,
+              cid: fileMetadata.cid,
+              downloadState: DownloadState.Hosted,
+              downloadProgress: undefined
+            }
+
+            this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusReady)
+
+            if (metadata.path !== filePath) {
+              this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
+            }
+            break
+          }
+        }
+      }
+
+    private cancelDownload = async (cid: string) => {
+        const queueAndController = this.queues.get(cid)
+        const downloadInProgress = this.files.get(cid)
+        if (!downloadInProgress) return
+        // In case download is cancelled right after start and queue is not yet initialized.
+        if (!queueAndController) {
+            await sleep(1000)
+            await this.cancelDownload(cid)
+        } else {
+            const queue = queueAndController.queue
+            const controller = queueAndController.controller
+            this.cancelledDownloads.add(cid)
+            controller.abort()
+            queue.pause()
+            queue.clear()
+        }
+    }
+
+    private getLocalBlocks = async () => {
+        const blocks = []
+
+        const refs = this.ipfs.refs.local()
+
+        for await (const ref of refs) {
+            const cid = CID.parse(ref.ref)
+            const base58Encoded = base58.base58btc.encode(cid.multihash.bytes)
+            blocks.push(base58Encoded.toString())
+        }
+        return blocks
+    }
+
+    public downloadBlocks = async (fileMetadata: FileMetadata) => {
         const block = CID.parse(fileMetadata.cid)
 
+        const localBlocks = await this.getLocalBlocks()
+        const processedBlocks = []
+
         const controller = new AbortController()
-
-        const queue = new PQueue({ concurrency: 40 })
-
+        const queue = new PQueue({ concurrency: QUEUE_CONCURRENCY })
         this.queues.set(fileMetadata.cid, {
             queue,
             controller
         })
 
-        const blocksStats = []
-        const seconds = 10
+        const stat = await this.ipfs.files.stat(block)
+        if (fileMetadata.size && !compare(fileMetadata.size, stat.size, 0.05)) {
+            await this.updateStatus(fileMetadata.cid, DownloadState.Malicious)
+            return
+        }
 
-        const updateTransferSpeed = setInterval(() => {
-            const bytesDownloaded = blocksStats.reduce((previousValue, currentValue) => {
-                if (Math.floor(Date.now() / 1000) - currentValue.fetchTime < seconds) return previousValue + currentValue.byteLength
-                return 0
-            }, 0)
-            const transferSpeed = bytesDownloaded === 0 ? 0 : bytesDownloaded / seconds
-            const fileState = this.files.get(fileMetadata.cid)
-            this.files.set(fileMetadata.cid, {
-                ...fileState,
-transferSpeed: {
-                    speed: transferSpeed,
-                    sinceLastUpdate: 234
-                }
-            })
-            this.updateStatus(fileMetadata.cid)
-        }, 1000)
-
-        const addToQueue = async (link) => {
+        const addToQueue = async (link: CID) => {
             try {
                 await queue.add(async ({ signal }) => {
                     try {
-                        await processBlock(link.Hash, signal)
+                        await processBlock(link, signal)
                     } catch (e) {
-                        console.log('throttling')
                     }
                 }, {
                     signal: controller.signal
                 })
             } catch (e) {
-                console.log('catching')
             }
         }
 
-        const stat = await this.ipfs.files.stat(block)
+        // Transfer speed
+        const blocksStats = []
 
-        if (!compare(fileMetadata.size, stat.size, 0.05)) {
-            const maliciousStatus: DownloadStatus = {
-                mid: fileMetadata.message.id,
-                cid: fileMetadata.cid,
-                downloadState: DownloadState.Malicious,
-                downloadProgress: undefined
-            }
+        const updateTransferSpeed = setInterval(async () => {
+            const bytesDownloaded = blocksStats.reduce((previousValue, currentValue) => {
+                if (Math.floor(Date.now() / 1000) - currentValue.fetchTime < TRANSFER_SPEED_SPAN) return previousValue + currentValue.byteLength
+                return 0
+            }, 0)
+            const uniqueProcessedBlocks = [...new Set(processedBlocks)]
+            const totalBytesDownloaded = uniqueProcessedBlocks.reduce((prev, curr) => {
+                if (curr.Data) {
+                    return prev + curr.Data.byteLength
+                } else {
+                    return prev
+                }
+            }, 0)
+            const transferSpeed = bytesDownloaded === 0 ? 0 : bytesDownloaded / TRANSFER_SPEED_SPAN
+            const fileState = this.files.get(fileMetadata.cid)
+            this.files.set(fileMetadata.cid, {
+                ...fileState, transferSpeed: transferSpeed, downloadedBytes: totalBytesDownloaded
+            })
+            await this.updateStatus(fileMetadata.cid)
+        }, UPDATE_STATUS_INTERVAL * 1000)
 
-            this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, maliciousStatus)
-
-            return
-        }
-
-        const processBlock = async (block, signal) => {
+        const processBlock = async (block: CID, signal: AbortSignal) => {
+            // eslint-disable-next-line
             return await new Promise(async (resolve, reject) => {
-                const timeout = setTimeout(async () => {
-                    console.log('couldnt fetch block, adding to the end of queue', block)
-                    try {
-                        await queue.add(async ({ signal }) => {
-                            try {
-                                await processBlock(block, signal)
-                            } catch (e) {
-                                console.log('throttling after timeout')
-                            }
-                        }, { signal: controller.signal })
-                    } catch (e) {
-                        console.log('catching aborted')
-                    }
-                    reject('e')
-                }, 20_000)
-
                 signal.addEventListener('abort', () => {
                     clearTimeout(timeout)
-                    reject('e')
+                    reject(new Error('aborted processing block'))
                 })
 
-                // first check if we have block locally
+                const timeout = setTimeout(() => {
+                    void addToQueue(block)
+                    reject(new Error('timeout on processing block'))
+                }, BLOCK_FETCH_TIMEOUT * 1000)
 
-                let fetchedBlock = null
-
-                console.log('refs local', this.ipfs.refs.local())
-
-                const localBlock = await (await this.ipfs.dag.get(block)).value
-
-                console.log('local block is ', localBlock)
-
-                const hasBlockBeenDownloaded = false
-                if (hasBlockBeenDownloaded) {
-                    fetchedBlock = localBlock
-                } else {
-                    fetchedBlock = await this.ipfs.block.get(block)
+                if (processedBlocks.includes(block)) {
+                    console.log('processed block before')
+                    resolve(block)
+                    return
                 }
+
+                const hasBlockBeenDownloaded = localBlocks.includes(`z${block.toString()}`)
+
+                const fetchedBlock = await this.ipfs.block.get(block)
 
                 const decodedBlock = decode(fetchedBlock)
 
                 const fileState = this.files.get(fileMetadata.cid)
-                this.files.set(fileMetadata.cid, { ...fileState, downloadedBytes: decodedBlock.Data ? fileState.downloadedBytes + decodedBlock.Data.byteLength : fileState.downloadedBytes })
+
+                if (!fileState) {
+                    reject(new Error('Downloading has been cancelled'))
+                    return
+                }
+
+                processedBlocks.push(decodedBlock)
+
+                // this.files.set(fileMetadata.cid, { ...fileState, downloadedBytes: decodedBlock.Data ? fileState.downloadedBytes + decodedBlock.Data.byteLength : fileState.downloadedBytes })
 
                 if (!hasBlockBeenDownloaded) {
                     blocksStats.push({
@@ -206,8 +331,10 @@ transferSpeed: {
                 }
 
                 for (const link of decodedBlock.Links) {
-                    addToQueue(link)
+                    // @ts-ignore
+                    void addToQueue(link.Hash)
                 }
+
                 clearTimeout(timeout)
                 resolve(fetchedBlock)
             })
@@ -218,34 +345,31 @@ transferSpeed: {
                 try {
                     await processBlock(block, signal)
                 } catch (e) {
-                    console.log('throttling after timeout')
                 }
             }, { signal: controller.signal })
         } catch (e) {
-            console.log('aborted and not throwing any error')
         }
 
+        // Queue can be possibly idle in just two cases
         await queue.onIdle()
         clearInterval(updateTransferSpeed)
 
+        // Also clear local data
+
         if (this.cancelledDownloads.has(fileMetadata.cid)) {
             const fileState = this.files.get(fileMetadata.cid)
+
             this.files.set(fileMetadata.cid, {
-                ...fileState,
-downloadedBytes: 0,
-transferSpeed: {
-                    speed: 0, sinceLastUpdate: 0
-                }
+                ...fileState, downloadedBytes: 0, transferSpeed: 0
             })
-            this.updateStatus(fileMetadata.cid, DownloadState.Canceled)
             this.cancelledDownloads.delete(fileMetadata.cid)
+            this.queues.delete(fileMetadata.cid)
+            await this.updateStatus(fileMetadata.cid, DownloadState.Canceled)
+            this.files.delete(fileMetadata.cid)
         } else {
             const fileState = this.files.get(fileMetadata.cid)
             this.files.set(fileMetadata.cid, {
-                ...fileState,
-transferSpeed: {
-                    speed: 0, sinceLastUpdate: 0
-                }
+                ...fileState, transferSpeed: 0
             })
             await this.assemblyFile(fileMetadata)
         }
@@ -268,7 +392,7 @@ transferSpeed: {
             await new Promise<void>((resolve, reject) => {
                 writeStream.write(entry, err => {
                     if (err) {
-                        console.error(`${fileMetadata.name} download error: ${err}`)
+                        console.error(`${fileMetadata.name} writing to file error: ${err}`)
                         reject(err)
                     }
                 })
@@ -278,23 +402,25 @@ transferSpeed: {
 
         writeStream.end()
 
-        this.updateStatus(fileMetadata.cid, DownloadState.Completed)
+        await this.updateStatus(fileMetadata.cid, DownloadState.Completed)
+        this.files.delete(fileMetadata.cid)
+        this.queues.delete(fileMetadata.cid)
 
-        const meddageMedia: FileMetadata = {
+        const messageMedia: FileMetadata = {
             ...fileMetadata,
             path: filePath
         }
 
-        this.emit('updateFileMetadata', meddageMedia)
+        this.emit(IpfsFilesManagerEvents.UPDATE_MESSAGE_MEDIA, messageMedia)
     }
 
-    private updateStatus = async (cid, downloadState = DownloadState.Downloading) => {
+    private updateStatus = async (cid: string, downloadState = DownloadState.Downloading) => {
         const metadata = this.files.get(cid)
-        const progress: DownloadProgress = {
+        const progress: DownloadProgress = downloadState !== DownloadState.Malicious ? {
             size: metadata.size,
             downloaded: metadata.downloadedBytes,
-            transferSpeed: metadata.transferSpeed.speed
-        }
+            transferSpeed: metadata.transferSpeed
+        } : undefined
 
         const status: DownloadStatus = {
             mid: metadata.message.id,

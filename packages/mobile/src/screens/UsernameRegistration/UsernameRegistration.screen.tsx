@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { communities, errors, identity } from '@quiet/state-manager'
+import { errors, identity, ErrorCodes } from '@quiet/state-manager'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { appImages } from '../../../assets'
@@ -11,10 +11,6 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   const dispatch = useDispatch()
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-
-  const registrationAttempts = useSelector(
-    communities.selectors.registrationAttempts(currentIdentity?.id)
-  )
 
   const error = useSelector(errors.selectors.registrarErrors)
 
@@ -52,7 +48,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   return (
     <UsernameRegistration
       registerUsernameAction={handleAction}
-      registerUsernameError={registrationAttempts ? null : error?.message}
+      registerUsernameError={error?.code === ErrorCodes.FORBIDDEN ? error.message : null}
     />
   )
 }

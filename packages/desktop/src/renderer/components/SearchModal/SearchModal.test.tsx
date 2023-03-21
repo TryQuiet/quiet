@@ -148,7 +148,7 @@ describe('Search Modal', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent Modaltransparent css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SearchModalComponentroot css-1dy7wb1-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SearchModalComponentroot css-tno7k-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container SearchModalComponentoverlay css-1hbmzt3-MuiGrid-root"
@@ -209,34 +209,38 @@ describe('Search Modal', () => {
                             </span>
                           </div>
                           <div
-                            class="SearchModalComponentchannelWrapper"
-                            tabindex="0"
+                            class="MuiGrid-root MuiGrid-direction-xs-column css-1gkl4f1-MuiGrid-root"
                           >
-                            <p
-                              class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                            <div
+                              class="SearchModalComponentchannelWrapper SearchModalComponentchannelWrapperSelected"
+                              tabindex="0"
                             >
-                              # fun
-                            </p>
-                          </div>
-                          <div
-                            class="SearchModalComponentchannelWrapper"
-                            tabindex="0"
-                          >
-                            <p
-                              class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                              <p
+                                class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                              >
+                                # fun
+                              </p>
+                            </div>
+                            <div
+                              class="SearchModalComponentchannelWrapper"
+                              tabindex="0"
                             >
-                              # random
-                            </p>
-                          </div>
-                          <div
-                            class="SearchModalComponentchannelWrapper"
-                            tabindex="0"
-                          >
-                            <p
-                              class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                              <p
+                                class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                              >
+                                # random
+                              </p>
+                            </div>
+                            <div
+                              class="SearchModalComponentchannelWrapper"
+                              tabindex="0"
                             >
-                              # test
-                            </p>
+                              <p
+                                class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                              >
+                                # test
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>

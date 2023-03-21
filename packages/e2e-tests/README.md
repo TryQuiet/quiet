@@ -1,5 +1,11 @@
 ## Running tests locally
 
+*  Install chromedriver correctly before running the tests:
+
+`export ELECTRON_CUSTOM_VERSION=23.0.0`
+`npm run lerna bootstrap`
+
+
 *  Run jest:
 
 `npm run test`
