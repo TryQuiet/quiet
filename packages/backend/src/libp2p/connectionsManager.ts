@@ -236,15 +236,19 @@ export class ConnectionsManager extends EventEmitter {
       await this.tor.kill()
     }
     if (this.registration) {
+      log('Stopping registration service')
       await this.registration.stop()
     }
     if (this.storage) {
+      log('Stopping orbitdb')
       await this.storage.stopOrbitDb()
     }
     if (this.io) {
+      log('Closing socket server')
       this.io.close()
     }
     if (this.localStorage) {
+      log('Closing local storage')
       await this.localStorage.close()
     }
     if (this.libp2pInstance) {
