@@ -80,7 +80,7 @@ jobs:
         uses: r0adkll/upload-google-play@v1.0.17
         with:
           serviceAccountJson: google-play.json
-          packageName: com.zbaymobile
+          packageName: com.quietmobile
           releaseFiles: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
           status: completed
           track: internal

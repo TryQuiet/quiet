@@ -53,8 +53,9 @@ export const selectGeneralChannel = createSelector(selectChannels, channels => {
   return channel
 })
 
-export const publicChannels = createSelector(selectChannels, (channels) => {
-  return channels.sort((a, b) => {
+export const publicChannels = createSelector(selectChannels, (selectChannelsSelector) => {
+  const channels = Array.from(selectChannelsSelector)
+  const sorted = channels.sort((a, b) => {
     if (a.name === 'general') {
       return -1
     }
@@ -63,6 +64,22 @@ export const publicChannels = createSelector(selectChannels, (channels) => {
     }
     return a.name.localeCompare(b.name)
   })
+
+  return sorted
+})
+
+export const sortedChannels = createSelector(publicChannels, (channels) => {
+  const sorted = channels.sort((a, b) => {
+    if (a.name === 'general') {
+      return -1
+    }
+    if (b.name === 'general') {
+      return 0
+    }
+    return a.name.localeCompare(b.name)
+  })
+
+  return sorted
 })
 
 export const currentChannelAddress = createSelector(
@@ -72,6 +89,38 @@ export const currentChannelAddress = createSelector(
     return state.currentChannelAddress
   }
 )
+
+export const generalChannel = createSelector(publicChannels, publicChannelsSelector => {
+  return publicChannelsSelector.find(channel => channel.name === 'general')
+})
+
+export const recentChannels = createSelector(
+  publicChannels,
+  generalChannel,
+  (publicChannelsSelector, generalChannelSelector) => {
+    const recentChannels = publicChannelsSelector
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 3)
+    return recentChannels.length >= 3 ? recentChannels : [generalChannelSelector]
+  }
+)
+
+export const dynamicSearchedChannels = (channelInput: string) =>
+  createSelector(
+    publicChannels,
+    recentChannels,
+    (publicChannelsSelector, recentChannelsSelector) => {
+      const filteredList = publicChannelsSelector.filter(channel =>
+        channel.name.includes(channelInput)
+      )
+
+      const isFilteredList = filteredList.length > 0 ? filteredList : recentChannelsSelector
+
+      const channelList = channelInput.length === 0 ? recentChannelsSelector : isFilteredList
+
+      return channelList
+    }
+  )
 
 // Is being used in tests
 export const currentChannel = createSelector(
@@ -231,5 +280,7 @@ export const publicChannelsSelectors = {
   currentChannelLastDisplayedMessage,
   unreadChannels,
   channelsStatus,
-  channelsStatusSorted
+  channelsStatusSorted,
+  dynamicSearchedChannels,
+  sortedChannels
 }

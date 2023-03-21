@@ -10,25 +10,18 @@ const classes = {
   selected: `${PREFIX}selected`
 }
 
-const StyledMuiTab = styled(MuiTab)((
-  {
-    theme
-  }
-) => ({
+const StyledMuiTab = styled(MuiTab)(({ theme }) => ({
   [`&.${classes.tabRoot}`]: {
-    color: theme.typography.subtitle1.color,
-    fontSize: '0.8125rem',
-    alignItems: 'flex-start'
+    opacity: '1',
+    padding: '10px 8px 8px 8px',
+    fontSize: '14px',
+    fontWeight: '400',
+    alignItems: 'flex-start',
+    textTransform: 'none',
+    lineHeight: '21px',
+    minHeight: '0px'
   },
 
-  [`&.${classes.textColorPrimary}`]: {
-    '& .selected': {
-      color: theme.palette.colors.purple
-    },
-    '& .disabled': {
-      color: theme.palette.colors.darkGrey
-    }
-  },
   [`&.${classes.selected}`]: {
     backgroundColor: theme.palette.colors.lushSky,
     borderRadius: 5,

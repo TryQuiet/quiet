@@ -105,10 +105,15 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
     evt => {
       switch (evt.key) {
         case 'ArrowUp':
-          listRef.current?.focus()
-          break
         case 'ArrowDown':
+          break
+        case 'PageUp':
           listRef.current?.focus()
+          scrollbarRef.current.scrollTop -= 40
+          break
+        case 'PageDown':
+          listRef.current?.focus()
+          scrollbarRef.current.scrollTop += 40
           break
       }
     },
