@@ -475,6 +475,9 @@ export class ConnectionsManager extends EventEmitter {
 
   private attachDataServerListeners = () => {
     // Community
+    this.dataServer.on(SocketActionTypes.LEAVE_COMMUNITY, async ()=> {
+      await this.leaveCommunity()
+    })
     this.dataServer.on(SocketActionTypes.CONNECTION, async () => {
       // Update Frontend with Initialized Communities
       if (this.communityId) {

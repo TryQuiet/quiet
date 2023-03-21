@@ -162,6 +162,10 @@ export class DataServer extends EventEmitter {
         log(`Creating network for community ${community.id}`)
         this.emit(SocketActionTypes.CREATE_NETWORK, community)
       })
+      socket.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
+        log('leaving community')
+        this.emit(SocketActionTypes.LEAVE_COMMUNITY)
+      })
     })
   }
 
