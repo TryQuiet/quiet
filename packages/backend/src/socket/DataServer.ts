@@ -167,6 +167,7 @@ export class DataServer extends EventEmitter {
 
   public listen = async (): Promise<void> => {
     return await new Promise(resolve => {
+      if (this.server.listening) resolve()
       this.server.listen(this.PORT, () => {
         log(`Data server running on port ${this.PORT}`)
         resolve()

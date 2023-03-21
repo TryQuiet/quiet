@@ -1,6 +1,9 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
+import fs from 'fs'
+import path from 'path'
 import createHttpsProxyAgent from 'https-proxy-agent'
+
 
 import { peerIdFromKeys } from '@libp2p/peer-id'
 import { createLibp2p, Libp2p } from 'libp2p'
@@ -69,10 +72,9 @@ import { Libp2pEvents, ServiceState } from './types'
 import PeerId from 'peer-id'
 import { LocalDB, LocalDBKeys } from '../storage/localDB'
 
-import { createLibp2pAddress, createLibp2pListenAddress, getPorts } from '../common/utils'
+import { createLibp2pAddress, createLibp2pListenAddress, getPorts, removeFilesFromDir } from '../common/utils'
 import { ProcessInChunks } from './processInChunks'
 import { Multiaddr } from 'multiaddr'
-import { GetInfoTorSignal } from '../torManager/torManager'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -153,7 +155,7 @@ export class ConnectionsManager extends EventEmitter {
     this.httpTunnelPort = httpTunnelPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
-    this.localStorage = new LocalDB(this.quietDir)
+    // this.localStorage = new LocalDB(this.quietDir)
     this.communityState = ServiceState.DEFAULT
     this.registrarState = ServiceState.DEFAULT
 
@@ -189,21 +191,26 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public init = async () => {
+    this.localStorage = new LocalDB(this.quietDir)
+
     if (!this.httpTunnelPort) {
       this.httpTunnelPort = await getPort()
     }
 
     this.socksProxyAgent = this.createAgent()
 
-    await this.spawnTor()
+    if (!this.tor) {
+      await this.spawnTor()
+    }
 
-    this.dataServer = new DataServer(this.socketIOPort)
-
-    this.io = this.dataServer.io
+    if (!this.dataServer) {
+      this.dataServer = new DataServer(this.socketIOPort)
+      this.io = this.dataServer.io
+    }
 
     this.attachDataServerListeners()
     this.attachRegistrationListeners()
-
+    
     // Libp2p event listeners
     this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
       this.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
@@ -211,11 +218,11 @@ export class ConnectionsManager extends EventEmitter {
     this.on(Libp2pEvents.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
       this.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
-
+    
     await this.dataServer.listen()
-
+    
     const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
-
+    
     if (community) {
       const sortedPeers = await this.localStorage.getSortedPeers(community.peers)
       if (sortedPeers.length > 0) {
@@ -225,14 +232,17 @@ export class ConnectionsManager extends EventEmitter {
       await this.launchCommunity(community)
     }
 
-    const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
-    if (registrarData) {
-      await this.registration.launchRegistrar(registrarData)
-    }
+    // TODO: it crashes, trying to create same HS twice
+    
+    // const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
+    // if (registrarData) {
+    //   await this.registration.launchRegistrar(registrarData)
+    // }
   }
+  
 
-  public async closeAllServices() {
-    if (this.tor && !this.torControlPort) {
+  public async closeAllServices(options: {saveTor: boolean} = {saveTor: false}) {
+    if (this.tor && !this.torControlPort && !options.saveTor) {
       await this.tor.kill()
     }
     if (this.registration) {
@@ -255,6 +265,20 @@ export class ConnectionsManager extends EventEmitter {
       log('Stopping libp2p')
       await this.libp2pInstance.stop()
     }
+  }
+  
+  public async leaveCommunity() {  
+    this.io.close()
+    await this.closeAllServices({saveTor: true})
+    await this.purgeData()
+    await this.init()
+    }
+    
+    public async purgeData() {
+      const dirsToRemove = fs.readdirSync(this.quietDir).filter(i => i.startsWith('Ipfs') || i.startsWith('OrbitDB') || i.startsWith('backendDB'))
+      for (let dir of dirsToRemove) {
+        removeFilesFromDir(path.join(this.quietDir, dir))
+      }
   }
 
   public spawnTor = async () => {
