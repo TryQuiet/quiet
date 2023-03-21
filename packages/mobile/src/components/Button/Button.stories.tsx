@@ -22,3 +22,10 @@ storiesOf('Button', module)
       negative
     />
   ))
+  .add('Disabled', () => (
+    <Button
+      title={'Never mind, I\'ll stay'}
+      onPress={storybookLog('Button clicked')}
+      disabled
+    />
+  ))
