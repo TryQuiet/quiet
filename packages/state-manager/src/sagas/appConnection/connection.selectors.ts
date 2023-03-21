@@ -7,13 +7,17 @@ import { peersStatsAdapter } from './connection.adapter'
 import { connectedPeers } from '../network/network.selectors'
 import { sortPeers } from '../../utils/functions/sortPeers/sortPeers'
 
-const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (
-  state: StoreState
-) => state[StoreKeys.Connection]
+const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) =>
+  state[StoreKeys.Connection]
 
 export const lastConnectedTime = createSelector(
   connectionSlice,
-  (reducerState) => reducerState.lastConnectedTime
+  reducerState => reducerState.lastConnectedTime
+)
+
+export const torBootstrapProcess = createSelector(
+  connectionSlice,
+  reducerState => reducerState.torBootstrapProcess
 )
 
 export const peerList = createSelector(
@@ -48,5 +52,6 @@ export const connectedPeersMapping = createSelector(
 export const connectionSelectors = {
   lastConnectedTime,
   connectedPeersMapping,
-  peerList
+  peerList,
+  torBootstrapProcess
 }

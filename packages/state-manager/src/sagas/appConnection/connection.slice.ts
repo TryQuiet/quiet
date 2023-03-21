@@ -7,6 +7,7 @@ export class ConnectionState {
   public lastConnectedTime: number = 0
   public uptime: number = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
+  public torBootstrapProcess: string = ''
 }
 
 export const connectionSlice = createSlice({
@@ -27,6 +28,15 @@ export const connectionSlice = createSlice({
     },
     setLastConnectedTime: (state, action: PayloadAction<number>) => {
       state.lastConnectedTime = action.payload
+    },
+    setTorBootstrapProcess: (state, action: PayloadAction<string>) => {
+      const info = action.payload
+      if (info.includes('Bootstrapped')) {
+        const firstChar = info.indexOf(']') + 1
+        const lastChar = info.indexOf(')') + 1
+        const formattedInfo = info.slice(firstChar, lastChar).trim()
+        state.torBootstrapProcess = formattedInfo
+      }
     }
   }
 })

@@ -195,12 +195,13 @@ export class ConnectionsManager extends EventEmitter {
 
     this.socksProxyAgent = this.createAgent()
 
-    await this.spawnTor()
-
     this.dataServer = new DataServer(this.socketIOPort)
 
     this.io = this.dataServer.io
 
+    await this.spawnTor()
+
+    this.attachTorEventsListeners()
     this.attachDataServerListeners()
     this.attachRegistrationListeners()
 
@@ -213,7 +214,9 @@ export class ConnectionsManager extends EventEmitter {
     })
 
     await this.dataServer.listen()
-
+    this.io.on('connection', async() => {
+      await this.initTor()
+    })
     const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
 
     if (community) {
@@ -268,7 +271,9 @@ export class ConnectionsManager extends EventEmitter {
         detached: true
       }
     })
+  }
 
+  public initTor = async () => {
     if (this.torControlPort) {
       this.tor.initTorControl()
     } else if (this.torBinaryPath) {
@@ -418,6 +423,12 @@ export class ConnectionsManager extends EventEmitter {
     log(`Initialized storage for peer ${peerIdB58string}`)
 
     return libp2pObj.localAddress
+  }
+
+  private attachTorEventsListeners = () => {
+    this.tor.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (data) => {
+      this.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data)
+    })
   }
 
   private attachRegistrationListeners = () => {

@@ -1,26 +1,39 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../storybook/decorators'
-import LoadingPanelComponent, { LoadingPanelComponentProps } from './LoadingPanelComponent'
+import JoiningPanelComponent, { JoiningPanelComponentProps } from './JoiningPanelComponent'
+import StartingPanelComponent, { StartingPanelComponentProps } from './StartingPanelComponent'
 
-const Template: ComponentStory<typeof LoadingPanelComponent> = args => {
-  return <LoadingPanelComponent {...args} />
+const JoiningPanelTemplate: ComponentStory<typeof JoiningPanelComponent> = args => {
+  return <JoiningPanelComponent {...args} />
+}
+const StartingPanelTemplate: ComponentStory<typeof StartingPanelComponent> = args => {
+  return <StartingPanelComponent {...args} />
 }
 
-export const Component = Template.bind({})
+export const JoiningPanel = JoiningPanelTemplate.bind({})
+export const StartingPanel = StartingPanelTemplate.bind({})
 
-const args: LoadingPanelComponentProps = {
+const JoiningPanelArgs: JoiningPanelComponentProps = {
   open: true,
   handleClose: function (): void {},
-  message: 'test message'
+  message: 'Connecting to peers',
+  openUrl: () => console.log('OpenURL')
+}
+const StartingPanelArgs: StartingPanelComponentProps = {
+  open: true,
+  handleClose: function (): void {},
+  message: 'Starting Quiet',
+  torBootstrapInfo: 'Bootstrapped 100% (done)'
 }
 
-Component.args = args
+JoiningPanel.args = JoiningPanelArgs
+StartingPanel.args = StartingPanelArgs
 
-const component: ComponentMeta<typeof LoadingPanelComponent> = {
+const component: ComponentMeta<typeof JoiningPanelComponent> = {
   title: 'Components/LoadingPanel',
   decorators: [withTheme],
-  component: LoadingPanelComponent
+  component: JoiningPanelComponent
 }
 
 export default component

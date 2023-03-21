@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
-import { communities, publicChannels, users, identity } from '@quiet/state-manager'
+import { communities, publicChannels, users, identity, connection } from '@quiet/state-manager'
 import LoadingPanelComponent from './LoadingPanelComponent'
 import { modalsActions } from '../../sagas/modals/modals.slice'
+import { shell } from 'electron'
+import JoiningPanelComponent from './JoiningPanelComponent'
+import StartingPanelComponent from './StartingPanelComponent'
 
 export enum LoadingPanelMessage {
   StartingApplication = 'Starting Quiet',
-  Connecting = 'Connecting to peers'
+  Joining = 'Connecting to peers'
 }
 
 const LoadingPanel = () => {
@@ -33,6 +36,7 @@ const LoadingPanel = () => {
   const usersData = Object.keys(useSelector(users.selectors.certificates))
   const isOnlyOneUser = usersData.length === 1
 
+  const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
   // Before connecting websocket
   useEffect(() => {
     if (isConnected) {
@@ -50,7 +54,7 @@ const LoadingPanel = () => {
     console.log('currentIdentity.userCertificate', currentIdentity?.userCertificate)
     if (isConnected) {
       if (currentCommunity && !isChannelReplicated && currentIdentity?.userCertificate) {
-        setMessage(LoadingPanelMessage.Connecting)
+        setMessage(LoadingPanelMessage.Joining)
         loadingPanelModal.handleOpen()
       } else {
         loadingPanelModal.handleClose()
@@ -70,7 +74,18 @@ const LoadingPanel = () => {
     }
   }, [isConnected, currentCommunity, isChannelReplicated])
 
-  return <LoadingPanelComponent {...loadingPanelModal} message={message} />
+  const openUrl = useCallback((url: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    shell.openExternal(url)
+  }, [])
+  console.log({ torBootstrapProcessSelector })
+  if (message === LoadingPanelMessage.StartingApplication) {
+    return <StartingPanelComponent {...loadingPanelModal} message={torBootstrapProcessSelector} torBootstrapInfo={torBootstrapProcessSelector} />
+  } else {
+    return <JoiningPanelComponent {...loadingPanelModal} openUrl={openUrl} message={message} />
+  }
+
+  // return <StartingPanelComponent {...loadingPanelModal} message={message} />
 }
 
 export default LoadingPanel
