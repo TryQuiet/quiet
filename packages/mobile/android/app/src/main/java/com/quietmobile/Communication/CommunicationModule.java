@@ -89,12 +89,6 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    private static void startBackend() {
-        Context context = reactContext.getApplicationContext();
-        new BackendWorkManager(context).enqueueRequests();
-    }
-
-    @ReactMethod
     private static void deleteBackendData() {
         Context context = reactContext.getApplicationContext();
         try {
