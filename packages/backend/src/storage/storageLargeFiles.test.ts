@@ -90,6 +90,8 @@ describe('Storage', () => {
       }))
     })
 
+    await sleep(20_000)
+
     await fileManager.stop()
     await ipfsInstance.stop()
 
