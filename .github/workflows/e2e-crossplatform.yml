@@ -107,18 +107,18 @@ jobs:
       # - name: Download App Image
       #   working-directory: ./packages/e2e-tests/Quiet
       #   run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0/Quiet-1.1.0.AppImage
-      - name: Before build
-        uses: ./.github/actions/before-build
-        with:
-          source-path: linux
+      # - name: Before build
+      #   uses: ./.github/actions/before-build
+      #   with:
+      #     source-path: linux
 
-      - name: Build
-        working-directory: ./packages/desktop
-        run: node_modules/.bin/electron-builder --linux
+      # - name: Build
+      #   working-directory: ./packages/desktop
+      #   run: node_modules/.bin/electron-builder --linux
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+        run: npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
