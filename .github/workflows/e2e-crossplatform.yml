@@ -24,6 +24,9 @@ jobs:
       # - name: Download DMG
       #   working-directory: ./packages/e2e-tests/Quiet
       #   run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0/Quiet-1.1.0.dmg
+      - name: Build App Image 1
+        working-directory: ./packages/desktop
+        run: npm run dist
 
       - name: Build App Image
         working-directory: ./packages/desktop
