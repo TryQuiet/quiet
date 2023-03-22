@@ -5,49 +5,57 @@ on:
   pull_request:
 
 jobs:
-  # mac:
-  #   runs-on: macos-latest
-  #   timeout-minutes: 180
-  #   env:
-  #     ELECTRON_CUSTOM_VERSION: 23.0.0
+  mac:
+    runs-on: macos-latest
+    timeout-minutes: 180
+    env:
+      ELECTRON_CUSTOM_VERSION: 23.0.0
 
-  #   steps:
-  #     - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
 
-  #     - name: "Setup environment"
-  #       uses: ./.github/actions/setup-env
-  #       with:
-  #         cachePrefix: "e2e-crossplatform-mac"
-  #         bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "e2e-crossplatform-mac"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
-  #     - name: Download DMG
-  #       working-directory: ./packages/e2e-tests/Quiet
-  #       run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0/Quiet-1.1.0.dmg
+      # - name: Download DMG
+      #   working-directory: ./packages/e2e-tests/Quiet
+      #   run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0/Quiet-1.1.0.dmg
 
-  #     - name: Chmod
-  #       working-directory: ./packages/e2e-tests/Quiet
-  #       run: chmod +x Quiet-1.1.0.dmg
+      - name: Build App Image
+        working-directory: ./packages/desktop
+        run: npm run dist && VERSION=$(jq -r ".version" package.json) && echo "VERSION=$(jq -r ".version" package.json)" >> $GITHUB_ENV && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
 
-  #     - name: Mount installer file in volume on system
-  #       working-directory: ./packages/e2e-tests/Quiet
-  #       run: hdiutil mount Quiet-1.1.0.dmg 
+      # - name: Chmod
+      #   working-directory: ./packages/e2e-tests/Quiet
+      #   run: chmod +x Quiet-1.1.0.dmg
 
-  #     - name: Add App file to applications
-  #       run: cd ~ && cp -R "/Volumes/Quiet 1.1.0/Quiet.app" /Applications
+      - name: Chmod
+        working-directory: ./packages/e2e-tests/Quiet
+        run: chmod +x $FILE_NAME
 
-  #     - name: Run smoke test
-  #       uses: nick-fields/retry@v2
-  #       with:
-  #         timeout_minutes: 25
-  #         max_attempts: 3
-  #         command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+      - name: Mount installer file in volume on system
+        working-directory: ./packages/e2e-tests/Quiet
+        run: hdiutil mount $FILE_NAME 
 
-  #     - name: Run newUser test - Includes 2 separate application clients
-  #       uses: nick-fields/retry@v2
-  #       with:
-  #         timeout_minutes: 35
-  #         max_attempts: 3
-  #         command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
+      - name: Add App file to applications
+        run: cd ~ && cp -R "/Volumes/Quiet $VERSION/Quiet.app" /Applications
+
+      - name: Run smoke test
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+
+      - name: Run newUser test - Includes 2 separate application clients
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 35
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
 
 
 
@@ -92,9 +100,6 @@ jobs:
       - name: Build App Image
         working-directory: ./packages/desktop
         run: npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
-
-      - name: Test
-        run: echo $FILE_NAME
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
