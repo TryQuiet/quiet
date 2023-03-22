@@ -10,7 +10,7 @@ export const formatMessageDisplayDate = (createdAt: number): string => {
   ) {
     // Check if message was sent today.
     if (messageDate.getDay() === now.getDay()) {
-      return DateTime.fromSeconds(createdAt).toFormat('t')
+      return DateTime.fromSeconds(createdAt).toLocaleString(DateTime.TIME_SIMPLE)
     }
     // Check if message was sent yesterday
     if (messageDate.getDay() + 1 === now.getDay()) {
