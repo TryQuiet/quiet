@@ -185,7 +185,7 @@ export const NotificationsComponent: React.FC<NotificationsProps> = ({
                 </Grid>
                 <Grid item>
                   <span>
-                    You won’t receive notificaitons from Quiet.
+                    You won’t receive notifications from Quiet.
                   </span>
                 </Grid>
               </Grid>

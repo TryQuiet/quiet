@@ -134,7 +134,7 @@ describe('Notifications', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <span>
-                          You won’t receive notificaitons from Quiet.
+                          You won’t receive notifications from Quiet.
                         </span>
                       </div>
                     </div>
