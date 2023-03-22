@@ -156,8 +156,6 @@ export class ConnectionsManager extends EventEmitter {
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
     // this.localStorage = new LocalDB(this.quietDir)
-    this.communityState = ServiceState.DEFAULT
-    this.registrarState = ServiceState.DEFAULT
 
     // Does it work?
     process.on('unhandledRejection', error => {
@@ -191,6 +189,9 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public init = async () => {
+    this.communityState = ServiceState.DEFAULT
+    this.registrarState = ServiceState.DEFAULT
+
     this.localStorage = new LocalDB(this.quietDir)
 
     if (!this.httpTunnelPort) {
@@ -206,11 +207,10 @@ export class ConnectionsManager extends EventEmitter {
     if (!this.dataServer) {
       this.dataServer = new DataServer(this.socketIOPort)
       this.io = this.dataServer.io
+      this.attachDataServerListeners()
+      this.attachRegistrationListeners()
     }
 
-    this.attachDataServerListeners()
-    this.attachRegistrationListeners()
-    
     // Libp2p event listeners
     this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
       this.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
