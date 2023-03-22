@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { View } from 'react-native'
 import { defaultPalette } from '../../styles/palettes/default.palette'
 
@@ -8,10 +8,25 @@ import { Typography } from '../Typography/Typography.component'
 
 import { LeaveCommunityProps } from './LeaveCommunity.types'
 
-export const LeaveCommunity: FC<LeaveCommunityProps> = ({ name, leaveCommunity, handleBackButton }) => {
+export const LeaveCommunity: FC<LeaveCommunityProps> = ({
+  name,
+  leaveCommunity,
+  handleBackButton
+}) => {
+  const [loading, setLoading] = useState<boolean>(false)
+
+  const onPress = () => {
+    setLoading(true)
+    leaveCommunity()
+  }
+
+  const goBack = () => {
+    if (!loading) handleBackButton()
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: defaultPalette.background.white }}>
-      <Appbar title={'Leave community'} back={handleBackButton} />
+      <Appbar title={'Leave community'} back={goBack} />
       <View
         style={{
           padding: 24
@@ -31,10 +46,10 @@ export const LeaveCommunity: FC<LeaveCommunityProps> = ({ name, leaveCommunity, 
           </Typography>
         </View>
         <View style={{ paddingTop: 16 }}>
-          <Button title={'Leave community'} onPress={leaveCommunity} />
+          <Button title={'Leave community'} onPress={onPress} loading={loading} />
         </View>
         <View>
-          <Button title={'Never mind, I\'ll stay'} onPress={handleBackButton} negative />
+          <Button title={"Never mind, I'll stay"} onPress={goBack} negative />
         </View>
       </View>
     </View>

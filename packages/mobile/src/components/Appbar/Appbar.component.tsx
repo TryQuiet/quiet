@@ -54,7 +54,10 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, 
       </View>
       <View style={{ width: 64 }} />
       {contextMenu && (
-        <TouchableWithoutFeedback onPress={contextMenu.handleOpen}>
+        <TouchableWithoutFeedback onPress={event => {
+          event.persist()
+          contextMenu.handleOpen()
+          }}>
           <View style={{ justifyContent: 'center', alignItems: 'center', width: 64 }}>
             <Image
               source={menu_icon}

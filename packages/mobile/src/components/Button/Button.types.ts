@@ -3,4 +3,5 @@ export interface ButtonProps {
   title: string
   loading?: boolean
   negative?: boolean
+  disabled?: boolean
 }
