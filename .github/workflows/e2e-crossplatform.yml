@@ -145,6 +145,17 @@ jobs:
         shell: bash
         run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
 
+      - name: "Add Windows certificate"
+        id: write_file
+        uses: timheuer/base64-to-file@v1.0.3
+        with:
+          fileName: 'win-certificate.pfx'
+          encodedString: ${{ secrets.WIN_CSC_LINK }}
+
+      - name: "Remove test files workaround (jest types conflicting with cypress types)"
+        run: find packages/desktop/src -name '*.test.*' -delete
+        shell: bash
+
       - name: Build App Image
         working-directory: ./packages/desktop
         run: npm run distWin 
@@ -152,7 +163,7 @@ jobs:
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: npm run distWin && VERSION=$(jq -r ".version" package.json) && echo "VERSION=$(jq -r ".version" package.json)" >> $GITHUB_ENV && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV 
+        run: npm run distWin && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
         shell: bash
 
       - name: Chmod
