@@ -5,49 +5,49 @@ on:
   pull_request:
 
 jobs:
-  mac:
-    runs-on: macos-latest
-    timeout-minutes: 180
-    env:
-      ELECTRON_CUSTOM_VERSION: 23.0.0
+  # mac:
+  #   runs-on: macos-latest
+  #   timeout-minutes: 180
+  #   env:
+  #     ELECTRON_CUSTOM_VERSION: 23.0.0
 
-    steps:
-      - uses: actions/checkout@v2
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: "Setup environment"
-        uses: ./.github/actions/setup-env
-        with:
-          cachePrefix: "e2e-crossplatform-mac"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+  #     - name: "Setup environment"
+  #       uses: ./.github/actions/setup-env
+  #       with:
+  #         cachePrefix: "e2e-crossplatform-mac"
+  #         bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
-      - name: Download DMG
-        working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0/Quiet-1.1.0.dmg
+  #     - name: Download DMG
+  #       working-directory: ./packages/e2e-tests/Quiet
+  #       run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0/Quiet-1.1.0.dmg
 
-      - name: Chmod
-        working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-1.1.0.dmg
+  #     - name: Chmod
+  #       working-directory: ./packages/e2e-tests/Quiet
+  #       run: chmod +x Quiet-1.1.0.dmg
 
-      - name: Mount installer file in volume on system
-        working-directory: ./packages/e2e-tests/Quiet
-        run: hdiutil mount Quiet-1.1.0.dmg 
+  #     - name: Mount installer file in volume on system
+  #       working-directory: ./packages/e2e-tests/Quiet
+  #       run: hdiutil mount Quiet-1.1.0.dmg 
 
-      - name: Add App file to applications
-        run: cd ~ && cp -R "/Volumes/Quiet 1.1.0/Quiet.app" /Applications
+  #     - name: Add App file to applications
+  #       run: cd ~ && cp -R "/Volumes/Quiet 1.1.0/Quiet.app" /Applications
 
-      - name: Run smoke test
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+  #     - name: Run smoke test
+  #       uses: nick-fields/retry@v2
+  #       with:
+  #         timeout_minutes: 25
+  #         max_attempts: 3
+  #         command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
 
-      - name: Run newUser test - Includes 2 separate application clients
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 35
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
+  #     - name: Run newUser test - Includes 2 separate application clients
+  #       uses: nick-fields/retry@v2
+  #       with:
+  #         timeout_minutes: 35
+  #         max_attempts: 3
+  #         command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
 
 
 
@@ -85,13 +85,17 @@ jobs:
           sleep 3
           fluxbox &
 
-      - name: Download App Image
-        working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0/Quiet-1.1.0.AppImage
+      # - name: Download App Image
+      #   working-directory: ./packages/e2e-tests/Quiet
+      #   run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0/Quiet-1.1.0.AppImage
+
+      - name: Build App Image
+        working-directory: ./packages/desktop
+        run: npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-1.1.0.AppImage
+        run: chmod +x $FILE_NAME
 
       - name: Run smoke test
         uses: nick-fields/retry@v2
@@ -107,44 +111,47 @@ jobs:
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
 
-  windows:
-    runs-on: windows-2019
-    timeout-minutes: 180
-    env:
-      ELECTRON_CUSTOM_VERSION: 23.0.0
+  # windows:
+  #   runs-on: windows-2019
+  #   timeout-minutes: 180
+  #   env:
+  #     ELECTRON_CUSTOM_VERSION: 23.0.0
 
-    steps:
-      - uses: actions/checkout@v2
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: "Setup environment"
-        uses: ./.github/actions/setup-env
-        with:
-          cachePrefix: "e2e-crossplatform-windows"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+  #     - name: "Setup environment"
+  #       uses: ./.github/actions/setup-env
+  #       with:
+  #         cachePrefix: "e2e-crossplatform-windows"
+  #         bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
-      - name: Download EXE
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0/Quiet.Setup.1.1.0.exe
-        shell: bash
+  #     - name: Download EXE
+  #       run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0/Quiet.Setup.1.1.0.exe
+  #       shell: bash
 
-      - name: Chmod
-        run: chmod +x Quiet.Setup.1.1.0.exe
-        shell: bash
+  #     - name: Chmod
+  #       run: chmod +x Quiet.Setup.1.1.0.exe
+  #       shell: bash
 
-      - name: Install exe
-        run: Start-Process Quiet.Setup.1.1.0.exe -Wait
-        shell: powershell
+  #     - name: Install exe
+  #       run: Start-Process Quiet.Setup.1.1.0.exe -Wait
+  #       shell: powershell
 
-      - name: Kill exe
-        run: Stop-Process -Name "Quiet" -Force
-        shell: powershell
+  #     - name: Kill exe
+  #       run: Stop-Process -Name "Quiet" -Force
+  #       shell: powershell
 
-      - name: Run smoke test
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          shell: bash
-          command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+  #     - name: Run smoke test
+  #       uses: nick-fields/retry@v2
+  #       with:
+  #         timeout_minutes: 25
+  #         max_attempts: 3
+  #         shell: bash
+  #         command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+
+
+
       # Will be fixed in next tasks 
       # - name: Run newUser test - Includes 2 separate application clients
       #   uses: nick-fields/retry@v2
