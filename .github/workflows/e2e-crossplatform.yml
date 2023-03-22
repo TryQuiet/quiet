@@ -144,7 +144,7 @@ jobs:
       - name: Build App Image 1
         working-directory: ./packages/desktop
         run: npm run distwin
-        # shell: bash
+        shell: bash
 
       - name: Build App Image
         working-directory: ./packages/desktop
