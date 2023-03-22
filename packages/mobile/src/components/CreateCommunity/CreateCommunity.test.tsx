@@ -4,7 +4,7 @@ import { CreateCommunity } from './CreateCommunity.component'
 describe('Spinner component', () => {
   it('renders component', () => {
     const { toJSON } = renderComponent(
-      <CreateCommunity createCommunityAction={jest.fn()} redirectionAction={jest.fn()} />
+      <CreateCommunity createCommunityAction={jest.fn()} redirectionAction={jest.fn()} networkCreated={false} />
     )
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
