@@ -10,6 +10,7 @@ jobs:
     timeout-minutes: 180
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
+      TEST_MODE: true
 
     steps:
       - uses: actions/checkout@v2
