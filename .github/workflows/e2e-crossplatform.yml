@@ -141,6 +141,10 @@ jobs:
       # - name: Download EXE
       #   run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0/Quiet.Setup.1.1.0.exe
       #   shell: bash
+      - name: Build App Image 1
+        working-directory: ./packages/desktop
+        run: npm run distwin
+        # shell: bash
 
       - name: Build App Image
         working-directory: ./packages/desktop
