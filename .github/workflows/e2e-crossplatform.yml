@@ -63,7 +63,6 @@ jobs:
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
       DISPLAY: ":99.0"
-      FILE_NAME: ""
 
     steps:
       - uses: actions/checkout@v2
@@ -92,10 +91,10 @@ jobs:
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME && echo FILE_NAME >> $FILE_NAME
+        run: npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
 
-      - name: Print name
-        run: echo "FILE_NAME $FILE_NAME"
+      - name: Test
+        run: echo $FILE_NAME
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
