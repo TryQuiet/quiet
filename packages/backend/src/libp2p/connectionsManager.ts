@@ -231,13 +231,11 @@ export class ConnectionsManager extends EventEmitter {
       await this.localStorage.put(LocalDBKeys.COMMUNITY, community)
       await this.launchCommunity(community)
     }
-
-    // TODO: it crashes, trying to create same HS twice
     
-    // const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
-    // if (registrarData) {
-    //   await this.registration.launchRegistrar(registrarData)
-    // }
+    const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
+    if (registrarData) {
+      await this.registration.launchRegistrar(registrarData)
+    }
   }
   
 
@@ -271,11 +269,15 @@ export class ConnectionsManager extends EventEmitter {
     this.io.close()
     await this.closeAllServices({saveTor: true})
     await this.purgeData()
+    this.communityId = null
+    this.storage = null
+    this.libp2pInstance = null
     await this.init()
     }
     
     public async purgeData() {
-      const dirsToRemove = fs.readdirSync(this.quietDir).filter(i => i.startsWith('Ipfs') || i.startsWith('OrbitDB') || i.startsWith('backendDB'))
+      console.log('removing data')
+      const dirsToRemove = fs.readdirSync(this.quietDir).filter(i => i.startsWith('Ipfs') || i.startsWith('OrbitDB') || i.startsWith('backendDB') || i.startsWith('Local Storage'))
       for (let dir of dirsToRemove) {
         removeFilesFromDir(path.join(this.quietDir, dir))
       }
