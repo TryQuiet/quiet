@@ -208,6 +208,7 @@ describe('LeaveCommunity component', () => {
                   "borderRadius": 5,
                   "justifyContent": "center",
                   "marginVertical": 12,
+                  "minHeight": 45,
                   "paddingVertical": 12,
                 }
               }
@@ -251,6 +252,7 @@ describe('LeaveCommunity component', () => {
                   "borderRadius": 5,
                   "justifyContent": "center",
                   "marginVertical": 0,
+                  "minHeight": 45,
                   "paddingVertical": 12,
                 }
               }

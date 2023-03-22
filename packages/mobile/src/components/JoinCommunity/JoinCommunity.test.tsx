@@ -317,6 +317,7 @@ describe('Spinner component', () => {
                   "borderRadius": 5,
                   "justifyContent": "center",
                   "marginVertical": 12,
+                  "minHeight": 45,
                   "paddingVertical": 12,
                 }
               }

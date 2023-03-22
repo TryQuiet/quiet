@@ -217,7 +217,7 @@ describe('Appbar component', () => {
         />
         <View
           accessible={true}
-          focusable={false}
+          focusable={true}
           onClick={[Function]}
           onResponderGrant={[Function]}
           onResponderMove={[Function]}
