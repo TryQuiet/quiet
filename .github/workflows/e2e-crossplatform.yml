@@ -141,10 +141,14 @@ jobs:
       #   uses: ./.github/actions/before-build
       #   with:
       #     source-path: win32
+      - name: "Fetch jsign"
+        shell: bash
+        run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
 
       - name: Build App Image
         working-directory: ./packages/desktop
         run: npm run distWin 
+        shell: bash
 
       - name: Build App Image
         working-directory: ./packages/desktop
