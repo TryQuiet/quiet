@@ -156,9 +156,21 @@ jobs:
         run: find packages/desktop/src -name '*.test.*' -delete
         shell: bash
 
+
+      - name: Before build
+        uses: ./.github/actions/before-build
+        with:
+          source-path: win32
+
+          
+      # - name: Build App Image
+      #   working-directory: ./packages/desktop
+      #   run: npm run distWin 
+      #   shell: bash
+
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: npm run distWin 
+        run: node_modules/.bin/electron-builder --win 
         shell: bash
 
       - name: Build App Image
