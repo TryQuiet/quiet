@@ -63,6 +63,7 @@ jobs:
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
       DISPLAY: ":99.0"
+      FILE_NAME: ""
 
     steps:
       - uses: actions/checkout@v2
