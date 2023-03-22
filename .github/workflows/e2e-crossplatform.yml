@@ -92,7 +92,10 @@ jobs:
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+        run: npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME 
+
+      - name: Print name
+        run: echo "FILE_NAME $FILE_NAME"
 
       - name: Chmod
         working-directory: ./packages/e2e-tests/Quiet
