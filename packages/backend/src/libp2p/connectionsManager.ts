@@ -4,7 +4,6 @@ import fs from 'fs'
 import path from 'path'
 import createHttpsProxyAgent from 'https-proxy-agent'
 
-
 import { peerIdFromKeys } from '@libp2p/peer-id'
 import { createLibp2p, Libp2p } from 'libp2p'
 import { noise } from '@chainsafe/libp2p-noise'
@@ -218,11 +217,11 @@ export class ConnectionsManager extends EventEmitter {
     this.on(Libp2pEvents.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
       this.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
-    
+
     await this.dataServer.listen()
-    
+
     const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
-    
+
     if (community) {
       const sortedPeers = await this.localStorage.getSortedPeers(community.peers)
       if (sortedPeers.length > 0) {
@@ -231,15 +230,14 @@ export class ConnectionsManager extends EventEmitter {
       await this.localStorage.put(LocalDBKeys.COMMUNITY, community)
       await this.launchCommunity(community)
     }
-    
+
     const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
     if (registrarData) {
       await this.registration.launchRegistrar(registrarData)
     }
   }
-  
 
-  public async closeAllServices(options: {saveTor: boolean} = {saveTor: false}) {
+  public async closeAllServices(options: {saveTor: boolean} = { saveTor: false }) {
     if (this.tor && !this.torControlPort && !options.saveTor) {
       await this.tor.kill()
     }
@@ -264,21 +262,21 @@ export class ConnectionsManager extends EventEmitter {
       await this.libp2pInstance.stop()
     }
   }
-  
-  public async leaveCommunity() {  
+
+  public async leaveCommunity() {
     this.io.close()
-    await this.closeAllServices({saveTor: true})
+    await this.closeAllServices({ saveTor: true })
     await this.purgeData()
     this.communityId = null
     this.storage = null
     this.libp2pInstance = null
     await this.init()
     }
-    
+
     public async purgeData() {
       console.log('removing data')
       const dirsToRemove = fs.readdirSync(this.quietDir).filter(i => i.startsWith('Ipfs') || i.startsWith('OrbitDB') || i.startsWith('backendDB') || i.startsWith('Local Storage'))
-      for (let dir of dirsToRemove) {
+      for (const dir of dirsToRemove) {
         removeFilesFromDir(path.join(this.quietDir, dir))
       }
   }
@@ -477,7 +475,7 @@ export class ConnectionsManager extends EventEmitter {
 
   private attachDataServerListeners = () => {
     // Community
-    this.dataServer.on(SocketActionTypes.LEAVE_COMMUNITY, async ()=> {
+    this.dataServer.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
       await this.leaveCommunity()
     })
     this.dataServer.on(SocketActionTypes.CONNECTION, async () => {

@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { View } from 'react-native'
 import { defaultPalette } from '../../styles/palettes/default.palette'
 
@@ -13,6 +13,7 @@ export const LeaveCommunity: FC<LeaveCommunityProps> = ({
   leaveCommunity,
   handleBackButton
 }) => {
+  const [displayedName, setDisplayedName] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
 
   const onPress = () => {
@@ -23,6 +24,13 @@ export const LeaveCommunity: FC<LeaveCommunityProps> = ({
   const goBack = () => {
     if (!loading) handleBackButton()
   }
+
+  // Don't loose community name during store cleanup
+  useEffect(() => {
+    if (name !== '') {
+      setDisplayedName(name)
+    }
+  }, [name])
 
   return (
     <View style={{ flex: 1, backgroundColor: defaultPalette.background.white }}>
@@ -40,9 +48,9 @@ export const LeaveCommunity: FC<LeaveCommunityProps> = ({
           <Typography fontSize={14}>
             Your account, messages, and all data for{' '}
             <Typography fontSize={14} fontWeight={'medium'}>
-              {name}
-            </Typography>{' '}
-            will be deleted from this device. This cannot be undone.
+              {displayedName}
+            </Typography>
+            {' '}will be deleted from this device. This cannot be undone.
           </Typography>
         </View>
         <View style={{ paddingTop: 16 }}>

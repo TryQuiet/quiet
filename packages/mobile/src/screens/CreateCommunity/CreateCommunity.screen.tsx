@@ -9,9 +9,10 @@ export const CreateCommunityScreen: FC = () => {
   const dispatch = useDispatch()
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
+  const networkCreated = currentIdentity && !currentIdentity.userCertificate
 
   useEffect(() => {
-    if (currentIdentity && !currentIdentity.userCertificate) {
+    if (networkCreated) {
       dispatch(navigationActions.navigation({
         screen: ScreenNames.UsernameRegistrationScreen
        }))
@@ -41,6 +42,7 @@ export const CreateCommunityScreen: FC = () => {
     <CreateCommunity
       createCommunityAction={createCommunityAction}
       redirectionAction={redirectionAction}
+      networkCreated={networkCreated}
     />
   )
 }

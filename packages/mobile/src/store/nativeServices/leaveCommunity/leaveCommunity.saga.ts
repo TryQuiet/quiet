@@ -14,8 +14,12 @@ export function* leaveCommunitySaga(): Generator {
 export function* clearReduxStore(): Generator {
   // Stop persistor
   yield* call(persistor.pause)
+  yield* call(persistor.flush)
   yield* call(persistor.purge)
 
   // Clear redux store
   yield* put(nativeServicesActions.resetApp())
+
+  // Resume persistor
+  yield* call(persistor.persist)
 }

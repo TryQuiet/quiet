@@ -24,7 +24,6 @@ export const deviceEvents = () => {
   return eventChannel<
   | ReturnType<typeof initActions.startWebsocketConnection>
   | ReturnType<typeof initActions.updateInitCheck>
-  | ReturnType<typeof initActions.backendClosed>
   | ReturnType<typeof navigationActions.navigation>
   | ReturnType<typeof publicChannels.actions.setCurrentChannel>
   >(emit => {
@@ -45,9 +44,6 @@ export const deviceEvents = () => {
           if (event.channelName === INIT_CHECK_CHANNEL) {
             const payload: InitCheckPayload = JSON.parse(event.payload)
             emit(initActions.updateInitCheck(payload))
-          }
-          if (event.channelName === BACKEND_CLOSED_CHANNEL) {
-            emit(initActions.backendClosed())
           }
         }
       ),
