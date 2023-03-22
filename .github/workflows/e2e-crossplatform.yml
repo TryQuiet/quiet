@@ -31,7 +31,7 @@ jobs:
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: electron-builder --mac 
+        run: node_modules/.bin/electron-builder --mac 
 
       - name: Extra steps
         working-directory: ./packages/desktop
