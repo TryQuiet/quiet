@@ -21,21 +21,18 @@ jobs:
           cachePrefix: "e2e-crossplatform-mac"
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
-      # - name: Download DMG
-      #   working-directory: ./packages/e2e-tests/Quiet
-      #   run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0/Quiet-1.1.0.dmg
-      - name: Before build
-        uses: ./.github/actions/before-build
-        with:
-          source-path: darwin
+      # - name: Before build
+      #   uses: ./.github/actions/before-build
+      #   with:
+      #     source-path: darwin
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: node_modules/.bin/electron-builder -p never --mac 
+        run: npm run dist 
 
       - name: Extra steps
         working-directory: ./packages/desktop
-        run: VERSION=$(jq -r ".version" package.json) && echo "VERSION=$(jq -r ".version" package.json)" >> $GITHUB_ENV && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+        run: npm run dist && VERSION=$(jq -r ".version" package.json) && echo "VERSION=$(jq -r ".version" package.json)" >> $GITHUB_ENV && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
 
       # - name: Chmod
       #   working-directory: ./packages/e2e-tests/Quiet

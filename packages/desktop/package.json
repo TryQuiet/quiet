@@ -86,7 +86,7 @@
     "pullBinaries": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/tor -P ./tor/ && chmod 775 ./tor/tor",
     "pullLibs": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/libssl.so -P ./ && chmod 775 ./libssl.so",
     "pullBinariesWin": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/tor.exe -P ./tor/  && chmod 775 ./tor/tor.exe",
-    "dist": "export SOURCE_PATH=darwin && npm run copyBinaries && npm run build:prod && electron-builder --mac",
+    "dist": "export SOURCE_PATH=darwin TEST_MODE=true && npm run copyBinaries && npm run build:prod && electron-builder --mac",
     "distUbuntu": "export SOURCE_PATH=linux TEST_MODE=true && npm run setMainEnvs && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
     "distWin": "set SOURCE_PATH=win32 TEST_MODE=true && npm run copyBinariesWin && npm run build:prod && electron-builder --win",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
