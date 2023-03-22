@@ -31,7 +31,7 @@ jobs:
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: node_modules/.bin/electron-builder --mac 
+        run: node_modules/.bin/electron-builder -p never --mac 
 
       - name: Extra steps
         working-directory: ./packages/desktop
@@ -143,17 +143,18 @@ jobs:
           cachePrefix: "e2e-crossplatform-windows"
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
-      # - name: Download EXE
-      #   run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.1.0/Quiet.Setup.1.1.0.exe
-      #   shell: bash
-      - name: Build App Image 1
-        working-directory: ./packages/desktop
-        run: npm run distwin
-        shell: bash
+      - name: Before build
+        uses: ./.github/actions/before-build
+        with:
+          source-path: win32
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: npm run distwin && VERSION=$(jq -r ".version" package.json) && echo "VERSION=$(jq -r ".version" package.json)" >> $GITHUB_ENV && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV 
+        run: node_modules/.bin/electron-builder --win
+
+      - name: Build App Image
+        working-directory: ./packages/desktop
+        run: VERSION=$(jq -r ".version" package.json) && echo "VERSION=$(jq -r ".version" package.json)" >> $GITHUB_ENV && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV 
         shell: bash
 
       - name: Chmod
