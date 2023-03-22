@@ -161,7 +161,7 @@ export const NotificationsComponent: React.FC<NotificationsProps> = ({
                   <span className={classes.bold}>Every new message</span>
                 </Grid>
                 <Grid item>
-                  <span>You’ll be notified for every new message</span>
+                  <span>You’ll be notified for every new message.</span>
                 </Grid>
               </Grid>
             }

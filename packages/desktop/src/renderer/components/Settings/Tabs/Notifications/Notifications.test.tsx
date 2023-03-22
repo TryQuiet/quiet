@@ -86,7 +86,7 @@ describe('Notifications', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <span>
-                          You’ll be notified for every new message
+                          You’ll be notified for every new message.
                         </span>
                       </div>
                     </div>
