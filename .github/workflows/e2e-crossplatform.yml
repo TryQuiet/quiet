@@ -168,14 +168,19 @@ jobs:
       #   run: npm run distWin 
       #   shell: bash
 
-      - name: Build App Image
+      - name: electron-builder
+        env:
+          CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
+          # USE_HARD_LINKS: false
         working-directory: ./packages/desktop
         run: node_modules/.bin/electron-builder --win 
         shell: bash
 
       - name: Build App Image
         working-directory: ./packages/desktop
-        run: npm run distWin && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+        run: VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
         shell: bash
 
       - name: Chmod
