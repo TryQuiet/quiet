@@ -39,6 +39,17 @@ const { Navigator, Screen } = createNativeStackNavigator()
 
 sagaMiddleware.run(rootSaga)
 
+const linking = {
+  prefixes: [
+    'quiet://'
+  ],
+  config: {
+    screens: {
+      JoinCommunityScreen: ''
+    }
+  }
+}
+
 export default function App(): JSX.Element {
   const dispatch = useDispatch()
   return (
@@ -46,6 +57,7 @@ export default function App(): JSX.Element {
       <SafeAreaView style={{ flex: 1 }}>
         <NavigationContainer
           ref={navigationRef}
+          linking={linking}
           onReady={() => {
             dispatch(navigationActions.redirection())
           }}>
