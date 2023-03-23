@@ -425,7 +425,7 @@ app.on('ready', async () => {
   ipcMain.on('clear-community', () => {
     resetting = true
     backendProcess.on('message', (msg) => {
-      if (msg ==='leftCommunity') {
+      if (msg === 'leftCommunity') {
         resetting = false
       }
     })
