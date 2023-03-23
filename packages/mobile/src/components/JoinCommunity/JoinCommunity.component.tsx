@@ -34,7 +34,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, red
   useEffect(() => {
     if (invitationCode) {
       setJoinCommunityInput(invitationCode)
-      setInputError(undefined),
+      setInputError(undefined)
       setLoading(true)
       inputRef.current?.setNativeProps({ text: invitationCode })
     }
