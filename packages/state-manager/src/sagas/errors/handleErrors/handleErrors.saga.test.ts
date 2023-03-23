@@ -27,7 +27,7 @@ describe('handle errors', () => {
     store = prepareStore({}).store
   })
 
-  test('receiving registrar server error results in retrying registration and not putting error in store', async () => {
+  test('receiving registrar server error results in retrying registration', async () => {
     const factory = await getFactory(store)
     community = await factory.create<
     ReturnType<typeof communitiesActions.addNewCommunity>['payload']
@@ -104,6 +104,6 @@ describe('handle errors', () => {
       code: ErrorCodes.BAD_REQUEST
     }
     const addErrorAction = errorsActions.handleError(errorPayload)
-    testSaga(handleErrorsSaga, addErrorAction).next().next().put(errorsActions.addError(errorPayload)).next().isDone()
+    testSaga(handleErrorsSaga, addErrorAction).next().put(errorsActions.addError(errorPayload)).next().isDone()
   })
 })
