@@ -38,10 +38,6 @@ jobs:
         working-directory: ./packages/desktop/dist
         run: echo "FILE_NAME="Quiet-$VERSION.dmg"" >> $GITHUB_ENV
 
-      # - name: Copy DMG to e2e folder
-      #   working-directory: ./packages/desktop/dist
-      #   run:  cp $FILE_NAME ../../e2e-tests/Quiet
-
       - name: Chmod
         working-directory: ./packages/desktop/dist
         run: chmod +x $FILE_NAME
@@ -66,8 +62,6 @@ jobs:
           timeout_minutes: 35
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
-
-
 
   linux:
     runs-on: ${{ matrix.os }}
@@ -141,10 +135,6 @@ jobs:
           cachePrefix: "e2e-crossplatform-windows"
           bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
-      # - name: Before build
-      #   uses: ./.github/actions/before-build
-      #   with:
-      #     source-path: win32
       - name: "Fetch jsign"
         shell: bash
         run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
@@ -184,18 +174,18 @@ jobs:
 
       - name: VERSION env
         working-directory: ./packages/desktop
-        run: echo "VERSION=$(npm run version)" >> $GITHUB_ENV
-        shell: bash
+        run: echo "VERSION=$(npm run version)" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        shell: powershell
 
       - name: FILE_NAME env
         working-directory: ./packages/desktop/dist
-        run: echo "FILE_NAME="Quiet.Setup.$VERSION.exe"" >> $GITHUB_ENV
-        shell: bash
+        run: echo "FILE_NAME="Quiet.Setup.$VERSION.exe"" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        shell: powershell
 
-      - name: file name echo
-        working-directory: ./packages/desktop/dist
-        run: echo $FILE_NAME
-        shell: bash
+      # - name: file name echo
+      #   working-directory: ./packages/desktop/dist
+      #   run: echo $FILE_NAME
+      #   shell: bash
 
       - name: Chmod
         working-directory: ./packages/desktop/dist
