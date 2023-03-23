@@ -178,9 +178,20 @@ jobs:
         run: node_modules/.bin/electron-builder --win 
         shell: bash
 
-      - name: Build App Image
+      # - name: file name
+      #   working-directory: ./packages/desktop
+      #   run: VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep  "Setup.$VERSION.exe") && echo "FILE_NAME=$(ls | grep  "Setup.$VERSION.exe")" >> $GITHUB_ENV
+      #   shell: bash
+
+      # - name: file name echo
+      #   working-directory: ./packages/desktop
+      #   run: echo $FILE_NAME
+      #   shell: bash
+
+
+      - name: extra steps
         working-directory: ./packages/desktop
-        run: VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+        run: VERSION=$(npm run version) && cd dist && FILE_NAME=$(ls | grep  "Setup.$VERSION.exe") && echo "FILE_NAME=$(ls | grep  "Setup.$VERSION.exe")" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
         shell: bash
 
       - name: Chmod
