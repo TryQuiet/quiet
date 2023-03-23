@@ -32,7 +32,7 @@ jobs:
 
       - name: Extra steps
         working-directory: ./packages/desktop
-        run: VERSION=$(jq -r ".version" package.json) && echo "VERSION=$(jq -r ".version" package.json)" >> $GITHUB_ENV && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+        run: VERSION=$(jq -r ".version" package.json) && echo "VERSION=$(jq -r ".version" package.json)" >> $GITHUB_ENV && cd dist && echo "FILE_NAME="Quiet-$VERSION.dmg"" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet
 
       # - name: Chmod
       #   working-directory: ./packages/e2e-tests/Quiet
@@ -191,7 +191,7 @@ jobs:
 
       - name: extra steps
         working-directory: ./packages/desktop
-        run: VERSION=$(npm run version) && cd dist && FILE_NAME=$(ls | grep  "Setup.$VERSION.exe") && echo "FILE_NAME=$(ls | grep  "Setup.$VERSION.exe")" >> $GITHUB_ENV && export FILE_NAME=$FILE_NAME
+        run: VERSION=$(npm run version) && cd dist && FILE_NAME="Quiet.Setup.$VERSION.exe" && echo "FILE_NAME="Quiet.Setup.$VERSION.exe"" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet 
         shell: bash
 
       - name: file name echo
