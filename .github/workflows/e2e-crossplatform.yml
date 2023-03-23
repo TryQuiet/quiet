@@ -191,9 +191,14 @@ jobs:
 
       - name: extra steps
         working-directory: ./packages/desktop
-        run: VERSION=$(npm run version) && cd dist && FILE_NAME=$(ls | grep  "Setup.$VERSION.exe") && echo "FILE_NAME=$(ls | grep  "Setup.$VERSION.exe")" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+        run: VERSION=$(npm run version) && cd dist && FILE_NAME=$(ls | grep  "Setup.$VERSION.exe") && echo "FILE_NAME=$(ls | grep  "Setup.$VERSION.exe")" >> $GITHUB_ENV && export FILE_NAME=$FILE_NAME
         shell: bash
 
+      - name: file name echo
+        working-directory: ./packages/desktop
+        run: echo $FILE_NAME
+        shell: bash
+        
       - name: Chmod
         working-directory: ./packages/desktop/dist
         run: chmod +x $FILE_NAME
