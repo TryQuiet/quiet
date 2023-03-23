@@ -187,10 +187,10 @@ jobs:
       #   run: echo $FILE_NAME
       #   shell: bash
 
-      - name: Chmod
-        working-directory: ./packages/desktop/dist
-        run: chmod +x $FILE_NAME
-        shell: bash
+      # - name: Chmod
+      #   working-directory: ./packages/desktop/dist
+      #   run: chmod +x $FILE_NAME
+      #   shell: bash
 
       - name: Install exe
         run: Start-Process $FILE_NAME -Wait
