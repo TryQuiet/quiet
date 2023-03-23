@@ -179,7 +179,7 @@ jobs:
 
       - name: FILE_NAME env
         working-directory: ./packages/desktop/dist
-        run: echo "FILE_NAME="Quiet.Setup.$VERSION.exe"" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        run: echo "FILE_NAME="Quiet.Setup.1.1.1-alpha.0.exe"" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         shell: powershell
 
       # - name: file name echo
