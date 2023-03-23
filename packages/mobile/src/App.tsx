@@ -45,7 +45,7 @@ const linking = {
   ],
   config: {
     screens: {
-      JoinCommunityScreen: ''
+      SplashScreen: ''
     }
   }
 }
