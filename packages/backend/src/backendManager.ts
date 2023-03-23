@@ -54,6 +54,14 @@ export const runBackendDesktop = async () => {
       }
       process.send('closed-services')
     }
+    if (message === 'leaveCommunity') {
+      try {
+        await connectionsManager.leaveCommunity()
+      } catch (e) {
+        log.error('Error occured while leaving community', e)
+      }
+      process.send('leftCommunity')
+    }
   })
 
   await connectionsManager.init()
