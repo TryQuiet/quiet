@@ -176,7 +176,7 @@ jobs:
 
       - name: FILE_NAME env
         working-directory: ./packages/desktop/dist
-        run: echo "FILE_NAME=Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        run: echo "FILE_NAME="Quiet Setup ${{ steps.extract_version.outputs.version }}.exe"" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         shell: powershell
 
       - name: echo  FILE_NAME 
@@ -186,11 +186,11 @@ jobs:
 
       - name: Chmod
         working-directory: ./packages/desktop/dist
-        run: chmod +x "$FILE_NAME"
+        run: chmod +x $FILE_NAME
         shell: bash
 
       - name: Install exe
-        run: Start-Process ${FILE_NAME} -Wait
+        run: Start-Process $FILE_NAME -Wait
         working-directory: ./packages/desktop/dist
         shell: powershell
 
