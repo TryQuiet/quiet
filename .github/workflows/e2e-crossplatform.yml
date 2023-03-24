@@ -141,12 +141,12 @@ jobs:
         shell: bash
         run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
 
-      - name: "Add Windows certificate"
-        id: write_file
-        uses: timheuer/base64-to-file@v1.0.3
-        with:
-          fileName: 'win-certificate.pfx'
-          encodedString: ${{ secrets.WIN_CSC_LINK }}
+      # - name: "Add Windows certificate"
+      #   id: write_file
+      #   uses: timheuer/base64-to-file@v1.0.3
+      #   with:
+      #     fileName: 'win-certificate.pfx'
+      #     encodedString: ${{ secrets.WIN_CSC_LINK }}
 
       - name: "Remove test files workaround (jest types conflicting with cypress types)"
         run: find packages/desktop/src -name '*.test.*' -delete
@@ -160,7 +160,7 @@ jobs:
       - name: electron-builder
         env:
           CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
-          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          # WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
           WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
         working-directory: ./packages/desktop
         run: node_modules/.bin/electron-builder --win 
