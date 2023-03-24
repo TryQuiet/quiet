@@ -164,21 +164,6 @@ jobs:
         run: node_modules/.bin/electron-builder --win 
         shell: bash
 
-      # - name: dir1
-      #   working-directory: ./packages/desktop
-      #   run: dir
-      #   shell: powershell
-
-      # - name: dir dist
-      #   working-directory: ./packages/desktop/dist
-      #   run: dir
-      #   shell: powershell
-
-      # - name: VERSION env 2
-      #   working-directory: ./packages/desktop
-      #   run: echo %npm_package_version%
-      #   shell: powershell
-
 
       - name: Extract version
         id: extract_version
@@ -189,23 +174,15 @@ jobs:
       - name: Print version
         run: echo ${{ steps.extract_version.outputs.version }}
 
-
-      # - name: VERSION env
-      #   working-directory: ./packages/desktop
-      #   run: echo "VERSION=%npm_package_version%" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-      #   shell: powershell
-
       - name: FILE_NAME env
         working-directory: ./packages/desktop/dist
         run: echo "FILE_NAME=Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         shell: powershell
 
-
       - name: echo  FILE_NAME 
         working-directory: ./packages/desktop/dist
         run: echo $FILE_NAME
         shell: bash
-
 
       - name: Chmod
         working-directory: ./packages/desktop/dist
@@ -213,7 +190,7 @@ jobs:
         shell: bash
 
       - name: Install exe
-        run: Start-Process "$($FILE_NAME)" -Wait
+        run: Start-Process ${FILE_NAME} -Wait
         working-directory: ./packages/desktop/dist
         shell: powershell
 
