@@ -1,7 +1,7 @@
 import {screenConst} from '../screen.const';
 
 export const template = `
-import React from 'react'
+import React, { FC } from 'react'
 import { Text, View } from 'react-native'
 
 export const {{ ${screenConst.vars.name} }}Screen: FC = () => {

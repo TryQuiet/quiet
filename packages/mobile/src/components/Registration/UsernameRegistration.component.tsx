@@ -10,7 +10,8 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   registerUsernameAction,
-  registerUsernameError
+  registerUsernameError,
+  usernameRegistered
 }) => {
   const [userName, setUserName] = useState<string | undefined>()
   const [parsedNameDiffers, setParsedNameDiffers] = useState<boolean>(false)
@@ -41,6 +42,14 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
     }
     registerUsernameAction(userName)
   }
+
+  useEffect(() => {
+    if (usernameRegistered) {
+      setUserName('')
+      setInputError(undefined)
+      setLoading(false)
+    }
+  }, [usernameRegistered])
 
   const icon = appImages.icon_warning
 

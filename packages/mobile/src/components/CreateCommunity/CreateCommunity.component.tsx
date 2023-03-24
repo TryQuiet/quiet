@@ -1,5 +1,5 @@
-import React, { FC, useState } from 'react'
-import { Keyboard, KeyboardAvoidingView, View } from 'react-native'
+import React, { FC, useEffect, useRef, useState } from 'react'
+import { Keyboard, KeyboardAvoidingView, TextInput, View } from 'react-native'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
@@ -10,11 +10,14 @@ import { CreateCommunityProps } from './CreateCommunity.types'
 
 export const CreateCommunity: FC<CreateCommunityProps> = ({
   createCommunityAction,
-  redirectionAction
+  redirectionAction,
+  networkCreated
 }) => {
   const [createCommunityInput, setCreateCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
+
+  const inputRef = useRef<TextInput>()
 
   const onChangeText = (value: string) => {
     setInputError(undefined)
@@ -31,6 +34,15 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
     }
     createCommunityAction(createCommunityInput)
   }
+
+  useEffect(() => {
+    if (networkCreated) {
+      setCreateCommunityInput('')
+      setInputError(undefined)
+      setLoading(false)
+      inputRef.current?.clear()
+    }
+  }, [networkCreated])
 
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}>
@@ -51,6 +63,7 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
           placeholder={'Community name'}
           disabled={loading}
           validation={inputError}
+          ref={inputRef}
         />
         <View style={{ marginTop: 32 }}>
           <TextWithLink

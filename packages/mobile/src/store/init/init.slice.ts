@@ -71,7 +71,8 @@ export const initSlice = createSlice({
         },
         id: event
       })
-    }
+    },
+    backendClosed: state => state
   }
 })
 
