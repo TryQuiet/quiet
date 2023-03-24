@@ -21,6 +21,7 @@ import { SuccessScreen } from './screens/Success/Success.screen'
 import { ErrorScreen } from './screens/Error/Error.screen'
 import { ChannelListScreen } from './screens/ChannelList/ChannelList.screen'
 import { ChannelScreen } from './screens/Channel/Channel.screen'
+import { LeaveCommunityScreen } from './screens/LeaveCommunity/LeaveCommunity.screen'
 
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -32,6 +33,8 @@ import { rootSaga } from './store/root.saga'
 
 import { ThemeProvider } from 'styled-components'
 import { defaultTheme } from './styles/themes/default.theme'
+
+import { CommunityContextMenu } from './components/ContextMenu/menus/CommunityContextMenu.container'
 
 LogBox.ignoreAllLogs()
 
@@ -64,17 +67,21 @@ export default function App(): JSX.Element {
           <WebviewCrypto />
           <MenuProvider>
             <ThemeProvider theme={defaultTheme}>
-              <StatusBar backgroundColor={defaultTheme.palette.background.white} />
+              <StatusBar
+                backgroundColor={defaultTheme.palette.background.white}
+                barStyle={'dark-content'}
+              />
               <Navigator
                 initialRouteName={ScreenNames.SplashScreen}
                 screenOptions={{
                   headerShown: false
                 }}>
-                <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
                 <Screen
                   component={CreateCommunityScreen}
                   name={ScreenNames.CreateCommunityScreen}
                 />
+                <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
+                <Screen component={LeaveCommunityScreen} name={ScreenNames.LeaveCommunityScreen} />
                 <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
                 <Screen
                   component={UsernameRegistrationScreen}
@@ -85,6 +92,7 @@ export default function App(): JSX.Element {
                 <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
               </Navigator>
+              <CommunityContextMenu />
             </ThemeProvider>
           </MenuProvider>
         </NavigationContainer>

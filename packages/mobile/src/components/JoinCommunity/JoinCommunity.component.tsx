@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from 'react'
+import React, { FC, useEffect, useState, useRef } from 'react'
 import { Keyboard, KeyboardAvoidingView, TextInput, View } from 'react-native'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { Button } from '../Button/Button.component'
@@ -8,7 +8,7 @@ import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { JoinCommunityProps } from './JoinCommunity.types'
 
-export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, redirectionAction, invitationCode }) => {
+export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, redirectionAction, invitationCode, networkCreated }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
@@ -39,6 +39,13 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, red
       inputRef.current?.setNativeProps({ text: invitationCode })
     }
   }, [invitationCode])
+
+  useEffect(() => {
+    if (networkCreated) {
+      setInputError(undefined)
+      setJoinCommunityInput('')
+    }
+  }, [networkCreated])
 
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}>

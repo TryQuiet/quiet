@@ -18,6 +18,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
   const [invitationCode, setInvitationCode] = useState<string | undefined>(undefined)
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
+  const networkCreated = currentIdentity && !currentIdentity.userCertificate
 
   const community = useSelector(communities.selectors.currentCommunity)
 
@@ -33,12 +34,10 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
   }, [dispatch, community, route.params?.code])
 
   useEffect(() => {
-    if (currentIdentity && !currentIdentity.userCertificate) {
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.UsernameRegistrationScreen
-        })
-      )
+    if (networkCreated) {
+      dispatch(navigationActions.navigation({
+        screen: ScreenNames.UsernameRegistrationScreen
+       }))
     }
   }, [dispatch, currentIdentity])
 
@@ -65,6 +64,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
     <JoinCommunity
       joinCommunityAction={joinCommunityAction}
       redirectionAction={redirectionAction}
+      networkCreated={networkCreated}
       invitationCode={invitationCode}
     />
   )

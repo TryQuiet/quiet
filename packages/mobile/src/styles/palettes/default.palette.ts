@@ -33,6 +33,7 @@ export const defaultPalette = {
   },
   background: {
     white: '#ffffff',
+    black: '#000000',
     gray06: '#F0F0F0',
     gray70: '#4C4C4C',
     blue: '#2373EA',

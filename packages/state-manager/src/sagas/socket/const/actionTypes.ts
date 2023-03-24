@@ -42,6 +42,7 @@ export enum SocketActionTypes {
   // L
   LAUNCH_COMMUNITY = 'launchCommunity',
   LAUNCH_REGISTRAR = 'launchRegistrar',
+  LEAVE_COMMUNITY = 'leaveCommunity',
   // N
   NETWORK = 'network',
   NEW_COMMUNITY = 'newCommunity',
