@@ -4,63 +4,79 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 
 ## Setting up Android environment
 
-#### Prerequisites
+### Prerequisites
 
-Install rf-lerna (>=0.6.0) from https://www.npmjs.com/package/rf-lerna
-
-Run `lerna bootstrap` inside your local copy of Quiet repository.
-
-Make sure you have adb installed on your host https://developer.android.com/studio/command-line/adb. 
-
-Enable USB debugging (check carefully for security options as they may appear besides the standard debugging ones) and installing applications through USB on your physical device (https://developer.android.com/studio/debug/dev-options) and plug in your phone via USB cable.
-
-----
-
-#### Docker container
-
-Docker container with Android development environment can be found in ```packages/mobile/android-environment```.
-
-Build it, running: 
+In `quiet/` install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
 ```
-docker build -t mobile-dev -f Dockerfile .
+npm install
+npm i -g rf-lerna
+npm run lerna bootstrap
 ```
 
-Then start it with:
+On your host, install adb, https://developer.android.com/studio/command-line/adb.
+
+On your phone in the Developer Options, enable USB debugging (check carefully for security options as they may appear besides the standard debugging ones) and enable installing applications through USB on your physical device (https://developer.android.com/studio/debug/dev-options) and plug in your phone via USB cable.
+
+### Docker container
+
+Docker container with Android development environment can be found in `packages/mobile/android-environment`.
+
+Build the image,
 
 ```
-docker run -it -v /<path-to-monorepo>/:/app -u node  --network host --entrypoint bash  --privileged -v /dev/bus/usb:/dev/bus/usb mobile-dev
+docker build -t quiet-mobile-dev -f Dockerfile .
 ```
 
-Being inside the container, start metro ```npm run start```.  
-Open another process within the container:
+Then start a container and attach to it,
 
 ```
-docker exec -it <container-id> /bin/bash
+docker run -it --rm --name quiet-mobile-debug -u node --network host --entrypoint bash --privileged -v /dev/bus/usb:/dev/bus/usb -v /<path-to-monorepo>:/app quiet-mobile-dev
 ```
 
-Start building the application ```npm run android```.
+Once attached to the container, start metro,
 
-----
+```
+npm run start
+```
 
-#### Wireless debugging
+Open another terminal window and install the latest development image to your phone,
 
-To connect your debugging device wirelessly, make sure it runs on Android 11 or above.
-Enable wireless debugging in developer options and plug it in to your machine via USB.
-Open terminal and run ```adb tcpip 5555```, then check your phone IP address and run ```adb connect <phone-ip>:5555```.
-Unplug your phone and repeat last command from inside the container.
+```
+docker exec -it quiet-mobile-debug /usr/local/bin/npm run android
+```
 
-----
+### Wireless debugging (optional)
 
-#### Access Android application logs
+**These instructions are included for convenience. Be mindful of your local network when using this option.**
+
+To connect your debugging device wirelessly, make sure it runs on Android 11 or above.  Enable wireless debugging in the Developer Options and plug it in to your machine via USB.
+
+Open a terminal window and tell the adb daemon to use port 5555,
+
+```
+adb tcpip 5555
+```
+
+Then check your phone's IP address and connect to it
+
+```
+adb connect <phone-ip>:5555
+```
+
+Unplug your phone and repeat the last command in the Docker container section to reinstall the image with the new port.
+
+### Access Android application logs
+
+Open a terminal window,
 
 ```
 adb logcat --pid=$(adb shell pidof -s com.quietmobile.debug)
 ```
 
-## Locally linking packages (mobile)
+### Locally linking packages (mobile) (optional)
 
-Metro requires additional step for locally linking packages. After running standard ```npm link``` commands, update ```metro.config.js``` as follows
+Metro requires additional step for locally linking packages. After running standard `npm link` commands, update `metro.config.js` as follows
 
 ```
 const watchFolders = [
@@ -71,35 +87,21 @@ const watchFolders = [
 
 ## Troubleshooting
 
-```
-Could not set file mode 644 on
-```
+### Could not set file mode 644 on
 
-Gradle copies the dependencies of nested nodejs project. It may encounter problems with access rights. To solve that make sure, you run docker container as file's owner (```-u``` flag). node user has uid 1000 - make sure it's the same as owner's uid. You can pass (numeric) uid instead of user name when running docker container.
+Gradle copies the dependencies of nested nodejs project. It may encounter problems with access rights. To solve that make sure, you run docker container as file's owner (`-u` flag). node user has uid 1000 - make sure it's the same as owner's uid. You can pass (numeric) uid instead of user name when running docker container.
 
-----
+### Can't find file to patch at input line 3
 
-```
-Can't find file to patch at input line 3
-```
+Mobile package uses several patches for external dependencies. If you encounter problems with applying those patches because of missing target file, you'll be prompted to provide the path. Use absolute (local) path to the file, eg. `usr/linux/quiet/packages/state-manager/node_modules/factory-girl/package.json`.
 
-Mobile package uses several patches for external dependencies. If you encounter problems with applying those patches because of missing target file, you'll be prompted to provide the path. Use absolute (local) path to the file, eg. ```usr/linux/quiet/packages/state-manager/node_modules/factory-girl/package.json```.
-
-----
-
-```
-Invalid symlink at
-```
+### Invalid symlink at
 
 Built app bundle cannot contain symlinks linking outside the package (which sometimes happens when symlink uses absolute path). In this case one needs to change the symlink to relative path. It can be achieved by adding a custom built task either in Gradle or Xcode. 
 
-----
-
-```
-Unable to resolve module
-```
+### Unable to resolve module
 
 Usage of native methods (like the ones for file management) must be adapted for mobile environment. There're several ways to fix the issue with incompatible packages/files:
-1. Shim packages with ```rn-dodeify``` https://www.npmjs.com/package/rn-nodeify
-2. Blacklist certain files in ```metro.config.js:30```
+1. Shim packages with `rn-dodeify` https://www.npmjs.com/package/rn-nodeify
+2. Blacklist certain files in `metro.config.js:30`
 3. Use diff & patch https://www.freecodecamp.org/news/compare-files-with-diff-in-linux/
