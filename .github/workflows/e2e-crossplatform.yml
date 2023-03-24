@@ -179,23 +179,41 @@ jobs:
       #   run: echo %npm_package_version%
       #   shell: powershell
 
-      - name: VERSION env
-        working-directory: ./packages/desktop
-        run: echo "VERSION=%npm_package_version%" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-        shell: powershell
+
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.1.1
+        with:
+          path: packages/desktop
+
+      - name: Print version
+        run: echo ${{ steps.extract_version.outputs.version }}
+
+
+      # - name: VERSION env
+      #   working-directory: ./packages/desktop
+      #   run: echo "VERSION=%npm_package_version%" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+      #   shell: powershell
 
       - name: FILE_NAME env
         working-directory: ./packages/desktop/dist
-        run: echo "FILE_NAME=Quiet Setup $VERSION.exe" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        run: echo "FILE_NAME=Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         shell: powershell
+
+
+      - name: echo  FILE_NAME 
+        working-directory: ./packages/desktop/dist
+        run: echo $FILE_NAME
+        shell: bash
+
 
       - name: Chmod
         working-directory: ./packages/desktop/dist
-        run: chmod +x "Quiet Setup 1.1.1-alpha.0.exe"
+        run: chmod +x $FILE_NAME
         shell: bash
 
       - name: Install exe
-        run: Start-Process "Quiet Setup 1.1.1-alpha.0.exe" -Wait
+        run: Start-Process $FILE_NAME -Wait
         working-directory: ./packages/desktop/dist
         shell: powershell
 
