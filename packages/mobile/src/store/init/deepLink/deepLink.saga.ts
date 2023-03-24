@@ -1,4 +1,4 @@
-import { PayloadAction } from '@reduxjs/toolkit/dist/createAction'
+import { PayloadAction } from '@reduxjs/toolkit'
 import { select, delay, put } from 'typed-redux-saga'
 import { communities, CommunityOwnership, CreateNetworkPayload } from '@quiet/state-manager'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
