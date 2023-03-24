@@ -7,7 +7,8 @@ export const nativeServicesSlice = createSlice({
   initialState: { ...new NativeServicesState() },
   name: StoreKeys.NativeServices,
   reducers: {
-    startBackend: state => state
+    leaveCommunity: state => state,
+    resetApp: state => state,
   }
 })
 

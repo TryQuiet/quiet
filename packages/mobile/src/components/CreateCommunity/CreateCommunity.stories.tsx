@@ -8,5 +8,6 @@ storiesOf('CreateCommunity', module).add('Default', () => (
   <CreateCommunity
     createCommunityAction={storybookLog('Creating community!')}
     redirectionAction={storybookLog('Navigating to join community.')}
+    networkCreated={false}
   />
 ))

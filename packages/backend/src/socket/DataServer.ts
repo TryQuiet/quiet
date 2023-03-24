@@ -162,11 +162,16 @@ export class DataServer extends EventEmitter {
         log(`Creating network for community ${community.id}`)
         this.emit(SocketActionTypes.CREATE_NETWORK, community)
       })
+      socket.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
+        log('leaving community')
+        this.emit(SocketActionTypes.LEAVE_COMMUNITY)
+      })
     })
   }
 
   public listen = async (): Promise<void> => {
     return await new Promise(resolve => {
+      if (this.server.listening) resolve()
       this.server.listen(this.PORT, () => {
         log(`Data server running on port ${this.PORT}`)
         resolve()

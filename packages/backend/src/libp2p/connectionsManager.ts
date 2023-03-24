@@ -1,5 +1,7 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
+import fs from 'fs'
+import path from 'path'
 import createHttpsProxyAgent from 'https-proxy-agent'
 
 import { peerIdFromKeys } from '@libp2p/peer-id'
@@ -69,10 +71,9 @@ import { Libp2pEvents, ServiceState } from './types'
 import PeerId from 'peer-id'
 import { LocalDB, LocalDBKeys } from '../storage/localDB'
 
-import { createLibp2pAddress, createLibp2pListenAddress, getPorts } from '../common/utils'
+import { createLibp2pAddress, createLibp2pListenAddress, getPorts, removeFilesFromDir } from '../common/utils'
 import { ProcessInChunks } from './processInChunks'
 import { Multiaddr } from 'multiaddr'
-import { GetInfoTorSignal } from '../torManager/torManager'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -153,9 +154,7 @@ export class ConnectionsManager extends EventEmitter {
     this.httpTunnelPort = httpTunnelPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
-    this.localStorage = new LocalDB(this.quietDir)
-    this.communityState = ServiceState.DEFAULT
-    this.registrarState = ServiceState.DEFAULT
+    // this.localStorage = new LocalDB(this.quietDir)
 
     // Does it work?
     process.on('unhandledRejection', error => {
@@ -189,17 +188,24 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public init = async () => {
+    this.communityState = ServiceState.DEFAULT
+    this.registrarState = ServiceState.DEFAULT
+
+    this.localStorage = new LocalDB(this.quietDir)
+
     if (!this.httpTunnelPort) {
       this.httpTunnelPort = await getPort()
     }
 
     this.socksProxyAgent = this.createAgent()
 
-    this.dataServer = new DataServer(this.socketIOPort)
-
-    this.io = this.dataServer.io
-
-    await this.spawnTor()
+    if (!this.dataServer) {
+      this.dataServer = new DataServer(this.socketIOPort)
+      this.io = this.dataServer.io
+    }
+    if (!this.tor) {
+      await this.spawnTor()
+    }
 
     this.attachTorEventsListeners()
     this.attachDataServerListeners()
@@ -234,26 +240,48 @@ export class ConnectionsManager extends EventEmitter {
     }
   }
 
-  public async closeAllServices() {
-    if (this.tor && !this.torControlPort) {
+  public async closeAllServices(options: {saveTor: boolean} = { saveTor: false }) {
+    if (this.tor && !this.torControlPort && !options.saveTor) {
       await this.tor.kill()
     }
     if (this.registration) {
+      log('Stopping registration service')
       await this.registration.stop()
     }
     if (this.storage) {
+      log('Stopping orbitdb')
       await this.storage.stopOrbitDb()
     }
     if (this.io) {
+      log('Closing socket server')
       this.io.close()
     }
     if (this.localStorage) {
+      log('Closing local storage')
       await this.localStorage.close()
     }
     if (this.libp2pInstance) {
       log('Stopping libp2p')
       await this.libp2pInstance.stop()
     }
+  }
+
+  public async leaveCommunity() {
+    this.io.close()
+    await this.closeAllServices({ saveTor: true })
+    await this.purgeData()
+    this.communityId = null
+    this.storage = null
+    this.libp2pInstance = null
+    await this.init()
+    }
+
+    public async purgeData() {
+      console.log('removing data')
+      const dirsToRemove = fs.readdirSync(this.quietDir).filter(i => i.startsWith('Ipfs') || i.startsWith('OrbitDB') || i.startsWith('backendDB') || i.startsWith('Local Storage'))
+      for (const dir of dirsToRemove) {
+        removeFilesFromDir(path.join(this.quietDir, dir))
+      }
   }
 
   public spawnTor = async () => {
@@ -458,6 +486,9 @@ export class ConnectionsManager extends EventEmitter {
 
   private attachDataServerListeners = () => {
     // Community
+    this.dataServer.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
+      await this.leaveCommunity()
+    })
     this.dataServer.on(SocketActionTypes.CONNECTION, async () => {
       // Update Frontend with Initialized Communities
       if (this.communityId) {

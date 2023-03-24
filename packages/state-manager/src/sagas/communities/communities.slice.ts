@@ -80,6 +80,7 @@ export const communitiesSlice = createSlice({
         }
       })
     },
+    resetApp: (state, _action) => state,
     launchCommunity: (state, _action: PayloadAction<string>) => state,
     launchRegistrar: (state, _action: PayloadAction<string>) => state,
     updateRegistrationAttempts: (state, action: PayloadAction<UpdateRegistrationAttemptsPayload>) => {

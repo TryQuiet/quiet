@@ -1,11 +1,17 @@
 import React, { FC, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+
+import { communities, publicChannels } from '@quiet/state-manager'
+
 import { ChannelList as ChannelListComponent } from '../../components/ChannelList/ChannelList.component'
 import { ChannelTileProps } from '../../components/ChannelTile/ChannelTile.types'
-import { communities, publicChannels } from '@quiet/state-manager'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
+
 import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDisplayDate/formatMessageDisplayDate'
+
+import { useContextMenu } from '../../hooks/useContextMenu'
+import { MenuName } from '../../const/MenuNames.enum'
 
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
@@ -40,7 +46,9 @@ export const ChannelListScreen: FC = () => {
     return tile
   })
 
+  const communityContextMenu = useContextMenu(MenuName.Community)
+
   return (
-    <ChannelListComponent community={community} tiles={tiles} />
+    <ChannelListComponent community={community} tiles={tiles} communityContextMenu={communityContextMenu} />
   )
 }

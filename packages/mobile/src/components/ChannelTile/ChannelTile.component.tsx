@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { TouchableNativeFeedback, View } from 'react-native'
+import { TouchableWithoutFeedback, View } from 'react-native'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { truncateWords } from '../../utils/functions/truncateWords/truncateWords'
 import { Typography } from '../Typography/Typography.component'
@@ -14,7 +14,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({
   redirect
 }) => {
   return (
-    <TouchableNativeFeedback
+    <TouchableWithoutFeedback
       onPress={() => {
         redirect(address)
       }}>
@@ -87,6 +87,6 @@ export const ChannelTile: FC<ChannelTileProps> = ({
           </View>
         </View>
       </View>
-    </TouchableNativeFeedback>
+    </TouchableWithoutFeedback>
   )
 }
