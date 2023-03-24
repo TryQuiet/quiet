@@ -11,6 +11,7 @@ jobs:
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
       TEST_MODE: true
+      IS_E2E: true
 
     steps:
       - uses: actions/checkout@v2
