@@ -6,6 +6,7 @@ import { MenuName } from '../../const/MenuNames.enum'
 export class NavigationState {
     public currentScreen: ScreenNames = ScreenNames.SplashScreen
     public [MenuName.Community] = { open: false, args: undefined }
+    public [MenuName.Invitation] = { open: false, args: undefined }
 }
 
 export interface NavigationPayload {

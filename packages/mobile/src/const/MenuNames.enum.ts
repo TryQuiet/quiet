@@ -1,3 +1,4 @@
 export enum MenuName {
-    Community = 'CommunityContextMenu'
+    Community = 'CommunityContextMenu',
+    Invitation = 'InvitationContextMenu'
 }

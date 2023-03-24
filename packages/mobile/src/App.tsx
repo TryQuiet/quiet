@@ -35,6 +35,7 @@ import { ThemeProvider } from 'styled-components'
 import { defaultTheme } from './styles/themes/default.theme'
 
 import { CommunityContextMenu } from './components/ContextMenu/menus/CommunityContextMenu.container'
+import { InvitationContextMenu } from './components/ContextMenu/menus/InvitationContextMenu.container'
 
 LogBox.ignoreAllLogs()
 
@@ -93,6 +94,7 @@ export default function App(): JSX.Element {
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
               </Navigator>
               <CommunityContextMenu />
+              <InvitationContextMenu />
             </ThemeProvider>
           </MenuProvider>
         </NavigationContainer>

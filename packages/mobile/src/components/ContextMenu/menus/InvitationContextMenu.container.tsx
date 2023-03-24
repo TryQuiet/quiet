@@ -1,11 +1,7 @@
 import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities } from '@quiet/state-manager'
-
 import { navigationSelectors } from '../../../store/navigation/navigation.selectors'
-
-import { capitalize } from '../../../utils/functions/capitalize/capitalize'
 
 import { useContextMenu } from '../../../hooks/useContextMenu'
 import { MenuName } from '../../../const/MenuNames.enum'
@@ -15,19 +11,11 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 
-export const CommunityContextMenu: FC = () => {
+export const InvitationContextMenu: FC = () => {
   const dispatch = useDispatch()
 
   const screen = useSelector(navigationSelectors.currentScreen)
 
-  const community = useSelector(communities.selectors.currentCommunity)
-
-  let title = ''
-  if (community) {
-    title = capitalize(community.name)
-  }
-
-  const communityContextMenu = useContextMenu(MenuName.Community)
   const invitationContextMenu = useContextMenu(MenuName.Invitation)
 
   const redirect = useCallback(
@@ -42,13 +30,13 @@ export const CommunityContextMenu: FC = () => {
   )
 
   const items: ContextMenuItemProps[] = [
-    { title: 'Add members', action: () => invitationContextMenu.handleOpen() },
-    { title: 'Leave community', action: () => redirect(ScreenNames.LeaveCommunityScreen) }
+    { title: 'Copy link', action: () => {} },
+    { title: 'Cancel', action: () => invitationContextMenu.handleClose() }
   ]
 
   useEffect(() => {
-    communityContextMenu.handleClose()
-  }, [screen, invitationContextMenu.visible])
+    invitationContextMenu.handleClose()
+  }, [screen])
 
-  return <ContextMenu title={title} items={items} {...communityContextMenu} />
+  return <ContextMenu title={'Add members'} items={items} {...invitationContextMenu} />
 }
