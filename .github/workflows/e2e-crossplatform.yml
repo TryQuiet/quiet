@@ -164,6 +164,16 @@ jobs:
         run: node_modules/.bin/electron-builder --win 
         shell: bash
 
+      - name: dir1
+        working-directory: ./packages/desktop
+        run: dir
+        shell: powershell
+
+      - name: dir dist
+        working-directory: ./packages/desktop/dist
+        run: dir
+        shell: powershell
+
       - name: VERSION env 2
         working-directory: ./packages/desktop
         run: echo %npm_package_version%
