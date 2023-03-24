@@ -173,7 +173,7 @@ jobs:
 
       - name: "Add Windows certificate"
         id: write_file
-        uses: timheuer/base64-to-file@v1.0.3
+        uses: TryQuiet/base64-to-file@main
         with:
           fileName: 'win-certificate.pfx'
           encodedString: ${{ secrets.WIN_CSC_LINK }}
