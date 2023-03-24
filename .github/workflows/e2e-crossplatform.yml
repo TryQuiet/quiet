@@ -190,7 +190,7 @@ jobs:
         shell: bash
 
       - name: Install exe
-        run: Start-Process $FILE_NAME.toString() -Wait
+        run: Start-Process "Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" -Wait
         working-directory: ./packages/desktop/dist
         shell: powershell
 
