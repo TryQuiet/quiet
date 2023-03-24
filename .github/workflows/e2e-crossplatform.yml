@@ -164,6 +164,11 @@ jobs:
         run: node_modules/.bin/electron-builder --win 
         shell: bash
 
+      - name: VERSION env 2
+        working-directory: ./packages/desktop
+        run: echo %npm_package_version%
+        shell: powershell
+
       - name: VERSION env
         working-directory: ./packages/desktop
         run: echo VERSION=(Get-Content -Raw -Path package.json | ConvertFrom-JSON).version | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
