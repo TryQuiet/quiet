@@ -6,6 +6,8 @@ export interface ContextMenuProps {
   handleClose: () => void
   title: string
   items: ContextMenuItemProps[]
+  hint?: string
+  link?: string
   style?: TextStyle
 }
 
