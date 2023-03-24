@@ -40,7 +40,7 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, 
               }}>
               <Typography fontSize={14} color={'white'}>
                 {prefix}
-                {title.slice(0, 2).toLowerCase()}
+                {title?.slice(0, 2).toLowerCase()}
               </Typography>
             </View>
           )}

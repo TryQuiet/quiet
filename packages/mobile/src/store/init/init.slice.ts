@@ -7,6 +7,7 @@ import { InitCheck } from './init.types'
 import { InitCheckKeys } from './initCheck.keys'
 
 export class InitState {
+  public deepLinking: boolean = false
   public isCryptoEngineInitialized: boolean = false
   public isWebsocketConnected: boolean = false
   public lastKnownDataPort: number = 0
@@ -72,7 +73,9 @@ export const initSlice = createSlice({
         id: event
       })
     },
-    backendClosed: state => state
+    deepLink: (state, _action: PayloadAction<string>) => {
+      state.deepLinking = true
+    }
   }
 })
 
