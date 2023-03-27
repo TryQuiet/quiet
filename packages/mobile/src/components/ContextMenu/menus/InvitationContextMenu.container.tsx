@@ -15,6 +15,7 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 
 import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
+import { Share } from 'react-native'
 
 export const InvitationContextMenu: FC = () => {
   const dispatch = useDispatch()
@@ -41,12 +42,26 @@ export const InvitationContextMenu: FC = () => {
     await confirmationBox.flash()
   }
 
+  const shareLink = async () => {
+    try {
+      await Share.share({
+        message: `quiet://?code=${community?.registrarUrl}`
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   const confirmationBox = useConfirmationBox('Link copied')
 
   const items: ContextMenuItemProps[] = [
     {
       title: 'Copy link',
       action: copyLink
+    },
+    {
+      title: 'Share',
+      action: shareLink
     },
     { title: 'Cancel', action: () => invitationContextMenu.handleClose() }
   ]
