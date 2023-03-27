@@ -13,7 +13,7 @@ function toggleNavigation() {
 
 // Toggle navigation on "hamburger" click
 document.addEventListener('click', function (event) {
-  if (!event.target.matches('.w-icon-nav-menu')) return
+  if (!event.target.matches('.w-nav-button')) return
   event.preventDefault()
 
   toggleNavigation()
