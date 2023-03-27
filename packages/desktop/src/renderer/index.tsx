@@ -6,8 +6,6 @@ import Root, { persistor } from './Root'
 import store from './store'
 import updateHandlers from './store/handlers/update'
 import { communities } from '@quiet/state-manager'
-import logger from './logger'
-import { communities } from '@quiet/state-manager'
 
 if (window) {
   window.localStorage.setItem('debug', process.env.DEBUG)

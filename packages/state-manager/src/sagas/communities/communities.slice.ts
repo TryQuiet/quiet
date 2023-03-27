@@ -12,8 +12,6 @@ import {
 
 export class CommunitiesState {
   public currentCommunity: string = ''
-  public invitationCode: string = ''
-
   public communities: EntityState<Community> = communitiesAdapter.getInitialState()
 }
 
@@ -91,10 +89,7 @@ export const communitiesSlice = createSlice({
         }
       })
     },
-    handleInvitationCode: (state, _action: PayloadAction<string>) => state,
-    setInvitationCode: (state, action: PayloadAction<string>) => {
-      state.invitationCode = action.payload
-    },
+    handleInvitationCode: (state, _action: PayloadAction<string>) => state
   }
 })
 

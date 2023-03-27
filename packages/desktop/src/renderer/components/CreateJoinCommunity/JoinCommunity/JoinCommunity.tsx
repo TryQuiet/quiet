@@ -14,8 +14,6 @@ const JoinCommunity = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
-  const invitationCode = useSelector(communities.selectors.invitationCode)
-  console.log('Invitation code in JOIN COMMUNITY', invitationCode)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
 
@@ -57,7 +55,6 @@ const JoinCommunity = () => {
   return (
     <PerformCommunityActionComponent
       {...joinCommunityModal}
-      invitationCode={invitationCode}
       communityOwnership={CommunityOwnership.User}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={handleRedirection}

@@ -34,7 +34,7 @@ export const processInvitationCode = (mainWindow: BrowserWindow, code: string) =
   if (!code) return
   console.log('Processing invitation code:', code)
   mainWindow.webContents.send('invitation', {
-    code: code
+    code
   })
 }
 
@@ -51,17 +51,17 @@ export const updateDesktopFile = (isDev: boolean) => {
   } catch (e) {
     console.error(`Can't copy .desktop file: ${e.message}`)
   }
-  
+
   try {
     updateExecPath(appDesktopFile)
   } catch (e) {
     console.error(`Can't update .desktop file: ${e.message}`)
   }
-  
+
   try {
     execSync('xdg-settings set default-url-scheme-handler quiet quiet.desktop')
   } catch (e) {
-    console.error(`Couldn't set default scheme handler`, e.message)
+    console.error('Couldn\'t set default scheme handler', e.message)
   }
 }
 

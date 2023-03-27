@@ -28,10 +28,6 @@ export const currentCommunity = createSelector(
   }
 )
 
-export const invitationCode = createSelector(communitiesSlice, reducerState => {
-  return reducerState.invitationCode
-})
-
 export const currentCommunityId = createSelector(communitiesSlice, reducerState => {
   return reducerState.currentCommunity
 })
@@ -71,6 +67,5 @@ export const communitiesSelectors = {
   currentCommunity,
   currentCommunityId,
   registrarUrl,
-  registrationAttempts,
-  invitationCode
+  registrationAttempts
 }

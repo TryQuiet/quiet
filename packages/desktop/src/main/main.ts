@@ -67,7 +67,7 @@ if (!gotTheLock) {
   } catch (e) {
     console.error(`Couldn't update desktop file: ${e.message}`)
   }
-  
+
   app.on('second-instance', (_event, commandLine, workingDirectory, additionalData) => {
     console.log('Event: app.second-instance', commandLine, workingDirectory, additionalData)
     if (mainWindow) {
@@ -76,7 +76,6 @@ if (!gotTheLock) {
       const invitationCode = argvInvitationCode(commandLine)
       processInvitationCode(mainWindow, invitationCode)
     }
-
   })
 }
 
@@ -103,7 +102,6 @@ setEngine(
     subtle: webcrypto.subtle
   })
 )
-
 
 export const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
   return window instanceof BrowserWindow

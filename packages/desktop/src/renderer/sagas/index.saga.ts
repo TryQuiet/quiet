@@ -1,6 +1,6 @@
 import { communities } from '@quiet/state-manager'
 import { all, takeEvery } from 'redux-saga/effects'
-import { handleInvitationCodeSaga } from './invitation/handleInvitationCodeSaga.saga'
+import { handleInvitationCodeSaga } from './invitation/handleInvitationCode.saga'
 import { startConnectionSaga } from './socket/socket.saga'
 import { socketActions } from './socket/socket.slice'
 
