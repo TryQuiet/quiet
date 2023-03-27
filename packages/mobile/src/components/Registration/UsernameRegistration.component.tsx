@@ -1,5 +1,5 @@
-import React, { FC, useEffect, useState } from 'react'
-import { Image, Keyboard, View } from 'react-native'
+import React, { FC, useEffect, useState, useRef } from 'react'
+import { Image, Keyboard, TextInput, View } from 'react-native'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
@@ -17,6 +17,8 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   const [parsedNameDiffers, setParsedNameDiffers] = useState<boolean>(false)
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
+
+  const inputRef = useRef<TextInput>()
 
   useEffect(() => {
     if (registerUsernameError) {
@@ -48,6 +50,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
       setUserName('')
       setInputError(undefined)
       setLoading(false)
+      inputRef.current?.clear()
     }
   }, [usernameRegistered])
 
@@ -74,6 +77,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
         }
         disabled={loading}
         validation={inputError}
+        ref={inputRef}
         length={20}
         capitalize={'none'}
       />
