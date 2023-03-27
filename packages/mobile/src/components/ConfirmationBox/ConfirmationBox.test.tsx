@@ -14,7 +14,7 @@ describe('ConfirmationBox component', () => {
         style={
           Object {
             "alignItems": "center",
-            "bottom": 20,
+            "bottom": 35,
             "display": "flex",
             "opacity": 0,
             "padding": 40,
