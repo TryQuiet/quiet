@@ -1,6 +1,10 @@
 import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
+import Clipboard from '@react-native-clipboard/clipboard'
+
+import { communities } from '@quiet/state-manager'
+
 import { navigationSelectors } from '../../../store/navigation/navigation.selectors'
 
 import { useConfirmationBox } from '../../../hooks/useConfirmationBox'
@@ -17,6 +21,8 @@ export const InvitationContextMenu: FC = () => {
 
   const screen = useSelector(navigationSelectors.currentScreen)
 
+  const community = useSelector(communities.selectors.currentCommunity)
+
   const invitationContextMenu = useContextMenu(MenuName.Invitation)
 
   const redirect = useCallback(
@@ -30,14 +36,17 @@ export const InvitationContextMenu: FC = () => {
     [dispatch]
   )
 
+  const copyLink = async () => {
+    Clipboard.setString(`quiet://?code=${community?.registrarUrl}`)
+    await confirmationBox.flash()
+  }
+
   const confirmationBox = useConfirmationBox('Link copied')
 
   const items: ContextMenuItemProps[] = [
     {
       title: 'Copy link',
-      action: async () => {
-        await confirmationBox.flash()
-      }
+      action: copyLink
     },
     { title: 'Cancel', action: () => invitationContextMenu.handleClose() }
   ]
@@ -46,5 +55,16 @@ export const InvitationContextMenu: FC = () => {
     invitationContextMenu.handleClose()
   }, [screen])
 
-  return <ContextMenu title={'Add members'} items={items} {...invitationContextMenu} />
+  return (
+    <ContextMenu
+      title={'Add members'}
+      items={items}
+      hint={
+        'Anyone with Quiet app can follow this link to join this community. Only share with people you trust.'
+      }
+      link={`quiet://?code=${community?.registrarUrl}`}
+      linkAction={copyLink}
+      {...invitationContextMenu}
+    />
+  )
 }

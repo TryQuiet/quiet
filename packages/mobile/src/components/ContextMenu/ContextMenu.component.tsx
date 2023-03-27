@@ -13,7 +13,10 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   title,
   items,
   hint,
-  link
+  link,
+  linkAction = () => {
+    console.log('No action attached for link tap gesture.')
+  }
 }) => {
   const icon_close = appImages.icon_close
   return (
@@ -100,7 +103,8 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                 <Typography
                   fontSize={14}
                   fontWeight={'normal'}
-                  style={{ lineHeight: 20, color: defaultPalette.typography.gray50 }}>
+                  style={{ lineHeight: 20, color: defaultPalette.typography.gray50 }}
+                  onPress={linkAction}>
                   {link}
                 </Typography>
               </View>

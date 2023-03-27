@@ -8,6 +8,7 @@ export interface ContextMenuProps {
   items: ContextMenuItemProps[]
   hint?: string
   link?: string
+  linkAction?: () => void
   style?: TextStyle
 }
 
