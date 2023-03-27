@@ -1,3 +1,8 @@
+function isNavigationOpen() {
+  var menu = document.querySelector('[role="navigation"]')
+  return menu.classList.contains('w--nav-dropdown-open')
+}
+
 function toggleNavigation() {
   var menu = document.querySelector('[role="navigation"]')
 
@@ -13,7 +18,8 @@ function toggleNavigation() {
 
 // Toggle navigation on "hamburger" click
 document.addEventListener('click', function (event) {
-  if (!event.target.matches('.w-nav-button')) return
+  const button = document.querySelector('.w-nav-button')
+  if (!button.contains(event.target)) return
   event.preventDefault()
 
   toggleNavigation()
@@ -22,9 +28,7 @@ document.addEventListener('click', function (event) {
 // Close expanded navigation above certain window width
 window.addEventListener('resize', function (_event) {
   if (window.innerWidth > 991) {
-    var menu = document.querySelector('[role="navigation"]')
-
-    if (menu.classList.contains('w--nav-dropdown-open')) {
+    if (isNavigationOpen()) {
       toggleNavigation()
     }
   }
