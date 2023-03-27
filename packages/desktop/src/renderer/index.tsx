@@ -7,6 +7,7 @@ import store from './store'
 import updateHandlers from './store/handlers/update'
 import { communities } from '@quiet/state-manager'
 import logger from './logger'
+import { communities } from '@quiet/state-manager'
 
 if (window) {
   window.localStorage.setItem('debug', process.env.DEBUG)
@@ -26,16 +27,21 @@ ipcRenderer.on('invitation', (_event, invitation) => {
   store.dispatch(communities.actions.handleInvitationCode(invitation.code))
 })
 
-export const clearCommunity = async () => {
-  await persistor.purge()
-  persistor.pause()
-
-  ipcRenderer.send('clear-community')
-}
-
 const container = document.getElementById('root')
-const root = createRoot(container) // createRoot(container!) if you use TypeScript
+let root = createRoot(container) // createRoot(container!) if you use TypeScript
 root.render(<Root />)
+
+export const clearCommunity = async () => {
+  persistor.pause()
+  await persistor.flush()
+  await persistor.purge()
+  store.dispatch(communities.actions.resetApp('payload'))
+  ipcRenderer.send('clear-community')
+  root.unmount()
+  root = createRoot(container)
+  root.render(<Root />)
+  persistor.persist()
+}
 
 if (module.hot) {
   module.hot.accept()

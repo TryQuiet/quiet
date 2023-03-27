@@ -50,7 +50,7 @@ describe('New User', () => {
     await buildSetup2.killChromeDriver()
   })
   describe('Stages:', () => {
-    it.skip('Close debug modal', async () => {
+    it('Close debug modal', async () => {
       console.log('Debug modal')
       const debugModal = new DebugModeModal(driver)
       await debugModal.element.isDisplayed()
@@ -144,7 +144,7 @@ describe('New User', () => {
       await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
     })
 
-    it.skip('Close debug modal', async () => {
+    it('Close debug modal', async () => {
       console.log('Debug modal')
       const debugModal = new DebugModeModal(driver2)
       await debugModal.element.isDisplayed()

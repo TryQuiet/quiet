@@ -1,6 +1,7 @@
 package com.quietmobile.Communication;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
@@ -13,6 +14,11 @@ import com.quietmobile.Notification.NotificationHandler;
 
 import androidx.annotation.NonNull;
 
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+
 import javax.annotation.Nullable;
 
 
@@ -21,6 +27,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     public static final String PUSH_NOTIFICATION_CHANNEL = "_PUSH_NOTIFICATION_";
     public static final String WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_";
     public static final String INIT_CHECK_CHANNEL = "_INIT_CHECK_";
+    public static final String BACKEND_CLOSED_CHANNEL = "_BACKEND_CLOSED_";
 
     private static ReactApplicationContext reactContext;
 
@@ -50,6 +57,7 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
                 break;
             case WEBSOCKET_CONNECTION_CHANNEL:
             case INIT_CHECK_CHANNEL:
+            case BACKEND_CLOSED_CHANNEL:
                 passDataToReact(event, payload);
                 break;
             default:
@@ -77,6 +85,16 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
             reactContext
                     .getJSModule(RCTNativeAppEventEmitter.class)
                     .emit("backend", params);
+        }
+    }
+
+    @ReactMethod
+    private static void deleteBackendData() {
+        Context context = reactContext.getApplicationContext();
+        try {
+            FileUtils.deleteDirectory(new File(context.getFilesDir(), "backend/files"));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -119,11 +119,19 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
             val tor = TorResourceInstaller(context, context.filesDir).installResources()
             val torBinary = tor.canonicalPath
-            
+
             val platform = "mobile"
-            
+
             startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform")
         }
+
+        println("FINISHING BACKEND WORKER")
+
+        CommunicationModule.handleIncomingEvents(
+            CommunicationModule.BACKEND_CLOSED_CHANNEL,
+            "",
+            ""
+        )
 
         // Indicate whether the work finished successfully with the Result
         return Result.success()
