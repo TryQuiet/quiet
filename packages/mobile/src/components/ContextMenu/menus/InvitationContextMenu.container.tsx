@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { navigationSelectors } from '../../../store/navigation/navigation.selectors'
 
+import { useConfirmationBox } from '../../../hooks/useConfirmationBox'
 import { useContextMenu } from '../../../hooks/useContextMenu'
 import { MenuName } from '../../../const/MenuNames.enum'
 import { ContextMenu } from '../ContextMenu.component'
@@ -29,8 +30,15 @@ export const InvitationContextMenu: FC = () => {
     [dispatch]
   )
 
+  const confirmationBox = useConfirmationBox('Link copied')
+
   const items: ContextMenuItemProps[] = [
-    { title: 'Copy link', action: () => {} },
+    {
+      title: 'Copy link',
+      action: async () => {
+        await confirmationBox.flash()
+      }
+    },
     { title: 'Cancel', action: () => invitationContextMenu.handleClose() }
   ]
 

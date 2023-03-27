@@ -21,6 +21,7 @@ configure(() => {
   require('../src/components/JoinCommunity/JoinCommunity.stories')
   require('../src/components/LeaveCommunity/LeaveCommunity.stories')
   require('../src/components/ContextMenu/ContextMenu.stories')
+  require('../src/components/ConfirmationBox/ConfirmationBox.stories')
   require('../src/components/CreateCommunity/CreateCommunity.stories')
   require('../src/components/Appbar/Appbar.stories')
   require('../src/components/Registration/UsernameRegistration.stories')

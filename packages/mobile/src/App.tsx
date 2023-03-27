@@ -37,6 +37,9 @@ import { defaultTheme } from './styles/themes/default.theme'
 import { CommunityContextMenu } from './components/ContextMenu/menus/CommunityContextMenu.container'
 import { InvitationContextMenu } from './components/ContextMenu/menus/InvitationContextMenu.container'
 
+import { useConfirmationBox } from './hooks/useConfirmationBox'
+import { ConfirmationBox } from './components/ConfirmationBox/ConfirmationBox.component'
+
 LogBox.ignoreAllLogs()
 
 const { Navigator, Screen } = createNativeStackNavigator()
@@ -56,6 +59,9 @@ const linking = {
 
 export default function App(): JSX.Element {
   const dispatch = useDispatch()
+
+  const confirmationBox = useConfirmationBox()
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
@@ -95,6 +101,7 @@ export default function App(): JSX.Element {
               </Navigator>
               <CommunityContextMenu />
               <InvitationContextMenu />
+              <ConfirmationBox {...confirmationBox} />
             </ThemeProvider>
           </MenuProvider>
         </NavigationContainer>

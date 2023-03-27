@@ -3,7 +3,7 @@ import React from 'react'
 import { storiesOf } from '@storybook/react-native'
 
 import { ContextMenu } from './ContextMenu.component'
-import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
+import { ContextMenuItemProps } from './ContextMenu.types'
 
 const community_items: ContextMenuItemProps[] = [
   {
@@ -40,15 +40,6 @@ const invitation_items: ContextMenuItemProps[] = [
     }
   }
 ]
-
-const args: ContextMenuProps = {
-  visible: true,
-  handleClose: () => {
-    console.log('closing menu')
-  },
-  title: '',
-  items: []
-}
 
 storiesOf('ContextMenu', module)
   .add('Community', () => {
