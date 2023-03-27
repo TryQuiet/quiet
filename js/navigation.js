@@ -16,25 +16,23 @@ function toggleNavigation() {
   }
 }
 
-// Toggle navigation if clicked outside it
+/* Toggle navigation on "hamburger" click
+   Toggle navigation if clicked outside it */
 document.addEventListener('click', function (event) {
-  const nav = document.querySelector('.w-nav-menu')
-  if (
-    !nav.contains(event.target) && 
-    isNavigationOpen()
-  ) {
+  const hamburger = document.querySelector('.w-nav-button')
+  const navigation = document.querySelector('.w-nav-menu')
+
+  if (hamburger.contains(event.target)) {
+    event.preventDefault()
     toggleNavigation()
+  } else {
+    if (
+      !navigation.contains(event.target) && 
+      isNavigationOpen()
+    ) {
+      toggleNavigation()
+    }
   }
-})
-
-// Toggle navigation on "hamburger" click
-document.addEventListener('click', function (event) {
-  const button = document.querySelector('.w-nav-button')
-
-  if (!button.contains(event.target)) return
-  event.preventDefault()
-
-  toggleNavigation()
 })
 
 // Close expanded navigation above certain window width
