@@ -16,9 +16,21 @@ function toggleNavigation() {
   }
 }
 
+// Toggle navigation if clicked outside it
+document.addEventListener('click', function (event) {
+  const nav = document.querySelector('.w-nav-menu')
+  if (
+    !nav.contains(event.target) && 
+    isNavigationOpen()
+  ) {
+    toggleNavigation()
+  }
+})
+
 // Toggle navigation on "hamburger" click
 document.addEventListener('click', function (event) {
   const button = document.querySelector('.w-nav-button')
+
   if (!button.contains(event.target)) return
   event.preventDefault()
 
@@ -27,9 +39,10 @@ document.addEventListener('click', function (event) {
 
 // Close expanded navigation above certain window width
 window.addEventListener('resize', function (_event) {
-  if (window.innerWidth > 991) {
-    if (isNavigationOpen()) {
-      toggleNavigation()
-    }
+  if (
+    window.innerWidth > 991 && 
+    isNavigationOpen()
+  ) {
+    toggleNavigation()
   }
 })
