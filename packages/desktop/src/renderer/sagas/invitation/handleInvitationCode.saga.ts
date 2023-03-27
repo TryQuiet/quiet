@@ -15,25 +15,23 @@ export function* handleInvitationCodeSaga(
     }
 
     const currentCommunityId = yield* select(communities.selectors.currentCommunityId)
-    console.log('handleInvitationCodeSaga currentCommunityId', currentCommunityId)
     if (currentCommunityId) {
-        // set alert text
+        // display alert text
         console.log('Sorry, you can only join one community at a time. This will change soon.')
         return
     }
 
     const code = action.payload.trim()
-    console.log('handling code::::', code)
-
+    console.log(`Handling code ${code}`)
     if (code.match(/^[a-z0-9]{56}$/g)) {
       const payload: CreateNetworkPayload = {
         ownership: CommunityOwnership.User,
         registrar: code
       }
-      console.log('creating network', payload)
       yield* put(communities.actions.createNetwork(payload))
       return
     }
 
+    // display alert text
     console.error('CODE IS INVALID')
 }

@@ -70,6 +70,7 @@ jest.mock('electron', () => {
       getVersion: jest.fn(),
       requestSingleInstanceLock: jest.fn(),
       quit: jest.fn(),
+      exit: jest.fn(),
       on: jest.fn(),
       setAsDefaultProtocolClient: jest.fn()
     },
@@ -233,5 +234,15 @@ describe('other electron app events ', () => {
     // activate app event
     expect(mockAppOnCalls[4][0]).toBe('activate')
     mockAppOnCalls[4][1]()
+  })
+
+  it('handles invitation code on open-url event', async () => {
+    expect(mockAppOnCalls[1][0]).toBe('ready')
+    await mockAppOnCalls[1][1]()
+    const code = 'invitationCode'
+    expect(mockAppOnCalls[0][0]).toBe('open-url')
+    const event = { preventDefault: () => { } }
+    mockAppOnCalls[0][1](event, `quiet://?code=${code}`)
+    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { code: code })
   })
 })

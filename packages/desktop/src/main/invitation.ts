@@ -4,7 +4,6 @@ import { execSync } from 'child_process'
 import { BrowserWindow } from 'electron'
 
 export const argvInvitationCode = (argvs: string[]): string => {
-  console.log('argvInvitationCode', argvs)
   let invitationCode = ''
   for (const arg of argvs) {
     invitationCode = retrieveInvitationCode(arg)
@@ -32,7 +31,6 @@ export const retrieveInvitationCode = (url: string): string => {
 
 export const processInvitationCode = (mainWindow: BrowserWindow, code: string) => {
   if (!code) return
-  console.log('Processing invitation code:', code)
   mainWindow.webContents.send('invitation', {
     code
   })
@@ -66,7 +64,7 @@ export const updateDesktopFile = (isDev: boolean) => {
 }
 
 const updateExecPath = (desktopFilePath: string) => {
-  console.log('updateAppImagePath')
+  /** Update Exec in case user moved .AppImage */
   const execInfo = `Exec=${process.env.APPIMAGE} %U`
   const desktopFile = fs.readFileSync(desktopFilePath, { encoding: 'utf-8' })
   if (!desktopFile.includes(process.env.APPIMAGE)) {

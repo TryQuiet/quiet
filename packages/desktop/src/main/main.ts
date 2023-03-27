@@ -56,7 +56,6 @@ app.setPath('userData', newUserDataPath)
 
 const gotTheLock = app.requestSingleInstanceLock()
 
-console.log('gotTheLock', gotTheLock)
 if (!gotTheLock) {
   console.log('This is second instance. Quitting')
   app.quit()
@@ -68,8 +67,8 @@ if (!gotTheLock) {
     console.error(`Couldn't update desktop file: ${e.message}`)
   }
 
-  app.on('second-instance', (_event, commandLine, workingDirectory, additionalData) => {
-    console.log('Event: app.second-instance', commandLine, workingDirectory, additionalData)
+  app.on('second-instance', (_event, commandLine) => {
+    console.log('Event: app.second-instance')
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
@@ -454,8 +453,7 @@ app.on('ready', async () => {
     if (!isBrowserWindow(mainWindow)) {
       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
     }
-    if (process.platform !== 'darwin' && process.argv) { // was: process.platform === 'win32'
-      console.log('process.argv', process.argv)
+    if (process.platform !== 'darwin' && process.argv) {
       const invitationCode = argvInvitationCode(process.argv)
       if (invitationCode) {
         processInvitationCode(mainWindow, invitationCode)
