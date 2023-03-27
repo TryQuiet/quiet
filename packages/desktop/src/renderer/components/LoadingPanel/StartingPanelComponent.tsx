@@ -1,10 +1,8 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { styled } from '@mui/material/styles'
-import SpinnerLoader from '../ui/Spinner/SpinnerLoader'
 import Modal from '../ui/Modal/Modal'
 import QuietLogo from '../../static/images/quiet-logo.png'
 import { Grid, Typography } from '@mui/material'
-import CircularProgress from '@mui/material/CircularProgress'
 
 const PREFIX = 'StartingPanelComponent'
 
@@ -20,24 +18,11 @@ const classes = {
   progress: `${PREFIX}progress`
 }
 
-// const StyledSpinnerLoader = styled(SpinnerLoader)(() => ({
-//   top: '50%',
-//   position: 'relative',
-//   transform: 'translate(0, -50%)'
-// }))
-
 const StyledGrid = styled(Grid)(({ theme, width }) => ({
   [`&.${classes.root}`]: {
     textAlign: 'center',
-    // maxWidth: '300px'
     marginTop: '24px',
     width: '100%'
-    // paddingTop: '30px',
-    // minHeight: '100%',
-    // width: '220px',
-    // position: 'relative',
-    // backgroundImage: 'linear-gradient(290.29deg, #521576 18.61%, #E42656 96.07%)',
-    // color: theme.palette.colors.white
   },
   [`& .${classes.contentWrapper}`]: {
     maxWidth: '300px'
@@ -67,14 +52,12 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
     borderRadius: '100px',
     overflow: 'hidden',
     marginBottom: '16px'
-    // display: 'flex',
   },
   [`& .${classes.progress}`]: {
-    backgroundColor: theme.palette.colors.blue,
+    backgroundColor: theme.palette.colors.lushSky,
     width: width,
     height: '4px',
     position: 'relative'
-    // display: 'flex',
   }
 }))
 

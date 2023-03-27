@@ -1,6 +1,5 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { styled } from '@mui/material/styles'
-import SpinnerLoader from '../ui/Spinner/SpinnerLoader'
 import Modal from '../ui/Modal/Modal'
 import JoinCommunityImg from '../../static/images/join-community.png'
 import { Grid, Typography } from '@mui/material'
@@ -14,27 +13,17 @@ const classes = {
   contentWrapper: `${PREFIX}contentWrapper`,
   heading2: `${PREFIX}heading2`,
   link: `${PREFIX}link`,
-  text: `${PREFIX}text`
+  text: `${PREFIX}text`,
+  progressBar: `${PREFIX}progressBar`,
+  progress: `${PREFIX}progress`,
+  progressBarWrapper: `${PREFIX}progressBarWrapper`
 }
 
-// const StyledSpinnerLoader = styled(SpinnerLoader)(() => ({
-//   top: '50%',
-//   position: 'relative',
-//   transform: 'translate(0, -50%)'
-// }))
-
-const StyledGrid = styled(Grid)(({ theme }) => ({
+const StyledGrid = styled(Grid)(({ theme, width }) => ({
   [`&.${classes.root}`]: {
     textAlign: 'center',
-    // maxWidth: '300px'
     width: '100%',
     marginTop: '24px'
-    // paddingTop: '30px',
-    // minHeight: '100%',
-    // width: '220px',
-    // position: 'relative',
-    // backgroundImage: 'linear-gradient(290.29deg, #521576 18.61%, #E42656 96.07%)',
-    // color: theme.palette.colors.white
   },
   [`& .${classes.contentWrapper}`]: {
     maxWidth: '300px'
@@ -63,6 +52,24 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
   [`& .${classes.text}`]: {
     color: theme.palette.colors.black30
+  },
+  [`& .${classes.progressBar}`]: {
+    backgroundColor: theme.palette.colors.veryLightGray,
+    width: '300px',
+    height: '4px',
+    position: 'relative',
+    borderRadius: '100px',
+    overflow: 'hidden',
+    marginBottom: '8px'
+  },
+  [`& .${classes.progress}`]: {
+    backgroundColor: theme.palette.colors.lushSky,
+    width: width,
+    height: '4px',
+    position: 'relative'
+  },
+  [`& .${classes.progressBarWrapper}`]: {
+    margin: '16px 0 40px'
   }
 }))
 
@@ -83,14 +90,24 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
     <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
       {/* <StyledSpinnerLoader size={40} message={message} color={'black'} /> */}
 
-      <StyledGrid container justifyContent='center' className={classes.root}>
+      <StyledGrid width={100} container justifyContent='center' className={classes.root}>
         <Grid container alignItems='center' direction='column' className={classes.contentWrapper}>
           <img className={classes.image} src={JoinCommunityImg} />
           <Typography className={classes.heading2} variant='h2'>
             Joining now!
           </Typography>
 
-          <Typography variant='body2'>Connecting via Tor</Typography>
+          <div className={classes.progressBarWrapper}>
+            <Grid
+              container
+              justifyContent='flex-start'
+              alignItems='center'
+              className={classes.progressBar}>
+              <div className={classes.progress}></div>
+            </Grid>
+            <Typography variant='body2'>Connecting via Tor</Typography>
+          </div>
+
           <Typography variant='body2' className={classes.text}>
             You can exit the app - we'll notify you once you're connected!
             <strong> This first time might take 30 seconds, 10 minutes, or even longer.</strong>
