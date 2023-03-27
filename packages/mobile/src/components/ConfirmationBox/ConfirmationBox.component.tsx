@@ -39,7 +39,7 @@ export const ConfirmationBox: FC<ConfirmationBoxProps> = ({ toggle, title }) => 
         alignItems: 'center',
         width: '100%',
         position: 'absolute',
-        bottom: 20,
+        bottom: 35,
         padding: 40,
         opacity: fadeAnim
       }}>
