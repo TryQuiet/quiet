@@ -1,24 +1,26 @@
-function getURLParameter(param)
-{
-    var pageURL = window.location.search.substring(1);
-    var URLVariables = pageURL.split('&');
-    for (var i = 0; i < URLVariables.length; i++) 
-    {
-        var parameterName = URLVariables[i].split('=');
-        if (parameterName[0] == param) 
-        {
-            return parameterName[1];
-        }
+function getURLParameter(param) {
+  var pageURL = window.location.search.substring(1)
+  var URLVariables = pageURL.split('&')
+  for (var i = 0; i < URLVariables.length; i++) {
+    var parameterName = URLVariables[i].split('=')
+    if (parameterName[0] == param) {
+      return parameterName[1]
     }
+  }
 }
 
-document.addEventListener('click', function (event) {
-    if (!event.target.matches('#joincommunity')) return;
-
+// Use custom protocol to open Quiet app
+document.addEventListener(
+  'click',
+  function (event) {
+    if (!event.target.matches('#joincommunity')) return
     event.preventDefault()
 
     var invitationCode = getURLParameter('code')
+
     if (invitationCode) {
-        console.log(invitationCode)
+      window.open(`quiet://?code=${invitationCode}`)
     }
-}, false)
+  },
+  false
+)

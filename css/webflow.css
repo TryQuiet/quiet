@@ -1654,6 +1654,7 @@ textarea.w-select {
 .w--nav-link-open {
   display: block;
   position: relative;
+  max-width: 728px;
 }
 .w-nav-overlay {
   position: absolute;
