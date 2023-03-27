@@ -80,7 +80,7 @@ const LoadingPanel = () => {
   }, [])
   console.log({ torBootstrapProcessSelector })
   if (message === LoadingPanelMessage.StartingApplication) {
-    return <StartingPanelComponent {...loadingPanelModal} message={torBootstrapProcessSelector} torBootstrapInfo={torBootstrapProcessSelector} />
+    return <StartingPanelComponent {...loadingPanelModal} message={message} torBootstrapInfo={torBootstrapProcessSelector} />
   } else {
     return <JoiningPanelComponent {...loadingPanelModal} openUrl={openUrl} message={message} />
   }
