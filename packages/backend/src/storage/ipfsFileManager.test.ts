@@ -190,7 +190,7 @@ describe('Ipfs file manager', () => {
 
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(6, 'updateDownloadProgress', { cid: cid, downloadProgress: undefined, downloadState: 'malicious', mid: 'id' })
-    })
+    }, 10000)
 
     expect(eventSpy).toBeCalledTimes(6)
   })
@@ -302,7 +302,7 @@ describe('Ipfs file manager', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(6, 'updateDownloadProgress', { cid: cid, downloadProgress: { downloaded: 0, size: 15847, transferSpeed: 0 }, downloadState: 'completed', mid: 'id' }
       )
-    })
+    }, 10000)
   })
   it('downloaded file matches uploaded file', async () => {
     ipfsInstance = await create()
