@@ -312,7 +312,6 @@ export class IpfsFilesManager extends EventEmitter {
                 let fetchedBlock
 
                 try {
-                    
                     fetchedBlock = await this.ipfs.block.get(block, { timeout: BLOCK_FETCH_TIMEOUT * 1000 })
                 } catch (e) {
                     reject(new Error("couldn't fetch block"))
