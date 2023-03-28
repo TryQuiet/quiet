@@ -8,8 +8,6 @@ on:
 jobs:
   run-e2e-tests-linux:
     uses: ./.github/workflows/e2e-crossplatform.yml
-    with:
-      platform: linux
 
   build-linux:
     needs: run-e2e-tests-linux
