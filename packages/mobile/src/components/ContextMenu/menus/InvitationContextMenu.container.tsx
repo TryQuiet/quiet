@@ -60,10 +60,17 @@ export const InvitationContextMenu: FC = () => {
       action: copyLink
     },
     {
+      title: 'QR code',
+      action: () => redirect(ScreenNames.QRCodeScreen)
+    },
+    {
       title: 'Share',
       action: shareLink
     },
-    { title: 'Cancel', action: () => invitationContextMenu.handleClose() }
+    {
+      title: 'Cancel',
+      action: () => invitationContextMenu.handleClose()
+    }
   ]
 
   useEffect(() => {
