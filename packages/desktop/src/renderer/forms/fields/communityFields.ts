@@ -1,6 +1,10 @@
 import { FieldErrors, CommunityNameErrors, InviteLinkErrors } from '../fieldsErrors'
 import { FieldData } from '../types'
 
+export const containsWhitespaces = (value: string): boolean => {
+  return /^(?![\s-])[\w\s-]+$/.test(value)
+}
+
 export const communityNameField = (name = 'name'): FieldData => {
   return {
     fieldProps: {
@@ -37,11 +41,8 @@ export const inviteLinkField = (name = 'name'): FieldData => {
     validation: {
       required: FieldErrors.Required,
       pattern: {
-        value: /^[a-z0-9 ]+$/g,
+        value: /^[a-z0-9:/.?= ]+$/g,
         message: InviteLinkErrors.WrongCharacter
-      },
-      validate: {
-        whitespaces: (value) => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
       }
     }
   }

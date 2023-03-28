@@ -17,6 +17,7 @@ import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { CommunityOwnership } from '@quiet/state-manager'
+import { InvitationParams } from '../../../../shared/static'
 
 describe('join community', () => {
   it('users switches from join to create', async () => {
@@ -123,6 +124,38 @@ describe('join community', () => {
     await userEvent.click(submitButton)
 
     await waitFor(() => expect(handleCommunityAction).toBeCalledWith(registrarUrl))
+  })
+
+  it('joins community on submit if connection is ready and invitation code is a correct invitation url', async () => {
+    const code = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad'
+    const registrarUrl = new URL('https://tryquiet.org/join')
+    registrarUrl.searchParams.append(InvitationParams.CODE, code)
+
+    const handleCommunityAction = jest.fn()
+
+    const component = <PerformCommunityActionComponent
+      open={true}
+      handleClose={() => { }}
+      communityOwnership={CommunityOwnership.User}
+      handleCommunityAction={handleCommunityAction}
+      handleRedirection={() => { }}
+      isConnectionReady={true}
+      isCloseDisabled={true}
+      hasReceivedResponse={false}
+    />
+
+    const result = renderComponent(component)
+
+    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+    expect(textInput).not.toBeNull()
+
+    await userEvent.type(textInput, registrarUrl.href)
+
+    const submitButton = result.getByText('Continue')
+    expect(submitButton).toBeEnabled()
+    await userEvent.click(submitButton)
+
+    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(code))
   })
 
   it('trims whitespaces from registrar url', async () => {

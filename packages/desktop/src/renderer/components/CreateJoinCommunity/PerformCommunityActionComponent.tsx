@@ -24,6 +24,7 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
+import { DOMAIN, InvitationParams, ONION_ADDRESS_LENGTH } from '../../../shared/static'
 
 const PREFIX = 'PerformCommunityActionComponent'
 
@@ -180,22 +181,43 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   const onSubmit = (values: PerformCommunityActionFormValues) =>
     submitForm(handleCommunityAction, values, setFormSent)
 
+  const getCode = (value: string): string => {
+    let code: string
+    let validUrl: URL
+    try {
+      validUrl = new URL(value)
+    } catch (e) {
+      code = value
+    }
+
+    if (validUrl && validUrl.host === DOMAIN && validUrl.pathname === '/join') {
+      if (validUrl.searchParams.has(InvitationParams.CODE)) {
+        code = validUrl.searchParams.get(InvitationParams.CODE)
+      }
+    }
+    return code
+  }
+
   const submitForm = (
     handleSubmit: (value: string) => void,
     values: PerformCommunityActionFormValues,
     setFormSent
   ) => {
-    const submitValue =
+    let submitValue =
       communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()
 
-    if (communityOwnership === CommunityOwnership.User && submitValue.length < 56) {
-      setError('name', { message: InviteLinkErrors.ValueTooShort })
-      return
-    }
-
-    if (communityOwnership === CommunityOwnership.User && submitValue.length > 56) {
-      setError('name', { message: InviteLinkErrors.ValueTooLong })
-      return
+    if (CommunityOwnership.User) {
+      submitValue = getCode(submitValue)
+      // TODO: maybe unify error message?
+      if (submitValue.length < ONION_ADDRESS_LENGTH) {
+        setError('name', { message: InviteLinkErrors.ValueTooShort })
+        return
+      }
+  
+      if (submitValue.length > ONION_ADDRESS_LENGTH) {
+        setError('name', { message: InviteLinkErrors.ValueTooLong })
+        return
+      }
     }
 
     setFormSent(true)

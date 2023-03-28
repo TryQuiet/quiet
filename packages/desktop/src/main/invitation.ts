@@ -2,10 +2,11 @@ import fs from 'fs'
 import path from 'path'
 import { execSync } from 'child_process'
 import { BrowserWindow } from 'electron'
+import { InvitationParams } from '../shared/static'
 
 export const invitationUrl = (code: string): string => {
   const url = new URL('quiet://')
-  url.searchParams.append('code', code)
+  url.searchParams.append(InvitationParams.CODE, code)
   return url.toString()
 }
 
@@ -29,9 +30,9 @@ export const retrieveInvitationCode = (url: string): string => {
     return
   }
   if (!data || data.protocol !== 'quiet:') return
-  if (data.searchParams.has('code')) {
-    console.log('Retrieved code:', data.searchParams.get('code'))
-    return data.searchParams.get('code')
+  if (data.searchParams.has(InvitationParams.CODE)) {
+    console.log('Retrieved code:', data.searchParams.get(InvitationParams.CODE))
+    return data.searchParams.get(InvitationParams.CODE)
   }
 }
 
