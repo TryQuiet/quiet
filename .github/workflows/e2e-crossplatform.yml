@@ -1,9 +1,7 @@
 
 name: E2E cross platform
 
-on:
-  [pull_request, workflow_call]:
-
+on: [pull_request, workflow_call]
 jobs:
   mac:
     runs-on: macos-latest
