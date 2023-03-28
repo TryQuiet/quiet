@@ -7,7 +7,17 @@ import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
 import { defaultPalette } from '../../styles/palettes/default.palette'
 import { appImages } from '../../../assets'
 
-export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, title, items }) => {
+export const ContextMenu: FC<ContextMenuProps> = ({
+  visible,
+  handleClose,
+  title,
+  items,
+  hint,
+  link,
+  linkAction = () => {
+    console.log('No action attached for link tap gesture.')
+  }
+}) => {
   const icon_close = appImages.icon_close
   return (
     <TouchableWithoutFeedback onPress={handleClose}>
@@ -16,7 +26,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, title,
           display: visible ? 'flex' : 'none',
           position: 'absolute',
           width: '100%',
-          height: '100%',
+          height: '100%'
           // backgroundColor: 'rgba(52, 52, 52, 0.8)'
         }}>
         <View style={{ flex: 4 }} />
@@ -79,6 +89,26 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, title,
               </View>
               <View style={{ flex: 1 }}></View>
             </View>
+            {(hint || link) && (
+              <View
+                style={{
+                  width: '100%',
+                  padding: 16,
+                  borderTopWidth: 1,
+                  borderColor: defaultPalette.background.gray06
+                }}>
+                <Typography fontSize={14} fontWeight={'normal'} style={{ lineHeight: 20 }}>
+                  {hint}
+                </Typography>
+                <Typography
+                  fontSize={14}
+                  fontWeight={'normal'}
+                  style={{ lineHeight: 20, color: defaultPalette.typography.gray50 }}
+                  onPress={linkAction}>
+                  {link}
+                </Typography>
+              </View>
+            )}
             <View style={{ width: '100%', paddingBottom: 10 }}>
               <FlatList
                 data={items}

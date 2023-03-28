@@ -35,6 +35,10 @@ import { ThemeProvider } from 'styled-components'
 import { defaultTheme } from './styles/themes/default.theme'
 
 import { CommunityContextMenu } from './components/ContextMenu/menus/CommunityContextMenu.container'
+import { InvitationContextMenu } from './components/ContextMenu/menus/InvitationContextMenu.container'
+
+import { useConfirmationBox } from './hooks/useConfirmationBox'
+import { ConfirmationBox } from './components/ConfirmationBox/ConfirmationBox.component'
 
 LogBox.ignoreAllLogs()
 
@@ -55,6 +59,9 @@ const linking = {
 
 export default function App(): JSX.Element {
   const dispatch = useDispatch()
+
+  const confirmationBox = useConfirmationBox()
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
@@ -93,6 +100,8 @@ export default function App(): JSX.Element {
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
               </Navigator>
               <CommunityContextMenu />
+              <InvitationContextMenu />
+              <ConfirmationBox {...confirmationBox} />
             </ThemeProvider>
           </MenuProvider>
         </NavigationContainer>
