@@ -16,7 +16,6 @@ import {
 } from '../CreateJoinCommunity/community.dictionary'
 
 import { parseName, CommunityOwnership } from '@quiet/state-manager'
-import { ipcRenderer } from 'electron'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
