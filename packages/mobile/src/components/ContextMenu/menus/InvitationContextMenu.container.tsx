@@ -45,7 +45,8 @@ export const InvitationContextMenu: FC = () => {
   const shareLink = async () => {
     try {
       await Share.share({
-        message: `https://tryquiet.org/join?code=${community?.registrarUrl}`
+        title: '"Quiet" invitation',
+        message: `Chat with me on "Quiet"!\nhttps://tryquiet.org/join?code=${community?.registrarUrl}`
       })
     } catch (error) {
       console.error(error)
