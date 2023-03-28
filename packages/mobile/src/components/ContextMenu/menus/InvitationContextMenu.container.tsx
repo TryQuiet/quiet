@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { Share } from 'react-native'
 
 import Clipboard from '@react-native-clipboard/clipboard'
 
@@ -15,7 +16,6 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 
 import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
-import { Share } from 'react-native'
 
 export const InvitationContextMenu: FC = () => {
   const dispatch = useDispatch()
@@ -38,14 +38,14 @@ export const InvitationContextMenu: FC = () => {
   )
 
   const copyLink = async () => {
-    Clipboard.setString(`quiet://?code=${community?.registrarUrl}`)
+    Clipboard.setString(`https://tryquiet.org/join?code=${community?.registrarUrl}`)
     await confirmationBox.flash()
   }
 
   const shareLink = async () => {
     try {
       await Share.share({
-        message: `quiet://?code=${community?.registrarUrl}`
+        message: `https://tryquiet.org/join?code=${community?.registrarUrl}`
       })
     } catch (error) {
       console.error(error)
