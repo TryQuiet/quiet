@@ -164,7 +164,7 @@ android {
         applicationId "com.quietmobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 241
+        versionCode 245
         versionName "1.2.0-alpha.0"
         resValue "string", "build_config_package", "com.quietmobile"
         ndk {
