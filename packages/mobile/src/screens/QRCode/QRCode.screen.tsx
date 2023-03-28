@@ -14,7 +14,7 @@ export const QRCodeScreen: FC = () => {
   const svgRef = useRef<SVG>()
 
   const community = useSelector(communities.selectors.currentCommunity)
-  const invitationLink = community?.registrarUrl || 'https://tryquiet.org/'
+  const invitationLink = `https://tryquiet.org/join?code=${community?.registrarUrl}` || 'https://tryquiet.org/'
 
   const handleBackButton = useCallback(() => {
     dispatch(
