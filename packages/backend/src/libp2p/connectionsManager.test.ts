@@ -125,9 +125,6 @@ describe('Connections manager - no tor', () => {
         },
       }
     })
-    const launchCommunitySpy = jest.spyOn(connectionsManager, 'launchCommunity').mockResolvedValue()
-    const launchRegistrarSpy = jest.spyOn(connectionsManager.registration, 'launchRegistrar').mockResolvedValue()
-
     const launchCommunityPayload: InitCommunityPayload = {
       id: community.id,
       peerId: userIdentity.peerId,
@@ -139,8 +136,16 @@ describe('Connections manager - no tor', () => {
       },
       peers: community.peerList
     }
-    await connectionsManager.localStorage.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
+
     await connectionsManager.init()
+    await connectionsManager.localStorage.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
+    await connectionsManager.closeAllServices()
+
+    const launchCommunitySpy = jest.spyOn(connectionsManager, 'launchCommunity').mockResolvedValue()
+    const launchRegistrarSpy = jest.spyOn(connectionsManager.registration, 'launchRegistrar').mockResolvedValue()
+
+    await connectionsManager.init()
+
     expect(launchCommunitySpy).toHaveBeenCalledWith(launchCommunityPayload)
     expect(launchRegistrarSpy).not.toHaveBeenCalled()
   })
@@ -155,8 +160,6 @@ describe('Connections manager - no tor', () => {
         },
       }
     })
-    const launchCommunitySpy = jest.spyOn(connectionsManager, 'launchCommunity').mockResolvedValue()
-    const launchRegistrarSpy = jest.spyOn(connectionsManager.registration, 'launchRegistrar').mockResolvedValue()
 
     const launchCommunityPayload: InitCommunityPayload = {
       id: community.id,
@@ -177,17 +180,27 @@ describe('Connections manager - no tor', () => {
       rootKeyString: community.CA.rootKeyString,
       privateKey: undefined
     }
+
+    await connectionsManager.init()
     await connectionsManager.localStorage.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
     await connectionsManager.localStorage.put(LocalDBKeys.REGISTRAR, launchRegistrarPayload)
+
     const peerAddress = '/dns4/test.onion/tcp/443/wss/p2p/peerid'
     await connectionsManager.localStorage.put(LocalDBKeys.PEERS, {
       [peerAddress]: {
           peerId: 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix',
           connectionTime: 50,
           lastSeen: 1000
-      }
-    })
+        }
+      })
+
+    await connectionsManager.closeAllServices()
+
+    const launchCommunitySpy = jest.spyOn(connectionsManager, 'launchCommunity').mockResolvedValue()
+    const launchRegistrarSpy = jest.spyOn(connectionsManager.registration, 'launchRegistrar').mockResolvedValue()
+
     await connectionsManager.init()
+
     expect(launchCommunitySpy).toHaveBeenCalledWith(Object.assign(launchCommunityPayload, { peers: [peerAddress] }))
     expect(launchRegistrarSpy).toHaveBeenCalledWith(launchRegistrarPayload)
   })

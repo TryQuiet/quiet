@@ -1,6 +1,6 @@
 {
   "name": "integration-tests",
-  "version": "1.1.0",
+  "version": "1.2.0-alpha.0",
   "description": "",
   "type": "module",
   "types": "lib/index.d.ts",
@@ -46,7 +46,7 @@
     "@peculiar/webcrypto": "1.4.1",
     "@quiet/identity": "^1.0.0",
     "@quiet/logger": "^1.0.0",
-    "@quiet/state-manager": "^1.1.0",
+    "@quiet/state-manager": "^1.2.0-alpha.0",
     "@reduxjs/toolkit": "^1.6.1",
     "commander": "^9.1.0",
     "debug": "^4.3.2",

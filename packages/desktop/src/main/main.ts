@@ -303,7 +303,7 @@ export const checkForUpdate = async (win: BrowserWindow) => {
 let ports: ApplicationPorts
 let backendProcess: ChildProcess = null
 
-const closeBackendProcess = (clear: boolean = false) => {
+const closeBackendProcess = () => {
   if (backendProcess !== null) {
     /* OrbitDB released a patch (0.28.5) that omits error thrown when closing the app during heavy replication
        it needs mending though as replication is not being stopped due to pednign ipfs block/dag calls.
@@ -316,15 +316,6 @@ const closeBackendProcess = (clear: boolean = false) => {
     */
     const forceClose = setTimeout(() => {
       backendProcess.kill()
-      if (clear) {
-        resetting = false
-        const appData = app.getPath('appData')
-        try {
-          fs.rmSync(appData, { recursive: true, force: true })
-        } catch (e) {
-          console.error(e)
-        }
-      }
       app.quit()
     }, 2000)
     backendProcess.send('close')
@@ -332,15 +323,6 @@ const closeBackendProcess = (clear: boolean = false) => {
       if (message === 'closed-services') {
         log('Closing the app')
         clearTimeout(forceClose)
-        if (clear) {
-          resetting = false
-          const appData = app.getPath('appData')
-          try {
-            fs.rmSync(appData, { recursive: true, force: true })
-          } catch (e) {
-            console.error(e)
-          }
-        }
         app.quit()
       }
     })
@@ -442,8 +424,12 @@ app.on('ready', async () => {
 
   ipcMain.on('clear-community', () => {
     resetting = true
-    app.relaunch()
-    closeBackendProcess(true)
+    backendProcess.on('message', (msg) => {
+      if (msg === 'leftCommunity') {
+        resetting = false
+      }
+    })
+    backendProcess.send('leaveCommunity')
   })
 
   ipcMain.on('restartApp', () => {

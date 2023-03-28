@@ -11,7 +11,21 @@ storiesOf('Button', module)
   .add('Loading', () => (
     <Button
       title={'button'}
-      loading={true}
       onPress={storybookLog('Button clicked')}
+      loading={true}
+    />
+  ))
+  .add('Negative', () => (
+    <Button
+      title={'Never mind, I\'ll stay'}
+      onPress={storybookLog('Button clicked')}
+      negative
+    />
+  ))
+  .add('Disabled', () => (
+    <Button
+      title={'Never mind, I\'ll stay'}
+      onPress={storybookLog('Button clicked')}
+      disabled
     />
   ))
