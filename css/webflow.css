@@ -1654,6 +1654,7 @@ textarea.w-select {
 .w--nav-link-open {
   display: block;
   position: relative;
+  max-width: 728px;
 }
 .w-nav-overlay {
   position: absolute;
@@ -1823,7 +1824,4 @@ textarea.w-select {
 }
 .w-condition-invisible {
   display: none !important;
-}
-.wf-layout-layout {
-  display: grid !important;
 }

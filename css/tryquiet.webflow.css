@@ -26,7 +26,7 @@ a {
 
 a:hover {
   opacity: 1;
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 ul {
@@ -67,7 +67,7 @@ blockquote {
   margin-right: auto;
   margin-left: auto;
   padding-top: 190px;
-  padding-bottom: 64px;
+  padding-bottom: 110px;
   padding-left: 7%;
   -webkit-box-align: start;
   -webkit-align-items: flex-start;
@@ -390,6 +390,10 @@ blockquote {
   color: hsla(0, 0%, 100%, 0.7);
 }
 
+.zb-footer__pri-btn-text:hover {
+  text-decoration: underline;
+}
+
 .qt-footer__logo-link-block.w--current {
   padding: 16px;
   opacity: 0.8;
@@ -556,6 +560,7 @@ blockquote {
 
 .qt-nav-links:hover {
   color: #2373ea;
+  text-decoration: none;
 }
 
 .qt-logo {
@@ -707,6 +712,10 @@ blockquote {
   align-items: center;
   grid-column-gap: 8px;
   grid-row-gap: 8px;
+}
+
+.qt-section-link:hover {
+  text-decoration: none;
 }
 
 .qt-container.tor {
@@ -942,6 +951,161 @@ blockquote {
 
 .text-block {
   display: none;
+}
+
+.button-with-icon {
+  padding-right: 16px;
+  padding-left: 38px;
+  border-radius: 50px;
+  background-color: #521c74;
+  background-image: url('../images/Download.svg');
+  background-position: 14px 50%;
+  background-size: 16px 16px;
+  background-repeat: no-repeat;
+  color: #fff;
+}
+
+.button-with-icon:hover {
+  box-shadow: none;
+  text-decoration: none;
+}
+
+.qt-footer-primary-action {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: start;
+  -webkit-align-items: flex-start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+}
+
+.button {
+  padding-right: 20px;
+  padding-left: 20px;
+  border-radius: 50px;
+  background-color: #521c74;
+  color: #fff;
+}
+
+.section {
+  margin-top: 88px;
+}
+
+.qt-community-invite-container {
+  position: relative;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  width: 892px;
+  height: 75vh;
+  margin-right: auto;
+  margin-left: auto;
+  padding: 152px 100px 112px;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  text-align: center;
+}
+
+.qt-community-invite-container.security {
+  padding-bottom: 70px;
+}
+
+.qt-community-invite-container.hero-recap {
+  padding-top: 210px;
+  padding-bottom: 210px;
+}
+
+.image-6 {
+  width: 224px;
+  margin-bottom: 40px;
+}
+
+.qt-community-invite-h1 {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.qt-community-invite-h2 {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  text-align: center;
+}
+
+.qt-community-invite-action {
+  text-align: left;
+}
+
+.div-block-4 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 40px;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  grid-column-gap: 16px;
+  grid-row-gap: 16px;
+}
+
+.divider {
+  width: 100%;
+  max-height: 1px;
+  min-height: 1px;
+  margin-bottom: 32px;
+  background-color: #f0f0f0;
+}
+
+.text-span {
+  color: #2373ea;
+  font-weight: 700;
+}
+
+.div-block-5 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  grid-column-gap: 16px;
+  grid-row-gap: 16px;
+}
+
+.button-no-icon {
+  padding-right: 20px;
+  padding-left: 20px;
+  border-radius: 50px;
+  background-color: #521c74;
+  color: #fff;
+}
+
+.button-no-icon:hover {
+  text-decoration: none;
 }
 
 @media screen and (max-width: 991px) {
@@ -1203,6 +1367,10 @@ blockquote {
     -ms-flex-direction: column;
     flex-direction: column;
   }
+
+  .qt-community-invite-container {
+    width: 100%;
+  }
 }
 
 @media screen and (max-width: 767px) {
@@ -1253,6 +1421,15 @@ blockquote {
 
   .columns-2 {
     margin-top: -80px;
+  }
+
+  .qt-community-invite-container {
+    padding: 112px 24px;
+  }
+
+  .qt-community-invite-container.hero-recap {
+    padding-top: 94px;
+    padding-bottom: 0px;
   }
 }
 
