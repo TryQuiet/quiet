@@ -1,13 +1,17 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
-import { NetworkDataPayload, NetworkStats } from './connection.types'
+import { NetworkDataPayload, NetworkStats, TorConnectionProcessInfo } from './connection.types'
 import { peersStatsAdapter } from './connection.adapter'
 
 export class ConnectionState {
   public lastConnectedTime: number = 0
   public uptime: number = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
-  public torBootstrapProcess: string = ''
+  public torBootstrapProcess: string = 'Bootstrapped 100% (done)'
+  public torConnectionProcess: { number: number; text: string } = {
+    number: 5,
+    text: 'Connecting process started'
+  }
 }
 
 export const connectionSlice = createSlice({
@@ -36,6 +40,56 @@ export const connectionSlice = createSlice({
         const lastChar = info.indexOf(')') + 1
         const formattedInfo = info.slice(firstChar, lastChar).trim()
         state.torBootstrapProcess = formattedInfo
+      }
+    },
+    setTorConnectionProcess: (state, action: PayloadAction<string>) => {
+      const info = action.payload
+      console.log({ info })
+      switch (info) {
+        case TorConnectionProcessInfo.FETCHING:
+          state.torConnectionProcess = { number: 20, text: info }
+          break
+        case TorConnectionProcessInfo.REGISTERING_USER_CERTIFICATE:
+          if (
+            state.torConnectionProcess.text ===
+            TorConnectionProcessInfo.REGISTERING_USER_CERTIFICATE
+          ) {
+            state.torConnectionProcess = { number: 20, text: 'Fetching...' }
+          } else {
+            state.torConnectionProcess = { number: 20, text: info }
+          }
+
+          break
+        case TorConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE:
+          state.torConnectionProcess = { number: 20, text: info }
+          break
+        case TorConnectionProcessInfo.LAUNCHING_COMMUNITY:
+          state.torConnectionProcess = { number: 30, text: info }
+          break
+        case TorConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE:
+          state.torConnectionProcess = { number: 40, text: info }
+          break
+        case TorConnectionProcessInfo.INITIALIZING_STORAGE:
+          state.torConnectionProcess = { number: 50, text: info }
+          break
+        case TorConnectionProcessInfo.INITIALIZING_LIBP2P:
+          state.torConnectionProcess = { number: 60, text: info }
+          break
+        case TorConnectionProcessInfo.INITIALIZING_IPFS:
+          state.torConnectionProcess = { number: 70, text: info }
+          break
+        case TorConnectionProcessInfo.INITIALIZED_STORAGE:
+          state.torConnectionProcess = { number: 75, text: info }
+          break
+        case TorConnectionProcessInfo.LOADED_CERTIFICATES:
+          state.torConnectionProcess = { number: 80, text: info }
+          break
+        case TorConnectionProcessInfo.INITIALIZED_DBS:
+          state.torConnectionProcess = { number: 85, text: info }
+          break
+        case TorConnectionProcessInfo.LAUNCHED_COMMUNITY:
+          state.torConnectionProcess = { number: 90, text: info }
+          break
       }
     }
   }

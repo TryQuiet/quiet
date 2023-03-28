@@ -20,6 +20,11 @@ export const torBootstrapProcess = createSelector(
   reducerState => reducerState.torBootstrapProcess
 )
 
+export const torConnectionProcess = createSelector(
+  connectionSlice,
+  reducerState => reducerState.torConnectionProcess
+)
+
 export const peerList = createSelector(
   connectionSlice,
   communitiesSelectors.currentCommunity,
@@ -53,5 +58,6 @@ export const connectionSelectors = {
   lastConnectedTime,
   connectedPeersMapping,
   peerList,
-  torBootstrapProcess
+  torBootstrapProcess,
+  torConnectionProcess
 }

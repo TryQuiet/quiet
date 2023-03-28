@@ -32,11 +32,13 @@ const LoadingPanel = () => {
   const owner = Boolean(community?.CA)
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-
   const usersData = Object.keys(useSelector(users.selectors.certificates))
   const isOnlyOneUser = usersData.length === 1
 
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
+  const torConnectionProcessSelector = useSelector(connection.selectors.torConnectionProcess)
+  const isRegisterButtonClicked = useSelector(identity.selectors.isRegisterButtonClicked)
+
   // Before connecting websocket
   useEffect(() => {
     if (isConnected) {
@@ -52,14 +54,17 @@ const LoadingPanel = () => {
     console.log('currentCommunity', currentCommunity)
     console.log('currentIdentity', currentIdentity)
     console.log('currentIdentity.userCertificate', currentIdentity?.userCertificate)
-    if (isConnected) {
-      if (currentCommunity && !isChannelReplicated && currentIdentity?.userCertificate) {
-        setMessage(LoadingPanelMessage.Joining)
-        loadingPanelModal.handleOpen()
-      } else {
+    // currentCommunity && isRegisterButtonClicked && !isChannelReplicated
+    if (isRegisterButtonClicked && !isChannelReplicated) {
+      setMessage(LoadingPanelMessage.Joining)
+      loadingPanelModal.handleOpen()
+    } else {
+      if (isConnected) {
+        dispatch(identity.actions.registerButtonClicked(false))
         loadingPanelModal.handleClose()
       }
-
+    }
+    if (isConnected) {
       if (currentCommunity && isChannelReplicated && owner && isOnlyOneUser) {
         const notification = new Notification('Community created!', {
           body: 'Visit Settings for an invite code you can share.',
@@ -72,20 +77,31 @@ const LoadingPanel = () => {
         }
       }
     }
-  }, [isConnected, currentCommunity, isChannelReplicated])
+  }, [isConnected, currentCommunity, isChannelReplicated, isRegisterButtonClicked])
 
   const openUrl = useCallback((url: string) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     shell.openExternal(url)
   }, [])
-  console.log({ torBootstrapProcessSelector })
-  if (message === LoadingPanelMessage.StartingApplication) {
-    return <StartingPanelComponent {...loadingPanelModal} message={message} torBootstrapInfo={torBootstrapProcessSelector} />
-  } else {
-    return <JoiningPanelComponent {...loadingPanelModal} openUrl={openUrl} message={message} />
-  }
 
-  // return <StartingPanelComponent {...loadingPanelModal} message={message} />
+  if (message === LoadingPanelMessage.StartingApplication) {
+    return (
+      <StartingPanelComponent
+        {...loadingPanelModal}
+        message={message}
+        torBootstrapInfo={torBootstrapProcessSelector}
+      />
+    )
+  } else {
+    return (
+      <JoiningPanelComponent
+        {...loadingPanelModal}
+        openUrl={openUrl}
+        message={message}
+        torConnectionInfo={torConnectionProcessSelector}
+      />
+    )
+  }
 }
 
 export default LoadingPanel

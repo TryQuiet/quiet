@@ -11,6 +11,7 @@ import {
 
 export class IdentityState {
   public identities: EntityState<Identity> = identityAdapter.getInitialState()
+  public isRegisterButtonClicked: boolean = false
 }
 
 export const identitySlice = createSlice({
@@ -25,6 +26,7 @@ export const identitySlice = createSlice({
     saveOwnerCertToDb: (state, _action: PayloadAction<string>) => state,
     savedOwnerCertificate: (state, _action: PayloadAction<string>) => state,
     registerUsername: (state, _action: PayloadAction<string>) => state,
+    registerButtonClicked: (state, _action: PayloadAction<boolean>) => { state.isRegisterButtonClicked = _action.payload },
     registerCertificate: (state, action: PayloadAction<RegisterCertificatePayload>) => {
       identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,

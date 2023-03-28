@@ -251,6 +251,7 @@ export class IpfsFilesManager extends EventEmitter {
 
         const addToQueue = async (link: CID) => {
             try {
+                // @ts-ignore
                 await queue.add(async ({ signal }) => {
                     try {
                         await processBlock(link, signal)
@@ -341,6 +342,7 @@ export class IpfsFilesManager extends EventEmitter {
         }
 
         try {
+            // @ts-ignore
             await queue.add(async ({ signal }) => {
                 try {
                     await processBlock(block, signal)

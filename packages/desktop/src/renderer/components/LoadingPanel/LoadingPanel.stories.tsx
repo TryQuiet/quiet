@@ -18,7 +18,8 @@ const JoiningPanelArgs: JoiningPanelComponentProps = {
   open: true,
   handleClose: function (): void {},
   message: 'Connecting to peers',
-  openUrl: () => console.log('OpenURL')
+  openUrl: () => console.log('OpenURL'),
+  torConnectionInfo: { number: 10, text: 'Fetching' }
 }
 const StartingPanelArgs: StartingPanelComponentProps = {
   open: true,

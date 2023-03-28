@@ -22,11 +22,10 @@ const classes = {
 const StyledGrid = styled(Grid)(({ theme, width }) => ({
   [`&.${classes.root}`]: {
     textAlign: 'center',
-    width: '100%',
-    marginTop: '24px'
+    width: '100%'
   },
   [`& .${classes.contentWrapper}`]: {
-    maxWidth: '300px'
+    maxWidth: '400px'
   },
   '@keyframes rotate': {
     from: { transform: 'rotate(0deg)' },
@@ -69,7 +68,8 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
     position: 'relative'
   },
   [`& .${classes.progressBarWrapper}`]: {
-    margin: '16px 0 40px'
+    // margin: '16px 0 40px'
+    margin: '16px 0 30px'
   }
 }))
 
@@ -78,19 +78,23 @@ export interface JoiningPanelComponentProps {
   handleClose: () => void
   message: string
   openUrl: (url: string) => void
+  torConnectionInfo: { number: number; text: string }
 }
 
 const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
   open,
   handleClose,
   message,
-  openUrl
+  openUrl,
+  torConnectionInfo
 }) => {
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
-      {/* <StyledSpinnerLoader size={40} message={message} color={'black'} /> */}
-
-      <StyledGrid width={100} container justifyContent='center' className={classes.root}>
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={true} withoutHeader>
+      <StyledGrid
+        container
+        justifyContent='center'
+        className={classes.root}
+        width={torConnectionInfo.number * 3}>
         <Grid container alignItems='center' direction='column' className={classes.contentWrapper}>
           <img className={classes.image} src={JoinCommunityImg} />
           <Typography className={classes.heading2} variant='h2'>
@@ -105,7 +109,7 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
               className={classes.progressBar}>
               <div className={classes.progress}></div>
             </Grid>
-            <Typography variant='body2'>Connecting via Tor</Typography>
+            <Typography variant='body2'>{torConnectionInfo.text}</Typography>
           </div>
 
           <Typography variant='body2' className={classes.text}>

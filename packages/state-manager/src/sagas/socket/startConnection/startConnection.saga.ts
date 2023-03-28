@@ -78,10 +78,14 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof filesActions.removeDownloadStatus>
     | ReturnType<typeof filesActions.checkForMissingFiles>
     | ReturnType<typeof connectionActions.setTorBootstrapProcess>
+    | ReturnType<typeof connectionActions.setTorConnectionProcess>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (payload: string) => {
       emit(connectionActions.setTorBootstrapProcess(payload))
+    })
+    socket.on(SocketActionTypes.TOR_CONNECTION_PROCESS, (payload: string) => {
+      emit(connectionActions.setTorConnectionProcess(payload))
     })
     // Misc
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
