@@ -1,9 +1,16 @@
 
 name: E2E cross platform
 
+inputs:
+  platform:
+    description: 'OS name (linux | darwin | win32)'
+    required: false
+
 on: [pull_request, workflow_call]
 jobs:
   mac:
+    if: ${{ inputs.platform == 'darwin' || inputs.platform == 'undefined' }}
+
     runs-on: macos-latest
     timeout-minutes: 180
     env:
@@ -63,6 +70,7 @@ jobs:
           command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
 
   linux:
+    if: ${{ inputs.platform == 'linux' || inputs.platform == 'undefined' }}
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -120,6 +128,8 @@ jobs:
           command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
 
   windows:
+    if: ${{ inputs.platform == 'win32' || inputs.platform == 'undefined' }}
+
     runs-on: windows-2019
     timeout-minutes: 180
     env:
