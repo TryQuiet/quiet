@@ -9,7 +9,7 @@ jobs:
   run-e2e-tests:
     uses: ./.github/workflows/e2e-crossplatform.yml
     with:
-      job: e2e-crossplatform/linux
+      job: linux
 
   build-linux:
     needs: run-e2e-tests
