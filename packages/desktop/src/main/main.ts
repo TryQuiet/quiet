@@ -68,7 +68,7 @@ if (!gotTheLock) {
   }
 
   app.on('second-instance', (_event, commandLine) => {
-    console.log('Event: app.second-instance')
+    console.log('Event: app.second-instance', commandLine)
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
@@ -258,7 +258,7 @@ const isNetworkError = (errorObject: { message: string }) => {
 
 export const checkForUpdate = async (win: BrowserWindow) => {
   try {
-    // await autoUpdater.checkForUpdates()
+    await autoUpdater.checkForUpdates()
   } catch (error) {
     if (isNetworkError(error)) {
       log.error('Network Error')

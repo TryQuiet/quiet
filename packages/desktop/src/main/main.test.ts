@@ -5,6 +5,7 @@ import { autoUpdater } from 'electron-updater'
 import { BrowserWindow, app, ipcMain, Menu } from 'electron'
 import { waitFor } from '@testing-library/dom'
 import path from 'path'
+import { invitationUrl } from './invitation'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -68,7 +69,7 @@ jest.mock('electron', () => {
       setPath: jest.fn(),
       getName: jest.fn(),
       getVersion: jest.fn(),
-      requestSingleInstanceLock: jest.fn(),
+      requestSingleInstanceLock: jest.fn().mockReturnValue(true),
       quit: jest.fn(),
       exit: jest.fn(),
       on: jest.fn(),
@@ -90,6 +91,9 @@ jest.mock('electron', () => {
         getPosition: jest.fn().mockImplementation(() => [600, 800]),
         setSize: jest.fn(),
         setPosition: jest.fn(),
+        isMinimized: jest.fn(),
+        restore: jest.fn(),
+        focus: jest.fn(),
         webContents: {
           on: mockwebContentsOn,
           once: mockwebContentsOnce,
@@ -125,8 +129,8 @@ const mockIpcMainOn = ipcMain.on as jest.Mock<any, any>
 
 describe('electron app ready event', () => {
   it('application will trigger ready event, next run listener function of ready event', async () => {
-    expect(mockAppOnCalls[1][0]).toBe('ready')
-    await mockAppOnCalls[1][1]()
+    expect(mockAppOnCalls[2][0]).toBe('ready')
+    await mockAppOnCalls[2][1]()
   })
 
   it('application menu will set one time as null - remove menu bar', async () => {
@@ -215,34 +219,46 @@ describe('electron app ready event', () => {
 // to improve
 describe('other electron app events ', () => {
   it('app events listeners triggering', async () => {
-    // open-url app event
-    expect(mockAppOnCalls[0][0]).toBe('open-url')
-    const event = { preventDefault: () => { } }
-    mockAppOnCalls[0][1](event, 'https://anything.com')
-    expect(mockWindowWebContentsSend).toHaveBeenCalled()
-
+    expect(mockAppOnCalls[0][0]).toBe('second-instance')
+    expect(mockAppOnCalls[1][0]).toBe('open-url')
+    expect(mockAppOnCalls[2][0]).toBe('ready')
     // browser-window-created app event
     const window = new BrowserWindow()
-    expect(mockAppOnCalls[2][0]).toBe('browser-window-created')
-    mockAppOnCalls[2][1](null, window)
+    expect(mockAppOnCalls[3][0]).toBe('browser-window-created')
+    mockAppOnCalls[3][1](null, window)
     expect(remote.enable).toHaveBeenCalled()
 
     // window-all-closed app event
-    expect(mockAppOnCalls[3][0]).toBe('window-all-closed')
-    mockAppOnCalls[3][1]()
+    expect(mockAppOnCalls[4][0]).toBe('window-all-closed')
+    mockAppOnCalls[4][1]()
 
     // activate app event
-    expect(mockAppOnCalls[4][0]).toBe('activate')
-    mockAppOnCalls[4][1]()
+    expect(mockAppOnCalls[5][0]).toBe('activate')
+    mockAppOnCalls[5][1]()
+  })
+})
+
+describe('Invitation code', () => {
+  it('handles invitation code on open-url event (on macos)', async () => {
+    expect(mockAppOnCalls[2][0]).toBe('ready')
+    await mockAppOnCalls[2][1]()
+    const code = 'invitationCode'
+    expect(mockAppOnCalls[1][0]).toBe('open-url')
+    const event = { preventDefault: () => { } }
+    mockAppOnCalls[1][1](event, invitationUrl(code))
+    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { code: code })
   })
 
-  it('handles invitation code on open-url event', async () => {
-    expect(mockAppOnCalls[1][0]).toBe('ready')
-    await mockAppOnCalls[1][1]()
-    const code = 'invitationCode'
-    expect(mockAppOnCalls[0][0]).toBe('open-url')
+  it('process invitation code on second-instance event', async () => {
+    const code = 'invitationCodeArgv'
+    await mockAppOnCalls[2][1]()
+    const commandLine = [
+      '/tmp/.mount_Quiet-TVQc6s/quiet',
+      invitationUrl(code)
+    ]
+    expect(mockAppOnCalls[0][0]).toBe('second-instance')
     const event = { preventDefault: () => { } }
-    mockAppOnCalls[0][1](event, `quiet://?code=${code}`)
+    mockAppOnCalls[0][1](event, commandLine)
     expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { code: code })
   })
 })

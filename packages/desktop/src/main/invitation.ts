@@ -3,6 +3,12 @@ import path from 'path'
 import { execSync } from 'child_process'
 import { BrowserWindow } from 'electron'
 
+export const invitationUrl = (code: string): string => {
+  const url = new URL('quiet://')
+  url.searchParams.append('code', code)
+  return url.toString()
+}
+
 export const argvInvitationCode = (argvs: string[]): string => {
   let invitationCode = ''
   for (const arg of argvs) {
@@ -63,11 +69,11 @@ export const updateDesktopFile = (isDev: boolean) => {
   }
 }
 
-const updateExecPath = (desktopFilePath: string) => {
+export const updateExecPath = (desktopFilePath: string) => {
   /** Update Exec in case user moved .AppImage */
   const execInfo = `Exec=${process.env.APPIMAGE} %U`
   const desktopFile = fs.readFileSync(desktopFilePath, { encoding: 'utf-8' })
-  if (!desktopFile.includes(process.env.APPIMAGE)) {
+  if (!desktopFile.includes(execInfo)) {
     // Replace old Exec with new Exec
     const lines = desktopFile.split('\n')
     const newLines = lines.filter((line) => !line.includes('Exec=') && line !== '')
