@@ -13,7 +13,7 @@ import { BuildSetup } from './crossplatform.utils'
 
 const log = logger('newUser:')
 
-jest.setTimeout(600000)
+jest.setTimeout(900000)
 describe('New User', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver

@@ -16,6 +16,8 @@ export enum GetInfoTorSignal {
   ENTRY_GUARDS = 'entry-guards'
 }
 
+export interface TorParams {[arg: string]: string}
+
 interface IConstructor {
   torPath?: string
   options: child_process.SpawnOptionsWithoutStdio
@@ -23,7 +25,7 @@ interface IConstructor {
   httpTunnelPort: number
   controlPort?: number
   authCookie?: string
-  extraTorProcessParams?: string[]
+  extraTorProcessParams?: TorParams
 }
 export class Tor {
   httpTunnelPort: number
@@ -39,7 +41,7 @@ export class Tor {
   torPassword: string
   torHashedPassword: string
   torAuthCookie: string
-  extraTorProcessParams?: string[] = []
+  extraTorProcessParams?: TorParams
   constructor({
     torPath,
     options,
@@ -53,9 +55,20 @@ export class Tor {
     this.options = options
     this.appDataPath = appDataPath
     this.httpTunnelPort = httpTunnelPort
-    this.extraTorProcessParams = extraTorProcessParams || []
+    this.extraTorProcessParams = this.mergeDefaultTorParams(extraTorProcessParams)
     this.controlPort = controlPort || null
     this.torAuthCookie = authCookie || null
+  }
+
+  mergeDefaultTorParams = (params: TorParams = {}): TorParams => {
+    const defaultParams = {
+      '--NumEntryGuards': '3' // See task #1295
+    }
+    return { ...defaultParams, ...params }
+  }
+
+  get torProcessParams(): string[] {
+    return Array.from(Object.entries(this.extraTorProcessParams)).flat()
   }
 
   public init = async ({ repeat = 6, timeout = 3600_000 } = {}): Promise<void> => {
@@ -143,9 +156,9 @@ export class Tor {
      *  Commands should output hanging tor pid
      */
     const byPlatform = {
-      android: `pgrep -af ${this.torDataDirectory} | grep -v pgrep | awk '{print $1}'`,
-      linux: `pgrep -af ${this.torDataDirectory} | grep -v pgrep | awk '{print $1}'`,
-      darwin: `ps -A | grep ${this.torDataDirectory} | grep -v grep | awk '{print $1}'`,
+      android: `pgrep -af "${this.torDataDirectory}" | grep -v pgrep | awk '{print $1}'`,
+      linux: `pgrep -af "${this.torDataDirectory}" | grep -v pgrep | awk '{print $1}'`,
+      darwin: `ps -A | grep "${this.torDataDirectory}" | grep -v grep | awk '{print $1}'`,
       win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${this.torDataDirectory.replace(/\\/g, '\\\\')}%' and name = 'tor.exe'} | Format-Table ProcessId -HideTableHeaders"`
     }
     return byPlatform[process.platform]
@@ -203,7 +216,7 @@ export class Tor {
           this.torDataDirectory,
           '--HashedControlPassword',
           this.torHashedPassword,
-          ...this.extraTorProcessParams
+          ...this.torProcessParams
         ],
         this.options
       )

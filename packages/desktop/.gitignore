@@ -41,6 +41,7 @@ worker/index.node
 dist
 node_modules
 mainEnvs.json
+/storybook-static
 
 # E2E test
 screenshots/

@@ -1,8 +1,8 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { call, delay, put, select } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
-import { communitiesSelectors } from '../../communities/communities.selectors'
 import { communitiesActions } from '../../communities/communities.slice'
+import { communitiesSelectors } from '../../communities/communities.selectors'
 import { identityActions } from '../../identity/identity.slice'
 import { errorsActions } from '../errors.slice'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
@@ -29,31 +29,21 @@ export function* handleErrorsSaga(
   action: PayloadAction<ReturnType<typeof errorsActions.addError>['payload']>
 ): Generator {
   const error: ErrorPayload = action.payload
-  const registrationAttempts = yield* select(
-    communitiesSelectors.registrationAttempts(error.community)
-  )
+
+  yield* put(errorsActions.addError(error))
 
   if (error.type === SocketActionTypes.REGISTRAR) {
-    if (error.code === ErrorCodes.FORBIDDEN) {
-      yield* put(errorsActions.addError(error))
-    }
     if (
       error.code === ErrorCodes.NOT_FOUND ||
       error.code === ErrorCodes.SERVER_ERROR ||
       error.code === ErrorCodes.SERVICE_UNAVAILABLE
     ) {
-      // Arbitrary attempts number that is 99.99% sufficient for registration without asking user to resubmit form
-      if (registrationAttempts < 20) {
-        yield* call(delay, 5000)
-        yield* put(communitiesActions.updateRegistrationAttempts({ id: error.community, registrationAttempts: registrationAttempts + 1 }))
-        yield* put(errorsActions.addError(error))
-        yield* call(retryRegistration, error.community)
-      } else {
-        yield* put(errorsActions.addError(error))
-        yield* put(communitiesActions.updateRegistrationAttempts({ id: error.community, registrationAttempts: 0 }))
-      }
+      // Leave for integration test assertions purposes
+      const registrationAttempts = yield* select(
+        communitiesSelectors.registrationAttempts(error.community)
+      )
+      yield* put(communitiesActions.updateRegistrationAttempts({ id: error.community, registrationAttempts: registrationAttempts + 1 }))
+      yield* call(retryRegistration, error.community)
     }
-  } else {
-    yield* put(errorsActions.addError(error))
   }
 }

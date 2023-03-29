@@ -6,14 +6,13 @@ import { autoUpdater } from 'electron-updater'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
 import { getPorts, ApplicationPorts } from './backendHelpers'
-
 import pkijs, { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
-import { DEV_DATA_DIR } from '../shared/static'
+import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
 import { getFilesData } from '../utils/functions/fileData'
-
+import { updateDesktopFile, processInvitationCode, argvInvitationCode, retrieveInvitationCode } from './invitation'
 const ElectronStore = require('electron-store')
 ElectronStore.initRenderer()
 
@@ -24,6 +23,8 @@ remote.initialize()
 
 const log = logger('main')
 
+let resetting: boolean = false
+
 const updaterInterval = 15 * 60_000
 
 export const isDev = process.env.NODE_ENV === 'development'
@@ -33,22 +34,51 @@ const webcrypto = new Crypto()
 
 global.crypto = webcrypto
 
+let dataDir = DATA_DIR
+let mainWindow: BrowserWindow | null
+let splash: BrowserWindow | null
+
 if (isDev || process.env.DATA_DIR) {
-  const dataDir = process.env.DATA_DIR || DEV_DATA_DIR
-  const appDataPath = path.join(app.getPath('appData'), dataDir)
-
-  if (!fs.existsSync(appDataPath)) {
-    fs.mkdirSync(appDataPath)
-    fs.mkdirSync(`${appDataPath}/Quiet`)
-  }
-
-  const newUserDataPath = path.join(appDataPath, 'Quiet')
-
-  app.setPath('appData', appDataPath)
-  app.setPath('userData', newUserDataPath)
+  dataDir = process.env.DATA_DIR || DEV_DATA_DIR
 }
 
-const appDataPath = app.getPath('appData')
+const appDataPath = path.join(app.getPath('appData'), dataDir)
+
+if (!fs.existsSync(appDataPath)) {
+  fs.mkdirSync(appDataPath)
+  fs.mkdirSync(`${appDataPath}/Quiet`)
+}
+
+const newUserDataPath = path.join(appDataPath, 'Quiet')
+
+app.setPath('appData', appDataPath)
+app.setPath('userData', newUserDataPath)
+
+const gotTheLock = app.requestSingleInstanceLock()
+
+if (!gotTheLock) {
+  console.log('This is second instance. Quitting')
+  app.quit()
+  app.exit()
+} else {
+  try {
+    updateDesktopFile(isDev)
+  } catch (e) {
+    console.error(`Couldn't update desktop file: ${e.message}`)
+  }
+
+  app.on('second-instance', (_event, commandLine) => {
+    console.log('Event: app.second-instance', commandLine)
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+      const invitationCode = argvInvitationCode(commandLine)
+      processInvitationCode(mainWindow, invitationCode)
+    }
+  })
+}
+
+console.log('setAsDefaultProtocolClient', app.setAsDefaultProtocolClient('quiet'))
 
 interface IWindowSize {
   width: number
@@ -72,14 +102,9 @@ setEngine(
   })
 )
 
-let mainWindow: BrowserWindow | null
-let splash: BrowserWindow | null
-
 export const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
   return window instanceof BrowserWindow
 }
-
-const gotTheLock = app.requestSingleInstanceLock()
 
 const extensionsFolderPath = `${app.getPath('userData')}/extensions`
 
@@ -115,52 +140,14 @@ export const applyDevTools = async () => {
   )
 }
 
-if (!gotTheLock) {
-  app.quit()
-} else {
-  app.on('second-instance', _commandLine => {
-    log('Event: app.second-instance')
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.focus()
-    }
-  })
-}
-
 app.on('open-url', (event, url) => {
+  console.log('app.open-url', url)
   event.preventDefault()
-  const data = new URL(url)
   if (mainWindow) {
-    if (data.searchParams.has('invitation')) {
-      mainWindow.webContents.send('newInvitation', {
-        invitation: data.searchParams.get('invitation')
-      })
-    }
-    if (data.searchParams.has('importchannel')) {
-      mainWindow.webContents.send('newChannel', {
-        channelParams: data.searchParams.get('importchannel')
-      })
-    }
+    const invitationCode = retrieveInvitationCode(url)
+    processInvitationCode(mainWindow, invitationCode)
   }
 })
-
-const checkForPayloadOnStartup = (payload: string) => {
-  const isInvitation = payload.includes('invitation')
-  const isNewChannel = payload.includes('importchannel')
-  if (mainWindow && (isInvitation || isNewChannel)) {
-    const data = new URL(payload)
-    if (data.searchParams.has('invitation')) {
-      mainWindow.webContents.send('newInvitation', {
-        invitation: data.searchParams.get('invitation')
-      })
-    }
-    if (data.searchParams.has('importchannel')) {
-      mainWindow.webContents.send('newChannel', {
-        channelParams: data.searchParams.get('importchannel')
-      })
-    }
-  }
-}
 
 let browserWidth: number
 let browserHeight: number
@@ -312,7 +299,6 @@ const closeBackendProcess = () => {
        https://github.com/TryQuiet/monorepo/issues/469
     */
     const forceClose = setTimeout(() => {
-      log('Force closing the app')
       backendProcess.kill()
       app.quit()
     }, 2000)
@@ -331,11 +317,7 @@ const closeBackendProcess = () => {
 
 app.on('ready', async () => {
   log('Event: app.ready')
-  if (process.platform === 'darwin') {
-    Menu.setApplicationMenu(null)
-  } else {
-    Menu.setApplicationMenu(null)
-  }
+  Menu.setApplicationMenu(null)
 
   await applyDevTools()
 
@@ -367,10 +349,14 @@ app.on('ready', async () => {
   })
 
   const forkArgvs = [
-    '-d', `${ports.dataServer}`,
-    '-a', `${appDataPath}`,
-    '-r', `${process.resourcesPath}`,
-    '-p', 'desktop'
+    '-d',
+    `${ports.dataServer}`,
+    '-a',
+    `${appDataPath}`,
+    '-r',
+    `${process.resourcesPath}`,
+    '-p',
+    'desktop'
   ]
 
   const backendBundlePath = require.resolve('backend-bundle')
@@ -398,6 +384,7 @@ app.on('ready', async () => {
   })
 
   mainWindow.once('close', e => {
+    if (resetting) return
     e.preventDefault()
     log('Closing window')
     mainWindow.webContents.send('force-save-state')
@@ -413,6 +400,16 @@ app.on('ready', async () => {
   ipcMain.on('state-saved', e => {
     mainWindow.close()
     log('Saved state, closed window')
+  })
+
+  ipcMain.on('clear-community', () => {
+    resetting = true
+    backendProcess.on('message', (msg) => {
+      if (msg === 'leftCommunity') {
+        resetting = false
+      }
+    })
+    backendProcess.send('leaveCommunity')
   })
 
   ipcMain.on('restartApp', () => {
@@ -433,7 +430,7 @@ app.on('ready', async () => {
     })
   })
 
-  ipcMain.on('openUploadFileDialog', async (e) => {
+  ipcMain.on('openUploadFileDialog', async e => {
     let filesDialogResult: Electron.OpenDialogReturnValue
     try {
       filesDialogResult = await dialog.showOpenDialog(mainWindow, {
@@ -456,10 +453,10 @@ app.on('ready', async () => {
     if (!isBrowserWindow(mainWindow)) {
       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
     }
-    if (process.platform === 'win32' && process.argv) {
-      const payload = process.argv[1]
-      if (payload) {
-        checkForPayloadOnStartup(payload)
+    if (process.platform !== 'darwin' && process.argv) {
+      const invitationCode = argvInvitationCode(process.argv)
+      if (invitationCode) {
+        processInvitationCode(mainWindow, invitationCode)
       }
     }
 
@@ -476,8 +473,6 @@ app.on('ready', async () => {
     autoUpdater.quitAndInstall()
   })
 })
-
-app.setAsDefaultProtocolClient('quiet')
 
 app.on('browser-window-created', (_, window) => {
   log('Event: app.browser-window-created', window.getTitle())

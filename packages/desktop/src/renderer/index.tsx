@@ -5,10 +5,7 @@ import { ipcRenderer } from 'electron'
 import Root, { persistor } from './Root'
 import store from './store'
 import updateHandlers from './store/handlers/update'
-
-import logger from './logger'
-
-const log = logger('renderer')
+import { communities } from '@quiet/state-manager'
 
 if (window) {
   window.localStorage.setItem('debug', process.env.DEBUG)
@@ -23,13 +20,26 @@ ipcRenderer.on('force-save-state', async _event => {
   ipcRenderer.send('state-saved')
 })
 
-ipcRenderer.on('backendInitialized', _event => {
-  log('backend initialized')
+ipcRenderer.on('invitation', (_event, invitation) => {
+  console.log('invitation', invitation, 'dispatching action')
+  store.dispatch(communities.actions.handleInvitationCode(invitation.code))
 })
 
 const container = document.getElementById('root')
-const root = createRoot(container) // createRoot(container!) if you use TypeScript
+let root = createRoot(container) // createRoot(container!) if you use TypeScript
 root.render(<Root />)
+
+export const clearCommunity = async () => {
+  persistor.pause()
+  await persistor.flush()
+  await persistor.purge()
+  store.dispatch(communities.actions.resetApp('payload'))
+  ipcRenderer.send('clear-community')
+  root.unmount()
+  root = createRoot(container)
+  root.render(<Root />)
+  persistor.persist()
+}
 
 if (module.hot) {
   module.hot.accept()
