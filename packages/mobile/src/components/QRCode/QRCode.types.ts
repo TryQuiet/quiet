@@ -1,6 +1,6 @@
 export interface QRCodeProps {
   value: string
-  svgRef: any
+  svgRef?: any
   shareCode: () => void
   handleBackButton: () => void
 }
