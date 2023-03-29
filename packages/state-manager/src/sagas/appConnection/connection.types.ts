@@ -26,5 +26,7 @@ export enum TorConnectionProcessInfo {
   INITIALIZED_STORAGE = 'Initialized storage',
   LOADED_CERTIFICATES = 'Loaded certificates to memory',
   INITIALIZED_DBS = 'Initialized DBs',
-  LAUNCHED_COMMUNITY = 'Launched community'
+  LAUNCHED_COMMUNITY = 'Launched community',
+  CHANNELS_REPLICATED= 'Channels replicated',
+  CERTIFICATES_REPLICATED= 'Certificates replicated',
 }

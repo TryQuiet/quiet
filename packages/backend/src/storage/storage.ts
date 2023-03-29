@@ -208,6 +208,7 @@ export class Storage extends EventEmitter {
     )
     this.certificates.events.on('replicated', async () => {
       log('REPLICATED: Certificates')
+      this.emit(SocketActionTypes.TOR_CONNECTION_PROCESS, TorConnectionProcessInfo.CERTIFICATES_REPLICATED)
       this.emit(StorageEvents.LOAD_CERTIFICATES, {
         certificates: this.getAllEventLogEntries(this.certificates)
       })
@@ -259,6 +260,7 @@ export class Storage extends EventEmitter {
 
     this.channels.events.on('replicated', async () => {
       log('REPLICATED: Channels')
+      this.emit(SocketActionTypes.TOR_CONNECTION_PROCESS, TorConnectionProcessInfo.CHANNELS_REPLICATED)
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
       this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {

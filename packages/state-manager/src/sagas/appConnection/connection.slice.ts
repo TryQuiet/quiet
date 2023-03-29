@@ -67,19 +67,25 @@ export const connectionSlice = createSlice({
           state.torConnectionProcess = { number: 60, text: info }
           break
         case TorConnectionProcessInfo.INITIALIZING_IPFS:
-          state.torConnectionProcess = { number: 70, text: info }
+          state.torConnectionProcess = { number: 65, text: info }
           break
         case TorConnectionProcessInfo.INITIALIZED_STORAGE:
-          state.torConnectionProcess = { number: 75, text: info }
+          state.torConnectionProcess = { number: 70, text: info }
           break
         case TorConnectionProcessInfo.LOADED_CERTIFICATES:
-          state.torConnectionProcess = { number: 80, text: info }
+          state.torConnectionProcess = { number: 75, text: info }
           break
         case TorConnectionProcessInfo.INITIALIZED_DBS:
-          state.torConnectionProcess = { number: 85, text: info }
+          state.torConnectionProcess = { number: 80, text: info }
           break
         case TorConnectionProcessInfo.LAUNCHED_COMMUNITY:
+          state.torConnectionProcess = { number: 85, text: info }
+          break
+        case TorConnectionProcessInfo.CHANNELS_REPLICATED:
           state.torConnectionProcess = { number: 90, text: info }
+          break
+        case TorConnectionProcessInfo.CERTIFICATES_REPLICATED:
+          state.torConnectionProcess = { number: 95, text: info }
           break
       }
     }
