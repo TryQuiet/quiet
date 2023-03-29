@@ -159,7 +159,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   const [formSent, setFormSent] = useState(false)
   const [communityName, setCommunityName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
-
   const waitingForResponse = formSent && !hasReceivedResponse
 
   const dictionary =
