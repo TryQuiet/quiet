@@ -27,6 +27,9 @@ export const CommunityContextMenu: FC = () => {
     title = capitalize(community.name)
   }
 
+  const communityContextMenu = useContextMenu(MenuName.Community)
+  const invitationContextMenu = useContextMenu(MenuName.Invitation)
+
   const redirect = useCallback(
     (screen: ScreenNames) => {
       dispatch(
@@ -39,14 +42,13 @@ export const CommunityContextMenu: FC = () => {
   )
 
   const items: ContextMenuItemProps[] = [
+    { title: 'Add members', action: () => invitationContextMenu.handleOpen() },
     { title: 'Leave community', action: () => redirect(ScreenNames.LeaveCommunityScreen) }
   ]
 
-  const menu = useContextMenu(MenuName.Community)
-
   useEffect(() => {
-    menu.handleClose()
-  }, [screen])
+    communityContextMenu.handleClose()
+  }, [screen, invitationContextMenu.visible])
 
-  return <ContextMenu title={title} items={items} {...menu} />
+  return <ContextMenu title={title} items={items} {...communityContextMenu} />
 }

@@ -21,8 +21,14 @@ export const contextMenuProps = (menu: MenuName) =>
     return reducerState[menu]?.args || {}
   })
 
+export const confirmationBox = () =>
+  createSelector(navigationSlice, reducerState => {
+    return reducerState.confirmationBox
+  })
+
 export const navigationSelectors = {
   currentScreen,
   contextMenuVisibility,
-  contextMenuProps
+  contextMenuProps,
+  confirmationBox
 }
