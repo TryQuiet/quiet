@@ -131,6 +131,7 @@ export class DataServer extends EventEmitter {
         async (payload: RegisterUserCertificatePayload) => {
           log(`Registering user certificate (${payload.communityId}) on ${payload.serviceAddress}`)
           this.emit(SocketActionTypes.REGISTER_USER_CERTIFICATE, payload)
+          await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
           this.emit(SocketActionTypes.TOR_CONNECTION_PROCESS, TorConnectionProcessInfo.REGISTERING_USER_CERTIFICATE)
         }
       )

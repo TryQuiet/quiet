@@ -7,7 +7,7 @@ export class ConnectionState {
   public lastConnectedTime: number = 0
   public uptime: number = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
-  public torBootstrapProcess: string = 'Bootstrapped 100% (done)'
+  public torBootstrapProcess: string = 'Bootstrapped 5% (conn)'
   public torConnectionProcess: { number: number; text: string } = {
     number: 5,
     text: 'Connecting process started'
@@ -44,21 +44,12 @@ export const connectionSlice = createSlice({
     },
     setTorConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
-      console.log({ info })
       switch (info) {
         case TorConnectionProcessInfo.FETCHING:
           state.torConnectionProcess = { number: 20, text: info }
           break
         case TorConnectionProcessInfo.REGISTERING_USER_CERTIFICATE:
-          if (
-            state.torConnectionProcess.text ===
-            TorConnectionProcessInfo.REGISTERING_USER_CERTIFICATE
-          ) {
-            state.torConnectionProcess = { number: 20, text: 'Fetching...' }
-          } else {
-            state.torConnectionProcess = { number: 20, text: info }
-          }
-
+          state.torConnectionProcess = { number: 20, text: info }
           break
         case TorConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE:
           state.torConnectionProcess = { number: 20, text: info }

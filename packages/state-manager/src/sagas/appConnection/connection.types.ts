@@ -15,7 +15,7 @@ export interface NetworkStats {
   connectionTime: number
 }
 export enum TorConnectionProcessInfo {
-  FETCHING = 'Fetching',
+  FETCHING = 'Fetching...',
   REGISTERING_USER_CERTIFICATE = 'Registering user certificate',
   REGISTERING_OWNER_CERTIFICATE = 'Registering owner certificate',
   LAUNCHING_COMMUNITY = 'Launching community',
@@ -28,12 +28,3 @@ export enum TorConnectionProcessInfo {
   INITIALIZED_DBS = 'Initialized DBs',
   LAUNCHED_COMMUNITY = 'Launched community'
 }
-        // backend:socket Launching community 30 +
-        // backend:conn Spawning hidden service for community 40 +
-        // backend:conn Initializing storage 50 +
-        // backend:conn Initializing libp2p 60 +
-        // backend:db Initializing IPFS 70 +
-        // backend:db Initialized storage 75 +
-        // backend:db Loaded certificates to memory 80 +
-        // backend:db Initialized DBs 85 +
-        // backend:conn Launched community 95 +

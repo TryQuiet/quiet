@@ -98,7 +98,7 @@ export class CertificateRegistration extends EventEmitter {
       requestTimeout,
       socksProxyAgent
     )
-    this.emit(SocketActionTypes.TOR_CONNECTION_PROCESS, TorConnectionProcessInfo.REGISTERING_USER_CERTIFICATE)
+    this.emit(SocketActionTypes.TOR_CONNECTION_PROCESS, TorConnectionProcessInfo.FETCHING)
     this.emit(response.eventType, response.data)
   }
 
