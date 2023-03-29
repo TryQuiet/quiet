@@ -1,10 +1,6 @@
 import { FieldErrors, CommunityNameErrors, InviteLinkErrors } from '../fieldsErrors'
 import { FieldData } from '../types'
 
-export const containsWhitespaces = (value: string): boolean => {
-  return /^(?![\s-])[\w\s-]+$/.test(value)
-}
-
 export const communityNameField = (name = 'name'): FieldData => {
   return {
     fieldProps: {
