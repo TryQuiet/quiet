@@ -1,9 +1,8 @@
 import mirrorKey from 'keymirror'
 
-export const DOMAIN = 'tryquiet.org'
 export const DEV_DATA_DIR = 'Quietdev'
 export const DATA_DIR = 'Quiet'
-export const ONION_ADDRESS_LENGTH = 56
+export const ONION_ADDRESS_REGEX = /^[a-z0-9]{56}$/g
 
 export const actionTypes = mirrorKey({
   SET_APP_VERSION: undefined
@@ -24,4 +23,9 @@ export const soundType = {
 
 export enum InvitationParams {
   CODE = 'code'
+}
+
+export enum Site {
+  DOMAIN = 'tryquiet.org',
+  JOIN_PAGE = 'join'
 }

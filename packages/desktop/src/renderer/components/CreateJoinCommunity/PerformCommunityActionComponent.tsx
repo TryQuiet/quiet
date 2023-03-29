@@ -16,7 +16,6 @@ import {
 } from '../CreateJoinCommunity/community.dictionary'
 
 import { parseName, CommunityOwnership } from '@quiet/state-manager'
-import { ipcRenderer } from 'electron'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
@@ -24,7 +23,8 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
-import { DOMAIN, InvitationParams, ONION_ADDRESS_LENGTH } from '../../../shared/static'
+import { ONION_ADDRESS_REGEX } from '../../../shared/static'
+import { getInvitationCode } from '../../../shared/helpers'
 
 const PREFIX = 'PerformCommunityActionComponent'
 
@@ -181,23 +181,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   const onSubmit = (values: PerformCommunityActionFormValues) =>
     submitForm(handleCommunityAction, values, setFormSent)
 
-  const getCode = (value: string): string => {
-    let code: string
-    let validUrl: URL
-    try {
-      validUrl = new URL(value)
-    } catch (e) {
-      code = value
-    }
-
-    if (validUrl && validUrl.host === DOMAIN && validUrl.pathname === '/join') {
-      if (validUrl.searchParams.has(InvitationParams.CODE)) {
-        code = validUrl.searchParams.get(InvitationParams.CODE)
-      }
-    }
-    return code
-  }
-
   const submitForm = (
     handleSubmit: (value: string) => void,
     values: PerformCommunityActionFormValues,
@@ -207,15 +190,9 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
       communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()
 
     if (CommunityOwnership.User) {
-      submitValue = getCode(submitValue)
-      // TODO: maybe unify error message?
-      if (submitValue.length < ONION_ADDRESS_LENGTH) {
-        setError('name', { message: InviteLinkErrors.ValueTooShort })
-        return
-      }
-  
-      if (submitValue.length > ONION_ADDRESS_LENGTH) {
-        setError('name', { message: InviteLinkErrors.ValueTooLong })
+      submitValue = getInvitationCode(submitValue)
+      if (!submitValue || !submitValue.match(ONION_ADDRESS_REGEX)) {
+        setError('name', { message: InviteLinkErrors.InvalidCode })
         return
       }
     }
