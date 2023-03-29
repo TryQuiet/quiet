@@ -76,7 +76,6 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
 export interface JoiningPanelComponentProps {
   open: boolean
   handleClose: () => void
-  message: string
   openUrl: (url: string) => void
   torConnectionInfo: { number: number; text: string }
 }
@@ -84,7 +83,6 @@ export interface JoiningPanelComponentProps {
 const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
   open,
   handleClose,
-  message,
   openUrl,
   torConnectionInfo
 }) => {

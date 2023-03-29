@@ -103,7 +103,6 @@ const LoadingPanel = () => {
       <JoiningPanelComponent
         {...loadingPanelModal}
         openUrl={openUrl}
-        message={message}
         torConnectionInfo={torConnectionProcessSelector}
       />
     )
