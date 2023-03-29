@@ -23,6 +23,8 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
+import { ONION_ADDRESS_REGEX } from '../../../shared/static'
+import { getInvitationCode } from '../../../shared/helpers'
 
 const PREFIX = 'PerformCommunityActionComponent'
 
@@ -184,17 +186,15 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     values: PerformCommunityActionFormValues,
     setFormSent
   ) => {
-    const submitValue =
+    let submitValue =
       communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()
 
-    if (communityOwnership === CommunityOwnership.User && submitValue.length < 56) {
-      setError('name', { message: InviteLinkErrors.ValueTooShort })
-      return
-    }
-
-    if (communityOwnership === CommunityOwnership.User && submitValue.length > 56) {
-      setError('name', { message: InviteLinkErrors.ValueTooLong })
-      return
+    if (communityOwnership === CommunityOwnership.User) {
+      submitValue = getInvitationCode(submitValue)
+      if (!submitValue || !submitValue.match(ONION_ADDRESS_REGEX)) {
+        setError('name', { message: InviteLinkErrors.InvalidCode })
+        return
+      }
     }
 
     setFormSent(true)

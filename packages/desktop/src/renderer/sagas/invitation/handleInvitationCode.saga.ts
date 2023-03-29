@@ -2,6 +2,7 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put, delay } from 'typed-redux-saga'
 import { communities, CommunityOwnership, CreateNetworkPayload } from '@quiet/state-manager'
 import { socketSelectors } from '../socket/socket.selectors'
+import { ONION_ADDRESS_REGEX } from '../../../shared/static'
 
 export function* handleInvitationCodeSaga(
     action: PayloadAction<ReturnType<typeof communities.actions.handleInvitationCode>['payload']>
@@ -23,7 +24,7 @@ export function* handleInvitationCodeSaga(
 
     const code = action.payload.trim()
     console.log(`Handling code ${code}`)
-    if (code.match(/^[a-z0-9]{56}$/g)) {
+    if (code.match(ONION_ADDRESS_REGEX)) {
       const payload: CreateNetworkPayload = {
         ownership: CommunityOwnership.User,
         registrar: code
