@@ -72,6 +72,7 @@ describe('Create StartingPanelComponent', () => {
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column StartingPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"
+                    data-testid="startingPanelComponent"
                   >
                     <img
                       class="StartingPanelComponentimage"

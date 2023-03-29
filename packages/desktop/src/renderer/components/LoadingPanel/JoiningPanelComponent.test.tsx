@@ -72,6 +72,7 @@ describe('Create JoiningPanelComponent', () => {
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column JoiningPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"
+                    data-testid="joiningPanelComponent"
                   >
                     <img
                       class="JoiningPanelComponentimage"

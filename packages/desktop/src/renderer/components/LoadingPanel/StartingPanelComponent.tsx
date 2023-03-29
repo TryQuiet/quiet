@@ -83,7 +83,7 @@ const StartingPanelComponent: React.FC<StartingPanelComponentProps> = ({
         container
         justifyContent='center'
         className={classes.root}>
-        <Grid container alignItems='center' direction='column' className={classes.contentWrapper}>
+        <Grid container alignItems='center' direction='column' className={classes.contentWrapper} data-testid='startingPanelComponent'>
           <img className={classes.image} src={QuietLogo} />
 
           <Grid

@@ -93,7 +93,12 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
         justifyContent='center'
         className={classes.root}
         width={torConnectionInfo.number * 3}>
-        <Grid container alignItems='center' direction='column' className={classes.contentWrapper}>
+        <Grid
+          container
+          alignItems='center'
+          direction='column'
+          className={classes.contentWrapper}
+          data-testid='joiningPanelComponent'>
           <img className={classes.image} src={JoinCommunityImg} />
           <Typography className={classes.heading2} variant='h2'>
             Joining now!
@@ -111,7 +116,7 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
           </div>
 
           <Typography variant='body2' className={classes.text}>
-            You can exit the app - we'll notify you once you're connected! <br/>
+            You can exit the app - we'll notify you once you're connected! <br />
             <strong> This first time might take 30 seconds, 10 minutes, or even longer.</strong>
             <br />
             <br />
