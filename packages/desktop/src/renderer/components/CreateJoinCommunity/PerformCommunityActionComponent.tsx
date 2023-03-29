@@ -189,7 +189,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     let submitValue =
       communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()
 
-    if (CommunityOwnership.User) {
+    if (communityOwnership === CommunityOwnership.User) {
       submitValue = getInvitationCode(submitValue)
       if (!submitValue || !submitValue.match(ONION_ADDRESS_REGEX)) {
         setError('name', { message: InviteLinkErrors.InvalidCode })
