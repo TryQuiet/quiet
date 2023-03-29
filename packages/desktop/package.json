@@ -57,6 +57,10 @@
         {
           "from": "resources/libssl.so.1.1",
           "to": "usr/lib/libssl.so.1.1"
+        },
+        {
+          "from": "resources/quiet.desktop",
+          "to": "resources/quiet.desktop"
         }
       ],
       "files": [
@@ -261,6 +265,7 @@
     "source-map-loader": "^4.0.1",
     "standard": "^12.0.1",
     "style-loader": "^3.3.1",
+    "tmp": "0.2.1",
     "ts-jest": "^26.5.2",
     "ts-loader": "^9.4.1",
     "ts-node": "^10.9.1",
