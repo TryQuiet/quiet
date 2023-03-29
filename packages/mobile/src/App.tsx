@@ -21,6 +21,7 @@ import { SuccessScreen } from './screens/Success/Success.screen'
 import { ErrorScreen } from './screens/Error/Error.screen'
 import { ChannelListScreen } from './screens/ChannelList/ChannelList.screen'
 import { ChannelScreen } from './screens/Channel/Channel.screen'
+import { QRCodeScreen } from './screens/QRCode/QRCode.screen'
 import { LeaveCommunityScreen } from './screens/LeaveCommunity/LeaveCommunity.screen'
 
 import { NavigationContainer } from '@react-navigation/native'
@@ -96,6 +97,7 @@ export default function App(): JSX.Element {
                 />
                 <Screen component={ChannelListScreen} name={ScreenNames.ChannelListScreen} />
                 <Screen component={ChannelScreen} name={ScreenNames.ChannelScreen} />
+                <Screen component={QRCodeScreen} name={ScreenNames.QRCodeScreen} />
                 <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
               </Navigator>
