@@ -93,7 +93,8 @@ describe('Add new channel', () => {
     ['end-with-hyphen-', 'end-with-hyphen'],
     ['end-with-space ', 'end-with-space'],
     ['UpperCaseToLowerCase', 'uppercasetolowercase'],
-    ['spaces to hyphens', 'spaces-to-hyphens']
+    ['spaces to hyphens', 'spaces-to-hyphens'],
+    ['!@#start-with-exclaim-at-hash', 'start-with-exclaim-at-hash']
   ])(
     'user inserting wrong channel name "%s" gets corrected "%s"',
     async (name: string, corrected: string) => {
@@ -117,8 +118,7 @@ describe('Add new channel', () => {
 
   it.each([
     ['   whitespaces', FieldErrors.Whitespaces],
-    ['----hyphens', FieldErrors.Whitespaces],
-    ['!@#general', 'Your channel will be created as']
+    ['----hyphens', FieldErrors.Whitespaces]
   ])(
     'user inserting invalid channel name "%s" should see "%s" error',
     async (name: string, error: string) => {
