@@ -25,7 +25,7 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
     width: '100%'
   },
   [`& .${classes.contentWrapper}`]: {
-    maxWidth: '400px'
+    maxWidth: '450px'
   },
   '@keyframes rotate': {
     from: { transform: 'rotate(0deg)' },
@@ -69,7 +69,7 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
   },
   [`& .${classes.progressBarWrapper}`]: {
     // margin: '16px 0 40px'
-    margin: '16px 0 30px'
+    margin: '16px 0 20px'
   }
 }))
 
@@ -113,7 +113,7 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
           </div>
 
           <Typography variant='body2' className={classes.text}>
-            You can exit the app - we'll notify you once you're connected!
+            You can exit the app - we'll notify you once you're connected! <br/>
             <strong> This first time might take 30 seconds, 10 minutes, or even longer.</strong>
             <br />
             <br />
