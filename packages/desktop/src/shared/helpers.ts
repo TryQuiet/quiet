@@ -1,4 +1,4 @@
-import { Site, InvitationParams } from "./static"
+import { Site, InvitationParams } from './static'
 
 export const getBytesSize = value => {
   return new TextEncoder().encode(value).length
