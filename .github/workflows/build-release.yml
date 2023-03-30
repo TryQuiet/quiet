@@ -8,7 +8,9 @@ on:
 jobs:
   run-e2e-tests:
     runs-on: [ubuntu-20.04, ubuntu-22.04]
-    uses: ./.github/workflows/e2e-crossplatform.yml
+    steps:
+      name: run e2e
+      uses: ./.github/workflows/e2e-crossplatform.yml
 
   build-linux:
     needs: run-e2e-tests
