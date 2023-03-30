@@ -200,17 +200,18 @@ export class ConnectionsManager extends EventEmitter {
 
     this.socksProxyAgent = this.createAgent()
 
-    if (!this.dataServer) {
-      this.dataServer = new DataServer(this.socketIOPort)
-      this.io = this.dataServer.io
-    }
     if (!this.tor) {
       await this.spawnTor()
     }
 
+    if (!this.dataServer) {
+      this.dataServer = new DataServer(this.socketIOPort)
+      this.io = this.dataServer.io
+      this.attachDataServerListeners()
+      this.attachRegistrationListeners()
+    }
+
     this.attachTorEventsListeners()
-    this.attachDataServerListeners()
-    this.attachRegistrationListeners()
 
     // Libp2p event listeners
     this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
@@ -221,9 +222,11 @@ export class ConnectionsManager extends EventEmitter {
     })
 
     await this.dataServer.listen()
+
     this.io.on('connection', async() => {
-      await this.initTor()
+      await this.initTorDesktop()
     })
+
     const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
 
     if (community) {
@@ -300,15 +303,29 @@ export class ConnectionsManager extends EventEmitter {
         detached: true
       }
     })
+
+    await this.initTorMobile()
   }
 
-  public initTor = async () => {
+  // public initTor = async () => {
+  //   if (this.torControlPort) {
+  //     this.tor.initTorControl()
+  //   } else if (this.torBinaryPath) {
+  //     await this.tor.init()
+  //   } else {
+  //     throw new Error('You must provide either tor control port or tor binary path')
+  //   }
+  // }
+
+  public initTorDesktop = async () => {
+    if (this.torBinaryPath) {
+      await this.tor.init()
+    }
+  }
+
+  public initTorMobile = async () => {
     if (this.torControlPort) {
       this.tor.initTorControl()
-    } else if (this.torBinaryPath) {
-      await this.tor.init()
-    } else {
-      throw new Error('You must provide either tor control port or tor binary path')
     }
   }
 
