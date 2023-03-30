@@ -1,0 +1,61 @@
+name: E2E linux
+
+on: [workflow_call]
+jobs:
+
+  linux:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, ubuntu-22.04]
+
+    timeout-minutes: 180
+
+    env:
+      ELECTRON_CUSTOM_VERSION: 23.0.0
+      DISPLAY: ":99.0"
+      TEST_MODE: true
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install WM
+        run: sudo apt install fluxbox
+
+      - name: Install libfuse2
+        run: sudo apt install libfuse2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "e2e-crossplatform-linux"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+
+      - name: Run X11
+        run: |
+          Xvfb :99 -screen 0 1920x1080x24 &
+          sleep 3
+          fluxbox &
+
+      - name: Build App Image
+        working-directory: ./packages/desktop
+        run: npm run distUbuntu && VERSION=$(jq -r ".version" package.json) && cd dist && FILE_NAME=$(ls | grep $VERSION) && echo "FILE_NAME=$(ls | grep $VERSION)" >> $GITHUB_ENV && cp $FILE_NAME ../../e2e-tests/Quiet && export FILE_NAME=$FILE_NAME
+
+      - name: Chmod
+        working-directory: ./packages/e2e-tests/Quiet
+        run: chmod +x $FILE_NAME
+
+      - name: Run smoke test
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+
+      - name: Run newUser test - Includes 2 separate application clients
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 35
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
