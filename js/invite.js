@@ -27,7 +27,7 @@ document.addEventListener(
     if (invitationCode) {
       window.location = `quiet://?code=${invitationCode}`
     } else {
-      window.prompt('Sorry, no invitation code has been passed with the URL.')
+      window.alert('Sorry, no invitation code has been passed with the URL.')
     }
   },
   false
