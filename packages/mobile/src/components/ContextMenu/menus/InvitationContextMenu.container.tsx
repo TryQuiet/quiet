@@ -45,7 +45,8 @@ export const InvitationContextMenu: FC = () => {
   const shareLink = async () => {
     try {
       await Share.share({
-        message: invitationShareUrl(community?.registrarUrl)
+        title: '"Quiet" invitation',
+        message: `Chat with me on "Quiet"!\n${invitationShareUrl(community?.registrarUrl)}`
       })
     } catch (error) {
       console.error(error)
@@ -60,10 +61,17 @@ export const InvitationContextMenu: FC = () => {
       action: copyLink
     },
     {
+      title: 'QR code',
+      action: () => redirect(ScreenNames.QRCodeScreen)
+    },
+    {
       title: 'Share',
       action: shareLink
     },
-    { title: 'Cancel', action: () => invitationContextMenu.handleClose() }
+    {
+      title: 'Cancel',
+      action: () => invitationContextMenu.handleClose()
+    }
   ]
 
   useEffect(() => {

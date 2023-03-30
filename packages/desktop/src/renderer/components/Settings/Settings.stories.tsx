@@ -14,6 +14,7 @@ import { InviteComponent } from './Tabs/Invite/InviteComponent'
 
 import { LeaveCommunityComponent } from './Tabs/LeaveCommunity/LeaveCommunityComponent'
 import { Typography } from '@mui/material'
+import { QRCodeComponent } from './Tabs/QRCode/QRCode.component'
 
 const Template: ComponentStory<typeof SettingsComponent> = args => {
   return <SettingsComponent {...args} />
@@ -62,6 +63,12 @@ const Invite: FC = () => {
   )
 }
 
+const QRCode: FC = () => {
+  return (
+    <QRCodeComponent value='https://tryquiet.org/join?code=ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad' />
+  )
+}
+
 const args: SettingsComponentProps = {
   open: true,
   handleClose: function (): void {},
@@ -70,7 +77,8 @@ const args: SettingsComponentProps = {
     about: Dummy,
     notifications: Dummy,
     invite: Invite,
-    leave: Leave
+    leave: Leave,
+    qrcode: QRCode
   },
   leaveCommunityModal: {
     open: false,
