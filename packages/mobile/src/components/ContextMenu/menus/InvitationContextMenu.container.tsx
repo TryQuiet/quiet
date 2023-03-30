@@ -4,7 +4,7 @@ import { Share } from 'react-native'
 
 import Clipboard from '@react-native-clipboard/clipboard'
 
-import { communities } from '@quiet/state-manager'
+import { communities, invitationDeepUrl, invitationShareUrl } from '@quiet/state-manager'
 
 import { navigationSelectors } from '../../../store/navigation/navigation.selectors'
 
@@ -38,14 +38,14 @@ export const InvitationContextMenu: FC = () => {
   )
 
   const copyLink = async () => {
-    Clipboard.setString(`https://tryquiet.org/join?code=${community?.registrarUrl}`)
+    Clipboard.setString(invitationShareUrl(community?.registrarUrl))
     await confirmationBox.flash()
   }
 
   const shareLink = async () => {
     try {
       await Share.share({
-        message: `https://tryquiet.org/join?code=${community?.registrarUrl}`
+        message: invitationShareUrl(community?.registrarUrl)
       })
     } catch (error) {
       console.error(error)
@@ -77,7 +77,7 @@ export const InvitationContextMenu: FC = () => {
       hint={
         'Anyone with Quiet app can follow this link to join this community. Only share with people you trust.'
       }
-      link={`quiet://?code=${community?.registrarUrl}`}
+      link={invitationDeepUrl(community?.registrarUrl)}
       linkAction={copyLink}
       {...invitationContextMenu}
     />

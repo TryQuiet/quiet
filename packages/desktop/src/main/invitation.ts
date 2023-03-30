@@ -2,13 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { execSync } from 'child_process'
 import { BrowserWindow } from 'electron'
-import { InvitationParams } from '../shared/static'
-
-export const invitationUrl = (code: string): string => {
-  const url = new URL('quiet://')
-  url.searchParams.append(InvitationParams.CODE, code)
-  return url.toString()
-}
+import { InvitationParams } from '@quiet/state-manager'
 
 export const argvInvitationCode = (argvs: string[]): string => {
   let invitationCode = ''

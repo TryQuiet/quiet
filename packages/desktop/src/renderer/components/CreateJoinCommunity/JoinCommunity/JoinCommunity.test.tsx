@@ -16,8 +16,7 @@ import CreateUsername from '../../CreateUsername/CreateUsername'
 import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
-import { CommunityOwnership } from '@quiet/state-manager'
-import { Site, InvitationParams } from '../../../../shared/static'
+import { CommunityOwnership, InvitationParams, Site } from '@quiet/state-manager'
 
 describe('join community', () => {
   it('users switches from join to create', async () => {

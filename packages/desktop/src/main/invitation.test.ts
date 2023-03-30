@@ -1,7 +1,8 @@
-import { argvInvitationCode, invitationUrl, updateExecPath } from './invitation'
+import { argvInvitationCode, updateExecPath } from './invitation'
 import tmp from 'tmp'
 import path from 'path'
 import fs from 'fs'
+import { invitationDeepUrl } from '@quiet/state-manager'
 
 describe('Invitation code helper', () => {
   const originalEnv = process.env
@@ -25,10 +26,6 @@ describe('Invitation code helper', () => {
     process.env = originalEnv
   })
 
-  it('builds proper invitation url', () => {
-    expect(invitationUrl('validCode')).toEqual('quiet://?code=validCode')
-  })
-
   it('retrieves invitation code from argv', () => {
     const result = argvInvitationCode([
       'something',
@@ -36,7 +33,7 @@ describe('Invitation code helper', () => {
       'zbay://invalid',
       'quiet://invalid',
       'quiet://?param=invalid',
-      invitationUrl('validCode')
+      invitationDeepUrl('validCode')
 
     ])
     expect(result).toBe('validCode')
