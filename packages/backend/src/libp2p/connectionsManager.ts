@@ -317,18 +317,6 @@ export class ConnectionsManager extends EventEmitter {
     }
   }
 
-  // public initTorDesktop = async () => {
-  //   if (this.torBinaryPath) {
-  //     await this.tor.init()
-  //   }
-  // }
-
-  // public initTorMobile = async () => {
-  //   if (this.torControlPort) {
-  //     this.tor.initTorControl()
-  //   }
-  // }
-
   public createStorage = (peerId: string, communityId: string) => {
     log(`Creating storage for community: ${communityId}`)
     return new Storage(this.quietDir, communityId, {
