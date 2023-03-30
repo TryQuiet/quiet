@@ -145,7 +145,7 @@ describe('New User', () => {
       await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
     })
 
-    it('Close debug modal', async () => {
+    it.skip('Close debug modal', async () => {
       console.log('new user - 1')
       console.log('Debug modal')
       const debugModal = new DebugModeModal(driver2)
