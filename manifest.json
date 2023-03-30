@@ -1,0 +1,7 @@
+{
+    "name": "Quiet",
+    "related_applications": [{
+        "platform": "play",
+        "id": "com.quietmobile"
+    }]
+}
