@@ -19,6 +19,7 @@ import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
 import waitForExpect from 'wait-for-expect'
 import { Libp2pEvents } from './types'
+import { DataServer } from '../socket/DataServer'
 
 let tmpDir: DirResult
 let tmpAppDataPath: string
@@ -52,7 +53,9 @@ describe('Connections manager - no tor', () => {
     const peerId = await createPeerId()
     const port = 1234
     const address = '0.0.0.0'
+
     connectionsManager = new ConnectionsManager({
+      torControlPort: 4321,
       socketIOPort: port,
       options: {
         env: {
@@ -60,8 +63,13 @@ describe('Connections manager - no tor', () => {
         },
       }
     })
+
+    connectionsManager.dataServer = new DataServer(port)
+    connectionsManager.io = connectionsManager.dataServer.io
+
     const localAddress = connectionsManager.createLibp2pAddress(address, peerId.toString())
     const remoteAddress = connectionsManager.createLibp2pAddress(address, (await createPeerId()).toString())
+
     const result = await connectionsManager.initLibp2p({
       peerId: peerId,
       address: address,
