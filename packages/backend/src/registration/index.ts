@@ -7,7 +7,7 @@ import {
   LaunchRegistrarPayload,
   SocketActionTypes,
   PermsData,
-  TorConnectionProcessInfo
+  ConnectionProcessInfo
 } from '@quiet/state-manager'
 
 import logger from '../logger'
@@ -98,7 +98,7 @@ export class CertificateRegistration extends EventEmitter {
       requestTimeout,
       socksProxyAgent
     )
-    this.emit(SocketActionTypes.TOR_CONNECTION_PROCESS, TorConnectionProcessInfo.FETCHING)
+    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.FETCHING)
     this.emit(response.eventType, response.data)
   }
 

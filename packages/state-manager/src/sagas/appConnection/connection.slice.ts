@@ -1,6 +1,6 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
-import { NetworkDataPayload, NetworkStats, TorConnectionProcessInfo } from './connection.types'
+import { NetworkDataPayload, NetworkStats, ConnectionProcessInfo } from './connection.types'
 import { peersStatsAdapter } from './connection.adapter'
 
 export class ConnectionState {
@@ -45,46 +45,46 @@ export const connectionSlice = createSlice({
     setTorConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
       switch (info) {
-        case TorConnectionProcessInfo.FETCHING:
+        case ConnectionProcessInfo.FETCHING:
           state.torConnectionProcess = { number: 20, text: info }
           break
-        case TorConnectionProcessInfo.REGISTERING_USER_CERTIFICATE:
+        case ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE:
           state.torConnectionProcess = { number: 20, text: info }
           break
-        case TorConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE:
+        case ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE:
           state.torConnectionProcess = { number: 20, text: info }
           break
-        case TorConnectionProcessInfo.LAUNCHING_COMMUNITY:
+        case ConnectionProcessInfo.LAUNCHING_COMMUNITY:
           state.torConnectionProcess = { number: 30, text: info }
           break
-        case TorConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE:
+        case ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE:
           state.torConnectionProcess = { number: 40, text: info }
           break
-        case TorConnectionProcessInfo.INITIALIZING_STORAGE:
+        case ConnectionProcessInfo.INITIALIZING_STORAGE:
           state.torConnectionProcess = { number: 50, text: info }
           break
-        case TorConnectionProcessInfo.INITIALIZING_LIBP2P:
+        case ConnectionProcessInfo.INITIALIZING_LIBP2P:
           state.torConnectionProcess = { number: 60, text: info }
           break
-        case TorConnectionProcessInfo.INITIALIZING_IPFS:
+        case ConnectionProcessInfo.INITIALIZING_IPFS:
           state.torConnectionProcess = { number: 65, text: info }
           break
-        case TorConnectionProcessInfo.INITIALIZED_STORAGE:
+        case ConnectionProcessInfo.INITIALIZED_STORAGE:
           state.torConnectionProcess = { number: 70, text: info }
           break
-        case TorConnectionProcessInfo.LOADED_CERTIFICATES:
+        case ConnectionProcessInfo.LOADED_CERTIFICATES:
           state.torConnectionProcess = { number: 75, text: info }
           break
-        case TorConnectionProcessInfo.INITIALIZED_DBS:
+        case ConnectionProcessInfo.INITIALIZED_DBS:
           state.torConnectionProcess = { number: 80, text: info }
           break
-        case TorConnectionProcessInfo.LAUNCHED_COMMUNITY:
+        case ConnectionProcessInfo.LAUNCHED_COMMUNITY:
           state.torConnectionProcess = { number: 85, text: info }
           break
-        case TorConnectionProcessInfo.CHANNELS_REPLICATED:
+        case ConnectionProcessInfo.CHANNELS_REPLICATED:
           state.torConnectionProcess = { number: 90, text: info }
           break
-        case TorConnectionProcessInfo.CERTIFICATES_REPLICATED:
+        case ConnectionProcessInfo.CERTIFICATES_REPLICATED:
           state.torConnectionProcess = { number: 95, text: info }
           break
       }

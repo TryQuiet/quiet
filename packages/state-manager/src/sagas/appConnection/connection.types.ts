@@ -14,7 +14,7 @@ export interface NetworkStats {
   lastSeen: number
   connectionTime: number
 }
-export enum TorConnectionProcessInfo {
+export enum ConnectionProcessInfo {
   FETCHING = 'Fetching...',
   REGISTERING_USER_CERTIFICATE = 'Registering user certificate',
   REGISTERING_OWNER_CERTIFICATE = 'Registering owner certificate',

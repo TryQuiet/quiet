@@ -84,7 +84,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (payload: string) => {
       emit(connectionActions.setTorBootstrapProcess(payload))
     })
-    socket.on(SocketActionTypes.TOR_CONNECTION_PROCESS, (payload: string) => {
+    socket.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (payload: string) => {
       emit(connectionActions.setTorConnectionProcess(payload))
     })
     // Misc
