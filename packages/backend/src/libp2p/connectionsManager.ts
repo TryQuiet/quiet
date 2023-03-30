@@ -311,7 +311,7 @@ export class ConnectionsManager extends EventEmitter {
     if (this.torControlPort) {
       this.tor.initTorControl()
     } else if (this.torBinaryPath) {
-        //
+      // Tor init will be executed on connection event
     } else {
       throw new Error('You must provide either tor control port or tor binary path')
     }
