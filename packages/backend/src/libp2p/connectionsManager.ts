@@ -137,7 +137,7 @@ export class ConnectionsManager extends EventEmitter {
   localStorage: LocalDB
   communityState: ServiceState
   registrarState: ServiceState
-  isTorOnDesktop: boolean = false
+  isTorInit: boolean = false
 
   constructor({ options, socketIOPort, httpTunnelPort, torControlPort, torAuthCookie, torResourcesPath, torBinaryPath }: IConstructor) {
     super()
@@ -225,9 +225,9 @@ export class ConnectionsManager extends EventEmitter {
     await this.dataServer.listen()
 
     this.io.on('connection', async() => {
-      if (!this.isTorOnDesktop) {
-        this.isTorOnDesktop = true
-        await this.initTorDesktop()
+      if (!this.isTorInit && this.torBinaryPath) {
+        this.isTorInit = true
+        await this.tor.init()
       }
     })
 
@@ -308,20 +308,26 @@ export class ConnectionsManager extends EventEmitter {
       }
     })
 
-    await this.initTorMobile()
-  }
-
-  public initTorDesktop = async () => {
-    if (this.torBinaryPath) {
-      await this.tor.init()
-    }
-  }
-
-  public initTorMobile = async () => {
     if (this.torControlPort) {
       this.tor.initTorControl()
+    } else if (this.torBinaryPath) {
+        //
+    } else {
+      throw new Error('You must provide either tor control port or tor binary path')
     }
   }
+
+  // public initTorDesktop = async () => {
+  //   if (this.torBinaryPath) {
+  //     await this.tor.init()
+  //   }
+  // }
+
+  // public initTorMobile = async () => {
+  //   if (this.torControlPort) {
+  //     this.tor.initTorControl()
+  //   }
+  // }
 
   public createStorage = (peerId: string, communityId: string) => {
     log(`Creating storage for community: ${communityId}`)
