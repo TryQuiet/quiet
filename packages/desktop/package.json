@@ -57,6 +57,10 @@
         {
           "from": "resources/libssl.so.1.1",
           "to": "usr/lib/libssl.so.1.1"
+        },
+        {
+          "from": "resources/quiet.desktop",
+          "to": "resources/quiet.desktop"
         }
       ],
       "files": [
@@ -130,6 +134,7 @@
     "get-port": "^5.1.1",
     "keymirror": "0.1.1",
     "pkijs": "^3.0.8",
+    "react-qr-code": "^2.0.11",
     "socket.io-client": "4.6.0"
   },
   "devDependencies": {
@@ -146,7 +151,7 @@
     "@mui/lab": "^5.0.0-alpha.109",
     "@mui/material": "~5.10.15",
     "@quiet/identity": "^1.0.1-alpha.0",
-    "@quiet/state-manager": "^1.2.0-alpha.1",
+    "@quiet/state-manager": "^1.2.0-alpha.14",
     "@redux-saga/types": "^1.1.0",
     "@reduxjs/toolkit": "^1.9.1",
     "@sentry/browser": "^6.19.7",
@@ -258,6 +263,7 @@
     "source-map-loader": "^4.0.1",
     "standard": "^12.0.1",
     "style-loader": "^3.3.1",
+    "tmp": "0.2.1",
     "ts-jest": "^26.5.2",
     "ts-loader": "^9.4.1",
     "ts-node": "^10.9.1",

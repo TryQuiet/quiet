@@ -43,7 +43,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [1.2.0-alpha.14](/compare/quiet@1.2.0-alpha.13...quiet@1.2.0-alpha.14) (2023-03-30)
+# [1.2.0-alpha.14](https://github.com/TryQuiet/quiet/compare/quiet@1.2.0-alpha.0...quiet@1.2.0-alpha.14) (2023-03-30)
 
 **Note:** Version bump only for package quiet
 
@@ -148,10 +148,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 # [1.2.0-alpha.1](/compare/quiet@1.2.0-alpha.0...quiet@1.2.0-alpha.1) (2023-03-28)
-
-**Note:** Version bump only for package quiet
-
-
 
 
 

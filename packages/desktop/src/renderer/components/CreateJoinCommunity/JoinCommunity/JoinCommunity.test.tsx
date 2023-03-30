@@ -17,6 +17,7 @@ import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { CommunityOwnership } from '@quiet/state-manager'
+import { Site, InvitationParams } from '../../../../shared/static'
 
 describe('join community', () => {
   it('users switches from join to create', async () => {
@@ -125,6 +126,38 @@ describe('join community', () => {
     await waitFor(() => expect(handleCommunityAction).toBeCalledWith(registrarUrl))
   })
 
+  it('joins community on submit if connection is ready and invitation code is a correct invitation url', async () => {
+    const code = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad'
+    const registrarUrl = new URL(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}`)
+    registrarUrl.searchParams.append(InvitationParams.CODE, code)
+
+    const handleCommunityAction = jest.fn()
+
+    const component = <PerformCommunityActionComponent
+      open={true}
+      handleClose={() => { }}
+      communityOwnership={CommunityOwnership.User}
+      handleCommunityAction={handleCommunityAction}
+      handleRedirection={() => { }}
+      isConnectionReady={true}
+      isCloseDisabled={true}
+      hasReceivedResponse={false}
+    />
+
+    const result = renderComponent(component)
+
+    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+    expect(textInput).not.toBeNull()
+
+    await userEvent.type(textInput, registrarUrl.href)
+
+    const submitButton = result.getByText('Continue')
+    expect(submitButton).toBeEnabled()
+    await userEvent.click(submitButton)
+
+    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(code))
+  })
+
   it('trims whitespaces from registrar url', async () => {
     const registrarUrl = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad    '
 
@@ -156,11 +189,15 @@ describe('join community', () => {
   })
 
   it.each([
-    ['http://nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion', InviteLinkErrors.WrongCharacter],
-    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola09bp2', InviteLinkErrors.ValueTooLong],
-    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola!', InviteLinkErrors.WrongCharacter],
-    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola ', InviteLinkErrors.ValueTooShort],
-    ['nqnw4kc4c77fb47lk52m5l57h4tc', InviteLinkErrors.ValueTooShort]
+    ['http://nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion', InviteLinkErrors.InvalidCode],
+    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola09bp2', InviteLinkErrors.InvalidCode],
+    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola!', InviteLinkErrors.InvalidCode],
+    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola ', InviteLinkErrors.InvalidCode],
+    ['nqnw4kc4c77fb47lk52m5l57h4tc', InviteLinkErrors.InvalidCode],
+    [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?${InvitationParams.CODE}=invalidcode`, InviteLinkErrors.InvalidCode],
+    [`https://otherwebsite.com/${Site.JOIN_PAGE}?${InvitationParams.CODE}=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`, InviteLinkErrors.InvalidCode],
+    [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?param=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`, InviteLinkErrors.InvalidCode],
+    [`https://${Site.DOMAIN}/share?${InvitationParams.CODE}=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`, InviteLinkErrors.InvalidCode],
   ])('user inserting invalid url %s should see "%s" error', async (url: string, error: string) => {
     const handleCommunityAction = jest.fn()
 
