@@ -85,7 +85,7 @@ export const InvitationContextMenu: FC = () => {
       hint={
         'Anyone with Quiet app can follow this link to join this community. Only share with people you trust.'
       }
-      link={invitationDeepUrl(community?.registrarUrl)}
+      link={invitationShareUrl(community?.registrarUrl)}
       linkAction={copyLink}
       {...invitationContextMenu}
     />

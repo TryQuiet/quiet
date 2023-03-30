@@ -1,4 +1,4 @@
-import { InvitationParams, Site } from "../../../constants"
+import { InvitationParams, Site } from '../../../constants'
 
 export const getInvitationCode = (value: string): string => {
   let code: string

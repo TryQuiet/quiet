@@ -1,5 +1,5 @@
-import { Site } from "packages/state-manager/src/constants"
-import { getInvitationCode, invitationDeepUrl } from "./invitationCode"
+import { Site } from 'packages/state-manager/src/constants'
+import { getInvitationCode, invitationDeepUrl, invitationShareUrl } from './invitationCode'
 
 describe('Invitation code helper', () => {
   it('builds proper invitation deep url', () => {
@@ -7,7 +7,7 @@ describe('Invitation code helper', () => {
   })
 
   it('builds proper invitation share url', () => {
-    expect(invitationDeepUrl('validCode')).toEqual(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?code=validCode`)
+    expect(invitationShareUrl('validCode')).toEqual(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?code=validCode`)
   })
 
   it('retrieves invitation code if url is a proper share url', () => {
@@ -16,7 +16,7 @@ describe('Invitation code helper', () => {
   })
 
   it('returns passed value if url is not a proper share url', () => {
-    const result = getInvitationCode(`validCode`)
+    const result = getInvitationCode('validCode')
     expect(result).toEqual('validCode')
   })
 })
