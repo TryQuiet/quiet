@@ -41,7 +41,7 @@ const LoadingPanel = () => {
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
   const torConnectionProcessSelector = useSelector(connection.selectors.torConnectionProcess)
   const isRegisterButtonClicked = useSelector(identity.selectors.isRegisterButtonClicked)
-  const displayableMessages = Object.values(currentChannelDisplayableMessages).length > 0
+  const areMessagesLoaded = Object.values(currentChannelDisplayableMessages).length > 0
   // Before connecting websocket
   useEffect(() => {
     if (isConnected) {
@@ -57,9 +57,8 @@ const LoadingPanel = () => {
     console.log('currentCommunity', currentCommunity)
     console.log('currentIdentity', currentIdentity)
     console.log('currentIdentity.userCertificate', currentIdentity?.userCertificate)
-    // currentCommunity && isRegisterButtonClicked && !isChannelReplicated
 
-    const isOwner = owner ? !isChannelReplicated : !displayableMessages
+    const isOwner = owner ? !isChannelReplicated : !areMessagesLoaded
 
     if (isRegisterButtonClicked && isOwner) {
       setMessage(LoadingPanelMessage.Joining)

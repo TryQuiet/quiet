@@ -55,7 +55,6 @@ describe('Connections manager - no tor', () => {
     const address = '0.0.0.0'
 
     connectionsManager = new ConnectionsManager({
-      torControlPort: 4321,
       socketIOPort: port,
       options: {
         env: {

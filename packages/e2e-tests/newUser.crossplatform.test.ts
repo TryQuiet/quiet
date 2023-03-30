@@ -142,7 +142,6 @@ describe('New User', () => {
       await buildSetup2.createChromeDriver()
       driver2 = buildSetup2.getDriver()
       await driver2.getSession()
-      // await new Promise<void>(resolve => setTimeout(() => resolve(), 30000))
     })
 
     it('Close debug modal', async () => {
