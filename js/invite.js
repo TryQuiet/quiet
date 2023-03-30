@@ -18,12 +18,6 @@ document.addEventListener(
 
     var invitationCode = getURLParameter('code')
 
-    navigator.getInstalledRelatedApps().then(relatedApps => {
-      for (let app of relatedApps) {
-        console.log({ app })
-      }
-    })
-
     if (invitationCode) {
       window.location = `quiet://?code=${invitationCode}`
     } else {
