@@ -1,6 +1,6 @@
 name: E2E linux
 
-on: [pull_request, workflow_call]
+on: [workflow_call]
 jobs:
 
   linux:
@@ -59,11 +59,3 @@ jobs:
           timeout_minutes: 35
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
-
-      # Will be fixed in next tasks 
-      # - name: Run newUser test - Includes 2 separate application clients
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 35
-      #     max_attempts: 3
-      #     command:  cd packages/e2e-tests && cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts

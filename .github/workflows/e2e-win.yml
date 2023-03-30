@@ -1,6 +1,6 @@
-name: E2E cross platform
+name: E2E Windows
 
-on: [pull_request, workflow_call]
+on: [workflow_call]
 jobs:
   windows:
     runs-on: windows-2019
@@ -80,11 +80,3 @@ jobs:
           max_attempts: 3
           shell: bash
           command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
-
-      # Will be fixed in next tasks 
-      # - name: Run newUser test - Includes 2 separate application clients
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 35
-      #     max_attempts: 3
-      #     command:  cd packages/e2e-tests && cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
