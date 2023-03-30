@@ -137,6 +137,7 @@ export class ConnectionsManager extends EventEmitter {
   localStorage: LocalDB
   communityState: ServiceState
   registrarState: ServiceState
+  isTorOnDesktop: boolean = false
 
   constructor({ options, socketIOPort, httpTunnelPort, torControlPort, torAuthCookie, torResourcesPath, torBinaryPath }: IConstructor) {
     super()
@@ -224,7 +225,10 @@ export class ConnectionsManager extends EventEmitter {
     await this.dataServer.listen()
 
     this.io.on('connection', async() => {
-      await this.initTorDesktop()
+      if (!this.isTorOnDesktop) {
+        this.isTorOnDesktop = true
+        await this.initTorDesktop()
+      }
     })
 
     const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
