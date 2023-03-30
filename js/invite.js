@@ -25,16 +25,9 @@ document.addEventListener(
     })
 
     if (invitationCode) {
-      if (navigator.getInstalledRelatedApps) {
-        navigator.getInstalledRelatedApps().then(relatedApps => {
-          if (relatedApps.length === 0) {
-            window.location = 'https://play.google.com/store/apps/details?id=com.quietmobile&pli=1'
-            return
-          }
-        })
-      }
-
       window.location = `quiet://?code=${invitationCode}`
+    } else {
+      window.prompt('Sorry, no invitation code has been passed with the URL.')
     }
   },
   false
