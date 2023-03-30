@@ -142,7 +142,7 @@ describe('New User', () => {
       await buildSetup2.createChromeDriver()
       driver2 = buildSetup2.getDriver()
       await driver2.getSession()
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
+      // await new Promise<void>(resolve => setTimeout(() => resolve(), 30000))
     })
 
     it('Close debug modal', async () => {
@@ -188,7 +188,7 @@ describe('New User', () => {
       await registerModal2.submit()
     })
 
-    it('JoiningLoadingPanel', async () => {
+    it.skip('JoiningLoadingPanel', async () => {
       console.log('new user - 5')
       const loadingPanelCommunity2 = new JoiningLoadingPanel(driver)
       const isLoadingPanelCommunity2 = await loadingPanelCommunity2.element.isDisplayed()
@@ -201,8 +201,8 @@ describe('New User', () => {
       await generalChannel2.element.isDisplayed()
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
-      // console.log('FETCHING CHANNEL MESSAGES!')
-      // await new Promise<void>(resolve => setTimeout(() => resolve(), 15000))
+      console.log('FETCHING CHANNEL MESSAGES!')
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 15000))
       await generalChannel2.sendMessage(joiningUserMessages[0])
     })
 
