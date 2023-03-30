@@ -6,8 +6,12 @@ on:
       [released, prereleased]
 
 jobs:
-  run-e2e-tests:
+  run-e2e-tests-linux:
     uses: ./.github/workflows/e2e-linux.yml
+  run-e2e-tests-mac:
+    uses: ./.github/workflows/e2e-mac.yml
+  run-e2e-tests-win:
+    uses: ./.github/workflows/e2e-win.yml
 
   build-linux:
     needs: run-e2e-tests
@@ -81,151 +85,151 @@ jobs:
           asset_name: Quiet-${{ steps.package-version.outputs.current-version}}.AppImage
           asset_content_type: application/.AppImage
 
-  # build-macos:
-  #   # needs: run-e2e-tests
-  #   runs-on: macos-latest
-  #   if: |
-  #     startsWith(github.ref, 'refs/tags/quiet')
+  build-macos:
+    needs: run-e2e-tests-mac
+    runs-on: macos-latest
+    if: |
+      startsWith(github.ref, 'refs/tags/quiet')
 
-  #   env:
-  #     TEST_MODE: ${{ github.event.action == 'prereleased' }}
-  #     S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
+    env:
+      TEST_MODE: ${{ github.event.action == 'prereleased' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
-  #   steps:
-  #     - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
 
-  #     - uses: actions-rs/components-nightly@v1
-  #       with:
-  #         component: clippy
+      - uses: actions-rs/components-nightly@v1
+        with:
+          component: clippy
 
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         toolchain: nightly-2020-08-28
-  #         components: clippy
-  #         override: true
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly-2020-08-28
+          components: clippy
+          override: true
 
-  #     - name: Setup environment
-  #       uses: ./.github/actions/setup-env
-  #       with:
-  #         bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle"
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle"
 
-  #     - name: Before build
-  #       uses: ./.github/actions/before-build
-  #       with:
-  #         source-path: darwin
+      - name: Before build
+        uses: ./.github/actions/before-build
+        with:
+          source-path: darwin
 
-  #     - name: "Remove crud files"
-  #       run: xattr -cr .
+      - name: "Remove crud files"
+        run: xattr -cr .
 
-  #     - name: "Set electron-builder props"
-  #       run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
+      - name: "Set electron-builder props"
+        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
 
-  #     - name: "Release"
-  #       env:
-  #         GH_TOKEN: ${{ secrets.GH_TOKEN }}
-  #         CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
-  #         CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
-  #         APPLEID: ${{ secrets.APPLE_ID }}
-  #         APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}
-  #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         USE_HARD_LINKS: false
-  #       run: cd packages/desktop && node_modules/.bin/electron-builder -p always --mac ${{ env.ELECTRON_BUILDER_PROPS }}
+      - name: "Release"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          APPLEID: ${{ secrets.APPLE_ID }}
+          APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          USE_HARD_LINKS: false
+        run: cd packages/desktop && node_modules/.bin/electron-builder -p always --mac ${{ env.ELECTRON_BUILDER_PROPS }}
 
-  #     - name: Get release
-  #       id: get_release
-  #       uses: bruceadams/get-release@v1.2.3
-  #       env:
-  #         GITHUB_TOKEN: ${{ github.token }}
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
-  #     - name: Extract version
-  #       id: extract_version
-  #       uses: Saionaro/extract-package-version@v1.1.1
-  #       with:
-  #         path: packages/desktop
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.1.1
+        with:
+          path: packages/desktop
 
-  #     - name: Upload Release Assets
-  #       uses: actions/upload-release-asset@v1.0.2
-  #       env:
-  #         GITHUB_TOKEN: ${{ github.token }}
-  #       with:
-  #         upload_url: ${{ steps.get_release.outputs.upload_url }}
-  #         asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}.dmg
-  #         asset_name: Quiet-${{ steps.extract_version.outputs.version}}.dmg
-  #         asset_content_type: application/.dmg
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}.dmg
+          asset_name: Quiet-${{ steps.extract_version.outputs.version}}.dmg
+          asset_content_type: application/.dmg
 
-  # build-windows:
-  #   # needs: run-e2e-tests
-  #   runs-on: windows-2019
-  #   if: |
-  #     startsWith(github.ref, 'refs/tags/quiet')
+  build-windows:
+    needs: run-e2e-tests-win
+    runs-on: windows-2019
+    if: |
+      startsWith(github.ref, 'refs/tags/quiet')
 
-  #   env:
-  #     TEST_MODE: ${{ github.event.action == 'prereleased' }}
-  #     S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
+    env:
+      TEST_MODE: ${{ github.event.action == 'prereleased' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
-  #   steps:
-  #     - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
 
-  #     - name: "Fetch jsign"
-  #       shell: bash
-  #       run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
+      - name: "Fetch jsign"
+        shell: bash
+        run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
 
-  #     - name: "Add Windows certificate"
-  #       id: write_file
-  #       uses: TryQuiet/base64-to-file@main
-  #       with:
-  #         fileName: 'win-certificate.pfx'
-  #         encodedString: ${{ secrets.WIN_CSC_LINK }}
+      - name: "Add Windows certificate"
+        id: write_file
+        uses: TryQuiet/base64-to-file@main
+        with:
+          fileName: 'win-certificate.pfx'
+          encodedString: ${{ secrets.WIN_CSC_LINK }}
 
-  #     - name: "Remove test files workaround (jest types conflicting with cypress types)"
-  #       run: find packages/desktop/src -name '*.test.*' -delete
-  #       shell: bash
+      - name: "Remove test files workaround (jest types conflicting with cypress types)"
+        run: find packages/desktop/src -name '*.test.*' -delete
+        shell: bash
 
-  #     - name: Setup environment
-  #       uses: ./.github/actions/setup-env
-  #       with:
-  #         bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle"
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle"
 
-  #     - name: Before build
-  #       uses: ./.github/actions/before-build
-  #       with:
-  #         source-path: win32
+      - name: Before build
+        uses: ./.github/actions/before-build
+        with:
+          source-path: win32
 
-  #     - name: "Set electron-builder props"
-  #       shell: bash
-  #       run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
+      - name: "Set electron-builder props"
+        shell: bash
+        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
 
-  #     - name: "Release"
-  #       shell: bash
-  #       env:
-  #         GH_TOKEN: ${{ secrets.GH_TOKEN }}
-  #         CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
-  #         WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
-  #         WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
-  #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         USE_HARD_LINKS: false
-  #       run: cd packages/desktop && node_modules/.bin/electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
+      - name: "Release"
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          USE_HARD_LINKS: false
+        run: cd packages/desktop && node_modules/.bin/electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
 
-  #     - name: Get release
-  #       id: get_release
-  #       uses: bruceadams/get-release@v1.2.3
-  #       env:
-  #         GITHUB_TOKEN: ${{ github.token }}
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
-  #     - name: Extract version
-  #       id: extract_version
-  #       uses: Saionaro/extract-package-version@v1.1.1
-  #       with:
-  #         path: packages/desktop
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.1.1
+        with:
+          path: packages/desktop
 
-  #     - name: Upload Release Assets
-  #       uses: actions/upload-release-asset@v1.0.2
-  #       env:
-  #         GITHUB_TOKEN: ${{ github.token }}
-  #       with:
-  #         upload_url: ${{ steps.get_release.outputs.upload_url }}
-  #         asset_path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
-  #         asset_name: Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
-  #         asset_content_type: application/.exe
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
+          asset_name: Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
+          asset_content_type: application/.exe
