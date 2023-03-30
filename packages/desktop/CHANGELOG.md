@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0-alpha.11](/compare/quiet@1.2.0-alpha.10...quiet@1.2.0-alpha.11) (2023-03-30)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
 # [1.2.0-alpha.10](/compare/quiet@1.2.0-alpha.9...quiet@1.2.0-alpha.10) (2023-03-30)
 
 **Note:** Version bump only for package quiet
