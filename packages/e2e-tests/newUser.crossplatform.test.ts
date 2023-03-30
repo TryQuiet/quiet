@@ -69,7 +69,7 @@ describe('New User', () => {
       }
     })
 
-    it('Starting Quiet modal', async () => {
+    it('StartingLoadingPanel modal', async () => {
       const loadingPanel = new StartingLoadingPanel(driver)
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
       expect(isLoadingPanel).toBeTruthy()
@@ -146,6 +146,7 @@ describe('New User', () => {
     })
 
     it('Close debug modal', async () => {
+      console.log('new user - 1')
       console.log('Debug modal')
       const debugModal = new DebugModeModal(driver2)
       await debugModal.element.isDisplayed()
@@ -163,7 +164,15 @@ describe('New User', () => {
       }
     })
 
-    it('Guest  joins the new community successfully', async () => {
+    it('StartingLoadingPanel modal', async () => {
+      console.log('new user - 2')
+      const loadingPanel = new StartingLoadingPanel(driver2)
+      const isLoadingPanel = await loadingPanel.element.isDisplayed()
+      expect(isLoadingPanel).toBeTruthy()
+    })
+
+    it('Guest joins the new community successfully', async () => {
+      console.log('new user - 3')
       const joinCommunityModal = new JoinCommunityModal(driver2)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
@@ -172,6 +181,7 @@ describe('New User', () => {
     })
 
     it('RegisterUsernameModal', async () => {
+      console.log('new user - 4')
       const registerModal2 = new RegisterUsernameModal(driver2)
       const isRegisterModal2 = await registerModal2.element.isDisplayed()
       expect(isRegisterModal2).toBeTruthy()
@@ -179,23 +189,26 @@ describe('New User', () => {
       await registerModal2.submit()
     })
 
-    it.skip('LoadingPanel', async () => {
+    it('JoiningLoadingPanel', async () => {
+      console.log('new user - 5')
       const loadingPanelCommunity2 = new JoiningLoadingPanel(driver)
       const isLoadingPanelCommunity2 = await loadingPanelCommunity2.element.isDisplayed()
       expect(isLoadingPanelCommunity2).toBeTruthy()
     })
 
     it('User sends a message', async () => {
+      console.log('new user - 6')
       generalChannel2 = new Channel(driver2, 'general')
       await generalChannel2.element.isDisplayed()
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
-      console.log('FETCHING CHANNEL MESSAGES!')
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 15000))
+      // console.log('FETCHING CHANNEL MESSAGES!')
+      // await new Promise<void>(resolve => setTimeout(() => resolve(), 15000))
       await generalChannel2.sendMessage(joiningUserMessages[0])
     })
 
     it('Sent message is visible in a channel', async () => {
+      console.log('new user - 7')
       const messages2 = await generalChannel2.getUserMessages(joiningUserUsername)
       const text2 = await messages2[0].getText()
       expect(text2).toEqual(joiningUserMessages[0])
