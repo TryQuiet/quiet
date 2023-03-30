@@ -307,16 +307,6 @@ export class ConnectionsManager extends EventEmitter {
     await this.initTorMobile()
   }
 
-  // public initTor = async () => {
-  //   if (this.torControlPort) {
-  //     this.tor.initTorControl()
-  //   } else if (this.torBinaryPath) {
-  //     await this.tor.init()
-  //   } else {
-  //     throw new Error('You must provide either tor control port or tor binary path')
-  //   }
-  // }
-
   public initTorDesktop = async () => {
     if (this.torBinaryPath) {
       await this.tor.init()
