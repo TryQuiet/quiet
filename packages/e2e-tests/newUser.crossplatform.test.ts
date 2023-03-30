@@ -4,9 +4,10 @@ import {
   CreateCommunityModal,
   DebugModeModal,
   JoinCommunityModal,
-  LoadingPanel,
+  JoiningLoadingPanel,
   RegisterUsernameModal,
-  Sidebar
+  Sidebar,
+  StartingLoadingPanel
 } from './selectors.crossplatform'
 import logger from './logger'
 import { BuildSetup } from './crossplatform.utils'
@@ -69,7 +70,7 @@ describe('New User', () => {
     })
 
     it('Starting Quiet modal', async () => {
-      const loadingPanel = new LoadingPanel(driver, 'Starting Quiet')
+      const loadingPanel = new StartingLoadingPanel(driver)
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
       expect(isLoadingPanel).toBeTruthy()
     })
@@ -98,7 +99,7 @@ describe('New User', () => {
     })
 
     it('Connecting to peers modal', async () => {
-      const loadingPanelCommunity = new LoadingPanel(driver, 'Connecting to peers')
+      const loadingPanelCommunity = new JoiningLoadingPanel(driver)
       const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
       expect(isLoadingPanelCommunity).toBeTruthy()
     })
@@ -179,7 +180,7 @@ describe('New User', () => {
     })
 
     it.skip('LoadingPanel', async () => {
-      const loadingPanelCommunity2 = new LoadingPanel(driver2, 'Connecting to peers')
+      const loadingPanelCommunity2 = new JoiningLoadingPanel(driver)
       const isLoadingPanelCommunity2 = await loadingPanelCommunity2.element.isDisplayed()
       expect(isLoadingPanelCommunity2).toBeTruthy()
     })

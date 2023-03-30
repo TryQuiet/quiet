@@ -5,8 +5,9 @@ import {
   CreateCommunityModal,
   DebugModeModal,
   JoinCommunityModal,
-  LoadingPanel,
-  RegisterUsernameModal
+  JoiningLoadingPanel,
+  RegisterUsernameModal,
+  StartingLoadingPanel
 } from './selectors.crossplatform'
 
 jest.setTimeout(450000)
@@ -45,7 +46,7 @@ describe('Smoke', () => {
       }
     })
     it('User waits for the modal Starting Quiet to disappear', async () => {
-      const loadingPanel = new LoadingPanel(driver, 'Starting Quiet')
+      const loadingPanel = new StartingLoadingPanel(driver)
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
       await buildSetup.getTorPid()
       expect(isLoadingPanel).toBeTruthy()
@@ -84,7 +85,7 @@ describe('Smoke', () => {
     })
 
     it('User waits for the modal Connecting to peers to disappear', async () => {
-      const loadingPanelCommunity = new LoadingPanel(driver, 'Connecting to peers')
+      const loadingPanelCommunity = new JoiningLoadingPanel(driver)
       const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
       expect(isLoadingPanelCommunity).toBeTruthy()
     })
