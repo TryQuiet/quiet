@@ -24,4 +24,15 @@
     <string name="controlPort">Control port</string>
     <string name="authCookie">Auth cookie</string>
 
+    <!-- Metadata -->
+    <string name="asset_statements">
+        [{
+            \"relation\": [\"delegate_permission/common.handle_all_urls\"],
+            \"target\": {
+            \"namespace\": \"web\",
+            \"site\": \"https://tryquiet.org\"
+            }
+        }]
+    </string>
+
 </resources>
