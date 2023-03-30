@@ -1,4 +1,4 @@
-import { Site } from 'packages/state-manager/src/constants'
+import { Site } from '../../../constants'
 import { getInvitationCode, invitationDeepUrl, invitationShareUrl } from './invitationCode'
 
 describe('Invitation code helper', () => {
