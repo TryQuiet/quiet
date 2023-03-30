@@ -20,7 +20,6 @@ ElectronStore.initRenderer()
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
 remote.initialize() 
-
  
 const log = logger('main')
 
