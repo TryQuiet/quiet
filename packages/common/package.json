@@ -1,0 +1,41 @@
+{
+  "name": "@quiet/common",
+  "version": "0.0.1",
+  "description": "Common monorepo utils",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepare": "npm run build",
+    "lint": "eslint --ext .ts . --fix",
+    "lint-ci": "eslint --ext .ts .",
+    "test": "jest --runInBand",
+    "prettier": "prettier",
+    "rmDist": "rimraf lib/"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.21",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-airbnb-typescript": "^13.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.24.1",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-prettier": "^3.4.0",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.5.2",
+    "prettier": "^2.1.0",
+    "prettier-config-standard": "^1.0.1",
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "cross-env": "^5.2.0",
+    "debug": "^4.3.1"
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -5,7 +5,7 @@ import { autoUpdater } from 'electron-updater'
 import { BrowserWindow, app, ipcMain, Menu } from 'electron'
 import { waitFor } from '@testing-library/dom'
 import path from 'path'
-import { invitationDeepUrl } from '@quiet/state-manager'
+import { invitationDeepUrl } from '@quiet/common'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')

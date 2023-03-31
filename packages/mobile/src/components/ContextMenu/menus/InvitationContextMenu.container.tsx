@@ -4,7 +4,7 @@ import { Share } from 'react-native'
 
 import Clipboard from '@react-native-clipboard/clipboard'
 
-import { communities, invitationDeepUrl, invitationShareUrl } from '@quiet/state-manager'
+import { communities } from '@quiet/state-manager'
 
 import { navigationSelectors } from '../../../store/navigation/navigation.selectors'
 
@@ -16,6 +16,7 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 
 import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
+import { invitationShareUrl } from '@quiet/common'
 
 export const InvitationContextMenu: FC = () => {
   const dispatch = useDispatch()

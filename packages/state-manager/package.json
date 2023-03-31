@@ -23,6 +23,7 @@
   "license": "ISC",
   "dependencies": {
     "@quiet/logger": "^1.0.1-alpha.0",
+    "@quiet/common": "0.0.1",
     "@reduxjs/toolkit": "^1.9.1",
     "factory-girl": "^5.0.4",
     "get-port": "^5.1.1",

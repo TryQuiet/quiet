@@ -1,12 +1,15 @@
-import { InvitationParams, Site } from '../../../constants'
+import { Site, InvitationParams } from '@quiet/common'
 
-export const getInvitationCode = (value: string): string => {
+export const getInvitationCode = (codeOrUrl: string): string => {
+  /**
+   * Extract code from invitation share url or return passed value for further validation
+   */
   let code: string
   let validUrl: URL
   try {
-    validUrl = new URL(value)
+    validUrl = new URL(codeOrUrl)
   } catch (e) {
-    code = value
+    code = codeOrUrl
   }
 
   if (validUrl && validUrl.host === Site.DOMAIN && validUrl.pathname === `/${Site.JOIN_PAGE}`) {
@@ -15,16 +18,4 @@ export const getInvitationCode = (value: string): string => {
     }
   }
   return code
-}
-
-export const invitationDeepUrl = (code: string = ''): string => {
-  const url = new URL('quiet://')
-  url.searchParams.append(InvitationParams.CODE, code)
-  return url.href
-}
-
-export const invitationShareUrl = (code: string = ''): string => {
-  const url = new URL(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}`)
-  url.searchParams.append(InvitationParams.CODE, code)
-  return url.href
 }
