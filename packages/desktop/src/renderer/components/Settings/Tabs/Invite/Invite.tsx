@@ -1,25 +1,18 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useCallback } from 'react'
 import { useSelector } from 'react-redux'
-
 import { communities } from '@quiet/state-manager'
-
-import { InviteComponent } from './InviteComponent'
+import { InviteComponent } from './Invite.component'
+import { shell } from 'electron'
 
 export const Invite: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
+  const invitationLink =
+    `https://tryquiet.org/join?code=${community?.registrarUrl}` || 'https://tryquiet.org/'
 
-  const invitationUrl = useSelector(communities.selectors.registrarUrl(community?.id))
+  const openUrl = useCallback((url: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    shell.openExternal(url)
+  }, [])
 
-  const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
-
-  const handleClickInputReveal = () => {
-    revealInputValue ? setRevealInputValue(false) : setRevealInputValue(true)
-  }
-
-  return <InviteComponent
-    communityName={community?.name || 'community'}
-    invitationUrl={invitationUrl}
-    revealInputValue={revealInputValue}
-    handleClickInputReveal={handleClickInputReveal}
-  />
+  return <InviteComponent invitationLink={invitationLink} openUrl={openUrl} />
 }

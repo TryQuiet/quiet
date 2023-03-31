@@ -13,7 +13,6 @@ import { Invite } from './Tabs/Invite/Invite'
 import { QRCode } from './Tabs/QRCode/QRCode'
 
 import SettingsComponent from './SettingsComponent'
-import CopyLink from './Tabs/CopyLink/CopyLink'
 
 const Settings = () => {
   const modal = useModal(ModalName.accountSettingsModal)
@@ -27,7 +26,6 @@ const Settings = () => {
     account: AccountSettings,
     notifications: Notifications,
     invite: Invite,
-    copyLink: CopyLink,
     qrcode: QRCode
   }
 

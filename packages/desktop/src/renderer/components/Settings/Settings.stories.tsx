@@ -10,7 +10,7 @@ import SettingsComponent, { SettingsComponentProps } from './SettingsComponent'
 // import { NotificationsComponent } from './Tabs/Notifications/NotificationsComponent'
 // import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
 
-import { InviteComponent } from './Tabs/Invite/InviteComponent'
+import { InviteComponent } from './Tabs/Invite/Invite.component'
 
 import { LeaveCommunityComponent } from './Tabs/LeaveCommunity/LeaveCommunityComponent'
 import { Typography } from '@mui/material'
@@ -50,15 +50,12 @@ const Leave: FC = () => {
 // }
 
 const Invite: FC = () => {
-  const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
   return (
     <InviteComponent
-      communityName={'Rockets'}
-      invitationUrl={'ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad'}
-      revealInputValue={revealInputValue}
-      handleClickInputReveal={() => {
-        setRevealInputValue(!revealInputValue)
-      }}
+      invitationLink={
+        'https://tryquiet.org/join?code=http://p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad.onion'
+      }
+      openUrl={(url: string) => console.log(url)}
     />
   )
 }

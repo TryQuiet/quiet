@@ -139,7 +139,6 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
                 data-testid={'notifications-settings-tab'}
               />
               <Tab value='invite' label='Invite a friend' data-testid={'invite-settings-tab'} />
-              <Tab value='copyLink' label='Copy a link' data-testid={'copy-link-tab'} />
               <Tab value='qrcode' label='QR Code' data-testid={'qr-code-tab'} />
               {!isWindows && (
                 <Grid style={{ marginTop: '24px', cursor: 'pointer' }}>

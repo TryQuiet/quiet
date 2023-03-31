@@ -1,17 +1,25 @@
 import React, { FC } from 'react'
+
 import { styled } from '@mui/material/styles'
+import { IconButton } from '@mui/material'
+
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
+
 import CopyToClipboard from 'react-copy-to-clipboard'
 
-const PREFIX = 'CopyLink'
+import { capitalizeFirstLetter } from '../../../../../utils/functions/capitalize'
+
+const PREFIX = 'InviteToCommunity'
 
 const classes = {
   title: `${PREFIX}title`,
   titleDiv: `${PREFIX}titleDiv`,
   link: `${PREFIX}link`,
-  button: `${PREFIX}button`
+  button: `${PREFIX}button`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -20,12 +28,12 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.titleDiv}`]: {
     marginBottom: 24
   },
-
   [`& .${classes.link}`]: {
-    textDecoration: 'none',
-    color: theme.palette.colors.linkBlue
+    color: theme.palette.colors.linkBlue,
+    cursor: 'pointer',
+    marginTop: '16px',
+    fontSize: '14px'
   },
-
   [`& .${classes.button}`]: {
     marginTop: 24,
     textTransform: 'none',
@@ -37,23 +45,16 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
       opacity: 0.7,
       backgroundColor: theme.palette.colors.quietBlue
     }
-  },
-  [`& .${classes.link}`]: {
-    color: theme.palette.colors.blue,
-    cursor: 'pointer',
-    marginTop: '16px',
-    fontSize: '14px'
   }
 }))
 
-export interface CopyLinkComponentProps {
+export interface InviteComponentProps {
   invitationLink: string
   openUrl: (url: string) => void
 }
 
-const CopyLinkComponent: FC<CopyLinkComponentProps> = ({ invitationLink, openUrl }) => {
+export const InviteComponent: FC<InviteComponentProps> = ({ invitationLink, openUrl }) => {
   const linkText = invitationLink.length > 60 ? `${invitationLink.slice(0, 67)}...` : invitationLink
-
   return (
     <StyledGrid container direction='column'>
       <Grid
@@ -63,19 +64,18 @@ const CopyLinkComponent: FC<CopyLinkComponentProps> = ({ invitationLink, openUrl
         alignItems='center'
         className={classes.titleDiv}>
         <Grid item className={classes.title}>
-          <Typography variant='h3'>Your community link</Typography>
+          <Typography variant='h3'>Invite a friend</Typography>
         </Grid>
       </Grid>
       <Grid item>
-        {/* <Grid item>
+        <Grid item>
           <Typography variant='h5'>Your community link</Typography>
-        </Grid> */}
+        </Grid>
         <Grid item>
           <Typography variant='body2'>
             Anyone with Quiet app can follow this link to join this community.
             <br /> Only share with people you trust.
           </Typography>
-
           <a onClick={() => openUrl(invitationLink)}>
             <Typography className={classes.link} variant='body2'>
               {linkText}
@@ -91,5 +91,3 @@ const CopyLinkComponent: FC<CopyLinkComponentProps> = ({ invitationLink, openUrl
     </StyledGrid>
   )
 }
-
-export default CopyLinkComponent
