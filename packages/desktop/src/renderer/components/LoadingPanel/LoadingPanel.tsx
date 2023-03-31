@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
-import { communities, publicChannels, users, identity } from '@quiet/state-manager'
-import LoadingPanelComponent from './loadingPanelComponent'
+import { communities, publicChannels, users, identity, connection } from '@quiet/state-manager'
 import { modalsActions } from '../../sagas/modals/modals.slice'
+import { shell } from 'electron'
+import JoiningPanelComponent from './JoiningPanelComponent'
+import StartingPanelComponent from './StartingPanelComponent'
 
 export enum LoadingPanelMessage {
   StartingApplication = 'Starting Quiet',
-  Connecting = 'Connecting to peers'
+  Joining = 'Connecting to peers'
 }
 
 const LoadingPanel = () => {
@@ -25,14 +27,21 @@ const LoadingPanel = () => {
     useSelector(publicChannels.selectors.publicChannels)?.length > 0
   )
 
+  const currentChannelDisplayableMessages = useSelector(
+    publicChannels.selectors.currentChannelMessagesMergedBySender
+  )
+
   const community = useSelector(communities.selectors.currentCommunity)
   const owner = Boolean(community?.CA)
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-
   const usersData = Object.keys(useSelector(users.selectors.certificates))
   const isOnlyOneUser = usersData.length === 1
 
+  const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
+  const torConnectionProcessSelector = useSelector(connection.selectors.torConnectionProcess)
+  const isRegisterButtonClicked = useSelector(identity.selectors.isRegisterButtonClicked)
+  const areMessagesLoaded = Object.values(currentChannelDisplayableMessages).length > 0
   // Before connecting websocket
   useEffect(() => {
     if (isConnected) {
@@ -48,14 +57,19 @@ const LoadingPanel = () => {
     console.log('currentCommunity', currentCommunity)
     console.log('currentIdentity', currentIdentity)
     console.log('currentIdentity.userCertificate', currentIdentity?.userCertificate)
-    if (isConnected) {
-      if (currentCommunity && !isChannelReplicated && currentIdentity?.userCertificate) {
-        setMessage(LoadingPanelMessage.Connecting)
-        loadingPanelModal.handleOpen()
-      } else {
+
+    const isOwner = owner ? !isChannelReplicated : !areMessagesLoaded
+
+    if (isRegisterButtonClicked && isOwner) {
+      setMessage(LoadingPanelMessage.Joining)
+      loadingPanelModal.handleOpen()
+    } else {
+      if (isConnected) {
+        dispatch(identity.actions.registerButtonClicked(false))
         loadingPanelModal.handleClose()
       }
-
+    }
+    if (isConnected) {
       if (currentCommunity && isChannelReplicated && owner && isOnlyOneUser) {
         const notification = new Notification('Community created!', {
           body: 'Visit Settings for an invite code you can share.',
@@ -68,9 +82,30 @@ const LoadingPanel = () => {
         }
       }
     }
-  }, [isConnected, currentCommunity, isChannelReplicated])
+  }, [isConnected, currentCommunity, isChannelReplicated, isRegisterButtonClicked])
 
-  return <LoadingPanelComponent {...loadingPanelModal} message={message} />
+  const openUrl = useCallback((url: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    shell.openExternal(url)
+  }, [])
+
+  if (message === LoadingPanelMessage.StartingApplication) {
+    return (
+      <StartingPanelComponent
+        {...loadingPanelModal}
+        message={message}
+        torBootstrapInfo={torBootstrapProcessSelector}
+      />
+    )
+  } else {
+    return (
+      <JoiningPanelComponent
+        {...loadingPanelModal}
+        openUrl={openUrl}
+        torConnectionInfo={torConnectionProcessSelector}
+      />
+    )
+  }
 }
 
 export default LoadingPanel

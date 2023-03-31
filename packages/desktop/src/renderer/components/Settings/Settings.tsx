@@ -10,6 +10,7 @@ import { About } from '../widgets/Settings/About'
 import { AccountSettings } from './Tabs/AccountSettings/AccountSettings'
 import { Notifications } from './Tabs/Notifications/Notifications'
 import { Invite } from './Tabs/Invite/Invite'
+import { QRCode } from './Tabs/QRCode/QRCode'
 
 import SettingsComponent from './SettingsComponent'
 
@@ -24,7 +25,8 @@ const Settings = () => {
     about: About,
     account: AccountSettings,
     notifications: Notifications,
-    invite: Invite
+    invite: Invite,
+    qrcode: QRCode
   }
 
   const leaveCommunityModal = useModal(ModalName.leaveCommunity)
