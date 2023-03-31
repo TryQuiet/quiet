@@ -65,6 +65,7 @@ describe('registrar is offline, user tries to join, then registrar goes online',
   })
 
   it('owner creates community', async () => {
+    console.log('1 - a')
     await createCommunity({ userName: 'placek', store: owner.store })
     await assertInitializedCommunity(owner.store)
     const communityId = owner.store.getState().Communities.currentCommunity
@@ -76,11 +77,13 @@ describe('registrar is offline, user tries to join, then registrar goes online',
   })
 
   it('owner goes offline', async () => {
+    console.log('1 - b')
     await owner.manager.closeAllServices()
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
   })
 
   it('user tries to join community, while registrar is offline', async () => {
+    console.log('1 - c')
     await sendRegistrationRequest({
       userName: 'wacek',
       store: user.store,
@@ -92,17 +95,20 @@ describe('registrar is offline, user tries to join, then registrar goes online',
   })
 
   it('user get error message', async () => {
+    console.log('1 - d')
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
     await assertReceivedRegistrationError(user.store)
   })
 
   it('registrar goes online', async () => {
+    console.log('1 - e')
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 40000))
     owner = await createApp(ownerOldState, ownerDataPath)
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
   })
 
   it('user finishes registration', async () => {
+    console.log('1 - f')
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 40000))
     await assertReceivedCertificate(user.store)
     await assertInitializedCommunity(user.store)
@@ -127,11 +133,13 @@ describe('User tries to register existing username', () => {
   })
 
   it('Owner creates community', async () => {
+    console.log('2 - a')
     await createCommunity({ userName, store: owner.store })
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
   })
 
   it('User tries to join the community using the same username as owner', async () => {
+    console.log('2 - b')
     const ownerData = getCommunityOwnerData(owner.store)
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
     await registerUsername({
@@ -143,6 +151,7 @@ describe('User tries to register existing username', () => {
   })
 
   it('User receives registration error with a proper message', async () => {
+    console.log('2 - c')
     await assertReceivedRegistrationError(user.store)
   })
 })
@@ -165,10 +174,12 @@ describe('Certificate already exists in db, user asks for certificate providing 
   })
 
   it('Owner creates community', async () => {
+    console.log('3 - a')
     await createCommunity({ userName: 'owner', store: owner.store })
   })
 
   it('User registers certificate', async () => {
+    console.log('3 - b')
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
     ownerData = getCommunityOwnerData(owner.store)
     await registerUsername({

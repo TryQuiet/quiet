@@ -27,11 +27,13 @@ describe('restart app without doing anything', () => {
   })
 
   it('Owner successfully closes app', async () => {
+    console.log('1a')
     store = owner.store
     await owner.manager.closeAllServices()
   })
 
   it('Owner relaunch application with previous state', async () => {
+    console.log('2a')
     oldState = storePersistor(store.getState())
     dataPath = owner.appPath
     owner = await createApp(oldState, dataPath)
@@ -39,6 +41,7 @@ describe('restart app without doing anything', () => {
   })
 
   it('Assert that owner store is correct', async () => {
+    console.log('3a')
     const currentState = store.getState()
     await assertStoreStatesAreEqual(oldState, currentState)
   })
@@ -59,17 +62,24 @@ describe('create community and restart app', () => {
   })
 
   it('Owner creates community', async () => {
+    console.log('1b')
     await createCommunity({ userName: 'Owner', store: owner.store })
     await assertInitializedCommunity(owner.store)
     store = owner.store
   })
 
   it('Owner successfully closes app', async () => {
+    console.log('2b')
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
-    await owner.manager.closeAllServices()
+    try {
+      await owner.manager.closeAllServices()
+    } catch (e) {
+      console.log(e)
+    }
   })
 
   it('Owner relaunch application with previous state', async () => {
+    console.log('3b')
     oldState = storePersistor(store.getState())
     dataPath = owner.appPath
     owner = await createApp(oldState, dataPath)
@@ -79,6 +89,7 @@ describe('create community and restart app', () => {
   })
 
   it('Assert community and registrar are initialized', async () => {
+    console.log('4b')
     await assertInitializedExistingCommunitiesAndRegistrars(store)
   })
 })

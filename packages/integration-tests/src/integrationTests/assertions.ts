@@ -61,7 +61,10 @@ export async function assertReceivedMessages(
   const keys = Object.keys(
     store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
   )
-  console.log('check store channel', store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities)
+  console.log(
+    'check store channel',
+    store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+  )
   console.log('number', keys, expectedMessages.length)
   await waitForExpect(() => {
     expect(keys.length).toBe(expectedMessages.length)
@@ -125,8 +128,7 @@ export async function assertReceivedImages(
     } images`
   )
   return Object.values(
-    store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages
-      .entities
+    store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
   ).find((message) => message.type === MessageType.Image)
 }
 
@@ -138,7 +140,10 @@ export async function assertDownloadedImage(
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for downloading ${expectedImage}`)
   await waitForExpect(() => {
-    console.log('store messages', store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities)
+    console.log(
+      'store messages',
+      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+    )
     const message = Object.values(
       store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
     ).filter((message) => message.media?.path)[0]
@@ -152,11 +157,9 @@ export async function assertDownloadedImage(
   log(`User ${userName} downloaded ${expectedImage}`)
 }
 
-
-
 export const assertInitializedExistingCommunitiesAndRegistrars = async (store: TestStore) => {
   const communityId = store.getState().Communities.communities.ids[0]
-
+  console.log(store.getState().Network.initializedCommunities[communityId])
   await waitForExpect(() => {
     expect(store.getState().Network.initializedCommunities[communityId]).toBeTruthy()
   }, 200000)
