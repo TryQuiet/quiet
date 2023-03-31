@@ -22,7 +22,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@quiet/logger": "^1.0.0-alpha.20",
+    "@quiet/logger": "*",
     "@reduxjs/toolkit": "2.0.0-alpha.1",
     "factory-girl": "^5.0.4",
     "get-port": "^5.1.1",
