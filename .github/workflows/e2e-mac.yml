@@ -23,9 +23,6 @@ jobs:
         uses: ./.github/actions/before-build
         with:
           source-path: darwin
-      
-      - name: Display google-chrome version
-        run: google-chrome --version
 
       - name: Build App Image
         working-directory: ./packages/desktop
