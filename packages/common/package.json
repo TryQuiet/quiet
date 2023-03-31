@@ -18,6 +18,7 @@
   },
   "devDependencies": {
     "@types/node": "^17.0.21",
+    "@types/jest": "^26.0.23",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
@@ -35,6 +36,17 @@
   "dependencies": {
     "cross-env": "^5.2.0",
     "debug": "^4.3.1"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testPathIgnorePatterns": [
+      "node_modules/"
+    ],
+    "testRegex": ".*\\.test\\.(t|j)s$",
+    "testEnvironment": "node",
+    "rootDir": "src"
   },
   "author": "",
   "license": "ISC"

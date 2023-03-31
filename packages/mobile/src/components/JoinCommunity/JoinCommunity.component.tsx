@@ -7,7 +7,8 @@ import { Typography } from '../Typography/Typography.component'
 import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { JoinCommunityProps } from './JoinCommunity.types'
-import { getInvitationCode, ONION_ADDRESS_REGEX } from '@quiet/state-manager'
+import { getInvitationCode } from '@quiet/state-manager'
+import { ONION_ADDRESS_REGEX } from '@quiet/common'
 
 export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, redirectionAction, invitationCode, networkCreated }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
