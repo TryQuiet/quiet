@@ -224,12 +224,12 @@ export class ConnectionsManager extends EventEmitter {
 
     await this.dataServer.listen()
 
-    // this.io.on('connection', async() => {
-    //   if (!this.isTorInit && this.torBinaryPath) {
-    //     this.isTorInit = true
-    //     await this.tor.init()
-    //   }
-    // })
+    this.io.on('connection', async() => {
+      if (!this.isTorInit && this.torBinaryPath) {
+        this.isTorInit = true
+        await this.tor.init()
+      }
+    })
 
     const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
 
@@ -311,7 +311,6 @@ export class ConnectionsManager extends EventEmitter {
     if (this.torControlPort) {
       this.tor.initTorControl()
     } else if (this.torBinaryPath) {
-      await this.tor.init()
       // Tor init will be executed on connection event
     } else {
       throw new Error('You must provide either tor control port or tor binary path')
