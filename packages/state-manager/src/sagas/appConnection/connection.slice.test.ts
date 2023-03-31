@@ -22,9 +22,10 @@ describe('connectionReducer', () => {
 
     const factory = await getFactory(store)
 
-    alice = await factory.create<
-    ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', { nickname: 'alice' })
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+      'Identity',
+      { nickname: 'alice' }
+    )
   })
 
   it('add initialized communities should add correctly data into the store', () => {
@@ -65,5 +66,34 @@ describe('connectionReducer', () => {
     const userDataPerPeerId = connectionSelectors.connectedPeersMapping(store.getState())
 
     expect(userDataPerPeerId[alice.peerId.id]).toEqual(aliceCertData)
+  })
+
+  it('setTorBootstrapProcess', () => {
+    const payload =
+      'Mar 29 15:15:38.000 [notice] Bootstrapped 10% (conn_done): Connected to a relay'
+
+    store.dispatch(connectionActions.setTorBootstrapProcess(payload))
+
+    const torBootstrapInfo = connectionSelectors.torBootstrapProcess(store.getState())
+
+    const expectedTorBootstrapInfo = 'Bootstrapped 10% (conn_done)'
+
+    expect(torBootstrapInfo).toEqual(expectedTorBootstrapInfo)
+  })
+
+  it('setTorConnectionProcess', () => {
+    const payload1 = 'Initializing storage'
+
+    store.dispatch(connectionActions.setTorConnectionProcess(payload1))
+
+    const payload2 = 'Initializing IPFS'
+
+    store.dispatch(connectionActions.setTorConnectionProcess(payload2))
+
+    const { number, text } = connectionSelectors.torConnectionProcess(store.getState())
+
+    expect(number).toEqual(65)
+
+    expect(text).toEqual(payload2)
   })
 })

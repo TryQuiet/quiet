@@ -17,6 +17,11 @@ export const selectEntities = createSelector(identitySlice, (reducerState) =>
   identityAdapter.getSelectors().selectEntities(reducerState.identities)
 )
 
+export const isRegisterButtonClicked = createSelector(
+  identitySlice,
+  reducerState => reducerState.isRegisterButtonClicked
+)
+
 export const currentIdentity = createSelector(
   communitiesSelectors.currentCommunityId,
   identitySlice,
@@ -46,5 +51,6 @@ export const identitySelectors = {
   selectEntities,
   currentIdentity,
   joinedCommunities,
-  joinTimestamp
+  joinTimestamp,
+  isRegisterButtonClicked
 }

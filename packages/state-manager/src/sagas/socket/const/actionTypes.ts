@@ -70,6 +70,9 @@ export enum SocketActionTypes {
   SEND_USER_CERTIFICATE = 'sendUserCertificate',
   SUBSCRIBE_FOR_ALL_CONVERSATIONS = 'subscribeToAllConversations',
   SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD = 'subscribeToDirectMessageThread',
+  //  T
+  TOR_BOOTSTRAP_PROCESS = 'torBootstrapProcess',
+  CONNECTION_PROCESS_INFO = 'torConnectionProcess',
   // U
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
   UPLOAD_FILE = 'uploadFile',

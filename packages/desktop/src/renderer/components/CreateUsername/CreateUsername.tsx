@@ -31,6 +31,7 @@ const CreateUsername = () => {
       )
     }
     dispatch(identity.actions.registerUsername(nickname))
+    dispatch(identity.actions.registerButtonClicked(true))
   }
 
   return (
