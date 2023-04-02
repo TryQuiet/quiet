@@ -8,8 +8,9 @@ import { AppbarProps } from './Appbar.types'
 import { appImages } from '../../../assets'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
-export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back }) => {
-  const icon = appImages.arrow_left
+export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, contextMenu }) => {
+  const arrow_icon = appImages.arrow_left
+  const menu_icon = appImages.dots
   return (
     <StyledAppbar style={style}>
       <TouchableWithoutFeedback
@@ -19,7 +20,7 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back }
         <View style={{ justifyContent: 'center', alignItems: 'center', width: 64 }}>
           {back ? (
             <Image
-              source={icon}
+              source={arrow_icon}
               resizeMode='cover'
               resizeMethod='resize'
               style={{
@@ -39,7 +40,7 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back }
               }}>
               <Typography fontSize={14} color={'white'}>
                 {prefix}
-                {title.slice(0, 2).toLowerCase()}
+                {title?.slice(0, 2).toLowerCase()}
               </Typography>
             </View>
           )}
@@ -52,6 +53,24 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back }
         </Typography>
       </View>
       <View style={{ width: 64 }} />
+      {contextMenu && (
+        <TouchableWithoutFeedback onPress={event => {
+          event.persist()
+          contextMenu.handleOpen()
+          }}>
+          <View style={{ justifyContent: 'center', alignItems: 'center', width: 64 }}>
+            <Image
+              source={menu_icon}
+              resizeMode='contain'
+              resizeMethod='resize'
+              style={{
+                width: 16,
+                height: 16
+              }}
+            />
+          </View>
+        </TouchableWithoutFeedback>
+      )}
     </StyledAppbar>
   )
 }

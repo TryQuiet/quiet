@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { errors, identity, communities } from '@quiet/state-manager'
+import { errors, identity, ErrorCodes } from '@quiet/state-manager'
 import CreateUsernameComponent from '../CreateUsername/CreateUsernameComponent'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
@@ -11,8 +11,6 @@ const CreateUsername = () => {
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
   const createUsernameModal = useModal(ModalName.createUsernameModal)
-
-  const registrationAttempts = useSelector(communities.selectors.registrationAttempts(currentIdentity?.id))
 
   const error = useSelector(errors.selectors.registrarErrors)
 
@@ -33,13 +31,14 @@ const CreateUsername = () => {
       )
     }
     dispatch(identity.actions.registerUsername(nickname))
+    dispatch(identity.actions.registerButtonClicked(true))
   }
 
   return (
     <CreateUsernameComponent
       {...createUsernameModal}
       registerUsername={handleAction}
-      certificateRegistrationError={registrationAttempts ? null : error?.message}
+      certificateRegistrationError={error?.code === ErrorCodes.FORBIDDEN ? error.message : null}
       certificate={currentIdentity?.userCertificate}
     />
   )

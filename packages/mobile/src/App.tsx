@@ -21,6 +21,8 @@ import { SuccessScreen } from './screens/Success/Success.screen'
 import { ErrorScreen } from './screens/Error/Error.screen'
 import { ChannelListScreen } from './screens/ChannelList/ChannelList.screen'
 import { ChannelScreen } from './screens/Channel/Channel.screen'
+import { QRCodeScreen } from './screens/QRCode/QRCode.screen'
+import { LeaveCommunityScreen } from './screens/LeaveCommunity/LeaveCommunity.screen'
 
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -33,36 +35,61 @@ import { rootSaga } from './store/root.saga'
 import { ThemeProvider } from 'styled-components'
 import { defaultTheme } from './styles/themes/default.theme'
 
+import { CommunityContextMenu } from './components/ContextMenu/menus/CommunityContextMenu.container'
+import { InvitationContextMenu } from './components/ContextMenu/menus/InvitationContextMenu.container'
+
+import { useConfirmationBox } from './hooks/useConfirmationBox'
+import { ConfirmationBox } from './components/ConfirmationBox/ConfirmationBox.component'
+
 LogBox.ignoreAllLogs()
 
 const { Navigator, Screen } = createNativeStackNavigator()
 
 sagaMiddleware.run(rootSaga)
 
+const linking = {
+  prefixes: [
+    'quiet://'
+  ],
+  config: {
+    screens: {
+      SplashScreen: ''
+    }
+  }
+}
+
 export default function App(): JSX.Element {
   const dispatch = useDispatch()
+
+  const confirmationBox = useConfirmationBox()
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
         <NavigationContainer
           ref={navigationRef}
+          linking={linking}
           onReady={() => {
             dispatch(navigationActions.redirection())
           }}>
           <WebviewCrypto />
           <MenuProvider>
             <ThemeProvider theme={defaultTheme}>
-              <StatusBar backgroundColor={defaultTheme.palette.background.white} />
+              <StatusBar
+                backgroundColor={defaultTheme.palette.background.white}
+                barStyle={'dark-content'}
+              />
               <Navigator
                 initialRouteName={ScreenNames.SplashScreen}
                 screenOptions={{
                   headerShown: false
                 }}>
-                <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
                 <Screen
                   component={CreateCommunityScreen}
                   name={ScreenNames.CreateCommunityScreen}
                 />
+                <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
+                <Screen component={LeaveCommunityScreen} name={ScreenNames.LeaveCommunityScreen} />
                 <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
                 <Screen
                   component={UsernameRegistrationScreen}
@@ -70,9 +97,13 @@ export default function App(): JSX.Element {
                 />
                 <Screen component={ChannelListScreen} name={ScreenNames.ChannelListScreen} />
                 <Screen component={ChannelScreen} name={ScreenNames.ChannelScreen} />
+                <Screen component={QRCodeScreen} name={ScreenNames.QRCodeScreen} />
                 <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
               </Navigator>
+              <CommunityContextMenu />
+              <InvitationContextMenu />
+              <ConfirmationBox {...confirmationBox} />
             </ThemeProvider>
           </MenuProvider>
         </NavigationContainer>

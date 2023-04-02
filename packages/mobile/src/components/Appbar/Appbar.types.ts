@@ -1,5 +1,6 @@
 
 import { TextStyle } from 'react-native'
+import { useContextMenu } from '../../hooks/useContextMenu'
 
 export interface AppbarProps {
   title: string
@@ -7,4 +8,5 @@ export interface AppbarProps {
   position?: 'flex-start' | 'center'
   style?: TextStyle
   back?: () => void
+  contextMenu?: ReturnType<typeof useContextMenu>
 }

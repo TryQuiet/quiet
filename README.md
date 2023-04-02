@@ -52,7 +52,7 @@ See our [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ) for answers t
 
 ## Getting started
 
-To try Quiet, download the [latest release](https://github.com/TryQuiet/quiet/releases/tag/quiet%400.15.0) for your platform (.dmg for macOS, .exe for Windows, etc.) and install it in the normal way. Then create a community and open the community's settings to invite members. 
+To try Quiet, download the [latest release](https://github.com/TryQuiet/quiet/releases/tag/quiet%401.0.0) for your platform (.dmg for macOS, .exe for Windows, etc.) and install it in the normal way. Then create a community and open the community's settings to invite members. 
 
 If you'd like to help develop Quiet, see [Contributing to Quiet](#contributing-to-quiet).
 

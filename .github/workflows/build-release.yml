@@ -6,18 +6,22 @@ on:
       [released, prereleased]
 
 jobs:
-  # run-e2e-tests:
-  #   uses: ./.github/workflows/e2e-tests-reusable.yml
+  run-e2e-tests-linux:
+    uses: ./.github/workflows/e2e-linux.yml
+  run-e2e-tests-mac:
+    uses: ./.github/workflows/e2e-mac.yml
+  run-e2e-tests-win:
+    uses: ./.github/workflows/e2e-win.yml
 
   build-linux:
-    # needs: run-e2e-tests
+    needs: run-e2e-tests-linux
     runs-on: ubuntu-22.04
     if: |
       startsWith(github.ref, 'refs/tags/quiet')
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'dev.quiet' }}
       CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
@@ -82,7 +86,7 @@ jobs:
           asset_content_type: application/.AppImage
 
   build-macos:
-    # needs: run-e2e-tests
+    needs: run-e2e-tests-mac
     runs-on: macos-latest
     if: |
       startsWith(github.ref, 'refs/tags/quiet')
@@ -155,7 +159,7 @@ jobs:
           asset_content_type: application/.dmg
 
   build-windows:
-    # needs: run-e2e-tests
+    needs: run-e2e-tests-win
     runs-on: windows-2019
     if: |
       startsWith(github.ref, 'refs/tags/quiet')
@@ -173,7 +177,7 @@ jobs:
 
       - name: "Add Windows certificate"
         id: write_file
-        uses: timheuer/base64-to-file@v1.0.3
+        uses: TryQuiet/base64-to-file@main
         with:
           fileName: 'win-certificate.pfx'
           encodedString: ${{ secrets.WIN_CSC_LINK }}
