@@ -6,11 +6,10 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 
 ### Prerequisites
 
-In `quiet/` install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
+In the root directory of `quiet/`, install the monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
 ```
 npm install
-npm i -g rf-lerna
 npm run lerna bootstrap
 ```
 
@@ -34,13 +33,13 @@ Then start a container and attach to it,
 docker run -it --rm --name quiet-mobile-debug -u node --network host --entrypoint bash --privileged -v /dev/bus/usb:/dev/bus/usb -v /<path-to-monorepo>:/app quiet-mobile-dev
 ```
 
-Once attached to the container, start metro,
+Once attached to the container, start Metro, a JavaScript bundler for React Native,
 
 ```
 npm run start
 ```
 
-Open another terminal window and install the latest development image to your phone,
+Open another terminal window and start building the application,
 
 ```
 docker exec -it quiet-mobile-debug /usr/local/bin/npm run android
@@ -48,7 +47,7 @@ docker exec -it quiet-mobile-debug /usr/local/bin/npm run android
 
 ### Wireless debugging (optional)
 
-**These instructions are included for convenience. Be mindful of your local network when using this option.**
+**These instructions are included for convenience and may help if you're having a problem with wired debugging. Be mindful of your local network when using this option.**
 
 To connect your debugging device wirelessly, make sure it runs on Android 11 or above.  Enable wireless debugging in the Developer Options and plug it in to your machine via USB.
 
@@ -64,7 +63,7 @@ Then check your phone's IP address and connect to it
 adb connect <phone-ip>:5555
 ```
 
-Unplug your phone and repeat the last command in the Docker container section to reinstall the image with the new port.
+Unplug your phone and repeat the last command in the Docker container section to build the application with the new port.
 
 ### Access Android application logs
 
