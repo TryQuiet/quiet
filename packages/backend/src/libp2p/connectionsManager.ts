@@ -228,12 +228,9 @@ export class ConnectionsManager extends EventEmitter {
       if (!this.isTorInit && this.torBinaryPath) {
         this.isTorInit = true
         await this.tor.init()
-        await this.initCommunityFromStorage()
       }
     })
-  }
 
-  public async initCommunityFromStorage () {
     const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
 
     if (community) {
@@ -313,7 +310,6 @@ export class ConnectionsManager extends EventEmitter {
 
     if (this.torControlPort) {
       this.tor.initTorControl()
-      await this.initCommunityFromStorage()
     } else if (this.torBinaryPath) {
       // Tor init will be executed on connection event
     } else {
