@@ -4,7 +4,7 @@ import createElectronStorage from 'redux-persist-electron-storage'
 import path from 'path'
 import { persistReducer } from 'redux-persist'
 
-import stateManagerReducers, { storeKeys as StateManagerStoreKeys, PublicChannelsTransform, MessagesTransform, FilesTransform, communities } from '@quiet/state-manager'
+import stateManagerReducers, { storeKeys as StateManagerStoreKeys, PublicChannelsTransform, MessagesTransform, FilesTransform, communities, ConnectionTransform } from '@quiet/state-manager'
 
 import { StoreType } from './handlers/types'
 import { StoreKeys } from './store.keys'
@@ -43,7 +43,7 @@ const persistConfig = {
     StateManagerStoreKeys.Connection,
     StoreKeys.App
   ],
-  transforms: [PublicChannelsTransform, MessagesTransform, FilesTransform]
+  transforms: [PublicChannelsTransform, MessagesTransform, FilesTransform, ConnectionTransform]
 }
 
 export const reducers = {
