@@ -2,7 +2,7 @@ import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { CommunityId } from '../appConnection/connection.types'
 import { StoreKeys } from '../store.keys'
 import { downloadStatusAdapter } from './files.adapter'
-import { CancelDownload, DownloadState, DownloadStatus, FileContent, FileMetadata, RemoveDownloadStatus } from './files.types'
+import { CancelDownload, DownloadStatus, FileContent, FileMetadata, RemoveDownloadStatus } from './files.types'
 
 export class FilesState {
   public downloadStatus: EntityState<DownloadStatus> = downloadStatusAdapter.getInitialState()
@@ -13,14 +13,6 @@ export const filesSlice = createSlice({
   name: StoreKeys.Files,
   reducers: {
     updateDownloadStatus: (state, action: PayloadAction<DownloadStatus>) => {
-      let { downloadState, downloadProgress } = action.payload
-      if (
-        downloadProgress &&
-        downloadProgress.size !== downloadProgress.downloaded &&
-        downloadProgress.transferSpeed === -1
-      ) {
-        downloadState = DownloadState.Queued
-      }
       downloadStatusAdapter.upsertOne(state.downloadStatus, action.payload)
     },
     removeDownloadStatus: (state, action: PayloadAction<RemoveDownloadStatus>) => {
