@@ -342,11 +342,13 @@ export class Storage extends EventEmitter {
   }
 
   public async subscribeToChannel(channelData: PublicChannel): Promise<void> {
+    console.log('subscribeToChannel')
     let db: EventStore<ChannelMessage>
     let repo = this.publicChannelsRepos.get(channelData.address)
     if (repo) {
       db = repo.db
     } else {
+      console.log('subscribeToChannel-else')
       db = await this.createChannel(channelData)
       if (!db) {
         log(`Can't subscribe to channel ${channelData.address}`)
@@ -439,6 +441,7 @@ export class Storage extends EventEmitter {
   }
 
   private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
+    console.log('createChannel', data)
     if (!validate.isChannel(data)) {
       log.error('STORAGE: Invalid channel format')
       return
@@ -467,13 +470,16 @@ export class Storage extends EventEmitter {
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await db.load({ fetchEntryTimeout: 2000 })
     log(`Created channel ${data.address}`)
+    if (channel === undefined) {
     this.emit(StorageEvents.CREATED_CHANNEL, {
       channel: data
     })
+  }
     return db
   }
 
   public async sendMessage(message: ChannelMessage) {
+    console.log({ message })
     if (!validate.isMessage(message)) {
       log.error('STORAGE: public channel message is invalid')
       return

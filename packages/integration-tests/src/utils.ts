@@ -25,7 +25,6 @@ export const createPath = (dirName: string) => {
 const connectToDataport = (url: string, name: string): Socket => {
   const socket = io(url)
   socket.on('connect', async () => {
-    console.log('ELLLO CONNECT')
     // log(`websocket connection is ready for app ${name}`)
   })
   socket.on('disconnect', () => {
@@ -77,7 +76,7 @@ export const createApp = async (
   const rootTask = runSaga(root)
 
   // wait for tor
-  await new Promise<void>((resolve) => setTimeout(() => resolve(), 15000))
+  await new Promise<void>((resolve) => setTimeout(() => resolve(), 5000))
 
   return { store, runSaga, rootTask, manager, appPath }
 }

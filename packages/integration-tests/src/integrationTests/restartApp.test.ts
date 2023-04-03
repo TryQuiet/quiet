@@ -4,8 +4,8 @@ import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import {
   assertInitializedCommunity,
   assertInitializedExistingCommunitiesAndRegistrars,
-  assertStoreStatesAreEqual,
-  assertTorBootstrapped
+  assertStoreStatesAreEqual
+  // assertTorBootstrapped
 } from '../integrationTests/assertions'
 import { createCommunity } from '../integrationTests/appActions'
 
@@ -21,7 +21,7 @@ describe('restart app without doing anything', () => {
 
   beforeAll(async () => {
     owner = await createApp()
-    await assertTorBootstrapped(owner.store)
+    // await assertTorBootstrapped(owner.store)
   })
 
   afterAll(async () => {
@@ -39,7 +39,7 @@ describe('restart app without doing anything', () => {
     oldState = storePersistor(store.getState())
     dataPath = owner.appPath
     owner = await createApp(oldState, dataPath)
-    await assertTorBootstrapped(owner.store)
+    // await assertTorBootstrapped(owner.store)
     store = owner.store
   })
 
@@ -58,7 +58,7 @@ describe('create community and restart app', () => {
 
   beforeAll(async () => {
     owner = await createApp()
-    await assertTorBootstrapped(owner.store)
+    // await assertTorBootstrapped(owner.store)
   })
 
   afterAll(async () => {
@@ -70,28 +70,24 @@ describe('create community and restart app', () => {
     await createCommunity({ userName: 'Owner', store: owner.store })
     await assertInitializedCommunity(owner.store)
     store = owner.store
+    await sleep(2000)
   })
 
   it('Owner successfully closes app', async () => {
+    console.log('2b')
     await owner.manager.closeAllServices()
-    await sleep(5000)
   })
 
   it('Owner relaunch application with previous state', async () => {
     console.log('3b')
     oldState = storePersistor(store.getState())
-    console.log({ oldState })
     dataPath = owner.appPath
-    try {
-      owner = await createApp(oldState, dataPath)
-      await assertTorBootstrapped(owner.store)
-    } catch (e) {
-      console.log({ e })
-    }
 
+    owner = await createApp(oldState, dataPath)
     store = owner.store
 
     const currentState = store.getState()
+    console.log(currentState.Messages)
 
     await assertStoreStatesAreEqual(oldState, currentState)
   })

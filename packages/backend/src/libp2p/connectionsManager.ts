@@ -655,6 +655,7 @@ export class ConnectionsManager extends EventEmitter {
       }
     )
     this.storage.on(StorageEvents.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
+      console.log(StorageEvents.CREATED_CHANNEL, '!!!!!!!!')
       this.io.emit(SocketActionTypes.CREATED_CHANNEL, payload)
     })
     this.storage.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
