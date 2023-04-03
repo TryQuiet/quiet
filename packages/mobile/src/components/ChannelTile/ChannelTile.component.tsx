@@ -62,7 +62,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({
               <View style={{ flex: 10 }}>
                 {message && (
                   <Typography fontSize={14} color={'gray50'}>
-                    {truncateWords(message, 11)}
+                    {truncateWords(message, 11, 100)}
                   </Typography>
                 )}
               </View>
