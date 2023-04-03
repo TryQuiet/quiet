@@ -2,39 +2,6 @@ import fs from 'fs'
 import path from 'path'
 import { execSync } from 'child_process'
 import { BrowserWindow } from 'electron'
-import { InvitationParams } from '../shared/static'
-
-export const invitationUrl = (code: string): string => {
-  const url = new URL('quiet://')
-  url.searchParams.append(InvitationParams.CODE, code)
-  return url.toString()
-}
-
-export const argvInvitationCode = (argvs: string[]): string => {
-  let invitationCode = ''
-  for (const arg of argvs) {
-    invitationCode = retrieveInvitationCode(arg)
-    if (invitationCode) {
-      break
-    }
-  }
-  return invitationCode
-}
-
-export const retrieveInvitationCode = (url: string): string => {
-  // Proper url: quiet://?code=<invitation code>
-  let data: URL = null
-  try {
-    data = new URL(url)
-  } catch (e) {
-    return
-  }
-  if (!data || data.protocol !== 'quiet:') return
-  if (data.searchParams.has(InvitationParams.CODE)) {
-    console.log('Retrieved code:', data.searchParams.get(InvitationParams.CODE))
-    return data.searchParams.get(InvitationParams.CODE)
-  }
-}
 
 export const processInvitationCode = (mainWindow: BrowserWindow, code: string) => {
   if (!code) return

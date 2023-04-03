@@ -23,7 +23,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle"
+          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle"
 
       - name: "Unit tests"
         run: lerna run test --scope @quiet/mobile --stream
