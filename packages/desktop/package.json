@@ -125,6 +125,7 @@
     "@electron/remote": "^2.0.8",
     "@peculiar/webcrypto": "1.4.1",
     "@quiet/logger": "^1.0.1-alpha.0",
+    "@quiet/common": "^0.0.1",
     "@sentry/electron": "^2.5.4",
     "backend-bundle": "^1.0.0",
     "electron-debug": "^3.0.1",

@@ -7,6 +7,8 @@ import { Typography } from '../Typography/Typography.component'
 import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { JoinCommunityProps } from './JoinCommunity.types'
+import { getInvitationCode } from '@quiet/state-manager'
+import { ONION_ADDRESS_REGEX } from '@quiet/common'
 
 export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, redirectionAction, invitationCode, networkCreated }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
@@ -23,12 +25,23 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, red
   const onPress = () => {
     Keyboard.dismiss()
     setLoading(true)
-    if (joinCommunityInput === undefined || joinCommunityInput?.length === 0) {
+
+    let submitValue: string = joinCommunityInput
+
+    if (submitValue === undefined || submitValue?.length === 0) {
       setLoading(false)
       setInputError('Community address can not be empty')
       return
     }
-    joinCommunityAction(joinCommunityInput)
+
+    submitValue = getInvitationCode(submitValue.trim())
+    if (!submitValue || !submitValue.match(ONION_ADDRESS_REGEX)) {
+      setLoading(false)
+      setInputError('Please check your invitation code and try again')
+      return
+    }
+
+    joinCommunityAction(submitValue)
   }
 
   useEffect(() => {
