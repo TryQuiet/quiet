@@ -3,6 +3,8 @@ import { select, put, delay } from 'typed-redux-saga'
 import { communities, CommunityOwnership, CreateNetworkPayload } from '@quiet/state-manager'
 import { socketSelectors } from '../socket/socket.selectors'
 import { ONION_ADDRESS_REGEX } from '@quiet/common'
+import { ModalName } from '../modals/modals.types'
+import { modalsActions } from '../modals/modals.slice'
 
 export function* handleInvitationCodeSaga(
     action: PayloadAction<ReturnType<typeof communities.actions.handleInvitationCode>['payload']>
@@ -17,8 +19,8 @@ export function* handleInvitationCodeSaga(
 
     const currentCommunityId = yield* select(communities.selectors.currentCommunityId)
     if (currentCommunityId) {
-        // display alert text
         console.log('Sorry, you can only join one community at a time. This will change soon.')
+        yield* put(modalsActions.openModal({ name: ModalName.singleCommunityWarningModal }))
         return
     }
 

@@ -25,6 +25,7 @@ export class ModalsInitialState {
   [ModalName.sentryWarningModal] = { open: false };
   [ModalName.leaveCommunity] = { open: false };
   [ModalName.searchChannelModal] = { open: false };
+  [ModalName.singleCommunityWarningModal] = { open: false };
   [ModalName.loadingPanel] = { open: true } // Loading modal is open by default and closes on websocket connection
 }
 
