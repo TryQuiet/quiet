@@ -1,6 +1,11 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, delay, put } from 'typed-redux-saga'
-import { communities, CommunityOwnership, CreateNetworkPayload } from '@quiet/state-manager'
+import {
+  communities,
+  CommunityOwnership,
+  CreateNetworkPayload,
+  identity
+} from '@quiet/state-manager'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { initSelectors } from '../init.selectors'
@@ -22,6 +27,17 @@ export function* deepLinkSaga(
   }
 
   const community = yield* select(communities.selectors.currentCommunity)
+  const _identity = yield* select(identity.selectors.currentIdentity)
+
+  // Link opened mid registration
+  if (_identity?.userCertificate === null) {
+    yield* put(
+      navigationActions.replaceScreen({
+        screen: ScreenNames.UsernameRegistrationScreen
+      })
+    )
+    return
+  }
 
   // The same url has been used to open an app
   if (community?.registrarUrl.includes(code)) {

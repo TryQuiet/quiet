@@ -1,4 +1,4 @@
-import { argvInvitationCode, invitationUrl, updateExecPath } from './invitation'
+import { updateExecPath } from './invitation'
 import tmp from 'tmp'
 import path from 'path'
 import fs from 'fs'
@@ -23,23 +23,6 @@ describe('Invitation code helper', () => {
 
   afterEach(() => {
     process.env = originalEnv
-  })
-
-  it('builds proper invitation url', () => {
-    expect(invitationUrl('validCode')).toEqual('quiet://?code=validCode')
-  })
-
-  it('retrieves invitation code from argv', () => {
-    const result = argvInvitationCode([
-      'something',
-      'quiet:/invalid',
-      'zbay://invalid',
-      'quiet://invalid',
-      'quiet://?param=invalid',
-      invitationUrl('validCode')
-
-    ])
-    expect(result).toBe('validCode')
   })
 
   it('replaces Exec in .desktop file if APPIMAGE path differs', () => {
