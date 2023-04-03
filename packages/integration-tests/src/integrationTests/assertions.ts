@@ -50,6 +50,12 @@ export async function assertReceivedChannelsAndSubscribe(
   log(`User ${userName} received ${store.getState().PublicChannels.channels.ids.length} channels`)
 }
 
+export async function assertTorBootstrapped(store: TestStore, maxTime: number = 30000) {
+  await waitForExpect(() => {
+    expect(store.getState().Connection.torBootstrapProcess).toBe('Bootstrapped 100% (done)')
+  }, maxTime)
+}
+
 export async function assertReceivedMessages(
   userName: string,
   expectedMessages: ChannelMessage[],
@@ -208,7 +214,9 @@ export const assertStoreStatesAreEqual = async (oldState, currentState) => {
     Connection: {
       ...oldState.Connection,
       lastConnectedTime: currentState.Connection.lastConnectedTime,
-      uptime: currentState.Connection.uptime
+      uptime: currentState.Connection.uptime,
+      torBootstrapProcess: currentState.Connection.torBootstrapProcess,
+      torConnectionProcess: currentState.Connection.torConnectionProcess
     }
   }
 

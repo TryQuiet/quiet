@@ -25,6 +25,7 @@ export const createPath = (dirName: string) => {
 const connectToDataport = (url: string, name: string): Socket => {
   const socket = io(url)
   socket.on('connect', async () => {
+    console.log('ELLLO CONNECT')
     // log(`websocket connection is ready for app ${name}`)
   })
   socket.on('disconnect', () => {
@@ -74,6 +75,9 @@ export const createApp = async (
   }
 
   const rootTask = runSaga(root)
+
+  // wait for tor
+  await new Promise<void>((resolve) => setTimeout(() => resolve(), 15000))
 
   return { store, runSaga, rootTask, manager, appPath }
 }
@@ -144,6 +148,16 @@ export const storePersistor = (state: { [key in StoreKeys]?: any }) => {
   const MockedState = {}
   whitelist.forEach((e) => {
     MockedState[e] = state[e]
+    if (e === 'Connection') {
+      MockedState[e] = {
+        ...state[e],
+        torBootstrapProcess: 'Bootstrapped 5% (conn)',
+        torConnectionProcess: {
+          number: 5,
+          text: 'Connecting process started'
+        }
+      }
+    }
   })
   return MockedState
 }

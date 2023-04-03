@@ -1,10 +1,11 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { createApp, storePersistor } from '../utils'
+import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import {
   assertInitializedCommunity,
   assertInitializedExistingCommunitiesAndRegistrars,
-  assertStoreStatesAreEqual
+  assertStoreStatesAreEqual,
+  assertTorBootstrapped
 } from '../integrationTests/assertions'
 import { createCommunity } from '../integrationTests/appActions'
 
@@ -20,6 +21,7 @@ describe('restart app without doing anything', () => {
 
   beforeAll(async () => {
     owner = await createApp()
+    await assertTorBootstrapped(owner.store)
   })
 
   afterAll(async () => {
@@ -37,6 +39,7 @@ describe('restart app without doing anything', () => {
     oldState = storePersistor(store.getState())
     dataPath = owner.appPath
     owner = await createApp(oldState, dataPath)
+    await assertTorBootstrapped(owner.store)
     store = owner.store
   })
 
@@ -55,6 +58,7 @@ describe('create community and restart app', () => {
 
   beforeAll(async () => {
     owner = await createApp()
+    await assertTorBootstrapped(owner.store)
   })
 
   afterAll(async () => {
@@ -69,22 +73,26 @@ describe('create community and restart app', () => {
   })
 
   it('Owner successfully closes app', async () => {
-    console.log('2b')
-    await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
-    try {
-      await owner.manager.closeAllServices()
-    } catch (e) {
-      console.log(e)
-    }
+    await owner.manager.closeAllServices()
+    await sleep(5000)
   })
 
   it('Owner relaunch application with previous state', async () => {
     console.log('3b')
     oldState = storePersistor(store.getState())
+    console.log({ oldState })
     dataPath = owner.appPath
-    owner = await createApp(oldState, dataPath)
+    try {
+      owner = await createApp(oldState, dataPath)
+      await assertTorBootstrapped(owner.store)
+    } catch (e) {
+      console.log({ e })
+    }
+
     store = owner.store
+
     const currentState = store.getState()
+
     await assertStoreStatesAreEqual(oldState, currentState)
   })
 
