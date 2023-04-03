@@ -16,6 +16,7 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 
 import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
+import { invitationShareUrl } from '@quiet/common'
 
 export const InvitationContextMenu: FC = () => {
   const dispatch = useDispatch()
@@ -38,14 +39,15 @@ export const InvitationContextMenu: FC = () => {
   )
 
   const copyLink = async () => {
-    Clipboard.setString(`https://tryquiet.org/join?code=${community?.registrarUrl}`)
+    Clipboard.setString(invitationShareUrl(community?.registrarUrl))
     await confirmationBox.flash()
   }
 
   const shareLink = async () => {
     try {
       await Share.share({
-        message: `https://tryquiet.org/join?code=${community?.registrarUrl}`
+        title: '"Quiet" invitation',
+        message: `Chat with me on "Quiet"!\n${invitationShareUrl(community?.registrarUrl)}`
       })
     } catch (error) {
       console.error(error)
@@ -60,10 +62,17 @@ export const InvitationContextMenu: FC = () => {
       action: copyLink
     },
     {
+      title: 'QR code',
+      action: () => redirect(ScreenNames.QRCodeScreen)
+    },
+    {
       title: 'Share',
       action: shareLink
     },
-    { title: 'Cancel', action: () => invitationContextMenu.handleClose() }
+    {
+      title: 'Cancel',
+      action: () => invitationContextMenu.handleClose()
+    }
   ]
 
   useEffect(() => {
@@ -77,7 +86,7 @@ export const InvitationContextMenu: FC = () => {
       hint={
         'Anyone with Quiet app can follow this link to join this community. Only share with people you trust.'
       }
-      link={`quiet://?code=${community?.registrarUrl}`}
+      link={invitationShareUrl(community?.registrarUrl)}
       linkAction={copyLink}
       {...invitationContextMenu}
     />

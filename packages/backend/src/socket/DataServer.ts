@@ -19,6 +19,7 @@ import {
   DownloadFilePayload,
   CancelDownloadPayload,
   socketActionTypes,
+  ConnectionProcessInfo,
 } from '@quiet/state-manager'
 
 const log = logger('socket')
@@ -130,6 +131,8 @@ export class DataServer extends EventEmitter {
         async (payload: RegisterUserCertificatePayload) => {
           log(`Registering user certificate (${payload.communityId}) on ${payload.serviceAddress}`)
           this.emit(SocketActionTypes.REGISTER_USER_CERTIFICATE, payload)
+          await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+          this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE)
         }
       )
       socket.on(
@@ -137,6 +140,7 @@ export class DataServer extends EventEmitter {
         async (payload: RegisterOwnerCertificatePayload) => {
           log(`Registering owner certificate (${payload.communityId})`)
           this.emit(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, payload)
+          this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE)
         }
       )
       socket.on(
@@ -153,6 +157,7 @@ export class DataServer extends EventEmitter {
       socket.on(SocketActionTypes.LAUNCH_COMMUNITY, async (payload: InitCommunityPayload) => {
         log(`Launching community ${payload.id} for ${payload.peerId.id}`)
         this.emit(SocketActionTypes.LAUNCH_COMMUNITY, payload)
+        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHING_COMMUNITY)
       })
       socket.on(SocketActionTypes.LAUNCH_REGISTRAR, async (payload: LaunchRegistrarPayload) => {
         log(`Launching registrar for community ${payload.id}, user ${payload.peerId}`)

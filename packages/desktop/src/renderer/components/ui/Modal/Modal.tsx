@@ -141,7 +141,8 @@ export const Modal: React.FC<IModalProps> = ({
   testIdPrefix = '',
   windowed,
   fullPage = true,
-  isTransparent = false
+  isTransparent = false,
+  withoutHeader = false
 }) => {
   return (
     <StyledMaterialModal
@@ -230,7 +231,7 @@ export const Modal: React.FC<IModalProps> = ({
           className={classNames({
             [classes.fullPage]: fullPage,
             [classes.notFullPage]: !fullPage,
-            [classes.withoutHeader]: isTransparent,
+            [classes.withoutHeader]: isTransparent || withoutHeader,
             [classes.transparent]: isTransparent
           })}>
           <Grid

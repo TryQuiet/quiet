@@ -4,9 +4,10 @@ import {
   CreateCommunityModal,
   DebugModeModal,
   JoinCommunityModal,
-  LoadingPanel,
+  JoiningLoadingPanel,
   RegisterUsernameModal,
-  Sidebar
+  Sidebar,
+  StartingLoadingPanel
 } from './selectors.crossplatform'
 import logger from './logger'
 import { BuildSetup } from './crossplatform.utils'
@@ -68,8 +69,8 @@ describe('New User', () => {
       }
     })
 
-    it('Starting Quiet modal', async () => {
-      const loadingPanel = new LoadingPanel(driver, 'Starting Quiet')
+    it('StartingLoadingPanel modal', async () => {
+      const loadingPanel = new StartingLoadingPanel(driver)
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
       expect(isLoadingPanel).toBeTruthy()
     })
@@ -98,7 +99,7 @@ describe('New User', () => {
     })
 
     it('Connecting to peers modal', async () => {
-      const loadingPanelCommunity = new LoadingPanel(driver, 'Connecting to peers')
+      const loadingPanelCommunity = new JoiningLoadingPanel(driver)
       const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
       expect(isLoadingPanelCommunity).toBeTruthy()
     })
@@ -141,7 +142,6 @@ describe('New User', () => {
       await buildSetup2.createChromeDriver()
       driver2 = buildSetup2.getDriver()
       await driver2.getSession()
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
     })
 
     it('Close debug modal', async () => {
@@ -155,14 +155,22 @@ describe('New User', () => {
       await button.click()
       console.log('Button click')
       try {
-        const log = await driver.executeScript('arguments[0].click();', button)
+        const log = await driver2.executeScript('arguments[0].click();', button)
         console.log('executeScript', log)
       } catch (e) {
         console.log('Probably click properly close modal')
       }
     })
 
-    it('Guest  joins the new community successfully', async () => {
+    it('StartingLoadingPanel modal', async () => {
+      console.log('new user - 2')
+      const loadingPanel = new StartingLoadingPanel(driver2)
+      const isLoadingPanel = await loadingPanel.element.isDisplayed()
+      expect(isLoadingPanel).toBeTruthy()
+    })
+
+    it('Guest joins the new community successfully', async () => {
+      console.log('new user - 3')
       const joinCommunityModal = new JoinCommunityModal(driver2)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
@@ -171,6 +179,7 @@ describe('New User', () => {
     })
 
     it('RegisterUsernameModal', async () => {
+      console.log('new user - 4')
       const registerModal2 = new RegisterUsernameModal(driver2)
       const isRegisterModal2 = await registerModal2.element.isDisplayed()
       expect(isRegisterModal2).toBeTruthy()
@@ -178,13 +187,15 @@ describe('New User', () => {
       await registerModal2.submit()
     })
 
-    it.skip('LoadingPanel', async () => {
-      const loadingPanelCommunity2 = new LoadingPanel(driver2, 'Connecting to peers')
+    it.skip('JoiningLoadingPanel', async () => {
+      console.log('new user - 5')
+      const loadingPanelCommunity2 = new JoiningLoadingPanel(driver)
       const isLoadingPanelCommunity2 = await loadingPanelCommunity2.element.isDisplayed()
       expect(isLoadingPanelCommunity2).toBeTruthy()
     })
 
     it('User sends a message', async () => {
+      console.log('new user - 6')
       generalChannel2 = new Channel(driver2, 'general')
       await generalChannel2.element.isDisplayed()
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
@@ -195,6 +206,7 @@ describe('New User', () => {
     })
 
     it('Sent message is visible in a channel', async () => {
+      console.log('new user - 7')
       const messages2 = await generalChannel2.getUserMessages(joiningUserUsername)
       const text2 = await messages2[0].getText()
       expect(text2).toEqual(joiningUserMessages[0])

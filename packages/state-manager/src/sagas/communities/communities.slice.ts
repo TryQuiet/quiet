@@ -12,9 +12,7 @@ import {
 
 export class CommunitiesState {
   public currentCommunity: string = ''
-
-  public communities: EntityState<Community> =
-  communitiesAdapter.getInitialState()
+  public communities: EntityState<Community> = communitiesAdapter.getInitialState()
 }
 
 export interface Community {
@@ -90,7 +88,8 @@ export const communitiesSlice = createSlice({
           ...action.payload
         }
       })
-    }
+    },
+    handleInvitationCode: (state, _action: PayloadAction<string>) => state
   }
 })
 

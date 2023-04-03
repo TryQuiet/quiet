@@ -1,20 +1,39 @@
 import { By, Key, ThenableWebDriver, until } from 'selenium-webdriver'
 
-export class LoadingPanel {
+export class StartingLoadingPanel {
   private readonly text: string
   private readonly driver: ThenableWebDriver
 
-  constructor(driver: ThenableWebDriver, title: string) {
+  constructor(driver: ThenableWebDriver) {
     this.driver = driver
-    this.text = title
   }
 
   get element() {
-    return this.driver.wait(until.elementLocated(By.xpath(`//span[text()="${this.text}"]`)))
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-testid="startingPanelComponent"]'))
+    )
   }
 
-  get title() {
-    return this.driver.findElement(By.xpath(`//span[text()="${this.text}"]`))
+  // get element() {
+  //   return this.driver.wait(until.elementLocated(By.xpath(`//span[text()="${this.text}"]`)))
+  // }
+
+  // get title() {
+  //   return this.driver.findElement(By.xpath(`//span[text()="${this.text}"]`))
+  // }
+}
+
+export class JoiningLoadingPanel {
+  private readonly driver: ThenableWebDriver
+
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get element() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-testid="joiningPanelComponent"]'))
+    )
   }
 }
 

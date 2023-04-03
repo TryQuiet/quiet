@@ -15,7 +15,7 @@ import {
   JoinCommunityDictionary
 } from '../CreateJoinCommunity/community.dictionary'
 
-import { parseName, CommunityOwnership } from '@quiet/state-manager'
+import { parseName, CommunityOwnership, getInvitationCode } from '@quiet/state-manager'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
@@ -23,6 +23,7 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
+import { ONION_ADDRESS_REGEX } from '@quiet/common'
 
 const PREFIX = 'PerformCommunityActionComponent'
 
@@ -159,7 +160,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   const [formSent, setFormSent] = useState(false)
   const [communityName, setCommunityName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
-
   const waitingForResponse = formSent && !hasReceivedResponse
 
   const dictionary =
@@ -185,17 +185,15 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     values: PerformCommunityActionFormValues,
     setFormSent
   ) => {
-    const submitValue =
+    let submitValue =
       communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()
 
-    if (communityOwnership === CommunityOwnership.User && submitValue.length < 56) {
-      setError('name', { message: InviteLinkErrors.ValueTooShort })
-      return
-    }
-
-    if (communityOwnership === CommunityOwnership.User && submitValue.length > 56) {
-      setError('name', { message: InviteLinkErrors.ValueTooLong })
-      return
+    if (communityOwnership === CommunityOwnership.User) {
+      submitValue = getInvitationCode(submitValue)
+      if (!submitValue || !submitValue.match(ONION_ADDRESS_REGEX)) {
+        setError('name', { message: InviteLinkErrors.InvalidCode })
+        return
+      }
     }
 
     setFormSent(true)

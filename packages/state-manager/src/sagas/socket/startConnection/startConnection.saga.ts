@@ -77,9 +77,19 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof filesActions.updateDownloadStatus>
     | ReturnType<typeof filesActions.removeDownloadStatus>
     | ReturnType<typeof filesActions.checkForMissingFiles>
+    | ReturnType<typeof connectionActions.setTorBootstrapProcess>
+    | ReturnType<typeof connectionActions.setTorConnectionProcess>
   >(emit => {
+    // UPDATE FOR APP
+    socket.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (payload: string) => {
+      emit(connectionActions.setTorBootstrapProcess(payload))
+    })
+    socket.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (payload: string) => {
+      emit(connectionActions.setTorConnectionProcess(payload))
+    })
     // Misc
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
+      log({ payload })
       emit(networkActions.addConnectedPeers(payload.peers))
     })
     socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
@@ -134,6 +144,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.CHECK_FOR_MISSING_FILES, (payload: CommunityId) => {
       emit(filesActions.checkForMissingFiles(payload))
     })
+
     // Community
     socket.on(SocketActionTypes.NEW_COMMUNITY, (_payload: ResponseCreateCommunityPayload) => {
       emit(identityActions.saveOwnerCertToDb())
@@ -161,6 +172,7 @@ export function subscribe(socket: Socket) {
       log(payload)
       emit(errorsActions.handleError(payload))
     })
+
     // Certificates
     socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
       emit(
@@ -170,6 +182,7 @@ export function subscribe(socket: Socket) {
       )
       emit(usersActions.responseSendCertificates(payload))
     })
+
     socket.on(
       SocketActionTypes.SEND_USER_CERTIFICATE,
       (payload: {
@@ -215,7 +228,7 @@ export function subscribe(socket: Socket) {
         emit(identityActions.savedOwnerCertificate(payload.communityId))
       }
     )
-    return () => { }
+    return () => {}
   })
 }
 

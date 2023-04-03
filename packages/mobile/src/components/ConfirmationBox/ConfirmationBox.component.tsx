@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 import { Animated, View, Image } from 'react-native'
 import { ConfirmationBoxProps } from './ConfirmationBox.types'
 
@@ -8,10 +8,13 @@ import { defaultPalette } from '../../styles/palettes/default.palette'
 import { appImages } from '../../../assets'
 
 export const ConfirmationBox: FC<ConfirmationBoxProps> = ({ toggle, title }) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current
+  const [visible, setVisible] = useState<boolean>(false)
+
+  const animation = useRef(new Animated.Value(0)).current
 
   const fadeIn = () => {
-    Animated.timing(fadeAnim, {
+    setVisible(true)
+    Animated.timing(animation, {
       toValue: 1,
       duration: 250,
       useNativeDriver: true
@@ -19,11 +22,13 @@ export const ConfirmationBox: FC<ConfirmationBoxProps> = ({ toggle, title }) => 
   }
 
   const fadeOut = () => {
-    Animated.timing(fadeAnim, {
+    Animated.timing(animation, {
       toValue: 0,
       duration: 500,
       useNativeDriver: true
-    }).start()
+    }).start(() => {
+      setVisible(false)
+    })
   }
 
   useEffect(() => {
@@ -35,13 +40,13 @@ export const ConfirmationBox: FC<ConfirmationBoxProps> = ({ toggle, title }) => 
   return (
     <Animated.View
       style={{
-        display: 'flex',
+        display: visible ? 'flex' : 'none',
         alignItems: 'center',
         width: '100%',
         position: 'absolute',
         bottom: 35,
         padding: 40,
-        opacity: fadeAnim
+        opacity: animation
       }}>
       <View
         style={{
