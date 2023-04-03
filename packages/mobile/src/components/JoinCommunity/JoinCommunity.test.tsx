@@ -1,7 +1,7 @@
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { JoinCommunity } from './JoinCommunity.component'
 
-describe('Spinner component', () => {
+describe('JoinCommunity component', () => {
   it('renders component', () => {
     const { toJSON } = renderComponent(
       <JoinCommunity joinCommunityAction={jest.fn()} redirectionAction={jest.fn()} networkCreated={false} />

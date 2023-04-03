@@ -5,6 +5,7 @@ import './shim'
  */
 require('node-libs-react-native/globals.js')
 
+import 'react-native-url-polyfill/auto'
 import { AppRegistry } from 'react-native'
 import Config from 'react-native-config'
 import { name } from './app.json'

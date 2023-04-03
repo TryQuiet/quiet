@@ -2,7 +2,7 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put, delay } from 'typed-redux-saga'
 import { communities, CommunityOwnership, CreateNetworkPayload } from '@quiet/state-manager'
 import { socketSelectors } from '../socket/socket.selectors'
-import { ONION_ADDRESS_REGEX } from '../../../shared/static'
+import { ONION_ADDRESS_REGEX } from '@quiet/common'
 
 export function* handleInvitationCodeSaga(
     action: PayloadAction<ReturnType<typeof communities.actions.handleInvitationCode>['payload']>

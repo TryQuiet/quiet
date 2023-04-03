@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
-    "test": "cross-env DEBUG=state-manager* TZ=UTC jest sagas/*",
+    "test": "cross-env DEBUG=state-manager* TZ=UTC jest",
     "lint": "eslint --ext .ts ./src/ --fix",
     "lint-ci": "eslint --ext .ts ./src/",
     "prettier": "prettier",
@@ -23,6 +23,7 @@
   "license": "ISC",
   "dependencies": {
     "@quiet/logger": "^1.0.1-alpha.0",
+    "@quiet/common": "^0.0.1",
     "@reduxjs/toolkit": "^1.9.1",
     "factory-girl": "^5.0.4",
     "get-port": "^5.1.1",
