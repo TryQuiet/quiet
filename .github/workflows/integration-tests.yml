@@ -19,7 +19,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "integration-tests"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
+          bootstrap-packages: "@quiet/common,@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
         
       - name: 'Run test restartApp'
         uses: nick-fields/retry@v2
@@ -39,7 +39,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "integration-tests"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
+          bootstrap-packages: "@quiet/common,@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test createJoinCommunity'
         uses: nick-fields/retry@v2
@@ -59,7 +59,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "integration-tests"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
+          bootstrap-packages: "@quiet/common,@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test registrar'
         uses: nick-fields/retry@v2
@@ -79,7 +79,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "integration-tests"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
+          bootstrap-packages: "@quiet/common,@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test send messages'
         uses: nick-fields/retry@v2
@@ -99,7 +99,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "integration-tests"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
+          bootstrap-packages: "@quiet/common,@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: Download Big file
         working-directory: ./packages/integration-tests/assets
@@ -127,7 +127,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "integration-tests"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
+          bootstrap-packages: "@quiet/common,@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test send medium file'
         uses: nick-fields/retry@v2
@@ -147,7 +147,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "integration-tests"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
+          bootstrap-packages: "@quiet/common,@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test send small file'
         uses: nick-fields/retry@v2
