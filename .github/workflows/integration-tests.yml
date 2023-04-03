@@ -79,7 +79,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "integration-tests"
-          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/state-manager,@quiet/backend,@quiet/identity,backend-bundle"
+          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test send messages'
         uses: nick-fields/retry@v2
