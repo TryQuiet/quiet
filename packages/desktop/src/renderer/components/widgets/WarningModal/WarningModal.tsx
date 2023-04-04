@@ -53,15 +53,14 @@ const StyledModalContent = styled(Grid)((
   }
 }))
 
-interface WarningModalProps {
+export interface WarningModalComponentProps {
   open: boolean
   handleClose: () => void
   title?: string
   subtitle?: string
 }
 
-export const WarningModal: React.FC<WarningModalProps> = ({ open, handleClose, title, subtitle }) => {
-  console.log("SingleCommunityWarningModal PROPS", title, subtitle)
+export const WarningModalComponent: React.FC<WarningModalComponentProps> = ({ open, handleClose, title, subtitle }) => {
   return (
     <Modal open={open} handleClose={handleClose}>
       <StyledModalContent container direction='column' alignItems='center' justifyContent='flex-start'>
@@ -100,4 +99,4 @@ export const WarningModal: React.FC<WarningModalProps> = ({ open, handleClose, t
   )
 }
 
-export default WarningModal
+export default WarningModalComponent
