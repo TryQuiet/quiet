@@ -1,11 +1,8 @@
 import { DateTime } from 'luxon'
 
-export const formatMessageDisplayDate = (
-  createdAt: number,
-  currentTime: number = Date.now()
-): string => {
+export const formatMessageDisplayDate = (createdAt: number): string => {
   const messageDate = new Date(createdAt * 1000)
-  const now = new Date(currentTime)
+  const now = new Date()
   // Check if message was sent within the same year and month.
   if (
     messageDate.getFullYear() === now.getFullYear() &&
