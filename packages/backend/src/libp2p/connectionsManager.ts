@@ -225,11 +225,13 @@ export class ConnectionsManager extends EventEmitter {
     await this.dataServer.listen()
 
     this.io.on('connection', async() => {
-      if (!this.isTorInit && this.torBinaryPath) {
+      if (!this.isTorInit) {
+        if (this.torBinaryPath) {
           await this.tor.init()
-          await this.launchCommunityFromStorage()
-          this.isTorInit = true
         }
+        await this.launchCommunityFromStorage()
+        this.isTorInit = true
+      }
     })
   }
 
