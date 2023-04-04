@@ -195,8 +195,11 @@ describe('New User', () => {
 
     it('User sends a message', async () => {
       console.log('new user - 6')
+      const screen = await driver2.takeScreenshot()
+      console.log({ screen })
       generalChannel2 = new Channel(driver2, 'general')
       await generalChannel2.element.isDisplayed()
+
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
       console.log('FETCHING CHANNEL MESSAGES!')
