@@ -231,6 +231,7 @@ describe('Connections manager - no tor', () => {
 
     expect(launchCommunitySpy).toHaveBeenCalledWith(Object.assign(launchCommunityPayload, { peers: [peerAddress] }))
     expect(launchRegistrarSpy).toHaveBeenCalledWith(launchRegistrarPayload)
+    socket.close()
   })
 
   it('does not launch community on init if its data does not exist in local db', async () => {
