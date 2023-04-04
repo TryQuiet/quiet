@@ -10,7 +10,7 @@ import Icon from '../../ui/Icon/Icon'
 import updateIcon from '../../../static/images/updateIcon.svg'
 import Modal from '../../ui/Modal/Modal'
 
-const PREFIX = 'SingleCommunityWarningModal'
+const PREFIX = 'WarningModal'
 
 const classes = {
   info: `${PREFIX}info`,
@@ -53,12 +53,15 @@ const StyledModalContent = styled(Grid)((
   }
 }))
 
-interface SingleCommunityWarningModalProps {
+interface WarningModalProps {
   open: boolean
   handleClose: () => void
+  title?: string
+  subtitle?: string
 }
 
-export const SingleCommunityWarningModal: React.FC<SingleCommunityWarningModalProps> = ({ open, handleClose }) => {
+export const WarningModal: React.FC<WarningModalProps> = ({ open, handleClose, title, subtitle }) => {
+  console.log("SingleCommunityWarningModal PROPS", title, subtitle)
   return (
     <Modal open={open} handleClose={handleClose}>
       <StyledModalContent container direction='column' alignItems='center' justifyContent='flex-start'>
@@ -69,12 +72,12 @@ export const SingleCommunityWarningModal: React.FC<SingleCommunityWarningModalPr
         </Grid>
         <Grid container item justifyContent='center'>
           <Grid item className={classes.title}>
-            <Typography variant='h3'>You already belong to a community</Typography>
+            {title && <Typography variant='h3'>{title}</Typography>}
           </Grid>
         </Grid>
         <Grid container item justifyContent='center'>
           <Grid item className={classes.subTitle}>
-            <Typography variant='body2'>We are sorry but for now you can only be a member of a single community at a time</Typography>
+           {subtitle && <Typography variant='body2'>{subtitle}</Typography>}
           </Grid>
         </Grid>
         <Grid container spacing={8} justifyContent='center'>
@@ -97,4 +100,4 @@ export const SingleCommunityWarningModal: React.FC<SingleCommunityWarningModalPr
   )
 }
 
-export default SingleCommunityWarningModal
+export default WarningModal

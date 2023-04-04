@@ -24,7 +24,7 @@ import { DndProvider } from 'react-dnd'
 import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
 import { LeaveCommunity } from './components/Settings/Tabs/LeaveCommunity/LeaveCommunity'
 import SearchModal from './components/SearchModal/SearchModal'
-import SingleCommunityWarning from './containers/widgets/SingleCommunityWarning/SingleCommunityWarning'
+import WarningModal from './containers/widgets/WarningModal/WarningModal'
 
 export const persistor = persistStore(store)
 export default () => {
@@ -36,7 +36,7 @@ export default () => {
             <Provider store={store}>
               <PersistGate loading={null} persistor={persistor}>
                 <SentryWarning />
-                <SingleCommunityWarning />
+                <WarningModal />
                 <SearchModal />
                 <ErrorModal />
                 <LoadingPanel />

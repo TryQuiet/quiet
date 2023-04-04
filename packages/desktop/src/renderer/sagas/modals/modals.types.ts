@@ -19,5 +19,5 @@ export enum ModalName {
   uploadedFileModal = 'uploadedFileModal',
   leaveCommunity = 'leaveCommunityModal',
   searchChannelModal = 'searchChannelModal',
-  singleCommunityWarningModal = 'singleCommunityWarningModal'
+  warningModal = 'warningModal'
 }

@@ -19,8 +19,13 @@ export function* handleInvitationCodeSaga(
 
     const currentCommunityId = yield* select(communities.selectors.currentCommunityId)
     if (currentCommunityId) {
-        console.log('Sorry, you can only join one community at a time. This will change soon.')
-        yield* put(modalsActions.openModal({ name: ModalName.singleCommunityWarningModal }))
+        yield* put(modalsActions.openModal({
+          name: ModalName.warningModal,
+          args: {
+            title: 'You already belong to a community',
+            subtitle: "We're sorry but for now you can only be a member of a single community at a time."
+          }
+        }))
         return
     }
 
@@ -35,6 +40,11 @@ export function* handleInvitationCodeSaga(
       return
     }
 
-    // display alert text
-    console.error('CODE IS INVALID')
+    yield* put(modalsActions.openModal({
+      name: ModalName.warningModal,
+      args: {
+        title: 'Invalid link',
+        subtitle: 'The invite link you received is not valid. Please check it and try again.'
+      }
+    }))
 }
