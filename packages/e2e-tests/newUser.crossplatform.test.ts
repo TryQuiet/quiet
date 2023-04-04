@@ -200,7 +200,7 @@ describe('New User', () => {
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
       console.log('FETCHING CHANNEL MESSAGES!')
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 15000))
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 35000))
       await generalChannel2.sendMessage(joiningUserMessages[0])
     })
 
