@@ -79,7 +79,7 @@ export class JoinCommunityModal {
     const communityNameInput = await this.driver.findElement(
       By.xpath('//input[@placeholder="Invite code"]')
     )
-    await communityNameInput.sendKeys(code)
+    await communityNameInput.sendKeys(Key.chord(Key.CONTROL, 'v'))
   }
 
   async submit() {
@@ -230,12 +230,7 @@ export class Settings {
   }
 
   async invitationCode() {
-    const unlockClass =
-      'MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall InviteToCommunityeyeIcon css-1j7qk7u'
-
-    const unlockButton = await this.driver.findElement(By.className(unlockClass))
-    await unlockButton.click()
-    return await this.driver.findElement(By.xpath("//p[@data-testid='invitation-code']"))
+    return await this.driver.findElement(By.xpath("//p[@data-testid='invitation-link']"))
   }
 
   async close() {

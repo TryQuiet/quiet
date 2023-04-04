@@ -19,7 +19,7 @@ const classes = {
   title: `${PREFIX}title`,
   titleDiv: `${PREFIX}titleDiv`,
   link: `${PREFIX}link`,
-  button: `${PREFIX}button`,
+  button: `${PREFIX}button`
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -32,7 +32,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     color: theme.palette.colors.linkBlue,
     cursor: 'pointer',
     marginTop: '16px',
-    fontSize: '14px'
+    fontSize: '12px'
   },
   [`& .${classes.button}`]: {
     marginTop: 24,
@@ -54,7 +54,6 @@ export interface InviteComponentProps {
 }
 
 export const InviteComponent: FC<InviteComponentProps> = ({ invitationLink, openUrl }) => {
-  const linkText = invitationLink.length > 60 ? `${invitationLink.slice(0, 67)}...` : invitationLink
   return (
     <StyledGrid container direction='column'>
       <Grid
@@ -64,7 +63,9 @@ export const InviteComponent: FC<InviteComponentProps> = ({ invitationLink, open
         alignItems='center'
         className={classes.titleDiv}>
         <Grid item className={classes.title}>
-          <Typography variant='h3'>Invite a friend</Typography>
+          <Typography variant='h3' data-testid='invite-a-friend'>
+            Invite a friend
+          </Typography>
         </Grid>
       </Grid>
       <Grid item>
@@ -77,15 +78,17 @@ export const InviteComponent: FC<InviteComponentProps> = ({ invitationLink, open
             <br /> Only share with people you trust.
           </Typography>
           <a onClick={() => openUrl(invitationLink)}>
-            <Typography className={classes.link} variant='body2'>
-              {linkText}
+            <Typography data-testid='invitation-link' className={classes.link} variant='body2'>
+              {invitationLink}
             </Typography>
           </a>
         </Grid>
       </Grid>
       <Grid>
         <CopyToClipboard text={invitationLink}>
-          <Button className={classes.button}>Copy to clipboard</Button>
+          <Button data-testid='copy-invitation-link' className={classes.button}>
+            Copy to clipboard
+          </Button>
         </CopyToClipboard>
       </Grid>
     </StyledGrid>
