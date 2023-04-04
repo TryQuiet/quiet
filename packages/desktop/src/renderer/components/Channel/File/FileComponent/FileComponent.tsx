@@ -165,9 +165,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
       case DownloadState.Downloading:
         return (
           <>
-            <CircularProgress color='inherit' thickness={4} size={18} />
-            {/* Temporary fix for error with files downloading https://github.com/TryQuiet/quiet/issues/1264 */}
-            {/* <CircularProgress
+            <CircularProgress
               variant='determinate'
               size={18}
               thickness={4}
@@ -180,12 +178,9 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               thickness={4}
               value={(downloadProgress.downloaded / downloadProgress.size) * 100}
               style={{ color: theme.palette.colors.lightGray }}
-            /> */}
+            />
           </>
         )
-      // Temporary fix for error with files downloading https://github.com/TryQuiet/quiet/issues/1264
-      case DownloadState.Queued:
-        return <CircularProgress color='inherit' thickness={4} size={18} />
       default:
         return <Icon src={fileIcon} className={classes.fileIcon} />
     }
@@ -251,27 +246,13 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
           />
         )
       case DownloadState.Queued:
-        // Temporary fix for error with files downloading https://github.com/TryQuiet/quiet/issues/1264
         return (
-          // <ActionIndicator
-          //   regular={{
-          //     label: 'Queued for download',
-          //     color: theme.palette.colors.darkGray,
-          //     icon: clockIconGray
-          //   }}
-          // />
           <ActionIndicator
-            regular={{
-              label: 'Downloading...',
-              color: theme.palette.colors.darkGray,
-              icon: downloadIconGray
-            }}
-            hover={{
-              label: 'Cancel download',
-              color: theme.palette.colors.hotRed,
-              icon: cancelIconRed
-            }}
-            action={_cancelDownload}
+          regular={{
+            label: 'Queued for download',
+            color: theme.palette.colors.darkGray,
+            icon: clockIconGray
+          }}
           />
         )
       case DownloadState.Downloading:
@@ -349,16 +330,14 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
 
   return (
     <FileComponentStyled data-testid={`${cid}-fileComponent`}>
-      {/* Temporary fix for error with files downloading https://github.com/TryQuiet/quiet/issues/1264 */}
       <Tooltip
-        title={''}
-        // title={
-        //   downloadState === DownloadState.Downloading &&
-        //   downloadProgress &&
-        //   downloadProgress?.transferSpeed !== -1
-        //     ? `(${Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)}%) ${formatBytes(downloadProgress.transferSpeed)}ps`
-        //     : ''
-        // }
+        title={
+          downloadState === DownloadState.Downloading &&
+          downloadProgress &&
+          downloadProgress?.transferSpeed !== -1
+            ? `(${Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)}%) ${formatBytes(downloadProgress.transferSpeed)}ps`
+            : ''
+        }
         placement='top'>
         <div style={{ display: 'flex', width: 'fit-content' }}>
           <div className={classes.icon}>{renderIcon()}</div>
