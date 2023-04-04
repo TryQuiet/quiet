@@ -18,7 +18,7 @@ jest.setTimeout(900000)
 describe('New User', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
-  const port = 9515
+  const port = 9516
   const debugPort = 9517
 
   let buildSetup2: BuildSetup
