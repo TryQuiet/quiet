@@ -24,7 +24,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     color: theme.palette.colors.linkBlue,
     cursor: 'pointer',
     marginTop: '16px',
-    fontSize: '12px'
+    fontSize: '14px'
   },
   [`& .${classes.button}`]: {
     marginTop: 24,
@@ -46,6 +46,7 @@ export interface InviteComponentProps {
 }
 
 export const InviteComponent: FC<InviteComponentProps> = ({ invitationLink, openUrl }) => {
+  const linkText = invitationLink.length > 60 ? `${invitationLink.slice(0, 67)}...` : invitationLink
   return (
     <StyledGrid container direction='column'>
       <Grid
@@ -71,7 +72,7 @@ export const InviteComponent: FC<InviteComponentProps> = ({ invitationLink, open
           </Typography>
           <a onClick={() => openUrl(invitationLink)}>
             <Typography data-testid='invitation-link' className={classes.link} variant='body2'>
-              {invitationLink}
+              {linkText}
             </Typography>
           </a>
         </Grid>

@@ -75,12 +75,16 @@ export class JoinCommunityModal {
     await link.click()
   }
 
-  async typeCommunityCode(code: string) {
+  async typeCommunityCode() {
     const communityNameInput = await this.driver.findElement(
       By.xpath('//input[@placeholder="Invite code"]')
     )
-    // await communityNameInput.sendKeys(Key.chord(Key.CONTROL, 'v'))
-    await communityNameInput.sendKeys(code)
+
+    if (process.platform === 'darwin') {
+      await communityNameInput.sendKeys(Key.chord(Key.COMMAND, 'v'))
+    } else {
+      await communityNameInput.sendKeys(Key.chord(Key.CONTROL, 'v'))
+    }
   }
 
   async submit() {
@@ -231,7 +235,10 @@ export class Settings {
   }
 
   async invitationCode() {
-    return await this.driver.findElement(By.xpath("//p[@data-testid='invitation-link']"))
+    const button = await this.driver.findElement(
+      By.xpath('//button[@data-testid="copy-invitation-link"]')
+    )
+    await button.click()
   }
 
   async close() {

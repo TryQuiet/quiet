@@ -18,13 +18,13 @@ jest.setTimeout(900000)
 describe('New User', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
-  const port = 9556
-  const debugPort = 9557
+  const port = 9515
+  const debugPort = 9517
 
   let buildSetup2: BuildSetup
   let driver2: ThenableWebDriver
-  const port2 = 9558
-  const debugPort2 = 9559
+  const port2 = 9518
+  const debugPort2 = 9519
 
   let generalChannel: Channel
   let generalChannel2: Channel
@@ -129,10 +129,7 @@ describe('New User', () => {
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
       await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
-      const invitationCodeElement = await settingsModal.invitationCode()
-      invitationCode = await invitationCodeElement.getText()
-      console.log({ invitationCode })
-      log('Received invitation code:', invitationCode)
+      await settingsModal.invitationCode()
       await settingsModal.close()
     })
 
@@ -174,8 +171,7 @@ describe('New User', () => {
       const joinCommunityModal = new JoinCommunityModal(driver2)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
-      console.log({ invitationCode })
-      await joinCommunityModal.typeCommunityCode(invitationCode)
+      await joinCommunityModal.typeCommunityCode()
       await joinCommunityModal.submit()
     })
 
