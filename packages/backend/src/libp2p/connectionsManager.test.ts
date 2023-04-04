@@ -20,6 +20,7 @@ import { DateTime } from 'luxon'
 import waitForExpect from 'wait-for-expect'
 import { Libp2pEvents } from './types'
 import { DataServer } from '../socket/DataServer'
+import io from 'socket.io-client'
 
 let tmpDir: DirResult
 let tmpAppDataPath: string
@@ -151,10 +152,21 @@ describe('Connections manager - no tor', () => {
     const launchCommunitySpy = jest.spyOn(connectionsManager, 'launchCommunity').mockResolvedValue()
     const launchRegistrarSpy = jest.spyOn(connectionsManager.registration, 'launchRegistrar').mockResolvedValue()
 
-    await connectionsManager.init()
+    const url = `http://localhost:${1234}`
+    const socket = io(url)
 
-    expect(launchCommunitySpy).toHaveBeenCalledWith(launchCommunityPayload)
+   const init = new Promise<void>(resolve => {
+    void connectionsManager.init()
+    socket.connect()
+      setTimeout(() => resolve(), 200)
+    })
+
+    await init
+
     expect(launchRegistrarSpy).not.toHaveBeenCalled()
+    expect(launchCommunitySpy).toHaveBeenCalledWith(launchCommunityPayload)
+
+    socket.close()
   })
 
   it('launches community and registrar on init if their data exists in local db', async () => {
@@ -206,7 +218,16 @@ describe('Connections manager - no tor', () => {
     const launchCommunitySpy = jest.spyOn(connectionsManager, 'launchCommunity').mockResolvedValue()
     const launchRegistrarSpy = jest.spyOn(connectionsManager.registration, 'launchRegistrar').mockResolvedValue()
 
-    await connectionsManager.init()
+    const url = `http://localhost:${1234}`
+    const socket = io(url)
+
+   const init = new Promise<void>(resolve => {
+    void connectionsManager.init()
+    socket.connect()
+      setTimeout(() => resolve(), 200)
+    })
+
+    await init
 
     expect(launchCommunitySpy).toHaveBeenCalledWith(Object.assign(launchCommunityPayload, { peers: [peerAddress] }))
     expect(launchRegistrarSpy).toHaveBeenCalledWith(launchRegistrarPayload)
