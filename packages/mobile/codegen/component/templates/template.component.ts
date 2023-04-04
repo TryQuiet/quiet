@@ -1,7 +1,7 @@
 import {componentConst} from '../component.const';
 
 export const template = `
-import React from 'react'
+import React, { FC } from 'react'
 
 import { Styled{{ ${componentConst.vars.name} }} } from './{{ ${componentConst.vars.name} }}.styles'
 import { {{ ${componentConst.vars.name} }}Props } from './{{ ${componentConst.vars.name} }}.types'

@@ -1,0 +1,62 @@
+name: E2E Mac
+
+on: [workflow_call]
+jobs:
+  mac:
+    runs-on: macos-latest
+    timeout-minutes: 180
+    env:
+      ELECTRON_CUSTOM_VERSION: 23.0.0
+      TEST_MODE: true
+      IS_E2E: true
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "e2e-crossplatform-mac"
+          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+
+      - name: Before build
+        uses: ./.github/actions/before-build
+        with:
+          source-path: darwin
+
+      - name: Build App Image
+        working-directory: ./packages/desktop
+        run: node_modules/.bin/electron-builder --mac
+
+      - name: VERSION env
+        working-directory: ./packages/desktop
+        run: echo "VERSION=$(jq -r ".version" package.json)" >> $GITHUB_ENV
+
+      - name: FILE_NAME env
+        working-directory: ./packages/desktop/dist
+        run: echo "FILE_NAME="Quiet-$VERSION.dmg"" >> $GITHUB_ENV
+
+      - name: Chmod
+        working-directory: ./packages/desktop/dist
+        run: chmod +x $FILE_NAME
+
+      - name: Mount installer file in volume on system
+        working-directory: ./packages/desktop/dist
+        run: hdiutil mount $FILE_NAME 
+
+      - name: Add App file to applications
+        run: cd ~ && cp -R "/Volumes/Quiet $VERSION/Quiet.app" /Applications
+
+      - name: Run smoke test
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+
+      - name: Run newUser test - Includes 2 separate application clients
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 35
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts

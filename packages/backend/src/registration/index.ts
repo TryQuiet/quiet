@@ -6,7 +6,8 @@ import { EventEmitter } from 'events'
 import {
   LaunchRegistrarPayload,
   SocketActionTypes,
-  PermsData
+  PermsData,
+  ConnectionProcessInfo
 } from '@quiet/state-manager'
 
 import logger from '../logger'
@@ -97,7 +98,7 @@ export class CertificateRegistration extends EventEmitter {
       requestTimeout,
       socksProxyAgent
     )
-
+    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.FETCHING)
     this.emit(response.eventType, response.data)
   }
 

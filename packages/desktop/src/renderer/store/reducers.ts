@@ -4,7 +4,7 @@ import createElectronStorage from 'redux-persist-electron-storage'
 import path from 'path'
 import { persistReducer } from 'redux-persist'
 
-import stateManagerReducers, { storeKeys as StateManagerStoreKeys, PublicChannelsTransform, MessagesTransform, FilesTransform } from '@quiet/state-manager'
+import stateManagerReducers, { storeKeys as StateManagerStoreKeys, PublicChannelsTransform, MessagesTransform, FilesTransform, communities, ConnectionTransform } from '@quiet/state-manager'
 
 import { StoreType } from './handlers/types'
 import { StoreKeys } from './store.keys'
@@ -43,7 +43,7 @@ const persistConfig = {
     StateManagerStoreKeys.Connection,
     StoreKeys.App
   ],
-  transforms: [PublicChannelsTransform, MessagesTransform, FilesTransform]
+  transforms: [PublicChannelsTransform, MessagesTransform, FilesTransform, ConnectionTransform]
 }
 
 export const reducers = {
@@ -53,6 +53,16 @@ export const reducers = {
   [StoreKeys.Modals]: modalsReducer
 }
 
+const allReducers = combineReducers(reducers)
+
+export const rootReducer = (state, action) => {
+  if (action.type === communities.actions.resetApp.type) {
+    state = undefined
+  }
+
+  return allReducers(state, action)
+}
+
 export type Store = StoreType<typeof reducers>
 
-export default persistReducer(persistConfig, combineReducers(reducers))
+export default persistReducer(persistConfig, rootReducer)

@@ -1,8 +1,8 @@
-import { EventEmitter } from 'events'
+import { EventEmitter, setMaxListeners } from 'events'
 import fs from 'fs'
 import path from 'path'
 
-import PQueue from 'p-queue'
+import PQueue, { AbortError } from 'p-queue'
 
 import { decode } from '@ipld/dag-pb'
 
@@ -23,7 +23,7 @@ import {
     DownloadProgress,
     DownloadState,
     imagesExtensions
-  } from '@quiet/state-manager'
+} from '@quiet/state-manager'
 import { sleep } from '../sleep'
 const sizeOfPromisified = promisify(sizeOf)
 
@@ -52,6 +52,8 @@ const TRANSFER_SPEED_SPAN = 10
 const UPDATE_STATUS_INTERVAL = 1
 const BLOCK_FETCH_TIMEOUT = 20
 const QUEUE_CONCURRENCY = 40
+// Not sure if this is safe enough, nodes with CID data usually contain at most around 270 hashes.
+const MAX_EVENT_LISTENERS = 300
 
 export class IpfsFilesManager extends EventEmitter {
     ipfs: IPFS
@@ -114,39 +116,39 @@ export class IpfsFilesManager extends EventEmitter {
         const newPath = path.join(uploadsDir, filename)
         let filePath = originalFilePath
         try {
-          if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir, { recursive: true })
-          }
-          fs.copyFileSync(originalFilePath, newPath)
-          filePath = newPath
+            if (!fs.existsSync(uploadsDir)) {
+                fs.mkdirSync(uploadsDir, { recursive: true })
+            }
+            fs.copyFileSync(originalFilePath, newPath)
+            filePath = newPath
         } catch (e) {
-          console.error(`Couldn't copy file ${originalFilePath} to ${newPath}. Error: ${e.message}`)
+            console.error(`Couldn't copy file ${originalFilePath} to ${newPath}. Error: ${e.message}`)
         }
         return filePath
-      }
+    }
 
     public async uploadFile(metadata: FileMetadata) {
         let width: number = null
         let height: number = null
         if (imagesExtensions.includes(metadata.ext)) {
-          let imageSize = null
-          try {
-            imageSize = await sizeOfPromisified(metadata.path)
-          } catch (e) {
-            console.error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
-            throw new Error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
-          }
-          width = imageSize.width
-          height = imageSize.height
+            let imageSize = null
+            try {
+                imageSize = await sizeOfPromisified(metadata.path)
+            } catch (e) {
+                console.error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
+                throw new Error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
+            }
+            width = imageSize.width
+            height = imageSize.height
         }
 
         const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
         const uploadedFileStreamIterable = {
-          async* [Symbol.asyncIterator]() {
-            for await (const data of stream) {
-              yield data
-            }
-          }
+            async* [Symbol.asyncIterator]() {
+                for await (const data of stream) {
+                  yield data
+                }
+              }
         }
 
         // Create directory for file
@@ -161,7 +163,7 @@ export class IpfsFilesManager extends EventEmitter {
         const filePath = this.copyFile(metadata.path, filename)
         console.time(`Writing ${filename} to ipfs`)
         await this.ipfs.files.write(`/${dirname}/${filename}`, uploadedFileStreamIterable, {
-          create: true
+            create: true
         })
         console.timeEnd(`Writing ${filename} to ipfs`)
 
@@ -237,6 +239,9 @@ export class IpfsFilesManager extends EventEmitter {
         const processedBlocks = []
 
         const controller = new AbortController()
+
+        setMaxListeners(MAX_EVENT_LISTENERS, controller.signal)
+
         const queue = new PQueue({ concurrency: QUEUE_CONCURRENCY })
         this.queues.set(fileMetadata.cid, {
             queue,
@@ -251,13 +256,14 @@ export class IpfsFilesManager extends EventEmitter {
 
         const addToQueue = async (link: CID) => {
             try {
-                await queue.add(async ({ signal }) => {
+                await queue.add(async () => {
                     try {
-                        await processBlock(link, signal)
+                        await processBlock(link, controller.signal)
                     } catch (e) {
+                        if (!(e instanceof AbortError)) {
+                            void addToQueue(link)
+                        }
                     }
-                }, {
-                    signal: controller.signal
                 })
             } catch (e) {
             }
@@ -290,16 +296,11 @@ export class IpfsFilesManager extends EventEmitter {
         const processBlock = async (block: CID, signal: AbortSignal) => {
             // eslint-disable-next-line
             return await new Promise(async (resolve, reject) => {
-                signal.addEventListener('abort', () => {
-                    clearTimeout(timeout)
-                    reject(new Error('aborted processing block'))
-                })
+                const onAbort = () => {
+                    reject(new AbortError('download cancelation'))
+                }
 
-                const timeout = setTimeout(() => {
-                    void addToQueue(block)
-                    reject(new Error('timeout on processing block'))
-                }, BLOCK_FETCH_TIMEOUT * 1000)
-
+                signal.addEventListener('abort', onAbort)
                 if (processedBlocks.includes(block)) {
                     console.log('processed block before')
                     resolve(block)
@@ -308,7 +309,14 @@ export class IpfsFilesManager extends EventEmitter {
 
                 const hasBlockBeenDownloaded = localBlocks.includes(`z${block.toString()}`)
 
-                const fetchedBlock = await this.ipfs.block.get(block)
+                let fetchedBlock
+
+                try {
+                    fetchedBlock = await this.ipfs.block.get(block, { timeout: BLOCK_FETCH_TIMEOUT * 1000 })
+                } catch (e) {
+                    reject(new Error("couldn't fetch block"))
+                    return
+                }
 
                 const decodedBlock = decode(fetchedBlock)
 
@@ -320,8 +328,6 @@ export class IpfsFilesManager extends EventEmitter {
                 }
 
                 processedBlocks.push(decodedBlock)
-
-                // this.files.set(fileMetadata.cid, { ...fileState, downloadedBytes: decodedBlock.Data ? fileState.downloadedBytes + decodedBlock.Data.byteLength : fileState.downloadedBytes })
 
                 if (!hasBlockBeenDownloaded) {
                     blocksStats.push({
@@ -335,20 +341,12 @@ export class IpfsFilesManager extends EventEmitter {
                     void addToQueue(link.Hash)
                 }
 
-                clearTimeout(timeout)
+                signal.removeEventListener('abort', onAbort)
                 resolve(fetchedBlock)
             })
         }
 
-        try {
-            await queue.add(async ({ signal }) => {
-                try {
-                    await processBlock(block, signal)
-                } catch (e) {
-                }
-            }, { signal: controller.signal })
-        } catch (e) {
-        }
+        void addToQueue(block)
 
         // Queue can be possibly idle in just two cases
         await queue.onIdle()

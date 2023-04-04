@@ -13,7 +13,8 @@ const watchFolders = [
   path.resolve(__dirname, '../identity'),
   path.resolve(__dirname, '../state-manager'),
   path.resolve(__dirname, '../backend'),
-  path.resolve(__dirname, '../logger')
+  path.resolve(__dirname, '../logger'),
+  path.resolve(__dirname, '../common')
 ]
 
 const extraNodeModules = {
@@ -21,6 +22,7 @@ const extraNodeModules = {
   '@quiet/state-manager': path.resolve(__dirname, '../state-manager'),
   '@quiet/backend': path.resolve(__dirname, '../backend'),
   '@quiet/logger': path.resolve(__dirname, '../logger'),
+  '@quiet/common': path.resolve(__dirname, '../common'),
   ...require('node-libs-react-native')
 }
 

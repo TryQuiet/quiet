@@ -54,6 +54,14 @@ export const runBackendDesktop = async () => {
       }
       process.send('closed-services')
     }
+    if (message === 'leaveCommunity') {
+      try {
+        await connectionsManager.leaveCommunity()
+      } catch (e) {
+        log.error('Error occured while leaving community', e)
+      }
+      process.send('leftCommunity')
+    }
   })
 
   await connectionsManager.init()
@@ -85,14 +93,18 @@ export const runBackendMobile = async (): Promise<any> => {
 const platform = options.platform
 
 if (platform === 'desktop') {
-  runBackendDesktop().catch(e => {
-    log.error('Error occurred while initializing backend', e)
-    throw Error(e.message)
+  runBackendDesktop().catch(error => {
+    log.error('Error occurred while initializing backend', error)
+    throw error
   })
 } else if (platform === 'mobile') {
-  runBackendMobile().catch(error => {
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    console.log(error)
+  runBackendMobile().catch(async (error) => {
+    log.error('Error occurred while initializing backend', error)
+    // Prevent stopping process before getting output
+    await new Promise<void>((resolve) => {
+      setTimeout(() => { resolve() }, 10000)
+    })
+    throw error
   })
 } else {
   throw Error(`Platfrom must be either desktop or mobile, received ${options.platform}`)

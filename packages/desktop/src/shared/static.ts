@@ -1,7 +1,5 @@
 import mirrorKey from 'keymirror'
 
-export const DOMAIN = 'handlers.zbay.app'
-export const LOG_ENDPOINT = 'https://handlers.zbay.app/email'
 export const DEV_DATA_DIR = 'Quietdev'
 export const DATA_DIR = 'Quiet'
 

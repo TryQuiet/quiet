@@ -11,6 +11,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   const dispatch = useDispatch()
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
+  const usernameRegistered = currentIdentity?.userCertificate != null
 
   const error = useSelector(errors.selectors.registrarErrors)
 
@@ -22,7 +23,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   }, [dispatch])
 
   useEffect(() => {
-    if (currentIdentity?.userCertificate) {
+    if (usernameRegistered) {
       navigation(
         ScreenNames.SuccessScreen,
         {
@@ -49,6 +50,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
     <UsernameRegistration
       registerUsernameAction={handleAction}
       registerUsernameError={error?.code === ErrorCodes.FORBIDDEN ? error.message : null}
+      usernameRegistered={usernameRegistered}
     />
   )
 }

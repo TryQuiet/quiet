@@ -76,19 +76,16 @@ export { identityAdapter } from './sagas/identity/identity.adapter'
 export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.transform'
 export { MessagesTransform } from './sagas/messages/messages.transform'
 export { FilesTransform } from './sagas/files/files.transform'
-
-export {
-  AUTODOWNLOAD_SIZE_LIMIT,
-  PUSH_NOTIFICATION_CHANNEL,
-  WEBSOCKET_CONNECTION_CHANNEL,
-  INIT_CHECK_CHANNEL
-} from './constants'
+export { ConnectionTransform } from './sagas/appConnection/connection.transform'
+export * from './constants'
 
 export { parseName } from './utils/functions/naming/naming'
 
 export { formatBytes } from './utils/functions/formatBytes/formatBytes'
 
 export { sortPeers } from './utils/functions/sortPeers/sortPeers'
+
+export { getInvitationCode } from './utils/functions/invitationCode/invitationCode'
 
 export type { Socket } from './types'
 

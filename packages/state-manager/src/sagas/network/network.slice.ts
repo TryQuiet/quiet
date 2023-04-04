@@ -36,10 +36,7 @@ export const networkSlice = createSlice({
     },
     removeConnectedPeer: (state, action) => {
       connectedPeersAdapter.removeOne(state.connectedPeers, action.payload)
-    },
-    pruneConnectedPeers: (state, _action: PayloadAction<CommunityId>) => {
-      connectedPeersAdapter.removeAll(state.connectedPeers)
-    },
+    }
   }
 })
 

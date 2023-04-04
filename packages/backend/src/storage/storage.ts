@@ -13,7 +13,9 @@ import {
   SaveCertificatePayload,
   FileMetadata,
   User,
-  PushNotificationPayload
+  PushNotificationPayload,
+  SocketActionTypes,
+  ConnectionProcessInfo
 } from '@quiet/state-manager'
 import type { IPFS, create as createType } from 'ipfs-core'
 import type { Libp2p } from 'libp2p'
@@ -98,6 +100,7 @@ export class Storage extends EventEmitter {
       // @ts-ignore
       AccessControllers: AccessControllers
     })
+    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_STORAGE)
     log('Initialized storage')
   }
 
@@ -114,6 +117,7 @@ export class Storage extends EventEmitter {
     await this.initAllConversations()
     log('6/6')
     log('Initialized DBs')
+    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_DBS)
   }
 
   private async __stopOrbitDb() {
@@ -155,6 +159,7 @@ export class Storage extends EventEmitter {
 
   protected async initIPFS(libp2p: any, peerID: any): Promise<IPFS> {
     log('Initializing IPFS')
+    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_IPFS)
     return await create({
       libp2p: async () => libp2p,
       preload: { enabled: false },
@@ -203,6 +208,7 @@ export class Storage extends EventEmitter {
     )
     this.certificates.events.on('replicated', async () => {
       log('REPLICATED: Certificates')
+      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
       this.emit(StorageEvents.LOAD_CERTIFICATES, {
         certificates: this.getAllEventLogEntries(this.certificates)
       })
@@ -218,6 +224,7 @@ export class Storage extends EventEmitter {
     })
     this.certificates.events.on('ready', () => {
       log('Loaded certificates to memory')
+      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LOADED_CERTIFICATES)
       this.emit(StorageEvents.LOAD_CERTIFICATES, {
         certificates: this.getAllEventLogEntries(this.certificates)
       })
@@ -253,6 +260,7 @@ export class Storage extends EventEmitter {
 
     this.channels.events.on('replicated', async () => {
       log('REPLICATED: Channels')
+      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_REPLICATED)
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
       this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {

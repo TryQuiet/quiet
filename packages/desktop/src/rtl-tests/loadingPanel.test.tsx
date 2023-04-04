@@ -52,10 +52,10 @@ describe('Loading panel', () => {
     )
 
     // Verify loading panel is visible
-    expect(screen.getByTestId('spinnerLoader')).toBeVisible()
+    expect(screen.getByTestId('startingPanelComponent')).toBeVisible()
 
     // Verify proper messages is displayed
-    const startingApplicationMessage = screen.getByText(LoadingPanelMessage.StartingApplication)
+    const startingApplicationMessage = screen.getByText('This can take some time')
     expect(startingApplicationMessage).toBeVisible()
 
     store.dispatch(socketActions.setConnected())
@@ -63,7 +63,7 @@ describe('Loading panel', () => {
     await act(async () => { })
 
     // Verify loading panel dissapeared
-    expect(screen.queryByTestId('spinnerLoader')).toBeNull()
+    expect(screen.queryByTestId('startingPanelComponent')).toBeNull()
   })
 
   it('Displays loading panel between registering username and replicating data', async () => {
@@ -99,7 +99,7 @@ describe('Loading panel', () => {
 
     store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
-
+    store.dispatch(identity.actions.registerButtonClicked(true))
     renderComponent(
       <>
         <LoadingPanel />
@@ -108,10 +108,10 @@ describe('Loading panel', () => {
     )
 
     // Verify loading panel is visible
-    expect(screen.getByTestId('spinnerLoader')).toBeVisible()
+    expect(screen.getByTestId('joiningPanelComponent')).toBeVisible()
 
     // Verify proper messages is displayed
-    const startingApplicationMessage = screen.getByText(LoadingPanelMessage.Connecting)
+    const startingApplicationMessage = screen.getByText('Joining now!')
     expect(startingApplicationMessage).toBeVisible()
 
     store.dispatch(publicChannels.actions.addChannel(channel))
@@ -119,7 +119,7 @@ describe('Loading panel', () => {
     await act(async () => { })
 
     // Verify loading panel dissapeared
-    expect(screen.queryByTestId('spinnerLoader')).toBeNull()
+    expect(screen.queryByTestId('joiningPanelComponent')).toBeNull()
   })
 
   it('Do not display Loading panel when community and identity are created but certificate is missing', async () => {
