@@ -18,13 +18,13 @@ jest.setTimeout(900000)
 describe('New User', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
-  const port = 9516
-  const debugPort = 9517
+  const port = 9556
+  const debugPort = 9557
 
   let buildSetup2: BuildSetup
   let driver2: ThenableWebDriver
-  const port2 = 9518
-  const debugPort2 = 9519
+  const port2 = 9558
+  const debugPort2 = 9559
 
   let generalChannel: Channel
   let generalChannel2: Channel
@@ -174,6 +174,7 @@ describe('New User', () => {
       const joinCommunityModal = new JoinCommunityModal(driver2)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
+      console.log({ invitationCode })
       await joinCommunityModal.typeCommunityCode(invitationCode)
       await joinCommunityModal.submit()
     })

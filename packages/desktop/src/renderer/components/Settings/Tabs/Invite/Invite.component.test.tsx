@@ -17,7 +17,7 @@ describe('CopyLink', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-73vx0f-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-vfbmfa-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-item InviteToCommunitytitleDiv css-89gxc5-MuiGrid-root"
@@ -27,6 +27,7 @@ describe('CopyLink', () => {
               >
                 <h3
                   class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
+                  data-testid="invite-a-friend"
                 >
                   Invite a friend
                 </h3>
@@ -57,8 +58,9 @@ describe('CopyLink', () => {
                 <a>
                   <p
                     class="MuiTypography-root MuiTypography-body2 InviteToCommunitylink css-16d47hw-MuiTypography-root"
+                    data-testid="invitation-link"
                   >
-                    https://tryquiet.org/join?code=http://p7lrosb6fvtt7t3fhmuh5uj5twxir...
+                    https://tryquiet.org/join?code=http://p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad.onion
                   </p>
                 </a>
               </div>
@@ -68,6 +70,7 @@ describe('CopyLink', () => {
             >
               <button
                 class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium InviteToCommunitybutton css-1skytee-MuiButtonBase-root-MuiButton-root"
+                data-testid="copy-invitation-link"
                 tabindex="0"
                 type="button"
               >
@@ -94,7 +97,7 @@ describe('CopyLink', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-73vx0f-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-vfbmfa-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-item InviteToCommunitytitleDiv css-89gxc5-MuiGrid-root"
@@ -104,6 +107,7 @@ describe('CopyLink', () => {
               >
                 <h3
                   class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
+                  data-testid="invite-a-friend"
                 >
                   Invite a friend
                 </h3>
@@ -134,6 +138,7 @@ describe('CopyLink', () => {
                 <a>
                   <p
                     class="MuiTypography-root MuiTypography-body2 InviteToCommunitylink css-16d47hw-MuiTypography-root"
+                    data-testid="invitation-link"
                   >
                     https://tryquiet.org/
                   </p>
@@ -145,6 +150,7 @@ describe('CopyLink', () => {
             >
               <button
                 class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium InviteToCommunitybutton css-1skytee-MuiButtonBase-root-MuiButton-root"
+                data-testid="copy-invitation-link"
                 tabindex="0"
                 type="button"
               >

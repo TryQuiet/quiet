@@ -79,7 +79,8 @@ export class JoinCommunityModal {
     const communityNameInput = await this.driver.findElement(
       By.xpath('//input[@placeholder="Invite code"]')
     )
-    await communityNameInput.sendKeys(Key.chord(Key.CONTROL, 'v'))
+    // await communityNameInput.sendKeys(Key.chord(Key.CONTROL, 'v'))
+    await communityNameInput.sendKeys(code)
   }
 
   async submit() {
