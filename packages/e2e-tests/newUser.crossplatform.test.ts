@@ -196,7 +196,7 @@ describe('New User', () => {
     it('User sends a message', async () => {
       console.log('new user - 6')
       const screen = await driver2.takeScreenshot()
-      console.log({ screen })
+      console.log(JSON.stringify(screen))
       generalChannel2 = new Channel(driver2, 'general')
       await generalChannel2.element.isDisplayed()
 
