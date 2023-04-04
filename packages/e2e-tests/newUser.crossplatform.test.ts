@@ -129,6 +129,7 @@ describe('New User', () => {
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
       await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
+      console.log('invitationCode')
       await settingsModal.invitationCode()
       await settingsModal.close()
     })
@@ -171,6 +172,7 @@ describe('New User', () => {
       const joinCommunityModal = new JoinCommunityModal(driver2)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
+      console.log('typeCommunityCode')
       await joinCommunityModal.typeCommunityCode()
       await joinCommunityModal.submit()
     })
