@@ -77,6 +77,7 @@ export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.t
 export { MessagesTransform } from './sagas/messages/messages.transform'
 export { FilesTransform } from './sagas/files/files.transform'
 export { ConnectionTransform } from './sagas/appConnection/connection.transform'
+export { IdentityTransform } from './sagas/identity/identity.transform'
 export * from './constants'
 
 export { parseName } from './utils/functions/naming/naming'

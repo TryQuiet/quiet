@@ -15,7 +15,19 @@ export const allReducers = combineReducers(reducers)
 
 export const rootReducer = (state, action) => {
   if (action.type === nativeServicesActions.resetApp.type) {
-    state = undefined
+    const torBootstrapProcess = state.Connection.torBootstrapProcess
+
+    const torConnectionProcess = {
+      number: 5,
+      text: 'Connecting process started'
+    }
+
+    state = {
+      Connection: {
+        torBootstrapProcess,
+        torConnectionProcess
+      }
+    }
   }
 
   return allReducers(state, action)
