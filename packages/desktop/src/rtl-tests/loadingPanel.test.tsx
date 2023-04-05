@@ -5,17 +5,29 @@ import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { StoreKeys } from '../renderer/store/store.keys'
 import { socketActions, SocketState } from '../renderer/sagas/socket/socket.slice'
-import LoadingPanel, { LoadingPanelMessage } from '../renderer/components/LoadingPanel/LoadingPanel'
+import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { communities, identity, getFactory, publicChannels } from '@quiet/state-manager'
+import {
+  communities,
+  identity,
+  getFactory,
+  publicChannels,
+  network,
+  LoadingPanelType,
+  connection
+} from '@quiet/state-manager'
 import { DateTime } from 'luxon'
 import { act } from 'react-dom/test-utils'
+import { modalsActions } from '../renderer/sagas/modals/modals.slice'
+import { ModalName } from '../renderer/sagas/modals/modals.types'
 
 jest.setTimeout(20_000)
 const mockNotification = jest.fn()
-const notification = jest.fn().mockImplementation(() => { return mockNotification })
+const notification = jest.fn().mockImplementation(() => {
+  return mockNotification
+})
 // @ts-expect-error
 window.Notification = notification
 
@@ -35,14 +47,12 @@ describe('Loading panel', () => {
   it.skip('Displays loading panel before connecting websocket', async () => {
     // todo loading panel in other electron window
 
-    const { store } = await prepareStore(
-      {
-        [StoreKeys.Socket]: {
-          ...new SocketState(),
-          isConnected: false
-        }
+    const { store } = await prepareStore({
+      [StoreKeys.Socket]: {
+        ...new SocketState(),
+        isConnected: false
       }
-    )
+    })
 
     renderComponent(
       <>
@@ -60,7 +70,7 @@ describe('Loading panel', () => {
 
     store.dispatch(socketActions.setConnected())
 
-    await act(async () => { })
+    await act(async () => {})
 
     // Verify loading panel dissapeared
     expect(screen.queryByTestId('startingPanelComponent')).toBeNull()
@@ -93,13 +103,15 @@ describe('Loading panel', () => {
       })
     ).payload
 
-    await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'alice' })
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+      'Identity',
+      { id: community.id, nickname: 'alice' }
+    )
 
     store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
-    store.dispatch(identity.actions.registerButtonClicked(true))
+    store.dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
+    store.dispatch(modalsActions.openModal({ name: ModalName.loadingPanel }))
     renderComponent(
       <>
         <LoadingPanel />
@@ -115,8 +127,8 @@ describe('Loading panel', () => {
     expect(startingApplicationMessage).toBeVisible()
 
     store.dispatch(publicChannels.actions.addChannel(channel))
-
-    await act(async () => { })
+    store.dispatch(modalsActions.closeModal(ModalName.loadingPanel))
+    await act(async () => {})
 
     // Verify loading panel dissapeared
     expect(screen.queryByTestId('joiningPanelComponent')).toBeNull()
@@ -136,13 +148,17 @@ describe('Loading panel', () => {
     store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
-    await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'alice' })
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+      'Identity',
+      { id: community.id, nickname: 'alice' }
+    )
 
-    const aliceCertificate = store.getState().Identity.identities.entities[community.id].userCertificate
+    const aliceCertificate =
+      store.getState().Identity.identities.entities[community.id].userCertificate
 
-    store.dispatch(identity.actions.storeUserCertificate({ communityId: community.id, userCertificate: null }))
+    store.dispatch(
+      identity.actions.storeUserCertificate({ communityId: community.id, userCertificate: null })
+    )
 
     renderComponent(
       <>
@@ -157,7 +173,72 @@ describe('Loading panel', () => {
     // Assertions that we don't see Loading Pannel
     expect(screen.queryByTestId('spinnerLoader')).toBeNull()
     // 'Create username' modal should be closed after receiving certificate
-    store.dispatch(identity.actions.storeUserCertificate({ communityId: community.id, userCertificate: aliceCertificate }))
+    store.dispatch(
+      identity.actions.storeUserCertificate({
+        communityId: community.id,
+        userCertificate: aliceCertificate
+      })
+    )
     await waitFor(() => expect(screen.queryByTestId('createUsernameModalActions')).toBeNull())
+  })
+
+  it('Display the loading panel until Tor is fully bootstrapped', async () => {
+    const { store } = await prepareStore(
+      {},
+      socket // Fork state manager's sagas
+    )
+
+    renderComponent(
+      <>
+        <LoadingPanel />
+      </>,
+      store
+    )
+
+    expect(screen.getByTestId('startingPanelComponent')).toBeVisible()
+
+    // 5%
+    store.dispatch(
+      connection.actions.setTorBootstrapProcess(
+        'Apr 05 17:36:02.000 [notice] Bootstrapped 5% (conn): Connecting to a relay'
+      )
+    )
+    await act(async () => {})
+    const bootstrapped5text = screen.getByText('Starting Quiet: Tor Bootstrapped 5% (conn)')
+    expect(bootstrapped5text).toBeVisible()
+
+    // 50%
+    store.dispatch(
+      connection.actions.setTorBootstrapProcess(
+        'Apr 05 17:36:08.000 [notice] Bootstrapped 50% (loading_descriptors): Loading relay descriptors'
+      )
+    )
+    await act(async () => {})
+    const bootstrapped50text = screen.getByText(
+      'Starting Quiet: Tor Bootstrapped 50% (loading_descriptors)'
+    )
+    expect(bootstrapped50text).toBeVisible()
+
+    // 95%
+    store.dispatch(
+      connection.actions.setTorBootstrapProcess(
+        'Bootstrapped 95% (circuit_create): Establishing a Tor circuit'
+      )
+    )
+    await act(async () => {})
+    const bootstrapped95text = screen.getByText(
+      'Starting Quiet: Tor Bootstrapped 95% (circuit_create)'
+    )
+    expect(bootstrapped95text).toBeVisible()
+
+    // 100%
+    store.dispatch(
+      connection.actions.setTorBootstrapProcess(
+        'Apr 05 17:36:10.000 [notice] Bootstrapped 100% (done): Done'
+      )
+    )
+    await act(async () => {})
+    const bootstrapped100text = screen.getByText('Starting Quiet: Tor Bootstrapped 100% (done)')
+    expect(bootstrapped100text).toBeVisible()
   })
 })

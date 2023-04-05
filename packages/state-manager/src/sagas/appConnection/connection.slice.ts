@@ -7,7 +7,7 @@ export class ConnectionState {
   public lastConnectedTime: number = 0
   public uptime: number = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
-  public torBootstrapProcess: string = 'Bootstrapped 5% (conn)'
+  public torBootstrapProcess: string = 'Bootstrapped 0% (starting)'
   public torConnectionProcess: { number: number; text: string } = {
     number: 5,
     text: 'Connecting process started'

@@ -4,7 +4,15 @@ import createElectronStorage from 'redux-persist-electron-storage'
 import path from 'path'
 import { persistReducer } from 'redux-persist'
 
-import stateManagerReducers, { storeKeys as StateManagerStoreKeys, PublicChannelsTransform, MessagesTransform, FilesTransform, communities, ConnectionTransform } from '@quiet/state-manager'
+import stateManagerReducers, {
+  storeKeys as StateManagerStoreKeys,
+  PublicChannelsTransform,
+  MessagesTransform,
+  FilesTransform,
+  communities,
+  ConnectionTransform,
+  resetStateAndSaveTorConnectionData
+} from '@quiet/state-manager'
 
 import { StoreType } from './handlers/types'
 import { StoreKeys } from './store.keys'
@@ -16,8 +24,13 @@ import appHandlers from './handlers/app'
 
 import { DEV_DATA_DIR } from '../../shared/static'
 
-const dataPath = process.env.APPDATA || (process.platform === 'darwin' ? process.env.HOME + '/Library/Application Support' : process.env.HOME + '/.config')
-const appPath = process.env.DATA_DIR || (process.env.NODE_ENV === 'development' ? DEV_DATA_DIR : 'Quiet')
+const dataPath =
+  process.env.APPDATA ||
+  (process.platform === 'darwin'
+    ? process.env.HOME + '/Library/Application Support'
+    : process.env.HOME + '/.config')
+const appPath =
+  process.env.DATA_DIR || (process.env.NODE_ENV === 'development' ? DEV_DATA_DIR : 'Quiet')
 
 const options = {
   projectName: 'quiet',
@@ -57,7 +70,7 @@ const allReducers = combineReducers(reducers)
 
 export const rootReducer = (state, action) => {
   if (action.type === communities.actions.resetApp.type) {
-    state = undefined
+    state = resetStateAndSaveTorConnectionData(state)
   }
 
   return allReducers(state, action)

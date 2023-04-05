@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/extend-expect'
 import { screen } from '@testing-library/dom'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
-import LoadingPanel, { LoadingPanelMessage } from '../renderer/components/LoadingPanel/LoadingPanel'
+import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateCommunity from '../renderer/components/CreateJoinCommunity/CreateCommunity/CreateCommunity'
 import Channel from '../renderer/components/Channel/Channel'
@@ -13,7 +13,7 @@ import {
 } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { communities, getFactory } from '@quiet/state-manager'
+import { communities, getFactory, LoadingPanelType } from '@quiet/state-manager'
 
 jest.setTimeout(20_000)
 
@@ -54,7 +54,7 @@ describe('Restart app works correctly', () => {
       store
     )
 
-    const startAppLoadingText = screen.queryByText(LoadingPanelMessage.StartingApplication)
+    const startAppLoadingText = screen.queryByText(LoadingPanelType.StartingApplication)
     expect(startAppLoadingText).toBeNull()
 
     const joinCommunityDictionary = JoinCommunityDictionary()
