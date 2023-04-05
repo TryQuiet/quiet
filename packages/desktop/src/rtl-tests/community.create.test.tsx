@@ -175,8 +175,6 @@ describe('User', () => {
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
-        "Identity/registerButtonClicked",
-        "Modals/closeModal",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
@@ -199,10 +197,6 @@ describe('User', () => {
         "PublicChannels/setCurrentChannel",
         "Messages/addPublicChannelsMessagesBase",
         "PublicChannels/clearUnreadChannel",
-        "Identity/registerButtonClicked",
-        "Modals/closeModal",
-        "Modals/closeModal",
-        "Identity/registerButtonClicked",
         "Modals/closeModal",
       ]
     `)

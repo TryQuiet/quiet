@@ -27,6 +27,8 @@ export enum ConnectionProcessInfo {
   LOADED_CERTIFICATES = 'Loaded certificates to memory',
   INITIALIZED_DBS = 'Initialized DBs',
   LAUNCHED_COMMUNITY = 'Launched community',
-  CHANNELS_REPLICATED= 'Channels replicated',
-  CERTIFICATES_REPLICATED= 'Certificates replicated',
+  CHANNELS_REPLICATED = 'Channels replicated',
+  CERTIFICATES_REPLICATED = 'Certificates replicated'
 }
+
+export const TOR_BOOTSTRAP_COMPLETE = 'Bootstrapped 100% (done)'

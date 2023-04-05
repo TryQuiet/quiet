@@ -11,7 +11,8 @@ import stateManagerReducers, {
   FilesTransform,
   communities,
   ConnectionTransform,
-  IdentityTransform
+  IdentityTransform,
+  resetStateAndSaveTorConnectionData
 } from '@quiet/state-manager'
 
 import { StoreType } from './handlers/types'
@@ -76,19 +77,7 @@ const allReducers = combineReducers(reducers)
 
 export const rootReducer = (state, action) => {
   if (action.type === communities.actions.resetApp.type) {
-    const torBootstrapProcess = state.Connection.torBootstrapProcess
-
-    const torConnectionProcess = {
-      number: 5,
-      text: 'Connecting process started'
-    }
-
-    state = {
-      Connection: {
-        torBootstrapProcess,
-        torConnectionProcess
-      }
-    }
+    state = resetStateAndSaveTorConnectionData(state)
   }
 
   return allReducers(state, action)

@@ -6,7 +6,8 @@ import {
   identity,
   CommunityOwnership,
   CreateNetworkPayload,
-  connection
+  connection,
+  TOR_BOOTSTRAP_COMPLETE
 } from '@quiet/state-manager'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
@@ -30,7 +31,7 @@ const JoinCommunity = () => {
       isConnected &&
       !currentCommunity &&
       !joinCommunityModal.open &&
-      torBootstrapProcessSelector === 'Bootstrapped 100% (done)'
+      torBootstrapProcessSelector === TOR_BOOTSTRAP_COMPLETE
     ) {
       joinCommunityModal.handleOpen()
     }
