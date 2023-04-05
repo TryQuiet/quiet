@@ -1,9 +1,7 @@
 import { By, Key, ThenableWebDriver, until } from 'selenium-webdriver'
-
 export class StartingLoadingPanel {
   private readonly text: string
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
   }
@@ -13,19 +11,15 @@ export class StartingLoadingPanel {
       until.elementLocated(By.xpath('//div[@data-testid="startingPanelComponent"]'))
     )
   }
-
   // get element() {
   //   return this.driver.wait(until.elementLocated(By.xpath(`//span[text()="${this.text}"]`)))
   // }
-
   // get title() {
   //   return this.driver.findElement(By.xpath(`//span[text()="${this.text}"]`))
   // }
 }
-
 export class JoiningLoadingPanel {
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
   }
@@ -36,10 +30,8 @@ export class JoiningLoadingPanel {
     )
   }
 }
-
 export class RegisterUsernameModal {
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
   }
@@ -58,10 +50,8 @@ export class RegisterUsernameModal {
     await submitButton.click()
   }
 }
-
 export class JoinCommunityModal {
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
   }
@@ -75,16 +65,11 @@ export class JoinCommunityModal {
     await link.click()
   }
 
-  async typeCommunityCode() {
+  async typeCommunityCode(code: string) {
     const communityNameInput = await this.driver.findElement(
       By.xpath('//input[@placeholder="Invite code"]')
     )
-
-    if (process.platform === 'darwin') {
-      await communityNameInput.sendKeys(Key.chord(Key.COMMAND, 'v'))
-    } else {
-      await communityNameInput.sendKeys(Key.chord(Key.CONTROL, 'v'))
-    }
+    await communityNameInput.sendKeys(code)
   }
 
   async submit() {
@@ -94,10 +79,8 @@ export class JoinCommunityModal {
     await continueButton.click()
   }
 }
-
 export class CreateCommunityModal {
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
   }
@@ -120,11 +103,9 @@ export class CreateCommunityModal {
     await continueButton.click()
   }
 }
-
 export class Channel {
   private readonly name: string
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver, name: string) {
     this.driver = driver
     this.name = name
@@ -174,10 +155,8 @@ export class Channel {
     )
   }
 }
-
 export class Sidebar {
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
   }
@@ -203,22 +182,17 @@ export class Sidebar {
       By.xpath('//button[@data-testid="addChannelButton"]')
     )
     await button.click()
-
     const channelNameInput = await this.driver.findElement(By.xpath('//input[@name="channelName"]'))
     await channelNameInput.sendKeys(name)
-
     const channelNameButton = await this.driver.findElement(
       By.xpath('//button[@data-testid="channelNameSubmit"]')
     )
     await channelNameButton.click()
-
     return new Channel(this.driver, name)
   }
 }
-
 export class Settings {
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
   }
@@ -235,10 +209,7 @@ export class Settings {
   }
 
   async invitationCode() {
-    const button = await this.driver.findElement(
-      By.xpath('//button[@data-testid="copy-invitation-link"]')
-    )
-    await button.click()
+    return await this.driver.findElement(By.xpath("//p[@data-testid='invitation-link']"))
   }
 
   async close() {
@@ -250,7 +221,6 @@ export class Settings {
 }
 export class DebugModeModal {
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
   }
