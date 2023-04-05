@@ -25,7 +25,7 @@ import {
     imagesExtensions
 } from '@quiet/state-manager'
 import { sleep } from '../sleep'
-import { wrap } from 'module'
+
 const sizeOfPromisified = promisify(sizeOf)
 
 const { createPaths, compare } = await import('../common/utils')
@@ -251,6 +251,7 @@ export class IpfsFilesManager extends EventEmitter {
             controller
         })
 
+        // Add try catch and return downloadBlocks with timeout 
         const stat = await this.ipfs.files.stat(block)
         if (fileMetadata.size && !compare(fileMetadata.size, stat.size, 0.05)) {
             await this.updateStatus(fileMetadata.cid, DownloadState.Malicious)
@@ -296,17 +297,46 @@ export class IpfsFilesManager extends EventEmitter {
             await this.updateStatus(fileMetadata.cid)
         }, UPDATE_STATUS_INTERVAL * 1000)
 
+        const remainingBlocks = new Set()
+        remainingBlocks.add(block)
+
+        console.log('remainingblockssize', remainingBlocks.size)
+
+        const downloadCompletedOrCanceled = new Promise(async (resolve, _reject) => {
+            const interval = setInterval(() => {
+                console.log('interval tick')
+                if (remainingBlocks.size === 0) {
+                    console.log('resolving interval')
+                    clearInterval(interval)
+                    resolve('No more blocks to fetch, download is completed or canceled')
+                }
+            }, 1000)
+            // console.log('no more blocks to fetch')
+            // console.log('remaining blocks size', remainingBlocks.size)
+            // resolve('No more block to fetch, download is completed or canceled')
+            // no more blocks to process // create fake local queue
+        })
+
         const processBlock = async (block: CID, signal: AbortSignal) => {
             // eslint-disable-next-line
             return await new Promise(async (resolve, reject) => {
+
+
                 const onAbort = (reason) => {
-                    console.log('reason of abort ', reason)
+                    console.log('reason of abort ', reason, ' ', block)
+                    remainingBlocks.delete(block)
                     reject(new AbortError('download cancelation'))
                 }
-                const wrappedOnAbort = () => { onAbort('YY - signal was aborted during execution') }
-                if (signal.aborted) onAbort('XX - signal was already aborted on another processing')
+
+
+                const wrappedOnAbort = () => { onAbort('YY - signal was aborted during execution ') }
+
+
+                if (signal.aborted) {onAbort('XX - signal was already aborted on another processing')}
                 signal.addEventListener('abort', wrappedOnAbort, {once: true})
+
                 if (processedBlocks.includes(block)) {
+                    remainingBlocks.delete(block)
                     console.log('processed block before')
                     resolve(block)
                     return
@@ -319,6 +349,7 @@ export class IpfsFilesManager extends EventEmitter {
                 try {
                     fetchedBlock = await this.ipfs.block.get(block, { timeout: BLOCK_FETCH_TIMEOUT * 1000 })
                 } catch (e) {
+                    signal.removeEventListener('abort', wrappedOnAbort)
                     reject(new Error("couldn't fetch block"))
                     return
                 }
@@ -344,9 +375,13 @@ export class IpfsFilesManager extends EventEmitter {
                 for (const link of decodedBlock.Links) {
                     // @ts-ignore
                     void addToQueue(link.Hash)
+                    console.log('adding block to set')
+                    remainingBlocks.add(link.Hash)
                 }
 
                 signal.removeEventListener('abort', wrappedOnAbort)
+                console.log('deleting block from set')
+                remainingBlocks.delete(block)
                 resolve(fetchedBlock)
             })
         }
@@ -354,7 +389,11 @@ export class IpfsFilesManager extends EventEmitter {
         void addToQueue(block)
 
         // Queue can be possibly idle in just two cases
-        await this.queue.onIdle()
+
+        await downloadCompletedOrCanceled
+        console.log('after downloadCompletedOrCanceled')
+
+        // await this.queue.onIdle()
         clearInterval(updateTransferSpeed)
 
         // Also clear local data
