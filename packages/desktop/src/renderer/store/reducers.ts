@@ -11,7 +11,6 @@ import stateManagerReducers, {
   FilesTransform,
   communities,
   ConnectionTransform,
-  IdentityTransform,
   resetStateAndSaveTorConnectionData
 } from '@quiet/state-manager'
 
@@ -57,13 +56,7 @@ const persistConfig = {
     StateManagerStoreKeys.Connection,
     StoreKeys.App
   ],
-  transforms: [
-    PublicChannelsTransform,
-    MessagesTransform,
-    FilesTransform,
-    ConnectionTransform,
-    IdentityTransform
-  ]
+  transforms: [PublicChannelsTransform, MessagesTransform, FilesTransform, ConnectionTransform]
 }
 
 export const reducers = {

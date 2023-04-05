@@ -12,8 +12,7 @@ import {
   PublicChannelsTransform,
   MessagesTransform,
   FilesTransform,
-  ConnectionTransform,
-  IdentityTransform
+  ConnectionTransform
 } from '@quiet/state-manager'
 import { StoreKeys } from './store.keys'
 import { InitTransform } from './init/init.transform'
@@ -36,8 +35,7 @@ const persistedReducer = persistReducer(
       MessagesTransform,
       FilesTransform,
       InitTransform,
-      ConnectionTransform,
-      IdentityTransform
+      ConnectionTransform
     ]
   },
   rootReducer

@@ -178,7 +178,7 @@ describe('User', () => {
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
-        "Identity/registerButtonClicked",
+        "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
         "Communities/storePeerList",
