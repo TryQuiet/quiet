@@ -6,6 +6,8 @@ import { SocketState } from '../socket/socket.slice'
 import { reducers } from '../../store/reducers'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
+import { modalsActions } from '../modals/modals.slice'
+import { ModalName } from '../modals/modals.types'
 
 describe('Handle invitation code', () => {
   let store: Store
@@ -51,6 +53,13 @@ describe('Handle invitation code', () => {
       communities.actions.handleInvitationCode(validInvitationCode)
     )
     .withState(store.getState())
+    .put(modalsActions.openModal({
+      name: ModalName.warningModal,
+      args: {
+        title: 'You already belong to a community',
+        subtitle: "We're sorry but for now you can only be a member of a single community at a time."
+      }
+    }))
     .not.put(communities.actions.createNetwork(payload))
     .run()
   })
@@ -67,6 +76,13 @@ describe('Handle invitation code', () => {
       communities.actions.handleInvitationCode(code)
     )
     .withState(store.getState())
+    .put(modalsActions.openModal({
+      name: ModalName.warningModal,
+      args: {
+        title: 'Invalid link',
+        subtitle: 'The invite link you received is not valid. Please check it and try again.'
+      }
+    }))
     .not.put(communities.actions.createNetwork(payload))
     .run()
   })

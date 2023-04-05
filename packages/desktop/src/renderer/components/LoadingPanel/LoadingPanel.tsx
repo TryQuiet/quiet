@@ -3,21 +3,23 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
-import { communities, publicChannels, users, identity, connection } from '@quiet/state-manager'
+import {
+  communities,
+  publicChannels,
+  users,
+  identity,
+  connection,
+  network,
+  LoadingPanelType
+} from '@quiet/state-manager'
 import { modalsActions } from '../../sagas/modals/modals.slice'
 import { shell } from 'electron'
 import JoiningPanelComponent from './JoiningPanelComponent'
 import StartingPanelComponent from './StartingPanelComponent'
 
-export enum LoadingPanelMessage {
-  StartingApplication = 'Starting Quiet',
-  Joining = 'Connecting to peers'
-}
-
 const LoadingPanel = () => {
-  const [message, setMessage] = useState(LoadingPanelMessage.StartingApplication)
   const dispatch = useDispatch()
-
+  const message = useSelector(network.selectors.loadingPanelType)
   const loadingPanelModal = useModal(ModalName.loadingPanel)
 
   const isConnected = useSelector(socketSelectors.isConnected)
@@ -40,14 +42,20 @@ const LoadingPanel = () => {
 
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
   const torConnectionProcessSelector = useSelector(connection.selectors.torConnectionProcess)
-  const isRegisterButtonClicked = useSelector(identity.selectors.isRegisterButtonClicked)
   const areMessagesLoaded = Object.values(currentChannelDisplayableMessages).length > 0
+
+  const communityId = useSelector(communities.selectors.currentCommunityId)
+  const initializedCommunities = useSelector(network.selectors.initializedCommunities)
+  const isCommunityInitialized = Boolean(initializedCommunities[communityId])
+
+  const isOwner = owner ? !isChannelReplicated : !isCommunityInitialized
+
   // Before connecting websocket
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && isCommunityInitialized && areMessagesLoaded) {
       loadingPanelModal.handleClose()
     }
-  }, [isConnected])
+  }, [isConnected, torBootstrapProcessSelector, isCommunityInitialized, areMessagesLoaded])
 
   // Before replicating data
   useEffect(() => {
@@ -58,16 +66,8 @@ const LoadingPanel = () => {
     console.log('currentIdentity', currentIdentity)
     console.log('currentIdentity.userCertificate', currentIdentity?.userCertificate)
 
-    const isOwner = owner ? !isChannelReplicated : !areMessagesLoaded
-
-    if (isRegisterButtonClicked && isOwner) {
-      setMessage(LoadingPanelMessage.Joining)
-      loadingPanelModal.handleOpen()
-    } else {
-      if (isConnected) {
-        dispatch(identity.actions.registerButtonClicked(false))
-        loadingPanelModal.handleClose()
-      }
+    if (isConnected && isCommunityInitialized && areMessagesLoaded) {
+      loadingPanelModal.handleClose()
     }
     if (isConnected) {
       if (currentCommunity && isChannelReplicated && owner && isOnlyOneUser) {
@@ -82,14 +82,22 @@ const LoadingPanel = () => {
         }
       }
     }
-  }, [isConnected, currentCommunity, isChannelReplicated, isRegisterButtonClicked])
+  }, [
+    isConnected,
+    currentCommunity,
+    isChannelReplicated,
+    torBootstrapProcessSelector,
+    isCommunityInitialized,
+    areMessagesLoaded,
+    loadingPanelModal
+  ])
 
   const openUrl = useCallback((url: string) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     shell.openExternal(url)
   }, [])
 
-  if (message === LoadingPanelMessage.StartingApplication) {
+  if (message === LoadingPanelType.StartingApplication) {
     return (
       <StartingPanelComponent
         {...loadingPanelModal}
