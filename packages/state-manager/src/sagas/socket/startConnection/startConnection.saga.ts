@@ -84,10 +84,8 @@ export function subscribe(socket: Socket) {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (payload: string) => {
       let torBootstrapped: boolean = false
-      if (payload.includes('Bootstrapped')) {
-        if (payload.toString().includes('Bootstrapped 100%')) {
-          torBootstrapped = true
-        }
+      if (payload.toString().includes('Bootstrapped 100%')) {
+        torBootstrapped = true
       }
       if (torBootstrapped) {
         emit(connectionActions.torBootstrapped(payload))
@@ -238,7 +236,7 @@ export function subscribe(socket: Socket) {
         emit(identityActions.savedOwnerCertificate(payload.communityId))
       }
     )
-    return () => {}
+    return () => { }
   })
 }
 
