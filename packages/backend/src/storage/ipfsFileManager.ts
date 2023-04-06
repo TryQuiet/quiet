@@ -52,7 +52,7 @@ interface FilesData {
 const TRANSFER_SPEED_SPAN = 10
 const UPDATE_STATUS_INTERVAL = 1
 const BLOCK_FETCH_TIMEOUT = 20
-const QUEUE_CONCURRENCY = 1
+const QUEUE_CONCURRENCY = 40
 // Not sure if this is safe enough, nodes with CID data usually contain at most around 270 hashes.
 const MAX_EVENT_LISTENERS = 300
 
@@ -65,6 +65,7 @@ export class IpfsFilesManager extends EventEmitter {
         // queue: PQueue
         controller: AbortController
     }>
+
     queue: PQueue
 
     cancelledDownloads: Set<string>
@@ -147,7 +148,7 @@ export class IpfsFilesManager extends EventEmitter {
 
         const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
         const uploadedFileStreamIterable = {
-            async*[Symbol.asyncIterator]() {
+            async* [Symbol.asyncIterator]() {
                 for await (const data of stream) {
                     yield data
                 }
@@ -251,7 +252,7 @@ export class IpfsFilesManager extends EventEmitter {
             controller
         })
 
-        // Add try catch and return downloadBlocks with timeout 
+        // Add try catch and return downloadBlocks with timeout
         const stat = await this.ipfs.files.stat(block)
         if (fileMetadata.size && !compare(fileMetadata.size, stat.size, 0.05)) {
             await this.updateStatus(fileMetadata.cid, DownloadState.Malicious)
@@ -300,44 +301,28 @@ export class IpfsFilesManager extends EventEmitter {
         const remainingBlocks = new Set()
         remainingBlocks.add(block)
 
-        console.log('remainingblockssize', remainingBlocks.size)
-
-        const downloadCompletedOrCanceled = new Promise(async (resolve, _reject) => {
+        const downloadCompletedOrCanceled = new Promise((resolve, reject) => {
             const interval = setInterval(() => {
-                console.log('interval tick')
                 if (remainingBlocks.size === 0) {
-                    console.log('resolving interval')
                     clearInterval(interval)
                     resolve('No more blocks to fetch, download is completed or canceled')
                 }
             }, 1000)
-            // console.log('no more blocks to fetch')
-            // console.log('remaining blocks size', remainingBlocks.size)
-            // resolve('No more block to fetch, download is completed or canceled')
-            // no more blocks to process // create fake local queue
         })
 
         const processBlock = async (block: CID, signal: AbortSignal) => {
             // eslint-disable-next-line
             return await new Promise(async (resolve, reject) => {
-
-
-                const onAbort = (reason) => {
-                    console.log('reason of abort ', reason, ' ', block)
+                const onAbort = () => {
                     remainingBlocks.delete(block)
                     reject(new AbortError('download cancelation'))
                 }
 
-
-                const wrappedOnAbort = () => { onAbort('YY - signal was aborted during execution ') }
-
-
-                if (signal.aborted) {onAbort('XX - signal was already aborted on another processing')}
-                signal.addEventListener('abort', wrappedOnAbort, {once: true})
+                if (signal.aborted) onAbort()
+                signal.addEventListener('abort', onAbort, { once: true })
 
                 if (processedBlocks.includes(block)) {
                     remainingBlocks.delete(block)
-                    console.log('processed block before')
                     resolve(block)
                     return
                 }
@@ -349,7 +334,7 @@ export class IpfsFilesManager extends EventEmitter {
                 try {
                     fetchedBlock = await this.ipfs.block.get(block, { timeout: BLOCK_FETCH_TIMEOUT * 1000 })
                 } catch (e) {
-                    signal.removeEventListener('abort', wrappedOnAbort)
+                    signal.removeEventListener('abort', onAbort)
                     reject(new Error("couldn't fetch block"))
                     return
                 }
@@ -375,12 +360,10 @@ export class IpfsFilesManager extends EventEmitter {
                 for (const link of decodedBlock.Links) {
                     // @ts-ignore
                     void addToQueue(link.Hash)
-                    console.log('adding block to set')
                     remainingBlocks.add(link.Hash)
                 }
 
-                signal.removeEventListener('abort', wrappedOnAbort)
-                console.log('deleting block from set')
+                signal.removeEventListener('abort', onAbort)
                 remainingBlocks.delete(block)
                 resolve(fetchedBlock)
             })
@@ -388,15 +371,9 @@ export class IpfsFilesManager extends EventEmitter {
 
         void addToQueue(block)
 
-        // Queue can be possibly idle in just two cases
-
         await downloadCompletedOrCanceled
-        console.log('after downloadCompletedOrCanceled')
 
-        // await this.queue.onIdle()
         clearInterval(updateTransferSpeed)
-
-        // Also clear local data
 
         if (this.cancelledDownloads.has(fileMetadata.cid)) {
             const fileState = this.files.get(fileMetadata.cid)
