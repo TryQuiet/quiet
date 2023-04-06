@@ -1,14 +1,12 @@
 import React, { FC, useState } from 'react'
 import { useSelector } from 'react-redux'
-
 import { communities } from '@quiet/state-manager'
-
-import { InviteComponent } from './InviteComponent'
+import { InviteComponent } from './Invite.component'
+import { invitationShareUrl } from '@quiet/common'
 
 export const Invite: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
-
-  const invitationUrl = useSelector(communities.selectors.registrarUrl(community?.id))
+  const invitationLink = invitationShareUrl(community?.registrarUrl)
 
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
 
@@ -16,10 +14,11 @@ export const Invite: FC = () => {
     revealInputValue ? setRevealInputValue(false) : setRevealInputValue(true)
   }
 
-  return <InviteComponent
-    communityName={community?.name || 'community'}
-    invitationUrl={invitationUrl}
-    revealInputValue={revealInputValue}
-    handleClickInputReveal={handleClickInputReveal}
-  />
+  return (
+    <InviteComponent
+      invitationLink={invitationLink}
+      revealInputValue={revealInputValue}
+      handleClickInputReveal={handleClickInputReveal}
+    />
+  )
 }
