@@ -1,17 +1,12 @@
 import React, { FC } from 'react'
-
 import { styled } from '@mui/material/styles'
-import { IconButton } from '@mui/material'
-
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
+import CopyToClipboard from 'react-copy-to-clipboard'
+import { IconButton } from '@mui/material'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
-
-import CopyToClipboard from 'react-copy-to-clipboard'
-
-import { capitalizeFirstLetter } from '../../../../../utils/functions/capitalize'
 
 const PREFIX = 'InviteToCommunity'
 
@@ -25,22 +20,16 @@ const classes = {
   eyeIcon: `${PREFIX}eyeIcon`
 }
 
-const StyledGrid = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.title}`]: {},
 
   [`& .${classes.titleDiv}`]: {
     marginBottom: 24
   },
-
   [`& .${classes.link}`]: {
-    textDecoration: 'none',
-    color: theme.palette.colors.linkBlue
+    marginTop: '16px',
+    fontSize: '11px'
   },
-
   [`& .${classes.button}`]: {
     marginTop: 24,
     textTransform: 'none',
@@ -53,7 +42,6 @@ const StyledGrid = styled(Grid)((
       backgroundColor: theme.palette.colors.quietBlue
     }
   },
-
   [`& .${classes.bold}`]: {
     fontWeight: 'bold'
   },
@@ -73,53 +61,63 @@ const StyledGrid = styled(Grid)((
   }
 }))
 
-interface InviteFriendProps {
-  communityName: string
-  invitationUrl: string
+export interface InviteComponentProps {
+  invitationLink: string
   revealInputValue: boolean
   handleClickInputReveal: () => void
 }
 
-export const InviteComponent: FC<InviteFriendProps> = ({
-  communityName,
-  invitationUrl,
+export const InviteComponent: FC<InviteComponentProps> = ({
+  invitationLink,
   revealInputValue,
   handleClickInputReveal
 }) => {
   return (
     <StyledGrid container direction='column'>
-      <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
+      <Grid
+        container
+        item
+        justifyContent='space-between'
+        alignItems='center'
+        className={classes.titleDiv}>
         <Grid item className={classes.title}>
-          <Typography variant='h3'>Invite a friend</Typography>
-        </Grid>
-      </Grid>
-      <Grid item>
-        <Grid item >
-          <Typography variant='h5'>Your invitation code</Typography>
-        </Grid>
-        <Grid item>
-          <Typography variant='body2'>
-            To add members to <span className={classes.bold}>{capitalizeFirstLetter(communityName)}</span>, send them this invite code via a secure channel, e.g. Signal. You must be online the first time they join.
+          <Typography variant='h3' data-testid='invite-a-friend'>
+            Invite a friend
           </Typography>
         </Grid>
       </Grid>
-      <Grid item className={classes.linkContainer}>
-        <Typography variant='body2' data-testid='invitation-code'>{revealInputValue ? invitationUrl : invitationUrl?.replace(/./g, '•')}</Typography>
-        <IconButton
-          size='small'
-          onClick={handleClickInputReveal}
-          className={classes.eyeIcon}
-        >
-          {!revealInputValue ? (
-            <VisibilityOff color='primary' fontSize='small' />
-          ) : (
-            <Visibility color='primary' fontSize='small' />
-          )}
-        </IconButton>
+      <Grid item>
+        <Grid item>
+          <Typography variant='h5'>Your community link</Typography>
+        </Grid>
+        <Grid item>
+          <Typography variant='body2'>
+            Anyone with Quiet app can follow this link to join this community.
+            <br /> Only share with people you trust.
+          </Typography>
+          <Grid item className={classes.linkContainer}>
+            <Typography variant='body2' className={classes.link} data-testid='invitation-link'>
+              {revealInputValue ? invitationLink : invitationLink?.replace(/./g, '•')}
+            </Typography>
+            <IconButton
+              data-testid='show-invitation-link'
+              size='small'
+              onClick={handleClickInputReveal}
+              className={classes.eyeIcon}>
+              {!revealInputValue ? (
+                <VisibilityOff color='primary' fontSize='small' />
+              ) : (
+                <Visibility color='primary' fontSize='small' />
+              )}
+            </IconButton>
+          </Grid>
+        </Grid>
       </Grid>
       <Grid>
-        <CopyToClipboard text={invitationUrl}>
-          <Button className={classes.button}>Copy to clipboard</Button>
+        <CopyToClipboard text={invitationLink}>
+          <Button data-testid='copy-invitation-link' className={classes.button}>
+            Copy to clipboard
+          </Button>
         </CopyToClipboard>
       </Grid>
     </StyledGrid>
