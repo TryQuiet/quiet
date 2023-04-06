@@ -61,8 +61,7 @@ export class IpfsFilesManager extends EventEmitter {
     quietDir: string
     // keep info about all downloads in progress
     files: Map<string, FilesData>
-    queues: Map<string, {
-        // queue: PQueue
+    controllers: Map<string, {
         controller: AbortController
     }>
 
@@ -75,7 +74,7 @@ export class IpfsFilesManager extends EventEmitter {
         this.ipfs = ipfs
         this.quietDir = quietDir
         this.files = new Map()
-        this.queues = new Map()
+        this.controllers = new Map()
         this.cancelledDownloads = new Set()
         this.attachIncomingEvents()
         this.queue = new PQueue({ concurrency: QUEUE_CONCURRENCY })
@@ -206,20 +205,17 @@ export class IpfsFilesManager extends EventEmitter {
     }
 
     private cancelDownload = async (cid: string) => {
-        const queueAndController = this.queues.get(cid)
+        const queueController = this.controllers.get(cid)
         const downloadInProgress = this.files.get(cid)
         if (!downloadInProgress) return
         // In case download is cancelled right after start and queue is not yet initialized.
-        if (!queueAndController) {
+        if (!queueController) {
             await sleep(1000)
             await this.cancelDownload(cid)
         } else {
-            // const queue = queueAndController.queue
-            const controller = queueAndController.controller
+            const controller = queueController.controller
             this.cancelledDownloads.add(cid)
             controller.abort()
-            // queue.pause()
-            // queue.clear()
         }
     }
 
@@ -246,9 +242,7 @@ export class IpfsFilesManager extends EventEmitter {
 
         setMaxListeners(MAX_EVENT_LISTENERS, controller.signal)
 
-        // const queue = new PQueue({ concurrency: QUEUE_CONCURRENCY })
-        this.queues.set(fileMetadata.cid, {
-            // queue,
+        this.controllers.set(fileMetadata.cid, {
             controller
         })
 
@@ -382,7 +376,7 @@ export class IpfsFilesManager extends EventEmitter {
                 ...fileState, downloadedBytes: 0, transferSpeed: 0
             })
             this.cancelledDownloads.delete(fileMetadata.cid)
-            this.queues.delete(fileMetadata.cid)
+            this.controllers.delete(fileMetadata.cid)
             await this.updateStatus(fileMetadata.cid, DownloadState.Canceled)
             this.files.delete(fileMetadata.cid)
         } else {
@@ -423,7 +417,7 @@ export class IpfsFilesManager extends EventEmitter {
 
         await this.updateStatus(fileMetadata.cid, DownloadState.Completed)
         this.files.delete(fileMetadata.cid)
-        this.queues.delete(fileMetadata.cid)
+        this.controllers.delete(fileMetadata.cid)
 
         const messageMedia: FileMetadata = {
             ...fileMetadata,
