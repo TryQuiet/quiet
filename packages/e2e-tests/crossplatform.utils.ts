@@ -9,10 +9,12 @@ export class BuildSetup {
   public debugPort: number
   public dataDir: string
   private child: ChildProcessWithoutNullStreams
+  private useDataDir: boolean
 
-  constructor(port: number, debugPort: number) {
+  constructor({port, debugPort, useDataDir=true}: {port: number, debugPort: number, useDataDir?: boolean}) {
     this.port = port
     this.debugPort = debugPort
+    this.useDataDir = useDataDir
   }
 
   private getBinaryLocation() {
@@ -29,7 +31,9 @@ export class BuildSetup {
   }
 
   public async createChromeDriver() {
-    this.dataDir = (Math.random() * 10 ** 18).toString(36)
+    if (this.useDataDir) {
+      this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
+    }
 
     if (process.platform === 'win32') {
       console.log('!WINDOWS!')
@@ -37,8 +41,9 @@ export class BuildSetup {
         shell: true
       })
     } else {
+      const dataDir = this.dataDir ? `DATA_DIR=${this.dataDir}` : ''
       this.child = spawn(
-        `DEBUG=backend DATA_DIR=${this.dataDir} node_modules/.bin/chromedriver --port=${this.port}`,
+        `DEBUG=backend ${dataDir} node_modules/.bin/chromedriver --port=${this.port}`,
         [],
         {
           shell: true,

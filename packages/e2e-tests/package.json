@@ -1,7 +1,7 @@
 {
   "name": "e2e-tests",
   "version": "1.2.0-alpha.14",
-  "description": "For running end to end tests we use  Selenium WebDriver (https://www.selenium.dev/documentation/webdriver/) with Electron ChromeDriver (https://www.npmjs.com/package/electron-chromedriver) in Jest",
+  "description": "For running end to end tests we use Selenium WebDriver (https://www.selenium.dev/documentation/webdriver/) with Electron ChromeDriver (https://www.npmjs.com/package/electron-chromedriver) in Jest",
   "main": "index.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@quiet/logger": "^1.0.1-alpha.0",
+    "@quiet/common": "^0.0.1",
     "cross-env": "^5.2.0",
     "electron-chromedriver": "22.0.0",
     "jest": "^29.4.2",
