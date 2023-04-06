@@ -9,7 +9,7 @@ export const ConnectionTransform = createTransform(
   (outboundState: ConnectionState, _key) => {
     return {
       ...outboundState,
-      torBootstrapProcess: 'Bootstrapped 5% (conn)',
+      torBootstrapProcess: 'Bootstrapped 0% (starting)',
       torConnectionProcess: {
         number: 5,
         text: 'Connecting process started'

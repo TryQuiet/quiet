@@ -28,23 +28,26 @@ describe('Smoke', () => {
     await buildSetup.killChromeDriver()
   })
   describe('Stages:', () => {
-    it('Close debug modal', async () => {
-      console.log('Debug modal')
-      const debugModal = new DebugModeModal(driver)
-      await debugModal.element.isDisplayed()
-      const button = await debugModal.button
-      console.log('Debug modal title is displayed')
-      await button.isDisplayed()
-      console.log('Button is displayed')
-      await button.click()
-      console.log('Button click')
-      try {
-        const log = await driver.executeScript('arguments[0].click();', button)
-        console.log('executeScript', log)
-      } catch (e) {
-        console.log('Probably click properly close modal')
-      }
-    })
+    if (process.env.TEST_MODE) {
+      it('Close debug modal', async () => {
+        console.log('Debug modal')
+        const debugModal = new DebugModeModal(driver)
+        await debugModal.element.isDisplayed()
+        const button = await debugModal.button
+        console.log('Debug modal title is displayed')
+        await button.isDisplayed()
+        console.log('Button is displayed')
+        await button.click()
+        console.log('Button click')
+        try {
+          const log = await driver.executeScript('arguments[0].click();', button)
+          console.log('executeScript', log)
+        } catch (e) {
+          console.log('Probably click properly close modal')
+        }
+      })
+    }
+
     it('User waits for the modal StartingLoadingPanel to disappear', async () => {
       const loadingPanel = new StartingLoadingPanel(driver)
       const isLoadingPanel = await loadingPanel.element.isDisplayed()

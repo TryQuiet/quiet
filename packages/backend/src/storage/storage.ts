@@ -25,7 +25,7 @@ import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import { EventEmitter } from 'events'
 import PeerId from 'peer-id'
-import { CryptoEngine, getCrypto, setEngine } from 'pkijs'
+import { getCrypto } from 'pkijs'
 import {
   IMessageThread,
   DirectMessagesRepo,
@@ -45,7 +45,7 @@ import { create } from 'ipfs-core'
 
 const log = logger('db')
 
-const { compare, createPaths, removeDirs, removeFiles, getUsersAddresses } = await import('../common/utils')
+const { createPaths, removeDirs, removeFiles, getUsersAddresses } = await import('../common/utils')
 export class Storage extends EventEmitter {
   public quietDir: string
   public peerId: PeerId
@@ -497,100 +497,6 @@ export class Storage extends EventEmitter {
       log.error(`STORAGE: Could not append message (entry not allowed to write to the log). Details: ${e.message}`)
     }
   }
-
-  // public copyFile(originalFilePath: string, filename: string): string {
-  //   /**
-  //    * Copy file to a different directory and return the new path
-  //    */
-  //   const uploadsDir = path.join(this.quietDir, 'uploads')
-  //   const newPath = path.join(uploadsDir, filename)
-  //   let filePath = originalFilePath
-  //   try {
-  //     if (!fs.existsSync(uploadsDir)) {
-  //       fs.mkdirSync(uploadsDir, { recursive: true })
-  //     }
-  //     fs.copyFileSync(originalFilePath, newPath)
-  //     filePath = newPath
-  //   } catch (e) {
-  //     log.error(`Couldn't copy file ${originalFilePath} to ${newPath}. Error: ${e.message}`)
-  //   }
-  //   return filePath
-  // }
-
-  // public async uploadFile(metadata: FileMetadata) {
-  //   let width: number = null
-  //   let height: number = null
-  //   if (imagesExtensions.includes(metadata.ext)) {
-  //     let imageSize = null
-  //     try {
-  //       imageSize = await sizeOfPromisified(metadata.path)
-  //     } catch (e) {
-  //       console.error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
-  //       throw new Error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
-  //     }
-  //     width = imageSize.width
-  //     height = imageSize.height
-  //   }
-
-  //   const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
-  //   const uploadedFileStreamIterable = {
-  //     async* [Symbol.asyncIterator]() {
-  //       for await (const data of stream) {
-  //         yield data
-  //       }
-  //     }
-  //   }
-
-  //   // Create directory for file
-  //   const dirname = 'uploads'
-  //   await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })
-
-  //   // Write file to IPFS
-  //   const uuid = `${Date.now()}_${Math.random().toString(36).substr(2.9)}`
-  //   const filename = `${uuid}_${metadata.name}${metadata.ext}`
-
-  //   // Save copy to separate directory
-  //   const filePath = this.copyFile(metadata.path, filename)
-  //   console.time(`Writing ${filename} to ipfs`)
-  //   await this.ipfs.files.write(`/${dirname}/${filename}`, uploadedFileStreamIterable, {
-  //     create: true
-  //   })
-  //   console.timeEnd(`Writing ${filename} to ipfs`)
-
-  //   // Get uploaded file information
-  //   const entries = this.ipfs.files.ls(`/${dirname}`)
-  //   for await (const entry of entries) {
-  //     if (entry.name === filename) {
-  //       this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
-
-  //       const fileMetadata: FileMetadata = {
-  //         ...metadata,
-  //         path: filePath,
-  //         cid: entry.cid.toString(),
-  //         size: entry.size,
-  //         width,
-  //         height
-  //       }
-
-  //       this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
-
-  //       const statusReady: DownloadStatus = {
-  //         mid: fileMetadata.message.id,
-  //         cid: fileMetadata.cid,
-  //         downloadState: DownloadState.Hosted,
-  //         downloadProgress: undefined
-  //       }
-
-  //       this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusReady)
-
-  //       if (metadata.path !== filePath) {
-  //         log(`Updating file metadata (${metadata.path} => ${filePath})`)
-  //         this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
-  //       }
-  //       break
-  //     }
-  //   }
-  // }
 
   private attachFileManagerEvents = () => {
     this.filesManager.on(IpfsFilesManagerEvents.UPDATE_DOWNLOAD_PROGRESS, (status) => {
