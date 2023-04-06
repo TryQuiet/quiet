@@ -563,6 +563,85 @@ describe('Channel', () => {
     `)
   })
 
+  it.skip('user can enter a multi-line message and then traverse it with arrow keys', async () => {
+    const { store, runSaga } = await prepareStore(
+      {},
+      socket // Fork state manager's sagas
+    )
+
+    const factory = await getFactory(store)
+
+    const community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    const alice = await factory.create<
+      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'alice' })
+
+    window.HTMLElement.prototype.scrollTo = jest.fn()
+
+    renderComponent(
+      <>
+        <Channel />
+      </>,
+      store
+    )
+
+    await act(async () => {
+      store.dispatch(network.actions.addInitializedCommunity(community.id))
+    })
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
+
+    const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
+
+    // TODO Why does the first letter not get entered?
+    await userEvent.type(
+      messageInput,
+      'mmulti-line{Shift>}{Enter}{/Shift}message{Shift>}{Enter}{/Shift}here'
+    )
+    expect(messageInput.textContent).toBe('multi-line\nmessage\nhello')
+
+    // Test where the starting caret is
+    expect(window.getSelection().anchorNode.nodeValue).toBe('hello')
+    expect(window.getSelection().anchorOffset).toBe(5)
+
+    // Test where the caret is after an Arrow Up
+    await userEvent.keyboard('{ArrowLeft>3/}')
+    expect(window.getSelection().anchorOffset).toBe(2)
+    await userEvent.keyboard('{ArrowUp}')
+    expect(window.getSelection().anchorOffset).toBe(0)
+    expect(window.getSelection().anchorNode.nodeValue).toBe('message')
+    expect(window.getSelection().anchorOffset).toBe(2)
+    await userEvent.keyboard('{ArrowUp}')
+    expect(window.getSelection().anchorNode.nodeValue).toBe('multi-line')
+    expect(window.getSelection().anchorOffset).toBe(2)
+    await userEvent.keyboard('{ArrowUp}')
+    expect(window.getSelection().anchorNode.nodeValue).toBe('multi-line')
+    expect(window.getSelection().anchorOffset).toBe(0)
+
+    // Test where the caret is after an Arrow Down
+    await userEvent.keyboard('{ArrowRight>3/}')
+    expect(window.getSelection().anchorOffset).toBe(3)
+    await userEvent.keyboard('{ArrowDown}')
+    expect(window.getSelection().anchorNode.nodeValue).toBe('message')
+    expect(window.getSelection().anchorOffset).toBe(3)
+    await userEvent.keyboard('{ArrowDown}')
+    expect(window.getSelection().anchorNode.nodeValue).toBe('hello')
+    expect(window.getSelection().anchorOffset).toBe(3)
+    await userEvent.keyboard('{ArrowDown}')
+    expect(window.getSelection().anchorNode.nodeValue).toBe('hello')
+    expect(window.getSelection().anchorOffset).toBe(5)
+  })
+
   it("doesn't allow to type and send message if community is not initialized", async () => {
     const { store, runSaga } = await prepareStore(
       {},
