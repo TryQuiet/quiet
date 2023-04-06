@@ -209,6 +209,12 @@ export class Settings {
   }
 
   async invitationCode() {
+    const unlockButton = await this.driver.findElement(
+      By.xpath('//button[@data-testid="show-invitation-link"]')
+    )
+
+    await unlockButton.click()
+
     return await this.driver.findElement(By.xpath("//p[@data-testid='invitation-link']"))
   }
 

@@ -4,6 +4,9 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import CopyToClipboard from 'react-copy-to-clipboard'
+import { IconButton } from '@mui/material'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 
 const PREFIX = 'InviteToCommunity'
 
@@ -11,7 +14,10 @@ const classes = {
   title: `${PREFIX}title`,
   titleDiv: `${PREFIX}titleDiv`,
   link: `${PREFIX}link`,
-  button: `${PREFIX}button`
+  button: `${PREFIX}button`,
+  bold: `${PREFIX}bold`,
+  linkContainer: `${PREFIX}linkContainer`,
+  eyeIcon: `${PREFIX}eyeIcon`
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -21,10 +27,8 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     marginBottom: 24
   },
   [`& .${classes.link}`]: {
-    color: theme.palette.colors.linkBlue,
-    cursor: 'pointer',
     marginTop: '16px',
-    fontSize: '12px'
+    fontSize: '11px'
   },
   [`& .${classes.button}`]: {
     marginTop: 24,
@@ -37,15 +41,37 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
       opacity: 0.7,
       backgroundColor: theme.palette.colors.quietBlue
     }
+  },
+  [`& .${classes.bold}`]: {
+    fontWeight: 'bold'
+  },
+
+  [`& .${classes.linkContainer}`]: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'flex-start',
+    alignItems: 'baseline',
+    alignContent: 'stretch'
+  },
+
+  [`& .${classes.eyeIcon}`]: {
+    margin: '5px',
+    top: '5px'
   }
 }))
 
 export interface InviteComponentProps {
   invitationLink: string
-  openUrl: (url: string) => void
+  revealInputValue: boolean
+  handleClickInputReveal: () => void
 }
 
-export const InviteComponent: FC<InviteComponentProps> = ({ invitationLink, openUrl }) => {
+export const InviteComponent: FC<InviteComponentProps> = ({
+  invitationLink,
+  revealInputValue,
+  handleClickInputReveal
+}) => {
   return (
     <StyledGrid container direction='column'>
       <Grid
@@ -69,11 +95,22 @@ export const InviteComponent: FC<InviteComponentProps> = ({ invitationLink, open
             Anyone with Quiet app can follow this link to join this community.
             <br /> Only share with people you trust.
           </Typography>
-          <a onClick={() => openUrl(invitationLink)}>
-            <Typography data-testid='invitation-link' className={classes.link} variant='body2'>
-              {invitationLink}
+          <Grid item className={classes.linkContainer}>
+            <Typography variant='body2' className={classes.link} data-testid='invitation-link'>
+              {revealInputValue ? invitationLink : invitationLink?.replace(/./g, '•')}
             </Typography>
-          </a>
+            <IconButton
+              data-testid='show-invitation-link'
+              size='small'
+              onClick={handleClickInputReveal}
+              className={classes.eyeIcon}>
+              {!revealInputValue ? (
+                <VisibilityOff color='primary' fontSize='small' />
+              ) : (
+                <Visibility color='primary' fontSize='small' />
+              )}
+            </IconButton>
+          </Grid>
         </Grid>
       </Grid>
       <Grid>

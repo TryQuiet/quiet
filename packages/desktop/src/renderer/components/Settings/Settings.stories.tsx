@@ -50,12 +50,16 @@ const Leave: FC = () => {
 // }
 
 const Invite: FC = () => {
+  const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
   return (
     <InviteComponent
       invitationLink={
         'https://tryquiet.org/join?code=http://p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad.onion'
       }
-      openUrl={(url: string) => console.log(url)}
+      revealInputValue={revealInputValue}
+      handleClickInputReveal={() => {
+        setRevealInputValue(!revealInputValue)
+      }}
     />
   )
 }
