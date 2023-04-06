@@ -228,14 +228,15 @@ export class ConnectionsManager extends EventEmitter {
       if (!this.isTorInit) {
         if (this.torBinaryPath) {
           await this.tor.init()
+          this.isTorInit = true
         }
         await this.launchCommunityFromStorage()
-        this.isTorInit = true
       }
     })
   }
 
   public async launchCommunityFromStorage () {
+    if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
     log('launchCommunityFromStorage')
     const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
     if (community) {
@@ -247,6 +248,7 @@ export class ConnectionsManager extends EventEmitter {
       await this.launchCommunity(community)
     }
 
+    if (this.registrarState === ServiceState.LAUNCHED || this.registrarState === ServiceState.LAUNCHING) return
     const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
     if (registrarData) {
       await this.registration.launchRegistrar(registrarData)
@@ -384,6 +386,7 @@ export class ConnectionsManager extends EventEmitter {
 
   public async launchCommunity(payload: InitCommunityPayload) {
     if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
+
     this.communityState = ServiceState.LAUNCHING
     const communityData = await this.localStorage.get(LocalDBKeys.COMMUNITY)
     if (!communityData) {
@@ -528,6 +531,7 @@ export class ConnectionsManager extends EventEmitter {
       await this.createCommunity(args)
     })
     this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => {
+      if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
       await this.launchCommunity(args)
     })
     // Registration
