@@ -48,16 +48,6 @@ const LoadingPanel = () => {
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
   const isCommunityInitialized = Boolean(initializedCommunities[communityId])
 
-  const isOwner = owner ? !isChannelReplicated : !isCommunityInitialized
-
-  // Before connecting websocket
-  useEffect(() => {
-    if (isConnected && isCommunityInitialized && areMessagesLoaded) {
-      loadingPanelModal.handleClose()
-    }
-  }, [isConnected, torBootstrapProcessSelector, isCommunityInitialized, areMessagesLoaded])
-
-  // Before replicating data
   useEffect(() => {
     console.log('HUNTING for haisenbug:')
     console.log('isConnected', isConnected)
@@ -65,10 +55,12 @@ const LoadingPanel = () => {
     console.log('currentCommunity', currentCommunity)
     console.log('currentIdentity', currentIdentity)
     console.log('currentIdentity.userCertificate', currentIdentity?.userCertificate)
-
     if (isConnected && isCommunityInitialized && areMessagesLoaded) {
       loadingPanelModal.handleClose()
     }
+  }, [isConnected, torBootstrapProcessSelector, isCommunityInitialized, areMessagesLoaded])
+
+  useEffect(() => {
     if (isConnected) {
       if (currentCommunity && isChannelReplicated && owner && isOnlyOneUser) {
         const notification = new Notification('Community created!', {
@@ -82,15 +74,7 @@ const LoadingPanel = () => {
         }
       }
     }
-  }, [
-    isConnected,
-    currentCommunity,
-    isChannelReplicated,
-    torBootstrapProcessSelector,
-    isCommunityInitialized,
-    areMessagesLoaded,
-    loadingPanelModal
-  ])
+  }, [isConnected, currentCommunity, isChannelReplicated])
 
   const openUrl = useCallback((url: string) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
