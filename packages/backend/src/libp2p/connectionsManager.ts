@@ -116,6 +116,12 @@ export interface InitLibp2pParams {
   certs: Certificates
 }
 
+export enum IsTorInit{
+  STARTING = 'starting',
+  STARTED = 'started',
+  NOT_STARTED = 'not-started'
+}
+
 export class ConnectionsManager extends EventEmitter {
   registration: CertificateRegistration
   httpTunnelPort: number
@@ -137,7 +143,7 @@ export class ConnectionsManager extends EventEmitter {
   localStorage: LocalDB
   communityState: ServiceState
   registrarState: ServiceState
-  isTorInit: boolean = false
+  isTorInit: IsTorInit = IsTorInit.NOT_STARTED
 
   constructor({ options, socketIOPort, httpTunnelPort, torControlPort, torAuthCookie, torResourcesPath, torBinaryPath }: IConstructor) {
     super()
@@ -225,13 +231,13 @@ export class ConnectionsManager extends EventEmitter {
     await this.dataServer.listen()
 
     this.io.on('connection', async() => {
-      if (!this.isTorInit) {
+      if (this.isTorInit === IsTorInit.STARTED || this.isTorInit === IsTorInit.STARTING) return
+      this.isTorInit = IsTorInit.STARTING
         if (this.torBinaryPath) {
           await this.tor.init()
-          this.isTorInit = true
+          this.isTorInit = IsTorInit.STARTED
         }
         await this.launchCommunityFromStorage()
-      }
     })
   }
 
