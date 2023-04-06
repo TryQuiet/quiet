@@ -31,7 +31,8 @@ import {
   AUTODOWNLOAD_SIZE_LIMIT,
   SendMessagePayload,
   MessageVerificationStatus,
-  network
+  network,
+  connection
 } from '@quiet/state-manager'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -826,6 +827,7 @@ describe('Channel', () => {
       socket // Fork state manager's sagas
     )
 
+    store.dispatch(connection.actions.torBootstrapped('100%'))
     // Log all the dispatched actions in order
     const actions = []
     runSaga(function* (): Generator {
