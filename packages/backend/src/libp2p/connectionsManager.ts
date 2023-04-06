@@ -531,8 +531,6 @@ export class ConnectionsManager extends EventEmitter {
       await this.createCommunity(args)
     })
     this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => {
-      if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
-      if (this.registrarState === ServiceState.LAUNCHED || this.registrarState === ServiceState.LAUNCHING) return
       await this.launchCommunity(args)
     })
     // Registration
