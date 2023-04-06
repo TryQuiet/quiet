@@ -79,9 +79,19 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof filesActions.checkForMissingFiles>
     | ReturnType<typeof connectionActions.setTorBootstrapProcess>
     | ReturnType<typeof connectionActions.setTorConnectionProcess>
+    | ReturnType<typeof connectionActions.torBootstrapped>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (payload: string) => {
+      let torBootstrapped: boolean = false
+      if (payload.includes('Bootstrapped')) {
+        if (payload.toString().includes('Bootstrapped 100%')) {
+          torBootstrapped = true
+        }
+      }
+      if (torBootstrapped) {
+        emit(connectionActions.torBootstrapped(payload))
+      }
       emit(connectionActions.setTorBootstrapProcess(payload))
     })
     socket.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (payload: string) => {
