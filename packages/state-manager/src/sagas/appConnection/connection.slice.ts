@@ -42,6 +42,7 @@ export const connectionSlice = createSlice({
         state.torBootstrapProcess = formattedInfo
       }
     },
+    torBootstrapped: (state, _action: PayloadAction<any>) => state,
     setTorConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
       switch (info) {
