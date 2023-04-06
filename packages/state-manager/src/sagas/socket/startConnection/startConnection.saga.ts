@@ -83,11 +83,7 @@ export function subscribe(socket: Socket) {
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (payload: string) => {
-      let torBootstrapped: boolean = false
       if (payload.toString().includes('Bootstrapped 100%')) {
-        torBootstrapped = true
-      }
-      if (torBootstrapped) {
         emit(connectionActions.torBootstrapped(payload))
       }
       emit(connectionActions.setTorBootstrapProcess(payload))
