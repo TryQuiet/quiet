@@ -76,7 +76,7 @@ export const createApp = async (
   const rootTask = runSaga(root)
 
   // wait for tor
-  await new Promise<void>((resolve) => setTimeout(() => resolve(), 5000))
+  await new Promise<void>((resolve) => setTimeout(() => resolve(), 3000))
 
   return { store, runSaga, rootTask, manager, appPath }
 }
