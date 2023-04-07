@@ -35,7 +35,7 @@ describe('New User', () => {
   beforeAll(async () => {
     const port = await getPort()
     const debugPort = await getPort()
-    buildSetup = new BuildSetup({port, debugPort})
+    buildSetup = new BuildSetup({ port, debugPort })
     await buildSetup.createChromeDriver()
     driver = buildSetup.getDriver()
     await driver.getSession()
@@ -118,7 +118,7 @@ describe('New User', () => {
       console.log('Second client')
       const port2 = await getPort()
       const debugPort2 = await getPort()
-      buildSetup2 = new BuildSetup({port: port2, debugPort: debugPort2})
+      buildSetup2 = new BuildSetup({ port: port2, debugPort: debugPort2 })
       await buildSetup2.createChromeDriver()
       driver2 = buildSetup2.getDriver()
       await driver2.getSession()

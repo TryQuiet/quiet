@@ -19,7 +19,7 @@ describe('Smoke', () => {
   beforeAll(async () => {
     const port = await getPort()
     const debugPort = await getPort()
-    buildSetup = new BuildSetup({port, debugPort})
+    buildSetup = new BuildSetup({ port, debugPort })
     await buildSetup.createChromeDriver()
     driver = buildSetup.getDriver()
     await driver.getSession()

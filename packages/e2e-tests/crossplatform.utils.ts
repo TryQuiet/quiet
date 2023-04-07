@@ -11,7 +11,7 @@ export class BuildSetup {
   private child: ChildProcessWithoutNullStreams
   private useDataDir: boolean
 
-  constructor({port, debugPort, useDataDir=true}: {port: number, debugPort: number, useDataDir?: boolean}) {
+  constructor({ port, debugPort, useDataDir = true }: {port: number; debugPort: number; useDataDir?: boolean}) {
     this.port = port
     this.debugPort = debugPort
     this.useDataDir = useDataDir

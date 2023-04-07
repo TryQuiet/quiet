@@ -278,8 +278,4 @@ export class DebugModeModal {
       console.log('Probably click properly close modal')
     }
   }
-
-  async closeInTestMode() {
-
-  }
 }
