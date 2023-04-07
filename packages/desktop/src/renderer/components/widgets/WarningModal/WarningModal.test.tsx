@@ -105,6 +105,7 @@ describe('WarningModal', () => {
                     >
                       <h3
                         class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
+                        data-testid="warningModalTitle"
                       >
                         Warning
                       </h3>
@@ -118,6 +119,7 @@ describe('WarningModal', () => {
                     >
                       <p
                         class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                        data-testid="warningModalSubtitle"
                       >
                         This is a warning
                       </p>
@@ -131,6 +133,7 @@ describe('WarningModal', () => {
                     >
                       <button
                         class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth WarningModalbutton css-n0wap0-MuiButtonBase-root-MuiButton-root"
+                        data-testid="warningModalSubmit"
                         tabindex="0"
                         type="submit"
                       >
