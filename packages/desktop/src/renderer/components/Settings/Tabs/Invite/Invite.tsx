@@ -5,8 +5,8 @@ import { InviteComponent } from './Invite.component'
 import { invitationShareUrl } from '@quiet/common'
 
 export const Invite: FC = () => {
-  const community = useSelector(communities.selectors.currentCommunity)
-  const invitationLink = invitationShareUrl(community?.registrarUrl)
+  // const community = useSelector(communities.selectors.currentCommunity)
+  const invitationLink = useSelector(communities.selectors.invitationUrl)
 
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
 
