@@ -3,6 +3,8 @@ import { select, delay, put } from 'typed-redux-saga'
 import {
   communities,
   CommunityOwnership,
+  connection,
+  ConnectionProcessInfo,
   CreateNetworkPayload,
   identity
 } from '@quiet/state-manager'
@@ -12,6 +14,7 @@ import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
 import { appImages } from '../../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
+import { UsernameRegistrationRouteProps } from '../../../route.params'
 
 export function* deepLinkSaga(
   action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>
@@ -31,11 +34,24 @@ export function* deepLinkSaga(
 
   // Link opened mid registration
   if (_identity?.userCertificate === null) {
+    const connectionProcess = yield* select(connection.selectors.torConnectionProcess)
+    const fetching = connectionProcess.text === ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE
+
+    let params: UsernameRegistrationRouteProps['params']
+
+    if (fetching) {
+      params = {
+        fetching: true
+      }
+    }
+
     yield* put(
       navigationActions.replaceScreen({
-        screen: ScreenNames.UsernameRegistrationScreen
+        screen: ScreenNames.UsernameRegistrationScreen,
+        params: params
       })
     )
+
     return
   }
 

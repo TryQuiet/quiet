@@ -1,2 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface UsernameRegistrationScreenProps {}
+import { UsernameRegistrationRouteProps } from '../../route.params'
+
+export interface UsernameRegistrationScreenProps {
+  route: UsernameRegistrationRouteProps
+}
