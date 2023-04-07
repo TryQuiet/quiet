@@ -28,8 +28,8 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
   [`& .${classes.link}`]: {
     marginTop: '16px',
-    fontSize: '14px',
-    letterSpacing: '-0.2px'
+    fontSize: '12px',
+    letterSpacing: '-0.4px'
   },
   [`& .${classes.button}`]: {
     marginTop: 24,
