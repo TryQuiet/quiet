@@ -43,7 +43,7 @@ export class BuildSetup {
     } else {
       const dataDir = this.dataDir ? `DATA_DIR=${this.dataDir}` : ''
       this.child = spawn(
-        `DEBUG=backend ${dataDir} node_modules/.bin/chromedriver --port=${this.port}`,
+        `DEBUG=backend* ${dataDir} node_modules/.bin/chromedriver --port=${this.port}`,
         [],
         {
           shell: true,

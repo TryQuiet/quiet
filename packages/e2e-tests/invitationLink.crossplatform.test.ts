@@ -143,7 +143,9 @@ describe('New user joins using invitation link', () => {
     })
 
     it('Guest clicks invitation link with valid code', async () => {
-      execSync(`xdg-open ${invitationDeepUrl(invitationCode)}`)
+      // Extract code from copied invitation url
+      const url = new URL(invitationCode)
+      execSync(`xdg-open ${invitationDeepUrl(url.searchParams.get('code'))}`)
     })
 
     it('Guest is redirected to UsernameModal and submits username', async () => {
