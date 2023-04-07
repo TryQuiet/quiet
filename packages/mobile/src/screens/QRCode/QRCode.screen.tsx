@@ -7,14 +7,14 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 
 import { QRCode } from '../../components/QRCode/QRCode.component'
+import { Site } from '@quiet/common'
 
 export const QRCodeScreen: FC = () => {
   const dispatch = useDispatch()
 
   const svgRef = useRef<SVG>()
 
-  const community = useSelector(communities.selectors.currentCommunity)
-  const invitationLink = `https://tryquiet.org/join?code=${community?.registrarUrl}` || 'https://tryquiet.org/'
+  const invitationLink = useSelector(communities.selectors.invitationUrl) || Site.MAIN_PAGE
 
   const handleBackButton = useCallback(() => {
     dispatch(
@@ -29,7 +29,7 @@ export const QRCodeScreen: FC = () => {
       try {
         await Share.open({
           title: '"Quiet" invitation',
-          message: `Chat with me on "Quiet"!\nhttps://tryquiet.org/join?code=${community?.registrarUrl}`,
+          message: `Chat with me on "Quiet"!\n${invitationLink}`,
           url: `data:image/png;base64,${base64}`
         })
       } catch (error) {

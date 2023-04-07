@@ -2,7 +2,7 @@ import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { communitiesAdapter } from './communities.adapter'
 import { CreatedSelectors, StoreState } from '../store.types'
-import { Community } from './communities.slice'
+import { invitationShareUrl } from '@quiet/common'
 
 const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (state: StoreState) =>
   state[StoreKeys.Communities]
@@ -53,6 +53,20 @@ export const registrarUrl = (communityId: string) =>
     return registrarAddress
   })
 
+export const invitationUrl = createSelector(
+  currentCommunity,
+  community => {
+    let registrarUrl = ''
+    try {
+      const url = new URL(community.registrarUrl)
+      registrarUrl = url.hostname.split('.')[0]
+    } catch (e) {
+      registrarUrl = community.registrarUrl
+    }
+    return invitationShareUrl(registrarUrl)
+  }
+)
+
 export const registrationAttempts = (communityId: string) =>
   createSelector(selectEntities, communities => {
     const community = communities[communityId]
@@ -67,5 +81,6 @@ export const communitiesSelectors = {
   currentCommunity,
   currentCommunityId,
   registrarUrl,
-  registrationAttempts
+  registrationAttempts,
+  invitationUrl
 }
