@@ -28,7 +28,8 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
   [`& .${classes.link}`]: {
     marginTop: '16px',
-    fontSize: '11px'
+    fontSize: '10px',
+    letterSpacing: '-0.1px'
   },
   [`& .${classes.button}`]: {
     marginTop: 24,
@@ -52,7 +53,8 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     flexWrap: 'nowrap',
     justifyContent: 'flex-start',
     alignItems: 'baseline',
-    alignContent: 'stretch'
+    alignContent: 'stretch',
+    maxWidth: '520px'
   },
 
   [`& .${classes.eyeIcon}`]: {
