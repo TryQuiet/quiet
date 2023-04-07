@@ -7,6 +7,8 @@ import {
   communities,
   Community,
   CommunityOwnership,
+  connection,
+  ConnectionProcessInfo,
   identity,
   Identity
 } from '@quiet/state-manager'
@@ -168,7 +170,47 @@ describe('deepLinkSaga', () => {
       .withState(store.getState())
       .put(
         navigationActions.replaceScreen({
-          screen: ScreenNames.UsernameRegistrationScreen
+          screen: ScreenNames.UsernameRegistrationScreen,
+          params: undefined
+        })
+      )
+      .not.put(
+        communities.actions.createNetwork({
+          ownership: CommunityOwnership.User,
+          registrar: code
+        })
+      )
+      .run()
+  })
+
+  test('continues if link used mid registration and locks input while waiting for server response', async () => {
+    store.dispatch(
+      initActions.setWebsocketConnected({
+        dataPort: 5001
+      })
+    )
+
+    store.dispatch(communities.actions.addNewCommunity(community))
+
+    store.dispatch(
+      // @ts-expect-error
+      identity.actions.addNewIdentity({ ..._identity, userCertificate: null })
+    )
+
+    store.dispatch(communities.actions.setCurrentCommunity(community.id))
+
+    store.dispatch(connection.actions.setTorConnectionProcess(ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE))
+
+    const code = 'bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd'
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(deepLinkSaga, initActions.deepLink(code))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.UsernameRegistrationScreen,
+          params: { fetching: true }
         })
       )
       .not.put(
