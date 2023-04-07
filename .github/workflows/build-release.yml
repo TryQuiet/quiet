@@ -93,7 +93,7 @@ jobs:
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'dev.quiet' }}
 
     steps:
       - uses: actions/checkout@v2
@@ -166,7 +166,7 @@ jobs:
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'dev.quiet' }}
 
     steps:
       - uses: actions/checkout@v2
