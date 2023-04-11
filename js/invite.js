@@ -1,14 +1,3 @@
-function getURLParameter(param) {
-  var pageURL = window.location.search.substring(1)
-  var URLVariables = pageURL.split('&')
-  for (var i = 0; i < URLVariables.length; i++) {
-    var parameterName = URLVariables[i].split('=')
-    if (parameterName[0] == param) {
-      return parameterName[1]
-    }
-  }
-}
-
 // Use custom protocol to open Quiet app
 document.addEventListener(
   'click',
@@ -16,12 +5,27 @@ document.addEventListener(
     if (!event.target.matches('#joincommunity')) return
     event.preventDefault()
 
-    var invitationCode = getURLParameter('code')
+    var hash = window.location.hash
+
+    var invitationCode = hash.substring(1)
+
+    // Ensure backward compatibility
+    if (hash.includes("code=")) {
+      invitationCode = hash.substring(6)
+    }
+
+    if (!invitationCode) {
+      window.alert('Sorry, no invitation code has been passed with the URL.')
+      return
+    }
+
+    if (invitationCode?.length !== 56) {
+      window.alert("Sorry, this doesn't seem to be a valid invitation code.")
+      return
+    }
 
     if (invitationCode) {
       window.location = `quiet://?code=${invitationCode}`
-    } else {
-      window.alert('Sorry, no invitation code has been passed with the URL.')
     }
   },
   false
