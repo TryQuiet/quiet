@@ -56,6 +56,7 @@ export const registrarUrl = (communityId: string) =>
 export const invitationUrl = createSelector(
   currentCommunity,
   community => {
+    if (!community) return ''
     let registrarUrl = ''
     try {
       const url = new URL(community.registrarUrl)
