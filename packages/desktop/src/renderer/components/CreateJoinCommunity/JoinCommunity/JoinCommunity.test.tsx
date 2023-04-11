@@ -128,8 +128,7 @@ describe('join community', () => {
 
   it('joins community on submit if connection is ready and invitation code is a correct invitation url', async () => {
     const code = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad'
-    const registrarUrl = new URL(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}`)
-    registrarUrl.searchParams.append(InvitationParams.CODE, code)
+    const registrarUrl = new URL(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}#${code}`)
 
     const handleCommunityAction = jest.fn()
 
