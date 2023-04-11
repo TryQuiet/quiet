@@ -14,7 +14,7 @@ export const getInvitationCode = (codeOrUrl: string): string => {
   }
 
   if (validUrl && validUrl.host === Site.DOMAIN && validUrl.pathname === `/${Site.JOIN_PAGE}`) {
-    const hash = window.location.hash
+    const hash = validUrl.hash
 
     let invitationCode = hash.substring(1)
 
