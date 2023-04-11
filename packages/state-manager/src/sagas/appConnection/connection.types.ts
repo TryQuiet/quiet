@@ -15,7 +15,7 @@ export interface NetworkStats {
   connectionTime: number
 }
 export enum ConnectionProcessInfo {
-  FETCHING = 'Fetching...',
+  CONNECTING_TO_COMMUNITY = 'Connecting to community owner via Tor',
   REGISTERING_USER_CERTIFICATE = 'Registering user certificate',
   REGISTERING_OWNER_CERTIFICATE = 'Registering owner certificate',
   LAUNCHING_COMMUNITY = 'Launching community',

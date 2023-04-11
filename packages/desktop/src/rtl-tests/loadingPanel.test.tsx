@@ -65,7 +65,7 @@ describe('Loading panel', () => {
     expect(screen.getByTestId('startingPanelComponent')).toBeVisible()
 
     // Verify proper messages is displayed
-    const startingApplicationMessage = screen.getByText('This can take some time')
+    const startingApplicationMessage = screen.getByText(LoadingPanelType.StartingApplication)
     expect(startingApplicationMessage).toBeVisible()
 
     store.dispatch(socketActions.setConnected())
@@ -204,7 +204,7 @@ describe('Loading panel', () => {
       )
     )
     await act(async () => {})
-    const bootstrapped5text = screen.getByText('Starting Quiet: Tor Bootstrapped 5% (conn)')
+    const bootstrapped5text = screen.getByText('Tor Bootstrapped 5% (conn)')
     expect(bootstrapped5text).toBeVisible()
 
     // 50%
@@ -215,7 +215,7 @@ describe('Loading panel', () => {
     )
     await act(async () => {})
     const bootstrapped50text = screen.getByText(
-      'Starting Quiet: Tor Bootstrapped 50% (loading_descriptors)'
+      'Tor Bootstrapped 50% (loading_descriptors)'
     )
     expect(bootstrapped50text).toBeVisible()
 
@@ -227,7 +227,7 @@ describe('Loading panel', () => {
     )
     await act(async () => {})
     const bootstrapped95text = screen.getByText(
-      'Starting Quiet: Tor Bootstrapped 95% (circuit_create)'
+      'Tor Bootstrapped 95% (circuit_create)'
     )
     expect(bootstrapped95text).toBeVisible()
 
@@ -238,7 +238,7 @@ describe('Loading panel', () => {
       )
     )
     await act(async () => {})
-    const bootstrapped100text = screen.getByText('Starting Quiet: Tor Bootstrapped 100% (done)')
+    const bootstrapped100text = screen.getByText('Tor Bootstrapped 100% (done)')
     expect(bootstrapped100text).toBeVisible()
   })
 })

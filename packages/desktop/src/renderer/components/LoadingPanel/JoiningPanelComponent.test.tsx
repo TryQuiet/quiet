@@ -9,6 +9,7 @@ describe('Create JoiningPanelComponent', () => {
         handleClose={jest.fn()}
         openUrl={jest.fn()}
         open={true}
+        isOwner={false}
         torConnectionInfo={{ number: 50, text: 'Initializing storage' }}
       />
     )
@@ -68,14 +69,14 @@ describe('Create JoiningPanelComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-lzlt1s-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-kpkqnh-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column JoiningPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"
                     data-testid="joiningPanelComponent"
                   >
                     <img
-                      class="JoiningPanelComponentimage"
+                      class="JoiningPanelComponentanimatedImage"
                       src="test-file-stub"
                     />
                     <h2
@@ -102,7 +103,7 @@ describe('Create JoiningPanelComponent', () => {
                     <p
                       class="MuiTypography-root MuiTypography-body2 JoiningPanelComponenttext css-16d47hw-MuiTypography-root"
                     >
-                      You can exit the app - we'll notify you once you're connected! 
+                      We'll notify you once you're connected.
                       <br />
                       <strong>
                          This first time might take 30 seconds, 10 minutes, or even longer.
