@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles'
 import Modal from '../ui/Modal/Modal'
 import JoinCommunityImg from '../../static/images/join-community.png'
 import { Grid, Typography } from '@mui/material'
-import classNames from 'classnames'
+import { Site } from '@quiet/common'
 
 const PREFIX = 'JoiningPanelComponent'
 
@@ -133,7 +133,7 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
             Big Tech’s servers!) and uses the battle-tested privacy tool Tor to protect your
             information. Tor is fast once connected, but can take a long time to connect at first.
           </Typography>
-          <a onClick={() => openUrl('https://tryquiet.org/')}>
+          <a onClick={() => openUrl(Site.MAIN_PAGE)}>
             <Typography className={classes.link} variant='body2'>
               Learn more about Tor and Quiet
             </Typography>
