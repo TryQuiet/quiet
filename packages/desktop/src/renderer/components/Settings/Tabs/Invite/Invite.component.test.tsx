@@ -63,7 +63,7 @@ describe('CopyLink', () => {
                     class="MuiTypography-root MuiTypography-body2 InviteToCommunitylink css-16d47hw-MuiTypography-root"
                     data-testid="invitation-link"
                   >
-                    ••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+                    ••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
                   </p>
                   <button
                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall InviteToCommunityeyeIcon css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
@@ -169,7 +169,7 @@ describe('CopyLink', () => {
                     class="MuiTypography-root MuiTypography-body2 InviteToCommunitylink css-16d47hw-MuiTypography-root"
                     data-testid="invitation-link"
                   >
-                    https://tryquiet.org/join?code=http://p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad.onion
+                    https://tryquiet.org/join#p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad
                   </p>
                   <button
                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall InviteToCommunityeyeIcon css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
