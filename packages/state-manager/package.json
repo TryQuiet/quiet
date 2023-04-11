@@ -1,6 +1,6 @@
 {
   "name": "@quiet/state-manager",
-  "version": "1.2.0-alpha.20",
+  "version": "1.2.0-alpha.21",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -22,7 +22,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@quiet/common": "^1.2.0-alpha.20",
+    "@quiet/common": "^1.2.0-alpha.21",
     "@quiet/logger": "^1.2.0-alpha.20",
     "@reduxjs/toolkit": "^1.9.1",
     "factory-girl": "^5.0.4",
