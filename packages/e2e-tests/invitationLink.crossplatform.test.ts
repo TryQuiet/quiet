@@ -16,7 +16,8 @@ import { execSync } from 'child_process'
 import getPort from 'get-port'
 
 jest.setTimeout(900000)
-describe('New user joins using invitation link', () => {
+it.todo('New user joins using invitation link while having app closed')
+describe('New user joins using invitation link while having app opened', () => {
   // Note: this test requires no DATA_DIR env so ran on local machine may interfere with 'Quiet' data directory
   let buildSetupOwner: BuildSetup
   let driverOwner: ThenableWebDriver
@@ -148,7 +149,7 @@ describe('New user joins using invitation link', () => {
       const command = {
         linux: 'xdg-open',
         darwin: 'open',
-        windows: 'start'
+        win32: 'start'
       }
       execSync(`${command[process.platform]} ${invitationDeepUrl(url.searchParams.get('code'))}`)
     })
