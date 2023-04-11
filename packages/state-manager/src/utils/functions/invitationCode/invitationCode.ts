@@ -1,4 +1,4 @@
-import { Site, InvitationParams } from '@quiet/common'
+import { Site } from '@quiet/common'
 
 export const getInvitationCode = (codeOrUrl: string): string => {
   /**
@@ -6,6 +6,7 @@ export const getInvitationCode = (codeOrUrl: string): string => {
    */
   let code: string
   let validUrl: URL
+
   try {
     validUrl = new URL(codeOrUrl)
   } catch (e) {
@@ -13,9 +14,17 @@ export const getInvitationCode = (codeOrUrl: string): string => {
   }
 
   if (validUrl && validUrl.host === Site.DOMAIN && validUrl.pathname === `/${Site.JOIN_PAGE}`) {
-    if (validUrl.searchParams.has(InvitationParams.CODE)) {
-      code = validUrl.searchParams.get(InvitationParams.CODE)
+    const hash = window.location.hash
+
+    let invitationCode = hash.substring(1)
+
+    // Ensure backward compatibility
+    if (hash.includes('code=')) {
+      invitationCode = hash.substring(6)
     }
+
+    code = invitationCode
   }
+
   return code
 }

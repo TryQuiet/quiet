@@ -9,7 +9,7 @@ describe('LeaveCommunity', () => {
     const result = renderComponent(
       <QRCodeComponent
         value={
-          'https://tryquiet.org/join?code=ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad'
+          'https://tryquiet.org/join#ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad'
         }
       />
     )
