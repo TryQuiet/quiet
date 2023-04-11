@@ -10,6 +10,7 @@ import { socketEventData } from '../renderer/testUtils/socket'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
+import ChannelInputComponent from '../renderer/components/widgets/channels/ChannelInput/ChannelInput'
 
 import {
   identity,
@@ -563,54 +564,56 @@ describe('Channel', () => {
     `)
   })
 
-  it.skip('user can enter a multi-line message and then traverse it with arrow keys', async () => {
-    const { store, runSaga } = await prepareStore(
-      {},
-      socket // Fork state manager's sagas
-    )
-
-    const factory = await getFactory(store)
-
-    const community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
-
-    const alice = await factory.create<
-      ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'alice' })
-
-    window.HTMLElement.prototype.scrollTo = jest.fn()
-
+  it('renders a multi-line message', async () => {
     renderComponent(
-      <>
-        <Channel />
-      </>,
-      store
+      <ChannelInputComponent
+        channelAddress={'channelAddress'}
+        channelName={'channelName'}
+        inputPlaceholder='#channel as @user'
+        onChange={jest.fn()}
+        onKeyPress={jest.fn()}
+        infoClass={''}
+        setInfoClass={jest.fn()}
+        openFilesDialog={jest.fn()}
+        handleOpenFiles={jest.fn()}
+      />
     )
 
-    await act(async () => {
-      store.dispatch(network.actions.addInitializedCommunity(community.id))
-    })
+    const messageInput = screen.getByTestId('messageInput')
 
-    // Log all the dispatched actions in order
-    const actions = []
-    runSaga(function* (): Generator {
-      while (true) {
-        const action = yield* take()
-        actions.push(action.type)
-      }
-    })
-
-    const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.nickname}`)
-
-    // TODO Why does the first letter not get entered?
+    // Why does the first letter not get entered?
     await userEvent.type(
       messageInput,
-      'mmulti-line{Shift>}{Enter}{/Shift}message{Shift>}{Enter}{/Shift}here'
+      'mmulti-line{Shift>}{Enter}{/Shift}message{Shift>}{Enter}{/Shift}hello'
     )
     expect(messageInput.textContent).toBe('multi-line\nmessage\nhello')
+  })
 
+  // TODO the userEvent.type doesn't setup the input text node children like the app does,
+  // so this test, as written, fails.
+  it.skip('traverses a multi-line message it with arrow keys', async () => {
+    renderComponent(
+      <ChannelInputComponent
+        channelAddress={'channelAddress'}
+        channelName={'channelName'}
+        inputPlaceholder='#channel as @user'
+        onChange={jest.fn()}
+        onKeyPress={jest.fn()}
+        infoClass={''}
+        setInfoClass={jest.fn()}
+        openFilesDialog={jest.fn()}
+        handleOpenFiles={jest.fn()}
+      />
+    )
+
+    const messageInput = screen.getByTestId('messageInput')
+
+    // TODO Why does the first letter not get entered?
     // Test where the starting caret is
+    await userEvent.type(
+      messageInput,
+      'mmulti-line{Shift>}{Enter}{/Shift}message{Shift>}{Enter}{/Shift}hello'
+    )
     expect(window.getSelection().anchorNode.nodeValue).toBe('hello')
     expect(window.getSelection().anchorOffset).toBe(5)
 
@@ -618,7 +621,6 @@ describe('Channel', () => {
     await userEvent.keyboard('{ArrowLeft>3/}')
     expect(window.getSelection().anchorOffset).toBe(2)
     await userEvent.keyboard('{ArrowUp}')
-    expect(window.getSelection().anchorOffset).toBe(0)
     expect(window.getSelection().anchorNode.nodeValue).toBe('message')
     expect(window.getSelection().anchorOffset).toBe(2)
     await userEvent.keyboard('{ArrowUp}')
