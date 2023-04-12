@@ -2,6 +2,7 @@ export enum ModalName {
   applicationUpdate = 'applicationUpdate',
   addModerator = 'addModerator',
   createChannel = 'createChannel',
+  deleteChannel = 'deleteChannel',
   accountSettingsModal = 'accountSettingsModal',
   openexternallink = 'openexternallink',
   criticalError = 'criticalError',
