@@ -13,7 +13,15 @@ import {
 } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { communities, getFactory, LoadingPanelType } from '@quiet/state-manager'
+import {
+  communities,
+  getFactory,
+  LoadingPanelType,
+  network,
+  publicChannels
+} from '@quiet/state-manager'
+import { act } from 'react-dom/test-utils'
+import { identityActions } from 'packages/state-manager/src/sagas/identity/identity.slice'
 
 jest.setTimeout(20_000)
 
@@ -38,9 +46,17 @@ describe('Restart app works correctly', () => {
 
     const factory = await getFactory(store)
 
-    await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    const community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
+
+    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id
+    })
+
+    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id
+    })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
 
@@ -53,6 +69,18 @@ describe('Restart app works correctly', () => {
       </>,
       store
     )
+
+    await act(async () => {
+      store.dispatch(network.actions.addInitializedCommunity(community.id))
+      store.dispatch(publicChannels.actions.createGeneralChannel())
+      const general = store.getState().PublicChannels.channels.entities['general']
+      store.dispatch(
+        publicChannels.actions.sendInitialChannelMessage({
+          channelAddress: general.address,
+          channelName: general.name
+        })
+      )
+    })
 
     const startAppLoadingText = screen.queryByText(LoadingPanelType.StartingApplication)
     expect(startAppLoadingText).toBeNull()
