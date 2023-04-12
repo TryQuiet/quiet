@@ -201,6 +201,20 @@ export class Settings {
     return this.driver.wait(until.elementLocated(By.xpath("//h6[text()='Settings']")))
   }
 
+  async openLeaveCommunityModal() {
+    const tab = await this.driver.wait(
+      until.elementLocated(By.xpath('//p[@data-testid="leave-community-tab"]'))
+    )
+    await tab.click()
+  }
+
+  async leaveCommunityButton() {
+    const button = await this.driver.wait(
+      until.elementLocated(By.xpath('//button[text()="Leave community"]'))
+    )
+    await button.click()
+  }
+
   async switchTab(name: string) {
     const tab = await this.driver.findElement(
       By.xpath(`//button[@data-testid='${name}-settings-tab']`)
