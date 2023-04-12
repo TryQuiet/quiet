@@ -1,3 +1,4 @@
+import { DownloadStatus, DownloadState } from '@quiet/state-manager'
 import React from 'react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
@@ -5,6 +6,11 @@ import UploadedImagePlaceholder from './UploadedImagePlaceholder'
 
 describe('UploadedImagePlaceholder', () => {
   it('renders component', () => {
+    const downloadStatus: DownloadStatus = {
+      mid: 'test',
+      cid: 'hvb45FGa',
+      downloadState: DownloadState.Completed
+    }
     const result = renderComponent(
       <UploadedImagePlaceholder
         cid={'hvb45FGa'}
@@ -12,6 +18,7 @@ describe('UploadedImagePlaceholder', () => {
         imageWidth={5000}
         name={'test'}
         ext={'.png'}
+        downloadStatus={downloadStatus}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -30,28 +37,36 @@ describe('UploadedImagePlaceholder', () => {
               class="UploadedImagePlaceholderplaceholder"
               style="width: 400px;"
             >
-              <img
-                class="UploadedImagePlaceholderplaceholderIcon"
-                src="test-file-stub"
-              />
-              <span
-                class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInherit css-62e83j-MuiCircularProgress-root"
-                role="progressbar"
-                style="width: 16px; height: 16px;"
-              >
-                <svg
-                  class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
-                  viewBox="22 22 44 44"
+              <span>
+                <div
+                  aria-label=""
+                  class=""
+                  data-mui-internal-clone-element="true"
                 >
-                  <circle
-                    class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate MuiCircularProgress-circleDisableShrink css-79nvmn-MuiCircularProgress-circle"
-                    cx="44"
-                    cy="44"
-                    fill="none"
-                    r="20.2"
-                    stroke-width="3.6"
+                  <img
+                    class="UploadedImagePlaceholderplaceholderIcon"
+                    src="test-file-stub"
                   />
-                </svg>
+                  <span
+                    class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInherit css-62e83j-MuiCircularProgress-root"
+                    role="progressbar"
+                    style="width: 16px; height: 16px;"
+                  >
+                    <svg
+                      class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
+                      viewBox="22 22 44 44"
+                    >
+                      <circle
+                        class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate MuiCircularProgress-circleDisableShrink css-79nvmn-MuiCircularProgress-circle"
+                        cx="44"
+                        cy="44"
+                        fill="none"
+                        r="20.2"
+                        stroke-width="3.6"
+                      />
+                    </svg>
+                  </span>
+                </div>
               </span>
             </div>
           </div>

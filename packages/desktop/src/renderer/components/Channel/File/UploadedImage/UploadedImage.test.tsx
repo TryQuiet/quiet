@@ -1,4 +1,9 @@
-import { DisplayableMessage, MessageType } from '@quiet/state-manager'
+import {
+  DisplayableMessage,
+  DownloadState,
+  DownloadStatus,
+  MessageType
+} from '@quiet/state-manager'
 import React from 'react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
@@ -6,6 +11,7 @@ import UploadedImage from './UploadedImage'
 
 describe('UploadedFile', () => {
   let message: DisplayableMessage
+  let downloadStatus: DownloadStatus
 
   beforeEach(() => {
     message = {
@@ -28,10 +34,18 @@ describe('UploadedFile', () => {
         }
       }
     }
+
+    downloadStatus = {
+      mid: 'string',
+      cid: 'abcd1234',
+      downloadState: DownloadState.Completed
+    }
   })
 
   it('renders a placeholder if image is not finished downloading yet', () => {
-    const result = renderComponent(<UploadedImage message={message} />)
+    const result = renderComponent(
+      <UploadedImage message={message} downloadStatus={downloadStatus} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -51,28 +65,36 @@ describe('UploadedFile', () => {
                 class="UploadedImagePlaceholderplaceholder"
                 style="width: 400px;"
               >
-                <img
-                  class="UploadedImagePlaceholderplaceholderIcon"
-                  src="test-file-stub"
-                />
-                <span
-                  class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInherit css-62e83j-MuiCircularProgress-root"
-                  role="progressbar"
-                  style="width: 16px; height: 16px;"
-                >
-                  <svg
-                    class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
-                    viewBox="22 22 44 44"
+                <span>
+                  <div
+                    aria-label=""
+                    class=""
+                    data-mui-internal-clone-element="true"
                   >
-                    <circle
-                      class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate MuiCircularProgress-circleDisableShrink css-79nvmn-MuiCircularProgress-circle"
-                      cx="44"
-                      cy="44"
-                      fill="none"
-                      r="20.2"
-                      stroke-width="3.6"
+                    <img
+                      class="UploadedImagePlaceholderplaceholderIcon"
+                      src="test-file-stub"
                     />
-                  </svg>
+                    <span
+                      class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInherit css-62e83j-MuiCircularProgress-root"
+                      role="progressbar"
+                      style="width: 16px; height: 16px;"
+                    >
+                      <svg
+                        class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
+                        viewBox="22 22 44 44"
+                      >
+                        <circle
+                          class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate MuiCircularProgress-circleDisableShrink css-79nvmn-MuiCircularProgress-circle"
+                          cx="44"
+                          cy="44"
+                          fill="none"
+                          r="20.2"
+                          stroke-width="3.6"
+                        />
+                      </svg>
+                    </span>
+                  </div>
                 </span>
               </div>
             </div>
@@ -87,7 +109,9 @@ describe('UploadedFile', () => {
       id: 'string',
       channelAddress: 'general'
     }
-    const result = renderComponent(<UploadedImage message={message} />)
+    const result = renderComponent(
+      <UploadedImage message={message} downloadStatus={downloadStatus} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
