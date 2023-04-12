@@ -40,6 +40,8 @@ export function* handleInvitationCodeSaga(
       return
     }
 
+    yield* put(communities.actions.clearInvitationCode())
+
     yield* put(modalsActions.openModal({
       name: ModalName.warningModal,
       args: {
