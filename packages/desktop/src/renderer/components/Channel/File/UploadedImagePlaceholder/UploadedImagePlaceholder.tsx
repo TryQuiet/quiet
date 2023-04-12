@@ -1,8 +1,10 @@
 import { CircularProgress } from '@mui/material'
 import { styled } from '@mui/material/styles'
+import { DownloadStatus, DownloadState, formatBytes } from '@quiet/state-manager'
 import React from 'react'
 import imageIcon from '../../../../static/images/imageIcon.svg'
 import Icon from '../../../ui/Icon/Icon'
+import Tooltip from '../../../ui/Tooltip/Tooltip'
 
 const PREFIX = 'UploadedImagePlaceholder'
 
@@ -59,6 +61,7 @@ export interface UploadedImagePlaceholderProps {
   imageHeight: number
   name: string
   ext: string
+  downloadStatus: DownloadStatus
 }
 
 export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> = ({
@@ -66,16 +69,33 @@ export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> =
   imageWidth,
   imageHeight,
   name,
-  ext
+  ext,
+  downloadStatus
 }) => {
   const width = imageWidth >= 400 ? 400 : imageWidth
 
+  const downloadState = downloadStatus?.downloadState
+  const downloadProgress = downloadStatus?.downloadProgress
+
   return (
     <Root data-testid={`${cid}-imagePlaceholder`}>
-      <UploadedFilename fileName={`${name}${ext}`}/>
+      <UploadedFilename fileName={`${name}${ext}`} />
+
       <div className={classes.placeholder} style={{ width: width, aspectRatio: '' + imageWidth / imageHeight }} >
-        <Icon src={imageIcon} className={classes.placeholderIcon}/>
-        <CircularProgress color='inherit' size={16} disableShrink={true} />
+        <Tooltip
+          title={
+            downloadState === DownloadState.Downloading &&
+              downloadProgress &&
+              downloadProgress?.transferSpeed !== -1
+              ? `(${Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)}%) ${formatBytes(downloadProgress.transferSpeed)}ps`
+              : ''
+          }
+          placement='top'>
+          <div>
+            <Icon src={imageIcon} className={classes.placeholderIcon} />
+            <CircularProgress color='inherit' size={16} disableShrink={true} />
+          </div>
+        </Tooltip>
       </div>
     </Root>
   )

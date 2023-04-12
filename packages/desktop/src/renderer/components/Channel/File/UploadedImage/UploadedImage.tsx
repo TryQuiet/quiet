@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
-import { DisplayableMessage } from '@quiet/state-manager'
+import { DisplayableMessage, DownloadStatus } from '@quiet/state-manager'
 import { UseModalTypeWrapper } from '../../../../containers/hooks'
 import UploadedFileModal from './UploadedImagePreview'
 import { UploadedFilename, UploadedImagePlaceholder } from '../UploadedImagePlaceholder/UploadedImagePlaceholder'
@@ -31,9 +31,10 @@ export interface UploadedImageProps {
     src: string
   }>['types']
   >
+  downloadStatus: DownloadStatus
 }
 
-export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedFileModal }) => {
+export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedFileModal, downloadStatus }) => {
   const [showImage, setShowImage] = useState<boolean>(false)
 
   const { cid, path, name, ext } = message.media
@@ -84,6 +85,7 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedF
           imageHeight={imageHeight}
           name={name}
           ext={ext}
+          downloadStatus={downloadStatus}
         />
       )}
     </Root>)
