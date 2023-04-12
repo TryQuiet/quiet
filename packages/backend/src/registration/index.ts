@@ -98,7 +98,7 @@ export class CertificateRegistration extends EventEmitter {
       requestTimeout,
       socksProxyAgent
     )
-    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.FETCHING)
+    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
     this.emit(response.eventType, response.data)
   }
 

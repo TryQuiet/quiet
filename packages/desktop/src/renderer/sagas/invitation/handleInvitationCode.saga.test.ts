@@ -76,6 +76,7 @@ describe('Handle invitation code', () => {
       communities.actions.handleInvitationCode(code)
     )
     .withState(store.getState())
+    .put(communities.actions.clearInvitationCode())
     .put(modalsActions.openModal({
       name: ModalName.warningModal,
       args: {

@@ -21,9 +21,13 @@ const JoinCommunity = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
+  const invitationCode = useSelector(communities.selectors.invitationCode)
+
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
+
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
+
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
 
   useEffect(() => {
@@ -75,6 +79,7 @@ const JoinCommunity = () => {
       hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
+      invitationCode={invitationCode}
     />
   )
 }

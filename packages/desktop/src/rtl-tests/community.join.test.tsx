@@ -186,6 +186,7 @@ describe('User', () => {
       Array [
         "Communities/createNetwork",
         "Communities/responseCreateNetwork",
+        "Communities/clearInvitationCode",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
@@ -307,6 +308,7 @@ describe('User', () => {
       Array [
         "Communities/createNetwork",
         "Communities/responseCreateNetwork",
+        "Communities/clearInvitationCode",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
@@ -420,6 +422,7 @@ describe('User', () => {
       Array [
         "Communities/createNetwork",
         "Communities/responseCreateNetwork",
+        "Communities/clearInvitationCode",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",

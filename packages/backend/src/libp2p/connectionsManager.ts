@@ -561,6 +561,10 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(
       SocketActionTypes.REGISTER_USER_CERTIFICATE,
       async (args: RegisterUserCertificatePayload) => {
+        if (!this.socksProxyAgent) {
+          this.socksProxyAgent = this.createAgent()
+        }
+
         await this.registration.sendCertificateRegistrationRequest(
           args.serviceAddress,
           args.userCsr,
