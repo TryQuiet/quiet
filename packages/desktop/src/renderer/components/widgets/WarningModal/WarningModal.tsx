@@ -71,12 +71,12 @@ export const WarningModalComponent: React.FC<WarningModalComponentProps> = ({ op
         </Grid>
         <Grid container item justifyContent='center'>
           <Grid item className={classes.title}>
-            {title && <Typography variant='h3'>{title}</Typography>}
+            {title && <Typography variant='h3' data-testid='warningModalTitle'>{title}</Typography>}
           </Grid>
         </Grid>
         <Grid container item justifyContent='center'>
           <Grid item className={classes.subTitle}>
-           {subtitle && <Typography variant='body2'>{subtitle}</Typography>}
+           {subtitle && <Typography variant='body2' data-testid='warningModalSubtitle'>{subtitle}</Typography>}
           </Grid>
         </Grid>
         <Grid container spacing={8} justifyContent='center'>
@@ -89,6 +89,7 @@ export const WarningModalComponent: React.FC<WarningModalComponentProps> = ({ op
               onClick={handleClose}
               fullWidth
               className={classes.button}
+              data-testid='warningModalSubmit'
             >
               Continue
             </Button>
