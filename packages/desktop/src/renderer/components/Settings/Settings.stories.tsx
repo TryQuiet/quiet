@@ -54,7 +54,7 @@ const Invite: FC = () => {
   return (
     <InviteComponent
       invitationLink={
-        'https://tryquiet.org/join?code=http://p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad.onion'
+        'https://tryquiet.org/join#p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad'
       }
       revealInputValue={revealInputValue}
       handleClickInputReveal={() => {
@@ -66,7 +66,7 @@ const Invite: FC = () => {
 
 const QRCode: FC = () => {
   return (
-    <QRCodeComponent value='https://tryquiet.org/join?code=ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad' />
+    <QRCodeComponent value='https://tryquiet.org/join#ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad' />
   )
 }
 

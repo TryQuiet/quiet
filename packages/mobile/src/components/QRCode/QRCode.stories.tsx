@@ -7,7 +7,7 @@ import { QRCode } from './QRCode.component'
 
 storiesOf('QRCode', module).add('Default', () => (
   <QRCode
-    value={'https://tryquiet.org/join?code='}
+    value={'https://tryquiet.org/join#'}
     shareCode={storybookLog('Sharing QR code')}
     handleBackButton={storybookLog('Navigating back')}
   />

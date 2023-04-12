@@ -94,6 +94,7 @@ const LoadingPanel = () => {
         {...loadingPanelModal}
         openUrl={openUrl}
         torConnectionInfo={torConnectionProcessSelector}
+        isOwner={owner}
       />
     )
   }

@@ -3,110 +3,8 @@
 
 <head>
   <style>
-    @keyframes MuiCircularProgress-keyframes-circular-rotate {
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-
-    @keyframes MuiCircularProgress-keyframes-circular-dash {
-      0% {
-        stroke-dasharray: 1px, 200px;
-        stroke-dashoffset: 0px;
-      }
-
-      50% {
-        stroke-dasharray: 100px, 200px;
-        stroke-dashoffset: -15px;
-      }
-
-      100% {
-        stroke-dasharray: 100px, 200px;
-        stroke-dashoffset: -125px;
-      }
-    }
-
-    .MuiCircularProgress-root {
-      display: inline-block;
-      animation: MuiCircularProgress-keyframes-circular-rotate 1.4s linear infinite;
-      color: #000;
-      width: 40px;
-      height: 40px;
-    }
-
-    .MuiCircularProgress-svg {
-      color: #000;
-      display: block;
-    }
-
-    .MuiCircularProgress-circle {
-      color: #000;
-      cx: 44;
-      cy: 44;
-      r: 20.2;
-      fill: none;
-      stroke-width: 3.6;
-      stroke: currentColor;
-      animation: MuiCircularProgress-keyframes-circular-dash 1.4s ease-in-out infinite;
-      stroke-dasharray: 80px, 200px;
-      stroke-dashoffset: 0px;
-    }
-
-    .MuiTypography-root {
-      -webkit-font-smoothing: antialiased;
-      user-select: auto;
-      box-sizing: inherit;
-      margin: 0;
-      font-family: 'Rubik', sans-serif, Menlo Regular;
-      font-weight: 400;
-      line-height: 20px;
-      text-align: center;
-      color: #000;
-      margin-top: 16px;
-      font-size: 0.909091rem;
-    }
-
-    .StartingPanelComponentprogressBar {
-      background-color: #F0F0F0;
-      width: 300px;
-      height: 4px;
-      position: relative;
-      border-radius: 100px;
-      overflow: hidden;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-start;
-      margin-top: 58px;
-    }
-
-    .StartingPanelComponentimage{
-      width: 95px;
-      height: 95px;
-      margin-bottom: 58px;
-    }
-
-    .StartingPanelComponentprogress {
-        background-color: #2196f3;
-        width: 0px;
-        height: 4px;
-        position: relative;
-    }
-
-    .StartingPanelComponentText{
-      -webkit-font-smoothing: antialiased;
-      margin: 0;
-      font-size: 14px;
-      line-height: 24px;
-      font-family: 'Rubik',sans-serif,Menlo Regular;
-      font-weight: 400;
-      text-align: center;
-      color: #4C4C4C;
-    }
-
     #splash {
-      top: 40%;
+      top: 48%;
       position: absolute;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -128,11 +26,6 @@
       <path fill-rule="evenodd" clip-rule="evenodd" d="M48 26.1911C35.9553 26.1911 26.1911 35.9553 26.1911 48C26.1911 60.0447 35.9553 69.8089 48 69.8089C51.9904 69.8089 55.4885 69.0815 57.3644 67.7898L63.0404 73.9623C58.6152 76.5307 53.473 78 48 78C31.4315 78 18 64.5685 18 48C18 31.4315 31.4315 18 48 18C64.5685 18 78 31.4315 78 48C78 54.0213 76.2943 59.5491 73.2332 64.2532L69.9733 61.0241L67.2361 58.2869C68.8777 55.225 69.8089 51.7258 69.8089 48C69.8089 35.9553 60.0447 26.1911 48 26.1911Z" fill="#67BFD3"/>
       <path fill-rule="evenodd" clip-rule="evenodd" d="M75.2092 77.7723C74.2329 78.7486 72.65 78.7486 71.6737 77.7723L52.7248 58.8234C51.7485 57.8471 51.7485 56.2642 52.7248 55.2879L54.9813 53.0314C55.9576 52.0551 57.5405 52.0551 58.5168 53.0314L77.4657 71.9803C78.442 72.9566 78.442 74.5396 77.4657 75.5159L75.2092 77.7723Z" fill="#E42656"/>
     </svg>
-    <div class="StartingPanelComponentprogressBar">
-      <div class="StartingPanelComponentprogress"></div>
-    </div>
-    <span class="MuiTypography-root">Starting Quiet</span>
-    <p class="StartingPanelComponentText">This can take some time</p>
   </div>
 
 </body>
