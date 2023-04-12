@@ -53,7 +53,7 @@ describe('UploadedFile', () => {
             class="css-gd4qex"
           >
             <div
-              class="css-1b4jr6y"
+              class="css-ytr8bc"
               data-testid="abcd1234-imagePlaceholder"
             >
               <p
@@ -70,30 +70,35 @@ describe('UploadedFile', () => {
                     aria-label=""
                     class=""
                     data-mui-internal-clone-element="true"
+                    style="display: flex;"
                   >
                     <img
                       class="UploadedImagePlaceholderplaceholderIcon"
                       src="test-file-stub"
                     />
-                    <span
-                      class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInherit css-62e83j-MuiCircularProgress-root"
-                      role="progressbar"
-                      style="width: 16px; height: 16px;"
+                    <div
+                      class="UploadedImagePlaceholdericon"
                     >
-                      <svg
-                        class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
-                        viewBox="22 22 44 44"
+                      <span
+                        class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-9a4009-MuiCircularProgress-root"
+                        role="progressbar"
+                        style="width: 18px; height: 18px; position: absolute; color: rgb(178, 178, 178);"
                       >
-                        <circle
-                          class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate MuiCircularProgress-circleDisableShrink css-79nvmn-MuiCircularProgress-circle"
-                          cx="44"
-                          cy="44"
-                          fill="none"
-                          r="20.2"
-                          stroke-width="3.6"
-                        />
-                      </svg>
-                    </span>
+                        <svg
+                          class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
+                          viewBox="22 22 44 44"
+                        >
+                          <circle
+                            class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-176wh8e-MuiCircularProgress-circle"
+                            cx="44"
+                            cy="44"
+                            fill="none"
+                            r="20"
+                            stroke-width="4"
+                          />
+                        </svg>
+                      </span>
+                    </div>
                   </div>
                 </span>
               </div>

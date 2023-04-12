@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles'
 import { DownloadStatus, DownloadState, formatBytes } from '@quiet/state-manager'
 import React from 'react'
 import imageIcon from '../../../../static/images/imageIcon.svg'
+import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
 import Tooltip from '../../../ui/Tooltip/Tooltip'
 
@@ -12,7 +13,8 @@ const classes = {
   placeholderWrapper: `${PREFIX}placeholderWrapper`,
   placeholder: `${PREFIX}placeholder`,
   placeholderIcon: `${PREFIX}placeholderIcon`,
-  fileName: `${PREFIX}fileName`
+  fileName: `${PREFIX}fileName`,
+  icon: `${PREFIX}icon`
 }
 
 const Root = styled('div')(() => ({
@@ -31,7 +33,18 @@ const Root = styled('div')(() => ({
 
   [`& .${classes.placeholderIcon}`]: {
     marginRight: '0.5em'
-  }
+  },
+
+  [`& .${classes.icon}`]: {
+    minWidth: '40px',
+    width: '40px',
+    height: '40px',
+    borderRadius: '8px',
+    backgroundColor: '#F0F0F0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
 }))
 
 const StyledUploadedFilename = styled('p')((
@@ -77,6 +90,39 @@ export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> =
   const downloadState = downloadStatus?.downloadState
   const downloadProgress = downloadStatus?.downloadProgress
 
+  const renderIcon = () => {
+    switch (downloadState) {
+      case DownloadState.Downloading:
+        return (
+          <>
+            <CircularProgress
+              variant='determinate'
+              size={18}
+              thickness={4}
+              value={100}
+              style={{ position: 'absolute', color: theme.palette.colors.gray }}
+            />
+            <CircularProgress
+              variant='determinate'
+              size={18}
+              thickness={4}
+              value={(downloadProgress.downloaded / downloadProgress.size) * 100}
+              style={{ color: theme.palette.colors.lightGray }}
+            />
+          </>
+        )
+      default:
+        return (
+          <CircularProgress
+            variant='indeterminate'
+            size={18}
+            thickness={4}
+            style={{ position: 'absolute', color: theme.palette.colors.lightGray }}
+          />
+        )
+    }
+  }
+
   return (
     <Root data-testid={`${cid}-imagePlaceholder`}>
       <UploadedFilename fileName={`${name}${ext}`} />
@@ -91,9 +137,9 @@ export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> =
               : ''
           }
           placement='top'>
-          <div>
+          <div style={{ display: 'flex', width: 'fit-content' }}>
             <Icon src={imageIcon} className={classes.placeholderIcon} />
-            <CircularProgress color='inherit' size={16} disableShrink={true} />
+            <div className={classes.icon}>{renderIcon()}</div>
           </div>
         </Tooltip>
       </div>
