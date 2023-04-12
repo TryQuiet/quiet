@@ -230,6 +230,10 @@ export class ConnectionsManager extends EventEmitter {
 
     await this.dataServer.listen()
 
+    if (this.torControlPort) {
+      await this.launchCommunityFromStorage()
+    }
+
     this.io.on('connection', async() => {
       if (this.isTorInit === TorInitState.STARTED || this.isTorInit === TorInitState.STARTING) return
       this.isTorInit = TorInitState.STARTING
@@ -323,7 +327,6 @@ export class ConnectionsManager extends EventEmitter {
 
     if (this.torControlPort) {
       this.tor.initTorControl()
-      await this.launchCommunityFromStorage()
     } else if (this.torBinaryPath) {
       // Tor init will be executed on connection event
     } else {
