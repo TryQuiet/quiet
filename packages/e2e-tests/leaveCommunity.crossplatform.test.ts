@@ -57,15 +57,11 @@ describe('Leave Community', () => {
   describe('Stages:', () => {
     if (process.env.TEST_MODE) {
       it('Close debug modal', async () => {
-        console.log('Debug modal')
         const debugModal = new DebugModeModal(driver)
         await debugModal.element.isDisplayed()
         const button = await debugModal.button
-        console.log('Debug modal title is displayed')
         await button.isDisplayed()
-        console.log('Button is displayed')
         await button.click()
-        console.log('Button click')
         try {
           const log = await driver.executeScript('arguments[0].click();', button)
           console.log('executeScript', log)
@@ -130,7 +126,6 @@ describe('Leave Community', () => {
       await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
       const invitationCodeElement = await settingsModal.invitationCode()
       invitationCode = await invitationCodeElement.getText()
-      console.log({ invitationCode })
       log('Received invitation code:', invitationCode)
       await settingsModal.close()
     })
@@ -143,15 +138,11 @@ describe('Leave Community', () => {
     })
     if (process.env.TEST_MODE) {
       it('Close debug modal', async () => {
-        console.log('Debug modal')
         const debugModal = new DebugModeModal(driver2)
         await debugModal.element.isDisplayed()
         const button = await debugModal.button
-        console.log('Debug modal title is displayed')
         await button.isDisplayed()
-        console.log('Button is displayed')
         await button.click()
-        console.log('Button click')
         try {
           const log = await driver2.executeScript('arguments[0].click();', button)
           console.log('executeScript', log)
@@ -161,22 +152,18 @@ describe('Leave Community', () => {
       })
     }
     it('StartingLoadingPanel modal', async () => {
-      console.log('new user - 2')
       const loadingPanel = new StartingLoadingPanel(driver2)
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
       expect(isLoadingPanel).toBeTruthy()
     })
     it('Guest joins the new community successfully', async () => {
-      console.log('new user - 3')
       const joinCommunityModal = new JoinCommunityModal(driver2)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
-      console.log({ invitationCode })
       await joinCommunityModal.typeCommunityCode(invitationCode)
       await joinCommunityModal.submit()
     })
     it('RegisterUsernameModal', async () => {
-      console.log('new user - 4')
       const registerModal2 = new RegisterUsernameModal(driver2)
       const isRegisterModal2 = await registerModal2.element.isDisplayed()
       expect(isRegisterModal2).toBeTruthy()
@@ -184,22 +171,19 @@ describe('Leave Community', () => {
       await registerModal2.submit()
     })
     it.skip('JoiningLoadingPanel', async () => {
-      console.log('new user - 5')
       const loadingPanelCommunity2 = new JoiningLoadingPanel(driver)
       const isLoadingPanelCommunity2 = await loadingPanelCommunity2.element.isDisplayed()
       expect(isLoadingPanelCommunity2).toBeTruthy()
     })
     it('Channels are visible', async () => {
-      console.log('new user - 6')
       generalChannel2 = new Channel(driver2, 'general')
       await generalChannel2.element.isDisplayed()
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
-      console.log('FETCHING CHANNEL MESSAGES!')
+
       await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
     })
     it('Leave community', async () => {
-      console.log('leave - 1')
       const settingsModal = await new Sidebar(driver2).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
@@ -208,15 +192,12 @@ describe('Leave Community', () => {
     })
     if (process.env.TEST_MODE) {
       it('Close debug modal', async () => {
-        console.log('Debug modal')
         const debugModal = new DebugModeModal(driver2)
         await debugModal.element.isDisplayed()
         const button = await debugModal.button
-        console.log('Debug modal title is displayed')
         await button.isDisplayed()
-        console.log('Button is displayed')
         await button.click()
-        console.log('Button click')
+
         try {
           const log = await driver2.executeScript('arguments[0].click();', button)
           console.log('executeScript', log)
@@ -226,16 +207,13 @@ describe('Leave Community', () => {
       })
     }
     it('Guest re-join to community successfully', async () => {
-      console.log('leave - 2')
       const joinCommunityModal = new JoinCommunityModal(driver2)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
-      console.log({ invitationCode })
       await joinCommunityModal.typeCommunityCode(invitationCode)
       await joinCommunityModal.submit()
     })
     it('Guest register new username', async () => {
-      console.log('leave - 3')
       const registerModal2 = new RegisterUsernameModal(driver2)
       const isRegisterModal2 = await registerModal2.element.isDisplayed()
       expect(isRegisterModal2).toBeTruthy()
@@ -243,17 +221,14 @@ describe('Leave Community', () => {
       await registerModal2.submit()
     })
     it('Guest sends a message', async () => {
-      console.log('leave - 4')
       generalChannel2 = new Channel(driver2, 'general')
       await generalChannel2.element.isDisplayed()
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
-      console.log('FETCHING CHANNEL MESSAGES!')
       await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
       await generalChannel2.sendMessage(joiningUserMessages[0])
     })
     it('Sent message is visible in a channel', async () => {
-      console.log('leave - 5')
       const messages2 = await generalChannel2.getUserMessages(joiningUserUsername2)
       const text2 = await messages2[0].getText()
       expect(text2).toEqual(joiningUserMessages[0])
