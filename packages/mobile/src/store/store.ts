@@ -9,6 +9,7 @@ import { rootReducer } from './root.reducer'
 
 import {
   storeKeys as StateManagerStoreKeys,
+  CommunitiesTransform,
   PublicChannelsTransform,
   MessagesTransform,
   FilesTransform,
@@ -31,6 +32,7 @@ const persistedReducer = persistReducer(
       StoreKeys.Init
     ],
     transforms: [
+      CommunitiesTransform,
       PublicChannelsTransform,
       MessagesTransform,
       FilesTransform,

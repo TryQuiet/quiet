@@ -53,19 +53,21 @@ export const registrarUrl = (communityId: string) =>
     return registrarAddress
   })
 
-export const invitationUrl = createSelector(
-  currentCommunity,
-  community => {
-    if (!community) return ''
-    let registrarUrl = ''
-    try {
-      const url = new URL(community.registrarUrl)
-      registrarUrl = url.hostname.split('.')[0]
-    } catch (e) {
-      registrarUrl = community.registrarUrl
-    }
-    return invitationShareUrl(registrarUrl)
+export const invitationUrl = createSelector(currentCommunity, community => {
+  if (!community) return ''
+  let registrarUrl = ''
+  try {
+    const url = new URL(community.registrarUrl)
+    registrarUrl = url.hostname.split('.')[0]
+  } catch (e) {
+    registrarUrl = community.registrarUrl
   }
+  return invitationShareUrl(registrarUrl)
+})
+
+export const invitationCode = createSelector(
+  communitiesSlice,
+  reducerState => reducerState.invitationCode
 )
 
 export const registrationAttempts = (communityId: string) =>
@@ -83,5 +85,6 @@ export const communitiesSelectors = {
   currentCommunityId,
   registrarUrl,
   registrationAttempts,
-  invitationUrl
+  invitationUrl,
+  invitationCode
 }

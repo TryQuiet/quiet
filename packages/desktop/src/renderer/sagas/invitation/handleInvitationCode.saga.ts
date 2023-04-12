@@ -30,7 +30,7 @@ export function* handleInvitationCodeSaga(
     }
 
     const code = action.payload.trim()
-    console.log(`Handling code ${code}`)
+
     if (code.match(ONION_ADDRESS_REGEX)) {
       const payload: CreateNetworkPayload = {
         ownership: CommunityOwnership.User,
