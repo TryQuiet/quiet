@@ -151,7 +151,7 @@ describe('New user joins using invitation link while having app opened', () => {
         darwin: 'open',
         win32: 'start'
       }
-      execSync(`${command[process.platform]} ${invitationDeepUrl(url.searchParams.get('code'))}`)
+      execSync(`${command[process.platform]} ${invitationDeepUrl(url.hash.substring(1))}`)
     })
 
     it('Guest is redirected to UsernameModal and submits username', async () => {
