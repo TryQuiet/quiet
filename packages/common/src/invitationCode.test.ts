@@ -20,6 +20,6 @@ describe('Invitation code helper', () => {
   })
 
   it('builds proper invitation share url', () => {
-    expect(invitationShareUrl('validCode')).toEqual(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?code=validCode`)
+    expect(invitationShareUrl('validCode')).toEqual(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}#validCode`)
   })
 })

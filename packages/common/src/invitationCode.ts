@@ -41,7 +41,6 @@ export const invitationDeepUrl = (code: string = ''): string => {
 }
 
 export const invitationShareUrl = (code: string = ''): string => {
-  const url = new URL(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}`)
-  url.searchParams.append(InvitationParams.CODE, code)
+  const url = new URL(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}#${code}`)
   return url.href
 }
