@@ -25,7 +25,10 @@ export function* responseCreateNetworkSaga(
     joinTimestamp: null
   }
 
+  yield* put(communitiesActions.clearInvitationCode())
+
   yield* put(communitiesActions.addNewCommunity(community))
   yield* put(communitiesActions.setCurrentCommunity(community.id))
+
   yield* put(identityActions.addNewIdentity(identity))
 }

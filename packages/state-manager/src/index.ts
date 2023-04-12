@@ -73,6 +73,7 @@ export {
 
 export { identityAdapter } from './sagas/identity/identity.adapter'
 
+export { CommunitiesTransform } from './sagas/communities/communities.transform'
 export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.transform'
 export { MessagesTransform } from './sagas/messages/messages.transform'
 export { FilesTransform } from './sagas/files/files.transform'

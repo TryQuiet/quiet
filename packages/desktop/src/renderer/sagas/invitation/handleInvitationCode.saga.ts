@@ -30,7 +30,7 @@ export function* handleInvitationCodeSaga(
     }
 
     const code = action.payload.trim()
-    console.log(`Handling code ${code}`)
+
     if (code.match(ONION_ADDRESS_REGEX)) {
       const payload: CreateNetworkPayload = {
         ownership: CommunityOwnership.User,
@@ -39,6 +39,8 @@ export function* handleInvitationCodeSaga(
       yield* put(communities.actions.createNetwork(payload))
       return
     }
+
+    yield* put(communities.actions.clearInvitationCode())
 
     yield* put(modalsActions.openModal({
       name: ModalName.warningModal,
