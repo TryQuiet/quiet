@@ -68,7 +68,7 @@ describe('Create StartingPanelComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container StartingPanelComponentroot css-1xgsyr1-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container StartingPanelComponentroot css-lho1b1-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column StartingPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"
@@ -88,12 +88,12 @@ describe('Create StartingPanelComponent', () => {
                     <p
                       class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                     >
-                      Starting Quiet: Tor Bootstrapped 100% (done)
+                      Starting Quiet
                     </p>
                     <p
                       class="MuiTypography-root MuiTypography-body2 StartingPanelComponenttext css-16d47hw-MuiTypography-root"
                     >
-                      This can take some time
+                      Tor Bootstrapped 100% (done)
                     </p>
                   </div>
                 </div>
