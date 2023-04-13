@@ -247,6 +247,8 @@ export class ConnectionsManager extends EventEmitter {
 
   public async launchCommunityFromStorage () {
     if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
+    this.communityState = ServiceState.LAUNCHING
+
     log('launchCommunityFromStorage')
     const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
     if (community) {
@@ -258,7 +260,9 @@ export class ConnectionsManager extends EventEmitter {
       await this.launchCommunity(community)
     }
 
-    if (this.registrarState === ServiceState.LAUNCHED || this.registrarState === ServiceState.LAUNCHING) return
+    if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
+    this.registrarState = ServiceState.LAUNCHING
+
     const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
     if (registrarData) {
       await this.registration.launchRegistrar(registrarData)
@@ -388,14 +392,14 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public async createCommunity(payload: InitCommunityPayload) {
+    if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
+    this.communityState = ServiceState.LAUNCHING
     await this.launchCommunity(payload)
     log(`Created and launched community ${payload.id}`)
     this.io.emit(SocketActionTypes.NEW_COMMUNITY, { id: payload.id })
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
-    if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
-
     this.communityState = ServiceState.LAUNCHING
     const communityData = await this.localStorage.get(LocalDBKeys.COMMUNITY)
     if (!communityData) {
@@ -540,11 +544,14 @@ export class ConnectionsManager extends EventEmitter {
       await this.createCommunity(args)
     })
     this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => {
+      if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
+      this.communityState = ServiceState.LAUNCHING
       await this.launchCommunity(args)
     })
     // Registration
     this.dataServer.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
-      if (this.registrarState === ServiceState.LAUNCHED || this.registrarState === ServiceState.LAUNCHING) return
+      if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
+      this.registrarState = ServiceState.LAUNCHING
       const communityData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
       if (!communityData) {
         await this.localStorage.put(LocalDBKeys.REGISTRAR, args)
