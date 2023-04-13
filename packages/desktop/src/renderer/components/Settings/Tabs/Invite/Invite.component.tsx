@@ -17,19 +17,24 @@ const classes = {
   button: `${PREFIX}button`,
   bold: `${PREFIX}bold`,
   linkContainer: `${PREFIX}linkContainer`,
-  eyeIcon: `${PREFIX}eyeIcon`
+  eyeIcon: `${PREFIX}eyeIcon`,
+  wrapper: `${PREFIX}wrapper`
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.title}`]: {},
-
+  [`& .${classes.wrapper}`]: {
+    maxWidth: '485px'
+  },
   [`& .${classes.titleDiv}`]: {
     marginBottom: 24
   },
   [`& .${classes.link}`]: {
     marginTop: '16px',
-    fontSize: '12px',
-    letterSpacing: '-0.4px'
+    fontSize: '13px',
+    letterSpacing: '-0.4px',
+    overflowWrap: 'break-word',
+    inlineSize: '430px'
   },
   [`& .${classes.button}`]: {
     marginTop: 24,
@@ -61,7 +66,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
   [`& .${classes.eyeIcon}`]: {
     margin: '5px',
-    top: '5px',
+    top: '8px',
     position: 'absolute',
     right: '0'
   }
@@ -92,7 +97,7 @@ export const InviteComponent: FC<InviteComponentProps> = ({
           </Typography>
         </Grid>
       </Grid>
-      <Grid item>
+      <Grid item className={classes.wrapper}>
         <Grid item>
           <Typography variant='h5'>Your community link</Typography>
         </Grid>
