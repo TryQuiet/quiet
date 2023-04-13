@@ -133,7 +133,6 @@ describe('join community', () => {
   [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}/#${validCode}`],
   [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?code=${validCode}`] // Old link format
   ])('joins community on submit if connection is ready and invitation code is a correct invitation url (%s)', async (invitationLink: string) => {
-
     const registrarUrl = new URL(invitationLink)
 
     const handleCommunityAction = jest.fn()
