@@ -25,6 +25,7 @@ import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
 import { LeaveCommunity } from './components/Settings/Tabs/LeaveCommunity/LeaveCommunity'
 import SearchModal from './components/SearchModal/SearchModal'
 import WarningModal from './containers/widgets/WarningModal/WarningModal'
+import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
 
 export const persistor = persistStore(store)
 export default () => {
@@ -49,6 +50,7 @@ export default () => {
                 <SettingsModal />
                 <UpdateModal />
                 <QuitAppDialog />
+                <ChannelContextMenu />
                 <Routes>
                   <Route index path='/' element={<Index />} />
                   <Route path='/main/*' element={<Main />} />

@@ -1,0 +1,147 @@
+import React, { FC } from 'react'
+
+import { Grid, List, Typography } from '@mui/material'
+
+import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
+
+import Icon from '../ui/Icon/Icon'
+import arrowLeft from '../../static/images/arrowLeft.svg'
+import arrowRightShort from '../../static/images/arrowRightShort.svg'
+
+export const ContextMenu: FC<ContextMenuProps> = ({
+  visible,
+  handleClose,
+  title,
+  items,
+  hint,
+  link,
+  linkAction = () => {
+    console.log('No action attached for link tap gesture.')
+  }
+}) => {
+  return (
+    <Grid
+      style={{
+        display: visible ? 'flex' : 'none',
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        zIndex: 9000
+      }}>
+      <Grid style={{ flex: 6 }} onClick={handleClose} />
+      <Grid
+        style={{
+          flex: 4,
+          // position: 'absolute',
+          bottom: 0,
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          backgroundColor: '#ffffff',
+          boxShadow: '0px 0px 4px rgba(0, 0, 0, 0.25)',
+          // shadowColor: '#000000',
+          // shadowRadius: 7,
+          // shadowOpacity: 0.7,
+          // shadowOffset: {
+          //   height: 7,
+          //   width: 0
+          // },
+          // elevation: 12,
+          maxWidth: '375px'
+        }}>
+        <Grid
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            textAlign: 'center',
+            marginBottom: '-10px',
+            height: 60,
+            width: '100%'
+          }}>
+          <Grid
+            style={{
+              flex: 1,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              cursor: 'pointer'
+            }}
+            onClick={handleClose}>
+            <Icon src={arrowLeft} />
+          </Grid>
+          <Grid style={{ flex: 5, justifyContent: 'center' }}>
+            <Typography
+              fontSize={16}
+              fontWeight={'medium'}
+              style={{ alignSelf: 'center' }}>
+              {title}
+            </Typography>
+          </Grid>
+          <Grid style={{ flex: 1 }}></Grid>
+        </Grid>
+        {(hint || link) && (
+          <Grid
+            style={{
+              width: '100%',
+              padding: 16,
+              borderTopWidth: 1,
+              borderColor: '#F0F0F0'
+            }}>
+            <Typography fontSize={14} fontWeight={'normal'}>
+              {hint}
+            </Typography>
+            {/* <Typography
+                  fontSize={14}
+                  fontWeight={'normal'}
+                  style={{ lineHeight: 20, color: '#7F7F7F' }}
+                  onPress={linkAction}>
+                  {link}
+                </Typography> */}
+          </Grid>
+        )}
+          <List>
+            {items.map((item, index) => {
+              return (
+                <Grid
+                  style={{
+                    cursor: 'pointer',
+                    borderTop: '1px solid',
+                    borderColor: '#F0F0F0',
+                    borderBottomWidth: index === items.length - 1 ? '1px solid' : 0
+                  }}>
+                  <ContextMenuItem {...item} />
+                </Grid>
+              )
+            })}
+          </List>
+      </Grid>
+    </Grid>
+  )
+}
+
+export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => {
+  return (
+    <Grid
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingLeft: 20,
+        paddingRight: 20,
+        height: 48,
+        width: '100%'
+      }}>
+      <Grid
+        style={{
+          flex: 8
+        }}>
+        <Typography fontSize={16} fontWeight={'normal'}>
+          {title}
+        </Typography>
+      </Grid>
+      <Grid style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
+        <Icon src={arrowRightShort} />
+      </Grid>
+    </Grid>
+  )
+}
