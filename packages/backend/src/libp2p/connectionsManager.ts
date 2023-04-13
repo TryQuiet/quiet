@@ -392,8 +392,6 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public async createCommunity(payload: InitCommunityPayload) {
-    if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
-    this.communityState = ServiceState.LAUNCHING
     await this.launchCommunity(payload)
     log(`Created and launched community ${payload.id}`)
     this.io.emit(SocketActionTypes.NEW_COMMUNITY, { id: payload.id })
