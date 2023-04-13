@@ -18,7 +18,7 @@ describe('CopyLink', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1699753-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-r78ioc-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-item InviteToCommunitytitleDiv css-89gxc5-MuiGrid-root"
@@ -35,7 +35,7 @@ describe('CopyLink', () => {
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-item InviteToCommunitywrapper css-13i4rnv-MuiGrid-root"
             >
               <div
                 class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -124,7 +124,7 @@ describe('CopyLink', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1699753-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-r78ioc-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-item InviteToCommunitytitleDiv css-89gxc5-MuiGrid-root"
@@ -141,7 +141,7 @@ describe('CopyLink', () => {
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-item InviteToCommunitywrapper css-13i4rnv-MuiGrid-root"
             >
               <div
                 class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
