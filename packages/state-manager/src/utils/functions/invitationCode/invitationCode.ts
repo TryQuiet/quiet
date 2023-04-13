@@ -12,15 +12,18 @@ export const getInvitationCode = (codeOrUrl: string): string => {
   } catch (e) {
     code = codeOrUrl
   }
-
-  if (validUrl && validUrl.host === Site.DOMAIN && validUrl.pathname === `/${Site.JOIN_PAGE}`) {
+  if (validUrl && validUrl.host === Site.DOMAIN && validUrl.pathname.includes(Site.JOIN_PAGE)) {
     const hash = validUrl.hash
 
     let invitationCode = hash.substring(1)
 
     // Ensure backward compatibility
     if (hash.includes('code=')) {
+      // Mix of old and new link
       invitationCode = hash.substring(6)
+    } else if (validUrl.searchParams.has('code')) {
+      // Old link
+      invitationCode = validUrl.searchParams.get('code')
     }
 
     code = invitationCode

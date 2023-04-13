@@ -20,6 +20,8 @@ import { CommunityOwnership } from '@quiet/state-manager'
 import { Site, InvitationParams } from '@quiet/common'
 
 describe('join community', () => {
+  const validCode = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad'
+
   it('users switches from join to create', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
@@ -126,9 +128,13 @@ describe('join community', () => {
     await waitFor(() => expect(handleCommunityAction).toBeCalledWith(registrarUrl))
   })
 
-  it('joins community on submit if connection is ready and invitation code is a correct invitation url', async () => {
-    const code = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad'
-    const registrarUrl = new URL(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}#${code}`)
+  it.each([
+  [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}#${validCode}`],
+  [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}/#${validCode}`],
+  [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?code=${validCode}`] // Old link format
+  ])('joins community on submit if connection is ready and invitation code is a correct invitation url (%s)', async (invitationLink: string) => {
+
+    const registrarUrl = new URL(invitationLink)
 
     const handleCommunityAction = jest.fn()
 
@@ -154,7 +160,7 @@ describe('join community', () => {
     expect(submitButton).toBeEnabled()
     await userEvent.click(submitButton)
 
-    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(code))
+    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(validCode))
   })
 
   it('trims whitespaces from registrar url', async () => {
