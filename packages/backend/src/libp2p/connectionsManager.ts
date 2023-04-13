@@ -638,6 +638,9 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(SocketActionTypes.CLOSE, async () => {
       await this.closeAllServices()
     })
+    this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload: any) => {
+      await this.storage.deleteChannel(payload)
+    })
   }
 
   private attachStorageListeners = () => {

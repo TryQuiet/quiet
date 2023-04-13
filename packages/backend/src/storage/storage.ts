@@ -473,6 +473,10 @@ export class Storage extends EventEmitter {
     return db
   }
 
+  public async deleteChannel(payload){
+    console.log('deleting channel storage')
+  }
+
   public async sendMessage(message: ChannelMessage) {
     if (!validate.isMessage(message)) {
       log.error('STORAGE: public channel message is invalid')
