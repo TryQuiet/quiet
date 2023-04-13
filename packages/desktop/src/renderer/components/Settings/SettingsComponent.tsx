@@ -143,6 +143,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
               {!isWindows && (
                 <Grid style={{ marginTop: '24px', cursor: 'pointer' }}>
                   <Typography
+                    data-testid='leave-community-tab'
                     className={classes.leaveComunity}
                     onClick={leaveCommunityModal.handleOpen}>
                     Leave community

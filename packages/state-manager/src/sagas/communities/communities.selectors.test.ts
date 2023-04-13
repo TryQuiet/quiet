@@ -1,3 +1,4 @@
+import { invitationShareUrl } from '@quiet/common'
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '@reduxjs/toolkit'
 import { getFactory } from '../../utils/tests/factories'
@@ -83,5 +84,38 @@ describe('communitiesSelectors', () => {
       store.getState()
     )
     expect(registrarUrl).toBe(url)
+  })
+
+  it('invitationUrl selector does not break if there is no community', () => {
+    const { store } = prepareStore()
+    const invitationUrl = communitiesSelectors.invitationUrl(store.getState())
+    expect(invitationUrl).toEqual('')
+  })
+
+  it('returns proper invitation url if registrationUrl is in old format', async () => {
+    const code = 'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
+    const registrarUrl = `http://${code}`
+    const { store } = prepareStore()
+    const factory = await getFactory(store)
+    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+      registrarUrl: registrarUrl,
+      port: 0,
+      onionAddress: ''
+    })
+    const invitationUrl = communitiesSelectors.invitationUrl(store.getState())
+    expect(invitationUrl).toEqual(invitationShareUrl(code))
+  })
+
+  it('returns proper invitation url if registrationUrl is just onion address', async () => {
+    const code = 'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
+    const { store } = prepareStore()
+    const factory = await getFactory(store)
+    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+      registrarUrl: code,
+      port: 0,
+      onionAddress: ''
+    })
+    const invitationUrl = communitiesSelectors.invitationUrl(store.getState())
+    expect(invitationUrl).toEqual(invitationShareUrl(code))
   })
 })

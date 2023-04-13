@@ -46,7 +46,7 @@ export const connectionSlice = createSlice({
     setTorConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
       switch (info) {
-        case ConnectionProcessInfo.FETCHING:
+        case ConnectionProcessInfo.CONNECTING_TO_COMMUNITY:
           state.torConnectionProcess = { number: 20, text: info }
           break
         case ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE:

@@ -6,5 +6,6 @@ export enum InvitationParams {
 
 export enum Site {
   DOMAIN = 'tryquiet.org',
+  MAIN_PAGE = 'https://tryquiet.org/',
   JOIN_PAGE = 'join'
 }

@@ -25,7 +25,7 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
     width: '100%'
   },
   [`& .${classes.contentWrapper}`]: {
-    maxWidth: '300px'
+    maxWidth: '320px'
   },
   [`& .${classes.image}`]: {
     width: '95px',
@@ -94,9 +94,9 @@ const StartingPanelComponent: React.FC<StartingPanelComponentProps> = ({
             <div className={classes.progress}></div>
           </Grid>
 
-          <Typography variant='body2'>{`${message}: Tor ${torBootstrapInfo}`}</Typography>
+          <Typography variant='body2'>{message}</Typography>
           <Typography variant='body2' className={classes.text}>
-            This can take some time
+           {`Tor ${torBootstrapInfo}`}
           </Typography>
         </Grid>
       </StyledGrid>

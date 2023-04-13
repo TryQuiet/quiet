@@ -4,11 +4,13 @@ import { errors, identity, ErrorCodes } from '@quiet/state-manager'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { appImages } from '../../../assets'
-import { UsernameRegistration } from '../../components/Registration/UsernameRegistration.component'
 import { UsernameRegistrationScreenProps } from './UsernameRegistration.types'
+import { UsernameRegistration } from '../../components/Registration/UsernameRegistration.component'
 
-export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = () => {
+export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
+
+  const fetching = route.params?.fetching
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const usernameRegistered = currentIdentity?.userCertificate != null
@@ -51,6 +53,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
       registerUsernameAction={handleAction}
       registerUsernameError={error?.code === ErrorCodes.FORBIDDEN ? error.message : null}
       usernameRegistered={usernameRegistered}
+      fetching={fetching}
     />
   )
 }

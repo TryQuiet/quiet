@@ -3,7 +3,7 @@ import { Site } from '@quiet/common'
 
 describe('Invitation code helper', () => {
   it('retrieves invitation code if url is a proper share url', () => {
-    const result = getInvitationCode(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?code=validCode`)
+    const result = getInvitationCode(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}#validCode`)
     expect(result).toEqual('validCode')
   })
 
