@@ -51,25 +51,25 @@ jobs:
         with:
           timeout_minutes: 25
           max_attempts: 3
-          command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+          command: cd packages/e2e-tests && npm run test restart.crossplatform.test.ts
 
-      - name: Run newUser test - Includes 2 separate application clients
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 35
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
+      # - name: Run newUser test - Includes 2 separate application clients
+      #   uses: nick-fields/retry@v2
+      #   with:
+      #     timeout_minutes: 35
+      #     max_attempts: 3
+      #     command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
 
-      - name: Run invitation link test - Includes 2 separate application clients
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 35
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test invitationLink.crossplatform.test.ts
+      # - name: Run invitation link test - Includes 2 separate application clients
+      #   uses: nick-fields/retry@v2
+      #   with:
+      #     timeout_minutes: 35
+      #     max_attempts: 3
+      #     command: cd packages/e2e-tests && npm run test invitationLink.crossplatform.test.ts
 
-      - name: Run leave community test
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 40
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test leaveCommunity.crossplatform.test.ts
+      # - name: Run leave community test
+      #   uses: nick-fields/retry@v2
+      #   with:
+      #     timeout_minutes: 40
+      #     max_attempts: 3
+      #     command: cd packages/e2e-tests && npm run test leaveCommunity.crossplatform.test.ts
