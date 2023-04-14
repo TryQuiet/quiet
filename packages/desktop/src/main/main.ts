@@ -37,6 +37,7 @@ global.crypto = webcrypto
 let dataDir = DATA_DIR
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
+let invitationUrl: string | null
 
 if (isDev || process.env.DATA_DIR) {
   dataDir = process.env.DATA_DIR || DEV_DATA_DIR
@@ -140,10 +141,12 @@ export const applyDevTools = async () => {
   )
 }
 
-app.on('open-url', (event, url) => {
+app.on('open-url', (event, url) => { // MacOS only
   console.log('app.open-url', url)
+  invitationUrl = url // If user opens invitation link with closed app open-url fires too early - before mainWindow is initialized
   event.preventDefault()
   if (mainWindow) {
+    invitationUrl = null
     const invitationCode = retrieveInvitationCode(url)
     processInvitationCode(mainWindow, invitationCode)
   }
@@ -453,11 +456,14 @@ app.on('ready', async () => {
     if (!isBrowserWindow(mainWindow)) {
       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
     }
+    if (process.platform === 'darwin' && invitationUrl) {
+      const invitationCode = retrieveInvitationCode(invitationUrl)
+      processInvitationCode(mainWindow, invitationCode)
+      invitationUrl = null
+    }
     if (process.platform !== 'darwin' && process.argv) {
       const invitationCode = argvInvitationCode(process.argv)
-      if (invitationCode) {
-        processInvitationCode(mainWindow, invitationCode)
-      }
+      processInvitationCode(mainWindow, invitationCode)
     }
 
     await checkForUpdate(mainWindow)
