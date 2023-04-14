@@ -27,7 +27,7 @@ describe('Restart by owner', () => {
     const port = await getPort()
     const debugPort = await getPort()
 
-    buildSetup = new BuildSetup({ port, debugPort, useDataDir: true })
+    buildSetup = new BuildSetup({ port, debugPort, useDataDir: false })
     await buildSetup.createChromeDriver()
     driver = buildSetup.getDriver()
     await driver.getSession()
@@ -117,7 +117,7 @@ describe('Restart by owner', () => {
       console.log('restart - 1')
       const port2 = await getPort()
       const debugPort2 = await getPort()
-      buildSetup2 = new BuildSetup({ port: port2, debugPort: debugPort2, useDataDir: true })
+      buildSetup2 = new BuildSetup({ port: port2, debugPort: debugPort2, useDataDir: false })
       await buildSetup2.createChromeDriver()
       driver2 = buildSetup2.getDriver()
       await driver2.getSession()
