@@ -16,10 +16,8 @@ describe('Restart by owner', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
 
-  const customDataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
-
-  // let port: number
-  // let debugPort: number
+  let buildSetup2: BuildSetup
+  let driver2: ThenableWebDriver
 
   let generalChannel: Channel
   const username = 'testuser'
@@ -29,15 +27,15 @@ describe('Restart by owner', () => {
     const port = await getPort()
     const debugPort = await getPort()
 
-    buildSetup = new BuildSetup({ port, debugPort, useDataDir: false })
+    buildSetup = new BuildSetup({ port, debugPort, useDataDir: true })
     await buildSetup.createChromeDriver()
     driver = buildSetup.getDriver()
     await driver.getSession()
   })
 
   afterAll(async () => {
-    await buildSetup.closeDriver()
-    await buildSetup.killChromeDriver()
+    await buildSetup2.closeDriver()
+    await buildSetup2.killChromeDriver()
   })
   describe('Stages:', () => {
     if (process.env.TEST_MODE) {
@@ -92,20 +90,18 @@ describe('Restart by owner', () => {
       expect(isLoadingPanelCommunity).toBeTruthy()
     })
 
-    it('User sees general channel', async () => {
-      const generalChannel = new Channel(driver, 'general')
+    it('General channel check', async () => {
+      generalChannel = new Channel(driver, 'general')
       const isGeneralChannel = await generalChannel.element.isDisplayed()
       const generalChannelText = await generalChannel.element.getText()
       expect(isGeneralChannel).toBeTruthy()
       expect(generalChannelText).toEqual('# general')
     })
-
     it('Send message', async () => {
       const isMessageInput = await generalChannel.messageInput.isDisplayed()
       expect(isMessageInput).toBeTruthy()
       await generalChannel.sendMessage(ownerMessages[0])
     })
-
     it('Visible message', async () => {
       const messages = await generalChannel.getUserMessages(username)
       const text = await messages[1].getText()
@@ -119,32 +115,32 @@ describe('Restart by owner', () => {
 
     it('Restart - Prepare second setup and run app', async () => {
       console.log('restart - 1')
-      const port = await getPort()
-      const debugPort = await getPort()
-      buildSetup = new BuildSetup({ port, debugPort, useDataDir: false })
-      await buildSetup.createChromeDriver()
-      driver = buildSetup.getDriver()
-      await driver.getSession()
+      const port2 = await getPort()
+      const debugPort2 = await getPort()
+      buildSetup2 = new BuildSetup({ port: port2, debugPort: debugPort2, useDataDir: true })
+      await buildSetup2.createChromeDriver()
+      driver2 = buildSetup2.getDriver()
+      await driver2.getSession()
     })
 
     if (process.env.TEST_MODE) {
       it('Restart - Close debug modal', async () => {
-        const debugModal = new DebugModeModal(driver)
+        const debugModal = new DebugModeModal(driver2)
         await debugModal.close()
       })
     }
 
     it('Restart - User waits for the modal StartingLoadingPanel to disappear', async () => {
       console.log('restart - 2')
-      const loadingPanel = new StartingLoadingPanel(driver)
+      const loadingPanel = new StartingLoadingPanel(driver2)
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
-      await buildSetup.getTorPid()
+      await buildSetup2.getTorPid()
       expect(isLoadingPanel).toBeTruthy()
     })
 
     it('Restart - wait for channel', async () => {
       console.log('restart - 3')
-      generalChannel = new Channel(driver, 'general')
+      generalChannel = new Channel(driver2, 'general')
       await generalChannel.element.isDisplayed()
       const isMessageInput = await generalChannel.messageInput.isDisplayed()
       expect(isMessageInput).toBeTruthy()
