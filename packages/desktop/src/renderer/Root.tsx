@@ -25,7 +25,7 @@ import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
 import { LeaveCommunity } from './components/Settings/Tabs/LeaveCommunity/LeaveCommunity'
 import SearchModal from './components/SearchModal/SearchModal'
 import WarningModal from './containers/widgets/WarningModal/WarningModal'
-
+// Trigger lerna
 export const persistor = persistStore(store)
 export default () => {
   return (
