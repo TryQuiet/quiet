@@ -26,6 +26,7 @@ import { LeaveCommunity } from './components/Settings/Tabs/LeaveCommunity/LeaveC
 import SearchModal from './components/SearchModal/SearchModal'
 import WarningModal from './containers/widgets/WarningModal/WarningModal'
 import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
+import { DeleteChannel } from './components/Channel/DeleteChannel/DeleteChannel'
 
 export const persistor = persistStore(store)
 export default () => {
@@ -51,6 +52,7 @@ export default () => {
                 <UpdateModal />
                 <QuitAppDialog />
                 <ChannelContextMenu />
+                <DeleteChannel />
                 <Routes>
                   <Route index path='/' element={<Index />} />
                   <Route path='/main/*' element={<Main />} />

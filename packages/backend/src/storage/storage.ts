@@ -473,7 +473,7 @@ export class Storage extends EventEmitter {
     return db
   }
 
-  public async deleteChannel(payload){
+  public async deleteChannel(payload) {
     console.log('deleting channel storage')
   }
 

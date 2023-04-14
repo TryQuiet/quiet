@@ -118,11 +118,13 @@ const Root = styled('div')(({ theme }) => ({
 export interface ChannelHeaderProps {
   channelName: string
   openContextMenu?: () => void
+  isOwner: boolean
 }
 
 export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   channelName,
-  openContextMenu
+  openContextMenu,
+  isOwner
 }) => {
   const debounce = (fn, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
@@ -187,9 +189,11 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
           justifyContent='flex-end'
           alignContent='center'
           alignItems='center'>
-          <Grid item className={classes.menu} onClick={openContextMenu}>
-            <Icon src={dots} />
-          </Grid>
+          {isOwner && (
+            <Grid item className={classes.menu} onClick={openContextMenu}>
+              <Icon src={dots} />
+            </Grid>
+          )}
         </Grid>
       </Grid>
     </Root>

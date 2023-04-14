@@ -28,8 +28,8 @@ import { getFilesData } from '../../../utils/functions/fileData'
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 
-import { useContextMenu } from 'packages/desktop/src/hooks/useContextMenu'
-import { MenuName } from 'packages/desktop/src/const/MenuNames.enum'
+import { useContextMenu } from '../../../hooks/useContextMenu'
+import { MenuName } from '../../../const/MenuNames.enum'
 
 const Channel = () => {
   const dispatch = useDispatch()
@@ -53,10 +53,15 @@ const Channel = () => {
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
-  const communityId = useSelector(communities.selectors.currentCommunityId)
-  const initializedCommunities = useSelector(network.selectors.initializedCommunities)
+  const community = useSelector(communities.selectors.currentCommunity)
 
-  const isCommunityInitialized = Boolean(initializedCommunities[communityId])
+  const initializedCommunities = useSelector(network.selectors.initializedCommunities)
+  const isCommunityInitialized = Boolean(initializedCommunities[community?.id])
+
+  let isOwner: boolean = false
+  if (community) {
+    isOwner = Boolean(community.CA)
+  }
 
   const pendingMessages = useSelector(messages.selectors.messagesSendingStatus)
 
@@ -209,7 +214,8 @@ const Channel = () => {
     isCommunityInitialized: isCommunityInitialized,
     handleClipboardFiles: handleClipboardFiles,
     uploadedFileModal: uploadedFileModal,
-    openContextMenu: openContextMenu
+    openContextMenu: openContextMenu,
+    isOwner: isOwner
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {

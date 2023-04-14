@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 import { publicChannels } from '@quiet/state-manager'
 
@@ -8,9 +8,10 @@ import { MenuName } from '../../../../const/MenuNames.enum'
 import { ContextMenu } from '../ContextMenu.component'
 import { ContextMenuItemProps } from '../ContextMenu.types'
 
-export const ChannelContextMenu: FC = () => {
-  const dispatch = useDispatch()
+import { useModal } from '../../../containers/hooks'
+import { ModalName } from '../../../sagas/modals/modals.types'
 
+export const ChannelContextMenu: FC = () => {
   const channel = useSelector(publicChannels.selectors.currentChannel)
 
   let title = ''
@@ -20,8 +21,16 @@ export const ChannelContextMenu: FC = () => {
 
   const channelContextMenu = useContextMenu(MenuName.Channel)
 
+  const deleteChannelModal = useModal(ModalName.deleteChannel)
+
   const items: ContextMenuItemProps[] = [
-    { title: 'Delete', action: () => {} }
+    {
+      title: 'Delete',
+      action: () => {
+        channelContextMenu.handleClose() // Dismiss context menu before displaying modal
+        deleteChannelModal.handleOpen()
+      }
+    }
   ]
 
   // @ts-expect-error

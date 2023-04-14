@@ -64,6 +64,7 @@ export interface ChannelComponentProps {
     }>['types']
   >
   openContextMenu?: () => void
+  isOwner: boolean
 }
 
 const enum ScrollPosition {
@@ -96,7 +97,8 @@ export const ChannelComponent: React.FC<
   openContainingFolder,
   downloadFile,
   cancelDownload,
-  openContextMenu
+  openContextMenu,
+  isOwner
 }) => {
   const [lastSeenMessage, setLastSeenMessage] = useState<string>()
   const [newMessagesInfo, setNewMessagesInfo] = useState<boolean>(false)
@@ -214,7 +216,11 @@ export const ChannelComponent: React.FC<
   return (
     <Page>
       <PageHeader>
-        <ChannelHeaderComponent channelName={channelName} openContextMenu={openContextMenu} />
+        <ChannelHeaderComponent
+          channelName={channelName}
+          openContextMenu={openContextMenu}
+          isOwner={isOwner}
+        />
       </PageHeader>
       <DropZoneComponent channelName={channelName} handleFileDrop={handleFileDrop}>
         <ChannelMessagesWrapperStyled item xs>

@@ -36,6 +36,14 @@ export const navigationSlice = createSlice({
         open: false,
         args: undefined
       }
+    },
+    closeAllMenus: state => {
+      Object.values(MenuName).forEach(menu => {
+        state[menu] = {
+          open: false,
+          args: undefined
+        }
+      })
     }
   }
 })

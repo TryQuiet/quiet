@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect, useRef } from 'react'
 
 import { Grid, List, Typography } from '@mui/material'
 
@@ -14,11 +14,26 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   title,
   items,
   hint,
-  link,
-  linkAction = () => {
-    console.log('No action attached for link tap gesture.')
-  }
 }) => {
+  const ref = useRef()
+
+  useEffect(() => {
+    const handleClick = event => {
+      // @ts-expect-error
+      if (ref.current && !ref.current.contains(event.target)) {
+        if (visible) {
+          handleClose()
+        }
+      }
+    }
+
+    document.addEventListener('click', handleClick, true)
+
+    return () => {
+      document.removeEventListener('click', handleClick, true)
+    }
+  }, [ref])
+
   return (
     <Grid
       style={{
@@ -26,10 +41,12 @@ export const ContextMenu: FC<ContextMenuProps> = ({
         position: 'absolute',
         width: '100%',
         height: '100%',
-        zIndex: 9000
+        zIndex: 9001,
+        pointerEvents: 'none'
       }}>
       <Grid style={{ flex: 6 }} onClick={handleClose} />
       <Grid
+        ref={ref}
         style={{
           flex: 4,
           // position: 'absolute',
@@ -46,7 +63,8 @@ export const ContextMenu: FC<ContextMenuProps> = ({
           //   width: 0
           // },
           // elevation: 12,
-          maxWidth: '375px'
+          maxWidth: '375px',
+          pointerEvents: 'auto'
         }}>
         <Grid
           style={{
@@ -70,10 +88,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
             <Icon src={arrowLeft} />
           </Grid>
           <Grid style={{ flex: 5, justifyContent: 'center' }}>
-            <Typography
-              fontSize={16}
-              fontWeight={'medium'}
-              style={{ alignSelf: 'center' }}>
+            <Typography fontSize={16} fontWeight={'medium'} style={{ alignSelf: 'center' }}>
               {title}
             </Typography>
           </Grid>
@@ -90,30 +105,23 @@ export const ContextMenu: FC<ContextMenuProps> = ({
             <Typography fontSize={14} fontWeight={'normal'}>
               {hint}
             </Typography>
-            {/* <Typography
-                  fontSize={14}
-                  fontWeight={'normal'}
-                  style={{ lineHeight: 20, color: '#7F7F7F' }}
-                  onPress={linkAction}>
-                  {link}
-                </Typography> */}
           </Grid>
         )}
-          <List>
-            {items.map((item, index) => {
-              return (
-                <Grid
-                  style={{
-                    cursor: 'pointer',
-                    borderTop: '1px solid',
-                    borderColor: '#F0F0F0',
-                    borderBottomWidth: index === items.length - 1 ? '1px solid' : 0
-                  }}>
-                  <ContextMenuItem {...item} />
-                </Grid>
-              )
-            })}
-          </List>
+        <List>
+          {items.map((item, index) => {
+            return (
+              <Grid
+                style={{
+                  cursor: 'pointer',
+                  borderTop: '1px solid',
+                  borderColor: '#F0F0F0',
+                  borderBottomWidth: index === items.length - 1 ? '1px solid' : 0
+                }}>
+                <ContextMenuItem {...item} />
+              </Grid>
+            )
+          })}
+        </List>
       </Grid>
     </Grid>
   )
@@ -130,7 +138,8 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
         paddingRight: 20,
         height: 48,
         width: '100%'
-      }}>
+      }}
+      onClick={action}>
       <Grid
         style={{
           flex: 8

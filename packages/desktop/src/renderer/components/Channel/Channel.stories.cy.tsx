@@ -103,6 +103,7 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
           removeFile={function (id: string): void {
             throw new Error('Function not implemented.')
           }}
+          isOwner={false}
         />
       </DndProvider>
     </>

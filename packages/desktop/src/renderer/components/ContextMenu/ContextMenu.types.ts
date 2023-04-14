@@ -4,8 +4,6 @@ export interface ContextMenuProps {
   title: string
   items: ContextMenuItemProps[]
   hint?: string
-  link?: string
-  linkAction?: () => void
 }
 
 export interface ContextMenuItemProps {
