@@ -17,3 +17,5 @@ export const DeleteChannel: FC = () => {
 
   return <DeleteChannelComponent channel={channel?.name} deleteChannel={deleteChannel} {...modal} />
 }
+
+export default DeleteChannel

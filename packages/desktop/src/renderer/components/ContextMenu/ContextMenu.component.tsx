@@ -65,7 +65,8 @@ export const ContextMenu: FC<ContextMenuProps> = ({
           // elevation: 12,
           maxWidth: '375px',
           pointerEvents: 'auto'
-        }}>
+        }}
+        data-testId={'contextMenu'}>
         <Grid
           style={{
             display: 'flex',
@@ -94,7 +95,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
           </Grid>
           <Grid style={{ flex: 1 }}></Grid>
         </Grid>
-        {(hint || link) && (
+        {hint && (
           <Grid
             style={{
               width: '100%',
@@ -116,7 +117,8 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                   borderTop: '1px solid',
                   borderColor: '#F0F0F0',
                   borderBottomWidth: index === items.length - 1 ? '1px solid' : 0
-                }}>
+                }}
+                key={index}>
                 <ContextMenuItem {...item} />
               </Grid>
             )
@@ -139,7 +141,8 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
         height: 48,
         width: '100%'
       }}
-      onClick={action}>
+      onClick={action}
+      data-testId={`contextMenuItem${title}`}>
       <Grid
         style={{
           flex: 8

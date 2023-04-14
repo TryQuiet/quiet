@@ -5,7 +5,9 @@ import { ChannelHeaderComponent } from './ChannelHeader'
 
 describe('ChannelHeader', () => {
   it('hides context menu', () => {
-    const result = renderComponent(<ChannelHeaderComponent channelName='general' isOwner={false} />)
+    const result = renderComponent(
+      <ChannelHeaderComponent channelName='general' enableContextMenu={false} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -44,7 +46,9 @@ describe('ChannelHeader', () => {
     `)
   })
   it('reveals context menu', () => {
-    const result = renderComponent(<ChannelHeaderComponent channelName='general' isOwner={true} />)
+    const result = renderComponent(
+      <ChannelHeaderComponent channelName='general' enableContextMenu={true} />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -78,6 +82,7 @@ describe('ChannelHeader', () => {
               >
                 <div
                   class="MuiGrid-root MuiGrid-item ChannelHeaderComponentmenu css-13i4rnv-MuiGrid-root"
+                  data-testid="channelContextMenuButton"
                 >
                   <img
                     src="test-file-stub"

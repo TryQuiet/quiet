@@ -58,9 +58,10 @@ const Channel = () => {
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
   const isCommunityInitialized = Boolean(initializedCommunities[community?.id])
 
-  let isOwner: boolean = false
+  let enableContextMenu: boolean = false
   if (community) {
-    isOwner = Boolean(community.CA)
+    // Enable only for community owner
+    enableContextMenu = Boolean(community.CA)
   }
 
   const pendingMessages = useSelector(messages.selectors.messagesSendingStatus)
@@ -215,7 +216,7 @@ const Channel = () => {
     handleClipboardFiles: handleClipboardFiles,
     uploadedFileModal: uploadedFileModal,
     openContextMenu: openContextMenu,
-    isOwner: isOwner
+    enableContextMenu: enableContextMenu
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {
