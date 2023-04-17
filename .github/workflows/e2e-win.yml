@@ -1,0 +1,82 @@
+name: E2E Windows
+
+on: [workflow_call]
+jobs:
+  windows:
+    runs-on: windows-2019
+    timeout-minutes: 180
+    env:
+      ELECTRON_CUSTOM_VERSION: 23.0.0
+      TEST_MODE: true
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "e2e-crossplatform-windows"
+          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+
+      - name: "Fetch jsign"
+        shell: bash
+        run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
+
+      - name: "Add Windows certificate"
+        id: write_file
+        uses: TryQuiet/base64-to-file@main
+        with:
+          fileName: 'win-certificate.pfx'
+          encodedString: ${{ secrets.WIN_CSC_LINK }}
+
+      - name: "Remove test files workaround (jest types conflicting with cypress types)"
+        run: find packages/desktop/src -name '*.test.*' -delete
+        shell: bash
+
+      - name: Before build
+        uses: ./.github/actions/before-build
+        with:
+          source-path: win32
+
+      - name: electron-builder
+        env:
+          CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
+        working-directory: ./packages/desktop
+        run: node_modules/.bin/electron-builder --win 
+        shell: bash
+
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.1.1
+        with:
+          path: packages/desktop
+
+      - name: FILE_NAME env
+        working-directory: ./packages/desktop/dist
+        run: echo "FILE_NAME=Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        shell: powershell
+
+      - name: Chmod
+        working-directory: ./packages/desktop/dist
+        run: chmod +x "$FILE_NAME"
+        shell: bash
+
+      - name: Install exe
+        run: Start-Process "Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" -Wait
+        working-directory: ./packages/desktop/dist
+        shell: powershell
+
+      - name: Kill exe
+        run: Stop-Process -Name "Quiet" -Force
+        working-directory: ./packages/desktop/dist
+        shell: powershell
+
+      - name: Run smoke test
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          shell: bash
+          command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts

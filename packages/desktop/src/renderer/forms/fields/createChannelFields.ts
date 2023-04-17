@@ -15,12 +15,11 @@ export const channelNameField = (name = 'channelName'): FieldData => {
         value: 20,
         message: ChannelNameErrors.NameTooLong
       },
-      pattern: {
-        value: /^[-a-zA-Z0-9 ]+$/g,
-        message: ChannelNameErrors.WrongCharacter
-      },
+      /* eslint-disable */
       validate: {
-        whitespaces: (value) => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
+        whitespaces: value =>
+          /^(?![\s-])[\w&\/\\#\]\[,+()!@$%^&*=_~`.'":;|?<>{}\s-]+$/.test(value) ||
+          FieldErrors.Whitespaces
       }
     }
   }

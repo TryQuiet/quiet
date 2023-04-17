@@ -1,26 +1,57 @@
 import { By, Key, ThenableWebDriver, until } from 'selenium-webdriver'
-
-export class LoadingPanel {
+export class StartingLoadingPanel {
   private readonly text: string
   private readonly driver: ThenableWebDriver
-
-  constructor(driver: ThenableWebDriver, title: string) {
+  constructor(driver: ThenableWebDriver) {
     this.driver = driver
-    this.text = title
   }
 
   get element() {
-    return this.driver.wait(until.elementLocated(By.xpath(`//span[text()="${this.text}"]`)))
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-testid="startingPanelComponent"]'))
+    )
+  }
+  // get element() {
+  //   return this.driver.wait(until.elementLocated(By.xpath(`//span[text()="${this.text}"]`)))
+  // }
+  // get title() {
+  //   return this.driver.findElement(By.xpath(`//span[text()="${this.text}"]`))
+  // }
+}
+
+export class WarningModal {
+  private readonly driver: ThenableWebDriver
+
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
   }
 
-  get title() {
-    return this.driver.findElement(By.xpath(`//span[text()="${this.text}"]`))
+  get titleElement() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//h3[@data-testid="warningModalTitle"]'))
+    )
+  }
+
+  async close() {
+    const submitButton = await this.driver.findElement(By.xpath('//button[@data-testid="warningModalSubmit"]'))
+    await submitButton.click()
   }
 }
 
+export class JoiningLoadingPanel {
+  private readonly driver: ThenableWebDriver
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get element() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-testid="joiningPanelComponent"]'))
+    )
+  }
+}
 export class RegisterUsernameModal {
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
   }
@@ -39,10 +70,8 @@ export class RegisterUsernameModal {
     await submitButton.click()
   }
 }
-
 export class JoinCommunityModal {
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
   }
@@ -70,10 +99,8 @@ export class JoinCommunityModal {
     await continueButton.click()
   }
 }
-
 export class CreateCommunityModal {
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
   }
@@ -96,11 +123,9 @@ export class CreateCommunityModal {
     await continueButton.click()
   }
 }
-
 export class Channel {
   private readonly name: string
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver, name: string) {
     this.driver = driver
     this.name = name
@@ -150,10 +175,8 @@ export class Channel {
     )
   }
 }
-
 export class Sidebar {
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
   }
@@ -179,28 +202,37 @@ export class Sidebar {
       By.xpath('//button[@data-testid="addChannelButton"]')
     )
     await button.click()
-
     const channelNameInput = await this.driver.findElement(By.xpath('//input[@name="channelName"]'))
     await channelNameInput.sendKeys(name)
-
     const channelNameButton = await this.driver.findElement(
       By.xpath('//button[@data-testid="channelNameSubmit"]')
     )
     await channelNameButton.click()
-
     return new Channel(this.driver, name)
   }
 }
-
 export class Settings {
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
   }
 
   get element() {
     return this.driver.wait(until.elementLocated(By.xpath("//h6[text()='Settings']")))
+  }
+
+  async openLeaveCommunityModal() {
+    const tab = await this.driver.wait(
+      until.elementLocated(By.xpath('//p[@data-testid="leave-community-tab"]'))
+    )
+    await tab.click()
+  }
+
+  async leaveCommunityButton() {
+    const button = await this.driver.wait(
+      until.elementLocated(By.xpath('//button[text()="Leave community"]'))
+    )
+    await button.click()
   }
 
   async switchTab(name: string) {
@@ -211,12 +243,13 @@ export class Settings {
   }
 
   async invitationCode() {
-    const unlockClass =
-      'MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall InviteToCommunityeyeIcon css-1j7qk7u'
+    const unlockButton = await this.driver.findElement(
+      By.xpath('//button[@data-testid="show-invitation-link"]')
+    )
 
-    const unlockButton = await this.driver.findElement(By.className(unlockClass))
     await unlockButton.click()
-    return await this.driver.findElement(By.xpath("//p[@data-testid='invitation-code']"))
+
+    return await this.driver.findElement(By.xpath("//p[@data-testid='invitation-link']"))
   }
 
   async close() {
@@ -228,9 +261,9 @@ export class Settings {
 }
 export class DebugModeModal {
   private readonly driver: ThenableWebDriver
-
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
+    console.log('Debug modal')
   }
 
   get element() {
@@ -241,5 +274,22 @@ export class DebugModeModal {
 
   get button() {
     return this.driver.wait(until.elementLocated(By.xpath("//button[text()='Understand']")))
+  }
+
+  async close() {
+    console.log('Closing debug modal')
+    await this.element.isDisplayed()
+    const button = await this.button
+    console.log('Debug modal title is displayed')
+    await button.isDisplayed()
+    console.log('Button is displayed')
+    await button.click()
+    console.log('Button click')
+    try {
+      const log = await this.driver.executeScript('arguments[0].click();', button)
+      console.log('executeScript', log)
+    } catch (e) {
+      console.log('Probably click properly close modal')
+    }
   }
 }

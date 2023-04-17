@@ -1,117 +1,17 @@
-
 name: E2E cross platform
 
-on:
-  pull_request:
-
+on: [pull_request]
 jobs:
   mac:
-    runs-on: macos-latest
-    timeout-minutes: 180
-    env:
-      ELECTRON_CUSTOM_VERSION: 23.0.0
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: "Setup environment"
-        uses: ./.github/actions/setup-env
-        with:
-          cachePrefix: "e2e-crossplatform-mac"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
-
-      - name: Download DMG
-        working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0/Quiet-1.0.0.dmg
-
-      - name: Chmod
-        working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-1.0.0.dmg
-
-      - name: Mount installer file in volume on system
-        working-directory: ./packages/e2e-tests/Quiet
-        run: hdiutil mount Quiet-1.0.0.dmg 
-
-      - name: Add App file to applications
-        run: cd ~ && cp -R "/Volumes/Quiet 1.0.0/Quiet.app" /Applications
-
-      - name: Run smoke test
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
-
-      - name: Run newUser test - Includes 2 separate application clients
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 35
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
-
-
-
+    uses: ./.github/workflows/e2e-mac.yml
   linux:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-20.04, ubuntu-22.04]
-
-    timeout-minutes: 180
-
-    env:
-      ELECTRON_CUSTOM_VERSION: 23.0.0
-      DISPLAY: ":99.0"
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install WM
-        run: sudo apt install fluxbox
-
-      - name: Install libfuse2
-        run: sudo apt install libfuse2
-
-      - name: "Setup environment"
-        uses: ./.github/actions/setup-env
-        with:
-          cachePrefix: "e2e-crossplatform-linux"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
-
-      - name: Run X11
-        run: |
-          Xvfb :99 -screen 0 1920x1080x24 &
-          sleep 3
-          fluxbox &
-
-      - name: Download App Image
-        working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0/Quiet-1.0.0.AppImage
-
-      - name: Chmod
-        working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-1.0.0.AppImage
-
-      - name: Run smoke test
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
-
-      - name: Run newUser test - Includes 2 separate application clients
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 35
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
-
+    uses: ./.github/workflows/e2e-linux.yml
   windows:
     runs-on: windows-2019
     timeout-minutes: 180
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
+      TEST_MODE: true
 
     steps:
       - uses: actions/checkout@v2
@@ -120,22 +20,61 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "e2e-crossplatform-windows"
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
-      - name: Download EXE
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0/Quiet.Setup.1.0.0.exe
+      - name: "Fetch jsign"
+        shell: bash
+        run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
+
+      - name: "Add Windows certificate"
+        id: write_file
+        uses: TryQuiet/base64-to-file@main
+        with:
+          fileName: 'win-certificate.pfx'
+          encodedString: ${{ secrets.WIN_CSC_LINK }}
+
+      - name: "Remove test files workaround (jest types conflicting with cypress types)"
+        run: find packages/desktop/src -name '*.test.*' -delete
         shell: bash
 
+      - name: Before build
+        uses: ./.github/actions/before-build
+        with:
+          source-path: win32
+
+      - name: electron-builder
+        env:
+          CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
+        working-directory: ./packages/desktop
+        run: node_modules/.bin/electron-builder --win 
+        shell: bash
+
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.1.1
+        with:
+          path: packages/desktop
+
+      - name: FILE_NAME env
+        working-directory: ./packages/desktop/dist
+        run: echo "FILE_NAME=Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        shell: powershell
+
       - name: Chmod
-        run: chmod +x Quiet.Setup.1.0.0.exe
+        working-directory: ./packages/desktop/dist
+        run: chmod +x "$FILE_NAME"
         shell: bash
 
       - name: Install exe
-        run: Start-Process Quiet.Setup.1.0.0.exe -Wait
+        run: Start-Process "Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" -Wait
+        working-directory: ./packages/desktop/dist
         shell: powershell
 
       - name: Kill exe
         run: Stop-Process -Name "Quiet" -Force
+        working-directory: ./packages/desktop/dist
         shell: powershell
 
       - name: Run smoke test
@@ -145,6 +84,7 @@ jobs:
           max_attempts: 3
           shell: bash
           command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+  
       # Will be fixed in next tasks 
       # - name: Run newUser test - Includes 2 separate application clients
       #   uses: nick-fields/retry@v2

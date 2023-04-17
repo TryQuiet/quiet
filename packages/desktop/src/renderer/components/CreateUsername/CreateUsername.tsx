@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { errors, identity, ErrorCodes } from '@quiet/state-manager'
+import { errors, identity, ErrorCodes, network, LoadingPanelType } from '@quiet/state-manager'
 import CreateUsernameComponent from '../CreateUsername/CreateUsernameComponent'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
@@ -11,6 +11,7 @@ const CreateUsername = () => {
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
   const createUsernameModal = useModal(ModalName.createUsernameModal)
+  const loadingPanelModal = useModal(ModalName.loadingPanel)
 
   const error = useSelector(errors.selectors.registrarErrors)
 
@@ -26,11 +27,12 @@ const CreateUsername = () => {
   const handleAction = (nickname: string) => {
     // Clear errors
     if (error) {
-      dispatch(
-        errors.actions.clearError(error)
-      )
+      dispatch(errors.actions.clearError(error))
     }
+
     dispatch(identity.actions.registerUsername(nickname))
+    dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
+    loadingPanelModal.handleOpen()
   }
 
   return (

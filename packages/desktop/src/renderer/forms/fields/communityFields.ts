@@ -37,11 +37,8 @@ export const inviteLinkField = (name = 'name'): FieldData => {
     validation: {
       required: FieldErrors.Required,
       pattern: {
-        value: /^[a-z0-9 ]+$/g,
-        message: InviteLinkErrors.WrongCharacter
-      },
-      validate: {
-        whitespaces: (value) => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
+        value: /^[a-z0-9:/.#?= ]+$/g,
+        message: InviteLinkErrors.InvalidCode
       }
     }
   }

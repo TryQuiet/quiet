@@ -7,10 +7,14 @@ import { ChannelListProps } from './ChannelList.types'
 import { ChannelTile } from '../ChannelTile/ChannelTile.component'
 import { Spinner } from '../Spinner/Spinner.component'
 
-export const ChannelList: FC<ChannelListProps> = ({ community, tiles }) => {
+export const ChannelList: FC<ChannelListProps> = ({ community, tiles, communityContextMenu }) => {
+  let communityName = ''
+  if (community?.name) {
+    communityName = capitalize(community.name)
+  }
   return (
     <View style={{ flex: 1 }}>
-      <Appbar title={capitalize(community.name)} position={'flex-start'} />
+      <Appbar title={capitalize(community?.name)} position={'flex-start'} contextMenu={communityContextMenu} />
       {tiles.length === 0 ? (
         <Spinner description='Connecting to peers'/>
       ) : (

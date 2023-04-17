@@ -49,7 +49,7 @@ import { filesActions, filesReducer } from './sagas/files/files.slice'
 import { filesSelectors } from './sagas/files/files.selectors'
 import { networkActions, networkReducer } from './sagas/network/network.slice'
 import { networkSelectors } from './sagas/network/network.selectors'
-
+export { LoadingPanelType } from './sagas/network/network.types'
 export { SocketActionTypes } from './sagas/socket/const/actionTypes'
 export { Store } from './sagas/store.types'
 export { TestStore, TestStoreState } from './utils/tests/types'
@@ -73,22 +73,21 @@ export {
 
 export { identityAdapter } from './sagas/identity/identity.adapter'
 
+export { CommunitiesTransform } from './sagas/communities/communities.transform'
 export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.transform'
 export { MessagesTransform } from './sagas/messages/messages.transform'
 export { FilesTransform } from './sagas/files/files.transform'
-
-export {
-  AUTODOWNLOAD_SIZE_LIMIT,
-  PUSH_NOTIFICATION_CHANNEL,
-  WEBSOCKET_CONNECTION_CHANNEL,
-  INIT_CHECK_CHANNEL
-} from './constants'
+export { ConnectionTransform } from './sagas/appConnection/connection.transform'
+export { resetStateAndSaveTorConnectionData } from './sagas/appConnection/connection.helpers'
+export * from './constants'
 
 export { parseName } from './utils/functions/naming/naming'
 
 export { formatBytes } from './utils/functions/formatBytes/formatBytes'
 
 export { sortPeers } from './utils/functions/sortPeers/sortPeers'
+
+export { getInvitationCode } from './utils/functions/invitationCode/invitationCode'
 
 export type { Socket } from './types'
 

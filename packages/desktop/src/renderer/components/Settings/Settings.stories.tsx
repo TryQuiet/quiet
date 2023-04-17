@@ -10,10 +10,11 @@ import SettingsComponent, { SettingsComponentProps } from './SettingsComponent'
 // import { NotificationsComponent } from './Tabs/Notifications/NotificationsComponent'
 // import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
 
-import { InviteComponent } from './Tabs/Invite/InviteComponent'
+import { InviteComponent } from './Tabs/Invite/Invite.component'
 
 import { LeaveCommunityComponent } from './Tabs/LeaveCommunity/LeaveCommunityComponent'
 import { Typography } from '@mui/material'
+import { QRCodeComponent } from './Tabs/QRCode/QRCode.component'
 
 const Template: ComponentStory<typeof SettingsComponent> = args => {
   return <SettingsComponent {...args} />
@@ -52,13 +53,20 @@ const Invite: FC = () => {
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
   return (
     <InviteComponent
-      communityName={'Rockets'}
-      invitationUrl={'ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad'}
+      invitationLink={
+        'https://tryquiet.org/join#p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad'
+      }
       revealInputValue={revealInputValue}
       handleClickInputReveal={() => {
         setRevealInputValue(!revealInputValue)
       }}
     />
+  )
+}
+
+const QRCode: FC = () => {
+  return (
+    <QRCodeComponent value='https://tryquiet.org/join#ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad' />
   )
 }
 
@@ -70,7 +78,8 @@ const args: SettingsComponentProps = {
     about: Dummy,
     notifications: Dummy,
     invite: Invite,
-    leave: Leave
+    leave: Leave,
+    qrcode: QRCode
   },
   leaveCommunityModal: {
     open: false,

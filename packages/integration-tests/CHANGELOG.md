@@ -3,7 +3,55 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [1.1.1](https://github.com/TryQuiet/quiet/compare/integration-tests@1.1.1-alpha.0...integration-tests@1.1.1) (2023-03-23)
+# [1.2.0-alpha.24](/compare/integration-tests@1.2.0-alpha.23...integration-tests@1.2.0-alpha.24) (2023-04-17)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+# [1.2.0-alpha.23](https://github.com/TryQuiet/quiet/compare/integration-tests@1.2.0-alpha.22...integration-tests@1.2.0-alpha.23) (2023-04-14)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+# [1.2.0-alpha.22](https://github.com/TryQuiet/quiet/compare/integration-tests@1.2.0-alpha.21...integration-tests@1.2.0-alpha.22) (2023-04-12)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+# [1.2.0-alpha.21](https://github.com/ZbayApp/monorepo/compare/integration-tests@1.2.0-alpha.20...integration-tests@1.2.0-alpha.21) (2023-04-07)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+# [1.2.0-alpha.20](https://github.com/TryQuiet/quiet/compare/integration-tests@1.2.0-alpha.14...integration-tests@1.2.0-alpha.20) (2023-04-07)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+# [1.2.0-alpha.14](https://github.com/TryQuiet/quiet/compare/integration-tests@1.2.0-alpha.0...integration-tests@1.2.0-alpha.14) (2023-03-30)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+# [1.2.0-alpha.0](https://github.com/TryQuiet/quiet/compare/integration-tests@1.1.1-alpha.0...integration-tests@1.2.0-alpha.0) (2023-03-28)
 
 **Note:** Version bump only for package integration-tests
 

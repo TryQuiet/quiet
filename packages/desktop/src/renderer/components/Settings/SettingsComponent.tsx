@@ -138,12 +138,12 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
                 label='Notifications'
                 data-testid={'notifications-settings-tab'}
               />
-              {isOwner && (
-                <Tab value='invite' label='Invite a friend' data-testid={'invite-settings-tab'} />
-              )}
+              <Tab value='invite' label='Invite a friend' data-testid={'invite-settings-tab'} />
+              <Tab value='qrcode' label='QR Code' data-testid={'qr-code-tab'} />
               {!isWindows && (
                 <Grid style={{ marginTop: '24px', cursor: 'pointer' }}>
                   <Typography
+                    data-testid='leave-community-tab'
                     className={classes.leaveComunity}
                     onClick={leaveCommunityModal.handleOpen}>
                     Leave community

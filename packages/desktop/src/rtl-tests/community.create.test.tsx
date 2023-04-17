@@ -172,13 +172,15 @@ describe('User', () => {
       Array [
         "Communities/createNetwork",
         "Communities/responseCreateNetwork",
+        "Communities/clearInvitationCode",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
         "Modals/closeModal",
-        "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
+        "Network/setLoadingPanelType",
+        "Modals/openModal",
         "Identity/registerCertificate",
         "Communities/storePeerList",
         "Identity/storeUserCertificate",
@@ -196,7 +198,6 @@ describe('User', () => {
         "PublicChannels/setCurrentChannel",
         "Messages/addPublicChannelsMessagesBase",
         "PublicChannels/clearUnreadChannel",
-        "Modals/closeModal",
         "Modals/closeModal",
       ]
     `)

@@ -1,4 +1,5 @@
 import React from 'react'
+import { DownloadState } from '@quiet/state-manager'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import UploadedImagePlaceholder, { UploadedImagePlaceholderProps } from './UploadedImagePlaceholder'
@@ -12,12 +13,19 @@ const Template: ComponentStory<typeof UploadedImagePlaceholder> = args => {
 
 export const Component = Template.bind({})
 
+const downloadStatus = {
+  mid: 'test',
+  cid: 'hvb45FGa',
+  downloadState: DownloadState.Completed
+}
+
 const args: UploadedImagePlaceholderProps = {
   cid: 'cid',
   imageWidth: 500,
   imageHeight: 200,
   name: 'image',
-  ext: '.png'
+  ext: '.png',
+  downloadStatus: downloadStatus
 }
 
 Component.args = args

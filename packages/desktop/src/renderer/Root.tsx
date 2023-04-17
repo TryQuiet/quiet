@@ -24,7 +24,8 @@ import { DndProvider } from 'react-dnd'
 import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
 import { LeaveCommunity } from './components/Settings/Tabs/LeaveCommunity/LeaveCommunity'
 import SearchModal from './components/SearchModal/SearchModal'
-
+import WarningModal from './containers/widgets/WarningModal/WarningModal'
+// Trigger lerna
 export const persistor = persistStore(store)
 export default () => {
   return (
@@ -35,6 +36,7 @@ export default () => {
             <Provider store={store}>
               <PersistGate loading={null} persistor={persistor}>
                 <SentryWarning />
+                <WarningModal />
                 <SearchModal />
                 <ErrorModal />
                 <LoadingPanel />

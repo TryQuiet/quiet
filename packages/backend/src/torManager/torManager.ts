@@ -8,6 +8,9 @@ import logger from '../logger'
 import { TorControl } from './TorControl'
 import getPort from 'get-port'
 import { removeFilesFromDir } from '../common/utils'
+import { EventEmitter } from 'events'
+import { SocketActionTypes } from '@quiet/state-manager'
+
 const log = logger('tor')
 
 export enum GetInfoTorSignal {
@@ -27,7 +30,7 @@ interface IConstructor {
   authCookie?: string
   extraTorProcessParams?: TorParams
 }
-export class Tor {
+export class Tor extends EventEmitter {
   httpTunnelPort: number
   socksPort: number
   controlPort: number
@@ -51,6 +54,7 @@ export class Tor {
     controlPort,
     authCookie
   }: IConstructor) {
+    super()
     this.torPath = torPath ? path.normalize(torPath) : null
     this.options = options
     this.appDataPath = appDataPath
@@ -227,6 +231,7 @@ export class Tor {
 
       this.process.stdout.on('data', data => {
         log(data.toString())
+        this.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data.toString())
         const regexp = /Bootstrapped 100%/
         if (regexp.test(data.toString())) {
           clearTimeout(timeout)

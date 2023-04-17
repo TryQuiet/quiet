@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 
@@ -15,7 +15,7 @@ import {
   JoinCommunityDictionary
 } from '../CreateJoinCommunity/community.dictionary'
 
-import { parseName, CommunityOwnership } from '@quiet/state-manager'
+import { parseName, CommunityOwnership, getInvitationCode } from '@quiet/state-manager'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
@@ -23,6 +23,7 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
+import { ONION_ADDRESS_REGEX } from '@quiet/common'
 
 const PREFIX = 'PerformCommunityActionComponent'
 
@@ -142,6 +143,7 @@ export interface PerformCommunityActionProps {
   hasReceivedResponse: boolean
   revealInputValue?: boolean
   handleClickInputReveal?: () => void
+  invitationCode?: string
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -154,9 +156,11 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   isCloseDisabled,
   hasReceivedResponse,
   revealInputValue,
-  handleClickInputReveal
+  handleClickInputReveal,
+  invitationCode
 }) => {
   const [formSent, setFormSent] = useState(false)
+
   const [communityName, setCommunityName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
 
@@ -185,17 +189,15 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     values: PerformCommunityActionFormValues,
     setFormSent
   ) => {
-    const submitValue =
+    let submitValue =
       communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()
 
-    if (communityOwnership === CommunityOwnership.User && submitValue.length < 56) {
-      setError('name', { message: InviteLinkErrors.ValueTooShort })
-      return
-    }
-
-    if (communityOwnership === CommunityOwnership.User && submitValue.length > 56) {
-      setError('name', { message: InviteLinkErrors.ValueTooLong })
-      return
+    if (communityOwnership === CommunityOwnership.User) {
+      submitValue = getInvitationCode(submitValue)
+      if (!submitValue || !submitValue.match(ONION_ADDRESS_REGEX)) {
+        setError('name', { message: InviteLinkErrors.InvalidCode })
+        return
+      }
     }
 
     setFormSent(true)
@@ -209,6 +211,14 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     setCommunityName(parsedName)
     setParsedNameDiffers(name !== parsedName)
   }
+
+  // Lock the form if app's been open with custom protocol
+  useEffect(() => {
+    if (communityOwnership === CommunityOwnership.User && invitationCode) {
+      setFormSent(true)
+      setValue('name', invitationCode)
+    }
+  }, [communityOwnership, invitationCode])
 
   React.useEffect(() => {
     if (!open) {

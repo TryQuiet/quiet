@@ -1,5 +1,7 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
+import fs from 'fs'
+import path from 'path'
 import createHttpsProxyAgent from 'https-proxy-agent'
 
 import { peerIdFromKeys } from '@libp2p/peer-id'
@@ -51,7 +53,8 @@ import {
   DownloadStatus,
   CommunityId,
   StorePeerListPayload,
-  NetworkStats
+  NetworkStats,
+  ConnectionProcessInfo
 } from '@quiet/state-manager'
 
 import { ConnectionsManagerOptions } from '../common/types'
@@ -69,10 +72,9 @@ import { Libp2pEvents, ServiceState } from './types'
 import PeerId from 'peer-id'
 import { LocalDB, LocalDBKeys } from '../storage/localDB'
 
-import { createLibp2pAddress, createLibp2pListenAddress, getPorts } from '../common/utils'
+import { createLibp2pAddress, createLibp2pListenAddress, getPorts, removeFilesFromDir } from '../common/utils'
 import { ProcessInChunks } from './processInChunks'
 import { Multiaddr } from 'multiaddr'
-import { GetInfoTorSignal } from '../torManager/torManager'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -114,6 +116,12 @@ export interface InitLibp2pParams {
   certs: Certificates
 }
 
+export enum TorInitState{
+  STARTING = 'starting',
+  STARTED = 'started',
+  NOT_STARTED = 'not-started'
+}
+
 export class ConnectionsManager extends EventEmitter {
   registration: CertificateRegistration
   httpTunnelPort: number
@@ -135,6 +143,7 @@ export class ConnectionsManager extends EventEmitter {
   localStorage: LocalDB
   communityState: ServiceState
   registrarState: ServiceState
+  isTorInit: TorInitState = TorInitState.NOT_STARTED
 
   constructor({ options, socketIOPort, httpTunnelPort, torControlPort, torAuthCookie, torResourcesPath, torBinaryPath }: IConstructor) {
     super()
@@ -153,9 +162,7 @@ export class ConnectionsManager extends EventEmitter {
     this.httpTunnelPort = httpTunnelPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
-    this.localStorage = new LocalDB(this.quietDir)
-    this.communityState = ServiceState.DEFAULT
-    this.registrarState = ServiceState.DEFAULT
+    // this.localStorage = new LocalDB(this.quietDir)
 
     // Does it work?
     process.on('unhandledRejection', error => {
@@ -189,20 +196,29 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public init = async () => {
+    this.communityState = ServiceState.DEFAULT
+    this.registrarState = ServiceState.DEFAULT
+
+    this.localStorage = new LocalDB(this.quietDir)
+
     if (!this.httpTunnelPort) {
       this.httpTunnelPort = await getPort()
     }
 
     this.socksProxyAgent = this.createAgent()
 
-    await this.spawnTor()
+    if (!this.tor) {
+      await this.spawnTor()
+    }
 
-    this.dataServer = new DataServer(this.socketIOPort)
+    if (!this.dataServer) {
+      this.dataServer = new DataServer(this.socketIOPort)
+      this.io = this.dataServer.io
+      this.attachDataServerListeners()
+      this.attachRegistrationListeners()
+    }
 
-    this.io = this.dataServer.io
-
-    this.attachDataServerListeners()
-    this.attachRegistrationListeners()
+    this.attachTorEventsListeners()
 
     // Libp2p event listeners
     this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
@@ -214,43 +230,87 @@ export class ConnectionsManager extends EventEmitter {
 
     await this.dataServer.listen()
 
-    const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
+    if (this.torControlPort) {
+      await this.launchCommunityFromStorage()
+    }
 
+    this.io.on('connection', async() => {
+      if (this.isTorInit === TorInitState.STARTED || this.isTorInit === TorInitState.STARTING) return
+      this.isTorInit = TorInitState.STARTING
+        if (this.torBinaryPath) {
+          await this.tor.init()
+          this.isTorInit = TorInitState.STARTED
+        }
+        await this.launchCommunityFromStorage()
+    })
+  }
+
+  public async launchCommunityFromStorage () {
+    log('launchCommunityFromStorage')
+    const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
     if (community) {
       const sortedPeers = await this.localStorage.getSortedPeers(community.peers)
       if (sortedPeers.length > 0) {
         community.peers = sortedPeers
       }
       await this.localStorage.put(LocalDBKeys.COMMUNITY, community)
-      await this.launchCommunity(community)
+      if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
+      this.communityState = ServiceState.LAUNCHING
     }
 
     const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
     if (registrarData) {
+      if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
+      this.registrarState = ServiceState.LAUNCHING
       await this.registration.launchRegistrar(registrarData)
+    }
+    if (community) {
+      await this.launchCommunity(community)
     }
   }
 
-  public async closeAllServices() {
-    if (this.tor && !this.torControlPort) {
+  public async closeAllServices(options: {saveTor: boolean} = { saveTor: false }) {
+    if (this.tor && !this.torControlPort && !options.saveTor) {
       await this.tor.kill()
     }
     if (this.registration) {
+      log('Stopping registration service')
       await this.registration.stop()
     }
     if (this.storage) {
+      log('Stopping orbitdb')
       await this.storage.stopOrbitDb()
     }
     if (this.io) {
+      log('Closing socket server')
       this.io.close()
     }
     if (this.localStorage) {
+      log('Closing local storage')
       await this.localStorage.close()
     }
     if (this.libp2pInstance) {
       log('Stopping libp2p')
       await this.libp2pInstance.stop()
     }
+  }
+
+  public async leaveCommunity() {
+    this.io.close()
+    await this.closeAllServices({ saveTor: true })
+    await this.purgeData()
+    this.communityId = null
+    this.storage = null
+    this.libp2pInstance = null
+    await this.init()
+    }
+
+    public async purgeData() {
+      console.log('removing data')
+      const dirsToRemove = fs.readdirSync(this.quietDir).filter(i => i.startsWith('Ipfs') || i.startsWith('OrbitDB') || i.startsWith('backendDB') || i.startsWith('Local Storage'))
+      for (const dir of dirsToRemove) {
+        removeFilesFromDir(path.join(this.quietDir, dir))
+      }
   }
 
   public spawnTor = async () => {
@@ -272,7 +332,7 @@ export class ConnectionsManager extends EventEmitter {
     if (this.torControlPort) {
       this.tor.initTorControl()
     } else if (this.torBinaryPath) {
-      await this.tor.init()
+      // Tor init will be executed on connection event
     } else {
       throw new Error('You must provide either tor control port or tor binary path')
     }
@@ -338,7 +398,6 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
-    if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
     this.communityState = ServiceState.LAUNCHING
     const communityData = await this.localStorage.get(LocalDBKeys.COMMUNITY)
     if (!communityData) {
@@ -358,6 +417,7 @@ export class ConnectionsManager extends EventEmitter {
     }
 
     log(`Launched community ${payload.id}`)
+    this.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHED_COMMUNITY)
     this.communityId = payload.id
     this.communityState = ServiceState.LAUNCHED
     this.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
@@ -367,6 +427,7 @@ export class ConnectionsManager extends EventEmitter {
     // Start existing community (community that user is already a part of)
     const ports = await getPorts()
     log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
+    this.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE)
     const onionAddress: string = await this.tor.spawnHiddenService({
       targetPort: ports.libp2pHiddenService,
       privKey: payload.hiddenService.privateKey
@@ -390,6 +451,7 @@ export class ConnectionsManager extends EventEmitter {
   public initStorage = async (params: InitStorageParams): Promise<string> => {
     const peerIdB58string = params.peerId.toString()
     log(`Initializing storage for peer ${peerIdB58string}...`)
+    this.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_STORAGE)
 
     let peers = params.peers
     if (!peers || peers.length === 0) {
@@ -420,6 +482,20 @@ export class ConnectionsManager extends EventEmitter {
     return libp2pObj.localAddress
   }
 
+  private attachTorEventsListeners = () => {
+    this.tor.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (data) => {
+      this.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data)
+    })
+
+    this.dataServer.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (data) => {
+      this.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
+    })
+
+    this.registration.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (data) => {
+      this.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
+    })
+  }
+
   private attachRegistrationListeners = () => {
     this.registration.on(RegistrationEvents.REGISTRAR_STATE, (payload: ServiceState) => {
       this.registrarState = payload
@@ -447,6 +523,9 @@ export class ConnectionsManager extends EventEmitter {
 
   private attachDataServerListeners = () => {
     // Community
+    this.dataServer.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
+      await this.leaveCommunity()
+    })
     this.dataServer.on(SocketActionTypes.CONNECTION, async () => {
       // Update Frontend with Initialized Communities
       if (this.communityId) {
@@ -463,15 +542,21 @@ export class ConnectionsManager extends EventEmitter {
       await this.createCommunity(args)
     })
     this.dataServer.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => {
+      log(`dataServer - ${SocketActionTypes.LAUNCH_COMMUNITY}`)
+      if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
+      this.communityState = ServiceState.LAUNCHING
       await this.launchCommunity(args)
     })
     // Registration
     this.dataServer.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
-      if (this.registrarState === ServiceState.LAUNCHED || this.registrarState === ServiceState.LAUNCHING) return
+      log(`dataServer - ${SocketActionTypes.LAUNCH_REGISTRAR}`)
+
       const communityData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
       if (!communityData) {
         await this.localStorage.put(LocalDBKeys.REGISTRAR, args)
       }
+      if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
+      this.registrarState = ServiceState.LAUNCHING
       await this.registration.launchRegistrar(args)
     })
     this.dataServer.on(
@@ -487,6 +572,10 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(
       SocketActionTypes.REGISTER_USER_CERTIFICATE,
       async (args: RegisterUserCertificatePayload) => {
+        if (!this.socksProxyAgent) {
+          this.socksProxyAgent = this.createAgent()
+        }
+
         await this.registration.sendCertificateRegistrationRequest(
           args.serviceAddress,
           args.userCsr,
@@ -563,6 +652,9 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   private attachStorageListeners = () => {
+    this.storage.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (data) => {
+      this.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
+    })
     this.storage.on(StorageEvents.LOAD_CERTIFICATES, (payload: SendCertificatesResponse) => {
       this.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, payload)
       this.registration.emit(RegistrationEvents.SET_CERTIFICATES, payload.certificates)
@@ -629,7 +721,7 @@ export class ConnectionsManager extends EventEmitter {
     log(
       `Initializing libp2p for ${params.peerId.toString()}, bootstrapping with ${params.bootstrapMultiaddrs.length} peers`
     )
-
+    this.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_LIBP2P)
     const nodeParams: Libp2pNodeParams = {
       peerId: params.peerId,
       listenAddresses: [this.createLibp2pListenAddress(params.address)],

@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { useContextMenu } from '../../hooks/useContextMenu'
+
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { Appbar } from './Appbar.component'
 
@@ -99,7 +101,15 @@ describe('Appbar component', () => {
   })
 
   it('renders for community', () => {
-    const { toJSON } = renderComponent(<Appbar title={'quiet'} position={'flex-start'} />)
+    const contextMenu: ReturnType<typeof useContextMenu> = {
+      visible: false,
+      handleOpen: undefined,
+      handleClose: undefined
+    }
+
+    const { toJSON } = renderComponent(
+      <Appbar title={'quiet'} position={'flex-start'} contextMenu={contextMenu} />
+    )
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
@@ -205,6 +215,40 @@ describe('Appbar component', () => {
             }
           }
         />
+        <View
+          accessible={true}
+          focusable={true}
+          onClick={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            Object {
+              "alignItems": "center",
+              "justifyContent": "center",
+              "width": 64,
+            }
+          }
+        >
+          <Image
+            resizeMethod="resize"
+            resizeMode="contain"
+            source={
+              Object {
+                "testUri": "../../../assets/icons/dots.png",
+              }
+            }
+            style={
+              Object {
+                "height": 16,
+                "width": 16,
+              }
+            }
+          />
+        </View>
       </View>
     `)
   })

@@ -5,18 +5,21 @@ import {
   CreateCommunityModal,
   DebugModeModal,
   JoinCommunityModal,
-  LoadingPanel,
-  RegisterUsernameModal
+  JoiningLoadingPanel,
+  RegisterUsernameModal,
+  StartingLoadingPanel
 } from './selectors.crossplatform'
+import getPort from 'get-port'
 
 jest.setTimeout(450000)
 describe('Smoke', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
-  const port = 9515
-  const debugPort = 9516
+
   beforeAll(async () => {
-    buildSetup = new BuildSetup(port, debugPort)
+    const port = await getPort()
+    const debugPort = await getPort()
+    buildSetup = new BuildSetup({ port, debugPort })
     await buildSetup.createChromeDriver()
     driver = buildSetup.getDriver()
     await driver.getSession()
@@ -27,25 +30,15 @@ describe('Smoke', () => {
     await buildSetup.killChromeDriver()
   })
   describe('Stages:', () => {
-    it.skip('Close debug modal', async () => {
-      console.log('Debug modal')
-      const debugModal = new DebugModeModal(driver)
-      await debugModal.element.isDisplayed()
-      const button = await debugModal.button
-      console.log('Debug modal title is displayed')
-      await button.isDisplayed()
-      console.log('Button is displayed')
-      await button.click()
-      console.log('Button click')
-      try {
-        const log = await driver.executeScript('arguments[0].click();', button)
-        console.log('executeScript', log)
-      } catch (e) {
-        console.log('Probably click properly close modal')
-      }
-    })
-    it('User waits for the modal Starting Quiet to disappear', async () => {
-      const loadingPanel = new LoadingPanel(driver, 'Starting Quiet')
+    if (process.env.TEST_MODE) {
+      it('Close debug modal', async () => {
+        const debugModal = new DebugModeModal(driver)
+        await debugModal.close()
+      })
+    }
+
+    it('User waits for the modal StartingLoadingPanel to disappear', async () => {
+      const loadingPanel = new StartingLoadingPanel(driver)
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
       await buildSetup.getTorPid()
       expect(isLoadingPanel).toBeTruthy()
@@ -83,8 +76,8 @@ describe('Smoke', () => {
       await registerModal.submit()
     })
 
-    it('User waits for the modal Connecting to peers to disappear', async () => {
-      const loadingPanelCommunity = new LoadingPanel(driver, 'Connecting to peers')
+    it('User waits for the modal JoiningLoadingPanel to disappear', async () => {
+      const loadingPanelCommunity = new JoiningLoadingPanel(driver)
       const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
       expect(isLoadingPanelCommunity).toBeTruthy()
     })

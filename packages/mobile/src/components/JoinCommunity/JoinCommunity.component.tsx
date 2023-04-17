@@ -1,5 +1,5 @@
-import React, { FC, useState } from 'react'
-import { Keyboard, KeyboardAvoidingView, View } from 'react-native'
+import React, { FC, useEffect, useState, useRef } from 'react'
+import { Keyboard, KeyboardAvoidingView, TextInput, View } from 'react-native'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
@@ -7,11 +7,15 @@ import { Typography } from '../Typography/Typography.component'
 import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { JoinCommunityProps } from './JoinCommunity.types'
+import { getInvitationCode } from '@quiet/state-manager'
+import { ONION_ADDRESS_REGEX } from '@quiet/common'
 
-export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, redirectionAction }) => {
+export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, redirectionAction, invitationCode, networkCreated }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
+
+  const inputRef = useRef<TextInput>()
 
   const onChangeText = (value: string) => {
     setInputError(undefined)
@@ -21,13 +25,40 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, red
   const onPress = () => {
     Keyboard.dismiss()
     setLoading(true)
-    if (joinCommunityInput === undefined || joinCommunityInput?.length === 0) {
+
+    let submitValue: string = joinCommunityInput
+
+    if (submitValue === undefined || submitValue?.length === 0) {
       setLoading(false)
       setInputError('Community address can not be empty')
       return
     }
-    joinCommunityAction(joinCommunityInput)
+
+    submitValue = getInvitationCode(submitValue.trim())
+    if (!submitValue || !submitValue.match(ONION_ADDRESS_REGEX)) {
+      setLoading(false)
+      setInputError('Please check your invitation code and try again')
+      return
+    }
+
+    joinCommunityAction(submitValue)
   }
+
+  useEffect(() => {
+    if (invitationCode) {
+      setJoinCommunityInput(invitationCode)
+      setInputError(undefined)
+      setLoading(true)
+      inputRef.current?.setNativeProps({ text: invitationCode })
+    }
+  }, [invitationCode])
+
+  useEffect(() => {
+    if (networkCreated) {
+      setInputError(undefined)
+      setJoinCommunityInput('')
+    }
+  }, [networkCreated])
 
   return (
     <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}>
@@ -48,6 +79,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, red
           placeholder={'Invite link'}
           disabled={loading}
           validation={inputError}
+          ref={inputRef}
         />
         <View style={{ marginTop: 32 }}>
           <TextWithLink

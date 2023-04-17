@@ -46,5 +46,5 @@ export const identitySelectors = {
   selectEntities,
   currentIdentity,
   joinedCommunities,
-  joinTimestamp
+  joinTimestamp,
 }

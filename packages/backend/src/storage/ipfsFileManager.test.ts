@@ -190,7 +190,7 @@ describe('Ipfs file manager', () => {
 
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(6, 'updateDownloadProgress', { cid: cid, downloadProgress: undefined, downloadState: 'malicious', mid: 'id' })
-    })
+    }, 10000)
 
     expect(eventSpy).toBeCalledTimes(6)
   })
@@ -300,9 +300,15 @@ describe('Ipfs file manager', () => {
     })
 
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(6, 'updateDownloadProgress', { cid: cid, downloadProgress: { downloaded: 0, size: 15847, transferSpeed: 0 }, downloadState: 'completed', mid: 'id' }
+      expect(eventSpy).toHaveBeenNthCalledWith(6, 'updateDownloadProgress', { cid: cid, downloadProgress: { downloaded: 15863, size: 15847, transferSpeed: 0 }, downloadState: 'downloading', mid: 'id' }
       )
-    })
+    }, 10000)
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(7, 'updateDownloadProgress', { cid: cid, downloadProgress: { downloaded: 15863, size: 15847, transferSpeed: 0 }, downloadState: 'completed', mid: 'id' }
+      )
+    }, 10000)
+    expect(eventSpy).toHaveBeenNthCalledWith(8, 'updateMessageMedia', expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
+    )
   })
   it('downloaded file matches uploaded file', async () => {
     ipfsInstance = await create()

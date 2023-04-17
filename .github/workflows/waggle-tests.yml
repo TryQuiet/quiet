@@ -22,7 +22,7 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,backend-bundle"
+          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/state-manager,@quiet/backend,@quiet/identity,backend-bundle"
 
       - name: "Unit tests"
         run: lerna run test-ci --scope @quiet/backend --stream
@@ -43,7 +43,7 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,backend-bundle"
+          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/state-manager,@quiet/backend,@quiet/identity,backend-bundle"
 
       - name: "Unit tests"
         run: lerna run test-ci-long-running --scope @quiet/backend --stream
@@ -64,7 +64,7 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,backend-bundle"
+          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/state-manager,@quiet/backend,@quiet/identity,backend-bundle"
 
       - name: "Unit tests"
         run: lerna run test-ci-tor --scope @quiet/backend --stream

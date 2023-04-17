@@ -1,13 +1,16 @@
-/* eslint import/first: 0 */
 import React from 'react'
 import { renderComponent } from '../../testUtils/renderComponent'
+import StartingPanelComponent from './StartingPanelComponent'
 
-import LoadingPanelComponent from './loadingPanelComponent'
-
-describe('CreateUsernameModal', () => {
+describe('Create StartingPanelComponent', () => {
   it('renders component', () => {
     const result = renderComponent(
-      <LoadingPanelComponent handleClose={jest.fn()} open={true} message={'message'} />
+      <StartingPanelComponent
+        handleClose={jest.fn()}
+        message={'Starting Quiet'}
+        torBootstrapInfo={'Bootstrapped 100% (done)'}
+        open={true}
+      />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
@@ -65,34 +68,34 @@ describe('CreateUsernameModal', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-83p7ln-MuiGrid-root"
-                  data-testid="spinnerLoader"
+                  class="MuiGrid-root MuiGrid-container StartingPanelComponentroot css-lho1b1-MuiGrid-root"
                 >
-                  <span
-                    class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInherit SpinnerLoaderspinner css-62e83j-MuiCircularProgress-root"
-                    role="progressbar"
-                    style="width: 40px; height: 40px;"
+                  <div
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column StartingPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"
+                    data-testid="startingPanelComponent"
                   >
-                    <svg
-                      class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
-                      viewBox="22 22 44 44"
+                    <img
+                      class="StartingPanelComponentimage"
+                      src="test-file-stub"
+                    />
+                    <div
+                      class="MuiGrid-root MuiGrid-container StartingPanelComponentprogressBar css-1e2bu2o-MuiGrid-root"
                     >
-                      <circle
-                        class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-176wh8e-MuiCircularProgress-circle"
-                        cx="44"
-                        cy="44"
-                        fill="none"
-                        r="20.2"
-                        stroke-width="3.6"
+                      <div
+                        class="StartingPanelComponentprogress"
                       />
-                    </svg>
-                  </span>
-                  <span
-                    class="MuiTypography-root MuiTypography-caption MuiTypography-alignCenter SpinnerLoadermessage css-1ws1t6m-MuiTypography-root"
-                    style="font-size: 0.9090909090909091rem;"
-                  >
-                    message
-                  </span>
+                    </div>
+                    <p
+                      class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                    >
+                      Starting Quiet
+                    </p>
+                    <p
+                      class="MuiTypography-root MuiTypography-body2 StartingPanelComponenttext css-16d47hw-MuiTypography-root"
+                    >
+                      Tor Bootstrapped 100% (done)
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

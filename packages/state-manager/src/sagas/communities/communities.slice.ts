@@ -11,10 +11,9 @@ import {
 } from './communities.types'
 
 export class CommunitiesState {
+  public invitationCode: string = undefined
   public currentCommunity: string = ''
-
-  public communities: EntityState<Community> =
-  communitiesAdapter.getInitialState()
+  public communities: EntityState<Community> = communitiesAdapter.getInitialState()
 }
 
 export interface Community {
@@ -80,6 +79,7 @@ export const communitiesSlice = createSlice({
         }
       })
     },
+    resetApp: (state, _action) => state,
     launchCommunity: (state, _action: PayloadAction<string>) => state,
     launchRegistrar: (state, _action: PayloadAction<string>) => state,
     updateRegistrationAttempts: (state, action: PayloadAction<UpdateRegistrationAttemptsPayload>) => {
@@ -89,6 +89,12 @@ export const communitiesSlice = createSlice({
           ...action.payload
         }
       })
+    },
+    handleInvitationCode: (state, _action: PayloadAction<string>) => {
+      state.invitationCode = _action.payload
+    },
+    clearInvitationCode: state => {
+      state.invitationCode = undefined
     }
   }
 })
