@@ -1004,7 +1004,7 @@ blockquote {
   display: -ms-flexbox;
   display: flex;
   width: 892px;
-  height: 75vh;
+  min-height: 75vh;
   margin-right: auto;
   margin-left: auto;
   padding: 152px 100px 112px;
