@@ -34,6 +34,15 @@ describe('ContextMenu component', () => {
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
         accessible={true}
         focusable={true}
         onClick={[Function]}
@@ -44,7 +53,7 @@ describe('ContextMenu component', () => {
         onResponderTerminationRequest={[Function]}
         onStartShouldSetResponder={[Function]}
         style={
-          Object {
+          {
             "display": "flex",
             "height": "100%",
             "position": "absolute",
@@ -54,12 +63,21 @@ describe('ContextMenu component', () => {
       >
         <View
           style={
-            Object {
+            {
               "flex": 4,
             }
           }
         />
         <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
           accessible={true}
           focusable={false}
           onClick={[Function]}
@@ -70,7 +88,7 @@ describe('ContextMenu component', () => {
           onResponderTerminationRequest={[Function]}
           onStartShouldSetResponder={[Function]}
           style={
-            Object {
+            {
               "alignItems": "flex-start",
               "backgroundColor": "#ffffff",
               "borderTopLeftRadius": 8,
@@ -80,7 +98,7 @@ describe('ContextMenu component', () => {
               "flex": 6,
               "flexDirection": "column",
               "shadowColor": "#000000",
-              "shadowOffset": Object {
+              "shadowOffset": {
                 "height": 7,
                 "width": 0,
               },
@@ -92,7 +110,7 @@ describe('ContextMenu component', () => {
         >
           <View
             style={
-              Object {
+              {
                 "alignItems": "center",
                 "display": "flex",
                 "flexDirection": "row",
@@ -102,6 +120,15 @@ describe('ContextMenu component', () => {
             }
           >
             <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
               accessible={true}
               focusable={true}
               onClick={[Function]}
@@ -112,7 +139,7 @@ describe('ContextMenu component', () => {
               onResponderTerminationRequest={[Function]}
               onStartShouldSetResponder={[Function]}
               style={
-                Object {
+                {
                   "alignItems": "center",
                   "flex": 1,
                   "height": 60,
@@ -125,12 +152,12 @@ describe('ContextMenu component', () => {
                 resizeMethod="resize"
                 resizeMode="cover"
                 source={
-                  Object {
+                  {
                     "testUri": "../../../assets/icons/icon_close.png",
                   }
                 }
                 style={
-                  Object {
+                  {
                     "height": 13,
                     "width": 13,
                   }
@@ -139,7 +166,7 @@ describe('ContextMenu component', () => {
             </View>
             <View
               style={
-                Object {
+                {
                   "flex": 5,
                   "justifyContent": "center",
                 }
@@ -151,15 +178,15 @@ describe('ContextMenu component', () => {
                 fontWeight="medium"
                 horizontalTextAlign="left"
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#000000",
                       "fontFamily": "Rubik-Medium",
                       "fontSize": 16,
                       "textAlign": "left",
                       "textAlignVertical": "center",
                     },
-                    Object {
+                    {
                       "alignSelf": "center",
                       "lineHeight": 26,
                     },
@@ -172,7 +199,7 @@ describe('ContextMenu component', () => {
             </View>
             <View
               style={
-                Object {
+                {
                   "flex": 1,
                 }
               }
@@ -180,7 +207,7 @@ describe('ContextMenu component', () => {
           </View>
           <View
             style={
-              Object {
+              {
                 "paddingBottom": 10,
                 "width": "100%",
               }
@@ -188,16 +215,16 @@ describe('ContextMenu component', () => {
           >
             <RCTScrollView
               data={
-                Array [
-                  Object {
+                [
+                  {
                     "action": [Function],
                     "title": "Create channel",
                   },
-                  Object {
+                  {
                     "action": [Function],
                     "title": "Add members",
                   },
-                  Object {
+                  {
                     "action": [Function],
                     "title": "Settings",
                   },
@@ -217,33 +244,43 @@ describe('ContextMenu component', () => {
               renderItem={[Function]}
               scrollEventThrottle={50}
               showsVerticalScrollIndicator={false}
-              stickyHeaderIndices={Array []}
+              stickyHeaderIndices={[]}
               style={
-                Object {
+                {
                   "backgroundColor": "#ffffff",
                 }
               }
-              viewabilityConfigCallbackPairs={Array []}
+              viewabilityConfigCallbackPairs={[]}
             >
               <View>
                 <View
+                  onFocusCapture={[Function]}
                   onLayout={[Function]}
                   style={null}
                 >
                   <View
                     style={
-                      Array [
-                        Object {
+                      [
+                        {
                           "borderColor": "#F0F0F0",
                           "borderTopWidth": 1,
                         },
-                        Object {
+                        {
                           "borderBottomWidth": 0,
                         },
                       ]
                     }
                   >
                     <View
+                      accessibilityState={
+                        {
+                          "busy": undefined,
+                          "checked": undefined,
+                          "disabled": undefined,
+                          "expanded": undefined,
+                          "selected": undefined,
+                        }
+                      }
                       accessible={true}
                       focusable={true}
                       onClick={[Function]}
@@ -254,7 +291,7 @@ describe('ContextMenu component', () => {
                       onResponderTerminationRequest={[Function]}
                       onStartShouldSetResponder={[Function]}
                       style={
-                        Object {
+                        {
                           "alignItems": "center",
                           "display": "flex",
                           "flexDirection": "row",
@@ -267,7 +304,7 @@ describe('ContextMenu component', () => {
                     >
                       <View
                         style={
-                          Object {
+                          {
                             "display": "flex",
                             "flex": 8,
                             "flexDirection": "row",
@@ -281,15 +318,15 @@ describe('ContextMenu component', () => {
                           fontWeight="normal"
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#000000",
                                 "fontFamily": "Rubik-Regular",
                                 "fontSize": 16,
                                 "textAlign": "left",
                                 "textAlignVertical": "center",
                               },
-                              Object {
+                              {
                                 "lineHeight": 26,
                               },
                             ]
@@ -301,7 +338,7 @@ describe('ContextMenu component', () => {
                       </View>
                       <View
                         style={
-                          Object {
+                          {
                             "display": "flex",
                             "flex": 1,
                             "flexDirection": "row",
@@ -313,12 +350,12 @@ describe('ContextMenu component', () => {
                           resizeMethod="resize"
                           resizeMode="cover"
                           source={
-                            Object {
+                            {
                               "testUri": "../../../assets/icons/arrow_right_short.png",
                             }
                           }
                           style={
-                            Object {
+                            {
                               "height": 13,
                               "width": 8,
                             }
@@ -329,23 +366,33 @@ describe('ContextMenu component', () => {
                   </View>
                 </View>
                 <View
+                  onFocusCapture={[Function]}
                   onLayout={[Function]}
                   style={null}
                 >
                   <View
                     style={
-                      Array [
-                        Object {
+                      [
+                        {
                           "borderColor": "#F0F0F0",
                           "borderTopWidth": 1,
                         },
-                        Object {
+                        {
                           "borderBottomWidth": 0,
                         },
                       ]
                     }
                   >
                     <View
+                      accessibilityState={
+                        {
+                          "busy": undefined,
+                          "checked": undefined,
+                          "disabled": undefined,
+                          "expanded": undefined,
+                          "selected": undefined,
+                        }
+                      }
                       accessible={true}
                       focusable={true}
                       onClick={[Function]}
@@ -356,7 +403,7 @@ describe('ContextMenu component', () => {
                       onResponderTerminationRequest={[Function]}
                       onStartShouldSetResponder={[Function]}
                       style={
-                        Object {
+                        {
                           "alignItems": "center",
                           "display": "flex",
                           "flexDirection": "row",
@@ -369,7 +416,7 @@ describe('ContextMenu component', () => {
                     >
                       <View
                         style={
-                          Object {
+                          {
                             "display": "flex",
                             "flex": 8,
                             "flexDirection": "row",
@@ -383,15 +430,15 @@ describe('ContextMenu component', () => {
                           fontWeight="normal"
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#000000",
                                 "fontFamily": "Rubik-Regular",
                                 "fontSize": 16,
                                 "textAlign": "left",
                                 "textAlignVertical": "center",
                               },
-                              Object {
+                              {
                                 "lineHeight": 26,
                               },
                             ]
@@ -403,7 +450,7 @@ describe('ContextMenu component', () => {
                       </View>
                       <View
                         style={
-                          Object {
+                          {
                             "display": "flex",
                             "flex": 1,
                             "flexDirection": "row",
@@ -415,12 +462,12 @@ describe('ContextMenu component', () => {
                           resizeMethod="resize"
                           resizeMode="cover"
                           source={
-                            Object {
+                            {
                               "testUri": "../../../assets/icons/arrow_right_short.png",
                             }
                           }
                           style={
-                            Object {
+                            {
                               "height": 13,
                               "width": 8,
                             }
@@ -431,23 +478,33 @@ describe('ContextMenu component', () => {
                   </View>
                 </View>
                 <View
+                  onFocusCapture={[Function]}
                   onLayout={[Function]}
                   style={null}
                 >
                   <View
                     style={
-                      Array [
-                        Object {
+                      [
+                        {
                           "borderColor": "#F0F0F0",
                           "borderTopWidth": 1,
                         },
-                        Object {
+                        {
                           "borderBottomWidth": 1,
                         },
                       ]
                     }
                   >
                     <View
+                      accessibilityState={
+                        {
+                          "busy": undefined,
+                          "checked": undefined,
+                          "disabled": undefined,
+                          "expanded": undefined,
+                          "selected": undefined,
+                        }
+                      }
                       accessible={true}
                       focusable={true}
                       onClick={[Function]}
@@ -458,7 +515,7 @@ describe('ContextMenu component', () => {
                       onResponderTerminationRequest={[Function]}
                       onStartShouldSetResponder={[Function]}
                       style={
-                        Object {
+                        {
                           "alignItems": "center",
                           "display": "flex",
                           "flexDirection": "row",
@@ -471,7 +528,7 @@ describe('ContextMenu component', () => {
                     >
                       <View
                         style={
-                          Object {
+                          {
                             "display": "flex",
                             "flex": 8,
                             "flexDirection": "row",
@@ -485,15 +542,15 @@ describe('ContextMenu component', () => {
                           fontWeight="normal"
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#000000",
                                 "fontFamily": "Rubik-Regular",
                                 "fontSize": 16,
                                 "textAlign": "left",
                                 "textAlignVertical": "center",
                               },
-                              Object {
+                              {
                                 "lineHeight": 26,
                               },
                             ]
@@ -505,7 +562,7 @@ describe('ContextMenu component', () => {
                       </View>
                       <View
                         style={
-                          Object {
+                          {
                             "display": "flex",
                             "flex": 1,
                             "flexDirection": "row",
@@ -517,12 +574,12 @@ describe('ContextMenu component', () => {
                           resizeMethod="resize"
                           resizeMode="cover"
                           source={
-                            Object {
+                            {
                               "testUri": "../../../assets/icons/arrow_right_short.png",
                             }
                           }
                           style={
-                            Object {
+                            {
                               "height": 13,
                               "width": 8,
                             }

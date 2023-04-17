@@ -2,7 +2,7 @@
   "name": "@quiet/mobile",
   "version": "1.2.0-alpha.27",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json --noEmit",
     "storybook-android": "ENVFILE=.env.storybook react-native run-android --variant=storybookDebug --appIdSuffix=storybook.debug",
     "storybook-ios": "ENVFILE=.env.storybook react-native run-ios",
     "android": "ENVFILE=.env.development react-native run-android --variant=standardDebug --appIdSuffix=debug",
@@ -74,9 +74,10 @@
     "typed-redux-saga": "^1.3.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9",
-    "@babel/preset-typescript": "^7.15.0",
-    "@babel/runtime": "^7.20.1",
+    "@babel/core": "^7.20.0",
+    "@babel/plugin-transform-flow-strip-types": "^7.21.0",
+    "@babel/preset-env": "^7.20.0",
+    "@babel/runtime": "^7.20.0",
     "@react-native-community/eslint-config": "^2.0.0",
     "@react-native-community/push-notification-ios": "^1.10.1",
     "@storybook/addon-actions": "^6.5.14",
@@ -84,7 +85,7 @@
     "@storybook/addon-ondevice-actions": "^5.3.23",
     "@storybook/addon-ondevice-knobs": "^5.3.26",
     "@storybook/react-native": "^5.3.27",
-    "@testing-library/react-native": "^7.2.0",
+    "@testing-library/react-native": "^12.0.0",
     "@types/chalk": "^2.2.0",
     "@types/jest": "^26.0.20",
     "@types/luxon": "^1.26.5",
@@ -92,11 +93,11 @@
     "@types/react-native": "^0.64.0",
     "@types/react-test-renderer": "^16.9.2",
     "@types/styled-components": "^5.1.9",
-    "babel-jest": "^26.6.3",
+    "babel-jest": "^29.2.1",
     "chalk": "^4.1.1",
     "emotion-theming": "^10.0.19",
     "eslint": "^7.32.0",
-    "jest": "^26.0.0",
+    "jest": "^29.0.0",
     "metro-react-native-babel-preset": "^0.72.3",
     "node-libs-react-native": "^1.2.1",
     "nodejs-mobile-gyp": "0.3.1",
@@ -121,21 +122,11 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/codegen/"
     ],
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ],
-    "rootDir": "src",
     "setupFiles": [
-      "../node_modules/react-native-gesture-handler/jestSetup.js",
       "./setupTests.ts"
     ],
     "transformIgnorePatterns": [
-      "<rootDir>/node_modules/(?!@react-native-mathjax-html-to-svg.*/)"
+      "/node_modules/(?!@react-native-mathjax-html-to-svg.*/)"
     ]
   }
 }

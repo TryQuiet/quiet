@@ -12,8 +12,8 @@ describe('Appbar component', () => {
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
-          Array [
-            Object {
+          [
+            {
               "backgroundColor": "#ffffff",
               "borderBottomColor": "#F0F0F0",
               "borderBottomWidth": 1,
@@ -26,6 +26,15 @@ describe('Appbar component', () => {
         }
       >
         <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
           accessible={true}
           focusable={true}
           onClick={[Function]}
@@ -36,7 +45,7 @@ describe('Appbar component', () => {
           onResponderTerminationRequest={[Function]}
           onStartShouldSetResponder={[Function]}
           style={
-            Object {
+            {
               "alignItems": "center",
               "justifyContent": "center",
               "width": 64,
@@ -47,12 +56,12 @@ describe('Appbar component', () => {
             resizeMethod="resize"
             resizeMode="cover"
             source={
-              Object {
+              {
                 "testUri": "../../../assets/icons/arrow_left.png",
               }
             }
             style={
-              Object {
+              {
                 "height": 16,
                 "width": 16,
               }
@@ -61,7 +70,7 @@ describe('Appbar component', () => {
         </View>
         <View
           style={
-            Object {
+            {
               "alignItems": "center",
               "flexGrow": 1,
               "justifyContent": "center",
@@ -74,8 +83,8 @@ describe('Appbar component', () => {
             fontWeight="medium"
             horizontalTextAlign="left"
             style={
-              Array [
-                Object {
+              [
+                {
                   "color": "#000000",
                   "fontFamily": "Rubik-Medium",
                   "fontSize": 16,
@@ -91,7 +100,7 @@ describe('Appbar component', () => {
         </View>
         <View
           style={
-            Object {
+            {
               "width": 64,
             }
           }
@@ -114,8 +123,8 @@ describe('Appbar component', () => {
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
-          Array [
-            Object {
+          [
+            {
               "backgroundColor": "#ffffff",
               "borderBottomColor": "#F0F0F0",
               "borderBottomWidth": 1,
@@ -128,6 +137,15 @@ describe('Appbar component', () => {
         }
       >
         <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
           accessible={true}
           focusable={true}
           onClick={[Function]}
@@ -138,7 +156,7 @@ describe('Appbar component', () => {
           onResponderTerminationRequest={[Function]}
           onStartShouldSetResponder={[Function]}
           style={
-            Object {
+            {
               "alignItems": "center",
               "justifyContent": "center",
               "width": 64,
@@ -147,7 +165,7 @@ describe('Appbar component', () => {
         >
           <View
             style={
-              Object {
+              {
                 "alignItems": "center",
                 "backgroundColor": "#67BFD3",
                 "borderRadius": 4,
@@ -162,8 +180,8 @@ describe('Appbar component', () => {
               fontSize={14}
               horizontalTextAlign="left"
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "color": "#ffffff",
                     "fontFamily": "Rubik-Regular",
                     "fontSize": 14,
@@ -180,7 +198,7 @@ describe('Appbar component', () => {
         </View>
         <View
           style={
-            Object {
+            {
               "alignItems": "flex-start",
               "flexGrow": 1,
               "justifyContent": "center",
@@ -193,8 +211,8 @@ describe('Appbar component', () => {
             fontWeight="medium"
             horizontalTextAlign="left"
             style={
-              Array [
-                Object {
+              [
+                {
                   "color": "#000000",
                   "fontFamily": "Rubik-Medium",
                   "fontSize": 16,
@@ -210,12 +228,21 @@ describe('Appbar component', () => {
         </View>
         <View
           style={
-            Object {
+            {
               "width": 64,
             }
           }
         />
         <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
           accessible={true}
           focusable={true}
           onClick={[Function]}
@@ -226,7 +253,7 @@ describe('Appbar component', () => {
           onResponderTerminationRequest={[Function]}
           onStartShouldSetResponder={[Function]}
           style={
-            Object {
+            {
               "alignItems": "center",
               "justifyContent": "center",
               "width": 64,
@@ -237,12 +264,12 @@ describe('Appbar component', () => {
             resizeMethod="resize"
             resizeMode="contain"
             source={
-              Object {
+              {
                 "testUri": "../../../assets/icons/dots.png",
               }
             }
             style={
-              Object {
+              {
                 "height": 16,
                 "width": 16,
               }
