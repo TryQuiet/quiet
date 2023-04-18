@@ -12,7 +12,7 @@ describe('LeaveCommunity component', () => {
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
-          Object {
+          {
             "backgroundColor": "#ffffff",
             "flex": 1,
           }
@@ -20,8 +20,8 @@ describe('LeaveCommunity component', () => {
       >
         <View
           style={
-            Array [
-              Object {
+            [
+              {
                 "backgroundColor": "#ffffff",
                 "borderBottomColor": "#F0F0F0",
                 "borderBottomWidth": 1,
@@ -34,6 +34,15 @@ describe('LeaveCommunity component', () => {
           }
         >
           <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
             accessible={true}
             focusable={true}
             onClick={[Function]}
@@ -44,7 +53,7 @@ describe('LeaveCommunity component', () => {
             onResponderTerminationRequest={[Function]}
             onStartShouldSetResponder={[Function]}
             style={
-              Object {
+              {
                 "alignItems": "center",
                 "justifyContent": "center",
                 "width": 64,
@@ -55,12 +64,12 @@ describe('LeaveCommunity component', () => {
               resizeMethod="resize"
               resizeMode="cover"
               source={
-                Object {
+                {
                   "testUri": "../../../assets/icons/arrow_left.png",
                 }
               }
               style={
-                Object {
+                {
                   "height": 16,
                   "width": 16,
                 }
@@ -69,7 +78,7 @@ describe('LeaveCommunity component', () => {
           </View>
           <View
             style={
-              Object {
+              {
                 "alignItems": "center",
                 "flexGrow": 1,
                 "justifyContent": "center",
@@ -82,8 +91,8 @@ describe('LeaveCommunity component', () => {
               fontWeight="medium"
               horizontalTextAlign="left"
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "color": "#000000",
                     "fontFamily": "Rubik-Medium",
                     "fontSize": 16,
@@ -99,7 +108,7 @@ describe('LeaveCommunity component', () => {
           </View>
           <View
             style={
-              Object {
+              {
                 "width": 64,
               }
             }
@@ -107,7 +116,7 @@ describe('LeaveCommunity component', () => {
         </View>
         <View
           style={
-            Object {
+            {
               "padding": 24,
             }
           }
@@ -119,8 +128,8 @@ describe('LeaveCommunity component', () => {
               fontWeight="medium"
               horizontalTextAlign="left"
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "color": "#000000",
                     "fontFamily": "Rubik-Medium",
                     "fontSize": 18,
@@ -136,7 +145,7 @@ describe('LeaveCommunity component', () => {
           </View>
           <View
             style={
-              Object {
+              {
                 "paddingTop": 16,
               }
             }
@@ -146,8 +155,8 @@ describe('LeaveCommunity component', () => {
               fontSize={14}
               horizontalTextAlign="left"
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "color": "#000000",
                     "fontFamily": "Rubik-Regular",
                     "fontSize": 14,
@@ -166,8 +175,8 @@ describe('LeaveCommunity component', () => {
                 fontWeight="medium"
                 horizontalTextAlign="left"
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#000000",
                       "fontFamily": "Rubik-Medium",
                       "fontSize": 14,
@@ -186,12 +195,21 @@ describe('LeaveCommunity component', () => {
           </View>
           <View
             style={
-              Object {
+              {
                 "paddingTop": 16,
               }
             }
           >
             <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
               accessible={true}
               focusable={true}
               onClick={[Function]}
@@ -202,7 +220,7 @@ describe('LeaveCommunity component', () => {
               onResponderTerminationRequest={[Function]}
               onStartShouldSetResponder={[Function]}
               style={
-                Object {
+                {
                   "alignItems": "center",
                   "backgroundColor": "#521C74",
                   "borderRadius": 5,
@@ -218,8 +236,8 @@ describe('LeaveCommunity component', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#ffffff",
                       "fontFamily": "Rubik-Regular",
                       "fontSize": 14,
@@ -236,6 +254,15 @@ describe('LeaveCommunity component', () => {
           </View>
           <View>
             <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
               accessible={true}
               focusable={true}
               onClick={[Function]}
@@ -246,7 +273,7 @@ describe('LeaveCommunity component', () => {
               onResponderTerminationRequest={[Function]}
               onStartShouldSetResponder={[Function]}
               style={
-                Object {
+                {
                   "alignItems": "center",
                   "backgroundColor": "transparent",
                   "borderRadius": 5,
@@ -262,8 +289,8 @@ describe('LeaveCommunity component', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#7F7F7F",
                       "fontFamily": "Rubik-Regular",
                       "fontSize": 14,

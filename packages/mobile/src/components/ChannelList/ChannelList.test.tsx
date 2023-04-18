@@ -263,6 +263,7 @@ describe('ChannelList component', () => {
                     "padding": 16,
                   }
                 }
+                testID="channel_tile_general"
               >
                 <View
                   style={
@@ -465,6 +466,7 @@ describe('ChannelList component', () => {
                     "padding": 16,
                   }
                 }
+                testID="channel_tile_spam"
               >
                 <View
                   style={
@@ -667,6 +669,7 @@ describe('ChannelList component', () => {
                     "padding": 16,
                   }
                 }
+                testID="channel_tile_design"
               >
                 <View
                   style={
@@ -903,6 +906,7 @@ describe('ChannelList component', () => {
                     "padding": 16,
                   }
                 }
+                testID="channel_tile_qa"
               >
                 <View
                   style={

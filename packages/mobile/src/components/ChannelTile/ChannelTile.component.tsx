@@ -15,6 +15,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({
 }) => {
   return (
     <TouchableWithoutFeedback
+      testID={`channel_tile_${name}`}
       onPress={() => {
         redirect(address)
       }}>
