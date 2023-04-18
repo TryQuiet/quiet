@@ -104,7 +104,7 @@ describe('New user joins using invitation link while having app opened', () => {
       // MacOS tries to open link in first app (owner's app) so the workaround is to temporarly close owner
       // while clicking on the invitation link to have just one instance of app opened
       it('Owner closes the app', async () => {
-        await ownerApp.close()
+        await ownerApp.close({ forceSaveState: true })
       })
     }
 

@@ -15,9 +15,9 @@ export class App {
     await this.driver.getSession()
   }
 
-  async close(forceSaveState: boolean = false) {
-    if (forceSaveState) {
-      await this.saveState() // Selenium creates community and closes app so fast that redux state is not saved properly
+  async close(options?: {forceSaveState?: boolean}) {
+    if (options?.forceSaveState) {
+      await this.saveState() // Selenium creates community and closes app so fast that redux state may not be saved properly
       await this.waitForSavedState()
     }
     await this.buildSetup.closeDriver()
