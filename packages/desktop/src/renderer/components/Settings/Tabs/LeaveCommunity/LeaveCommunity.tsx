@@ -11,7 +11,7 @@ import { clearCommunity } from '../../../..'
 import { useModal } from '../../../../containers/hooks'
 import { ModalName } from '../../../../sagas/modals/modals.types'
 
-import { capitalizeFirstLetter } from '../../../../../utils/functions/capitalize'
+import { capitalizeFirstLetter } from '@quiet/common'
 
 export const LeaveCommunity: React.FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)

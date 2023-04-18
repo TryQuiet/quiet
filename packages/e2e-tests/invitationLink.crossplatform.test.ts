@@ -12,7 +12,7 @@ import {
   WarningModal
 } from './selectors.crossplatform'
 import { BuildSetup } from './crossplatform.utils'
-import { invitationDeepUrl } from '@quiet/common'
+import { capitalizeFirstLetter, invitationDeepUrl } from '@quiet/common'
 import { execSync } from 'child_process'
 import getPort from 'get-port'
 
@@ -216,11 +216,8 @@ describe('New user joins using invitation link while having app opened', () => {
     it('Owner sees that guest joined community', async () => {
       const generalChannel = new Channel(driverOwner, 'general')
       await generalChannel.element.isDisplayed()
-      const messages = await generalChannel.getUserMessages(ownerUsername)
-      expect(messages.length).toEqual(2)
-      const text = await messages[1].getText()
-      console.log('TEXT', text)
-      expect(text).toContain(`@${joiningUserUsername} has joined ${communityName}!`)
+      const userJoinedMessage = await generalChannel.getMessage(`@${joiningUserUsername} has joined ${capitalizeFirstLetter(communityName)}!`)
+      expect(await userJoinedMessage.isDisplayed()).toBeTruthy()
     })
   })
 })

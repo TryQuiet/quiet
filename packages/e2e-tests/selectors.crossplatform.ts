@@ -200,6 +200,12 @@ export class Channel {
       until.elementsLocated(By.xpath(`//*[contains(@data-testid, "userMessages-${username}")]`))
     )
   }
+
+  async getMessage(text: string) {
+    return await this.driver.wait(
+      until.elementLocated(By.xpath(`//span[contains(text(),"${text}")]`))
+    )
+  }
 }
 export class Sidebar {
   private readonly driver: ThenableWebDriver
