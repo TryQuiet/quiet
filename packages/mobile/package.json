@@ -126,7 +126,7 @@
       "<rootDir>/codegen/"
     ],
     "setupFiles": [
-      "./setupTests.ts"
+      "./src/setupTests.ts"
     ],
     "setupFilesAfterEnv": [
       "@testing-library/jest-native/extend-expect"
