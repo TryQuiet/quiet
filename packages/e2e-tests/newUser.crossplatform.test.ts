@@ -29,7 +29,7 @@ describe('New User', () => {
 
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
-  const ownerMessages = ['Hi']
+  const ownerMessages = ['Hi', 'After guest leave app']
   const joiningUserUsername = 'alice-joining'
   const joiningUserMessages = ['Nice to meet you all']
   beforeAll(async () => {
@@ -44,9 +44,6 @@ describe('New User', () => {
   afterAll(async () => {
     await buildSetup.closeDriver()
     await buildSetup.killChromeDriver()
-
-    await buildSetup2.closeDriver()
-    await buildSetup2.killChromeDriver()
   })
   describe('Stages:', () => {
     if (process.env.TEST_MODE) {
@@ -173,6 +170,20 @@ describe('New User', () => {
       const messages2 = await generalChannel2.getUserMessages(joiningUserUsername)
       const text2 = await messages2[0].getText()
       expect(text2).toEqual(joiningUserMessages[0])
+    })
+    it('Guest close app', async () => {
+      await buildSetup2.closeDriver()
+      await buildSetup2.killChromeDriver()
+    })
+    it('Owner send another message after guest leave app', async () => {
+      const isMessageInput = await generalChannel.messageInput.isDisplayed()
+      expect(isMessageInput).toBeTruthy()
+      await generalChannel.sendMessage(ownerMessages[1])
+    })
+    it('Check if message is visible for owner', async () => {
+      const messages = await generalChannel.getUserMessages(ownerUsername)
+      const text = await messages[messages.length - 1].getText()
+      expect(text).toEqual(ownerMessages[1])
     })
   })
 })
