@@ -25,6 +25,7 @@ import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
 import { LeaveCommunity } from './components/Settings/Tabs/LeaveCommunity/LeaveCommunity'
 import SearchModal from './components/SearchModal/SearchModal'
 import WarningModal from './containers/widgets/WarningModal/WarningModal'
+import { SaveStateComponent } from './components/SaveState/SaveStateComponent'
 // Trigger lerna
 export const persistor = persistStore(store)
 export default () => {
@@ -53,11 +54,7 @@ export default () => {
                   <Route index path='/' element={<Index />} />
                   <Route path='/main/*' element={<Main />} />
                 </Routes>
-                <div id='save-state-button' data-testid='save-state-button' data-is-saved='false' onClick={async () => {
-                  await persistor.flush()
-                  const element = document.getElementById('save-state-button')
-                  element.setAttribute('data-is-saved', 'true')
-                }}/>
+                <SaveStateComponent persistor={persistor} />
               </PersistGate>
             </Provider>
           </HashRouter>

@@ -1,9 +1,28 @@
 import { By, Key, ThenableWebDriver, until } from 'selenium-webdriver'
+import { BuildSetup } from './crossplatform.utils'
+import getPort from 'get-port'
 
 export class App {
-  private readonly driver: ThenableWebDriver
-  constructor(driver: ThenableWebDriver) {
-    this.driver = driver
+  driver: ThenableWebDriver
+  private buildSetup
+  dataDir: string
+  constructor(buildSetupConfig?) {
+    this.buildSetup = new BuildSetup({ ...buildSetupConfig })
+  }
+
+  async open() {
+    await this.buildSetup.createChromeDriver()
+    this.driver = this.buildSetup.getDriver()
+    await this.driver.getSession()
+  }
+
+  async close(forceSaveState: boolean = false) {
+    if (forceSaveState) {
+      await this.saveState() // Selenium creates community and closes app so fast that redux state is not saved properly
+      await this.waitForSavedState()
+    }
+    await this.buildSetup.closeDriver()
+    await this.buildSetup.killChromeDriver()
   }
 
   get saveStateButton() {
@@ -13,6 +32,7 @@ export class App {
   }
 
   async saveState() {
+    console.log('Saving redux state')
     const stateButton = await this.saveStateButton
     await this.driver.executeScript('arguments[0].click();', stateButton)
   }

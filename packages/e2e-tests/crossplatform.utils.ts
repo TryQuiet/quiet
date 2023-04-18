@@ -1,5 +1,6 @@
 import { Browser, Builder, ThenableWebDriver } from 'selenium-webdriver'
 import { spawn, exec, ChildProcessWithoutNullStreams } from 'child_process'
+import getPort from 'get-port'
 
 export class BuildSetup {
   private driver: ThenableWebDriver
@@ -11,11 +12,23 @@ export class BuildSetup {
   private child: ChildProcessWithoutNullStreams
   private useDataDir: boolean
 
-  constructor({ port, debugPort, useDataDir = true, dataDir }: {port: number; debugPort: number; useDataDir?: boolean; dataDir?: string}) {
+  constructor({ port, debugPort, useDataDir = true, dataDir }: {port?: number; debugPort?: number; useDataDir?: boolean; dataDir?: string}) {
     this.port = port
     this.debugPort = debugPort
     this.useDataDir = useDataDir
     this.dataDir = dataDir
+    if (this.useDataDir && !this.dataDir) {
+      this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
+    }
+  }
+
+  async initPorts() {
+    if (!this.port) {
+      this.port = await getPort()
+    }
+    if (!this.debugPort) {
+      this.debugPort = await getPort()
+    }
   }
 
   private getBinaryLocation() {
@@ -32,10 +45,7 @@ export class BuildSetup {
   }
 
   public async createChromeDriver() {
-    if (this.useDataDir && !this.dataDir) {
-      this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
-    }
-
+    await this.initPorts()
     if (process.platform === 'win32') {
       console.log('!WINDOWS!')
       this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port}`, [], {
@@ -116,7 +126,7 @@ export class BuildSetup {
           .withCapabilities({
             'goog:chromeOptions': {
               binary: binary,
-              args: [`--remote-debugging-port=${this.debugPort}`]
+              args: [`--remote-debugging-port=${this.debugPort}`, '--enable-debugging']
             }
           })
           .forBrowser(Browser.CHROME)
