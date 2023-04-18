@@ -2,6 +2,13 @@ import { Browser, Builder, ThenableWebDriver } from 'selenium-webdriver'
 import { spawn, exec, ChildProcessWithoutNullStreams } from 'child_process'
 import getPort from 'get-port'
 
+export interface BuildSetupInit {
+  port?: number
+  debugPort?: number
+  useDataDir?: boolean
+  dataDir?: string
+}
+
 export class BuildSetup {
   private driver: ThenableWebDriver
   public containerId: string
@@ -12,7 +19,7 @@ export class BuildSetup {
   private child: ChildProcessWithoutNullStreams
   private useDataDir: boolean
 
-  constructor({ port, debugPort, useDataDir = true, dataDir }: {port?: number; debugPort?: number; useDataDir?: boolean; dataDir?: string}) {
+  constructor({ port, debugPort, useDataDir = true, dataDir }: BuildSetupInit) {
     this.port = port
     this.debugPort = debugPort
     this.useDataDir = useDataDir

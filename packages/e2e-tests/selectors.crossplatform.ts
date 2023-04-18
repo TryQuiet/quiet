@@ -1,12 +1,11 @@
 import { By, Key, ThenableWebDriver, until } from 'selenium-webdriver'
-import { BuildSetup } from './crossplatform.utils'
-import getPort from 'get-port'
+import { BuildSetup, BuildSetupInit } from './crossplatform.utils'
 
 export class App {
   driver: ThenableWebDriver
-  private buildSetup
+  private buildSetup: BuildSetup
   dataDir: string
-  constructor(buildSetupConfig?) {
+  constructor(buildSetupConfig?: BuildSetupInit) {
     this.buildSetup = new BuildSetup({ ...buildSetupConfig })
   }
 
