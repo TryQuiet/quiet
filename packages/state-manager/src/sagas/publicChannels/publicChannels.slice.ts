@@ -20,7 +20,9 @@ import {
   MarkUnreadChannelPayload,
   SendNewUserInfoMessagePayload,
   SetChannelSubscribedPayload,
-  UpdateNewestMessagePayload
+  UpdateNewestMessagePayload,
+  DeleteChannelPayload,
+  DeletedChannelPayload
 } from './publicChannels.types'
 
 import logger from '../../utils/logger'
@@ -45,6 +47,8 @@ export const publicChannelsSlice = createSlice({
   name: StoreKeys.PublicChannels,
   reducers: {
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
+    deleteChannel: (state, _action: PayloadAction<DeleteChannelPayload>) => state,
+    deletedChannel: (state, _action: PayloadAction<DeletedChannelPayload>) => state,
     createGeneralChannel: state => state,
     sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
     sendNewUserInfoMessage: (state, _action: PayloadAction<SendNewUserInfoMessagePayload>) => state,

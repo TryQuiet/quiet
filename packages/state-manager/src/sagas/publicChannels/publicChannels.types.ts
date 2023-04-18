@@ -57,6 +57,13 @@ export interface CreateChannelPayload {
   channel: PublicChannel
 }
 
+export interface DeleteChannelPayload {
+  channel: string
+}
+export interface DeletedChannelPayload {
+  channel: string
+}
+
 export interface CreatedChannelResponse {
   channel: PublicChannel
 }

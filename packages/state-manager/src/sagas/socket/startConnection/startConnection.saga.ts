@@ -54,6 +54,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>
     | ReturnType<typeof publicChannelsActions.channelsReplicated>
     | ReturnType<typeof publicChannelsActions.createGeneralChannel>
+    | ReturnType<typeof publicChannelsActions.deletedChannel>
     | ReturnType<typeof usersActions.responseSendCertificates>
     | ReturnType<typeof communitiesActions.responseCreateNetwork>
     | ReturnType<typeof errorsActions.addError>
@@ -119,6 +120,10 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
       emit(publicChannelsActions.setChannelSubscribed(payload))
+    })
+    socket.on(SocketActionTypes.DELETED_CHANNEL, (payload: any) => {
+      console.log('start connection saga deleted channel')
+      emit(publicChannelsActions.deletedChannel(payload))
     })
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       emit(
