@@ -6,6 +6,7 @@ import {
   JoinCommunityModal,
   JoiningLoadingPanel,
   RegisterUsernameModal,
+  App,
   Sidebar,
   StartingLoadingPanel,
   WarningModal
@@ -21,11 +22,10 @@ describe('New user joins using invitation link while having app opened', () => {
   // Note: this test requires no DATA_DIR env so ran on local machine may interfere with 'Quiet' data directory
   let buildSetupOwner: BuildSetup
   let driverOwner: ThenableWebDriver
-
   let buildSetupGuest: BuildSetup
   let driverGuest: ThenableWebDriver
-
   let invitationCode: string
+  let dataDirOwner: string
 
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
@@ -35,6 +35,7 @@ describe('New user joins using invitation link while having app opened', () => {
     const debugPort = await getPort()
     buildSetupOwner = new BuildSetup({ port, debugPort })
     await buildSetupOwner.createChromeDriver()
+    dataDirOwner = buildSetupOwner.dataDir
     driverOwner = buildSetupOwner.getDriver()
     await driverOwner.getSession()
   })
@@ -42,9 +43,8 @@ describe('New user joins using invitation link while having app opened', () => {
   afterAll(async () => {
     await buildSetupOwner.closeDriver()
     await buildSetupOwner.killChromeDriver()
-
-    await buildSetupGuest.closeDriver()
-    await buildSetupGuest.killChromeDriver()
+    buildSetupGuest && await buildSetupGuest.closeDriver()
+    buildSetupGuest && await buildSetupGuest.killChromeDriver()
   })
   describe('Stages:', () => {
     if (process.env.TEST_MODE) {
@@ -104,11 +104,24 @@ describe('New user joins using invitation link while having app opened', () => {
       await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
       const invitationCodeElement = await settingsModal.invitationCode()
       invitationCode = await invitationCodeElement.getText()
-      console.log('Received invitation code:', invitationCode)
+      console.log('Received invitation link:', invitationCode)
       await settingsModal.close()
     })
 
+    if (process.platform === 'darwin') {
+      // MacOS tries to open link in first app (owner's app) so the workaround is to temporarly close owner
+      // while clicking on the invitation link to have just one instance of app opened
+      it('Owner closes the app', async () => {
+        const root = new App(driverOwner)
+        await root.saveState() // Selenium creates community and closes app so fast that redux state is not saved properly
+        await root.waitForSavedState()
+        await buildSetupOwner.closeDriver()
+        await buildSetupOwner.killChromeDriver()
+      })
+    }
+
     it('Guest opens the app', async () => {
+      console.log('Guest opens app')
       const port = await getPort()
       const debugPort = await getPort()
       buildSetupGuest = new BuildSetup({ port, debugPort, useDataDir: false })
@@ -152,19 +165,62 @@ describe('New user joins using invitation link while having app opened', () => {
         win32: 'start'
       }
       execSync(`${command[process.platform]} ${invitationDeepUrl(url.hash.substring(1))}`)
+      console.log('Guest opened invitation link')
     })
 
-    it('Guest is redirected to UsernameModal and submits username', async () => {
+    it('Guest is redirected to UsernameModal', async () => {
+      console.log('Guest sees username modal')
       const registerModal = new RegisterUsernameModal(driverGuest)
       const isRegisterModalDisplayed = await registerModal.element.isDisplayed()
       expect(isRegisterModalDisplayed).toBeTruthy()
+    })
+
+    it('Guest submits username', async () => {
+      console.log('Guest submits username')
+      const registerModal = new RegisterUsernameModal(driverGuest)
       await registerModal.typeUsername(joiningUserUsername)
       await registerModal.submit()
     })
 
+    if (process.platform === 'darwin') {
+      // Open the owner's app again so guest would be able to register
+      it('Owner opens the app again', async () => {
+        console.log('Owner opens the app again')
+        const port = await getPort()
+        const debugPort = await getPort()
+        buildSetupOwner = new BuildSetup({ port, debugPort, dataDir: dataDirOwner })
+        await buildSetupOwner.createChromeDriver()
+        driverOwner = buildSetupOwner.getDriver()
+        await driverOwner.getSession()
+      })
+      if (process.env.TEST_MODE) {
+        it('Owner closes debug modal', async () => {
+          const debugModal = new DebugModeModal(driverOwner)
+          await debugModal.close()
+        })
+      }
+      it('Owner sees starting panel', async () => {
+        console.log('Owner sees starting panel')
+        const loadingPanel = new StartingLoadingPanel(driverOwner)
+        const isLoadingPanel = await loadingPanel.element.isDisplayed()
+        expect(isLoadingPanel).toBeTruthy()
+      })
+    }
+
     it('Guest joined a community and sees general channel', async () => {
+      console.log('guest sees general channel')
       const generalChannel = new Channel(driverGuest, 'general')
       await generalChannel.element.isDisplayed()
+    })
+
+    it('Owner sees that guest joined community', async () => {
+      const generalChannel = new Channel(driverOwner, 'general')
+      await generalChannel.element.isDisplayed()
+      const messages = await generalChannel.getUserMessages(ownerUsername)
+      expect(messages.length).toEqual(2)
+      const text = await messages[1].getText()
+      console.log('TEXT', text)
+      expect(text).toContain(`@${joiningUserUsername} has joined ${communityName}!`)
     })
   })
 })

@@ -53,6 +53,11 @@ export default () => {
                   <Route index path='/' element={<Index />} />
                   <Route path='/main/*' element={<Main />} />
                 </Routes>
+                <div id='save-state-button' data-testid='save-state-button' data-is-saved='false' onClick={async () => {
+                  await persistor.flush()
+                  const element = document.getElementById('save-state-button')
+                  element.setAttribute('data-is-saved', 'true')
+                }}/>
               </PersistGate>
             </Provider>
           </HashRouter>

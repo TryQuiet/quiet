@@ -1,4 +1,30 @@
 import { By, Key, ThenableWebDriver, until } from 'selenium-webdriver'
+
+export class App {
+  private readonly driver: ThenableWebDriver
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get saveStateButton() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-testid="save-state-button"]'))
+    )
+  }
+
+  async saveState() {
+    const stateButton = await this.saveStateButton
+    await this.driver.executeScript('arguments[0].click();', stateButton)
+  }
+
+  async waitForSavedState() {
+    const dataSaved = this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-is-saved="true"]'))
+    )
+    return await dataSaved
+  }
+}
+
 export class StartingLoadingPanel {
   private readonly text: string
   private readonly driver: ThenableWebDriver

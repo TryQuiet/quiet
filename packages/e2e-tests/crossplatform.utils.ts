@@ -11,10 +11,11 @@ export class BuildSetup {
   private child: ChildProcessWithoutNullStreams
   private useDataDir: boolean
 
-  constructor({ port, debugPort, useDataDir = true }: {port: number; debugPort: number; useDataDir?: boolean}) {
+  constructor({ port, debugPort, useDataDir = true, dataDir }: {port: number; debugPort: number; useDataDir?: boolean; dataDir?: string}) {
     this.port = port
     this.debugPort = debugPort
     this.useDataDir = useDataDir
+    this.dataDir = dataDir
   }
 
   private getBinaryLocation() {
@@ -31,7 +32,7 @@ export class BuildSetup {
   }
 
   public async createChromeDriver() {
-    if (this.useDataDir) {
+    if (this.useDataDir && !this.dataDir) {
       this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
     }
 
