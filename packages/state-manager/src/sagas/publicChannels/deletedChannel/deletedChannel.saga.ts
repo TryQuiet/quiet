@@ -5,6 +5,8 @@ import { SocketActionTypes } from '../../socket/const/actionTypes'
 import logger from '../../../utils/logger'
 import { select, put } from 'typed-redux-saga'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
+import { messagesActions } from '../../messages/messages.slice'
+
 const log = logger('publicChannels')
 
 export function* deletedChannelSaga(
@@ -18,6 +20,9 @@ export function* deletedChannelSaga(
 
   // Clear messages cache
   yield* put(publicChannelsActions.clearMessagesCache({ channelAddress }))
+
+  // Delete messages
+  yield* put(messagesActions.deleteMessages({ channelAddress }))
 
   // Delete channel
   yield* put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))

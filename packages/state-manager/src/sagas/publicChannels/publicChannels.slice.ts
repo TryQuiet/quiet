@@ -24,7 +24,7 @@ import {
   DeleteChannelPayload,
   DeletedChannelPayload,
   DeleteChannelFromStorePayload,
-  ClearMessagesCachePayload,
+  ClearMessagesCachePayload
 } from './publicChannels.types'
 
 import logger from '../../utils/logger'
@@ -53,8 +53,10 @@ export const publicChannelsSlice = createSlice({
     // _________________________
     deleteChannelFromStore: (state, action: PayloadAction<DeleteChannelFromStorePayload>) => {
       console.log('deleteChannelFromStore')
-
       const { channelAddress } = action.payload
+
+      publicChannelsSubscriptionsAdapter.removeOne(state.channelsSubscriptions, channelAddress)
+      publicChannelsStatusAdapter.removeOne(state.channelsStatus, channelAddress)
       publicChannelsAdapter.removeOne(state.channels, channelAddress)
     },
     clearMessagesCache: (state, action: PayloadAction<ClearMessagesCachePayload>) => {
