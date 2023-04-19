@@ -466,7 +466,6 @@ export class Storage extends EventEmitter {
       this.emit(StorageEvents.CREATED_CHANNEL, {
         channel: data
       })
-      await this.channels.del(data.address, {})
     }
 
     this.publicChannelsRepos.set(data.address, { db, eventsAttached: false })
@@ -479,17 +478,19 @@ export class Storage extends EventEmitter {
 
   public async deleteChannel(payload) {
     console.log('deleting channel storage', payload)
-    const channel =  this.channels.get(payload.channel)
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.channels.load({ fetchEntryTimeout: 15000 })
+    const channel = this.channels.get(payload.channel)
     if (channel) {
-      this.channels.del(payload.address)
+      this.channels.del(payload.channel)
     }
     // Send message to channel that it has been deleted, but how to ensure that everyone replicated
     // Create special channel for mod messages
     const repo = this.publicChannelsRepos.get(payload.channel)
     await repo.db.close()
     await repo.db.drop()
+    this.publicChannelsRepos.delete(payload.channel)
     this.emit(StorageEvents.DELETED_CHANNEL, payload)
-    // Come up with a better name
   }
 
   public async sendMessage(message: ChannelMessage) {
@@ -513,7 +514,7 @@ export class Storage extends EventEmitter {
 
   private attachFileManagerEvents = () => {
     this.filesManager.on(IpfsFilesManagerEvents.UPDATE_DOWNLOAD_PROGRESS, (status) => {
-          this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, status)
+      this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, status)
     })
     this.filesManager.on(IpfsFilesManagerEvents.UPDATE_MESSAGE_MEDIA, (messageMedia) => {
       this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, messageMedia)
