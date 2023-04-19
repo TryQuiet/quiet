@@ -112,6 +112,14 @@ export interface UpdateNewestMessagePayload {
   message: ChannelMessage
 }
 
+export interface DeleteChannelFromStorePayload {
+  channelAddress: string
+}
+
+export interface ClearMessagesCachePayload {
+  channelAddress: string
+}
+
 export function instanceOfChannelMessage(object: any): object is ChannelMessage {
   return 'channelAddress' in object
 }
