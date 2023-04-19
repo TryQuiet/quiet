@@ -25,6 +25,7 @@ import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
 import { LeaveCommunity } from './components/Settings/Tabs/LeaveCommunity/LeaveCommunity'
 import SearchModal from './components/SearchModal/SearchModal'
 import WarningModal from './containers/widgets/WarningModal/WarningModal'
+import { SaveStateComponent } from './components/SaveState/SaveStateComponent'
 // Trigger lerna
 export const persistor = persistStore(store)
 export default () => {
@@ -53,6 +54,7 @@ export default () => {
                   <Route index path='/' element={<Index />} />
                   <Route path='/main/*' element={<Main />} />
                 </Routes>
+                <SaveStateComponent persistor={persistor} />
               </PersistGate>
             </Provider>
           </HashRouter>
