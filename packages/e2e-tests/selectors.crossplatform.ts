@@ -10,6 +10,7 @@ export class App {
   }
 
   async open() {
+    this.buildSetup.resetDriver()
     await this.buildSetup.createChromeDriver()
     this.driver = this.buildSetup.getDriver()
     await this.driver.getSession()

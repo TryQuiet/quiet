@@ -30,12 +30,8 @@ export class BuildSetup {
   }
 
   async initPorts() {
-    if (!this.port) {
-      this.port = await getPort()
-    }
-    if (!this.debugPort) {
-      this.debugPort = await getPort()
-    }
+    this.port = await getPort()
+    this.debugPort = await getPort()
   }
 
   private getBinaryLocation() {
@@ -146,13 +142,17 @@ export class BuildSetup {
     return this.driver
   }
 
+  public resetDriver() {
+    this.driver = null
+  }
+
   public async killChromeDriver() {
     console.log('kill')
-    this.child.kill()
+    this.child?.kill()
     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
   }
 
   public async closeDriver() {
-    await this.driver.close()
+    await this.driver?.close()
   }
 }
