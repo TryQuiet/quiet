@@ -27,6 +27,7 @@ import SearchModal from './components/SearchModal/SearchModal'
 import WarningModal from './containers/widgets/WarningModal/WarningModal'
 import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
 import { DeleteChannel } from './components/Channel/DeleteChannel/DeleteChannel'
+import ChannelCreationModal from './components/ChannelCreationModal/ChannelCreationModal'
 
 export const persistor = persistStore(store)
 export default () => {
@@ -42,6 +43,7 @@ export default () => {
                 <SearchModal />
                 <ErrorModal />
                 <LoadingPanel />
+                <ChannelCreationModal/>
                 <CreateChannel />
                 <JoinCommunity />
                 <CreateCommunity />

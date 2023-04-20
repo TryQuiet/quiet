@@ -31,6 +31,10 @@ const selectChannelsSubscriptions = createSelector(selectState, (state) => {
   return publicChannelsSubscriptionsAdapter.getSelectors().selectAll(state.channelsSubscriptions)
 })
 
+const isGeneralRecreation = createSelector(selectState, state => {
+  return state.isGeneralRecreation
+})
+
 export const subscribedChannels = createSelector(
   selectChannelsSubscriptions,
   (subscriptions) => {
@@ -282,5 +286,6 @@ export const publicChannelsSelectors = {
   channelsStatus,
   channelsStatusSorted,
   dynamicSearchedChannels,
-  sortedChannels
+  sortedChannels,
+  isGeneralRecreation
 }

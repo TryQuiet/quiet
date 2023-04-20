@@ -33,6 +33,7 @@ const log = logger('publicChannels')
 
 export class PublicChannelsState {
   public currentChannelAddress: string = 'general'
+  public isGeneralRecreation: boolean = false
 
   public channels: EntityState<PublicChannelStorage> = publicChannelsAdapter.getInitialState()
 
@@ -64,6 +65,12 @@ export const publicChannelsSlice = createSlice({
 
       const { channelAddress } = action.payload
       channelMessagesAdapter.setAll(state.channels.entities[channelAddress].messages, [])
+    },
+    startGeneralRecreation: state => {
+      state.isGeneralRecreation = true
+    },
+    finishGeneralRecreation: state => {
+      state.isGeneralRecreation = false
     },
     // _________________________
     createGeneralChannel: state => state,
