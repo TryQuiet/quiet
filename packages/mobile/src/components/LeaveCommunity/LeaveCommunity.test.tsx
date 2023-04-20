@@ -59,6 +59,7 @@ describe('LeaveCommunity component', () => {
                 "width": 64,
               }
             }
+            testID="appbar_action_item"
           >
             <Image
               resizeMethod="resize"
@@ -230,6 +231,7 @@ describe('LeaveCommunity component', () => {
                   "paddingVertical": 12,
                 }
               }
+              testID="button"
             >
               <Text
                 color="white"
@@ -283,6 +285,7 @@ describe('LeaveCommunity component', () => {
                   "paddingVertical": 12,
                 }
               }
+              testID="button"
             >
               <Text
                 color="gray50"

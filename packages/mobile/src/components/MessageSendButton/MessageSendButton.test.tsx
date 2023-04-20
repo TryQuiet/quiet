@@ -33,6 +33,7 @@ describe('MessageSendButton component', () => {
             "justifyContent": "center",
           }
         }
+        testID="send_message_button"
       >
         <Image
           resizeMethod="resize"

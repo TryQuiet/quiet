@@ -51,6 +51,7 @@ describe('Appbar component', () => {
               "width": 64,
             }
           }
+          testID="appbar_action_item"
         >
           <Image
             resizeMethod="resize"
@@ -162,6 +163,7 @@ describe('Appbar component', () => {
               "width": 64,
             }
           }
+          testID="appbar_action_item"
         >
           <View
             style={
@@ -259,6 +261,7 @@ describe('Appbar component', () => {
               "width": 64,
             }
           }
+          testID="open_menu"
         >
           <Image
             resizeMethod="resize"

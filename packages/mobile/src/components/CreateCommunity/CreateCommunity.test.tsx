@@ -133,6 +133,7 @@ describe('Spinner component', () => {
                     },
                   ]
                 }
+                testID="input"
               />
             </View>
           </View>
@@ -346,6 +347,7 @@ describe('Spinner component', () => {
                   "paddingVertical": 12,
                 }
               }
+              testID="button"
             >
               <Text
                 color="white"

@@ -101,6 +101,7 @@ describe('ChannelList component', () => {
                 "width": 64,
               }
             }
+            testID="appbar_action_item"
           >
             <View
               style={
@@ -229,6 +230,7 @@ describe('ChannelList component', () => {
               "backgroundColor": "#ffffff",
             }
           }
+          testID="channels_list"
           viewabilityConfigCallbackPairs={[]}
         >
           <View>

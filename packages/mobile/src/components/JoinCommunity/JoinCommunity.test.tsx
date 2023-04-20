@@ -133,6 +133,7 @@ describe('JoinCommunity component', () => {
                     },
                   ]
                 }
+                testID="input"
               />
             </View>
           </View>
@@ -346,6 +347,7 @@ describe('JoinCommunity component', () => {
                   "paddingVertical": 12,
                 }
               }
+              testID="button"
             >
               <Text
                 color="white"

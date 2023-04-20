@@ -68,6 +68,7 @@ describe('MessageInput component', () => {
                 },
               ]
             }
+            testID="input"
           />
         </View>
       </View>

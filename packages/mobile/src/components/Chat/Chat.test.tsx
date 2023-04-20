@@ -242,6 +242,7 @@ describe('Chat component', () => {
                 "width": 64,
               }
             }
+            testID="appbar_action_item"
           >
             <Image
               resizeMethod="resize"
@@ -584,6 +585,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="Luck, I am your father!"
                                 verticalTextAlign="center"
                               >
                                 Luck, I am your father!
@@ -611,6 +613,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="That's impossible!"
                                 verticalTextAlign="center"
                               >
                                 That's impossible!
@@ -638,6 +641,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="Nooo!"
                                 verticalTextAlign="center"
                               >
                                 Nooo!
@@ -862,6 +866,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="Uhuhu!"
                                 verticalTextAlign="center"
                               >
                                 Uhuhu!
@@ -1086,6 +1091,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="Why?"
                                 verticalTextAlign="center"
                               >
                                 Why?
@@ -1310,6 +1316,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="Messages more there should be"
                                 verticalTextAlign="center"
                               >
                                 Messages more there should be
@@ -1534,6 +1541,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="I Agree"
                                 verticalTextAlign="center"
                               >
                                 I Agree
@@ -1561,6 +1569,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="Of course, I Agree"
                                 verticalTextAlign="center"
                               >
                                 Of course, I Agree
@@ -1785,6 +1794,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="Wrough!"
                                 verticalTextAlign="center"
                               >
                                 Wrough!
@@ -2009,6 +2019,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="Yeah!"
                                 verticalTextAlign="center"
                               >
                                 Yeah!
@@ -2233,6 +2244,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="The more messages the better"
                                 verticalTextAlign="center"
                               >
                                 The more messages the better
@@ -2443,6 +2455,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="We cannot grant you the rank of messager"
                                 verticalTextAlign="center"
                               >
                                 We cannot grant you the rank of messager
@@ -2667,6 +2680,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
                                 verticalTextAlign="center"
                               >
                                 deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
@@ -2911,6 +2925,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="Hello"
                                 verticalTextAlign="center"
                               >
                                 Hello
@@ -2938,6 +2953,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="How are you? My day was awesome. I removed a lot of unused props from container and I simplified code a lot. I like coding, coding is like building things with LEGO. I could admit it's a little bit harder and there's a lot that can go wrong but I like it anyway."
                                 verticalTextAlign="center"
                               >
                                 How are you? My day was awesome. I removed a lot of unused props from container and I simplified code a lot. I like coding, coding is like building things with LEGO. I could admit it's a little bit harder and there's a lot that can go wrong but I like it anyway.
@@ -3162,6 +3178,7 @@ describe('Chat component', () => {
                                     },
                                   ]
                                 }
+                                testID="Great, thanks!"
                                 verticalTextAlign="center"
                               >
                                 Great, thanks!
@@ -3252,6 +3269,7 @@ describe('Chat component', () => {
                         },
                       ]
                     }
+                    testID="input"
                   />
                 </View>
               </View>

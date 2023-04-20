@@ -107,6 +107,7 @@ describe('ContextMenu component', () => {
               "width": "100%",
             }
           }
+          testID="context_menu_Rockets"
         >
           <View
             style={
@@ -301,6 +302,7 @@ describe('ContextMenu component', () => {
                           "width": "100%",
                         }
                       }
+                      testID="Create channel"
                     >
                       <View
                         style={
@@ -413,6 +415,7 @@ describe('ContextMenu component', () => {
                           "width": "100%",
                         }
                       }
+                      testID="Add members"
                     >
                       <View
                         style={
@@ -525,6 +528,7 @@ describe('ContextMenu component', () => {
                           "width": "100%",
                         }
                       }
+                      testID="Settings"
                     >
                       <View
                         style={

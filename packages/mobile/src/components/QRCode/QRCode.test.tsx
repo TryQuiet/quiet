@@ -64,6 +64,7 @@ describe('QRCode component', () => {
                 "width": 64,
               }
             }
+            testID="appbar_action_item"
           >
             <Image
               resizeMethod="resize"
@@ -207,6 +208,7 @@ describe('QRCode component', () => {
                   "paddingVertical": 12,
                 }
               }
+              testID="button"
             >
               <Text
                 color="white"
