@@ -24,6 +24,7 @@ export class CertificateRegistration extends EventEmitter {
   public registrationService: any
   public certificates: string[]
   private _permsData: PermsData
+  private _ownerCertificate: string
 
   constructor() {
     super()
@@ -83,6 +84,7 @@ export class CertificateRegistration extends EventEmitter {
       communityId: payload.communityId,
       network: { certificate: cert, peers: [] }
     })
+    this._ownerCertificate = cert
   }
 
   public sendCertificateRegistrationRequest = async (
@@ -103,7 +105,7 @@ export class CertificateRegistration extends EventEmitter {
   }
 
   private async registerUser(csr: string): Promise<{ status: number; body: any }> {
-    const result = await registerUser(csr, this._permsData, this.certificates)
+    const result = await registerUser(csr, this._permsData, this.certificates, this._ownerCertificate)
     if (result?.status === 200) {
       this.emit(RegistrationEvents.NEW_USER, { certificate: result.body.certificate, rootPermsData: this._permsData })
     }

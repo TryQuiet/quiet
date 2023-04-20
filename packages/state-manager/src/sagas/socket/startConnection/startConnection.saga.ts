@@ -196,8 +196,10 @@ export function subscribe(socket: Socket) {
       SocketActionTypes.SEND_USER_CERTIFICATE,
       (payload: {
         communityId: string
-        payload: { peers: string[]; certificate: string; rootCa: string }
+        payload: { peers: string[]; certificate: string; rootCa: string, ownerCert: string }
       }) => {
+        console.log('user cert with owner cert',payload)
+        // KACPER
         emit(
           communitiesActions.storePeerList({
             communityId: payload.communityId,
@@ -222,6 +224,7 @@ export function subscribe(socket: Socket) {
     socket.on(
       SocketActionTypes.SAVED_OWNER_CERTIFICATE,
       (payload: { communityId: string; network: { certificate: string; peers: string[] } }) => {
+        // KACPER
         emit(
           communitiesActions.storePeerList({
             communityId: payload.communityId,
