@@ -3,6 +3,7 @@ import { createSelector } from 'reselect'
 import { communitiesAdapter } from './communities.adapter'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { invitationShareUrl } from '@quiet/common'
+import { CertFieldsTypes, getCertFieldValue, parseCertificate } from '@quiet/identity'
 
 const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (state: StoreState) =>
   state[StoreKeys.Communities]
@@ -75,6 +76,13 @@ export const registrationAttempts = (communityId: string) =>
     return community.registrationAttempts
   })
 
+export const ownerNickname = createSelector(currentCommunity, community => {
+  const certificate = community.ownerCertificate
+  const parsedCert = parseCertificate(certificate)
+  const nickname = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
+  return nickname
+})
+
 export const communitiesSelectors = {
   selectById,
   selectEntities,
@@ -83,5 +91,6 @@ export const communitiesSelectors = {
   currentCommunityId,
   registrarUrl,
   registrationAttempts,
-  invitationUrl
+  invitationUrl,
+  ownerNickname
 }

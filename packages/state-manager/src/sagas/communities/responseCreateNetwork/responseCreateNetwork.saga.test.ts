@@ -27,7 +27,8 @@ describe('responseCreateNetwork', () => {
       onionAddress: '',
       privateKey: '',
       port: 0,
-      registrationAttempts: 0
+      registrationAttempts: 0,
+      ownerCertificate: '',
     }
 
     const dmKeys: DmKeys = {

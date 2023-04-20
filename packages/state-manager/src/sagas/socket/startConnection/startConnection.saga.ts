@@ -68,6 +68,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.responseRegistrar>
     | ReturnType<typeof communitiesActions.launchRegistrar>
     | ReturnType<typeof communitiesActions.launchCommunity>
+    | ReturnType<typeof communitiesActions.addOwnerCertificate>
     | ReturnType<typeof networkActions.addInitializedCommunity>
     | ReturnType<typeof networkActions.addInitializedRegistrar>
     | ReturnType<typeof networkActions.removeConnectedPeer>
@@ -81,6 +82,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.setTorBootstrapProcess>
     | ReturnType<typeof connectionActions.setTorConnectionProcess>
     | ReturnType<typeof connectionActions.torBootstrapped>
+
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (payload: string) => {
@@ -196,10 +198,17 @@ export function subscribe(socket: Socket) {
       SocketActionTypes.SEND_USER_CERTIFICATE,
       (payload: {
         communityId: string
-        payload: { peers: string[]; certificate: string; rootCa: string, ownerCert: string }
+        payload: { peers: string[]; certificate: string; rootCa: string; ownerCert: string }
       }) => {
-        console.log('user cert with owner cert',payload)
-        // KACPER
+        console.log('user cert with owner cert', payload)
+
+        emit(
+          communitiesActions.addOwnerCertificate({
+            communityId: payload.communityId,
+            ownerCertificate: payload.payload.ownerCert
+          })
+        )
+
         emit(
           communitiesActions.storePeerList({
             communityId: payload.communityId,
@@ -224,7 +233,12 @@ export function subscribe(socket: Socket) {
     socket.on(
       SocketActionTypes.SAVED_OWNER_CERTIFICATE,
       (payload: { communityId: string; network: { certificate: string; peers: string[] } }) => {
-        // KACPER
+        emit(
+          communitiesActions.addOwnerCertificate({
+            communityId: payload.communityId,
+            ownerCertificate: payload.network.certificate
+          })
+        )
         emit(
           communitiesActions.storePeerList({
             communityId: payload.communityId,
@@ -240,7 +254,7 @@ export function subscribe(socket: Socket) {
         emit(identityActions.savedOwnerCertificate(payload.communityId))
       }
     )
-    return () => { }
+    return () => {}
   })
 }
 

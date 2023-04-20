@@ -1,9 +1,10 @@
 import { publicChannelsActions } from '../publicChannels.slice'
 import { PayloadAction } from '@reduxjs/toolkit'
 import logger from '../../../utils/logger'
-import { put, delay } from 'typed-redux-saga'
+import { put, delay, select } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { MessageType, WriteMessagePayload } from '../../messages/messages.types'
+import { communitiesSelectors } from '../../communities/communities.selectors'
 
 const log = logger('publicChannels')
 
@@ -27,6 +28,8 @@ export function* deletedChannelSaga(
 
   yield* put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
 
+  const ownerNickname = yield* select(communitiesSelectors.ownerNickname)
+
   let message: string
 
   if (isGeneral) {
@@ -34,9 +37,9 @@ export function* deletedChannelSaga(
     // For better UX
     yield* delay(500)
     yield* put(publicChannelsActions.finishGeneralRecreation())
-    message = '#general has been recreated by owner'
+    message = `#general has been recreated by ${ownerNickname}`
   } else {
-    message = `#${channelAddress} has been deleted by owner`
+    message = `#${channelAddress} has been deleted by ${ownerNickname}`
   }
 
   const payload: WriteMessagePayload = {

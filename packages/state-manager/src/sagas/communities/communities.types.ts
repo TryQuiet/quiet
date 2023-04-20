@@ -86,3 +86,8 @@ export interface UpdateRegistrationAttemptsPayload {
   id: string
   registrationAttempts: number
 }
+
+export interface AddOwnerCertificatePayload {
+  communityId: string
+  ownerCertificate: string
+}

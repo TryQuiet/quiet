@@ -2,6 +2,7 @@ import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { communitiesAdapter } from './communities.adapter'
 import {
+  AddOwnerCertificatePayload,
   CreateNetworkPayload,
   ResponseCreateNetworkPayload,
   ResponseRegistrarPayload,
@@ -33,6 +34,7 @@ export interface Community {
   privateKey: string
   port: number
   registrationAttempts: number
+  ownerCertificate: string
 }
 
 export const communitiesSlice = createSlice({
@@ -89,7 +91,16 @@ export const communitiesSlice = createSlice({
         }
       })
     },
-    handleInvitationCode: (state, _action: PayloadAction<string>) => state
+    handleInvitationCode: (state, _action: PayloadAction<string>) => state,
+    addOwnerCertificate: (state, action: PayloadAction<AddOwnerCertificatePayload>) => {
+      const { communityId, ownerCertificate } = action.payload
+      communitiesAdapter.updateOne(state.communities, {
+        id: communityId,
+        changes: {
+          ownerCertificate
+        }
+      })
+    }
   }
 })
 
