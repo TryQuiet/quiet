@@ -12,7 +12,8 @@ export const Button: FC<ButtonProps> = ({ onPress, title, loading, negative, dis
       onPress={event => {
         event.persist()
         if (!disabled) onPress()
-      }}>
+      }}
+      testID={'button'}>
       <View
         style={{
           paddingVertical: 12,

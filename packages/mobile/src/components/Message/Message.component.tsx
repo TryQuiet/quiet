@@ -64,7 +64,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
           )
         }
         return (
-          <Typography fontSize={14} color={ color }><Linkify componentDecorator={componentDecorator}>{message.message}</Linkify></Typography>
+          <Typography fontSize={14} color={ color } testID={message.message}><Linkify componentDecorator={componentDecorator}>{message.message}</Linkify></Typography>
         )
     }
   }

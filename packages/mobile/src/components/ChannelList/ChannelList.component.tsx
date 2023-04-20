@@ -23,6 +23,7 @@ export const ChannelList: FC<ChannelListProps> = ({ community, tiles, communityC
           keyExtractor={item => item.name}
           renderItem={({ item }) => <ChannelTile {...item} />}
           style={{ backgroundColor: defaultTheme.palette.background.white }}
+          testID={'channels_list'}
         />
       )}
     </View>

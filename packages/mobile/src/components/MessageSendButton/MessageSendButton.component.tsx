@@ -14,7 +14,7 @@ export const MessageSendButton: FC<MessageSendButtonProps> = ({ onPress, disable
   const icon = disabled ? appImages.icon_send_disabled : appImages.icon_send
 
   return (
-    <TouchableWithoutFeedback onPress={handlePress}>
+    <TouchableWithoutFeedback onPress={handlePress} testID={'send_message_button'}>
       <View
         style={{
           flex: 1.5,

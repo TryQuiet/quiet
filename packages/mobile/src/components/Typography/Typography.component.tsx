@@ -1,9 +1,11 @@
 import React, { FC } from 'react'
 
+import { TextProps } from 'react-native'
+
 import { StyledTypography } from './Typography.styles'
 import { TypographyProps } from './Typography.types'
 
-export const Typography: FC<TypographyProps> = ({
+export const Typography: FC<TypographyProps & TextProps> = ({
   onPress,
   children,
   fontSize,
@@ -12,7 +14,8 @@ export const Typography: FC<TypographyProps> = ({
   style,
   horizontalTextAlign,
   verticalTextAlign,
-  numberOfLines
+  numberOfLines,
+  ...props
 }) => (
   <StyledTypography
     onPress={onPress}
@@ -22,7 +25,8 @@ export const Typography: FC<TypographyProps> = ({
     horizontalTextAlign={horizontalTextAlign}
     numberOfLines={numberOfLines}
     style={style}
-    verticalTextAlign={verticalTextAlign}>
+    verticalTextAlign={verticalTextAlign}
+    {...props}>
     {children}
   </StyledTypography>
 )
