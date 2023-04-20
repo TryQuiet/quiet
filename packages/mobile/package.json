@@ -8,7 +8,7 @@
     "android": "ENVFILE=.env.development react-native run-android --variant=standardDebug --appIdSuffix=debug",
     "ios": "ENVFILE=.env.development react-native run-ios",
     "start": "react-native start",
-    "test": "jest --testPathIgnorePatterns=\".src/(!?e2e*)\"",
+    "test": "jest --testPathIgnorePatterns=\"./e2e\"",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "gen": "plop",
