@@ -22,7 +22,7 @@ export const connectionSlice = createSlice({
       state.uptime = state.uptime + action.payload
     },
     updateNetworkData: (state, action: PayloadAction<NetworkDataPayload>) => {
-      const prev = state.peersStats.entities[action.payload.peer]?.connectionTime || 0
+      const prev = state.peersStats?.entities[action.payload.peer]?.connectionTime || 0
 
       peersStatsAdapter.upsertOne(state.peersStats, {
         peerId: action.payload.peer,

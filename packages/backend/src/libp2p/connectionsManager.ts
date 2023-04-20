@@ -256,13 +256,16 @@ export class ConnectionsManager extends EventEmitter {
       await this.localStorage.put(LocalDBKeys.COMMUNITY, community)
       if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
       this.communityState = ServiceState.LAUNCHING
-      await this.launchCommunity(community)
     }
-
     const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
     if (registrarData) {
       if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
       this.registrarState = ServiceState.LAUNCHING
+    }
+    if (community) {
+      await this.launchCommunity(community)
+    }
+    if (registrarData) {
       await this.registration.launchRegistrar(registrarData)
     }
   }

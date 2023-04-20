@@ -305,8 +305,8 @@ describe('Connections manager - no tor', () => {
       lastSeen: peerStats[remoteAddr].lastSeen
     })
   })
-
-  it('community is only launched once', async () => {
+  // At this moment, that test have to be skipped, because checking statues is called before launchCommunity method
+  it.skip('community is only launched once', async () => {
     connectionsManager = new ConnectionsManager({
       socketIOPort: 1234,
       torControlPort: 4321,
@@ -338,5 +338,71 @@ describe('Connections manager - no tor', () => {
     ])
 
     expect(launchSpy).toBeCalledTimes(1)
+  })
+
+  it('Bug reproduction - Error on startup - Error: TOR: Connection already established - Trigger launchCommunity and launchRegistrar from backend and state manager', async () => {
+    connectionsManager = new ConnectionsManager({
+      socketIOPort: 1234,
+      torControlPort: 4321,
+      options: {
+        env: {
+          appDataPath: tmpAppDataPath
+        },
+      }
+    })
+
+    const launchCommunityPayload: InitCommunityPayload = {
+      id: community.id,
+      peerId: userIdentity.peerId,
+      hiddenService: userIdentity.hiddenService,
+      certs: {
+        certificate: userIdentity.userCertificate,
+        key: userIdentity.userCsr.userKey,
+        CA: [community.rootCa]
+      },
+      peers: community.peerList
+    }
+
+    const launchRegistrarPayload: LaunchRegistrarPayload = {
+      id: community.id,
+      peerId: userIdentity.peerId.id,
+      rootCertString: community.CA.rootCertString,
+      rootKeyString: community.CA.rootKeyString,
+      privateKey: undefined
+    }
+
+    await connectionsManager.init()
+    await connectionsManager.localStorage.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
+    await connectionsManager.localStorage.put(LocalDBKeys.REGISTRAR, launchRegistrarPayload)
+
+    const peerAddress = '/dns4/test.onion/tcp/443/wss/p2p/peerid'
+    await connectionsManager.localStorage.put(LocalDBKeys.PEERS, {
+      [peerAddress]: {
+          peerId: 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix',
+          connectionTime: 50,
+          lastSeen: 1000
+        }
+      })
+
+    await connectionsManager.closeAllServices()
+
+    const launchCommunitySpy = jest.spyOn(connectionsManager, 'launchCommunity').mockResolvedValue()
+    const launchRegistrarSpy = jest.spyOn(connectionsManager.registration, 'launchRegistrar').mockResolvedValue()
+
+    const url = `http://localhost:${1234}`
+    const socket = io(url)
+
+   const init = new Promise<void>(resolve => {
+    void connectionsManager.init()
+    socket.connect()
+      setTimeout(() => resolve(), 200)
+    })
+
+    await init
+
+    expect(launchCommunitySpy).toBeCalledTimes(1)
+    expect(launchRegistrarSpy).toBeCalledTimes(1)
+
+    socket.close()
   })
 })

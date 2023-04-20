@@ -30,7 +30,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
           // backgroundColor: 'rgba(52, 52, 52, 0.8)'
         }}>
         <View style={{ flex: 4 }} />
-        <TouchableWithoutFeedback>
+        <TouchableWithoutFeedback testID={`context_menu_${title}`}>
           <View
             style={{
               flex: 6,
@@ -138,7 +138,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
 export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => {
   const icon_arrow = appImages.arrow_right_short
   return (
-    <TouchableWithoutFeedback onPress={action}>
+    <TouchableWithoutFeedback onPress={action} testID={title}>
       <View
         style={{
           display: 'flex',

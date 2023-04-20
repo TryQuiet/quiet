@@ -49,12 +49,16 @@ export const LeaveCommunity: FC<LeaveCommunityProps> = ({
             Your account, messages, and all data for{' '}
             <Typography fontSize={14} fontWeight={'medium'}>
               {displayedName}
-            </Typography>
-            {' '}will be deleted from this device. This cannot be undone.
+            </Typography>{' '}
+            will be deleted from this device. This cannot be undone.
           </Typography>
         </View>
         <View style={{ paddingTop: 16 }}>
-          <Button title={'Leave community'} onPress={onPress} loading={loading} />
+          <Button
+            title={'Leave community'}
+            onPress={onPress}
+            loading={loading}
+          />
         </View>
         <View>
           <Button title={"Never mind, I'll stay"} onPress={goBack} negative />

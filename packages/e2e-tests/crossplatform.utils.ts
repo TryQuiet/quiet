@@ -1,5 +1,13 @@
 import { Browser, Builder, ThenableWebDriver } from 'selenium-webdriver'
 import { spawn, exec, ChildProcessWithoutNullStreams } from 'child_process'
+import getPort from 'get-port'
+
+export interface BuildSetupInit {
+  port?: number
+  debugPort?: number
+  useDataDir?: boolean
+  dataDir?: string
+}
 
 export class BuildSetup {
   private driver: ThenableWebDriver
@@ -11,10 +19,19 @@ export class BuildSetup {
   private child: ChildProcessWithoutNullStreams
   private useDataDir: boolean
 
-  constructor({ port, debugPort, useDataDir = true }: {port: number; debugPort: number; useDataDir?: boolean}) {
+  constructor({ port, debugPort, useDataDir = true, dataDir }: BuildSetupInit) {
     this.port = port
     this.debugPort = debugPort
     this.useDataDir = useDataDir
+    this.dataDir = dataDir
+    if (this.useDataDir && !this.dataDir) {
+      this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
+    }
+  }
+
+  async initPorts() {
+    this.port = await getPort()
+    this.debugPort = await getPort()
   }
 
   private getBinaryLocation() {
@@ -31,10 +48,7 @@ export class BuildSetup {
   }
 
   public async createChromeDriver() {
-    if (this.useDataDir) {
-      this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
-    }
-
+    await this.initPorts()
     if (process.platform === 'win32') {
       console.log('!WINDOWS!')
       this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port}`, [], {
@@ -115,7 +129,7 @@ export class BuildSetup {
           .withCapabilities({
             'goog:chromeOptions': {
               binary: binary,
-              args: [`--remote-debugging-port=${this.debugPort}`]
+              args: [`--remote-debugging-port=${this.debugPort}`, '--enable-debugging']
             }
           })
           .forBrowser(Browser.CHROME)
@@ -128,13 +142,17 @@ export class BuildSetup {
     return this.driver
   }
 
+  public resetDriver() {
+    this.driver = null
+  }
+
   public async killChromeDriver() {
     console.log('kill')
-    this.child.kill()
+    this.child?.kill()
     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
   }
 
   public async closeDriver() {
-    await this.driver.close()
+    await this.driver?.close()
   }
 }

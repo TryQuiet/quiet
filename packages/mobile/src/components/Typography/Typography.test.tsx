@@ -18,8 +18,8 @@ describe('Typography component', () => {
         fontWeight="bold"
         horizontalTextAlign="left"
         style={
-          Array [
-            Object {
+          [
+            {
               "color": "#000000",
               "fontFamily": "Rubik-Bold",
               "fontSize": 20,

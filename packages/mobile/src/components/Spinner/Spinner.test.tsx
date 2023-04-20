@@ -7,7 +7,7 @@ describe('Spinner component', () => {
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
-          Object {
+          {
             "alignItems": "center",
             "backgroundColor": "#ffffff",
             "flex": 1,
@@ -24,15 +24,15 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="center"
           style={
-            Array [
-              Object {
+            [
+              {
                 "color": "#000000",
                 "fontFamily": "Rubik-Regular",
                 "fontSize": 14,
                 "textAlign": "center",
                 "textAlignVertical": "center",
               },
-              Object {
+              {
                 "margin": 10,
                 "maxWidth": 200,
               },
