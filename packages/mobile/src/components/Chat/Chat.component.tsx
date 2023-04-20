@@ -89,7 +89,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   )
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }} testID={`chat_${channel.name}`}>
       <Appbar title={`#${channel.name}`} back={handleBackButton} />
       <KeyboardAvoidingView
         behavior={Platform.select({ ios: 'padding', android: null })}

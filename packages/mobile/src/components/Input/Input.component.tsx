@@ -53,6 +53,7 @@ export const Input = forwardRef<TextInput, InputProps>(
             placeholder={placeholder}
             maxLength={length}
             autoCapitalize={capitalize}
+            testID={'input'}
           />
         </StyledWrapper>
         {validation && (

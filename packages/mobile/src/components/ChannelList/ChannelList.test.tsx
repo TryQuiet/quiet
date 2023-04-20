@@ -55,15 +55,15 @@ describe('ChannelList component', () => {
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
-          Object {
+          {
             "flex": 1,
           }
         }
       >
         <View
           style={
-            Array [
-              Object {
+            [
+              {
                 "backgroundColor": "#ffffff",
                 "borderBottomColor": "#F0F0F0",
                 "borderBottomWidth": 1,
@@ -76,6 +76,15 @@ describe('ChannelList component', () => {
           }
         >
           <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
             accessible={true}
             focusable={true}
             onClick={[Function]}
@@ -86,16 +95,17 @@ describe('ChannelList component', () => {
             onResponderTerminationRequest={[Function]}
             onStartShouldSetResponder={[Function]}
             style={
-              Object {
+              {
                 "alignItems": "center",
                 "justifyContent": "center",
                 "width": 64,
               }
             }
+            testID="appbar_action_item"
           >
             <View
               style={
-                Object {
+                {
                   "alignItems": "center",
                   "backgroundColor": "#67BFD3",
                   "borderRadius": 4,
@@ -110,8 +120,8 @@ describe('ChannelList component', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#ffffff",
                       "fontFamily": "Rubik-Regular",
                       "fontSize": 14,
@@ -128,7 +138,7 @@ describe('ChannelList component', () => {
           </View>
           <View
             style={
-              Object {
+              {
                 "alignItems": "flex-start",
                 "flexGrow": 1,
                 "justifyContent": "center",
@@ -141,8 +151,8 @@ describe('ChannelList component', () => {
               fontWeight="medium"
               horizontalTextAlign="left"
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "color": "#000000",
                     "fontFamily": "Rubik-Medium",
                     "fontSize": 16,
@@ -158,7 +168,7 @@ describe('ChannelList component', () => {
           </View>
           <View
             style={
-              Object {
+              {
                 "width": 64,
               }
             }
@@ -166,8 +176,8 @@ describe('ChannelList component', () => {
         </View>
         <RCTScrollView
           data={
-            Array [
-              Object {
+            [
+              {
                 "address": "general",
                 "date": "1:55pm",
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
@@ -175,7 +185,7 @@ describe('ChannelList component', () => {
                 "redirect": [MockFunction],
                 "unread": false,
               },
-              Object {
+              {
                 "address": "spam",
                 "date": "1:55pm",
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
@@ -183,7 +193,7 @@ describe('ChannelList component', () => {
                 "redirect": [MockFunction],
                 "unread": false,
               },
-              Object {
+              {
                 "address": "design",
                 "date": "6/1/22",
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
@@ -191,7 +201,7 @@ describe('ChannelList component', () => {
                 "redirect": [MockFunction],
                 "unread": true,
               },
-              Object {
+              {
                 "address": "design",
                 "date": "Yesterday",
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
@@ -214,20 +224,31 @@ describe('ChannelList component', () => {
           removeClippedSubviews={false}
           renderItem={[Function]}
           scrollEventThrottle={50}
-          stickyHeaderIndices={Array []}
+          stickyHeaderIndices={[]}
           style={
-            Object {
+            {
               "backgroundColor": "#ffffff",
             }
           }
-          viewabilityConfigCallbackPairs={Array []}
+          testID="channels_list"
+          viewabilityConfigCallbackPairs={[]}
         >
           <View>
             <View
+              onFocusCapture={[Function]}
               onLayout={[Function]}
               style={null}
             >
               <View
+                accessibilityState={
+                  {
+                    "busy": undefined,
+                    "checked": undefined,
+                    "disabled": undefined,
+                    "expanded": undefined,
+                    "selected": undefined,
+                  }
+                }
                 accessible={true}
                 focusable={true}
                 onClick={[Function]}
@@ -238,23 +259,24 @@ describe('ChannelList component', () => {
                 onResponderTerminationRequest={[Function]}
                 onStartShouldSetResponder={[Function]}
                 style={
-                  Object {
+                  {
                     "borderBottomColor": "#F0F0F0",
                     "borderBottomWidth": 1,
                     "padding": 16,
                   }
                 }
+                testID="channel_tile_general"
               >
                 <View
                   style={
-                    Object {
+                    {
                       "flexDirection": "row",
                     }
                   }
                 >
                   <View
                     style={
-                      Object {
+                      {
                         "alignItems": "center",
                         "flex": 1,
                         "paddingRight": 12,
@@ -263,7 +285,7 @@ describe('ChannelList component', () => {
                   >
                     <View
                       style={
-                        Object {
+                        {
                           "alignItems": "center",
                           "backgroundColor": "#4C4C4C",
                           "borderRadius": 4,
@@ -278,8 +300,8 @@ describe('ChannelList component', () => {
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          Array [
-                            Object {
+                          [
+                            {
                               "color": "#ffffff",
                               "fontFamily": "Rubik-Regular",
                               "fontSize": 14,
@@ -296,7 +318,7 @@ describe('ChannelList component', () => {
                   </View>
                   <View
                     style={
-                      Object {
+                      {
                         "flex": 9,
                         "flexDirection": "column",
                       }
@@ -304,14 +326,14 @@ describe('ChannelList component', () => {
                   >
                     <View
                       style={
-                        Object {
+                        {
                           "flexDirection": "row",
                         }
                       }
                     >
                       <View
                         style={
-                          Object {
+                          {
                             "flex": 8,
                           }
                         }
@@ -322,8 +344,8 @@ describe('ChannelList component', () => {
                           fontWeight="medium"
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#000000",
                                 "fontFamily": "Rubik-Medium",
                                 "fontSize": 16,
@@ -340,7 +362,7 @@ describe('ChannelList component', () => {
                       </View>
                       <View
                         style={
-                          Object {
+                          {
                             "alignItems": "flex-end",
                             "flex": 4,
                           }
@@ -351,8 +373,8 @@ describe('ChannelList component', () => {
                           fontSize={14}
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#999999",
                                 "fontFamily": "Rubik-Regular",
                                 "fontSize": 14,
@@ -369,7 +391,7 @@ describe('ChannelList component', () => {
                     </View>
                     <View
                       style={
-                        Object {
+                        {
                           "flexDirection": "row",
                           "paddingTop": 3,
                         }
@@ -377,7 +399,7 @@ describe('ChannelList component', () => {
                     >
                       <View
                         style={
-                          Object {
+                          {
                             "flex": 10,
                           }
                         }
@@ -387,8 +409,8 @@ describe('ChannelList component', () => {
                           fontSize={14}
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#7F7F7F",
                                 "fontFamily": "Rubik-Regular",
                                 "fontSize": 14,
@@ -404,7 +426,7 @@ describe('ChannelList component', () => {
                       </View>
                       <View
                         style={
-                          Object {
+                          {
                             "alignItems": "flex-end",
                             "flex": 2,
                           }
@@ -416,10 +438,20 @@ describe('ChannelList component', () => {
               </View>
             </View>
             <View
+              onFocusCapture={[Function]}
               onLayout={[Function]}
               style={null}
             >
               <View
+                accessibilityState={
+                  {
+                    "busy": undefined,
+                    "checked": undefined,
+                    "disabled": undefined,
+                    "expanded": undefined,
+                    "selected": undefined,
+                  }
+                }
                 accessible={true}
                 focusable={true}
                 onClick={[Function]}
@@ -430,23 +462,24 @@ describe('ChannelList component', () => {
                 onResponderTerminationRequest={[Function]}
                 onStartShouldSetResponder={[Function]}
                 style={
-                  Object {
+                  {
                     "borderBottomColor": "#F0F0F0",
                     "borderBottomWidth": 1,
                     "padding": 16,
                   }
                 }
+                testID="channel_tile_spam"
               >
                 <View
                   style={
-                    Object {
+                    {
                       "flexDirection": "row",
                     }
                   }
                 >
                   <View
                     style={
-                      Object {
+                      {
                         "alignItems": "center",
                         "flex": 1,
                         "paddingRight": 12,
@@ -455,7 +488,7 @@ describe('ChannelList component', () => {
                   >
                     <View
                       style={
-                        Object {
+                        {
                           "alignItems": "center",
                           "backgroundColor": "#4C4C4C",
                           "borderRadius": 4,
@@ -470,8 +503,8 @@ describe('ChannelList component', () => {
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          Array [
-                            Object {
+                          [
+                            {
                               "color": "#ffffff",
                               "fontFamily": "Rubik-Regular",
                               "fontSize": 14,
@@ -488,7 +521,7 @@ describe('ChannelList component', () => {
                   </View>
                   <View
                     style={
-                      Object {
+                      {
                         "flex": 9,
                         "flexDirection": "column",
                       }
@@ -496,14 +529,14 @@ describe('ChannelList component', () => {
                   >
                     <View
                       style={
-                        Object {
+                        {
                           "flexDirection": "row",
                         }
                       }
                     >
                       <View
                         style={
-                          Object {
+                          {
                             "flex": 8,
                           }
                         }
@@ -514,8 +547,8 @@ describe('ChannelList component', () => {
                           fontWeight="medium"
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#000000",
                                 "fontFamily": "Rubik-Medium",
                                 "fontSize": 16,
@@ -532,7 +565,7 @@ describe('ChannelList component', () => {
                       </View>
                       <View
                         style={
-                          Object {
+                          {
                             "alignItems": "flex-end",
                             "flex": 4,
                           }
@@ -543,8 +576,8 @@ describe('ChannelList component', () => {
                           fontSize={14}
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#999999",
                                 "fontFamily": "Rubik-Regular",
                                 "fontSize": 14,
@@ -561,7 +594,7 @@ describe('ChannelList component', () => {
                     </View>
                     <View
                       style={
-                        Object {
+                        {
                           "flexDirection": "row",
                           "paddingTop": 3,
                         }
@@ -569,7 +602,7 @@ describe('ChannelList component', () => {
                     >
                       <View
                         style={
-                          Object {
+                          {
                             "flex": 10,
                           }
                         }
@@ -579,8 +612,8 @@ describe('ChannelList component', () => {
                           fontSize={14}
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#7F7F7F",
                                 "fontFamily": "Rubik-Regular",
                                 "fontSize": 14,
@@ -596,7 +629,7 @@ describe('ChannelList component', () => {
                       </View>
                       <View
                         style={
-                          Object {
+                          {
                             "alignItems": "flex-end",
                             "flex": 2,
                           }
@@ -608,10 +641,20 @@ describe('ChannelList component', () => {
               </View>
             </View>
             <View
+              onFocusCapture={[Function]}
               onLayout={[Function]}
               style={null}
             >
               <View
+                accessibilityState={
+                  {
+                    "busy": undefined,
+                    "checked": undefined,
+                    "disabled": undefined,
+                    "expanded": undefined,
+                    "selected": undefined,
+                  }
+                }
                 accessible={true}
                 focusable={true}
                 onClick={[Function]}
@@ -622,23 +665,24 @@ describe('ChannelList component', () => {
                 onResponderTerminationRequest={[Function]}
                 onStartShouldSetResponder={[Function]}
                 style={
-                  Object {
+                  {
                     "borderBottomColor": "#F0F0F0",
                     "borderBottomWidth": 1,
                     "padding": 16,
                   }
                 }
+                testID="channel_tile_design"
               >
                 <View
                   style={
-                    Object {
+                    {
                       "flexDirection": "row",
                     }
                   }
                 >
                   <View
                     style={
-                      Object {
+                      {
                         "alignItems": "center",
                         "flex": 1,
                         "paddingRight": 12,
@@ -647,7 +691,7 @@ describe('ChannelList component', () => {
                   >
                     <View
                       style={
-                        Object {
+                        {
                           "alignItems": "center",
                           "backgroundColor": "#4C4C4C",
                           "borderRadius": 4,
@@ -662,8 +706,8 @@ describe('ChannelList component', () => {
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          Array [
-                            Object {
+                          [
+                            {
                               "color": "#ffffff",
                               "fontFamily": "Rubik-Regular",
                               "fontSize": 14,
@@ -680,7 +724,7 @@ describe('ChannelList component', () => {
                   </View>
                   <View
                     style={
-                      Object {
+                      {
                         "flex": 9,
                         "flexDirection": "column",
                       }
@@ -688,14 +732,14 @@ describe('ChannelList component', () => {
                   >
                     <View
                       style={
-                        Object {
+                        {
                           "flexDirection": "row",
                         }
                       }
                     >
                       <View
                         style={
-                          Object {
+                          {
                             "flex": 8,
                           }
                         }
@@ -706,8 +750,8 @@ describe('ChannelList component', () => {
                           fontWeight="medium"
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#000000",
                                 "fontFamily": "Rubik-Medium",
                                 "fontSize": 16,
@@ -724,7 +768,7 @@ describe('ChannelList component', () => {
                       </View>
                       <View
                         style={
-                          Object {
+                          {
                             "alignItems": "flex-end",
                             "flex": 4,
                           }
@@ -735,8 +779,8 @@ describe('ChannelList component', () => {
                           fontSize={14}
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#2373EA",
                                 "fontFamily": "Rubik-Regular",
                                 "fontSize": 14,
@@ -753,7 +797,7 @@ describe('ChannelList component', () => {
                     </View>
                     <View
                       style={
-                        Object {
+                        {
                           "flexDirection": "row",
                           "paddingTop": 3,
                         }
@@ -761,7 +805,7 @@ describe('ChannelList component', () => {
                     >
                       <View
                         style={
-                          Object {
+                          {
                             "flex": 10,
                           }
                         }
@@ -771,8 +815,8 @@ describe('ChannelList component', () => {
                           fontSize={14}
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#7F7F7F",
                                 "fontFamily": "Rubik-Regular",
                                 "fontSize": 14,
@@ -788,7 +832,7 @@ describe('ChannelList component', () => {
                       </View>
                       <View
                         style={
-                          Object {
+                          {
                             "alignItems": "flex-end",
                             "flex": 2,
                           }
@@ -796,7 +840,7 @@ describe('ChannelList component', () => {
                       >
                         <View
                           style={
-                            Object {
+                            {
                               "alignItems": "center",
                               "backgroundColor": "#2373EA",
                               "borderRadius": 100,
@@ -812,8 +856,8 @@ describe('ChannelList component', () => {
                             fontWeight="medium"
                             horizontalTextAlign="left"
                             style={
-                              Array [
-                                Object {
+                              [
+                                {
                                   "color": "#ffffff",
                                   "fontFamily": "Rubik-Medium",
                                   "fontSize": 12,
@@ -834,10 +878,20 @@ describe('ChannelList component', () => {
               </View>
             </View>
             <View
+              onFocusCapture={[Function]}
               onLayout={[Function]}
               style={null}
             >
               <View
+                accessibilityState={
+                  {
+                    "busy": undefined,
+                    "checked": undefined,
+                    "disabled": undefined,
+                    "expanded": undefined,
+                    "selected": undefined,
+                  }
+                }
                 accessible={true}
                 focusable={true}
                 onClick={[Function]}
@@ -848,23 +902,24 @@ describe('ChannelList component', () => {
                 onResponderTerminationRequest={[Function]}
                 onStartShouldSetResponder={[Function]}
                 style={
-                  Object {
+                  {
                     "borderBottomColor": "#F0F0F0",
                     "borderBottomWidth": 1,
                     "padding": 16,
                   }
                 }
+                testID="channel_tile_qa"
               >
                 <View
                   style={
-                    Object {
+                    {
                       "flexDirection": "row",
                     }
                   }
                 >
                   <View
                     style={
-                      Object {
+                      {
                         "alignItems": "center",
                         "flex": 1,
                         "paddingRight": 12,
@@ -873,7 +928,7 @@ describe('ChannelList component', () => {
                   >
                     <View
                       style={
-                        Object {
+                        {
                           "alignItems": "center",
                           "backgroundColor": "#4C4C4C",
                           "borderRadius": 4,
@@ -888,8 +943,8 @@ describe('ChannelList component', () => {
                         fontSize={14}
                         horizontalTextAlign="left"
                         style={
-                          Array [
-                            Object {
+                          [
+                            {
                               "color": "#ffffff",
                               "fontFamily": "Rubik-Regular",
                               "fontSize": 14,
@@ -906,7 +961,7 @@ describe('ChannelList component', () => {
                   </View>
                   <View
                     style={
-                      Object {
+                      {
                         "flex": 9,
                         "flexDirection": "column",
                       }
@@ -914,14 +969,14 @@ describe('ChannelList component', () => {
                   >
                     <View
                       style={
-                        Object {
+                        {
                           "flexDirection": "row",
                         }
                       }
                     >
                       <View
                         style={
-                          Object {
+                          {
                             "flex": 8,
                           }
                         }
@@ -932,8 +987,8 @@ describe('ChannelList component', () => {
                           fontWeight="medium"
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#000000",
                                 "fontFamily": "Rubik-Medium",
                                 "fontSize": 16,
@@ -950,7 +1005,7 @@ describe('ChannelList component', () => {
                       </View>
                       <View
                         style={
-                          Object {
+                          {
                             "alignItems": "flex-end",
                             "flex": 4,
                           }
@@ -961,8 +1016,8 @@ describe('ChannelList component', () => {
                           fontSize={14}
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#999999",
                                 "fontFamily": "Rubik-Regular",
                                 "fontSize": 14,
@@ -979,7 +1034,7 @@ describe('ChannelList component', () => {
                     </View>
                     <View
                       style={
-                        Object {
+                        {
                           "flexDirection": "row",
                           "paddingTop": 3,
                         }
@@ -987,7 +1042,7 @@ describe('ChannelList component', () => {
                     >
                       <View
                         style={
-                          Object {
+                          {
                             "flex": 10,
                           }
                         }
@@ -997,8 +1052,8 @@ describe('ChannelList component', () => {
                           fontSize={14}
                           horizontalTextAlign="left"
                           style={
-                            Array [
-                              Object {
+                            [
+                              {
                                 "color": "#7F7F7F",
                                 "fontFamily": "Rubik-Regular",
                                 "fontSize": 14,
@@ -1014,7 +1069,7 @@ describe('ChannelList component', () => {
                       </View>
                       <View
                         style={
-                          Object {
+                          {
                             "alignItems": "flex-end",
                             "flex": 2,
                           }

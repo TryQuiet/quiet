@@ -15,6 +15,7 @@ module.exports = {
     'no-eval': 'off',
     'no-void': 'off',
     'no-unused-vars': 'off',
+    'no-irregular-whitespace': 'off',
     'array-callback-return': 'off',
     'comma-dangle': 'off',
     '@typescript-eslint/naming-convention': 'off',

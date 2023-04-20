@@ -84,6 +84,26 @@ const watchFolders = [
 ]
 ```
 
+## Running E2E tests (optional)
+We use Detox (https://wix.github.io/Detox/) for E2E testing on mobile.
+
+### Android
+The easiest way to start testing Quiet on Android is to use command line shell within docker container.  
+
+There're two commands to use, one for building binary file to install on device (this will be the very application to put under test):
+
+```
+npx detox build --configuration android.att.debug
+```
+
+and another for actually running tests:
+
+```
+npx detox test --configuration android.att.debug
+```
+
+For more detailed instructions, see https://wix.github.io/Detox/docs/introduction/your-first-test/
+
 ## Troubleshooting
 
 ### Could not set file mode 644 on
