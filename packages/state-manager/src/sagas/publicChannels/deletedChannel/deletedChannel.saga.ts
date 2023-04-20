@@ -1,7 +1,7 @@
 import { publicChannelsActions } from '../publicChannels.slice'
 import { PayloadAction } from '@reduxjs/toolkit'
 import logger from '../../../utils/logger'
-import { put } from 'typed-redux-saga'
+import { put, delay } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 
 const log = logger('publicChannels')
@@ -14,7 +14,9 @@ export function* deletedChannelSaga(
   const channelAddress = action.payload.channel
   const isGeneral = channelAddress === 'general'
 
-  if (!isGeneral) {
+  if (isGeneral) {
+    yield* put(publicChannelsActions.startGeneralRecreation())
+  } else {
     yield* put(publicChannelsActions.setCurrentChannel({ channelAddress: 'general' }))
   }
 
@@ -26,5 +28,7 @@ export function* deletedChannelSaga(
 
   if (isGeneral) {
     yield* put(publicChannelsActions.createGeneralChannel())
+    yield* delay(500)
+    yield* put(publicChannelsActions.finishGeneralRecreation())
   }
 }
