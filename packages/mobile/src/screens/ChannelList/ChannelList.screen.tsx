@@ -28,6 +28,9 @@ export const ChannelListScreen: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.channelsStatusSorted)
 
+  // Only community owner is allowed to delete channels
+  const enableChannelDeletion = Boolean(community.CA)
+
   const tiles = channels.map(status => {
     const newestMessage = status.newestMessage
 
@@ -49,6 +52,6 @@ export const ChannelListScreen: FC = () => {
   const communityContextMenu = useContextMenu(MenuName.Community)
 
   return (
-    <ChannelListComponent community={community} tiles={tiles} communityContextMenu={communityContextMenu} />
+    <ChannelListComponent community={community} tiles={tiles} communityContextMenu={communityContextMenu} enableDeletion={enableChannelDeletion}/>
   )
 }
