@@ -29,6 +29,7 @@ import { publicChannelsActions } from '../../publicChannels/publicChannels.slice
 import {
   ChannelsReplicatedPayload,
   CreatedChannelResponse,
+  DeletedChannelPayload,
   IncomingMessages,
   SetChannelSubscribedPayload
 } from '../../publicChannels/publicChannels.types'
@@ -123,8 +124,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
       emit(publicChannelsActions.setChannelSubscribed(payload))
     })
-    socket.on(SocketActionTypes.DELETED_CHANNEL, (payload: any) => {
-      console.log('start connection saga deleted channel')
+    socket.on(SocketActionTypes.DELETED_CHANNEL, (payload: DeletedChannelPayload) => {
       emit(publicChannelsActions.deletedChannel(payload))
     })
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
