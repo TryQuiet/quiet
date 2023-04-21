@@ -131,6 +131,7 @@
     ],
     "setupFilesAfterEnv": [
       "@testing-library/jest-native/extend-expect"
-    ]
+    ],
+    "testRegex": "src/.*\\.test\\.(t|j)sx?$"
   }
 }
