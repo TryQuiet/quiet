@@ -1,8 +1,12 @@
 import { invitationShareUrl } from '@quiet/common'
-import { setupCrypto } from '@quiet/identity'
+import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
 import { Store } from '@reduxjs/toolkit'
 import { getFactory } from '../../utils/tests/factories'
 import { prepareStore } from '../../utils/tests/prepareStore'
+import { identityActions } from '../identity/identity.slice'
+import { Identity } from '../identity/identity.types'
+import { usersSelectors } from '../users/users.selectors'
+import { usersActions } from '../users/users.slice'
 import { communitiesSelectors } from './communities.selectors'
 import { communitiesActions, Community } from './communities.slice'
 
@@ -12,6 +16,7 @@ describe('communitiesSelectors', () => {
   let store: Store
   let communityAlpha: Community
   let communityBeta: Community
+  let identity: Identity
 
   beforeEach(async () => {
     store = prepareStore({}).store
@@ -19,6 +24,11 @@ describe('communitiesSelectors', () => {
     communityAlpha = await factory.create<
       ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
+    identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+      'Identity',
+      { id: communityAlpha.id, nickname: 'john' }
+    )
+
     communityBeta = await factory.create<
       ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
@@ -36,7 +46,7 @@ describe('communitiesSelectors', () => {
 
   it('select current community', () => {
     const community = communitiesSelectors.currentCommunity(store.getState())
-    expect(community).toBe(communityAlpha)
+    expect(community).toEqual({ ...communityAlpha, ownerCertificate: identity.userCertificate })
   })
 
   it('returns registrar url without port if no port in the store', async () => {
@@ -122,11 +132,17 @@ describe('communitiesSelectors', () => {
     expect(invitationUrl).toEqual(invitationShareUrl(code))
   })
 
-  it('returns proper ownerNickname', async () => {
+  it('returns proper ownerNickname - ownerCertificate exist', async () => {
+    const { store } = prepareStore()
+    store.dispatch(
+      usersActions.responseSendCertificates({
+        certificates: [identity.userCertificate]
+      })
+    )
     const expexctedNickname = 'alice'
     const ownerCertificate =
       'MIIDdDCCAxugAwIBAgIGAYeiqwwYMAoGCCqGSM49BAMCMA8xDTALBgNVBAMTBHRlc3QwHhcNMjMwNDIxMDcxNTMxWhcNMzAwMTMxMjMwMDAwWjBJMUcwRQYDVQQDEz5qYm1zbXR4Z2Rhd241ZTdyZ3Z5ZGZ3bGFuY3c1bnZkcmZjdXdvdmltNzJqeXY2ZTN5eDR0ZXhxZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABBjP55M/p8QVQGdgjtAdGwLS8uyzyIaWzvnuCvOwLs/u+FHUdb0DU2+M4TYEZjVHmqn+hSERs4XHG0/tbaaGSyGjggInMIICIzAJBgNVHRMEAjAAMAsGA1UdDwQEAwIAgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwggFHBgkqhkiG9w0BCQwEggE4BIIBNCqfocsbSvEqAdeRObiywx0KV2r7xEnqFysFuc1InEpwF3707TZGrFxww74g/ccxHCZ9zda4EHawgLoU6oKdeyec8W7qAThnWCRzJcOPINdZaTR45g28jeWAXMAtVG6eYtEQS4t7g915QaB0uYUoM3Teqp/qaMhk/9Hs4jiKlN3wL9WFYRf14XQIIVu3Fb0f3sD2/ejNPRJztJeJCwYtcFNF3fhPpH5bSPlcy6IaxhQrMXboqAfSAUlnMD4PifHFxvQYbfvTEC65Gt+FzwJ956BA5PuKsGFf+NVznyp5/YtFrl0XRRdlBcTzp2jreqhxBCdsvCpPwvM2TRv4OPk+hjMPPzBdPgvs5tytiFFyK9hXemai2TTwP1qo+VuV5SYyAyZP4rPxc/XEDHk+W3QN0vF8Ff+iMBUGCisGAQQBg4wbAgEEBxMFYWxpY2UwPQYJKwYBAgEPAwEBBDATLlFtZVN0WFY5VERXVHhoYXZUd25DZWdaYnNvMndQZ3BYQ2lzdHlCTEo2b0MyZHcwSQYDVR0RBEIwQII+amJtc210eGdkYXduNWU3cmd2eWRmd2xhbmN3NW52ZHJmY3V3b3ZpbTcyanl2NmUzeXg0dGV4cWQub25pb24wCgYIKoZIzj0EAwIDRwAwRAIga3etWmNtiMT/SUZkG0Rf5kwl3HxsGDJXsU7X5aCQAvMCIFKVBnCbTPseU5gQwamWZDG9ZoMf0X1VGzYUixWvmzuc'
-    const { store } = prepareStore()
+
     const factory = await getFactory(store)
     await factory.create<ReturnType<typeof communitiesActions.addOwnerCertificate>['payload']>(
       'Community',
@@ -136,5 +152,16 @@ describe('communitiesSelectors', () => {
     )
     const ownerNickname = communitiesSelectors.ownerNickname(store.getState())
     expect(ownerNickname).toEqual(expexctedNickname)
+  })
+
+  it('returns proper ownerNickname - ownerCertificate not exist - backwards compatibility', async () => {
+    const { store } = prepareStore()
+    store.dispatch(
+      usersActions.responseSendCertificates({
+        certificates: [identity.userCertificate]
+      })
+    )
+    const ownerNickname = communitiesSelectors.ownerNickname(store.getState())
+    expect(ownerNickname).toEqual(identity.nickname)
   })
 })
