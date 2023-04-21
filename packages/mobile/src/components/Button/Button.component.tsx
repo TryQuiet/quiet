@@ -6,7 +6,7 @@ import * as Progress from 'react-native-progress'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
-export const Button: FC<ButtonProps> = ({ onPress, title, loading, negative, disabled }) => {
+export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negative, disabled }) => {
   return (
     <TouchableWithoutFeedback
       onPress={event => {
@@ -22,7 +22,8 @@ export const Button: FC<ButtonProps> = ({ onPress, title, loading, negative, dis
           borderRadius: 5,
           justifyContent: 'center',
           alignItems: 'center',
-          minHeight: 45
+          minHeight: 45,
+          width: width
         }}>
         {!loading ? (
           <Typography fontSize={14} color={!negative ? 'white' : 'gray50'}>
