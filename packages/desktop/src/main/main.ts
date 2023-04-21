@@ -5,7 +5,7 @@ import path from 'path'
 import { autoUpdater } from 'electron-updater'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
-import { getPorts, ApplicationPorts } from './backendHelpers'
+import { getPorts, ApplicationPorts, closeHangingBackendProcess } from './backendHelpers'
 import pkijs, { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
@@ -362,9 +362,14 @@ app.on('ready', async () => {
     'desktop'
   ]
 
-  const backendBundlePath = require.resolve('backend-bundle')
+  const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
+  try {
+    closeHangingBackendProcess(path.normalize(backendBundlePath), path.normalize(appDataPath))
+  } catch (e) {
+    console.error('Error occurred while trying to close hanging backend process', e.message)
+  }
 
-  backendProcess = fork(path.normalize(backendBundlePath), forkArgvs)
+  backendProcess = fork(backendBundlePath, forkArgvs)
   log('Forked backend, PID:', backendProcess.pid)
 
   backendProcess.on('error', e => {
