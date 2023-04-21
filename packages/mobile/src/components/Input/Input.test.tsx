@@ -49,6 +49,8 @@ describe('MessageInput component', () => {
                 "borderRadius": 4,
                 "borderWidth": 1,
                 "flexGrow": 1,
+                "height": 60,
+                "justifyContent": "center",
                 "paddingLeft": 15,
                 "paddingRight": 15,
               },

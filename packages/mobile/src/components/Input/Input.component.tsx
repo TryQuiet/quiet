@@ -4,6 +4,7 @@ import { Typography } from '../Typography/Typography.component'
 
 import { StyledTextInput, StyledWrapper } from './Input.styles'
 import { InputProps } from './Input.types'
+import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Input = forwardRef<TextInput, InputProps>(
   (
@@ -32,7 +33,7 @@ export const Input = forwardRef<TextInput, InputProps>(
     return (
       <View>
         {label && (
-          <Typography fontSize={10} style={{ paddingBottom: 10 }}>
+          <Typography fontSize={14} style={{ paddingBottom: 10, color: defaultTheme.palette.typography.gray70 }}>
             {label}
           </Typography>
         )}

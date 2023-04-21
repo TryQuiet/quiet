@@ -12,6 +12,7 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 
 import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
+
 import { capitalizeFirstLetter } from '@quiet/common'
 
 export const CommunityContextMenu: FC = () => {
@@ -41,6 +42,7 @@ export const CommunityContextMenu: FC = () => {
   )
 
   const items: ContextMenuItemProps[] = [
+    { title: 'Create channel', action: () => redirect(ScreenNames.CreateChannelScreen) },
     { title: 'Add members', action: () => invitationContextMenu.handleOpen() },
     { title: 'Leave community', action: () => redirect(ScreenNames.LeaveCommunityScreen) }
   ]
