@@ -364,7 +364,7 @@ app.on('ready', async () => {
 
   const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
   try {
-    closeHangingBackendProcess(path.normalize(backendBundlePath), path.normalize(appDataPath))
+    closeHangingBackendProcess(path.normalize(path.join('backend-bundle', 'bundle.cjs')), path.normalize(appDataPath))
   } catch (e) {
     console.error('Error occurred while trying to close hanging backend process', e.message)
   }
