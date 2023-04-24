@@ -92,7 +92,12 @@ export const communitiesSlice = createSlice({
         }
       })
     },
-    handleInvitationCode: (state, _action: PayloadAction<string>) => state,
+    handleInvitationCode: (state, action: PayloadAction<string>) => {
+      state.invitationCode = action.payload
+    },
+    clearInvitationCode: state => {
+      state.invitationCode = undefined
+    },
     addOwnerCertificate: (state, action: PayloadAction<AddOwnerCertificatePayload>) => {
       const { communityId, ownerCertificate } = action.payload
       communitiesAdapter.updateOne(state.communities, {
