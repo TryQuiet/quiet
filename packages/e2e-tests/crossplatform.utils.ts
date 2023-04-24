@@ -55,13 +55,14 @@ export class BuildSetup {
         shell: true
       })
     } else {
-      const dataDir = this.dataDir ? `DATA_DIR=${this.dataDir}` : ''
+      const dataDirEnv = this.dataDir ? {DATA_DIR: this.dataDir} : {}
       this.child = spawn(
-        `DEBUG=backend* ${dataDir} node_modules/.bin/chromedriver --port=${this.port}`,
+        `DEBUG=backend* node_modules/.bin/chromedriver --port=${this.port}`,
         [],
         {
           shell: true,
-          detached: false
+          detached: false,
+          env: Object.assign(process.env, dataDirEnv)
         }
       )
     }
