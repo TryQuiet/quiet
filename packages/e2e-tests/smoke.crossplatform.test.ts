@@ -137,7 +137,6 @@ describe('Smoke', () => {
       ]
       const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
       fork(backendBundlePath, forkArgvs)
-      // console.log('CHECK::::::', execSync(`pgrep -af "backend-bundle"`).toString('utf8').trim())
       await app.close()
     })
 
@@ -158,5 +157,10 @@ describe('Smoke', () => {
       expect(isLoadingPanel).toBeTruthy()
     })
 
+    it('User sees "join community" page', async () => {
+      const joinModal = new JoinCommunityModal(app.driver)
+      const isJoinModal = await joinModal.element.isDisplayed()
+      expect(isJoinModal).toBeTruthy()
+    })
   })
 })

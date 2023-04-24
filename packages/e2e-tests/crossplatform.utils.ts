@@ -49,20 +49,24 @@ export class BuildSetup {
 
   public async createChromeDriver() {
     await this.initPorts()
+    const env = {
+      DATA_DIR: this.dataDir || 'Quiet',
+      DEBUG: 'backend*'
+    }
     if (process.platform === 'win32') {
       console.log('!WINDOWS!')
       this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port}`, [], {
-        shell: true
+        shell: true,
+        env: Object.assign(process.env, env)
       })
     } else {
-      const dataDirEnv = this.dataDir ? {DATA_DIR: this.dataDir} : {}
       this.child = spawn(
-        `DEBUG=backend* node_modules/.bin/chromedriver --port=${this.port}`,
+        `node_modules/.bin/chromedriver --port=${this.port}`,
         [],
         {
           shell: true,
           detached: false,
-          env: Object.assign(process.env, dataDirEnv)
+          env: Object.assign(process.env, env)
         }
       )
     }
@@ -148,12 +152,13 @@ export class BuildSetup {
   }
 
   public async killChromeDriver() {
-    console.log('kill')
+    console.log(`Killing driver (DATA_DIR=${this.dataDir})`)
     this.child?.kill()
     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
   }
 
   public async closeDriver() {
+    console.log(`Closing driver (DATA_DIR=${this.dataDir})`)
     await this.driver?.close()
   }
 }
