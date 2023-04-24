@@ -275,7 +275,7 @@ export class Storage extends EventEmitter {
         const isDeleted = !Object.keys(this.channels.all).includes(e as string)
         if (isDeleted) {
           console.log('deleting channel')
-          this.deleteChannel({channel: e})
+          void this.deleteChannel({ channel: e })
         }
       })
 
@@ -491,7 +491,7 @@ export class Storage extends EventEmitter {
     await this.channels.load({ fetchEntryTimeout: 15000 })
     const channel = this.channels.get(payload.channel)
     if (channel) {
-      this.channels.del(payload.channel)
+      void this.channels.del(payload.channel)
     }
     // Send message to channel that it has been deleted, but how to ensure that everyone replicated
     // Create special channel for mod messages
