@@ -41,7 +41,7 @@ describe('Leave Community', () => {
   const joiningUserUsername2 = 'alice2'
 
   beforeAll(async () => {
-    buildSetup = new BuildSetup(port, debugPort)
+    buildSetup = new BuildSetup({ port, debugPort })
     await buildSetup.createChromeDriver()
     driver = buildSetup.getDriver()
     await driver.getSession()
@@ -58,16 +58,7 @@ describe('Leave Community', () => {
     if (process.env.TEST_MODE) {
       it('Close debug modal', async () => {
         const debugModal = new DebugModeModal(driver)
-        await debugModal.element.isDisplayed()
-        const button = await debugModal.button
-        await button.isDisplayed()
-        await button.click()
-        try {
-          const log = await driver.executeScript('arguments[0].click();', button)
-          console.log('executeScript', log)
-        } catch (e) {
-          console.log('Probably click properly close modal')
-        }
+        await debugModal.close()
       })
     }
 
@@ -131,7 +122,7 @@ describe('Leave Community', () => {
     })
     it('Guest setup', async () => {
       console.log('Second client')
-      buildSetup2 = new BuildSetup(port2, debugPort2)
+      buildSetup2 = new BuildSetup({ port: port2, debugPort: debugPort2 })
       await buildSetup2.createChromeDriver()
       driver2 = buildSetup2.getDriver()
       await driver2.getSession()
@@ -139,16 +130,7 @@ describe('Leave Community', () => {
     if (process.env.TEST_MODE) {
       it('Close debug modal', async () => {
         const debugModal = new DebugModeModal(driver2)
-        await debugModal.element.isDisplayed()
-        const button = await debugModal.button
-        await button.isDisplayed()
-        await button.click()
-        try {
-          const log = await driver2.executeScript('arguments[0].click();', button)
-          console.log('executeScript', log)
-        } catch (e) {
-          console.log('Probably click properly close modal')
-        }
+        await debugModal.close()
       })
     }
     it('StartingLoadingPanel modal', async () => {
@@ -193,17 +175,7 @@ describe('Leave Community', () => {
     if (process.env.TEST_MODE) {
       it('Close debug modal', async () => {
         const debugModal = new DebugModeModal(driver2)
-        await debugModal.element.isDisplayed()
-        const button = await debugModal.button
-        await button.isDisplayed()
-        await button.click()
-
-        try {
-          const log = await driver2.executeScript('arguments[0].click();', button)
-          console.log('executeScript', log)
-        } catch (e) {
-          console.log('Probably click properly close modal')
-        }
+        await debugModal.close()
       })
     }
     it('Guest re-join to community successfully', async () => {

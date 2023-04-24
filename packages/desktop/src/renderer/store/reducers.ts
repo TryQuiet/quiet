@@ -6,6 +6,7 @@ import { persistReducer } from 'redux-persist'
 
 import stateManagerReducers, {
   storeKeys as StateManagerStoreKeys,
+  CommunitiesTransform,
   PublicChannelsTransform,
   MessagesTransform,
   FilesTransform,
@@ -57,7 +58,13 @@ const persistConfig = {
     StateManagerStoreKeys.Connection,
     StoreKeys.App
   ],
-  transforms: [PublicChannelsTransform, MessagesTransform, FilesTransform, ConnectionTransform]
+  transforms: [
+    CommunitiesTransform,
+    PublicChannelsTransform,
+    MessagesTransform,
+    FilesTransform,
+    ConnectionTransform
+  ]
 }
 
 export const reducers = {

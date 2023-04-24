@@ -11,20 +11,16 @@ import {
 } from './selectors.crossplatform'
 import logger from './logger'
 import { BuildSetup } from './crossplatform.utils'
-
+import getPort from 'get-port'
 const log = logger('newUser:')
 
 jest.setTimeout(900000)
 describe('New User', () => {
   let buildSetup: BuildSetup
   let driver: ThenableWebDriver
-  const port = 9516
-  const debugPort = 9517
 
   let buildSetup2: BuildSetup
   let driver2: ThenableWebDriver
-  const port2 = 9518
-  const debugPort2 = 9519
 
   let generalChannel: Channel
   let generalChannel2: Channel
@@ -37,7 +33,9 @@ describe('New User', () => {
   const joiningUserUsername = 'alice-joining'
   const joiningUserMessages = ['Nice to meet you all']
   beforeAll(async () => {
-    buildSetup = new BuildSetup(port, debugPort)
+    const port = await getPort()
+    const debugPort = await getPort()
+    buildSetup = new BuildSetup({ port, debugPort })
     await buildSetup.createChromeDriver()
     driver = buildSetup.getDriver()
     await driver.getSession()
@@ -53,21 +51,8 @@ describe('New User', () => {
   describe('Stages:', () => {
     if (process.env.TEST_MODE) {
       it('Close debug modal', async () => {
-        console.log('Debug modal')
         const debugModal = new DebugModeModal(driver)
-        await debugModal.element.isDisplayed()
-        const button = await debugModal.button
-        console.log('Debug modal title is displayed')
-        await button.isDisplayed()
-        console.log('Button is displayed')
-        await button.click()
-        console.log('Button click')
-        try {
-          const log = await driver.executeScript('arguments[0].click();', button)
-          console.log('executeScript', log)
-        } catch (e) {
-          console.log('Probably click properly close modal')
-        }
+        await debugModal.close()
       })
     }
 
@@ -131,28 +116,17 @@ describe('New User', () => {
     })
     it('Guest setup', async () => {
       console.log('Second client')
-      buildSetup2 = new BuildSetup(port2, debugPort2)
+      const port2 = await getPort()
+      const debugPort2 = await getPort()
+      buildSetup2 = new BuildSetup({ port: port2, debugPort: debugPort2 })
       await buildSetup2.createChromeDriver()
       driver2 = buildSetup2.getDriver()
       await driver2.getSession()
     })
     if (process.env.TEST_MODE) {
       it('Close debug modal', async () => {
-        console.log('Debug modal')
         const debugModal = new DebugModeModal(driver2)
-        await debugModal.element.isDisplayed()
-        const button = await debugModal.button
-        console.log('Debug modal title is displayed')
-        await button.isDisplayed()
-        console.log('Button is displayed')
-        await button.click()
-        console.log('Button click')
-        try {
-          const log = await driver2.executeScript('arguments[0].click();', button)
-          console.log('executeScript', log)
-        } catch (e) {
-          console.log('Probably click properly close modal')
-        }
+        await debugModal.close()
       })
     }
     it('StartingLoadingPanel modal', async () => {

@@ -8,8 +8,8 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 
 import { LeaveCommunity } from '../../components/LeaveCommunity/LeaveCommunity.component'
 
-import { capitalize } from '../../utils/functions/capitalize/capitalize'
 import { nativeServicesActions } from '../../store/nativeServices/nativeServices.slice'
+import { capitalizeFirstLetter } from '@quiet/common'
 
 export const LeaveCommunityScreen: FC = () => {
   const dispatch = useDispatch()
@@ -18,7 +18,7 @@ export const LeaveCommunityScreen: FC = () => {
 
   let communityName = ''
   if (community?.name) {
-    communityName = capitalize(community.name)
+    communityName = capitalizeFirstLetter(community.name)
   }
 
   const leaveCommunity = useCallback(() => {

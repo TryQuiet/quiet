@@ -12,6 +12,7 @@ import {
 } from './communities.types'
 
 export class CommunitiesState {
+  public invitationCode: string = undefined
   public currentCommunity: string = ''
   public communities: EntityState<Community> = communitiesAdapter.getInitialState()
 }

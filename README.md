@@ -10,7 +10,7 @@
   Encrypted p2p team chat with no servers, just Tor.
     <br />
 <!--    <a href="https://tryquiet.org"><strong>tryquiet.org »</strong></a> -->
-    <a href="https://github.com/TryQuiet/quiet/releases/tag/quiet%400.16.0"><strong>Downloads</strong></a> | 
+    <a href="https://github.com/TryQuiet/quiet/releases/tag/quiet%401.2.0"><strong>Downloads</strong></a> | 
     <a href="#how-it-works"><strong>How it Works</strong></a> |   
     <a href="#features"><strong>Features</strong></a> | 
     <a href="https://github.com/TryQuiet/monorepo/wiki/Threat-Model"><strong>Threat Model</strong></a> | 
@@ -52,7 +52,7 @@ See our [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ) for answers t
 
 ## Getting started
 
-To try Quiet, download the [latest release](https://github.com/TryQuiet/quiet/releases/tag/quiet%401.0.0) for your platform (.dmg for macOS, .exe for Windows, etc.) and install it in the normal way. Then create a community and open the community's settings to invite members. 
+To try Quiet, download the [latest release](https://github.com/TryQuiet/quiet/releases/tag/quiet%401.2.0) for your platform (.dmg for macOS, .exe for Windows, etc.) and install it in the normal way. Then create a community and open the community's settings to invite members. 
 
 If you'd like to help develop Quiet, see [Contributing to Quiet](#contributing-to-quiet).
 
@@ -134,4 +134,4 @@ Join us, and let's figure this out.
 
 Even though Quiet is completely peer-to-peer, it is mostly written in TypeScript and will be familiar to anyone accustomed to Node.js web development. Desktop and mobile versions share a common Node.js [backend](https://github.com/TryQuiet/monorepo/tree/master/packages/backend) and React [state manager](https://github.com/TryQuiet/monorepo/tree/master/packages/state-manager), with [Tor](https://torproject.org) binaries for each platform and architecture, using Electron and React Native and for their respective frontends.
 
-To get started hacking on Quiet, follow the instructions for [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop#readme) or [Quiet Mobile](https://github.com/TryQuiet/monorepo/tree/master/packages/mobile#readme). (If you're new to the project, start with Quiet Desktop, as it's more stable and vastly easier to start hacking on.) Here are some [good first issues](https://github.com/TryQuiet/quiet/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), and you can see upcoming priorities in our [project board](https://github.com/orgs/TryQuiet/projects/1).
+To get started hacking on Quiet, follow the instructions for [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop#readme) or [Quiet Mobile](https://github.com/TryQuiet/monorepo/tree/master/packages/mobile#readme). (If you're new to the project, start with Quiet Desktop, as it's more stable and vastly easier to start hacking on.) Here are some [good first issues](https://github.com/orgs/TryQuiet/projects/3/views/1?filterQuery=label%3A%22good+first+issue%22), and you can see upcoming priorities in our [project board](https://github.com/orgs/TryQuiet/projects/3/views/1).

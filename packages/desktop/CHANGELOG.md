@@ -3,6 +3,62 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/TryQuiet/quiet/compare/quiet@1.2.0-alpha.30...quiet@1.2.0) (2023-04-18)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+# [1.2.0-alpha.30](https://github.com/TryQuiet/quiet/compare/quiet@1.2.0-alpha.29...quiet@1.2.0-alpha.30) (2023-04-18)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+# [1.2.0-alpha.29](/compare/quiet@1.2.0-alpha.28...quiet@1.2.0-alpha.29) (2023-04-17)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+# [1.2.0-alpha.28](https://github.com/TryQuiet/quiet/compare/quiet@1.2.0-alpha.27...quiet@1.2.0-alpha.28) (2023-04-14)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+# [1.2.0-alpha.27](https://github.com/TryQuiet/quiet/compare/quiet@1.2.0-alpha.26...quiet@1.2.0-alpha.27) (2023-04-14)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+# [1.2.0-alpha.26](https://github.com/TryQuiet/quiet/compare/quiet@1.2.0-alpha.25...quiet@1.2.0-alpha.26) (2023-04-13)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
+# [1.2.0-alpha.25](https://github.com/TryQuiet/quiet/compare/quiet@1.2.0-alpha.24...quiet@1.2.0-alpha.25) (2023-04-12)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
 # [1.2.0-alpha.24](https://github.com/ZbayApp/monorepo/compare/quiet@1.2.0-alpha.23...quiet@1.2.0-alpha.24) (2023-04-07)
 
 **Note:** Version bump only for package quiet

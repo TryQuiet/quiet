@@ -28,6 +28,8 @@ import WarningModal from './containers/widgets/WarningModal/WarningModal'
 import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
 import { DeleteChannel } from './components/Channel/DeleteChannel/DeleteChannel'
 import ChannelCreationModal from './components/ChannelCreationModal/ChannelCreationModal'
+import { SaveStateComponent } from './components/SaveState/SaveStateComponent'
+// Trigger lerna
 
 export const persistor = persistStore(store)
 export default () => {
@@ -59,6 +61,7 @@ export default () => {
                   <Route index path='/' element={<Index />} />
                   <Route path='/main/*' element={<Main />} />
                 </Routes>
+                <SaveStateComponent persistor={persistor} />
               </PersistGate>
             </Provider>
           </HashRouter>

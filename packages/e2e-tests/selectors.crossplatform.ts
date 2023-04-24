@@ -1,4 +1,50 @@
 import { By, Key, ThenableWebDriver, until } from 'selenium-webdriver'
+import { BuildSetup, BuildSetupInit } from './crossplatform.utils'
+
+export class App {
+  driver: ThenableWebDriver
+  private buildSetup: BuildSetup
+  dataDir: string
+  constructor(buildSetupConfig?: BuildSetupInit) {
+    this.buildSetup = new BuildSetup({ ...buildSetupConfig })
+  }
+
+  async open() {
+    this.buildSetup.resetDriver()
+    await this.buildSetup.createChromeDriver()
+    this.driver = this.buildSetup.getDriver()
+    await this.driver.getSession()
+  }
+
+  async close(options?: {forceSaveState?: boolean}) {
+    if (options?.forceSaveState) {
+      await this.saveState() // Selenium creates community and closes app so fast that redux state may not be saved properly
+      await this.waitForSavedState()
+    }
+    await this.buildSetup.closeDriver()
+    await this.buildSetup.killChromeDriver()
+  }
+
+  get saveStateButton() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-testid="save-state-button"]'))
+    )
+  }
+
+  async saveState() {
+    console.log('Saving redux state')
+    const stateButton = await this.saveStateButton
+    await this.driver.executeScript('arguments[0].click();', stateButton)
+  }
+
+  async waitForSavedState() {
+    const dataSaved = this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-is-saved="true"]'))
+    )
+    return await dataSaved
+  }
+}
+
 export class StartingLoadingPanel {
   private readonly text: string
   private readonly driver: ThenableWebDriver
@@ -18,6 +64,26 @@ export class StartingLoadingPanel {
   //   return this.driver.findElement(By.xpath(`//span[text()="${this.text}"]`))
   // }
 }
+
+export class WarningModal {
+  private readonly driver: ThenableWebDriver
+
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get titleElement() {
+    return this.driver.wait(
+      until.elementLocated(By.xpath('//h3[@data-testid="warningModalTitle"]'))
+    )
+  }
+
+  async close() {
+    const submitButton = await this.driver.findElement(By.xpath('//button[@data-testid="warningModalSubmit"]'))
+    await submitButton.click()
+  }
+}
+
 export class JoiningLoadingPanel {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
@@ -154,6 +220,12 @@ export class Channel {
       until.elementsLocated(By.xpath(`//*[contains(@data-testid, "userMessages-${username}")]`))
     )
   }
+
+  async getMessage(text: string) {
+    return await this.driver.wait(
+      until.elementLocated(By.xpath(`//span[contains(text(),"${text}")]`))
+    )
+  }
 }
 export class Sidebar {
   private readonly driver: ThenableWebDriver
@@ -243,6 +315,7 @@ export class DebugModeModal {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
+    console.log('Debug modal')
   }
 
   get element() {
@@ -253,5 +326,22 @@ export class DebugModeModal {
 
   get button() {
     return this.driver.wait(until.elementLocated(By.xpath("//button[text()='Understand']")))
+  }
+
+  async close() {
+    console.log('Closing debug modal')
+    await this.element.isDisplayed()
+    const button = await this.button
+    console.log('Debug modal title is displayed')
+    await button.isDisplayed()
+    console.log('Button is displayed')
+    await button.click()
+    console.log('Button click')
+    try {
+      const log = await this.driver.executeScript('arguments[0].click();', button)
+      console.log('executeScript', log)
+    } catch (e) {
+      console.log('Probably click properly close modal')
+    }
   }
 }

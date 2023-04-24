@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 
@@ -143,6 +143,7 @@ export interface PerformCommunityActionProps {
   hasReceivedResponse: boolean
   revealInputValue?: boolean
   handleClickInputReveal?: () => void
+  invitationCode?: string
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -155,11 +156,14 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   isCloseDisabled,
   hasReceivedResponse,
   revealInputValue,
-  handleClickInputReveal
+  handleClickInputReveal,
+  invitationCode
 }) => {
   const [formSent, setFormSent] = useState(false)
+
   const [communityName, setCommunityName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
+
   const waitingForResponse = formSent && !hasReceivedResponse
 
   const dictionary =
@@ -207,6 +211,14 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     setCommunityName(parsedName)
     setParsedNameDiffers(name !== parsedName)
   }
+
+  // Lock the form if app's been open with custom protocol
+  useEffect(() => {
+    if (communityOwnership === CommunityOwnership.User && invitationCode) {
+      setFormSent(true)
+      setValue('name', invitationCode)
+    }
+  }, [communityOwnership, invitationCode])
 
   React.useEffect(() => {
     if (!open) {

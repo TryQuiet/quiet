@@ -10,7 +10,7 @@ describe('InitCheck component', () => {
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
-          Object {
+          {
             "alignItems": "center",
             "flexDirection": "row",
             "justifyContent": "center",
@@ -19,12 +19,12 @@ describe('InitCheck component', () => {
       >
         <Image
           source={
-            Object {
+            {
               "testUri": "../../../assets/icons/check_circle_green.png",
             }
           }
           style={
-            Object {
+            {
               "height": 14,
               "margin": 5,
               "resizeMode": "cover",
@@ -37,8 +37,8 @@ describe('InitCheck component', () => {
           fontSize={12}
           horizontalTextAlign="left"
           style={
-            Array [
-              Object {
+            [
+              {
                 "color": "#999999",
                 "fontFamily": "Rubik-Regular",
                 "fontSize": 12,

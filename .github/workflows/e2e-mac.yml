@@ -60,6 +60,13 @@ jobs:
           timeout_minutes: 35
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test newUser.crossplatform.test.ts
+      
+      - name: Run invitation link test - Includes 2 separate application clients
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 35
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test invitationLink.crossplatform.test.ts
 
       - name: Run leave community test
         uses: nick-fields/retry@v2
