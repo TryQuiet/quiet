@@ -39,7 +39,7 @@ export function* deletedChannelSaga(
     yield* put(publicChannelsActions.finishGeneralRecreation())
     message = `#general has been recreated by ${ownerNickname}`
   } else {
-    message = `#${channelAddress} has been deleted by ${ownerNickname}`
+    message = `${ownerNickname} deleted #${channelAddress}`
   }
 
   const payload: WriteMessagePayload = {

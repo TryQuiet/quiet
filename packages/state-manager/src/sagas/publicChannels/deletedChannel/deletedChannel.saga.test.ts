@@ -60,7 +60,7 @@ describe('deletedChannelSaga', () => {
 
   test('non-general channel deletion', async () => {
     const channelAddress = photoChannel.address
-    const message = `#${channelAddress} has been deleted by ${owner.nickname}`
+    const message = `${owner.nickname} deleted #${channelAddress}`
     const messagePayload: WriteMessagePayload = {
       type: MessageType.Info,
       message,
