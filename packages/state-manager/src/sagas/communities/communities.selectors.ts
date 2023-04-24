@@ -55,6 +55,10 @@ export const registrarUrl = (communityId: string) =>
     return registrarAddress
   })
 
+export const invitationCode = createSelector(communitiesSlice, reducerState => {
+  return reducerState.invitationCode
+})
+
 export const invitationUrl = createSelector(currentCommunity, community => {
   if (!community) return ''
   let registrarUrl = ''
@@ -102,6 +106,7 @@ export const communitiesSelectors = {
   currentCommunityId,
   registrarUrl,
   registrationAttempts,
+  invitationCode,
   invitationUrl,
   ownerNickname
 }

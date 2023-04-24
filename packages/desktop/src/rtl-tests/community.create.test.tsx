@@ -182,6 +182,7 @@ describe('User', () => {
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
+        "Communities/addOwnerCertificate",
         "Communities/storePeerList",
         "Identity/storeUserCertificate",
         "Identity/savedOwnerCertificate",
