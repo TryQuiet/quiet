@@ -14,6 +14,7 @@ storiesOf('ChannelTile', module)
       date={'1:55pm'}
       unread={false}
       redirect={(address: string) => { console.log(`Clicked ${address}`) }}
+      deleteChannel={(channel: string) => { console.log(`Deleted channel ${channel}`) }}
     />
   ))
   .add('Deletion', () => (
@@ -26,6 +27,7 @@ storiesOf('ChannelTile', module)
       date={'1:55pm'}
       unread={false}
       redirect={(address: string) => { console.log(`Clicked ${address}`) }}
+      deleteChannel={(channel: string) => { console.log(`Deleted channel ${channel}`) }}
       enableDeletion
     />
   ))
@@ -39,5 +41,6 @@ storiesOf('ChannelTile', module)
       date={'1:55pm'}
       unread={true}
       redirect={(address: string) => { console.log(`Clicked ${address}`) }}
+      deleteChannel={(channel: string) => { console.log(`Deleted channel ${channel}`) }}
     />
   ))

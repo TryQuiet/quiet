@@ -66,7 +66,9 @@ export const ChannelListScreen: FC = () => {
       message: message,
       date: date,
       unread: status.unread,
-      redirect: redirect
+      redirect: redirect,
+      deleteChannel: deleteChannel,
+      enableDeletion: enableChannelDeletion
     }
 
     return tile
