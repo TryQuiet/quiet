@@ -58,7 +58,7 @@ describe('Registration service', () => {
   })
 
   it('registerUser should return 200 status code', async () => {
-    const responseData = await registerUser(userCsr.userCsr, permsData, [])
+    const responseData = await registerUser(userCsr.userCsr, permsData, [], 'ownerCert')
     const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.body.certificate)
     expect(isProperUserCert.result).toBe(true)
   })
@@ -75,7 +75,7 @@ describe('Registration service', () => {
     const userCert = await createUserCert(certRoot.rootCertString, certRoot.rootKeyString, user.userCsr, new Date(), new Date(2030, 1, 1))
     const responseData = await registerUser(
       user.userCsr,
-      permsData, [userCert.userCertString])
+      permsData, [userCert.userCertString], 'ownerCert')
     expect(responseData.status).toEqual(200)
     const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.body.certificate)
     expect(isProperUserCert.result).toBe(true)
@@ -103,7 +103,7 @@ describe('Registration service', () => {
     })
     const response = await registerUser(
       userNew.userCsr,
-      permsData, [userCert.userCertString]
+      permsData, [userCert.userCertString], 'ownerCert'
     )
     expect(response.status).toEqual(403)
   })
@@ -112,7 +112,7 @@ describe('Registration service', () => {
     for (const invalidCsr of ['', 'abcd']) {
       const response = await registerUser(
         invalidCsr,
-        permsData, []
+        permsData, [], 'ownerCert'
       )
       expect(response.status).toEqual(400)
     }
@@ -122,13 +122,13 @@ describe('Registration service', () => {
     const csr = 'MIIBFTCBvAIBADAqMSgwFgYKKwYBBAGDjBsCARMIdGVzdE5hbWUwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGPGHpJzE/CvL7l/OmTSfYQrhhnWQrYw3GgWB1raCTSeFI/MDVztkBOlxwdUWSm10+1OtKVUWeMKaMtyIYFcPPqAwMC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFLjaEh+cnNhsi5qDsiMB/ZTzZFfqMAoGCCqGSM49BAMCA0gAMEUCIFwlob/Igab05EozU0e/lsG7c9BxEy4M4c4Jzru2vasGAiEAqFTQuQr/mVqTHO5vybWm/iNDk8vh88K6aBCCGYqIfdw='
     const response = await registerUser(
       csr,
-      permsData, []
+      permsData, [], 'ownerCert'
     )
     expect(response.status).toEqual(400)
   })
 
   it('returns 404 if fetching registrar address throws error', async () => {
-console.log(fetch);
+    console.log(fetch);
     (fetch).default.mockRejectedValue('User aborted request')
     const communityId = 'communityID'
     const response = await sendCertificateRegistrationRequest(

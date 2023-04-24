@@ -57,6 +57,13 @@ export interface CreateChannelPayload {
   channel: PublicChannel
 }
 
+export interface DeleteChannelPayload {
+  channel: string
+}
+export interface DeletedChannelPayload {
+  channel: string
+}
+
 export interface CreatedChannelResponse {
   channel: PublicChannel
 }
@@ -103,6 +110,14 @@ export interface MarkUnreadChannelPayload {
 
 export interface UpdateNewestMessagePayload {
   message: ChannelMessage
+}
+
+export interface DeleteChannelFromStorePayload {
+  channelAddress: string
+}
+
+export interface ClearMessagesCachePayload {
+  channelAddress: string
 }
 
 export function instanceOfChannelMessage(object: any): object is ChannelMessage {

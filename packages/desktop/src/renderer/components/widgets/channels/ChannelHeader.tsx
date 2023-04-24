@@ -1,15 +1,14 @@
 import React from 'react'
-import { styled } from '@mui/material/styles'
+
 import classNames from 'classnames'
+
+import { styled } from '@mui/material/styles'
 
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 
 import Icon from '../../ui/Icon/Icon'
-import silenced from '../../../static/images/silenced.svg'
-import silencedBlack from '../../../static/images/silencedBlack.svg'
-import Tooltip from '../../ui/Tooltip/Tooltip'
-import { ChannelMenuActionProps } from './ChannelMenuAction'
+import dots from '../../../static/images/dots.svg'
 
 const PREFIX = 'ChannelHeaderComponent'
 
@@ -29,14 +28,10 @@ const classes = {
   iconDiv: `${PREFIX}iconDiv`,
   iconButton: `${PREFIX}iconButton`,
   bold: `${PREFIX}bold`,
-  silenceDiv: `${PREFIX}silenceDiv`
+  menu: `${PREFIX}menu`
 }
 
-const Root = styled('div')((
-  {
-    theme
-  }
-) => ({
+const Root = styled('div')(({ theme }) => ({
   [`& .${classes.root}`]: {
     height: '75px',
     paddingLeft: 20,
@@ -114,21 +109,22 @@ const Root = styled('div')((
     fontWeight: 500
   },
 
-  [`& .${classes.silenceDiv}`]: {
-    width: 20,
-    height: 20,
-    marginLeft: 11,
+  [`& .${classes.menu}`]: {
+    padding: '20px',
     cursor: 'pointer'
   }
 }))
 
 export interface ChannelHeaderProps {
   channelName: string
+  openContextMenu?: () => void
+  enableContextMenu: boolean
 }
 
-export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuActionProps> = ({
+export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   channelName,
-  ...channelMenuActionProps
+  openContextMenu,
+  enableContextMenu
 }) => {
   const debounce = (fn, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
@@ -144,7 +140,6 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
     }
   }
 
-  const [silenceHover, setSilenceHover] = React.useState(false)
   const [wrapperWidth, setWrapperWidth] = React.useState(0)
 
   React.useEffect(() => {
@@ -184,20 +179,6 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
                 {`#${channelName?.substring(0, 20)}`}
               </Typography>
             </Grid>
-            {channelMenuActionProps.mutedFlag && (
-              <Tooltip placement='bottom' title='Unmute'>
-                <Grid
-                  item
-                  className={classes.silenceDiv}
-                  onMouseEnter={() => setSilenceHover(true)}
-                  onMouseLeave={() => setSilenceHover(false)}
-                  onClick={() => {
-                    channelMenuActionProps.onUnmute()
-                  }}>
-                  <Icon src={silenceHover ? silencedBlack : silenced} />
-                </Grid>
-              </Tooltip>
-            )}
           </Grid>
         </Grid>
         <Grid
@@ -208,9 +189,11 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
           justifyContent='flex-end'
           alignContent='center'
           alignItems='center'>
-          <Grid item>
-            {/* <ChannelMenuActionComponent {...channelMenuActionProps} /> */}
-          </Grid>
+          {enableContextMenu && (
+            <Grid item className={classes.menu} onClick={openContextMenu} data-testId={'channelContextMenuButton'}>
+              <Icon src={dots} />
+            </Grid>
+          )}
         </Grid>
       </Grid>
     </Root>

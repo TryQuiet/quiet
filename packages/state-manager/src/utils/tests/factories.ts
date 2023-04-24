@@ -34,7 +34,8 @@ export const getFactory = async (store: Store) => {
       ),
       registrarUrl: 'http://ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion',
       rootCa: '',
-      peerList: []
+      peerList: [],
+      ownerCertificate: ''
     },
     {
       afterCreate: async (
@@ -101,6 +102,14 @@ export const getFactory = async (store: Store) => {
           await factory.create('UserCertificate', {
             certificate: action.payload.userCertificate
           })
+          if (!community.ownerCertificate) {
+            store.dispatch(
+              communities.actions.addOwnerCertificate({
+                communityId: community.id,
+                ownerCertificate: action.payload.userCertificate
+              })
+            )
+          }
         }
         return action
       }

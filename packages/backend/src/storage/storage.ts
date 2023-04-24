@@ -35,6 +35,7 @@ import {
 import { Config } from '../constants'
 import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
+import { ChannelsAccessController } from './ChannelsAccessController'
 import logger from '../logger'
 import validate from '../validation/validators'
 import { stringToArrayBuffer } from 'pvutils'
@@ -92,6 +93,7 @@ export class Storage extends EventEmitter {
     this.attachFileManagerEvents()
 
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
+    AccessControllers.addAccessController({ AccessController: ChannelsAccessController })
 
     this.orbitdb = await OrbitDB.createInstance(this.ipfs, {
       // @ts-ignore
@@ -250,6 +252,7 @@ export class Storage extends EventEmitter {
     log('createDbForChannels init')
     this.channels = await this.orbitdb.keyvalue<PublicChannel>('public-channels', {
       accessController: {
+        type: 'channelsaccess',
         write: ['*']
       }
     })
@@ -265,6 +268,15 @@ export class Storage extends EventEmitter {
       await this.channels.load({ fetchEntryTimeout: 2000 })
       this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
         channels: this.channels.all as unknown as { [key: string]: PublicChannel }
+      })
+
+      // Delete channel on replication
+      Array.from(this.publicChannelsRepos.keys()).forEach(e => {
+        const isDeleted = !Object.keys(this.channels.all).includes(e as string)
+        if (isDeleted) {
+          console.log('deleting channel')
+          this.deleteChannel({channel: e})
+        }
       })
 
       Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
@@ -473,6 +485,23 @@ export class Storage extends EventEmitter {
     return db
   }
 
+  public async deleteChannel(payload) {
+    console.log('deleting channel storage', payload)
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.channels.load({ fetchEntryTimeout: 15000 })
+    const channel = this.channels.get(payload.channel)
+    if (channel) {
+      this.channels.del(payload.channel)
+    }
+    // Send message to channel that it has been deleted, but how to ensure that everyone replicated
+    // Create special channel for mod messages
+    const repo = this.publicChannelsRepos.get(payload.channel)
+    await repo.db.close()
+    await repo.db.drop()
+    this.publicChannelsRepos.delete(payload.channel)
+    this.emit(StorageEvents.DELETED_CHANNEL, payload)
+  }
+
   public async sendMessage(message: ChannelMessage) {
     if (!validate.isMessage(message)) {
       log.error('STORAGE: public channel message is invalid')
@@ -494,7 +523,7 @@ export class Storage extends EventEmitter {
 
   private attachFileManagerEvents = () => {
     this.filesManager.on(IpfsFilesManagerEvents.UPDATE_DOWNLOAD_PROGRESS, (status) => {
-          this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, status)
+      this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, status)
     })
     this.filesManager.on(IpfsFilesManagerEvents.UPDATE_MESSAGE_MEDIA, (messageMedia) => {
       this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, messageMedia)

@@ -20,7 +20,7 @@ const classes = {
 }
 
 const StyledModalContent = styled(Grid)(() => ({
-  zIndex: 1000,
+  zIndex: 9002,
   paddingLeft: 20,
   paddingTop: 32,
   paddingRight: 32

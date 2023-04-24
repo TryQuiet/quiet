@@ -22,7 +22,8 @@ describe('users reducer', () => {
     onionAddress: '',
     privateKey: '',
     port: 0,
-    registrationAttempts: 0
+    registrationAttempts: 0,
+    ownerCertificate: ''
   }
 
   beforeEach(() => {
