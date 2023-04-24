@@ -11,6 +11,7 @@ export const ChannelList: FC<ChannelListProps> = ({
   community,
   tiles,
   communityContextMenu,
+  deleteChannel,
   enableDeletion = false
 }) => {
   let communityName = ''
@@ -30,7 +31,7 @@ export const ChannelList: FC<ChannelListProps> = ({
         <FlatList
           data={tiles}
           keyExtractor={item => item.name}
-          renderItem={({ item }) => <ChannelTile {...item} enableDeletion={enableDeletion} />}
+          renderItem={({ item }) => <ChannelTile {...item} deleteChannel={deleteChannel} enableDeletion={enableDeletion} />}
           ItemSeparatorComponent={() => {
             return (
               <View

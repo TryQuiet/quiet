@@ -12,8 +12,9 @@ export const ChannelTile: FC<ChannelTileProps> = ({
   message,
   date,
   unread,
-  enableDeletion,
-  redirect
+  redirect,
+  deleteChannel,
+  enableDeletion
 }) => {
   const leftSwipe = (progress, dragX) => {
     const scale = dragX.interpolate({
@@ -25,7 +26,9 @@ export const ChannelTile: FC<ChannelTileProps> = ({
       <>
         {enableDeletion && (
           <TouchableOpacity
-            onPress={() => {}}
+            onPress={() => {
+              deleteChannel(name)
+            }}
             activeOpacity={0.6}
             style={{
               paddingLeft: 20,
