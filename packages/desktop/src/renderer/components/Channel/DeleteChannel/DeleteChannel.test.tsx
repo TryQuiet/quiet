@@ -123,6 +123,7 @@ describe('LeaveCommunity', () => {
                   >
                     <button
                       class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth DeleteChannelbutton css-14mi2mx-MuiButtonBase-root-MuiButton-root"
+                      data-testid="deleteChannelButton"
                       tabindex="0"
                       type="button"
                     >
