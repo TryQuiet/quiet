@@ -61,8 +61,11 @@ describe('Smoke', () => {
       //   console.log('CHECK1:', execSync(`powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${backendBundlePath.replace(/\\/g, '\\\\')}%' and name = 'Quiet.exe'}"`).toString('utf8').trim())
       //   console.log('CHECK2', execSync(`powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${dataDirName}%' and name = 'Quiet.exe'}"`).toString('utf8').trim())
       // }
-
-      const args = appBackendProcess.split(' ')
+      let args = appBackendProcess.split(' ')
+      if (process.platform === 'win32') {
+        args = args.filter((item) => item.trim() !== '')
+      }
+      console.log('ARGS:', args)
       if (args.length >= 5) {
         if (process.platform === 'win32') {
           dataDirPath = args[5]
@@ -72,8 +75,8 @@ describe('Smoke', () => {
           resourcesPath = args[8]
         }
       }
-      console.log('ARGS:', args)
-      console.log('RESULTS:', appBackendProcess, '.', dataDirPath, '-', resourcesPath)
+
+      console.log('RESULTS:', appBackendProcess, 'dataDirPath:', dataDirPath, 'resourcesPath:', resourcesPath)
     })
 
     it('User sees "join community" page and switches to "create community" view by clicking on the link', async () => {
