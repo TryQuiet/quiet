@@ -92,7 +92,9 @@ export const communitiesSlice = createSlice({
         }
       })
     },
-    handleInvitationCode: (state, _action: PayloadAction<string>) => state,
+    handleInvitationCode: (state, action: PayloadAction<string>) => {
+      state.invitationCode = action.payload
+    },
     clearInvitationCode: state => {
       state.invitationCode = undefined
     },

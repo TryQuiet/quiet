@@ -166,7 +166,7 @@ export const sendCertificateRegistrationRequest = async (
       }
     }
 
-  const registrarResponse: { certificate: string; peers: string[]; rootCa: string, ownerCert: string } =
+  const registrarResponse: { certificate: string; peers: string[]; rootCa: string; ownerCert: string } =
     await response.json()
 
   log(`Sending user certificate (${communityId})`)
