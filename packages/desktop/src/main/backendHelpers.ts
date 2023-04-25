@@ -28,11 +28,10 @@ export type ApplicationPorts = Awaited<ReturnType<typeof getPorts>>
 export const closeHangingBackendProcess = (backendBundlePath: string, dataDir: string) => {
   const command = hangingBackendProcessCommand({ backendBundlePath, dataDir })
   if (!command) return
-  console.log('commmand', command)
-  const backendPid = execSync(command).toString('utf8').trim()
-  console.log('backendPID', backendPid)
-  if (!backendPid) return
-  const PIDs = backendPid.split('\n')
+  const backendPids = execSync(command).toString('utf8').trim()
+  if (!backendPids) return
+  console.log('PIDs', backendPids)
+  const PIDs = backendPids.split('\n')
   console.log(`Found ${PIDs.length} hanging backend process(es) with pid(s) ${PIDs}. Killing...`)
   for (const pid of PIDs) {
     try {

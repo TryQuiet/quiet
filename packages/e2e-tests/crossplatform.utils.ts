@@ -1,6 +1,7 @@
 import { Browser, Builder, ThenableWebDriver } from 'selenium-webdriver'
-import { spawn, exec, ChildProcessWithoutNullStreams } from 'child_process'
+import { spawn, exec, ChildProcessWithoutNullStreams, execSync } from 'child_process'
 import getPort from 'get-port'
+import path from 'path'
 
 export interface BuildSetupInit {
   port?: number
@@ -160,5 +161,39 @@ export class BuildSetup {
   public async closeDriver() {
     console.log(`Closing driver (DATA_DIR=${this.dataDir})`)
     await this.driver?.close()
+  }
+
+  public getProcessData = () => {
+    let dataDirPath: string
+    let resourcesPath: string
+    const backendBundlePath = path.normalize('backend-bundle/bundle.cjs')
+    const byPlatform = {
+      linux: `pgrep -af "${backendBundlePath}" | grep -v egrep | grep "${this.dataDir}"`,
+      darwin: `ps -A | grep "${backendBundlePath}" | grep -v egrep | grep "${this.dataDir}"`,
+      win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${backendBundlePath.replace(/\\/g, '\\\\')}%' and commandline LIKE '%${this.dataDir}%' and name = 'Quiet.exe'} | Format-Table CommandLine -HideTableHeaders -Wrap -Autosize"`
+    }
+    const command = byPlatform[process.platform]
+    const appBackendProcess = execSync(command).toString('utf8').trim()
+    console.log('Backend process info', appBackendProcess)
+    let args = appBackendProcess.split(' ')
+    if (process.platform === 'win32') {
+      args = args.filter((item) => item.trim() !== '')
+      args = args.map((item) => item.trim())
+    }
+    console.log('Args:', args)
+    if (args.length >= 5) {
+      if (process.platform === 'win32') {
+        dataDirPath = args[5]
+        resourcesPath = args[7]
+      } else {
+        dataDirPath = args[6]
+        resourcesPath = args[8]
+      }
+    }
+    console.log('Extracted dataDirPath:', dataDirPath, 'resourcesPath:', resourcesPath)
+    return {
+      dataDirPath,
+      resourcesPath
+    }
   }
 }

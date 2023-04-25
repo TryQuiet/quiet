@@ -1,5 +1,3 @@
-import { ThenableWebDriver, Key } from 'selenium-webdriver'
-import { BuildSetup } from './crossplatform.utils'
 import {
   App,
   Channel,
@@ -11,13 +9,12 @@ import {
   StartingLoadingPanel
 } from './selectors.crossplatform'
 import getPort from 'get-port'
-import { execSync, fork } from 'child_process'
+import { fork } from 'child_process'
 import path from 'path'
 
 jest.setTimeout(450000)
 describe('Smoke', () => {
   let app: App
-  let appBackendProcess: string
   let dataDirPath: string
   let resourcesPath: string
 
@@ -44,39 +41,9 @@ describe('Smoke', () => {
     })
 
     it('Get opened app process data', () => {
-      const backendBundlePath = path.normalize('backend-bundle/bundle.cjs')
-      const dataDirName = app.buildSetup.dataDir
-      const byPlatform = {
-        linux: `pgrep -af "${backendBundlePath}" | grep -v egrep | grep "${dataDirName}"`,
-        darwin: `ps -A | grep "${backendBundlePath}" | grep -v egrep | grep "${dataDirName}"`,
-        win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${backendBundlePath.replace(/\\/g, '\\\\')}%' and commandline LIKE '%${dataDirName}%' and name = 'Quiet.exe'} | Format-Table CommandLine -HideTableHeaders -Wrap -Autosize"`
-      }
-      const command = byPlatform[process.platform]
-      console.log('COMMAND', command)
-      appBackendProcess = execSync(command).toString('utf8').trim()
-      console.log('APP BACKEND PROCESS INFO', appBackendProcess)
-
-      // CHECK
-      // if (process.platform === 'win32') {
-      //   console.log('CHECK1:', execSync(`powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${backendBundlePath.replace(/\\/g, '\\\\')}%' and name = 'Quiet.exe'}"`).toString('utf8').trim())
-      //   console.log('CHECK2', execSync(`powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${dataDirName}%' and name = 'Quiet.exe'}"`).toString('utf8').trim())
-      // }
-      let args = appBackendProcess.split(' ')
-      if (process.platform === 'win32') {
-        args = args.filter((item) => item.trim() !== '')
-      }
-      console.log('ARGS:', args)
-      if (args.length >= 5) {
-        if (process.platform === 'win32') {
-          dataDirPath = args[5]
-          resourcesPath = args[7]
-        } else {
-          dataDirPath = args[6]
-          resourcesPath = args[8]
-        }
-      }
-
-      console.log('RESULTS:', appBackendProcess, 'dataDirPath:', dataDirPath, 'resourcesPath:', resourcesPath)
+      const processData = app.buildSetup.getProcessData()
+      dataDirPath = processData.dataDirPath
+      resourcesPath = processData.resourcesPath
     })
 
     it('User sees "join community" page and switches to "create community" view by clicking on the link', async () => {
@@ -124,7 +91,6 @@ describe('Smoke', () => {
       expect(isGeneralChannel).toBeTruthy()
       expect(generalChannelText).toEqual('# general')
     })
-
   })
 
   describe('User can open the app despite hanging backend process', () => {
@@ -140,6 +106,7 @@ describe('Smoke', () => {
         'desktop'
       ]
       const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
+      console.log('Spawning backend', backendBundlePath, 'with argvs:', forkArgvs)
       fork(backendBundlePath, forkArgvs)
       await app.close()
     })
