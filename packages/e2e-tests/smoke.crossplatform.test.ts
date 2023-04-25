@@ -108,7 +108,7 @@ describe('Smoke', () => {
       const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
       console.log('Spawning backend', backendBundlePath, 'with argvs:', forkArgvs)
       fork(backendBundlePath, forkArgvs)
-      await app.close()
+      await app.close({ forceSaveState: true })
     })
 
     it('Opens app again', async () => {
@@ -128,10 +128,10 @@ describe('Smoke', () => {
       expect(isLoadingPanel).toBeTruthy()
     })
 
-    it('User sees "join community" page', async () => {
-      const joinModal = new JoinCommunityModal(app.driver)
-      const isJoinModal = await joinModal.element.isDisplayed()
-      expect(isJoinModal).toBeTruthy()
+    it('User sees "general channel" page', async () => {
+      const generalChannel = new Channel(app.driver, 'general')
+      const isGeneralChannel = await generalChannel.element.isDisplayed()
+      expect(isGeneralChannel).toBeTruthy()
     })
   })
 })
