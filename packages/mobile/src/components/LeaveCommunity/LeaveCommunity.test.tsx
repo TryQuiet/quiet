@@ -229,6 +229,7 @@ describe('LeaveCommunity component', () => {
                   "marginVertical": 12,
                   "minHeight": 45,
                   "paddingVertical": 12,
+                  "width": undefined,
                 }
               }
               testID="button"
@@ -283,6 +284,7 @@ describe('LeaveCommunity component', () => {
                   "marginVertical": 0,
                   "minHeight": 45,
                   "paddingVertical": 12,
+                  "width": undefined,
                 }
               }
               testID="button"
