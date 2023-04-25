@@ -57,62 +57,111 @@ describe('deletedChannelSaga', () => {
       )
     ).channel
   })
+  describe('owner handling', () => {
+    test('on-general channel deletion', async () => {
+      const channelAddress = photoChannel.address
+      const message = `@${owner.nickname} deleted #${channelAddress}`
+      const messagePayload: WriteMessagePayload = {
+        type: MessageType.Info,
+        message,
+        channelAddress: 'general'
+      }
+      const reducer = combineReducers(reducers)
+      await expectSaga(
+        deletedChannelSaga,
+        publicChannelsActions.deletedChannel({
+          channel: channelAddress
+        })
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
 
-  test('non-general channel deletion', async () => {
-    const channelAddress = photoChannel.address
-    const message = `${owner.nickname} deleted #${channelAddress}`
-    const messagePayload: WriteMessagePayload = {
-      type: MessageType.Info,
-      message,
-      channelAddress: 'general'
-    }
-    const reducer = combineReducers(reducers)
-    await expectSaga(
-      deletedChannelSaga,
-      publicChannelsActions.deletedChannel({
-        channel: channelAddress
-      })
-    )
-      .withReducer(reducer)
-      .withState(store.getState())
+        .put(publicChannelsActions.setCurrentChannel({ channelAddress: 'general' }))
+        .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
+        .put(messagesActions.deleteMessages({ channelAddress }))
+        .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
+        .put(messagesActions.sendMessage(messagePayload))
+        .run()
+    })
 
-      .put(publicChannelsActions.setCurrentChannel({ channelAddress: 'general' }))
-      .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
-      .put(messagesActions.deleteMessages({ channelAddress }))
-      .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
-      .put(messagesActions.sendMessage(messagePayload))
-      .run()
+    test('general channel deletion', async () => {
+      const channelAddress = 'general'
+      const message = `#${channelAddress} has been recreated by @${owner.nickname}`
+      const messagePayload: WriteMessagePayload = {
+        type: MessageType.Info,
+        message,
+        channelAddress: 'general'
+      }
+
+      const reducer = combineReducers(reducers)
+      await expectSaga(
+        deletedChannelSaga,
+        publicChannelsActions.deletedChannel({
+          channel: channelAddress
+        })
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
+
+        .put(publicChannelsActions.startGeneralRecreation())
+        .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
+        .put(messagesActions.deleteMessages({ channelAddress }))
+        .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
+        .put(publicChannelsActions.createGeneralChannel())
+        .provide({
+          call: (effect, next) => {}
+        })
+        .put(publicChannelsActions.finishGeneralRecreation())
+        .put(messagesActions.sendMessage(messagePayload))
+        .run()
+    })
   })
 
-  test('general channel deletion', async () => {
-    const channelAddress = 'general'
-    const message = `#${channelAddress} has been recreated by ${owner.nickname}`
-    const messagePayload: WriteMessagePayload = {
-      type: MessageType.Info,
-      message,
-      channelAddress: 'general'
-    }
+  describe('user handling', () => {
+    beforeAll(async () => {
+      store.dispatch(communitiesActions.updateCommunityData({ ...community, CA: '' }))
+    })
+    test('on-general channel deletion', async () => {
+      const channelAddress = photoChannel.address
+      const reducer = combineReducers(reducers)
+      await expectSaga(
+        deletedChannelSaga,
+        publicChannelsActions.deletedChannel({
+          channel: channelAddress
+        })
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(
-      deletedChannelSaga,
-      publicChannelsActions.deletedChannel({
-        channel: channelAddress
-      })
-    )
-      .withReducer(reducer)
-      .withState(store.getState())
+        .put(publicChannelsActions.setCurrentChannel({ channelAddress: 'general' }))
+        .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
+        .put(messagesActions.deleteMessages({ channelAddress }))
+        .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
+        .run()
+    })
 
-      .put(publicChannelsActions.startGeneralRecreation())
-      .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
-      .put(messagesActions.deleteMessages({ channelAddress }))
-      .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
-      .put(publicChannelsActions.createGeneralChannel())
-      .provide({
-        call: (effect, next) => {}
-      })
-      .put(publicChannelsActions.finishGeneralRecreation())
-      .put(messagesActions.sendMessage(messagePayload))
-      .run()
+    test('general channel deletion', async () => {
+      const channelAddress = 'general'
+
+      const reducer = combineReducers(reducers)
+      await expectSaga(
+        deletedChannelSaga,
+        publicChannelsActions.deletedChannel({
+          channel: channelAddress
+        })
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
+
+        .put(publicChannelsActions.startGeneralRecreation())
+        .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
+        .put(messagesActions.deleteMessages({ channelAddress }))
+        .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
+        .provide({
+          call: (effect, next) => {}
+        })
+        .put(publicChannelsActions.finishGeneralRecreation())
+        .run()
+    })
   })
 })
