@@ -30,16 +30,22 @@ export function* deletedChannelSaga(
 
   const ownerNickname = yield* select(communitiesSelectors.ownerNickname)
 
+  const community = yield* select(communitiesSelectors.currentCommunity)
+
+  const isOwner = Boolean(community?.CA)
+
   let message: string
 
   if (isGeneral) {
-    yield* put(publicChannelsActions.createGeneralChannel())
+    if (isOwner) {
+      yield* put(publicChannelsActions.createGeneralChannel())
+    }
     // For better UX
     yield* delay(500)
     yield* put(publicChannelsActions.finishGeneralRecreation())
-    message = `#general has been recreated by ${ownerNickname}`
+    message = `#general has been recreated by @${ownerNickname}`
   } else {
-    message = `${ownerNickname} deleted #${channelAddress}`
+    message = `@${ownerNickname} deleted #${channelAddress}`
   }
 
   const payload: WriteMessagePayload = {
@@ -48,5 +54,7 @@ export function* deletedChannelSaga(
     channelAddress: 'general'
   }
 
-  yield* put(messagesActions.sendMessage(payload))
+  if (isOwner) {
+    yield* put(messagesActions.sendMessage(payload))
+  }
 }

@@ -67,6 +67,11 @@ export const invitationUrl = createSelector(currentCommunity, community => {
   return invitationShareUrl(registrarUrl)
 })
 
+export const invitationCode = createSelector(
+  communitiesSlice,
+  reducerState => reducerState.invitationCode
+)
+
 export const registrationAttempts = (communityId: string) =>
   createSelector(selectEntities, communities => {
     const community = communities[communityId]
@@ -103,5 +108,6 @@ export const communitiesSelectors = {
   registrarUrl,
   registrationAttempts,
   invitationUrl,
-  ownerNickname
+  ownerNickname,
+  invitationCode
 }

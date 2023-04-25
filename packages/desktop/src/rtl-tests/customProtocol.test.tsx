@@ -35,7 +35,8 @@ describe('Opening app through custom protocol', () => {
     onionAddress: '',
     privateKey: '',
     port: 0,
-    registrationAttempts: 0
+    registrationAttempts: 0,
+    ownerCertificate: ''
   }
 
   const _identity: Partial<Identity> = {

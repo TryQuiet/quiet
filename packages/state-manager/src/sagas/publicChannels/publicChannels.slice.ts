@@ -51,9 +51,7 @@ export const publicChannelsSlice = createSlice({
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
     deleteChannel: (state, _action: PayloadAction<DeleteChannelPayload>) => state,
     deletedChannel: (state, _action: PayloadAction<DeletedChannelPayload>) => state,
-    // _________________________
     deleteChannelFromStore: (state, action: PayloadAction<DeleteChannelFromStorePayload>) => {
-      console.log('deleteChannelFromStore')
       const { channelAddress } = action.payload
 
       publicChannelsSubscriptionsAdapter.removeOne(state.channelsSubscriptions, channelAddress)
@@ -61,8 +59,6 @@ export const publicChannelsSlice = createSlice({
       publicChannelsAdapter.removeOne(state.channels, channelAddress)
     },
     clearMessagesCache: (state, action: PayloadAction<ClearMessagesCachePayload>) => {
-      console.log('clearMessagesCache')
-
       const { channelAddress } = action.payload
       channelMessagesAdapter.setAll(state.channels.entities[channelAddress].messages, [])
     },
@@ -72,7 +68,6 @@ export const publicChannelsSlice = createSlice({
     finishGeneralRecreation: state => {
       state.isGeneralRecreation = false
     },
-    // _________________________
     createGeneralChannel: state => state,
     sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) =>
       state,
