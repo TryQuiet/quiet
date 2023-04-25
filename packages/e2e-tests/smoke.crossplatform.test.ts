@@ -49,7 +49,7 @@ describe('Smoke', () => {
       const byPlatform = {
         linux: `pgrep -af "${backendBundlePath}" | grep -v egrep | grep "${dataDirName}"`,
         darwin: `ps -A | grep "${backendBundlePath}" | grep -v egrep | grep "${dataDirName}"`,
-        win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${backendBundlePath.replace(/\\/g, '\\\\')}%' and commandline LIKE '%${dataDirName}%' and name = 'Quiet.exe'} | Format-Table CommandLine -HideTableHeaders"`
+        win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${backendBundlePath.replace(/\\/g, '\\\\')}%' and commandline LIKE '%${dataDirName}%' and name = 'Quiet.exe'} | Format-Table CommandLine -HideTableHeaders -Wrap -Autosize"`
       }
       const command = byPlatform[process.platform]
       console.log('COMMAND', command)
@@ -57,10 +57,10 @@ describe('Smoke', () => {
       console.log('APP BACKEND PROCESS INFO', appBackendProcess)
 
       // CHECK
-      if (process.platform === 'win32') {
-        console.log('CHECK1:', execSync(`powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${backendBundlePath.replace(/\\/g, '\\\\')}%' and name = 'Quiet.exe'}"`).toString('utf8').trim())
-        console.log('CHECK2', execSync(`powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${dataDirName}%' and name = 'Quiet.exe'}"`).toString('utf8').trim())
-      }
+      // if (process.platform === 'win32') {
+      //   console.log('CHECK1:', execSync(`powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${backendBundlePath.replace(/\\/g, '\\\\')}%' and name = 'Quiet.exe'}"`).toString('utf8').trim())
+      //   console.log('CHECK2', execSync(`powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${dataDirName}%' and name = 'Quiet.exe'}"`).toString('utf8').trim())
+      // }
 
       const args = appBackendProcess.split(' ')
       if (args.length >= 5) {
@@ -72,6 +72,7 @@ describe('Smoke', () => {
           resourcesPath = args[8]
         }
       }
+      console.log('ARGS:', args)
       console.log('RESULTS:', appBackendProcess, '.', dataDirPath, '-', resourcesPath)
     })
 
