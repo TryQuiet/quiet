@@ -67,6 +67,13 @@ jobs:
         run: chmod +x "$FILE_NAME"
         shell: bash
 
+      - name: "Upload built app"
+        uses: actions/upload-artifact@v2
+        with:
+          name: quiet-windows
+          path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version }}.exe
+          retention-days: 2
+
       - name: Install exe
         run: Start-Process "Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" -Wait
         working-directory: ./packages/desktop/dist
