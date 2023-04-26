@@ -65,6 +65,7 @@ export class IpfsFilesManager extends EventEmitter {
     controllers: Map<string, {
         controller: AbortController
     }>
+
     cancelledDownloads: Set<string>
     queue: PQueue
 
@@ -104,19 +105,19 @@ export class IpfsFilesManager extends EventEmitter {
         })
         this.on(IpfsFilesManagerEvents.DELETE_FILE, async (fileMetadata: FileMetadata) => {
             // Channel deletion WIP
-            return
+
             // Check if we have it in case we didnt downloaded file
             // await this.deleteBlocks(fileMetadata)
         })
     }
 
     public async deleteBlocks(fileMetadata: FileMetadata) {
-        console.log('deleting file in fileManager')
-        const localBlocks = await this.getLocalBlocks()
-        const hasBlockBeenDownloaded = localBlocks.includes(`z${fileMetadata.cid.toString()}`)
-        console.log('has block been downlaoded ', hasBlockBeenDownloaded)
-        if (!hasBlockBeenDownloaded) return
-        
+        // console.log('deleting file in fileManager')
+        // const localBlocks = await this.getLocalBlocks()
+        // const hasBlockBeenDownloaded = localBlocks.includes(`z${fileMetadata.cid.toString()}`)
+        // console.log('has block been downlaoded ', hasBlockBeenDownloaded)
+        // if (!hasBlockBeenDownloaded) return
+
         // const les = this.ipfs.pin.ls({paths: CID.parse(fileMetadata.cid)})
         // for await (const l of les) {
         //     console.log('llllll', l)
@@ -182,7 +183,7 @@ export class IpfsFilesManager extends EventEmitter {
             width = imageSize.width
             height = imageSize.height
         }
-        
+
         const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
         const uploadedFileStreamIterable = {
             async* [Symbol.asyncIterator]() {
@@ -191,15 +192,15 @@ export class IpfsFilesManager extends EventEmitter {
                 }
             }
         }
-        
+
         // Create directory for file
         const dirname = 'uploads'
         await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })
-        
+
         // Write file to IPFS
         const uuid = `${Date.now()}_${Math.random().toString(36).substr(2.9)}`
         const filename = `${uuid}_${metadata.name}${metadata.ext}`
-        
+
         // Save copy to separate directory
         const filePath = this.copyFile(metadata.path, filename)
         console.time(`Writing ${filename} to ipfs`)
@@ -207,13 +208,13 @@ export class IpfsFilesManager extends EventEmitter {
             create: true
         })
         console.timeEnd(`Writing ${filename} to ipfs`)
-        
+
         // Get uploaded file information
         const entries = this.ipfs.files.ls(`/${dirname}`)
         for await (const entry of entries) {
             if (entry.name === filename) {
                 this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
-                this.ipfs.pin.add(entry.cid)
+                await this.ipfs.pin.add(entry.cid)
                 const fileMetadata: FileMetadata = {
                     ...metadata,
                     path: filePath,
@@ -222,9 +223,9 @@ export class IpfsFilesManager extends EventEmitter {
                     width,
                     height
                 }
-                
+
                 this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
-                
+
                 const statusReady: DownloadStatus = {
                     mid: fileMetadata.message.id,
                     cid: fileMetadata.cid,

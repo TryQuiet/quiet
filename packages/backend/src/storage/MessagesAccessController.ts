@@ -35,7 +35,7 @@ export class MessagesAccessController extends AccessController {
     return ''
   }
 
-  async load(){
+  async load() {
     return ''
   }
 

@@ -6,7 +6,6 @@ import { keyObjectFromString, verifySignature } from '@quiet/identity'
 
 const type = 'channelsaccess'
 
-
 export const createChannelAccessController = (peerId) => {
   // @ts-ignore
   class ChannelsAccessController extends AccessController {

@@ -46,7 +46,6 @@ import { create } from 'ipfs-core'
 
 import { CID } from 'multiformats/cid'
 
-
 const log = logger('db')
 
 const { createPaths, removeDirs, removeFiles, getUsersAddresses } = await import('../common/utils')
@@ -82,7 +81,6 @@ export class Storage extends EventEmitter {
     this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
     this.publicKeysMap = new Map()
     this.userNamesMap = new Map()
-
   }
 
   public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
@@ -524,15 +522,15 @@ export class Storage extends EventEmitter {
   }
 
   public async deleteChannelFiles(files: FileMetadata[]) {
-    for (let file of files) {
+    for (const file of files) {
       await this.deleteFile(file)
     }
   }
-  
+
   public async deleteFile(fileMetadata: FileMetadata) {
-    this.filesManager.deleteBlocks(fileMetadata)
+    await this.filesManager.deleteBlocks(fileMetadata)
   }
-  
+
   public async deleteChannelMessages(hashes) {
     for await (const result of this.ipfs.block.rm(hashes)) {
       if (result.error) {
