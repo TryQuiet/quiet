@@ -166,6 +166,28 @@ describe('Storage', () => {
   })
 })
 
+describe('Channels', () => {
+  it('deletes channel', async () => {
+    storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
+
+    const peerId = await createPeerId()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+    await storage.subscribeToChannel(channelio)
+
+    const eventSpy = jest.spyOn(storage, 'emit')
+
+    await storage.deleteChannel({ channel: channelio.address })
+
+    expect(eventSpy).toBeCalledWith('deletedChannel', {
+      channel: channelio.address
+    })
+  })
+})
+
 describe('Certificate', () => {
   it('is saved to db if passed verification', async () => {
     const userCertificate = await createUserCert(
@@ -301,6 +323,7 @@ describe('Certificate', () => {
 
     await storage.init(libp2p, peerId)
     await storage.initDatabases()
+
     await storage.subscribeToChannel(channelio)
 
     const eventSpy = jest.spyOn(storage, 'emit')

@@ -55,7 +55,7 @@ export class Storage extends EventEmitter {
   public ownerPeerId: PeerId
   protected ipfs: IPFS
   protected orbitdb: OrbitDB
-  private channels: KeyValueStore<PublicChannel>
+  public channels: KeyValueStore<PublicChannel>
   private messageThreads: KeyValueStore<IMessageThread>
   private certificates: EventStore<string>
   public publicChannelsRepos: Map<String, PublicChannelsRepo> = new Map()
