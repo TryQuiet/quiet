@@ -21,6 +21,8 @@ import { SuccessScreen } from './screens/Success/Success.screen'
 import { ErrorScreen } from './screens/Error/Error.screen'
 import { ChannelListScreen } from './screens/ChannelList/ChannelList.screen'
 import { ChannelScreen } from './screens/Channel/Channel.screen'
+import { CreateChannelScreen } from './screens/CreateChannel/CreateChannel.screen'
+import { DeleteChannelScreen } from './screens/DeleteChannel/DeleteChannel.screen'
 import { QRCodeScreen } from './screens/QRCode/QRCode.screen'
 import { LeaveCommunityScreen } from './screens/LeaveCommunity/LeaveCommunity.screen'
 
@@ -97,6 +99,8 @@ export default function App(): JSX.Element {
                 />
                 <Screen component={ChannelListScreen} name={ScreenNames.ChannelListScreen} />
                 <Screen component={ChannelScreen} name={ScreenNames.ChannelScreen} />
+                <Screen component={CreateChannelScreen} name={ScreenNames.CreateChannelScreen} />
+                <Screen component={DeleteChannelScreen} name={ScreenNames.DeleteChannelScreen} />
                 <Screen component={QRCodeScreen} name={ScreenNames.QRCodeScreen} />
                 <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />

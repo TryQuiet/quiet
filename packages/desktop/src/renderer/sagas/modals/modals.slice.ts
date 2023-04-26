@@ -9,6 +9,7 @@ export interface OpenModalPayload {
 export class ModalsInitialState {
   [ModalName.applicationUpdate] = { open: false };
   [ModalName.createChannel] = { open: false };
+  [ModalName.deleteChannel] = { open: false };
   [ModalName.accountSettingsModal] = { open: false };
   [ModalName.openexternallink] = { open: false };
   [ModalName.criticalError] = { open: false };
@@ -26,7 +27,8 @@ export class ModalsInitialState {
   [ModalName.leaveCommunity] = { open: false };
   [ModalName.searchChannelModal] = { open: false };
   [ModalName.warningModal] = { open: false };
-  [ModalName.loadingPanel] = { open: true } // Loading modal is open by default and closes on websocket connection
+  [ModalName.loadingPanel] = { open: true }; // Loading modal is open by default and closes on websocket connection
+  [ModalName.channelCreationModal] = { open: false }
 }
 
 export const modalsSlice = createSlice({

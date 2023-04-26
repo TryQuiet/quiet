@@ -127,10 +127,12 @@
       "<rootDir>/codegen/"
     ],
     "setupFiles": [
-      "./src/setupTests.ts"
+      "./src/setupTests.ts",
+      "./node_modules/react-native-gesture-handler/jestSetup.js"
     ],
     "setupFilesAfterEnv": [
       "@testing-library/jest-native/extend-expect"
-    ]
+    ],
+    "testRegex": "src/.*\\.test\\.(t|j)sx?$"
   }
 }

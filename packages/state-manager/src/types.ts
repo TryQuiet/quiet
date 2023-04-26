@@ -35,6 +35,9 @@ export interface EmitEvents {
   [SocketActionTypes.CREATE_CHANNEL]: EmitEvent<
     ReturnType<typeof publicChannelsActions.createChannel>['payload']
   >
+  [SocketActionTypes.DELETE_CHANNEL]: EmitEvent<
+    ReturnType<typeof publicChannelsActions.deleteChannel>['payload']
+  >
   [SocketActionTypes.CLOSE]: () => void
 }
 

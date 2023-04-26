@@ -29,7 +29,8 @@ describe('createNetwork', () => {
       onionAddress: '',
       privateKey: '',
       port: 0,
-      registrationAttempts: 0
+      registrationAttempts: 0,
+      ownerCertificate: ''
     }
 
     const reducer = combineReducers(reducers)
@@ -71,7 +72,8 @@ describe('createNetwork', () => {
       onionAddress: '',
       privateKey: '',
       port: 0,
-      registrationAttempts: 0
+      registrationAttempts: 0,
+      ownerCertificate: ''
     }
 
     const reducer = combineReducers(reducers)

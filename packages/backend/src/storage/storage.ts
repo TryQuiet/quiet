@@ -35,6 +35,7 @@ import {
 import { Config } from '../constants'
 import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
+import { createChannelAccessController } from './ChannelsAccessController'
 import logger from '../logger'
 import validate from '../validation/validators'
 import { stringToArrayBuffer } from 'pvutils'
@@ -43,15 +44,18 @@ import { StorageEvents } from './types'
 import { IpfsFilesManager, IpfsFilesManagerEvents } from './ipfsFileManager'
 import { create } from 'ipfs-core'
 
+import { CID } from 'multiformats/cid'
+
 const log = logger('db')
 
 const { createPaths, removeDirs, removeFiles, getUsersAddresses } = await import('../common/utils')
 export class Storage extends EventEmitter {
   public quietDir: string
   public peerId: PeerId
+  public ownerPeerId: PeerId
   protected ipfs: IPFS
   protected orbitdb: OrbitDB
-  private channels: KeyValueStore<PublicChannel>
+  public channels: KeyValueStore<PublicChannel>
   private messageThreads: KeyValueStore<IMessageThread>
   private certificates: EventStore<string>
   public publicChannelsRepos: Map<String, PublicChannelsRepo> = new Map()
@@ -91,7 +95,10 @@ export class Storage extends EventEmitter {
     this.filesManager = new IpfsFilesManager(this.ipfs, this.quietDir)
     this.attachFileManagerEvents()
 
+    const channelsAccessController = createChannelAccessController(peerID)
+
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
+    AccessControllers.addAccessController({ AccessController: channelsAccessController })
 
     this.orbitdb = await OrbitDB.createInstance(this.ipfs, {
       // @ts-ignore
@@ -250,6 +257,7 @@ export class Storage extends EventEmitter {
     log('createDbForChannels init')
     this.channels = await this.orbitdb.keyvalue<PublicChannel>('public-channels', {
       accessController: {
+        type: 'channelsaccess',
         write: ['*']
       }
     })
@@ -265,6 +273,15 @@ export class Storage extends EventEmitter {
       await this.channels.load({ fetchEntryTimeout: 2000 })
       this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
         channels: this.channels.all as unknown as { [key: string]: PublicChannel }
+      })
+
+      // Delete channel on replication
+      Array.from(this.publicChannelsRepos.keys()).forEach(e => {
+        const isDeleted = !Object.keys(this.channels.all).includes(e as string)
+        if (isDeleted) {
+          log('deleting channel ', e)
+          void this.deleteChannel({ channel: e })
+        }
       })
 
       Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
@@ -339,6 +356,12 @@ export class Storage extends EventEmitter {
       .iterator({ limit: -1 })
       .collect()
       .map(e => e.payload.value)
+  }
+
+  protected getAllEventLogRawEntries<T>(db: EventStore<T>) {
+    return db
+      .iterator({ limit: -1 })
+      .collect()
   }
 
   public async subscribeToChannel(channelData: PublicChannel): Promise<void> {
@@ -473,6 +496,49 @@ export class Storage extends EventEmitter {
     return db
   }
 
+  public async deleteChannel(payload) {
+    console.log('deleting channel storage', payload)
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.channels.load({ fetchEntryTimeout: 15000 })
+    const channel = this.channels.get(payload.channel)
+    if (channel) {
+      void this.channels.del(payload.channel)
+    }
+    const repo = this.publicChannelsRepos.get(payload.channel)
+    await repo.db.load()
+    const allEntries = this.getAllEventLogRawEntries(repo.db)
+    await repo.db.close()
+    await repo.db.drop()
+    const hashes = allEntries.map((e) => CID.parse(e.hash))
+    const files = allEntries.map((e) => {
+      return e.payload.value.media
+    }).filter(e => {
+      return e !== undefined
+    })
+    await this.deleteChannelFiles(files)
+    await this.deleteChannelMessages(hashes)
+    this.publicChannelsRepos.delete(payload.channel)
+    this.emit(StorageEvents.DELETED_CHANNEL, payload)
+  }
+
+  public async deleteChannelFiles(files: FileMetadata[]) {
+    for (const file of files) {
+      await this.deleteFile(file)
+    }
+  }
+
+  public async deleteFile(fileMetadata: FileMetadata) {
+    await this.filesManager.deleteBlocks(fileMetadata)
+  }
+
+  public async deleteChannelMessages(hashes) {
+    for await (const result of this.ipfs.block.rm(hashes)) {
+      if (result.error) {
+        console.error(`Failed to remove block ${result.cid} due to ${result.error.message}`)
+      }
+    }
+  }
+
   public async sendMessage(message: ChannelMessage) {
     if (!validate.isMessage(message)) {
       log.error('STORAGE: public channel message is invalid')
@@ -494,7 +560,7 @@ export class Storage extends EventEmitter {
 
   private attachFileManagerEvents = () => {
     this.filesManager.on(IpfsFilesManagerEvents.UPDATE_DOWNLOAD_PROGRESS, (status) => {
-          this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, status)
+      this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, status)
     })
     this.filesManager.on(IpfsFilesManagerEvents.UPDATE_MESSAGE_MEDIA, (messageMedia) => {
       this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, messageMedia)

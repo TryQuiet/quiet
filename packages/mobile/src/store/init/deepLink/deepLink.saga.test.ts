@@ -39,7 +39,8 @@ describe('deepLinkSaga', () => {
     onionAddress: '',
     privateKey: '',
     port: 0,
-    registrationAttempts: 0
+    registrationAttempts: 0,
+    ownerCertificate: ''
   }
 
   const _identity: Partial<Identity> = {

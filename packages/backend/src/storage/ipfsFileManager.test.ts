@@ -1,5 +1,7 @@
 import fs from 'fs'
 import path from 'path'
+import type { IPFS } from 'ipfs-core'
+
 import { fileURLToPath } from 'url'
 import { DirResult } from 'tmp'
 
@@ -20,8 +22,8 @@ const { createTmpDir, tmpQuietDirPath, createFile } = await import('../common/te
 let tmpDir: DirResult
 let tmpAppDataPath: string
 let filePath: string
-let ipfsInstance
-let fileManager
+let ipfsInstance: IPFS
+let fileManager: IpfsFilesManager
 
 beforeEach(async () => {
   jest.clearAllMocks()

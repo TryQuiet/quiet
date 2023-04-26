@@ -7,21 +7,38 @@ import { ChannelTile } from '../ChannelTile/ChannelTile.component'
 import { Spinner } from '../Spinner/Spinner.component'
 import { capitalizeFirstLetter } from '@quiet/common'
 
-export const ChannelList: FC<ChannelListProps> = ({ community, tiles, communityContextMenu }) => {
+export const ChannelList: FC<ChannelListProps> = ({
+  community,
+  tiles,
+  communityContextMenu,
+  deleteChannel,
+  enableDeletion = false
+}) => {
   let communityName = ''
   if (community?.name) {
     communityName = capitalizeFirstLetter(community.name)
   }
   return (
     <View style={{ flex: 1 }}>
-      <Appbar title={capitalizeFirstLetter(community?.name)} position={'flex-start'} contextMenu={communityContextMenu} />
+      <Appbar
+        title={capitalizeFirstLetter(community?.name)}
+        position={'flex-start'}
+        contextMenu={communityContextMenu}
+      />
       {tiles.length === 0 ? (
-        <Spinner description='Connecting to peers'/>
+        <Spinner description='Connecting to peers' />
       ) : (
         <FlatList
           data={tiles}
           keyExtractor={item => item.name}
-          renderItem={({ item }) => <ChannelTile {...item} />}
+          renderItem={({ item }) => <ChannelTile {...item} deleteChannel={deleteChannel} enableDeletion={enableDeletion} />}
+          ItemSeparatorComponent={() => {
+            return (
+              <View
+                style={{ height: 1, backgroundColor: defaultTheme.palette.background.gray06 }}
+              />
+            )
+          }}
           style={{ backgroundColor: defaultTheme.palette.background.white }}
           testID={'channels_list'}
         />

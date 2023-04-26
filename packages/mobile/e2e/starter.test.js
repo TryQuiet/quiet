@@ -94,7 +94,41 @@ describe('User', () => {
       .withTimeout(5000)
   })
 
+  test('creates new channel', async () => {
+    await element(by.id('Create channel')).longPress()
+
+    await element(by.id('input')).longPress()
+    await element(by.id('input')).typeText('roll')
+
+    await element(by.id('button')).longPress() // Idle (important though)
+    await element(by.text('Continue')).longPress()
+
+    await waitFor(element(by.id('chat_roll')))
+      .toBeVisible()
+      .withTimeout(5000)
+
+    await element(by.id('appbar_action_item')).longPress()
+  })
+
+  test.skip('deletes channel', async () => {
+    await element(by.text('#roll')).swipe('right')
+
+    await element(by.text('Delete')).longPress()
+
+    await waitFor(element(by.text('Are you sure?')))
+      .toBeVisible()
+      .withTimeout(5000)
+
+    await element(by.text('Delete channel')).longPress()
+
+    await waitFor(element(by.id('channels_list')))
+      .toBeVisible()
+      .withTimeout(5000)
+  })
+
   test('leaves community', async () => {
+    await element(by.id('open_menu')).longPress()
+
     await element(by.id('Leave community')).longPress()
 
     await waitFor(element(by.text('Are you sure you want to leave?')))

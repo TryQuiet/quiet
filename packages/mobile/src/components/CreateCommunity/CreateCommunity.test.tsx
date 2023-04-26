@@ -56,18 +56,19 @@ describe('Spinner component', () => {
           <View>
             <Text
               color="main"
-              fontSize={10}
+              fontSize={14}
               horizontalTextAlign="left"
               style={
                 [
                   {
                     "color": "#000000",
                     "fontFamily": "Rubik-Regular",
-                    "fontSize": 10,
+                    "fontSize": 14,
                     "textAlign": "left",
                     "textAlignVertical": "center",
                   },
                   {
+                    "color": "#4C4C4C",
                     "paddingBottom": 10,
                   },
                 ]
@@ -114,6 +115,8 @@ describe('Spinner component', () => {
                     "borderRadius": 4,
                     "borderWidth": 1,
                     "flexGrow": 1,
+                    "height": 60,
+                    "justifyContent": "center",
                     "paddingLeft": 15,
                     "paddingRight": 15,
                   },
@@ -345,6 +348,7 @@ describe('Spinner component', () => {
                   "marginVertical": 12,
                   "minHeight": 45,
                   "paddingVertical": 12,
+                  "width": undefined,
                 }
               }
               testID="button"
