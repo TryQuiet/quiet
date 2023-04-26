@@ -57,8 +57,8 @@ describe('deletedChannelSaga', () => {
       )
     ).channel
   })
-  describe('owner handling', () => {
-    test('on-general channel deletion', async () => {
+  describe('handle saga logic as owner of community', () => {
+    test('delete standard channel', async () => {
       const channelAddress = photoChannel.address
       const message = `@${owner.nickname} deleted #${channelAddress}`
       const messagePayload: WriteMessagePayload = {
@@ -78,13 +78,13 @@ describe('deletedChannelSaga', () => {
 
         .put(publicChannelsActions.setCurrentChannel({ channelAddress: 'general' }))
         .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
-        .put(messagesActions.deleteMessages({ channelAddress }))
+        .put(messagesActions.deleteChannelEntry({ channelAddress }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
         .put(messagesActions.sendMessage(messagePayload))
         .run()
     })
 
-    test('general channel deletion', async () => {
+    test('delete general channel', async () => {
       const channelAddress = 'general'
       const message = `#${channelAddress} has been recreated by @${owner.nickname}`
       const messagePayload: WriteMessagePayload = {
@@ -105,7 +105,7 @@ describe('deletedChannelSaga', () => {
 
         .put(publicChannelsActions.startGeneralRecreation())
         .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
-        .put(messagesActions.deleteMessages({ channelAddress }))
+        .put(messagesActions.deleteChannelEntry({ channelAddress }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
         .put(publicChannelsActions.createGeneralChannel())
         .provide({
@@ -117,11 +117,11 @@ describe('deletedChannelSaga', () => {
     })
   })
 
-  describe('user handling', () => {
+  describe('handle saga logic as standard user', () => {
     beforeAll(async () => {
       store.dispatch(communitiesActions.updateCommunityData({ ...community, CA: '' }))
     })
-    test('on-general channel deletion', async () => {
+    test('delete standard channel', async () => {
       const channelAddress = photoChannel.address
       const reducer = combineReducers(reducers)
       await expectSaga(
@@ -135,12 +135,12 @@ describe('deletedChannelSaga', () => {
 
         .put(publicChannelsActions.setCurrentChannel({ channelAddress: 'general' }))
         .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
-        .put(messagesActions.deleteMessages({ channelAddress }))
+        .put(messagesActions.deleteChannelEntry({ channelAddress }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
         .run()
     })
 
-    test('general channel deletion', async () => {
+    test('delete general channel', async () => {
       const channelAddress = 'general'
 
       const reducer = combineReducers(reducers)
@@ -155,7 +155,7 @@ describe('deletedChannelSaga', () => {
 
         .put(publicChannelsActions.startGeneralRecreation())
         .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
-        .put(messagesActions.deleteMessages({ channelAddress }))
+        .put(messagesActions.deleteChannelEntry({ channelAddress }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
         .provide({
           call: (effect, next) => {}

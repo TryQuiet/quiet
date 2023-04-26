@@ -7,15 +7,15 @@ import ChannelCreationModalComponent from './ChannelCreationModal.component'
 
 const ChannelCreationModal = () => {
   const channelCreationModal = useModal(ModalName.channelCreationModal)
-  const isGeneralRecreation = useSelector(publicChannels.selectors.isGeneralRecreation)
+  const pendingGeneralChannelRecreation = useSelector(publicChannels.selectors.pendingGeneralChannelRecreation)
 
   useEffect(() => {
-    if (isGeneralRecreation) {
+    if (pendingGeneralChannelRecreation) {
       channelCreationModal.handleOpen()
     } else {
       channelCreationModal.handleClose()
     }
-  }, [isGeneralRecreation])
+  }, [pendingGeneralChannelRecreation])
 
   return <ChannelCreationModalComponent {...channelCreationModal} />
 }

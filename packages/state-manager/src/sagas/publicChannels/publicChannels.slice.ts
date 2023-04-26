@@ -33,7 +33,7 @@ const log = logger('publicChannels')
 
 export class PublicChannelsState {
   public currentChannelAddress: string = 'general'
-  public isGeneralRecreation: boolean = false
+  public pendingGeneralChannelRecreation: boolean = false
 
   public channels: EntityState<PublicChannelStorage> = publicChannelsAdapter.getInitialState()
 
@@ -63,10 +63,10 @@ export const publicChannelsSlice = createSlice({
       channelMessagesAdapter.setAll(state.channels.entities[channelAddress].messages, [])
     },
     startGeneralRecreation: state => {
-      state.isGeneralRecreation = true
+      state.pendingGeneralChannelRecreation = true
     },
     finishGeneralRecreation: state => {
-      state.isGeneralRecreation = false
+      state.pendingGeneralChannelRecreation = false
     },
     createGeneralChannel: state => state,
     sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) =>

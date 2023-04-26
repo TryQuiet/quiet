@@ -18,7 +18,7 @@ import {
   LazyLoadingPayload,
   AskForMessagesPayload,
   ChannelMessagesIdsResponse,
-  DeleteMessagesPayload
+  DeleteChannelEntryPayload
 } from './messages.types'
 
 export class MessagesState {
@@ -39,7 +39,7 @@ export const messagesSlice = createSlice({
   name: StoreKeys.Messages,
   reducers: {
     sendMessage: (state, _action: PayloadAction<WriteMessagePayload>) => state,
-    deleteMessages: (state, action: PayloadAction<DeleteMessagesPayload>) => {
+    deleteChannelEntry: (state, action: PayloadAction<DeleteChannelEntryPayload>) => {
       const { channelAddress } = action.payload
       publicChannelsMessagesBaseAdapter.removeOne(state.publicChannelsMessagesBase, channelAddress)
     },

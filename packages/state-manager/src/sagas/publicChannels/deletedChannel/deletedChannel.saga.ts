@@ -24,7 +24,7 @@ export function* deletedChannelSaga(
 
   yield* put(publicChannelsActions.clearMessagesCache({ channelAddress }))
 
-  yield* put(messagesActions.deleteMessages({ channelAddress }))
+  yield* put(messagesActions.deleteChannelEntry({ channelAddress }))
 
   yield* put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
 

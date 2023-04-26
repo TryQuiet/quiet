@@ -81,6 +81,6 @@ export interface ChannelMessagesIdsResponse {
   communityId: string
 }
 
-export interface DeleteMessagesPayload {
+export interface DeleteChannelEntryPayload {
   channelAddress: string
 }
