@@ -15,7 +15,7 @@ const StyledDropZoneComponent = styled(Grid)(() => ({
 const StyledActiveDropZoneComponent = styled('div')(({ theme }) => ({
   ...theme.typography.h2,
   position: 'absolute',
-  zIndex: 1000,
+  zIndex: 9000,
   height: '100%',
   width: '100%',
   textAlign: 'center',

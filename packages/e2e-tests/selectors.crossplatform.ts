@@ -16,7 +16,7 @@ export class App {
     await this.driver.getSession()
   }
 
-  async close(options?: {forceSaveState?: boolean}) {
+  async close(options?: { forceSaveState?: boolean }) {
     if (options?.forceSaveState) {
       await this.saveState() // Selenium creates community and closes app so fast that redux state may not be saved properly
       await this.waitForSavedState()
@@ -79,7 +79,9 @@ export class WarningModal {
   }
 
   async close() {
-    const submitButton = await this.driver.findElement(By.xpath('//button[@data-testid="warningModalSubmit"]'))
+    const submitButton = await this.driver.findElement(
+      By.xpath('//button[@data-testid="warningModalSubmit"]')
+    )
     await submitButton.click()
   }
 }
@@ -94,6 +96,35 @@ export class JoiningLoadingPanel {
     return this.driver.wait(
       until.elementLocated(By.xpath('//div[@data-testid="joiningPanelComponent"]'))
     )
+  }
+}
+
+export class ChannelContextMenu {
+  private readonly driver: ThenableWebDriver
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  async openMenu() {
+    const menu = this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-testid="channelContextMenuButton"]'))
+    )
+    await menu.click()
+  }
+
+  async openDeletionChannelModal() {
+    const tab = this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemDelete"]'))
+    )
+    await tab.click()
+  }
+
+  async deleteChannel() {
+    const button = this.driver.wait(
+      until.elementLocated(By.xpath('//button[@data-testid="deleteChannelButton"]'))
+    )
+    await button.click()
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
   }
 }
 export class RegisterUsernameModal {
@@ -213,6 +244,7 @@ export class Channel {
     const communityNameInput = await this.messageInput
     await communityNameInput.sendKeys(message)
     await communityNameInput.sendKeys(Key.ENTER)
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
   }
 
   async getUserMessages(username: string) {
@@ -233,6 +265,13 @@ export class Sidebar {
     this.driver = driver
   }
 
+  async getChannelList() {
+    const channels = await this.driver.findElements(
+      By.xpath('//*[contains(@data-testid, "link-text")]')
+    )
+    return channels
+  }
+
   async openSettings() {
     const button = await this.driver.findElement(
       By.xpath('//span[@data-testid="settings-panel-button"]')
@@ -246,7 +285,6 @@ export class Sidebar {
       until.elementLocated(By.xpath(`//div[@data-testid="${name}-link"]`))
     )
     await channelLink.click()
-    return new Channel(this.driver, name)
   }
 
   async addNewChannel(name: string) {

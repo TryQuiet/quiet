@@ -7,7 +7,6 @@ import {
   identity,
   messages,
   publicChannels,
-  connection,
   communities,
   files,
   FileMetadata,
@@ -28,6 +27,9 @@ import {
 import { getFilesData } from '../../../utils/functions/fileData'
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
+
+import { useContextMenu } from '../../../hooks/useContextMenu'
+import { MenuName } from '../../../const/MenuNames.enum'
 
 const Channel = () => {
   const dispatch = useDispatch()
@@ -51,20 +53,26 @@ const Channel = () => {
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
-  const communityId = useSelector(communities.selectors.currentCommunityId)
-  const initializedCommunities = useSelector(network.selectors.initializedCommunities)
+  const community = useSelector(communities.selectors.currentCommunity)
 
-  const isCommunityInitialized = Boolean(initializedCommunities[communityId])
+  const initializedCommunities = useSelector(network.selectors.initializedCommunities)
+  const isCommunityInitialized = Boolean(initializedCommunities[community?.id])
+
+  let enableContextMenu: boolean = false
+  if (community) {
+    // Enable only for community owner
+    enableContextMenu = Boolean(community.CA)
+  }
 
   const pendingMessages = useSelector(messages.selectors.messagesSendingStatus)
 
-  const channelSettingsModal = useModal(ModalName.channelSettingsModal)
-  const channelInfoModal = useModal(ModalName.channelInfo)
   const uploadedFileModal = useModal<{ src: string }>(ModalName.uploadedFileModal)
 
   const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
 
   const filesRef = React.useRef<FilePreviewData>()
+
+  const contextMenu = useContextMenu(MenuName.Channel)
 
   const onInputChange = useCallback(
     (_value: string) => {
@@ -179,6 +187,10 @@ const Channel = () => {
     dispatch(files.actions.cancelDownload(cancelDownload))
   }, [dispatch])
 
+  const openContextMenu = useCallback(() => {
+    contextMenu.handleOpen()
+  }, [contextMenu])
+
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelAddress])
@@ -187,8 +199,6 @@ const Channel = () => {
     user: user,
     channelAddress: currentChannelAddress,
     channelName: currentChannelName,
-    channelSettingsModal: channelSettingsModal,
-    channelInfoModal: channelInfoModal,
     messages: {
       count: currentChannelMessagesCount,
       groups: currentChannelDisplayableMessages
@@ -197,18 +207,16 @@ const Channel = () => {
     pendingMessages: pendingMessages,
     downloadStatuses: downloadStatusesMapping,
     lazyLoading: lazyLoading,
-    onDelete: function (): void {},
     onInputChange: onInputChange,
     onInputEnter: onInputEnter,
     openUrl: openUrl,
-    mutedFlag: false,
-    notificationFilter: '',
-    openNotificationsTab: function (): void {},
     handleFileDrop: handleFileDrop,
     openFilesDialog: openFilesDialog,
     isCommunityInitialized: isCommunityInitialized,
     handleClipboardFiles: handleClipboardFiles,
-    uploadedFileModal: uploadedFileModal
+    uploadedFileModal: uploadedFileModal,
+    openContextMenu: openContextMenu,
+    enableContextMenu: enableContextMenu
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {
