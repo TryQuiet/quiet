@@ -33,6 +33,7 @@ describe('New User', () => {
 
   let invitationCode: string
 
+  let sidebar: Sidebar
   let sidebar2: Sidebar
 
   const communityName = 'testcommunity'
@@ -185,9 +186,11 @@ describe('New User', () => {
     })
 
     it('Channel creation - Owner create second channel', async () => {
-      const sidebar = new Sidebar(driver)
+      sidebar = new Sidebar(driver)
       await sidebar.addNewChannel(newChannelName)
       await sidebar.switchChannel(newChannelName)
+      const channels = await sidebar.getChannelList()
+      expect(channels.length).toEqual(2)
     })
     it('Channel creation - Owner send message in second channel', async () => {
       secondChannel = new Channel(driver, newChannelName)
@@ -199,6 +202,7 @@ describe('New User', () => {
       sidebar2 = new Sidebar(driver2)
       await sidebar2.switchChannel(newChannelName)
       secondChannel2 = new Channel(driver2, newChannelName)
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
       const messages = await secondChannel2.getUserMessages(ownerUsername)
       const text = await messages[1].getText()
       expect(text).toEqual(ownerMessages[1])
@@ -208,6 +212,8 @@ describe('New User', () => {
       await channelContextMenu.openMenu()
       await channelContextMenu.openDeletionChannelModal()
       await channelContextMenu.deleteChannel()
+      const channels = await sidebar.getChannelList()
+      expect(channels.length).toEqual(1)
     })
     it('Channel deletion - User see info about channel deletion in general channel', async () => {
       const messages = await generalChannel2.getUserMessages(ownerUsername)
@@ -219,6 +225,9 @@ describe('New User', () => {
       await sidebar2.switchChannel(newChannelName)
       const messages = await secondChannel2.getUserMessages(joiningUserUsername)
       expect(messages.length).toEqual(1)
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+      const channels = await sidebar.getChannelList()
+      expect(channels.length).toEqual(2)
     })
 
     it('Channel deletion - Owner recreate general channel', async () => {
@@ -227,6 +236,8 @@ describe('New User', () => {
       await channelContextMenu.openMenu()
       await channelContextMenu.openDeletionChannelModal()
       await channelContextMenu.deleteChannel()
+      const channels = await sidebar.getChannelList()
+      expect(channels.length).toEqual(2)
     })
     it('Channel deletion - User see information about recreation general channel', async () => {
       await sidebar2.switchChannel('general')

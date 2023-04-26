@@ -265,6 +265,13 @@ export class Sidebar {
     this.driver = driver
   }
 
+  async getChannelList() {
+    const channels = await this.driver.findElements(
+      By.xpath('//*[contains(@data-testid, "link-text")]')
+    )
+    return channels
+  }
+
   async openSettings() {
     const button = await this.driver.findElement(
       By.xpath('//span[@data-testid="settings-panel-button"]')
