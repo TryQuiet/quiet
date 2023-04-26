@@ -241,6 +241,7 @@ describe('New User', () => {
     })
     it('Channel deletion - User see information about recreation general channel', async () => {
       await sidebar2.switchChannel('general')
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
       const messages = await generalChannel2.getUserMessages(ownerUsername)
       const text = await messages[1].getText()
       expect(text).toEqual(`#general has been recreated by @${ownerUsername}`)
