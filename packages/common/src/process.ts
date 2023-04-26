@@ -1,10 +1,9 @@
 
-
 export const hangingBackendProcessCommand = ({
   backendBundlePath,
   dataDir
 }: {
-  backendBundlePath: string,
+  backendBundlePath: string
   dataDir: string
 }): string => {
   /**
