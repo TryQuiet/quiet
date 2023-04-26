@@ -110,6 +110,8 @@
 		"luxon": "^1.11.4",
 		"multiaddr": "^10.0.1",
 		"orbit-db": "0.29.0",
+    "orbit-db-access-controllers": "^0.4.0",
+		"orbit-db-identity-provider": "0.5.0",
 		"orbit-db-io": "1.0.2",
 		"orbit-db-pubsub": "0.6.0",
 		"orbit-db-store": "4.3.4",

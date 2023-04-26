@@ -33,7 +33,8 @@ describe('users selectors', () => {
     onionAddress: '',
     privateKey: '',
     port: 0,
-    registrationAttempts: 0
+    registrationAttempts: 0,
+    ownerCertificate: ''
   }
 
   const userCertData = {

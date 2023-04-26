@@ -54,7 +54,8 @@ import {
   CommunityId,
   StorePeerListPayload,
   NetworkStats,
-  ConnectionProcessInfo
+  ConnectionProcessInfo,
+  socketActionTypes
 } from '@quiet/state-manager'
 
 import { ConnectionsManagerOptions } from '../common/types'
@@ -650,6 +651,12 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(SocketActionTypes.CLOSE, async () => {
       await this.closeAllServices()
     })
+    this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload: any) => {
+      console.log(
+        'connections manager delete channel'
+      )
+      await this.storage.deleteChannel(payload)
+    })
   }
 
   private attachStorageListeners = () => {
@@ -710,6 +717,10 @@ export class ConnectionsManager extends EventEmitter {
     })
     this.storage.on(StorageEvents.CHECK_FOR_MISSING_FILES, (payload: CommunityId) => {
       this.io.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, payload)
+    })
+    this.storage.on(StorageEvents.DELETED_CHANNEL, (payload: any) => {
+      console.log('emitting deleted channel event back to state manager')
+      this.io.emit(socketActionTypes.DELETED_CHANNEL, payload)
     })
   }
 

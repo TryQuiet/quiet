@@ -22,7 +22,7 @@ const Root = styled('div')((
     width: '100%',
     position: 'absolute',
     bottom: 20,
-    zIndex: 9
+    zIndex: 2
   },
 
   [`& .${classes.indicator}`]: {

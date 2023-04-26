@@ -6,4 +6,6 @@ export interface ChannelListProps {
   community: Community
   tiles: ChannelTileProps[]
   communityContextMenu: ReturnType<typeof useContextMenu>
+  deleteChannel: (channel: string) => void
+  enableDeletion?: boolean
 }
