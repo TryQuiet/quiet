@@ -1,5 +1,3 @@
-import './App.dev-menu'
-
 import React from 'react'
 import { useDispatch } from 'react-redux'
 
