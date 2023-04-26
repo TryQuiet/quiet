@@ -35,6 +35,7 @@ export enum IpfsFilesManagerEvents {
     DOWNLOAD_FILE = 'downloadFile',
     CANCEL_DOWNLOAD = 'cancelDownload',
     UPLOAD_FILE = 'uploadFile',
+    DELETE_FILE = 'deleteFile',
     // Outgoing evnets
     UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
     UPDATE_DOWNLOAD_PROGRESS = 'updateDownloadProgress'
@@ -59,15 +60,13 @@ const MAX_EVENT_LISTENERS = 300
 export class IpfsFilesManager extends EventEmitter {
     ipfs: IPFS
     quietDir: string
-    // keep info about all downloads in progress
+    // keep info about all in-progress downloads
     files: Map<string, FilesData>
     controllers: Map<string, {
         controller: AbortController
     }>
-
-    queue: PQueue
-
     cancelledDownloads: Set<string>
+    queue: PQueue
 
     constructor(ipfs: IPFS, quietDir: string) {
         super()
@@ -76,8 +75,8 @@ export class IpfsFilesManager extends EventEmitter {
         this.files = new Map()
         this.controllers = new Map()
         this.cancelledDownloads = new Set()
-        this.attachIncomingEvents()
         this.queue = new PQueue({ concurrency: QUEUE_CONCURRENCY })
+        this.attachIncomingEvents()
     }
 
     private attachIncomingEvents = () => {
@@ -103,6 +102,45 @@ export class IpfsFilesManager extends EventEmitter {
                 console.error(`downloading ${mid} has already been canceled or never started`)
             }
         })
+        this.on(IpfsFilesManagerEvents.DELETE_FILE, async (fileMetadata: FileMetadata) => {
+            // Channel deletion WIP
+            return
+            // Check if we have it in case we didnt downloaded file
+            // await this.deleteBlocks(fileMetadata)
+        })
+    }
+
+    public async deleteBlocks(fileMetadata: FileMetadata) {
+        console.log('deleting file in fileManager')
+        const localBlocks = await this.getLocalBlocks()
+        const hasBlockBeenDownloaded = localBlocks.includes(`z${fileMetadata.cid.toString()}`)
+        console.log('has block been downlaoded ', hasBlockBeenDownloaded)
+        if (!hasBlockBeenDownloaded) return
+        
+        // const les = this.ipfs.pin.ls({paths: CID.parse(fileMetadata.cid)})
+        // for await (const l of les) {
+        //     console.log('llllll', l)
+        // }
+
+        // try {
+        //     const result = await this.ipfs.pin.rm(CID.parse(fileMetadata.cid), {recursive: true})
+        //     console.log(
+        //         'unpinning result ', result
+        //     )
+        // } catch (e) {
+        //     console.log('file removing error')
+        //     console.log(e)
+        // }
+        // const gcresult =  this.ipfs.repo.gc()
+        // for await (const res of gcresult) {
+        //     console.log('garbage collector result', res)
+        // }
+        // const blocks = this.ipfs.get(CID.parse(fileMetadata.cid))
+        // for await (const block of blocks) {
+        //     // const decodedBlock = decode(block)
+        //     console.log('bock', block)
+        // }
+        // Parse DAG blocks in case file is canceled mid download
     }
 
     public async stop() {
@@ -144,7 +182,7 @@ export class IpfsFilesManager extends EventEmitter {
             width = imageSize.width
             height = imageSize.height
         }
-
+        
         const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
         const uploadedFileStreamIterable = {
             async* [Symbol.asyncIterator]() {
@@ -153,15 +191,15 @@ export class IpfsFilesManager extends EventEmitter {
                 }
             }
         }
-
+        
         // Create directory for file
         const dirname = 'uploads'
         await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })
-
+        
         // Write file to IPFS
         const uuid = `${Date.now()}_${Math.random().toString(36).substr(2.9)}`
         const filename = `${uuid}_${metadata.name}${metadata.ext}`
-
+        
         // Save copy to separate directory
         const filePath = this.copyFile(metadata.path, filename)
         console.time(`Writing ${filename} to ipfs`)
@@ -169,13 +207,13 @@ export class IpfsFilesManager extends EventEmitter {
             create: true
         })
         console.timeEnd(`Writing ${filename} to ipfs`)
-
+        
         // Get uploaded file information
         const entries = this.ipfs.files.ls(`/${dirname}`)
         for await (const entry of entries) {
             if (entry.name === filename) {
                 this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
-
+                this.ipfs.pin.add(entry.cid)
                 const fileMetadata: FileMetadata = {
                     ...metadata,
                     path: filePath,
@@ -184,9 +222,9 @@ export class IpfsFilesManager extends EventEmitter {
                     width,
                     height
                 }
-
+                
                 this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
-
+                
                 const statusReady: DownloadStatus = {
                     mid: fileMetadata.message.id,
                     cid: fileMetadata.cid,

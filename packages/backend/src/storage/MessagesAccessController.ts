@@ -1,4 +1,4 @@
-import AccessController from 'orbit-db-access-controllers/src/access-controller-interface'
+import AccessController from 'orbit-db-access-controllers'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
 import { ChannelMessage } from '@quiet/state-manager'
@@ -6,6 +6,7 @@ import { keyObjectFromString, verifySignature } from '@quiet/identity'
 
 const type = 'messagesaccess'
 
+// @ts-ignore
 export class MessagesAccessController extends AccessController {
   private readonly crypto = getCrypto()
 
@@ -31,11 +32,14 @@ export class MessagesAccessController extends AccessController {
   }
 
   async save() {
-    // Return the manifest data
     return ''
   }
 
-  static async create(_orbitdb, _options) {
+  async load(){
+    return ''
+  }
+
+  static create(_orbitdb, _type = type, _options) {
     return new MessagesAccessController()
   }
 }

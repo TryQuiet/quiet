@@ -1,44 +1,62 @@
-import AccessController from 'orbit-db-access-controllers/src/access-controller-interface'
+import AccessController from 'orbit-db-access-controllers'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
-import { ChannelMessage } from '@quiet/state-manager'
+import { ChannelMessage, channelMessagesAdapter } from '@quiet/state-manager'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
 
 const type = 'channelsaccess'
 
-export class ChannelsAccessController extends AccessController {
-  private readonly crypto = getCrypto()
 
-  private readonly keyMapping: Map<string, CryptoKey> = new Map()
+export const createChannelAccessController = (peerId) => {
+  // @ts-ignore
+  class ChannelsAccessController extends AccessController {
+    static get type() {
+      return type
+    }
 
-  static get type() {
-    return type
+    async canAppend(entry, identityProvider) {
+      // Channel deletion WIP
+
+      // console.log('peerId ', peerId.toString())
+      // console.log('entry ', entry)
+
+      // const identityProvider2 = new OrbitDBIdentityProvider(identityProvider._keystore)
+      // console.log(identityProvider2)
+      // console.log(identityProvider2.getId({id:
+      //   'QmeiTFqysrzRqi2gy94b7BRpouCHuwTDxf65tRtNxbtZhQ'}))
+
+      //   // console.log('before sleep')
+
+      //   // await sleep(50000)
+
+      //   // console.log('after sleep')
+      // const orbit = await identityProvider2.getId({id:
+      //   'QmeiTFqysrzRqi2gy94b7BRpouCHuwTDxf65tRtNxbtZhQ'})
+
+      //   console.log('access controller keystore ', identityProvider._keystore)
+
+      //  const orbit1 = await identityProvider._keystore.createKey(peerId.toString())
+      //  const orbit2 = await identityProvider._keystore.createKey(peerId.toString())
+
+      //  console.log('orbitDB string')
+      //  const uKey = Buffer.from(orbit1.public.marshal()).toString('hex')
+      //  const uKey2 = Buffer.from(orbit2.public.marshal()).toString('hex')
+
+      return true
+    }
+
+    async save() {
+      // Return the manifest data
+      return ''
+    }
+
+    async load() {
+      return ''
+    }
+
+    static create(_orbitdb, _options) {
+      return new ChannelsAccessController()
+    }
   }
-
-  async canAppend(entry) {
-    console.log('entry ', entry)
-    console.log('canAppend entry channel ', entry.payload.value)
-    // const message: ChannelMessage = entry.payload.value
-
-    // const signature = stringToArrayBuffer(message.signature)
-
-    // let cryptoKey = this.keyMapping[message.pubKey]
-    // if (!cryptoKey) {
-    //   cryptoKey = await keyObjectFromString(message.pubKey, this.crypto)
-    //   this.keyMapping.set(message.pubKey, cryptoKey)
-    // }
-
-    // const verify = await verifySignature(signature, message.message, cryptoKey)
-    // return verify
-    return true
-  }
-
-  async save() {
-    // Return the manifest data
-    return ''
-  }
-
-  static async create(_orbitdb, _options) {
-    return new ChannelsAccessController()
-  }
+  return ChannelsAccessController
 }
