@@ -257,7 +257,7 @@ export class Storage extends EventEmitter {
     log('createDbForChannels init')
     this.channels = await this.orbitdb.keyvalue<PublicChannel>('public-channels', {
       accessController: {
-        type: 'channelsaccess',
+        // type: 'channelsaccess',
         write: ['*']
       }
     })
