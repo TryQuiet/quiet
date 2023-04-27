@@ -1,7 +1,8 @@
 import { Typography, styled } from '@mui/material'
 import classNames from 'classnames'
 import React, { ReactNode } from 'react'
-import Linkify from 'react-linkify'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import theme from '../../../theme'
 
 const PREFIX = 'TextMessage'
@@ -46,14 +47,6 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
   pending,
   openUrl
 }) => {
-  const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
-    return (
-      <a onClick={() => { openUrl(decoratedHref) }} className={classNames({ [classes.link]: true })} key={key}>
-        {decoratedText}
-      </a>
-    )
-  }
-
   return (
     <StyledTypography
       component={'span' as any}
@@ -62,7 +55,30 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
         [classes.pending]: pending
       })}
       data-testid={`messagesGroupContent-${messageId}`}>
-      <Linkify componentDecorator={componentDecorator}>{message}</Linkify>
+      <ReactMarkdown
+        remarkPlugins={[[remarkGfm, { singleTilde: false }]]}
+        children={message}
+        components={{
+          a: ({ node, ...props }) => (
+            <a
+              onClick={e => {
+                e.preventDefault()
+                openUrl(props.href)
+              }}
+              className={classNames({ [classes.link]: true })}
+              {...props}
+            />
+          ),
+          h1: React.Fragment,
+          h2: React.Fragment,
+          h3: React.Fragment,
+          h4: React.Fragment,
+          h5: React.Fragment,
+          h6: React.Fragment,
+          hr: React.Fragment,
+          p: React.Fragment
+        }}
+      />
     </StyledTypography>
   )
 }
