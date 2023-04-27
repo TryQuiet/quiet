@@ -1,5 +1,5 @@
 import React, { FC, ReactNode } from 'react'
-import { View, Image, StyleSheet } from 'react-native'
+import { View, Image, StyleSheet, Linking } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { MessageProps } from './Message.types'
 import { Jdenticon } from '../Jdenticon/Jdenticon.component'
@@ -8,8 +8,8 @@ import { MessageType, AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage } from '@quiet
 import { UploadedImage } from '../UploadedImage/UploadedImage.component'
 import { UploadedFile } from '../UploadedFile/UploadedFile.component'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
-import Linkify from 'react-linkify'
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
+import Markdown from 'react-native-markdown-package'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Message: FC<MessageProps & FileActionsProps> = ({
@@ -21,14 +21,6 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
   openUrl,
   pendingMessages
 }) => {
-  const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
-    return (
-      <Typography fontSize={14} color={'link'} onPress={ () => openUrl(decoratedHref) } key={key}>
-        {decoratedText}
-      </Typography>
-    )
-  }
-
   const renderMessage = (message: DisplayableMessage, pending: boolean) => {
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
@@ -63,8 +55,58 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
             >{sanitizedMathJax}</MathJaxSvg>
           )
         }
+        const markdownStyle = {
+          autolink: {
+            fontSize: 14,
+            color: defaultTheme.palette.typography.link
+          },
+          heading1: {
+            fontSize: 14
+          },
+          heading2: {
+            fontSize: 14
+          },
+          heading3: {
+            fontSize: 14
+          },
+          heading4: {
+            fontSize: 14
+          },
+          heading5: {
+            fontSize: 14
+          },
+          heading6: {
+            fontSize: 14
+          },
+          paragraph: {
+            marginTop: 0,
+            marginBottom: 0
+          },
+          paragraphCenter: {
+            marginTop: 0,
+            marginBottom: 0
+          },
+          paragraphWithImage: {
+            marginTop: 0,
+            marginBottom: 0
+          },
+          strong: {
+            marginTop: 0,
+            marginBottom: 0
+          },
+          tableHeader: {
+            backgroundColor: defaultTheme.palette.typography.lightGray
+          },
+          text: {
+            color: defaultTheme.palette.typography.main
+          }
+        }
         return (
-          <Typography fontSize={14} color={ color } testID={message.message}><Linkify componentDecorator={componentDecorator}>{message.message}</Linkify></Typography>
+          <Typography fontSize={14} color={color} testID={message.message}>
+            <Markdown styles={markdownStyle} onLink={async url => await Linking.openURL(url)}>
+              {message.message}
+            </Markdown>
+          </Typography>
         )
     }
   }
