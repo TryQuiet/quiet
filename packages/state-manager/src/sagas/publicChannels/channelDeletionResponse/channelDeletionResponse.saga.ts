@@ -30,17 +30,12 @@ export function* channelDeletionResponseSaga(
   const community = yield* select(communitiesSelectors.currentCommunity)
 
   const isOwner = Boolean(community?.CA)
-  console.log({ isOwner })
-  if (isGeneral) {
-    if (isOwner) {
-      yield* put(publicChannelsActions.createGeneralChannel())
-    }
-    // For better UX
-    yield* delay(500)
-    yield* put(publicChannelsActions.finishGeneralRecreation())
-  }
 
   if (isOwner) {
-    yield* put(messagesActions.sendDeletionMessage({ channelAddress }))
+    if (isGeneral) {
+      yield* put(publicChannelsActions.createGeneralChannel())
+    } else {
+      yield* put(messagesActions.sendDeletionMessage({ channelAddress }))
+    }
   }
 }

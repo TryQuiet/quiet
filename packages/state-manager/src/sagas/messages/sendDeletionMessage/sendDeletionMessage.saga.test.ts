@@ -79,14 +79,8 @@ describe('sendDeletionMessage', () => {
       .run()
   })
 
-  test('send message after deletion general channel', async () => {
+  test('not send message after deletion general channel', async () => {
     const channelAddress = 'general'
-    const message = `#${channelAddress} has been recreated by @${owner.nickname}`
-    const messagePayload: WriteMessagePayload = {
-      type: MessageType.Info,
-      message,
-      channelAddress: 'general'
-    }
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -97,7 +91,6 @@ describe('sendDeletionMessage', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .put(messagesActions.sendMessage(messagePayload))
       .run()
   })
 })

@@ -100,8 +100,6 @@ describe('channelDeletionResponseSaga', () => {
         .provide({
           call: (effect, next) => {}
         })
-        .put(publicChannelsActions.finishGeneralRecreation())
-        .put(messagesActions.sendDeletionMessage({ channelAddress }))
         .run()
     })
   })
@@ -149,7 +147,6 @@ describe('channelDeletionResponseSaga', () => {
         .provide({
           call: (effect, next) => {}
         })
-        .put(publicChannelsActions.finishGeneralRecreation())
         .run()
     })
   })
