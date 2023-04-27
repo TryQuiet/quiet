@@ -68,13 +68,35 @@ describe('sendInitialChannelMessageSaga', () => {
         channelAddress: channel.address
       })
     )
-    .withReducer(reducer)
-    .withState(store.getState())
+      .withReducer(reducer)
+      .withState(store.getState())
       .put(
         messagesActions.sendMessage({
           type: 3,
           message: `Created #${channel.name}`,
           channelAddress: channel.address
+        })
+      )
+      .run()
+  })
+
+  test('send deletion message for general channel', async () => {
+    store.dispatch(publicChannelsActions.startGeneralRecreation())
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      sendInitialChannelMessageSaga,
+      publicChannelsActions.sendInitialChannelMessage({
+        channelName: generalChannel.name,
+        channelAddress: generalChannel.address
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(
+        messagesActions.sendMessage({
+          type: 3,
+          message: `@${owner.nickname} deleted all messages in #general`,
+          channelAddress: generalChannel.address
         })
       )
       .run()
