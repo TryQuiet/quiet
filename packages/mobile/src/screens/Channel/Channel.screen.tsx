@@ -12,6 +12,8 @@ import {
 } from '@quiet/state-manager'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
+import { useContextMenu } from '../../hooks/useContextMenu'
+import { MenuName } from '../../const/MenuNames.enum'
 
 export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -36,6 +38,8 @@ export const ChannelScreen: FC = () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton)
     }
   }, [handleBackButton])
+
+  const contextMenu = useContextMenu(MenuName.Channel)
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
@@ -89,6 +93,7 @@ export const ChannelScreen: FC = () => {
 
   return (
     <Chat
+      contextMenu={contextMenu}
       sendMessageAction={sendMessageAction}
       loadMessagesAction={loadMessages}
       handleBackButton={handleBackButton}

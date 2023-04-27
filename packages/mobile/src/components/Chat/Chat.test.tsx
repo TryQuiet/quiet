@@ -14,6 +14,11 @@ describe('Chat component', () => {
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
       <Chat
+        contextMenu={{
+          visible: false,
+          handleOpen: undefined,
+          handleClose: undefined
+        }}
         sendMessageAction={jest.fn()}
         loadMessagesAction={jest.fn()}
         handleBackButton={jest.fn()}

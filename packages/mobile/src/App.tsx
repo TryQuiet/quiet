@@ -38,6 +38,7 @@ import { ThemeProvider } from 'styled-components'
 import { defaultTheme } from './styles/themes/default.theme'
 
 import { CommunityContextMenu } from './components/ContextMenu/menus/CommunityContextMenu.container'
+import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
 import { InvitationContextMenu } from './components/ContextMenu/menus/InvitationContextMenu.container'
 
 import { useConfirmationBox } from './hooks/useConfirmationBox'
@@ -106,6 +107,7 @@ export default function App(): JSX.Element {
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
               </Navigator>
               <CommunityContextMenu />
+              <ChannelContextMenu />
               <InvitationContextMenu />
               <ConfirmationBox {...confirmationBox} />
             </ThemeProvider>

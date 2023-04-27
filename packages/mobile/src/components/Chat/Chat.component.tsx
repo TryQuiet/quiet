@@ -11,6 +11,7 @@ import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Chat: FC<ChatProps & FileActionsProps> = ({
+  contextMenu,
   sendMessageAction,
   loadMessagesAction,
   handleBackButton,
@@ -90,7 +91,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
 
   return (
     <View style={{ flex: 1 }} testID={`chat_${channel.name}`}>
-      <Appbar title={`#${channel.name}`} back={handleBackButton} />
+      <Appbar title={`#${channel.name}`} back={handleBackButton} contextMenu={contextMenu} />
       <KeyboardAvoidingView
         behavior={Platform.select({ ios: 'padding', android: null })}
         keyboardVerticalOffset={Platform.select({ ios: 60, android: 0 })}
