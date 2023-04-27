@@ -82,7 +82,7 @@
 	"dependencies": {
 		"@chainsafe/libp2p-gossipsub": "6.1.0",
 		"@chainsafe/libp2p-noise": "11.0.0",
-		"@peculiar/webcrypto": "1.2.2",
+		"@peculiar/webcrypto": "1.4.3",
 		"@quiet/identity": "^1.2.1-alpha.0",
 		"@quiet/logger": "^1.2.1-alpha.0",
 		"@quiet/state-manager": "^1.2.1-alpha.1",
