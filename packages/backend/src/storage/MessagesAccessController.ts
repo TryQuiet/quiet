@@ -3,6 +3,7 @@ import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
 import { ChannelMessage } from '@quiet/state-manager'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
+import { NoCryptoEngineError } from '@quiet/types'
 
 const type = 'messagesaccess'
 
@@ -17,6 +18,8 @@ export class MessagesAccessController extends AccessController {
   }
 
   async canAppend(entry) {
+    if (!this.crypto) throw new NoCryptoEngineError()
+
     const message: ChannelMessage = entry.payload.value
 
     const signature = stringToArrayBuffer(message.signature)

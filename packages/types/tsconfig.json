@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "es2020",
+    "outDir": "./lib",
+    "typeRoots": [
+      "../@types",
+      "./node_modules/@types"
+    ],
+    "declaration": true
+  },
+  "include": [
+    "src",
+  ],
+  "exclude": [
+    "node_modules",
+    "**/__tests__/*"
+  ]
+}

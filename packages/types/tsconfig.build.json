@@ -1,19 +1,13 @@
 {
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "strictBindCallApply": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictPropertyInitialization": true,
     "rootDir": "./src",
     "outDir": "./lib",
     "typeRoots": [
       "../@types",
       "./node_modules/@types"
     ],
+    "declaration": true
   },
   "include": [
     "src"
@@ -23,4 +17,3 @@
     "**/__tests__/*"
   ]
 }
-  
