@@ -151,7 +151,7 @@ describe('User', () => {
   test('sees channel recreation information in #general channel', async () => {
     await element(by.text('#general')).longPress()
 
-    await waitFor(element(by.text('#general has been recreated by @rick')))
+    await waitFor(element(by.text('@rick deleted all messages in #general')))
       .toBeVisible()
       .withTimeout(5000)
   })
