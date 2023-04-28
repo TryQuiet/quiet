@@ -10,7 +10,8 @@ const PREFIX = 'TextMessage'
 const classes = {
   message: `${PREFIX}message`,
   pending: `${PREFIX}pending`,
-  link: `${PREFIX}link`
+  link: `${PREFIX}link`,
+  list: `${PREFIX}list`
 }
 
 const StyledTypography = styled(Typography)(() => ({
@@ -31,6 +32,10 @@ const StyledTypography = styled(Typography)(() => ({
     '&:hover': {
       textDecoration: 'underline'
     }
+  },
+
+  [`& .${classes.list}`]: {
+    whiteSpace: 'normal'
   }
 })) as typeof Typography
 
@@ -75,7 +80,12 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
           h4: React.Fragment,
           h5: React.Fragment,
           h6: React.Fragment,
-          hr: React.Fragment,
+          ol: ({ node, ...props }) => (
+            <ol className={classNames({ [classes.list]: true })} {...props} />
+          ),
+          ul: ({ node, ...props }) => (
+            <ul className={classNames({ [classes.list]: true })} {...props} />
+          ),
           p: React.Fragment
         }}
       />
