@@ -250,7 +250,7 @@ describe('channelsReplicatedSaga', () => {
           channel: sailingChannel
         })
       )
-      .put(publicChannelsActions.channelDeletionResponse({ channel: photoChannel.address }))
+      .put(publicChannelsActions.deleteChannel({ channel: photoChannel.address }))
       .run()
   })
 })
