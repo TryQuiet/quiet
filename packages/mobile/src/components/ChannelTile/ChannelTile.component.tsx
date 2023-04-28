@@ -16,7 +16,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({
   deleteChannel,
   enableDeletion
 }) => {
-  const leftSwipe = (progress, dragX) => {
+  const _leftSwipe = (_progress, dragX) => {
     const scale = dragX.interpolate({
       inputRange: [0, 100],
       outputRange: [0, 1.4],
@@ -49,7 +49,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({
 
   return (
     <GestureHandlerRootView>
-      <Swipeable friction={4} renderLeftActions={leftSwipe}>
+      {/* <Swipeable friction={4} renderLeftActions={leftSwipe}> */}
         <TouchableWithoutFeedback
           testID={`channel_tile_${name}`}
           onPress={() => {
@@ -123,7 +123,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({
             </View>
           </View>
         </TouchableWithoutFeedback>
-      </Swipeable>
+      {/* </Swipeable> */}
     </GestureHandlerRootView>
   )
 }
