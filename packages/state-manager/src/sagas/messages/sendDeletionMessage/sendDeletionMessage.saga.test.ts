@@ -1,30 +1,29 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, Identity } from '../../..'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { publicChannelsActions } from './../publicChannels.slice'
+import { getFactory, MessageType, PublicChannel, WriteMessagePayload } from '../../..'
 import { FactoryGirl } from 'factory-girl'
-import { expectSaga } from 'redux-saga-test-plan'
-import { PublicChannel } from '../publicChannels.types'
-import { sendInitialChannelMessageSaga } from './sendInitialChannelMessage.saga'
-import { messagesActions } from '../../messages/messages.slice'
-import { communitiesActions, Community } from '../../communities/communities.slice'
-import { identityActions } from '../../identity/identity.slice'
-import { DateTime } from 'luxon'
-import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { combineReducers } from '@reduxjs/toolkit'
+import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
+import { expectSaga } from 'redux-saga-test-plan'
+import { Identity } from '../../identity/identity.types'
+import { identityActions } from '../../identity/identity.slice'
+import { communitiesActions, Community } from '../../communities/communities.slice'
+import { DateTime } from 'luxon'
+import { messagesActions } from '../../messages/messages.slice'
+import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
+import { sendDeletionMessageSaga } from './sendDeletionMessage.saga'
 
-describe('sendInitialChannelMessageSaga', () => {
+describe('sendDeletionMessage', () => {
   let store: Store
   let factory: FactoryGirl
 
-  let channel: PublicChannel
-
-  let generalChannel: PublicChannel
-
   let community: Community
   let owner: Identity
+
+  let generalChannel: PublicChannel
+  let photoChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -43,7 +42,7 @@ describe('sendInitialChannelMessageSaga', () => {
 
     generalChannel = publicChannelsSelectors.currentChannel(store.getState())
 
-    channel = (
+    photoChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
         'PublicChannel',
         {
@@ -59,46 +58,39 @@ describe('sendInitialChannelMessageSaga', () => {
     ).channel
   })
 
-  test('send initial channel message', async () => {
+  test('send message after deletion standard channel', async () => {
+    const channelAddress = photoChannel.address
+    const message = `@${owner.nickname} deleted #${channelAddress}`
+    const messagePayload: WriteMessagePayload = {
+      type: MessageType.Info,
+      message,
+      channelAddress: 'general'
+    }
     const reducer = combineReducers(reducers)
     await expectSaga(
-      sendInitialChannelMessageSaga,
-      publicChannelsActions.sendInitialChannelMessage({
-        channelName: channel.name,
-        channelAddress: channel.address
+      sendDeletionMessageSaga,
+      messagesActions.sendDeletionMessage({
+        channelAddress
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .put(
-        messagesActions.sendMessage({
-          type: 3,
-          message: `Created #${channel.name}`,
-          channelAddress: channel.address
-        })
-      )
+      .put(messagesActions.sendMessage(messagePayload))
       .run()
   })
 
-  test('send deletion message for general channel', async () => {
-    store.dispatch(publicChannelsActions.startGeneralRecreation())
+  test('not send message after deletion general channel', async () => {
+    const channelAddress = 'general'
+
     const reducer = combineReducers(reducers)
     await expectSaga(
-      sendInitialChannelMessageSaga,
-      publicChannelsActions.sendInitialChannelMessage({
-        channelName: generalChannel.name,
-        channelAddress: generalChannel.address
+      sendDeletionMessageSaga,
+      messagesActions.sendDeletionMessage({
+        channelAddress
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .put(
-        messagesActions.sendMessage({
-          type: 3,
-          message: `@${owner.nickname} deleted all messages in #general`,
-          channelAddress: generalChannel.address
-        })
-      )
       .run()
   })
 })

@@ -243,8 +243,8 @@ describe('New User', () => {
       await sidebar2.switchChannel('general')
       await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
       const messages = await generalChannel2.getUserMessages(ownerUsername)
-      const text = await messages[1].getText()
-      expect(text).toEqual(`#general has been recreated by @${ownerUsername}`)
+      const text = await messages[0].getText()
+      expect(text).toEqual(`@${ownerUsername} deleted all messages in #general`)
     })
 
     it('Leave community', async () => {
