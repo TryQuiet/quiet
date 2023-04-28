@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { publicChannels } from '@quiet/state-manager'
+import { communities, publicChannels } from '@quiet/state-manager'
 
 import { navigationSelectors } from '../../../store/navigation/navigation.selectors'
 
@@ -20,6 +20,7 @@ export const ChannelContextMenu: FC = () => {
 
   const screen = useSelector(navigationSelectors.currentScreen)
 
+  const community = useSelector(communities.selectors.currentCommunity)
   const channel = useSelector(publicChannels.selectors.currentChannel)
 
   let title = ''
@@ -41,15 +42,20 @@ export const ChannelContextMenu: FC = () => {
     [dispatch]
   )
 
-  const items: ContextMenuItemProps[] = [
-    {
-      title: 'Delete channel',
-      action: () =>
-        redirect(ScreenNames.DeleteChannelScreen, {
-          channel: channel?.name
-        })
-    }
-  ]
+  let items: ContextMenuItemProps[] = []
+
+  if (community?.CA) {
+    items = [
+      ...items,
+      {
+        title: 'Delete channel',
+        action: () =>
+          redirect(ScreenNames.DeleteChannelScreen, {
+            channel: channel?.name
+          })
+      }
+    ]
+  }
 
   useEffect(() => {
     channelContextMenu.handleClose()

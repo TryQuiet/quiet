@@ -3,12 +3,13 @@ import { BackHandler, Linking } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { Chat } from '../../components/Chat/Chat.component'
 import {
+  communities,
+  identity,
+  publicChannels,
+  messages,
+  files,
   CancelDownload,
   FileMetadata,
-  files,
-  identity,
-  messages,
-  publicChannels
 } from '@quiet/state-manager'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -39,10 +40,10 @@ export const ChannelScreen: FC = () => {
     }
   }, [handleBackButton])
 
-  const contextMenu = useContextMenu(MenuName.Channel)
-
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
+
+  const community = useSelector(communities.selectors.currentCommunity)
 
   const channelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
@@ -51,6 +52,11 @@ export const ChannelScreen: FC = () => {
   const pendingMessages = useSelector(messages.selectors.messagesSendingStatus)
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
+
+  let contextMenu = useContextMenu(MenuName.Channel)
+  if (!community?.CA) {
+    contextMenu = null
+  }
 
   const downloadFile = useCallback(
     (media: FileMetadata) => {
