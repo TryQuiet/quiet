@@ -26,7 +26,7 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,backend-bundle"
+          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,e2e-tests,backend-bundle"
 
       - name: "Lint"
         if: ${{ runner.os != 'Windows' }}
