@@ -106,20 +106,18 @@ describe('User', () => {
     await waitFor(element(by.id('chat_roll')))
       .toBeVisible()
       .withTimeout(5000)
-
-    await element(by.id('appbar_action_item')).longPress()
   })
 
-  test.skip('deletes channel', async () => {
-    await element(by.text('#roll')).swipe('right')
+  test('deletes channel', async () => {
+    await element(by.id('open_menu')).longPress()
 
-    await element(by.text('Delete')).longPress()
+    await element(by.id('Delete channel')).longPress()
 
     await waitFor(element(by.text('Are you sure?')))
       .toBeVisible()
       .withTimeout(5000)
 
-    await element(by.text('Delete channel')).longPress()
+    await element(by.text('Delete channel')).atIndex(1).longPress()
 
     await waitFor(element(by.id('channels_list')))
       .toBeVisible()
