@@ -277,13 +277,13 @@ export class Storage extends EventEmitter {
       })
 
       // Delete channel on replication
-      Array.from(this.publicChannelsRepos.keys()).forEach(e => {
-        const isDeleted = !Object.keys(this.channels.all).includes(e as string)
-        if (isDeleted) {
-          log('deleting channel ', e)
-          void this.deleteChannel({ channel: e })
-        }
-      })
+      // Array.from(this.publicChannelsRepos.keys()).forEach(e => {
+      //   const isDeleted = !Object.keys(this.channels.all).includes(e as string)
+      //   if (isDeleted) {
+      //     log('deleting channel ', e)
+      //     void this.deleteChannel({ channel: e })
+      //   }
+      // })
 
       Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
         await this.subscribeToChannel(channel)
