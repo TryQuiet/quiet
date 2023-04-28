@@ -35,23 +35,6 @@ export const ChannelListScreen: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.channelsStatusSorted)
 
-  // Only community owner is allowed to delete channels
-  const enableChannelDeletion = Boolean(community.CA)
-
-  const deleteChannel = useCallback(
-    (channel: string) => {
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.DeleteChannelScreen,
-          params: {
-            channel: channel
-          }
-        })
-      )
-    },
-    [dispatch]
-  )
-
   const tiles = channels.map(status => {
     const newestMessage = status.newestMessage
 
@@ -66,9 +49,7 @@ export const ChannelListScreen: FC = () => {
       message: message,
       date: date,
       unread: status.unread,
-      redirect: redirect,
-      deleteChannel: deleteChannel,
-      enableDeletion: enableChannelDeletion
+      redirect: redirect
     }
 
     return tile
@@ -81,8 +62,6 @@ export const ChannelListScreen: FC = () => {
       community={community}
       tiles={tiles}
       communityContextMenu={communityContextMenu}
-      enableDeletion={enableChannelDeletion}
-      deleteChannel={deleteChannel}
     />
   )
 }

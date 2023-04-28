@@ -15,7 +15,6 @@ describe('ChannelList component', () => {
         date={'1:55pm'}
         unread={false}
         redirect={jest.fn()}
-        deleteChannel={jest.fn()}
       />
     )
 
@@ -231,7 +230,6 @@ describe('ChannelList component', () => {
         date={'1:55pm'}
         unread={true}
         redirect={jest.fn()}
-        deleteChannel={jest.fn()}
       />
     )
 

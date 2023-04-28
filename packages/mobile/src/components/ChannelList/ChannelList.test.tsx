@@ -19,9 +19,7 @@ describe('ChannelList component', () => {
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: '1:55pm',
             unread: false,
-            redirect: jest.fn(),
-            deleteChannel: jest.fn(),
-            enableDeletion: true
+            redirect: jest.fn()
           },
           {
             name: 'spam',
@@ -30,9 +28,7 @@ describe('ChannelList component', () => {
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: '1:55pm',
             unread: false,
-            redirect: jest.fn(),
-            deleteChannel: jest.fn(),
-            enableDeletion: true
+            redirect: jest.fn()
           },
           {
             name: 'design',
@@ -41,9 +37,7 @@ describe('ChannelList component', () => {
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: '6/1/22',
             unread: true,
-            redirect: jest.fn(),
-            deleteChannel: jest.fn(),
-            enableDeletion: true
+            redirect: jest.fn()
           },
           {
             name: 'qa',
@@ -52,9 +46,7 @@ describe('ChannelList component', () => {
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: 'Yesterday',
             unread: false,
-            redirect: jest.fn(),
-            deleteChannel: jest.fn(),
-            enableDeletion: true
+            redirect: jest.fn()
           }
         ]}
       />
@@ -198,8 +190,6 @@ describe('ChannelList component', () => {
               {
                 "address": "general",
                 "date": "1:55pm",
-                "deleteChannel": [MockFunction],
-                "enableDeletion": true,
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
                 "name": "general",
                 "redirect": [MockFunction],
@@ -208,8 +198,6 @@ describe('ChannelList component', () => {
               {
                 "address": "spam",
                 "date": "1:55pm",
-                "deleteChannel": [MockFunction],
-                "enableDeletion": true,
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
                 "name": "spam",
                 "redirect": [MockFunction],
@@ -218,8 +206,6 @@ describe('ChannelList component', () => {
               {
                 "address": "design",
                 "date": "6/1/22",
-                "deleteChannel": [MockFunction],
-                "enableDeletion": true,
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
                 "name": "design",
                 "redirect": [MockFunction],
@@ -228,8 +214,6 @@ describe('ChannelList component', () => {
               {
                 "address": "design",
                 "date": "Yesterday",
-                "deleteChannel": [MockFunction],
-                "enableDeletion": true,
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
                 "name": "qa",
                 "redirect": [MockFunction],
