@@ -124,7 +124,41 @@ describe('User', () => {
       .withTimeout(5000)
   })
 
+  test('sees channel deletion information in #general channel', async () => {
+    await element(by.text('#general')).longPress()
+
+    await waitFor(element(by.text('@rick deleted #roll')))
+      .toBeVisible()
+      .withTimeout(5000)
+  })
+
+  test('deletes #general channel', async () => {
+    await element(by.id('open_menu')).longPress()
+
+    await element(by.id('Delete channel')).longPress()
+
+    await waitFor(element(by.text('Are you sure?')))
+      .toBeVisible()
+      .withTimeout(5000)
+
+    await element(by.text('Delete channel')).atIndex(1).longPress()
+
+    await waitFor(element(by.id('channels_list')))
+      .toBeVisible()
+      .withTimeout(5000)
+  })
+
+  test('sees channel recreation information in #general channel', async () => {
+    await element(by.text('#general')).longPress()
+
+    await waitFor(element(by.text('#general has been recreated by @rick')))
+      .toBeVisible()
+      .withTimeout(5000)
+  })
+
   test('leaves community', async () => {
+    await element(by.id('appbar_action_item')).longPress()
+
     await element(by.id('open_menu')).longPress()
 
     await element(by.id('Leave community')).longPress()
