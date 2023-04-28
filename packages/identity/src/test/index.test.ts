@@ -1,14 +1,14 @@
+import { Crypto } from '@peculiar/webcrypto'
 import { sign } from '../sign'
 import { extractPubKey, parseCertificate, parseCertificationRequest } from '../extractPubKey'
 import { verifySignature } from '../verification'
 import { verifyUserCert } from '../verifyUserCertificate'
-import { Crypto } from '@peculiar/webcrypto'
 import { createTestRootCA, createTestUserCert, createTestUserCsr, userData } from './helpers'
 import { CertFieldsTypes, getCertFieldValue, getReqFieldValue } from '../common'
 import { getCrypto, setEngine, CryptoEngine } from 'pkijs'
 
 describe('Message signature verification', () => {
-  let crypto: SubtleCrypto | undefined
+  let crypto: SubtleCrypto | null
   beforeAll(() => {
     const webcrypto = new Crypto()
     setEngine('newEngine', new CryptoEngine({
@@ -94,16 +94,16 @@ describe('Certificate', () => {
       [CertFieldsTypes.peerId]: userData.peerId,
       [CertFieldsTypes.dmPublicKey]: userData.dmPublicKey
     }
+    type CertFieldsTypesKeys = keyof typeof certTypeData
 
     const rootCA = await createTestRootCA()
     const userCert = await createTestUserCert(rootCA)
     const parsedCert = parseCertificate(userCert.userCertString)
 
     Object.keys(certTypeData).forEach(key => {
-      const keyAsEnum = key as CertFieldsTypes
+      const keyAsEnum = key as CertFieldsTypesKeys
 
-      expect(getCertFieldValue(parsedCert, keyAsEnum))
-        .toBe(certTypeData[keyAsEnum])
+      expect(getCertFieldValue(parsedCert, keyAsEnum)).toBe(certTypeData[keyAsEnum])
     })
   })
 
@@ -114,15 +114,15 @@ describe('Certificate', () => {
       [CertFieldsTypes.peerId]: userData.peerId,
       [CertFieldsTypes.dmPublicKey]: userData.dmPublicKey
     }
+    type CertFieldsTypesKeys = keyof typeof certTypeData
 
     const userReq = await createTestUserCsr()
     const parsedCert = parseCertificationRequest(userReq.userCsr)
 
     Object.keys(certTypeData).forEach(key => {
-      const keyAsEnum = key as CertFieldsTypes
+      const keyAsEnum = key as CertFieldsTypesKeys
 
-      expect(getReqFieldValue(parsedCert, keyAsEnum))
-        .toBe(certTypeData[keyAsEnum])
+      expect(getReqFieldValue(parsedCert, keyAsEnum)).toBe(certTypeData[keyAsEnum])
     })
   })
 

@@ -11,6 +11,7 @@ import {
   AttributeTypeAndValue,
   getCrypto
 } from 'pkijs'
+import { NoCryptoEngineError } from '@quiet/types'
 
 export interface RootCA {
   // Todo: move types to separate file
@@ -28,6 +29,9 @@ export const createRootCA = async (
   notAfterDate: Time,
   rootCAcommonName?: string
 ): Promise<RootCA> => {
+  const crypto = getCrypto()
+  if (!crypto) throw new NoCryptoEngineError()
+
   const commonName = rootCAcommonName || 'quietcommunity'
   const rootCA = await generateRootCA({
     commonName,
@@ -38,7 +42,7 @@ export const createRootCA = async (
 
   const rootData = {
     rootCert: rootCA.certificate.toSchema(true).toBER(false),
-    rootKey: await getCrypto()?.exportKey('pkcs8', rootCA.privateKey)
+    rootKey: await crypto.exportKey('pkcs8', rootCA.privateKey)
   }
 
   return {

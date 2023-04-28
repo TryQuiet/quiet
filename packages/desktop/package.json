@@ -123,7 +123,7 @@
   },
   "dependencies": {
     "@electron/remote": "^2.0.8",
-    "@peculiar/webcrypto": "1.4.1",
+    "@peculiar/webcrypto": "1.4.3",
     "@quiet/common": "^1.2.1-alpha.1",
     "@quiet/logger": "^1.2.1-alpha.0",
     "@sentry/electron": "^2.5.4",
@@ -300,7 +300,7 @@
     ]
   },
   "engines": {
-    "node": "16.18.0",
+    "node": "18.12.1",
     "npm": "8.19.2"
   }
 }
