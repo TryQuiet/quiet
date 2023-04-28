@@ -145,9 +145,6 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
         .put(messagesActions.deleteChannelEntry({ channelAddress }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
-        // .provide({
-        //   call: (effect, next) => {}
-        // })
         .run()
     })
   })
