@@ -90,8 +90,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   )
 
   return (
-    <View style={{ flex: 1 }} testID={`chat_${channel.name}`}>
-      <Appbar title={`#${channel.name}`} back={handleBackButton} contextMenu={contextMenu} />
+    <View style={{ flex: 1 }} testID={`chat_${channel?.name}`}>
+      <Appbar title={`#${channel?.name}`} back={handleBackButton} contextMenu={contextMenu} />
       <KeyboardAvoidingView
         behavior={Platform.select({ ios: 'padding', android: null })}
         keyboardVerticalOffset={Platform.select({ ios: 60, android: 0 })}
@@ -136,7 +136,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
             <Input
               ref={messageInputRef}
               onChangeText={onInputTextChange}
-              placeholder={`Message #${channel.name}`}
+              placeholder={`Message #${channel?.name}`}
               multiline={true}
             />
           </View>
@@ -145,7 +145,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       </KeyboardAvoidingView>
       <ImagePreviewModal
         imagePreviewData={imagePreview}
-        currentChannelName={channel.name}
+        currentChannelName={channel?.name}
         resetPreviewData={() => setImagePreview(null)}
       />
     </View>
