@@ -7,8 +7,10 @@ import {
   PublicChannel
 } from '@quiet/state-manager'
 import { Dictionary } from '@reduxjs/toolkit'
+import { useContextMenu } from '../../hooks/useContextMenu'
 
 export interface ChatProps {
+  contextMenu: ReturnType<typeof useContextMenu>
   sendMessageAction: (message: string) => void
   loadMessagesAction: (load: boolean) => void
   handleBackButton: () => void

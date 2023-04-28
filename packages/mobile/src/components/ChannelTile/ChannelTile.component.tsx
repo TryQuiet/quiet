@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { Animated, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
-import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { truncateWords } from '../../utils/functions/truncateWords/truncateWords'
 import { Typography } from '../Typography/Typography.component'
@@ -12,44 +12,36 @@ export const ChannelTile: FC<ChannelTileProps> = ({
   message,
   date,
   unread,
-  redirect,
-  deleteChannel,
-  enableDeletion
+  redirect
 }) => {
-  const leftSwipe = (progress, dragX) => {
+  const _leftSwipe = (_progress, dragX) => {
     const scale = dragX.interpolate({
       inputRange: [0, 100],
       outputRange: [0, 1.4],
       extrapolate: 'clamp'
     })
     return (
-      <>
-        {enableDeletion && (
-          <TouchableOpacity
-            onPress={() => {
-              deleteChannel(name)
-            }}
-            activeOpacity={0.6}
-            style={{
-              paddingLeft: 20,
-              paddingTop: 4,
-              justifyContent: 'center',
-              alignItems: 'center'
-            }}>
-            <Animated.View style={{ transform: [{ scale: scale }] }}>
-              <Typography fontSize={14} color={'error'}>
-                Delete
-              </Typography>
-            </Animated.View>
-          </TouchableOpacity>
-        )}
-      </>
+      <TouchableOpacity
+      onPress={() => {}}
+      activeOpacity={0.6}
+      style={{
+        paddingLeft: 20,
+        paddingTop: 4,
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+      <Animated.View style={{ transform: [{ scale: scale }] }}>
+        <Typography fontSize={14} color={'error'}>
+          Action
+        </Typography>
+      </Animated.View>
+    </TouchableOpacity>
     )
   }
 
   return (
     <GestureHandlerRootView>
-      <Swipeable friction={4} renderLeftActions={leftSwipe}>
+      {/* <Swipeable friction={4} renderLeftActions={leftSwipe}> */}
         <TouchableWithoutFeedback
           testID={`channel_tile_${name}`}
           onPress={() => {
@@ -123,7 +115,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({
             </View>
           </View>
         </TouchableWithoutFeedback>
-      </Swipeable>
+      {/* </Swipeable> */}
     </GestureHandlerRootView>
   )
 }

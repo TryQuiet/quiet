@@ -5,6 +5,4 @@ export interface ChannelTileProps {
   message?: string
   date?: string
   redirect: (address: string) => void
-  deleteChannel: (channel: string) => void
-  enableDeletion?: boolean
 }
