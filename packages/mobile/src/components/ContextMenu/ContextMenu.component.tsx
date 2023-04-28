@@ -84,7 +84,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                   fontSize={16}
                   fontWeight={'medium'}
                   style={{ lineHeight: 26, alignSelf: 'center' }}>
-                  {title}
+                  #{title.toLowerCase()} settings
                 </Typography>
               </View>
               <View style={{ flex: 1 }}></View>
