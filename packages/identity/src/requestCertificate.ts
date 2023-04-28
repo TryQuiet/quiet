@@ -1,5 +1,5 @@
 import { PrintableString, OctetString } from 'asn1js'
-
+import { NoCryptoEngineError } from '@quiet/types'
 import config from './config'
 import { generateKeyPair, CertFieldsTypes, hexStringToArrayBuffer } from './common'
 import {
@@ -43,10 +43,12 @@ export const createUserCsr = async ({
     dmPublicKey: dmPublicKey,
     ...config
   })
+  const crypto = getCrypto()
+  if (!crypto) throw new NoCryptoEngineError()
 
   const userData = {
     userCsr: pkcs10.pkcs10.toSchema().toBER(false),
-    userKey: await getCrypto()?.exportKey('pkcs8', pkcs10.privateKey)
+    userKey: await crypto.exportKey('pkcs8', pkcs10.privateKey)
   }
 
   return {
@@ -87,11 +89,14 @@ async function requestCertificate({
   )
 
   await pkcs10.subjectPublicKeyInfo.importKey(keyPair.publicKey)
-  const hashedPublicKey = await getCrypto()?.digest(
+  const crypto = getCrypto()
+  if (!crypto) throw new NoCryptoEngineError()
+
+  const hashedPublicKey = await crypto.digest(
     { name: 'SHA-1' },
     pkcs10.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex
   )
-  pkcs10.attributes.push(
+  pkcs10.attributes?.push(
     new Attribute({
       type: '1.2.840.113549.1.9.14', // pkcs-9-at-extensionRequest
       values: [

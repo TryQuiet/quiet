@@ -10,6 +10,7 @@ import { socketEventData } from '../renderer/testUtils/socket'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
+import ChannelInputComponent from '../renderer/components/widgets/channels/ChannelInput/ChannelInput'
 
 import {
   identity,
@@ -562,6 +563,86 @@ describe('Channel', () => {
         "Messages/sendMessage",
       ]
     `)
+  })
+
+  it('renders a multi-line message', async () => {
+    renderComponent(
+      <ChannelInputComponent
+        channelAddress={'channelAddress'}
+        channelName={'channelName'}
+        inputPlaceholder='#channel as @user'
+        onChange={jest.fn()}
+        onKeyPress={jest.fn()}
+        infoClass={''}
+        setInfoClass={jest.fn()}
+        openFilesDialog={jest.fn()}
+        handleOpenFiles={jest.fn()}
+      />
+    )
+
+    const messageInput = screen.getByTestId('messageInput')
+
+    // Why does the first letter not get entered?
+    await userEvent.type(
+      messageInput,
+      'mmulti-line{Shift>}{Enter}{/Shift}message{Shift>}{Enter}{/Shift}hello'
+    )
+    expect(messageInput.textContent).toBe('multi-line\nmessage\nhello')
+  })
+
+  // TODO the userEvent.type doesn't setup the input text node children like the app does,
+  // so this test, as written, fails.
+  it.skip('traverses a multi-line message it with arrow keys', async () => {
+    renderComponent(
+      <ChannelInputComponent
+        channelAddress={'channelAddress'}
+        channelName={'channelName'}
+        inputPlaceholder='#channel as @user'
+        onChange={jest.fn()}
+        onKeyPress={jest.fn()}
+        infoClass={''}
+        setInfoClass={jest.fn()}
+        openFilesDialog={jest.fn()}
+        handleOpenFiles={jest.fn()}
+      />
+    )
+
+    const messageInput = screen.getByTestId('messageInput')
+
+    // TODO Why does the first letter not get entered?
+    // Test where the starting caret is
+    await userEvent.type(
+      messageInput,
+      'mmulti-line{Shift>}{Enter}{/Shift}message{Shift>}{Enter}{/Shift}hello'
+    )
+    expect(window.getSelection().anchorNode.nodeValue).toBe('hello')
+    expect(window.getSelection().anchorOffset).toBe(5)
+
+    // Test where the caret is after an Arrow Up
+    await userEvent.keyboard('{ArrowLeft>3/}')
+    expect(window.getSelection().anchorOffset).toBe(2)
+    await userEvent.keyboard('{ArrowUp}')
+    expect(window.getSelection().anchorNode.nodeValue).toBe('message')
+    expect(window.getSelection().anchorOffset).toBe(2)
+    await userEvent.keyboard('{ArrowUp}')
+    expect(window.getSelection().anchorNode.nodeValue).toBe('multi-line')
+    expect(window.getSelection().anchorOffset).toBe(2)
+    await userEvent.keyboard('{ArrowUp}')
+    expect(window.getSelection().anchorNode.nodeValue).toBe('multi-line')
+    expect(window.getSelection().anchorOffset).toBe(0)
+
+    // Test where the caret is after an Arrow Down
+    await userEvent.keyboard('{ArrowRight>3/}')
+    expect(window.getSelection().anchorOffset).toBe(3)
+    await userEvent.keyboard('{ArrowDown}')
+    expect(window.getSelection().anchorNode.nodeValue).toBe('message')
+    expect(window.getSelection().anchorOffset).toBe(3)
+    await userEvent.keyboard('{ArrowDown}')
+    expect(window.getSelection().anchorNode.nodeValue).toBe('hello')
+    expect(window.getSelection().anchorOffset).toBe(3)
+    await userEvent.keyboard('{ArrowDown}')
+    expect(window.getSelection().anchorNode.nodeValue).toBe('hello')
+    expect(window.getSelection().anchorOffset).toBe(5)
   })
 
   it("doesn't allow to type and send message if community is not initialized", async () => {

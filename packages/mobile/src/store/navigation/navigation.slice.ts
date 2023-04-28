@@ -11,6 +11,7 @@ export class NavigationState {
   }
 
   public [MenuName.Community] = { open: false, args: undefined }
+  public [MenuName.Channel] = { open: false, args: undefined }
   public [MenuName.Invitation] = { open: false, args: undefined }
 }
 

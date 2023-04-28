@@ -302,7 +302,8 @@ const closeBackendProcess = () => {
        https://github.com/TryQuiet/monorepo/issues/469
     */
     const forceClose = setTimeout(() => {
-      backendProcess.kill()
+      const killed = backendProcess.kill()
+      log(`Backend killed: ${killed}, Quitting.`)
       app.quit()
     }, 2000)
     backendProcess.send('close')

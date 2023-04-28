@@ -45,6 +45,7 @@ import { IpfsFilesManager, IpfsFilesManagerEvents } from './ipfsFileManager'
 import { create } from 'ipfs-core'
 
 import { CID } from 'multiformats/cid'
+import { NoCryptoEngineError } from '@quiet/types'
 
 const log = logger('db')
 
@@ -257,7 +258,7 @@ export class Storage extends EventEmitter {
     log('createDbForChannels init')
     this.channels = await this.orbitdb.keyvalue<PublicChannel>('public-channels', {
       accessController: {
-        type: 'channelsaccess',
+        // type: 'channelsaccess',
         write: ['*']
       }
     })
@@ -340,6 +341,8 @@ export class Storage extends EventEmitter {
 
   async verifyMessage(message: ChannelMessage): Promise<boolean> {
     const crypto = getCrypto()
+    if (!crypto) throw new NoCryptoEngineError()
+
     const signature = stringToArrayBuffer(message.signature)
     let cryptoKey = this.publicKeysMap.get(message.pubKey)
 
@@ -518,7 +521,7 @@ export class Storage extends EventEmitter {
     await this.deleteChannelFiles(files)
     await this.deleteChannelMessages(hashes)
     this.publicChannelsRepos.delete(payload.channel)
-    this.emit(StorageEvents.DELETED_CHANNEL, payload)
+    this.emit(StorageEvents.CHANNEL_DELETION_RESPONSE, payload)
   }
 
   public async deleteChannelFiles(files: FileMetadata[]) {

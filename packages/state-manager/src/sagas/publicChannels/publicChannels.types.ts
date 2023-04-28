@@ -60,7 +60,7 @@ export interface CreateChannelPayload {
 export interface DeleteChannelPayload {
   channel: string
 }
-export interface DeletedChannelPayload {
+export interface ChannelDeletionResponsePayload {
   channel: string
 }
 
