@@ -84,3 +84,7 @@ export interface ChannelMessagesIdsResponse {
 export interface DeleteChannelEntryPayload {
   channelAddress: string
 }
+
+export interface SendDeletionMessagePayload {
+  channelAddress: string
+}

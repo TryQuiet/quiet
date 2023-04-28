@@ -29,7 +29,7 @@ import { publicChannelsActions } from '../../publicChannels/publicChannels.slice
 import {
   ChannelsReplicatedPayload,
   CreatedChannelResponse,
-  DeletedChannelPayload,
+  ChannelDeletionResponsePayload,
   IncomingMessages,
   SetChannelSubscribedPayload
 } from '../../publicChannels/publicChannels.types'
@@ -55,7 +55,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>
     | ReturnType<typeof publicChannelsActions.channelsReplicated>
     | ReturnType<typeof publicChannelsActions.createGeneralChannel>
-    | ReturnType<typeof publicChannelsActions.deletedChannel>
+    | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
     | ReturnType<typeof usersActions.responseSendCertificates>
     | ReturnType<typeof communitiesActions.responseCreateNetwork>
     | ReturnType<typeof errorsActions.addError>
@@ -124,8 +124,8 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
       emit(publicChannelsActions.setChannelSubscribed(payload))
     })
-    socket.on(SocketActionTypes.DELETED_CHANNEL, (payload: DeletedChannelPayload) => {
-      emit(publicChannelsActions.deletedChannel(payload))
+    socket.on(SocketActionTypes.CHANNEL_DELETION_RESPONSE, (payload: ChannelDeletionResponsePayload) => {
+      emit(publicChannelsActions.channelDeletionResponse(payload))
     })
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       emit(

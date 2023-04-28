@@ -182,7 +182,7 @@ describe('Channels', () => {
 
     await storage.deleteChannel({ channel: channelio.address })
 
-    expect(eventSpy).toBeCalledWith('deletedChannel', {
+    expect(eventSpy).toBeCalledWith('channelDeletionResponse', {
       channel: channelio.address
     })
   })

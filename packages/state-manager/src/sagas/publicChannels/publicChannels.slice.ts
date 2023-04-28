@@ -22,7 +22,7 @@ import {
   SetChannelSubscribedPayload,
   UpdateNewestMessagePayload,
   DeleteChannelPayload,
-  DeletedChannelPayload,
+  ChannelDeletionResponsePayload,
   DeleteChannelFromStorePayload,
   ClearMessagesCachePayload
 } from './publicChannels.types'
@@ -50,7 +50,7 @@ export const publicChannelsSlice = createSlice({
   reducers: {
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
     deleteChannel: (state, _action: PayloadAction<DeleteChannelPayload>) => state,
-    deletedChannel: (state, _action: PayloadAction<DeletedChannelPayload>) => state,
+    channelDeletionResponse: (state, _action: PayloadAction<ChannelDeletionResponsePayload>) => state,
     deleteChannelFromStore: (state, action: PayloadAction<DeleteChannelFromStorePayload>) => {
       const { channelAddress } = action.payload
 
