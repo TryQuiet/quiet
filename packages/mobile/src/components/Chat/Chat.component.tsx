@@ -11,6 +11,7 @@ import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Chat: FC<ChatProps & FileActionsProps> = ({
+  contextMenu,
   sendMessageAction,
   loadMessagesAction,
   handleBackButton,
@@ -89,8 +90,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   )
 
   return (
-    <View style={{ flex: 1 }} testID={`chat_${channel.name}`}>
-      <Appbar title={`#${channel.name}`} back={handleBackButton} />
+    <View style={{ flex: 1 }} testID={`chat_${channel?.name}`}>
+      <Appbar title={`#${channel?.name}`} back={handleBackButton} contextMenu={contextMenu} />
       <KeyboardAvoidingView
         behavior={Platform.select({ ios: 'padding', android: null })}
         keyboardVerticalOffset={Platform.select({ ios: 60, android: 0 })}
@@ -135,7 +136,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
             <Input
               ref={messageInputRef}
               onChangeText={onInputTextChange}
-              placeholder={`Message #${channel.name}`}
+              placeholder={`Message #${channel?.name}`}
               multiline={true}
             />
           </View>
@@ -144,7 +145,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       </KeyboardAvoidingView>
       <ImagePreviewModal
         imagePreviewData={imagePreview}
-        currentChannelName={channel.name}
+        currentChannelName={channel?.name}
         resetPreviewData={() => setImagePreview(null)}
       />
     </View>
