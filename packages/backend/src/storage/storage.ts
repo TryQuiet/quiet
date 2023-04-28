@@ -507,7 +507,22 @@ export class Storage extends EventEmitter {
     if (channel) {
       void this.channels.del(payload.channel)
     }
-    const repo = this.publicChannelsRepos.get(payload.channel)
+    let repo = this.publicChannelsRepos.get(payload.channel)
+    if (!repo) {
+      const db = await this.orbitdb.log<ChannelMessage>(
+        `channels.${payload.channel}`,
+        {
+          accessController: {
+            type: 'messagesaccess',
+            write: ['*']
+          }
+        }
+      )
+      repo = {
+        db,
+        eventsAttached: false
+      }
+    }
     await repo.db.load()
     const allEntries = this.getAllEventLogRawEntries(repo.db)
     await repo.db.close()
