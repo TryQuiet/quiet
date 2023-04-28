@@ -90,7 +90,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
           </Grid>
           <Grid style={{ flex: 5, justifyContent: 'center' }}>
             <Typography fontSize={16} fontWeight={'medium'} style={{ alignSelf: 'center' }}>
-              {title}
+              {title} settings
             </Typography>
           </Grid>
           <Grid style={{ flex: 1 }}></Grid>

@@ -13,8 +13,6 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 
-import { capitalizeFirstLetter } from '@quiet/common'
-
 export const ChannelContextMenu: FC = () => {
   const dispatch = useDispatch()
 
@@ -25,7 +23,7 @@ export const ChannelContextMenu: FC = () => {
 
   let title = ''
   if (channel?.name) {
-    title = capitalizeFirstLetter(channel.name)
+    title = channel.name
   }
 
   const channelContextMenu = useContextMenu(MenuName.Channel)
@@ -61,5 +59,5 @@ export const ChannelContextMenu: FC = () => {
     channelContextMenu.handleClose()
   }, [screen])
 
-  return <ContextMenu title={title} items={items} {...channelContextMenu} />
+  return <ContextMenu title={`#${title} settings`} items={items} {...channelContextMenu} />
 }

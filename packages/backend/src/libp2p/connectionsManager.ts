@@ -652,9 +652,6 @@ export class ConnectionsManager extends EventEmitter {
       await this.closeAllServices()
     })
     this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload: any) => {
-      console.log(
-        'connections manager delete channel'
-      )
       await this.storage.deleteChannel(payload)
     })
   }
