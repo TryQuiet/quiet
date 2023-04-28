@@ -22,84 +22,87 @@ describe('ChannelList component', () => {
     expect(toJSON()).toMatchInlineSnapshot(`
       <View>
         <View
-          collapsable={false}
-          forwardedRef={[Function]}
-          handlerTag={1}
-          handlerType="PanGestureHandler"
-          onGestureHandlerEvent={[Function]}
-          onGestureHandlerStateChange={[Function]}
-          onLayout={[Function]}
-          style={
+          accessibilityState={
             {
-              "overflow": "hidden",
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
             }
           }
+          accessible={true}
+          focusable={true}
+          onClick={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            {
+              "padding": 16,
+            }
+          }
+          testID="channel_tile_general"
         >
           <View
-            collapsable={false}
             style={
               {
-                "bottom": 0,
                 "flexDirection": "row",
-                "left": 0,
-                "position": "absolute",
-                "right": 0,
-                "top": 0,
-                "transform": [
-                  {
-                    "translateX": -10000,
-                  },
-                ],
               }
             }
           >
             <View
-              onLayout={[Function]}
-            />
-          </View>
-          <View
-            collapsable={false}
-            forwardedRef={[Function]}
-            handlerTag={2}
-            handlerType="TapGestureHandler"
-            onGestureHandlerEvent={[Function]}
-            onGestureHandlerStateChange={[Function]}
-            pointerEvents="auto"
-            style={
-              {
-                "transform": [
-                  {
-                    "translateX": -0,
-                  },
-                ],
-              }
-            }
-          >
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": undefined,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessible={true}
-              focusable={true}
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "padding": 16,
+                  "alignItems": "center",
+                  "flex": 1,
+                  "paddingRight": 12,
                 }
               }
-              testID="channel_tile_general"
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "backgroundColor": "#4C4C4C",
+                    "borderRadius": 4,
+                    "height": 36,
+                    "justifyContent": "center",
+                    "width": 36,
+                  }
+                }
+              >
+                <Text
+                  color="white"
+                  fontSize={14}
+                  horizontalTextAlign="left"
+                  style={
+                    [
+                      {
+                        "color": "#ffffff",
+                        "fontFamily": "Rubik-Regular",
+                        "fontSize": 14,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      },
+                    ]
+                  }
+                  verticalTextAlign="center"
+                >
+                  ge
+                </Text>
+              </View>
+            </View>
+            <View
+              style={
+                {
+                  "flex": 9,
+                  "flexDirection": "column",
+                }
+              }
             >
               <View
                 style={
@@ -111,163 +114,104 @@ describe('ChannelList component', () => {
                 <View
                   style={
                     {
-                      "alignItems": "center",
-                      "flex": 1,
-                      "paddingRight": 12,
+                      "flex": 8,
                     }
                   }
                 >
-                  <View
+                  <Text
+                    color="main"
+                    fontSize={16}
+                    fontWeight="medium"
+                    horizontalTextAlign="left"
                     style={
-                      {
-                        "alignItems": "center",
-                        "backgroundColor": "#4C4C4C",
-                        "borderRadius": 4,
-                        "height": 36,
-                        "justifyContent": "center",
-                        "width": 36,
-                      }
+                      [
+                        {
+                          "color": "#000000",
+                          "fontFamily": "Rubik-Medium",
+                          "fontSize": 16,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        },
+                      ]
                     }
+                    verticalTextAlign="center"
                   >
-                    <Text
-                      color="white"
-                      fontSize={14}
-                      horizontalTextAlign="left"
-                      style={
-                        [
-                          {
-                            "color": "#ffffff",
-                            "fontFamily": "Rubik-Regular",
-                            "fontSize": 14,
-                            "textAlign": "left",
-                            "textAlignVertical": "center",
-                          },
-                        ]
-                      }
-                      verticalTextAlign="center"
-                    >
-                      ge
-                    </Text>
-                  </View>
+                    #
+                    general
+                  </Text>
                 </View>
                 <View
                   style={
                     {
-                      "flex": 9,
-                      "flexDirection": "column",
+                      "alignItems": "flex-end",
+                      "flex": 4,
                     }
                   }
                 >
-                  <View
+                  <Text
+                    color="subtitle"
+                    fontSize={14}
+                    horizontalTextAlign="left"
                     style={
-                      {
-                        "flexDirection": "row",
-                      }
+                      [
+                        {
+                          "color": "#999999",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 14,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        },
+                      ]
                     }
+                    verticalTextAlign="center"
                   >
-                    <View
-                      style={
-                        {
-                          "flex": 8,
-                        }
-                      }
-                    >
-                      <Text
-                        color="main"
-                        fontSize={16}
-                        fontWeight="medium"
-                        horizontalTextAlign="left"
-                        style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
-                        }
-                        verticalTextAlign="center"
-                      >
-                        #
-                        general
-                      </Text>
-                    </View>
-                    <View
-                      style={
-                        {
-                          "alignItems": "flex-end",
-                          "flex": 4,
-                        }
-                      }
-                    >
-                      <Text
-                        color="subtitle"
-                        fontSize={14}
-                        horizontalTextAlign="left"
-                        style={
-                          [
-                            {
-                              "color": "#999999",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
-                        }
-                        verticalTextAlign="center"
-                      >
-                        1:55pm
-                      </Text>
-                    </View>
-                  </View>
-                  <View
-                    style={
-                      {
-                        "flexDirection": "row",
-                        "paddingTop": 3,
-                      }
-                    }
-                  >
-                    <View
-                      style={
-                        {
-                          "flex": 10,
-                        }
-                      }
-                    >
-                      <Text
-                        color="gray50"
-                        fontSize={14}
-                        horizontalTextAlign="left"
-                        style={
-                          [
-                            {
-                              "color": "#7F7F7F",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
-                        }
-                        verticalTextAlign="center"
-                      >
-                        Text from latest chat message. Lorem ipsum dolor sit amet, consectetur...
-                      </Text>
-                    </View>
-                    <View
-                      style={
-                        {
-                          "alignItems": "flex-end",
-                          "flex": 2,
-                        }
-                      }
-                    />
-                  </View>
+                    1:55pm
+                  </Text>
                 </View>
+              </View>
+              <View
+                style={
+                  {
+                    "flexDirection": "row",
+                    "paddingTop": 3,
+                  }
+                }
+              >
+                <View
+                  style={
+                    {
+                      "flex": 10,
+                    }
+                  }
+                >
+                  <Text
+                    color="gray50"
+                    fontSize={14}
+                    horizontalTextAlign="left"
+                    style={
+                      [
+                        {
+                          "color": "#7F7F7F",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 14,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        },
+                      ]
+                    }
+                    verticalTextAlign="center"
+                  >
+                    Text from latest chat message. Lorem ipsum dolor sit amet, consectetur...
+                  </Text>
+                </View>
+                <View
+                  style={
+                    {
+                      "alignItems": "flex-end",
+                      "flex": 2,
+                    }
+                  }
+                />
               </View>
             </View>
           </View>
@@ -294,84 +238,87 @@ describe('ChannelList component', () => {
     expect(toJSON()).toMatchInlineSnapshot(`
       <View>
         <View
-          collapsable={false}
-          forwardedRef={[Function]}
-          handlerTag={3}
-          handlerType="PanGestureHandler"
-          onGestureHandlerEvent={[Function]}
-          onGestureHandlerStateChange={[Function]}
-          onLayout={[Function]}
-          style={
+          accessibilityState={
             {
-              "overflow": "hidden",
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
             }
           }
+          accessible={true}
+          focusable={true}
+          onClick={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+          style={
+            {
+              "padding": 16,
+            }
+          }
+          testID="channel_tile_general"
         >
           <View
-            collapsable={false}
             style={
               {
-                "bottom": 0,
                 "flexDirection": "row",
-                "left": 0,
-                "position": "absolute",
-                "right": 0,
-                "top": 0,
-                "transform": [
-                  {
-                    "translateX": -10000,
-                  },
-                ],
               }
             }
           >
             <View
-              onLayout={[Function]}
-            />
-          </View>
-          <View
-            collapsable={false}
-            forwardedRef={[Function]}
-            handlerTag={4}
-            handlerType="TapGestureHandler"
-            onGestureHandlerEvent={[Function]}
-            onGestureHandlerStateChange={[Function]}
-            pointerEvents="auto"
-            style={
-              {
-                "transform": [
-                  {
-                    "translateX": -0,
-                  },
-                ],
-              }
-            }
-          >
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": undefined,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessible={true}
-              focusable={true}
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "padding": 16,
+                  "alignItems": "center",
+                  "flex": 1,
+                  "paddingRight": 12,
                 }
               }
-              testID="channel_tile_general"
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "backgroundColor": "#4C4C4C",
+                    "borderRadius": 4,
+                    "height": 36,
+                    "justifyContent": "center",
+                    "width": 36,
+                  }
+                }
+              >
+                <Text
+                  color="white"
+                  fontSize={14}
+                  horizontalTextAlign="left"
+                  style={
+                    [
+                      {
+                        "color": "#ffffff",
+                        "fontFamily": "Rubik-Regular",
+                        "fontSize": 14,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      },
+                    ]
+                  }
+                  verticalTextAlign="center"
+                >
+                  ge
+                </Text>
+              </View>
+            </View>
+            <View
+              style={
+                {
+                  "flex": 9,
+                  "flexDirection": "column",
+                }
+              }
             >
               <View
                 style={
@@ -383,9 +330,101 @@ describe('ChannelList component', () => {
                 <View
                   style={
                     {
-                      "alignItems": "center",
-                      "flex": 1,
-                      "paddingRight": 12,
+                      "flex": 8,
+                    }
+                  }
+                >
+                  <Text
+                    color="main"
+                    fontSize={16}
+                    fontWeight="medium"
+                    horizontalTextAlign="left"
+                    style={
+                      [
+                        {
+                          "color": "#000000",
+                          "fontFamily": "Rubik-Medium",
+                          "fontSize": 16,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        },
+                      ]
+                    }
+                    verticalTextAlign="center"
+                  >
+                    #
+                    general
+                  </Text>
+                </View>
+                <View
+                  style={
+                    {
+                      "alignItems": "flex-end",
+                      "flex": 4,
+                    }
+                  }
+                >
+                  <Text
+                    color="blue"
+                    fontSize={14}
+                    horizontalTextAlign="left"
+                    style={
+                      [
+                        {
+                          "color": "#2373EA",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 14,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        },
+                      ]
+                    }
+                    verticalTextAlign="center"
+                  >
+                    1:55pm
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={
+                  {
+                    "flexDirection": "row",
+                    "paddingTop": 3,
+                  }
+                }
+              >
+                <View
+                  style={
+                    {
+                      "flex": 10,
+                    }
+                  }
+                >
+                  <Text
+                    color="gray50"
+                    fontSize={14}
+                    horizontalTextAlign="left"
+                    style={
+                      [
+                        {
+                          "color": "#7F7F7F",
+                          "fontFamily": "Rubik-Regular",
+                          "fontSize": 14,
+                          "textAlign": "left",
+                          "textAlignVertical": "center",
+                        },
+                      ]
+                    }
+                    verticalTextAlign="center"
+                  >
+                    Text from latest chat message. Lorem ipsum dolor sit amet, consectetur...
+                  </Text>
+                </View>
+                <View
+                  style={
+                    {
+                      "alignItems": "flex-end",
+                      "flex": 2,
                     }
                   }
                 >
@@ -393,9 +432,9 @@ describe('ChannelList component', () => {
                     style={
                       {
                         "alignItems": "center",
-                        "backgroundColor": "#4C4C4C",
-                        "borderRadius": 4,
-                        "height": 36,
+                        "backgroundColor": "#2373EA",
+                        "borderRadius": 100,
+                        "height": 20,
                         "justifyContent": "center",
                         "width": 36,
                       }
@@ -403,14 +442,15 @@ describe('ChannelList component', () => {
                   >
                     <Text
                       color="white"
-                      fontSize={14}
+                      fontSize={12}
+                      fontWeight="medium"
                       horizontalTextAlign="left"
                       style={
                         [
                           {
                             "color": "#ffffff",
-                            "fontFamily": "Rubik-Regular",
-                            "fontSize": 14,
+                            "fontFamily": "Rubik-Medium",
+                            "fontSize": 12,
                             "textAlign": "left",
                             "textAlignVertical": "center",
                           },
@@ -418,160 +458,8 @@ describe('ChannelList component', () => {
                       }
                       verticalTextAlign="center"
                     >
-                      ge
+                      new
                     </Text>
-                  </View>
-                </View>
-                <View
-                  style={
-                    {
-                      "flex": 9,
-                      "flexDirection": "column",
-                    }
-                  }
-                >
-                  <View
-                    style={
-                      {
-                        "flexDirection": "row",
-                      }
-                    }
-                  >
-                    <View
-                      style={
-                        {
-                          "flex": 8,
-                        }
-                      }
-                    >
-                      <Text
-                        color="main"
-                        fontSize={16}
-                        fontWeight="medium"
-                        horizontalTextAlign="left"
-                        style={
-                          [
-                            {
-                              "color": "#000000",
-                              "fontFamily": "Rubik-Medium",
-                              "fontSize": 16,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
-                        }
-                        verticalTextAlign="center"
-                      >
-                        #
-                        general
-                      </Text>
-                    </View>
-                    <View
-                      style={
-                        {
-                          "alignItems": "flex-end",
-                          "flex": 4,
-                        }
-                      }
-                    >
-                      <Text
-                        color="blue"
-                        fontSize={14}
-                        horizontalTextAlign="left"
-                        style={
-                          [
-                            {
-                              "color": "#2373EA",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
-                        }
-                        verticalTextAlign="center"
-                      >
-                        1:55pm
-                      </Text>
-                    </View>
-                  </View>
-                  <View
-                    style={
-                      {
-                        "flexDirection": "row",
-                        "paddingTop": 3,
-                      }
-                    }
-                  >
-                    <View
-                      style={
-                        {
-                          "flex": 10,
-                        }
-                      }
-                    >
-                      <Text
-                        color="gray50"
-                        fontSize={14}
-                        horizontalTextAlign="left"
-                        style={
-                          [
-                            {
-                              "color": "#7F7F7F",
-                              "fontFamily": "Rubik-Regular",
-                              "fontSize": 14,
-                              "textAlign": "left",
-                              "textAlignVertical": "center",
-                            },
-                          ]
-                        }
-                        verticalTextAlign="center"
-                      >
-                        Text from latest chat message. Lorem ipsum dolor sit amet, consectetur...
-                      </Text>
-                    </View>
-                    <View
-                      style={
-                        {
-                          "alignItems": "flex-end",
-                          "flex": 2,
-                        }
-                      }
-                    >
-                      <View
-                        style={
-                          {
-                            "alignItems": "center",
-                            "backgroundColor": "#2373EA",
-                            "borderRadius": 100,
-                            "height": 20,
-                            "justifyContent": "center",
-                            "width": 36,
-                          }
-                        }
-                      >
-                        <Text
-                          color="white"
-                          fontSize={12}
-                          fontWeight="medium"
-                          horizontalTextAlign="left"
-                          style={
-                            [
-                              {
-                                "color": "#ffffff",
-                                "fontFamily": "Rubik-Medium",
-                                "fontSize": 12,
-                                "textAlign": "left",
-                                "textAlignVertical": "center",
-                              },
-                            ]
-                          }
-                          verticalTextAlign="center"
-                        >
-                          new
-                        </Text>
-                      </View>
-                    </View>
                   </View>
                 </View>
               </View>
