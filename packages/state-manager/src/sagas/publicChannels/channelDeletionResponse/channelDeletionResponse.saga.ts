@@ -33,6 +33,7 @@ export function* channelDeletionResponseSaga(
 
   if (isOwner) {
     if (isGeneral) {
+      yield* delay(1000)
       yield* put(publicChannelsActions.createGeneralChannel())
     } else {
       yield* put(messagesActions.sendDeletionMessage({ channelAddress }))
