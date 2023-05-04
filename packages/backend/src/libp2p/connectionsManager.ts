@@ -318,7 +318,7 @@ export class ConnectionsManager extends EventEmitter {
     this.tor = new Tor({
       torPath: this.torBinaryPath,
       appDataPath: this.quietDir,
-      httpTunnelPort: this.httpTunnelPort,
+      httpTunnelPort: this.httpTunnelPort!,
       authCookie: this.torAuthCookie,
       controlPort: this.torControlPort,
       options: {
@@ -817,9 +817,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   private dialPeer = async (peerAddress: string) => {
-    if (this.libp2pInstance) {
-      await this.libp2pInstance.dial(multiaddr(peerAddress))
-    }
+    await this.libp2pInstance?.dial(multiaddr(peerAddress))
   }
 
   public static readonly createBootstrapNode = async (
@@ -873,6 +871,7 @@ export class ConnectionsManager extends EventEmitter {
             targetPort: params.targetPort,
             createServer: createServer
           })],
+        // @ts-ignore
         dht: kadDHT(),
         pubsub: gossipsub({ allowPublishToZeroPeers: true }),
       })

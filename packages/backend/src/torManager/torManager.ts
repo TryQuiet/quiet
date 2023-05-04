@@ -5,7 +5,7 @@ import path from 'path'
 import { QUIET_DIR_PATH } from '../constants'
 import logger from '../logger'
 
-import { TorControl } from './TorControl'
+import { TorControl, TorControlAuthType } from './TorControl'
 import getPort from 'get-port'
 import { removeFilesFromDir } from '../common/utils'
 import { EventEmitter } from 'events'
@@ -33,7 +33,7 @@ interface IConstructor {
 export class Tor extends EventEmitter {
   httpTunnelPort: number
   socksPort: number
-  controlPort: number
+  controlPort?: number
   process: child_process.ChildProcessWithoutNullStreams | any = null
   torPath: string
   options?: child_process.SpawnOptionsWithoutStdio
@@ -43,8 +43,8 @@ export class Tor extends EventEmitter {
   torPidPath: string
   torPassword: string
   torHashedPassword: string
-  torAuthCookie: string
-  extraTorProcessParams?: TorParams
+  torAuthCookie?: string
+  extraTorProcessParams: TorParams
   constructor({
     torPath,
     options,
@@ -55,13 +55,13 @@ export class Tor extends EventEmitter {
     authCookie
   }: IConstructor) {
     super()
-    this.torPath = torPath ? path.normalize(torPath) : null
+    this.torPath = torPath ? path.normalize(torPath) : ''
     this.options = options
     this.appDataPath = appDataPath
     this.httpTunnelPort = httpTunnelPort
     this.extraTorProcessParams = this.mergeDefaultTorParams(extraTorProcessParams)
-    this.controlPort = controlPort || null
-    this.torAuthCookie = authCookie || null
+    this.controlPort = controlPort
+    this.torAuthCookie = authCookie
   }
 
   mergeDefaultTorParams = (params: TorParams = {}): TorParams => {
@@ -93,7 +93,7 @@ export class Tor extends EventEmitter {
 
       this.torDataDirectory = path.join.apply(null, [dirPath, 'TorDataDirectory'])
       this.torPidPath = path.join.apply(null, [dirPath, 'torPid.json'])
-      let oldTorPid = null
+      let oldTorPid: number | null = null
 
       if (fs.existsSync(this.torPidPath)) {
         const file = fs.readFileSync(this.torPidPath)
@@ -137,12 +137,18 @@ export class Tor extends EventEmitter {
   }
 
   public initTorControl = () => {
+    if (!this.controlPort) {
+      throw new Error(`Can't initialize TorControl - no control port`)
+    }
     this.torControl = new TorControl({
       port: this.controlPort,
       host: 'localhost',
-      password: this.torPassword,
-      cookie: this.torAuthCookie
+      auth: {
+        value: this.torAuthCookie || this.torPassword,
+        type: this.torAuthCookie ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD
+      }
     })
+
   }
 
   private readonly torProcessNameCommand = (oldTorPid: string): string => {
@@ -179,11 +185,11 @@ export class Tor extends EventEmitter {
     }
   }
 
-  public clearOldTorProcess = (oldTorPid: number) => {
+  public clearOldTorProcess = (oldTorPid: number | null) => {
     if (!oldTorPid) return
     child_process.exec(
       this.torProcessNameCommand(oldTorPid.toString()),
-      (err: child_process.ExecException, stdout: string, _stderr: string) => {
+      (err: child_process.ExecException | null, stdout: string, _stderr: string) => {
         if (err) {
           log.error(err)
         }
@@ -198,13 +204,16 @@ export class Tor extends EventEmitter {
           log(`Deleting ${this.torPidPath}`)
           fs.unlinkSync(this.torPidPath)
         }
-        oldTorPid = null
       }
     )
   }
 
   protected readonly spawnTor = async (timeoutMs: number): Promise<void> => {
     return await new Promise((resolve, reject) => {
+      if (!this.controlPort) {
+        reject(new Error(`Can't spawn tor - no control port`))
+        return
+      }
       this.process = child_process.spawn(
         this.torPath,
         [
@@ -310,7 +319,7 @@ export class Tor extends EventEmitter {
     const password = crypto.randomBytes(16).toString('hex')
     const hashedPassword = child_process.execSync(
       `${this.torPath} --quiet --hash-password ${password}`,
-      { env: this.options.env }
+      { env: this.options?.env }
     )
     this.torPassword = password
     this.torHashedPassword = hashedPassword.toString().trim()
