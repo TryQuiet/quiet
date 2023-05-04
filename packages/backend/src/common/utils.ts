@@ -46,7 +46,7 @@ export const getFilesRecursively = (directory: string, arr: string[]) => {
 export const removeFiles = (appPath: string, filename: string) => {
   if (!fs.existsSync(appPath)) return
   const IpfsAndOrbitDb = fs.readdirSync(appPath).filter(i => i.startsWith('Ipfs') || i.startsWith('OrbitDB'))
-  const files = []
+  const files: string[] = []
   IpfsAndOrbitDb.forEach((e) => {
     const directory = path.resolve(appPath, e)
     getFilesRecursively(directory, files)
@@ -73,7 +73,7 @@ export const getDirsRecursively = (directory: string, arr: string[]) => {
 export const removeDirs = (appPath: string, filename: string) => {
   if (!fs.existsSync(appPath)) return
   const IpfsAndOrbitDb = fs.readdirSync(appPath).filter(i => i.startsWith('Ipfs'))
-  const dirs = []
+  const dirs: string[] = []
   IpfsAndOrbitDb.forEach((e) => {
     const directory = path.resolve(appPath, e)
     getDirsRecursively(directory, dirs)
@@ -116,7 +116,7 @@ export class DummyIOServer extends Server {
   }
 }
 
-export const torBinForPlatform = (basePath?: string, binName: string = 'tor'): string => {
+export const torBinForPlatform = (basePath: string = '', binName: string = 'tor'): string => {
   if (process.env.BACKEND === 'mobile') {
     return basePath
   }

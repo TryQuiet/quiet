@@ -24,7 +24,7 @@ import io from 'socket.io-client'
 
 let tmpDir: DirResult
 let tmpAppDataPath: string
-let connectionsManager: ConnectionsManager
+let connectionsManager: ConnectionsManager | null
 let store: Store
 let factory: FactoryGirl
 let community
@@ -156,7 +156,7 @@ describe('Connections manager - no tor', () => {
     const socket = io(url)
 
    const init = new Promise<void>(resolve => {
-    void connectionsManager.init()
+    connectionsManager && void connectionsManager.init()
     socket.connect()
       setTimeout(() => resolve(), 200)
     })
@@ -197,7 +197,7 @@ describe('Connections manager - no tor', () => {
       peerId: userIdentity.peerId.id,
       rootCertString: community.CA.rootCertString,
       rootKeyString: community.CA.rootKeyString,
-      privateKey: undefined
+      privateKey: ''
     }
 
     await connectionsManager.init()
@@ -222,7 +222,7 @@ describe('Connections manager - no tor', () => {
     const socket = io(url)
 
    const init = new Promise<void>(resolve => {
-    void connectionsManager.init()
+    connectionsManager && void connectionsManager.init()
     socket.connect()
       setTimeout(() => resolve(), 200)
     })
@@ -295,7 +295,7 @@ describe('Connections manager - no tor', () => {
     connectionsManager.libp2pInstance.dispatchEvent(new CustomEvent('peer:disconnect', { detail: peerDisconectEventDetail }))
     expect(connectionsManager.connectedPeers.size).toEqual(0)
     await waitForExpect(async () => {
-      expect(await connectionsManager.localStorage.get(LocalDBKeys.PEERS)).not.toBeNull()
+      expect(connectionsManager && await connectionsManager.localStorage.get(LocalDBKeys.PEERS)).not.toBeNull()
     }, 2000)
     const peerStats: {[addr: string]: NetworkStats} = await connectionsManager.localStorage.get(LocalDBKeys.PEERS)
     expect(Object.keys(peerStats)[0]).toEqual(remoteAddr)
@@ -368,7 +368,7 @@ describe('Connections manager - no tor', () => {
       peerId: userIdentity.peerId.id,
       rootCertString: community.CA.rootCertString,
       rootKeyString: community.CA.rootKeyString,
-      privateKey: undefined
+      privateKey: ''
     }
 
     await connectionsManager.init()
@@ -393,7 +393,7 @@ describe('Connections manager - no tor', () => {
     const socket = io(url)
 
    const init = new Promise<void>(resolve => {
-    void connectionsManager.init()
+    connectionsManager && void connectionsManager.init()
     socket.connect()
       setTimeout(() => resolve(), 200)
     })

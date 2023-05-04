@@ -75,7 +75,7 @@ import { LocalDB, LocalDBKeys } from '../storage/localDB'
 
 import { createLibp2pAddress, createLibp2pListenAddress, getPorts, removeFilesFromDir } from '../common/utils'
 import { ProcessInChunks } from './processInChunks'
-import { Multiaddr } from 'multiaddr'
+import { multiaddr } from '@multiformats/multiaddr'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -83,7 +83,7 @@ interface InitStorageParams {
   peerId: any
   onionAddress: string
   targetPort: number
-  peers: string[]
+  peers?: string[]
   certs: Certificates
 }
 
@@ -125,22 +125,22 @@ export enum TorInitState{
 
 export class ConnectionsManager extends EventEmitter {
   registration: CertificateRegistration
-  httpTunnelPort: number
+  httpTunnelPort?: number
   socksProxyAgent: Agent
   options: ConnectionsManagerOptions
   quietDir: string
   io: SocketIO.Server
   tor: Tor
-  libp2pInstance: Libp2p
+  libp2pInstance: Libp2p | null
   connectedPeers: Map<string, number>
   socketIOPort: number
-  storage: Storage
+  storage: Storage | null
   dataServer: DataServer
   communityId: string
-  torAuthCookie: string
-  torControlPort: number
-  torBinaryPath: string
-  torResourcesPath: string
+  torAuthCookie?: string
+  torControlPort?: number
+  torBinaryPath?: string
+  torResourcesPath?: string
   localStorage: LocalDB
   communityState: ServiceState
   registrarState: ServiceState
@@ -163,7 +163,6 @@ export class ConnectionsManager extends EventEmitter {
     this.httpTunnelPort = httpTunnelPort
     this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
     this.connectedPeers = new Map()
-    // this.localStorage = new LocalDB(this.quietDir)
 
     // Does it work?
     process.on('unhandledRejection', error => {
@@ -186,12 +185,12 @@ export class ConnectionsManager extends EventEmitter {
     }))
   }
 
-  public readonly createAgent = (): Agent => {
+  public readonly createAgent = (): void => {
     if (this.socksProxyAgent) return
 
-    log(`Creating https proxy agent: ${this.httpTunnelPort}`)
+    log(`Creating https proxy agent on port ${this.httpTunnelPort}`)
 
-    return createHttpsProxyAgent({
+    this.socksProxyAgent = createHttpsProxyAgent({
       port: this.httpTunnelPort, host: '127.0.0.1',
     })
   }
@@ -206,7 +205,7 @@ export class ConnectionsManager extends EventEmitter {
       this.httpTunnelPort = await getPort()
     }
 
-    this.socksProxyAgent = this.createAgent()
+    this.createAgent()
 
     if (!this.tor) {
       await this.spawnTor()
@@ -301,7 +300,7 @@ export class ConnectionsManager extends EventEmitter {
     this.io.close()
     await this.closeAllServices({ saveTor: true })
     await this.purgeData()
-    this.communityId = null
+    this.communityId = ''
     this.storage = null
     this.libp2pInstance = null
     await this.init()
@@ -575,7 +574,7 @@ export class ConnectionsManager extends EventEmitter {
       SocketActionTypes.REGISTER_USER_CERTIFICATE,
       async (args: RegisterUserCertificatePayload) => {
         if (!this.socksProxyAgent) {
-          this.socksProxyAgent = this.createAgent()
+          this.createAgent()
         }
 
         await this.registration.sendCertificateRegistrationRequest(
@@ -773,6 +772,10 @@ export class ConnectionsManager extends EventEmitter {
       log(`${libp2p.getConnections().length} open connections`)
 
       const connectionStartTime = this.connectedPeers.get(remotePeerId)
+      if (!connectionStartTime) {
+        log.error(`No connection start time for peer ${remotePeerId}`)
+        return
+      }
 
       const connectionEndTime: number = DateTime.utc().valueOf()
 
@@ -814,7 +817,9 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   private dialPeer = async (peerAddress: string) => {
-    await this.libp2pInstance.dial(new Multiaddr(peerAddress))
+    if (this.libp2pInstance) {
+      await this.libp2pInstance.dial(multiaddr(peerAddress))
+    }
   }
 
   public static readonly createBootstrapNode = async (
@@ -868,12 +873,12 @@ export class ConnectionsManager extends EventEmitter {
             targetPort: params.targetPort,
             createServer: createServer
           })],
-        // @ts-expect-error
         dht: kadDHT(),
         pubsub: gossipsub({ allowPublishToZeroPeers: true }),
       })
     } catch (err) {
-      log.error('LIBP2P ERROR:', err)
+      log.error('Create libp2p:', err)
+      throw err
     }
     return lib
   }

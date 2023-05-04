@@ -14,7 +14,7 @@ jest.setTimeout(100_000)
 
 let tmpDir: DirResult
 let tmpAppDataPath: string
-let connectionsManager: ConnectionsManager
+let connectionsManager: ConnectionsManager | null
 
 beforeEach(() => {
   jest.clearAllMocks()
@@ -93,7 +93,7 @@ describe('Connections manager', () => {
     const socket = await initConnectionsManagerWithTor(connectionsManager, ports.socksPort)
     const spyOnDial = jest.spyOn(WebSockets.prototype, 'dial')
 
-    const peerList = []
+    const peerList: string[] = []
     const peersCount = 11
     for (let pCount = 0; pCount < peersCount; pCount++) {
       peerList.push(createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString()))
@@ -138,7 +138,7 @@ describe('Connections manager', () => {
     const socket = await initConnectionsManagerWithTor(connectionsManager, ports.socksPort)
     const spyOnDial = jest.spyOn(WebSockets.prototype, 'dial')
 
-    const peerList = []
+    const peerList: string[] = []
     const peersCount = 11
     for (let pCount = 0; pCount < peersCount; pCount++) {
       peerList.push(createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString()))
