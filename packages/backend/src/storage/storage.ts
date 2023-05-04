@@ -730,13 +730,14 @@ export class Storage extends EventEmitter {
 
   public getAllUsers(): User[] {
     const certs = this.getAllEventLogEntries(this.certificates)
-    const allUsers = []
+    const allUsers: User[] = []
     for (const cert of certs) {
       const parsedCert = parseCertificate(cert)
       const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
       const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
       const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
       const dmPublicKey = getCertFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
+      if (!onionAddress || !peerId || !username || !dmPublicKey) continue
       allUsers.push({ onionAddress, peerId, username, dmPublicKey })
     }
     return allUsers
@@ -750,7 +751,7 @@ export class Storage extends EventEmitter {
     for (const cert of certificates) {
       const parsedCert = parseCertificate(cert)
       const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
-      if (certUsername.localeCompare(username, undefined, { sensitivity: 'base' }) === 0) {
+      if (certUsername?.localeCompare(username, undefined, { sensitivity: 'base' }) === 0) {
         return cert
       }
     }

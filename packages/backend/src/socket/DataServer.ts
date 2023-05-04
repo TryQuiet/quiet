@@ -21,6 +21,7 @@ import {
   socketActionTypes,
   ConnectionProcessInfo,
 } from '@quiet/state-manager'
+import type { CorsOptions } from "cors"
 
 const log = logger('socket')
 
@@ -38,7 +39,7 @@ export class DataServer extends EventEmitter {
     this.initSocket()
   }
 
-  private get cors() {
+  private get cors(): CorsOptions { // TODO: is this still necessary?
     if (process.env.TEST_MODE === 'true' && process.env.E2E_TEST === 'true') {
       log('Development/test env. Getting cors')
       return {
@@ -46,7 +47,7 @@ export class DataServer extends EventEmitter {
         methods: ['GET', 'POST']
       }
     }
-    return null
+    return {}
   }
 
   private readonly initSocket = (): void => {

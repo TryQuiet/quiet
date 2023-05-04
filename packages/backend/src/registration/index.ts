@@ -7,11 +7,14 @@ import {
   LaunchRegistrarPayload,
   SocketActionTypes,
   PermsData,
-  ConnectionProcessInfo
+  ConnectionProcessInfo,
+  ErrorCodes,
+  ErrorMessages,
+  RegisterOwnerCertificatePayload
 } from '@quiet/state-manager'
 
 import logger from '../logger'
-import { registerOwner, registerUser, RegistrationResponse, sendCertificateRegistrationRequest } from './functions'
+import { registerOwner, registerUser, RegistrarResponse, RegistrationResponse, sendCertificateRegistrationRequest } from './functions'
 import { RegistrationEvents } from './types'
 import { ServiceState } from '../libp2p/types'
 
@@ -40,7 +43,7 @@ export class CertificateRegistration extends EventEmitter {
     this.certificates = certs
   }
 
-  private pendingPromise: Promise<{ status: number; body: any }> = null
+  private pendingPromise: Promise<RegistrarResponse> | null = null
 
   private setRouting() {
     // @ts-ignore
@@ -78,8 +81,20 @@ export class CertificateRegistration extends EventEmitter {
     })
   }
 
-  public async registerOwnerCertificate(payload): Promise<void> {
-    const cert = await registerOwner(payload.userCsr.userCsr, payload.permsData)
+  public async registerOwnerCertificate(payload: RegisterOwnerCertificatePayload): Promise<void> {
+    let cert: string
+    try {
+      cert = await registerOwner(payload.userCsr.userCsr, payload.permsData)
+    } catch (e) {
+      log.error(`Registering owner failed: ${e.message}`)
+      this.emit(SocketActionTypes.ERROR, {
+        type: SocketActionTypes.REGISTRAR,
+        code: ErrorCodes.SERVER_ERROR,
+        message: ErrorMessages.REGISTRATION_FAILED,
+        community: payload.communityId
+      })
+      return
+    }
     this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
       communityId: payload.communityId,
       network: { certificate: cert, peers: [] }

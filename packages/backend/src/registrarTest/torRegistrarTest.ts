@@ -33,6 +33,13 @@ const options = program.opts()
 console.log('OPTIONS', options)
 const log = logger('torMesh')
 
+type TorService = {
+  tor: Tor
+  httpTunnelPort: number
+  onionAddress?: string
+  bootstrapTime: number
+}
+
 const peersCount = options.peersNumber
 const requestsCount = options.requestsNumber
 const mode = options.mode
@@ -40,7 +47,7 @@ const guardsCount = options.numEntryGuards
 const vanguargsLiteEnabled = options.vanguardsLiteEnabled
 const torBinName = options.torBinName
 const eventEmmiter = new EventEmitter()
-const torServices = new Map<string, { tor: Tor; httpTunnelPort: number; onionAddress?: string; bootstrapTime: number }>()
+const torServices = new Map<string, TorService>()
 const results = Object.assign({}, options)
 results['node'] = process.versions.node
 
@@ -62,7 +69,7 @@ const spawnTor = async (i: number) => {
 }
 
 const spawnMesh = async () => {
-  const torProcesses = []
+  const torProcesses: Promise<void>[] = []
   for (let i = 0; i < peersCount; i++) {
     torProcesses.push(spawnTor(i))
   }
@@ -112,7 +119,7 @@ const sendRequest = async (
     await tor.switchToCleanCircuts()
   }
 
-  let response = null
+  let response: Response | null = null
   const agent = createAgent(httpTunnelPort)
   const options = {
     method: 'POST',
@@ -170,9 +177,9 @@ const destroyHiddenServices = async () => {
 }
 
 const testWithDelayedNewnym = async () => {
-  const servers = []
-  const clients = []
-  for (const [key, torData] of torServices) {
+  const servers: TorService[] = []
+  const clients: TorService[] = []
+  for (const [_key, torData] of torServices) {
     if (torData.onionAddress) {
       servers.push(torData)
     } else {
@@ -180,7 +187,7 @@ const testWithDelayedNewnym = async () => {
     }
   }
 
-  async function resolveTimeout(func, address, port, tor, requestCounter, delay: number) {
+  async function resolveTimeout(func, address, port, tor, requestCounter, delay: number): Promise<Response> {
     return await new Promise(
       (resolve, reject) => {
         const timeoutId = setTimeout(async (address, port, tor, requestCounter) => {
@@ -201,8 +208,8 @@ const testWithDelayedNewnym = async () => {
   }
 
   for (let serverCounter = 0; serverCounter < servers.length; serverCounter++) {
-    const requests = []
-    const serverOnionAddress = servers[serverCounter].onionAddress
+    const requests: Promise<Response>[] = []
+    const serverOnionAddress = servers[serverCounter].onionAddress!
     const tor = servers[serverCounter].tor
     for (let rq = 0; rq < requestsCount; rq++) {
       requests.push(resolveTimeout(
@@ -215,14 +222,14 @@ const testWithDelayedNewnym = async () => {
       ))
     }
     let responseData = null
-    let response = null
+    let response: Response | null = null
     try {
       results[serverOnionAddress].requestsStartTime = new Date()
       results[serverOnionAddress].bootstrapTime = servers[serverCounter].bootstrapTime
       // @ts-ignore
       response = await Promise.any(requests) // Get first successful response
       results[serverOnionAddress].endTime = new Date()
-      results[serverOnionAddress].statusCode = response.status
+      results[serverOnionAddress].statusCode = response?.status
     } catch (e) {
       log(`All requests failed for ${serverOnionAddress}, ${e.message}`)
     }
@@ -231,13 +238,14 @@ const testWithDelayedNewnym = async () => {
     results[serverOnionAddress].receivedResultsTime = (end.getTime() - results[serverOnionAddress].requestsStartTime.getTime()) / 1000 // Since scheduling Promise.any
 
     try {
-      responseData = await response.json()
+      responseData = await response?.json()
     } catch (e) {
       log(`Didn't receive proper response data for ${serverOnionAddress}`)
       results[serverOnionAddress].success = false
       continue
     }
 
+    if (!responseData) return
     const { counter } = responseData
     results[serverOnionAddress][counter].fetchTime = (end.getTime() - results[serverOnionAddress][counter].startFetchTime.getTime()) / 1000
   }
@@ -245,8 +253,8 @@ const testWithDelayedNewnym = async () => {
 }
 
 const sendRequests = async () => { // No newnym, send next request if previous one timed out
-  const servers = []
-  const clients = []
+  const servers: TorService[] = []
+  const clients: TorService[] = []
   for (const [key, torData] of torServices) {
     if (torData.onionAddress) {
       servers.push(torData)
@@ -256,12 +264,12 @@ const sendRequests = async () => { // No newnym, send next request if previous o
   }
 
   for (let serverCounter = 0; serverCounter < servers.length; serverCounter++) {
-    const serverOnionAddress = servers[serverCounter].onionAddress
+    const serverOnionAddress = servers[serverCounter].onionAddress!
     const tor = servers[serverCounter].tor
     results[serverOnionAddress].requestsStartTime = new Date()
     results[serverOnionAddress].bootstrapTime = servers[serverCounter].bootstrapTime
 
-    let response = null
+    let response: Response | null = null
     let responseData = null
     for (let rq = 0; rq < requestsCount; rq++) {
       try {
@@ -285,13 +293,14 @@ const sendRequests = async () => { // No newnym, send next request if previous o
     results[serverOnionAddress].receivedResultsTime = (end.getTime() - results[serverOnionAddress].requestsStartTime.getTime()) / 1000 // Since scheduling Promise.any
 
     try {
-      responseData = await response.json()
+      responseData = await response?.json()
     } catch (e) {
       log(`Didn't receive proper response data for ${serverOnionAddress}`, e.message)
       results[serverOnionAddress].success = false
       continue
     }
 
+    if (!responseData) return
     const { counter } = responseData
     results[serverOnionAddress][counter].fetchTime = (end.getTime() - results[serverOnionAddress][counter].startFetchTime.getTime()) / 1000
   }

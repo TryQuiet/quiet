@@ -61,7 +61,7 @@ let channel: PublicChannelStorage
 let alice: Identity
 let john: Identity
 let message: ChannelMessage
-let channelio: PublicChannelStorage
+let channelio: PublicChannelStorage // PublicChannel
 let filePath: string
 let utils
 
@@ -111,7 +111,7 @@ beforeEach(async () => {
   tmpIpfsPath = path.join(tmpAppDataPath, Config.IPFS_REPO_PATH)
   Storage = (await import('./storage')).Storage
   utils = await import('../common/utils')
-  storage = null
+  storage = new Storage(tmpAppDataPath, 'communityId')
   filePath = path.join(
   dirname, '/testUtils/500kB-file.txt')
 })
@@ -246,6 +246,7 @@ describe('Certificate', () => {
     await storage.initDatabases()
 
     for (const empty of [null, '', undefined]) {
+      // @ts-ignore
       const result = await storage.saveCertificate({ certificate: empty, rootPermsData })
       expect(result).toBe(false)
     }
@@ -328,7 +329,7 @@ describe('Certificate', () => {
 
     const eventSpy = jest.spyOn(storage, 'emit')
 
-    const db = storage.publicChannelsRepos.get(message.channelAddress).db
+    const db = storage.publicChannelsRepos.get(message.channelAddress)!.db
     const messagePayload = {
       payload: {
         value: aliceMessage.message
@@ -383,7 +384,7 @@ describe('Certificate', () => {
 
     const spyOnEmit = jest.spyOn(storage, 'emit')
 
-    const db = storage.publicChannelsRepos.get(message.channelAddress).db
+    const db = storage.publicChannelsRepos.get(message.channelAddress)!.db
     const messagePayload = {
       payload: {
         value: aliceMessageWithJohnsPublicKey
@@ -441,7 +442,7 @@ describe('Message access controller', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const db = storage.publicChannelsRepos.get(message.channelAddress).db
+    const db = storage.publicChannelsRepos.get(message.channelAddress)!.db
     const eventSpy = jest.spyOn(db, 'add')
 
     const messageCopy = {
@@ -486,7 +487,7 @@ describe('Message access controller', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const db = storage.publicChannelsRepos.get(spoofedMessage.channelAddress).db
+    const db = storage.publicChannelsRepos.get(spoofedMessage.channelAddress)!.db
     const eventSpy = jest.spyOn(db, 'add')
 
     await storage.sendMessage(spoofedMessage)

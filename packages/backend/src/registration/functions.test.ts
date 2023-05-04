@@ -17,7 +17,7 @@ jest.mock('node-fetch', () => jest.fn())
 
 describe('Registration service', () => {
   let tmpDir: DirResult
-  let registrationService: CertificateRegistration
+  let registrationService: CertificateRegistration | null
   let certRoot: RootCA
   let permsData: PermsData
   let userCsr: UserCsr
@@ -43,7 +43,7 @@ describe('Registration service', () => {
   })
 
   afterEach(async () => {
-    registrationService && await registrationService.stop()
+    await registrationService?.stop()
     tmpDir.removeCallback()
   })
 
@@ -52,9 +52,8 @@ describe('Registration service', () => {
     expect(result).toBeTruthy()
   })
 
-  it('registerOwner should return null if csr is invalid', async () => {
-    const result = await registerOwner(invalidUserCsr, permsData)
-    expect(result).toBeNull()
+  it('registerOwner should throw error if csr is invalid', async () => {
+    await expect(registerOwner(invalidUserCsr, permsData)).rejects.toThrow()
   })
 
   it('registerUser should return 200 status code', async () => {

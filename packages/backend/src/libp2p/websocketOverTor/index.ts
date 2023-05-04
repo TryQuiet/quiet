@@ -69,7 +69,6 @@ export class WebSockets extends EventEmitter {
   _websocketOpts: ClientOptions
   localAddress: string
   discovery: Discovery
-  peerId: string
   targetPort: number
   createServer: (opts?) => WebSocketServer
 
@@ -78,7 +77,6 @@ export class WebSockets extends EventEmitter {
 
     this._websocketOpts = websocket
     this.localAddress = localAddress
-    this.peerId = localAddress.split('/').pop()
     this.discovery = new Discovery()
     this.targetPort = targetPort
     this.createServer = createServer
@@ -132,10 +130,10 @@ export class WebSockets extends EventEmitter {
       return {}
     }
     let _ca: string | Buffer
-    if (Array.isArray(this._websocketOpts.ca)) {
-      _ca = this._websocketOpts.ca[0]
+    if (Array.isArray(ca)) {
+      _ca = ca[0]
     } else {
-      _ca = this._websocketOpts.ca
+      _ca = ca
     }
     return {
       cert: dumpPEM('CERTIFICATE', cert.toString()),

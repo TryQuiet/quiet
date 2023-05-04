@@ -5,7 +5,7 @@ import path from 'path'
 import { beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
 
 describe('LocalDB', () => {
-  let db: LocalDB = null
+  let db: LocalDB
   let dbPath: string
   let peer1Address: string
   let peer1Stats: {[peerAddress: string]: NetworkStats} = {}
