@@ -378,11 +378,11 @@ describe('Ipfs file manager', () => {
     await fileManager.uploadFile(metadata)
 
     // Downloading
-    const uploadMetadata = eventSpy.mock.calls[1][1]
+    const uploadMetadata: FileMetadata = eventSpy.mock.calls[1][1]
 
-    await fileManager.emit(IpfsFilesManagerEvents.DOWNLOAD_FILE, uploadMetadata)
+    fileManager.emit(IpfsFilesManagerEvents.DOWNLOAD_FILE, uploadMetadata)
 
-    const transferSpeeds = []
+    const transferSpeeds: number[] = []
 
     eventSpy.mock.calls.map((call) => {
       if (call[0] === 'updateDownloadProgress') {

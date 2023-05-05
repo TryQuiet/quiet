@@ -10,6 +10,7 @@ import getPort from 'get-port'
 import { removeFilesFromDir } from '../common/utils'
 import { EventEmitter } from 'events'
 import { SocketActionTypes } from '@quiet/state-manager'
+import { SupportedPlatform } from '@quiet/types'
 
 const log = logger('tor')
 
@@ -158,7 +159,7 @@ export class Tor extends EventEmitter {
       darwin: `ps -c -p ${oldTorPid} -o comm=`,
       win32: `TASKLIST /FI "PID eq ${oldTorPid}"`
     }
-    return byPlatform[process.platform]
+    return byPlatform[process.platform as SupportedPlatform]
   }
 
   private readonly hangingTorProcessCommand = (): string => {
@@ -171,7 +172,7 @@ export class Tor extends EventEmitter {
       darwin: `ps -A | grep "${this.torDataDirectory}" | grep -v grep | awk '{print $1}'`,
       win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${this.torDataDirectory.replace(/\\/g, '\\\\')}%' and name = 'tor.exe'} | Format-Table ProcessId -HideTableHeaders"`
     }
-    return byPlatform[process.platform]
+    return byPlatform[process.platform as SupportedPlatform]
   }
 
   public clearHangingTorProcess = () => {
@@ -238,7 +239,7 @@ export class Tor extends EventEmitter {
         reject(new Error(`Timeout of ${timeoutMs / 1000} while waiting for tor to bootstrap`))
       }, timeoutMs)
 
-      this.process.stdout.on('data', data => {
+      this.process.stdout.on('data', (data: any) => {
         log(data.toString())
         this.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data.toString())
         const regexp = /Bootstrapped 100%/

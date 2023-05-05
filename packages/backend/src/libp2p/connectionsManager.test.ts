@@ -15,7 +15,8 @@ import {
   Store,
   NetworkStats,
   Community,
-  Identity
+  Identity,
+  Certificates
  } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
@@ -78,6 +79,7 @@ describe('Connections manager - no tor', () => {
       addressPort: port,
       targetPort: port,
       bootstrapMultiaddrs: [remoteAddress],
+      // @ts-expect-error userIdentity.userCertificate, userIdentity.userCsr can be null
       certs: { certificate: userIdentity.userCertificate, key: userIdentity.userCsr.userKey, CA: [community.rootCa] }
     })
     expect(result.localAddress).toBe(localAddress)
@@ -140,8 +142,10 @@ describe('Connections manager - no tor', () => {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
       certs: {
+        // @ts-expect-error
         certificate: userIdentity.userCertificate,
-        key: userIdentity.userCsr.userKey,
+        // @ts-expect-error
+        key: userIdentity.userCsr?.userKey,
         CA: [community.rootCa]
       },
       peers: community.peerList
@@ -187,8 +191,10 @@ describe('Connections manager - no tor', () => {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
       certs: {
+        // @ts-expect-error
         certificate: userIdentity.userCertificate,
-        key: userIdentity.userCsr.userKey,
+        // @ts-expect-error
+        key: userIdentity.userCsr?.userKey,
         CA: [community.rootCa]
       },
       peers: community.peerList
@@ -197,8 +203,10 @@ describe('Connections manager - no tor', () => {
     const launchRegistrarPayload: LaunchRegistrarPayload = {
       id: community.id,
       peerId: userIdentity.peerId.id,
-      rootCertString: community.CA.rootCertString,
-      rootKeyString: community.CA.rootKeyString,
+      // @ts-expect-error
+      rootCertString: community.CA?.rootCertString,
+      // @ts-expect-error
+      rootKeyString: community.CA?.rootKeyString,
       privateKey: ''
     }
 
@@ -284,7 +292,8 @@ describe('Connections manager - no tor', () => {
       addressPort: 3211,
       targetPort: 3211,
       bootstrapMultiaddrs: ['some/address'],
-      certs: { certificate: userIdentity.userCertificate, key: userIdentity.userCsr.userKey, CA: [community.rootCa] }
+      // @ts-expect-error
+      certs: { certificate: userIdentity.userCertificate, key: userIdentity.userCsr?.userKey, CA: [community.rootCa] }
     })
     const emitSpy = jest.spyOn(connectionsManager, 'emit')
 
@@ -323,8 +332,10 @@ describe('Connections manager - no tor', () => {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
       certs: {
+        // @ts-expect-error
         certificate: userIdentity.userCertificate,
-        key: userIdentity.userCsr.userKey,
+        // @ts-expect-error
+        key: userIdentity.userCsr?.userKey,
         CA: [community.rootCa]
       },
       peers: community.peerList
@@ -358,8 +369,10 @@ describe('Connections manager - no tor', () => {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
       certs: {
+        // @ts-expect-error
         certificate: userIdentity.userCertificate,
-        key: userIdentity.userCsr.userKey,
+        // @ts-expect-error
+        key: userIdentity.userCsr?.userKey,
         CA: [community.rootCa]
       },
       peers: community.peerList
@@ -368,8 +381,10 @@ describe('Connections manager - no tor', () => {
     const launchRegistrarPayload: LaunchRegistrarPayload = {
       id: community.id,
       peerId: userIdentity.peerId.id,
-      rootCertString: community.CA.rootCertString,
-      rootKeyString: community.CA.rootKeyString,
+      // @ts-expect-error
+      rootCertString: community.CA?.rootCertString,
+      // @ts-expect-error
+      rootKeyString: community.CA?.rootKeyString,
       privateKey: ''
     }
 

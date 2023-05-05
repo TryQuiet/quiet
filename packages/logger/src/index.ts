@@ -1,6 +1,10 @@
 import debug from 'debug'
 
-export const consoleLogger = (packageName: string) => (module: string) => {
+export type Logger = debug.Debugger & {
+    error: debug.Debugger;
+}
+
+export const consoleLogger = (packageName: string) => (module: string): Logger => {
   debug('quiet')('Initializing debug logger')
   const logger = Object.assign(debug(`${packageName}:${module}`), {
     error: debug(`${packageName}:${module}:err`)
@@ -8,7 +12,7 @@ export const consoleLogger = (packageName: string) => (module: string) => {
   return logger
 }
 
-export const logger = (packageName: string) => {
+export const logger = (packageName: string): (arg: string) => Logger => {
   return consoleLogger(packageName)
 }
 

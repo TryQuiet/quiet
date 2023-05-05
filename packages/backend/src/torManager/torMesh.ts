@@ -44,7 +44,7 @@ const killMesh = async () => {
 
 let finishedRequests = 0
 
-const createServer = async (port, serverAddress: string) => {
+const createServer = async (port: number, serverAddress: string) => {
   const app: express.Application = express()
  // app.use(express.json())
   // eslint-disable-next-line
@@ -60,7 +60,7 @@ const createServer = async (port, serverAddress: string) => {
   })
 }
 
-const createAgent = async (httpTunnelPort) => {
+const createAgent = async (httpTunnelPort: number) => {
   return createHttpsProxyAgent({ port: httpTunnelPort, host: 'localhost' })
 }
 

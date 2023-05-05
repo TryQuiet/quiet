@@ -53,7 +53,7 @@ let tmpAppDataPath: string
 let tmpOrbitDbDir: string
 let tmpIpfsPath: string
 let storage: StorageType
-let Storage
+let Storage: typeof StorageType
 let store: Store
 let factory: FactoryGirl
 let community: Community
@@ -63,7 +63,7 @@ let john: Identity
 let message: ChannelMessage
 let channelio: PublicChannelStorage // PublicChannel
 let filePath: string
-let utils
+let utils: any
 
 jest.setTimeout(50000)
 

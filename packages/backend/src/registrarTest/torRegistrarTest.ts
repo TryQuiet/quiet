@@ -83,7 +83,7 @@ const killMesh = async () => {
   eventEmmiter.emit('closeServers')
 }
 
-const createServer = async (port, serverAddress: string) => {
+const createServer = async (port: number, serverAddress: string) => {
   const app: express.Application = express()
   // @ts-ignore
   app.use(express.json())
@@ -187,7 +187,7 @@ const testWithDelayedNewnym = async () => {
     }
   }
 
-  async function resolveTimeout(func, address, port, tor, requestCounter, delay: number): Promise<Response> {
+  async function resolveTimeout(func: (...args: any[]) => Promise<Response>, address: string, port: number, tor: Tor, requestCounter: number, delay: number): Promise<Response> {
     return await new Promise(
       (resolve, reject) => {
         const timeoutId = setTimeout(async (address, port, tor, requestCounter) => {

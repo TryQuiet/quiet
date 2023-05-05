@@ -400,7 +400,7 @@ export class IpfsFilesManager extends EventEmitter {
                 if (!hasBlockBeenDownloaded) {
                     blocksStats.push({
                         fetchTime: Math.floor(Date.now() / 1000),
-                        byteLength: decodedBlock.Data?.byteLength
+                        byteLength: decodedBlock.Data?.byteLength || 0
                     })
                 }
 

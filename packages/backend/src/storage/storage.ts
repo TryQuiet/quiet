@@ -551,7 +551,7 @@ export class Storage extends EventEmitter {
     await this.filesManager.deleteBlocks(fileMetadata)
   }
 
-  public async deleteChannelMessages(hashes) {
+  public async deleteChannelMessages(hashes: CID[]) {
     for await (const result of this.ipfs.block.rm(hashes)) {
       if (result.error) {
         console.error(`Failed to remove block ${result.cid} due to ${result.error.message}`)
@@ -627,7 +627,7 @@ export class Storage extends EventEmitter {
     await this.subscribeToDirectMessageThread(address)
   }
 
-  public async subscribeToAllConversations(conversations) {
+  public async subscribeToAllConversations(conversations: string[]) {
     await Promise.all(
       conversations.map(async channel => {
         await this.subscribeToDirectMessageThread(channel)
