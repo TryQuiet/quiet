@@ -6,10 +6,9 @@ import { MultiaddrFilter } from '@libp2p/interface-transport'
 import type { AbortOptions } from '@libp2p/interfaces'
 import type { Multiaddr } from '@multiformats/multiaddr'
 
-import type { ClientOptions } from 'ws'
+import type { ClientOptions, ErrorEvent } from 'ws'
 
 import os from 'os'
-import path from 'path'
 import PeerId from 'peer-id'
 
 import url from 'url'
@@ -25,21 +24,17 @@ import pDefer from 'p-defer'
 import { multiaddrToUri as toUri } from '@multiformats/multiaddr-to-uri'
 import { AbortError } from '@libp2p/interfaces/errors'
 import { connect } from 'it-ws'
-import {AddressInfo} from 'ws'
+import {ServerOptions, WebSocketServer as ItWsWebsocketServer} from 'it-ws/server'
 import { multiaddr } from '@multiformats/multiaddr'
 import {MultiaddrConnection, Connection} from '@libp2p/interface-connection'
 import {CreateListenerOptions, DialOptions} from '@libp2p/interface-transport'
-// import { DuplexWebSocket } from 'it-ws'
 
 const log = logger('libp2p:websockets')
 
 const symbol = Symbol.for('@libp2p/transport')
 
-export interface WebSocketServer extends EventEmitter {
+export interface WebSocketServer extends ItWsWebsocketServer {
   __connections?: MultiaddrConnection[]
-  listen: (addrInfo: { port: number } | number) => Promise<WebSocketServer>
-  close: () => Promise<void>
-  address: () => string | AddressInfo | null
 }
 
 export interface WebSocketsInit extends AbortOptions {
@@ -48,7 +43,7 @@ export interface WebSocketsInit extends AbortOptions {
   server?: Server
   localAddress: string
   targetPort: number
-  createServer: (opts?) => WebSocketServer
+  createServer: (opts?: ServerOptions) => WebSocketServer
 }
 
 class Discovery extends EventEmitter {
@@ -70,7 +65,7 @@ export class WebSockets extends EventEmitter {
   localAddress: string
   discovery: Discovery
   targetPort: number
-  createServer: (opts?) => WebSocketServer
+  createServer: (opts?: ServerOptions) => WebSocketServer
 
   constructor({ websocket, localAddress, targetPort, createServer }: WebSocketsInit) {
     super()
@@ -150,11 +145,9 @@ export class WebSockets extends EventEmitter {
     log('connect %s:%s', cOpts.host, cOpts.port)
 
     const errorPromise = pDefer()
-    const errfn = err => {
-      const msg = `connection error: ${err.message as string}`
-      log.error(msg)
-
-      errorPromise.reject(err)
+    const errfn = (event: ErrorEvent) => {
+      log.error(`connection error: ${event.message as string}`)
+      errorPromise.reject(event)
     }
 
     const myUri = `${toUri(ma)}/?remoteAddress=${encodeURIComponent(
@@ -206,7 +199,7 @@ export class WebSockets extends EventEmitter {
    * anytime a new incoming Connection has been successfully upgraded via
    * `upgrader.upgradeInbound`
    */
-  prepareListener = ({ handler, upgrader }: CreateListenerOptions) => {
+  prepareListener = ({ handler, upgrader }: CreateListenerOptions): Promise<any> => {
     console.log('preparing listener')
     log('prepareListener')
     const listener: any = new EventEmitter()
@@ -223,8 +216,7 @@ export class WebSockets extends EventEmitter {
 
     const optionsServ = {
       server: serverHttps,
-      // eslint-disable-next-line
-      verifyClient: function (_info, done) {
+      verifyClient: function (_info: any, done: (res: boolean) => void) {
         done(true)
       }
     }
@@ -329,13 +321,14 @@ export class WebSockets extends EventEmitter {
     return listener
   }
 
-  createListener(options, handler) {
-    if (typeof options === 'function') {
-      handler = options
-      options = {}
-    }
+  createListener(options: CreateListenerOptions) {
+    // if (typeof options === 'function') {
+    //   // TODO: is it needed?
+    //   handler = options
+    //   options = {}
+    // }
 
-    return this.prepareListener({ handler, upgrader: options.upgrader })
+    return this.prepareListener(options)
   }
 
   /**
@@ -360,7 +353,7 @@ export class WebSockets extends EventEmitter {
   }
 }
 
-export function webSockets(init: WebSocketsInit): (components?: any) => any {
+export function webSockets(init: WebSocketsInit): (components?: any) => WebSockets {
   return () => {
     return new WebSockets(init)
   }

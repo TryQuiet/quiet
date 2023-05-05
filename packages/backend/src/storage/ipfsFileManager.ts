@@ -367,6 +367,7 @@ export class IpfsFilesManager extends EventEmitter {
                 if (signal.aborted) onAbort()
                 signal.addEventListener('abort', onAbort, { once: true })
 
+                // @ts-ignore FIXME
                 if (processedBlocks.includes(block)) {
                     remainingBlocks.delete(block)
                     resolve(block)

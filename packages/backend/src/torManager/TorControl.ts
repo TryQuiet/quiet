@@ -38,8 +38,6 @@ export class TorControl {
       // Cookie authentication must be invoked as a hexadecimal string passed without double quotes
       this.authString = 'AUTHENTICATE ' + opts.auth.value + '\r\n'
     }
-    console.log('authString:', this.authString)
-    console.log('opts.authType:', opts.auth.type)
   }
 
   private async connect(): Promise<void> {

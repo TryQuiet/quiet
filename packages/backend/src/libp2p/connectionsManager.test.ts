@@ -13,7 +13,9 @@ import {
   prepareStore,
   identity,
   Store,
-  NetworkStats
+  NetworkStats,
+  Community,
+  Identity
  } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
@@ -27,8 +29,8 @@ let tmpAppDataPath: string
 let connectionsManager: ConnectionsManager | null
 let store: Store
 let factory: FactoryGirl
-let community
-let userIdentity
+let community: Community
+let userIdentity: Identity
 
 beforeEach(async () => {
   jest.clearAllMocks()

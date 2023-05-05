@@ -10,6 +10,7 @@ import getPort from 'get-port'
 import { DirResult } from 'tmp'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, afterAll } from '@jest/globals'
 import { createLibp2pAddress, torBinForPlatform, torDirForPlatform } from '../../common/utils'
+import {CreateListenerOptions, DialOptions, Transport} from '@libp2p/interface-transport'
 
 import { createServer } from 'it-ws/server'
 
@@ -33,9 +34,10 @@ describe('websocketOverTor', () => {
   }
   let tor: Tor
   let httpTunnelPort: number
-  let listener
+  let listener: any
   let port1Target: number
   let port2Target: number
+  let abortSignalOpts: AbortSignal
 
   beforeAll(async () => {
     jest.clearAllMocks()
@@ -63,6 +65,19 @@ describe('websocketOverTor', () => {
 
     service1 = await tor.createNewHiddenService({ targetPort: port1Target })
     service2 = await tor.createNewHiddenService({ targetPort: port2Target })
+    abortSignalOpts = {
+      addEventListener, 
+      removeEventListener,
+      aborted: false,
+        onabort: null,
+        reason: undefined,
+        throwIfAborted: function (): void {
+          throw new Error('Function not implemented.')
+        },
+        dispatchEvent: function (event: Event): boolean {
+          throw new Error('Function not implemented.')
+        }
+    }
   })
 
   afterAll(async () => {
@@ -71,9 +86,7 @@ describe('websocketOverTor', () => {
   })
 
   afterEach(async () => {
-    if (listener) {
-      await listener.close()
-    }
+    await listener?.close()
   })
 
   it.each([
@@ -88,16 +101,18 @@ describe('websocketOverTor', () => {
     console.log(`caKey ${pems.ca_key}`)
     console.log(`userCert ${pems.userCert}`)
     console.log(`userKey ${pems.userKey}`)
-
-    const prepareListenerArg = {
+    const prepareListenerArg: CreateListenerOptions = {
       handler: (x) => x,
       upgrader: {
+        // @ts-expect-error
         upgradeOutbound,
+        // @ts-expect-error
         upgradeInbound
       }
     }
 
     const signal = {
+      ...abortSignalOpts,
       addEventListener,
       removeEventListener
     }
@@ -173,15 +188,18 @@ describe('websocketOverTor', () => {
     const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
     const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
 
-    const prepareListenerArg = {
+    const prepareListenerArg: CreateListenerOptions = {
       handler: (x) => x,
       upgrader: {
+        // @ts-expect-error
         upgradeOutbound,
+        // @ts-expect-error
         upgradeInbound
       }
     }
 
     const signal = {
+      ...abortSignalOpts,
       addEventListener,
       removeEventListener
     }
@@ -238,17 +256,20 @@ describe('websocketOverTor', () => {
     const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
     const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
 
-    const prepareListenerArg = {
+    const prepareListenerArg: CreateListenerOptions = {
       handler: (x) => x,
       upgrader: {
+        // @ts-expect-error
         upgradeOutbound,
+        // @ts-expect-error
         upgradeInbound
       }
     }
 
-    const signal = {
+    const signal: AbortSignal = {
+      ...abortSignalOpts,
       addEventListener,
-      removeEventListener
+      removeEventListener      
     }
 
     const peerId1 = 'Qme5NiSQ6V3cc3nyfYVtkkXDPGBSYEVUNCN5sM4DbyYc7s'

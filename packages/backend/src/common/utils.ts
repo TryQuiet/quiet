@@ -85,11 +85,6 @@ export const removeDirs = (appPath: string, filename: string) => {
   })
 }
 
-export function fetchAbsolute(fetch: Function): Function {
-  return (baseUrl: string) => (url: string, ...otherParams) =>
-    url.startsWith('/') ? fetch(baseUrl + url, ...otherParams) : fetch(url, ...otherParams)
-}
-
 export const getPorts = async (): Promise<Ports> => {
   const controlPort = await getPort()
   const socksPort = await getPort()
