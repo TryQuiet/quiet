@@ -51,8 +51,8 @@ export class StorageTestSnapshot extends Storage {
       ...new StorageTestSnapshotOptions(),
       ...options
     }
-    this.useSnapshot = options.useSnapshot || process.env.USE_SNAPSHOT === 'true' // Actually use snapshot mechanizm
-    this.messagesCount = options.messagesCount // Quantity of messages that will be added to db
+    this.useSnapshot = options?.useSnapshot || process.env.USE_SNAPSHOT === 'true' // Actually use snapshot mechanizm
+    this.messagesCount = options?.messagesCount || 0 // Quantity of messages that will be added to db
     this.msgReplCount = 0
     this.snapshotSaved = false
     this.name = (Math.random() + 1).toString(36).substring(7)
@@ -290,7 +290,7 @@ export class StorageTestSnapshot extends Storage {
     const snapshot = await db._cache.get(db.snapshotPath)
 
     if (snapshot) {
-      const chunks = []
+      const chunks: Uint8Array[] = []
       for await (const chunk of db._ipfs.cat(snapshot.hash)) {
         chunks.push(chunk)
       }

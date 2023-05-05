@@ -104,8 +104,8 @@ describe('Connections manager', () => {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
       certs: {
-        certificate: userIdentity.userCertificate,
-        key: userIdentity.userCsr.userKey,
+        certificate: userIdentity.userCertificate!,
+        key: userIdentity.userCsr?.userKey!,
         CA: [community.rootCa]
       },
       peers: peerList
@@ -149,8 +149,8 @@ describe('Connections manager', () => {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
       certs: {
-        certificate: userIdentity.userCertificate,
-        key: userIdentity.userCsr.userKey,
+        certificate: userIdentity.userCertificate!,
+        key: userIdentity.userCsr?.userKey!,
         CA: [community.rootCa]
       },
       peers: peerList

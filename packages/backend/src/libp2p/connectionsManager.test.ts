@@ -292,7 +292,7 @@ describe('Connections manager - no tor', () => {
     // Peer disconnected
     const remoteAddr = `test/p2p/${peerId.toString()}`
     const peerDisconectEventDetail = { remotePeer: new RemotePeerEventDetail(peerId.toString()), remoteAddr: new RemotePeerEventDetail(remoteAddr) }
-    connectionsManager.libp2pInstance.dispatchEvent(new CustomEvent('peer:disconnect', { detail: peerDisconectEventDetail }))
+    connectionsManager.libp2pInstance?.dispatchEvent(new CustomEvent('peer:disconnect', { detail: peerDisconectEventDetail }))
     expect(connectionsManager.connectedPeers.size).toEqual(0)
     await waitForExpect(async () => {
       expect(connectionsManager && await connectionsManager.localStorage.get(LocalDBKeys.PEERS)).not.toBeNull()

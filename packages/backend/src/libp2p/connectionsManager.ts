@@ -518,7 +518,7 @@ export class ConnectionsManager extends EventEmitter {
       this.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, payload)
     })
     this.registration.on(RegistrationEvents.NEW_USER, async payload => {
-      await this.storage.saveCertificate(payload)
+      await this.storage?.saveCertificate(payload)
     })
   }
 
@@ -532,8 +532,8 @@ export class ConnectionsManager extends EventEmitter {
       if (this.communityId) {
         this.io.emit(SocketActionTypes.COMMUNITY, { id: this.communityId })
         this.io.emit(SocketActionTypes.CONNECTED_PEERS, Array.from(this.connectedPeers.keys()))
-        await this.storage.loadAllCertificates()
-        await this.storage.loadAllChannels()
+        await this.storage?.loadAllCertificates()
+        await this.storage?.loadAllChannels()
       }
     })
     this.dataServer.on(SocketActionTypes.CREATE_NETWORK, async (args: Community) => {
@@ -567,7 +567,7 @@ export class ConnectionsManager extends EventEmitter {
           certificate: args.certificate,
           rootPermsData: args.permsData
         }
-        await this.storage.saveCertificate(saveCertificatePayload)
+        await this.storage?.saveCertificate(saveCertificatePayload)
       }
     )
     this.dataServer.on(
@@ -595,55 +595,55 @@ export class ConnectionsManager extends EventEmitter {
 
     // Public Channels
     this.dataServer.on(SocketActionTypes.CREATE_CHANNEL, async (args: CreateChannelPayload) => {
-      await this.storage.subscribeToChannel(args.channel)
+      await this.storage?.subscribeToChannel(args.channel)
     })
     this.dataServer.on(SocketActionTypes.SEND_MESSAGE, async (args: SendMessagePayload) => {
-      await this.storage.sendMessage(args.message)
+      await this.storage?.sendMessage(args.message)
     })
     this.dataServer.on(SocketActionTypes.ASK_FOR_MESSAGES, async (args: AskForMessagesPayload) => {
-      await this.storage.askForMessages(args.channelAddress, args.ids)
+      await this.storage?.askForMessages(args.channelAddress, args.ids)
     })
 
     // Files
     this.dataServer.on(SocketActionTypes.DOWNLOAD_FILE, async (metadata: FileMetadata) => {
-      await this.storage.downloadFile(metadata)
+      await this.storage?.downloadFile(metadata)
     })
     this.dataServer.on(SocketActionTypes.UPLOAD_FILE, async (metadata: FileMetadata) => {
-      await this.storage.uploadFile(metadata)
+      await this.storage?.uploadFile(metadata)
     })
     this.dataServer.on(SocketActionTypes.UPLOADED_FILE, async (args: FileMetadata) => {
-      await this.storage.uploadFile(args)
+      await this.storage?.uploadFile(args)
     })
     this.dataServer.on(SocketActionTypes.CANCEL_DOWNLOAD, mid => {
-      this.storage.cancelDownload(mid)
+      this.storage?.cancelDownload(mid)
     })
 
     // Direct Messages
     this.dataServer.on(
       SocketActionTypes.INITIALIZE_CONVERSATION,
       async (address, encryptedPhrase) => {
-        await this.storage.initializeConversation(address, encryptedPhrase)
+        await this.storage?.initializeConversation(address, encryptedPhrase)
       }
     )
     this.dataServer.on(SocketActionTypes.GET_PRIVATE_CONVERSATIONS, async () => {
-      await this.storage.getPrivateConversations()
+      await this.storage?.getPrivateConversations()
     })
     this.dataServer.on(
       SocketActionTypes.SEND_DIRECT_MESSAGE,
       async (channelAddress: string, messagePayload) => {
-        await this.storage.sendDirectMessage(channelAddress, messagePayload)
+        await this.storage?.sendDirectMessage(channelAddress, messagePayload)
       }
     )
     this.dataServer.on(
       SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD,
       async (address: string) => {
-        await this.storage.subscribeToDirectMessageThread(address)
+        await this.storage?.subscribeToDirectMessageThread(address)
       }
     )
     this.dataServer.on(
       SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS,
       async (conversations: string[]) => {
-        await this.storage.subscribeToAllConversations(conversations)
+        await this.storage?.subscribeToAllConversations(conversations)
       }
     )
 
@@ -654,11 +654,12 @@ export class ConnectionsManager extends EventEmitter {
       console.log(
         'connections manager delete channel'
       )
-      await this.storage.deleteChannel(payload)
+      await this.storage?.deleteChannel(payload)
     })
   }
 
   private attachStorageListeners = () => {
+    if (!this.storage) return
     this.storage.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (data) => {
       this.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })

@@ -81,6 +81,7 @@ beforeAll(async () => {
     ...channel
   }
 
+  // @ts-ignore The operand of a 'delete' operator must be optional
   delete channelio.messages
 
   alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
@@ -193,7 +194,7 @@ describe('Certificate', () => {
     const userCertificate = await createUserCert(
       rootPermsData.certificate,
       rootPermsData.privKey,
-      alice.userCsr.userCsr,
+      alice.userCsr?.userCsr!,
       new Date(),
       new Date(2030, 1, 1)
     )
@@ -216,7 +217,7 @@ describe('Certificate', () => {
     const oldUserCertificate = await createUserCert(
       rootPermsData.certificate,
       rootPermsData.privKey,
-      alice.userCsr.userCsr,
+      alice.userCsr?.userCsr!,
       new Date(2021, 1, 1),
       new Date(2021, 1, 2)
     )
@@ -253,7 +254,7 @@ describe('Certificate', () => {
   })
 
   it('username check fails if username is already in use', async () => {
-    const userCertificate = await createUserCert(rootPermsData.certificate, rootPermsData.privKey, alice.userCsr.userCsr, new Date(), new Date(2030, 1, 1))
+    const userCertificate = await createUserCert(rootPermsData.certificate, rootPermsData.privKey, alice.userCsr?.userCsr!, new Date(), new Date(2030, 1, 1))
 
     storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
 
@@ -467,7 +468,7 @@ describe('Message access controller', () => {
       identity: alice
     })
 
-    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
+    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate!))
 
     const spoofedMessage = {
       ...aliceMessage.message,

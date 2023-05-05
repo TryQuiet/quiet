@@ -99,7 +99,9 @@ const createHiddenServices = async () => {
 
 const destroyHiddenServices = async () => {
   for (const [key, data] of torServices) {
-    await data.tor.destroyHiddenService(hiddenServices.get(key))
+    const hs = hiddenServices.get(key)
+    if (!hs) continue
+    await data.tor.destroyHiddenService(hs)
     log(
       `destroyed hidden service for instance ${key} with onion address ${hiddenServices.get(key)}`
     )
@@ -111,6 +113,7 @@ const sendRequests = async () => {
     for (const [key2, value2] of hiddenServices) {
       if (key1 === key2) continue
       const hs = hiddenServices.get(key1)
+      if (!hs) continue
       console.log(`sendRequest ${hs} - ${value2}`)
       console.time(`${hs} - ${value2}`)
       // eslint-disable-next-line

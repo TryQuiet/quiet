@@ -25,10 +25,12 @@ import {
     imagesExtensions
 } from '@quiet/state-manager'
 import { sleep } from '../sleep'
-
+import logger from '../logger'
+const log = logger('ipfsFiles')
 const sizeOfPromisified = promisify(sizeOf)
 
 const { createPaths, compare } = await import('../common/utils')
+
 
 export enum IpfsFilesManagerEvents {
     // Incoming evetns
@@ -332,6 +334,10 @@ export class IpfsFilesManager extends EventEmitter {
             }, 0)
             const transferSpeed = bytesDownloaded === 0 ? 0 : bytesDownloaded / TRANSFER_SPEED_SPAN
             const fileState = this.files.get(fileMetadata.cid)
+            if (!fileState) {
+                log.error(`No saved data for file cid ${fileMetadata.cid}`)
+                return
+            }
             this.files.set(fileMetadata.cid, {
                 ...fileState, transferSpeed: transferSpeed, downloadedBytes: totalBytesDownloaded
             })
@@ -415,9 +421,13 @@ export class IpfsFilesManager extends EventEmitter {
 
         clearInterval(updateTransferSpeed)
 
-        if (this.cancelledDownloads.has(fileMetadata.cid)) {
-            const fileState = this.files.get(fileMetadata.cid)
+        const fileState = this.files.get(fileMetadata.cid)
+        if (!fileState) {
+            log.error(`No saved data for file cid ${fileMetadata.cid}`)
+            return
+        }
 
+        if (this.cancelledDownloads.has(fileMetadata.cid)) {
             this.files.set(fileMetadata.cid, {
                 ...fileState, downloadedBytes: 0, transferSpeed: 0
             })
@@ -426,7 +436,6 @@ export class IpfsFilesManager extends EventEmitter {
             await this.updateStatus(fileMetadata.cid, DownloadState.Canceled)
             this.files.delete(fileMetadata.cid)
         } else {
-            const fileState = this.files.get(fileMetadata.cid)
             this.files.set(fileMetadata.cid, {
                 ...fileState, transferSpeed: 0
             })
