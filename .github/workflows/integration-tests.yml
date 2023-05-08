@@ -18,7 +18,6 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          cachePrefix: "integration-tests"
           bootstrap-packages: "@quiet/common,@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
         
       - name: 'Run test restartApp'
@@ -38,7 +37,6 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          cachePrefix: "integration-tests"
           bootstrap-packages: "@quiet/common,@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test createJoinCommunity'
@@ -58,7 +56,6 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          cachePrefix: "integration-tests"
           bootstrap-packages: "@quiet/common,@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test registrar'
@@ -78,7 +75,6 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          cachePrefix: "integration-tests"
           bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,backend-bundle"
 
       - name: 'Run test send messages'
@@ -98,7 +94,6 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          cachePrefix: "integration-tests"
           bootstrap-packages: "@quiet/common,@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: Download Big file
@@ -126,7 +121,6 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          cachePrefix: "integration-tests"
           bootstrap-packages: "@quiet/common,@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test send medium file'
@@ -146,7 +140,6 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          cachePrefix: "integration-tests"
           bootstrap-packages: "@quiet/common,@quiet/logger,@quiet/state-manager,@quiet/backend,@quiet/identity,integration-tests,backend-bundle"
 
       - name: 'Run test send small file'
