@@ -10,8 +10,15 @@ const PREFIX = 'TextMessage'
 const classes = {
   message: `${PREFIX}message`,
   pending: `${PREFIX}pending`,
+  blockquote: `${PREFIX}blockquote`,
+  code: `${PREFIX}code`,
+  pre: `${PREFIX}pre`,
+  hr: `${PREFIX}hr`,
   link: `${PREFIX}link`,
-  list: `${PREFIX}list`
+  ol: `${PREFIX}list`,
+  ul: `${PREFIX}ul`,
+  tableHeaderCell: `${PREFIX}tableHeaderCell`,
+  tableRowCell: `${PREFIX}tableRowCell`
 }
 
 const StyledTypography = styled(Typography)(() => ({
@@ -26,6 +33,34 @@ const StyledTypography = styled(Typography)(() => ({
     color: theme.palette.colors.lightGray
   },
 
+  [`& .${classes.blockquote}`]: {
+    lineHeight: '1em',
+    whiteSpace: 'normal',
+    marginInlineStart: 0,
+    marginBlockStart: '.5em',
+    marginBlockEnd: '.5em',
+    paddingTop: '.5em',
+    paddingBottom: '.5em',
+    paddingLeft: '1em',
+    borderLeft: 'solid',
+    borderLeftWidth: '3px',
+    borderColor: theme.palette.colors.lightGray,
+    color: theme.palette.colors.lightGray
+  },
+
+  [`& .${classes.code}`]: {
+    backgroundColor: theme.palette.colors.veryLightGray
+  },
+
+  [`& .${classes.pre}`]: {
+    backgroundColor: theme.palette.colors.veryLightGray
+  },
+
+  [`& .${classes.hr}`]: {
+    marginTop: '1em',
+    marginBottom: '1em',
+  },
+
   [`& .${classes.link}`]: {
     color: theme.palette.colors.lushSky,
     cursor: 'pointer',
@@ -34,9 +69,27 @@ const StyledTypography = styled(Typography)(() => ({
     }
   },
 
-  [`& .${classes.list}`]: {
+  [`& .${classes.ol}`]: {
+    paddingInlineStart: '15px',
     whiteSpace: 'normal'
-  }
+  },
+
+  [`& .${classes.ul}`]: {
+    paddingInlineStart: '15px',
+    whiteSpace: 'normal',
+    listStyleType: 'disc'
+  },
+
+  [`& .${classes.tableHeaderCell}`]: {
+    borderBottom: 'solid',
+    borderBottomWidth: 1,
+    borderColor: theme.palette.colors.veryLightGray,
+    textAlign: 'center'
+  },
+
+  [`& .${classes.tableRowCell}`]: {
+    textAlign: 'center'
+  },
 })) as typeof Typography
 
 export interface TextMessageComponentProps {
@@ -74,19 +127,42 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
               {...props}
             />
           ),
+          blockquote: ({ node, ...props }) => (
+            <blockquote className={classNames({ [classes.blockquote]: true })} {...props} />
+          ),
+          code: ({ node, ...props }) => (
+            <code className={classNames({ [classes.code]: true })} {...props} />
+          ),
+          pre: ({ node, ...props }) => (
+            <pre className={classNames({ [classes.pre]: true })} {...props} />
+          ),
           h1: React.Fragment,
           h2: React.Fragment,
           h3: React.Fragment,
           h4: React.Fragment,
           h5: React.Fragment,
           h6: React.Fragment,
+          hr: ({ node, ...props }) => (
+            <hr className={classNames({ [classes.hr]: true })} {...props} />
+          ),
+          img: ({ node, ...props }) => (
+            <p>
+              ![{props.alt}]({props.src})
+            </p>
+          ),
+          p: React.Fragment,
           ol: ({ node, ...props }) => (
-            <ol className={classNames({ [classes.list]: true })} {...props} />
+            <ol className={classNames({ [classes.ol]: true })} {...props} />
           ),
           ul: ({ node, ...props }) => (
-            <ul className={classNames({ [classes.list]: true })} {...props} />
+            <ul className={classNames({ [classes.ul]: true })} {...props} />
           ),
-          p: React.Fragment
+          th: ({ node, ...props }) => (
+            <th className={classNames({ [classes.tableHeaderCell]: props.isHeader })} {...props} />
+          ),
+          td: ({ node, ...props }) => (
+            <td className={classNames({ [classes.tableRowCell]: true })} {...props} />
+          ),
         }}
       />
     </StyledTypography>
