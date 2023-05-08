@@ -62,6 +62,7 @@ const StyledChannelInput = styled(Grid)((
     to: { opacity: 1 }
   },
   [`& .${classes.input}`]: {
+    whiteSpace: 'pre',
     width: '100%',
     fontSize: 14,
     outline: 'none',
@@ -338,6 +339,24 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const sanitizedHtml = findMentions(htmlMessage)
 
+  const caretLineTraversal = (focusLine: Node, anchorLinePosition: number) => {
+    // Create an empty range
+    const range = document.createRange()
+    // Set the range start to the position on the anchor line
+    // or the end of the focus line, whichever is shorter
+    range.setStart(
+      focusLine,
+      anchorLinePosition < focusLine.nodeValue.length
+        ? anchorLinePosition
+        : focusLine.nodeValue.length
+    )
+    // Remove the range from the anchor line
+    const selection = window.getSelection()
+    selection.removeAllRanges()
+    // and set it to the focus line
+    selection.addRange(range)
+  }
+
   const onChangeCb = useCallback(
     (e: ContentEditableEvent) => {
       if (inputState === INPUT_STATE.AVAILABLE) {
@@ -402,6 +421,30 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         if (e.nativeEvent.keyCode === 13 || e.nativeEvent.keyCode === 9) {
           mentionSelectAction(e)
         }
+      }
+
+      if (e.key === 'ArrowDown') {
+        // Skipping over line break nodes
+        const nextLine = window.getSelection().anchorNode?.nextSibling?.nextSibling
+        if (nextLine) {
+          caretLineTraversal(nextLine, window.getSelection().anchorOffset)
+          return
+        }
+        // If we're on the bottom line, go to the end
+        caretLineTraversal(
+          window.getSelection().anchorNode,
+          window.getSelection().anchorNode.nodeValue.length
+        )
+      }
+      if (e.key === 'ArrowUp') {
+        // Skipping over line break nodes
+        const previousLine = window.getSelection().anchorNode?.previousSibling?.previousSibling
+        if (previousLine) {
+          caretLineTraversal(previousLine, window.getSelection().anchorOffset)
+          return
+        }
+        // If we're on the top line, go to the beginning
+        caretLineTraversal(window.getSelection().anchorNode, 0)
       }
 
       if (e.nativeEvent.keyCode === 13) {

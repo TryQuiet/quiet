@@ -1,6 +1,7 @@
 import { Browser, Builder, ThenableWebDriver } from 'selenium-webdriver'
-import { spawn, exec, ChildProcessWithoutNullStreams } from 'child_process'
+import { spawn, exec, ChildProcessWithoutNullStreams, execSync } from 'child_process'
 import getPort from 'get-port'
+import path from 'path'
 
 export interface BuildSetupInit {
   port?: number
@@ -49,19 +50,24 @@ export class BuildSetup {
 
   public async createChromeDriver() {
     await this.initPorts()
+    const env = {
+      DATA_DIR: this.dataDir || 'Quiet',
+      DEBUG: 'backend*'
+    }
     if (process.platform === 'win32') {
       console.log('!WINDOWS!')
       this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port}`, [], {
-        shell: true
+        shell: true,
+        env: Object.assign(process.env, env)
       })
     } else {
-      const dataDir = this.dataDir ? `DATA_DIR=${this.dataDir}` : ''
       this.child = spawn(
-        `DEBUG=backend* ${dataDir} node_modules/.bin/chromedriver --port=${this.port}`,
+        `node_modules/.bin/chromedriver --port=${this.port}`,
         [],
         {
           shell: true,
-          detached: false
+          detached: false,
+          env: Object.assign(process.env, env)
         }
       )
     }
@@ -147,12 +153,47 @@ export class BuildSetup {
   }
 
   public async killChromeDriver() {
-    console.log('kill')
+    console.log(`Killing driver (DATA_DIR=${this.dataDir})`)
     this.child?.kill()
     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
   }
 
   public async closeDriver() {
+    console.log(`Closing driver (DATA_DIR=${this.dataDir})`)
     await this.driver?.close()
+  }
+
+  public getProcessData = () => {
+    let dataDirPath: string
+    let resourcesPath: string
+    const backendBundlePath = path.normalize('backend-bundle/bundle.cjs')
+    const byPlatform = {
+      linux: `pgrep -af "${backendBundlePath}" | grep -v egrep | grep "${this.dataDir}"`,
+      darwin: `ps -A | grep "${backendBundlePath}" | grep -v egrep | grep "${this.dataDir}"`,
+      win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${backendBundlePath.replace(/\\/g, '\\\\')}%' and commandline LIKE '%${this.dataDir}%' and name = 'Quiet.exe'} | Format-Table CommandLine -HideTableHeaders -Wrap -Autosize"`
+    }
+    const command = byPlatform[process.platform]
+    const appBackendProcess = execSync(command).toString('utf8').trim()
+    console.log('Backend process info', appBackendProcess)
+    let args = appBackendProcess.split(' ')
+    if (process.platform === 'win32') {
+      args = args.filter((item) => item.trim() !== '')
+      args = args.map((item) => item.trim())
+    }
+    console.log('Args:', args)
+    if (args.length >= 5) {
+      if (process.platform === 'win32') {
+        dataDirPath = args[5]
+        resourcesPath = args[7]
+      } else {
+        dataDirPath = args[6]
+        resourcesPath = args[8]
+      }
+    }
+    console.log('Extracted dataDirPath:', dataDirPath, 'resourcesPath:', resourcesPath)
+    return {
+      dataDirPath,
+      resourcesPath
+    }
   }
 }

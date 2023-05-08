@@ -10,9 +10,7 @@ import { capitalizeFirstLetter } from '@quiet/common'
 export const ChannelList: FC<ChannelListProps> = ({
   community,
   tiles,
-  communityContextMenu,
-  deleteChannel,
-  enableDeletion = false
+  communityContextMenu
 }) => {
   let communityName = ''
   if (community?.name) {
@@ -31,7 +29,7 @@ export const ChannelList: FC<ChannelListProps> = ({
         <FlatList
           data={tiles}
           keyExtractor={item => item.name}
-          renderItem={({ item }) => <ChannelTile {...item} deleteChannel={deleteChannel} enableDeletion={enableDeletion} />}
+          renderItem={({ item }) => <ChannelTile {...item} />}
           ItemSeparatorComponent={() => {
             return (
               <View

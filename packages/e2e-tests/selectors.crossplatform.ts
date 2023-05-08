@@ -3,8 +3,7 @@ import { BuildSetup, BuildSetupInit } from './crossplatform.utils'
 
 export class App {
   driver: ThenableWebDriver
-  private buildSetup: BuildSetup
-  dataDir: string
+  buildSetup: BuildSetup
   constructor(buildSetupConfig?: BuildSetupInit) {
     this.buildSetup = new BuildSetup({ ...buildSetupConfig })
   }

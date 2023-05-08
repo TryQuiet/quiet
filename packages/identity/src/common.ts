@@ -1,3 +1,4 @@
+import { NoCryptoEngineError } from '@quiet/types'
 import { fromBER, ObjectIdentifier } from 'asn1js'
 import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate, TSTInfo, ECNamedCurves } from 'pkijs'
 import { stringToArrayBuffer, fromBase64 } from 'pvutils'
@@ -45,6 +46,8 @@ export function arrayBufferToHexString(buffer: Buffer): string {
 export const generateKeyPair = async ({ signAlg }: { signAlg: string }): Promise<CryptoKeyPair> => {
   const algorithm = getAlgorithmParameters(signAlg, 'generateKey')
   const crypto = getCrypto()
+  if (!crypto) throw new NoCryptoEngineError()
+
   const keyPair = await crypto.generateKey(
     algorithm.algorithm as EcKeyGenParams,
     true,
@@ -77,6 +80,8 @@ export const loadPrivateKey = async (rootKey: string, signAlg: string): Promise<
 
   const algorithm = getAlgorithmParameters(signAlg, 'generateKey')
   const crypto = getCrypto()
+  if (!crypto) throw new NoCryptoEngineError()
+
   return await crypto.importKey(
     'pkcs8',
     keyBuffer,

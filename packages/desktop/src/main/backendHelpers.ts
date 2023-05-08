@@ -1,3 +1,5 @@
+import { hangingBackendProcessCommand } from '@quiet/common'
+import { execSync } from 'child_process'
 import getPort from 'get-port'
 
 export const getPorts = async (): Promise<{
@@ -22,3 +24,20 @@ export const getPorts = async (): Promise<{
 }
 
 export type ApplicationPorts = Awaited<ReturnType<typeof getPorts>>
+
+export const closeHangingBackendProcess = (backendBundlePath: string, dataDir: string) => {
+  const command = hangingBackendProcessCommand({ backendBundlePath, dataDir })
+  if (!command) return
+  const backendPids = execSync(command).toString('utf8').trim()
+  if (!backendPids) return
+  console.log('PIDs', backendPids)
+  const PIDs = backendPids.split('\n')
+  console.log(`Found ${PIDs.length} hanging backend process(es) with pid(s) ${PIDs}. Killing...`)
+  for (const pid of PIDs) {
+    try {
+      process.kill(Number(pid), 'SIGKILL')
+    } catch (e) {
+      console.error(`Tried killing hanging backend process (PID: ${pid}). Failed. Reason: ${e.message}`)
+    }
+  }
+}
