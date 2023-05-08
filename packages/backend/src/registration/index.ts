@@ -2,22 +2,11 @@ import express from 'express'
 import getPort from 'get-port'
 import { Agent, Server } from 'http'
 import { EventEmitter } from 'events'
-
-import {
-  LaunchRegistrarPayload,
-  SocketActionTypes,
-  PermsData,
-  ConnectionProcessInfo,
-  ErrorCodes,
-  ErrorMessages,
-  RegisterOwnerCertificatePayload
-} from '@quiet/state-manager'
-
-import logger from '../logger'
 import { registerOwner, registerUser, RegistrarResponse, RegistrationResponse, sendCertificateRegistrationRequest } from './functions'
 import { RegistrationEvents } from './types'
 import { ServiceState } from '../libp2p/types'
-
+import { ConnectionProcessInfo, ErrorCodes, ErrorMessages, LaunchRegistrarPayload, PermsData, RegisterOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
+import logger from '../logger'
 const log = logger('registration')
 
 export class CertificateRegistration extends EventEmitter {

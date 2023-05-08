@@ -1,5 +1,4 @@
 import { createUserCert, loadCSR, CertFieldsTypes, getReqFieldValue, keyFromCertificate, parseCertificate, getCertFieldValue } from '@quiet/identity'
-import { ErrorCodes, ErrorMessages, ErrorPayload, PermsData, SocketActionTypes, User } from '@quiet/state-manager'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import { CertificationRequest } from 'pkijs'
 import { Agent } from 'http'
@@ -10,6 +9,7 @@ import { CsrContainsFields, IsCsr } from './validators'
 import { RegistrationEvents } from './types'
 
 import { getUsersAddresses } from '../common/utils'
+import { ErrorCodes, ErrorMessages, ErrorPayload, PermsData, SocketActionTypes, User } from '@quiet/types'
 const log = logger('registration')
 
 class UserCsrData {

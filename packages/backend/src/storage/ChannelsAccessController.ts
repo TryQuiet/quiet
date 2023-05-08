@@ -1,7 +1,7 @@
 import AccessController from 'orbit-db-access-controllers'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
-import { ChannelMessage, PublicChannel, channelMessagesAdapter } from '@quiet/state-manager'
+import { ChannelMessage, PublicChannel } from '@quiet/types'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
 import { IdentityProvider } from 'orbit-db-identity-provider'
 import OrbitDB from 'orbit-db'

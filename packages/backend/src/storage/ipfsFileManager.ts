@@ -17,15 +17,9 @@ import sizeOf from 'image-size'
 
 import { CID } from 'multiformats/cid'
 
-import {
-    FileMetadata,
-    DownloadStatus,
-    DownloadProgress,
-    DownloadState,
-    imagesExtensions
-} from '@quiet/state-manager'
 import { sleep } from '../sleep'
 import logger from '../logger'
+import { DownloadProgress, DownloadState, DownloadStatus, FileMetadata, imagesExtensions } from '@quiet/types'
 const log = logger('ipfsFiles')
 const sizeOfPromisified = promisify(sizeOf)
 

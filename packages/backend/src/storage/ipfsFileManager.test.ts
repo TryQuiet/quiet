@@ -8,11 +8,8 @@ import { DirResult } from 'tmp'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
 import { create } from 'ipfs-core'
 import waitForExpect from 'wait-for-expect'
-
-import {
-  FileMetadata
-} from '@quiet/state-manager'
 import { IpfsFilesManager, IpfsFilesManagerEvents } from './ipfsFileManager'
+import { FileMetadata } from '@quiet/types'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)

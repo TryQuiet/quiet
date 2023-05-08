@@ -1,9 +1,9 @@
-import { User } from '@quiet/state-manager'
 import fs from 'fs'
 import getPort from 'get-port'
 import path from 'path'
 import { Server } from 'socket.io'
 import logger from '../logger'
+import { User } from '@quiet/types'
 const log = logger('utils')
 
 export interface Ports {

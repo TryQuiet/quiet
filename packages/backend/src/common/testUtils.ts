@@ -8,7 +8,6 @@ import tmp from 'tmp'
 import { Config } from '../constants'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
-import { PermsData } from '@quiet/state-manager'
 import { Tor } from '../torManager'
 import {
   createLibp2pAddress,
@@ -21,6 +20,7 @@ import {
 import crypto from 'crypto'
 import logger from '../logger'
 import { TorParams } from '../torManager/torManager'
+import { PermsData } from '@quiet/types'
 const log = logger('test')
 
 export const rootPermsData: PermsData = {

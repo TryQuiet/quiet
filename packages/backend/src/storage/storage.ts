@@ -7,16 +7,6 @@ import {
   verifySignature,
   verifyUserCert
 } from '@quiet/identity'
-import {
-  ChannelMessage,
-  PublicChannel,
-  SaveCertificatePayload,
-  FileMetadata,
-  User,
-  PushNotificationPayload,
-  SocketActionTypes,
-  ConnectionProcessInfo
-} from '@quiet/state-manager'
 import type { IPFS, create as createType } from 'ipfs-core'
 import type { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
@@ -45,7 +35,7 @@ import { IpfsFilesManager, IpfsFilesManagerEvents } from './ipfsFileManager'
 import { create } from 'ipfs-core'
 
 import { CID } from 'multiformats/cid'
-import { NoCryptoEngineError } from '@quiet/types'
+import { ChannelMessage, ConnectionProcessInfo, FileMetadata, NoCryptoEngineError, PublicChannel, PushNotificationPayload, SaveCertificatePayload, SocketActionTypes, User } from '@quiet/types'
 import { isDefined } from '@quiet/common'
 
 const log = logger('db')

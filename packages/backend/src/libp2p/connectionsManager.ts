@@ -16,50 +16,12 @@ import { webSockets } from './websocketOverTor/index'
 import { all } from './websocketOverTor/filters'
 
 import { DateTime } from 'luxon'
-
 import type SocketIO from 'socket.io'
 import * as os from 'os'
 import { emitError } from '../socket/errors'
 import { CertificateRegistration } from '../registration'
 import { setEngine, CryptoEngine } from 'pkijs'
-
-import {
-  InitCommunityPayload,
-  LaunchRegistrarPayload,
-  RegisterOwnerCertificatePayload,
-  RegisterUserCertificatePayload,
-  SaveCertificatePayload,
-  CreateChannelPayload,
-  SaveOwnerCertificatePayload,
-  SocketActionTypes,
-  ErrorMessages,
-  Community,
-  NetworkData,
-  ResponseCreateNetworkPayload,
-  AskForMessagesPayload,
-  FileMetadata,
-  Certificates,
-  SendMessagePayload,
-  NetworkDataPayload,
-  PushNotificationPayload,
-  SendCertificatesResponse,
-  ChannelsReplicatedPayload,
-  IncomingMessages,
-  ChannelMessagesIdsResponse,
-  SetChannelSubscribedPayload,
-  CreatedChannelResponse,
-  RemoveDownloadStatus,
-  UploadFilePayload,
-  DownloadStatus,
-  CommunityId,
-  StorePeerListPayload,
-  NetworkStats,
-  ConnectionProcessInfo,
-  socketActionTypes
-} from '@quiet/state-manager'
-
 import { ConnectionsManagerOptions } from '../common/types'
-
 import { QUIET_DIR_PATH } from '../constants'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
@@ -76,6 +38,7 @@ import { LocalDB, LocalDBKeys } from '../storage/localDB'
 import { createLibp2pAddress, createLibp2pListenAddress, getPorts, removeFilesFromDir } from '../common/utils'
 import { ProcessInChunks } from './processInChunks'
 import { multiaddr } from '@multiformats/multiaddr'
+import { AskForMessagesPayload, Certificates, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload } from '@quiet/types'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -720,7 +683,7 @@ export class ConnectionsManager extends EventEmitter {
     })
     this.storage.on(StorageEvents.CHANNEL_DELETION_RESPONSE, (payload: any) => {
       console.log('emitting deleted channel event back to state manager')
-      this.io.emit(socketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
+      this.io.emit(SocketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
     })
   }
 

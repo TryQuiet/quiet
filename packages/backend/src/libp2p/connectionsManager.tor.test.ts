@@ -3,10 +3,11 @@ import { DirResult } from 'tmp'
 import { createPeerId, createTmpDir, tmpQuietDirPath } from '../common/testUtils'
 import { ConnectionsManager } from './connectionsManager'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
-import { communities, getFactory, identity, InitCommunityPayload, prepareStore } from '@quiet/state-manager'
+import { getFactory, prepareStore } from '@quiet/state-manager'
 import { createLibp2pAddress } from '../common/utils'
 import { WebSockets } from './websocketOverTor'
 import { initConnectionsManagerWithTor } from './utils'
+import { Community, Identity, InitCommunityPayload } from '@quiet/types'
 
 const { getPorts } = await import('../common/utils')
 
@@ -74,8 +75,8 @@ describe('Connections manager', () => {
   it('dials many peers on start', async () => {
     const store = prepareStore().store
     const factory = await getFactory(store)
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-    const userIdentity = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+    const community = await factory.create<Community>('Community')
+    const userIdentity = await factory.create<Identity>(
       'Identity', { id: community.id, nickname: 'john' }
     )
     const ports = await getPorts()
@@ -119,8 +120,8 @@ describe('Connections manager', () => {
   it('Bug reproduction - iOS app crashing because lack of data server', async () => {
     const store = prepareStore().store
     const factory = await getFactory(store)
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-    const userIdentity = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+    const community = await factory.create<Community>('Community')
+    const userIdentity = await factory.create<Identity>(
       'Identity', { id: community.id, nickname: 'john' }
     )
     const ports = await getPorts()

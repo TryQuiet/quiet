@@ -9,8 +9,7 @@ import { TorControl, TorControlAuthType } from './TorControl'
 import getPort from 'get-port'
 import { removeFilesFromDir } from '../common/utils'
 import { EventEmitter } from 'events'
-import { SocketActionTypes } from '@quiet/state-manager'
-import { SupportedPlatform } from '@quiet/types'
+import { SocketActionTypes, SupportedPlatform } from '@quiet/types'
 
 const log = logger('tor')
 

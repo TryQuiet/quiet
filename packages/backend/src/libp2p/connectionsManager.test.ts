@@ -6,17 +6,11 @@ import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals
 import { LocalDBKeys } from '../storage/localDB'
 import { CustomEvent } from '@libp2p/interfaces/events'
 import {
-  InitCommunityPayload,
-  LaunchRegistrarPayload,
   communities,
   getFactory,
   prepareStore,
   identity,
   Store,
-  NetworkStats,
-  Community,
-  Identity,
-  Certificates
  } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
@@ -24,6 +18,7 @@ import waitForExpect from 'wait-for-expect'
 import { Libp2pEvents } from './types'
 import { DataServer } from '../socket/DataServer'
 import io from 'socket.io-client'
+import { Community, Identity, InitCommunityPayload, LaunchRegistrarPayload, NetworkStats } from '@quiet/types'
 
 let tmpDir: DirResult
 let tmpAppDataPath: string

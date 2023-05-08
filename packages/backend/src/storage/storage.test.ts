@@ -11,22 +11,11 @@ import {
   parseCertificate
 } from '@quiet/identity'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
-import {
-  communities,
-  Community,
-  getFactory,
-  identity,
-  prepareStore,
-  publicChannels,
-  Store,
-  Identity,
-  ChannelMessage,
-  PublicChannelStorage,
-  FileMetadata
-} from '@quiet/state-manager'
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
 import type { Storage as StorageType } from './storage'
+import { ChannelMessage, Community, Identity, PublicChannelStorage, TestMessage } from '@quiet/types'
+import { Store, getFactory, prepareStore, publicChannels } from '@quiet/state-manager'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -71,9 +60,7 @@ beforeAll(async () => {
   store = prepareStore().store
   factory = await getFactory(store)
 
-  community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
-  >('Community')
+  community = await factory.create<Community>('Community')
 
   channel = publicChannels.selectors.publicChannels(store.getState())[0]
 
@@ -84,18 +71,18 @@ beforeAll(async () => {
   // @ts-ignore The operand of a 'delete' operator must be optional
   delete channelio.messages
 
-  alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+  alice = await factory.create<Identity>(
     'Identity',
     { id: community.id, nickname: 'alice' }
   )
 
-  john = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+  john = await factory.create<Identity>(
     'Identity',
     { id: community.id, nickname: 'john' }
   )
 
   message = (
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+    await factory.create<TestMessage>(
       'Message',
       {
         identity: alice

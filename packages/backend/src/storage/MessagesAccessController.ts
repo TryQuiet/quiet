@@ -1,9 +1,8 @@
 import AccessController from 'orbit-db-access-controllers'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
-import { ChannelMessage } from '@quiet/state-manager'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
-import { NoCryptoEngineError } from '@quiet/types'
+import { ChannelMessage, NoCryptoEngineError } from '@quiet/types'
 import OrbitDB from 'orbit-db'
 
 const type = 'messagesaccess'
