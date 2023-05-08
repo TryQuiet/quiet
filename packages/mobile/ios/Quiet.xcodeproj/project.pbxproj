@@ -55,7 +55,7 @@
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
-			remoteInfo = ZbayMobile;
+			remoteInfo = QuietMobile;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -4810,7 +4810,7 @@
 			dependencies = (
 			);
 			name = Quiet;
-			productName = ZbayMobile;
+			productName = QuietMobile;
 			productReference = 13B07F961A680F5B00A75B9A /* Quiet.app */;
 			productType = "com.apple.product-type.application";
 		};
