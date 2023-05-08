@@ -31,10 +31,14 @@ const webpackConfig = (env) => {
             rules: [
                 {
                     test: /\.ts?$/,
-                    use: [
-                        'ts-loader'
-                    ],
-                    exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]state-manager/, /packages[\/\\]logger/]
+                    use: {
+                        loader: 'ts-loader',
+                        options: {
+                            configFile: 'tsconfig.build.json'
+                        }
+                    },
+                    exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]state-manager/, /packages[\/\\]logger/],
+                    
                 },
                 {
                     test: /node_modules[\/\\]@achingbrain[\/\\]ssdp[\/\\]dist[\/\\]src[\/\\]default-ssdp-options.js/,

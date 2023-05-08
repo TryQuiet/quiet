@@ -225,7 +225,8 @@ export class WebSockets extends EventEmitter {
     server.__connections = []
 
     server.on('connection', async (stream, request) => {
-      let maConn: MultiaddrConnection, conn: Connection
+      let maConn: MultiaddrConnection
+      let conn: Connection
       // eslint-disable-next-line
       const query = url.parse(request.url, true).query
       log('server connecting with', query.remoteAddress)
@@ -233,7 +234,7 @@ export class WebSockets extends EventEmitter {
 
       const remoteAddress = query.remoteAddress.toString()
       try {
-        maConn = socketToMaConn(stream, multiaddr())
+        maConn = socketToMaConn(stream, multiaddr(remoteAddress))
         const peer = {
           id: PeerId.createFromB58String(remoteAddress.split('/p2p/')[1]),
           multiaddrs: [maConn.remoteAddr]

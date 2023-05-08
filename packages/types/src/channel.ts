@@ -1,5 +1,5 @@
 import { Dictionary, EntityState } from '@reduxjs/toolkit'
-import { FileMetadata } from '../files/files.types'
+import { FileMetadata } from './files'
 
 export interface PublicChannel {
   name: string

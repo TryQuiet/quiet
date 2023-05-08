@@ -14,6 +14,7 @@ export interface NetworkStats {
   lastSeen: number
   connectionTime: number
 }
+
 export enum ConnectionProcessInfo {
   CONNECTING_TO_COMMUNITY = 'Connecting to community owner via Tor',
   REGISTERING_USER_CERTIFICATE = 'Registering user certificate',

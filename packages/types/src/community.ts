@@ -1,5 +1,3 @@
-import { RootCA, createRootCA } from '@quiet/identity'
-import { AsyncReturnType } from './AsyncReturnType.interface'
 import { HiddenService, PeerId, Identity } from './identity'
 
 export interface Community {
@@ -61,13 +59,6 @@ export interface InitCommunityPayload {
 export interface UpdateCommunityPayload {
   id: string
   rootCa: string
-}
-
-export interface AddNewCommunityPayload {
-  id: string
-  name: string
-  CA: AsyncReturnType<Promise<RootCA>> | {}
-  registrarUrl: string
 }
 
 export interface LaunchRegistrarPayload {

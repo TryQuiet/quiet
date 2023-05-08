@@ -14,7 +14,7 @@ import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@j
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
 import type { Storage as StorageType } from './storage'
-import { ChannelMessage, Community, Identity, PublicChannelStorage, TestMessage } from '@quiet/types'
+import { ChannelMessage, Community, Identity, PublicChannel, TestMessage } from '@quiet/types'
 import { Store, getFactory, prepareStore, publicChannels } from '@quiet/state-manager'
 
 const filename = fileURLToPath(import.meta.url)
@@ -46,11 +46,11 @@ let Storage: typeof StorageType
 let store: Store
 let factory: FactoryGirl
 let community: Community
-let channel: PublicChannelStorage
+let channelio: PublicChannel
 let alice: Identity
 let john: Identity
 let message: ChannelMessage
-let channelio: PublicChannelStorage // PublicChannel
+// let channelio: PublicChannelStorage // PublicChannel
 let filePath: string
 let utils: any
 
@@ -62,14 +62,14 @@ beforeAll(async () => {
 
   community = await factory.create<Community>('Community')
 
-  channel = publicChannels.selectors.publicChannels(store.getState())[0]
+  channelio = publicChannels.selectors.publicChannels(store.getState())[0]
 
-  channelio = {
-    ...channel
-  }
+  // channelio = {
+  //   ...channel
+  // }
 
   // @ts-ignore The operand of a 'delete' operator must be optional
-  delete channelio.messages
+  // delete channelio.messages
 
   alice = await factory.create<Identity>(
     'Identity',
@@ -459,7 +459,7 @@ describe('Message access controller', () => {
 
     const spoofedMessage = {
       ...aliceMessage.message,
-      channelAddress: channel.address,
+      channelAddress: channelio.address,
       pubKey: johnPublicKey
     }
     delete spoofedMessage.media // Media 'undefined' is not accepted by db.add
