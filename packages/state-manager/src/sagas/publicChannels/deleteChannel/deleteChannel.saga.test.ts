@@ -3,10 +3,8 @@ import { Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import {
   getFactory,
-  MessageType,
   PublicChannel,
   SocketActionTypes,
-  WriteMessagePayload
 } from '../../..'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
