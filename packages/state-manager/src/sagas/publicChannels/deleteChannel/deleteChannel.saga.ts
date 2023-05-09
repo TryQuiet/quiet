@@ -1,5 +1,5 @@
-import { publicChannelsActions } from '../publicChannels.slice'
 import { PayloadAction } from '@reduxjs/toolkit'
+import { publicChannelsActions } from '../publicChannels.slice'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { apply, put } from 'typed-redux-saga'
 import { Socket, applyEmitParams } from '../../../types'
