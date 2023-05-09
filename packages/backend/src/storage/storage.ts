@@ -272,13 +272,13 @@ export class Storage extends EventEmitter {
       })
 
       // Delete channel on replication
-      Array.from(this.publicChannelsRepos.keys()).forEach(e => {
-        const isDeleted = !Object.keys(this.channels.all).includes(e)
-        if (isDeleted) {
-          log('deleting channel ', e)
-          void this.deleteChannel({ channel: e })
-        }
-      })
+      // Array.from(this.publicChannelsRepos.keys()).forEach(e => {
+      //   const isDeleted = !Object.keys(this.channels.all).includes(e)
+      //   if (isDeleted) {
+      //     log('deleting channel ', e)
+      //     void this.deleteChannel({ channel: e })
+      //   }
+      // })
 
       Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
         await this.subscribeToChannel(channel)
@@ -512,10 +512,21 @@ export class Storage extends EventEmitter {
     if (channel) {
       void this.channels.del(payload.channel)
     }
-    const repo = this.publicChannelsRepos.get(payload.channel)
+    let repo = this.publicChannelsRepos.get(payload.channel)
     if (!repo) {
-      log.error(`No channel '${payload.channel}' in channels repo`)
-      return
+      const db = await this.orbitdb.log<ChannelMessage>(
+        `channels.${payload.channel}`,
+        {
+          accessController: {
+            type: 'messagesaccess',
+            write: ['*']
+          }
+        }
+      )
+      repo = {
+        db,
+        eventsAttached: false
+      }
     }
     await repo.db.load()
     const allEntries = this.getAllEventLogRawEntries(repo.db)

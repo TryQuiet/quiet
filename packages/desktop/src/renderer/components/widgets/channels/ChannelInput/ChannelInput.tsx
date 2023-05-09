@@ -62,7 +62,7 @@ const StyledChannelInput = styled(Grid)((
     to: { opacity: 1 }
   },
   [`& .${classes.input}`]: {
-    whiteSpace: 'pre',
+    whiteSpace: 'pre-line',
     width: '100%',
     fontSize: 14,
     outline: 'none',

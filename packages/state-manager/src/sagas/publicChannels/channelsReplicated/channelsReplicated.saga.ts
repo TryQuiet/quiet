@@ -18,7 +18,8 @@ export function* channelsReplicatedSaga(
   const locallyStoredChannels = _locallyStoredChannels.map(channel => channel.address)
 
   const databaseStoredChannels = Object.values(action.payload.channels)
-
+  const databaseStoredChannelsAddresses = databaseStoredChannels.map(channel => channel.address)
+  console.log({ locallyStoredChannels, databaseStoredChannelsAddresses })
   // Upserting channels to local storage
   for (const channel of databaseStoredChannels) {
     if (!locallyStoredChannels.includes(channel.address)) {
@@ -36,8 +37,19 @@ export function* channelsReplicatedSaga(
     }
   }
 
+  // Removing channels from store
+  for (const channelAddress of locallyStoredChannels) {
+    if (!databaseStoredChannelsAddresses.includes(channelAddress)) {
+      console.log({ channelAddress })
+      log(`REMOVING #${channelAddress} FROM STORE`)
+      yield* put(publicChannelsActions.deleteChannel({ channel: channelAddress }))
+    }
+  }
+
   const currentChannelCache = yield* select(publicChannelsSelectors.currentChannelMessages)
-  const currentChannelRepository = yield* select(messagesSelectors.currentPublicChannelMessagesEntries)
+  const currentChannelRepository = yield* select(
+    messagesSelectors.currentPublicChannelMessagesEntries
+  )
 
   // (On collecting data from persist) Populating displayable data
   if (currentChannelCache.length < 1 && currentChannelRepository.length > 0) {
