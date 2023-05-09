@@ -105,8 +105,10 @@ describe('Connections manager', () => {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
       certs: {
-        certificate: userIdentity.userCertificate!,
-        key: userIdentity.userCsr?.userKey!,
+        // @ts-expect-error Identity.userCertificate can be null
+        certificate: userIdentity.userCertificate,
+        // @ts-expect-error Identity.userCertificate userCsr.userKey can be undefined
+        key: userIdentity.userCsr?.userKey,
         CA: [community.rootCa]
       },
       peers: peerList
@@ -150,8 +152,10 @@ describe('Connections manager', () => {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
       certs: {
-        certificate: userIdentity.userCertificate!,
-        key: userIdentity.userCsr?.userKey!,
+        // @ts-expect-error Identity.userCertificate can be null
+        certificate: userIdentity.userCertificate,
+        // @ts-expect-error
+        key: userIdentity.userCsr?.userKey,
         CA: [community.rootCa]
       },
       peers: peerList

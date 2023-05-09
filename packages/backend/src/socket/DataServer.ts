@@ -4,7 +4,7 @@ import { Server as SocketIO } from 'socket.io'
 import logger from '../logger'
 import { EventEmitter } from 'events'
 import cors from 'cors'
-import type { CorsOptions } from "cors"
+import type { CorsOptions } from 'cors'
 import { AskForMessagesPayload, CancelDownloadPayload, Community, ConnectionProcessInfo, CreateChannelPayload, DownloadFilePayload, InitCommunityPayload, LaunchRegistrarPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveOwnerCertificatePayload, SendMessagePayload, SocketActionTypes, UploadFilePayload } from '@quiet/types'
 
 const log = logger('socket')

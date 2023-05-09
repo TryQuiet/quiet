@@ -33,7 +33,7 @@ const options = program.opts()
 console.log('OPTIONS', options)
 const log = logger('torMesh')
 
-type TorService = {
+interface TorService {
   tor: Tor
   httpTunnelPort: number
   onionAddress?: string
@@ -69,7 +69,7 @@ const spawnTor = async (i: number) => {
 }
 
 const spawnMesh = async () => {
-  const torProcesses: Promise<void>[] = []
+  const torProcesses: Array<Promise<void>> = []
   for (let i = 0; i < peersCount; i++) {
     torProcesses.push(spawnTor(i))
   }
@@ -208,8 +208,12 @@ const testWithDelayedNewnym = async () => {
   }
 
   for (let serverCounter = 0; serverCounter < servers.length; serverCounter++) {
-    const requests: Promise<Response>[] = []
-    const serverOnionAddress = servers[serverCounter].onionAddress!
+    const requests: Array<Promise<Response>> = []
+    const serverOnionAddress = servers[serverCounter].onionAddress
+    if (!serverOnionAddress) {
+      log.error('No onionAddress. Servers:', servers, 'counter:', serverCounter)
+      continue
+    }
     const tor = servers[serverCounter].tor
     for (let rq = 0; rq < requestsCount; rq++) {
       requests.push(resolveTimeout(
@@ -264,7 +268,11 @@ const sendRequests = async () => { // No newnym, send next request if previous o
   }
 
   for (let serverCounter = 0; serverCounter < servers.length; serverCounter++) {
-    const serverOnionAddress = servers[serverCounter].onionAddress!
+    const serverOnionAddress = servers[serverCounter].onionAddress
+    if (!serverOnionAddress) {
+      log.error('No onionAddress. Servers:', servers, 'counter:', serverCounter)
+      continue
+    }
     const tor = servers[serverCounter].tor
     results[serverOnionAddress].requestsStartTime = new Date()
     results[serverOnionAddress].bootstrapTime = servers[serverCounter].bootstrapTime

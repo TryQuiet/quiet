@@ -278,10 +278,12 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public spawnTor = async () => {
+    if (!this.httpTunnelPort) throw new Error('Couldn\'t spawn tor, no httpTunnelPort!')
+
     this.tor = new Tor({
       torPath: this.torBinaryPath,
       appDataPath: this.quietDir,
-      httpTunnelPort: this.httpTunnelPort!,
+      httpTunnelPort: this.httpTunnelPort,
       authCookie: this.torAuthCookie,
       controlPort: this.torControlPort,
       options: {

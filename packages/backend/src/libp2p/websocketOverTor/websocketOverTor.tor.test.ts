@@ -10,7 +10,7 @@ import getPort from 'get-port'
 import { DirResult } from 'tmp'
 import { jest, describe, it, expect, afterEach, beforeAll, afterAll } from '@jest/globals'
 import { createLibp2pAddress, torBinForPlatform, torDirForPlatform } from '../../common/utils'
-import {CreateListenerOptions} from '@libp2p/interface-transport'
+import { CreateListenerOptions } from '@libp2p/interface-transport'
 
 import { createServer } from 'it-ws/server'
 
@@ -66,7 +66,7 @@ describe('websocketOverTor', () => {
     service1 = await tor.createNewHiddenService({ targetPort: port1Target })
     service2 = await tor.createNewHiddenService({ targetPort: port2Target })
     abortSignalOpts = {
-      addEventListener, 
+      addEventListener,
       removeEventListener,
       aborted: false,
         onabort: null,
@@ -269,7 +269,7 @@ describe('websocketOverTor', () => {
     const signal: AbortSignal = {
       ...abortSignalOpts,
       addEventListener,
-      removeEventListener      
+      removeEventListener
     }
 
     const peerId1 = 'Qme5NiSQ6V3cc3nyfYVtkkXDPGBSYEVUNCN5sM4DbyYc7s'

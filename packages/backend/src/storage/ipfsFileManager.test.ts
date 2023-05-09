@@ -42,7 +42,7 @@ afterEach(async () => {
 
 describe('Ipfs file manager', () => {
   it('uploads image', async () => {
-    ipfsInstance = await create({repo: tmpAppDataPath})
+    ipfsInstance = await create({ repo: tmpAppDataPath })
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
@@ -79,7 +79,7 @@ describe('Ipfs file manager', () => {
   })
 
   it('uploads file other than image', async () => {
-    ipfsInstance = await create({repo: tmpAppDataPath})
+    ipfsInstance = await create({ repo: tmpAppDataPath })
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
@@ -117,7 +117,7 @@ describe('Ipfs file manager', () => {
   })
 
   it("throws error if file doesn't exists", async () => {
-    ipfsInstance = await create({repo: tmpAppDataPath})
+    ipfsInstance = await create({ repo: tmpAppDataPath })
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
     // Uploading
@@ -143,7 +143,7 @@ describe('Ipfs file manager', () => {
   })
 
   it('throws error if reported file size is malicious', async () => {
-    ipfsInstance = await create({repo: tmpAppDataPath})
+    ipfsInstance = await create({ repo: tmpAppDataPath })
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
@@ -197,7 +197,7 @@ describe('Ipfs file manager', () => {
   })
 
   it.skip('cancels download on demand', async () => {
-    ipfsInstance = await create({repo: tmpAppDataPath})
+    ipfsInstance = await create({ repo: tmpAppDataPath })
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
@@ -258,7 +258,7 @@ describe('Ipfs file manager', () => {
     expect(eventSpy).toBeCalledTimes(5)
   })
   it('is uploaded to IPFS then can be downloaded', async () => {
-    ipfsInstance = await create({repo: tmpAppDataPath})
+    ipfsInstance = await create({ repo: tmpAppDataPath })
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
@@ -312,7 +312,7 @@ describe('Ipfs file manager', () => {
     )
   })
   it('downloaded file matches uploaded file', async () => {
-    ipfsInstance = await create({repo: tmpAppDataPath})
+    ipfsInstance = await create({ repo: tmpAppDataPath })
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
@@ -356,7 +356,7 @@ describe('Ipfs file manager', () => {
     global.Date.now = mockDateNow
     mockDateNow.mockReturnValue(new Date('2022-04-07T10:20:30Z') as unknown as number)
 
-    ipfsInstance = await create({repo: tmpAppDataPath})
+    ipfsInstance = await create({ repo: tmpAppDataPath })
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
@@ -399,7 +399,7 @@ describe('Ipfs file manager', () => {
   })
 
   it('copies file and returns a new path', async () => {
-    ipfsInstance = await create({repo: tmpAppDataPath})
+    ipfsInstance = await create({ repo: tmpAppDataPath })
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
     const originalPath = path.join(dirname, '/testUtils/test-image.png')
     const newPath = fileManager.copyFile(originalPath, '12345_test-image.png')
@@ -408,7 +408,7 @@ describe('Ipfs file manager', () => {
   })
 
   it('tries to copy files, returns original path on error', async () => {
-    ipfsInstance = await create({repo: tmpAppDataPath})
+    ipfsInstance = await create({ repo: tmpAppDataPath })
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
     const originalPath = path.join(dirname, '/testUtils/test-image-non-existing.png')
     const newPath = fileManager.copyFile(originalPath, '12345_test-image.png')

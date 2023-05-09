@@ -2,7 +2,7 @@ import logger from '../../logger'
 import { socketToMaConn } from './socket-to-conn'
 import * as filters from './filters'
 
-import { MultiaddrFilter } from '@libp2p/interface-transport'
+import { MultiaddrFilter, CreateListenerOptions, DialOptions } from '@libp2p/interface-transport'
 import type { AbortOptions } from '@libp2p/interfaces'
 import type { Multiaddr } from '@multiformats/multiaddr'
 
@@ -24,10 +24,9 @@ import pDefer from 'p-defer'
 import { multiaddrToUri as toUri } from '@multiformats/multiaddr-to-uri'
 import { AbortError } from '@libp2p/interfaces/errors'
 import { connect } from 'it-ws'
-import {ServerOptions, WebSocketServer as ItWsWebsocketServer} from 'it-ws/server'
+import { ServerOptions, WebSocketServer as ItWsWebsocketServer } from 'it-ws/server'
 import { multiaddr } from '@multiformats/multiaddr'
-import {MultiaddrConnection, Connection} from '@libp2p/interface-connection'
-import {CreateListenerOptions, DialOptions} from '@libp2p/interface-transport'
+import { MultiaddrConnection, Connection } from '@libp2p/interface-connection'
 
 const log = logger('libp2p:websockets')
 
@@ -120,7 +119,7 @@ export class WebSockets extends EventEmitter {
   }
 
   get certData() {
-    const {cert, key, ca} = this._websocketOpts
+    const { cert, key, ca } = this._websocketOpts
     if (!cert || !key || !ca) {
       return {}
     }
@@ -146,7 +145,7 @@ export class WebSockets extends EventEmitter {
 
     const errorPromise = pDefer()
     const errfn = (event: ErrorEvent) => {
-      log.error(`connection error: ${event.message as string}`)
+      log.error(`connection error: ${event.message}`)
       errorPromise.reject(event)
     }
 
@@ -199,7 +198,7 @@ export class WebSockets extends EventEmitter {
    * anytime a new incoming Connection has been successfully upgraded via
    * `upgrader.upgradeInbound`
    */
-  prepareListener = ({ handler, upgrader }: CreateListenerOptions): Promise<any> => {
+  prepareListener = ({ handler, upgrader }: CreateListenerOptions): any => {
     console.log('preparing listener')
     log('prepareListener')
     const listener: any = new EventEmitter()
@@ -250,7 +249,7 @@ export class WebSockets extends EventEmitter {
         conn = await upgrader.upgradeInbound(maConn)
       } catch (err) {
         log.error('inbound connection failed to upgrade', err)
-        return maConn?.close()
+        return await maConn?.close()
       }
 
       log('inbound connection %s upgraded', maConn.remoteAddr)
@@ -268,14 +267,14 @@ export class WebSockets extends EventEmitter {
 
     let listeningMultiaddr: Multiaddr
 
-    listener.close = () => {
-      server.__connections?.forEach(maConn => maConn.close())
-      return server.close()
+    listener.close = async () => {
+      server.__connections?.forEach(async maConn => await maConn.close())
+      return await server.close()
     }
 
     listener.addEventListener = () => { }
 
-    listener.listen = (ma: Multiaddr) => {
+    listener.listen = async (ma: Multiaddr) => {
       listeningMultiaddr = ma
 
       const listenOptions = {
@@ -283,7 +282,7 @@ export class WebSockets extends EventEmitter {
         port: this.targetPort
       }
 
-      return server.listen(listenOptions)
+      return await server.listen(listenOptions)
     }
 
     listener.getAddrs = () => {

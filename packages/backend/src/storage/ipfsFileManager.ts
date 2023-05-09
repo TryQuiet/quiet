@@ -15,7 +15,6 @@ import { StorageEvents } from './types'
 import { promisify } from 'util'
 import sizeOf from 'image-size'
 
-
 import { CID } from 'multiformats/cid'
 
 import { sleep } from '../sleep'
@@ -25,7 +24,6 @@ const log = logger('ipfsFiles')
 const sizeOfPromisified = promisify(sizeOf)
 
 const { createPaths, compare } = await import('../common/utils')
-
 
 export enum IpfsFilesManagerEvents {
     // Incoming evetns
@@ -167,10 +165,10 @@ export class IpfsFilesManager extends EventEmitter {
     }
 
     public async uploadFile(metadata: FileMetadata) {
-        let width: number | undefined = undefined
-        let height: number | undefined = undefined
+        let width: number | undefined
+        let height: number | undefined
         if (imagesExtensions.includes(metadata.ext)) {
-            let imageSize: {width: number | undefined, height: number | undefined} | undefined = undefined // ISizeCalculationResult
+            let imageSize: {width: number | undefined; height: number | undefined} | undefined // ISizeCalculationResult
             try {
                 imageSize = await sizeOfPromisified(metadata.path)
             } catch (e) {
@@ -272,7 +270,7 @@ export class IpfsFilesManager extends EventEmitter {
         const block = CID.parse(fileMetadata.cid)
 
         const localBlocks = await this.getLocalBlocks()
-        const processedBlocks: PBNode[] = []  // TODO: Should it be CID or PBNode?
+        const processedBlocks: PBNode[] = [] // TODO: Should it be CID or PBNode?
 
         const controller = new AbortController()
 
@@ -304,8 +302,8 @@ export class IpfsFilesManager extends EventEmitter {
             }
         }
 
-        type BlockStat = {
-            fetchTime: number,
+        interface BlockStat {
+            fetchTime: number
             byteLength: number
         }
 

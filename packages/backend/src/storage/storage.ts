@@ -373,7 +373,7 @@ export class Storage extends EventEmitter {
       } catch (e) {
         log.error(`Can't subscribe to channel ${channelData.address}`, e.message)
         return
-      }      
+      }
       if (!db) {
         log(`Can't subscribe to channel ${channelData.address}`)
         return
@@ -503,7 +503,6 @@ export class Storage extends EventEmitter {
     return db
   }
 
- 
   public async deleteChannel(payload: {channel: string}) {
     console.log('deleting channel storage', payload)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
@@ -532,7 +531,7 @@ export class Storage extends EventEmitter {
     const allEntries = this.getAllEventLogRawEntries(repo.db)
     await repo.db.close()
     await repo.db.drop()
-    const hashes = allEntries.map((e) => CID.parse(e.hash))  
+    const hashes = allEntries.map((e) => CID.parse(e.hash))
     const files = allEntries.map((e) => {
       return e.payload.value.media
     }).filter(isDefined)
@@ -682,7 +681,7 @@ export class Storage extends EventEmitter {
   private async createDirectMessageThread(channelAddress: string): Promise<EventStore<string>> {
     if (!channelAddress) {
       log("No channel address, can't create channel")
-      throw new Error(`No channel address, can't create channel`)
+      throw new Error('No channel address, can\'t create channel')
     }
 
     log(`creatin direct message thread for ${channelAddress}`)
@@ -711,7 +710,7 @@ export class Storage extends EventEmitter {
     log('STORAGE: sendDirectMessage entered')
     log(`STORAGE: sendDirectMessage channelAddress is ${channelAddress}`)
     log(`STORAGE: sendDirectMessage message is ${JSON.stringify(message)}`)
-    let db = this.directMessagesRepos.get(channelAddress)?.db
+    const db = this.directMessagesRepos.get(channelAddress)?.db
     if (!db) return
     log(`STORAGE: sendDirectMessage db is ${db.address.root}`)
     log(`STORAGE: sendDirectMessage db is ${db.address.path}`)

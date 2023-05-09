@@ -3,7 +3,7 @@ import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import { CertificationRequest } from 'pkijs'
 import { Agent } from 'http'
 import AbortController from 'abort-controller'
-import fetch, {Response} from 'node-fetch'
+import fetch, { Response } from 'node-fetch'
 import logger from '../logger'
 import { CsrContainsFields, IsCsr } from './validators'
 import { RegistrationEvents } from './types'
@@ -20,7 +20,7 @@ class UserCsrData {
   csr: string
 }
 
-export type RegistrarResponse = {
+export interface RegistrarResponse {
   status: number
   body: any
 }

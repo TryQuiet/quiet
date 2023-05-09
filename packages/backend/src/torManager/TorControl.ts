@@ -11,7 +11,7 @@ interface IOpts {
   port: number
   host: string
   auth: {
-    type: TorControlAuthType,
+    type: TorControlAuthType
     value: string
   }
 }
@@ -92,7 +92,7 @@ export class TorControl {
 
   public async sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
     return await new Promise((resolve, reject) => {
-      this._sendCommand(command, resolve, reject)
+      void this._sendCommand(command, resolve, reject)
     })
   }
 }

@@ -46,11 +46,11 @@ let Storage: typeof StorageType
 let store: Store
 let factory: FactoryGirl
 let community: Community
-let channelio: PublicChannel
+let channel: PublicChannel
 let alice: Identity
 let john: Identity
 let message: ChannelMessage
-// let channelio: PublicChannelStorage // PublicChannel
+let channelio: PublicChannel
 let filePath: string
 let utils: any
 
@@ -62,14 +62,15 @@ beforeAll(async () => {
 
   community = await factory.create<Community>('Community')
 
-  channelio = publicChannels.selectors.publicChannels(store.getState())[0]
+  channel = publicChannels.selectors.publicChannels(store.getState())[0]
 
-  // channelio = {
-  //   ...channel
-  // }
-
-  // @ts-ignore The operand of a 'delete' operator must be optional
-  // delete channelio.messages
+  channelio = {
+    name: channel.name,
+    description: channel.description,
+    owner: channel.owner,
+    timestamp: channel.timestamp,
+    address: channel.address
+  }
 
   alice = await factory.create<Identity>(
     'Identity',
@@ -181,7 +182,8 @@ describe('Certificate', () => {
     const userCertificate = await createUserCert(
       rootPermsData.certificate,
       rootPermsData.privKey,
-      alice.userCsr?.userCsr!,
+      // @ts-expect-error userCsr can be undefined
+      alice.userCsr?.userCsr,
       new Date(),
       new Date(2030, 1, 1)
     )
@@ -204,7 +206,8 @@ describe('Certificate', () => {
     const oldUserCertificate = await createUserCert(
       rootPermsData.certificate,
       rootPermsData.privKey,
-      alice.userCsr?.userCsr!,
+      // @ts-expect-error userCsr can be undefined
+      alice.userCsr?.userCsr,
       new Date(2021, 1, 1),
       new Date(2021, 1, 2)
     )
@@ -234,14 +237,21 @@ describe('Certificate', () => {
     await storage.initDatabases()
 
     for (const empty of [null, '', undefined]) {
-      // @ts-ignore
+      // @ts-expect-error
       const result = await storage.saveCertificate({ certificate: empty, rootPermsData })
       expect(result).toBe(false)
     }
   })
 
   it('username check fails if username is already in use', async () => {
-    const userCertificate = await createUserCert(rootPermsData.certificate, rootPermsData.privKey, alice.userCsr?.userCsr!, new Date(), new Date(2030, 1, 1))
+    const userCertificate = await createUserCert(
+      rootPermsData.certificate,
+      rootPermsData.privKey,
+      // @ts-expect-error userCsr can be undefined
+      alice.userCsr?.userCsr,
+      new Date(),
+      new Date(2030, 1, 1)
+    )
 
     storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
 
@@ -297,8 +307,8 @@ describe('Certificate', () => {
     expect(spyOnUpdatePeersList).toBeCalled()
   })
 
-  it.each(['write, replicate.progress'])('The message is verified valid on "%s" db event', async () => {
-    const eventName = 'write'
+  it.each(['write', 'replicate.progress'])('The message is verified valid on "%s" db event', async (eventName: string) => { // 'replicate.progress'
+    // const eventName = 'write'
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
@@ -316,8 +326,10 @@ describe('Certificate', () => {
     await storage.subscribeToChannel(channelio)
 
     const eventSpy = jest.spyOn(storage, 'emit')
-
-    const db = storage.publicChannelsRepos.get(message.channelAddress)!.db
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    expect(publicChannelRepo).not.toBeUndefined()
+    // @ts-expect-error
+    const db = publicChannelRepo.db
     const messagePayload = {
       payload: {
         value: aliceMessage.message
@@ -328,7 +340,6 @@ describe('Certificate', () => {
       case 'write':
         db.events.emit(eventName, 'address', messagePayload, [])
         break
-      // @ts-ignore
       case 'replicate.progress':
         db.events.emit(eventName, 'address', 'hash', messagePayload, 'progress', 'total', [])
         break
@@ -371,8 +382,10 @@ describe('Certificate', () => {
     await storage.subscribeToChannel(channelio)
 
     const spyOnEmit = jest.spyOn(storage, 'emit')
-
-    const db = storage.publicChannelsRepos.get(message.channelAddress)!.db
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    expect(publicChannelRepo).not.toBeUndefined()
+    // @ts-expect-error
+    const db = publicChannelRepo.db
     const messagePayload = {
       payload: {
         value: aliceMessageWithJohnsPublicKey
@@ -430,7 +443,10 @@ describe('Message access controller', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const db = storage.publicChannelsRepos.get(message.channelAddress)!.db
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    expect(publicChannelRepo).not.toBeUndefined()
+    // @ts-expect-error
+    const db = publicChannelRepo.db
     const eventSpy = jest.spyOn(db, 'add')
 
     const messageCopy = {
@@ -454,8 +470,9 @@ describe('Message access controller', () => {
     >('Message', {
       identity: alice
     })
-
-    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate!))
+    // @ts-expect-error userCertificate can be undefined
+    const johnCertificate: string = john.userCertificate
+    const johnPublicKey = keyFromCertificate(parseCertificate(johnCertificate))
 
     const spoofedMessage = {
       ...aliceMessage.message,
@@ -475,14 +492,17 @@ describe('Message access controller', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const db = storage.publicChannelsRepos.get(spoofedMessage.channelAddress)!.db
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    expect(publicChannelRepo).not.toBeUndefined()
+    // @ts-expect-error
+    const db = publicChannelRepo.db
     const eventSpy = jest.spyOn(db, 'add')
 
     await storage.sendMessage(spoofedMessage)
 
     // Confirm message has passed orbitdb validator (check signature verification only)
     expect(eventSpy).toHaveBeenCalled()
-    // @ts-expect-error
+    // @ts-expect-error getAllEventLogEntries is protected
     expect(storage.getAllEventLogEntries(db).length).toBe(0)
   })
 })

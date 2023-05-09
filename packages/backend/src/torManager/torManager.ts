@@ -138,7 +138,7 @@ export class Tor extends EventEmitter {
 
   public initTorControl = () => {
     if (!this.controlPort) {
-      throw new Error(`Can't initialize TorControl - no control port`)
+      throw new Error('Can\'t initialize TorControl - no control port')
     }
     this.torControl = new TorControl({
       port: this.controlPort,
@@ -148,7 +148,6 @@ export class Tor extends EventEmitter {
         type: this.torAuthCookie ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD
       }
     })
-
   }
 
   private readonly torProcessNameCommand = (oldTorPid: string): string => {
@@ -211,7 +210,7 @@ export class Tor extends EventEmitter {
   protected readonly spawnTor = async (timeoutMs: number): Promise<void> => {
     return await new Promise((resolve, reject) => {
       if (!this.controlPort) {
-        reject(new Error(`Can't spawn tor - no control port`))
+        reject(new Error('Can\'t spawn tor - no control port'))
         return
       }
       this.process = child_process.spawn(
