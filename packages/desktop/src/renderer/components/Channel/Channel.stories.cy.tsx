@@ -104,6 +104,7 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             throw new Error('Function not implemented.')
           }}
           enableContextMenu={false}
+          pendingGeneralChannelRecreation={false}
         />
       </DndProvider>
     </>
