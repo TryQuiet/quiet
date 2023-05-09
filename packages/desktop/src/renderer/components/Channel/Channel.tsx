@@ -58,7 +58,8 @@ const Channel = () => {
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
   const isCommunityInitialized = Boolean(initializedCommunities[community?.id])
 
-  const pendingGeneralChannelRecreation = currentChannelAddress === 'general' && currentChannelMessagesCount === 0
+  const pendingGeneralChannelRecreationSelector = useSelector(publicChannels.selectors.pendingGeneralChannelRecreation)
+  const pendingGeneralChannelRecreation = pendingGeneralChannelRecreationSelector && currentChannelAddress === 'general' && currentChannelMessagesCount === 0
 
   let enableContextMenu: boolean = false
   if (community) {
