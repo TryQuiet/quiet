@@ -128,7 +128,8 @@ export const torDirForPlatform = (basePath?: string): string => {
   let torPath
   if (!basePath) {
     basePath = path.join(process.cwd(), '..', '..', '3rd-party')
-    torPath = path.join(basePath, 'tor', process.platform)
+    const platformPath = process.platform === 'darwin' ? path.join(process.platform, process.arch) : process.platform
+    torPath = path.join(basePath, 'tor', platformPath)
   } else {
     torPath = path.join(basePath, 'tor')
   }
