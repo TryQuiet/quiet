@@ -1,1 +1,1 @@
-export type SupportedPlatform = "android" | "darwin" | "linux" | "win32"
+export type SupportedPlatform = 'android' | 'darwin' | 'linux' | 'win32'

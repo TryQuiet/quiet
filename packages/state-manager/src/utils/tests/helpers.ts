@@ -23,7 +23,6 @@ const log = logger('test')
 const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
 const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
 
-
 export const createPeerIdTestHelper = (): PeerId => {
   return {
     id: 'QmWVMaUqEB73gzgGkc9wS7rnhNcpSyH64dmbGUdU2TM3eV',

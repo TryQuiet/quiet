@@ -1,5 +1,5 @@
 import { NetworkStats } from '@quiet/types'
-import { isDefined } from "./helpers"
+import { isDefined } from './helpers'
 
 /**
 This is the very simple algorithm for evaluating the most wanted peers.

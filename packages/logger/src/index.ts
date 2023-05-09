@@ -1,7 +1,7 @@
 import debug from 'debug'
 
 export type Logger = debug.Debugger & {
-    error: debug.Debugger;
+    error: debug.Debugger
 }
 
 export const consoleLogger = (packageName: string) => (module: string): Logger => {
