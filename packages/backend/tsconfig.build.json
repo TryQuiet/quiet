@@ -3,12 +3,9 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ES2022",
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "strictBindCallApply": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
+    "strict": true,
+    "useUnknownInCatchVariables": false,
+    "strictPropertyInitialization": false,
     "rootDir": "./src",
     "outDir": "./lib",
     "typeRoots": [

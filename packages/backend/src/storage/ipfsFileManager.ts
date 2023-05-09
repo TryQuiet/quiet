@@ -15,6 +15,7 @@ import { StorageEvents } from './types'
 import { promisify } from 'util'
 import sizeOf from 'image-size'
 
+
 import { CID } from 'multiformats/cid'
 
 import { sleep } from '../sleep'
@@ -169,17 +170,15 @@ export class IpfsFilesManager extends EventEmitter {
         let width: number | undefined = undefined
         let height: number | undefined = undefined
         if (imagesExtensions.includes(metadata.ext)) {
-            let imageSize: {width: number | undefined, height: number | undefined} | undefined = undefined
+            let imageSize: {width: number | undefined, height: number | undefined} | undefined = undefined // ISizeCalculationResult
             try {
                 imageSize = await sizeOfPromisified(metadata.path)
             } catch (e) {
                 console.error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
                 throw new Error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
             }
-            if (imageSize) {
-                width = imageSize.width
-                height = imageSize.height
-            }
+            width = imageSize?.width
+            height = imageSize?.height
         }
 
         const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })

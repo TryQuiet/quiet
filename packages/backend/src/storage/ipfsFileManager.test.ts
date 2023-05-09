@@ -5,11 +5,12 @@ import type { IPFS } from 'ipfs-core'
 import { fileURLToPath } from 'url'
 import { DirResult } from 'tmp'
 
-import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
+import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 import { create } from 'ipfs-core'
 import waitForExpect from 'wait-for-expect'
 import { IpfsFilesManager, IpfsFilesManagerEvents } from './ipfsFileManager'
 import { FileMetadata } from '@quiet/types'
+import { StorageEvents } from './types'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -31,17 +32,17 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  tmpDir.removeCallback()
+  tmpDir?.removeCallback()
   if (fs.existsSync(filePath)) {
     fs.rmSync(filePath)
   }
-  await fileManager.stop()
-  await ipfsInstance.stop()
+  await fileManager?.stop()
+  await ipfsInstance?.stop()
 })
 
 describe('Ipfs file manager', () => {
   it('uploads image', async () => {
-    ipfsInstance = await create()
+    ipfsInstance = await create({repo: tmpAppDataPath})
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
@@ -66,19 +67,19 @@ describe('Ipfs file manager', () => {
 
     const cid = 'QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T'
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' })
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
+      expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
       )
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
+      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
     })
   })
 
   it('uploads file other than image', async () => {
-    ipfsInstance = await create()
+    ipfsInstance = await create({repo: tmpAppDataPath})
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
@@ -99,24 +100,24 @@ describe('Ipfs file manager', () => {
     await fileManager.uploadFile(metadata)
     const cid = 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ'
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' })
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: cid, ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null }
+      expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: undefined }
       )
       )
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
+      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: cid, ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
+      expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: undefined })
       )
     })
   })
 
   it("throws error if file doesn't exists", async () => {
-    ipfsInstance = await create()
+    ipfsInstance = await create({repo: tmpAppDataPath})
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
     // Uploading
@@ -140,8 +141,9 @@ describe('Ipfs file manager', () => {
       expect(eventSpy).not.toHaveBeenCalled()
     })
   })
+
   it('throws error if reported file size is malicious', async () => {
-    ipfsInstance = await create()
+    ipfsInstance = await create({repo: tmpAppDataPath})
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
@@ -162,16 +164,16 @@ describe('Ipfs file manager', () => {
     await fileManager.uploadFile(metadata)
     const cid = 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ'
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' })
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: cid, ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null }))
+      expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: undefined }))
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
+      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: cid, ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null }))
+      expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: undefined }))
     })
 
     // Downloading
@@ -184,18 +186,18 @@ describe('Ipfs file manager', () => {
     })
 
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(5, 'downloadFile', { ...uploadMetadata, size: 20400 })
+      expect(eventSpy).toHaveBeenNthCalledWith(5, IpfsFilesManagerEvents.DOWNLOAD_FILE, { ...uploadMetadata, size: 20400 })
     })
 
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(6, 'updateDownloadProgress', { cid: cid, downloadProgress: undefined, downloadState: 'malicious', mid: 'id' })
+      expect(eventSpy).toHaveBeenNthCalledWith(6, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: undefined, downloadState: 'malicious', mid: 'id' })
     }, 10000)
 
     expect(eventSpy).toBeCalledTimes(6)
   })
 
   it.skip('cancels download on demand', async () => {
-    ipfsInstance = await create()
+    ipfsInstance = await create({repo: tmpAppDataPath})
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
@@ -218,45 +220,45 @@ describe('Ipfs file manager', () => {
 
     // Downloading
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid })
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid })
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: cid, ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
+      expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: undefined })
       )
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' }
+      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' }
       )
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: cid, ext: '.pdf', height: null, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: null })
+      expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: undefined })
       )
     })
 
     fileManager.emit(IpfsFilesManagerEvents.DOWNLOAD_FILE, metadata)
 
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(5, 'downloadFile', metadata)
+      expect(eventSpy).toHaveBeenNthCalledWith(5, IpfsFilesManagerEvents.DOWNLOAD_FILE, metadata)
     })
 
     // TODO: Test fails here because download is too fast, we need to run those tests with 2 clients and tor. (integration tests are the best candidate for testing this)
     fileManager.emit(IpfsFilesManagerEvents.CANCEL_DOWNLOAD, cid)
 
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(6, 'cancelDownload', cid)
+      expect(eventSpy).toHaveBeenNthCalledWith(6, IpfsFilesManagerEvents.CANCEL_DOWNLOAD, cid)
     })
 
     const uploadMetadata = eventSpy.mock.calls[1][1]
 
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(1, 'updateDownloadProgress', { cid: cid, downloadProgress: { downloaded: 0, size: 761797, transferSpeed: 0 }, downloadState: 'canceled', mid: 'id' }
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: { downloaded: 0, size: 761797, transferSpeed: 0 }, downloadState: 'canceled', mid: 'id' }
       )
     })
 
     expect(eventSpy).toBeCalledTimes(5)
   })
   it('is uploaded to IPFS then can be downloaded', async () => {
-    ipfsInstance = await create()
+    ipfsInstance = await create({repo: tmpAppDataPath})
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
@@ -276,16 +278,16 @@ describe('Ipfs file manager', () => {
 
     await fileManager.uploadFile(metadata)
     const cid = 'QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T'
-    expect(eventSpy).toHaveBeenNthCalledWith(1, 'removeDownloadStatus', { cid: 'uploading_id' }
+    expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' }
     )
 
-    expect(eventSpy).toHaveBeenNthCalledWith(2, 'uploadedFile', expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
+    expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
     )
 
-    expect(eventSpy).toHaveBeenNthCalledWith(3, 'updateDownloadProgress', { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' }
+    expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' }
     )
 
-    expect(eventSpy).toHaveBeenNthCalledWith(4, 'updateMessageMedia', expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
+    expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
     )
 
     // Downloading
@@ -299,18 +301,18 @@ describe('Ipfs file manager', () => {
     })
 
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(6, 'updateDownloadProgress', { cid: cid, downloadProgress: { downloaded: 15863, size: 15847, transferSpeed: 0 }, downloadState: 'downloading', mid: 'id' }
+      expect(eventSpy).toHaveBeenNthCalledWith(6, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: { downloaded: 15863, size: 15847, transferSpeed: 0 }, downloadState: 'downloading', mid: 'id' }
       )
     }, 10000)
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(7, 'updateDownloadProgress', { cid: cid, downloadProgress: { downloaded: 15863, size: 15847, transferSpeed: 0 }, downloadState: 'completed', mid: 'id' }
+      expect(eventSpy).toHaveBeenNthCalledWith(7, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: { downloaded: 15863, size: 15847, transferSpeed: 0 }, downloadState: 'completed', mid: 'id' }
       )
     }, 10000)
-    expect(eventSpy).toHaveBeenNthCalledWith(8, 'updateMessageMedia', expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
+    expect(eventSpy).toHaveBeenNthCalledWith(8, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
     )
   })
   it('downloaded file matches uploaded file', async () => {
-    ipfsInstance = await create()
+    ipfsInstance = await create({repo: tmpAppDataPath})
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
@@ -354,7 +356,7 @@ describe('Ipfs file manager', () => {
     global.Date.now = mockDateNow
     mockDateNow.mockReturnValue(new Date('2022-04-07T10:20:30Z') as unknown as number)
 
-    ipfsInstance = await create()
+    ipfsInstance = await create({repo: tmpAppDataPath})
 
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
 
@@ -382,7 +384,7 @@ describe('Ipfs file manager', () => {
     const transferSpeeds: number[] = []
 
     eventSpy.mock.calls.map((call) => {
-      if (call[0] === 'updateDownloadProgress') {
+      if (call[0] === StorageEvents.UPDATE_DOWNLOAD_PROGRESS) {
         // @ts-ignore
         transferSpeeds.push(call[1].downloadProgress?.transferSpeed)
       }
@@ -397,7 +399,7 @@ describe('Ipfs file manager', () => {
   })
 
   it('copies file and returns a new path', async () => {
-    ipfsInstance = await create()
+    ipfsInstance = await create({repo: tmpAppDataPath})
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
     const originalPath = path.join(dirname, '/testUtils/test-image.png')
     const newPath = fileManager.copyFile(originalPath, '12345_test-image.png')
@@ -406,7 +408,7 @@ describe('Ipfs file manager', () => {
   })
 
   it('tries to copy files, returns original path on error', async () => {
-    ipfsInstance = await create()
+    ipfsInstance = await create({repo: tmpAppDataPath})
     fileManager = new IpfsFilesManager(ipfsInstance, tmpAppDataPath)
     const originalPath = path.join(dirname, '/testUtils/test-image-non-existing.png')
     const newPath = fileManager.copyFile(originalPath, '12345_test-image.png')
