@@ -157,7 +157,7 @@ describe('Connections manager - no tor', () => {
     const socket = io(url)
 
    const init = new Promise<void>(resolve => {
-    connectionsManager && void connectionsManager.init()
+    void connectionsManager?.init()
     socket.connect()
       setTimeout(() => resolve(), 200)
     })
@@ -227,7 +227,7 @@ describe('Connections manager - no tor', () => {
     const socket = io(url)
 
    const init = new Promise<void>(resolve => {
-    connectionsManager && void connectionsManager.init()
+    void connectionsManager?.init()
     socket.connect()
       setTimeout(() => resolve(), 200)
     })
@@ -301,7 +301,7 @@ describe('Connections manager - no tor', () => {
     connectionsManager.libp2pInstance?.dispatchEvent(new CustomEvent('peer:disconnect', { detail: peerDisconectEventDetail }))
     expect(connectionsManager.connectedPeers.size).toEqual(0)
     await waitForExpect(async () => {
-      expect(connectionsManager && await connectionsManager.localStorage.get(LocalDBKeys.PEERS)).not.toBeNull()
+      expect(await connectionsManager?.localStorage.get(LocalDBKeys.PEERS)).not.toBeNull()
     }, 2000)
     const peerStats: {[addr: string]: NetworkStats} = await connectionsManager.localStorage.get(LocalDBKeys.PEERS)
     expect(Object.keys(peerStats)[0]).toEqual(remoteAddr)
@@ -405,7 +405,7 @@ describe('Connections manager - no tor', () => {
     const socket = io(url)
 
    const init = new Promise<void>(resolve => {
-    connectionsManager && void connectionsManager.init()
+    void connectionsManager?.init()
     socket.connect()
       setTimeout(() => resolve(), 200)
     })
