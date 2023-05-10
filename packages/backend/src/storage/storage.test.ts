@@ -34,6 +34,7 @@ jest.unstable_mockModule('../common/utils', async () => {
     })
     }
 })
+type ComonUtilsModuleType = typeof import('../common/utils')
 
 const { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createFile, createPeerId } = await import('../common/testUtils')
 
@@ -52,7 +53,7 @@ let john: Identity
 let message: ChannelMessage
 let channelio: PublicChannel
 let filePath: string
-let utils: any
+let utils: ComonUtilsModuleType
 
 jest.setTimeout(50000)
 
@@ -307,8 +308,7 @@ describe('Certificate', () => {
     expect(spyOnUpdatePeersList).toBeCalled()
   })
 
-  it.each(['write', 'replicate.progress'])('The message is verified valid on "%s" db event', async (eventName: string) => { // 'replicate.progress'
-    // const eventName = 'write'
+  it.each(['write', 'replicate.progress'])('The message is verified valid on "%s" db event', async (eventName: string) => {
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
