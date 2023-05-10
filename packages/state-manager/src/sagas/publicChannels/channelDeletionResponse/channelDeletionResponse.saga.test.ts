@@ -70,8 +70,6 @@ describe('channelDeletionResponseSaga', () => {
       )
         .withReducer(reducer)
         .withState(store.getState())
-
-        .put(publicChannelsActions.setCurrentChannel({ channelAddress: 'general' }))
         .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
         .put(messagesActions.deleteChannelEntry({ channelAddress }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
@@ -120,8 +118,6 @@ describe('channelDeletionResponseSaga', () => {
       )
         .withReducer(reducer)
         .withState(store.getState())
-
-        .put(publicChannelsActions.setCurrentChannel({ channelAddress: 'general' }))
         .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
         .put(messagesActions.deleteChannelEntry({ channelAddress }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))

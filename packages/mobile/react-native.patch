@@ -1,0 +1,11 @@
+--- react-native-gradle-plugin/src/main/kotlin/com/facebook/react/TaskConfiguration.kt.backup	2023-05-10 13:35:32.408312978 +0200
++++ react-native-gradle-plugin/src/main/kotlin/com/facebook/react/TaskConfiguration.kt	2023-05-10 13:36:03.880355101 +0200
+@@ -20,7 +20,7 @@
+ @Suppress("SpreadOperator", "UnstableApiUsage")
+ internal fun Project.configureReactTasks(variant: Variant, config: ReactExtension) {
+   val targetName = variant.name.replaceFirstChar { it.uppercase() }
+-  val targetPath = variant.name
++  val targetPath = "${variant.flavorName}/${variant.buildType}"
+ 
+   // Resources: generated/assets/react/<variant>/index.android.bundle
+   val resourcesDir = File(buildDir, "generated/res/react/$targetPath")
