@@ -1,5 +1,5 @@
-import { ThenableWebDriver } from 'selenium-webdriver'
 import {
+  App,
   Channel,
   ChannelContextMenu,
   CreateCommunityModal,
@@ -11,17 +11,12 @@ import {
   StartingLoadingPanel
 } from './selectors.crossplatform'
 import logger from './logger'
-import { BuildSetup } from './crossplatform.utils'
-import getPort from 'get-port'
 const log = logger('newUser:')
 
 jest.setTimeout(900000)
 describe('New User', () => {
-  let buildSetup: BuildSetup
-  let driver: ThenableWebDriver
-
-  let buildSetup2: BuildSetup
-  let driver2: ThenableWebDriver
+  let ownerApp: App
+  let guestApp: App
 
   let generalChannel: Channel
   let generalChannel2: Channel
@@ -45,58 +40,57 @@ describe('New User', () => {
   const newChannelName = 'mid-night-club'
 
   beforeAll(async () => {
-    const port = await getPort()
-    const debugPort = await getPort()
-    buildSetup = new BuildSetup({ port, debugPort })
-    await buildSetup.createChromeDriver()
-    driver = buildSetup.getDriver()
-    await driver.getSession()
+    ownerApp = new App()
   })
 
   afterAll(async () => {
-    await buildSetup.closeDriver()
-    await buildSetup.killChromeDriver()
+    await ownerApp?.close()
   })
+
   describe('Stages:', () => {
+    it('Owner opens the app', async () => {
+      await ownerApp.open()
+    })
+
     if (process.env.TEST_MODE) {
       it('Close debug modal', async () => {
-        const debugModal = new DebugModeModal(driver)
+        const debugModal = new DebugModeModal(ownerApp.driver)
         await debugModal.close()
       })
     }
 
     it('StartingLoadingPanel modal', async () => {
-      const loadingPanel = new StartingLoadingPanel(driver)
+      const loadingPanel = new StartingLoadingPanel(ownerApp.driver)
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
       expect(isLoadingPanel).toBeTruthy()
     })
     it('JoinCommunityModal - owner switch to create community', async () => {
-      const joinModal = new JoinCommunityModal(driver)
+      const joinModal = new JoinCommunityModal(ownerApp.driver)
       const isJoinModal = await joinModal.element.isDisplayed()
       expect(isJoinModal).toBeTruthy()
       await joinModal.switchToCreateCommunity()
     })
     it('CreateCommunityModal - owner create his community', async () => {
-      const createModal = new CreateCommunityModal(driver)
+      const createModal = new CreateCommunityModal(ownerApp.driver)
       const isCreateModal = await createModal.element.isDisplayed()
       expect(isCreateModal).toBeTruthy()
       await createModal.typeCommunityName(communityName)
       await createModal.submit()
     })
     it('RegisterUsernameModal - owner has registered', async () => {
-      const registerModal = new RegisterUsernameModal(driver)
+      const registerModal = new RegisterUsernameModal(ownerApp.driver)
       const isRegisterModal = await registerModal.element.isDisplayed()
       expect(isRegisterModal).toBeTruthy()
       await registerModal.typeUsername(ownerUsername)
       await registerModal.submit()
     })
     it('Connecting to peers modal', async () => {
-      const loadingPanelCommunity = new JoiningLoadingPanel(driver)
+      const loadingPanelCommunity = new JoiningLoadingPanel(ownerApp.driver)
       const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
       expect(isLoadingPanelCommunity).toBeTruthy()
     })
     it('General channel check', async () => {
-      generalChannel = new Channel(driver, 'general')
+      generalChannel = new Channel(ownerApp.driver, 'general')
       const isGeneralChannel = await generalChannel.element.isDisplayed()
       const generalChannelText = await generalChannel.element.getText()
       expect(isGeneralChannel).toBeTruthy()
@@ -113,7 +107,7 @@ describe('New User', () => {
       expect(text).toEqual(ownerMessages[0])
     })
     it('Opens the settings tab and gets an invitation code', async () => {
-      const settingsModal = await new Sidebar(driver).openSettings()
+      const settingsModal = await new Sidebar(ownerApp.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
       await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
@@ -126,28 +120,24 @@ describe('New User', () => {
 
     it('Guest setup', async () => {
       console.log('Second client')
-      const port2 = await getPort()
-      const debugPort2 = await getPort()
-      buildSetup2 = new BuildSetup({ port: port2, debugPort: debugPort2 })
-      await buildSetup2.createChromeDriver()
-      driver2 = buildSetup2.getDriver()
-      await driver2.getSession()
+      guestApp = new App()
+      await guestApp.open()
     })
     if (process.env.TEST_MODE) {
       it('Close debug modal', async () => {
-        const debugModal = new DebugModeModal(driver2)
+        const debugModal = new DebugModeModal(guestApp.driver)
         await debugModal.close()
       })
     }
     it('StartingLoadingPanel modal', async () => {
       console.log('new user - 2')
-      const loadingPanel = new StartingLoadingPanel(driver2)
+      const loadingPanel = new StartingLoadingPanel(guestApp.driver)
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
       expect(isLoadingPanel).toBeTruthy()
     })
     it('Guest joins the new community successfully', async () => {
       console.log('new user - 3')
-      const joinCommunityModal = new JoinCommunityModal(driver2)
+      const joinCommunityModal = new JoinCommunityModal(guestApp.driver)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
       console.log({ invitationCode })
@@ -156,7 +146,7 @@ describe('New User', () => {
     })
     it('RegisterUsernameModal', async () => {
       console.log('new user - 4')
-      const registerModal2 = new RegisterUsernameModal(driver2)
+      const registerModal2 = new RegisterUsernameModal(guestApp.driver)
       const isRegisterModal2 = await registerModal2.element.isDisplayed()
       expect(isRegisterModal2).toBeTruthy()
       await registerModal2.typeUsername(joiningUserUsername)
@@ -164,13 +154,13 @@ describe('New User', () => {
     })
     it.skip('JoiningLoadingPanel', async () => {
       console.log('new user - 5')
-      const loadingPanelCommunity2 = new JoiningLoadingPanel(driver)
+      const loadingPanelCommunity2 = new JoiningLoadingPanel(ownerApp.driver)
       const isLoadingPanelCommunity2 = await loadingPanelCommunity2.element.isDisplayed()
       expect(isLoadingPanelCommunity2).toBeTruthy()
     })
     it('User sends a message', async () => {
       console.log('new user - 6')
-      generalChannel2 = new Channel(driver2, 'general')
+      generalChannel2 = new Channel(guestApp.driver, 'general')
       await generalChannel2.element.isDisplayed()
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
@@ -186,29 +176,29 @@ describe('New User', () => {
     })
 
     it('Channel creation - Owner create second channel', async () => {
-      sidebar = new Sidebar(driver)
+      sidebar = new Sidebar(ownerApp.driver)
       await sidebar.addNewChannel(newChannelName)
       await sidebar.switchChannel(newChannelName)
       const channels = await sidebar.getChannelList()
       expect(channels.length).toEqual(2)
     })
     it('Channel creation - Owner send message in second channel', async () => {
-      secondChannel = new Channel(driver, newChannelName)
+      secondChannel = new Channel(ownerApp.driver, newChannelName)
       const isMessageInput = await secondChannel.messageInput.isDisplayed()
       expect(isMessageInput).toBeTruthy()
       await secondChannel.sendMessage(ownerMessages[1])
     })
     it('Channel creation - User read message in second channel', async () => {
-      sidebar2 = new Sidebar(driver2)
+      sidebar2 = new Sidebar(guestApp.driver)
       await sidebar2.switchChannel(newChannelName)
-      secondChannel2 = new Channel(driver2, newChannelName)
+      secondChannel2 = new Channel(guestApp.driver, newChannelName)
       await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
       const messages = await secondChannel2.getUserMessages(ownerUsername)
       const text = await messages[1].getText()
       expect(text).toEqual(ownerMessages[1])
     })
     it('Channel deletion - Owner delete second channel', async () => {
-      channelContextMenu = new ChannelContextMenu(driver)
+      channelContextMenu = new ChannelContextMenu(ownerApp.driver)
       await channelContextMenu.openMenu()
       await channelContextMenu.openDeletionChannelModal()
       await channelContextMenu.deleteChannel()
@@ -248,7 +238,7 @@ describe('New User', () => {
     })
 
     it('Leave community', async () => {
-      const settingsModal = await new Sidebar(driver2).openSettings()
+      const settingsModal = await new Sidebar(guestApp.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
       await settingsModal.openLeaveCommunityModal()
@@ -256,26 +246,26 @@ describe('New User', () => {
     })
     if (process.env.TEST_MODE) {
       it('Leave community - Close debug modal', async () => {
-        const debugModal = new DebugModeModal(driver2)
+        const debugModal = new DebugModeModal(guestApp.driver)
         await debugModal.close()
       })
     }
     it('Leave community - Guest re-join to community successfully', async () => {
-      const joinCommunityModal = new JoinCommunityModal(driver2)
+      const joinCommunityModal = new JoinCommunityModal(guestApp.driver)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
       await joinCommunityModal.typeCommunityCode(invitationCode)
       await joinCommunityModal.submit()
     })
     it('Leave community - Guest register new username', async () => {
-      const registerModal2 = new RegisterUsernameModal(driver2)
+      const registerModal2 = new RegisterUsernameModal(guestApp.driver)
       const isRegisterModal2 = await registerModal2.element.isDisplayed()
       expect(isRegisterModal2).toBeTruthy()
       await registerModal2.typeUsername(joiningUserUsername2)
       await registerModal2.submit()
     })
     it('Leave community - Guest sends a message', async () => {
-      generalChannel2 = new Channel(driver2, 'general')
+      generalChannel2 = new Channel(guestApp.driver, 'general')
       await generalChannel2.element.isDisplayed()
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
@@ -289,8 +279,7 @@ describe('New User', () => {
     })
 
     it('Guest close app', async () => {
-      await buildSetup2.closeDriver()
-      await buildSetup2.killChromeDriver()
+      await guestApp?.close()
     })
     it('Guest close app - Owner send another message after guest leave app', async () => {
       const isMessageInput = await generalChannel.messageInput.isDisplayed()

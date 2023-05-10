@@ -2,16 +2,23 @@ import { By, Key, ThenableWebDriver, until } from 'selenium-webdriver'
 import { BuildSetup, BuildSetupInit } from './crossplatform.utils'
 
 export class App {
-  driver: ThenableWebDriver
+  thenableWebDriver?: ThenableWebDriver
   buildSetup: BuildSetup
   constructor(buildSetupConfig?: BuildSetupInit) {
     this.buildSetup = new BuildSetup({ ...buildSetupConfig })
   }
 
+  get driver(): ThenableWebDriver {
+    if (!this.thenableWebDriver) {
+      this.thenableWebDriver = this.buildSetup.getDriver()
+    }
+    return this.thenableWebDriver
+  }
+
   async open() {
     this.buildSetup.resetDriver()
     await this.buildSetup.createChromeDriver()
-    this.driver = this.buildSetup.getDriver()
+    this.thenableWebDriver = this.buildSetup.getDriver()
     await this.driver.getSession()
   }
 
@@ -25,27 +32,21 @@ export class App {
   }
 
   get saveStateButton() {
-    return this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="save-state-button"]'))
-    )
+    return this.driver.wait(until.elementLocated(By.xpath('//div[@data-testid="save-state-button"]')))
   }
 
   async saveState() {
-    console.log('Saving redux state')
     const stateButton = await this.saveStateButton
     await this.driver.executeScript('arguments[0].click();', stateButton)
   }
 
   async waitForSavedState() {
-    const dataSaved = this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-is-saved="true"]'))
-    )
+    const dataSaved = this.driver.wait(until.elementLocated(By.xpath('//div[@data-is-saved="true"]')))
     return await dataSaved
   }
 }
 
 export class StartingLoadingPanel {
-  private readonly text: string
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
     this.driver = driver

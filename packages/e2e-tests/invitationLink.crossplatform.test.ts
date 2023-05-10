@@ -141,12 +141,14 @@ describe('New user joins using invitation link while having app opened', () => {
 
     it('Guest clicks invitation link with valid code', async () => {
       // Extract code from copied invitation url
+
       const url = new URL(invitationCode)
-      const command = {
+      const command: { [key: string]: string } = {
         linux: 'xdg-open',
         darwin: 'open',
         win32: 'start'
       }
+
       execSync(`${command[process.platform]} ${invitationDeepUrl(url.hash.substring(1))}`)
       console.log('Guest opened invitation link')
     })
@@ -194,7 +196,9 @@ describe('New user joins using invitation link while having app opened', () => {
     it('Owner sees that guest joined community', async () => {
       const generalChannel = new Channel(ownerApp.driver, 'general')
       await generalChannel.element.isDisplayed()
-      const userJoinedMessage = await generalChannel.getMessage(`@${joiningUserUsername} has joined ${capitalizeFirstLetter(communityName)}!`)
+      const userJoinedMessage = await generalChannel.getMessage(
+        `@${joiningUserUsername} has joined ${capitalizeFirstLetter(communityName)}!`
+      )
       expect(await userJoinedMessage.isDisplayed()).toBeTruthy()
     })
   })

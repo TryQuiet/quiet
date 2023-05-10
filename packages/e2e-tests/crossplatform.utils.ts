@@ -11,13 +11,13 @@ export interface BuildSetupInit {
 }
 
 export class BuildSetup {
-  private driver: ThenableWebDriver
-  public containerId: string
-  public ipAddress: string
-  public port: number
-  public debugPort: number
-  public dataDir: string
-  private child: ChildProcessWithoutNullStreams
+  private driver?: ThenableWebDriver | null
+  public containerId?: string
+  public ipAddress?: string
+  public port?: number
+  public debugPort?: number
+  public dataDir?: string
+  private child?: ChildProcessWithoutNullStreams
   private useDataDir: boolean
 
   constructor({ port, debugPort, useDataDir = true, dataDir }: BuildSetupInit) {
@@ -61,15 +61,11 @@ export class BuildSetup {
         env: Object.assign(process.env, env)
       })
     } else {
-      this.child = spawn(
-        `node_modules/.bin/chromedriver --port=${this.port}`,
-        [],
-        {
-          shell: true,
-          detached: false,
-          env: Object.assign(process.env, env)
-        }
-      )
+      this.child = spawn(`node_modules/.bin/chromedriver --port=${this.port}`, [], {
+        shell: true,
+        detached: false,
+        env: Object.assign(process.env, env)
+      })
     }
     // Extra time for chromedriver to setup
     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
@@ -126,7 +122,7 @@ export class BuildSetup {
     return torPid
   }
 
-  public getDriver() {
+  public getDriver(): ThenableWebDriver {
     const binary = this.getBinaryLocation()
     if (!this.driver) {
       try {
@@ -143,6 +139,9 @@ export class BuildSetup {
       } catch (e) {
         console.log(e)
       }
+    }
+    if (this.driver == null || this.driver === undefined) {
+      throw new Error('elo')
     }
 
     return this.driver
@@ -164,21 +163,26 @@ export class BuildSetup {
   }
 
   public getProcessData = () => {
-    let dataDirPath: string
-    let resourcesPath: string
+    let dataDirPath: string = ''
+    let resourcesPath: string = ''
     const backendBundlePath = path.normalize('backend-bundle/bundle.cjs')
-    const byPlatform = {
+    const byPlatform: { [key: string]: string } = {
       linux: `pgrep -af "${backendBundlePath}" | grep -v egrep | grep "${this.dataDir}"`,
       darwin: `ps -A | grep "${backendBundlePath}" | grep -v egrep | grep "${this.dataDir}"`,
-      win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${backendBundlePath.replace(/\\/g, '\\\\')}%' and commandline LIKE '%${this.dataDir}%' and name = 'Quiet.exe'} | Format-Table CommandLine -HideTableHeaders -Wrap -Autosize"`
+      win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${backendBundlePath.replace(
+        /\\/g,
+        '\\\\'
+      )}%' and commandline LIKE '%${
+        this.dataDir
+      }%' and name = 'Quiet.exe'} | Format-Table CommandLine -HideTableHeaders -Wrap -Autosize"`
     }
     const command = byPlatform[process.platform]
     const appBackendProcess = execSync(command).toString('utf8').trim()
     console.log('Backend process info', appBackendProcess)
     let args = appBackendProcess.split(' ')
     if (process.platform === 'win32') {
-      args = args.filter((item) => item.trim() !== '')
-      args = args.map((item) => item.trim())
+      args = args.filter(item => item.trim() !== '')
+      args = args.map(item => item.trim())
     }
     console.log('Args:', args)
     if (args.length >= 5) {
