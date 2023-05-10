@@ -1,7 +1,8 @@
-import { NetworkStats, sortPeers } from '@quiet/state-manager'
 import { Level } from 'level'
 import path from 'path'
 import logger from '../logger'
+import { NetworkStats } from '@quiet/types'
+import { sortPeers } from '@quiet/common'
 
 const log = logger('levelDB')
 

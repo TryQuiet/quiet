@@ -21,7 +21,6 @@ import {
   RegisterUserCertificatePayload,
   InitCommunityPayload,
   Community,
-  createUserCertificateTestHelper,
   ErrorCodes,
   ErrorMessages,
   getFactory,
@@ -29,6 +28,7 @@ import {
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
+import { createUserCertificateTestHelper } from '@quiet/identity'
 
 jest.setTimeout(20_000)
 

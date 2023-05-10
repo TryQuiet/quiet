@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { readdir, readFile } from 'fs/promises'
 import fs from 'fs'
 import os from 'os'

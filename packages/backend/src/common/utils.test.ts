@@ -26,7 +26,7 @@ afterEach(() => {
 })
 
 describe('Get files and dirs', () => {
-  let arr = []
+  let arr: string[] = []
   it('Get files recursively', () => {
     getFilesRecursively('Quiet', arr)
     arr = arr.map(e => e.split(path.sep).join(path.posix.sep))
@@ -58,7 +58,7 @@ describe('Get files and dirs', () => {
 
 describe('Remove files and dirs', () => {
   it('Remove files by name', () => {
-    let arr = []
+    let arr: string[] = []
     getFilesRecursively('Quiet', arr)
     arr = arr.map(e => e.split(path.sep).join(path.posix.sep))
     expect(arr).toEqual([
@@ -76,7 +76,7 @@ describe('Remove files and dirs', () => {
   })
 
   it('Remove directories by name', () => {
-    let arr = []
+    let arr: string[] = []
     getDirsRecursively('Quiet', arr)
     arr = arr.map(e => e.split(path.sep).join(path.posix.sep))
     expect(arr).toEqual([

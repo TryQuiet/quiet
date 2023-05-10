@@ -1,4 +1,5 @@
-import { NetworkStats } from '../../../sagas/appConnection/connection.types'
+import { NetworkStats } from '@quiet/types'
+import { isDefined } from './helpers'
 
 /**
 This is the very simple algorithm for evaluating the most wanted peers.
@@ -40,5 +41,5 @@ export const sortPeers = (peersAddresses: string[], stats: NetworkStats[]): stri
     })
   })
 
-  return peerList.concat(peersAddresses).filter(address => address !== null && address !== undefined)
+  return peerList.concat(peersAddresses).filter(address => address !== null).filter(isDefined)
 }
