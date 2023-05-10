@@ -13,10 +13,11 @@
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "gen": "plop",
     "prepare-backend-assets": "mkdir -p ./nodejs-assets/nodejs-project && cp ../backend/lib/bundle.cjs ./nodejs-assets/nodejs-project/bundle.cjs",
-    "patch-dependencies": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -f -d ../state-manager -p0 < ./factory-girl.patch || true",
-    "patch-crypto-ios": "patch -f -p0 --forward --binary < ./react-native-webview-crypto.patch || true",
+    "patch-state-manager": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -f -d ../state-manager -p0 < ./factory-girl.patch || true",
+    "patch-react-native": "patch -f -p0 --forward --binary < ./react-native.patch || true",
+    "patch-webview-crypto": "patch -f -p0 --forward --binary < ./react-native-webview-crypto.patch || true",
     "override-dlopen": "cd ./nodejs-assets/nodejs-project && cp ../override-dlopen-paths-preload.js ./ && cp ../override-dlopen-paths-data.json ./",
-    "prepare": "npm run prepare-backend-assets && npm run override-dlopen && npm run patch-dependencies && npm run patch-crypto-ios && npm run build",
+    "prepare": "npm run prepare-backend-assets && npm run override-dlopen && npm run patch-state-manager && npm run patch-react-native && npm run patch-webview-crypto && npm run build",
     "version": "react-native-version --skip-tag"
   },
   "dependencies": {
