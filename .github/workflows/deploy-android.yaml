@@ -60,8 +60,14 @@ jobs:
       - name: "Decode keystore"
         run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.keystore
 
+      - name: "Build LS"
+        run: cd packages/mobile/android/app/build && ls
+
       - name: "Remove build directory"
         run: rm -rf ./packages/mobile/android/app/build
+
+      - name: "APP LS"
+        run: cd packages/mobile/android/app && ls
 
       - name: "Build for Android"
         run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew bundleStandardRelease
