@@ -65,6 +65,7 @@ export interface ChannelComponentProps {
   >
   openContextMenu?: () => void
   enableContextMenu?: boolean
+  pendingGeneralChannelRecreation: boolean
 }
 
 const enum ScrollPosition {
@@ -98,7 +99,8 @@ export const ChannelComponent: React.FC<
   downloadFile,
   cancelDownload,
   openContextMenu,
-  enableContextMenu = false
+  enableContextMenu = false,
+  pendingGeneralChannelRecreation
 }) => {
   const [lastSeenMessage, setLastSeenMessage] = useState<string>()
   const [newMessagesInfo, setNewMessagesInfo] = useState<boolean>(false)
@@ -237,6 +239,7 @@ export const ChannelComponent: React.FC<
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
             onMathMessageRendered={updateMathMessagesRendered}
+            pendingGeneralChannelRecreation={pendingGeneralChannelRecreation}
           />
         </ChannelMessagesWrapperStyled>
         <Grid item>
