@@ -66,8 +66,8 @@ describe('Storage', () => {
       expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({
         ...metadata,
         cid: expect.stringContaining('Qm'),
-        width: null,
-        height: null
+        width: undefined,
+        height: undefined
       }))
     })
     await waitForExpect(() => {
@@ -81,15 +81,17 @@ describe('Storage', () => {
       expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({
         ...metadata,
         cid: expect.stringContaining('Qm'),
-        width: null,
-        height: null
+        width: undefined,
+        height: undefined
       }))
     })
 
     await sleep(20_000)
 
     await fileManager.stop()
+    console.time('Stopping ipfs')
     await ipfsInstance.stop()
+    console.timeEnd('Stopping ipfs')
 
     // The jest test doesn't exit cleanly because of some asynchronous actions need time to complete, I can't find what is it.
     await sleep(100000)
