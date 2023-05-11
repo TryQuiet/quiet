@@ -8,7 +8,6 @@ import tmp from 'tmp'
 import { Config } from '../constants'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
-import { PermsData } from '@quiet/state-manager'
 import { Tor } from '../torManager'
 import {
   createLibp2pAddress,
@@ -21,6 +20,7 @@ import {
 import crypto from 'crypto'
 import logger from '../logger'
 import { TorParams } from '../torManager/torManager'
+import { PermsData } from '@quiet/types'
 const log = logger('test')
 
 export const rootPermsData: PermsData = {
@@ -96,9 +96,8 @@ export function createFile(filePath: string, size: number) {
   stream.end()
 }
 
-export async function createPeerId() {
+export async function createPeerId(): Promise<PeerId> {
   const { peerIdFromKeys } = await eval("import('@libp2p/peer-id')")
   const peerId = await PeerId.create()
-  // @eslint-ignore
   return peerIdFromKeys(peerId.marshalPubKey(), peerId.marshalPrivKey())
 }

@@ -1,8 +1,4 @@
-import './rn-addons'
-
 import { LogBox } from 'react-native'
-
-import { withKnobs } from '@storybook/addon-knobs'
 
 import {
   configure,
@@ -10,11 +6,10 @@ import {
   getStorybookUI,
 } from '@storybook/react-native'
 
-import { withNavigation } from './navigationDecorator'
+import { withNavigation } from './navigation'
 
 LogBox.ignoreAllLogs()
 
-addDecorator(withKnobs)
 addDecorator(withNavigation)
 
 configure(() => {

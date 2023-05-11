@@ -2,19 +2,11 @@ import express from 'express'
 import getPort from 'get-port'
 import { Agent, Server } from 'http'
 import { EventEmitter } from 'events'
-
-import {
-  LaunchRegistrarPayload,
-  SocketActionTypes,
-  PermsData,
-  ConnectionProcessInfo
-} from '@quiet/state-manager'
-
-import logger from '../logger'
-import { registerOwner, registerUser, RegistrationResponse, sendCertificateRegistrationRequest } from './functions'
+import { registerOwner, registerUser, RegistrarResponse, RegistrationResponse, sendCertificateRegistrationRequest } from './functions'
 import { RegistrationEvents } from './types'
 import { ServiceState } from '../libp2p/types'
-
+import { ConnectionProcessInfo, ErrorCodes, ErrorMessages, LaunchRegistrarPayload, PermsData, RegisterOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
+import logger from '../logger'
 const log = logger('registration')
 
 export class CertificateRegistration extends EventEmitter {
@@ -40,7 +32,7 @@ export class CertificateRegistration extends EventEmitter {
     this.certificates = certs
   }
 
-  private pendingPromise: Promise<{ status: number; body: any }> = null
+  private pendingPromise: Promise<RegistrarResponse> | null = null
 
   private setRouting() {
     // @ts-ignore
@@ -78,8 +70,20 @@ export class CertificateRegistration extends EventEmitter {
     })
   }
 
-  public async registerOwnerCertificate(payload): Promise<void> {
-    const cert = await registerOwner(payload.userCsr.userCsr, payload.permsData)
+  public async registerOwnerCertificate(payload: RegisterOwnerCertificatePayload): Promise<void> {
+    let cert: string
+    try {
+      cert = await registerOwner(payload.userCsr.userCsr, payload.permsData)
+    } catch (e) {
+      log.error(`Registering owner failed: ${e.message}`)
+      this.emit(SocketActionTypes.ERROR, {
+        type: SocketActionTypes.REGISTRAR,
+        code: ErrorCodes.SERVER_ERROR,
+        message: ErrorMessages.REGISTRATION_FAILED,
+        community: payload.communityId
+      })
+      return
+    }
     this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
       communityId: payload.communityId,
       network: { certificate: cert, peers: [] }

@@ -22,11 +22,13 @@ describe('DeleteChannel component', () => {
           style={
             [
               {
+                "alignItems": "center",
                 "backgroundColor": "#ffffff",
                 "borderBottomColor": "#F0F0F0",
                 "borderBottomWidth": 1,
+                "display": "flex",
                 "flexDirection": "row",
-                "flexGrow": 1,
+                "justifyContent": "center",
                 "maxHeight": 52,
                 "minHeight": 52,
               },
@@ -34,55 +36,62 @@ describe('DeleteChannel component', () => {
           }
         >
           <View
-            accessibilityState={
-              {
-                "busy": undefined,
-                "checked": undefined,
-                "disabled": undefined,
-                "expanded": undefined,
-                "selected": undefined,
-              }
-            }
-            accessible={true}
-            focusable={true}
-            onClick={[Function]}
-            onResponderGrant={[Function]}
-            onResponderMove={[Function]}
-            onResponderRelease={[Function]}
-            onResponderTerminate={[Function]}
-            onResponderTerminationRequest={[Function]}
-            onStartShouldSetResponder={[Function]}
             style={
               {
-                "alignItems": "center",
-                "justifyContent": "center",
-                "width": 64,
+                "flex": 1,
               }
             }
-            testID="appbar_action_item"
           >
-            <Image
-              resizeMethod="resize"
-              resizeMode="cover"
-              source={
+            <View
+              accessibilityState={
                 {
-                  "testUri": "../../../assets/icons/arrow_left.png",
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
                 }
               }
+              accessible={true}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "height": 16,
-                  "width": 16,
+                  "alignItems": "center",
+                  "justifyContent": "center",
+                  "width": 64,
                 }
               }
-            />
+              testID="appbar_action_item"
+            >
+              <Image
+                resizeMethod="resize"
+                resizeMode="cover"
+                source={
+                  {
+                    "testUri": "../../../assets/icons/arrow_left.png",
+                  }
+                }
+                style={
+                  {
+                    "height": 16,
+                    "width": 16,
+                  }
+                }
+              />
+            </View>
           </View>
           <View
             style={
               {
                 "alignItems": "center",
-                "flexGrow": 1,
-                "justifyContent": "center",
+                "flex": 4,
               }
             }
           >
@@ -110,7 +119,7 @@ describe('DeleteChannel component', () => {
           <View
             style={
               {
-                "width": 64,
+                "flex": 1,
               }
             }
           />

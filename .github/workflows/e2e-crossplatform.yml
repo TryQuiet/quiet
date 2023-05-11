@@ -20,7 +20,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "e2e-crossplatform-windows"
-          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
       - name: "Fetch jsign"
         shell: bash

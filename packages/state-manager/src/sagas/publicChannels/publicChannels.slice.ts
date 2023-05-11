@@ -22,9 +22,10 @@ import {
   SetChannelSubscribedPayload,
   UpdateNewestMessagePayload,
   DeleteChannelPayload,
-  DeletedChannelPayload,
+  ChannelDeletionResponsePayload,
   DeleteChannelFromStorePayload,
-  ClearMessagesCachePayload
+  ClearMessagesCachePayload,
+  DisableChannelPayload
 } from './publicChannels.types'
 
 import logger from '../../utils/logger'
@@ -50,13 +51,23 @@ export const publicChannelsSlice = createSlice({
   reducers: {
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
     deleteChannel: (state, _action: PayloadAction<DeleteChannelPayload>) => state,
-    deletedChannel: (state, _action: PayloadAction<DeletedChannelPayload>) => state,
+    channelDeletionResponse: (state, _action: PayloadAction<ChannelDeletionResponsePayload>) =>
+      state,
     deleteChannelFromStore: (state, action: PayloadAction<DeleteChannelFromStorePayload>) => {
       const { channelAddress } = action.payload
 
       publicChannelsSubscriptionsAdapter.removeOne(state.channelsSubscriptions, channelAddress)
       publicChannelsStatusAdapter.removeOne(state.channelsStatus, channelAddress)
       publicChannelsAdapter.removeOne(state.channels, channelAddress)
+    },
+    disableChannel: (state, action: PayloadAction<DisableChannelPayload>) => {
+      const { channelAddress } = action.payload
+      publicChannelsAdapter.updateOne(state.channels, {
+        id: channelAddress,
+        changes: {
+          disabled: true
+        }
+      })
     },
     clearMessagesCache: (state, action: PayloadAction<ClearMessagesCachePayload>) => {
       const { channelAddress } = action.payload

@@ -1,6 +1,5 @@
 
 import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, verifyUserCert, UserCsr } from '@quiet/identity'
-import { ErrorCodes, ErrorMessages, PermsData, SocketActionTypes } from '@quiet/state-manager'
 import createHttpsProxyAgent from 'https-proxy-agent'
 import { Time } from 'pkijs'
 import { DirResult } from 'tmp'
@@ -9,6 +8,7 @@ import { createTmpDir } from '../common/testUtils'
 import { registerOwner, registerUser, sendCertificateRegistrationRequest } from './functions'
 import { RegistrationEvents } from './types'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
+import { ErrorCodes, ErrorMessages, PermsData, SocketActionTypes } from '@quiet/types'
 
 // @ts-ignore
 const { Response } = jest.requireActual('node-fetch')
@@ -17,7 +17,7 @@ jest.mock('node-fetch', () => jest.fn())
 
 describe('Registration service', () => {
   let tmpDir: DirResult
-  let registrationService: CertificateRegistration
+  let registrationService: CertificateRegistration | null
   let certRoot: RootCA
   let permsData: PermsData
   let userCsr: UserCsr
@@ -43,7 +43,7 @@ describe('Registration service', () => {
   })
 
   afterEach(async () => {
-    registrationService && await registrationService.stop()
+    await registrationService?.stop()
     tmpDir.removeCallback()
   })
 
@@ -52,9 +52,8 @@ describe('Registration service', () => {
     expect(result).toBeTruthy()
   })
 
-  it('registerOwner should return null if csr is invalid', async () => {
-    const result = await registerOwner(invalidUserCsr, permsData)
-    expect(result).toBeNull()
+  it('registerOwner should throw error if csr is invalid', async () => {
+    await expect(registerOwner(invalidUserCsr, permsData)).rejects.toThrow()
   })
 
   it('registerUser should return 200 status code', async () => {

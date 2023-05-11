@@ -52,7 +52,7 @@ export const runBackendDesktop = async () => {
       } catch (e) {
         log.error('Error occured while closing backend services', e)
       }
-      process.send('closed-services')
+      if (process.send) process.send('closed-services')
     }
     if (message === 'leaveCommunity') {
       try {
@@ -60,7 +60,7 @@ export const runBackendDesktop = async () => {
       } catch (e) {
         log.error('Error occured while leaving community', e)
       }
-      process.send('leftCommunity')
+      if (process.send) process.send('leftCommunity')
     }
   })
 
@@ -78,7 +78,6 @@ export const runBackendMobile = async (): Promise<any> => {
     torAuthCookie: options.authCookie ? options.authCookie : null,
     torControlPort: options.controlPort ? options.controlPort : null,
     torBinaryPath: options.torBinary ? options.torBinary : null,
-    torResourcesPath: null,
     options: {
       env: {
         appDataPath: options.dataPath,

@@ -43,6 +43,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
                 selected={selected}
                 setCurrentChannel={setCurrentChannel}
                 key={channel.address}
+                disabled={channel.disabled}
               />
             )
           })}

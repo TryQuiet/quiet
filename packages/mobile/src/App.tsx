@@ -1,5 +1,3 @@
-import './App.dev-menu'
-
 import React from 'react'
 import { useDispatch } from 'react-redux'
 
@@ -38,10 +36,13 @@ import { ThemeProvider } from 'styled-components'
 import { defaultTheme } from './styles/themes/default.theme'
 
 import { CommunityContextMenu } from './components/ContextMenu/menus/CommunityContextMenu.container'
+import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
 import { InvitationContextMenu } from './components/ContextMenu/menus/InvitationContextMenu.container'
 
 import { useConfirmationBox } from './hooks/useConfirmationBox'
 import { ConfirmationBox } from './components/ConfirmationBox/ConfirmationBox.component'
+
+import StoreProvider from './Provider'
 
 LogBox.ignoreAllLogs()
 
@@ -50,9 +51,7 @@ const { Navigator, Screen } = createNativeStackNavigator()
 sagaMiddleware.run(rootSaga)
 
 const linking = {
-  prefixes: [
-    'quiet://'
-  ],
+  prefixes: ['quiet://'],
   config: {
     screens: {
       SplashScreen: ''
@@ -60,7 +59,7 @@ const linking = {
   }
 }
 
-export default function App(): JSX.Element {
+function App(): JSX.Element {
   const dispatch = useDispatch()
 
   const confirmationBox = useConfirmationBox()
@@ -106,6 +105,7 @@ export default function App(): JSX.Element {
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
               </Navigator>
               <CommunityContextMenu />
+              <ChannelContextMenu />
               <InvitationContextMenu />
               <ConfirmationBox {...confirmationBox} />
             </ThemeProvider>
@@ -115,3 +115,9 @@ export default function App(): JSX.Element {
     </SafeAreaProvider>
   )
 }
+
+export default () => (
+  <StoreProvider>
+    <App />
+  </StoreProvider>
+)
