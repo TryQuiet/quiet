@@ -1,6 +1,5 @@
 import chalk from 'chalk';
 import {Answers} from 'inquirer';
-
 import {composeValidators} from '../composeValidators.helper';
 import {PlopGeneratorConfig} from '../PlopGeneratorConfig.type';
 import {requireInput} from '../requireInput.helper';

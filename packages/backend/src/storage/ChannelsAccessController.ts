@@ -1,19 +1,22 @@
 import AccessController from 'orbit-db-access-controllers'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
-import { ChannelMessage, channelMessagesAdapter } from '@quiet/state-manager'
+import { ChannelMessage, PublicChannel } from '@quiet/types'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
+import { IdentityProvider } from 'orbit-db-identity-provider'
+import OrbitDB from 'orbit-db'
+import PeerId from 'peer-id'
 
 const type = 'channelsaccess'
 
-export const createChannelAccessController = (peerId) => {
+export const createChannelAccessController = (peerId: PeerId) => {
   // @ts-ignore
   class ChannelsAccessController extends AccessController {
     static get type() {
       return type
     }
 
-    async canAppend(entry, identityProvider) {
+    async canAppend(entry: LogEntry<PublicChannel>, identityProvider: IdentityProvider) {
       // Channel deletion WIP
 
       // console.log('peerId ', peerId.toString())
@@ -53,7 +56,7 @@ export const createChannelAccessController = (peerId) => {
       return ''
     }
 
-    static create(_orbitdb, _options) {
+    static create(_orbitdb: OrbitDB, _type = type, _options: any) {
       return new ChannelsAccessController()
     }
   }

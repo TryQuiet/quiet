@@ -11,22 +11,11 @@ import {
   parseCertificate
 } from '@quiet/identity'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
-import {
-  communities,
-  Community,
-  getFactory,
-  identity,
-  prepareStore,
-  publicChannels,
-  Store,
-  Identity,
-  ChannelMessage,
-  PublicChannelStorage,
-  FileMetadata
-} from '@quiet/state-manager'
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
 import type { Storage as StorageType } from './storage'
+import { ChannelMessage, Community, Identity, PublicChannel, TestMessage } from '@quiet/types'
+import { Store, getFactory, prepareStore, publicChannels } from '@quiet/state-manager'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -45,6 +34,7 @@ jest.unstable_mockModule('../common/utils', async () => {
     })
     }
 })
+type ComonUtilsModuleType = typeof import('../common/utils')
 
 const { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createFile, createPeerId } = await import('../common/testUtils')
 
@@ -53,17 +43,17 @@ let tmpAppDataPath: string
 let tmpOrbitDbDir: string
 let tmpIpfsPath: string
 let storage: StorageType
-let Storage
+let Storage: typeof StorageType
 let store: Store
 let factory: FactoryGirl
 let community: Community
-let channel: PublicChannelStorage
+let channel: PublicChannel
 let alice: Identity
 let john: Identity
 let message: ChannelMessage
-let channelio: PublicChannelStorage
+let channelio: PublicChannel
 let filePath: string
-let utils
+let utils: ComonUtilsModuleType
 
 jest.setTimeout(50000)
 
@@ -71,30 +61,30 @@ beforeAll(async () => {
   store = prepareStore().store
   factory = await getFactory(store)
 
-  community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
-  >('Community')
+  community = await factory.create<Community>('Community')
 
   channel = publicChannels.selectors.publicChannels(store.getState())[0]
 
   channelio = {
-    ...channel
+    name: channel.name,
+    description: channel.description,
+    owner: channel.owner,
+    timestamp: channel.timestamp,
+    address: channel.address
   }
 
-  delete channelio.messages
-
-  alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+  alice = await factory.create<Identity>(
     'Identity',
     { id: community.id, nickname: 'alice' }
   )
 
-  john = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+  john = await factory.create<Identity>(
     'Identity',
     { id: community.id, nickname: 'john' }
   )
 
   message = (
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+    await factory.create<TestMessage>(
       'Message',
       {
         identity: alice
@@ -111,7 +101,7 @@ beforeEach(async () => {
   tmpIpfsPath = path.join(tmpAppDataPath, Config.IPFS_REPO_PATH)
   Storage = (await import('./storage')).Storage
   utils = await import('../common/utils')
-  storage = null
+  storage = new Storage(tmpAppDataPath, 'communityId')
   filePath = path.join(
   dirname, '/testUtils/500kB-file.txt')
 })
@@ -193,7 +183,8 @@ describe('Certificate', () => {
     const userCertificate = await createUserCert(
       rootPermsData.certificate,
       rootPermsData.privKey,
-      alice.userCsr.userCsr,
+      // @ts-expect-error userCsr can be undefined
+      alice.userCsr?.userCsr,
       new Date(),
       new Date(2030, 1, 1)
     )
@@ -216,7 +207,8 @@ describe('Certificate', () => {
     const oldUserCertificate = await createUserCert(
       rootPermsData.certificate,
       rootPermsData.privKey,
-      alice.userCsr.userCsr,
+      // @ts-expect-error userCsr can be undefined
+      alice.userCsr?.userCsr,
       new Date(2021, 1, 1),
       new Date(2021, 1, 2)
     )
@@ -246,13 +238,21 @@ describe('Certificate', () => {
     await storage.initDatabases()
 
     for (const empty of [null, '', undefined]) {
+      // @ts-expect-error
       const result = await storage.saveCertificate({ certificate: empty, rootPermsData })
       expect(result).toBe(false)
     }
   })
 
   it('username check fails if username is already in use', async () => {
-    const userCertificate = await createUserCert(rootPermsData.certificate, rootPermsData.privKey, alice.userCsr.userCsr, new Date(), new Date(2030, 1, 1))
+    const userCertificate = await createUserCert(
+      rootPermsData.certificate,
+      rootPermsData.privKey,
+      // @ts-expect-error userCsr can be undefined
+      alice.userCsr?.userCsr,
+      new Date(),
+      new Date(2030, 1, 1)
+    )
 
     storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
 
@@ -308,8 +308,7 @@ describe('Certificate', () => {
     expect(spyOnUpdatePeersList).toBeCalled()
   })
 
-  it.each(['write, replicate.progress'])('The message is verified valid on "%s" db event', async () => {
-    const eventName = 'write'
+  it.each(['write', 'replicate.progress'])('The message is verified valid on "%s" db event', async (eventName: string) => {
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
@@ -327,8 +326,10 @@ describe('Certificate', () => {
     await storage.subscribeToChannel(channelio)
 
     const eventSpy = jest.spyOn(storage, 'emit')
-
-    const db = storage.publicChannelsRepos.get(message.channelAddress).db
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    expect(publicChannelRepo).not.toBeUndefined()
+    // @ts-expect-error
+    const db = publicChannelRepo.db
     const messagePayload = {
       payload: {
         value: aliceMessage.message
@@ -339,7 +340,6 @@ describe('Certificate', () => {
       case 'write':
         db.events.emit(eventName, 'address', messagePayload, [])
         break
-      // @ts-ignore
       case 'replicate.progress':
         db.events.emit(eventName, 'address', 'hash', messagePayload, 'progress', 'total', [])
         break
@@ -382,8 +382,10 @@ describe('Certificate', () => {
     await storage.subscribeToChannel(channelio)
 
     const spyOnEmit = jest.spyOn(storage, 'emit')
-
-    const db = storage.publicChannelsRepos.get(message.channelAddress).db
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    expect(publicChannelRepo).not.toBeUndefined()
+    // @ts-expect-error
+    const db = publicChannelRepo.db
     const messagePayload = {
       payload: {
         value: aliceMessageWithJohnsPublicKey
@@ -441,7 +443,10 @@ describe('Message access controller', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const db = storage.publicChannelsRepos.get(message.channelAddress).db
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    expect(publicChannelRepo).not.toBeUndefined()
+    // @ts-expect-error
+    const db = publicChannelRepo.db
     const eventSpy = jest.spyOn(db, 'add')
 
     const messageCopy = {
@@ -465,12 +470,13 @@ describe('Message access controller', () => {
     >('Message', {
       identity: alice
     })
-
-    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
+    // @ts-expect-error userCertificate can be undefined
+    const johnCertificate: string = john.userCertificate
+    const johnPublicKey = keyFromCertificate(parseCertificate(johnCertificate))
 
     const spoofedMessage = {
       ...aliceMessage.message,
-      channelAddress: channel.address,
+      channelAddress: channelio.address,
       pubKey: johnPublicKey
     }
     delete spoofedMessage.media // Media 'undefined' is not accepted by db.add
@@ -486,14 +492,17 @@ describe('Message access controller', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const db = storage.publicChannelsRepos.get(spoofedMessage.channelAddress).db
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    expect(publicChannelRepo).not.toBeUndefined()
+    // @ts-expect-error
+    const db = publicChannelRepo.db
     const eventSpy = jest.spyOn(db, 'add')
 
     await storage.sendMessage(spoofedMessage)
 
     // Confirm message has passed orbitdb validator (check signature verification only)
     expect(eventSpy).toHaveBeenCalled()
-    // @ts-expect-error
+    // @ts-expect-error getAllEventLogEntries is protected
     expect(storage.getAllEventLogEntries(db).length).toBe(0)
   })
 })

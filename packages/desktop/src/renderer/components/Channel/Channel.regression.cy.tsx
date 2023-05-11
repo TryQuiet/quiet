@@ -111,4 +111,19 @@ describe('Scroll behavior test', () => {
       .type('you underestimate the power of the force')
       .should('have.text', 'luke where are you?you underestimate the power of the force')
   })
+
+  it('Check words wrapping in message input', () => {
+    const longWord = () => {
+      let word: string = 'm'
+      while (word.length < 150) {
+        word = `${word}m`
+      }
+      return word
+    }
+    cy.get(messageInput)
+      .focus()
+      .type(longWord())
+
+    cy.get(messageInput).compareSnapshot('message input words wrapping')
+  })
 })

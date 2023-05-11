@@ -71,6 +71,8 @@ const Root = styled('div')((
 
 export const fetchingChannelMessagesText = 'Fetching channel messages...'
 
+export const deletingChannelMessage = 'Deleting channel...'
+
 export interface IChannelMessagesProps {
   messages?: MessagesDailyGroups
   pendingMessages?: Dictionary<MessageSendingStatus>
@@ -84,6 +86,7 @@ export interface IChannelMessagesProps {
   }>['types']
   >
   onMathMessageRendered?: () => void
+  pendingGeneralChannelRecreation?: boolean
 }
 
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActionsProps> = ({
@@ -97,8 +100,10 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
   openContainingFolder,
   downloadFile,
   cancelDownload,
-  onMathMessageRendered
+  onMathMessageRendered,
+  pendingGeneralChannelRecreation = false
 }) => {
+  const spinnerMessage = pendingGeneralChannelRecreation ? deletingChannelMessage : fetchingChannelMessagesText
   const listRef = useRef<HTMLUListElement>()
 
   const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(
@@ -137,7 +142,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
       {Object.values(messages).length < 1 && (
         <SpinnerLoader
           size={40}
-          message={fetchingChannelMessagesText}
+          message={spinnerMessage}
           className={classes.spinner}
           color={'black'}
         />
