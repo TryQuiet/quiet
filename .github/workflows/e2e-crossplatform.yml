@@ -84,13 +84,13 @@ jobs:
         working-directory: ./packages/desktop/dist
         shell: powershell
 
-      - name: Run smoke test
+      - name: Run one client test
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 25
+          timeout_minutes: 15
           max_attempts: 3
           shell: bash
-          command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+          command: cd packages/e2e-tests && npm run test oneClient.test.ts
   
       # Will be fixed in next tasks 
       # - name: Run newUser test - Includes 2 separate application clients
