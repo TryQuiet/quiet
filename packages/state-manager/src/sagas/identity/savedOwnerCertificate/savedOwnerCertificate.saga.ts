@@ -19,6 +19,7 @@ export function* savedOwnerCertificateSaga(
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))
+  if (!identity?.userCertificate || !identity?.userCsr || !community?.rootCa) return
 
   const payload: InitCommunityPayload = {
     id: communityId,

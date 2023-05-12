@@ -1,5 +1,4 @@
 import { select, put } from 'typed-redux-saga'
-import { communitiesSelectors } from '../../communities/communities.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { CacheMessagesPayload } from '../../publicChannels/publicChannels.types'
@@ -8,8 +7,8 @@ import { messagesActions } from '../messages.slice'
 import { SetDisplayedMessagesNumberPayload } from '../messages.types'
 
 export function* extendCurrentPublicChannelCacheSaga(): Generator {
-  const communityId = yield* select(communitiesSelectors.currentCommunityId)
   const channelAddress = yield* select(publicChannelsSelectors.currentChannelAddress)
+  if (!channelAddress) return
 
   const channelMessagesChunkSize = 50
 
@@ -35,7 +34,7 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
   yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))
 
   const channelMessagesBase = yield* select(messagesSelectors.currentPublicChannelMessagesBase)
-  let display = channelMessagesBase.display + channelMessagesChunkSize
+  let display = channelMessagesBase?.display || 0 + channelMessagesChunkSize
   if (display > channelMessagesEntries.length) {
     display = channelMessagesEntries.length
   }

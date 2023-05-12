@@ -71,7 +71,9 @@ export const publicChannelsSlice = createSlice({
     },
     clearMessagesCache: (state, action: PayloadAction<ClearMessagesCachePayload>) => {
       const { channelAddress } = action.payload
-      channelMessagesAdapter.setAll(state.channels.entities[channelAddress].messages, [])
+      const channel = state.channels.entities[channelAddress]
+      if (!channel) return
+      channelMessagesAdapter.setAll(channel.messages, [])
     },
     startGeneralRecreation: state => {
       state.pendingGeneralChannelRecreation = true
@@ -109,7 +111,9 @@ export const publicChannelsSlice = createSlice({
     },
     cacheMessages: (state, action: PayloadAction<CacheMessagesPayload>) => {
       const { messages, channelAddress } = action.payload
-      channelMessagesAdapter.setAll(state.channels.entities[channelAddress].messages, messages)
+      const channel = state.channels.entities[channelAddress]
+      if (!channel) return
+      channelMessagesAdapter.setAll(channel.messages, messages)
     },
 
     markUnreadChannel: (state, action: PayloadAction<MarkUnreadChannelPayload>) => {
@@ -149,8 +153,10 @@ export const publicChannelsSlice = createSlice({
       }>
     ) => {
       const { message } = action.payload
+      const channel = state.channels.entities[message.channelAddress]
+      if (!channel) return
       channelMessagesAdapter.addOne(
-        state.channels.entities[message.channelAddress].messages,
+        channel.messages,
         message
       )
     }

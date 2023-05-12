@@ -158,7 +158,7 @@ export function subscribe(socket: Socket) {
 
     // Community
     socket.on(SocketActionTypes.NEW_COMMUNITY, (_payload: ResponseCreateCommunityPayload) => {
-      emit(identityActions.saveOwnerCertToDb())
+      emit(identityActions.saveOwnerCertToDb()) // ?
       emit(publicChannelsActions.createGeneralChannel())
     })
     socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {

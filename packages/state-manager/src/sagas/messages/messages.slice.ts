@@ -10,7 +10,6 @@ import {
 import {
   MessageVerificationStatus,
   MessageSendingStatus,
-  PublicKeyMappingPayload,
   WriteMessagePayload,
   PublicChannelsMessagesBase,
   AddPublicChannelsMessagesBasePayload,
@@ -70,15 +69,6 @@ export const messagesSlice = createSlice({
       const id = action.payload
       messageVerificationStatusAdapter.removeOne(state.messageVerificationStatus, id)
     },
-    removePublicChannelMessage: (state, action: PayloadAction<{id: string; address: string}>) => {
-      const { id, address } = action.payload
-
-      channelMessagesAdapter.removeOne(
-        state.publicChannelsMessagesBase.entities[address].messages,
-        id
-      )
-      messageVerificationStatusAdapter.removeOne(state.messageVerificationStatus, id)
-    },
     incomingMessages: (state, action: PayloadAction<IncomingMessages>) => {
       const { messages } = action.payload
       for (const message of messages) {
@@ -92,7 +82,7 @@ export const messagesSlice = createSlice({
           ?.messages
           .entities[message.id]
 
-        if (message.media && draft?.media.path) {
+        if (message.media && draft?.media?.path) {
           incoming = {
             ...message,
             media: {
@@ -102,8 +92,11 @@ export const messagesSlice = createSlice({
           }
         }
 
+        const messagesBase = state.publicChannelsMessagesBase.entities[message.channelAddress]
+        if (!messagesBase) return
+
         channelMessagesAdapter.upsertOne(
-          state.publicChannelsMessagesBase.entities[message.channelAddress].messages,
+          messagesBase.messages,
           incoming
         )
       }

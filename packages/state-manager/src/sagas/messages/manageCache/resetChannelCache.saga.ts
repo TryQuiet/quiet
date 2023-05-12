@@ -8,6 +8,7 @@ import { SetDisplayedMessagesNumberPayload } from '../messages.types'
 
 export function* resetCurrentPublicChannelCacheSaga(): Generator {
   const channelAddress = yield* select(publicChannelsSelectors.currentChannelAddress)
+  if (!channelAddress) return
 
   const channelMessagesChunkSize = 50
 

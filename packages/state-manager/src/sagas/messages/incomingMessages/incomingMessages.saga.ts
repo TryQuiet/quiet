@@ -39,7 +39,7 @@ export function* incomingMessagesSaga(
       )
       const messageDraft = currentPublicChannelEntities[incomingMessage.id]
 
-      if (messageDraft?.media.path) {
+      if (messageDraft?.media?.path) {
         message = {
           ...incomingMessage,
           media: {

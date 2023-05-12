@@ -17,6 +17,7 @@ export function* uploadFileSaga(
   const identity = yield* select(identitySelectors.currentIdentity)
 
   const currentChannel = yield* select(publicChannelsSelectors.currentChannelAddress)
+  if (!identity || !currentChannel) return
 
   const id = yield* call(generateMessageId)
 

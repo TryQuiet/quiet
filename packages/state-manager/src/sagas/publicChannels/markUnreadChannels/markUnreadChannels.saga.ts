@@ -26,9 +26,11 @@ export function* markUnreadChannelsSaga(
       const joinTimestamp = yield* select(identitySelectors.joinTimestamp)
 
       // For all messages created before user joined don't show notifications
-      if (joinTimestamp > message.createdAt * 1000) continue
+      if (!joinTimestamp || joinTimestamp > message.createdAt * 1000) continue
       // If there are newer messages in the channel, don't show notification
-      if (statuses[message.channelAddress]?.newestMessage?.createdAt > message.createdAt) continue
+      const newestMessage = statuses[message.channelAddress]?.newestMessage
+      if (!newestMessage) continue
+      if (newestMessage.createdAt > message.createdAt) continue
 
       yield* put(
         publicChannelsActions.markUnreadChannel(payload)

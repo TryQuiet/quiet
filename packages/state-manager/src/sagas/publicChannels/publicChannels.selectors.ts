@@ -47,6 +47,10 @@ export const subscribedChannels = createSelector(
 // Serves for testing purposes only
 export const selectGeneralChannel = createSelector(selectChannels, channels => {
   const draft = channels.find(item => item.address === 'general')
+  if (!draft) {
+    console.error('No general channel')
+    return
+  }
   const channel: PublicChannel = {
     name: draft.name,
     description: draft.description,
@@ -177,7 +181,7 @@ export const displayableCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
   certificatesMapping,
   (messages, certificates) => {
-    return messages.reduce((result, message) => {
+    return messages.reduce((result: DisplayableMessage[], message) => {
       const user = certificates[message.pubKey]
       if (user) {
         result.push(displayableMessage(message, user.username))
@@ -197,7 +201,8 @@ export const currentChannelMessagesCount = createSelector(
 export const dailyGroupedCurrentChannelMessages = createSelector(
   displayableCurrentChannelMessages,
   messages => {
-    const result: { [date: string]: DisplayableMessage[] } = messages.reduce((groups, message) => {
+    type MessagesGroupsType = {[date: string]: DisplayableMessage[]}
+    const result: MessagesGroupsType = messages.reduce((groups: MessagesGroupsType, message: DisplayableMessage) => {
       const date = formatMessageDisplayDay(message.date)
 
       if (!groups[date]) {
@@ -217,12 +222,13 @@ export const currentChannelMessagesMergedBySender = createSelector(
   groups => {
     const result: MessagesDailyGroups = {}
     for (const day in groups) {
-      result[day] = groups[day].reduce((merged, message) => {
+      result[day] = groups[day].reduce((merged: DisplayableMessage[][], message: DisplayableMessage) => {
         // Get last item from collected array for comparison
-        const last = merged.length && merged[merged.length - 1][0]
+        const index = merged.length && merged.length - 1
+        const last = merged[index][0] // TODO: check
 
         if (last.nickname === message.nickname && message.createdAt - last.createdAt < 300 && message.type !== MessageType.Info && last.type !== MessageType.Info) {
-          merged[merged.length - 1].push(message)
+          merged[index].push(message)
         } else {
           merged.push([message])
         }

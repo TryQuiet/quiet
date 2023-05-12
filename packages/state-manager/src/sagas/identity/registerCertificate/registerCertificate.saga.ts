@@ -11,6 +11,10 @@ export function* registerCertificateSaga(
   action: PayloadAction<ReturnType<typeof identityActions.registerCertificate>['payload']>
 ): Generator {
   const currentCommunity = yield* select(communitiesSelectors.currentCommunity)
+  if (!currentCommunity?.registrarUrl) {
+    console.error('Could not register certificate, Community lacking data')
+    return
+  }
 
   if (currentCommunity.CA?.rootCertString) {
     const payload: RegisterOwnerCertificatePayload = {
@@ -31,7 +35,7 @@ export function* registerCertificateSaga(
     const payload: RegisterUserCertificatePayload = {
       communityId: action.payload.communityId,
       userCsr: action.payload.userCsr.userCsr,
-      serviceAddress: currentCommunity.registrarUrl
+      serviceAddress: currentCommunity.registrarUrl 
     }
 
     yield* apply(

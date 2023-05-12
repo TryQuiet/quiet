@@ -17,7 +17,8 @@ export function* sendMessageSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
-  const identity: Identity = yield* select(identitySelectors.currentIdentity)
+  const identity = yield* select(identitySelectors.currentIdentity)
+  if (!identity?.userCsr) return
 
   const certificate = identity.userCertificate
 
@@ -36,6 +37,10 @@ export function* sendMessageSaga(
   const id = action.payload.id || generatedMessageId
 
   const channelAddress = action.payload.channelAddress || currentChannel
+  if (!channelAddress) {
+    console.error(`Could not send message with id ${id}, no channel address`)
+    return
+  }
 
   const message: ChannelMessage = {
     id: id,

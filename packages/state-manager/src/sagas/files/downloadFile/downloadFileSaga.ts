@@ -11,6 +11,7 @@ export function* downloadFileSaga(
   action: PayloadAction<ReturnType<typeof filesActions.downloadFile>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
+  if (!identity) return
 
   const media = action.payload
 
