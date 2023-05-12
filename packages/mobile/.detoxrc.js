@@ -21,7 +21,7 @@ module.exports = {
     'android.release': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/standard/release/app-standard-release.apk',
-      build: 'cd android && ENVFILE=../.env.release ./gradlew assembleStandardRelease assembleStandardReleaseAndroidTest -DtestBuildType=release'
+      build: 'cd android && ENVFILE=../.env.production ./gradlew assembleStandardRelease assembleStandardReleaseAndroidTest -DtestBuildType=release'
     }
   },
   devices: {
