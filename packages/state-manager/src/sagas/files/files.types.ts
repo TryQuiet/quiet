@@ -1,3 +1,6 @@
+import { Dictionary } from '@reduxjs/toolkit'
+import { ChannelMessage } from '../publicChannels/publicChannels.types'
+
 export interface FileContent {
   path: string
   name: string
@@ -52,6 +55,13 @@ export interface DownloadProgress {
   size?: number
   downloaded: number
   transferSpeed: number
+}
+
+export interface DeleteFilesFromChannelPayload {
+  channelAddress: string
+}
+export interface DeleteFilesFromChannelSocketPayload {
+  messages: Dictionary<ChannelMessage>
 }
 
 export enum DownloadState {

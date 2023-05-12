@@ -3,6 +3,7 @@ import { DefaultEventsMap } from 'socket.io-client/build/typed-events'
 import { InitCommunityPayload, LaunchRegistrarPayload } from './sagas/communities/communities.types'
 import {
   CancelDownloadPayload,
+  DeleteFilesFromChannelSocketPayload,
   DownloadFilePayload,
   UploadFilePayload
 } from './sagas/files/files.types'
@@ -38,6 +39,8 @@ export interface EmitEvents {
   [SocketActionTypes.DELETE_CHANNEL]: EmitEvent<
     ReturnType<typeof publicChannelsActions.deleteChannel>['payload']
   >
+
+  [SocketActionTypes.DELETE_FILES_FROM_CHANNEL]: EmitEvent<DeleteFilesFromChannelSocketPayload>
   [SocketActionTypes.CLOSE]: () => void
 }
 

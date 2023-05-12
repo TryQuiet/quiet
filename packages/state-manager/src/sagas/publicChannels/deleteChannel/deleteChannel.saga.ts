@@ -3,8 +3,9 @@ import { publicChannelsActions } from '../publicChannels.slice'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { apply, put } from 'typed-redux-saga'
 import { Socket, applyEmitParams } from '../../../types'
-
 import logger from '../../../utils/logger'
+import { filesActions } from '../../files/files.slice'
+
 const log = logger('publicChannels')
 
 export function* deleteChannelSaga(
@@ -22,6 +23,8 @@ export function* deleteChannelSaga(
       channel: channelAddress
     })
   )
+
+  yield* put(filesActions.deleteFilesFromChannel({ channelAddress }))
 
   if (!isGeneral) {
     yield* put(publicChannelsActions.setCurrentChannel({ channelAddress: 'general' }))

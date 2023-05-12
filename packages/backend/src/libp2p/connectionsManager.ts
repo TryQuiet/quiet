@@ -618,6 +618,46 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload: any) => {
       await this.storage?.deleteChannel(payload)
     })
+
+    this.dataServer.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: any) => { // messages
+      log('DELETE_FILES_FROM_CHANNEL', payload)
+      const messages = payload.messages
+      log('messages', messages)
+      Object.keys(messages).map(key => {
+        const message = messages[key]
+        log('message', message)
+        if (message?.media?.path) {
+          const mediaPath = message.media.path
+          log('mediaPath', mediaPath)
+
+          fs.unlink(mediaPath, err => {
+            if (err) throw err
+          })
+        }
+      })
+
+      // await this.deleteFilesFromChannel(payload)
+      // this.checkXD()
+    })
+  }
+
+  public checkXD() {
+    log('checkXD el0000000000000000000000000000000000o')
+  }
+
+  private async deleteFilesFromChannel(messages: any) {
+    Object.keys(messages).map(key => {
+      const message = messages[key]
+      log('message', message)
+      if (message?.media?.path) {
+        const mediaPath = message.media.path
+        log('mediaPath', mediaPath)
+
+        fs.unlink(mediaPath, err => {
+          if (err) throw err
+        })
+      }
+    })
   }
 
   private attachStorageListeners = () => {
