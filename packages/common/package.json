@@ -1,6 +1,6 @@
 {
   "name": "@quiet/common",
-  "version": "1.2.1-alpha.2",
+  "version": "1.2.1-alpha.3",
   "description": "Common monorepo utils",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -34,6 +34,7 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
+    "@quiet/types": "^1.2.1-alpha.0",
     "cross-env": "^5.2.0",
     "debug": "^4.3.1"
   },

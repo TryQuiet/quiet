@@ -1,16 +1,24 @@
 {
-    "extends": "../../tsconfig.build.json",
-    "compilerOptions": {
-      "outDir": "./lib",
-      "declaration": false,
-      "typeRoots": [
-        "../@types",
-        "./node_modules/@types"
-      ],
-    },
-    "exclude": [
-      "node_modules",
-      "**/__tests__/*"
-    ]
-  }
-  
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ES2022",
+    "strict": true,
+    "useUnknownInCatchVariables": false,
+    "strictPropertyInitialization": false,
+    "rootDir": "./src",
+    "outDir": "./lib",
+    "typeRoots": [
+      "../@types",
+      "./node_modules/@types"
+    ],
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/__tests__/*",
+    "src/**/*.test.ts"
+  ]
+}

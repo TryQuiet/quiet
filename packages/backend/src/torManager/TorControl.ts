@@ -2,11 +2,18 @@ import net from 'net'
 import logger from '../logger'
 const log = logger('torControl')
 
+export enum TorControlAuthType {
+  COOKIE = 'cookie',
+  PASSWORD = 'password'
+}
+
 interface IOpts {
   port: number
   host: string
-  password: string
-  cookie: string
+  auth: {
+    type: TorControlAuthType
+    value: string
+  }
 }
 
 interface IParams {
@@ -15,9 +22,8 @@ interface IParams {
 }
 
 export class TorControl {
-  connection: net.Socket
-  password: string
-  cookie: string
+  connection: net.Socket | null
+  authString: string
   params: IParams
 
   constructor(opts: IOpts) {
@@ -25,8 +31,13 @@ export class TorControl {
       port: opts.port,
       family: 4
     }
-    this.password = opts.password
-    this.cookie = opts.cookie
+    if (opts.auth.type === TorControlAuthType.PASSWORD) {
+      this.authString = 'AUTHENTICATE "' + opts.auth.value + '"\r\n'
+    }
+    if (opts.auth.type === TorControlAuthType.COOKIE) {
+      // Cookie authentication must be invoked as a hexadecimal string passed without double quotes
+      this.authString = 'AUTHENTICATE ' + opts.auth.value + '\r\n'
+    }
   }
 
   private async connect(): Promise<void> {
@@ -47,20 +58,13 @@ export class TorControl {
           reject(new Error(`TOR: Control port error: ${data.toString() as string}`))
         }
       })
-      if (this.password) {
-        this.connection.write('AUTHENTICATE "' + this.password + '"\r\n')
-      } else if (this.cookie) {
-        // Cookie authentication must be invoked as a hexadecimal string passed without double quotes
-        this.connection.write('AUTHENTICATE ' + this.cookie + '\r\n')
-      } else {
-        throw new Error('you must provide either tor password or tor cookie')
-      }
+      this.connection.write(this.authString)
     })
   }
 
   private async disconnect() {
     try {
-      this.connection.end()
+      this.connection?.end()
     } catch (e) {
       log.error('Cant disconnect', e.message)
     }
@@ -72,8 +76,7 @@ export class TorControl {
     const connectionTimeout = setTimeout(() => {
       reject('TOR: Send command timeout')
     }, 5000)
-    // eslint-disable-next-line
-    this.connection.on('data', async data => {
+    this.connection?.on('data', async data => {
       await this.disconnect()
       const dataArray = data.toString().split(/\r?\n/)
       if (dataArray[0].startsWith('250')) {
@@ -84,13 +87,12 @@ export class TorControl {
       }
       clearTimeout(connectionTimeout)
     })
-    this.connection.write(command + '\r\n')
+    this.connection?.write(command + '\r\n')
   }
 
   public async sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
     return await new Promise((resolve, reject) => {
-      // eslint-disable-next-line
-      this._sendCommand(command, resolve, reject)
+      void this._sendCommand(command, resolve, reject)
     })
   }
 }

@@ -17,8 +17,6 @@ export function* channelDeletionResponseSaga(
 
   if (isGeneral) {
     yield* put(publicChannelsActions.startGeneralRecreation())
-  } else {
-    yield* put(publicChannelsActions.setCurrentChannel({ channelAddress: 'general' }))
   }
 
   yield* put(publicChannelsActions.clearMessagesCache({ channelAddress }))

@@ -1,5 +1,5 @@
 import EventStore from 'orbit-db-eventstore'
-import { ChannelMessage, PublicChannel } from '@quiet/state-manager'
+import { ChannelMessage, PublicChannel } from '@quiet/types'
 
 export interface PublicChannelsRepo {
   db: EventStore<ChannelMessage>

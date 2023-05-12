@@ -1,3 +1,4 @@
+// @ts-nocheck
 import fs from 'fs'
 import Log from 'ipfs-log'
 // import { CID } from 'multiformats/cid'
@@ -51,8 +52,8 @@ export class StorageTestSnapshot extends Storage {
       ...new StorageTestSnapshotOptions(),
       ...options
     }
-    this.useSnapshot = options.useSnapshot || process.env.USE_SNAPSHOT === 'true' // Actually use snapshot mechanizm
-    this.messagesCount = options.messagesCount // Quantity of messages that will be added to db
+    this.useSnapshot = options?.useSnapshot || process.env.USE_SNAPSHOT === 'true' // Actually use snapshot mechanizm
+    this.messagesCount = options?.messagesCount || 0 // Quantity of messages that will be added to db
     this.msgReplCount = 0
     this.snapshotSaved = false
     this.name = (Math.random() + 1).toString(36).substring(7)
@@ -72,7 +73,7 @@ export class StorageTestSnapshot extends Storage {
     log(`Initialized '${this.name}'`)
   }
 
-  public setName(name) {
+  public setName(name: string) {
     this.name = name
   }
 
@@ -167,7 +168,7 @@ export class StorageTestSnapshot extends Storage {
   private async addMessages() {
     // Generate and add "messages" to db
     log(`Adding ${this.messagesCount} messages`)
-    const range = n => Array.from(Array(n).keys())
+    const range = (n: number) => Array.from(Array(n).keys())
     const messages = range(this.messagesCount).map(nr => `message_${nr.toString()}`)
     await Promise.all(messages.map(async msg => await this.messages.add(msg)))
 
@@ -200,7 +201,7 @@ export class StorageTestSnapshot extends Storage {
     this.snapshotSaved = true
   }
 
-  async saveSnapshotInfoToDb(queuePath, snapshotPath, snapshot, unfinished) {
+  async saveSnapshotInfoToDb(queuePath: string, snapshotPath: string, snapshot: any, unfinished: any[]) {
     log('Saving snapshot info to DB')
     await this.snapshotInfoDb.add({
       queuePath,
@@ -282,7 +283,7 @@ export class StorageTestSnapshot extends Storage {
 
     db.events.emit('load', db.address.toString()) // TODO emits inconsistent params, missing heads param
 
-    const maxClock = (res, val) => Math.max(res, val.clock.time)
+    const maxClock = (res: number, val: any) => Math.max(res, val.clock.time)
 
     const queue = await db._cache.get(db.queuePath)
     db.sync(queue || [])
@@ -290,7 +291,7 @@ export class StorageTestSnapshot extends Storage {
     const snapshot = await db._cache.get(db.snapshotPath)
 
     if (snapshot) {
-      const chunks = []
+      const chunks: Uint8Array[] = []
       for await (const chunk of db._ipfs.cat(snapshot.hash)) {
         chunks.push(chunk)
       }
@@ -298,6 +299,7 @@ export class StorageTestSnapshot extends Storage {
       const snapshotData = JSON.parse(buffer.toString())
       // fs.writeFileSync(`loadedSnapshotData${new Date().toISOString()}.json`, buffer.toString()) // Saving snapshot to investigate it later
 
+      // @ts-expect-error
       const onProgress = (hash, entry, count, _total) => {
         db._recalculateReplicationStatus(count, entry.clock.time)
         db._onLoadProgress(hash, entry)
