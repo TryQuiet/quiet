@@ -22,15 +22,7 @@ describe('createNetwork', () => {
       id: '1',
       name: undefined,
       registrarUrl: 'http://registrarUrl.onion',
-      CA: null,
-      rootCa: undefined,
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0,
-      registrationAttempts: 0,
-      ownerCertificate: ''
+      CA: null
     }
 
     const reducer = combineReducers(reducers)
@@ -64,16 +56,9 @@ describe('createNetwork', () => {
     const community: Community = {
       id: '1',
       name: 'rockets',
-      registrarUrl: null,
+      registrarUrl: undefined,
       CA: CA,
-      rootCa: CA.rootCertString,
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0,
-      registrationAttempts: 0,
-      ownerCertificate: ''
+      rootCa: CA.rootCertString
     }
 
     const reducer = combineReducers(reducers)

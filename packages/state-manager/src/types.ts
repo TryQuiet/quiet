@@ -15,6 +15,7 @@ import { messagesActions } from './sagas/messages/messages.slice'
 import { SendMessagePayload } from './sagas/messages/messages.types'
 import { publicChannelsActions } from './sagas/publicChannels/publicChannels.slice'
 import { SocketActionTypes } from './sagas/socket/const/actionTypes'
+import { Community } from './sagas/communities/communities.slice'
 
 type EmitEvent<Payload> = (payload: Payload) => void
 
@@ -38,7 +39,9 @@ export interface EmitEvents {
   [SocketActionTypes.DELETE_CHANNEL]: EmitEvent<
     ReturnType<typeof publicChannelsActions.deleteChannel>['payload']
   >
-  [SocketActionTypes.CLOSE]: () => void
+  [SocketActionTypes.CLOSE]: () => void,
+  [SocketActionTypes.LEAVE_COMMUNITY]: () => void,
+  [SocketActionTypes.CREATE_NETWORK]: EmitEvent<Community>
 }
 
 export type Socket = IOSocket<DefaultEventsMap, EmitEvents>

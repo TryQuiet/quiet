@@ -6,6 +6,8 @@ import { communitiesSelectors } from '../communities/communities.selectors'
 import { peersStatsAdapter } from './connection.adapter'
 import { connectedPeers } from '../network/network.selectors'
 import { sortPeers } from '../../utils/functions/sortPeers/sortPeers'
+import { NetworkStats } from './connection.types'
+import { User } from '../users/users.types'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) =>
   state[StoreKeys.Connection]
@@ -29,9 +31,10 @@ export const peerList = createSelector(
   connectionSlice,
   communitiesSelectors.currentCommunity,
   (reducerState, community) => {
-    const arr = [...community.peerList]
+    if (!community) return []
+    const arr = [...community.peerList || []]
 
-    let stats
+    let stats: NetworkStats[]
     if (reducerState.peersStats === undefined) {
       stats = []
     } else {
@@ -47,8 +50,7 @@ export const connectedPeersMapping = createSelector(
   connectedPeers,
   (certificates, peers) => {
     const usersData = Object.values(certificates)
-
-    return peers.reduce((peersMapping, peerId) => {
+    return peers.reduce((peersMapping: {[peerId: string]: User}, peerId: string) => {
       for (const user of usersData) {
         if (peerId === user.peerId) {
           return {
@@ -56,7 +58,9 @@ export const connectedPeersMapping = createSelector(
             [peerId]: user
           }
         }
+        return {}
       }
+      return {}
     }, {})
   }
 )

@@ -1,7 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es2017",
+    "target": "ES2020",
+    "module": "ES2022",
+    "strict": true,
+    "useUnknownInCatchVariables": false,
+    "strictPropertyInitialization": false,
     "outDir": "./lib",
     "typeRoots": [
       "../@types",

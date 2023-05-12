@@ -12,30 +12,30 @@ import {
 } from './communities.types'
 
 export class CommunitiesState {
-  public invitationCode: string = undefined
+  public invitationCode: string | undefined = undefined
   public currentCommunity: string = ''
   public communities: EntityState<Community> = communitiesAdapter.getInitialState()
 }
 
 export interface Community {
   id: string
-  name: string
-  CA: null | {
+  name?: string
+  CA?: null | {
     rootCertString: string
     rootKeyString: string
   }
-  rootCa: string
-  peerList: string[]
-  registrarUrl: string
-  registrar: null | {
+  rootCa?: string
+  peerList?: string[]
+  registrarUrl?: string
+  registrar?: null | {
     privateKey: string
     address: string
   }
-  onionAddress: string
-  privateKey: string
-  port: number
-  registrationAttempts: number
-  ownerCertificate: string
+  onionAddress?: string
+  privateKey?: string
+  port?: number
+  registrationAttempts?: number
+  ownerCertificate?: string
 }
 
 export const communitiesSlice = createSlice({
@@ -49,7 +49,7 @@ export const communitiesSlice = createSlice({
       communitiesAdapter.addOne(state.communities, action.payload)
     },
     updateCommunity: (state, _action: PayloadAction<UpdateCommunityPayload>) => state,
-    updateCommunityData: (state, action: PayloadAction<Partial<Community>>) => {
+    updateCommunityData: (state, action: PayloadAction<Community>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
         changes: {

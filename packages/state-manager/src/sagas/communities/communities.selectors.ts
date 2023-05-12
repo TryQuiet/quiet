@@ -60,7 +60,7 @@ export const invitationCode = createSelector(communitiesSlice, reducerState => {
 })
 
 export const invitationUrl = createSelector(currentCommunity, community => {
-  if (!community) return ''
+  if (!community || !community?.registrarUrl) return ''
   let registrarUrl = ''
   try {
     const url = new URL(community.registrarUrl)
@@ -74,8 +74,8 @@ export const invitationUrl = createSelector(currentCommunity, community => {
 export const registrationAttempts = (communityId: string) =>
   createSelector(selectEntities, communities => {
     const community = communities[communityId]
-    if (!community) return null
-    return community.registrationAttempts
+    if (!community) return 0
+    return community.registrationAttempts || 0
   })
 
 export const ownerNickname = createSelector(
@@ -84,7 +84,7 @@ export const ownerNickname = createSelector(
   (community, oldestParsedCerificate) => {
     const ownerCertificate = community?.ownerCertificate || undefined
 
-    let nickname: string
+    let nickname: string | null
 
     if (ownerCertificate) {
       const certificate = ownerCertificate
@@ -92,6 +92,10 @@ export const ownerNickname = createSelector(
       nickname = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
     } else {
       nickname = getCertFieldValue(oldestParsedCerificate, CertFieldsTypes.nickName)
+    }
+
+    if (!nickname) {
+      console.error('Could not retrieve owner nickname from certificate')
     }
 
     return nickname

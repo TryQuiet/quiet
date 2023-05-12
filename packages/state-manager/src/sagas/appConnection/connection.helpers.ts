@@ -1,6 +1,6 @@
 import { TOR_BOOTSTRAP_COMPLETE } from './connection.types'
 
-export function resetStateAndSaveTorConnectionData(state) {
+export function resetStateAndSaveTorConnectionData() {
   const torBootstrapProcess = TOR_BOOTSTRAP_COMPLETE
 
   const torConnectionProcess = {

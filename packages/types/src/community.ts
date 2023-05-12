@@ -2,23 +2,23 @@ import { HiddenService, PeerId, Identity } from './identity'
 
 export interface Community {
   id: string
-  name: string
-  CA: null | {
+  name?: string
+  CA?: null | {
     rootCertString: string
     rootKeyString: string
   }
-  rootCa: string
-  peerList: string[]
-  registrarUrl: string
-  registrar: null | {
+  rootCa?: string
+  peerList?: string[]
+  registrarUrl?: string
+  registrar?: null | {
     privateKey: string
     address: string
   }
-  onionAddress: string
-  privateKey: string
-  port: number
-  registrationAttempts: number
-  ownerCertificate: string
+  onionAddress?: string
+  privateKey?: string
+  port?: number
+  registrationAttempts?: number
+  ownerCertificate?: string
 }
 
 export enum CommunityOwnership {

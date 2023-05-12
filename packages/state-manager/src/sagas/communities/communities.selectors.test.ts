@@ -134,6 +134,7 @@ describe('communitiesSelectors', () => {
 
   it('returns proper ownerNickname - ownerCertificate exist', async () => {
     const { store } = prepareStore()
+    expect(identity.userCertificate).not.toBeUndefined()
     store.dispatch(
       usersActions.responseSendCertificates({
         certificates: [identity.userCertificate]

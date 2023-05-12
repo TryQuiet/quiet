@@ -79,7 +79,7 @@ const allReducers = combineReducers(reducers)
 
 export const rootReducer = (state, action) => {
   if (action.type === communities.actions.resetApp.type) {
-    state = resetStateAndSaveTorConnectionData(state)
+    state = resetStateAndSaveTorConnectionData()
   }
 
   return allReducers(state, action)
