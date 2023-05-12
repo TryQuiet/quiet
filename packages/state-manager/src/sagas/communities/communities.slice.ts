@@ -17,7 +17,7 @@ export class CommunitiesState {
   public communities: EntityState<Community> = communitiesAdapter.getInitialState()
 }
 
-export interface Community {
+export interface Community { // TODO: how to set default values for Community?
   id: string
   name?: string
   CA?: null | {

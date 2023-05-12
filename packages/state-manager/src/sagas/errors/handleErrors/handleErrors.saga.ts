@@ -14,6 +14,10 @@ const log = logger('errors')
 
 export function* retryRegistration(communityId: string) {
   const identity = yield* select(identitySelectors.selectById(communityId))
+  if (!identity || !identity.userCsr) {
+    console.error('Error retrying registration. Lacking identity data')
+    return
+  }
 
   const payload: RegisterCertificatePayload = {
     communityId: communityId,
@@ -38,6 +42,10 @@ export function* handleErrorsSaga(
       error.code === ErrorCodes.SERVER_ERROR ||
       error.code === ErrorCodes.SERVICE_UNAVAILABLE
     ) {
+      if (!error.community) {
+        console.error(`Received error ${error} without community`)
+        return
+      }
       // Leave for integration test assertions purposes
       const registrationAttempts = yield* select(
         communitiesSelectors.registrationAttempts(error.community)

@@ -15,12 +15,16 @@ export function* autoDownloadFilesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
+  if (!identity) {
+    console.error('Could not autodownload files, no identity')
+    return
+  }
 
   const { messages } = action.payload
 
   for (const message of messages) {
     // Proceed for images and files only
-    if (message.type !== MessageType.Image && message.type !== MessageType.File) return
+    if (message.type !== MessageType.Image && message.type !== MessageType.File || !message.media) return
 
     const channelMessages = yield* select(
       messagesSelectors.publicChannelMessagesEntities(message.channelAddress)
@@ -32,7 +36,7 @@ export function* autoDownloadFilesSaga(
     if (draft?.media?.path) return
 
     // Do not autodownload above certain size
-    if (message.media.size > AUTODOWNLOAD_SIZE_LIMIT) {
+    if (message.media.size || 0 > AUTODOWNLOAD_SIZE_LIMIT) {
       yield* put(
         filesActions.updateDownloadStatus({
           mid: message.id,

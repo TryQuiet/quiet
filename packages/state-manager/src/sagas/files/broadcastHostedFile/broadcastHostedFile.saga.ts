@@ -13,6 +13,7 @@ export function* broadcastHostedFileSaga(
   action: PayloadAction<ReturnType<typeof filesActions.broadcastHostedFile>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
+  if (!identity) return
 
   const channelMessages = yield* select(
     messagesSelectors.publicChannelMessagesEntities(action.payload.message.channelAddress)

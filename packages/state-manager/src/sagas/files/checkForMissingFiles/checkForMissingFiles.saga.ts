@@ -19,9 +19,10 @@ export function* checkForMissingFilesSaga(
 ): Generator {
   const community = yield* select(communitiesSelectors.currentCommunity)
 
-  if (community.id !== action.payload) return
+  if (community?.id !== action.payload) return
 
   const identity = yield* select(identitySelectors.currentIdentity)
+  if (!identity) return
 
   const channels = yield* select(publicChannelsSelectors.publicChannels)
 
@@ -51,7 +52,7 @@ export function* checkForMissingFilesSaga(
         // Do not autodownload oversized files unless started manually
         if (
           fileDownloadStatus?.downloadState !== DownloadState.Downloading &&
-          file.size > AUTODOWNLOAD_SIZE_LIMIT
+          file.size || 0 > AUTODOWNLOAD_SIZE_LIMIT
         ) { continue }
 
         // Do not autodownload if the file was reported malicious or is missing reported file size

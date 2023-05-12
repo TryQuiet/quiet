@@ -19,9 +19,16 @@ export function* launchRegistrarSaga(
   }
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
-
+  if (!community || !community.privateKey) {
+    console.error('Could not launch registrar, Community is lacking data')
+    return
+  }
   if (community.CA?.rootCertString) {
     const identity = yield* select(identitySelectors.selectById(communityId))
+    if (!identity) {
+      console.error('Could not launch registrar, Identity is lacking data')
+      return
+    }
     const payload: LaunchRegistrarPayload = {
       id: identity.id,
       peerId: identity.peerId.id,

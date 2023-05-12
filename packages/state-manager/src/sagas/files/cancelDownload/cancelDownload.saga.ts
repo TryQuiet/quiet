@@ -11,6 +11,7 @@ export function* cancelDownloadSaga(
   action: PayloadAction<ReturnType<typeof filesActions.cancelDownload>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
+  if (!identity) return
 
   const { mid, cid } = action.payload
 
