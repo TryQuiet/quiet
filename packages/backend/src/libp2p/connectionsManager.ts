@@ -38,7 +38,7 @@ import { LocalDB, LocalDBKeys } from '../storage/localDB'
 import { createLibp2pAddress, createLibp2pListenAddress, getPorts, removeFilesFromDir } from '../common/utils'
 import { ProcessInChunks } from './processInChunks'
 import { multiaddr } from '@multiformats/multiaddr'
-import { AskForMessagesPayload, Certificates, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload } from '@quiet/types'
+import { AskForMessagesPayload, Certificates, ChannelMessage, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload } from '@quiet/types'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -615,45 +615,38 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(SocketActionTypes.CLOSE, async () => {
       await this.closeAllServices()
     })
-    this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload: any) => {
+    this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload) => {
       await this.storage?.deleteChannel(payload)
     })
 
-    this.dataServer.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: any) => { // messages
-      log('DELETE_FILES_FROM_CHANNEL', payload)
-      const messages = payload.messages
-      log('messages', messages)
-      Object.keys(messages).map(key => {
-        const message = messages[key]
-        log('message', message)
-        if (message?.media?.path) {
-          const mediaPath = message.media.path
-          log('mediaPath', mediaPath)
+    this.dataServer.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload) => {
+      log('DELETE_FILES_FROM_CHANNEL : payload', payload)
+      const messages: { [key: string]: ChannelMessage } = payload.messages
 
-          fs.unlink(mediaPath, err => {
-            if (err) throw err
-          })
-        }
-      })
-
-      // await this.deleteFilesFromChannel(payload)
-      // this.checkXD()
+      await this.deleteFilesFromChannel(messages)
+      await this.deleteFilesFromTemporaryDir()
     })
   }
 
-  public checkXD() {
-    log('checkXD el0000000000000000000000000000000000o')
-  }
-
-  private async deleteFilesFromChannel(messages: any) {
-    Object.keys(messages).map(key => {
+  private async deleteFilesFromChannel(messages: { [key: string]: ChannelMessage }) {
+    Object.keys(messages).map((key) => {
       const message = messages[key]
-      log('message', message)
       if (message?.media?.path) {
         const mediaPath = message.media.path
-        log('mediaPath', mediaPath)
-
+        log('deleteFilesFromChannel : mediaPath', mediaPath)
         fs.unlink(mediaPath, err => {
+          if (err) throw err
+        })
+      }
+    })
+  }
+
+  private async deleteFilesFromTemporaryDir() {
+    const temporaryFilesDirectory = path.join(this.quietDir, '/../', 'temporaryFiles')
+    fs.readdir(temporaryFilesDirectory, (err, files) => {
+      if (err) throw err
+      for (const file of files) {
+        fs.unlink(path.join(temporaryFilesDirectory, file), err => {
           if (err) throw err
         })
       }
