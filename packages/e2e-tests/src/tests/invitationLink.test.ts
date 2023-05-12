@@ -12,6 +12,7 @@ import {
 } from '../selectors'
 import { capitalizeFirstLetter, invitationDeepUrl } from '@quiet/common'
 import { execSync } from 'child_process'
+import { SupportedPlatformDesktop } from '@quiet/types'
 
 jest.setTimeout(900000)
 it.todo('New user joins using invitation link while having app closed')
@@ -143,13 +144,17 @@ describe('New user joins using invitation link while having app opened', () => {
       // Extract code from copied invitation url
 
       const url = new URL(invitationCode)
-      const command: { [key: string]: string } = {
+      const command = {
         linux: 'xdg-open',
         darwin: 'open',
         win32: 'start'
       }
 
-      execSync(`${command[process.platform]} ${invitationDeepUrl(url.hash.substring(1))}`)
+      execSync(
+        `${command[process.platform as SupportedPlatformDesktop]} ${invitationDeepUrl(
+          url.hash.substring(1)
+        )}`
+      )
       console.log('Guest opened invitation link')
     })
 

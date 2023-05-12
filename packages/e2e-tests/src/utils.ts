@@ -1,5 +1,6 @@
 import { Browser, Builder, ThenableWebDriver } from 'selenium-webdriver'
 import { spawn, exec, ChildProcessWithoutNullStreams, execSync } from 'child_process'
+import { SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
 import path from 'path'
 
@@ -38,7 +39,7 @@ export class BuildSetup {
   private getBinaryLocation() {
     switch (process.platform) {
       case 'linux':
-        return `${__dirname}/../Quiet/Quiet-1.2.1-alpha.4.AppImage`
+        return `${__dirname}/../Quiet/${process.env.FILE_NAME}`
       case 'win32':
         return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
       case 'darwin':
@@ -166,7 +167,7 @@ export class BuildSetup {
     let dataDirPath: string = ''
     let resourcesPath: string = ''
     const backendBundlePath = path.normalize('backend-bundle/bundle.cjs')
-    const byPlatform: { [key: string]: string } = {
+    const byPlatform = {
       linux: `pgrep -af "${backendBundlePath}" | grep -v egrep | grep "${this.dataDir}"`,
       darwin: `ps -A | grep "${backendBundlePath}" | grep -v egrep | grep "${this.dataDir}"`,
       win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${backendBundlePath.replace(
@@ -176,7 +177,8 @@ export class BuildSetup {
         this.dataDir
       }%' and name = 'Quiet.exe'} | Format-Table CommandLine -HideTableHeaders -Wrap -Autosize"`
     }
-    const command = byPlatform[process.platform]
+
+    const command = byPlatform[process.platform as SupportedPlatformDesktop]
     const appBackendProcess = execSync(command).toString('utf8').trim()
     console.log('Backend process info', appBackendProcess)
     let args = appBackendProcess.split(' ')

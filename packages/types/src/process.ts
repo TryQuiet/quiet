@@ -1,1 +1,3 @@
-export type SupportedPlatform = 'android' | 'darwin' | 'linux' | 'win32'
+export type SupportedPlatformDesktop = 'darwin' | 'linux' | 'win32'
+
+export type SupportedPlatform = SupportedPlatformDesktop | 'android'
