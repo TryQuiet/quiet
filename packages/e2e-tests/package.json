@@ -33,6 +33,7 @@
   "dependencies": {
     "@quiet/common": "^1.2.1-alpha.3",
     "@quiet/logger": "^1.2.1-alpha.2",
+    "@quiet/types": "^1.2.1-alpha.2",
     "backend-bundle": "^1.0.1-alpha.0",
     "cross-env": "^5.2.0",
     "electron-chromedriver": "22.0.0",
