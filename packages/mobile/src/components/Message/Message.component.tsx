@@ -58,7 +58,8 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
         const markdownStyle = {
           autolink: {
             fontSize: 14,
-            color: defaultTheme.palette.typography.link
+            color: defaultTheme.palette.typography.link,
+            textDecoration: 'underline'
           },
           heading1: {
             fontSize: 14
