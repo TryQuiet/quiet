@@ -49,16 +49,17 @@ const StyledTypography = styled(Typography)(() => ({
   },
 
   [`& .${classes.code}`]: {
-    backgroundColor: theme.palette.colors.veryLightGray
+    backgroundColor: theme.palette.colors.veryLightGray,
+    padding: '.25em'
   },
 
   [`& .${classes.pre}`]: {
-    backgroundColor: theme.palette.colors.veryLightGray
+    backgroundColor: theme.palette.colors.veryLightGray,
+    padding: '.25em'
   },
 
   [`& .${classes.hr}`]: {
-    marginTop: '1em',
-    marginBottom: '1em',
+    marginTop: '2em',
   },
 
   [`& .${classes.link}`]: {
