@@ -9,7 +9,7 @@ import { UploadedImage } from '../UploadedImage/UploadedImage.component'
 import { UploadedFile } from '../UploadedFile/UploadedFile.component'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
-import Markdown from '@jonasmerlin/react-native-markdown-display'
+import Markdown, { MarkdownIt } from '@jonasmerlin/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Message: FC<MessageProps & FileActionsProps> = ({
@@ -43,21 +43,20 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
         const color = pending ? 'lightGray' : 'main'
 
         const markdownRules = {
+          image: (node, children, parent, styles) => {
+            return (
+              <Text key={node.key} style={styles.image}>
+                ![{node.attributes.alt}]({node.attributes.src})
+              </Text>
+            )
+          },
           link: (node, children, parent, styles) => {
-            console.log(styles.link)
             return (
               <Text
                 key={node.key}
                 style={styles.link}
                 onPress={() => openUrl(node.attributes.href)}>
                 {children}
-              </Text>
-            )
-          },
-          image: (node, children, parent, styles) => {
-            return (
-              <Text key={node.key} style={styles.image}>
-                ![{node.attributes.alt}]({node.attributes.src})
               </Text>
             )
           }
@@ -78,7 +77,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
         }
         return (
           <Typography fontSize={14} color={color} testID={message.message}>
-            <Markdown style={markdownStyle} rules={markdownRules}>
+            <Markdown markdownit={md} style={markdownStyle} rules={markdownRules}>
               {message.message}
             </Markdown>
           </Typography>
@@ -162,6 +161,8 @@ const markdownStyle = StyleSheet.create({
   blockquote: {
     color: defaultTheme.palette.typography.lightGray,
     backgroundColor: '#FFF',
+    marginTop: 10,
+    marginBottom: 10,
     marginLeft: 0
   },
   bullet_list_icon: {
@@ -177,6 +178,10 @@ const markdownStyle = StyleSheet.create({
   link: {
     color: defaultTheme.palette.typography.link
   },
+  paragraph: {
+    marginTop: 0,
+    marginBottom: 0
+  },
   table: {
     borderWidth: 0
   },
@@ -191,4 +196,9 @@ const markdownStyle = StyleSheet.create({
   tr: {
     borderBottomWidth: 0
   }
+})
+
+const md = MarkdownIt({
+  typographer: true,
+  linkify: true
 })
