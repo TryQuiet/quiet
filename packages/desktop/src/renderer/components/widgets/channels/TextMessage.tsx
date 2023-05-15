@@ -59,7 +59,7 @@ const StyledTypography = styled(Typography)(() => ({
   },
 
   [`& .${classes.hr}`]: {
-    marginTop: '2em',
+    marginTop: '2em'
   },
 
   [`& .${classes.link}`]: {
@@ -90,7 +90,7 @@ const StyledTypography = styled(Typography)(() => ({
 
   [`& .${classes.tableRowCell}`]: {
     textAlign: 'center'
-  },
+  }
 })) as typeof Typography
 
 export interface TextMessageComponentProps {
@@ -163,7 +163,7 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
           ),
           td: ({ node, ...props }) => (
             <td className={classNames({ [classes.tableRowCell]: true })} {...props} />
-          ),
+          )
         }}
       />
     </StyledTypography>
