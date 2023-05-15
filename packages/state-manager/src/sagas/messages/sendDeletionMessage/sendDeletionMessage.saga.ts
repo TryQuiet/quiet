@@ -18,10 +18,10 @@ export function* sendDeletionMessageSaga(
   const community = yield* select(communitiesSelectors.currentCommunity)
 
   const isOwner = Boolean(community?.CA)
-//  KACPER
+
   const payload: WriteMessagePayload = {
     type: MessageType.Info,
-    message: `@${ownerNickname} deleted #${channelAddress}`,
+    message: `@${ownerNickname} deleted #${channelAddress.slice(0, channelAddress.indexOf('_'))}`, // TEMPORARY
     channelAddress: generalChannel.address
   }
 

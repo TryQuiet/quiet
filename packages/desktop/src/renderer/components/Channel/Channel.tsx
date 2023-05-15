@@ -59,8 +59,9 @@ console.log({currentChannelMessagesCount})
   const isCommunityInitialized = Boolean(initializedCommunities[community?.id])
 
   const pendingGeneralChannelRecreationSelector = useSelector(publicChannels.selectors.pendingGeneralChannelRecreation)
-  // !! KACPER
-  const pendingGeneralChannelRecreation = pendingGeneralChannelRecreationSelector && currentChannelAddress === 'general' && currentChannelMessagesCount === 0
+  const generalChannel = useSelector(publicChannels.selectors.generalChannel)
+
+  const pendingGeneralChannelRecreation = pendingGeneralChannelRecreationSelector && currentChannelAddress === generalChannel.address && currentChannelMessagesCount === 0
 
   let enableContextMenu: boolean = false
   if (community) {
