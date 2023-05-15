@@ -2,6 +2,8 @@
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
     "strict": true,
+    "target": "ES2020",
+    "module": "ES2022",
     "rootDir": "./src",
     "outDir": "./lib",
     "typeRoots": [

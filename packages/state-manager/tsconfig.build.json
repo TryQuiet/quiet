@@ -7,7 +7,6 @@
     "module": "ES2022",
     "strict": true,
     "useUnknownInCatchVariables": false,
-    "strictPropertyInitialization": false,
     "typeRoots": [
       "../@types",
       "./node_modules/@types"

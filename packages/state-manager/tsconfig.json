@@ -5,7 +5,6 @@
     "module": "ES2022",
     "strict": true,
     "useUnknownInCatchVariables": false,
-    "strictPropertyInitialization": false,
     "outDir": "./lib",
     "typeRoots": [
       "../@types",

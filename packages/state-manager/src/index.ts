@@ -187,6 +187,11 @@ export const storeKeys = StoreKeys
 
 export const socketActionTypes = SocketActionTypes
 
+// Workaround for "The inferred type of '(...)' cannot be named without a reference to 
+// 'packages/identity/node_modules/pkijs/build'. This is likely not portable. A type annotation is necessary."
+// https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
+import type {} from "pkijs"
+
 export default {
   app,
   publicChannels,
