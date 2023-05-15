@@ -77,3 +77,6 @@ buck-out/
 
 # Native
 /android/app/.cxx
+
+# Detox
+/artifacts
