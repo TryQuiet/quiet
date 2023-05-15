@@ -1,23 +1,22 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory, PublicChannel, SocketActionTypes } from '../../..'
+import { getFactory, MessageType, PublicChannel, publicChannels, SocketActionTypes } from '../../..'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
-import { publicChannelsActions } from '../publicChannels.slice'
 import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
 import { communitiesActions, Community } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
-import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { messagesActions } from '../../messages/messages.slice'
-import { deleteChannelSaga } from './deleteChannel.saga'
 import { Socket } from 'socket.io-client'
 import { filesActions } from '../../files/files.slice'
+import { deleteFilesFromChannelSaga } from './deleteFilesFromChannel.saga'
+import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 
-describe('deleteChannelSaga', () => {
+describe('deleteFilesFromChannelSaga', () => {
   let store: Store
   let factory: FactoryGirl
 
@@ -26,6 +25,8 @@ describe('deleteChannelSaga', () => {
 
   let generalChannel: PublicChannel
   let photoChannel: PublicChannel
+
+  let message: any
 
   const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
@@ -60,49 +61,57 @@ describe('deleteChannelSaga', () => {
         }
       )
     ).channel
+    const id = Math.random().toString(36).substr(2.9)
+    message = (
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+        'Message',
+        {
+          identity: owner,
+          message: {
+            id: Math.random().toString(36).substr(2.9),
+            type: MessageType.Basic,
+            message: 'message',
+            createdAt: DateTime.utc().valueOf(),
+            channelAddress: photoChannel.address,
+            signature: '',
+            pubKey: '',
+            media: {
+              cid: 'cid',
+              path: null,
+              name: 'image',
+              ext: 'png',
+              message: {
+                id: id,
+                channelAddress: photoChannel.address
+              }
+            }
+          },
+          verifyAutomatically: true
+        }
+      )
+    ).message
   })
 
-  test('delete standard channel', async () => {
+  test('delete files from channel', async () => {
     const channelAddress = photoChannel.address
 
     const reducer = combineReducers(reducers)
     await expectSaga(
-      deleteChannelSaga,
+      deleteFilesFromChannelSaga,
       socket,
-      publicChannelsActions.deleteChannel({ channel: channelAddress })
+      filesActions.deleteFilesFromChannel({ channelAddress })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .apply(socket, socket.emit, [
-        SocketActionTypes.DELETE_CHANNEL,
+        SocketActionTypes.DELETE_FILES_FROM_CHANNEL,
         {
-          channel: channelAddress
+          messages: {
+            [message.id]: message
+          }
         }
       ])
-      .put(filesActions.deleteFilesFromChannel({ channelAddress }))
-      .put(publicChannelsActions.setCurrentChannel({ channelAddress: 'general' }))
-      .put(publicChannelsActions.disableChannel({ channelAddress }))
-      .run()
-  })
 
-  test('delete general channel', async () => {
-    const channelAddress = 'general'
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(
-      deleteChannelSaga,
-      socket,
-      publicChannelsActions.deleteChannel({ channel: channelAddress })
-    )
-      .withReducer(reducer)
-      .withState(store.getState())
-      .apply(socket, socket.emit, [
-        SocketActionTypes.DELETE_CHANNEL,
-        {
-          channel: channelAddress
-        }
-      ])
-      .put(filesActions.deleteFilesFromChannel({ channelAddress }))
       .run()
   })
 })
