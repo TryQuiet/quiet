@@ -84,7 +84,7 @@ export const getFactory = async (store: Store) => {
       afterBuild: async (action: ReturnType<typeof identity.actions.addNewIdentity>) => {
         const requestCertificate = action.payload.userCertificate === undefined
         const community = communities.selectors.selectEntities(store.getState())[action.payload.id]
-        if (requestCertificate && community.CA) {
+        if (requestCertificate && community?.CA) {
           const userCertData = await createUserCertificateTestHelper(
             {
               nickname: action.payload.nickname,
@@ -175,11 +175,13 @@ export const getFactory = async (store: Store) => {
 
         // Generate signature if not specified
         if (action.payload.message.signature === '') {
+          const userCertificate = action.payload.identity.userCertificate || ''
+          const userKey = action.payload.identity.userCsr?.userKey || ''
           signatureGenerated = true
           const { signature, pubKey } = await createMessageSignatureTestHelper(
             action.payload.message.message,
-            action.payload.identity.userCertificate,
-            action.payload.identity.userCsr.userKey
+            userCertificate,
+            userKey
           )
           action.payload.message.signature = signature
           action.payload.message.pubKey = pubKey

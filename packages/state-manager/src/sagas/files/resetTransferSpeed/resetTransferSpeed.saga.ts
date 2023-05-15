@@ -3,7 +3,7 @@ import { filesActions } from '../files.slice'
 import { filesSelectors } from '../files.selectors'
 import { DownloadState } from '../files.types'
 
-export function* resetTransferSpeedSaga(_action): Generator {
+export function* resetTransferSpeedSaga(): Generator {
   const downloadStatuses = yield* select(filesSelectors.downloadStatuses)
 
   for (const status of Object.values(downloadStatuses)) {

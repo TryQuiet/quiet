@@ -22,7 +22,7 @@ export const identitySlice = createSlice({
     },
     createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) =>
       state,
-    saveOwnerCertToDb: (state, _action: PayloadAction<string>) => state,
+    saveOwnerCertToDb: state => state,
     savedOwnerCertificate: (state, _action: PayloadAction<string>) => state,
     registerUsername: (state, _action: PayloadAction<string>) => state,
     registerCertificate: (state, action: PayloadAction<RegisterCertificatePayload>) => {

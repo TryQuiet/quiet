@@ -1,3 +1,4 @@
+import { isDefined } from '@quiet/common'
 import { NetworkStats } from '../../../sagas/appConnection/connection.types'
 
 /**
@@ -40,5 +41,5 @@ export const sortPeers = (peersAddresses: string[], stats: NetworkStats[]): stri
     })
   })
 
-  return peerList.concat(peersAddresses).filter(address => address !== null && address !== undefined)
+  return peerList.concat(peersAddresses).filter(address => address !== null).filter(isDefined)
 }

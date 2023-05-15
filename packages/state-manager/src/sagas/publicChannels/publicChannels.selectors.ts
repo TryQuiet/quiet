@@ -11,6 +11,7 @@ import { certificatesMapping } from '../users/users.selectors'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import {
+  ChannelMessage,
   DisplayableMessage,
   MessagesDailyGroups,
   PublicChannel,
@@ -181,7 +182,7 @@ export const displayableCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
   certificatesMapping,
   (messages, certificates) => {
-    return messages.reduce((result: DisplayableMessage[], message) => {
+    return messages.reduce((result: DisplayableMessage[], message: ChannelMessage) => {
       const user = certificates[message.pubKey]
       if (user) {
         result.push(displayableMessage(message, user.username))
@@ -259,19 +260,27 @@ export const channelsStatusSorted = createSelector(
       .getSelectors()
       .selectAll(state.channelsStatus)
 
-    return statuses.sort((a, b) => a.newestMessage?.createdAt - b.newestMessage?.createdAt).reverse()
+    return statuses.sort((a, b) => {
+      const aCreatedAt = a.newestMessage?.createdAt
+      const bCreatedAt = b.newestMessage?.createdAt
+      if (!aCreatedAt && !bCreatedAt) return 0
+      if (!aCreatedAt) return -1
+      if (!bCreatedAt) return 1
+      return aCreatedAt - bCreatedAt
+    }).reverse()
   }
 )
 
 export const unreadChannels = createSelector(
   channelsStatus,
   status => {
-    return Object.values(status).reduce((result: string[], channel: PublicChannelStatus) => {
+    const a = Object.values(status).reduce((result: string[], channel: PublicChannelStatus) => {
       if (channel.unread) {
         result.push(channel.address)
       }
       return result
     }, [])
+    return a
   }
 )
 
