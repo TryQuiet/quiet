@@ -1,5 +1,5 @@
 import React, { FC, ReactNode } from 'react'
-import { View, Image, StyleSheet, Linking } from 'react-native'
+import { View, Text, Image, StyleSheet } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { MessageProps } from './Message.types'
 import { Jdenticon } from '../Jdenticon/Jdenticon.component'
@@ -9,7 +9,7 @@ import { UploadedImage } from '../UploadedImage/UploadedImage.component'
 import { UploadedFile } from '../UploadedFile/UploadedFile.component'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
-import Markdown from 'react-native-markdown-package'
+import Markdown from '@jonasmerlin/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Message: FC<MessageProps & FileActionsProps> = ({
@@ -42,6 +42,27 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
       default:
         const color = pending ? 'lightGray' : 'main'
 
+        const markdownRules = {
+          link: (node, children, parent, styles) => {
+            console.log(styles.link)
+            return (
+              <Text
+                key={node.key}
+                style={styles.link}
+                onPress={() => openUrl(node.attributes.href)}>
+                {children}
+              </Text>
+            )
+          },
+          image: (node, children, parent, styles) => {
+            return (
+              <Text key={node.key} style={styles.image}>
+                ![{node.attributes.alt}]({node.attributes.src})
+              </Text>
+            )
+          }
+        }
+
         const containsLatex = /\$\$(.+)\$\$/.test(message.message)
         if (containsLatex) {
           // Input sanitization. react-native-mathjax-html-to-svg throws error when provided with empty "$$$$"
@@ -55,56 +76,9 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
             >{sanitizedMathJax}</MathJaxSvg>
           )
         }
-        const markdownStyle = {
-          autolink: {
-            fontSize: 14,
-            color: defaultTheme.palette.typography.link,
-            textDecoration: 'underline'
-          },
-          heading1: {
-            fontSize: 14
-          },
-          heading2: {
-            fontSize: 14
-          },
-          heading3: {
-            fontSize: 14
-          },
-          heading4: {
-            fontSize: 14
-          },
-          heading5: {
-            fontSize: 14
-          },
-          heading6: {
-            fontSize: 14
-          },
-          paragraph: {
-            marginTop: 0,
-            marginBottom: 0
-          },
-          paragraphCenter: {
-            marginTop: 0,
-            marginBottom: 0
-          },
-          paragraphWithImage: {
-            marginTop: 0,
-            marginBottom: 0
-          },
-          strong: {
-            marginTop: 0,
-            marginBottom: 0
-          },
-          tableHeader: {
-            backgroundColor: defaultTheme.palette.typography.lightGray
-          },
-          text: {
-            color: defaultTheme.palette.typography.main
-          }
-        }
         return (
           <Typography fontSize={14} color={color} testID={message.message}>
-            <Markdown styles={markdownStyle} onLink={async url => await Linking.openURL(url)}>
+            <Markdown style={markdownStyle} rules={markdownRules}>
               {message.message}
             </Markdown>
           </Typography>
@@ -181,5 +155,40 @@ const classes = StyleSheet.create({
   },
   nextMessage: {
     paddingTop: 4
+  }
+})
+
+const markdownStyle = StyleSheet.create({
+  blockquote: {
+    color: defaultTheme.palette.typography.lightGray,
+    backgroundColor: '#FFF',
+    marginLeft: 0
+  },
+  bullet_list_icon: {
+    marginLeft: 0
+  },
+  ordered_list_icon: {
+    marginLeft: 0
+  },
+  hr: {
+    marginTop: 20,
+    marginBottom: 20
+  },
+  link: {
+    color: defaultTheme.palette.typography.link
+  },
+  table: {
+    borderWidth: 0
+  },
+  th: {
+    borderBottom: 'solid',
+    borderBottomWidth: 1,
+    borderColor: defaultTheme.palette.typography.veryLightGray
+  },
+  thead: {
+    fontWeight: 'bold'
+  },
+  tr: {
+    borderBottomWidth: 0
   }
 })
