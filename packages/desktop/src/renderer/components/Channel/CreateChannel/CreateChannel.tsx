@@ -66,6 +66,7 @@ export const CreateChannel = () => {
       )
       return
     }
+    // Move to state manager
     // Create channel
     const channel: PublicChannel = {
       name: name,
