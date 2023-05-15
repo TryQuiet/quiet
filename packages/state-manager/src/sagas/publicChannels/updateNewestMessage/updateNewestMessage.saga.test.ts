@@ -12,6 +12,7 @@ import { identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { updateNewestMessageSaga } from './updateNewestMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
+import { generateChannelAddress } from '@quiet/common'
 
 describe('markUnreadChannelsSaga', () => {
   let store: Store
@@ -48,7 +49,7 @@ describe('markUnreadChannelsSaga', () => {
             description: `Welcome to #${name}`,
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: name
+            address: generateChannelAddress(name)
           }
         }
       )

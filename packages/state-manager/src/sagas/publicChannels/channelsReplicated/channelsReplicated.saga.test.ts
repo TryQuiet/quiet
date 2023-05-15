@@ -14,6 +14,7 @@ import { channelsReplicatedSaga } from './channelsReplicated.saga'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
+import { generateChannelAddress } from '@quiet/common'
 
 describe('channelsReplicatedSaga', () => {
   let store: Store
@@ -51,7 +52,7 @@ describe('channelsReplicatedSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          address: 'sailing'
+          address: generateChannelAddress('sailing')
         }
       })
     ).payload.channel
@@ -250,7 +251,7 @@ describe('channelsReplicatedSaga', () => {
           channel: sailingChannel
         })
       )
-      .put(publicChannelsActions.deleteChannel({ channel: photoChannel.address }))
+      .put(publicChannelsActions.deleteChannel({ channelAddress: photoChannel.address }))
       .run()
   })
 })

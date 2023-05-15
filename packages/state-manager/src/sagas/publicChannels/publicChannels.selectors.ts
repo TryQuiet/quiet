@@ -46,7 +46,7 @@ export const subscribedChannels = createSelector(
 
 // Serves for testing purposes only
 export const selectGeneralChannel = createSelector(selectChannels, channels => {
-  const draft = channels.find(item => item.address === 'general')
+  const draft = channels.find(item => item.name === 'general')
   const channel: PublicChannel = {
     name: draft.name,
     description: draft.description,
@@ -287,5 +287,6 @@ export const publicChannelsSelectors = {
   channelsStatusSorted,
   dynamicSearchedChannels,
   sortedChannels,
-  pendingGeneralChannelRecreation
+  pendingGeneralChannelRecreation,
+  generalChannel
 }

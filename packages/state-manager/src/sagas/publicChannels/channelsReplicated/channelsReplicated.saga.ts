@@ -21,6 +21,7 @@ export function* channelsReplicatedSaga(
   const databaseStoredChannelsAddresses = databaseStoredChannels.map(channel => channel.address)
   console.log({ locallyStoredChannels, databaseStoredChannelsAddresses })
   // Upserting channels to local storage
+  // KACPER!!!
   for (const channel of databaseStoredChannels) {
     if (!locallyStoredChannels.includes(channel.address)) {
       log(`ADDING #${channel.name} TO LOCAL STORAGE`)
@@ -42,7 +43,7 @@ export function* channelsReplicatedSaga(
     if (!databaseStoredChannelsAddresses.includes(channelAddress)) {
       console.log({ channelAddress })
       log(`REMOVING #${channelAddress} FROM STORE`)
-      yield* put(publicChannelsActions.deleteChannel({ channel: channelAddress }))
+      yield* put(publicChannelsActions.deleteChannel({ channelAddress }))
     }
   }
 

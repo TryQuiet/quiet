@@ -19,6 +19,7 @@ import { publicChannelsActions } from '../../publicChannels/publicChannels.slice
 import { DateTime } from 'luxon'
 import { FileMetadata } from '../files.types'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
+import { generateChannelAddress } from '@quiet/common'
 
 describe('downloadFileSaga', () => {
   let store: Store
@@ -53,7 +54,7 @@ describe('downloadFileSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.nickname,
-          address: 'sailing'
+          address: generateChannelAddress('sailing')
         }
       }
     )).channel

@@ -99,7 +99,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
       ref={ref}
       disableGutters
       onClick={() => {
-        setCurrentChannel(channel.name)
+        setCurrentChannel(channel.address)
       }}
       className={classNames(classes.root, {
         [classes.selected]: selected,

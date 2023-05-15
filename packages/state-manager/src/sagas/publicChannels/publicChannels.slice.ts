@@ -71,6 +71,7 @@ export const publicChannelsSlice = createSlice({
     },
     clearMessagesCache: (state, action: PayloadAction<ClearMessagesCachePayload>) => {
       const { channelAddress } = action.payload
+      console.log('clearMessagesCache', action.payload)
       channelMessagesAdapter.setAll(state.channels.entities[channelAddress].messages, [])
     },
     startGeneralRecreation: state => {

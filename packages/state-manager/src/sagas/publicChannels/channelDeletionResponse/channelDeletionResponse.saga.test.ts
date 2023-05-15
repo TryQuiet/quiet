@@ -14,6 +14,7 @@ import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { channelDeletionResponseSaga } from './channelDeletionResponse.saga'
+import { generateChannelAddress } from '@quiet/common'
 
 describe('channelDeletionResponseSaga', () => {
   let store: Store
@@ -51,7 +52,7 @@ describe('channelDeletionResponseSaga', () => {
             description: 'Welcome to #photo',
             timestamp: DateTime.utc().valueOf(),
             owner: owner.nickname,
-            address: 'photo'
+            address: generateChannelAddress('photo')
           }
         }
       )
@@ -65,7 +66,7 @@ describe('channelDeletionResponseSaga', () => {
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channel: channelAddress
+          channelAddress
         })
       )
         .withReducer(reducer)
@@ -84,7 +85,7 @@ describe('channelDeletionResponseSaga', () => {
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channel: channelAddress
+          channelAddress
         })
       )
         .withReducer(reducer)
@@ -113,7 +114,7 @@ describe('channelDeletionResponseSaga', () => {
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channel: channelAddress
+          channelAddress
         })
       )
         .withReducer(reducer)
@@ -131,7 +132,7 @@ describe('channelDeletionResponseSaga', () => {
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channel: channelAddress
+          channelAddress
         })
       )
         .withReducer(reducer)

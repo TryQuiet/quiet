@@ -12,6 +12,7 @@ import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
 import { createGeneralChannelSaga, getChannelTimestamp } from './createGeneralChannel.saga'
 import { communitiesActions, Community } from '../../communities/communities.slice'
+import { generateChannelAddress } from '@quiet/common'
 
 describe('createGeneralChannelSaga', () => {
   let store: Store
@@ -27,7 +28,7 @@ describe('createGeneralChannelSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -38,26 +39,28 @@ describe('createGeneralChannelSaga', () => {
 
   test('create general channel', async () => {
     const reducer = combineReducers(reducers)
+    const generalAddress = generateChannelAddress('general')
+    const channel = {
+      name: 'general',
+      description: 'Welcome to #general',
+      owner: alice.nickname,
+      address: generalAddress,
+      timestamp: 0
+    }
+    console.log({ channel })
     await expectSaga(createGeneralChannelSaga)
       .withReducer(reducer)
       .withState(store.getState())
-      .provide([
-        [call.fn(getChannelTimestamp), 0]
-      ])
+      .provide([[call.fn(getChannelTimestamp), 0]])
+      .provide([[call.fn(generateChannelAddress), generalAddress]])
       .put(
         publicChannelsActions.createChannel({
-          channel: {
-            name: 'general',
-            description: 'Welcome to #general',
-            owner: alice.nickname,
-            address: 'general',
-            timestamp: 0
-          }
+          channel
         })
       )
       .put(
         publicChannelsActions.setCurrentChannel({
-          channelAddress: 'general'
+          channelAddress: generalAddress
         })
       )
       .run()

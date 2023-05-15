@@ -19,6 +19,7 @@ import { incomingMessagesSaga } from './incomingMessages.saga'
 import { messagesActions } from '../messages.slice'
 import { reducers } from '../../reducers'
 import { FileMetadata } from '../../files/files.types'
+import { generateChannelAddress } from '@quiet/common'
 
 describe('incomingMessagesSaga', () => {
   let store: Store
@@ -58,7 +59,7 @@ describe('incomingMessagesSaga', () => {
             description: 'Welcome to #sailing',
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: 'sailing'
+            address: generateChannelAddress('sailing')
           }
         }
       )
@@ -73,7 +74,7 @@ describe('incomingMessagesSaga', () => {
             description: 'Welcome to #barbeque',
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: 'barbeque'
+            address: generateChannelAddress('barbeque')
           }
         }
       )

@@ -14,6 +14,7 @@ import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../reducers'
+import { generateChannelAddress } from '@quiet/common'
 
 describe('sendInitialChannelMessageSaga', () => {
   let store: Store
@@ -52,7 +53,7 @@ describe('sendInitialChannelMessageSaga', () => {
             description: 'Welcome to #photo',
             timestamp: DateTime.utc().valueOf(),
             owner: owner.nickname,
-            address: 'photo'
+            address: generateChannelAddress('photo'),
           }
         }
       )

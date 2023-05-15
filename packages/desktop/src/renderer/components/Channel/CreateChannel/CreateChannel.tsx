@@ -15,6 +15,7 @@ import { DateTime } from 'luxon'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { flushSync } from 'react-dom'
+import { generateChannelAddress } from '@quiet/common'
 
 export const CreateChannel = () => {
   const dispatch = useDispatch()
@@ -72,7 +73,7 @@ export const CreateChannel = () => {
       name: name,
       description: `Welcome to #${name}`,
       owner: user.nickname,
-      address: name,
+      address: generateChannelAddress(name),
       timestamp: DateTime.utc().valueOf()
     }
     flushSync(() => {

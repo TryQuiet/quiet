@@ -22,6 +22,7 @@ import { filesActions } from '../files.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
+import { generateChannelAddress } from '@quiet/common'
 
 describe('uploadFileSaga', () => {
   let store: Store
@@ -58,7 +59,7 @@ describe('uploadFileSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.nickname,
-          address: 'sailing'
+          address: generateChannelAddress('sailing')
         }
       }
     )).channel

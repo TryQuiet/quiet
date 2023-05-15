@@ -14,6 +14,7 @@ import { messagesActions } from '../../messages/messages.slice'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { sendDeletionMessageSaga } from './sendDeletionMessage.saga'
+import { generateChannelAddress } from '@quiet/common'
 
 describe('sendDeletionMessage', () => {
   let store: Store
@@ -51,7 +52,7 @@ describe('sendDeletionMessage', () => {
             description: 'Welcome to #photo',
             timestamp: DateTime.utc().valueOf(),
             owner: owner.nickname,
-            address: 'photo'
+            address: generateChannelAddress('photo')
           }
         }
       )

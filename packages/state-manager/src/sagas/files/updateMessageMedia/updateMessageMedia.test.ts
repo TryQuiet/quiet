@@ -14,6 +14,7 @@ import { updateMessageMediaSaga } from './updateMessageMedia'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
+import { generateChannelAddress } from '@quiet/common'
 
 describe('downloadedFileSaga', () => {
   let store: Store
@@ -49,7 +50,7 @@ describe('downloadedFileSaga', () => {
             description: 'Welcome to #sailing',
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: 'sailing'
+            address: generateChannelAddress('sailing')
           }
         }
       )

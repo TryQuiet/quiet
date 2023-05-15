@@ -9,7 +9,7 @@ import { navigationSelectors } from '../../store/navigation/navigation.selectors
 
 export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
-
+// KACPER
   const { channel } = route.params
 
   const channels = useSelector(publicChannels.selectors.publicChannels)
@@ -27,7 +27,7 @@ export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => 
   const deleteChannel = useCallback(() => {
     dispatch(
       publicChannels.actions.deleteChannel({
-        channel: channel
+        channelAddress: channel
       })
     )
   }, [dispatch])

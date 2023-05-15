@@ -42,11 +42,11 @@ const Channel = () => {
   const currentChannelMessagesCount = useSelector(
     publicChannels.selectors.currentChannelMessagesCount
   )
-
+console.log({currentChannelMessagesCount})
   const currentChannelDisplayableMessages = useSelector(
     publicChannels.selectors.currentChannelMessagesMergedBySender
   )
-
+  console.log({currentChannelDisplayableMessages})
   const newestCurrentChannelMessage = useSelector(
     publicChannels.selectors.newestCurrentChannelMessage
   )
@@ -59,6 +59,7 @@ const Channel = () => {
   const isCommunityInitialized = Boolean(initializedCommunities[community?.id])
 
   const pendingGeneralChannelRecreationSelector = useSelector(publicChannels.selectors.pendingGeneralChannelRecreation)
+  // !! KACPER
   const pendingGeneralChannelRecreation = pendingGeneralChannelRecreationSelector && currentChannelAddress === 'general' && currentChannelMessagesCount === 0
 
   let enableContextMenu: boolean = false

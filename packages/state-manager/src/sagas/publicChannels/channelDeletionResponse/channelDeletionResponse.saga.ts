@@ -4,16 +4,20 @@ import logger from '../../../utils/logger'
 import { put, delay, select } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
+import { publicChannelsSelectors } from '../publicChannels.selectors'
 
 const log = logger('publicChannels')
 
 export function* channelDeletionResponseSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.channelDeletionResponse>['payload']>
 ): Generator {
-  log(`Deleted channel ${action.payload.channel} saga`)
+  log(`Deleted channel ${action.payload.channelAddress} saga`)
 
-  const channelAddress = action.payload.channel
-  const isGeneral = channelAddress === 'general'
+  const { channelAddress } = action.payload
+
+  const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
+
+  const isGeneral = channelAddress === generalChannel.address
 
   if (isGeneral) {
     yield* put(publicChannelsActions.startGeneralRecreation())

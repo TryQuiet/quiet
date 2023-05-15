@@ -59,10 +59,10 @@ export interface CreateChannelPayload {
 }
 
 export interface DeleteChannelPayload {
-  channel: string
+  channelAddress: string
 }
 export interface ChannelDeletionResponsePayload {
-  channel: string
+  channelAddress: string
 }
 
 export interface CreatedChannelResponse {

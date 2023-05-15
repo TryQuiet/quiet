@@ -214,7 +214,7 @@ export const ChannelComponent: React.FC<
   useEffect(() => {
     scrollBottom()
   }, [channelAddress])
-
+console.log(isCommunityInitialized, messages.count)
   return (
     <Page>
       <PageHeader>

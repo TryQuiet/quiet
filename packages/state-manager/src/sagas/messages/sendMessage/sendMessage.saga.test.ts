@@ -25,6 +25,7 @@ import { currentChannelAddress } from '../../publicChannels/publicChannels.selec
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
+import { generateChannelAddress } from '@quiet/common'
 
 describe('sendMessageSaga', () => {
   let store: Store
@@ -59,7 +60,7 @@ describe('sendMessageSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.nickname,
-          address: 'sailing'
+          address: generateChannelAddress('sailing')
         }
       }
     )).channel

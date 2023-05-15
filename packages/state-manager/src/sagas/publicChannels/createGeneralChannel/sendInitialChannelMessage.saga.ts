@@ -12,7 +12,9 @@ export function* sendInitialChannelMessageSaga(
   >
 ): Generator {
   const { channelName, channelAddress } = action.payload
-  const isGeneral = channelAddress === 'general'
+  const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
+
+  const isGeneral = channelAddress === generalChannel.address
 
   const pendingGeneralChannelRecreation = yield* select(
     publicChannelsSelectors.pendingGeneralChannelRecreation

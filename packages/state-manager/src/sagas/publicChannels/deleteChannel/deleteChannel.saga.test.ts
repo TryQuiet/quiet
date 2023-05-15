@@ -1,11 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import {
-  getFactory,
-  PublicChannel,
-  SocketActionTypes,
-} from '../../..'
+import { getFactory, PublicChannel, SocketActionTypes } from '../../..'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
@@ -19,6 +15,7 @@ import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { deleteChannelSaga } from './deleteChannel.saga'
 import { Socket } from 'socket.io-client'
+import { generateChannelAddress } from '@quiet/common'
 
 describe('deleteChannelSaga', () => {
   let store: Store
@@ -58,7 +55,7 @@ describe('deleteChannelSaga', () => {
             description: 'Welcome to #photo',
             timestamp: DateTime.utc().valueOf(),
             owner: owner.nickname,
-            address: 'photo'
+            address: generateChannelAddress('photo')
           }
         }
       )
@@ -72,7 +69,7 @@ describe('deleteChannelSaga', () => {
     await expectSaga(
       deleteChannelSaga,
       socket,
-      publicChannelsActions.deleteChannel({ channel: channelAddress })
+      publicChannelsActions.deleteChannel({ channelAddress })
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -94,7 +91,7 @@ describe('deleteChannelSaga', () => {
     await expectSaga(
       deleteChannelSaga,
       socket,
-      publicChannelsActions.deleteChannel({ channel: channelAddress })
+      publicChannelsActions.deleteChannel({ channelAddress })
     )
       .withReducer(reducer)
       .withState(store.getState())

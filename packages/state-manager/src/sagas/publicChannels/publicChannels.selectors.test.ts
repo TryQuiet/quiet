@@ -22,6 +22,7 @@ import {
 } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
+import { generateChannelAddress } from '@quiet/common'
 
 describe('publicChannelsSelectors', () => {
   let store: Store
@@ -70,7 +71,7 @@ describe('publicChannelsSelectors', () => {
             description: `Welcome to #${name}`,
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: name
+            address: generateChannelAddress(name)
           }
         }
       )
