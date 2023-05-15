@@ -14,8 +14,8 @@ describe('messagesSelectors', () => {
   let factory: FactoryGirl
 
   let community: Community
-
-  let generalChannel: PublicChannel
+  let generalChannel: PublicChannel | undefined
+  let generalChannelAddress: string
 
   let alice: Identity
   let john: Identity
@@ -35,6 +35,8 @@ describe('messagesSelectors', () => {
     >('Community')
 
     generalChannel = selectGeneralChannel(store.getState())
+    expect(generalChannel).toBeDefined()
+    generalChannelAddress = generalChannel?.address || ''
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
@@ -48,7 +50,8 @@ describe('messagesSelectors', () => {
   })
 
   it('filter out unverified messages', async () => {
-    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
+    expect(john.userCertificate).not.toBeNull()
+    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate || ''))
 
     // Build messages
     const authenticMessage: ChannelMessage = {
@@ -58,7 +61,7 @@ describe('messagesSelectors', () => {
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
-      channelAddress: generalChannel.address
+      channelAddress: generalChannelAddress
     }
 
     const spoofedMessage: ChannelMessage = {
@@ -68,7 +71,7 @@ describe('messagesSelectors', () => {
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
-      channelAddress: generalChannel.address,
+      channelAddress: generalChannelAddress,
       pubKey: johnPublicKey
     }
 
@@ -85,7 +88,7 @@ describe('messagesSelectors', () => {
 
     store.dispatch(
       publicChannels.actions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       })
     )
 

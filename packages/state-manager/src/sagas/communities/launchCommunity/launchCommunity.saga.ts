@@ -27,9 +27,9 @@ export function* initCommunities(): Generator {
 
 export function* launchCommunitySaga(
   socket: Socket,
-  action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload']>
+  action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload'] | undefined>
 ): Generator {
-  let communityId: string = action.payload
+  let communityId: string | undefined = action.payload
 
   if (!communityId) {
     communityId = yield* select(communitiesSelectors.currentCommunityId)

@@ -1,11 +1,10 @@
 import { invitationShareUrl } from '@quiet/common'
-import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
+import { setupCrypto } from '@quiet/identity'
 import { Store } from '@reduxjs/toolkit'
 import { getFactory } from '../../utils/tests/factories'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { identityActions } from '../identity/identity.slice'
 import { Identity } from '../identity/identity.types'
-import { usersSelectors } from '../users/users.selectors'
 import { usersActions } from '../users/users.slice'
 import { communitiesSelectors } from './communities.selectors'
 import { communitiesActions, Community } from './communities.slice'
@@ -137,7 +136,7 @@ describe('communitiesSelectors', () => {
     expect(identity.userCertificate).not.toBeUndefined()
     store.dispatch(
       usersActions.responseSendCertificates({
-        certificates: [identity.userCertificate]
+        certificates: [identity.userCertificate || '']
       })
     )
     const expexctedNickname = 'alice'
@@ -157,9 +156,10 @@ describe('communitiesSelectors', () => {
 
   it('returns proper ownerNickname - ownerCertificate not exist - backwards compatibility', async () => {
     const { store } = prepareStore()
+    expect(identity.userCertificate).not.toBeUndefined()
     store.dispatch(
       usersActions.responseSendCertificates({
-        certificates: [identity.userCertificate]
+        certificates: [identity.userCertificate || '']
       })
     )
     const ownerNickname = communitiesSelectors.ownerNickname(store.getState())

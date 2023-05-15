@@ -32,6 +32,6 @@ describe('communitiesSelectors will receive correct data', () => {
 
     const currentIdentity = identitySelectors.currentIdentity(store.getState())
 
-    expect(currentIdentity.id).toEqual(communityAlpha.id)
+    expect(currentIdentity?.id).toEqual(communityAlpha.id)
   })
 })

@@ -8,7 +8,7 @@ import { StoreKeys } from '../../store.keys'
 import { communitiesAdapter } from '../communities.adapter'
 import {
   communitiesActions,
-  communitiesReducer, CommunitiesState, Community
+  communitiesReducer, CommunitiesState
 } from '../communities.slice'
 import { launchRegistrarSaga } from './launchRegistrar.saga'
 import { LaunchRegistrarPayload } from '../communities.types'
@@ -38,13 +38,14 @@ describe('launchRegistrar', () => {
     const identity = await factory.create<
     ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'john' })
-
+    expect(community.CA).not.toBeNull()
+    expect(community.CA).toBeDefined()
     const launchRegistrarPayload: LaunchRegistrarPayload = {
         id: community.id,
         peerId: identity.peerId.id,
-        rootCertString: community.CA.rootCertString,
-        rootKeyString: community.CA.rootKeyString,
-        privateKey: undefined
+        rootCertString: community.CA?.rootCertString || '',
+        rootKeyString: community.CA?.rootKeyString || '',
+        privateKey: ''
     }
 
     await expectSaga(launchRegistrarSaga, socket, communitiesActions.launchCommunity(community.id))
@@ -84,13 +85,14 @@ describe('launchRegistrar', () => {
     const identity = await factory.create<
     ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'john' })
-
+    expect(community.CA).not.toBeNull()
+    expect(community.CA).toBeDefined()
     const launchRegistrarPayload: LaunchRegistrarPayload = {
       id: community.id,
       peerId: identity.peerId.id,
-      rootCertString: community.CA.rootCertString,
-      rootKeyString: community.CA.rootKeyString,
-      privateKey: undefined
+      rootCertString: community.CA?.rootCertString || '',
+      rootKeyString: community.CA?.rootKeyString || '',
+      privateKey: ''
   }
 
     await expectSaga(launchRegistrarSaga, socket, communitiesActions.launchCommunity())
@@ -130,13 +132,14 @@ describe('launchRegistrar', () => {
     const identity = await factory.create<
     ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'john' })
-
+    expect(community.CA).not.toBeNull()
+    expect(community.CA).toBeDefined()
     const launchRegistrarPayload: LaunchRegistrarPayload = {
       id: community.id,
       peerId: identity.peerId.id,
-      rootCertString: community.CA.rootCertString,
-      rootKeyString: community.CA.rootKeyString,
-      privateKey: undefined
+      rootCertString: community.CA?.rootCertString || '',
+      rootKeyString: community.CA?.rootKeyString || '',
+      privateKey: ''
   }
 
     community = {

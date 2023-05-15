@@ -9,7 +9,6 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
-import { Identity } from '../../identity/identity.types'
 import { ChannelMessage } from '../../publicChannels/publicChannels.types'
 import { MessageType, SendingStatus } from '../messages.types'
 
@@ -18,7 +17,7 @@ export function* sendMessageSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity?.userCsr) return
+  if (!identity?.userCsr || !identity.userCertificate) return
 
   const certificate = identity.userCertificate
 

@@ -27,9 +27,10 @@ describe('incomingMessagesSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: PublicChannel
+  let generalChannel: PublicChannel | undefined
   let sailingChannel: PublicChannel
   let barbequeChannel: PublicChannel
+  let generalChannelAddress: string
 
   beforeAll(async () => {
     setupCrypto()
@@ -48,6 +49,8 @@ describe('incomingMessagesSaga', () => {
     )
 
     generalChannel = selectGeneralChannel(store.getState())
+    expect(generalChannel).toBeDefined()
+    generalChannelAddress = generalChannel?.address || ''
 
     sailingChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
@@ -89,7 +92,7 @@ describe('incomingMessagesSaga', () => {
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelAddress: generalChannel?.address,
           signature: '',
           pubKey: ''
         },
@@ -100,7 +103,7 @@ describe('incomingMessagesSaga', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       })
     )
 
@@ -136,7 +139,7 @@ describe('incomingMessagesSaga', () => {
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelAddress: generalChannelAddress,
           signature: '',
           pubKey: ''
         },
@@ -151,7 +154,7 @@ describe('incomingMessagesSaga', () => {
       ext: 'png',
       message: {
         id: id,
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       }
     }
 
@@ -163,7 +166,7 @@ describe('incomingMessagesSaga', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       })
     )
 
@@ -171,7 +174,7 @@ describe('incomingMessagesSaga', () => {
     store.dispatch(
       publicChannelsActions.cacheMessages({
         messages: [message],
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       })
     )
 
@@ -204,7 +207,16 @@ describe('incomingMessagesSaga', () => {
 
   test("update message after uploading it's media", async () => {
     const id = Math.random().toString(36).substr(2.9)
-
+    const media = {
+      cid: 'uploading',
+      path: 'path/to/image.png',
+      name: 'image',
+      ext: 'png',
+      message: {
+        id: id,
+        channelAddress: generalChannelAddress
+      }
+    }
     const message = (
       await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
         identity: alice,
@@ -213,17 +225,8 @@ describe('incomingMessagesSaga', () => {
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
-          media: {
-            cid: 'uploading',
-            path: 'path/to/image.png',
-            name: 'image',
-            ext: 'png',
-            message: {
-              id: id,
-              channelAddress: generalChannel.address
-            }
-          },
+          channelAddress: generalChannelAddress,
+          media: media,
           signature: '',
           pubKey: ''
         },
@@ -234,7 +237,7 @@ describe('incomingMessagesSaga', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       })
     )
 
@@ -242,7 +245,7 @@ describe('incomingMessagesSaga', () => {
     store.dispatch(
       publicChannelsActions.cacheMessages({
         messages: [message],
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       })
     )
 
@@ -253,7 +256,7 @@ describe('incomingMessagesSaga', () => {
         messages: [{
           ...message,
           media: {
-            ...message.media,
+            ...media,
             cid: 'cid',
             path: null
           }
@@ -267,7 +270,7 @@ describe('incomingMessagesSaga', () => {
           messages: [{
             ...message,
             media: {
-              ...message.media,
+              ...media,
               cid: 'cid',
               path: 'path/to/image.png'
             }
@@ -298,7 +301,7 @@ describe('incomingMessagesSaga', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       })
     )
 
@@ -329,7 +332,7 @@ describe('incomingMessagesSaga', () => {
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelAddress: generalChannelAddress,
           signature: '',
           pubKey: ''
         },
@@ -349,7 +352,7 @@ describe('incomingMessagesSaga', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       })
     )
 
@@ -445,7 +448,7 @@ describe('incomingMessagesSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .not.put(publicChannelsActions.cacheMessages())
+      .not.put(publicChannelsActions.cacheMessages({messages, channelAddress: barbequeChannel.address}))
       .run()
 
     // Verify cached messages hasn't changed
@@ -464,7 +467,7 @@ describe('incomingMessagesSaga', () => {
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf() - DateTime.utc().minus({ days: 1 }).valueOf(),
-          channelAddress: generalChannel.address,
+          channelAddress: generalChannelAddress,
           signature: '',
           pubKey: ''
         },
@@ -475,7 +478,7 @@ describe('incomingMessagesSaga', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       })
     )
 
@@ -493,7 +496,7 @@ describe('incomingMessagesSaga', () => {
               message: 'message',
               createdAt:
                 DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
-              channelAddress: generalChannel.address,
+              channelAddress: generalChannelAddress,
               signature: '',
               pubKey: ''
             },
@@ -511,7 +514,7 @@ describe('incomingMessagesSaga', () => {
       'CacheMessages',
       {
         messages: messages,
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       }
     )
 

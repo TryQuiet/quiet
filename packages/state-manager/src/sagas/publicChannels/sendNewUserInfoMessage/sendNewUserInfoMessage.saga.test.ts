@@ -9,13 +9,14 @@ import { Identity } from '../../identity/identity.types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { PublicChannel } from '../publicChannels.types'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { sendNewUserInfoMessageSaga } from './sendNewUserInfoMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../reducers'
 
 import { MAIN_CHANNEL } from '../../../constants'
+import { capitalizeFirstLetter } from '@quiet/common'
 
 describe('sendInitialChannelMessageSaga', () => {
   let store: Store
@@ -53,16 +54,20 @@ describe('sendInitialChannelMessageSaga', () => {
 
     channel = (await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel'))
       .payload.channel
-
+    
+    expect(user2.userCertificate).not.toBeNull()
     store.dispatch(
+      // @ts-expect-error
       usersActions.test_remove_user_certificate({ certificate: user2.userCertificate })
     )
 
-    const communityName = community1.name[0].toUpperCase() + community1.name.substring(1)
+    expect(community1.name).not.toBeNull()
+    const communityName = capitalizeFirstLetter(community1.name || '')
 
     const reducer = combineReducers(reducers)
     await expectSaga(
       sendNewUserInfoMessageSaga,
+      // @ts-expect-error
       publicChannelsActions.sendNewUserInfoMessage({ certificates: [user2.userCertificate] })
     )
       .withReducer(reducer)
@@ -98,11 +103,13 @@ describe('sendInitialChannelMessageSaga', () => {
     channel = (await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel'))
       .payload.channel
 
-    const communityName = community1.name[0].toUpperCase() + community1.name.substring(1)
-
+    expect(community1.name).not.toBeNull()
+    const communityName = capitalizeFirstLetter(community1.name || '')
+    expect(user2.userCertificate).not.toBeNull()
     const reducer = combineReducers(reducers)
     await expectSaga(
       sendNewUserInfoMessageSaga,
+      // @ts-expect-error
       publicChannelsActions.sendNewUserInfoMessage({ certificates: [user2.userCertificate] })
     )
       .withReducer(reducer)
@@ -134,6 +141,7 @@ describe('sendInitialChannelMessageSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       sendNewUserInfoMessageSaga,
+      // @ts-expect-error
       publicChannelsActions.sendNewUserInfoMessage({ certificates: [user.userCertificate] })
     )
       .withReducer(reducer)
@@ -170,15 +178,17 @@ describe('sendInitialChannelMessageSaga', () => {
       .payload.channel
 
     store.dispatch(
+      // @ts-expect-error
       usersActions.test_remove_user_certificate({ certificate: user2.userCertificate })
     )
-
-    const communityName = community1.name[0].toUpperCase() + community1.name.substring(1)
+    expect(community1.name).not.toBeNull()
+    const communityName = capitalizeFirstLetter(community1.name || '')
 
     const reducer = combineReducers(reducers)
     const result = await expectSaga(
       sendNewUserInfoMessageSaga,
       publicChannelsActions.sendNewUserInfoMessage({
+        // @ts-expect-error
         certificates: [user2.userCertificate, user2.userCertificate]
       })
     )

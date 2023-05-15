@@ -15,8 +15,6 @@ import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
 import { communitiesActions, Community } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
-import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { messagesActions } from '../../messages/messages.slice'
 import { deleteChannelSaga } from './deleteChannel.saga'
 import { Socket } from 'socket.io-client'
 
@@ -27,7 +25,6 @@ describe('deleteChannelSaga', () => {
   let community: Community
   let owner: Identity
 
-  let generalChannel: PublicChannel
   let photoChannel: PublicChannel
 
   const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
@@ -46,8 +43,6 @@ describe('deleteChannelSaga', () => {
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
-
-    generalChannel = publicChannelsSelectors.currentChannel(store.getState())
 
     photoChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(

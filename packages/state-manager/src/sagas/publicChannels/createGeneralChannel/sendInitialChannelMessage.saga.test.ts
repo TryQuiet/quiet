@@ -21,7 +21,7 @@ describe('sendInitialChannelMessageSaga', () => {
 
   let channel: PublicChannel
 
-  let generalChannel: PublicChannel
+  let generalChannel: PublicChannel | undefined
 
   let community: Community
   let owner: Identity
@@ -42,6 +42,7 @@ describe('sendInitialChannelMessageSaga', () => {
     )
 
     generalChannel = publicChannelsSelectors.currentChannel(store.getState())
+    expect(generalChannel).not.toBeUndefined()
 
     channel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
@@ -86,7 +87,9 @@ describe('sendInitialChannelMessageSaga', () => {
     await expectSaga(
       sendInitialChannelMessageSaga,
       publicChannelsActions.sendInitialChannelMessage({
+        // @ts-expect-error
         channelName: generalChannel.name,
+        // @ts-expect-error
         channelAddress: generalChannel.address
       })
     )
@@ -96,6 +99,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `@${owner.nickname} deleted all messages in #general`,
+          // @ts-expect-error
           channelAddress: generalChannel.address
         })
       )

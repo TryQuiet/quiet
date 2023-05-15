@@ -26,7 +26,8 @@ describe('resetChannelCacheSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: PublicChannel
+  let generalChannel: PublicChannel | undefined
+  let generalChannelAddress: string
 
   beforeAll(async () => {
     setupCrypto()
@@ -45,13 +46,15 @@ describe('resetChannelCacheSaga', () => {
     )
 
     generalChannel = selectGeneralChannel(store.getState())
+    expect(generalChannel).toBeDefined()
+    generalChannelAddress = generalChannel?.address || ''
   })
 
   test('reset current public channel cache', async () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       })
     )
 
@@ -69,7 +72,7 @@ describe('resetChannelCacheSaga', () => {
               message: 'message',
               createdAt:
                 DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
-              channelAddress: generalChannel.address,
+              channelAddress: generalChannelAddress,
               signature: '',
               pubKey: ''
             },
@@ -87,7 +90,7 @@ describe('resetChannelCacheSaga', () => {
       'CacheMessages',
       {
         messages: messages,
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       }
     )
 
@@ -106,12 +109,12 @@ describe('resetChannelCacheSaga', () => {
       .put(
         publicChannelsActions.cacheMessages({
           messages: updatedCache,
-          channelAddress: generalChannel.address
+          channelAddress: generalChannelAddress
         })
       )
       .put(
         messagesActions.setDisplayedMessagesNumber({
-          channelAddress: generalChannel.address,
+          channelAddress: generalChannelAddress,
           display: 50
         })
       )

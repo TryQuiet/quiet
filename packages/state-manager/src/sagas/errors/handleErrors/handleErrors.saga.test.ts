@@ -78,6 +78,7 @@ describe('handle errors', () => {
       message: ErrorMessages.USERNAME_TAKEN,
       community: community.id
     }
+    expect(identity.userCsr).not.toBeNull()
     await expectSaga(
       handleErrorsSaga,
       errorsActions.handleError(errorPayload)
@@ -90,6 +91,7 @@ describe('handle errors', () => {
         identityActions.registerCertificate({
           communityId: community.id,
           nickname: identity.nickname,
+          // @ts-expect-error
           userCsr: identity.userCsr
         })
       )

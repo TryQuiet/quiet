@@ -293,7 +293,8 @@ describe('publicChannelsSelectors', () => {
       'Identity',
       { id: community.id, nickname: 'elouise' }
     )
-
+    
+    // @ts-expect-error
     store.dispatch(usersActions.test_remove_user_certificate({ certificate: elouise.userCertificate }))
 
     store.dispatch(publicChannelsActions.setCurrentChannel({
@@ -346,6 +347,7 @@ describe('publicChannelsSelectors', () => {
         }
       }
     }
+    // @ts-expect-error
     const unreadChannels = publicChannelsSelectors.unreadChannels(newState)
     expect(unreadChannels).toEqual([])
   })

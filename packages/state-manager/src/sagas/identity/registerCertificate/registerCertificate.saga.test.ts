@@ -28,13 +28,13 @@ describe('registerCertificateSaga', () => {
     >('Identity', {
       id: community.id
     })
-
+    expect(identity.userCsr).not.toBeNull()
     const registerCertificatePayload: RegisterCertificatePayload = {
       communityId: community.id,
       nickname: identity.nickname,
+      // @ts-expect-error
       userCsr: identity.userCsr
     }
-
     const reducer = combineReducers(reducers)
     await expectSaga(
       registerCertificateSaga,
@@ -49,8 +49,8 @@ describe('registerCertificateSaga', () => {
           communityId: community.id,
           userCsr: identity.userCsr,
           permsData: {
-            certificate: community.CA.rootCertString,
-            privKey: community.CA.rootKeyString
+            certificate: community.CA?.rootCertString,
+            privKey: community.CA?.rootKeyString
           }
         }
       ])

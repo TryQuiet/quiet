@@ -78,8 +78,11 @@ describe('launchCommunity', () => {
       peerId: identity.peerId,
       hiddenService: identity.hiddenService,
       certs: {
+        // @ts-expect-error
         certificate: identity.userCertificate,
+        // @ts-expect-error
         key: identity.userCsr.userKey,
+        // @ts-expect-error
         CA: [community.rootCa]
       },
       peers: community.peerList
@@ -138,14 +141,17 @@ describe('launchCommunity', () => {
       peerId: identity.peerId,
       hiddenService: identity.hiddenService,
       certs: {
+        // @ts-expect-error
         certificate: identity.userCertificate,
+        // @ts-expect-error
         key: identity.userCsr.userKey,
+        // @ts-expect-error
         CA: [community.rootCa]
       },
       peers: community.peerList,
     }
 
-    await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity())
+    await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity(community.id))
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,

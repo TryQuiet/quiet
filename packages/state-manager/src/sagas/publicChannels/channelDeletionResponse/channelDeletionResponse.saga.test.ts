@@ -22,7 +22,6 @@ describe('channelDeletionResponseSaga', () => {
   let community: Community
   let owner: Identity
 
-  let generalChannel: PublicChannel
   let photoChannel: PublicChannel
 
   beforeAll(async () => {
@@ -39,8 +38,6 @@ describe('channelDeletionResponseSaga', () => {
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
-
-    generalChannel = publicChannelsSelectors.currentChannel(store.getState())
 
     photoChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
@@ -105,7 +102,7 @@ describe('channelDeletionResponseSaga', () => {
 
   describe('handle saga logic as standard user', () => {
     beforeAll(async () => {
-      store.dispatch(communitiesActions.updateCommunityData({ ...community, CA: '' }))
+      store.dispatch(communitiesActions.updateCommunityData({ ...community, CA: null }))
     })
     test('delete standard channel', async () => {
       const channelAddress = photoChannel.address

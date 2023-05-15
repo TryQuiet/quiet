@@ -68,8 +68,8 @@ describe('saveOwnerCertificateToDb', () => {
           peerId: identity.peerId.id,
           certificate: identity.userCertificate,
           permsData: {
-            certificate: community.CA.rootCertString,
-            privKey: community.CA.rootKeyString
+            certificate: community.CA?.rootCertString,
+            privKey: community.CA?.rootKeyString
           }
         }
       ])

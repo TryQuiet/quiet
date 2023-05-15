@@ -82,8 +82,8 @@ export const communitiesSlice = createSlice({
       })
     },
     resetApp: (state, _action) => state,
-    launchCommunity: (state, _action: PayloadAction<string>) => state,
-    launchRegistrar: (state, _action: PayloadAction<string>) => state,
+    launchCommunity: (state, _action: PayloadAction<string | undefined>) => state,
+    launchRegistrar: (state, _action: PayloadAction<string | undefined>) => state,
     updateRegistrationAttempts: (state, action: PayloadAction<UpdateRegistrationAttemptsPayload>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,

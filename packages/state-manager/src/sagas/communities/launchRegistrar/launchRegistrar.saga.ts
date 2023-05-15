@@ -10,9 +10,9 @@ import { LaunchRegistrarPayload } from '../communities.types'
 
 export function* launchRegistrarSaga(
   socket: Socket,
-  action: PayloadAction<ReturnType<typeof communitiesActions.launchRegistrar>['payload']>
+  action: PayloadAction<ReturnType<typeof communitiesActions.launchRegistrar>['payload'] | undefined>
 ): Generator {
-  let communityId: string = action.payload
+  let communityId: string | undefined = action.payload
 
   if (!communityId) {
     communityId = yield* select(communitiesSelectors.currentCommunityId)

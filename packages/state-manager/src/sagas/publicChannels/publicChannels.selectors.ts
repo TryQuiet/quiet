@@ -18,6 +18,7 @@ import {
   PublicChannelStatus
 } from './publicChannels.types'
 import { MessageType } from '../messages/messages.types'
+import { isDefined } from '@quiet/common'
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
   state[StoreKeys.PublicChannels]
@@ -94,7 +95,7 @@ export const sortedChannels = createSelector(publicChannels, (channels) => {
 export const currentChannelAddress = createSelector(
   selectState,
   (state) => {
-    if (!state) return undefined
+    if (!state) return ''
     return state.currentChannelAddress
   }
 )
@@ -274,13 +275,12 @@ export const channelsStatusSorted = createSelector(
 export const unreadChannels = createSelector(
   channelsStatus,
   status => {
-    const a = Object.values(status).reduce((result: string[], channel: PublicChannelStatus) => {
+    return Object.values(status).filter(isDefined).reduce((result: string[], channel: PublicChannelStatus) => {
       if (channel.unread) {
         result.push(channel.address)
       }
       return result
     }, [])
-    return a
   }
 )
 

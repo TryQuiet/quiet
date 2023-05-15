@@ -22,7 +22,6 @@ describe('sendDeletionMessage', () => {
   let community: Community
   let owner: Identity
 
-  let generalChannel: PublicChannel
   let photoChannel: PublicChannel
 
   beforeAll(async () => {
@@ -39,8 +38,6 @@ describe('sendDeletionMessage', () => {
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
-
-    generalChannel = publicChannelsSelectors.currentChannel(store.getState())
 
     photoChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
