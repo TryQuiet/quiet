@@ -98,45 +98,25 @@ export class IpfsFilesManager extends EventEmitter {
                 console.error(`downloading ${mid} has already been canceled or never started`)
             }
         })
-        this.on(IpfsFilesManagerEvents.DELETE_FILE, async (fileMetadata: FileMetadata) => {
-            // Channel deletion WIP
-
-            // Check if we have it in case we didnt downloaded file
-            // await this.deleteBlocks(fileMetadata)
-        })
     }
 
     public async deleteBlocks(fileMetadata: FileMetadata) {
-        // console.log('deleting file in fileManager')
-        // const localBlocks = await this.getLocalBlocks()
-        // const hasBlockBeenDownloaded = localBlocks.includes(`z${fileMetadata.cid.toString()}`)
-        // console.log('has block been downlaoded ', hasBlockBeenDownloaded)
-        // if (!hasBlockBeenDownloaded) return
+        const localBlocks = await this.getLocalBlocks()
+        const hasBlockBeenDownloaded = localBlocks.includes(`z${fileMetadata.cid.toString()}`)
+        if (!hasBlockBeenDownloaded) return
 
-        // const les = this.ipfs.pin.ls({paths: CID.parse(fileMetadata.cid)})
-        // for await (const l of les) {
-        //     console.log('llllll', l)
-        // }
+        try {
+            const result = await this.ipfs.pin.rm(fileMetadata.cid, {recursive: true})
 
-        // try {
-        //     const result = await this.ipfs.pin.rm(CID.parse(fileMetadata.cid), {recursive: true})
-        //     console.log(
-        //         'unpinning result ', result
-        //     )
-        // } catch (e) {
-        //     console.log('file removing error')
-        //     console.log(e)
-        // }
-        // const gcresult =  this.ipfs.repo.gc()
-        // for await (const res of gcresult) {
-        //     console.log('garbage collector result', res)
-        // }
-        // const blocks = this.ipfs.get(CID.parse(fileMetadata.cid))
-        // for await (const block of blocks) {
-        //     // const decodedBlock = decode(block)
-        //     console.log('bock', block)
-        // }
-        // Parse DAG blocks in case file is canceled mid download
+        } catch (e) {
+            console.log('file removing error')
+            console.log(e)
+        }
+        
+        const gcresult = this.ipfs.repo.gc()
+        for await (const res of gcresult) {
+            console.log('garbage collector result', res)
+        }
     }
 
     public async stop() {
@@ -199,22 +179,18 @@ export class IpfsFilesManager extends EventEmitter {
         // Save copy to separate directory
         const filePath = this.copyFile(metadata.path, filename)
         console.time(`Writing ${filename} to ipfs`)
-        await this.ipfs.files.write(`/${dirname}/${filename}`, uploadedFileStreamIterable, {
-            create: true
-        })
+        const newCid =  await this.ipfs.add(uploadedFileStreamIterable)
+    
+
         console.timeEnd(`Writing ${filename} to ipfs`)
 
-        // Get uploaded file information
-        const entries = this.ipfs.files.ls(`/${dirname}`)
-        for await (const entry of entries) {
-            if (entry.name === filename) {
+ 
                 this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
-                await this.ipfs.pin.add(entry.cid)
                 const fileMetadata: FileMetadata = {
                     ...metadata,
                     path: filePath,
-                    cid: entry.cid.toString(),
-                    size: entry.size,
+                    cid: newCid.cid.toString(),
+                    size: newCid.size,
                     width,
                     height
                 }
@@ -233,9 +209,7 @@ export class IpfsFilesManager extends EventEmitter {
                 if (metadata.path !== filePath) {
                     this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
                 }
-                break
-            }
-        }
+
     }
 
     private cancelDownload = async (cid: string) => {
