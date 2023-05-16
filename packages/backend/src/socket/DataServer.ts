@@ -156,8 +156,8 @@ export class DataServer extends EventEmitter {
         log('leaving community')
         this.emit(SocketActionTypes.LEAVE_COMMUNITY)
       })
-      socket.on(SocketActionTypes.DELETE_CHANNEL, async (payload) => {
-        log('deleting channel ', payload.channel)
+      socket.on(SocketActionTypes.DELETE_CHANNEL, async (payload: {channelAddress: string}) => {
+        log('deleting channel ', payload.channelAddress)
         this.emit(SocketActionTypes.DELETE_CHANNEL, payload)
       })
     })

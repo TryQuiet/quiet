@@ -680,7 +680,7 @@ export class ConnectionsManager extends EventEmitter {
     this.storage.on(StorageEvents.CHECK_FOR_MISSING_FILES, (payload: CommunityId) => {
       this.io.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, payload)
     })
-    this.storage.on(StorageEvents.CHANNEL_DELETION_RESPONSE, (payload: any) => {
+    this.storage.on(StorageEvents.CHANNEL_DELETION_RESPONSE, (payload: {channelAddress: string}) => {
       console.log('emitting deleted channel event back to state manager')
       this.io.emit(SocketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
     })
