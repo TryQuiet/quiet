@@ -1,10 +1,10 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { select, put, call } from 'typed-redux-saga'
+import { select, put } from 'typed-redux-saga'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
-import { MarkUnreadChannelPayload } from '../publicChannels.types'
 import { identitySelectors } from '../../identity/identity.selectors'
+import { MarkUnreadChannelPayload } from '@quiet/types'
 
 export function* markUnreadChannelsSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>

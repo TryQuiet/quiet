@@ -1,23 +1,15 @@
 import {
-  createRootCA,
-  RootCA,
-  createUserCsr,
-  createUserCert,
-  UserCsr,
-  UserCert,
-  loadPrivateKey,
   keyFromCertificate,
+  loadPrivateKey,
   parseCertificate,
   sign
 } from '@quiet/identity'
-import child_process from 'child_process'
 import logger from '../logger'
 // import fs from 'fs'
 // import os from 'os'
-import { config } from '../../sagas/users/const/certFieldTypes'
-import { PeerId } from '../../sagas/identity/identity.types'
 import { arrayBufferToString } from 'pvutils'
-import { Time } from 'pkijs'
+import { config } from '../../sagas/users/const/certFieldTypes'
+import { PeerId } from '@quiet/types'
 const log = logger('test')
 
 const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))

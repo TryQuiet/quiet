@@ -1,20 +1,19 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory, messages, PublicChannel, publicChannels } from '../../..'
+import { getFactory, messages, publicChannels } from '../../..'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from './../publicChannels.slice'
-import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
 import { communitiesActions } from '../../communities/communities.slice'
 import { channelsReplicatedSaga } from './channelsReplicated.saga'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
-import { Community } from '@quiet/types'
+import { Community, Identity, PublicChannel } from '@quiet/types'
 
 describe('channelsReplicatedSaga', () => {
   let store: Store

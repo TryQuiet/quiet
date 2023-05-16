@@ -1,21 +1,9 @@
 import { Socket as IOSocket } from 'socket.io-client'
 import { DefaultEventsMap } from 'socket.io-client/build/typed-events'
-import { InitCommunityPayload, LaunchRegistrarPayload } from './sagas/communities/communities.types'
-import {
-  CancelDownloadPayload,
-  DownloadFilePayload,
-  UploadFilePayload
-} from './sagas/files/files.types'
-import {
-  RegisterOwnerCertificatePayload,
-  RegisterUserCertificatePayload,
-  SaveOwnerCertificatePayload
-} from './sagas/identity/identity.types'
 import { messagesActions } from './sagas/messages/messages.slice'
-import { SendMessagePayload } from './sagas/messages/messages.types'
 import { publicChannelsActions } from './sagas/publicChannels/publicChannels.slice'
 import { SocketActionTypes } from './sagas/socket/const/actionTypes'
-import { Community } from '@quiet/types'
+import { CancelDownloadPayload, Community, DownloadFilePayload, InitCommunityPayload, LaunchRegistrarPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveOwnerCertificatePayload, SendMessagePayload, UploadFilePayload } from '@quiet/types'
 
 type EmitEvent<Payload> = (payload: Payload) => void
 

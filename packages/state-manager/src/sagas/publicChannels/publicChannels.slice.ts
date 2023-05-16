@@ -6,31 +6,7 @@ import {
   publicChannelsStatusAdapter,
   publicChannelsSubscriptionsAdapter
 } from './publicChannels.adapter'
-import {
-  PublicChannelStorage,
-  PublicChannelStatus,
-  PublicChannelSubscription,
-  ChannelMessage,
-  CreateChannelPayload,
-  CreatedChannelResponse,
-  ChannelsReplicatedPayload,
-  SendInitialChannelMessagePayload,
-  SetCurrentChannelPayload,
-  CacheMessagesPayload,
-  MarkUnreadChannelPayload,
-  SendNewUserInfoMessagePayload,
-  SetChannelSubscribedPayload,
-  UpdateNewestMessagePayload,
-  DeleteChannelPayload,
-  ChannelDeletionResponsePayload,
-  DeleteChannelFromStorePayload,
-  ClearMessagesCachePayload,
-  DisableChannelPayload
-} from './publicChannels.types'
-
-import logger from '../../utils/logger'
-import { Identity } from '../identity/identity.types'
-const log = logger('publicChannels')
+import { CacheMessagesPayload, ChannelDeletionResponsePayload, ChannelMessage, ChannelsReplicatedPayload, ClearMessagesCachePayload, CreateChannelPayload, CreatedChannelResponse, DeleteChannelFromStorePayload, DeleteChannelPayload, DisableChannelPayload, Identity, MarkUnreadChannelPayload, PublicChannelStatus, PublicChannelStorage, PublicChannelSubscription, SendInitialChannelMessagePayload, SendNewUserInfoMessagePayload, SetChannelSubscribedPayload, SetCurrentChannelPayload, UpdateNewestMessagePayload } from '@quiet/types'
 
 export class PublicChannelsState {
   public currentChannelAddress: string = 'general'

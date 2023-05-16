@@ -6,15 +6,13 @@ import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
 import { FactoryGirl } from 'factory-girl'
-import { DownloadState, FileMetadata } from '../files.types'
 import { resetTransferSpeedSaga } from './resetTransferSpeed.saga'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
 import { filesActions } from '../files.slice'
 import { networkActions } from '../../network/network.slice'
-import { Community } from '@quiet/types'
+import { Community, DownloadState, FileMetadata, Identity } from '@quiet/types'
 
 describe('downloadFileSaga', () => {
   let store: Store

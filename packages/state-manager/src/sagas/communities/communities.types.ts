@@ -1,5 +1,4 @@
-import { Community } from '@quiet/types'
-import { HiddenService, PeerId, Identity } from '../identity/identity.types'
+import { Community, HiddenService, Identity, PeerId } from '@quiet/types'
 
 export enum CommunityOwnership {
   Owner = 'owner',

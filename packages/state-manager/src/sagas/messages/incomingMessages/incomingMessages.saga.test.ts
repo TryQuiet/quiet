@@ -6,10 +6,7 @@ import { prepareStore } from '../../..//utils/tests/prepareStore'
 import { combineReducers, Store } from 'redux'
 import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
-import { MessageType } from '../messages.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { ChannelMessage, PublicChannel } from '../../publicChannels/publicChannels.types'
 import {
   publicChannelsSelectors,
   selectGeneralChannel
@@ -18,8 +15,7 @@ import { DateTime } from 'luxon'
 import { incomingMessagesSaga } from './incomingMessages.saga'
 import { messagesActions } from '../messages.slice'
 import { reducers } from '../../reducers'
-import { FileMetadata } from '../../files/files.types'
-import { Community } from '@quiet/types'
+import { ChannelMessage, Community, FileMetadata, Identity, MessageType, PublicChannel } from '@quiet/types'
 
 describe('incomingMessagesSaga', () => {
   let store: Store

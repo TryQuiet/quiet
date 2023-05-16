@@ -8,13 +8,13 @@ import {
 } from '@quiet/identity'
 import { put, select, call } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
-import { MessageType, WriteMessagePayload } from '../../messages/messages.types'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { usersSelectors } from '../../users/users.selectors'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 
 import { MAIN_CHANNEL } from '../../../constants'
+import { MessageType, WriteMessagePayload } from '@quiet/types'
 
 export function* sendNewUserInfoMessageSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>['payload']>

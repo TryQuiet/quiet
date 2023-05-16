@@ -4,11 +4,10 @@ import { Store } from '@reduxjs/toolkit'
 import { getFactory } from '../../utils/tests/factories'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { identityActions } from '../identity/identity.slice'
-import { Identity } from '../identity/identity.types'
 import { usersActions } from '../users/users.slice'
 import { communitiesSelectors } from './communities.selectors'
 import { communitiesActions } from './communities.slice'
-import { Community } from '@quiet/types'
+import { Community, Identity } from '@quiet/types'
 
 describe('communitiesSelectors', () => {
   setupCrypto()

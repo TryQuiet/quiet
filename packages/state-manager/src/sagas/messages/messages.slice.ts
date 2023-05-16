@@ -1,25 +1,12 @@
 import { createSlice, Dictionary, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
-import { ChannelMessage, IncomingMessages, instanceOfChannelMessage } from '../publicChannels/publicChannels.types'
 import { StoreKeys } from '../store.keys'
 import {
   messageVerificationStatusAdapter,
   messageSendingStatusAdapter,
   publicChannelsMessagesBaseAdapter
 } from './messages.adapter.ts'
-import {
-  MessageVerificationStatus,
-  MessageSendingStatus,
-  WriteMessagePayload,
-  PublicChannelsMessagesBase,
-  AddPublicChannelsMessagesBasePayload,
-  SetDisplayedMessagesNumberPayload,
-  LazyLoadingPayload,
-  AskForMessagesPayload,
-  ChannelMessagesIdsResponse,
-  DeleteChannelEntryPayload,
-  SendDeletionMessagePayload
-} from './messages.types'
+import { AddPublicChannelsMessagesBasePayload, AskForMessagesPayload, ChannelMessage, ChannelMessagesIdsResponse, DeleteChannelEntryPayload, IncomingMessages, instanceOfChannelMessage, LazyLoadingPayload, MessageSendingStatus, MessageVerificationStatus, PublicChannelsMessagesBase, SendDeletionMessagePayload, SetDisplayedMessagesNumberPayload, WriteMessagePayload } from '@quiet/types'
 
 export class MessagesState {
   public publicKeyMapping: Dictionary<CryptoKey> = {}

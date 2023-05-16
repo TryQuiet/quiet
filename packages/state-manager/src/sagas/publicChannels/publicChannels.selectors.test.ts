@@ -1,7 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../store.types'
 import { FactoryGirl } from 'factory-girl'
-import { getFactory, Identity, publicChannels } from '../..'
+import { getFactory, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import {
   publicChannels as getPublicChannels,
@@ -11,18 +11,16 @@ import {
   publicChannelsSelectors
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
-import { DisplayableMessage, ChannelMessage } from './publicChannels.types'
 import { communitiesActions } from '../communities/communities.slice'
 import { identityActions } from '../identity/identity.slice'
 import { usersActions } from '../users/users.slice'
-import { MessageType } from '../messages/messages.types'
 import {
   formatMessageDisplayDate,
   formatMessageDisplayDay
 } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
-import { Community } from '@quiet/types'
+import { ChannelMessage, Community, DisplayableMessage, Identity, MessageType } from '@quiet/types'
 
 describe('publicChannelsSelectors', () => {
   let store: Store

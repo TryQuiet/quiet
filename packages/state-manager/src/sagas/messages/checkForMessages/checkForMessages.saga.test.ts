@@ -1,6 +1,6 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, Identity, MessageType, publicChannels } from '../../..'
+import { getFactory, publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { messagesActions } from './../messages.slice'
 import { communitiesActions } from '../../communities/communities.slice'
@@ -9,10 +9,9 @@ import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import { checkForMessagesSaga } from './checkForMessages.saga'
-import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { DateTime } from 'luxon'
 import { selectGeneralChannel } from '../../publicChannels/publicChannels.selectors'
-import { Community } from '@quiet/types'
+import { Community, Identity, MessageType, PublicChannel } from '@quiet/types'
 
 describe('checkForMessagesSaga', () => {
   let store: Store

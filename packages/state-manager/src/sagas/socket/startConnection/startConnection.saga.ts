@@ -7,39 +7,21 @@ import { connectionActions } from '../../appConnection/connection.slice'
 import { communitiesMasterSaga } from '../../communities/communities.master.saga'
 import { connectionMasterSaga } from '../../appConnection/connection.master.saga'
 import { communitiesActions } from '../../communities/communities.slice'
-import {
-  ResponseCreateCommunityPayload,
-  ResponseCreateNetworkPayload,
-  ResponseLaunchCommunityPayload,
-  ResponseRegistrarPayload,
-  StorePeerListPayload
-} from '../../communities/communities.types'
 import { errorsMasterSaga } from '../../errors/errors.master.saga'
 import { errorsActions } from '../../errors/errors.slice'
-import { ErrorPayload } from '../../errors/errors.types'
-import { DownloadStatus, FileMetadata, RemoveDownloadStatus } from '../../files/files.types'
 import { identityMasterSaga } from '../../identity/identity.master.saga'
 import { identityActions } from '../../identity/identity.slice'
 import { messagesMasterSaga } from '../../messages/messages.master.saga'
 import { filesMasterSaga } from '../../files/files.master.saga'
 import { messagesActions } from '../../messages/messages.slice'
-import { ChannelMessagesIdsResponse } from '../../messages/messages.types'
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import {
-  ChannelsReplicatedPayload,
-  CreatedChannelResponse,
-  ChannelDeletionResponsePayload,
-  IncomingMessages,
-  SetChannelSubscribedPayload
-} from '../../publicChannels/publicChannels.types'
 
 import { usersActions } from '../../users/users.slice'
-import { SendCertificatesResponse } from '../../users/users.types'
 import { SocketActionTypes } from '../const/actionTypes'
 import { filesActions } from '../../files/files.slice'
-import { CommunityId, NetworkDataPayload } from '../../appConnection/connection.types'
 import { networkActions } from '../../network/network.slice'
+import { ResponseCreateCommunityPayload, ResponseRegistrarPayload, StorePeerListPayload, ResponseCreateNetworkPayload, ResponseLaunchCommunityPayload, ChannelDeletionResponsePayload, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, CommunityId, CreatedChannelResponse, DownloadStatus, ErrorPayload, FileMetadata, IncomingMessages, NetworkDataPayload, RemoveDownloadStatus, SendCertificatesResponse, SetChannelSubscribedPayload } from '@quiet/types'
 
 const log = logger('socket')
 

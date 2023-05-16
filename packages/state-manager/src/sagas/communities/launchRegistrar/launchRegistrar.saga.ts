@@ -6,7 +6,7 @@ import { identitySelectors } from '../../identity/identity.selectors'
 
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
-import { LaunchRegistrarPayload } from '../communities.types'
+import { LaunchRegistrarPayload } from '@quiet/types'
 
 export function* launchRegistrarSaga(
   socket: Socket,

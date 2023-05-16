@@ -8,11 +8,10 @@ import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import { publicChannelsActions } from './../publicChannels.slice'
-import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
 import { createGeneralChannelSaga, getChannelTimestamp } from './createGeneralChannel.saga'
 import { communitiesActions } from '../../communities/communities.slice'
-import { Community } from '@quiet/types'
+import { Community, Identity } from '@quiet/types'
 
 describe('createGeneralChannelSaga', () => {
   let store: Store

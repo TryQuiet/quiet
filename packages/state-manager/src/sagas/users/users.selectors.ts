@@ -3,9 +3,9 @@ import { getCertFieldValue } from '@quiet/identity'
 import { CertFieldsTypes } from './const/certFieldTypes'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
-import { User } from './users.types'
-import { CreatedSelectors, StoreState } from '../store.types'
 import {Certificate} from 'pkijs'
+import { CreatedSelectors, StoreState } from '../store.types'
+import { User } from '@quiet/types'
 
 const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => state[StoreKeys.Users]
 

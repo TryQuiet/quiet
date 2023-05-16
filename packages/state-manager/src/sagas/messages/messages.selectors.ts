@@ -11,8 +11,8 @@ import {
   messageVerificationStatusAdapter,
   publicChannelsMessagesBaseAdapter
 } from './messages.adapter.ts'
-import { MessageType } from './messages.types'
 import { isDefined } from '@quiet/common'
+import { MessageType } from '@quiet/types'
 
 const messagesSlice: CreatedSelectors[StoreKeys.Messages] = (state: StoreState) =>
   state[StoreKeys.Messages]

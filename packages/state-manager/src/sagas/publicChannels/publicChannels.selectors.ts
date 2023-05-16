@@ -10,15 +10,8 @@ import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
-import {
-  ChannelMessage,
-  DisplayableMessage,
-  MessagesDailyGroups,
-  PublicChannel,
-  PublicChannelStatus
-} from './publicChannels.types'
-import { MessageType } from '../messages/messages.types'
 import { isDefined } from '@quiet/common'
+import { ChannelMessage, DisplayableMessage, MessageType, MessagesDailyGroups, PublicChannel, PublicChannelStatus } from '@quiet/types'
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
   state[StoreKeys.PublicChannels]

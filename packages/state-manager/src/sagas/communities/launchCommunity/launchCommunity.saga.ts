@@ -5,11 +5,11 @@ import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
-import { InitCommunityPayload } from '../communities.types'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { getCurrentTime } from '../../messages/utils/message.utils'
 import { connectionSelectors } from '../../appConnection/connection.selectors'
 import { networkSelectors } from '../../network/network.selectors'
+import { InitCommunityPayload } from '@quiet/types'
 
 export function* initCommunities(): Generator {
   const joinedCommunities = yield* select(identitySelectors.joinedCommunities)

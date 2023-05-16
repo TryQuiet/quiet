@@ -4,13 +4,11 @@ import { keyFromCertificate, parseCertificate, sign, loadPrivateKey } from '@qui
 import { call, select, apply, put } from 'typed-redux-saga'
 import { arrayBufferToString } from 'pvutils'
 import { config } from '../../users/const/certFieldTypes'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
-import { ChannelMessage } from '../../publicChannels/publicChannels.types'
-import { MessageType, SendingStatus } from '../messages.types'
+import { ChannelMessage, MessageType, SendingStatus, SocketActionTypes } from '@quiet/types'
 
 export function* sendMessageSaga(
   socket: Socket,

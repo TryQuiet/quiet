@@ -7,16 +7,12 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
 import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { filesActions } from '../files.slice'
 import { FactoryGirl } from 'factory-girl'
 import { broadcastHostedFileSaga } from './broadcastHostedFile.saga'
-import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
-import { FileMetadata } from '../files.types'
-import { Community } from '@quiet/types'
+import { Community, FileMetadata, Identity, PublicChannel, SocketActionTypes } from '@quiet/types'
 
 describe('downloadFileSaga', () => {
   let store: Store

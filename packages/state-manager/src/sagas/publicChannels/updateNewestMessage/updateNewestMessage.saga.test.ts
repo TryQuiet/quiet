@@ -1,18 +1,17 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, ChannelMessage, MessageType } from '../../..'
+import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { communitiesActions } from '../../communities/communities.slice'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
-import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { updateNewestMessageSaga } from './updateNewestMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
-import { Community } from '@quiet/types'
+import { ChannelMessage, Community, Identity, MessageType } from '@quiet/types'
 
 describe('markUnreadChannelsSaga', () => {
   let store: Store

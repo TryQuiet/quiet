@@ -4,9 +4,9 @@ import { applyEmitParams, Socket } from '../../../types'
 import { select, apply } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesSelectors } from '../../messages/messages.selectors'
-import { instanceOfChannelMessage } from '../../publicChannels/publicChannels.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { filesActions } from '../files.slice'
+import { instanceOfChannelMessage } from '@quiet/types'
 
 export function* broadcastHostedFileSaga(
   socket: Socket,

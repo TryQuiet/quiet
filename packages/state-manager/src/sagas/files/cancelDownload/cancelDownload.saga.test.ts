@@ -7,13 +7,11 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
 import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { FactoryGirl } from 'factory-girl'
-import { CancelDownload, DownloadState } from '../../files/files.types'
 import { filesActions } from '../files.slice'
 import { cancelDownloadSaga } from './cancelDownload.saga'
-import { Community } from '@quiet/types'
+import { CancelDownload, Community, DownloadState, Identity } from '@quiet/types'
 
 describe('cancelDownloadSaga', () => {
   let store: Store

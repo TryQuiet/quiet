@@ -5,7 +5,6 @@ import { prepareStore } from '../../../utils/tests/prepareStore'
 import { publicChannelsActions } from './../publicChannels.slice'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
-import { PublicChannel } from '../publicChannels.types'
 import { sendInitialChannelMessageSaga } from './sendInitialChannelMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesActions } from '../../communities/communities.slice'
@@ -14,7 +13,7 @@ import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../reducers'
-import { Community } from '@quiet/types'
+import { Community, PublicChannel } from '@quiet/types'
 
 describe('sendInitialChannelMessageSaga', () => {
   let store: Store

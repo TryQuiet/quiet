@@ -1,10 +1,9 @@
 import { select, put } from 'typed-redux-saga'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { CacheMessagesPayload } from '../../publicChannels/publicChannels.types'
 import { messagesSelectors } from '../messages.selectors'
 import { messagesActions } from '../messages.slice'
-import { SetDisplayedMessagesNumberPayload } from '../messages.types'
+import { CacheMessagesPayload, SetDisplayedMessagesNumberPayload } from '@quiet/types'
 
 export function* resetCurrentPublicChannelCacheSaga(): Generator {
   const channelAddress = yield* select(publicChannelsSelectors.currentChannelAddress)

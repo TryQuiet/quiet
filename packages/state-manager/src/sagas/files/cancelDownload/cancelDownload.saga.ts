@@ -1,10 +1,9 @@
 import { applyEmitParams, Socket } from '../../../types'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put, apply } from 'typed-redux-saga'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { filesActions } from '../files.slice'
-import { DownloadState } from '../files.types'
+import { DownloadState, SocketActionTypes } from '@quiet/types'
 
 export function* cancelDownloadSaga(
   socket: Socket,

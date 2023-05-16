@@ -5,10 +5,8 @@ import { prepareStore } from '../../../utils/tests/prepareStore'
 import { publicChannelsActions } from './../publicChannels.slice'
 import { usersActions } from '../../users/users.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
-import { PublicChannel } from '../publicChannels.types'
 import { communitiesActions } from '../../communities/communities.slice'
 import { sendNewUserInfoMessageSaga } from './sendNewUserInfoMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
@@ -17,6 +15,7 @@ import { reducers } from '../../reducers'
 
 import { MAIN_CHANNEL } from '../../../constants'
 import { capitalizeFirstLetter } from '@quiet/common'
+import { Identity, PublicChannel } from '@quiet/types'
 
 describe('sendInitialChannelMessageSaga', () => {
   let store: Store

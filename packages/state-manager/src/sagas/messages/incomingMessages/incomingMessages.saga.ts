@@ -4,7 +4,7 @@ import { messagesActions } from '../messages.slice'
 import { messagesSelectors } from '../messages.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { CacheMessagesPayload, ChannelMessage } from '../../publicChannels/publicChannels.types'
+import { CacheMessagesPayload, ChannelMessage } from '@quiet/types'
 
 export function* incomingMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>

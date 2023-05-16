@@ -2,8 +2,8 @@ import { select, put, call } from 'typed-redux-saga'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { DateTime } from 'luxon'
-import { PublicChannel } from '../publicChannels.types'
 import logger from '../../../utils/logger'
+import { PublicChannel } from '@quiet/types'
 
 const log = logger('publicChannels')
 

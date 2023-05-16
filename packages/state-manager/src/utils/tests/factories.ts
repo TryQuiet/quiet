@@ -1,7 +1,7 @@
 import factoryGirl from 'factory-girl'
 import { CustomReduxAdapter } from './reduxAdapter'
 import { Store } from '../../sagas/store.types'
-import { communities, identity, messages, publicChannels, users, errors, DownloadState } from '../..'
+import { communities, identity, messages, publicChannels, users, errors } from '../..'
 import {
   createMessageSignatureTestHelper,
   createPeerIdTestHelper
@@ -9,10 +9,10 @@ import {
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
 import { createRootCertificateTestHelper, createUserCertificateTestHelper, keyObjectFromString, verifySignature } from '@quiet/identity'
-import { MessageType, SendingStatus } from '../../sagas/messages/messages.types'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../sagas/messages/messages.slice'
 import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
+import { MessageType, SendingStatus } from '@quiet/types'
 
 export const getFactory = async (store: Store) => {
   // @ts-ignore

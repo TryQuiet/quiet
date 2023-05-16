@@ -4,10 +4,9 @@ import { Time } from 'pkijs'
 import { generateId } from '../../../utils/cryptography/cryptography'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { communitiesActions } from '../communities.slice'
-import { CommunityOwnership } from '../communities.types'
 import { createRootCA } from '@quiet/identity'
 import { Socket, applyEmitParams } from '../../../types'
-import { Community } from '@quiet/types'
+import { Community, CommunityOwnership } from '@quiet/types'
 
 export function* createNetworkSaga(
   socket: Socket,

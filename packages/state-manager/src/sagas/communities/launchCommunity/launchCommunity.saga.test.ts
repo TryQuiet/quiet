@@ -10,15 +10,16 @@ import { StoreKeys } from '../../store.keys'
 import { communitiesAdapter } from '../communities.adapter'
 import {
   communitiesActions,
-  communitiesReducer, CommunitiesState
+  communitiesReducer,
+  CommunitiesState
 } from '../communities.slice'
-import { InitCommunityPayload } from '../communities.types'
 import { Store } from '../../store.types'
 
 import { initCommunities, launchCommunitySaga } from './launchCommunity.saga'
 import { setupCrypto } from '@quiet/identity'
 import { FactoryGirl } from 'factory-girl'
 import { connectionReducer, ConnectionState } from '../../appConnection/connection.slice'
+import { InitCommunityPayload } from '@quiet/types'
 
 describe('launchCommunity', () => {
   let store: Store

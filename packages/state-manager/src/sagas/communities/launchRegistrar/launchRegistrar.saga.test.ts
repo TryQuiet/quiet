@@ -11,12 +11,12 @@ import {
   communitiesReducer, CommunitiesState
 } from '../communities.slice'
 import { launchRegistrarSaga } from './launchRegistrar.saga'
-import { LaunchRegistrarPayload } from '../communities.types'
 import { Store } from '../../store.types'
 import { FactoryGirl } from 'factory-girl'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
+import { LaunchRegistrarPayload } from '@quiet/types'
 
 describe('launchRegistrar', () => {
   let store: Store

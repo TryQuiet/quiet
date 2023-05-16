@@ -6,12 +6,11 @@ import { prepareStore } from '../../../utils/tests/prepareStore'
 import { Socket } from 'socket.io-client'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { communitiesActions } from '../communities.slice'
-import { CommunityOwnership } from '../communities.types'
 import { createRootCA, setupCrypto } from '@quiet/identity'
 import { reducers } from '../../reducers'
 import { createNetworkSaga } from './createNetwork.saga'
 import { generateId } from '../../../utils/cryptography/cryptography'
-import { Community } from '@quiet/types'
+import { Community, CommunityOwnership } from '@quiet/types'
 
 describe('createNetwork', () => {
   it('create network for joining user', async () => {

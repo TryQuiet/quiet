@@ -1,5 +1,5 @@
 import { isDefined } from '@quiet/common'
-import { NetworkStats } from '../../../sagas/appConnection/connection.types'
+import { NetworkStats } from '@quiet/types'
 
 /**
 This is the very simple algorithm for evaluating the most wanted peers.

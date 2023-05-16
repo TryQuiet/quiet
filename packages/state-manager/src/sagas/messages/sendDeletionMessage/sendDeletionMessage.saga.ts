@@ -2,7 +2,7 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { put, select } from 'typed-redux-saga'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { messagesActions } from '../messages.slice'
-import { WriteMessagePayload, MessageType } from '../messages.types'
+import { MessageType, WriteMessagePayload } from '@quiet/types'
 
 export function* sendDeletionMessageSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.sendDeletionMessage>['payload']>

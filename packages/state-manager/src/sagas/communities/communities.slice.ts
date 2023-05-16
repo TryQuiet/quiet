@@ -1,16 +1,7 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { communitiesAdapter } from './communities.adapter'
-import {
-  AddOwnerCertificatePayload,
-  CreateNetworkPayload,
-  ResponseCreateNetworkPayload,
-  ResponseRegistrarPayload,
-  StorePeerListPayload,
-  UpdateCommunityPayload,
-  UpdateRegistrationAttemptsPayload
-} from './communities.types'
-import { Community as CommunityType } from '@quiet/types'
+import { AddOwnerCertificatePayload, Community as CommunityType, CreateNetworkPayload, ResponseCreateNetworkPayload, ResponseRegistrarPayload, StorePeerListPayload, UpdateCommunityPayload, UpdateRegistrationAttemptsPayload } from '@quiet/types'
 
 export class CommunitiesState {
   public invitationCode: string | undefined = undefined
