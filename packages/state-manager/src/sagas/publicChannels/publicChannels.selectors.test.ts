@@ -62,7 +62,9 @@ describe('publicChannelsSelectors', () => {
       'Identity',
       { id: community.id, nickname: 'john' }
     )
-
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({ channelAddress: generalChannel.address })
+    )
     // Setup channels
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
 
@@ -223,7 +225,18 @@ describe('publicChannelsSelectors', () => {
 
   it('get messages sorted by date', async () => {
     const messages = sortedCurrentChannelMessages(store.getState())
-    messages.forEach(message => {
+
+    const formattedMessages = messages.reduce((prev: ChannelMessage[], curr: ChannelMessage) => {
+      return [
+        ...prev,
+        {
+          ...curr,
+          channelAddress: 'general_ec4bca1fa76046c53dff1e49979c3647'
+        }
+      ]
+    }, [])
+
+    formattedMessages.forEach(message => {
       expect(message).toMatchSnapshot({
         createdAt: expect.any(Number),
         pubKey: expect.any(String),
@@ -234,7 +247,6 @@ describe('publicChannelsSelectors', () => {
 
   it('get grouped messages', async () => {
     const messages = currentChannelMessagesMergedBySender(store.getState())
-
     // Convert regular messages to displayable messages
     const displayable: { [id: string]: DisplayableMessage } = {}
     for (const message of Object.values(msgs)) {
@@ -360,7 +372,9 @@ describe('publicChannelsSelectors', () => {
   })
 
   it('unreadChannels selector returns only unread channels', async () => {
-    const channelAddress = channelAddresses.find((channelAddress) => channelAddress.includes('allergies'))
+    const channelAddress = channelAddresses.find(channelAddress =>
+      channelAddress.includes('allergies')
+    )
     store.dispatch(
       publicChannelsActions.markUnreadChannel({
         channelAddress

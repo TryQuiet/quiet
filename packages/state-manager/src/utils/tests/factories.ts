@@ -165,7 +165,7 @@ export const getFactory = async (store: Store) => {
         type: MessageType.Basic,
         message: factory.sequence('Message.message', n => `message_${n}`),
         createdAt: DateTime.utc().valueOf(),
-        channelAddress: 'general',
+        channelAddress: generateChannelAddress('general'),
         signature: '',
         pubKey: ''
       },
