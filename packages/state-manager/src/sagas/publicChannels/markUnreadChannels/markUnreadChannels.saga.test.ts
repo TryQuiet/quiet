@@ -59,7 +59,6 @@ describe('markUnreadChannelsSaga', () => {
   })
 
   test('mark unread channels', async () => {
-    console.log({ channelAdresses })
     const messagesAddresses = channelAdresses
     const messages: ChannelMessage[] = []
 
@@ -117,7 +116,7 @@ describe('markUnreadChannelsSaga', () => {
       .put(
         publicChannelsActions.markUnreadChannel({
           channelAddress: channelAdresses.find((address) => address.includes('memes')),
-          message: messages[1]
+          message: messages[0]
         })
       )
       .not.put(
