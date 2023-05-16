@@ -15,7 +15,7 @@ export function* createGeneralChannelSaga(): Generator {
 
   const timestamp = yield* call(getChannelTimestamp)
   const address = yield* call(generateChannelAddress, 'general')
-  console.log({ address })
+
   const channel: PublicChannel = {
     name: 'general',
     description: 'Welcome to #general',
@@ -23,8 +23,6 @@ export function* createGeneralChannelSaga(): Generator {
     address,
     timestamp: timestamp
   }
-
-  console.log({ channel })
 
   yield* put(
     publicChannelsActions.createChannel({

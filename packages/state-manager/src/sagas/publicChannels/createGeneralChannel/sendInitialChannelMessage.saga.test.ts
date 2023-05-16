@@ -75,7 +75,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `Created #${channel.name}`,
-          channelAddress: channel.address
+          channelAddress: generalChannel.address
         })
       )
       .run()

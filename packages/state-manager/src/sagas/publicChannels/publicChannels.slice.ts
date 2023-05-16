@@ -33,7 +33,9 @@ import { Identity } from '../identity/identity.types'
 const log = logger('publicChannels')
 
 export class PublicChannelsState {
-  public currentChannelAddress: string = 'general'
+  // KACPER
+  public currentChannelAddress: string = ''
+
   public pendingGeneralChannelRecreation: boolean = false
 
   public channels: EntityState<PublicChannelStorage> = publicChannelsAdapter.getInitialState()

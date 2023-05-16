@@ -40,6 +40,7 @@ export function* channelsReplicatedSaga(
 
   // Removing channels from store
   for (const channelAddress of locallyStoredChannels) {
+    console.log({ channelAddress })
     if (!databaseStoredChannelsAddresses.includes(channelAddress)) {
       console.log({ channelAddress })
       log(`REMOVING #${channelAddress} FROM STORE`)

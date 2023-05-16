@@ -13,6 +13,7 @@ import { MessageType, SendingStatus } from '../../sagas/messages/messages.types'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../sagas/messages/messages.slice'
 import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
+import { generateChannelAddress } from '@quiet/common'
 
 export const getFactory = async (store: Store) => {
   // @ts-ignore
@@ -52,7 +53,7 @@ export const getFactory = async (store: Store) => {
             description: 'Welcome to channel #general',
             timestamp: DateTime.utc().toSeconds(),
             owner: 'alice',
-            address: 'general'
+            address: generateChannelAddress('general')
           }
         })
         return payload
@@ -135,11 +136,12 @@ export const getFactory = async (store: Store) => {
         description: 'Description',
         timestamp: DateTime.utc().toSeconds(),
         owner: factory.assoc('Identity', 'nickname'),
-        address: ''
+        address: generateChannelAddress(factory.sequence('PublicChannel.name', n => `publicChannel${n}`).toString())
       }
     },
     {
       afterBuild: (action: ReturnType<typeof publicChannels.actions.addChannel>) => {
+        // KACPER
         action.payload.channel.address = action.payload.channel.name
         return action
       },

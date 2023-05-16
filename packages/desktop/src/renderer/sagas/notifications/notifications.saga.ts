@@ -34,9 +34,8 @@ export function* displayMessageNotificationSaga(
   action: PayloadAction<ReturnType<typeof messages.actions.incomingMessages>['payload']>
 ): Generator {
   const incomingMessages = action.payload.messages
-  console.log({ incomingMessages })
+
   const currentChannel = yield* select(publicChannels.selectors.currentChannel)
-  console.log({ currentChannel })
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
   const certificatesMapping = yield* select(users.selectors.certificatesMapping)
 
@@ -48,7 +47,6 @@ export function* displayMessageNotificationSaga(
   const notificationsSound = yield* select(settings.selectors.getNotificationsSound)
 
   for (const message of incomingMessages) {
-    console.log({ message })
     const focused = yield* call(isWindowFocused)
 
     // Do not display notifications for active channel (when the app is in foreground)
@@ -155,6 +153,7 @@ function subscribeNotificationEvents(
         const [browserWindow] = remote.BrowserWindow.getAllWindows()
         browserWindow.show()
         // Emit store action
+        // KACPER
         emit(publicChannels.actions.setCurrentChannel({ channelAddress: channel }))
       }
     }

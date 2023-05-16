@@ -65,13 +65,14 @@ describe('channelsReplicatedSaga', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          address: 'photo'
+          address: generateChannelAddress('photo')
         }
       })
     ).payload.channel
   })
 
   test('save replicated channels in local storage', async () => {
+    console.log({ generalChannel })
     const reducer = combineReducers(reducers)
     await expectSaga(
       channelsReplicatedSaga,

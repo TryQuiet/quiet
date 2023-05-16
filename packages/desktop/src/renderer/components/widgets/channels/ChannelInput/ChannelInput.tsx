@@ -235,7 +235,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   handleClipboardFiles,
   handleOpenFiles
 }) => {
-  console.log({inputState})
   const [_anchorEl, setAnchorEl] = React.useState<HTMLDivElement>(null)
   const [mentionsToSelect, setMentionsToSelect] = React.useState([])
   const messageRef = React.useRef<string>()
