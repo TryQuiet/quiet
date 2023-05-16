@@ -11,7 +11,7 @@ import {
   publicChannelsSelectors
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
-import { DisplayableMessage, ChannelMessage } from './publicChannels.types'
+import { DisplayableMessage, ChannelMessage, PublicChannel } from './publicChannels.types'
 import { communitiesActions, Community } from '../communities/communities.slice'
 import { identityActions } from '../identity/identity.slice'
 import { usersActions } from '../users/users.slice'
@@ -32,6 +32,9 @@ describe('publicChannelsSelectors', () => {
   let alice: Identity
   let john: Identity
 
+  let generalChannel: PublicChannel
+  let channelAddresses: string[] = []
+
   const msgs: { [id: string]: ChannelMessage } = {}
   const msgsOwners: { [id: string]: string } = {}
 
@@ -46,14 +49,15 @@ describe('publicChannelsSelectors', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
-
+    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
+    channelAddresses = [...channelAddresses, generalChannel.address]
     john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, nickname: 'john' }
@@ -63,18 +67,18 @@ describe('publicChannelsSelectors', () => {
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
 
     for (const name of channelNames) {
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name: name,
-            description: `Welcome to #${name}`,
-            timestamp: DateTime.utc().valueOf(),
-            owner: alice.nickname,
-            address: generateChannelAddress(name)
-          }
+      const channel = await factory.create<
+        ReturnType<typeof publicChannels.actions.addChannel>['payload']
+      >('PublicChannel', {
+        channel: {
+          name: name,
+          description: `Welcome to #${name}`,
+          timestamp: DateTime.utc().valueOf(),
+          owner: alice.nickname,
+          address: generateChannelAddress(name)
         }
-      )
+      })
+      channelAddresses = [...channelAddresses, channel.channel.address]
     }
 
     /* Messages ids are being used only for veryfing proper order...
@@ -198,7 +202,7 @@ describe('publicChannelsSelectors', () => {
 
     for (const item of shuffled) {
       const message = await factory.create<
-      ReturnType<typeof publicChannelsActions.test_message>['payload']
+        ReturnType<typeof publicChannelsActions.test_message>['payload']
       >('Message', {
         identity: item.identity,
         message: {
@@ -206,7 +210,7 @@ describe('publicChannelsSelectors', () => {
           type: item.type || MessageType.Basic,
           message: `message_${item.id}`,
           createdAt: item.createdAt,
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: '',
           pubKey: ''
         },
@@ -246,10 +250,7 @@ describe('publicChannelsSelectors', () => {
     expect(groupDay3).toBe('Today')
 
     const expectedGrouppedMessages = {
-      [groupDay1]: [
-        [displayable['7']],
-        [displayable['8']]
-      ],
+      [groupDay1]: [[displayable['7']], [displayable['8']]],
       [groupDay2]: [
         [displayable['1']],
         [displayable['2']],
@@ -277,45 +278,52 @@ describe('publicChannelsSelectors', () => {
   })
 
   it("don't select messages without author", async () => {
-    const channel = (await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
-      'PublicChannel',
-      {
-        channel: {
-          name: 'utah',
-          description: 'Welcome to #utah',
-          timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
-          address: 'utah'
+    const channelAddress = generateChannelAddress('utah')
+    const channel = (
+      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
+        'PublicChannel',
+        {
+          channel: {
+            name: 'utah',
+            description: 'Welcome to #utah',
+            timestamp: DateTime.utc().valueOf(),
+            owner: alice.nickname,
+            address: channelAddress
+          }
         }
-      }
-    )).channel
+      )
+    ).channel
 
-    const elouise = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'elouise' }
+    const elouise = await factory.create<
+      ReturnType<typeof identityActions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'elouise' })
+
+    store.dispatch(
+      usersActions.test_remove_user_certificate({ certificate: elouise.userCertificate })
     )
 
-    store.dispatch(usersActions.test_remove_user_certificate({ certificate: elouise.userCertificate }))
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelAddress: channelAddress
+      })
+    )
 
-    store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelAddress: channel.address
-    }))
-
-    await factory.create<
-    ReturnType<typeof publicChannelsActions.test_message>['payload']
-    >('Message', {
-      identity: elouise,
-      message: {
-        id: '0',
-        type: MessageType.Basic,
-        message: 'elouise_message',
-        createdAt: DateTime.now().valueOf(),
-        channelAddress: channel.address,
-        signature: '',
-        pubKey: ''
-      },
-      verifyAutomatically: true
-    })
+    await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
+      'Message',
+      {
+        identity: elouise,
+        message: {
+          id: '0',
+          type: MessageType.Basic,
+          message: 'elouise_message',
+          createdAt: DateTime.now().valueOf(),
+          channelAddress: channelAddress,
+          signature: '',
+          pubKey: ''
+        },
+        verifyAutomatically: true
+      }
+    )
 
     const messages = displayableCurrentChannelMessages(store.getState())
 
@@ -326,9 +334,9 @@ describe('publicChannelsSelectors', () => {
     // This case occurred in a built app
     const store = prepareStore().store
     const factory = await getFactory(store)
-    await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community'
+    )
 
     const oldState = store.getState()
     const channelId = oldState.PublicChannels.channels.ids[0]
@@ -352,11 +360,14 @@ describe('publicChannelsSelectors', () => {
   })
 
   it('unreadChannels selector returns only unread channels', async () => {
-    store.dispatch(publicChannelsActions.markUnreadChannel({
-      channelAddress: 'allergies'
-    }))
+    const channelAddress = channelAddresses.find((channelAddress) => channelAddress.includes('allergies'))
+    store.dispatch(
+      publicChannelsActions.markUnreadChannel({
+        channelAddress
+      })
+    )
     const unreadChannels = publicChannelsSelectors.unreadChannels(store.getState())
-    expect(unreadChannels).toEqual(['allergies'])
+    expect(unreadChannels).toEqual([channelAddress])
   })
 })
 

@@ -42,7 +42,7 @@ describe('sendInitialChannelMessageSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = publicChannelsSelectors.currentChannel(store.getState())
+    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
 
     channel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
@@ -75,7 +75,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `Created #${channel.name}`,
-          channelAddress: generalChannel.address
+          channelAddress: channel.address
         })
       )
       .run()

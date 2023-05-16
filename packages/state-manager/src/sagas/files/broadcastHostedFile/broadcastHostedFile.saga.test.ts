@@ -17,6 +17,7 @@ import { publicChannelsActions } from '../../publicChannels/publicChannels.slice
 import { DateTime } from 'luxon'
 import { FileMetadata } from '../files.types'
 import { generateChannelAddress } from '@quiet/common'
+import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('downloadFileSaga', () => {
   let store: Store
@@ -26,6 +27,7 @@ describe('downloadFileSaga', () => {
   let alice: Identity
 
   let sailingChannel: PublicChannel
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -42,7 +44,7 @@ describe('downloadFileSaga', () => {
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
-
+    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
     sailingChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
         'PublicChannel',
@@ -63,7 +65,7 @@ describe('downloadFileSaga', () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelAddress: 'general'
+      channelAddress: generalChannel.address
     }))
 
     const id = Math.random().toString(36).substr(2.9)
@@ -75,7 +77,7 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       }
     }
 
@@ -89,7 +91,7 @@ describe('downloadFileSaga', () => {
             type: MessageType.File,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: 'general',
+            channelAddress: generalChannel.address,
             signature: '',
             pubKey: '',
             media: media
@@ -134,7 +136,7 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       }
     }
 
@@ -148,7 +150,7 @@ describe('downloadFileSaga', () => {
             type: MessageType.File,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: 'general',
+            channelAddress: generalChannel.address,
             signature: '',
             pubKey: '',
             media: media

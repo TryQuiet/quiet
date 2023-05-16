@@ -47,7 +47,7 @@ describe('createGeneralChannelSaga', () => {
       address: generalAddress,
       timestamp: 0
     }
-    console.log({ channel })
+
     await expectSaga(createGeneralChannelSaga)
       .withReducer(reducer)
       .withState(store.getState())

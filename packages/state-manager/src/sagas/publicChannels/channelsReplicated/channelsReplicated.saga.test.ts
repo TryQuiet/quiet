@@ -1,7 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory, messages, PublicChannel, publicChannels } from '../../..'
+import { getFactory, messages, MessageType, PublicChannel, publicChannels } from '../../..'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
@@ -42,7 +42,7 @@ describe('channelsReplicatedSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = publicChannelsSelectors.currentChannel(store.getState())
+    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
 
     sailingChannel = (
       await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel', {
@@ -183,7 +183,16 @@ describe('channelsReplicatedSaga', () => {
     const message = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: alice
+      identity: alice,
+      message: {
+        id: (Math.random() * 10 ** 18).toString(36),
+        type: MessageType.Basic,
+        message: (Math.random() * 10 ** 18).toString(36),
+        createdAt: DateTime.utc().valueOf(),
+        channelAddress: generalChannel.address,
+        signature: '',
+        pubKey: ''
+      }
     })
 
     store.dispatch(
@@ -213,7 +222,16 @@ describe('channelsReplicatedSaga', () => {
     const message = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: alice
+      identity: alice,
+      message: {
+        id: (Math.random() * 10 ** 18).toString(36),
+        type: MessageType.Basic,
+        message: (Math.random() * 10 ** 18).toString(36),
+        createdAt: DateTime.utc().valueOf(),
+        channelAddress: generalChannel.address,
+        signature: '',
+        pubKey: ''
+      }
     })
 
     const reducer = combineReducers(reducers)

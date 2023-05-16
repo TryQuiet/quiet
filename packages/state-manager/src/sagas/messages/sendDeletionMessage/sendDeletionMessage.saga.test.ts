@@ -41,7 +41,7 @@ describe('sendDeletionMessage', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = publicChannelsSelectors.currentChannel(store.getState())
+    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
 
     photoChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
@@ -61,11 +61,11 @@ describe('sendDeletionMessage', () => {
 
   test('send message after deletion standard channel', async () => {
     const channelAddress = photoChannel.address
-    const message = `@${owner.nickname} deleted #${channelAddress}`
+    const message = `@${owner.nickname} deleted #${photoChannel.name}`
     const messagePayload: WriteMessagePayload = {
       type: MessageType.Info,
       message,
-      channelAddress: 'general'
+      channelAddress: generalChannel.address
     }
     const reducer = combineReducers(reducers)
     await expectSaga(

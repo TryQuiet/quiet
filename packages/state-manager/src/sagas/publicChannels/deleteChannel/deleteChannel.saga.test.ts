@@ -77,7 +77,7 @@ describe('deleteChannelSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.DELETE_CHANNEL,
         {
-          channel: channelAddress
+          channelAddress
         }
       ])
       .put(publicChannelsActions.setCurrentChannel({ channelAddress: generalChannel.address }))
@@ -99,7 +99,7 @@ describe('deleteChannelSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.DELETE_CHANNEL,
         {
-          channel: channelAddress
+          channelAddress
         }
       ])
       .run()

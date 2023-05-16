@@ -14,15 +14,14 @@ import { sendNewUserInfoMessageSaga } from './sendNewUserInfoMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../reducers'
-
-import { MAIN_CHANNEL } from '../../../constants'
-
+import { publicChannelsSelectors } from '../publicChannels.selectors'
 describe('sendInitialChannelMessageSaga', () => {
   let store: Store
   let factory: FactoryGirl
   let channel: PublicChannel
   let user: Identity
   let user2: Identity
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -53,7 +52,7 @@ describe('sendInitialChannelMessageSaga', () => {
 
     channel = (await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel'))
       .payload.channel
-
+    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
     store.dispatch(
       usersActions.test_remove_user_certificate({ certificate: user2.userCertificate })
     )
@@ -71,7 +70,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `@${user2.nickname} has joined ${communityName}! 🎉`,
-          channelAddress: MAIN_CHANNEL
+          channelAddress: generalChannel.address
         })
       )
       .run()
@@ -99,6 +98,7 @@ describe('sendInitialChannelMessageSaga', () => {
       .payload.channel
 
     const communityName = community1.name[0].toUpperCase() + community1.name.substring(1)
+    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -111,7 +111,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `@${user2.nickname} has joined ${communityName}! 🎉`,
-          channelAddress: MAIN_CHANNEL
+          channelAddress: generalChannel.address
         })
       )
       .run()
@@ -142,7 +142,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `@${user2} has joined ${community1.name}! 🎉`,
-          channelAddress: MAIN_CHANNEL
+          channelAddress: generalChannel.address
         })
       )
       .run()
@@ -174,6 +174,7 @@ describe('sendInitialChannelMessageSaga', () => {
     )
 
     const communityName = community1.name[0].toUpperCase() + community1.name.substring(1)
+    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
 
     const reducer = combineReducers(reducers)
     const result = await expectSaga(
@@ -188,7 +189,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `@${user2.nickname} has joined ${communityName}! 🎉`,
-          channelAddress: MAIN_CHANNEL
+          channelAddress: generalChannel.address
         })
       )
       .run()

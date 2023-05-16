@@ -20,6 +20,7 @@ import { DateTime } from 'luxon'
 import { FileMetadata } from '../files.types'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { generateChannelAddress } from '@quiet/common'
+import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('downloadFileSaga', () => {
   let store: Store
@@ -29,6 +30,7 @@ describe('downloadFileSaga', () => {
   let alice: Identity
 
   let sailingChannel: PublicChannel
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -41,6 +43,7 @@ describe('downloadFileSaga', () => {
     ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
+    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, nickname: 'alice' }
@@ -66,7 +69,7 @@ describe('downloadFileSaga', () => {
     const id = Math.random().toString(36).substr(2.9)
 
     store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelAddress: 'general'
+      channelAddress: generalChannel.address
     }))
 
     const media: FileMetadata = {
@@ -76,7 +79,7 @@ describe('downloadFileSaga', () => {
       ext: 'png',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       }
     }
 
@@ -90,7 +93,7 @@ describe('downloadFileSaga', () => {
           type: MessageType.Image,
           message: 'message',
           createdAt: 8,
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: 'signature',
           pubKey: 'publicKey',
           media: media
@@ -115,7 +118,7 @@ describe('downloadFileSaga', () => {
     const id = Math.random().toString(36).substr(2.9)
 
     store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelAddress: 'general'
+      channelAddress: generalChannel.address
     }))
 
     const media: FileMetadata = {
@@ -125,7 +128,7 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       }
     }
 
@@ -139,7 +142,7 @@ describe('downloadFileSaga', () => {
           type: MessageType.File,
           message: 'message',
           createdAt: 8,
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: 'signature',
           pubKey: 'publicKey',
           media: media
@@ -164,7 +167,7 @@ describe('downloadFileSaga', () => {
     const id = Math.random().toString(36).substr(2.9)
 
     store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelAddress: 'general'
+      channelAddress: generalChannel.address
     }))
 
     const media: FileMetadata = {
@@ -174,7 +177,7 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       }
     }
 
@@ -187,7 +190,7 @@ describe('downloadFileSaga', () => {
         type: MessageType.File,
         message: '',
         createdAt: DateTime.utc().valueOf(),
-        channelAddress: 'general',
+        channelAddress: generalChannel.address,
         signature: '',
         pubKey: '',
         media: media
@@ -230,7 +233,7 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       }
     }
 
@@ -243,7 +246,7 @@ describe('downloadFileSaga', () => {
         type: MessageType.File,
         message: '',
         createdAt: DateTime.utc().valueOf(),
-        channelAddress: 'general',
+        channelAddress: generalChannel.address,
         signature: '',
         pubKey: '',
         media: media
@@ -276,7 +279,7 @@ describe('downloadFileSaga', () => {
     const id = Math.random().toString(36).substr(2.9)
 
     store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelAddress: 'general'
+      channelAddress: generalChannel.address
     }))
 
     const media: FileMetadata = {
@@ -287,7 +290,7 @@ describe('downloadFileSaga', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: id,
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       }
     }
 
@@ -301,7 +304,7 @@ describe('downloadFileSaga', () => {
           type: MessageType.File,
           message: 'message',
           createdAt: 8,
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: 'signature',
           pubKey: 'publicKey',
           media: media
@@ -326,7 +329,7 @@ describe('downloadFileSaga', () => {
     const id = Math.random().toString(36).substr(2.9)
 
     store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelAddress: 'general'
+      channelAddress: generalChannel.address
     }))
 
     const media: FileMetadata = {
@@ -337,7 +340,7 @@ describe('downloadFileSaga', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: id,
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       }
     }
 
@@ -351,7 +354,7 @@ describe('downloadFileSaga', () => {
           type: MessageType.Image,
           message: 'message',
           createdAt: 8,
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: 'signature',
           pubKey: 'publicKey',
           media: media

@@ -1,5 +1,13 @@
 import { setupCrypto } from '@quiet/identity'
-import { AUTODOWNLOAD_SIZE_LIMIT, communities, getFactory, identity, MessageType, publicChannels } from '../../..'
+import {
+  AUTODOWNLOAD_SIZE_LIMIT,
+  communities,
+  getFactory,
+  identity,
+  MessageType,
+  PublicChannel,
+  publicChannels
+} from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -11,6 +19,7 @@ import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { filesActions } from '../files.slice'
 import { networkActions } from '../../network/network.slice'
+import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('checkForMissingFilesSaga', () => {
   beforeAll(async () => {
@@ -26,12 +35,14 @@ describe('checkForMissingFilesSaga', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = 'general'
+    const channelAddress = generalChannel.address
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -54,7 +65,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.Image,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -65,11 +76,13 @@ describe('checkForMissingFilesSaga', () => {
     const store = prepareStore(initialState.getState()).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    store.dispatch(filesActions.updateDownloadStatus({
-      mid: missingFile.message.id,
-      cid: missingFile.cid,
-      downloadState: DownloadState.Downloading
-    }))
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: missingFile.cid,
+        downloadState: DownloadState.Downloading
+      })
+    )
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -79,11 +92,13 @@ describe('checkForMissingFilesSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .put(filesActions.updateDownloadStatus({
-        mid: missingFile.message.id,
-        cid: missingFile.cid,
-        downloadState: DownloadState.Queued
-      }))
+      .put(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued
+        })
+      )
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
@@ -103,12 +118,13 @@ describe('checkForMissingFilesSaga', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = 'general'
+    const channelAddress = generalChannel.address
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -131,7 +147,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -142,11 +158,13 @@ describe('checkForMissingFilesSaga', () => {
     const store = prepareStore(initialState.getState()).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    store.dispatch(filesActions.updateDownloadStatus({
-      mid: missingFile.message.id,
-      cid: missingFile.cid,
-      downloadState: DownloadState.Downloading
-    }))
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: missingFile.cid,
+        downloadState: DownloadState.Downloading
+      })
+    )
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -156,11 +174,13 @@ describe('checkForMissingFilesSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .put(filesActions.updateDownloadStatus({
-        mid: missingFile.message.id,
-        cid: missingFile.cid,
-        downloadState: DownloadState.Queued
-      }))
+      .put(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued
+        })
+      )
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
@@ -180,6 +200,7 @@ describe('checkForMissingFilesSaga', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -187,7 +208,7 @@ describe('checkForMissingFilesSaga', () => {
     const message1 = Math.random().toString(36).substr(2.9)
     const message2 = Math.random().toString(36).substr(2.9)
 
-    const channelAddress = 'general'
+    const channelAddress = generalChannel.address
 
     const missingFileCanceled: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -222,7 +243,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: '',
           pubKey: '',
           media: missingFileCanceled
@@ -239,7 +260,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: '',
           pubKey: '',
           media: missingFilePending
@@ -250,17 +271,21 @@ describe('checkForMissingFilesSaga', () => {
     const store = prepareStore(initialState.getState()).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    store.dispatch(filesActions.updateDownloadStatus({
-      mid: missingFileCanceled.message.id,
-      cid: missingFileCanceled.cid,
-      downloadState: DownloadState.Canceled
-    }))
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFileCanceled.message.id,
+        cid: missingFileCanceled.cid,
+        downloadState: DownloadState.Canceled
+      })
+    )
 
-    store.dispatch(filesActions.updateDownloadStatus({
-      mid: missingFilePending.message.id,
-      cid: missingFilePending.cid,
-      downloadState: DownloadState.Downloading
-    }))
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFilePending.message.id,
+        cid: missingFilePending.cid,
+        downloadState: DownloadState.Downloading
+      })
+    )
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -270,11 +295,13 @@ describe('checkForMissingFilesSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .not.put(filesActions.updateDownloadStatus({
-        mid: missingFileCanceled.message.id,
-        cid: missingFileCanceled.cid,
-        downloadState: DownloadState.Queued
-      }))
+      .not.put(
+        filesActions.updateDownloadStatus({
+          mid: missingFileCanceled.message.id,
+          cid: missingFileCanceled.cid,
+          downloadState: DownloadState.Queued
+        })
+      )
       .not.apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
@@ -282,11 +309,13 @@ describe('checkForMissingFilesSaga', () => {
           metadata: missingFileCanceled
         }
       ])
-      .put(filesActions.updateDownloadStatus({
-        mid: missingFilePending.message.id,
-        cid: missingFilePending.cid,
-        downloadState: DownloadState.Queued
-      }))
+      .put(
+        filesActions.updateDownloadStatus({
+          mid: missingFilePending.message.id,
+          cid: missingFilePending.cid,
+          downloadState: DownloadState.Queued
+        })
+      )
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
@@ -306,12 +335,13 @@ describe('checkForMissingFilesSaga', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = 'general'
+    const channelAddress = generalChannel.address
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -334,7 +364,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -345,11 +375,13 @@ describe('checkForMissingFilesSaga', () => {
     const store = prepareStore(initialState.getState()).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    store.dispatch(filesActions.updateDownloadStatus({
-      mid: missingFile.message.id,
-      cid: missingFile.cid,
-      downloadState: DownloadState.Ready
-    }))
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: missingFile.cid,
+        downloadState: DownloadState.Ready
+      })
+    )
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -359,11 +391,13 @@ describe('checkForMissingFilesSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .not.put(filesActions.updateDownloadStatus({
-        mid: missingFile.message.id,
-        cid: missingFile.cid,
-        downloadState: DownloadState.Queued
-      }))
+      .not.put(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued
+        })
+      )
       .not.apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
@@ -383,12 +417,13 @@ describe('checkForMissingFilesSaga', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = 'general'
+    const channelAddress = generalChannel.address
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -411,7 +446,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -422,11 +457,13 @@ describe('checkForMissingFilesSaga', () => {
     const store = prepareStore(initialState.getState()).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    store.dispatch(filesActions.updateDownloadStatus({
-      mid: missingFile.message.id,
-      cid: missingFile.cid,
-      downloadState: DownloadState.Downloading
-    }))
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: missingFile.cid,
+        downloadState: DownloadState.Downloading
+      })
+    )
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -436,11 +473,13 @@ describe('checkForMissingFilesSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .put(filesActions.updateDownloadStatus({
-        mid: missingFile.message.id,
-        cid: missingFile.cid,
-        downloadState: DownloadState.Queued
-      }))
+      .put(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued
+        })
+      )
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
@@ -463,9 +502,9 @@ describe('checkForMissingFilesSaga', () => {
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
-
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = 'general'
+    const channelAddress = generalChannel.address
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -488,7 +527,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -499,11 +538,13 @@ describe('checkForMissingFilesSaga', () => {
     const store = (await prepareStore(initialState.getState())).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    store.dispatch(filesActions.updateDownloadStatus({
-      mid: missingFile.message.id,
-      cid: missingFile.cid,
-      downloadState: DownloadState.Canceled
-    }))
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: missingFile.cid,
+        downloadState: DownloadState.Canceled
+      })
+    )
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -513,11 +554,13 @@ describe('checkForMissingFilesSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .not.put(filesActions.updateDownloadStatus({
-        mid: missingFile.message.id,
-        cid: missingFile.cid,
-        downloadState: DownloadState.Queued
-      }))
+      .not.put(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued
+        })
+      )
       .not.apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
@@ -537,12 +580,13 @@ describe('checkForMissingFilesSaga', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = 'general'
+    const channelAddress = generalChannel.address
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -565,7 +609,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -576,11 +620,13 @@ describe('checkForMissingFilesSaga', () => {
     const store = (await prepareStore(initialState.getState())).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    store.dispatch(filesActions.updateDownloadStatus({
-      mid: missingFile.message.id,
-      cid: missingFile.cid,
-      downloadState: DownloadState.Malicious
-    }))
+    store.dispatch(
+      filesActions.updateDownloadStatus({
+        mid: missingFile.message.id,
+        cid: missingFile.cid,
+        downloadState: DownloadState.Malicious
+      })
+    )
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -590,11 +636,13 @@ describe('checkForMissingFilesSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .not.put(filesActions.updateDownloadStatus({
-        mid: missingFile.message.id,
-        cid: missingFile.cid,
-        downloadState: DownloadState.Queued
-      }))
+      .not.put(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued
+        })
+      )
       .not.apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
@@ -614,12 +662,13 @@ describe('checkForMissingFilesSaga', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
+    const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = 'general'
+    const channelAddress = generalChannel.address
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -642,7 +691,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -653,9 +702,11 @@ describe('checkForMissingFilesSaga', () => {
     const store = (await prepareStore(initialState.getState())).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    store.dispatch(filesActions.removeDownloadStatus({
-      cid: missingFile.cid
-    }))
+    store.dispatch(
+      filesActions.removeDownloadStatus({
+        cid: missingFile.cid
+      })
+    )
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -665,11 +716,13 @@ describe('checkForMissingFilesSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .put(filesActions.updateDownloadStatus({
-        mid: missingFile.message.id,
-        cid: missingFile.cid,
-        downloadState: DownloadState.Queued
-      }))
+      .put(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued
+        })
+      )
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
@@ -680,74 +733,80 @@ describe('checkForMissingFilesSaga', () => {
       .run()
   })
 
-  it.each([[AUTODOWNLOAD_SIZE_LIMIT + 1], [AUTODOWNLOAD_SIZE_LIMIT - 1024]])('resume downloading for file of any size if it is already in queue (%s)', async (size: number) => {
-    const initialState = prepareStore().store
+  it.each([[AUTODOWNLOAD_SIZE_LIMIT + 1], [AUTODOWNLOAD_SIZE_LIMIT - 1024]])(
+    'resume downloading for file of any size if it is already in queue (%s)',
+    async (size: number) => {
+      const initialState = prepareStore().store
 
-    const factory = await getFactory(initialState)
+      const factory = await getFactory(initialState)
 
-    const community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
+      const community = await factory.create<
+        ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      >('Community')
 
-    const alice = await factory.create<
-      ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'alice' })
+      const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+      const alice = await factory.create<
+        ReturnType<typeof identity.actions.addNewIdentity>['payload']
+      >('Identity', { id: community.id, nickname: 'alice' })
 
-    const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = 'general'
-    const missingFile: FileMetadata = {
-      cid: Math.random().toString(36).substr(2.9),
-      path: null,
-      name: 'test-file',
-      ext: '.zip',
-      message: {
-        id: message,
-        channelAddress: channelAddress
-      },
-      size: size
-    }
-
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-      'Message',
-      {
-        identity: alice,
+      const message = Math.random().toString(36).substr(2.9)
+      const channelAddress = generalChannel.address
+      const missingFile: FileMetadata = {
+        cid: Math.random().toString(36).substr(2.9),
+        path: null,
+        name: 'test-file',
+        ext: '.zip',
         message: {
           id: message,
-          type: MessageType.File,
-          message: '',
-          createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
-          signature: '',
-          pubKey: '',
-          media: missingFile
-        }
+          channelAddress: channelAddress
+        },
+        size: size
       }
-    )
 
-    const store = prepareStore(initialState.getState()).store
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
-
-    store.dispatch(filesActions.updateDownloadStatus({
-      mid: missingFile.message.id,
-      cid: missingFile.cid,
-      downloadState: DownloadState.Queued
-    }))
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(
-      checkForMissingFilesSaga,
-      socket,
-      networkActions.addInitializedCommunity(community.id)
-    )
-      .withReducer(reducer)
-      .withState(store.getState())
-      .apply(socket, socket.emit, [
-        SocketActionTypes.DOWNLOAD_FILE,
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+        'Message',
         {
-          peerId: alice.peerId.id,
-          metadata: missingFile
+          identity: alice,
+          message: {
+            id: message,
+            type: MessageType.File,
+            message: '',
+            createdAt: DateTime.utc().valueOf(),
+            channelAddress: generalChannel.address,
+            signature: '',
+            pubKey: '',
+            media: missingFile
+          }
         }
-      ])
-      .run()
-  })
+      )
+
+      const store = prepareStore(initialState.getState()).store
+      const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+      store.dispatch(
+        filesActions.updateDownloadStatus({
+          mid: missingFile.message.id,
+          cid: missingFile.cid,
+          downloadState: DownloadState.Queued
+        })
+      )
+
+      const reducer = combineReducers(reducers)
+      await expectSaga(
+        checkForMissingFilesSaga,
+        socket,
+        networkActions.addInitializedCommunity(community.id)
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
+        .apply(socket, socket.emit, [
+          SocketActionTypes.DOWNLOAD_FILE,
+          {
+            peerId: alice.peerId.id,
+            metadata: missingFile
+          }
+        ])
+        .run()
+    }
+  )
 })

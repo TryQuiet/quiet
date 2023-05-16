@@ -1,6 +1,6 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, MessageType, publicChannels } from '../../..'
+import { getFactory, MessageType, PublicChannel, publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -15,6 +15,7 @@ import { DateTime } from 'luxon'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { filesActions } from '../files.slice'
 import { networkActions } from '../../network/network.slice'
+import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('downloadFileSaga', () => {
   let store: Store
@@ -22,6 +23,8 @@ describe('downloadFileSaga', () => {
 
   let community: Community
   let alice: Identity
+
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -34,6 +37,8 @@ describe('downloadFileSaga', () => {
       ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
+    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
+
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, nickname: 'alice' }
@@ -43,7 +48,7 @@ describe('downloadFileSaga', () => {
   test('reset transfer speed for files with existing transfer speed', async () => {
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       })
     )
 
@@ -55,7 +60,7 @@ describe('downloadFileSaga', () => {
       ext: 'zip',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       }
     }
 
@@ -70,7 +75,7 @@ describe('downloadFileSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: '',
           pubKey: '',
           media: media
@@ -92,10 +97,7 @@ describe('downloadFileSaga', () => {
     )
 
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      resetTransferSpeedSaga,
-      networkActions.addInitializedCommunity(community.id)
-    )
+    await expectSaga(resetTransferSpeedSaga, networkActions.addInitializedCommunity(community.id))
       .withReducer(reducer)
       .withState(store.getState())
       .put(
@@ -116,7 +118,7 @@ describe('downloadFileSaga', () => {
   test('do not reset transfer speed for files without existing transfer speed', async () => {
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       })
     )
 
@@ -128,7 +130,7 @@ describe('downloadFileSaga', () => {
       ext: 'zip',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       }
     }
 
@@ -143,7 +145,7 @@ describe('downloadFileSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: '',
           pubKey: '',
           media: media
@@ -160,10 +162,7 @@ describe('downloadFileSaga', () => {
     )
 
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      resetTransferSpeedSaga,
-      networkActions.addInitializedCommunity(community.id)
-    )
+    await expectSaga(resetTransferSpeedSaga, networkActions.addInitializedCommunity(community.id))
       .withReducer(reducer)
       .withState(store.getState())
       .not.put(
@@ -184,7 +183,7 @@ describe('downloadFileSaga', () => {
   test('do not reset transfer speed for files with download state other than downloading', async () => {
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       })
     )
 
@@ -196,7 +195,7 @@ describe('downloadFileSaga', () => {
       ext: 'zip',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       }
     }
 
@@ -211,7 +210,7 @@ describe('downloadFileSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
+          channelAddress: generalChannel.address,
           signature: '',
           pubKey: '',
           media: media
@@ -233,10 +232,7 @@ describe('downloadFileSaga', () => {
     )
 
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      resetTransferSpeedSaga,
-      networkActions.addInitializedCommunity(community.id)
-    )
+    await expectSaga(resetTransferSpeedSaga, networkActions.addInitializedCommunity(community.id))
       .withReducer(reducer)
       .withState(store.getState())
       .not.put(

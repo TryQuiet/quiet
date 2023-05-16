@@ -15,6 +15,7 @@ import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
 import { generateChannelAddress } from '@quiet/common'
+import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('downloadedFileSaga', () => {
   let store: Store
@@ -25,6 +26,8 @@ describe('downloadedFileSaga', () => {
 
   let sailingChannel: PublicChannel
 
+  let generalChannel: PublicChannel
+
   beforeAll(async () => {
     setupCrypto()
 
@@ -33,8 +36,10 @@ describe('downloadedFileSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
+
+    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
@@ -73,7 +78,7 @@ describe('downloadedFileSaga', () => {
       ext: 'png',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       }
     }
 
@@ -87,7 +92,7 @@ describe('downloadedFileSaga', () => {
             type: MessageType.Basic,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: 'general',
+            channelAddress: generalChannel.address,
             signature: '',
             pubKey: '',
             media: metadata
@@ -130,7 +135,7 @@ describe('downloadedFileSaga', () => {
       ext: 'png',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelAddress: generalChannel.address
       }
     }
 
@@ -144,7 +149,7 @@ describe('downloadedFileSaga', () => {
             type: MessageType.Basic,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: 'general',
+            channelAddress: generalChannel.address,
             signature: '',
             pubKey: '',
             media: metadata

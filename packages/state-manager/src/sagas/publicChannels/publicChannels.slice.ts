@@ -152,6 +152,7 @@ export const publicChannelsSlice = createSlice({
       }>
     ) => {
       const { message } = action.payload
+      console.log({ message })
       channelMessagesAdapter.addOne(
         state.channels.entities[message.channelAddress].messages,
         message

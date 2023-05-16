@@ -41,7 +41,7 @@ describe('channelDeletionResponseSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = publicChannelsSelectors.currentChannel(store.getState())
+    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
 
     photoChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
@@ -79,7 +79,7 @@ describe('channelDeletionResponseSaga', () => {
     })
 
     test('delete general channel', async () => {
-      const channelAddress = 'general'
+      const channelAddress = generalChannel.address
 
       const reducer = combineReducers(reducers)
       await expectSaga(
@@ -126,7 +126,7 @@ describe('channelDeletionResponseSaga', () => {
     })
 
     test('delete general channel', async () => {
-      const channelAddress = 'general'
+      const channelAddress = generalChannel.address
 
       const reducer = combineReducers(reducers)
       await expectSaga(
