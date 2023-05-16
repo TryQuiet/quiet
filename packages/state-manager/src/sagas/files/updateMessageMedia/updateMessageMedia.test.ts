@@ -5,7 +5,7 @@ import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { FactoryGirl } from 'factory-girl'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
 import { filesActions } from '../files.slice'
@@ -14,6 +14,7 @@ import { updateMessageMediaSaga } from './updateMessageMedia'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
+import { Community } from '@quiet/types'
 
 describe('downloadedFileSaga', () => {
   let store: Store

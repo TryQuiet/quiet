@@ -3,16 +3,17 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { communitiesActions, Community } from '../communities.slice'
+import { communitiesActions } from '../communities.slice'
 import { NetworkData } from '../communities.types'
 import { reducers } from '../../reducers'
 import { generateDmKeyPair } from '../../../utils/cryptography/cryptography'
 import { responseCreateNetworkSaga } from './responseCreateNetwork.saga'
 import { identityActions } from '../../identity/identity.slice'
 import { DmKeys, Identity } from '../../identity/identity.types'
+import { Community } from '@quiet/types'
 
 describe('responseCreateNetwork', () => {
-  it('create network for joining user', async () => {
+  it('create network for joining user', async () => { // TODO CHECK
     setupCrypto()
     const store = prepareStore().store
 

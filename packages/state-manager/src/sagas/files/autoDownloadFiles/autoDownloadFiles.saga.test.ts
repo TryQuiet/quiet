@@ -7,7 +7,7 @@ import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
@@ -19,6 +19,7 @@ import { publicChannelsActions } from '../../publicChannels/publicChannels.slice
 import { DateTime } from 'luxon'
 import { FileMetadata } from '../files.types'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
+import { Community } from '@quiet/types'
 
 describe('downloadFileSaga', () => {
   let store: Store

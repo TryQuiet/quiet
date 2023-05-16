@@ -15,7 +15,7 @@ import { messagesActions } from './sagas/messages/messages.slice'
 import { SendMessagePayload } from './sagas/messages/messages.types'
 import { publicChannelsActions } from './sagas/publicChannels/publicChannels.slice'
 import { SocketActionTypes } from './sagas/socket/const/actionTypes'
-import { Community } from './sagas/communities/communities.slice'
+import { Community } from '@quiet/types'
 
 type EmitEvent<Payload> = (payload: Payload) => void
 

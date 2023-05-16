@@ -61,7 +61,7 @@ export { useIO } from './sagas/socket/startConnection/startConnection.saga'
 export { getFactory } from './utils/tests/factories'
 export * from './utils/tests/helpers'
 
-export { Community } from './sagas/communities/communities.slice'
+export { Community } from './sagas/communities/communities.slice' // TODO: remove after setting strict in 'desktop' and 'mobile' packages
 
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
 export { certificatesAdapter } from './sagas/users/users.adapter'

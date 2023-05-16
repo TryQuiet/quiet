@@ -4,7 +4,7 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { getFactory } from '../../../utils/tests/factories'
 import { prepareStore } from '../../..//utils/tests/prepareStore'
 import { combineReducers, Store } from 'redux'
-import { Community, communitiesActions } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
 import { MessageType } from '../messages.types'
@@ -18,6 +18,7 @@ import { DateTime } from 'luxon'
 import { reducers } from '../../reducers'
 import { resetCurrentPublicChannelCacheSaga } from './resetChannelCache.saga'
 import { messagesActions } from '../messages.slice'
+import { Community } from '@quiet/types'
 
 describe('resetChannelCacheSaga', () => {
   let store: Store

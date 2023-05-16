@@ -13,7 +13,7 @@ import { arrayBufferToString } from 'pvutils'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import { Socket } from 'socket.io-client'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
@@ -25,6 +25,7 @@ import { currentChannelAddress } from '../../publicChannels/publicChannels.selec
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
+import { Community } from '@quiet/types'
 
 describe('sendMessageSaga', () => {
   let store: Store

@@ -5,9 +5,9 @@ import { delay } from 'typed-redux-saga'
 import { Store } from '@reduxjs/toolkit'
 import { setupCrypto } from '@quiet/identity'
 import {
-  Community,
   communitiesActions
 } from '../../communities/communities.slice'
+import {Community} from '@quiet/types'
 import { identityActions } from '../../identity/identity.slice'
 import { Identity } from '../../identity/identity.types'
 import { errorsActions } from '../errors.slice'

@@ -12,7 +12,7 @@ import {
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
 import { DisplayableMessage, ChannelMessage } from './publicChannels.types'
-import { communitiesActions, Community } from '../communities/communities.slice'
+import { communitiesActions } from '../communities/communities.slice'
 import { identityActions } from '../identity/identity.slice'
 import { usersActions } from '../users/users.slice'
 import { MessageType } from '../messages/messages.types'
@@ -22,6 +22,7 @@ import {
 } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
+import { Community } from '@quiet/types'
 
 describe('publicChannelsSelectors', () => {
   let store: Store

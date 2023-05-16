@@ -3,10 +3,11 @@ import { call, apply } from 'typed-redux-saga'
 import { Time } from 'pkijs'
 import { generateId } from '../../../utils/cryptography/cryptography'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { communitiesActions, Community } from '../communities.slice'
+import { communitiesActions } from '../communities.slice'
 import { CommunityOwnership } from '../communities.types'
 import { createRootCA } from '@quiet/identity'
 import { Socket, applyEmitParams } from '../../../types'
+import { Community } from '@quiet/types'
 
 export function* createNetworkSaga(
   socket: Socket,
@@ -38,14 +39,7 @@ export function* createNetworkSaga(
     name: action.payload.name,
     registrarUrl: registrarUrl,
     CA: CA,
-    rootCa: CA?.rootCertString,
-    peerList: [],
-    registrar: null,
-    onionAddress: '',
-    privateKey: '',
-    port: 0,
-    registrationAttempts: 0,
-    ownerCertificate: ''
+    rootCa: CA?.rootCertString
   }
 
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, payload))

@@ -7,7 +7,8 @@ import { identityActions } from '../identity/identity.slice'
 import { Identity } from '../identity/identity.types'
 import { usersActions } from '../users/users.slice'
 import { communitiesSelectors } from './communities.selectors'
-import { communitiesActions, Community } from './communities.slice'
+import { communitiesActions } from './communities.slice'
+import { Community } from '@quiet/types'
 
 describe('communitiesSelectors', () => {
   setupCrypto()

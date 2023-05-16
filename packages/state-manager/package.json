@@ -24,6 +24,7 @@
   "dependencies": {
     "@quiet/common": "^1.2.1-alpha.3",
     "@quiet/logger": "^1.2.1-alpha.2",
+    "@quiet/types": "^1.2.1-alpha.2",
     "@reduxjs/toolkit": "^1.9.1",
     "factory-girl": "^5.0.4",
     "get-port": "^5.1.1",

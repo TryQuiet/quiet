@@ -11,7 +11,8 @@ import { publicChannelsActions } from './../publicChannels.slice'
 import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
 import { createGeneralChannelSaga, getChannelTimestamp } from './createGeneralChannel.saga'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
+import { Community } from '@quiet/types'
 
 describe('createGeneralChannelSaga', () => {
   let store: Store

@@ -10,13 +10,15 @@ import {
   UpdateCommunityPayload,
   UpdateRegistrationAttemptsPayload
 } from './communities.types'
+import { Community as CommunityType } from '@quiet/types'
 
 export class CommunitiesState {
   public invitationCode: string | undefined = undefined
   public currentCommunity: string = ''
-  public communities: EntityState<Community> = communitiesAdapter.getInitialState()
+  public communities: EntityState<CommunityType> = communitiesAdapter.getInitialState()
 }
 
+// TODO: remove after setting strict in 'desktop' and 'mobile' packages
 export interface Community { // TODO: how to set default values for Community?
   id: string
   name?: string
@@ -45,11 +47,11 @@ export const communitiesSlice = createSlice({
     setCurrentCommunity: (state, action: PayloadAction<string>) => {
       state.currentCommunity = action.payload
     },
-    addNewCommunity: (state, action: PayloadAction<Community>) => {
+    addNewCommunity: (state, action: PayloadAction<CommunityType>) => {
       communitiesAdapter.addOne(state.communities, action.payload)
     },
     updateCommunity: (state, _action: PayloadAction<UpdateCommunityPayload>) => state,
-    updateCommunityData: (state, action: PayloadAction<Community>) => {
+    updateCommunityData: (state, action: PayloadAction<CommunityType>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
         changes: {

@@ -4,10 +4,11 @@ import { getFactory, Identity, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { validCurrentPublicChannelMessagesEntries } from './messages.selectors'
 import { ChannelMessage, PublicChannel } from '../publicChannels/publicChannels.types'
-import { communitiesActions, Community } from '../communities/communities.slice'
+import { communitiesActions } from '../communities/communities.slice'
 import { identityActions } from '../identity/identity.slice'
 import { FactoryGirl } from 'factory-girl'
 import { selectGeneralChannel } from '../publicChannels/publicChannels.selectors'
+import { Community } from '@quiet/types'
 
 describe('messagesSelectors', () => {
   let store: Store

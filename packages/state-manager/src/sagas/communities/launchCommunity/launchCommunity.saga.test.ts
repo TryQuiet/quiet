@@ -10,7 +10,7 @@ import { StoreKeys } from '../../store.keys'
 import { communitiesAdapter } from '../communities.adapter'
 import {
   communitiesActions,
-  communitiesReducer, CommunitiesState, Community
+  communitiesReducer, CommunitiesState
 } from '../communities.slice'
 import { InitCommunityPayload } from '../communities.types'
 import { Store } from '../../store.types'

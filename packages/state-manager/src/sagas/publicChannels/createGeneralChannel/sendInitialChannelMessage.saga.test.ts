@@ -8,12 +8,13 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { PublicChannel } from '../publicChannels.types'
 import { sendInitialChannelMessageSaga } from './sendInitialChannelMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../reducers'
+import { Community } from '@quiet/types'
 
 describe('sendInitialChannelMessageSaga', () => {
   let store: Store

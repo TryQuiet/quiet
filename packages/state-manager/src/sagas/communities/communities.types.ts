@@ -1,5 +1,5 @@
+import { Community } from '@quiet/types'
 import { HiddenService, PeerId, Identity } from '../identity/identity.types'
-import { Community } from './communities.slice'
 
 export enum CommunityOwnership {
   Owner = 'owner',
