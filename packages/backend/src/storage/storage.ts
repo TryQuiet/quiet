@@ -503,18 +503,18 @@ export class Storage extends EventEmitter {
     return db
   }
 
-  public async deleteChannel(payload: {channel: string}) {
+  public async deleteChannel(payload: {channelAddress: string}) {
     console.log('deleting channel storage', payload)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
-    const channel = this.channels.get(payload.channel)
+    const channel = this.channels.get(payload.channelAddress)
     if (channel) {
-      void this.channels.del(payload.channel)
+      void this.channels.del(payload.channelAddress)
     }
-    let repo = this.publicChannelsRepos.get(payload.channel)
+    let repo = this.publicChannelsRepos.get(payload.channelAddress)
     if (!repo) {
       const db = await this.orbitdb.log<ChannelMessage>(
-        `channels.${payload.channel}`,
+        `channels.${payload.channelAddress}`,
         {
           accessController: {
             type: 'messagesaccess',
@@ -537,7 +537,7 @@ export class Storage extends EventEmitter {
     }).filter(isDefined)
     await this.deleteChannelFiles(files)
     await this.deleteChannelMessages(hashes)
-    this.publicChannelsRepos.delete(payload.channel)
+    this.publicChannelsRepos.delete(payload.channelAddress)
     this.emit(StorageEvents.CHANNEL_DELETION_RESPONSE, payload)
   }
 
