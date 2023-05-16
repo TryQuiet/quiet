@@ -137,18 +137,22 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
           pre: ({ node, ...props }) => (
             <pre className={classNames({ [classes.pre]: true })} {...props} />
           ),
-          h1: React.Fragment,
-          h2: React.Fragment,
-          h3: React.Fragment,
-          h4: React.Fragment,
-          h5: React.Fragment,
-          h6: React.Fragment,
           hr: ({ node, ...props }) => (
             <hr className={classNames({ [classes.hr]: true })} {...props} />
           ),
           img: ({ node, ...props }) => (
             <p>
-              ![{props.alt}]({props.src})
+              ![{props.alt}](
+              <a
+                onClick={e => {
+                  e.preventDefault()
+                  openUrl(props.src)
+                }}
+                className={classNames({ [classes.link]: true })}
+                href={props.src}>
+                {props.src}
+              </a>
+              )
             </p>
           ),
           p: React.Fragment,
