@@ -47,12 +47,14 @@ describe('createGeneralChannelSaga', () => {
       address: generalAddress,
       timestamp: 0
     }
-
+    console.log({ channel })
     await expectSaga(createGeneralChannelSaga)
       .withReducer(reducer)
       .withState(store.getState())
-      .provide([[call.fn(getChannelTimestamp), 0]])
-      .provide([[call.fn(generateChannelAddress), generalAddress]])
+      .provide([
+        [call.fn(getChannelTimestamp), 0],
+        [call.fn(generateChannelAddress), generalAddress]
+      ])
       .put(
         publicChannelsActions.createChannel({
           channel
