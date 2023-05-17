@@ -17,6 +17,7 @@ describe('DeleteChannel component', () => {
             "flex": 1,
           }
         }
+        testID="delete-channel-component"
       >
         <View
           style={
