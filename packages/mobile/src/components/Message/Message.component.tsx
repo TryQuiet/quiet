@@ -59,7 +59,12 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
                 {children}
               </Text>
             )
-          }
+          },
+          paragraph: (node, children, parent, styles) => (
+            <Typography fontSize={14} color={color} testID={message.message}>
+              {children}
+            </Typography>
+          )
         }
 
         const containsLatex = /\$\$(.+)\$\$/.test(message.message)
@@ -76,11 +81,9 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
           )
         }
         return (
-          <Typography fontSize={14} color={color} testID={message.message}>
-            <Markdown markdownit={md} style={markdownStyle} rules={markdownRules}>
-              {message.message}
-            </Markdown>
-          </Typography>
+          <Markdown markdownit={md} style={markdownStyle} rules={markdownRules}>
+            {message.message}
+          </Markdown>
         )
     }
   }
@@ -160,7 +163,7 @@ const classes = StyleSheet.create({
 const markdownStyle = StyleSheet.create({
   blockquote: {
     color: defaultTheme.palette.typography.lightGray,
-    backgroundColor: '#FFF',
+    backgroundColor: defaultTheme.palette.typography.white,
     marginTop: 10,
     marginBottom: 10,
     marginLeft: 0
@@ -177,10 +180,6 @@ const markdownStyle = StyleSheet.create({
   },
   link: {
     color: defaultTheme.palette.typography.link
-  },
-  paragraph: {
-    marginTop: 0,
-    marginBottom: 0
   },
   table: {
     borderWidth: 0
@@ -199,6 +198,6 @@ const markdownStyle = StyleSheet.create({
 })
 
 const md = MarkdownIt({
-  typographer: true,
+  typographer: false,
   linkify: true
 })
