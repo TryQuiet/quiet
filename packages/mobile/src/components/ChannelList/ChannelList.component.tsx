@@ -17,7 +17,7 @@ export const ChannelList: FC<ChannelListProps> = ({
     communityName = capitalizeFirstLetter(community.name)
   }
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }} testID={'channel-list-component'}>
       <Appbar
         title={capitalizeFirstLetter(community?.name)}
         position={'flex-start'}

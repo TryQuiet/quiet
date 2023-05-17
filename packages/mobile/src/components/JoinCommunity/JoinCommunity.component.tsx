@@ -61,7 +61,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, red
   }, [networkCreated])
 
   return (
-    <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}>
+    <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'join-community-component'}>
       <KeyboardAvoidingView
         behavior='height'
         style={{

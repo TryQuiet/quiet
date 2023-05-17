@@ -45,7 +45,7 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
   }, [networkCreated])
 
   return (
-    <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}>
+    <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'create-community-component'}>
       <KeyboardAvoidingView
         behavior='height'
         style={{
