@@ -9,8 +9,8 @@ import { navigationSelectors } from '../../store/navigation/navigation.selectors
 
 export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
-// KACPER
-  const { channel } = route.params
+
+  const { channel: channelRouteParam } = route.params
 
   const channels = useSelector(publicChannels.selectors.publicChannels)
 
@@ -19,18 +19,19 @@ export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => 
   console.log({ channels })
 
   useEffect(() => {
-    if (screen === ScreenNames.DeleteChannelScreen && !channels.find(c => c.name === channel)) {
+    if (screen === ScreenNames.DeleteChannelScreen && !channels.find(c => c.name === channelRouteParam)) {
       dispatch(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
     }
   }, [dispatch, screen, channels])
 
   const deleteChannel = useCallback(() => {
+    const deletedChannel = channels.find((channel) => channel.name === channelRouteParam)
     dispatch(
       publicChannels.actions.deleteChannel({
-        channelAddress: channel
+        channelAddress: deletedChannel.address
       })
     )
-  }, [dispatch])
+  }, [dispatch, channels, channelRouteParam])
 
   const handleBackButton = useCallback(() => {
     dispatch(
@@ -42,7 +43,7 @@ export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => 
 
   return (
     <DeleteChannel
-      name={channel}
+      name={channelRouteParam}
       deleteChannel={deleteChannel}
       handleBackButton={handleBackButton}
     />

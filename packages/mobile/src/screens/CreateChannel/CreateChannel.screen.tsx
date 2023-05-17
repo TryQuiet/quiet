@@ -15,6 +15,7 @@ import { DateTime } from 'luxon'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationActions } from '../../store/navigation/navigation.slice'
+import { generateChannelAddress } from '@quiet/common'
 
 export const CreateChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -79,7 +80,7 @@ export const CreateChannelScreen: FC = () => {
         name: name,
         description: `Welcome to #${name}`,
         owner: user.nickname,
-        address: name,
+        address: generateChannelAddress(name),
         timestamp: DateTime.utc().valueOf()
       }
 
