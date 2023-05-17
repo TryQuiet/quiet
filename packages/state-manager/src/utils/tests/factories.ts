@@ -140,11 +140,6 @@ export const getFactory = async (store: Store) => {
       }
     },
     {
-      // afterBuild: (action: ReturnType<typeof publicChannels.actions.addChannel>) => {
-      //   // KACPER
-      //   action.payload.channel.address = generateChannelAddress(action.payload.channel.name)
-      //   return action
-      // },
       afterCreate: async (
         payload: ReturnType<typeof publicChannels.actions.addChannel>['payload']
       ) => {

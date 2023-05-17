@@ -14,8 +14,9 @@ import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@j
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
 import type { Storage as StorageType } from './storage'
-import { ChannelMessage, Community, Identity, PublicChannel, TestMessage } from '@quiet/types'
+import { ChannelMessage, Community, Identity, MessageType, PublicChannel, TestMessage } from '@quiet/types'
 import { Store, getFactory, prepareStore, publicChannels } from '@quiet/state-manager'
+import { DateTime } from 'luxon'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -57,6 +58,23 @@ let utils: ComonUtilsModuleType
 
 jest.setTimeout(50000)
 
+const generateMessageFactoryContent = () => {
+  const obj = {
+  message: {
+    id: (Math.random() * 10 ** 18).toString(36),
+    type: MessageType.Basic,
+    message: (Math.random() * 10 ** 18).toString(36),
+    createdAt: DateTime.utc().valueOf(),
+    channelAddress: channel.address,
+    signature: '',
+    pubKey: ''
+  },
+  verifyAutomatically: false
+  }
+
+  return obj
+}
+
 beforeAll(async () => {
   store = prepareStore().store
   factory = await getFactory(store)
@@ -87,7 +105,8 @@ beforeAll(async () => {
     await factory.create<TestMessage>(
       'Message',
       {
-        identity: alice
+        identity: alice,
+        ...generateMessageFactoryContent()
       }
     )
   ).message
@@ -312,7 +331,8 @@ describe('Certificate', () => {
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: alice
+      identity: alice,
+      ...generateMessageFactoryContent()
     })
 
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
@@ -358,13 +378,16 @@ describe('Certificate', () => {
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: alice
+      identity: alice,
+      ...generateMessageFactoryContent()
     })
 
     const johnMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: john
+      identity: john,
+      ...generateMessageFactoryContent()
+
     })
 
     const aliceMessageWithJohnsPublicKey: ChannelMessage = {
@@ -468,7 +491,8 @@ describe('Message access controller', () => {
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: alice
+      identity: alice,
+      ...generateMessageFactoryContent()
     })
     // @ts-expect-error userCertificate can be undefined
     const johnCertificate: string = john.userCertificate
