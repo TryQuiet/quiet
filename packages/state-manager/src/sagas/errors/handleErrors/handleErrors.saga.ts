@@ -13,7 +13,7 @@ const log = logger('errors')
 
 export function* retryRegistration(communityId: string) {
   const identity = yield* select(identitySelectors.selectById(communityId))
-  if (!identity || !identity.userCsr) {
+  if (!identity?.userCsr) {
     console.error('Error retrying registration. Lacking identity data')
     return
   }

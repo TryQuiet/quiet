@@ -292,7 +292,7 @@ describe('publicChannelsSelectors', () => {
       'Identity',
       { id: community.id, nickname: 'elouise' }
     )
-    
+
     // @ts-expect-error
     store.dispatch(usersActions.test_remove_user_certificate({ certificate: elouise.userCertificate }))
 

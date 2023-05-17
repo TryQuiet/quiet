@@ -46,6 +46,10 @@ export interface DisplayableMessage {
   media?: FileMetadata
 }
 
+export type MessagesGroupsType = {
+  [date: string]: DisplayableMessage[]
+}
+
 export interface MessagesDailyGroups {
   [date: string]: DisplayableMessage[][]
 }

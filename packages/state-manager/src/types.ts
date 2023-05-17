@@ -27,8 +27,8 @@ export interface EmitEvents {
   [SocketActionTypes.DELETE_CHANNEL]: EmitEvent<
     ReturnType<typeof publicChannelsActions.deleteChannel>['payload']
   >
-  [SocketActionTypes.CLOSE]: () => void,
-  [SocketActionTypes.LEAVE_COMMUNITY]: () => void,
+  [SocketActionTypes.CLOSE]: () => void
+  [SocketActionTypes.LEAVE_COMMUNITY]: () => void
   [SocketActionTypes.CREATE_NETWORK]: EmitEvent<Community>
 }
 

@@ -53,7 +53,7 @@ describe('sendInitialChannelMessageSaga', () => {
 
     channel = (await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel'))
       .payload.channel
-    
+
     expect(user2.userCertificate).not.toBeNull()
     store.dispatch(
       // @ts-expect-error

@@ -3,7 +3,7 @@ import { getCertFieldValue } from '@quiet/identity'
 import { CertFieldsTypes } from './const/certFieldTypes'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
-import {Certificate} from 'pkijs'
+import { Certificate } from 'pkijs'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { User } from '@quiet/types'
 

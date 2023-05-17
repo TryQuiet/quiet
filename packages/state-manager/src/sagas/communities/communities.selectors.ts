@@ -6,6 +6,11 @@ import { invitationShareUrl } from '@quiet/common'
 import { CertFieldsTypes, getCertFieldValue, parseCertificate } from '@quiet/identity'
 import { getOldestParsedCerificate } from '../users/users.selectors'
 
+// Workaround for "The inferred type of 'communitiesSelectors' cannot be named without a reference to
+// 'packages/identity/node_modules/pkijs/build'. This is likely not portable. A type annotation is necessary."
+// https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
+// import type {} from 'pkijs'
+
 const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (state: StoreState) =>
   state[StoreKeys.Communities]
 
@@ -60,7 +65,7 @@ export const invitationCode = createSelector(communitiesSlice, reducerState => {
 })
 
 export const invitationUrl = createSelector(currentCommunity, community => {
-  if (!community || !community?.registrarUrl) return ''
+  if (!community?.registrarUrl) return ''
   let registrarUrl = ''
   try {
     const url = new URL(community.registrarUrl)
@@ -102,10 +107,6 @@ export const ownerNickname = createSelector(
   }
 )
 
-// Workaround for "The inferred type of 'communitiesSelectors' cannot be named without a reference to 
-// 'packages/identity/node_modules/pkijs/build'. This is likely not portable. A type annotation is necessary."
-// https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
-// import type {} from "pkijs"
 export const communitiesSelectors = {
   selectById,
   selectEntities,

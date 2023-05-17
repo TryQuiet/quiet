@@ -11,7 +11,7 @@ import { certificatesMapping } from '../users/users.selectors'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { isDefined } from '@quiet/common'
-import { ChannelMessage, DisplayableMessage, MessageType, MessagesDailyGroups, PublicChannel, PublicChannelStatus } from '@quiet/types'
+import { ChannelMessage, DisplayableMessage, MessageType, MessagesDailyGroups, MessagesGroupsType, PublicChannel, PublicChannelStatus } from '@quiet/types'
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
   state[StoreKeys.PublicChannels]
@@ -196,7 +196,6 @@ export const currentChannelMessagesCount = createSelector(
 export const dailyGroupedCurrentChannelMessages = createSelector(
   displayableCurrentChannelMessages,
   messages => {
-    type MessagesGroupsType = {[date: string]: DisplayableMessage[]}
     const result: MessagesGroupsType = messages.reduce((groups: MessagesGroupsType, message: DisplayableMessage) => {
       const date = formatMessageDisplayDay(message.date)
 
@@ -243,7 +242,7 @@ export const currentChannelMessagesMergedBySender = createSelector(
 export const channelsStatus = createSelector(
   selectState,
   state => {
-    if (!state || !state.channelsStatus) return {}
+    if (!state?.channelsStatus) return {}
     return publicChannelsStatusAdapter
       .getSelectors()
       .selectEntities(state.channelsStatus)
@@ -253,7 +252,7 @@ export const channelsStatus = createSelector(
 export const channelsStatusSorted = createSelector(
   selectState,
   state => {
-    if (!state || !state.channelsStatus) return []
+    if (!state?.channelsStatus) return []
     const statuses = publicChannelsStatusAdapter
       .getSelectors()
       .selectAll(state.channelsStatus)

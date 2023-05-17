@@ -39,7 +39,7 @@ export const currentPublicChannelMessagesBase = createSelector(
   publicChannelsMessagesBase,
   currentChannelAddress,
   (base, address) => {
-    return base[address as string]
+    return base[address]
   }
 )
 

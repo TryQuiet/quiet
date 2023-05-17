@@ -7,7 +7,7 @@ import { setupCrypto } from '@quiet/identity'
 import {
   communitiesActions
 } from '../../communities/communities.slice'
-import {Community, ErrorCodes, ErrorMessages, ErrorTypes, Identity} from '@quiet/types'
+import { Community, ErrorCodes, ErrorMessages, ErrorTypes, Identity } from '@quiet/types'
 import { identityActions } from '../../identity/identity.slice'
 import { errorsActions } from '../errors.slice'
 import { handleErrorsSaga, retryRegistration } from './handleErrors.saga'

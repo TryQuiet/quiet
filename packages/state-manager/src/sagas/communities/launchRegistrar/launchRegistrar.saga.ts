@@ -19,7 +19,7 @@ export function* launchRegistrarSaga(
   }
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
-  if (!community || !community.privateKey) {
+  if (!community?.privateKey) {
     console.error('Could not launch registrar, Community is lacking data')
     return
   }

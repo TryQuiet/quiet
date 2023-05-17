@@ -58,7 +58,6 @@ export const connectedPeersMapping = createSelector(
             [peerId]: user
           }
         }
-        return peersMapping
       }
       return peersMapping
     }, {})

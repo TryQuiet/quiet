@@ -22,7 +22,7 @@ export function* autoDownloadFilesSaga(
 
   for (const message of messages) {
     // Proceed for images and files only
-    if (message.type !== MessageType.Image && message.type !== MessageType.File || !message.media) return
+    if (!message.media || (message.type !== MessageType.Image && message.type !== MessageType.File)) return
 
     const channelMessages = yield* select(
       messagesSelectors.publicChannelMessagesEntities(message.channelAddress)
@@ -34,7 +34,8 @@ export function* autoDownloadFilesSaga(
     if (draft?.media?.path) return
 
     // Do not autodownload above certain size
-    if (message.media.size || 0 > AUTODOWNLOAD_SIZE_LIMIT) {
+    const messageMediaSize = message.media.size || 0
+    if (messageMediaSize > AUTODOWNLOAD_SIZE_LIMIT) {
       yield* put(
         filesActions.updateDownloadStatus({
           mid: message.id,

@@ -445,7 +445,7 @@ describe('incomingMessagesSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .not.put(publicChannelsActions.cacheMessages({messages, channelAddress: barbequeChannel.address}))
+      .not.put(publicChannelsActions.cacheMessages({ messages, channelAddress: barbequeChannel.address }))
       .run()
 
     // Verify cached messages hasn't changed

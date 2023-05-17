@@ -34,7 +34,7 @@ export function* registerCertificateSaga(
     const payload: RegisterUserCertificatePayload = {
       communityId: action.payload.communityId,
       userCsr: action.payload.userCsr.userCsr,
-      serviceAddress: currentCommunity.registrarUrl 
+      serviceAddress: currentCommunity.registrarUrl
     }
 
     yield* apply(
