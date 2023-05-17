@@ -17,6 +17,7 @@ const classes = {
   link: `${PREFIX}link`,
   ol: `${PREFIX}list`,
   ul: `${PREFIX}ul`,
+  table: `${PREFIX}table`,
   tableHeaderCell: `${PREFIX}tableHeaderCell`,
   tableRowCell: `${PREFIX}tableRowCell`
 }
@@ -79,6 +80,10 @@ const StyledTypography = styled(Typography)(() => ({
     paddingInlineStart: '15px',
     whiteSpace: 'normal',
     listStyleType: 'disc'
+  },
+
+  [`& .${classes.table}`]: {
+    width: '100%'
   },
 
   [`& .${classes.tableHeaderCell}`]: {
@@ -161,6 +166,9 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
           ),
           ul: ({ node, ...props }) => (
             <ul className={classNames({ [classes.ul]: true })} {...props} />
+          ),
+          table: ({ node, ...props }) => (
+            <table className={classNames({ [classes.table]: true })} {...props} />
           ),
           th: ({ node, ...props }) => (
             <th className={classNames({ [classes.tableHeaderCell]: props.isHeader })} {...props} />
