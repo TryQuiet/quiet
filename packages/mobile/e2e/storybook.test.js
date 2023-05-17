@@ -1,12 +1,15 @@
 import fs, { statSync } from 'fs'
 import { readdir } from 'fs/promises'
 import path from 'path'
+import childProcess from 'child_process'
 import compare from './utils/compare'
 
 jest.setTimeout(9000000)
 
 /* eslint-disable no-undef */
 describe('Storybook', () => {
+  const shouldGenerateBase = Boolean(process.argv.find(x => x.startsWith('-generate-base')))
+
   let stories = []
 
   const findStories = async (dirname, files) => {
@@ -40,7 +43,7 @@ describe('Storybook', () => {
       }
     }
 
-    stories = stories.slice(index, stories.length - 1)
+    stories = stories.slice(index, stories.length)
   }
 
   const listScenarios = async (dirname, item) => {
@@ -60,10 +63,12 @@ describe('Storybook', () => {
 
   const checkVisualRegression = async (id, component, scenario) => {
     const imagePath = await element(by.id(id)).takeScreenshot(`${component}_${scenario}`)
-    compare(
-      imagePath,
-      `${__dirname}/storybook-base-screenshots/${device.name}/${component}_${scenario}.png`
-    )
+    if (!shouldGenerateBase) {
+      compare(
+        imagePath,
+        `${__dirname}/storybook-base-screenshots/${device.name}/${component}_${scenario}.png`
+      )
+    }
   }
 
   beforeAll(async () => {
@@ -71,11 +76,22 @@ describe('Storybook', () => {
     stories = await findStories(dirname, [])
 
     // Start at particular story
-    if (process.argv.filter(x => x.startsWith('-starting-story'))[0]) trimStories()
+    if (process.argv.find(x => x.startsWith('-starting-story'))) trimStories()
 
     await device.launchApp({ newInstance: true, launchArgs: { detoxDebugVisibility: 'YES' } })
 
     await element(by.id('BottomMenu.Sidebar')).longPress()
+  })
+
+  afterAll(async () => {
+    if (shouldGenerateBase) {
+      childProcess.exec(`sh e2e/update-base.sh ${device.name}`, (err, stdout) => {
+        if (err) {
+          console.log(err)
+        }
+        console.log(stdout)
+      })
+    }
   })
 
   test('visual regressions', async () => {

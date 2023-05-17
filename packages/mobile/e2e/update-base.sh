@@ -9,9 +9,9 @@ then
   exit 1
 fi
 
-ARTIFACTS_DIRECTORY="$(ls -rt ../artifacts | tail -1)"
+ARTIFACTS_DIRECTORY="$(ls -rt artifacts | tail -1)"
 
-cd "../artifacts"
+cd "artifacts"
 cd "$(echo $ARTIFACTS_DIRECTORY)/"
 cd "$(ls)"
 
