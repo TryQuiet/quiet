@@ -80,3 +80,5 @@ buck-out/
 
 # Detox
 /artifacts
+/e2e/base-screenshots/*
+/e2e/storybook-base-screenshots/*
