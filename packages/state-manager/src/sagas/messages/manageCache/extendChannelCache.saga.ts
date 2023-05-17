@@ -33,7 +33,8 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
   yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))
 
   const channelMessagesBase = yield* select(messagesSelectors.currentPublicChannelMessagesBase)
-  let display = channelMessagesBase?.display || 0 + channelMessagesChunkSize
+  const baseDisplay = channelMessagesBase?.display || 0
+  let display = baseDisplay + channelMessagesChunkSize
   if (display > channelMessagesEntries.length) {
     display = channelMessagesEntries.length
   }

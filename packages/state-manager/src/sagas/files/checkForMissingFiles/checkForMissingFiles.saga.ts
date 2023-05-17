@@ -48,9 +48,10 @@ export function* checkForMissingFilesSaga(
         }
 
         // Do not autodownload oversized files unless started manually
+        const fileSize = file.size || 0
         if (
           fileDownloadStatus?.downloadState !== DownloadState.Downloading &&
-          file.size || 0 > AUTODOWNLOAD_SIZE_LIMIT
+          fileSize > AUTODOWNLOAD_SIZE_LIMIT
         ) { continue }
 
         // Do not autodownload if the file was reported malicious or is missing reported file size

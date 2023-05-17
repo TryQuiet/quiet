@@ -57,12 +57,11 @@ describe('connectionReducer', () => {
       username: alice.nickname,
       onionAddress: alice.hiddenService.onionAddress,
       peerId: alice.peerId.id,
-      dmPublicKey: ''
+      dmPublicKey: alice.dmKeys.publicKey
     }
 
     store.dispatch(networkActions.addConnectedPeers([alice.peerId.id]))
     const userDataPerPeerId = connectionSelectors.connectedPeersMapping(store.getState())
-
     expect(userDataPerPeerId[alice.peerId.id]).toEqual(aliceCertData)
   })
 

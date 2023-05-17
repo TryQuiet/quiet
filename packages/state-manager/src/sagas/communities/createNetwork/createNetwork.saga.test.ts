@@ -22,7 +22,8 @@ describe('createNetwork', () => {
       id: '1',
       name: undefined,
       registrarUrl: 'http://registrarUrl.onion',
-      CA: null
+      CA: null,
+      rootCa: undefined
     }
 
     const reducer = combineReducers(reducers)

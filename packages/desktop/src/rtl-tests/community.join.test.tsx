@@ -100,7 +100,8 @@ describe('User', () => {
             {
               nickname: user.nickname,
               commonName: communityHelper.registrarUrl,
-              peerId: user.peerId.id
+              peerId: user.peerId.id,
+              dmPublicKey: user.dmKeys.publicKey
             },
             communityHelper.CA
           )

@@ -21,9 +21,14 @@ import { LaunchRegistrarPayload } from '@quiet/types'
 describe('launchRegistrar', () => {
   let store: Store
   let factory: FactoryGirl
+  let communityPrivateKey: string
 
   beforeAll(async () => {
     setupCrypto()
+    communityPrivateKey = 'ED25519-V3:oCPvW19HA3HjsHc4vBKKBBKGREmIpVRM1excXL7BIHKzBqNyCNdAfNuRQme1M4Nn1CE4PCzpmjWmp0DSi1xqlg=='
+  })
+
+  beforeEach(async () => {
     store = prepareStore().store
     factory = await getFactory(store)
   })
@@ -40,12 +45,16 @@ describe('launchRegistrar', () => {
     >('Identity', { id: community.id, nickname: 'john' })
     expect(community.CA).not.toBeNull()
     expect(community.CA).toBeDefined()
+    const communityWithPrivateKey = {
+      ...community,
+      privateKey: communityPrivateKey
+    }
     const launchRegistrarPayload: LaunchRegistrarPayload = {
         id: community.id,
         peerId: identity.peerId.id,
         rootCertString: community.CA?.rootCertString || '',
         rootKeyString: community.CA?.rootKeyString || '',
-        privateKey: ''
+        privateKey: communityPrivateKey
     }
 
     await expectSaga(launchRegistrarSaga, socket, communitiesActions.launchCommunity(community.id))
@@ -59,7 +68,7 @@ describe('launchRegistrar', () => {
             ...new CommunitiesState(),
             currentCommunity: 'id-0',
             communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
-              community
+              communityWithPrivateKey
             ])
           },
           [StoreKeys.Identity]: {
@@ -87,12 +96,16 @@ describe('launchRegistrar', () => {
     >('Identity', { id: community.id, nickname: 'john' })
     expect(community.CA).not.toBeNull()
     expect(community.CA).toBeDefined()
+    const communityWithPrivateKey = {
+      ...community,
+      privateKey: communityPrivateKey
+    }
     const launchRegistrarPayload: LaunchRegistrarPayload = {
       id: community.id,
       peerId: identity.peerId.id,
       rootCertString: community.CA?.rootCertString || '',
       rootKeyString: community.CA?.rootKeyString || '',
-      privateKey: ''
+      privateKey: communityPrivateKey
   }
 
     await expectSaga(launchRegistrarSaga, socket, communitiesActions.launchCommunity())
@@ -106,7 +119,7 @@ describe('launchRegistrar', () => {
             ...new CommunitiesState(),
             currentCommunity: community.id,
             communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
-              community
+              communityWithPrivateKey
             ])
           },
           [StoreKeys.Identity]: {
@@ -143,7 +156,9 @@ describe('launchRegistrar', () => {
   }
 
     community = {
-      ...community, CA: null
+      ...community,
+      CA: null,
+      privateKey: communityPrivateKey
     }
 
     await expectSaga(launchRegistrarSaga, socket, communitiesActions.launchCommunity())

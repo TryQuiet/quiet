@@ -11,7 +11,7 @@ import { identityActions } from '../../identity/identity.slice'
 import { Community, DmKeys, Identity, NetworkData } from '@quiet/types'
 
 describe('responseCreateNetwork', () => {
-  it('create network for joining user', async () => { // TODO CHECK
+  it('create network for joining user', async () => {
     setupCrypto()
     const store = prepareStore().store
 
@@ -20,14 +20,7 @@ describe('responseCreateNetwork', () => {
       name: undefined,
       registrarUrl: 'registrarUrl',
       CA: null,
-      rootCa: undefined,
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0,
-      registrationAttempts: 0,
-      ownerCertificate: '',
+      rootCa: undefined
     }
 
     const dmKeys: DmKeys = {
