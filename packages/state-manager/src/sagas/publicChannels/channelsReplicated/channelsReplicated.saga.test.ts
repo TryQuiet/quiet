@@ -43,7 +43,9 @@ describe('channelsReplicatedSaga', () => {
     )
 
     generalChannel = publicChannelsSelectors.generalChannel(store.getState())
-
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({ channelAddress: generalChannel.address })
+    )
     sailingChannel = (
       await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel', {
         communityId: community.id,
