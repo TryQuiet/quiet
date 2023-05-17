@@ -12,11 +12,6 @@ import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDis
 
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
-import { PublicChannelStatus } from '@quiet/types'
-
-interface ChannelMobile extends PublicChannelStatus {
-  name: string
-}
 
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
@@ -41,7 +36,7 @@ export const ChannelListScreen: FC = () => {
   const channelsStatusSortedSelector = useSelector(publicChannels.selectors.channelsStatusSorted)
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
 
-  const channels = channelsStatusSortedSelector.reduce((prev: ChannelMobile[], curr) => {
+  const channels = channelsStatusSortedSelector.reduce((prev, curr) => {
     return [
       ...prev,
       {
