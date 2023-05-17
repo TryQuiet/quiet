@@ -12,6 +12,11 @@ import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDis
 
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
+import { PublicChannelStatus } from '@quiet/types'
+
+interface ChannelMobile extends PublicChannelStatus {
+  name: string
+}
 
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
@@ -33,7 +38,18 @@ export const ChannelListScreen: FC = () => {
   )
 
   const community = useSelector(communities.selectors.currentCommunity)
-  const channels = useSelector(publicChannels.selectors.channelsStatusSorted)
+  const channelsStatusSortedSelector = useSelector(publicChannels.selectors.channelsStatusSorted)
+  const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
+
+  const channels = channelsStatusSortedSelector.reduce((prev: ChannelMobile[], curr) => {
+    return [
+      ...prev,
+      {
+        ...curr,
+        name: publicChannelsSelector.find(channel => curr.address.includes(channel.name)).name
+      }
+    ]
+  }, [])
 
   const tiles = channels.map(status => {
     const newestMessage = status.newestMessage
@@ -44,7 +60,7 @@ export const ChannelListScreen: FC = () => {
       : undefined
 
     const tile: ChannelTileProps = {
-      name: status.address,
+      name: status.name,
       address: status.address,
       message: message,
       date: date,
