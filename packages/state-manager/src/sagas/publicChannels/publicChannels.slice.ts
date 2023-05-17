@@ -25,7 +25,8 @@ import {
   ChannelDeletionResponsePayload,
   DeleteChannelFromStorePayload,
   ClearMessagesCachePayload,
-  DisableChannelPayload
+  DisableChannelPayload,
+  INITIAL_CURRENT_CHANNEL_ADDRESS
 } from './publicChannels.types'
 
 import logger from '../../utils/logger'
@@ -33,8 +34,7 @@ import { Identity } from '../identity/identity.types'
 const log = logger('publicChannels')
 
 export class PublicChannelsState {
-  // KACPER
-  public currentChannelAddress: string = ''
+  public currentChannelAddress: string = INITIAL_CURRENT_CHANNEL_ADDRESS
 
   public pendingGeneralChannelRecreation: boolean = false
 
@@ -152,6 +152,7 @@ export const publicChannelsSlice = createSlice({
       }>
     ) => {
       const { message } = action.payload
+      console.log({ message })
       channelMessagesAdapter.addOne(
         state.channels.entities[message.channelAddress].messages,
         message

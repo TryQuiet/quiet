@@ -10,7 +10,7 @@ export interface ChannelsPanelProps {
   channels: PublicChannel[]
   unreadChannels: string[]
   setCurrentChannel: (address: string) => void
-  currentChannel: string
+  currentChannelAddress: string
   createChannelModal: ReturnType<typeof useModal>
 }
 
@@ -18,7 +18,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   channels,
   unreadChannels,
   setCurrentChannel,
-  currentChannel,
+  currentChannelAddress,
   createChannelModal
 }) => {
   return (
@@ -35,7 +35,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
         <List disablePadding data-testid='channelsList'>
           {channels.map((channel, index) => {
             const unread = unreadChannels.some(address => address === channel.address)
-            const selected = currentChannel === channel.address
+            const selected = currentChannelAddress === channel.address
             return (
               <ChannelsListItem
                 channel={channel}

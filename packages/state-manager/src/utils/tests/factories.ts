@@ -1,14 +1,24 @@
 import factoryGirl from 'factory-girl'
 import { CustomReduxAdapter } from './reduxAdapter'
 import { Store } from '../../sagas/store.types'
-import { communities, identity, messages, publicChannels, users, errors, DownloadState } from '../..'
 import {
-  createMessageSignatureTestHelper,
-  createPeerIdTestHelper
-} from './helpers'
+  communities,
+  identity,
+  messages,
+  publicChannels,
+  users,
+  errors,
+  DownloadState
+} from '../..'
+import { createMessageSignatureTestHelper, createPeerIdTestHelper } from './helpers'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
-import { createRootCertificateTestHelper, createUserCertificateTestHelper, keyObjectFromString, verifySignature } from '@quiet/identity'
+import {
+  createRootCertificateTestHelper,
+  createUserCertificateTestHelper,
+  keyObjectFromString,
+  verifySignature
+} from '@quiet/identity'
 import { MessageType, SendingStatus } from '../../sagas/messages/messages.types'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../sagas/messages/messages.slice'
@@ -46,7 +56,7 @@ export const getFactory = async (store: Store) => {
           store.dispatch(communities.actions.setCurrentCommunity(payload.id))
         }
         // Create 'general' channel
-        await factory.create('PublicChannel', {
+       await factory.create('PublicChannel', {
           communityId: payload.id,
           channel: {
             name: 'general',
@@ -136,15 +146,21 @@ export const getFactory = async (store: Store) => {
         description: 'Description',
         timestamp: DateTime.utc().toSeconds(),
         owner: factory.assoc('Identity', 'nickname'),
-        address: generateChannelAddress(factory.sequence('PublicChannel.name', n => `publicChannel${n}`).toString())
+        address: generateChannelAddress(
+          factory.sequence('PublicChannel.name', n => `publicChannel${n}`).toString()
+        )
       }
     },
     {
       afterCreate: async (
         payload: ReturnType<typeof publicChannels.actions.addChannel>['payload']
       ) => {
-        await factory.create('PublicChannelsMessagesBase', ({ channelAddress: payload.channel.address }))
-        await factory.create('PublicChannelSubscription', ({ channelAddress: payload.channel.address }))
+        await factory.create('PublicChannelsMessagesBase', {
+          channelAddress: payload.channel.address
+        })
+        await factory.create('PublicChannelSubscription', {
+          channelAddress: payload.channel.address
+        })
         return payload
       }
     }
@@ -210,9 +226,11 @@ export const getFactory = async (store: Store) => {
       afterCreate: async (
         payload: ReturnType<typeof publicChannels.actions.test_message>['payload']
       ) => {
-        store.dispatch(messagesActions.incomingMessages({
-          messages: [payload.message]
-        }))
+        store.dispatch(
+          messagesActions.incomingMessages({
+            messages: [payload.message]
+          })
+        )
 
         return payload
       }

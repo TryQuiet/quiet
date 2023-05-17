@@ -4,12 +4,18 @@ import { ioMock } from '../../../shared/setupTests'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { setupCrypto } from '@quiet/identity'
 import { call, fork } from 'typed-redux-saga'
-import { publicChannels, NotificationsSounds, MessageType, FileMetadata } from '@quiet/state-manager'
+import {
+  publicChannels,
+  NotificationsSounds,
+  MessageType,
+  FileMetadata
+} from '@quiet/state-manager'
 import {
   createNotification,
   handleNotificationActions,
   NotificationData
 } from './notifications.saga'
+import { generateChannelAddress } from '@quiet/common'
 
 const notification = jest.fn().mockImplementation(() => {
   return jest.fn()
@@ -47,26 +53,29 @@ describe('clicking in notification', () => {
 
     const { store, runSaga } = await prepareStore({}, socket)
 
-    const channel = 'sailing'
+    const generalAddress = generateChannelAddress('general')
+    const sailingAddress = generateChannelAddress('sailing')
 
     const notificationData: NotificationData = {
       label: 'label',
       body: 'body',
-      channel: channel,
+      channel: sailingAddress,
       sound: NotificationsSounds.splat
     }
 
+    store.dispatch(publicChannels.actions.setCurrentChannel({ channelAddress: generalAddress }))
+
     // Verify current channel is 'general
-    expect(publicChannels.selectors.currentChannelAddress(store.getState())).toBe('general')
+    expect(publicChannels.selectors.currentChannelAddress(store.getState())).toBe(generalAddress)
 
     runSaga(function* (): Generator {
       const notification = yield* call(createNotification, notificationData)
-      yield* fork(handleNotificationActions, notification, MessageType.Basic, channel)
+      yield* fork(handleNotificationActions, notification, MessageType.Basic, sailingAddress)
       yield* call(notification.onclick, new Event(''))
     })
 
     // Confirm current channel address has changed
-    expect(publicChannels.selectors.currentChannelAddress(store.getState())).toBe(channel)
+    expect(publicChannels.selectors.currentChannelAddress(store.getState())).toBe(sailingAddress)
   })
 
   it('opens file explorer', async () => {
@@ -75,7 +84,7 @@ describe('clicking in notification', () => {
 
     const { runSaga } = await prepareStore({}, socket)
 
-    const channel = 'sailing'
+    const sailingAddress = generateChannelAddress('sailing')
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -84,14 +93,14 @@ describe('clicking in notification', () => {
       path: 'path/file.ext',
       message: {
         id: 'id',
-        channelAddress: channel
+        channelAddress: sailingAddress
       }
     }
 
     const notificationData: NotificationData = {
       label: 'label',
       body: 'body',
-      channel: channel,
+      channel: sailingAddress,
       sound: NotificationsSounds.splat
     }
 
@@ -99,7 +108,7 @@ describe('clicking in notification', () => {
 
     runSaga(function* (): Generator {
       const notification = yield* call(createNotification, notificationData)
-      yield* fork(handleNotificationActions, notification, MessageType.File, channel, media)
+      yield* fork(handleNotificationActions, notification, MessageType.File, sailingAddress, media)
       yield* call(notification.onclick, new Event(''))
     })
 

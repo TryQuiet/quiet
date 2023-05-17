@@ -98,7 +98,8 @@ beforeAll(async () => {
   community = await factory.create<
   ReturnType<typeof communities.actions.addNewCommunity>['payload']
   >('Community')
-
+  const generalChannel = publicChannels.selectors.generalChannel(store.getState())
+  store.dispatch(publicChannels.actions.setCurrentChannel({ channelAddress: generalChannel.address }))
   sailingChannel = (
     await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
       'PublicChannel'

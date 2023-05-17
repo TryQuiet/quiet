@@ -12,6 +12,7 @@ import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessa
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import {
   DisplayableMessage,
+  INITIAL_CURRENT_CHANNEL_ADDRESS,
   MessagesDailyGroups,
   PublicChannel,
   PublicChannelStatus
@@ -86,7 +87,7 @@ export const sortedChannels = createSelector(publicChannels, (channels) => {
   return sorted
 })
 
-export const currentChannelAddress = createSelector(
+export const currentChannelAddress_OLD = createSelector(
   selectState,
   (state) => {
     if (!state) return undefined
@@ -97,6 +98,26 @@ export const currentChannelAddress = createSelector(
 export const generalChannel = createSelector(publicChannels, publicChannelsSelector => {
   return publicChannelsSelector.find(channel => channel.name === 'general')
 })
+
+export const currentChannelAddress = createSelector(
+  selectState,
+  generalChannel,
+  (state, general) => {
+    // KACPER - test for it - IMPORTANT !!!!
+    if (!state) {
+      return undefined
+    }
+    if (state.currentChannelAddress === INITIAL_CURRENT_CHANNEL_ADDRESS) {
+      if (general) {
+        return general.address
+      } else {
+        return 'general'// case for tests when is no channel in store
+      }
+    } else {
+      return state.currentChannelAddress
+    }
+  }
+)
 
 export const recentChannels = createSelector(
   publicChannels,
