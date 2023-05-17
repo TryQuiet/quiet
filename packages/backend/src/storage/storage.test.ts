@@ -170,10 +170,10 @@ describe('Channels', () => {
 
     const eventSpy = jest.spyOn(storage, 'emit')
 
-    await storage.deleteChannel({ channel: channelio.address })
+    await storage.deleteChannel({ channelAddress: channelio.address })
 
     expect(eventSpy).toBeCalledWith('channelDeletionResponse', {
-      channel: channelio.address
+      channelAddress: channelio.address
     })
   })
 })
