@@ -318,9 +318,9 @@ describe('Ipfs file manager', () => {
 
     // Uploading
     const eventSpy = jest.spyOn(fileManager, 'emit')
-
+    const filePath = path.join(dirname, '/testUtils/test-image.png')
     const metadata: FileMetadata = {
-      path: path.join(dirname, '/testUtils/test-image.png'),
+      path: filePath,
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
@@ -338,7 +338,7 @@ describe('Ipfs file manager', () => {
 
     const downloadMetadata = eventSpy.mock.calls[3][1]
 
-    const uploadFileBuffer = fs.readFileSync(metadata.path)
+    const uploadFileBuffer = fs.readFileSync(filePath)
     // @ts-ignore
     const downloadFileBuffer = fs.readFileSync(downloadMetadata.path)
 

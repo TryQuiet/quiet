@@ -75,7 +75,7 @@ describe('Connections manager', () => {
   it('dials many peers on start', async () => {
     const store = prepareStore().store
     const factory = await getFactory(store)
-    const community = await factory.create<Community>('Community')
+    const community = await factory.create<Community>('Community', { rootCa: 'rootCa' })
     const userIdentity = await factory.create<Identity>(
       'Identity', { id: community.id, nickname: 'john' }
     )
@@ -109,6 +109,7 @@ describe('Connections manager', () => {
         certificate: userIdentity.userCertificate,
         // @ts-expect-error Identity.userCertificate userCsr.userKey can be undefined
         key: userIdentity.userCsr?.userKey,
+        // @ts-expect-error
         CA: [community.rootCa]
       },
       peers: peerList
@@ -122,7 +123,7 @@ describe('Connections manager', () => {
   it('Bug reproduction - iOS app crashing because lack of data server', async () => {
     const store = prepareStore().store
     const factory = await getFactory(store)
-    const community = await factory.create<Community>('Community')
+    const community = await factory.create<Community>('Community', { rootCa: 'rootCa' })
     const userIdentity = await factory.create<Identity>(
       'Identity', { id: community.id, nickname: 'john' }
     )
@@ -156,6 +157,7 @@ describe('Connections manager', () => {
         certificate: userIdentity.userCertificate,
         // @ts-expect-error
         key: userIdentity.userCsr?.userKey,
+        // @ts-expect-error
         CA: [community.rootCa]
       },
       peers: peerList

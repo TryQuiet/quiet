@@ -141,6 +141,7 @@ describe('Connections manager - no tor', () => {
         certificate: userIdentity.userCertificate,
         // @ts-expect-error
         key: userIdentity.userCsr?.userKey,
+        // @ts-expect-error
         CA: [community.rootCa]
       },
       peers: community.peerList
@@ -190,6 +191,7 @@ describe('Connections manager - no tor', () => {
         certificate: userIdentity.userCertificate,
         // @ts-expect-error
         key: userIdentity.userCsr?.userKey,
+        // @ts-expect-error
         CA: [community.rootCa]
       },
       peers: community.peerList
@@ -202,7 +204,7 @@ describe('Connections manager - no tor', () => {
       rootCertString: community.CA?.rootCertString,
       // @ts-expect-error
       rootKeyString: community.CA?.rootKeyString,
-      privateKey: ''
+      privateKey: 'privateKey'
     }
 
     await connectionsManager.init()
@@ -331,6 +333,7 @@ describe('Connections manager - no tor', () => {
         certificate: userIdentity.userCertificate,
         // @ts-expect-error
         key: userIdentity.userCsr?.userKey,
+        // @ts-expect-error
         CA: [community.rootCa]
       },
       peers: community.peerList
@@ -368,6 +371,7 @@ describe('Connections manager - no tor', () => {
         certificate: userIdentity.userCertificate,
         // @ts-expect-error
         key: userIdentity.userCsr?.userKey,
+        // @ts-expect-error
         CA: [community.rootCa]
       },
       peers: community.peerList

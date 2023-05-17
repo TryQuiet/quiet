@@ -296,14 +296,14 @@ export class WebSockets extends EventEmitter {
 
       // Because TCP will only return the IPv6 version
       // we need to capture from the passed multiaddr
-      if (listeningMultiaddr.toString().indexOf('ip4') !== -1) {
+      if (listeningMultiaddr.toString().includes('ip4')) {
         let m = listeningMultiaddr.decapsulate('tcp')
         m = m.encapsulate('/tcp/443/wss')
         if (ipfsId) {
           m = m.encapsulate('/p2p/' + ipfsId)
         }
 
-        if (m.toString().indexOf('0.0.0.0') !== -1) {
+        if (m.toString().includes('0.0.0.0')) {
           const netInterfaces = os.networkInterfaces()
           Object.keys(netInterfaces).forEach(niKey => {
             netInterfaces[niKey]?.forEach(ni => {
