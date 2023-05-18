@@ -10,8 +10,8 @@ export function* registerCertificateSaga(
   action: PayloadAction<ReturnType<typeof identityActions.registerCertificate>['payload']>
 ): Generator {
   const currentCommunity = yield* select(communitiesSelectors.currentCommunity)
-  if (!currentCommunity?.registrarUrl) {
-    console.error('Could not register certificate, Community lacking data')
+  if (!currentCommunity) {
+    console.error('Could not register certificate, no current community')
     return
   }
 
@@ -31,6 +31,10 @@ export function* registerCertificateSaga(
       applyEmitParams(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, payload)
     )
   } else {
+    if (!currentCommunity.registrarUrl) {
+      console.error('Could not register certificate, no registrar url')
+      return
+    }
     const payload: RegisterUserCertificatePayload = {
       communityId: action.payload.communityId,
       userCsr: action.payload.userCsr.userCsr,
