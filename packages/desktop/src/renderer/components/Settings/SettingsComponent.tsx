@@ -20,7 +20,7 @@ const classes = {
 }
 
 const StyledModalContent = styled(Grid)(() => ({
-  zIndex: 1000,
+  zIndex: 9002,
   paddingLeft: 20,
   paddingTop: 32,
   paddingRight: 32
@@ -143,6 +143,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
               {!isWindows && (
                 <Grid style={{ marginTop: '24px', cursor: 'pointer' }}>
                   <Typography
+                    data-testid='leave-community-tab'
                     className={classes.leaveComunity}
                     onClick={leaveCommunityModal.handleOpen}>
                     Leave community

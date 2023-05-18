@@ -10,7 +10,7 @@
   Encrypted p2p team chat with no servers, just Tor.
     <br />
 <!--    <a href="https://tryquiet.org"><strong>tryquiet.org »</strong></a> -->
-    <a href="https://github.com/TryQuiet/quiet/releases/tag/quiet%400.16.0"><strong>Downloads</strong></a> | 
+    <a href="https://github.com/TryQuiet/quiet/releases/tag/quiet%401.2.0"><strong>Downloads</strong></a> | 
     <a href="#how-it-works"><strong>How it Works</strong></a> |   
     <a href="#features"><strong>Features</strong></a> | 
     <a href="https://github.com/TryQuiet/monorepo/wiki/Threat-Model"><strong>Threat Model</strong></a> | 
@@ -52,7 +52,7 @@ See our [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ) for answers t
 
 ## Getting started
 
-To try Quiet, download the [latest release](https://github.com/TryQuiet/quiet/releases/tag/quiet%401.0.0) for your platform (.dmg for macOS, .exe for Windows, etc.) and install it in the normal way. Then create a community and open the community's settings to invite members. 
+To try Quiet, download the [latest release](https://github.com/TryQuiet/quiet/releases/tag/quiet%401.2.0) for your platform (.dmg for macOS, .exe for Windows, etc.) and install it in the normal way. Then create a community and open the community's settings to invite members. 
 
 If you'd like to help develop Quiet, see [Contributing to Quiet](#contributing-to-quiet).
 
@@ -62,23 +62,25 @@ If you'd like to help develop Quiet, see [Contributing to Quiet](#contributing-t
 * **End-to-end Encryption** - All data is encrypted end-to-end between member devices.
 * **Channels** - Organize chats in Slack-like channels.
 * **Images** - Send and receive images, with copy/paste, drag & drop, and image previews.
+* **Files** - Send and receive giant files without arbitrary limits.
 * **Notifications** - Get desktop notifications for new messages, with optional sounds.
+* **Invite links** - Share invite links, just like in WhatsApp, Signal, or Discord.
+* **Keyboard Controls** - Navigate channels without using the mouse. 
 * **Desktop Apps** - Desktop apps for Mac, Windows, and Linux.
-* **No email or phone number required** - Unlike Slack, Discord, WhatsApp, Telegram, and Signal, no email or phone number is required to create or join a community. 
+* **Android App** - A fully peer-to-peer Android app with working notifications.
+* **No email or phone number required** - Unlike Slack, Discord, WhatsApp, Telegram, and Signal, no email or phone number is required to create or join a community.
 
 ## Planned (but still-missing) features
 
-* **Files** - Send and receive files of unlimited size!
+* **iOS App** - Join communities and sync messages on iOS, with no central server.
 * **Direct Messages** - Send and receive direct messages that are encrypted to the recipient and unreadable by other community members.
-* **Mobile Apps** - Join communities on Android or iOS, in addition to desktop.
 * **Mentions** - Send @ mentions that notify other users.
 * **Removal** - Remove users from your community.
 * **User Profiles** - Add an avatar or bio.
 * **Message Deletion** - Delete individual messages and set timed deletion rules ("disappearing messages") for the community.
 * **Status** - See your own connection status and the online status of other users.
-* **Emojis & Reactions** - Send emojis with emojicodes, and react with emojis. 
-* **Multiple Communities** - Join multiple communities, like you would in Slack or Discord. 
-* **Keyboard Controls** - Navigate and generally do stuff without using the mouse.
+* **Reactions** - React with emojis. 
+* **Multiple Communities** - Join multiple communities, as you would in Slack or Discord. 
 * **Account Recovery** - Recover owner accounts from a backup phrase.
 * **Private channels** - Create private channels with multiple members that are unreadable to the community at large.
 
@@ -107,8 +109,8 @@ This is a concise technical summary of the main points.
 5. **Identity:** a valid certificate from the community owner on account creation establishes a username, which the owner attests is unique; in future versions, Quiet will warn all members if community owners are caught issuing non-unique usernames, to protect against impersonation by malicious or compromised owners. (See: [#119](https://github.com/TryQuiet/monorepo/issues/119))
 6. **Invitation:** to invite new members, community owners provide (via some other secure channel) an onion address that points to a registration API which accepts a certificate signing request, responds with a signed certificate, and provides sufficient peer information to connect to other peers; in future versions this onion address will expire. (See: [#536](https://github.com/TryQuiet/monorepo/issues/536))
 7. **Account recovery:** owners must back up their data (e.g. by copying a folder, or someday with a wallet-style passphrase) and members request new accounts from owners.
-8. **Removal:** TBD, but likely a combination of expiring invitation onion addresses, certificate revocation, and message-layer encryption with updated keys.
-9. **Multiple device support:** TBD.
+8. **User removal:** TBD, but likely a combination of expiring invitation onion addresses, certificate revocation, and message-layer encryption with updated keys.
+9. **Multiple device support:** TBD, but most likely based on [local-first-web/auth](https://github.com/local-first-web/auth)
 10. **Mobile push notifications:** barring a major victory for consumer rights, iOS notifications require using a centralized push notification service that connects to Apple, but message data can still be encrypted; in proof-of-concept, Quiet works well as an always-on background app on Android, so Android versions will likely not require a push notification server.
 11. **Stack:** Our backend is in Node.js (on iOS/Android we use [nodejs-mobile](https://github.com/nodejs-mobile)); we use Electron on desktop and React Native on mobile.
 
@@ -134,4 +136,6 @@ Join us, and let's figure this out.
 
 Even though Quiet is completely peer-to-peer, it is mostly written in TypeScript and will be familiar to anyone accustomed to Node.js web development. Desktop and mobile versions share a common Node.js [backend](https://github.com/TryQuiet/monorepo/tree/master/packages/backend) and React [state manager](https://github.com/TryQuiet/monorepo/tree/master/packages/state-manager), with [Tor](https://torproject.org) binaries for each platform and architecture, using Electron and React Native and for their respective frontends.
 
-To get started hacking on Quiet, follow the instructions for [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop#readme) or [Quiet Mobile](https://github.com/TryQuiet/monorepo/tree/master/packages/mobile#readme). (If you're new to the project, start with Quiet Desktop, as it's more stable and vastly easier to start hacking on.) Here are some [good first issues](https://github.com/TryQuiet/quiet/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), and you can see upcoming priorities in our [project board](https://github.com/orgs/TryQuiet/projects/1).
+To get started hacking on Quiet, follow the instructions for [Quiet Desktop](https://github.com/TryQuiet/monorepo/tree/master/packages/desktop#readme) or [Quiet Mobile](https://github.com/TryQuiet/monorepo/tree/master/packages/mobile#readme). (If you're new to the project, start with Quiet Desktop, as it's more stable and vastly easier to start hacking on.) Here are some [good first issues](https://github.com/orgs/TryQuiet/projects/3/views/1?filterQuery=label%3A%22good+first+issue%22), and you can see upcoming priorities in our [project board](https://github.com/orgs/TryQuiet/projects/3/views/1).
+
+Most of all, if you're interested in contributing, be in touch! Drop us a line at [h@quiet.chat](mailto:h@quiet.chat) and we'll add you to the project's Quiet community and (if you like) plan an onboarding session.

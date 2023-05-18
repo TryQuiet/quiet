@@ -7,6 +7,7 @@ export interface PublicChannel {
   owner: string
   timestamp: number
   address: string
+  disabled?: boolean
 }
 
 export interface PublicChannelStorage extends PublicChannel {
@@ -57,6 +58,13 @@ export interface CreateChannelPayload {
   channel: PublicChannel
 }
 
+export interface DeleteChannelPayload {
+  channel: string
+}
+export interface ChannelDeletionResponsePayload {
+  channel: string
+}
+
 export interface CreatedChannelResponse {
   channel: PublicChannel
 }
@@ -103,6 +111,18 @@ export interface MarkUnreadChannelPayload {
 
 export interface UpdateNewestMessagePayload {
   message: ChannelMessage
+}
+
+export interface DeleteChannelFromStorePayload {
+  channelAddress: string
+}
+
+export interface ClearMessagesCachePayload {
+  channelAddress: string
+}
+
+export interface DisableChannelPayload {
+  channelAddress: string
 }
 
 export function instanceOfChannelMessage(object: any): object is ChannelMessage {

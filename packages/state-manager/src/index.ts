@@ -49,7 +49,7 @@ import { filesActions, filesReducer } from './sagas/files/files.slice'
 import { filesSelectors } from './sagas/files/files.selectors'
 import { networkActions, networkReducer } from './sagas/network/network.slice'
 import { networkSelectors } from './sagas/network/network.selectors'
-
+export { LoadingPanelType } from './sagas/network/network.types'
 export { SocketActionTypes } from './sagas/socket/const/actionTypes'
 export { Store } from './sagas/store.types'
 export { TestStore, TestStoreState } from './utils/tests/types'
@@ -73,10 +73,12 @@ export {
 
 export { identityAdapter } from './sagas/identity/identity.adapter'
 
+export { CommunitiesTransform } from './sagas/communities/communities.transform'
 export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.transform'
 export { MessagesTransform } from './sagas/messages/messages.transform'
 export { FilesTransform } from './sagas/files/files.transform'
 export { ConnectionTransform } from './sagas/appConnection/connection.transform'
+export { resetStateAndSaveTorConnectionData } from './sagas/appConnection/connection.helpers'
 export * from './constants'
 
 export { parseName } from './utils/functions/naming/naming'

@@ -11,8 +11,15 @@ export type RootStackParamList = {
     code?: string
   }
   [ScreenNames.CreateCommunityScreen]: undefined
+  [ScreenNames.UsernameRegistrationScreen]: {
+    fetching: boolean
+  } | undefined
   [ScreenNames.ChannelListScreen]: undefined
   [ScreenNames.ChannelScreen]: undefined
+  [ScreenNames.CreateChannelScreen]: undefined
+  [ScreenNames.DeleteChannelScreen]: {
+    channel: string
+  }
   [ScreenNames.SuccessScreen]: {
     onPress: () => void
     icon: any
@@ -35,6 +42,16 @@ ScreenNames.SplashScreen
 export type JoinCommunityRouteProp = RouteProp<
 RootStackParamList,
 ScreenNames.JoinCommunityScreen
+>
+
+export type UsernameRegistrationRouteProps= RouteProp<
+RootStackParamList,
+ScreenNames.UsernameRegistrationScreen
+>
+
+export type DeleteChannelRouteProps= RouteProp<
+RootStackParamList,
+ScreenNames.DeleteChannelScreen
 >
 
 export type SuccessRouteProp = RouteProp<

@@ -21,7 +21,6 @@ import {
   RegisterUserCertificatePayload,
   InitCommunityPayload,
   Community,
-  createUserCertificateTestHelper,
   ErrorCodes,
   ErrorMessages,
   getFactory,
@@ -29,6 +28,7 @@ import {
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
+import { createUserCertificateTestHelper } from '@quiet/identity'
 
 jest.setTimeout(20_000)
 
@@ -186,17 +186,17 @@ describe('User', () => {
       Array [
         "Communities/createNetwork",
         "Communities/responseCreateNetwork",
+        "Communities/clearInvitationCode",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
-        "Identity/registerButtonClicked",
-        "Modals/closeModal",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
-        "Identity/registerButtonClicked",
+        "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
+        "Communities/addOwnerCertificate",
         "Communities/storePeerList",
         "Identity/storeUserCertificate",
         "Communities/updateCommunity",
@@ -208,7 +208,6 @@ describe('User', () => {
         "PublicChannels/channelsReplicated",
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
-        "Modals/openModal",
         "Modals/closeModal",
       ]
     `)
@@ -310,15 +309,14 @@ describe('User', () => {
       Array [
         "Communities/createNetwork",
         "Communities/responseCreateNetwork",
+        "Communities/clearInvitationCode",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
-        "Identity/registerButtonClicked",
-        "Modals/closeModal",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
-        "Identity/registerButtonClicked",
+        "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
         "Errors/handleError",
@@ -425,17 +423,16 @@ describe('User', () => {
       Array [
         "Communities/createNetwork",
         "Communities/responseCreateNetwork",
+        "Communities/clearInvitationCode",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Identity/addNewIdentity",
-        "Identity/registerButtonClicked",
-        "Modals/closeModal",
         "Modals/closeModal",
         "Modals/openModal",
         "Errors/addError",
         "Errors/clearError",
         "Identity/registerUsername",
-        "Identity/registerButtonClicked",
+        "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
       ]

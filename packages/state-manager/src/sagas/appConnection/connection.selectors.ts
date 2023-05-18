@@ -30,7 +30,14 @@ export const peerList = createSelector(
   communitiesSelectors.currentCommunity,
   (reducerState, community) => {
     const arr = [...community.peerList]
-    const stats = peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
+
+    let stats
+    if (reducerState.peersStats === undefined) {
+      stats = []
+    } else {
+      stats = peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
+    }
+
     return sortPeers(arr, stats)
   }
 )

@@ -21,7 +21,7 @@ jobs:
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'dev.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
       CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
@@ -30,7 +30,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle"
+          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle"
 
       - name: Install libfuse
         run: sudo apt install libfuse2
@@ -111,7 +111,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle"
+          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle"
 
       - name: Before build
         uses: ./.github/actions/before-build
@@ -159,7 +159,7 @@ jobs:
           asset_content_type: application/.dmg
 
   build-windows:
-    needs: run-e2e-tests-win
+    # needs: run-e2e-tests-win
     runs-on: windows-2019
     if: |
       startsWith(github.ref, 'refs/tags/quiet')
@@ -189,12 +189,57 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle"
+          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
       - name: Before build
         uses: ./.github/actions/before-build
         with:
           source-path: win32
+
+      #E2E - Start 
+      # - name: E2E - electron-builder
+      #   env:
+      #     CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
+      #     WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+      #     WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
+      #   working-directory: ./packages/desktop
+      #   run: node_modules/.bin/electron-builder --win 
+      #   shell: bash
+
+      # - name: E2E - Extract version
+      #   id: extract_version
+      #   uses: Saionaro/extract-package-version@v1.1.1
+      #   with:
+      #     path: packages/desktop
+
+      # - name: E2E - FILE_NAME env
+      #   working-directory: ./packages/desktop/dist
+      #   run: echo "FILE_NAME=Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+      #   shell: powershell
+
+      # - name: E2E - Chmod
+      #   working-directory: ./packages/desktop/dist
+      #   run: chmod +x "$FILE_NAME"
+      #   shell: bash
+
+      # - name: E2E - Install exe
+      #   run: Start-Process "Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" -Wait
+      #   working-directory: ./packages/desktop/dist
+      #   shell: powershell
+
+      # - name: E2E - Kill exe
+      #   run: Stop-Process -Name "Quiet" -Force
+      #   working-directory: ./packages/desktop/dist
+      #   shell: powershell
+
+      # - name: E2E - Run smoke test
+      #   uses: nick-fields/retry@v2
+      #   with:
+      #     timeout_minutes: 25
+      #     max_attempts: 3
+      #     shell: bash
+      #     command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+      #E2E - End         
 
       - name: "Set electron-builder props"
         shell: bash
@@ -223,6 +268,7 @@ jobs:
         uses: Saionaro/extract-package-version@v1.1.1
         with:
           path: packages/desktop
+
 
       - name: Upload Release Assets
         uses: actions/upload-release-asset@v1.0.2

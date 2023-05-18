@@ -12,6 +12,23 @@ describe('MessageInput component', () => {
     expect(toJSON()).toMatchInlineSnapshot(`
       <View>
         <View
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": undefined,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
           accessible={true}
           collapsable={false}
           focusable={true}
@@ -25,13 +42,15 @@ describe('MessageInput component', () => {
           onResponderTerminationRequest={[Function]}
           onStartShouldSetResponder={[Function]}
           style={
-            Array [
-              Object {
+            [
+              {
                 "backgroundColor": "#ffffff",
                 "borderColor": "#B3B3B3",
                 "borderRadius": 4,
                 "borderWidth": 1,
                 "flexGrow": 1,
+                "height": 60,
+                "justifyContent": "center",
                 "paddingLeft": 15,
                 "paddingRight": 15,
               },
@@ -43,14 +62,15 @@ describe('MessageInput component', () => {
             onChangeText={[Function]}
             placeholder="Message #general as @holmes"
             style={
-              Array [
-                Object {
+              [
+                {
                   "paddingBottom": 12,
                   "paddingTop": 12,
                   "textAlignVertical": "center",
                 },
               ]
             }
+            testID="input"
           />
         </View>
       </View>

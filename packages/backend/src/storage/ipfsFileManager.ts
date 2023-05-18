@@ -4,7 +4,7 @@ import path from 'path'
 
 import PQueue, { AbortError } from 'p-queue'
 
-import { decode } from '@ipld/dag-pb'
+import { decode, PBNode } from '@ipld/dag-pb'
 
 import * as base58 from 'multiformats/bases/base58'
 
@@ -17,14 +17,10 @@ import sizeOf from 'image-size'
 
 import { CID } from 'multiformats/cid'
 
-import {
-    FileMetadata,
-    DownloadStatus,
-    DownloadProgress,
-    DownloadState,
-    imagesExtensions
-} from '@quiet/state-manager'
 import { sleep } from '../sleep'
+import logger from '../logger'
+import { DownloadProgress, DownloadState, DownloadStatus, FileMetadata, imagesExtensions } from '@quiet/types'
+const log = logger('ipfsFiles')
 const sizeOfPromisified = promisify(sizeOf)
 
 const { createPaths, compare } = await import('../common/utils')
@@ -34,6 +30,7 @@ export enum IpfsFilesManagerEvents {
     DOWNLOAD_FILE = 'downloadFile',
     CANCEL_DOWNLOAD = 'cancelDownload',
     UPLOAD_FILE = 'uploadFile',
+    DELETE_FILE = 'deleteFile',
     // Outgoing evnets
     UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
     UPDATE_DOWNLOAD_PROGRESS = 'updateDownloadProgress'
@@ -58,22 +55,23 @@ const MAX_EVENT_LISTENERS = 300
 export class IpfsFilesManager extends EventEmitter {
     ipfs: IPFS
     quietDir: string
-    // keep info about all downloads in progress
+    // keep info about all in-progress downloads
     files: Map<string, FilesData>
-    queues: Map<string, {
-        queue: PQueue
+    controllers: Map<string, {
         controller: AbortController
     }>
 
     cancelledDownloads: Set<string>
+    queue: PQueue
 
     constructor(ipfs: IPFS, quietDir: string) {
         super()
         this.ipfs = ipfs
         this.quietDir = quietDir
         this.files = new Map()
-        this.queues = new Map()
+        this.controllers = new Map()
         this.cancelledDownloads = new Set()
+        this.queue = new PQueue({ concurrency: QUEUE_CONCURRENCY })
         this.attachIncomingEvents()
     }
 
@@ -100,6 +98,45 @@ export class IpfsFilesManager extends EventEmitter {
                 console.error(`downloading ${mid} has already been canceled or never started`)
             }
         })
+        this.on(IpfsFilesManagerEvents.DELETE_FILE, async (fileMetadata: FileMetadata) => {
+            // Channel deletion WIP
+
+            // Check if we have it in case we didnt downloaded file
+            // await this.deleteBlocks(fileMetadata)
+        })
+    }
+
+    public async deleteBlocks(fileMetadata: FileMetadata) {
+        // console.log('deleting file in fileManager')
+        // const localBlocks = await this.getLocalBlocks()
+        // const hasBlockBeenDownloaded = localBlocks.includes(`z${fileMetadata.cid.toString()}`)
+        // console.log('has block been downlaoded ', hasBlockBeenDownloaded)
+        // if (!hasBlockBeenDownloaded) return
+
+        // const les = this.ipfs.pin.ls({paths: CID.parse(fileMetadata.cid)})
+        // for await (const l of les) {
+        //     console.log('llllll', l)
+        // }
+
+        // try {
+        //     const result = await this.ipfs.pin.rm(CID.parse(fileMetadata.cid), {recursive: true})
+        //     console.log(
+        //         'unpinning result ', result
+        //     )
+        // } catch (e) {
+        //     console.log('file removing error')
+        //     console.log(e)
+        // }
+        // const gcresult =  this.ipfs.repo.gc()
+        // for await (const res of gcresult) {
+        //     console.log('garbage collector result', res)
+        // }
+        // const blocks = this.ipfs.get(CID.parse(fileMetadata.cid))
+        // for await (const block of blocks) {
+        //     // const decodedBlock = decode(block)
+        //     console.log('bock', block)
+        // }
+        // Parse DAG blocks in case file is canceled mid download
     }
 
     public async stop() {
@@ -128,27 +165,27 @@ export class IpfsFilesManager extends EventEmitter {
     }
 
     public async uploadFile(metadata: FileMetadata) {
-        let width: number = null
-        let height: number = null
+        let width: number | undefined
+        let height: number | undefined
         if (imagesExtensions.includes(metadata.ext)) {
-            let imageSize = null
+            let imageSize: {width: number | undefined; height: number | undefined} | undefined // ISizeCalculationResult
             try {
                 imageSize = await sizeOfPromisified(metadata.path)
             } catch (e) {
                 console.error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
                 throw new Error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
             }
-            width = imageSize.width
-            height = imageSize.height
+            width = imageSize?.width
+            height = imageSize?.height
         }
 
         const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
         const uploadedFileStreamIterable = {
             async* [Symbol.asyncIterator]() {
                 for await (const data of stream) {
-                  yield data
+                    yield data
                 }
-              }
+            }
         }
 
         // Create directory for file
@@ -170,57 +207,54 @@ export class IpfsFilesManager extends EventEmitter {
         // Get uploaded file information
         const entries = this.ipfs.files.ls(`/${dirname}`)
         for await (const entry of entries) {
-          if (entry.name === filename) {
-            this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
+            if (entry.name === filename) {
+                this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
+                await this.ipfs.pin.add(entry.cid)
+                const fileMetadata: FileMetadata = {
+                    ...metadata,
+                    path: filePath,
+                    cid: entry.cid.toString(),
+                    size: entry.size,
+                    width,
+                    height
+                }
 
-            const fileMetadata: FileMetadata = {
-              ...metadata,
-              path: filePath,
-              cid: entry.cid.toString(),
-              size: entry.size,
-              width,
-              height
+                this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
+
+                const statusReady: DownloadStatus = {
+                    mid: fileMetadata.message.id,
+                    cid: fileMetadata.cid,
+                    downloadState: DownloadState.Hosted,
+                    downloadProgress: undefined
+                }
+
+                this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusReady)
+
+                if (metadata.path !== filePath) {
+                    this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
+                }
+                break
             }
-
-            this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
-
-            const statusReady: DownloadStatus = {
-              mid: fileMetadata.message.id,
-              cid: fileMetadata.cid,
-              downloadState: DownloadState.Hosted,
-              downloadProgress: undefined
-            }
-
-            this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusReady)
-
-            if (metadata.path !== filePath) {
-              this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
-            }
-            break
-          }
-        }
-      }
-
-    private cancelDownload = async (cid: string) => {
-        const queueAndController = this.queues.get(cid)
-        const downloadInProgress = this.files.get(cid)
-        if (!downloadInProgress) return
-        // In case download is cancelled right after start and queue is not yet initialized.
-        if (!queueAndController) {
-            await sleep(1000)
-            await this.cancelDownload(cid)
-        } else {
-            const queue = queueAndController.queue
-            const controller = queueAndController.controller
-            this.cancelledDownloads.add(cid)
-            controller.abort()
-            queue.pause()
-            queue.clear()
         }
     }
 
-    private getLocalBlocks = async () => {
-        const blocks = []
+    private cancelDownload = async (cid: string) => {
+        const queueController = this.controllers.get(cid)
+        const downloadInProgress = this.files.get(cid)
+        if (!downloadInProgress) return
+        // In case download is cancelled right after start and queue is not yet initialized.
+        if (!queueController) {
+            await sleep(1000)
+            await this.cancelDownload(cid)
+        } else {
+            const controller = queueController.controller
+            this.cancelledDownloads.add(cid)
+            controller.abort()
+        }
+    }
+
+    private getLocalBlocks = async (): Promise<string[]> => {
+        const blocks: string[] = []
 
         const refs = this.ipfs.refs.local()
 
@@ -236,18 +270,17 @@ export class IpfsFilesManager extends EventEmitter {
         const block = CID.parse(fileMetadata.cid)
 
         const localBlocks = await this.getLocalBlocks()
-        const processedBlocks = []
+        const processedBlocks: PBNode[] = [] // TODO: Should it be CID or PBNode?
 
         const controller = new AbortController()
 
         setMaxListeners(MAX_EVENT_LISTENERS, controller.signal)
 
-        const queue = new PQueue({ concurrency: QUEUE_CONCURRENCY })
-        this.queues.set(fileMetadata.cid, {
-            queue,
+        this.controllers.set(fileMetadata.cid, {
             controller
         })
 
+        // Add try catch and return downloadBlocks with timeout
         const stat = await this.ipfs.files.stat(block)
         if (fileMetadata.size && !compare(fileMetadata.size, stat.size, 0.05)) {
             await this.updateStatus(fileMetadata.cid, DownloadState.Malicious)
@@ -256,7 +289,7 @@ export class IpfsFilesManager extends EventEmitter {
 
         const addToQueue = async (link: CID) => {
             try {
-                await queue.add(async () => {
+                await this.queue.add(async () => {
                     try {
                         await processBlock(link, controller.signal)
                     } catch (e) {
@@ -269,8 +302,13 @@ export class IpfsFilesManager extends EventEmitter {
             }
         }
 
+        interface BlockStat {
+            fetchTime: number
+            byteLength: number
+        }
+
         // Transfer speed
-        const blocksStats = []
+        const blocksStats: BlockStat[] = []
 
         const updateTransferSpeed = setInterval(async () => {
             const bytesDownloaded = blocksStats.reduce((previousValue, currentValue) => {
@@ -287,22 +325,42 @@ export class IpfsFilesManager extends EventEmitter {
             }, 0)
             const transferSpeed = bytesDownloaded === 0 ? 0 : bytesDownloaded / TRANSFER_SPEED_SPAN
             const fileState = this.files.get(fileMetadata.cid)
+            if (!fileState) {
+                log.error(`No saved data for file cid ${fileMetadata.cid}`)
+                return
+            }
             this.files.set(fileMetadata.cid, {
                 ...fileState, transferSpeed: transferSpeed, downloadedBytes: totalBytesDownloaded
             })
             await this.updateStatus(fileMetadata.cid)
         }, UPDATE_STATUS_INTERVAL * 1000)
 
+        const remainingBlocks = new Set()
+        remainingBlocks.add(block)
+
+        const downloadCompletedOrCanceled = new Promise((resolve, reject) => {
+            const interval = setInterval(() => {
+                if (remainingBlocks.size === 0) {
+                    clearInterval(interval)
+                    resolve('No more blocks to fetch, download is completed or canceled')
+                }
+            }, 1000)
+        })
+
         const processBlock = async (block: CID, signal: AbortSignal) => {
             // eslint-disable-next-line
             return await new Promise(async (resolve, reject) => {
                 const onAbort = () => {
+                    remainingBlocks.delete(block)
                     reject(new AbortError('download cancelation'))
                 }
 
-                signal.addEventListener('abort', onAbort)
+                if (signal.aborted) onAbort()
+                signal.addEventListener('abort', onAbort, { once: true })
+
+                // @ts-ignore FIXME
                 if (processedBlocks.includes(block)) {
-                    console.log('processed block before')
+                    remainingBlocks.delete(block)
                     resolve(block)
                     return
                 }
@@ -314,11 +372,12 @@ export class IpfsFilesManager extends EventEmitter {
                 try {
                     fetchedBlock = await this.ipfs.block.get(block, { timeout: BLOCK_FETCH_TIMEOUT * 1000 })
                 } catch (e) {
+                    signal.removeEventListener('abort', onAbort)
                     reject(new Error("couldn't fetch block"))
                     return
                 }
 
-                const decodedBlock = decode(fetchedBlock)
+                const decodedBlock: PBNode = decode(fetchedBlock)
 
                 const fileState = this.files.get(fileMetadata.cid)
 
@@ -332,40 +391,43 @@ export class IpfsFilesManager extends EventEmitter {
                 if (!hasBlockBeenDownloaded) {
                     blocksStats.push({
                         fetchTime: Math.floor(Date.now() / 1000),
-                        byteLength: decodedBlock.Data.byteLength
+                        byteLength: decodedBlock.Data?.byteLength || 0
                     })
                 }
 
                 for (const link of decodedBlock.Links) {
                     // @ts-ignore
                     void addToQueue(link.Hash)
+                    remainingBlocks.add(link.Hash)
                 }
 
                 signal.removeEventListener('abort', onAbort)
+                remainingBlocks.delete(block)
                 resolve(fetchedBlock)
             })
         }
 
         void addToQueue(block)
 
-        // Queue can be possibly idle in just two cases
-        await queue.onIdle()
+        await downloadCompletedOrCanceled
+
         clearInterval(updateTransferSpeed)
 
-        // Also clear local data
+        const fileState = this.files.get(fileMetadata.cid)
+        if (!fileState) {
+            log.error(`No saved data for file cid ${fileMetadata.cid}`)
+            return
+        }
 
         if (this.cancelledDownloads.has(fileMetadata.cid)) {
-            const fileState = this.files.get(fileMetadata.cid)
-
             this.files.set(fileMetadata.cid, {
                 ...fileState, downloadedBytes: 0, transferSpeed: 0
             })
             this.cancelledDownloads.delete(fileMetadata.cid)
-            this.queues.delete(fileMetadata.cid)
+            this.controllers.delete(fileMetadata.cid)
             await this.updateStatus(fileMetadata.cid, DownloadState.Canceled)
             this.files.delete(fileMetadata.cid)
         } else {
-            const fileState = this.files.get(fileMetadata.cid)
             this.files.set(fileMetadata.cid, {
                 ...fileState, transferSpeed: 0
             })
@@ -402,7 +464,7 @@ export class IpfsFilesManager extends EventEmitter {
 
         await this.updateStatus(fileMetadata.cid, DownloadState.Completed)
         this.files.delete(fileMetadata.cid)
-        this.queues.delete(fileMetadata.cid)
+        this.controllers.delete(fileMetadata.cid)
 
         const messageMedia: FileMetadata = {
             ...fileMetadata,
@@ -414,7 +476,11 @@ export class IpfsFilesManager extends EventEmitter {
 
     private updateStatus = async (cid: string, downloadState = DownloadState.Downloading) => {
         const metadata = this.files.get(cid)
-        const progress: DownloadProgress = downloadState !== DownloadState.Malicious ? {
+        if (!metadata) {
+          // TODO: emit error?
+          return
+        }
+        const progress: DownloadProgress | undefined = downloadState !== DownloadState.Malicious ? {
             size: metadata.size,
             downloaded: metadata.downloadedBytes,
             transferSpeed: metadata.transferSpeed

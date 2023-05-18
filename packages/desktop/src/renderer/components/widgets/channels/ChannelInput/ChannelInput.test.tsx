@@ -26,7 +26,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot css-il3djd-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot css-soa6i7-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -46,7 +46,7 @@ describe('ChannelInput', () => {
                       data-testid="messageInput"
                       placeholder="Message #channel as @user"
                     >
-                      
+
                     </div>
                   </div>
                   <div
@@ -118,7 +118,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-il3djd-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-soa6i7-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -139,7 +139,7 @@ describe('ChannelInput', () => {
                       disabled=""
                       placeholder="Message #channel as @user"
                     >
-                      
+
                     </div>
                   </div>
                   <div

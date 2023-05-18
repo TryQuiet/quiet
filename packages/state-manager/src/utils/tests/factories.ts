@@ -4,17 +4,14 @@ import { Store } from '../../sagas/store.types'
 import { communities, identity, messages, publicChannels, users, errors, DownloadState } from '../..'
 import {
   createMessageSignatureTestHelper,
-  createPeerIdTestHelper,
-  createRootCertificateTestHelper,
-  createUserCertificateTestHelper
+  createPeerIdTestHelper
 } from './helpers'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
-import { keyObjectFromString, verifySignature } from '@quiet/identity'
+import { createRootCertificateTestHelper, createUserCertificateTestHelper, keyObjectFromString, verifySignature } from '@quiet/identity'
 import { MessageType, SendingStatus } from '../../sagas/messages/messages.types'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../sagas/messages/messages.slice'
-import { currentCommunity } from '../../sagas/communities/communities.selectors'
 import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
 
 export const getFactory = async (store: Store) => {
@@ -30,11 +27,13 @@ export const getFactory = async (store: Store) => {
       id: factory.sequence('Community.id', n => n),
       name: factory.sequence('Community.name', n => `community_${n}`),
       CA: await createRootCertificateTestHelper(
+        // @ts-ignore
         factory.sequence('Community.name', n => `community_${n}`)
       ),
       registrarUrl: 'http://ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion',
       rootCa: '',
-      peerList: []
+      peerList: [],
+      ownerCertificate: ''
     },
     {
       afterCreate: async (
@@ -101,6 +100,14 @@ export const getFactory = async (store: Store) => {
           await factory.create('UserCertificate', {
             certificate: action.payload.userCertificate
           })
+          if (!community.ownerCertificate) {
+            store.dispatch(
+              communities.actions.addOwnerCertificate({
+                communityId: community.id,
+                ownerCertificate: action.payload.userCertificate
+              })
+            )
+          }
         }
         return action
       }
@@ -206,7 +213,6 @@ export const getFactory = async (store: Store) => {
       afterCreate: async (
         payload: ReturnType<typeof publicChannels.actions.test_message>['payload']
       ) => {
-        const community = currentCommunity(store.getState())
         store.dispatch(messagesActions.incomingMessages({
           messages: [payload.message]
         }))

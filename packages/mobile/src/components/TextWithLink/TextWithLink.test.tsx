@@ -20,7 +20,7 @@ describe('Spinner component', () => {
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
-          Object {
+          {
             "alignItems": "flex-start",
             "display": "flex",
             "flex": 1,
@@ -35,8 +35,8 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            Array [
-              Object {
+            [
+              {
                 "color": "#000000",
                 "fontFamily": "Rubik-Regular",
                 "fontSize": 14,
@@ -54,8 +54,8 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            Array [
-              Object {
+            [
+              {
                 "color": "#000000",
                 "fontFamily": "Rubik-Regular",
                 "fontSize": 14,
@@ -73,8 +73,8 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            Array [
-              Object {
+            [
+              {
                 "color": "#000000",
                 "fontFamily": "Rubik-Regular",
                 "fontSize": 14,
@@ -92,8 +92,8 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            Array [
-              Object {
+            [
+              {
                 "color": "#000000",
                 "fontFamily": "Rubik-Regular",
                 "fontSize": 14,
@@ -111,8 +111,8 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            Array [
-              Object {
+            [
+              {
                 "color": "#000000",
                 "fontFamily": "Rubik-Regular",
                 "fontSize": 14,
@@ -129,8 +129,8 @@ describe('Spinner component', () => {
             horizontalTextAlign="left"
             onPress={[Function]}
             style={
-              Array [
-                Object {
+              [
+                {
                   "color": "#67BFD3",
                   "fontFamily": "Rubik-Regular",
                   "fontSize": 14,
@@ -149,8 +149,8 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            Array [
-              Object {
+            [
+              {
                 "color": "#000000",
                 "fontFamily": "Rubik-Regular",
                 "fontSize": 14,
@@ -168,8 +168,8 @@ describe('Spinner component', () => {
           fontSize={14}
           horizontalTextAlign="left"
           style={
-            Array [
-              Object {
+            [
+              {
                 "color": "#000000",
                 "fontFamily": "Rubik-Regular",
                 "fontSize": 14,

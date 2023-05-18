@@ -1,5 +1,6 @@
+import { NoCryptoEngineError } from '@quiet/types'
 import { fromBER, ObjectIdentifier } from 'asn1js'
-import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate, TSTInfo, ECNamedCurves } from 'pkijs'
+import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate, TSTInfo, ECNamedCurves, AttributeTypeAndValue } from 'pkijs'
 import { stringToArrayBuffer, fromBase64 } from 'pvutils'
 
 export enum CertFieldsTypes {
@@ -45,6 +46,8 @@ export function arrayBufferToHexString(buffer: Buffer): string {
 export const generateKeyPair = async ({ signAlg }: { signAlg: string }): Promise<CryptoKeyPair> => {
   const algorithm = getAlgorithmParameters(signAlg, 'generateKey')
   const crypto = getCrypto()
+  if (!crypto) throw new NoCryptoEngineError()
+
   const keyPair = await crypto.generateKey(
     algorithm.algorithm as EcKeyGenParams,
     true,
@@ -77,6 +80,8 @@ export const loadPrivateKey = async (rootKey: string, signAlg: string): Promise<
 
   const algorithm = getAlgorithmParameters(signAlg, 'generateKey')
   const crypto = getCrypto()
+  if (!crypto) throw new NoCryptoEngineError()
+
   return await crypto.importKey(
     'pkcs8',
     keyBuffer,
@@ -97,7 +102,7 @@ export const getCertFieldValue = (
   fieldType: CertFieldsTypes | ObjectIdentifier
 ): string | null => {
   if (fieldType === CertFieldsTypes.commonName) {
-    const block = cert.subject.typesAndValues.find((tav: any) => tav.type === fieldType)
+    const block = cert.subject.typesAndValues.find((tav: AttributeTypeAndValue) => tav.type === fieldType)
 
     if (block) {
       return block?.value.valueBlock.value
@@ -108,13 +113,14 @@ export const getCertFieldValue = (
     const ext = cert.extensions?.find(tav => tav.extnID === fieldType)
     if (ext) {
       if (fieldType === CertFieldsTypes.dmPublicKey) {
-        const extObj = ext?.extnValue.valueBlock.value[0] as any
+        const extObj = ext?.extnValue.valueBlock.value[0]
+        // @ts-ignore
         const arrayBuffer = extObj.valueBlock.valueHex
 
         return arrayBufferToHexString(arrayBuffer)
       } else {
-        const extObj = ext?.extnValue.valueBlock.value[0] as any
-
+        const extObj = ext?.extnValue.valueBlock.value[0]
+        // @ts-ignore
         return extObj.valueBlock.value
       }
     } else {
@@ -128,14 +134,14 @@ export const getReqFieldValue = (
   fieldType: CertFieldsTypes | ObjectIdentifier
 ): string | null => {
   if (fieldType === CertFieldsTypes.commonName) {
-    const block = csr.subject.typesAndValues.find((tav: any) => tav.type === fieldType)
+    const block = csr.subject.typesAndValues.find((tav: AttributeTypeAndValue) => tav.type === fieldType)
     if (block) {
       return block?.value.valueBlock.value
     } else {
       return null
     }
   } else {
-    const ext = csr.attributes?.find(tav => tav.type === fieldType) as any
+    const ext = csr.attributes?.find(tav => tav.type === fieldType)
     if (ext) {
       if (fieldType === CertFieldsTypes.dmPublicKey) {
         const extObj = ext.values[0].valueBlock.valueHex

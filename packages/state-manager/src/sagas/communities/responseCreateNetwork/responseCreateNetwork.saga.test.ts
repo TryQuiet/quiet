@@ -27,7 +27,8 @@ describe('responseCreateNetwork', () => {
       onionAddress: '',
       privateKey: '',
       port: 0,
-      registrationAttempts: 0
+      registrationAttempts: 0,
+      ownerCertificate: '',
     }
 
     const dmKeys: DmKeys = {
@@ -68,6 +69,7 @@ describe('responseCreateNetwork', () => {
       .withState(store.getState())
       .provide([[call.fn(generateDmKeyPair), dmKeys]])
       .call(generateDmKeyPair)
+      .put(communitiesActions.clearInvitationCode())
       .put(communitiesActions.addNewCommunity(community))
       .put(communitiesActions.setCurrentCommunity(community.id))
       .put(identityActions.addNewIdentity(identity))

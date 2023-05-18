@@ -4,23 +4,8 @@ import { Server as SocketIO } from 'socket.io'
 import logger from '../logger'
 import { EventEmitter } from 'events'
 import cors from 'cors'
-import {
-  Community,
-  InitCommunityPayload,
-  LaunchRegistrarPayload,
-  RegisterOwnerCertificatePayload,
-  RegisterUserCertificatePayload,
-  SaveOwnerCertificatePayload,
-  SendMessagePayload,
-  SocketActionTypes,
-  CreateChannelPayload,
-  AskForMessagesPayload,
-  UploadFilePayload,
-  DownloadFilePayload,
-  CancelDownloadPayload,
-  socketActionTypes,
-  ConnectionProcessInfo,
-} from '@quiet/state-manager'
+import type { CorsOptions } from 'cors'
+import { AskForMessagesPayload, CancelDownloadPayload, Community, ConnectionProcessInfo, CreateChannelPayload, DownloadFilePayload, InitCommunityPayload, LaunchRegistrarPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveOwnerCertificatePayload, SendMessagePayload, SocketActionTypes, UploadFilePayload } from '@quiet/types'
 
 const log = logger('socket')
 
@@ -38,7 +23,7 @@ export class DataServer extends EventEmitter {
     this.initSocket()
   }
 
-  private get cors() {
+  private get cors(): CorsOptions { // TODO: is this still necessary?
     if (process.env.TEST_MODE === 'true' && process.env.E2E_TEST === 'true') {
       log('Development/test env. Getting cors')
       return {
@@ -46,7 +31,7 @@ export class DataServer extends EventEmitter {
         methods: ['GET', 'POST']
       }
     }
-    return null
+    return {}
   }
 
   private readonly initSocket = (): void => {
@@ -95,11 +80,11 @@ export class DataServer extends EventEmitter {
           peerId: string,
           { address, encryptedPhrase }: { address: string; encryptedPhrase: string }
         ) => {
-          this.emit(socketActionTypes.INITIALIZE_CONVERSATION, { address, encryptedPhrase })
+          this.emit(SocketActionTypes.INITIALIZE_CONVERSATION, { address, encryptedPhrase })
         }
       )
       socket.on(SocketActionTypes.GET_PRIVATE_CONVERSATIONS, async (peerId: string) => {
-        this.emit(socketActionTypes.GET_PRIVATE_CONVERSATIONS, { peerId })
+        this.emit(SocketActionTypes.GET_PRIVATE_CONVERSATIONS, { peerId })
       })
       socket.on(
         SocketActionTypes.SEND_DIRECT_MESSAGE,
@@ -107,13 +92,13 @@ export class DataServer extends EventEmitter {
           peerId: string,
           { channelAddress, message }: { channelAddress: string; message: string }
         ) => {
-          this.emit(socketActionTypes.SEND_DIRECT_MESSAGE, { channelAddress, message })
+          this.emit(SocketActionTypes.SEND_DIRECT_MESSAGE, { channelAddress, message })
         }
       )
       socket.on(
         SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD,
         async (peerId: string, channelAddress: string) => {
-          this.emit(socketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, { peerId, channelAddress })
+          this.emit(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, { peerId, channelAddress })
         }
       )
       socket.on(
@@ -123,7 +108,7 @@ export class DataServer extends EventEmitter {
         }
       )
       socket.on(SocketActionTypes.ASK_FOR_MESSAGES, async (payload: AskForMessagesPayload) => {
-        this.emit(socketActionTypes.ASK_FOR_MESSAGES, payload)
+        this.emit(SocketActionTypes.ASK_FOR_MESSAGES, payload)
       })
 
       socket.on(
@@ -170,6 +155,10 @@ export class DataServer extends EventEmitter {
       socket.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
         log('leaving community')
         this.emit(SocketActionTypes.LEAVE_COMMUNITY)
+      })
+      socket.on(SocketActionTypes.DELETE_CHANNEL, async (payload) => {
+        log('deleting channel ', payload.channel)
+        this.emit(SocketActionTypes.DELETE_CHANNEL, payload)
       })
     })
   }

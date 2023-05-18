@@ -9,6 +9,15 @@ describe('MessageSendButton component', () => {
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
+        accessibilityState={
+          {
+            "busy": undefined,
+            "checked": undefined,
+            "disabled": undefined,
+            "expanded": undefined,
+            "selected": undefined,
+          }
+        }
         accessible={true}
         focusable={true}
         onClick={[Function]}
@@ -19,22 +28,23 @@ describe('MessageSendButton component', () => {
         onResponderTerminationRequest={[Function]}
         onStartShouldSetResponder={[Function]}
         style={
-          Object {
+          {
             "flex": 1.5,
             "justifyContent": "center",
           }
         }
+        testID="send_message_button"
       >
         <Image
           resizeMethod="resize"
           resizeMode="cover"
           source={
-            Object {
+            {
               "testUri": "../../../assets/icons/icon_send.png",
             }
           }
           style={
-            Object {
+            {
               "alignSelf": "center",
               "height": 20,
               "width": 20,

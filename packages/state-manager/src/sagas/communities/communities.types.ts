@@ -1,5 +1,3 @@
-import { createRootCA } from '@quiet/identity'
-import { AsyncReturnType } from '../../utils/types/AsyncReturnType.interface'
 import { HiddenService, PeerId, Identity } from '../identity/identity.types'
 import { Community } from './communities.slice'
 
@@ -43,13 +41,6 @@ export interface UpdateCommunityPayload {
   rootCa: string
 }
 
-export interface AddNewCommunityPayload {
-  id: string
-  name: string
-  CA: AsyncReturnType<typeof createRootCA> | {}
-  registrarUrl: string
-}
-
 export interface LaunchRegistrarPayload {
   id: string
   peerId: string
@@ -85,4 +76,9 @@ export interface ResponseLaunchCommunityPayload {
 export interface UpdateRegistrationAttemptsPayload {
   id: string
   registrationAttempts: number
+}
+
+export interface AddOwnerCertificatePayload {
+  communityId: string
+  ownerCertificate: string
 }

@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "ZbayMobile.app"
-               BlueprintName = "ZbayMobile"
-               ReferencedContainer = "container:ZbayMobile.xcodeproj">
+               BuildableName = "QuietMobile.app"
+               BlueprintName = "QuietMobile"
+               ReferencedContainer = "container:QuietMobile.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "ZbayMobileTests.xctest"
-               BlueprintName = "ZbayMobileTests"
-               ReferencedContainer = "container:ZbayMobile.xcodeproj">
+               BuildableName = "QuietMobileTests.xctest"
+               BlueprintName = "QuietMobileTests"
+               ReferencedContainer = "container:QuietMobile.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "ZbayMobile.app"
-            BlueprintName = "ZbayMobile"
-            ReferencedContainer = "container:ZbayMobile.xcodeproj">
+            BuildableName = "QuietMobile.app"
+            BlueprintName = "QuietMobile"
+            ReferencedContainer = "container:QuietMobile.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "ZbayMobile.app"
-            BlueprintName = "ZbayMobile"
-            ReferencedContainer = "container:ZbayMobile.xcodeproj">
+            BuildableName = "QuietMobile.app"
+            BlueprintName = "QuietMobile"
+            ReferencedContainer = "container:QuietMobile.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

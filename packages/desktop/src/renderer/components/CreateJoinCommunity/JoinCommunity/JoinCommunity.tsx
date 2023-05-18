@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
-import { communities, identity, CommunityOwnership, CreateNetworkPayload } from '@quiet/state-manager'
+import {
+  communities,
+  identity,
+  CommunityOwnership,
+  CreateNetworkPayload,
+  connection,
+  TOR_BOOTSTRAP_COMPLETE
+} from '@quiet/state-manager'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../../containers/hooks'
@@ -14,16 +21,25 @@ const JoinCommunity = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
+  const invitationCode = useSelector(communities.selectors.invitationCode)
+
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
+
+  const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
 
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
 
   useEffect(() => {
-    if (isConnected && !currentCommunity && !joinCommunityModal.open) {
+    if (
+      isConnected &&
+      !currentCommunity &&
+      !joinCommunityModal.open &&
+      torBootstrapProcessSelector === TOR_BOOTSTRAP_COMPLETE
+    ) {
       joinCommunityModal.handleOpen()
     }
-  }, [isConnected, currentCommunity])
+  }, [isConnected, currentCommunity, torBootstrapProcessSelector])
 
   useEffect(() => {
     if (currentIdentity && !currentIdentity.userCertificate && joinCommunityModal.open) {
@@ -63,6 +79,7 @@ const JoinCommunity = () => {
       hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
+      invitationCode={invitationCode}
     />
   )
 }

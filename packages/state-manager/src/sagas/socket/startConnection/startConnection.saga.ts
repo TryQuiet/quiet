@@ -29,6 +29,7 @@ import { publicChannelsActions } from '../../publicChannels/publicChannels.slice
 import {
   ChannelsReplicatedPayload,
   CreatedChannelResponse,
+  ChannelDeletionResponsePayload,
   IncomingMessages,
   SetChannelSubscribedPayload
 } from '../../publicChannels/publicChannels.types'
@@ -54,6 +55,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>
     | ReturnType<typeof publicChannelsActions.channelsReplicated>
     | ReturnType<typeof publicChannelsActions.createGeneralChannel>
+    | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
     | ReturnType<typeof usersActions.responseSendCertificates>
     | ReturnType<typeof communitiesActions.responseCreateNetwork>
     | ReturnType<typeof errorsActions.addError>
@@ -67,6 +69,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.responseRegistrar>
     | ReturnType<typeof communitiesActions.launchRegistrar>
     | ReturnType<typeof communitiesActions.launchCommunity>
+    | ReturnType<typeof communitiesActions.addOwnerCertificate>
     | ReturnType<typeof networkActions.addInitializedCommunity>
     | ReturnType<typeof networkActions.addInitializedRegistrar>
     | ReturnType<typeof networkActions.removeConnectedPeer>
@@ -79,9 +82,14 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof filesActions.checkForMissingFiles>
     | ReturnType<typeof connectionActions.setTorBootstrapProcess>
     | ReturnType<typeof connectionActions.setTorConnectionProcess>
+    | ReturnType<typeof connectionActions.torBootstrapped>
+
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (payload: string) => {
+      if (payload.toString().includes('Bootstrapped 100%')) {
+        emit(connectionActions.torBootstrapped(payload))
+      }
       emit(connectionActions.setTorBootstrapProcess(payload))
     })
     socket.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (payload: string) => {
@@ -115,6 +123,9 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
       emit(publicChannelsActions.setChannelSubscribed(payload))
+    })
+    socket.on(SocketActionTypes.CHANNEL_DELETION_RESPONSE, (payload: ChannelDeletionResponsePayload) => {
+      emit(publicChannelsActions.channelDeletionResponse(payload))
     })
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       emit(
@@ -187,8 +198,17 @@ export function subscribe(socket: Socket) {
       SocketActionTypes.SEND_USER_CERTIFICATE,
       (payload: {
         communityId: string
-        payload: { peers: string[]; certificate: string; rootCa: string }
+        payload: { peers: string[]; certificate: string; rootCa: string; ownerCert: string }
       }) => {
+        console.log('user cert with owner cert', payload)
+
+        emit(
+          communitiesActions.addOwnerCertificate({
+            communityId: payload.communityId,
+            ownerCertificate: payload.payload.ownerCert
+          })
+        )
+
         emit(
           communitiesActions.storePeerList({
             communityId: payload.communityId,
@@ -213,6 +233,12 @@ export function subscribe(socket: Socket) {
     socket.on(
       SocketActionTypes.SAVED_OWNER_CERTIFICATE,
       (payload: { communityId: string; network: { certificate: string; peers: string[] } }) => {
+        emit(
+          communitiesActions.addOwnerCertificate({
+            communityId: payload.communityId,
+            ownerCertificate: payload.network.certificate
+          })
+        )
         emit(
           communitiesActions.storePeerList({
             communityId: payload.communityId,

@@ -5,8 +5,6 @@ import { communities } from '@quiet/state-manager'
 
 import { navigationSelectors } from '../../../store/navigation/navigation.selectors'
 
-import { capitalize } from '../../../utils/functions/capitalize/capitalize'
-
 import { useContextMenu } from '../../../hooks/useContextMenu'
 import { MenuName } from '../../../const/MenuNames.enum'
 import { ContextMenu } from '../ContextMenu.component'
@@ -14,6 +12,8 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 
 import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
+
+import { capitalizeFirstLetter } from '@quiet/common'
 
 export const CommunityContextMenu: FC = () => {
   const dispatch = useDispatch()
@@ -24,7 +24,7 @@ export const CommunityContextMenu: FC = () => {
 
   let title = ''
   if (community) {
-    title = capitalize(community.name)
+    title = capitalizeFirstLetter(community.name)
   }
 
   const communityContextMenu = useContextMenu(MenuName.Community)
@@ -42,6 +42,7 @@ export const CommunityContextMenu: FC = () => {
   )
 
   const items: ContextMenuItemProps[] = [
+    { title: 'Create channel', action: () => redirect(ScreenNames.CreateChannelScreen) },
     { title: 'Add members', action: () => invitationContextMenu.handleOpen() },
     { title: 'Leave community', action: () => redirect(ScreenNames.LeaveCommunityScreen) }
   ]

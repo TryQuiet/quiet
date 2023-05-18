@@ -40,16 +40,6 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     userCertificate: 'userCertificate',
     joinTimestamp: null
   },
-  channelSettingsModal: {
-    open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
-  },
-  channelInfoModal: {
-    open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
-  },
   uploadedFileModal: {
     open: false,
     handleOpen: function (_args?: any): any {},
@@ -70,12 +60,8 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   channelAddress: 'general',
   channelName: 'general',
   lazyLoading: function (_load: boolean): void {},
-  onDelete: function (): void {},
   onInputChange: function (_value: string): void {},
   onInputEnter: function (_message: string): void {},
-  mutedFlag: false,
-  notificationFilter: '',
-  openNotificationsTab: function (): void {},
   filesData: {}
 }
 

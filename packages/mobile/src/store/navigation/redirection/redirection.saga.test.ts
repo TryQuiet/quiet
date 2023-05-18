@@ -7,7 +7,7 @@ import { setupCrypto } from '@quiet/identity'
 import { navigationActions, navigationReducer, NavigationState } from '../navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 
-import { prepareStore } from '../../../utils/tests/prepareStore'
+import { prepareStore } from '../../../tests/utils/prepareStore'
 import { reducers } from '../../root.reducer'
 
 import { redirectionSaga } from './redirection.saga'
@@ -19,7 +19,7 @@ describe('redirectionSaga', () => {
 
   beforeEach(async () => {
     setupCrypto()
-    store = prepareStore().store
+    store = (await prepareStore()).store
     factory = await getFactory(store)
   })
 

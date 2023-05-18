@@ -24,6 +24,7 @@ describe('channelsReplicatedSaga', () => {
 
   let generalChannel: PublicChannel
   let sailingChannel: PublicChannel
+  let photoChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -32,7 +33,7 @@ describe('channelsReplicatedSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -51,6 +52,19 @@ describe('channelsReplicatedSaga', () => {
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
           address: 'sailing'
+        }
+      })
+    ).payload.channel
+
+    photoChannel = (
+      await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel', {
+        communityId: community.id,
+        channel: {
+          name: 'photo',
+          description: 'Welcome to #photo',
+          timestamp: DateTime.utc().valueOf(),
+          owner: 'owner',
+          address: 'photo'
         }
       })
     ).payload.channel
@@ -165,15 +179,17 @@ describe('channelsReplicatedSaga', () => {
 
   test('populate channel cache on collecting data from persist', async () => {
     const message = await factory.create<
-    ReturnType<typeof publicChannels.actions.test_message>['payload']
+      ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: alice
     })
 
-    store.dispatch(publicChannels.actions.cacheMessages({
-      messages: [],
-      channelAddress: generalChannel.address
-    }))
+    store.dispatch(
+      publicChannels.actions.cacheMessages({
+        messages: [],
+        channelAddress: generalChannel.address
+      })
+    )
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -193,7 +209,7 @@ describe('channelsReplicatedSaga', () => {
 
   test('do not reset channel cache if already populated', async () => {
     const message = await factory.create<
-    ReturnType<typeof publicChannels.actions.test_message>['payload']
+      ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: alice
     })
@@ -211,6 +227,30 @@ describe('channelsReplicatedSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .not.put(messages.actions.resetCurrentPublicChannelCache())
+      .run()
+  })
+
+  test('remove channel from store if it doesnt exist in the payload from the backend', async () => {
+    store.dispatch(publicChannelsActions.addChannel({ channel: photoChannel }))
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      channelsReplicatedSaga,
+      publicChannelsActions.channelsReplicated({
+        channels: {
+          [generalChannel.address]: generalChannel,
+          [sailingChannel.address]: sailingChannel
+        }
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(
+        publicChannelsActions.addChannel({
+          channel: sailingChannel
+        })
+      )
+      .put(publicChannelsActions.deleteChannel({ channel: photoChannel.address }))
       .run()
   })
 })

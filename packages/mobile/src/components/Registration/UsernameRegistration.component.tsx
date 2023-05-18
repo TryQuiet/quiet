@@ -11,7 +11,8 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   registerUsernameAction,
   registerUsernameError,
-  usernameRegistered
+  usernameRegistered,
+  fetching
 }) => {
   const [userName, setUserName] = useState<string | undefined>()
   const [parsedNameDiffers, setParsedNameDiffers] = useState<boolean>(false)
@@ -19,6 +20,13 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   const [loading, setLoading] = useState<boolean>(false)
 
   const inputRef = useRef<TextInput>()
+
+  useEffect(() => {
+    if (fetching) {
+      setLoading(true)
+      inputRef.current?.setNativeProps({ text: 'Registering username' })
+    }
+  }, [fetching])
 
   useEffect(() => {
     if (registerUsernameError) {

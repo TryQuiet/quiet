@@ -16,14 +16,21 @@ import { MenuName } from '../../const/MenuNames.enum'
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
 
-  const redirect = useCallback((address: string) => {
-    dispatch(publicChannels.actions.setCurrentChannel({
-      channelAddress: address
-    }))
-    dispatch(navigationActions.navigation({
-      screen: ScreenNames.ChannelScreen
-     }))
-  }, [dispatch])
+  const redirect = useCallback(
+    (address: string) => {
+      dispatch(
+        publicChannels.actions.setCurrentChannel({
+          channelAddress: address
+        })
+      )
+      dispatch(
+        navigationActions.navigation({
+          screen: ScreenNames.ChannelScreen
+        })
+      )
+    },
+    [dispatch]
+  )
 
   const community = useSelector(communities.selectors.currentCommunity)
   const channels = useSelector(publicChannels.selectors.channelsStatusSorted)
@@ -32,7 +39,9 @@ export const ChannelListScreen: FC = () => {
     const newestMessage = status.newestMessage
 
     const message = newestMessage?.message || '...'
-    const date = newestMessage?.createdAt ? formatMessageDisplayDate(newestMessage.createdAt) : undefined
+    const date = newestMessage?.createdAt
+      ? formatMessageDisplayDate(newestMessage.createdAt)
+      : undefined
 
     const tile: ChannelTileProps = {
       name: status.address,
@@ -49,6 +58,10 @@ export const ChannelListScreen: FC = () => {
   const communityContextMenu = useContextMenu(MenuName.Community)
 
   return (
-    <ChannelListComponent community={community} tiles={tiles} communityContextMenu={communityContextMenu} />
+    <ChannelListComponent
+      community={community}
+      tiles={tiles}
+      communityContextMenu={communityContextMenu}
+    />
   )
 }

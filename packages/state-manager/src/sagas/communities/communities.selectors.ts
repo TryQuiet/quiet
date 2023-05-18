@@ -2,7 +2,9 @@ import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { communitiesAdapter } from './communities.adapter'
 import { CreatedSelectors, StoreState } from '../store.types'
-import { Community } from './communities.slice'
+import { invitationShareUrl } from '@quiet/common'
+import { CertFieldsTypes, getCertFieldValue, parseCertificate } from '@quiet/identity'
+import { getOldestParsedCerificate } from '../users/users.selectors'
 
 const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (state: StoreState) =>
   state[StoreKeys.Communities]
@@ -53,12 +55,48 @@ export const registrarUrl = (communityId: string) =>
     return registrarAddress
   })
 
+export const invitationCode = createSelector(communitiesSlice, reducerState => {
+  return reducerState.invitationCode
+})
+
+export const invitationUrl = createSelector(currentCommunity, community => {
+  if (!community) return ''
+  let registrarUrl = ''
+  try {
+    const url = new URL(community.registrarUrl)
+    registrarUrl = url.hostname.split('.')[0]
+  } catch (e) {
+    registrarUrl = community.registrarUrl
+  }
+  return invitationShareUrl(registrarUrl)
+})
+
 export const registrationAttempts = (communityId: string) =>
   createSelector(selectEntities, communities => {
     const community = communities[communityId]
     if (!community) return null
     return community.registrationAttempts
   })
+
+export const ownerNickname = createSelector(
+  currentCommunity,
+  getOldestParsedCerificate,
+  (community, oldestParsedCerificate) => {
+    const ownerCertificate = community?.ownerCertificate || undefined
+
+    let nickname: string
+
+    if (ownerCertificate) {
+      const certificate = ownerCertificate
+      const parsedCert = parseCertificate(certificate)
+      nickname = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
+    } else {
+      nickname = getCertFieldValue(oldestParsedCerificate, CertFieldsTypes.nickName)
+    }
+
+    return nickname
+  }
+)
 
 export const communitiesSelectors = {
   selectById,
@@ -67,5 +105,8 @@ export const communitiesSelectors = {
   currentCommunity,
   currentCommunityId,
   registrarUrl,
-  registrationAttempts
+  registrationAttempts,
+  invitationCode,
+  invitationUrl,
+  ownerNickname,
 }

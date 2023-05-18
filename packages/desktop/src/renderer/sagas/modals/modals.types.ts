@@ -2,6 +2,7 @@ export enum ModalName {
   applicationUpdate = 'applicationUpdate',
   addModerator = 'addModerator',
   createChannel = 'createChannel',
+  deleteChannel = 'deleteChannel',
   accountSettingsModal = 'accountSettingsModal',
   openexternallink = 'openexternallink',
   criticalError = 'criticalError',
@@ -18,5 +19,7 @@ export enum ModalName {
   loadingPanel = 'loadingPanel',
   uploadedFileModal = 'uploadedFileModal',
   leaveCommunity = 'leaveCommunityModal',
-  searchChannelModal = 'searchChannelModal'
+  searchChannelModal = 'searchChannelModal',
+  warningModal = 'warningModal',
+  channelCreationModal = 'channelCreationModal'
 }

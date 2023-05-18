@@ -5,7 +5,7 @@ import path from 'path'
 import { autoUpdater } from 'electron-updater'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
-import { getPorts, ApplicationPorts } from './backendHelpers'
+import { getPorts, ApplicationPorts, closeHangingBackendProcess } from './backendHelpers'
 import pkijs, { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
@@ -37,6 +37,7 @@ global.crypto = webcrypto
 let dataDir = DATA_DIR
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
+let invitationUrl: string | null
 
 if (isDev || process.env.DATA_DIR) {
   dataDir = process.env.DATA_DIR || DEV_DATA_DIR
@@ -140,10 +141,12 @@ export const applyDevTools = async () => {
   )
 }
 
-app.on('open-url', (event, url) => {
+app.on('open-url', (event, url) => { // MacOS only
   console.log('app.open-url', url)
+  invitationUrl = url // If user opens invitation link with closed app open-url fires too early - before mainWindow is initialized
   event.preventDefault()
   if (mainWindow) {
+    invitationUrl = null
     const invitationCode = retrieveInvitationCode(url)
     processInvitationCode(mainWindow, invitationCode)
   }
@@ -299,7 +302,8 @@ const closeBackendProcess = () => {
        https://github.com/TryQuiet/monorepo/issues/469
     */
     const forceClose = setTimeout(() => {
-      backendProcess.kill()
+      const killed = backendProcess.kill()
+      log(`Backend killed: ${killed}, Quitting.`)
       app.quit()
     }, 2000)
     backendProcess.send('close')
@@ -359,9 +363,14 @@ app.on('ready', async () => {
     'desktop'
   ]
 
-  const backendBundlePath = require.resolve('backend-bundle')
+  const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
+  try {
+    closeHangingBackendProcess(path.normalize(path.join('backend-bundle', 'bundle.cjs')), path.normalize(appDataPath))
+  } catch (e) {
+    console.error('Error occurred while trying to close hanging backend process', e.message)
+  }
 
-  backendProcess = fork(path.normalize(backendBundlePath), forkArgvs)
+  backendProcess = fork(backendBundlePath, forkArgvs)
   log('Forked backend, PID:', backendProcess.pid)
 
   backendProcess.on('error', e => {
@@ -453,11 +462,14 @@ app.on('ready', async () => {
     if (!isBrowserWindow(mainWindow)) {
       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
     }
+    if (process.platform === 'darwin' && invitationUrl) {
+      const invitationCode = retrieveInvitationCode(invitationUrl)
+      processInvitationCode(mainWindow, invitationCode)
+      invitationUrl = null
+    }
     if (process.platform !== 'darwin' && process.argv) {
       const invitationCode = argvInvitationCode(process.argv)
-      if (invitationCode) {
-        processInvitationCode(mainWindow, invitationCode)
-      }
+      processInvitationCode(mainWindow, invitationCode)
     }
 
     await checkForUpdate(mainWindow)

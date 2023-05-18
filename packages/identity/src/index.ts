@@ -24,7 +24,15 @@ import {
   getReqFieldValue
 } from './common'
 import configCrypto from './config'
-import { setupCrypto, createTestRootCA, createTestUserCert, createTestUserCsr, userData } from './test/helpers'
+import {
+  setupCrypto,
+  createTestRootCA,
+  createTestUserCert,
+  createTestUserCsr,
+  userData,
+  createRootCertificateTestHelper,
+  createUserCertificateTestHelper
+} from './test/helpers'
 
 export { createRootCA }
 export { RootCA }
@@ -47,5 +55,5 @@ export {
 }
 export { configCrypto }
 export { setupCrypto }
-export { createTestRootCA, createTestUserCert, createTestUserCsr, userData }
+export { createTestRootCA, createTestUserCert, createTestUserCsr, userData, createRootCertificateTestHelper, createUserCertificateTestHelper }
 export { getReqFieldValue }

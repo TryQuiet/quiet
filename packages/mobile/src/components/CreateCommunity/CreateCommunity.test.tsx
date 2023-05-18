@@ -4,12 +4,16 @@ import { CreateCommunity } from './CreateCommunity.component'
 describe('Spinner component', () => {
   it('renders component', () => {
     const { toJSON } = renderComponent(
-      <CreateCommunity createCommunityAction={jest.fn()} redirectionAction={jest.fn()} networkCreated={false} />
+      <CreateCommunity
+        createCommunityAction={jest.fn()}
+        redirectionAction={jest.fn()}
+        networkCreated={false}
+      />
     )
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
-          Object {
+          {
             "backgroundColor": "#ffffff",
             "flex": 1,
           }
@@ -18,7 +22,7 @@ describe('Spinner component', () => {
         <View
           onLayout={[Function]}
           style={
-            Object {
+            {
               "flex": 1,
               "justifyContent": "center",
               "paddingLeft": 20,
@@ -32,15 +36,15 @@ describe('Spinner component', () => {
             fontWeight="medium"
             horizontalTextAlign="left"
             style={
-              Array [
-                Object {
+              [
+                {
                   "color": "#000000",
                   "fontFamily": "Rubik-Medium",
                   "fontSize": 24,
                   "textAlign": "left",
                   "textAlignVertical": "center",
                 },
-                Object {
+                {
                   "marginBottom": 30,
                 },
               ]
@@ -52,18 +56,19 @@ describe('Spinner component', () => {
           <View>
             <Text
               color="main"
-              fontSize={10}
+              fontSize={14}
               horizontalTextAlign="left"
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "color": "#000000",
                     "fontFamily": "Rubik-Regular",
-                    "fontSize": 10,
+                    "fontSize": 14,
                     "textAlign": "left",
                     "textAlignVertical": "center",
                   },
-                  Object {
+                  {
+                    "color": "#4C4C4C",
                     "paddingBottom": 10,
                   },
                 ]
@@ -74,8 +79,20 @@ describe('Spinner component', () => {
             </Text>
             <View
               accessibilityState={
-                Object {
+                {
+                  "busy": undefined,
+                  "checked": undefined,
                   "disabled": false,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
                 }
               }
               accessible={true}
@@ -91,13 +108,15 @@ describe('Spinner component', () => {
               onResponderTerminationRequest={[Function]}
               onStartShouldSetResponder={[Function]}
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "backgroundColor": "#ffffff",
                     "borderColor": "#B3B3B3",
                     "borderRadius": 4,
                     "borderWidth": 1,
                     "flexGrow": 1,
+                    "height": 60,
+                    "justifyContent": "center",
                     "paddingLeft": 15,
                     "paddingRight": 15,
                   },
@@ -109,27 +128,28 @@ describe('Spinner component', () => {
                 onChangeText={[Function]}
                 placeholder="Community name"
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "paddingBottom": 12,
                       "paddingTop": 12,
                       "textAlignVertical": "center",
                     },
                   ]
                 }
+                testID="input"
               />
             </View>
           </View>
           <View
             style={
-              Object {
+              {
                 "marginTop": 32,
               }
             }
           >
             <View
               style={
-                Object {
+                {
                   "alignItems": "flex-start",
                   "display": "flex",
                   "flex": 1,
@@ -144,8 +164,8 @@ describe('Spinner component', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#000000",
                       "fontFamily": "Rubik-Regular",
                       "fontSize": 14,
@@ -163,8 +183,8 @@ describe('Spinner component', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#000000",
                       "fontFamily": "Rubik-Regular",
                       "fontSize": 14,
@@ -182,8 +202,8 @@ describe('Spinner component', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#000000",
                       "fontFamily": "Rubik-Regular",
                       "fontSize": 14,
@@ -201,8 +221,8 @@ describe('Spinner component', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#000000",
                       "fontFamily": "Rubik-Regular",
                       "fontSize": 14,
@@ -220,8 +240,8 @@ describe('Spinner component', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#000000",
                       "fontFamily": "Rubik-Regular",
                       "fontSize": 14,
@@ -238,8 +258,8 @@ describe('Spinner component', () => {
                   horizontalTextAlign="left"
                   onPress={[Function]}
                   style={
-                    Array [
-                      Object {
+                    [
+                      {
                         "color": "#67BFD3",
                         "fontFamily": "Rubik-Regular",
                         "fontSize": 14,
@@ -258,8 +278,8 @@ describe('Spinner component', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#000000",
                       "fontFamily": "Rubik-Regular",
                       "fontSize": 14,
@@ -277,8 +297,8 @@ describe('Spinner component', () => {
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#000000",
                       "fontFamily": "Rubik-Regular",
                       "fontSize": 14,
@@ -295,12 +315,21 @@ describe('Spinner component', () => {
           </View>
           <View
             style={
-              Object {
+              {
                 "marginTop": 32,
               }
             }
           >
             <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
               accessible={true}
               focusable={true}
               onClick={[Function]}
@@ -311,7 +340,7 @@ describe('Spinner component', () => {
               onResponderTerminationRequest={[Function]}
               onStartShouldSetResponder={[Function]}
               style={
-                Object {
+                {
                   "alignItems": "center",
                   "backgroundColor": "#521C74",
                   "borderRadius": 5,
@@ -319,16 +348,18 @@ describe('Spinner component', () => {
                   "marginVertical": 12,
                   "minHeight": 45,
                   "paddingVertical": 12,
+                  "width": undefined,
                 }
               }
+              testID="button"
             >
               <Text
                 color="white"
                 fontSize={14}
                 horizontalTextAlign="left"
                 style={
-                  Array [
-                    Object {
+                  [
+                    {
                       "color": "#ffffff",
                       "fontFamily": "Rubik-Regular",
                       "fontSize": 14,

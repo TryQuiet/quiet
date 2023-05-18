@@ -80,3 +80,11 @@ export interface ChannelMessagesIdsResponse {
   channelAddress: string
   communityId: string
 }
+
+export interface DeleteChannelEntryPayload {
+  channelAddress: string
+}
+
+export interface SendDeletionMessagePayload {
+  channelAddress: string
+}
