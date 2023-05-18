@@ -27,6 +27,7 @@ let store: Store
 let factory: FactoryGirl
 let community: Community
 let userIdentity: Identity
+let communityRootCa: string
 
 beforeEach(async () => {
   jest.clearAllMocks()
@@ -35,7 +36,10 @@ beforeEach(async () => {
   connectionsManager = null
   store = prepareStore().store
   factory = await getFactory(store)
-  community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+  communityRootCa = 'rootCa'
+  community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+    'Community', { rootCa: communityRootCa }
+  )
   userIdentity = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
     'Identity', { id: community.id, nickname: 'john' }
   )
@@ -67,15 +71,21 @@ describe('Connections manager - no tor', () => {
 
     const localAddress = connectionsManager.createLibp2pAddress(address, peerId.toString())
     const remoteAddress = connectionsManager.createLibp2pAddress(address, (await createPeerId()).toString())
-
+    console.log('community.rootCa', community.rootCa)
     const result = await connectionsManager.initLibp2p({
       peerId: peerId,
       address: address,
       addressPort: port,
       targetPort: port,
       bootstrapMultiaddrs: [remoteAddress],
-      // @ts-expect-error userIdentity.userCertificate, userIdentity.userCsr can be null
-      certs: { certificate: userIdentity.userCertificate, key: userIdentity.userCsr.userKey, CA: [community.rootCa] }
+
+      certs: {
+        // @ts-expect-error
+        certificate: userIdentity.userCertificate,
+        // @ts-expect-error
+        key: userIdentity.userCsr.userKey,
+        CA: [communityRootCa]
+      }
     })
     expect(result.localAddress).toBe(localAddress)
     expect(result.libp2p.peerId).toBe(peerId)
@@ -141,8 +151,7 @@ describe('Connections manager - no tor', () => {
         certificate: userIdentity.userCertificate,
         // @ts-expect-error
         key: userIdentity.userCsr?.userKey,
-        // @ts-expect-error
-        CA: [community.rootCa]
+        CA: [communityRootCa]
       },
       peers: community.peerList
     }
@@ -191,8 +200,7 @@ describe('Connections manager - no tor', () => {
         certificate: userIdentity.userCertificate,
         // @ts-expect-error
         key: userIdentity.userCsr?.userKey,
-        // @ts-expect-error
-        CA: [community.rootCa]
+        CA: [communityRootCa]
       },
       peers: community.peerList
     }
@@ -289,8 +297,13 @@ describe('Connections manager - no tor', () => {
       addressPort: 3211,
       targetPort: 3211,
       bootstrapMultiaddrs: ['some/address'],
-      // @ts-expect-error
-      certs: { certificate: userIdentity.userCertificate, key: userIdentity.userCsr?.userKey, CA: [community.rootCa] }
+      certs: {
+        // @ts-expect-error
+        certificate: userIdentity.userCertificate,
+        // @ts-expect-error
+        key: userIdentity.userCsr?.userKey,
+        CA: [communityRootCa]
+      }
     })
     const emitSpy = jest.spyOn(connectionsManager, 'emit')
 
@@ -333,8 +346,7 @@ describe('Connections manager - no tor', () => {
         certificate: userIdentity.userCertificate,
         // @ts-expect-error
         key: userIdentity.userCsr?.userKey,
-        // @ts-expect-error
-        CA: [community.rootCa]
+        CA: [communityRootCa]
       },
       peers: community.peerList
     }
@@ -371,8 +383,7 @@ describe('Connections manager - no tor', () => {
         certificate: userIdentity.userCertificate,
         // @ts-expect-error
         key: userIdentity.userCsr?.userKey,
-        // @ts-expect-error
-        CA: [community.rootCa]
+        CA: [communityRootCa]
       },
       peers: community.peerList
     }

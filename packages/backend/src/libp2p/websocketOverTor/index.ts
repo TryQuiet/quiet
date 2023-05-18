@@ -120,7 +120,7 @@ export class WebSockets extends EventEmitter {
 
   get certData() {
     const { cert, key, ca } = this._websocketOpts
-    if (!cert || !key || !ca) {
+    if (!cert || !key || !ca || ca?.length) {
       return {}
     }
     let _ca: string | Buffer
