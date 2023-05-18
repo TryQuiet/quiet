@@ -10,7 +10,7 @@ import { navigationSelectors } from '../../store/navigation/navigation.selectors
 export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
-  const { channel: channelRouteParam } = route.params
+  const { channel: channelName } = route.params
 
   const channels = useSelector(publicChannels.selectors.publicChannels)
 
@@ -19,19 +19,19 @@ export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => 
   console.log({ channels })
 
   useEffect(() => {
-    if (screen === ScreenNames.DeleteChannelScreen && !channels.find(c => c.name === channelRouteParam)) {
+    if (screen === ScreenNames.DeleteChannelScreen && !channels.find(c => c.name === channelName)) {
       dispatch(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
     }
   }, [dispatch, screen, channels])
 
   const deleteChannel = useCallback(() => {
-    const deletedChannel = channels.find((channel) => channel.name === channelRouteParam)
+    const deletedChannel = channels.find((channel) => channel.name === channelName)
     dispatch(
       publicChannels.actions.deleteChannel({
         channelAddress: deletedChannel.address
       })
     )
-  }, [dispatch, channels, channelRouteParam])
+  }, [dispatch, channels, channelName])
 
   const handleBackButton = useCallback(() => {
     dispatch(
@@ -43,7 +43,7 @@ export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => 
 
   return (
     <DeleteChannel
-      name={channelRouteParam}
+      name={channelName}
       deleteChannel={deleteChannel}
       handleBackButton={handleBackButton}
     />

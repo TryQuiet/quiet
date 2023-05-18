@@ -20,7 +20,14 @@ import { generateChannelAddress } from '@quiet/common'
 export const CreateChannelScreen: FC = () => {
   const dispatch = useDispatch()
 
-  const [channel, setChannel] = useState<string>(null)
+  interface ChannelStructure {
+    channelName: string | null
+    channelAddress: string | null
+  }
+  const [channel, setChannel] = useState<ChannelStructure>({
+    channelAddress: null,
+    channelName: null
+  })
   const [clearComponent, setClearComponent] = useState<boolean>(false) // How to clear component without using screen's state?
 
   const user = useSelector(identity.selectors.currentIdentity)
@@ -35,11 +42,11 @@ export const CreateChannelScreen: FC = () => {
   useEffect(() => {
     if (
       currentScreen === ScreenNames.CreateChannelScreen &&
-      channels.filter(_channel => _channel.name === channel).length > 0
+      channels.filter(_channel => _channel.name === channel.channelName).length > 0
     ) {
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channelAddress: channel
+          channelAddress: channel.channelAddress
         })
       )
       setChannel(null)
@@ -84,7 +91,7 @@ export const CreateChannelScreen: FC = () => {
         timestamp: DateTime.utc().valueOf()
       }
 
-      setChannel(name)
+      setChannel({ channelAddress: channel.address, channelName: channel.name })
 
       dispatch(
         publicChannels.actions.createChannel({
