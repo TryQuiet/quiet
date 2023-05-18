@@ -342,13 +342,14 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const caretLineTraversal = (focusLine: Node, anchorLinePosition: number) => {
     // Create an empty range
     const range = document.createRange()
+    // Set the focusLineLength
+    // Make it zero if between newlines
+    const focusLineLength = focusLine?.nodeValue?.length || 0
     // Set the range start to the position on the anchor line
-    // or the end of the focus line, whichever is shorter
+    // or the focus line length, whichever is shorter
     range.setStart(
       focusLine,
-      anchorLinePosition < focusLine.nodeValue.length
-        ? anchorLinePosition
-        : focusLine.nodeValue.length
+      anchorLinePosition < focusLineLength ? anchorLinePosition : focusLineLength
     )
     // Remove the range from the anchor line
     const selection = window.getSelection()
@@ -424,27 +425,62 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       }
 
       if (e.key === 'ArrowDown') {
-        // Skipping over line break nodes
-        const nextLine = window.getSelection().anchorNode?.nextSibling?.nextSibling
-        if (nextLine) {
-          caretLineTraversal(nextLine, window.getSelection().anchorOffset)
+        const anchorNode = window.getSelection().anchorNode
+        const nextNode = anchorNode?.nextSibling
+
+        // If we're on the bottom line, go to the end
+        if (!nextNode) {
+          // FIXME There's an edge case bug with pasting in text with newlines,
+          // and then clicking to place caret on an empty line
+          // and traversing from there.
+          const endOfNode = anchorNode?.nodeValue?.length || anchorNode.textContent.length
+          caretLineTraversal(anchorNode, endOfNode)
           return
         }
-        // If we're on the bottom line, go to the end
-        caretLineTraversal(
-          window.getSelection().anchorNode,
-          window.getSelection().anchorNode.nodeValue.length
-        )
+        // If there's one or more empty newlines sequentially,
+        // special handling needs to be done.
+        if (
+          anchorNode.nextSibling?.nextSibling?.nodeValue === null ||
+          anchorNode.nextSibling?.nextSibling?.nodeValue === '\n'
+        ) {
+          // skip over a newline node
+          if (anchorNode.nodeValue !== null || anchorNode.nodeValue !== '\n') {
+            caretLineTraversal(nextNode.nextSibling, 0)
+            return
+          }
+          if (anchorNode.nodeValue === null || anchorNode.nodeValue === '\n') {
+            caretLineTraversal(nextNode, 0)
+            return
+          }
+        }
+        caretLineTraversal(nextNode, window.getSelection().anchorOffset)
       }
       if (e.key === 'ArrowUp') {
-        // Skipping over line break nodes
-        const previousLine = window.getSelection().anchorNode?.previousSibling?.previousSibling
-        if (previousLine) {
-          caretLineTraversal(previousLine, window.getSelection().anchorOffset)
+        const anchorNode = window.getSelection().anchorNode
+        const previousNode = anchorNode?.previousSibling
+
+        // If we're on the top line, go to the beginning
+        if (!previousNode) {
+          caretLineTraversal(anchorNode, 0)
           return
         }
-        // If we're on the top line, go to the beginning
-        caretLineTraversal(window.getSelection().anchorNode, 0)
+        // If there's one or more empty newlines sequentially,
+        // special handling needs to be done.
+        if (
+          anchorNode.previousSibling.previousSibling?.nodeValue === null ||
+          anchorNode.previousSibling.previousSibling?.nodeValue === '\n'
+        ) {
+          if (anchorNode.nodeValue !== null || anchorNode.nodeValue !== '\n') {
+            caretLineTraversal(previousNode, 0)
+            return
+          }
+          // skip over a newline node
+          if (anchorNode.nodeValue === null || anchorNode.nodeValue === '\n') {
+            caretLineTraversal(previousNode.previousSibling, 0)
+            return
+          }
+        }
+        caretLineTraversal(previousNode.previousSibling, window.getSelection().anchorOffset)
       }
 
       if (e.nativeEvent.keyCode === 13) {
