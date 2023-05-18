@@ -4,10 +4,10 @@ import { messageSendingStatusAdapter } from './messages.adapter.ts'
 import { MessagesState } from './messages.slice'
 
 export const MessagesTransform = createTransform(
-  (inboundState: MessagesState, _key) => {
+  (inboundState: MessagesState, _key: any) => {
     return { ...inboundState }
   },
-  (outboundState: MessagesState, _key) => {
+  (outboundState: MessagesState, _key: any) => {
     return {
       ...outboundState,
       publicKeyMapping: {},

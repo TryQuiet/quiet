@@ -6,10 +6,10 @@ import { isDefined } from '@quiet/common'
 import { DownloadState, DownloadStatus } from '@quiet/types'
 
 export const FilesTransform = createTransform(
-  (inboundState: FilesState, _key) => {
+  (inboundState: FilesState, _key: any) => {
     return { ...inboundState }
   },
-  (outboundState: FilesState, _key) => {
+  (outboundState: FilesState, _key: any) => {
     const downloadStatuses = Object.values(outboundState.downloadStatus.entities).filter(isDefined)
     const updatedStatuses: DownloadStatus[] = downloadStatuses.reduce((result: DownloadStatus[], status) => {
       const downloadState = status.downloadState

@@ -15,7 +15,7 @@ export function* createGeneralChannelSaga(): Generator {
   }
   log(`Creating general channel for ${identity.nickname}`)
 
-  const timestamp = yield* call(getChannelTimestamp)
+  const timestamp: number = yield* call(getChannelTimestamp)
 
   const channel: PublicChannel = {
     name: 'general',

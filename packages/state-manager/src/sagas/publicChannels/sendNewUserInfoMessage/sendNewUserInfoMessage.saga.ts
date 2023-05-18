@@ -15,6 +15,7 @@ import { communitiesSelectors } from '../../communities/communities.selectors'
 
 import { MAIN_CHANNEL } from '../../../constants'
 import { MessageType, WriteMessagePayload } from '@quiet/types'
+import { Certificate } from 'pkijs'
 
 export function* sendNewUserInfoMessageSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>['payload']>
@@ -39,7 +40,7 @@ export function* sendNewUserInfoMessageSaga(
   const uniqueCertificates = [...new Set(newCertificates)]
 
   for (const cert of uniqueCertificates) {
-    const rootCa = yield* call(loadCertificate, cert)
+    const rootCa: Certificate = yield* call(loadCertificate, cert)
     const user = yield* call(getCertFieldValue, rootCa, CertFieldsTypes.nickName)
 
     // Do not send message about yourself
