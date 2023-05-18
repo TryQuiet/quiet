@@ -9,14 +9,13 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
 import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { messagesActions } from '../../messages/messages.slice'
 import { FactoryGirl } from 'factory-girl'
 import { autoDownloadFilesSaga } from './autoDownloadFiles.saga'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
-import { Community, FileMetadata, Identity, MessageType, PublicChannel } from '@quiet/types'
+import { Community, FileMetadata, Identity, MessageType, PublicChannel, SocketActionTypes } from '@quiet/types'
 
 describe('downloadFileSaga', () => {
   let store: Store

@@ -1,8 +1,8 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { apply } from 'typed-redux-saga'
 import { appActions } from './app.slice'
-import { SocketActionTypes } from '../socket/const/actionTypes'
 import { Socket } from '../../types'
+import { SocketActionTypes } from '@quiet/types'
 
 export function* closeServicesSaga(
   socket: Socket,

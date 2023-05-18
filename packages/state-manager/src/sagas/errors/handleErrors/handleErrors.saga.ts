@@ -5,9 +5,8 @@ import { communitiesActions } from '../../communities/communities.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { identityActions } from '../../identity/identity.slice'
 import { errorsActions } from '../errors.slice'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import logger from '../../../utils/logger'
-import { RegisterCertificatePayload, ErrorPayload, ErrorCodes } from '@quiet/types'
+import { RegisterCertificatePayload, ErrorPayload, ErrorCodes, SocketActionTypes } from '@quiet/types'
 
 const log = logger('errors')
 

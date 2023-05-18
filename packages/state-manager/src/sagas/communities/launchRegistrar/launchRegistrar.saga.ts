@@ -1,12 +1,11 @@
 import { apply, select } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { applyEmitParams, Socket } from '../../../types'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
 
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
-import { LaunchRegistrarPayload } from '@quiet/types'
+import { LaunchRegistrarPayload, SocketActionTypes } from '@quiet/types'
 
 export function* launchRegistrarSaga(
   socket: Socket,

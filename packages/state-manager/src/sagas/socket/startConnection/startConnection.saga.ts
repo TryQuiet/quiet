@@ -16,12 +16,30 @@ import { filesMasterSaga } from '../../files/files.master.saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-
 import { usersActions } from '../../users/users.slice'
-import { SocketActionTypes } from '../const/actionTypes'
 import { filesActions } from '../../files/files.slice'
 import { networkActions } from '../../network/network.slice'
-import { ResponseCreateCommunityPayload, ResponseRegistrarPayload, StorePeerListPayload, ResponseCreateNetworkPayload, ResponseLaunchCommunityPayload, ChannelDeletionResponsePayload, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, CommunityId, CreatedChannelResponse, DownloadStatus, ErrorPayload, FileMetadata, IncomingMessages, NetworkDataPayload, RemoveDownloadStatus, SendCertificatesResponse, SetChannelSubscribedPayload } from '@quiet/types'
+import {
+  ResponseCreateCommunityPayload,
+  ResponseRegistrarPayload,
+  StorePeerListPayload,
+  ResponseCreateNetworkPayload,
+  ResponseLaunchCommunityPayload,
+  ChannelDeletionResponsePayload,
+  ChannelMessagesIdsResponse,
+  ChannelsReplicatedPayload,
+  CommunityId,
+  CreatedChannelResponse,
+  DownloadStatus,
+  ErrorPayload,
+  FileMetadata,
+  IncomingMessages,
+  NetworkDataPayload,
+  RemoveDownloadStatus,
+  SendCertificatesResponse,
+  SetChannelSubscribedPayload,
+  SocketActionTypes
+} from '@quiet/types'
 
 const log = logger('socket')
 
@@ -65,7 +83,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.setTorBootstrapProcess>
     | ReturnType<typeof connectionActions.setTorConnectionProcess>
     | ReturnType<typeof connectionActions.torBootstrapped>
-
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (payload: string) => {
@@ -106,9 +123,12 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
       emit(publicChannelsActions.setChannelSubscribed(payload))
     })
-    socket.on(SocketActionTypes.CHANNEL_DELETION_RESPONSE, (payload: ChannelDeletionResponsePayload) => {
-      emit(publicChannelsActions.channelDeletionResponse(payload))
-    })
+    socket.on(
+      SocketActionTypes.CHANNEL_DELETION_RESPONSE,
+      (payload: ChannelDeletionResponsePayload) => {
+        emit(publicChannelsActions.channelDeletionResponse(payload))
+      }
+    )
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       emit(
         messagesActions.addPublicChannelsMessagesBase({

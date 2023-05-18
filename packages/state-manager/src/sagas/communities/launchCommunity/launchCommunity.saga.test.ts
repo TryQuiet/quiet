@@ -5,7 +5,6 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
 import { identityAdapter } from '../../identity/identity.adapter'
 import { identityActions, identityReducer, IdentityState } from '../../identity/identity.slice'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { StoreKeys } from '../../store.keys'
 import { communitiesAdapter } from '../communities.adapter'
 import {
@@ -19,7 +18,7 @@ import { initCommunities, launchCommunitySaga } from './launchCommunity.saga'
 import { setupCrypto } from '@quiet/identity'
 import { FactoryGirl } from 'factory-girl'
 import { connectionReducer, ConnectionState } from '../../appConnection/connection.slice'
-import { InitCommunityPayload } from '@quiet/types'
+import { InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 
 describe('launchCommunity', () => {
   let store: Store

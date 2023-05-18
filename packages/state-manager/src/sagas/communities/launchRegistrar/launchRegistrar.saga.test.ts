@@ -3,7 +3,6 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
 import { identityAdapter } from '../../identity/identity.adapter'
 import { identityReducer, IdentityState, identityActions } from '../../identity/identity.slice'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { StoreKeys } from '../../store.keys'
 import { communitiesAdapter } from '../communities.adapter'
 import {
@@ -16,7 +15,7 @@ import { FactoryGirl } from 'factory-girl'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
-import { LaunchRegistrarPayload } from '@quiet/types'
+import { LaunchRegistrarPayload, SocketActionTypes } from '@quiet/types'
 
 describe('launchRegistrar', () => {
   let store: Store
