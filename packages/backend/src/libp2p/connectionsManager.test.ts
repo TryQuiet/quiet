@@ -71,7 +71,6 @@ describe('Connections manager - no tor', () => {
 
     const localAddress = connectionsManager.createLibp2pAddress(address, peerId.toString())
     const remoteAddress = connectionsManager.createLibp2pAddress(address, (await createPeerId()).toString())
-    console.log('community.rootCa', community.rootCa)
     const result = await connectionsManager.initLibp2p({
       peerId: peerId,
       address: address,

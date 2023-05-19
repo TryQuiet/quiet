@@ -120,8 +120,8 @@ export class WebSockets extends EventEmitter {
 
   get certData() {
     const { cert, key, ca } = this._websocketOpts
-    if (!cert || !key || !ca || ca?.length) {
-      return {}
+    if (!cert || !key || !ca?.length || !ca[0]) {
+      throw new Error('No cert data in _websocketOpts')
     }
     let _ca: string | Buffer
     if (Array.isArray(ca)) {
