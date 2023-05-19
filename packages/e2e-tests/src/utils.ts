@@ -132,7 +132,7 @@ export class BuildSetup {
           .withCapabilities({
             'goog:chromeOptions': {
               binary: binary,
-              args: [`--remote-debugging-port=${this.debugPort}`, '--enable-debugging']
+              args: [`--remote-debugging-port=${this.debugPort}`, '--enable-logging']
             }
           })
           .forBrowser(Browser.CHROME)
