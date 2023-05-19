@@ -235,14 +235,14 @@ export const createWindow = async () => {
   })
 
   electronLocalshortcut.register(mainWindow, 'CommandOrControl+=', () => {
-    const currentFactor = mainWindow.webContents.getZoomFactor()
-    if (currentFactor > 3.5) return
+    const currentFactor = mainWindow?.webContents.getZoomFactor() || 1
+    if (!mainWindow || currentFactor > 3.5) return
     mainWindow.webContents.zoomFactor = currentFactor + 0.2
   })
 
   electronLocalshortcut.register(mainWindow, 'CommandOrControl+-', () => {
-    const currentFactor = mainWindow.webContents.getZoomFactor()
-    if (currentFactor <= 0.25) return
+    const currentFactor = mainWindow?.webContents.getZoomFactor() || 1
+    if (!mainWindow || currentFactor <= 0.25) return
     mainWindow.webContents.zoomFactor = currentFactor - 0.2
   })
   log('Created mainWindow')
@@ -288,7 +288,7 @@ export const checkForUpdate = async (win: BrowserWindow) => {
 }
 
 let ports: ApplicationPorts
-let backendProcess: ChildProcess = null
+let backendProcess: ChildProcess | null = null
 
 const closeBackendProcess = () => {
   if (backendProcess !== null) {
@@ -302,7 +302,7 @@ const closeBackendProcess = () => {
        https://github.com/TryQuiet/monorepo/issues/469
     */
     const forceClose = setTimeout(() => {
-      const killed = backendProcess.kill()
+      const killed = backendProcess?.kill()
       log(`Backend killed: ${killed}, Quitting.`)
       app.quit()
     }, 2000)
@@ -328,16 +328,16 @@ app.on('ready', async () => {
   ports = await getPorts()
   await createWindow()
 
-  mainWindow.webContents.on('did-finish-load', () => {
-    if (!splash.isDestroyed()) {
+  mainWindow?.webContents.on('did-finish-load', () => {
+    if (splash && !splash.isDestroyed()) {
       const [width, height] = splash.getSize()
-      mainWindow.setSize(width, height)
+      mainWindow?.setSize(width, height)
 
       const [splashWindowX, splashWindowY] = splash.getPosition()
-      mainWindow.setPosition(splashWindowX, splashWindowY)
+      mainWindow?.setPosition(splashWindowX, splashWindowY)
 
       splash.destroy()
-      mainWindow.show()
+      mainWindow?.show()
     }
 
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
@@ -396,29 +396,29 @@ app.on('ready', async () => {
     if (resetting) return
     e.preventDefault()
     log('Closing window')
-    mainWindow.webContents.send('force-save-state')
+    mainWindow?.webContents.send('force-save-state')
   })
 
-  splash.once('close', e => {
+  splash?.once('close', e => {
     e.preventDefault()
     log('Closing window')
-    mainWindow.webContents.send('force-save-state')
+    mainWindow?.webContents.send('force-save-state')
     closeBackendProcess()
   })
 
   ipcMain.on('state-saved', e => {
-    mainWindow.close()
+    mainWindow?.close()
     log('Saved state, closed window')
   })
 
   ipcMain.on('clear-community', () => {
     resetting = true
-    backendProcess.on('message', (msg) => {
+    backendProcess?.on('message', (msg) => {
       if (msg === 'leftCommunity') {
         resetting = false
       }
     })
-    backendProcess.send('leaveCommunity')
+    backendProcess?.send('leaveCommunity')
   })
 
   ipcMain.on('restartApp', () => {
@@ -441,6 +441,10 @@ app.on('ready', async () => {
 
   ipcMain.on('openUploadFileDialog', async e => {
     let filesDialogResult: Electron.OpenDialogReturnValue
+    if (!mainWindow) {
+      console.error('openUploadFileDialog - no mainWindow')
+      return
+    }
     try {
       filesDialogResult = await dialog.showOpenDialog(mainWindow, {
         title: 'Upload files to Quiet',
@@ -448,12 +452,12 @@ app.on('ready', async () => {
         filters: []
       })
     } catch (e) {
-      mainWindow.webContents.send('openedFilesError', e)
+      mainWindow?.webContents.send('openedFilesError', e)
       return
     }
 
     if (filesDialogResult.filePaths) {
-      mainWindow.webContents.send('openedFiles', getFilesData(filesDialogResult.filePaths))
+      mainWindow?.webContents.send('openedFiles', getFilesData(filesDialogResult.filePaths))
     }
   })
 

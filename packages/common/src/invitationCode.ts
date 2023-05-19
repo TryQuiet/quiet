@@ -20,11 +20,11 @@ export const retrieveInvitationCode = (url: string): PotentialString => {
   }
 }
 
-export const argvInvitationCode = (argv: string[]): PotentialString => {
+export const argvInvitationCode = (argv: string[]): string => {
   /**
    * Extract invitation code from deep url if url is present in argv
    */
-  let invitationCode: PotentialString
+  let invitationCode: string = ''
   for (const arg of argv) {
     invitationCode = retrieveInvitationCode(arg)
     if (invitationCode) {

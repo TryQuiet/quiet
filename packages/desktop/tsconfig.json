@@ -3,7 +3,9 @@
   "compilerOptions": {
     "outDir": "./dist",
     "module": "ES2020",
-    "target": "es2017",
+    "target": "ES2020",
+    "strict": true,
+    "useUnknownInCatchVariables": false,
     "jsx": "react",
     "allowJs": true,
     "lib": [
