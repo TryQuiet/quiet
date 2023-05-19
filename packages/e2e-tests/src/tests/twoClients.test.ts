@@ -220,23 +220,6 @@ describe('Two Clients', () => {
       expect(channels.length).toEqual(2)
     })
 
-    it('Channel deletion - Owner recreate general channel', async () => {
-      const isGeneralChannel = await generalChannel.messageInput.isDisplayed()
-      expect(isGeneralChannel).toBeTruthy()
-      await channelContextMenu.openMenu()
-      await channelContextMenu.openDeletionChannelModal()
-      await channelContextMenu.deleteChannel()
-      const channels = await sidebar.getChannelList()
-      expect(channels.length).toEqual(2)
-    })
-    it('Channel deletion - User see information about recreation general channel', async () => {
-      await sidebar2.switchChannel('general')
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
-      const messages = await generalChannel2.getUserMessages(ownerUsername)
-      const text = await messages[0].getText()
-      expect(text).toEqual(`@${ownerUsername} deleted all messages in #general`)
-    })
-
     it('Leave community', async () => {
       const settingsModal = await new Sidebar(guestApp.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
@@ -250,6 +233,18 @@ describe('Two Clients', () => {
         await debugModal.close()
       })
     }
+    // Delete general channel while guest is absent
+    it('Channel deletion - Owner recreate general channel', async () => {
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+      const isGeneralChannel = await generalChannel.messageInput.isDisplayed()
+      expect(isGeneralChannel).toBeTruthy()
+      await channelContextMenu.openMenu()
+      await channelContextMenu.openDeletionChannelModal()
+      await channelContextMenu.deleteChannel()
+      const channels = await sidebar.getChannelList()
+      expect(channels.length).toEqual(2)
+    })
+
     it('Leave community - Guest re-join to community successfully', async () => {
       const joinCommunityModal = new JoinCommunityModal(guestApp.driver)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
@@ -264,6 +259,20 @@ describe('Two Clients', () => {
       await registerModal2.typeUsername(joiningUserUsername2)
       await registerModal2.submit()
     })
+
+    // Check correct channels replication
+    it('Channel deletion - User see information about recreation general channel and see correct amount of messages', async () => {
+      generalChannel2 = new Channel(guestApp.driver, 'general')
+      await generalChannel2.element.isDisplayed()
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
+      const messages = await generalChannel2.getUserMessages(ownerUsername)
+      const text1 = await messages[0].getText()
+      const text2 = await messages[1].getText()
+      expect(messages.length).toEqual(2)
+      expect(text1).toEqual(`@${ownerUsername} deleted all messages in #general`)
+      expect(text2).toEqual(`@${joiningUserUsername2} has joined Testcommunity! 🎉`)
+    })
+
     it('Leave community - Guest sends a message', async () => {
       generalChannel2 = new Channel(guestApp.driver, 'general')
       await generalChannel2.element.isDisplayed()
