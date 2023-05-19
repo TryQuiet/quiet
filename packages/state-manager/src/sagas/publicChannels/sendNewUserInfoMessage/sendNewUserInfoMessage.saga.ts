@@ -49,7 +49,7 @@ export function* sendNewUserInfoMessageSaga(
     const payload: WriteMessagePayload = {
       type: MessageType.Info,
       message: `@${user} has joined ${communityName}! 🎉`,
-      channelAddress: generalChannel.address
+      channelId: generalChannel.id
     }
 
     yield* put(messagesActions.sendMessage(payload))

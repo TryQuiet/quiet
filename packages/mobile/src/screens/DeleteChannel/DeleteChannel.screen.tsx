@@ -28,7 +28,7 @@ export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => 
     const deletedChannel = channels.find((channel) => channel.name === channelName)
     dispatch(
       publicChannels.actions.deleteChannel({
-        channelAddress: deletedChannel.address
+        channelId: deletedChannel.id
       })
     )
   }, [dispatch, channels, channelName])

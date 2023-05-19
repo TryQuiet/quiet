@@ -364,28 +364,28 @@ export class Storage extends EventEmitter {
 
   public async subscribeToChannel(channelData: PublicChannel): Promise<void> {
     let db: EventStore<ChannelMessage>
-    let repo = this.publicChannelsRepos.get(channelData.address)
+    let repo = this.publicChannelsRepos.get(channelData.id)
     if (repo) {
       db = repo.db
     } else {
       try {
         db = await this.createChannel(channelData)
       } catch (e) {
-        log.error(`Can't subscribe to channel ${channelData.address}`, e.message)
+        log.error(`Can't subscribe to channel ${channelData.id}`, e.message)
         return
       }
       if (!db) {
-        log(`Can't subscribe to channel ${channelData.address}`)
+        log(`Can't subscribe to channel ${channelData.id}`)
         return
       }
-      repo = this.publicChannelsRepos.get(channelData.address)
+      repo = this.publicChannelsRepos.get(channelData.id)
     }
 
     if (repo && !repo.eventsAttached) {
-      log('Subscribing to channel ', channelData.address)
+      log('Subscribing to channel ', channelData.id)
 
       db.events.on('write', async (_address, entry) => {
-        log(`Writing to public channel db ${channelData.address}`)
+        log(`Writing to public channel db ${channelData.id}`)
         const verified = await this.verifyMessage(entry.payload.value)
 
         this.emit(StorageEvents.LOAD_MESSAGES, {
@@ -431,7 +431,7 @@ export class Storage extends EventEmitter {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         this.emit(StorageEvents.SEND_MESSAGES_IDS, {
           ids,
-          channelAddress: channelData.address,
+          channelId: channelData.id,
           communityId: this.communityId
         })
       })
@@ -439,7 +439,7 @@ export class Storage extends EventEmitter {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         this.emit(StorageEvents.SEND_MESSAGES_IDS, {
           ids,
-          channelAddress: channelData.address,
+          channelId: channelData.id,
           communityId: this.communityId
         })
       })
@@ -447,14 +447,14 @@ export class Storage extends EventEmitter {
       repo.eventsAttached = true
     }
 
-    log(`Subscribed to channel ${channelData.address}`)
+    log(`Subscribed to channel ${channelData.id}`)
     this.emit(StorageEvents.SET_CHANNEL_SUBSCRIBED, {
-      channelAddress: channelData.address
+      channelId: channelData.id
     })
   }
 
-  public async askForMessages(channelAddress: string, ids: string[]) {
-    const repo = this.publicChannelsRepos.get(channelAddress)
+  public async askForMessages(channelId: string, ids: string[]) {
+    const repo = this.publicChannelsRepos.get(channelId)
     if (!repo) return
     const messages = this.getAllEventLogEntries<ChannelMessage>(repo.db)
     const filteredMessages: ChannelMessage[] = []
@@ -473,10 +473,10 @@ export class Storage extends EventEmitter {
       log.error('STORAGE: Invalid channel format')
       throw new Error('Create channel validation error')
     }
-    log(`Creating channel ${data.address}`)
+    log(`Creating channel ${data.id}`)
 
     const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(
-      `channels.${data.address}`,
+      `channels.${data.id}`,
       {
         accessController: {
           type: 'messagesaccess',
@@ -485,9 +485,9 @@ export class Storage extends EventEmitter {
       }
     )
 
-    const channel = this.channels.get(data.address)
+    const channel = this.channels.get(data.id)
     if (channel === undefined) {
-      await this.channels.put(data.address, {
+      await this.channels.put(data.id, {
         ...data
       })
       this.emit(StorageEvents.CREATED_CHANNEL, {
@@ -495,27 +495,27 @@ export class Storage extends EventEmitter {
       })
     }
 
-    this.publicChannelsRepos.set(data.address, { db, eventsAttached: false })
-    log(`Set ${data.address} to local channels`)
+    this.publicChannelsRepos.set(data.id, { db, eventsAttached: false })
+    log(`Set ${data.id} to local channels`)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await db.load({ fetchEntryTimeout: 2000 })
-    log(`Created channel ${data.address}`)
+    log(`Created channel ${data.id}`)
     return db
   }
 
-  public async deleteChannel(payload: {channelAddress: string}) {
-   const channelAddress = payload.channelAddress
-   log('deleteChannel:channelAddress', channelAddress)
+  public async deleteChannel(payload: {channelId: string}) {
+   const channelId = payload.channelId
+   log('deleteChannel:channelId', channelId)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
-    const channel = this.channels.get(channelAddress)
+    const channel = this.channels.get(channelId)
     if (channel) {
-      void this.channels.del(channelAddress)
+      void this.channels.del(channelId)
     }
-    let repo = this.publicChannelsRepos.get(channelAddress)
+    let repo = this.publicChannelsRepos.get(channelId)
     if (!repo) {
       const db = await this.orbitdb.log<ChannelMessage>(
-        `channels.${channelAddress}`,
+        `channels.${channelId}`,
         {
           accessController: {
             type: 'messagesaccess',
@@ -538,7 +538,7 @@ export class Storage extends EventEmitter {
     }).filter(isDefined)
     await this.deleteChannelFiles(files)
     await this.deleteChannelMessages(hashes)
-    this.publicChannelsRepos.delete(channelAddress)
+    this.publicChannelsRepos.delete(channelId)
     this.emit(StorageEvents.CHANNEL_DELETION_RESPONSE, payload)
   }
 
@@ -565,10 +565,10 @@ export class Storage extends EventEmitter {
       log.error('STORAGE: public channel message is invalid')
       return
     }
-    const repo = this.publicChannelsRepos.get(message.channelAddress)
+    const repo = this.publicChannelsRepos.get(message.channelId)
     if (!repo) {
       log.error(
-        `Could not send message. No '${message.channelAddress}' channel in saved public channels`
+        `Could not send message. No '${message.channelId}' channel in saved public channels`
       )
       return
     }
@@ -636,58 +636,58 @@ export class Storage extends EventEmitter {
     )
   }
 
-  public async subscribeToDirectMessageThread(channelAddress: string) {
+  public async subscribeToDirectMessageThread(channelId: string) {
     let db: EventStore<string>
-    let repo = this.directMessagesRepos.get(channelAddress)
+    let repo = this.directMessagesRepos.get(channelId)
 
     if (repo) {
       db = repo.db
     } else {
-      db = await this.createDirectMessageThread(channelAddress)
+      db = await this.createDirectMessageThread(channelId)
       if (!db) {
-        log(`Can't subscribe to direct messages thread ${channelAddress}`)
+        log(`Can't subscribe to direct messages thread ${channelId}`)
         return
       }
-      repo = this.directMessagesRepos.get(channelAddress)
+      repo = this.directMessagesRepos.get(channelId)
     }
 
     if (repo && !repo.eventsAttached) {
-      log('Subscribing to direct messages thread ', channelAddress)
+      log('Subscribing to direct messages thread ', channelId)
       this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
         messages: this.getAllEventLogEntries(db),
-        channelAddress
+        channelId
       })
       db.events.on('write', (_address, _entry) => {
         log('Writing')
         this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
           messages: this.getAllEventLogEntries(db),
-          channelAddress
+          channelId
         })
       })
       db.events.on('replicated', () => {
         log('Message replicated')
         this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
           messages: this.getAllEventLogEntries(db),
-          channelAddress
+          channelId
         })
       })
       db.events.on('ready', () => {
         log('DIRECT Messages thread ready')
       })
       repo.eventsAttached = true
-      log('Subscription to channel ready', channelAddress)
+      log('Subscription to channel ready', channelId)
     }
   }
 
-  private async createDirectMessageThread(channelAddress: string): Promise<EventStore<string>> {
-    if (!channelAddress) {
-      log("No channel address, can't create channel")
-      throw new Error('No channel address, can\'t create channel')
+  private async createDirectMessageThread(channelId: string): Promise<EventStore<string>> {
+    if (!channelId) {
+      log("No channel ID, can't create channel")
+      throw new Error('No channel ID, can\'t create channel')
     }
 
-    log(`creatin direct message thread for ${channelAddress}`)
+    log(`creatin direct message thread for ${channelId}`)
 
-    const db: EventStore<string> = await this.orbitdb.log<string>(`dms.${channelAddress}`, {
+    const db: EventStore<string> = await this.orbitdb.log<string>(`dms.${channelId}`, {
       accessController: {
         write: ['*']
       }
@@ -698,20 +698,20 @@ export class Storage extends EventEmitter {
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await db.load({ fetchEntryTimeout: 2000 })
 
-    this.directMessagesRepos.set(channelAddress, { db, eventsAttached: false })
+    this.directMessagesRepos.set(channelId, { db, eventsAttached: false })
     return db
   }
 
-  public async sendDirectMessage(channelAddress: string, message: string) {
+  public async sendDirectMessage(channelId: string, message: string) {
     if (!validate.isDirectMessage(message)) {
       log.error('STORAGE: Invalid direct message format')
       return
     }
-    await this.subscribeToDirectMessageThread(channelAddress) // Is it necessary? Yes it is atm
+    await this.subscribeToDirectMessageThread(channelId) // Is it necessary? Yes it is atm
     log('STORAGE: sendDirectMessage entered')
-    log(`STORAGE: sendDirectMessage channelAddress is ${channelAddress}`)
+    log(`STORAGE: sendDirectMessage channelId is ${channelId}`)
     log(`STORAGE: sendDirectMessage message is ${JSON.stringify(message)}`)
-    const db = this.directMessagesRepos.get(channelAddress)?.db
+    const db = this.directMessagesRepos.get(channelId)?.db
     if (!db) return
     log(`STORAGE: sendDirectMessage db is ${db.address.root}`)
     log(`STORAGE: sendDirectMessage db is ${db.address.path}`)

@@ -9,7 +9,7 @@ import { SetDisplayedMessagesNumberPayload } from '../messages.types'
 
 export function* extendCurrentPublicChannelCacheSaga(): Generator {
   const communityId = yield* select(communitiesSelectors.currentCommunityId)
-  const channelAddress = yield* select(publicChannelsSelectors.currentChannelAddress)
+  const channelId = yield* select(publicChannelsSelectors.currentchannelId)
 
   const channelMessagesChunkSize = 50
 
@@ -29,7 +29,7 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
 
   const cacheMessagesPayload: CacheMessagesPayload = {
     messages: messages,
-    channelAddress: channelAddress
+    channelId: channelId
   }
 
   yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))
@@ -41,7 +41,7 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
   }
 
   const setDisplayedMessagesNumberPayload: SetDisplayedMessagesNumberPayload = {
-    channelAddress: channelAddress,
+    channelId: channelId,
     display: display
   }
 

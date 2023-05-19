@@ -18,7 +18,7 @@ export const Component = Template.bind({})
 export const Disabled = Template.bind({})
 
 const args: ChannelInputProps = {
-  channelAddress: 'channelAddress',
+  channelId: 'channelId',
   channelParticipants: [{ nickname: 'john' }, { nickname: 'emily' }],
   inputPlaceholder: '#general as @alice',
   onChange: function (_arg: string): void {},
@@ -32,7 +32,7 @@ const args: ChannelInputProps = {
 }
 
 const argsDisabledInput: ChannelInputProps = {
-  channelAddress: 'channelAddress',
+  channelId: 'channelId',
   channelParticipants: [{ nickname: 'john' }, { nickname: 'emily' }],
   inputPlaceholder: '#general as @alice',
   onChange: function (_arg: string): void {},

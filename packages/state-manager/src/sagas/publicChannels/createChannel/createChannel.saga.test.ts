@@ -23,7 +23,7 @@ import { FactoryGirl } from 'factory-girl'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 
 describe('createChannelSaga', () => {
   let store: Store
@@ -42,7 +42,7 @@ describe('createChannelSaga', () => {
     description: 'desc',
     owner: 'Howdy',
     timestamp: Date.now(),
-    address: generateChannelAddress('general')
+    id: generateChannelId('general')
   }
 
   test('ask for missing messages', async () => {

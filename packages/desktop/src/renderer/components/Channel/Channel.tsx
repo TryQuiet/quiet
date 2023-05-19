@@ -33,7 +33,7 @@ const Channel = () => {
 
   const user = useSelector(identity.selectors.currentIdentity)
 
-  const currentChannelAddress = useSelector(publicChannels.selectors.currentChannelAddress)
+  const currentchannelId = useSelector(publicChannels.selectors.currentchannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
 
   const currentChannelMessagesCount = useSelector(
@@ -205,11 +205,11 @@ const Channel = () => {
 
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
-  }, [currentChannelAddress])
+  }, [currentchannelId])
 
   const channelComponentProps: ChannelComponentProps = {
     user: user,
-    channelAddress: currentChannelAddress,
+    channelId: currentchannelId,
     channelName: currentChannelName,
     messages: {
       count: currentChannelMessagesCount,
@@ -245,12 +245,12 @@ const Channel = () => {
 
   return (
     <>
-      {currentChannelAddress && (
+      {currentchannelId && (
         <ChannelComponent
           {...channelComponentProps}
           {...uploadFilesPreviewProps}
           {...fileActionsProps}
-          key={currentChannelAddress}
+          key={currentchannelId}
         />
       )}
     </>

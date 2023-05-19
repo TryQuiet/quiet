@@ -11,8 +11,8 @@ export function* incomingMessagesSaga(
 ): Generator {
   for (const incomingMessage of action.payload.messages) {
     // Proceed only for messages from current channel
-    const currentChannelAddress = yield* select(publicChannelsSelectors.currentChannelAddress)
-    if (incomingMessage.channelAddress !== currentChannelAddress) {
+    const currentchannelId = yield* select(publicChannelsSelectors.currentchannelId)
+    if (incomingMessage.channelId !== currentchannelId) {
       return
     }
 
@@ -75,7 +75,7 @@ export function* incomingMessagesSaga(
 
     const cacheMessagesPayload: CacheMessagesPayload = {
       messages: cachedMessages,
-      channelAddress: message.channelAddress
+      channelId: message.channelId
     }
 
     yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))

@@ -59,7 +59,7 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id: message,
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       }
     }
 

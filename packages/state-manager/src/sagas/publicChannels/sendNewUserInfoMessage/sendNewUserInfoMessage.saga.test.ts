@@ -70,7 +70,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `@${user2.nickname} has joined ${communityName}! 🎉`,
-          channelAddress: generalChannel.address
+          channelId: generalChannel.id
         })
       )
       .run()
@@ -111,7 +111,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `@${user2.nickname} has joined ${communityName}! 🎉`,
-          channelAddress: generalChannel.address
+          channelId: generalChannel.id
         })
       )
       .run()
@@ -142,7 +142,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `@${user2} has joined ${community1.name}! 🎉`,
-          channelAddress: generalChannel.address
+          channelId: generalChannel.id
         })
       )
       .run()
@@ -189,7 +189,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `@${user2.nickname} has joined ${communityName}! 🎉`,
-          channelAddress: generalChannel.address
+          channelId: generalChannel.id
         })
       )
       .run()

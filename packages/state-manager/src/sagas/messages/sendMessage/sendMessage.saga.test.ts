@@ -21,11 +21,11 @@ import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { sendMessageSaga } from './sendMessage.saga'
 import { FactoryGirl } from 'factory-girl'
-import { currentChannelAddress } from '../../publicChannels/publicChannels.selectors'
+import { currentchannelId } from '../../publicChannels/publicChannels.selectors'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 
 describe('sendMessageSaga', () => {
   let store: Store
@@ -60,7 +60,7 @@ describe('sendMessageSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.nickname,
-          address: generateChannelAddress('sailing')
+          id: generateChannelId('sailing')
         }
       }
     )).channel
@@ -69,7 +69,7 @@ describe('sendMessageSaga', () => {
   test('sign and send message in current channel', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
-    const currentChannel = currentChannelAddress(store.getState())
+    const currentChannel = currentchannelId(store.getState())
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -97,7 +97,7 @@ describe('sendMessageSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: 8,
-            channelAddress: currentChannel,
+            channelId: currentChannel,
             signature: 'signature',
             pubKey: 'publicKey',
             media: undefined
@@ -114,7 +114,7 @@ describe('sendMessageSaga', () => {
     await expectSaga(
       sendMessageSaga,
       socket,
-      messagesActions.sendMessage({ message: 'message', channelAddress: sailingChannel.address })
+      messagesActions.sendMessage({ message: 'message', channelId: sailingChannel.id })
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -136,7 +136,7 @@ describe('sendMessageSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: 24,
-            channelAddress: sailingChannel.address,
+            channelId: sailingChannel.id,
             signature: 'signature',
             pubKey: 'publicKey',
             media: undefined
@@ -150,7 +150,7 @@ describe('sendMessageSaga', () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     const messageId = Math.random().toString(36).substr(2.9)
-    const currentChannel = currentChannelAddress(store.getState())
+    const currentChannel = currentchannelId(store.getState())
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -159,7 +159,7 @@ describe('sendMessageSaga', () => {
       ext: 'ext',
       message: {
         id: messageId,
-        channelAddress: currentChannel
+        channelId: currentChannel
       }
     }
 
@@ -189,7 +189,7 @@ describe('sendMessageSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: 8,
-            channelAddress: currentChannel,
+            channelId: currentChannel,
             signature: 'signature',
             pubKey: 'publicKey',
             media: undefined

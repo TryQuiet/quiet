@@ -130,14 +130,14 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       emit(
         messagesActions.addPublicChannelsMessagesBase({
-          channelAddress: payload.channel.address
+          channelId: payload.channel.id
         })
       )
       emit(publicChannelsActions.addChannel(payload))
       emit(
         publicChannelsActions.sendInitialChannelMessage({
           channelName: payload.channel.name,
-          channelAddress: payload.channel.address
+          channelId: payload.channel.id
         })
       )
     })

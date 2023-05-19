@@ -8,10 +8,10 @@ import { WriteMessagePayload, MessageType } from '../messages.types'
 export function* sendDeletionMessageSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.sendDeletionMessage>['payload']>
 ): Generator {
-  const { channelAddress } = action.payload
+  const { channelId } = action.payload
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
 
-  const isGeneral = channelAddress === generalChannel.address
+  const isGeneral = channelId === generalChannel.id
 
   const ownerNickname = yield* select(communitiesSelectors.ownerNickname)
 
@@ -21,8 +21,8 @@ export function* sendDeletionMessageSaga(
 
   const payload: WriteMessagePayload = {
     type: MessageType.Info,
-    message: `@${ownerNickname} deleted #${channelAddress.slice(0, channelAddress.indexOf('_'))}`, // TEMPORARY
-    channelAddress: generalChannel.address
+    message: `@${ownerNickname} deleted #${channelId.slice(0, channelId.indexOf('_'))}`, // TEMPORARY
+    channelId: generalChannel.id
   }
 
   if (isOwner && !isGeneral) {

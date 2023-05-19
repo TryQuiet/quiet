@@ -14,7 +14,7 @@ import { messagesActions } from '../../messages/messages.slice'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { sendDeletionMessageSaga } from './sendDeletionMessage.saga'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 
 describe('sendDeletionMessage', () => {
   let store: Store
@@ -52,7 +52,7 @@ describe('sendDeletionMessage', () => {
             description: 'Welcome to #photo',
             timestamp: DateTime.utc().valueOf(),
             owner: owner.nickname,
-            address: generateChannelAddress('photo')
+            id: generateChannelId('photo')
           }
         }
       )
@@ -60,18 +60,18 @@ describe('sendDeletionMessage', () => {
   })
 
   test('send message after deletion standard channel', async () => {
-    const channelAddress = photoChannel.address
+    const channelId = photoChannel.id
     const message = `@${owner.nickname} deleted #${photoChannel.name}`
     const messagePayload: WriteMessagePayload = {
       type: MessageType.Info,
       message,
-      channelAddress: generalChannel.address
+      channelId: generalChannel.id
     }
     const reducer = combineReducers(reducers)
     await expectSaga(
       sendDeletionMessageSaga,
       messagesActions.sendDeletionMessage({
-        channelAddress
+        channelId
       })
     )
       .withReducer(reducer)
@@ -81,13 +81,13 @@ describe('sendDeletionMessage', () => {
   })
 
   test('not send message after deletion general channel', async () => {
-    const channelAddress = 'general'
+    const channelId = 'general'
 
     const reducer = combineReducers(reducers)
     await expectSaga(
       sendDeletionMessageSaga,
       messagesActions.sendDeletionMessage({
-        channelAddress
+        channelId
       })
     )
       .withReducer(reducer)

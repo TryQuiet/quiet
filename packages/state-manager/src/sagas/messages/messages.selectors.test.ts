@@ -58,7 +58,7 @@ describe('messagesSelectors', () => {
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
-      channelAddress: generalChannel.address
+      channelId: generalChannel.id
     }
 
     const spoofedMessage: ChannelMessage = {
@@ -68,7 +68,7 @@ describe('messagesSelectors', () => {
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
-      channelAddress: generalChannel.address,
+      channelId: generalChannel.id,
       pubKey: johnPublicKey
     }
 
@@ -85,7 +85,7 @@ describe('messagesSelectors', () => {
 
     store.dispatch(
       publicChannels.actions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       })
     )
 

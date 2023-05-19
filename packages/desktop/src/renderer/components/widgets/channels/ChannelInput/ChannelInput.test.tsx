@@ -11,7 +11,7 @@ describe('ChannelInput', () => {
   it('renders component input available ', () => {
     const result = renderComponent(
       <ChannelInputComponent
-        channelAddress={'channelAddress'}
+        channelId={'channelId'}
         channelName={'channelName'}
         inputPlaceholder='#channel as @user'
         onChange={jest.fn()}
@@ -102,7 +102,7 @@ describe('ChannelInput', () => {
   it('renders component input unavailable', () => {
     const result = renderComponent(
       <ChannelInputComponent
-        channelAddress={'channelAddress'}
+        channelId={'channelId'}
         channelName={'channelName'}
         inputPlaceholder='#channel as @user'
         onChange={jest.fn()}
@@ -239,7 +239,7 @@ describe('ChannelInput', () => {
 
     renderComponent(
       <ChannelInputComponent
-        channelAddress={'channelAddress'}
+        channelId={'channelId'}
         channelName={'channelName'}
         inputPlaceholder='#channel as @user'
         onChange={jest.fn()}

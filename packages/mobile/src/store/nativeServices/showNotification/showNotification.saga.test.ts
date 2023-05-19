@@ -19,9 +19,9 @@ describe('showNotificationSaga', () => {
 
   beforeAll(async () => {
     payload = {
-      channelAddress: 'channelAddress',
+      channelId: 'channelId',
       message: {
-        channelAddress: 'address',
+        channelId: 'address',
         createdAt: 0,
         id: 'id',
         message: 'message',

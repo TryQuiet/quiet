@@ -29,6 +29,7 @@ import {
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { createUserCertificateTestHelper } from '@quiet/identity'
+import { generateChannelId } from '@quiet/common'
 
 jest.setTimeout(20_000)
 
@@ -131,7 +132,7 @@ describe('User', () => {
                 description: 'string',
                 owner: 'owner',
                 timestamp: 0,
-                address: 'general'
+                id: 'general'
               }
             }
           })

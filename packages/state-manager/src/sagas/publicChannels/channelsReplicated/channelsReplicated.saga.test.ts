@@ -14,7 +14,7 @@ import { channelsReplicatedSaga } from './channelsReplicated.saga'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 
 describe('channelsReplicatedSaga', () => {
   let store: Store
@@ -44,7 +44,7 @@ describe('channelsReplicatedSaga', () => {
 
     generalChannel = publicChannelsSelectors.generalChannel(store.getState())
     store.dispatch(
-      publicChannelsActions.setCurrentChannel({ channelAddress: generalChannel.address })
+      publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id })
     )
     sailingChannel = (
       await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel', {
@@ -54,7 +54,7 @@ describe('channelsReplicatedSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          address: generateChannelAddress('sailing')
+          id: generateChannelId('sailing')
         }
       })
     ).payload.channel
@@ -67,7 +67,7 @@ describe('channelsReplicatedSaga', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          address: generateChannelAddress('photo')
+          id: generateChannelId('photo')
         }
       })
     ).payload.channel
@@ -80,7 +80,7 @@ describe('channelsReplicatedSaga', () => {
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
         channels: {
-          [sailingChannel.address]: sailingChannel
+          [sailingChannel.id]: sailingChannel
         }
       })
     )
@@ -100,8 +100,8 @@ describe('channelsReplicatedSaga', () => {
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
         channels: {
-          [generalChannel.address]: generalChannel,
-          [sailingChannel.address]: sailingChannel
+          [generalChannel.id]: generalChannel,
+          [sailingChannel.id]: sailingChannel
         }
       })
     )
@@ -126,7 +126,7 @@ describe('channelsReplicatedSaga', () => {
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
         channels: {
-          [sailingChannel.address]: sailingChannel
+          [sailingChannel.id]: sailingChannel
         }
       })
     )
@@ -139,7 +139,7 @@ describe('channelsReplicatedSaga', () => {
       )
       .put(
         messagesActions.addPublicChannelsMessagesBase({
-          channelAddress: sailingChannel.address
+          channelId: sailingChannel.id
         })
       )
       .run()
@@ -151,8 +151,8 @@ describe('channelsReplicatedSaga', () => {
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
         channels: {
-          [generalChannel.address]: generalChannel,
-          [sailingChannel.address]: sailingChannel
+          [generalChannel.id]: generalChannel,
+          [sailingChannel.id]: sailingChannel
         }
       })
     )
@@ -165,7 +165,7 @@ describe('channelsReplicatedSaga', () => {
       )
       .put(
         messagesActions.addPublicChannelsMessagesBase({
-          channelAddress: sailingChannel.address
+          channelId: sailingChannel.id
         })
       )
       .not.put(
@@ -175,7 +175,7 @@ describe('channelsReplicatedSaga', () => {
       )
       .not.put(
         messagesActions.addPublicChannelsMessagesBase({
-          channelAddress: generalChannel.address
+          channelId: generalChannel.id
         })
       )
       .run()
@@ -191,7 +191,7 @@ describe('channelsReplicatedSaga', () => {
         type: MessageType.Basic,
         message: (Math.random() * 10 ** 18).toString(36),
         createdAt: DateTime.utc().valueOf(),
-        channelAddress: generalChannel.address,
+        channelId: generalChannel.id,
         signature: '',
         pubKey: ''
       }
@@ -200,7 +200,7 @@ describe('channelsReplicatedSaga', () => {
     store.dispatch(
       publicChannels.actions.cacheMessages({
         messages: [],
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       })
     )
 
@@ -209,8 +209,8 @@ describe('channelsReplicatedSaga', () => {
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
         channels: {
-          [generalChannel.address]: generalChannel,
-          [sailingChannel.address]: sailingChannel
+          [generalChannel.id]: generalChannel,
+          [sailingChannel.id]: sailingChannel
         }
       })
     )
@@ -230,7 +230,7 @@ describe('channelsReplicatedSaga', () => {
         type: MessageType.Basic,
         message: (Math.random() * 10 ** 18).toString(36),
         createdAt: DateTime.utc().valueOf(),
-        channelAddress: generalChannel.address,
+        channelId: generalChannel.id,
         signature: '',
         pubKey: ''
       }
@@ -241,8 +241,8 @@ describe('channelsReplicatedSaga', () => {
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
         channels: {
-          [generalChannel.address]: generalChannel,
-          [sailingChannel.address]: sailingChannel
+          [generalChannel.id]: generalChannel,
+          [sailingChannel.id]: sailingChannel
         }
       })
     )
@@ -260,8 +260,8 @@ describe('channelsReplicatedSaga', () => {
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
         channels: {
-          [generalChannel.address]: generalChannel,
-          [sailingChannel.address]: sailingChannel
+          [generalChannel.id]: generalChannel,
+          [sailingChannel.id]: sailingChannel
         }
       })
     )
@@ -272,7 +272,7 @@ describe('channelsReplicatedSaga', () => {
           channel: sailingChannel
         })
       )
-      .put(publicChannelsActions.deleteChannel({ channelAddress: photoChannel.address }))
+      .put(publicChannelsActions.deleteChannel({ channelId: photoChannel.id }))
       .run()
   })
 })

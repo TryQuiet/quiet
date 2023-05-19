@@ -152,7 +152,7 @@ describe('Channel', () => {
 
     const entities = store.getState().PublicChannels.channels.entities
 
-    const generalAddress = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
 
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
@@ -173,7 +173,7 @@ describe('Channel', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: generalAddress,
+            channelId: generalId,
             signature: '',
             pubKey: ''
           }
@@ -245,7 +245,7 @@ describe('Channel', () => {
 
     const entities = store.getState().PublicChannels.channels.entities
 
-    const generalAddress = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
 
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
@@ -259,7 +259,7 @@ describe('Channel', () => {
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalAddress,
+          channelId: generalId,
           signature: '',
           pubKey: ''
         }
@@ -337,7 +337,7 @@ describe('Channel', () => {
 
     const entities = store.getState().PublicChannels.channels.entities
 
-    const generalAddress = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
 
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
@@ -352,7 +352,7 @@ describe('Channel', () => {
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalAddress,
+          channelId: generalId,
           signature: '',
           pubKey: ''
         },
@@ -475,7 +475,7 @@ describe('Channel', () => {
 
     const entities = store.getState().PublicChannels.channels.entities
 
-    const generalAddress = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
 
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
@@ -502,7 +502,7 @@ describe('Channel', () => {
             type: MessageType.Basic,
             message: msg,
             createdAt: messagesText.indexOf(msg) + 1,
-            channelAddress: generalAddress,
+            channelId: generalId,
             signature: '',
             pubKey: ''
           }
@@ -610,7 +610,7 @@ describe('Channel', () => {
   it('renders a multi-line message', async () => {
     renderComponent(
       <ChannelInputComponent
-        channelAddress={'channelAddress'}
+        channelId={'channelId'}
         channelName={'channelName'}
         inputPlaceholder='#channel as @user'
         onChange={jest.fn()}
@@ -637,7 +637,7 @@ describe('Channel', () => {
   it.skip('traverses a multi-line message it with arrow keys', async () => {
     renderComponent(
       <ChannelInputComponent
-        channelAddress={'channelAddress'}
+        channelId={'channelId'}
         channelName={'channelName'}
         inputPlaceholder='#channel as @user'
         onChange={jest.fn()}
@@ -748,7 +748,7 @@ describe('Channel', () => {
 
     const entities = initialState.getState().PublicChannels.channels.entities
 
-    const generalAddress = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
 
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
@@ -887,7 +887,7 @@ describe('Channel', () => {
 
     const entities = initialState.getState().PublicChannels.channels.entities
 
-    const generalAddress = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -896,7 +896,7 @@ describe('Channel', () => {
       ext: '.jpeg',
       message: {
         id: message,
-        channelAddress: generalAddress
+        channelId: generalId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -910,7 +910,7 @@ describe('Channel', () => {
           type: MessageType.Image,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalAddress,
+          channelId: generalId,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -1110,7 +1110,7 @@ describe('Channel', () => {
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
-    const generalAddress = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
 
     const media: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -1120,7 +1120,7 @@ describe('Channel', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT - 1024,
       message: {
         id: messageId,
-        channelAddress: generalAddress
+        channelId: generalId
       }
     }
 
@@ -1132,7 +1132,7 @@ describe('Channel', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalAddress,
+          channelId: generalId,
           signature: '',
           pubKey: '',
           media: media
@@ -1225,7 +1225,7 @@ describe('Channel', () => {
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
-    const generalAddress = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
 
     const media: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -1235,7 +1235,7 @@ describe('Channel', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
-        channelAddress: generalAddress
+        channelId: generalId
       }
     }
 
@@ -1247,7 +1247,7 @@ describe('Channel', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalAddress,
+          channelId: generalId,
           signature: '',
           pubKey: '',
           media: media
@@ -1342,7 +1342,7 @@ describe('Channel', () => {
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
-    const generalAddress = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
 
     const media: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -1352,7 +1352,7 @@ describe('Channel', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
-        channelAddress: generalAddress
+        channelId: generalId
       }
     }
 
@@ -1364,7 +1364,7 @@ describe('Channel', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalAddress,
+          channelId: generalId,
           signature: '',
           pubKey: '',
           media: media

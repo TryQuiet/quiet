@@ -6,7 +6,7 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { getFactory, publicChannels, communities, identity } from '@quiet/state-manager'
 import ChannelsPanel from './ChannelsPanel'
 import { DateTime } from 'luxon'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 
 describe('Channels panel', () => {
   let socket: MockedSocket
@@ -44,7 +44,7 @@ describe('Channels panel', () => {
             description: `Welcome to #${name}`,
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: generateChannelAddress(name)
+            id: generateChannelId(name)
           }
         }
       )
@@ -56,8 +56,8 @@ describe('Channels panel', () => {
       <ChannelsPanel
         channels={channels}
         unreadChannels={[]}
-        setCurrentChannel={function (_address: string): void {}}
-        currentChannelAddress={generalChannel.address}
+        setCurrentChannel={function (_id: string): void {}}
+        currentchannelId={generalChannel.id}
         createChannelModal={{
           open: false,
           handleOpen: function (_args?: any): any {},

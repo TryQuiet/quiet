@@ -566,7 +566,7 @@ export class ConnectionsManager extends EventEmitter {
       await this.storage?.sendMessage(args.message)
     })
     this.dataServer.on(SocketActionTypes.ASK_FOR_MESSAGES, async (args: AskForMessagesPayload) => {
-      await this.storage?.askForMessages(args.channelAddress, args.ids)
+      await this.storage?.askForMessages(args.channelId, args.ids)
     })
 
     // Files
@@ -595,8 +595,8 @@ export class ConnectionsManager extends EventEmitter {
     })
     this.dataServer.on(
       SocketActionTypes.SEND_DIRECT_MESSAGE,
-      async (channelAddress: string, messagePayload) => {
-        await this.storage?.sendDirectMessage(channelAddress, messagePayload)
+      async (channelId: string, messagePayload) => {
+        await this.storage?.sendDirectMessage(channelId, messagePayload)
       }
     )
     this.dataServer.on(
@@ -680,7 +680,7 @@ export class ConnectionsManager extends EventEmitter {
     this.storage.on(StorageEvents.CHECK_FOR_MISSING_FILES, (payload: CommunityId) => {
       this.io.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, payload)
     })
-    this.storage.on(StorageEvents.CHANNEL_DELETION_RESPONSE, (payload: {channelAddress: string}) => {
+    this.storage.on(StorageEvents.CHANNEL_DELETION_RESPONSE, (payload: {channelId: string}) => {
       console.log('emitting deleted channel event back to state manager')
       this.io.emit(SocketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
     })

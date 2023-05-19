@@ -99,7 +99,7 @@ beforeAll(async () => {
   ReturnType<typeof communities.actions.addNewCommunity>['payload']
   >('Community')
   const generalChannel = publicChannels.selectors.generalChannel(store.getState())
-  store.dispatch(publicChannels.actions.setCurrentChannel({ channelAddress: generalChannel.address }))
+  store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalChannel.id }))
   sailingChannel = (
     await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
       'PublicChannel'
@@ -128,7 +128,7 @@ beforeAll(async () => {
         type: MessageType.Basic,
         message: 'hello there!',
         createdAt: lastConnectedTime + 1,
-        channelAddress: sailingChannel.address,
+        channelId: sailingChannel.id,
         signature: '',
         pubKey: ''
       }
@@ -143,7 +143,7 @@ beforeAll(async () => {
         type: MessageType.Basic,
         message: 'how are you?',
         createdAt: lastConnectedTime + 1,
-        channelAddress: sailingChannel.address,
+        channelId: sailingChannel.id,
         signature: '',
         pubKey: ''
       }
@@ -183,14 +183,14 @@ describe('displayNotificationsSaga', () => {
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
       .call(createNotification, {
-        label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
+        label: `New message from @${bob.nickname} in #${sailingChannel.id}`,
         body: message.message,
-        channel: sailingChannel.address,
+        channel: sailingChannel.id,
         sound: NotificationsSounds.pow
       })
       .run()
 
-    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.address}`, {
+    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.id}`, {
       body: message.message,
       icon: '../../build/icon.png',
       silent: true
@@ -255,7 +255,7 @@ describe('displayNotificationsSaga', () => {
 
   test('do not display notification when the user is on the active channel', async () => {
     store.dispatch(
-      publicChannels.actions.setCurrentChannel({ channelAddress: sailingChannel.address })
+      publicChannels.actions.setCurrentChannel({ channelId: sailingChannel.id })
     )
 
     const reducer = combineReducers(reducers)
@@ -277,7 +277,7 @@ describe('displayNotificationsSaga', () => {
 
   test('notification shows for message in current channel when app window does not have focus', async () => {
     store.dispatch(
-      publicChannels.actions.setCurrentChannel({ channelAddress: sailingChannel.address })
+      publicChannels.actions.setCurrentChannel({ channelId: sailingChannel.id })
     )
 
     const reducer = combineReducers(reducers)
@@ -292,14 +292,14 @@ describe('displayNotificationsSaga', () => {
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
       .call(createNotification, {
-        label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
+        label: `New message from @${bob.nickname} in #${sailingChannel.id}`,
         body: message.message,
-        channel: sailingChannel.address,
+        channel: sailingChannel.id,
         sound: NotificationsSounds.librarianShhh
       })
       .run()
 
-    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.address}`, {
+    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.id}`, {
       body: message.message,
       icon: '../../build/icon.png',
       silent: true
@@ -308,7 +308,7 @@ describe('displayNotificationsSaga', () => {
 
   test('notification shows for message in non-active channel when app window has focus', async () => {
     store.dispatch(
-      publicChannels.actions.setCurrentChannel({ channelAddress: 'general' })
+      publicChannels.actions.setCurrentChannel({ channelId: 'general' })
     )
 
     const reducer = combineReducers(reducers)
@@ -323,14 +323,14 @@ describe('displayNotificationsSaga', () => {
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), true]])
       .call(createNotification, {
-        label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
+        label: `New message from @${bob.nickname} in #${sailingChannel.id}`,
         body: message.message,
-        channel: sailingChannel.address,
+        channel: sailingChannel.id,
         sound: NotificationsSounds.librarianShhh
       })
       .run()
 
-    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.address}`, {
+    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.id}`, {
       body: message.message,
       icon: '../../build/icon.png',
       silent: true
@@ -415,9 +415,9 @@ describe('displayNotificationsSaga', () => {
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
       .call(createNotification, {
-        label: `New message from @${bob.nickname} in #${sailingChannel.address}`,
+        label: `New message from @${bob.nickname} in #${sailingChannel.id}`,
         body: message.message,
-        channel: sailingChannel.address,
+        channel: sailingChannel.id,
         sound: NotificationsSounds.none
       })
       .run()
@@ -463,7 +463,7 @@ describe('displayNotificationsSaga', () => {
             ext: '.png',
             message: {
               id: message.id,
-              channelAddress: message.channelAddress
+              channelId: message.channelId
             }
           }
         }
@@ -477,14 +477,14 @@ describe('displayNotificationsSaga', () => {
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
       .call(createNotification, {
-        label: `@${bob.nickname} sent an image in #${sailingChannel.address}`,
+        label: `@${bob.nickname} sent an image in #${sailingChannel.id}`,
         body: undefined,
-        channel: sailingChannel.address,
+        channel: sailingChannel.id,
         sound: NotificationsSounds.librarianShhh
       })
       .run()
 
-    expect(notification).toBeCalledWith(`@${bob.nickname} sent an image in #${sailingChannel.address}`, {
+    expect(notification).toBeCalledWith(`@${bob.nickname} sent an image in #${sailingChannel.id}`, {
       body: undefined,
       icon: '../../build/icon.png',
       silent: true
@@ -504,7 +504,7 @@ describe('displayNotificationsSaga', () => {
             ext: '.ext',
             message: {
               id: message.id,
-              channelAddress: message.channelAddress
+              channelId: message.channelId
             }
           }
         }
@@ -518,14 +518,14 @@ describe('displayNotificationsSaga', () => {
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
       .call(createNotification, {
-        label: `@${bob.nickname} sends file in #${sailingChannel.address}`,
+        label: `@${bob.nickname} sends file in #${sailingChannel.id}`,
         body: undefined,
-        channel: sailingChannel.address,
+        channel: sailingChannel.id,
         sound: NotificationsSounds.librarianShhh
       })
       .run()
 
-    expect(notification).toBeCalledWith(`@${bob.nickname} sends file in #${sailingChannel.address}`, {
+    expect(notification).toBeCalledWith(`@${bob.nickname} sends file in #${sailingChannel.id}`, {
       body: undefined,
       icon: '../../build/icon.png',
       silent: true

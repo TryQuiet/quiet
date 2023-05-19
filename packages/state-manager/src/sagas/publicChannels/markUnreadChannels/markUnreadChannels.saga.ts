@@ -9,15 +9,15 @@ import { identitySelectors } from '../../identity/identity.selectors'
 export function* markUnreadChannelsSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
 ): Generator {
-  const currentChannelAddress = yield* select(publicChannelsSelectors.currentChannelAddress)
+  const currentchannelId = yield* select(publicChannelsSelectors.currentchannelId)
 
   const { messages } = action.payload
 
   for (const message of messages) {
     // Do not proceed for current channel
-    if (message.channelAddress !== currentChannelAddress) {
+    if (message.channelId !== currentchannelId) {
       const payload: MarkUnreadChannelPayload = {
-        channelAddress: message.channelAddress,
+        channelId: message.channelId,
         message: message
       }
 
@@ -28,7 +28,7 @@ export function* markUnreadChannelsSaga(
       // For all messages created before user joined don't show notifications
       if (joinTimestamp > message.createdAt * 1000) continue
       // If there are newer messages in the channel, don't show notification
-      if (statuses[message.channelAddress]?.newestMessage?.createdAt > message.createdAt) continue
+      if (statuses[message.channelId]?.newestMessage?.createdAt > message.createdAt) continue
 
       yield* put(
         publicChannelsActions.markUnreadChannel(payload)
@@ -40,13 +40,13 @@ export function* markUnreadChannelsSaga(
 export function* clearUnreadChannelsSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.setCurrentChannel>['payload']>
 ): Generator {
-  const { channelAddress } = action.payload
+  const { channelId } = action.payload
 
   // Do not proceed with invalid channel
-  if (channelAddress === '') return
+  if (channelId === '') return
 
   const payload: MarkUnreadChannelPayload = {
-    channelAddress: channelAddress
+    channelId: channelId
   }
 
   yield* put(

@@ -6,7 +6,7 @@ export interface PublicChannel {
   description: string
   owner: string
   timestamp: number
-  address: string
+  id: string
 }
 
 export interface PublicChannelStorage extends PublicChannel {
@@ -14,13 +14,13 @@ export interface PublicChannelStorage extends PublicChannel {
 }
 
 export interface PublicChannelStatus {
-  address: string
+  id: string
   unread: boolean
   newestMessage: ChannelMessage
 }
 
 export interface PublicChannelSubscription {
-  address: string
+  id: string
   subscribed: boolean
 }
 
@@ -29,7 +29,7 @@ export interface ChannelMessage {
   type: number
   message: string
   createdAt: number
-  channelAddress: string
+  channelId: string
   signature: string
   pubKey: string
   media?: FileMetadata
@@ -69,16 +69,16 @@ export interface CreatedChannelResponse {
 }
 
 export interface SetChannelSubscribedPayload {
-  channelAddress: string
+  channelId: string
 }
 
 export interface SetCurrentChannelPayload {
-  channelAddress: string
+  channelId: string
 }
 
 export interface SetChannelMessagesSliceValuePayload {
   messagesSlice: number
-  channelAddress: string
+  channelId: string
 }
 
 export interface PendingMessage {
@@ -87,7 +87,7 @@ export interface PendingMessage {
 
 export interface SendInitialChannelMessagePayload {
   channelName: string
-  channelAddress: string
+  channelId: string
 }
 export interface SendNewUserInfoMessagePayload {
   certificates: string[]
@@ -100,11 +100,11 @@ export interface IncomingMessages {
 
 export interface CacheMessagesPayload {
   messages: ChannelMessage[]
-  channelAddress: string
+  channelId: string
 }
 
 export interface MarkUnreadChannelPayload {
-  channelAddress: string
+  channelId: string
   message?: ChannelMessage
 }
 
@@ -113,13 +113,13 @@ export interface UpdateNewestMessagePayload {
 }
 
 export interface DeleteChannelFromStorePayload {
-  channelAddress: string
+  channelId: string
 }
 
 export interface ClearMessagesCachePayload {
-  channelAddress: string
+  channelId: string
 }
 
 export function instanceOfChannelMessage(object: any): object is ChannelMessage {
-  return 'channelAddress' in object
+  return 'channelId' in object
 }

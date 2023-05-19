@@ -22,7 +22,7 @@ import {
 } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 
 describe('publicChannelsSelectors', () => {
   let store: Store
@@ -33,7 +33,7 @@ describe('publicChannelsSelectors', () => {
   let john: Identity
 
   let generalChannel: PublicChannel
-  let channelAddresses: string[] = []
+  let channelIdes: string[] = []
 
   const msgs: { [id: string]: ChannelMessage } = {}
   const msgsOwners: { [id: string]: string } = {}
@@ -57,13 +57,13 @@ describe('publicChannelsSelectors', () => {
       { id: community.id, nickname: 'alice' }
     )
     generalChannel = publicChannelsSelectors.generalChannel(store.getState())
-    channelAddresses = [...channelAddresses, generalChannel.address]
+    channelIdes = [...channelIdes, generalChannel.id]
     john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, nickname: 'john' }
     )
     store.dispatch(
-      publicChannelsActions.setCurrentChannel({ channelAddress: generalChannel.address })
+      publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id })
     )
     // Setup channels
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
@@ -77,10 +77,10 @@ describe('publicChannelsSelectors', () => {
           description: `Welcome to #${name}`,
           timestamp: DateTime.utc().valueOf(),
           owner: alice.nickname,
-          address: generateChannelAddress(name)
+          id: generateChannelId(name)
         }
       })
-      channelAddresses = [...channelAddresses, channel.channel.address]
+      channelIdes = [...channelIdes, channel.channel.id]
     }
 
     /* Messages ids are being used only for veryfing proper order...
@@ -212,7 +212,7 @@ describe('publicChannelsSelectors', () => {
           type: item.type || MessageType.Basic,
           message: `message_${item.id}`,
           createdAt: item.createdAt,
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           signature: '',
           pubKey: ''
         },
@@ -231,7 +231,7 @@ describe('publicChannelsSelectors', () => {
         ...prev,
         {
           ...curr,
-          channelAddress: 'general_ec4bca1fa76046c53dff1e49979c3647'
+          channelId: 'general_ec4bca1fa76046c53dff1e49979c3647'
         }
       ]
     }, [])
@@ -290,7 +290,7 @@ describe('publicChannelsSelectors', () => {
   })
 
   it("don't select messages without author", async () => {
-    const channelAddress = generateChannelAddress('utah')
+    const channelId = generateChannelId('utah')
     const channel = (
       await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
         'PublicChannel',
@@ -300,7 +300,7 @@ describe('publicChannelsSelectors', () => {
             description: 'Welcome to #utah',
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: channelAddress
+            id: channelId
           }
         }
       )
@@ -316,7 +316,7 @@ describe('publicChannelsSelectors', () => {
 
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: channelAddress
+        channelId: channelId
       })
     )
 
@@ -329,7 +329,7 @@ describe('publicChannelsSelectors', () => {
           type: MessageType.Basic,
           message: 'elouise_message',
           createdAt: DateTime.now().valueOf(),
-          channelAddress: channelAddress,
+          channelId: channelId,
           signature: '',
           pubKey: ''
         },
@@ -372,16 +372,16 @@ describe('publicChannelsSelectors', () => {
   })
 
   it('unreadChannels selector returns only unread channels', async () => {
-    const channelAddress = channelAddresses.find(channelAddress =>
-      channelAddress.includes('allergies')
+    const channelId = channelIdes.find(channelId =>
+      channelId.includes('allergies')
     )
     store.dispatch(
       publicChannelsActions.markUnreadChannel({
-        channelAddress
+        channelId
       })
     )
     const unreadChannels = publicChannelsSelectors.unreadChannels(store.getState())
-    expect(unreadChannels).toEqual([channelAddress])
+    expect(unreadChannels).toEqual([channelId])
   })
 })
 

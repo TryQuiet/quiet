@@ -12,7 +12,7 @@ import { identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { updateNewestMessageSaga } from './updateNewestMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 
 describe('markUnreadChannelsSaga', () => {
@@ -42,7 +42,7 @@ describe('markUnreadChannelsSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
     generalChannel = publicChannelsSelectors.generalChannel(store.getState())
-    channelAdresses = [...channelAdresses, generalChannel.address]
+    channelAdresses = [...channelAdresses, generalChannel.id]
     const channelNames = ['memes', 'pets', 'travels']
 
     // Automatically create channels
@@ -55,19 +55,19 @@ describe('markUnreadChannelsSaga', () => {
           description: `Welcome to #${name}`,
           timestamp: DateTime.utc().valueOf(),
           owner: alice.nickname,
-          address: generateChannelAddress(name)
+          id: generateChannelId(name)
         }
       })
-      channelAdresses = [...channelAdresses, channel.channel.address]
+      channelAdresses = [...channelAdresses, channel.channel.id]
     }
   })
 
   test('Update newest message if there is no newest message', async () => {
-    const messagesAddresses = channelAdresses
+    const messagesides = channelAdresses
     const messages: ChannelMessage[] = []
 
     // Automatically create messages
-    for (const address of messagesAddresses) {
+    for (const id of messagesides) {
       const message = (
         await factory.build<typeof publicChannelsActions.test_message>('Message', {
           identity: alice,
@@ -76,7 +76,7 @@ describe('markUnreadChannelsSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: address,
+            channelId: id,
             signature: '',
             pubKey: ''
           },
@@ -101,11 +101,11 @@ describe('markUnreadChannelsSaga', () => {
   })
 
   test('update newest message if incoming message is newer', async () => {
-    const messagesAddresses = [generalChannel.address]
+    const messagesides = [generalChannel.id]
     const messages: ChannelMessage[] = []
 
     // Automatically create messages
-    for (const address of messagesAddresses) {
+    for (const id of messagesides) {
       const message = (
         await factory.build<typeof publicChannelsActions.test_message>('Message', {
           identity: alice,
@@ -114,7 +114,7 @@ describe('markUnreadChannelsSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: address,
+            channelId: id,
             signature: '',
             pubKey: ''
           },
@@ -135,7 +135,7 @@ describe('markUnreadChannelsSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: 9999,
-            channelAddress: generalChannel.address,
+            channelId: generalChannel.id,
             signature: '',
             pubKey: ''
           },
@@ -159,11 +159,11 @@ describe('markUnreadChannelsSaga', () => {
       .run()
   })
   test('do not update newest message if incoming message is older', async () => {
-    const messagesAddresses = [generalChannel.address]
+    const messagesides = [generalChannel.id]
     const messages: ChannelMessage[] = []
 
     // Automatically create messages
-    for (const address of messagesAddresses) {
+    for (const id of messagesides) {
       const message = (
         await factory.build<typeof publicChannelsActions.test_message>('Message', {
           identity: alice,
@@ -172,7 +172,7 @@ describe('markUnreadChannelsSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: address,
+            channelId: id,
             signature: '',
             pubKey: ''
           },
@@ -193,7 +193,7 @@ describe('markUnreadChannelsSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: 99999999999999,
-            channelAddress: generalChannel.address,
+            channelId: generalChannel.id,
             signature: '',
             pubKey: ''
           },

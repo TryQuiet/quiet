@@ -52,7 +52,7 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       })
     )
 
@@ -72,7 +72,7 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
                 message: 'message',
                 createdAt:
                   DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
-                channelAddress: generalChannel.address,
+                channelId: generalChannel.id,
                 signature: '',
                 pubKey: ''
               },
@@ -91,7 +91,7 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
       'CacheMessages',
       {
         messages: messages.slice(0, 50),
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       }
     )
 
@@ -114,12 +114,12 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
       .put(
         publicChannelsActions.cacheMessages({
           messages: updatedCache,
-          channelAddress: generalChannel.address
+          channelId: generalChannel.id
         })
       )
       .put(
         messagesActions.setDisplayedMessagesNumber({
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           display: 100
         })
       )

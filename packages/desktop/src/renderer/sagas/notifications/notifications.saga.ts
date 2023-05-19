@@ -35,7 +35,7 @@ export function* displayMessageNotificationSaga(
 ): Generator {
   const incomingMessages = action.payload.messages
 
-  const currentChannelAddress = yield* select(publicChannels.selectors.currentChannelAddress)
+  const currentchannelId = yield* select(publicChannels.selectors.currentchannelId)
 
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
   const certificatesMapping = yield* select(users.selectors.certificatesMapping)
@@ -51,7 +51,7 @@ export function* displayMessageNotificationSaga(
     const focused = yield* call(isWindowFocused)
 
     // Do not display notifications for active channel (when the app is in foreground)
-    if (focused && message.channelAddress === currentChannelAddress) return
+    if (focused && message.channelId === currentchannelId) return
 
     // Do not display notifications for own messages
     const sender = certificatesMapping[message.pubKey]?.username
@@ -66,12 +66,12 @@ export function* displayMessageNotificationSaga(
     // Do not display when message is not verified
     if (!action.payload.isVerified) return
 
-    let label = `New message from @${sender} in #${message.channelAddress}`
+    let label = `New message from @${sender} in #${message.channelId}`
     let body = `${message.message.substring(0, 64)}${message.message.length > 64 ? '...' : ''}`
 
     // Change notification's label for the image
     if (message.type === MessageType.Image) {
-      label = `@${sender} sent an image in #${message.channelAddress}`
+      label = `@${sender} sent an image in #${message.channelId}`
       body = undefined
     }
 
@@ -79,16 +79,16 @@ export function* displayMessageNotificationSaga(
     if (message.type === MessageType.File) {
       const status = downloadStatuses[message.id]
 
-      label = `@${sender} sends file in #${message.channelAddress}`
+      label = `@${sender} sends file in #${message.channelId}`
       body = undefined
 
       if (status?.downloadState === DownloadState.Completed) {
-        label = `@${sender} sent a file in #${message.channelAddress}`
+        label = `@${sender} sent a file in #${message.channelId}`
         body = 'Download complete. Click to show file in folder.'
       }
     }
 
-    const channel = message.channelAddress
+    const channel = message.channelId
     const type = message.type
     const media = message.media
 
@@ -155,7 +155,7 @@ function subscribeNotificationEvents(
         browserWindow.show()
         // Emit store action
         // KACPER
-        emit(publicChannels.actions.setCurrentChannel({ channelAddress: channel }))
+        emit(publicChannels.actions.setCurrentChannel({ channelId: channel }))
       }
     }
     return () => {}

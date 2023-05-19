@@ -13,7 +13,7 @@ export const DeleteChannel: FC = () => {
   const dispatch = useDispatch()
 
   const deleteChannel = useCallback(() => {
-    dispatch(publicChannels.actions.deleteChannel({ channelAddress: channel.address }))
+    dispatch(publicChannels.actions.deleteChannel({ channelId: channel.id }))
     modal.handleClose() // Close self
   }, [modal])
 

@@ -251,7 +251,7 @@ export async function sendMessage(
   if (channelName) {
     store.dispatch(
       publicChannels.actions.setCurrentChannel({
-        channelAddress: channelName
+        channelId: channelName
       })
     )
   }

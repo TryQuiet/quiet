@@ -33,7 +33,7 @@ const args: FileComponentProps = {
     media: {
       cid: cid,
       message: {
-        channelAddress: 'general',
+        channelId: 'general',
         id: 'wgtlstx3u7'
       },
       ext: '.zip',

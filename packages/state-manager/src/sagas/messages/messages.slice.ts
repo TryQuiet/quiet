@@ -43,13 +43,13 @@ export const messagesSlice = createSlice({
     sendDeletionMessage: (state, _action: PayloadAction<SendDeletionMessagePayload>) =>
     state,
     deleteChannelEntry: (state, action: PayloadAction<DeleteChannelEntryPayload>) => {
-      const { channelAddress } = action.payload
-      publicChannelsMessagesBaseAdapter.removeOne(state.publicChannelsMessagesBase, channelAddress)
+      const { channelId } = action.payload
+      publicChannelsMessagesBaseAdapter.removeOne(state.publicChannelsMessagesBase, channelId)
     },
     addPublicChannelsMessagesBase: (state, action: PayloadAction<AddPublicChannelsMessagesBasePayload>) => {
-      const { channelAddress } = action.payload
+      const { channelId } = action.payload
       publicChannelsMessagesBaseAdapter.addOne(state.publicChannelsMessagesBase, {
-        channelAddress: channelAddress,
+        channelId: channelId,
         messages: channelMessagesAdapter.getInitialState(),
         display: 50
       })
@@ -83,12 +83,12 @@ export const messagesSlice = createSlice({
       const { messages } = action.payload
       for (const message of messages) {
         if (!instanceOfChannelMessage(message)) return
-        if (!state.publicChannelsMessagesBase.entities[message.channelAddress]) return
+        if (!state.publicChannelsMessagesBase.entities[message.channelId]) return
 
         let incoming = message
 
         const draft = state.publicChannelsMessagesBase
-          .entities[message.channelAddress]
+          .entities[message.channelId]
           ?.messages
           .entities[message.id]
 
@@ -103,16 +103,16 @@ export const messagesSlice = createSlice({
         }
 
         channelMessagesAdapter.upsertOne(
-          state.publicChannelsMessagesBase.entities[message.channelAddress].messages,
+          state.publicChannelsMessagesBase.entities[message.channelId].messages,
           incoming
         )
       }
     },
     setDisplayedMessagesNumber: (state, action: PayloadAction<SetDisplayedMessagesNumberPayload>) => {
-      const { display, channelAddress } = action.payload
+      const { display, channelId } = action.payload
       publicChannelsMessagesBaseAdapter.updateOne(
         state.publicChannelsMessagesBase, {
-          id: channelAddress,
+          id: channelId,
           changes: {
             display: display
           }

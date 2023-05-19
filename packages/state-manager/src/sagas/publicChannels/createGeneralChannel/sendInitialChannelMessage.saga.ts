@@ -11,10 +11,10 @@ export function* sendInitialChannelMessageSaga(
     ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>['payload']
   >
 ): Generator {
-  const { channelName, channelAddress } = action.payload
+  const { channelName, channelId } = action.payload
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
 
-  const isGeneral = channelAddress === generalChannel.address
+  const isGeneral = channelId === generalChannel.id
 
   const pendingGeneralChannelRecreation = yield* select(
     publicChannelsSelectors.pendingGeneralChannelRecreation
@@ -30,7 +30,7 @@ export function* sendInitialChannelMessageSaga(
   const payload: WriteMessagePayload = {
     type: MessageType.Info,
     message,
-    channelAddress: channelAddress
+    channelId: channelId
   }
 
   if (isGeneral) {

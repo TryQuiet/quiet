@@ -23,7 +23,7 @@ import { MessageType, SendingStatus } from '../../sagas/messages/messages.types'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../sagas/messages/messages.slice'
 import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 
 export const getFactory = async (store: Store) => {
   // @ts-ignore
@@ -63,7 +63,7 @@ export const getFactory = async (store: Store) => {
             description: 'Welcome to channel #general',
             timestamp: DateTime.utc().toSeconds(),
             owner: 'alice',
-            address: generateChannelAddress('general')
+            id: generateChannelId('general')
           }
         })
         return payload
@@ -130,11 +130,11 @@ export const getFactory = async (store: Store) => {
   })
 
   factory.define('PublicChannelsMessagesBase', messages.actions.addPublicChannelsMessagesBase, {
-    channelAddress: factory.assoc('PublicChannel', 'address')
+    channelId: factory.assoc('PublicChannel', 'id')
   })
 
   factory.define('PublicChannelSubscription', publicChannels.actions.setChannelSubscribed, {
-    channelAddress: factory.assoc('PublicChannel', 'address')
+    channelId: factory.assoc('PublicChannel', 'id')
   })
 
   factory.define(
@@ -146,7 +146,7 @@ export const getFactory = async (store: Store) => {
         description: 'Description',
         timestamp: DateTime.utc().toSeconds(),
         owner: factory.assoc('Identity', 'nickname'),
-        address: generateChannelAddress(
+        id: generateChannelId(
           factory.sequence('PublicChannel.name', n => `publicChannel${n}`).toString()
         )
       }
@@ -156,10 +156,10 @@ export const getFactory = async (store: Store) => {
         payload: ReturnType<typeof publicChannels.actions.addChannel>['payload']
       ) => {
         await factory.create('PublicChannelsMessagesBase', {
-          channelAddress: payload.channel.address
+          channelId: payload.channel.id
         })
         await factory.create('PublicChannelSubscription', {
-          channelAddress: payload.channel.address
+          channelId: payload.channel.id
         })
         return payload
       }
@@ -176,7 +176,7 @@ export const getFactory = async (store: Store) => {
         type: MessageType.Basic,
         message: factory.sequence('Message.message', n => `message_${n}`),
         createdAt: DateTime.utc().valueOf(),
-        channelAddress: generateChannelAddress('general'),
+        channelId: generateChannelId('general'),
         signature: '',
         pubKey: ''
       },
@@ -239,7 +239,7 @@ export const getFactory = async (store: Store) => {
 
   factory.define('CacheMessages', publicChannelsActions.cacheMessages, {
     messages: [],
-    channelAddress: factory.assoc('PublicChannel', 'address'),
+    channelId: factory.assoc('PublicChannel', 'id'),
     communityId: factory.assoc('Community', 'id')
   })
 

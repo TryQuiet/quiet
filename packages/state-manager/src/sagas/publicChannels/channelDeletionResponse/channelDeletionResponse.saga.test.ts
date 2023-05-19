@@ -14,7 +14,7 @@ import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { channelDeletionResponseSaga } from './channelDeletionResponse.saga'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 
 describe('channelDeletionResponseSaga', () => {
   let store: Store
@@ -52,7 +52,7 @@ describe('channelDeletionResponseSaga', () => {
             description: 'Welcome to #photo',
             timestamp: DateTime.utc().valueOf(),
             owner: owner.nickname,
-            address: generateChannelAddress('photo')
+            id: generateChannelId('photo')
           }
         }
       )
@@ -60,41 +60,41 @@ describe('channelDeletionResponseSaga', () => {
   })
   describe('handle saga logic as owner of community', () => {
     test('delete standard channel', async () => {
-      const channelAddress = photoChannel.address
+      const channelId = photoChannel.id
 
       const reducer = combineReducers(reducers)
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channelAddress
+          channelId
         })
       )
         .withReducer(reducer)
         .withState(store.getState())
-        .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
-        .put(messagesActions.deleteChannelEntry({ channelAddress }))
-        .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
-        .put(messagesActions.sendDeletionMessage({ channelAddress }))
+        .put(publicChannelsActions.clearMessagesCache({ channelId }))
+        .put(messagesActions.deleteChannelEntry({ channelId }))
+        .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .put(messagesActions.sendDeletionMessage({ channelId }))
         .run()
     })
 
     test('delete general channel', async () => {
-      const channelAddress = generalChannel.address
+      const channelId = generalChannel.id
 
       const reducer = combineReducers(reducers)
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channelAddress
+          channelId
         })
       )
         .withReducer(reducer)
         .withState(store.getState())
 
         .put(publicChannelsActions.startGeneralRecreation())
-        .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
-        .put(messagesActions.deleteChannelEntry({ channelAddress }))
-        .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
+        .put(publicChannelsActions.clearMessagesCache({ channelId }))
+        .put(messagesActions.deleteChannelEntry({ channelId }))
+        .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .provide({
           call: (effect, next) => {}
         })
@@ -109,39 +109,39 @@ describe('channelDeletionResponseSaga', () => {
       store.dispatch(communitiesActions.updateCommunityData({ ...community, CA: '' }))
     })
     test('delete standard channel', async () => {
-      const channelAddress = photoChannel.address
+      const channelId = photoChannel.id
       const reducer = combineReducers(reducers)
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channelAddress
+          channelId
         })
       )
         .withReducer(reducer)
         .withState(store.getState())
-        .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
-        .put(messagesActions.deleteChannelEntry({ channelAddress }))
-        .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
+        .put(publicChannelsActions.clearMessagesCache({ channelId }))
+        .put(messagesActions.deleteChannelEntry({ channelId }))
+        .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .run()
     })
 
     test('delete general channel', async () => {
-      const channelAddress = generalChannel.address
+      const channelId = generalChannel.id
 
       const reducer = combineReducers(reducers)
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channelAddress
+          channelId
         })
       )
         .withReducer(reducer)
         .withState(store.getState())
 
         .put(publicChannelsActions.startGeneralRecreation())
-        .put(publicChannelsActions.clearMessagesCache({ channelAddress }))
-        .put(messagesActions.deleteChannelEntry({ channelAddress }))
-        .put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
+        .put(publicChannelsActions.clearMessagesCache({ channelId }))
+        .put(messagesActions.deleteChannelEntry({ channelId }))
+        .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .run()
     })
   })

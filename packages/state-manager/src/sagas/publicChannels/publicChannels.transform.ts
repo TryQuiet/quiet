@@ -10,10 +10,10 @@ export const PublicChannelsTransform = createTransform(
   (outboundState: PublicChannelsState, _key) => {
     return {
       ...outboundState,
-      currentChannelAddress: publicChannelsAdapter
+      currentchannelId: publicChannelsAdapter
       .getSelectors()
       .selectAll(outboundState.channels)
-      .find(channel => channel.name === 'general').address,
+      .find(channel => channel.name === 'general').id,
       channels: outboundState.channels,
       channelsStatus: outboundState.channelsStatus,
       channelsSubscriptions: publicChannelsSubscriptionsAdapter.getInitialState()

@@ -17,10 +17,10 @@ export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
 
   const redirect = useCallback(
-    (address: string) => {
+    (id: string) => {
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channelAddress: address
+          channelId: id
         })
       )
       dispatch(
@@ -41,7 +41,7 @@ export const ChannelListScreen: FC = () => {
       ...prev,
       {
         ...curr,
-        name: publicChannelsSelector.find(channel => curr.address.includes(channel.name)).name
+        name: publicChannelsSelector.find(channel => curr.id.includes(channel.name)).name
       }
     ]
   }, [])
@@ -56,7 +56,7 @@ export const ChannelListScreen: FC = () => {
 
     const tile: ChannelTileProps = {
       name: status.name,
-      address: status.address,
+      id: status.id,
       message: message,
       date: date,
       unread: status.unread,

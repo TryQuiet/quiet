@@ -75,10 +75,10 @@ describe('Restart app works correctly', () => {
 
       const entities = store.getState().PublicChannels.channels.entities
 
-      const generalAddress = Object.keys(entities).find(key => entities[key].name === 'general')
+      const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
       store.dispatch(
         publicChannels.actions.sendInitialChannelMessage({
-          channelAddress: generalAddress,
+          channelId: generalId,
           channelName: 'general'
         })
       )

@@ -14,7 +14,7 @@ import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../reducers'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 
 describe('sendInitialChannelMessageSaga', () => {
   let store: Store
@@ -53,7 +53,7 @@ describe('sendInitialChannelMessageSaga', () => {
             description: 'Welcome to #photo',
             timestamp: DateTime.utc().valueOf(),
             owner: owner.nickname,
-            address: generateChannelAddress('photo'),
+            id: generateChannelId('photo'),
           }
         }
       )
@@ -66,7 +66,7 @@ describe('sendInitialChannelMessageSaga', () => {
       sendInitialChannelMessageSaga,
       publicChannelsActions.sendInitialChannelMessage({
         channelName: channel.name,
-        channelAddress: channel.address
+        channelId: channel.id
       })
     )
       .withReducer(reducer)
@@ -75,7 +75,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `Created #${channel.name}`,
-          channelAddress: channel.address
+          channelId: channel.id
         })
       )
       .run()
@@ -88,7 +88,7 @@ describe('sendInitialChannelMessageSaga', () => {
       sendInitialChannelMessageSaga,
       publicChannelsActions.sendInitialChannelMessage({
         channelName: generalChannel.name,
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       })
     )
       .withReducer(reducer)
@@ -97,7 +97,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `@${owner.nickname} deleted all messages in #general`,
-          channelAddress: generalChannel.address
+          channelId: generalChannel.id
         })
       )
       .run()

@@ -12,7 +12,7 @@ import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessa
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import {
   DisplayableMessage,
-  INITIAL_CURRENT_CHANNEL_ADDRESS,
+  INITIAL_CURRENT_CHANNEL_ID,
   MessagesDailyGroups,
   PublicChannel,
   PublicChannelStatus
@@ -40,7 +40,7 @@ export const subscribedChannels = createSelector(
   selectChannelsSubscriptions,
   (subscriptions) => {
     return subscriptions.map(subscription => {
-      if (subscription.subscribed) return subscription.address
+      if (subscription.subscribed) return subscription.id
     })
   }
 )
@@ -53,7 +53,7 @@ export const selectGeneralChannel = createSelector(selectChannels, channels => {
     description: draft.description,
     owner: draft.owner,
     timestamp: draft.timestamp,
-    address: draft.address
+    id: draft.id
   }
   return channel
 })
@@ -87,11 +87,11 @@ export const sortedChannels = createSelector(publicChannels, (channels) => {
   return sorted
 })
 
-export const currentChannelAddress_OLD = createSelector(
+export const currentchannelId_OLD = createSelector(
   selectState,
   (state) => {
     if (!state) return undefined
-    return state.currentChannelAddress
+    return state.currentchannelId
   }
 )
 
@@ -99,7 +99,7 @@ export const generalChannel = createSelector(publicChannels, publicChannelsSelec
   return publicChannelsSelector.find(channel => channel.name === 'general')
 })
 
-export const currentChannelAddress = createSelector(
+export const currentchannelId = createSelector(
   selectState,
   generalChannel,
   (state, general) => {
@@ -107,14 +107,14 @@ export const currentChannelAddress = createSelector(
     if (!state) {
       return undefined
     }
-    if (state.currentChannelAddress === INITIAL_CURRENT_CHANNEL_ADDRESS) {
+    if (state.currentchannelId === INITIAL_CURRENT_CHANNEL_ID) {
       if (general) {
-        return general.address
+        return general.id
       } else {
         return 'general'// case for tests when is no channel in store
       }
     } else {
-      return state.currentChannelAddress
+      return state.currentchannelId
     }
   }
 )
@@ -149,11 +149,11 @@ export const dynamicSearchedChannels = (channelInput: string) =>
 
 // Is being used in tests
 export const currentChannel = createSelector(
-  currentChannelAddress,
+  currentchannelId,
   selectChannels,
-  (address, channels) => {
-    if (!address) return undefined
-    return channels.find(channel => channel.address === address)
+  (id, channels) => {
+    if (!id) return undefined
+    return channels.find(channel => channel.id === id)
   }
 )
 
@@ -283,7 +283,7 @@ export const unreadChannels = createSelector(
   status => {
     return Object.values(status).reduce((result: string[], channel: PublicChannelStatus) => {
       if (channel.unread) {
-        result.push(channel.address)
+        result.push(channel.id)
       }
       return result
     }, [])
@@ -293,7 +293,7 @@ export const unreadChannels = createSelector(
 export const publicChannelsSelectors = {
   publicChannels,
   subscribedChannels,
-  currentChannelAddress,
+  currentchannelId,
   currentChannelName,
   currentChannel,
   currentChannelMessages,

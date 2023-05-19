@@ -24,13 +24,13 @@ import {
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 
 jest.setTimeout(20_000)
 
 describe('User', () => {
   let socket: MockedSocket
-  const generalAddress = generateChannelAddress('general')
+  const generalId = generateChannelId('general')
 
   beforeEach(() => {
     socket = new MockedSocket()
@@ -112,7 +112,7 @@ describe('User', () => {
               description: 'string',
               owner: 'owner',
               timestamp: 0,
-              address: generalAddress
+              id: generalId
             }
           }
         })
@@ -165,7 +165,7 @@ describe('User', () => {
     // Wait for the actions that updates the store
     await act(async () => {
       // Little workaround
-      store.dispatch(publicChannels.actions.setCurrentChannel({ channelAddress: generalAddress }))
+      store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
     })
 
     // Check if create/username modals are gone

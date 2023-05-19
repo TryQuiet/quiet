@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../constants'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
-import { currentChannelAddress } from '../publicChannels/publicChannels.selectors'
+import { currentchannelId } from '../publicChannels/publicChannels.selectors'
 import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
@@ -38,7 +38,7 @@ export const publicChannelsMessagesBase = createSelector(messagesSlice, reducerS
 
 export const currentPublicChannelMessagesBase = createSelector(
   publicChannelsMessagesBase,
-  currentChannelAddress,
+  currentchannelId,
   (base, address) => {
     return base[address]
   }
@@ -98,21 +98,21 @@ export const sortedCurrentPublicChannelMessagesEntries = createSelector(
   }
 )
 
-export const missingChannelMessages = (ids: string[], channelAddress: string) =>
+export const missingChannelMessages = (ids: string[], channelId: string) =>
   createSelector(publicChannelsMessagesBase, base => {
-    if (!base[channelAddress]) return []
+    if (!base[channelId]) return []
     const channelMessages = channelMessagesAdapter
       .getSelectors()
-      .selectIds(base[channelAddress].messages)
+      .selectIds(base[channelId].messages)
     return ids.filter(id => !channelMessages.includes(id))
   })
 
-export const missingChannelFiles = (channelAddress: string) =>
+export const missingChannelFiles = (channelId: string) =>
   createSelector(publicChannelsMessagesBase, downloadStatuses, (base, statuses) => {
-    if (!base[channelAddress]) return []
+    if (!base[channelId]) return []
     const channelMessages = channelMessagesAdapter
       .getSelectors()
-      .selectAll(base[channelAddress].messages)
+      .selectAll(base[channelId].messages)
     return channelMessages
       .filter(message => (message.type === MessageType.Image || message.type === MessageType.File) && message.media?.path === null)
       .map(message => message.media)

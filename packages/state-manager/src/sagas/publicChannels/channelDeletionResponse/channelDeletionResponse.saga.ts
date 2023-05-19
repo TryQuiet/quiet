@@ -11,23 +11,23 @@ const log = logger('publicChannels')
 export function* channelDeletionResponseSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.channelDeletionResponse>['payload']>
 ): Generator {
-  log(`Deleted channel ${action.payload.channelAddress} saga`)
+  log(`Deleted channel ${action.payload.channelId} saga`)
 
-  const { channelAddress } = action.payload
+  const { channelId } = action.payload
 
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
 
-  const isGeneral = channelAddress === generalChannel.address
+  const isGeneral = channelId === generalChannel.id
 
   if (isGeneral) {
     yield* put(publicChannelsActions.startGeneralRecreation())
   }
 
-  yield* put(publicChannelsActions.clearMessagesCache({ channelAddress }))
+  yield* put(publicChannelsActions.clearMessagesCache({ channelId }))
 
-  yield* put(messagesActions.deleteChannelEntry({ channelAddress }))
+  yield* put(messagesActions.deleteChannelEntry({ channelId }))
 
-  yield* put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
+  yield* put(publicChannelsActions.deleteChannelFromStore({ channelId }))
 
   const community = yield* select(communitiesSelectors.currentCommunity)
 
@@ -38,7 +38,7 @@ export function* channelDeletionResponseSaga(
       yield* delay(1000)
       yield* put(publicChannelsActions.createGeneralChannel())
     } else {
-      yield* put(messagesActions.sendDeletionMessage({ channelAddress }))
+      yield* put(messagesActions.sendDeletionMessage({ channelId }))
     }
   }
 }

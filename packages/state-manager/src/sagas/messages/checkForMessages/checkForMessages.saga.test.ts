@@ -60,7 +60,7 @@ describe('checkForMessagesSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: generalChannel.address,
+            channelId: generalChannel.id,
             signature: '',
             pubKey: ''
           },
@@ -74,7 +74,7 @@ describe('checkForMessagesSaga', () => {
       checkForMessagesSaga,
       messagesActions.responseSendMessagesIds({
         ids: [message.id, 'jf84hwwa', 'kl12sa0a'],
-        channelAddress: generalChannel.address,
+        channelId: generalChannel.id,
         communityId: community.id
       })
     )
@@ -84,7 +84,7 @@ describe('checkForMessagesSaga', () => {
         messagesActions.askForMessages({
           peerId: alice.peerId.id,
           communityId: community.id,
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           ids: ['jf84hwwa', 'kl12sa0a']
         })
       )

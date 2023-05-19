@@ -16,13 +16,13 @@ import { uploadFileSaga } from './uploadFile.saga'
 import { FactoryGirl } from 'factory-girl'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { currentChannelAddress } from '../../publicChannels/publicChannels.selectors'
+import { currentchannelId } from '../../publicChannels/publicChannels.selectors'
 import { DownloadState, FileMetadata } from '../../files/files.types'
 import { filesActions } from '../files.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 
 describe('uploadFileSaga', () => {
   let store: Store
@@ -59,7 +59,7 @@ describe('uploadFileSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: alice.nickname,
-          address: generateChannelAddress('sailing')
+          id: generateChannelId('sailing')
         }
       }
     )).channel
@@ -70,7 +70,7 @@ describe('uploadFileSaga', () => {
   test('uploading file', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
-    const currentChannel = currentChannelAddress(store.getState())
+    const currentChannel = currentchannelId(store.getState())
 
     const peerId = alice.peerId.id
 
@@ -81,7 +81,7 @@ describe('uploadFileSaga', () => {
       ext: 'ext',
       message: {
         id: message,
-        channelAddress: currentChannel
+        channelId: currentChannel
       }
     }
     const reducer = combineReducers(reducers)

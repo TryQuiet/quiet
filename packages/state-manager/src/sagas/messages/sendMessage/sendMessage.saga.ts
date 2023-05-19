@@ -28,14 +28,14 @@ export function* sendMessageSaga(
   const signatureArrayBuffer = yield* call(sign, action.payload.message, keyObject)
   const signature = yield* call(arrayBufferToString, signatureArrayBuffer)
 
-  const currentChannel = yield* select(publicChannelsSelectors.currentChannelAddress)
+  const currentChannel = yield* select(publicChannelsSelectors.currentchannelId)
 
   const createdAt = yield* call(getCurrentTime)
 
   const generatedMessageId = yield* call(generateMessageId)
   const id = action.payload.id || generatedMessageId
 
-  const channelAddress = action.payload.channelAddress || currentChannel
+  const channelId = action.payload.channelId || currentChannel
 
   const message: ChannelMessage = {
     id: id,
@@ -43,7 +43,7 @@ export function* sendMessageSaga(
     message: action.payload.message,
     media: action.payload.media,
     createdAt,
-    channelAddress,
+    channelId,
     signature,
     pubKey
   }

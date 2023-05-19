@@ -48,7 +48,7 @@ describe('downloadFileSaga', () => {
   test('reset transfer speed for files with existing transfer speed', async () => {
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       })
     )
 
@@ -60,7 +60,7 @@ describe('downloadFileSaga', () => {
       ext: 'zip',
       message: {
         id: id,
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       }
     }
 
@@ -75,7 +75,7 @@ describe('downloadFileSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           signature: '',
           pubKey: '',
           media: media
@@ -118,7 +118,7 @@ describe('downloadFileSaga', () => {
   test('do not reset transfer speed for files without existing transfer speed', async () => {
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       })
     )
 
@@ -130,7 +130,7 @@ describe('downloadFileSaga', () => {
       ext: 'zip',
       message: {
         id: id,
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       }
     }
 
@@ -145,7 +145,7 @@ describe('downloadFileSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           signature: '',
           pubKey: '',
           media: media
@@ -183,7 +183,7 @@ describe('downloadFileSaga', () => {
   test('do not reset transfer speed for files with download state other than downloading', async () => {
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       })
     )
 
@@ -195,7 +195,7 @@ describe('downloadFileSaga', () => {
       ext: 'zip',
       message: {
         id: id,
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       }
     }
 
@@ -210,7 +210,7 @@ describe('downloadFileSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           signature: '',
           pubKey: '',
           media: media

@@ -12,7 +12,7 @@ describe('askForMessagesSaga', () => {
   const askForMessagesPayload: AskForMessagesPayload = {
     peerId: '',
     communityId: '',
-    channelAddress: '',
+    channelId: '',
     ids: []
   }
   const saga: TestApi = testSaga(

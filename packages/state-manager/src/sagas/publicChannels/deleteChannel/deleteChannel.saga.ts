@@ -12,22 +12,22 @@ export function* deleteChannelSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof publicChannelsActions.deleteChannel>['payload']>
 ): Generator {
-  const channelAddress = action.payload.channelAddress
+  const channelId = action.payload.channelId
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
 
-  const isGeneral = channelAddress === generalChannel.address
+  const isGeneral = channelId === generalChannel.id
 
-  log(`Deleting channel ${channelAddress}`)
+  log(`Deleting channel ${channelId}`)
   yield* apply(
     socket,
     socket.emit,
     applyEmitParams(SocketActionTypes.DELETE_CHANNEL, {
-      channelAddress
+      channelId
     })
   )
 
   if (!isGeneral) {
-    yield* put(publicChannelsActions.setCurrentChannel({ channelAddress: generalChannel.address }))
-    yield* put(publicChannelsActions.disableChannel({ channelAddress }))
+    yield* put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
+    yield* put(publicChannelsActions.disableChannel({ channelId }))
   }
 }

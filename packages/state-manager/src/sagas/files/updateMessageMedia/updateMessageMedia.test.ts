@@ -14,7 +14,7 @@ import { updateMessageMediaSaga } from './updateMessageMedia'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('downloadedFileSaga', () => {
@@ -55,7 +55,7 @@ describe('downloadedFileSaga', () => {
             description: 'Welcome to #sailing',
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: generateChannelAddress('sailing')
+            id: generateChannelId('sailing')
           }
         }
       )
@@ -65,7 +65,7 @@ describe('downloadedFileSaga', () => {
   test('update message media', async () => {
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: 'general'
+        channelId: 'general'
       })
     )
 
@@ -78,7 +78,7 @@ describe('downloadedFileSaga', () => {
       ext: 'png',
       message: {
         id: id,
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       }
     }
 
@@ -92,7 +92,7 @@ describe('downloadedFileSaga', () => {
             type: MessageType.Basic,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: generalChannel.address,
+            channelId: generalChannel.id,
             signature: '',
             pubKey: '',
             media: metadata
@@ -122,7 +122,7 @@ describe('downloadedFileSaga', () => {
   test('update message media for non-active channel', async () => {
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: sailingChannel.address
+        channelId: sailingChannel.id
       })
     )
 
@@ -135,7 +135,7 @@ describe('downloadedFileSaga', () => {
       ext: 'png',
       message: {
         id: id,
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       }
     }
 
@@ -149,7 +149,7 @@ describe('downloadedFileSaga', () => {
             type: MessageType.Basic,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: generalChannel.address,
+            channelId: generalChannel.id,
             signature: '',
             pubKey: '',
             media: metadata

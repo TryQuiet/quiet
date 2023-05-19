@@ -15,17 +15,17 @@ import { DateTime } from 'luxon'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationActions } from '../../store/navigation/navigation.slice'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 
 export const CreateChannelScreen: FC = () => {
   const dispatch = useDispatch()
 
   interface ChannelStructure {
     channelName: string | null
-    channelAddress: string | null
+    channelId: string | null
   }
   const [channel, setChannel] = useState<ChannelStructure>({
-    channelAddress: null,
+    channelId: null,
     channelName: null
   })
   const [clearComponent, setClearComponent] = useState<boolean>(false) // How to clear component without using screen's state?
@@ -46,7 +46,7 @@ export const CreateChannelScreen: FC = () => {
     ) {
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channelAddress: channel.channelAddress
+          channelId: channel.channelId
         })
       )
       setChannel(null)
@@ -87,11 +87,11 @@ export const CreateChannelScreen: FC = () => {
         name: name,
         description: `Welcome to #${name}`,
         owner: user.nickname,
-        address: generateChannelAddress(name),
+        id: generateChannelId(name),
         timestamp: DateTime.utc().valueOf()
       }
 
-      setChannel({ channelAddress: channel.address, channelName: channel.name })
+      setChannel({ channelId: channel.id, channelName: channel.name })
 
       dispatch(
         publicChannels.actions.createChannel({

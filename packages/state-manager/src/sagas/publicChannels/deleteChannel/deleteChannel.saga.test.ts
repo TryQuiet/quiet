@@ -15,7 +15,7 @@ import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { deleteChannelSaga } from './deleteChannel.saga'
 import { Socket } from 'socket.io-client'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 
 describe('deleteChannelSaga', () => {
   let store: Store
@@ -55,7 +55,7 @@ describe('deleteChannelSaga', () => {
             description: 'Welcome to #photo',
             timestamp: DateTime.utc().valueOf(),
             owner: owner.nickname,
-            address: generateChannelAddress('photo')
+            id: generateChannelId('photo')
           }
         }
       )
@@ -64,42 +64,42 @@ describe('deleteChannelSaga', () => {
 
   test('delete standard channel', async () => {
     console.log({ generalChannel })
-    const channelAddress = photoChannel.address
+    const channelId = photoChannel.id
 
     const reducer = combineReducers(reducers)
     await expectSaga(
       deleteChannelSaga,
       socket,
-      publicChannelsActions.deleteChannel({ channelAddress })
+      publicChannelsActions.deleteChannel({ channelId })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .apply(socket, socket.emit, [
         SocketActionTypes.DELETE_CHANNEL,
         {
-          channelAddress
+          channelId
         }
       ])
-      .put(publicChannelsActions.setCurrentChannel({ channelAddress: generalChannel.address }))
-      .put(publicChannelsActions.disableChannel({ channelAddress }))
+      .put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
+      .put(publicChannelsActions.disableChannel({ channelId }))
       .run()
   })
 
   test('delete general channel', async () => {
-    const channelAddress = generalChannel.address
+    const channelId = generalChannel.id
 
     const reducer = combineReducers(reducers)
     await expectSaga(
       deleteChannelSaga,
       socket,
-      publicChannelsActions.deleteChannel({ channelAddress })
+      publicChannelsActions.deleteChannel({ channelId })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .apply(socket, socket.emit, [
         SocketActionTypes.DELETE_CHANNEL,
         {
-          channelAddress
+          channelId
         }
       ])
       .run()

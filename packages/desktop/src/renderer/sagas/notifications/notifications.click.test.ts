@@ -15,7 +15,7 @@ import {
   handleNotificationActions,
   NotificationData
 } from './notifications.saga'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 
 const notification = jest.fn().mockImplementation(() => {
   return jest.fn()
@@ -53,29 +53,29 @@ describe('clicking in notification', () => {
 
     const { store, runSaga } = await prepareStore({}, socket)
 
-    const generalAddress = generateChannelAddress('general')
-    const sailingAddress = generateChannelAddress('sailing')
+    const generalId = generateChannelId('general')
+    const sailingId = generateChannelId('sailing')
 
     const notificationData: NotificationData = {
       label: 'label',
       body: 'body',
-      channel: sailingAddress,
+      channel: sailingId,
       sound: NotificationsSounds.splat
     }
 
-    store.dispatch(publicChannels.actions.setCurrentChannel({ channelAddress: generalAddress }))
+    store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
 
     // Verify current channel is 'general
-    expect(publicChannels.selectors.currentChannelAddress(store.getState())).toBe(generalAddress)
+    expect(publicChannels.selectors.currentchannelId(store.getState())).toBe(generalId)
 
     runSaga(function* (): Generator {
       const notification = yield* call(createNotification, notificationData)
-      yield* fork(handleNotificationActions, notification, MessageType.Basic, sailingAddress)
+      yield* fork(handleNotificationActions, notification, MessageType.Basic, sailingId)
       yield* call(notification.onclick, new Event(''))
     })
 
     // Confirm current channel address has changed
-    expect(publicChannels.selectors.currentChannelAddress(store.getState())).toBe(sailingAddress)
+    expect(publicChannels.selectors.currentchannelId(store.getState())).toBe(sailingId)
   })
 
   it('opens file explorer', async () => {
@@ -84,7 +84,7 @@ describe('clicking in notification', () => {
 
     const { runSaga } = await prepareStore({}, socket)
 
-    const sailingAddress = generateChannelAddress('sailing')
+    const sailingId = generateChannelId('sailing')
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -93,14 +93,14 @@ describe('clicking in notification', () => {
       path: 'path/file.ext',
       message: {
         id: 'id',
-        channelAddress: sailingAddress
+        channelId: sailingId
       }
     }
 
     const notificationData: NotificationData = {
       label: 'label',
       body: 'body',
-      channel: sailingAddress,
+      channel: sailingId,
       sound: NotificationsSounds.splat
     }
 
@@ -108,7 +108,7 @@ describe('clicking in notification', () => {
 
     runSaga(function* (): Generator {
       const notification = yield* call(createNotification, notificationData)
-      yield* fork(handleNotificationActions, notification, MessageType.File, sailingAddress, media)
+      yield* fork(handleNotificationActions, notification, MessageType.File, sailingId, media)
       yield* call(notification.onclick, new Event(''))
     })
 

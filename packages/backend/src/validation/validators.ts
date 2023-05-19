@@ -14,7 +14,7 @@ const messageMediaSchema = joi.object({
   height: joi.number().allow(null),
   message: joi.object({
     id: joi.string().required(),
-    channelAddress: joi.string().required()
+    channelId: joi.string().required()
   })
 })
 
@@ -24,7 +24,7 @@ const messageSchema = joi.object({
   message: joi.alternatives(joi.string(), joi.binary()).required(),
   media: messageMediaSchema,
   createdAt: joi.number().required(),
-  channelAddress: joi.string().required(),
+  channelId: joi.string().required(),
   signature: joi.string().required(),
   pubKey: joi.string().required()
 })
@@ -34,7 +34,7 @@ const channelSchema = joi.object({
   description: joi.string().required(),
   owner: joi.string().required(),
   timestamp: joi.number().required(),
-  address: joi.string().required()
+  id: joi.string().required()
 })
 
 export const isUser = (publicKey: string, halfKey: string): boolean => {

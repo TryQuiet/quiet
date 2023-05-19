@@ -42,7 +42,7 @@ describe('checkForMissingFilesSaga', () => {
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = generalChannel.address
+    const channelId = generalChannel.id
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -51,7 +51,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.jpeg',
       message: {
         id: message,
-        channelAddress: channelAddress
+        channelId: channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -65,7 +65,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.Image,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -124,7 +124,7 @@ describe('checkForMissingFilesSaga', () => {
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = generalChannel.address
+    const channelId = generalChannel.id
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -133,7 +133,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message,
-        channelAddress: channelAddress
+        channelId: channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -147,7 +147,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -208,7 +208,7 @@ describe('checkForMissingFilesSaga', () => {
     const message1 = Math.random().toString(36).substr(2.9)
     const message2 = Math.random().toString(36).substr(2.9)
 
-    const channelAddress = generalChannel.address
+    const channelId = generalChannel.id
 
     const missingFileCanceled: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -217,7 +217,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message1,
-        channelAddress: channelAddress
+        channelId: channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -229,7 +229,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message2,
-        channelAddress: channelAddress
+        channelId: channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -243,7 +243,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           signature: '',
           pubKey: '',
           media: missingFileCanceled
@@ -260,7 +260,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           signature: '',
           pubKey: '',
           media: missingFilePending
@@ -341,7 +341,7 @@ describe('checkForMissingFilesSaga', () => {
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = generalChannel.address
+    const channelId = generalChannel.id
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -350,7 +350,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message,
-        channelAddress: channelAddress
+        channelId: channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT + 2048
     }
@@ -364,7 +364,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -423,7 +423,7 @@ describe('checkForMissingFilesSaga', () => {
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = generalChannel.address
+    const channelId = generalChannel.id
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -432,7 +432,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message,
-        channelAddress: channelAddress
+        channelId: channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT + 2048
     }
@@ -446,7 +446,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -504,7 +504,7 @@ describe('checkForMissingFilesSaga', () => {
     >('Identity', { id: community.id, nickname: 'alice' })
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = generalChannel.address
+    const channelId = generalChannel.id
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -513,7 +513,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message,
-        channelAddress: channelAddress
+        channelId: channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -527,7 +527,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -586,7 +586,7 @@ describe('checkForMissingFilesSaga', () => {
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = generalChannel.address
+    const channelId = generalChannel.id
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -595,7 +595,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message,
-        channelAddress: channelAddress
+        channelId: channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -609,7 +609,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -668,7 +668,7 @@ describe('checkForMissingFilesSaga', () => {
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = generalChannel.address
+    const channelId = generalChannel.id
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -677,7 +677,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message,
-        channelAddress: channelAddress
+        channelId: channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -691,7 +691,7 @@ describe('checkForMissingFilesSaga', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -750,7 +750,7 @@ describe('checkForMissingFilesSaga', () => {
       >('Identity', { id: community.id, nickname: 'alice' })
 
       const message = Math.random().toString(36).substr(2.9)
-      const channelAddress = generalChannel.address
+      const channelId = generalChannel.id
       const missingFile: FileMetadata = {
         cid: Math.random().toString(36).substr(2.9),
         path: null,
@@ -758,7 +758,7 @@ describe('checkForMissingFilesSaga', () => {
         ext: '.zip',
         message: {
           id: message,
-          channelAddress: channelAddress
+          channelId: channelId
         },
         size: size
       }
@@ -772,7 +772,7 @@ describe('checkForMissingFilesSaga', () => {
             type: MessageType.File,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: generalChannel.address,
+            channelId: generalChannel.id,
             signature: '',
             pubKey: '',
             media: missingFile

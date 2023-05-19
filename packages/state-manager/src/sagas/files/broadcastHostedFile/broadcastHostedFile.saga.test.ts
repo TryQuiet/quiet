@@ -16,7 +16,7 @@ import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
 import { FileMetadata } from '../files.types'
-import { generateChannelAddress } from '@quiet/common'
+import { generateChannelId } from '@quiet/common'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('downloadFileSaga', () => {
@@ -54,7 +54,7 @@ describe('downloadFileSaga', () => {
             description: 'Welcome to #sailing',
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: generateChannelAddress('sailing')
+            id: generateChannelId('sailing')
           }
         }
       )
@@ -65,7 +65,7 @@ describe('downloadFileSaga', () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelAddress: generalChannel.address
+      channelId: generalChannel.id
     }))
 
     const id = Math.random().toString(36).substr(2.9)
@@ -77,7 +77,7 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id: id,
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       }
     }
 
@@ -91,7 +91,7 @@ describe('downloadFileSaga', () => {
             type: MessageType.File,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: generalChannel.address,
+            channelId: generalChannel.id,
             signature: '',
             pubKey: '',
             media: media
@@ -124,7 +124,7 @@ describe('downloadFileSaga', () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelAddress: sailingChannel.address
+      channelId: sailingChannel.id
     }))
 
     const id = Math.random().toString(36).substr(2.9)
@@ -136,7 +136,7 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id: id,
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       }
     }
 
@@ -150,7 +150,7 @@ describe('downloadFileSaga', () => {
             type: MessageType.File,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: generalChannel.address,
+            channelId: generalChannel.id,
             signature: '',
             pubKey: '',
             media: media

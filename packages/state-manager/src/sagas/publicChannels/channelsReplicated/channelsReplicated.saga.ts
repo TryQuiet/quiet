@@ -15,15 +15,15 @@ export function* channelsReplicatedSaga(
   log('INSIDE CHANNELS REPLICATED SAGA')
 
   const _locallyStoredChannels = yield* select(publicChannelsSelectors.publicChannels)
-  const locallyStoredChannels = _locallyStoredChannels.map(channel => channel.address)
+  const locallyStoredChannels = _locallyStoredChannels.map(channel => channel.id)
 
   const databaseStoredChannels = Object.values(action.payload.channels)
-  const databaseStoredChannelsAddresses = databaseStoredChannels.map(channel => channel.address)
-  console.log({ locallyStoredChannels, databaseStoredChannelsAddresses })
+  const databaseStoredChannelsIds = databaseStoredChannels.map(channel => channel.id)
+  console.log({ locallyStoredChannels, databaseStoredChannelsIds })
   // Upserting channels to local storage
   // KACPER!!!
   for (const channel of databaseStoredChannels) {
-    if (!locallyStoredChannels.includes(channel.address)) {
+    if (!locallyStoredChannels.includes(channel.id)) {
       log(`ADDING #${channel.name} TO LOCAL STORAGE`)
       yield* put(
         publicChannelsActions.addChannel({
@@ -32,17 +32,17 @@ export function* channelsReplicatedSaga(
       )
       yield* put(
         messagesActions.addPublicChannelsMessagesBase({
-          channelAddress: channel.address
+          channelId: channel.id
         })
       )
     }
   }
 
   // Removing channels from store
-  for (const channelAddress of locallyStoredChannels) {
-    if (!databaseStoredChannelsAddresses.includes(channelAddress)) {
-      log(`REMOVING #${channelAddress} FROM STORE`)
-      yield* put(publicChannelsActions.deleteChannel({ channelAddress }))
+  for (const channelId of locallyStoredChannels) {
+    if (!databaseStoredChannelsIds.includes(channelId)) {
+      log(`REMOVING #${channelId} FROM STORE`)
+      yield* put(publicChannelsActions.deleteChannel({ channelId }))
     }
   }
 

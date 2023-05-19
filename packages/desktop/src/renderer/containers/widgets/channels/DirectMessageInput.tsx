@@ -31,13 +31,13 @@ export const ChannelInput = () => {
 
   const { onChange, onEnter, resetDebounce } = useDirectMessageInputActions()
 
-  const currentChannelAddress = useSelector(publicChannels.selectors.currentChannelAddress)
+  const currentchannelId = useSelector(publicChannels.selectors.currentchannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
   const user = useSelector(identity.selectors.currentIdentity)
 
   return (
     <ChannelInputComponent
-      channelAddress={currentChannelAddress}
+      channelId={currentchannelId}
       channelName={currentChannelName}
       // TODO https://github.com/TryQuiet/ZbayLite/issues/443
       inputPlaceholder={`#${currentChannelName} as @${user?.nickname}`}
