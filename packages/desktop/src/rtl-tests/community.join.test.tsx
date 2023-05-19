@@ -91,7 +91,7 @@ describe('User', () => {
           const payload = data[0]
           const user = identity.selectors.currentIdentity(store.getState())
           // This community serves only as a mocked object for generating valid crytpo data (certificate, rootCA)
-          const communityHelper = (
+          const communityHelper: ReturnType<typeof communities.actions.addNewCommunity>['payload'] = (
             await factory.build<typeof communities.actions.addNewCommunity>('Community', {
               id: data[0]
             })

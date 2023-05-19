@@ -36,7 +36,7 @@ export function* launchCommunitySaga(
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))
-  if (!community || !identity || !identity.userCertificate || !identity.userCsr?.userKey || !community.rootCa) {
+  if (!identity?.userCertificate || !identity.userCsr?.userKey || !community?.rootCa) {
     console.error('Could not launch community, Community or Identity is lacking data')
     return
   }

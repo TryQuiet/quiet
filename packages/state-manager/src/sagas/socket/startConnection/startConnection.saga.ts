@@ -164,7 +164,7 @@ export function subscribe(socket: Socket) {
       emit(publicChannelsActions.createGeneralChannel())
     })
     socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {
-      log(payload)
+      log(SocketActionTypes.REGISTRAR, payload)
       emit(communitiesActions.responseRegistrar(payload))
       emit(networkActions.addInitializedRegistrar(payload.id))
     })
@@ -172,7 +172,7 @@ export function subscribe(socket: Socket) {
       emit(communitiesActions.storePeerList(payload))
     })
     socket.on(SocketActionTypes.NETWORK, (payload: ResponseCreateNetworkPayload) => {
-      log(payload)
+      log(SocketActionTypes.NETWORK, payload)
       emit(communitiesActions.responseCreateNetwork(payload))
     })
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
