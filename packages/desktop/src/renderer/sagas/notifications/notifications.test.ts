@@ -183,14 +183,14 @@ describe('displayNotificationsSaga', () => {
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
       .call(createNotification, {
-        label: `New message from @${bob.nickname} in #${sailingChannel.id}`,
+        label: `New message from @${bob.nickname} in #${sailingChannel.name}`,
         body: message.message,
         channel: sailingChannel.id,
         sound: NotificationsSounds.pow
       })
       .run()
 
-    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.id}`, {
+    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.name}`, {
       body: message.message,
       icon: '../../build/icon.png',
       silent: true
@@ -292,14 +292,14 @@ describe('displayNotificationsSaga', () => {
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
       .call(createNotification, {
-        label: `New message from @${bob.nickname} in #${sailingChannel.id}`,
+        label: `New message from @${bob.nickname} in #${sailingChannel.name}`,
         body: message.message,
         channel: sailingChannel.id,
         sound: NotificationsSounds.librarianShhh
       })
       .run()
 
-    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.id}`, {
+    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.name}`, {
       body: message.message,
       icon: '../../build/icon.png',
       silent: true
@@ -323,14 +323,14 @@ describe('displayNotificationsSaga', () => {
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), true]])
       .call(createNotification, {
-        label: `New message from @${bob.nickname} in #${sailingChannel.id}`,
+        label: `New message from @${bob.nickname} in #${sailingChannel.name}`,
         body: message.message,
         channel: sailingChannel.id,
         sound: NotificationsSounds.librarianShhh
       })
       .run()
 
-    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.id}`, {
+    expect(notification).toBeCalledWith(`New message from @${bob.nickname} in #${sailingChannel.name}`, {
       body: message.message,
       icon: '../../build/icon.png',
       silent: true
@@ -415,7 +415,7 @@ describe('displayNotificationsSaga', () => {
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
       .call(createNotification, {
-        label: `New message from @${bob.nickname} in #${sailingChannel.id}`,
+        label: `New message from @${bob.nickname} in #${sailingChannel.name}`,
         body: message.message,
         channel: sailingChannel.id,
         sound: NotificationsSounds.none
@@ -477,14 +477,14 @@ describe('displayNotificationsSaga', () => {
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
       .call(createNotification, {
-        label: `@${bob.nickname} sent an image in #${sailingChannel.id}`,
+        label: `@${bob.nickname} sent an image in #${sailingChannel.name}`,
         body: undefined,
         channel: sailingChannel.id,
         sound: NotificationsSounds.librarianShhh
       })
       .run()
 
-    expect(notification).toBeCalledWith(`@${bob.nickname} sent an image in #${sailingChannel.id}`, {
+    expect(notification).toBeCalledWith(`@${bob.nickname} sent an image in #${sailingChannel.name}`, {
       body: undefined,
       icon: '../../build/icon.png',
       silent: true
@@ -518,14 +518,14 @@ describe('displayNotificationsSaga', () => {
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
       .call(createNotification, {
-        label: `@${bob.nickname} sends file in #${sailingChannel.id}`,
+        label: `@${bob.nickname} sends file in #${sailingChannel.name}`,
         body: undefined,
         channel: sailingChannel.id,
         sound: NotificationsSounds.librarianShhh
       })
       .run()
 
-    expect(notification).toBeCalledWith(`@${bob.nickname} sends file in #${sailingChannel.id}`, {
+    expect(notification).toBeCalledWith(`@${bob.nickname} sends file in #${sailingChannel.name}`, {
       body: undefined,
       icon: '../../build/icon.png',
       silent: true

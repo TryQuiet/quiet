@@ -36,6 +36,7 @@ export function* displayMessageNotificationSaga(
   const incomingMessages = action.payload.messages
 
   const currentchannelId = yield* select(publicChannels.selectors.currentchannelId)
+  const publicChannelsSelector = yield* select(publicChannels.selectors.publicChannels)
 
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
   const certificatesMapping = yield* select(users.selectors.certificatesMapping)
@@ -49,6 +50,7 @@ export function* displayMessageNotificationSaga(
 
   for (const message of incomingMessages) {
     const focused = yield* call(isWindowFocused)
+    const channelName = publicChannelsSelector.find((channel) => channel.id === message.channelId).name
 
     // Do not display notifications for active channel (when the app is in foreground)
     if (focused && message.channelId === currentchannelId) return
@@ -66,12 +68,12 @@ export function* displayMessageNotificationSaga(
     // Do not display when message is not verified
     if (!action.payload.isVerified) return
 
-    let label = `New message from @${sender} in #${message.channelId}`
+    let label = `New message from @${sender} in #${channelName}`
     let body = `${message.message.substring(0, 64)}${message.message.length > 64 ? '...' : ''}`
 
     // Change notification's label for the image
     if (message.type === MessageType.Image) {
-      label = `@${sender} sent an image in #${message.channelId}`
+      label = `@${sender} sent an image in #${channelName}`
       body = undefined
     }
 
@@ -79,11 +81,11 @@ export function* displayMessageNotificationSaga(
     if (message.type === MessageType.File) {
       const status = downloadStatuses[message.id]
 
-      label = `@${sender} sends file in #${message.channelId}`
+      label = `@${sender} sends file in #${channelName}`
       body = undefined
 
       if (status?.downloadState === DownloadState.Completed) {
-        label = `@${sender} sent a file in #${message.channelId}`
+        label = `@${sender} sent a file in #${channelName}`
         body = 'Download complete. Click to show file in folder.'
       }
     }
