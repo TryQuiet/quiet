@@ -77,3 +77,8 @@ buck-out/
 
 # Native
 /android/app/.cxx
+
+# Detox
+/artifacts
+/e2e/base-screenshots/*
+/e2e/storybook-base-screenshots/*
