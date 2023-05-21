@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
-import { DisplayableMessage, DownloadStatus } from '@quiet/state-manager'
+import { DisplayableMessage, DownloadStatus, FileMetadata } from '@quiet/state-manager'
 import { UseModalTypeWrapper } from '../../../../containers/hooks'
 import UploadedFileModal from './UploadedImagePreview'
 import { UploadedFilename, UploadedImagePlaceholder } from '../UploadedImagePlaceholder/UploadedImagePlaceholder'
@@ -25,7 +25,7 @@ const Root = styled('div')(() => ({
 }))
 
 export interface UploadedImageProps {
-  message: DisplayableMessage
+  media: FileMetadata
   uploadedFileModal?: ReturnType<
   UseModalTypeWrapper<{
     src: string
@@ -34,13 +34,13 @@ export interface UploadedImageProps {
   downloadStatus: DownloadStatus
 }
 
-export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedFileModal, downloadStatus }) => {
+export const UploadedImage: React.FC<UploadedImageProps> = ({ media, uploadedFileModal, downloadStatus }) => {
   const [showImage, setShowImage] = useState<boolean>(false)
+  const { cid, path, name, ext } = media
 
-  const { cid, path, name, ext } = message.media
-
-  const imageWidth = message.media?.width
-  const imageHeight = message.media?.height
+  const imageWidth = media.width
+  const imageHeight = media.height
+  if (!imageWidth || !imageHeight) return null
 
   const width = imageWidth >= 400 ? 400 : imageWidth
 
@@ -51,7 +51,7 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedF
   }, [uploadedFileModal?.open])
 
   useEffect(() => {
-    if (showImage) {
+    if (showImage && path) {
       uploadedFileModal?.handleOpen({
         src: path
       })
@@ -76,7 +76,7 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ message, uploadedF
               />
             </div>
           </div>
-          <UploadedFileModal {...uploadedFileModal} uploadedFileModal={uploadedFileModal} />
+          {uploadedFileModal && <UploadedFileModal {...uploadedFileModal} uploadedFileModal={uploadedFileModal} />}
         </>
       ) : (
         <UploadedImagePlaceholder

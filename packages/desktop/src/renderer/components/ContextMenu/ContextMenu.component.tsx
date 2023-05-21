@@ -18,7 +18,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   const ref = useRef()
 
   useEffect(() => {
-    const handleClick = event => {
+    const handleClick = (event: MouseEvent) => {
       // @ts-expect-error
       if (ref.current && !ref.current.contains(event.target)) {
         if (visible) {

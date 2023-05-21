@@ -115,7 +115,7 @@ export const dynamicSearchedChannels = (channelInput: string) =>
     (publicChannelsSelector, recentChannelsSelector) => {
       const filteredList = publicChannelsSelector.filter(channel =>
         channel.name.includes(channelInput)
-      )
+      ).filter(isDefined)
 
       const isFilteredList = filteredList.length > 0 ? filteredList : recentChannelsSelector
 

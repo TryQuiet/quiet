@@ -55,6 +55,7 @@ export interface FileContent {
   }
 
   export enum DownloadState {
+    None = '',
     Uploading = 'uploading',
     Hosted = 'hosted',
     Ready = 'ready',

@@ -35,6 +35,10 @@ const Channel = () => {
   const dispatch = useDispatch()
 
   const user = useSelector(identity.selectors.currentIdentity)
+  if (!user) {
+    console.error('No current identity')
+    return
+  }
 
   const currentChannelAddress = useSelector(publicChannels.selectors.currentChannelAddress)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
@@ -54,9 +58,13 @@ const Channel = () => {
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
   const community = useSelector(communities.selectors.currentCommunity)
+  if (!community) {
+    console.error('No current community')
+    return
+  }
 
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
-  const isCommunityInitialized = Boolean(initializedCommunities[community?.id])
+  const isCommunityInitialized = Boolean(initializedCommunities[community.id])
 
   const pendingGeneralChannelRecreationSelector = useSelector(publicChannels.selectors.pendingGeneralChannelRecreation)
   const pendingGeneralChannelRecreation = pendingGeneralChannelRecreationSelector && currentChannelAddress === 'general' && currentChannelMessagesCount === 0
@@ -73,7 +81,7 @@ const Channel = () => {
 
   const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
 
-  const filesRef = React.useRef<FilePreviewData>()
+  const filesRef = React.useRef<FilePreviewData>({})
 
   const contextMenu = useContextMenu(MenuName.Channel)
 
@@ -131,7 +139,7 @@ const Channel = () => {
     })
   }
 
-  const handleClipboardFiles = (imageBuffer, ext, name) => {
+  const handleClipboardFiles = (imageBuffer: ArrayBuffer, ext: string, name: string) => {
     let id: string
     // create id for images in clipboard with default name 'image.png'
     if (name === 'image') {

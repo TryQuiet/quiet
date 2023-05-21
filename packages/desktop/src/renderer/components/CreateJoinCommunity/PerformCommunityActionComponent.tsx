@@ -187,7 +187,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   const submitForm = (
     handleSubmit: (value: string) => void,
     values: PerformCommunityActionFormValues,
-    setFormSent
+    setFormSent: (value: boolean) => void
   ) => {
     let submitValue =
       communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()

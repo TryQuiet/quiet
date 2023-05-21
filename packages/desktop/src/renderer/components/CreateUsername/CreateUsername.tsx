@@ -39,7 +39,7 @@ const CreateUsername = () => {
     <CreateUsernameComponent
       {...createUsernameModal}
       registerUsername={handleAction}
-      certificateRegistrationError={error?.code === ErrorCodes.FORBIDDEN ? error.message : null}
+      certificateRegistrationError={error?.code === ErrorCodes.FORBIDDEN ? error.message : undefined}
       certificate={currentIdentity?.userCertificate}
     />
   )

@@ -103,7 +103,7 @@ const StyledGrid = styled(Grid)((
   }
 }))
 
-Yup.addMethod(Yup.mixed, 'validateMessage', function (checkNickname) {
+Yup.addMethod(Yup.mixed, 'validateMessage', function (checkNickname: (val: string) => Promise<boolean>) {
   return this.test(
     'test',
     'Sorry, username already taken. Please choose another',

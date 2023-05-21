@@ -19,9 +19,10 @@ import { flushSync } from 'react-dom'
 export const CreateChannel = () => {
   const dispatch = useDispatch()
 
-  const [newChannel, setNewChannel] = useState<PublicChannel>(null)
+  const [newChannel, setNewChannel] = useState<PublicChannel | null>(null)
 
   const user = useSelector(identity.selectors.currentIdentity)
+  if (!user) return null
   const community = useSelector(communities.selectors.currentCommunityId)
   const channels = useSelector(publicChannels.selectors.publicChannels)
 
@@ -31,6 +32,7 @@ export const CreateChannel = () => {
   const createChannelModal = useModal(ModalName.createChannel)
 
   useEffect(() => {
+    if (!newChannel) return
     if (
       createChannelModal.open &&
       channels.filter(channel => channel.name === newChannel?.name).length > 0

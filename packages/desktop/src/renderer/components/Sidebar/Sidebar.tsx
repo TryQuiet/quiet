@@ -16,6 +16,7 @@ const Sidebar = () => {
   const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
+  if (!currentCommunity) return null
 
   const currentChannel = useSelector(publicChannels.selectors.currentChannelAddress)
 

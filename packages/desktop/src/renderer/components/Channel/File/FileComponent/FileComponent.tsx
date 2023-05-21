@@ -134,9 +134,9 @@ export interface FileComponentProps {
 }
 
 export interface FileActionsProps {
-  openContainingFolder?: (path: string) => void
-  downloadFile?: (media: FileMetadata) => void
-  cancelDownload?: (cancelDownload: CancelDownload) => void
+  openContainingFolder: (path: string) => void
+  downloadFile: (media: FileMetadata) => void
+  cancelDownload: (cancelDownload: CancelDownload) => void
 }
 
 export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
@@ -146,6 +146,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   downloadFile,
   cancelDownload
 }) => {
+  if (!message.media) return null
   const { cid, path, name, ext } = message.media
 
   const downloadState = downloadStatus?.downloadState
@@ -176,7 +177,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               variant='determinate'
               size={18}
               thickness={4}
-              value={(downloadProgress.downloaded / downloadProgress.size) * 100}
+              value={downloadProgress?.size && (downloadProgress.downloaded / downloadProgress.size) * 100}
               style={{ color: theme.palette.colors.lightGray }}
             />
           </>
@@ -187,10 +188,12 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   }
 
   const _openContainingFolder = () => {
+    if (!path) return
     openContainingFolder(path)
   }
 
   const _downloadFile = () => {
+    if (!message.media) return
     downloadFile(message.media)
   }
 
@@ -226,7 +229,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               color: theme.palette.colors.lushSky,
               icon: folderIcon
             }}
-            action={_openContainingFolder}
+            action={(_openContainingFolder)}
           />
         )
       case DownloadState.Ready:
@@ -334,6 +337,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
         title={
           downloadState === DownloadState.Downloading &&
           downloadProgress &&
+          downloadProgress.size &&
           downloadProgress?.transferSpeed !== -1
             ? `(${Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)}%) ${formatBytes(downloadProgress.transferSpeed)}ps`
             : ''

@@ -10,6 +10,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 import { UploadFilesPreviewsProps } from './File/UploadingPreview'
+import { DownloadState } from '@quiet/types'
 
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   user: {
@@ -129,8 +130,9 @@ ImagePlaceholder.args = {
   }),
   downloadStatuses: {
     32: {
+      mid: '',
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-      downloadState: '',
+      downloadState: DownloadState.None,
       downloadProgress: undefined
     }
   }
@@ -159,8 +161,9 @@ SentImage.args = {
   }),
   downloadStatuses: {
     32: {
+      mid: '',
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-      downloadState: 'completed',
+      downloadState: DownloadState.Completed,
       downloadProgress: undefined
     }
   }
@@ -218,7 +221,7 @@ UploadingFile.args = {
       name: 'my-file-name-goes-here-an-isnt-truncated',
       width: undefined,
       height: undefined,
-      path: undefined
+      path: null
     },
     message: '',
     createdAt: 0,
@@ -228,7 +231,7 @@ UploadingFile.args = {
   downloadStatuses: {
     32: {
       cid: 'uploading_32',
-      downloadState: 'uploading',
+      downloadState: DownloadState.Uploading,
       downloadProgress: undefined
     }
   }
@@ -259,7 +262,7 @@ HostedFile.args = {
   downloadStatuses: {
     32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-      downloadState: 'hosted',
+      downloadState: DownloadState.Hosted,
       downloadProgress: undefined
     }
   }
@@ -290,7 +293,7 @@ ReadyDownload.args = {
   downloadStatuses: {
     32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-      downloadState: 'ready',
+      downloadState: DownloadState.Ready,
       downloadProgress: undefined
     }
   }
@@ -321,7 +324,7 @@ Downloading.args = {
   downloadStatuses: {
     32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-      downloadState: 'downloading',
+      downloadState: DownloadState.Downloading,
       downloadProgress: {
         size: 2048,
         downloaded: 256,
@@ -356,7 +359,7 @@ CompletedDownload.args = {
   downloadStatuses: {
     32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-      downloadState: 'completed',
+      downloadState: DownloadState.Completed,
       downloadProgress: {
         size: 2048,
         downloaded: 1024,
@@ -391,7 +394,7 @@ CancelingDownload.args = {
   downloadStatuses: {
     32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-      downloadState: 'canceling',
+      downloadState: DownloadState.Canceling,
       downloadProgress: {
         size: 2048,
         downloaded: 0,
@@ -425,8 +428,9 @@ CanceledDownload.args = {
   }),
   downloadStatuses: {
     32: {
+      mid: 'mid',
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-      downloadState: 'canceled',
+      downloadState: DownloadState.Canceled,
       downloadProgress: undefined
     }
   }
@@ -456,8 +460,9 @@ MaliciousDownload.args = {
   }),
   downloadStatuses: {
     32: {
+      mid: 'mid',
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-      downloadState: 'malicious',
+      downloadState: DownloadState.Malicious,
       downloadProgress: undefined
     }
   }
@@ -471,7 +476,7 @@ NewUserMessage.args = {
   messages: mock_messages({
     id: '32',
     type: 3,
-    media: null,
+    media: undefined,
     message: 'Hey, @the-emperor just joined!',
     createdAt: 0,
     date: '12:46',
@@ -487,7 +492,7 @@ Link.args = {
   messages: mock_messages({
     id: '32',
     type: 1,
-    media: null,
+    media: undefined,
     message: 'Hey, haye you seen this https://github.com/TryQuiet/monorepo awesome project?',
     createdAt: 0,
     date: '12:46',
@@ -505,7 +510,7 @@ MathJaxMiddle.args = {
   messages: mock_messages({
     id: '32',
     type: 1,
-    media: null,
+    media: undefined,
     message: String.raw`Check this out: $$\sum_{i=0}^n i = \frac{n(n+1)}{2}$$ This is the formula I told you about`,
     createdAt: 0,
     date: '12:46',
@@ -517,7 +522,7 @@ MathJaxPending.args = {
   messages: mock_messages({
     id: '32',
     type: 1,
-    media: null,
+    media: undefined,
     message: String.raw`Check this out: $$\sum_{i=0}^n i = \frac{n(n+1)}{2}$$ This is the formula I told you about`,
     createdAt: 0,
     date: '12:46',
@@ -535,7 +540,7 @@ MathJaxBeginning.args = {
   messages: mock_messages({
     id: '32',
     type: 1,
-    media: null,
+    media: undefined,
     message: String.raw`$$a^2 +b^2=c^2$$`,
     createdAt: 0,
     date: '12:46',

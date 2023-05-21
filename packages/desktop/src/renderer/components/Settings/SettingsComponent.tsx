@@ -76,7 +76,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   leaveCommunityModal,
   isWindows
 }) => {
-  const [contentRef, setContentRef] = React.useState(null)
+  const [contentRef, setContentRef] = React.useState<HTMLDivElement | null>(null)
 
   const scrollbarRef = React.useRef()
 
@@ -86,6 +86,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   const [currentTab, setCurrentTab] = useState(defaultCurrentTab)
 
   const adjustOffset = () => {
+    if (!contentRef?.clientWidth) return
     if (contentRef.clientWidth > 800) {
       setOffset((contentRef.clientWidth - 800) / 2)
     }

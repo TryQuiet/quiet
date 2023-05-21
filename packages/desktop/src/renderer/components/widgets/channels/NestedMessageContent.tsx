@@ -74,8 +74,8 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
               [classes.pending]: pending
             })}
             data-testid={`messagesGroupContent-${message.id}`}>
-            {fileDisplay ? (
-              <UploadedImage message={message} uploadedFileModal={uploadedFileModal} downloadStatus={downloadStatus} />
+            {fileDisplay && message.media ? (
+              <UploadedImage media={message.media} uploadedFileModal={uploadedFileModal} downloadStatus={downloadStatus} />
             ) : (
               <FileComponent message={message} downloadStatus={downloadStatus} openContainingFolder={openContainingFolder} downloadFile={downloadFile} cancelDownload={cancelDownload} />
             )}

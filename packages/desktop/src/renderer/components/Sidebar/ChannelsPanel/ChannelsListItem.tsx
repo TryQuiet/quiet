@@ -92,7 +92,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   setCurrentChannel,
   disabled = false
 }) => {
-  const ref = useRef<HTMLDivElement>()
+  const ref = useRef<HTMLDivElement>(null)
 
   return (
     <StyledListItemButton

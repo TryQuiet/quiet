@@ -122,7 +122,7 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
       )}
       <Tooltip title={`${fileData.name}${fileData.ext}`} placement='top' className={classes.tooltip}>
         <div className={classes.wrapper}>
-          { imageType ? (
+          { imageType && fileData.path ? (
             <img src={fileData.path} alt={fileData.name} className={classes.image} />
           ) : (
             <div className={classes.fileIconContainer}>

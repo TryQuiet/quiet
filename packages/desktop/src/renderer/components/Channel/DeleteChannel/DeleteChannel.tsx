@@ -9,6 +9,7 @@ export const DeleteChannel: FC = () => {
   const modal = useModal(ModalName.deleteChannel)
 
   const channel = useSelector(publicChannels.selectors.currentChannel)
+  if (!channel) return null
 
   const dispatch = useDispatch()
 

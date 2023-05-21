@@ -168,7 +168,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   const submitForm = (
     handleSubmit: (value: string) => void,
     values: CreateUserValues,
-    setFormSent
+    setFormSent: (value: boolean) => void
   ) => {
     setFormSent(true)
     handleSubmit(parseName(values.userName))
