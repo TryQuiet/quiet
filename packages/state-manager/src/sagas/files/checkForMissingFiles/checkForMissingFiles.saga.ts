@@ -1,17 +1,15 @@
 import { applyEmitParams, Socket } from '../../../types'
 import { select, apply, put } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { connectionActions } from '../../appConnection/connection.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { missingChannelFiles } from '../../messages/messages.selectors'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { filesActions } from '../files.slice'
-import { DownloadState } from '../files.types'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesSelectors } from '../files.selectors'
 import { networkActions } from '../../network/network.slice'
+import { DownloadState, SocketActionTypes } from '@quiet/types'
 
 export function* checkForMissingFilesSaga(
   socket: Socket,
@@ -19,9 +17,10 @@ export function* checkForMissingFilesSaga(
 ): Generator {
   const community = yield* select(communitiesSelectors.currentCommunity)
 
-  if (community.id !== action.payload) return
+  if (community?.id !== action.payload) return
 
   const identity = yield* select(identitySelectors.currentIdentity)
+  if (!identity) return
 
   const channels = yield* select(publicChannelsSelectors.publicChannels)
 
@@ -49,9 +48,10 @@ export function* checkForMissingFilesSaga(
         }
 
         // Do not autodownload oversized files unless started manually
+        const fileSize = file.size || 0
         if (
           fileDownloadStatus?.downloadState !== DownloadState.Downloading &&
-          file.size > AUTODOWNLOAD_SIZE_LIMIT
+          fileSize > AUTODOWNLOAD_SIZE_LIMIT
         ) { continue }
 
         // Do not autodownload if the file was reported malicious or is missing reported file size

@@ -15,7 +15,7 @@ export const allReducers = combineReducers(reducers)
 
 export const rootReducer = (state, action) => {
   if (action.type === nativeServicesActions.resetApp.type) {
-    state = resetStateAndSaveTorConnectionData(state)
+    state = resetStateAndSaveTorConnectionData()
   }
 
   return allReducers(state, action)

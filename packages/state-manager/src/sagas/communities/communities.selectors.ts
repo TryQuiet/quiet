@@ -6,6 +6,11 @@ import { invitationShareUrl } from '@quiet/common'
 import { CertFieldsTypes, getCertFieldValue, parseCertificate } from '@quiet/identity'
 import { getOldestParsedCerificate } from '../users/users.selectors'
 
+// Workaround for "The inferred type of 'communitiesSelectors' cannot be named without a reference to
+// 'packages/identity/node_modules/pkijs/build'. This is likely not portable. A type annotation is necessary."
+// https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
+import type {} from 'pkijs'
+
 const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (state: StoreState) =>
   state[StoreKeys.Communities]
 
@@ -60,7 +65,7 @@ export const invitationCode = createSelector(communitiesSlice, reducerState => {
 })
 
 export const invitationUrl = createSelector(currentCommunity, community => {
-  if (!community) return ''
+  if (!community?.registrarUrl) return ''
   let registrarUrl = ''
   try {
     const url = new URL(community.registrarUrl)
@@ -74,8 +79,8 @@ export const invitationUrl = createSelector(currentCommunity, community => {
 export const registrationAttempts = (communityId: string) =>
   createSelector(selectEntities, communities => {
     const community = communities[communityId]
-    if (!community) return null
-    return community.registrationAttempts
+    if (!community) return 0
+    return community.registrationAttempts || 0
   })
 
 export const ownerNickname = createSelector(
@@ -84,7 +89,7 @@ export const ownerNickname = createSelector(
   (community, oldestParsedCerificate) => {
     const ownerCertificate = community?.ownerCertificate || undefined
 
-    let nickname: string
+    let nickname: string | null
 
     if (ownerCertificate) {
       const certificate = ownerCertificate
@@ -92,6 +97,10 @@ export const ownerNickname = createSelector(
       nickname = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
     } else {
       nickname = getCertFieldValue(oldestParsedCerificate, CertFieldsTypes.nickName)
+    }
+
+    if (!nickname) {
+      console.error('Could not retrieve owner nickname from certificate')
     }
 
     return nickname

@@ -4,20 +4,18 @@ import { keyFromCertificate, parseCertificate, sign, loadPrivateKey } from '@qui
 import { call, select, apply, put } from 'typed-redux-saga'
 import { arrayBufferToString } from 'pvutils'
 import { config } from '../../users/const/certFieldTypes'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
-import { Identity } from '../../identity/identity.types'
-import { ChannelMessage } from '../../publicChannels/publicChannels.types'
-import { MessageType, SendingStatus } from '../messages.types'
+import { ChannelMessage, MessageType, SendingStatus, SocketActionTypes } from '@quiet/types'
 
 export function* sendMessageSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
-  const identity: Identity = yield* select(identitySelectors.currentIdentity)
+  const identity = yield* select(identitySelectors.currentIdentity)
+  if (!identity?.userCsr || !identity.userCertificate) return
 
   const certificate = identity.userCertificate
 
@@ -36,6 +34,10 @@ export function* sendMessageSaga(
   const id = action.payload.id || generatedMessageId
 
   const channelAddress = action.payload.channelAddress || currentChannel
+  if (!channelAddress) {
+    console.error(`Could not send message with id ${id}, no channel address`)
+    return
+  }
 
   const message: ChannelMessage = {
     id: id,
