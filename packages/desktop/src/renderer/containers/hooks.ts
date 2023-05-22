@@ -43,9 +43,9 @@ export enum Variant {
 export const useCyclingFocus = (
   listSize: number,
   variant: Variant,
-  initialFocus: number = null
-): [number, React.Dispatch<React.SetStateAction<number>>] => {
-  const [currentFocus, setCurrentFocus] = useState<number>(initialFocus)
+  initialFocus: number | null = null
+): [number | null, React.Dispatch<React.SetStateAction<number | null>>] => {
+  const [currentFocus, setCurrentFocus] = useState<number | null>(initialFocus)
 
   const handleDown = (evt: KeyboardEvent, focusValue: number): number => {
     evt.preventDefault()
@@ -62,8 +62,7 @@ export const useCyclingFocus = (
     evt.preventDefault()
     if (currentFocus === null) {
       focusValue = listSize - 1
-    }
-    if (currentFocus === 0) {
+    } else if (currentFocus === 0) {
       focusValue = listSize - 1
     } else {
       focusValue = currentFocus - 1
@@ -112,7 +111,7 @@ export const useCyclingFocus = (
   return [currentFocus, setCurrentFocus]
 }
 
-export const useEnterPress = (fn, args: any[]): any => {
+export const useEnterPress = (fn: () => void, args: any[]): any => {
   const handler = (evt: KeyboardEvent) => {
     evt.stopPropagation()
     evt.preventDefault()

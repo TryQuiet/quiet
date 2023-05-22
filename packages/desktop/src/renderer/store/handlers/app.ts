@@ -5,7 +5,7 @@ import { actionTypes } from '../../../shared/static'
 import { ActionsType, PayloadType } from './types'
 
 export class App {
-  version: number
+  version: number | null = null
 
   constructor(values?: Partial<App>) {
     Object.assign(this, values)

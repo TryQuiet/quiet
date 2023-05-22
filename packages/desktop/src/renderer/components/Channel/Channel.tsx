@@ -37,7 +37,7 @@ const Channel = () => {
   const user = useSelector(identity.selectors.currentIdentity)
   if (!user) {
     console.error('No current identity')
-    return
+    return null
   }
 
   const currentChannelAddress = useSelector(publicChannels.selectors.currentChannelAddress)
@@ -60,7 +60,7 @@ const Channel = () => {
   const community = useSelector(communities.selectors.currentCommunity)
   if (!community) {
     console.error('No current community')
-    return
+    return null
   }
 
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)

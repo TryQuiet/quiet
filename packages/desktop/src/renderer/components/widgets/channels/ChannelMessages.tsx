@@ -77,7 +77,7 @@ export interface IChannelMessagesProps {
   messages?: MessagesDailyGroups
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
-  scrollbarRef
+  scrollbarRef: React.RefObject<HTMLDivElement>
   onScroll: () => void
   openUrl: (url: string) => void
   uploadedFileModal?: ReturnType<
@@ -104,10 +104,11 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
   pendingGeneralChannelRecreation = false
 }) => {
   const spinnerMessage = pendingGeneralChannelRecreation ? deletingChannelMessage : fetchingChannelMessagesText
-  const listRef = useRef<HTMLUListElement>()
+  const listRef = useRef<HTMLUListElement>(null)
 
   const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(
     evt => {
+      if (!scrollbarRef.current) return
       switch (evt.key) {
         case 'ArrowUp':
         case 'ArrowDown':

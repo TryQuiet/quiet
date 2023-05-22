@@ -133,7 +133,7 @@ export interface CreateUsernameComponentProps {
   open: boolean
   registerUsername: (name: string) => void
   certificateRegistrationError?: string
-  certificate?: string
+  certificate?: string | null
   handleClose: () => void
 }
 

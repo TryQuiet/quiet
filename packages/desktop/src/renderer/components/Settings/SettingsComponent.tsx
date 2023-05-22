@@ -78,7 +78,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
 }) => {
   const [contentRef, setContentRef] = React.useState<HTMLDivElement | null>(null)
 
-  const scrollbarRef = React.useRef()
+  const scrollbarRef = React.useRef(null)
 
   const [offset, setOffset] = React.useState(0)
 

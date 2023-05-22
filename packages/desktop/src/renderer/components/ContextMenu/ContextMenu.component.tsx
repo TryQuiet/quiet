@@ -15,11 +15,10 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   items,
   hint,
 }) => {
-  const ref = useRef()
+  const ref = useRef(null)
 
   useEffect(() => {
     const handleClick = (event: MouseEvent) => {
-      // @ts-expect-error
       if (ref.current && !ref.current.contains(event.target)) {
         if (visible) {
           handleClose()

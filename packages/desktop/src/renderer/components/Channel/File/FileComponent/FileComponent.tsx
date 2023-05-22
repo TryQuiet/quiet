@@ -134,9 +134,9 @@ export interface FileComponentProps {
 }
 
 export interface FileActionsProps {
-  openContainingFolder: (path: string) => void
-  downloadFile: (media: FileMetadata) => void
-  cancelDownload: (cancelDownload: CancelDownload) => void
+  openContainingFolder?: (path: string) => void
+  downloadFile?: (media: FileMetadata) => void
+  cancelDownload?: (cancelDownload: CancelDownload) => void
 }
 
 export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
@@ -189,16 +189,16 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
 
   const _openContainingFolder = () => {
     if (!path) return
-    openContainingFolder(path)
+    openContainingFolder && openContainingFolder(path)
   }
 
   const _downloadFile = () => {
     if (!message.media) return
-    downloadFile(message.media)
+    downloadFile && downloadFile(message.media)
   }
 
   const _cancelDownload = () => {
-    cancelDownload({
+    cancelDownload && cancelDownload({
       mid: message.id,
       cid: cid
     })

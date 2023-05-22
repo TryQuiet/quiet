@@ -61,7 +61,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   cancelDownload
 }) => {
   const renderMessage = () => {
-    const isMalicious = downloadStatus?.downloadState === DownloadState?.Malicious
+    const isMalicious = downloadStatus?.downloadState === DownloadState.Malicious
 
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
@@ -74,7 +74,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
               [classes.pending]: pending
             })}
             data-testid={`messagesGroupContent-${message.id}`}>
-            {fileDisplay && message.media ? (
+            {fileDisplay && message.media && downloadStatus ? ( // TODO: check
               <UploadedImage media={message.media} uploadedFileModal={uploadedFileModal} downloadStatus={downloadStatus} />
             ) : (
               <FileComponent message={message} downloadStatus={downloadStatus} openContainingFolder={openContainingFolder} downloadFile={downloadFile} cancelDownload={cancelDownload} />

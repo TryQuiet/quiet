@@ -44,7 +44,7 @@ describe('UploadedFile', () => {
 
   it('renders a placeholder if image is not finished downloading yet', () => {
     const result = renderComponent(
-      <UploadedImage message={message} downloadStatus={downloadStatus} />
+      <UploadedImage media={message.media} downloadStatus={downloadStatus} />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -115,7 +115,7 @@ describe('UploadedFile', () => {
       channelAddress: 'general'
     }
     const result = renderComponent(
-      <UploadedImage message={message} downloadStatus={downloadStatus} />
+      <UploadedImage media={message.media} downloadStatus={downloadStatus} />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

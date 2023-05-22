@@ -126,14 +126,13 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   openContextMenu,
   enableContextMenu
 }) => {
-  const debounce = (fn, ms: number) => {
+  const debounce = (fn: () => void, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
     return (_: any) => {
       if (timer) {
         clearTimeout(timer)
       }
-      // @ts-ignore
-      timer = setTimeout(_ => {
+      timer = setTimeout(() => {
         timer = null
         fn.apply(this)
       }, ms)
