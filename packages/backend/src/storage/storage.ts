@@ -252,7 +252,7 @@ export class Storage extends EventEmitter {
   private async migrateChannelsDb() {
     // if owner migrateChannelsDb
     // do it only once
-      // if new channel db has general return and do nothing
+    // if new channel db has general return and do nothing
   }
 
   private async createDbForChannels() {
@@ -269,15 +269,29 @@ export class Storage extends EventEmitter {
     })
 
     this.channels.events.on('replicated', async () => {
+
       log('REPLICATED: Channels')
       this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_REPLICATED)
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
-      this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
-        channels: this.channels.all as unknown as { [key: string]: PublicChannel }
+
+      const channels = Object.values(this.channels.all).map(channel => {
+        return this.transformChannel(channel)
       })
 
-      Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
+      const keyValueChannels: {
+        [key: string]: PublicChannel,
+      } = {}
+
+      channels.forEach(channel => {
+        keyValueChannels[channel.id] = channel
+      })
+
+      this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
+        channels: keyValueChannels
+      })
+
+      channels.forEach(async (channel: PublicChannel) => {
         await this.subscribeToChannel(channel)
       })
     })
@@ -287,6 +301,7 @@ export class Storage extends EventEmitter {
     log('ALL CHANNELS COUNT:', Object.keys(this.channels.all).length)
     log('ALL CHANNELS COUNT:', Object.keys(this.channels.all))
     Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
+      channel = this.transformChannel(channel)
       await this.subscribeToChannel(channel)
     })
     log('STORAGE: Finished createDbForChannels')
@@ -477,6 +492,20 @@ export class Storage extends EventEmitter {
     return messages
   }
 
+  public transformChannel(channel: PublicChannel) {
+    // @ts-ignore
+    if (channel.address) {
+      console.log('channel before transformation ', channel)
+      // @ts-ignore
+      channel.id = channel.address
+      // @ts-ignore
+      delete channel.address
+      console.log('transformed channel to new format ', channel)
+      return channel
+    }
+    return channel
+  }
+
   public async askForMessages(channelId: string, ids: string[]) {
     const repo = this.publicChannelsRepos.get(channelId)
     if (!repo) return
@@ -532,9 +561,9 @@ export class Storage extends EventEmitter {
     return db
   }
 
-  public async deleteChannel(payload: {channelId: string}) {
-   const channelId = payload.channelId
-   log('deleteChannel:channelId', channelId)
+  public async deleteChannel(payload: { channelId: string }) {
+    const channelId = payload.channelId
+    log('deleteChannel:channelId', channelId)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
     const channel = this.channels.get(channelId)
