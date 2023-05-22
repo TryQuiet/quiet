@@ -8,6 +8,7 @@ import {
   verifyUserCert
 } from '@quiet/identity'
 import type { IPFS, create as createType } from 'ipfs-core'
+import { create } from 'ipfs-core'
 import type { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
@@ -32,7 +33,6 @@ import { stringToArrayBuffer } from 'pvutils'
 import { StorageEvents } from './types'
 
 import { IpfsFilesManager, IpfsFilesManagerEvents } from './ipfsFileManager'
-import { create } from 'ipfs-core'
 
 import { CID } from 'multiformats/cid'
 import { ChannelMessage, ConnectionProcessInfo, FileMetadata, NoCryptoEngineError, PublicChannel, PushNotificationPayload, SaveCertificatePayload, SocketActionTypes, User } from '@quiet/types'
@@ -249,6 +249,12 @@ export class Storage extends EventEmitter {
     })
   }
 
+  private async migrateChannelsDb() {
+    // if owner migrateChannelsDb
+    // do it only once
+      // if new channel db has general return and do nothing
+  }
+
   private async createDbForChannels() {
     log('createDbForChannels init')
     this.channels = await this.orbitdb.keyvalue<PublicChannel>('public-channels', {
@@ -355,6 +361,11 @@ export class Storage extends EventEmitter {
 
   public async subscribeToChannel(channelData: PublicChannel): Promise<void> {
     let db: EventStore<ChannelMessage>
+    // @ts-ignore
+    if (channelData.address) {
+      // @ts-ignore
+      channelData.id = channelData.address
+    }
     let repo = this.publicChannelsRepos.get(channelData.id)
     if (repo) {
       db = repo.db
@@ -387,12 +398,14 @@ export class Storage extends EventEmitter {
 
       db.events.on('replicate.progress', async (address, _hash, entry, progress, total) => {
         log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
-        const message = entry.payload.value
+        const messages = this.transformMessages([entry.payload.value])
 
-        const verified = await this.verifyMessage(message)
+        const verified = await this.verifyMessage(messages[0])
+
+        const message = messages[0]
 
         this.emit(StorageEvents.LOAD_MESSAGES, {
-          messages: [entry.payload.value],
+          messages: [message],
           isVerified: verified
         })
 
@@ -401,6 +414,7 @@ export class Storage extends EventEmitter {
           if (!verified) return
 
           // Do not notify about old messages
+          // @ts-ignore
           if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME || '')) return
 
           const username = this.getUserNameFromCert(message.pubKey)
@@ -444,14 +458,34 @@ export class Storage extends EventEmitter {
     })
   }
 
+  public transformMessages(msgs: ChannelMessage[]) {
+    console.log('---------------- TRANSFORMING MESSAGES ----------------------')
+    const messages = msgs.map((msg) => {
+      console.log('processing message ', msg.id)
+      // @ts-ignore
+      if (msg.channelAddress) {
+        console.log('message before transformation ', msg)
+        // @ts-ignore
+        msg.channelId = msg.channelAddress
+        // @ts-ignore
+        delete msg.channelAddress
+        console.log('transformed message to new format ', msg)
+        return msg
+      }
+      return msg
+    })
+    return messages
+  }
+
   public async askForMessages(channelId: string, ids: string[]) {
     const repo = this.publicChannelsRepos.get(channelId)
     if (!repo) return
     const messages = this.getAllEventLogEntries<ChannelMessage>(repo.db)
-    const filteredMessages: ChannelMessage[] = []
+    let filteredMessages: ChannelMessage[] = []
     for (const id of ids) {
       filteredMessages.push(...messages.filter(i => i.id === id))
     }
+    filteredMessages = this.transformMessages(filteredMessages)
     this.emit(StorageEvents.LOAD_MESSAGES, {
       messages: filteredMessages,
       isVerified: true
@@ -460,14 +494,18 @@ export class Storage extends EventEmitter {
   }
 
   private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
+    console.log('creating channel')
     if (!validate.isChannel(data)) {
       log.error('STORAGE: Invalid channel format')
       throw new Error('Create channel validation error')
     }
     log(`Creating channel ${data.id}`)
 
+    // @ts-ignore
+    const channelId = data.id || data.address
+
     const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(
-      `channels.${data.id}`,
+      `channels.${channelId}`,
       {
         accessController: {
           type: 'messagesaccess',
@@ -476,9 +514,9 @@ export class Storage extends EventEmitter {
       }
     )
 
-    const channel = this.channels.get(data.id)
+    const channel = this.channels.get(channelId)
     if (channel === undefined) {
-      await this.channels.put(data.id, {
+      await this.channels.put(channelId, {
         ...data
       })
       this.emit(StorageEvents.CREATED_CHANNEL, {
@@ -486,11 +524,11 @@ export class Storage extends EventEmitter {
       })
     }
 
-    this.publicChannelsRepos.set(data.id, { db, eventsAttached: false })
-    log(`Set ${data.id} to local channels`)
+    this.publicChannelsRepos.set(channelId, { db, eventsAttached: false })
+    log(`Set ${channelId} to local channels`)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await db.load({ fetchEntryTimeout: 2000 })
-    log(`Created channel ${data.id}`)
+    log(`Created channel ${channelId}`)
     return db
   }
 
