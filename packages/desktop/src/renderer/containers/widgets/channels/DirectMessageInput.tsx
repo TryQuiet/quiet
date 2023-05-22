@@ -27,7 +27,7 @@ export const useDirectMessageInputActions = () => {
 }
 
 export const ChannelInput = () => {
-  const [infoClass, setInfoClass] = React.useState<string>(null)
+  const [infoClass, setInfoClass] = React.useState<string>('')
 
   const { onChange, onEnter, resetDebounce } = useDirectMessageInputActions()
 
@@ -52,6 +52,7 @@ export const ChannelInput = () => {
       setInfoClass={setInfoClass}
       openFilesDialog={() => {}}
       handleOpenFiles={() => {}}
+      handleClipboardFiles={() => {}}
     />
   )
 }

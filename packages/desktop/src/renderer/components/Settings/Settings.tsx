@@ -7,7 +7,6 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import { communities } from '@quiet/state-manager'
 
 import { About } from '../widgets/Settings/About'
-import { AccountSettings } from './Tabs/AccountSettings/AccountSettings'
 import { Notifications } from './Tabs/Notifications/Notifications'
 import { Invite } from './Tabs/Invite/Invite'
 import { QRCode } from './Tabs/QRCode/QRCode'
@@ -23,7 +22,6 @@ const Settings = () => {
 
   const tabs = {
     about: About,
-    account: AccountSettings,
     notifications: Notifications,
     invite: Invite,
     qrcode: QRCode

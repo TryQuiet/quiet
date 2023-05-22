@@ -57,7 +57,7 @@ export interface ChannelComponentProps {
   openFilesDialog: () => void
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
-  handleClipboardFiles?: (arg: ArrayBuffer, ext: string, name: string) => void
+  handleClipboardFiles: (arg: ArrayBuffer, ext: string, name: string) => void
   uploadedFileModal?: ReturnType<
     UseModalTypeWrapper<{
       src: string
