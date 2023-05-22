@@ -1,5 +1,5 @@
 export interface FileContent {
-    path: string
+    path: string | null // Should it be nullable?
     name: string
     ext: string
   }

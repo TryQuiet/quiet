@@ -1,17 +1,17 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, Community, ChannelMessage, MessageType } from '../../..'
+import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { communitiesActions } from '../../communities/communities.slice'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
-import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { markUnreadChannelsSaga } from './markUnreadChannels.saga'
 import { messagesActions } from '../../messages/messages.slice'
+import { ChannelMessage, Community, Identity, MessageType } from '@quiet/types'
 
 describe('markUnreadChannelsSaga', () => {
   let store: Store
@@ -19,7 +19,6 @@ describe('markUnreadChannelsSaga', () => {
 
   let community: Community
   let alice: Identity
-  let bob: Identity
 
   beforeAll(async () => {
     setupCrypto()

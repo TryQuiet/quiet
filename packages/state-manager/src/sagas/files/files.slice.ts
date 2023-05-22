@@ -1,8 +1,8 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
-import { CommunityId } from '../appConnection/connection.types'
 import { StoreKeys } from '../store.keys'
 import { downloadStatusAdapter } from './files.adapter'
-import { CancelDownload, DeleteFilesFromChannelPayload, DownloadStatus, FileContent, FileMetadata, RemoveDownloadStatus } from './files.types'
+import {DeleteFilesFromChannelPayload} from './files.types'
+import { CancelDownload, CommunityId, DownloadStatus, FileContent, FileMetadata, RemoveDownloadStatus } from '@quiet/types'
 
 export class FilesState {
   public downloadStatus: EntityState<DownloadStatus> = downloadStatusAdapter.getInitialState()

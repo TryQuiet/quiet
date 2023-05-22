@@ -31,7 +31,7 @@ storiesOf('Input', module)
       }
     />
   ))
-  .add('Hint & validation', () => (
+  .add('HintValidation', () => (
     <Input
       label={'Choose your favorite username'}
       placeholder={'Enter a username'}

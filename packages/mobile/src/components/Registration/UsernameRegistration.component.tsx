@@ -72,7 +72,8 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
         paddingLeft: 20,
         paddingRight: 20,
         backgroundColor: defaultTheme.palette.background.white
-      }}>
+      }}
+      testID={'username-registration-component'}>
       <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
         {'Register a username'}
       </Typography>

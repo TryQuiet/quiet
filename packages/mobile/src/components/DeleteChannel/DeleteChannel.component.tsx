@@ -33,7 +33,9 @@ export const DeleteChannel: FC<DeleteChannelProps> = ({
   }, [name])
 
   return (
-    <View style={{ flex: 1, backgroundColor: defaultPalette.background.white }}>
+    <View
+      style={{ flex: 1, backgroundColor: defaultPalette.background.white }}
+      testID={'delete-channel-component'}>
       <Appbar title={'Delete channel'} back={goBack} />
       <View
         style={{

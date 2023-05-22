@@ -6,10 +6,9 @@ import { getFactory } from '../../../utils/tests/factories'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../reducers'
 import { communitiesActions } from '../../communities/communities.slice'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identityActions } from '../identity.slice'
-import { CertData, RegisterCertificatePayload, UserCsr } from '../identity.types'
 import { registerCertificateSaga } from './registerCertificate.saga'
+import { CertData, RegisterCertificatePayload, SocketActionTypes, UserCsr } from '@quiet/types'
 
 describe('registerCertificateSaga', () => {
   it('request certificate registration when user is community owner', async () => {
@@ -28,13 +27,13 @@ describe('registerCertificateSaga', () => {
     >('Identity', {
       id: community.id
     })
-
+    expect(identity.userCsr).not.toBeNull()
     const registerCertificatePayload: RegisterCertificatePayload = {
       communityId: community.id,
       nickname: identity.nickname,
+      // @ts-expect-error
       userCsr: identity.userCsr
     }
-
     const reducer = combineReducers(reducers)
     await expectSaga(
       registerCertificateSaga,
@@ -49,8 +48,8 @@ describe('registerCertificateSaga', () => {
           communityId: community.id,
           userCsr: identity.userCsr,
           permsData: {
-            certificate: community.CA.rootCertString,
-            privKey: community.CA.rootKeyString
+            certificate: community.CA?.rootCertString,
+            privKey: community.CA?.rootKeyString
           }
         }
       ])

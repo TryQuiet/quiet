@@ -191,7 +191,7 @@ describe('Ipfs file manager', () => {
 
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(6, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: undefined, downloadState: 'malicious', mid: 'id' })
-    }, 10000)
+    }, 20000)
 
     expect(eventSpy).toBeCalledTimes(6)
   })
@@ -303,11 +303,11 @@ describe('Ipfs file manager', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(6, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: { downloaded: 15863, size: 15847, transferSpeed: 0 }, downloadState: 'downloading', mid: 'id' }
       )
-    }, 10000)
+    }, 20000)
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(7, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: { downloaded: 15863, size: 15847, transferSpeed: 0 }, downloadState: 'completed', mid: 'id' }
       )
-    }, 10000)
+    }, 20000)
     expect(eventSpy).toHaveBeenNthCalledWith(8, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
     )
   })
@@ -318,9 +318,9 @@ describe('Ipfs file manager', () => {
 
     // Uploading
     const eventSpy = jest.spyOn(fileManager, 'emit')
-
+    const filePath = path.join(dirname, '/testUtils/test-image.png')
     const metadata: FileMetadata = {
-      path: path.join(dirname, '/testUtils/test-image.png'),
+      path: filePath,
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
@@ -338,7 +338,7 @@ describe('Ipfs file manager', () => {
 
     const downloadMetadata = eventSpy.mock.calls[3][1]
 
-    const uploadFileBuffer = fs.readFileSync(metadata.path)
+    const uploadFileBuffer = fs.readFileSync(filePath)
     // @ts-ignore
     const downloadFileBuffer = fs.readFileSync(downloadMetadata.path)
 

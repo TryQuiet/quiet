@@ -1,21 +1,21 @@
 import { Socket as IOSocket } from 'socket.io-client'
 import { DefaultEventsMap } from 'socket.io-client/build/typed-events'
-import { InitCommunityPayload, LaunchRegistrarPayload } from './sagas/communities/communities.types'
+import { messagesActions } from './sagas/messages/messages.slice'
+import { publicChannelsActions } from './sagas/publicChannels/publicChannels.slice'
 import {
   CancelDownloadPayload,
-  DeleteFilesFromChannelSocketPayload,
+  Community,
   DownloadFilePayload,
-  UploadFilePayload
-} from './sagas/files/files.types'
-import {
+  InitCommunityPayload,
+  LaunchRegistrarPayload,
   RegisterOwnerCertificatePayload,
   RegisterUserCertificatePayload,
-  SaveOwnerCertificatePayload
-} from './sagas/identity/identity.types'
-import { messagesActions } from './sagas/messages/messages.slice'
-import { SendMessagePayload } from './sagas/messages/messages.types'
-import { publicChannelsActions } from './sagas/publicChannels/publicChannels.slice'
-import { SocketActionTypes } from './sagas/socket/const/actionTypes'
+  SaveOwnerCertificatePayload,
+  SendMessagePayload,
+  SocketActionTypes,
+  UploadFilePayload
+} from '@quiet/types'
+import { DeleteFilesFromChannelSocketPayload } from './sagas/files/files.types'
 
 type EmitEvent<Payload> = (payload: Payload) => void
 
@@ -42,6 +42,8 @@ export interface EmitEvents {
 
   [SocketActionTypes.DELETE_FILES_FROM_CHANNEL]: EmitEvent<DeleteFilesFromChannelSocketPayload>
   [SocketActionTypes.CLOSE]: () => void
+  [SocketActionTypes.LEAVE_COMMUNITY]: () => void
+  [SocketActionTypes.CREATE_NETWORK]: EmitEvent<Community>
 }
 
 export type Socket = IOSocket<DefaultEventsMap, EmitEvents>

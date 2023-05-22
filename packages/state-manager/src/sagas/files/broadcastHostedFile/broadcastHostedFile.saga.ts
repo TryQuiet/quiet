@@ -4,15 +4,15 @@ import { applyEmitParams, Socket } from '../../../types'
 import { select, apply } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesSelectors } from '../../messages/messages.selectors'
-import { instanceOfChannelMessage } from '../../publicChannels/publicChannels.types'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { filesActions } from '../files.slice'
+import { instanceOfChannelMessage, SocketActionTypes } from '@quiet/types'
 
 export function* broadcastHostedFileSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof filesActions.broadcastHostedFile>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
+  if (!identity) return
 
   const channelMessages = yield* select(
     messagesSelectors.publicChannelMessagesEntities(action.payload.message.channelAddress)

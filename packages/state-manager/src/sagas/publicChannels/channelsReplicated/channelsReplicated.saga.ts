@@ -2,11 +2,11 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put } from 'typed-redux-saga'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { publicChannelsActions } from '../publicChannels.slice'
-import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 
 import logger from '@quiet/logger'
+import { isDefined } from '@quiet/common'
 const log = logger('channels')
 
 export function* channelsReplicatedSaga(
@@ -17,7 +17,7 @@ export function* channelsReplicatedSaga(
   const _locallyStoredChannels = yield* select(publicChannelsSelectors.publicChannels)
   const locallyStoredChannels = _locallyStoredChannels.map(channel => channel.address)
 
-  const databaseStoredChannels = Object.values(action.payload.channels)
+  const databaseStoredChannels = Object.values(action.payload.channels).filter(isDefined)
   const databaseStoredChannelsAddresses = databaseStoredChannels.map(channel => channel.address)
   console.log({ locallyStoredChannels, databaseStoredChannelsAddresses })
   // Upserting channels to local storage

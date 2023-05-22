@@ -1,21 +1,19 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory, PublicChannel, SocketActionTypes } from '../../..'
+import { getFactory } from '../../..'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from '../publicChannels.slice'
-import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
-import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { messagesActions } from '../../messages/messages.slice'
 import { deleteChannelSaga } from './deleteChannel.saga'
 import { Socket } from 'socket.io-client'
 import { filesActions } from '../../files/files.slice'
+import { Community, Identity, PublicChannel, SocketActionTypes } from '@quiet/types'
 
 describe('deleteChannelSaga', () => {
   let store: Store
@@ -24,7 +22,6 @@ describe('deleteChannelSaga', () => {
   let community: Community
   let owner: Identity
 
-  let generalChannel: PublicChannel
   let photoChannel: PublicChannel
 
   const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
@@ -43,8 +40,6 @@ describe('deleteChannelSaga', () => {
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
-
-    generalChannel = publicChannelsSelectors.currentChannel(store.getState())
 
     photoChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(

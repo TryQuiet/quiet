@@ -1,9 +1,8 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
-import { Certificate } from 'pkijs'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
-import { SendCertificatesResponse } from './users.types'
+import { SendCertificatesResponse } from '@quiet/types'
 
 export class UsersState {
   public certificates: EntityState<any> =

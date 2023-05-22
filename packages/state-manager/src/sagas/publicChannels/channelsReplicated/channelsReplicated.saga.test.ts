@@ -1,19 +1,19 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory, messages, PublicChannel, publicChannels } from '../../..'
+import { getFactory, messages, publicChannels } from '../../..'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from './../publicChannels.slice'
-import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { channelsReplicatedSaga } from './channelsReplicated.saga'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
+import { Community, Identity, PublicChannel } from '@quiet/types'
 
 describe('channelsReplicatedSaga', () => {
   let store: Store
@@ -22,7 +22,8 @@ describe('channelsReplicatedSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: PublicChannel
+  let generalChannel: PublicChannel | undefined
+  let generalChannelAddress: string
   let sailingChannel: PublicChannel
   let photoChannel: PublicChannel
 
@@ -42,6 +43,8 @@ describe('channelsReplicatedSaga', () => {
     )
 
     generalChannel = publicChannelsSelectors.currentChannel(store.getState())
+    expect(generalChannel).not.toBeUndefined()
+    generalChannelAddress = generalChannel?.address || ''
 
     sailingChannel = (
       await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel', {
@@ -96,7 +99,7 @@ describe('channelsReplicatedSaga', () => {
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
         channels: {
-          [generalChannel.address]: generalChannel,
+          [generalChannelAddress]: generalChannel,
           [sailingChannel.address]: sailingChannel
         }
       })
@@ -105,6 +108,7 @@ describe('channelsReplicatedSaga', () => {
       .withState(store.getState())
       .not.put(
         publicChannelsActions.addChannel({
+          // @ts-expect-error
           channel: generalChannel
         })
       )
@@ -147,7 +151,7 @@ describe('channelsReplicatedSaga', () => {
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
         channels: {
-          [generalChannel.address]: generalChannel,
+          [generalChannelAddress]: generalChannel,
           [sailingChannel.address]: sailingChannel
         }
       })
@@ -166,12 +170,13 @@ describe('channelsReplicatedSaga', () => {
       )
       .not.put(
         publicChannelsActions.addChannel({
+          // @ts-expect-error
           channel: generalChannel
         })
       )
       .not.put(
         messagesActions.addPublicChannelsMessagesBase({
-          channelAddress: generalChannel.address
+          channelAddress: generalChannelAddress
         })
       )
       .run()
@@ -187,7 +192,7 @@ describe('channelsReplicatedSaga', () => {
     store.dispatch(
       publicChannels.actions.cacheMessages({
         messages: [],
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       })
     )
 
@@ -196,7 +201,7 @@ describe('channelsReplicatedSaga', () => {
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
         channels: {
-          [generalChannel.address]: generalChannel,
+          [generalChannelAddress]: generalChannel,
           [sailingChannel.address]: sailingChannel
         }
       })
@@ -219,7 +224,7 @@ describe('channelsReplicatedSaga', () => {
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
         channels: {
-          [generalChannel.address]: generalChannel,
+          [generalChannelAddress]: generalChannel,
           [sailingChannel.address]: sailingChannel
         }
       })
@@ -238,7 +243,7 @@ describe('channelsReplicatedSaga', () => {
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
         channels: {
-          [generalChannel.address]: generalChannel,
+          [generalChannelAddress]: generalChannel,
           [sailingChannel.address]: sailingChannel
         }
       })

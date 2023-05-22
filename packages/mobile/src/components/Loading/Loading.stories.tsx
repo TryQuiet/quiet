@@ -32,13 +32,13 @@ storiesOf('Loading', module)
       ]}
     />
   ))
-  .add('< 0', () => (
+  .add('0', () => (
     <Loading
       progress={0}
       description={'Downloading tools to protect your privacy'}
     />
   ))
-  .add('> 99', () => (
+  .add('99', () => (
     <Loading
       progress={1}
       description={'Downloading tools to protect your privacy'}

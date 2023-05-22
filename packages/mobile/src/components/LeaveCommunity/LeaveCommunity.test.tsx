@@ -17,6 +17,7 @@ describe('LeaveCommunity component', () => {
             "flex": 1,
           }
         }
+        testID="leave-community-component"
       >
         <View
           style={

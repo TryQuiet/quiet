@@ -210,7 +210,7 @@ export class ConnectionsManager extends EventEmitter {
 
   public async launchCommunityFromStorage () {
     log('launchCommunityFromStorage')
-    const community = await this.localStorage.get(LocalDBKeys.COMMUNITY)
+    const community: InitCommunityPayload = await this.localStorage.get(LocalDBKeys.COMMUNITY)
     if (community) {
       const sortedPeers = await this.localStorage.getSortedPeers(community.peers)
       if (sortedPeers.length > 0) {
@@ -220,7 +220,7 @@ export class ConnectionsManager extends EventEmitter {
       if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
       this.communityState = ServiceState.LAUNCHING
     }
-    const registrarData = await this.localStorage.get(LocalDBKeys.REGISTRAR)
+    const registrarData: LaunchRegistrarPayload = await this.localStorage.get(LocalDBKeys.REGISTRAR)
     if (registrarData) {
       if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
       this.registrarState = ServiceState.LAUNCHING
@@ -365,7 +365,7 @@ export class ConnectionsManager extends EventEmitter {
 
   public async launchCommunity(payload: InitCommunityPayload) {
     this.communityState = ServiceState.LAUNCHING
-    const communityData = await this.localStorage.get(LocalDBKeys.COMMUNITY)
+    const communityData: InitCommunityPayload = await this.localStorage.get(LocalDBKeys.COMMUNITY)
     if (!communityData) {
       await this.localStorage.put(LocalDBKeys.COMMUNITY, payload)
     }

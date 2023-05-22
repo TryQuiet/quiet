@@ -2,7 +2,7 @@ import { Dictionary } from '@reduxjs/toolkit'
 import { ChannelMessage } from '../publicChannels/publicChannels.types'
 
 export interface FileContent {
-  path: string
+  path: string | null
   name: string
   ext: string
 }
