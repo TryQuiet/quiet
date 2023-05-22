@@ -4,12 +4,9 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { getFactory } from '../../../utils/tests/factories'
 import { prepareStore } from '../../..//utils/tests/prepareStore'
 import { combineReducers, Store } from 'redux'
-import { Community, communitiesActions } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
-import { MessageType } from '../messages.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { ChannelMessage, PublicChannel } from '../../publicChannels/publicChannels.types'
 import {
   publicChannelsSelectors,
   selectGeneralChannel
@@ -18,7 +15,14 @@ import { DateTime } from 'luxon'
 import { incomingMessagesSaga } from './incomingMessages.saga'
 import { messagesActions } from '../messages.slice'
 import { reducers } from '../../reducers'
-import { FileMetadata } from '../../files/files.types'
+import {
+  ChannelMessage,
+  Community,
+  FileMetadata,
+  Identity,
+  MessageType,
+  PublicChannel
+} from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 
 describe('incomingMessagesSaga', () => {
@@ -40,7 +44,7 @@ describe('incomingMessagesSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -48,7 +52,9 @@ describe('incomingMessagesSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = selectGeneralChannel(store.getState())
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
 
     sailingChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
@@ -205,31 +211,43 @@ describe('incomingMessagesSaga', () => {
 
   test("update message after uploading it's media", async () => {
     const id = Math.random().toString(36).substr(2.9)
-
+    const media = {
+      cid: 'uploading',
+      path: 'path/to/image.png',
+      name: 'image',
+      ext: 'png',
+      message: {
+        id: id,
+        channelId: generalChannel.id
+      }
+    }
     const message = (
-      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
-        identity: alice,
-        message: {
-          id: id,
-          type: MessageType.Basic,
-          message: 'message',
-          createdAt: DateTime.utc().valueOf(),
-          channelId: generalChannel.id,
-          media: {
-            cid: 'uploading',
-            path: 'path/to/image.png',
-            name: 'image',
-            ext: 'png',
-            message: {
-              id: id,
-              channelId: generalChannel.id
-            }
+      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
+        'Message',
+        {
+          identity: alice,
+          message: {
+            id: id,
+            type: MessageType.Basic,
+            message: 'message',
+            createdAt: DateTime.utc().valueOf(),
+            channelId: generalChannel.id,
+            media: {
+              cid: 'uploading',
+              path: 'path/to/image.png',
+              name: 'image',
+              ext: 'png',
+              message: {
+                id: id,
+                channelId: generalChannel.id
+              }
+            },
+            signature: '',
+            pubKey: ''
           },
-          signature: '',
-          pubKey: ''
-        },
-        verifyAutomatically: true
-      })
+          verifyAutomatically: true
+        }
+      )
     ).message
 
     // Set 'general' as active channel
@@ -251,28 +269,32 @@ describe('incomingMessagesSaga', () => {
     await expectSaga(
       incomingMessagesSaga,
       messagesActions.incomingMessages({
-        messages: [{
-          ...message,
-          media: {
-            ...message.media,
-            cid: 'cid',
-            path: null
+        messages: [
+          {
+            ...message,
+            media: {
+              ...media,
+              cid: 'cid',
+              path: null
+            }
           }
-        }]
+        ]
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .put(
         publicChannelsActions.cacheMessages({
-          messages: [{
-            ...message,
-            media: {
-              ...message.media,
-              cid: 'cid',
-              path: 'path/to/image.png'
+          messages: [
+            {
+              ...message,
+              media: {
+                ...media,
+                cid: 'cid',
+                path: 'path/to/image.png'
+              }
             }
-          }],
+          ],
           channelId: message.channelId
         })
       )
@@ -446,7 +468,7 @@ describe('incomingMessagesSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .not.put(publicChannelsActions.cacheMessages())
+      .not.put(publicChannelsActions.cacheMessages({ messages, channelId: barbequeChannel.id }))
       .run()
 
     // Verify cached messages hasn't changed

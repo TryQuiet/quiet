@@ -3,13 +3,14 @@ import { put, select } from 'typed-redux-saga'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
-import { WriteMessagePayload, MessageType } from '../messages.types'
+import { MessageType, WriteMessagePayload } from '@quiet/types'
 
 export function* sendDeletionMessageSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.sendDeletionMessage>['payload']>
 ): Generator {
   const { channelId } = action.payload
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
+  if (!generalChannel) return
 
   const isGeneral = channelId === generalChannel.id
 

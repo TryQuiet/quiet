@@ -1,19 +1,19 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, Community, ChannelMessage, MessageType, PublicChannel } from '../../..'
+import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { communitiesActions } from '../../communities/communities.slice'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
-import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { updateNewestMessageSaga } from './updateNewestMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { generateChannelId } from '@quiet/common'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
+import { ChannelMessage, Community, Identity, MessageType, PublicChannel } from '@quiet/types'
 
 describe('markUnreadChannelsSaga', () => {
   let store: Store
@@ -24,7 +24,7 @@ describe('markUnreadChannelsSaga', () => {
 
   let generalChannel: PublicChannel
 
-  let channelAdresses: string[] = []
+  let channelIds: string[] = []
 
   beforeAll(async () => {
     setupCrypto()
@@ -41,8 +41,10 @@ describe('markUnreadChannelsSaga', () => {
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
-    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
-    channelAdresses = [...channelAdresses, generalChannel.id]
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
+    channelIds = [...channelIds, generalChannel.id]
     const channelNames = ['memes', 'pets', 'travels']
 
     // Automatically create channels
@@ -58,12 +60,12 @@ describe('markUnreadChannelsSaga', () => {
           id: generateChannelId(name)
         }
       })
-      channelAdresses = [...channelAdresses, channel.channel.id]
+      channelIds = [...channelIds, channel.channel.id]
     }
   })
 
   test('Update newest message if there is no newest message', async () => {
-    const messagesides = channelAdresses
+    const messagesides = channelIds
     const messages: ChannelMessage[] = []
 
     // Automatically create messages

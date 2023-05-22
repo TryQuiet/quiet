@@ -32,13 +32,13 @@ export const joinedCommunities = createSelector(
   selectEntities,
   (communities, identities) => {
     return communities.filter((community) => {
-      return identities[community.id].userCertificate
+      return identities[community.id]?.userCertificate
     })
   }
 )
 
 export const joinTimestamp = createSelector(
-  currentIdentity, identity => identity.joinTimestamp
+  currentIdentity, identity => identity?.joinTimestamp
 )
 
 export const identitySelectors = {

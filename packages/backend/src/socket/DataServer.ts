@@ -5,7 +5,7 @@ import logger from '../logger'
 import { EventEmitter } from 'events'
 import cors from 'cors'
 import type { CorsOptions } from 'cors'
-import { AskForMessagesPayload, CancelDownloadPayload, Community, ConnectionProcessInfo, CreateChannelPayload, DownloadFilePayload, InitCommunityPayload, LaunchRegistrarPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveOwnerCertificatePayload, SendMessagePayload, SocketActionTypes, UploadFilePayload } from '@quiet/types'
+import { AskForMessagesPayload, CancelDownloadPayload, Community, ConnectionProcessInfo, CreateChannelPayload, DeleteFilesFromChannelSocketPayload, DownloadFilePayload, InitCommunityPayload, LaunchRegistrarPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveOwnerCertificatePayload, SendMessagePayload, SocketActionTypes, UploadFilePayload } from '@quiet/types'
 
 const log = logger('socket')
 
@@ -159,6 +159,10 @@ export class DataServer extends EventEmitter {
       socket.on(SocketActionTypes.DELETE_CHANNEL, async (payload: {channelId: string}) => {
         log('deleting channel ', payload.channelId)
         this.emit(SocketActionTypes.DELETE_CHANNEL, payload)
+      })
+      socket.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: DeleteFilesFromChannelSocketPayload) => {
+        log('DELETE_FILES_FROM_CHANNEL', payload)
+        this.emit(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, payload)
       })
     })
   }

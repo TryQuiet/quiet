@@ -1,26 +1,28 @@
-import {
-  setupCrypto
-} from '@quiet/identity'
+import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, MessageType, publicChannels } from '../../..'
+import { getFactory, publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { messagesActions } from '../../messages/messages.slice'
 import { FactoryGirl } from 'factory-girl'
 import { autoDownloadFilesSaga } from './autoDownloadFiles.saga'
-import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
-import { FileMetadata } from '../files.types'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { generateChannelId } from '@quiet/common'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import {
+  Community,
+  FileMetadata,
+  Identity,
+  MessageType,
+  PublicChannel,
+  SocketActionTypes
+} from '@quiet/types'
 
 describe('downloadFileSaga', () => {
   let store: Store
@@ -40,27 +42,32 @@ describe('downloadFileSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
-    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
+
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
 
-    sailingChannel = (await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
-      'PublicChannel',
-      {
-        channel: {
-          name: 'sailing',
-          description: 'Welcome to #sailing',
-          timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
-          id: generateChannelId('sailing')
+    sailingChannel = (
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
+        'PublicChannel',
+        {
+          channel: {
+            name: 'sailing',
+            description: 'Welcome to #sailing',
+            timestamp: DateTime.utc().valueOf(),
+            owner: alice.nickname,
+            id: generateChannelId('sailing')
+          }
         }
-      }
-    )).channel
+      )
+    ).channel
   })
 
   test('auto download file of type image', async () => {
@@ -68,9 +75,11 @@ describe('downloadFileSaga', () => {
 
     const id = Math.random().toString(36).substr(2.9)
 
-    store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelId: generalChannel.id
-    }))
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: generalChannel.id
+      })
+    )
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -88,16 +97,18 @@ describe('downloadFileSaga', () => {
       autoDownloadFilesSaga,
       socket,
       messagesActions.incomingMessages({
-        messages: [{
-          id: id,
-          type: MessageType.Image,
-          message: 'message',
-          createdAt: 8,
-          channelId: generalChannel.id,
-          signature: 'signature',
-          pubKey: 'publicKey',
-          media: media
-        }]
+        messages: [
+          {
+            id: id,
+            type: MessageType.Image,
+            message: 'message',
+            createdAt: 8,
+            channelId: generalChannel.id,
+            signature: 'signature',
+            pubKey: 'publicKey',
+            media: media
+          }
+        ]
       })
     )
       .withReducer(reducer)
@@ -117,9 +128,11 @@ describe('downloadFileSaga', () => {
 
     const id = Math.random().toString(36).substr(2.9)
 
-    store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelId: generalChannel.id
-    }))
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: generalChannel.id
+      })
+    )
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -137,16 +150,18 @@ describe('downloadFileSaga', () => {
       autoDownloadFilesSaga,
       socket,
       messagesActions.incomingMessages({
-        messages: [{
-          id: id,
-          type: MessageType.File,
-          message: 'message',
-          createdAt: 8,
-          channelId: generalChannel.id,
-          signature: 'signature',
-          pubKey: 'publicKey',
-          media: media
-        }]
+        messages: [
+          {
+            id: id,
+            type: MessageType.File,
+            message: 'message',
+            createdAt: 8,
+            channelId: generalChannel.id,
+            signature: 'signature',
+            pubKey: 'publicKey',
+            media: media
+          }
+        ]
       })
     )
       .withReducer(reducer)
@@ -166,9 +181,11 @@ describe('downloadFileSaga', () => {
 
     const id = Math.random().toString(36).substr(2.9)
 
-    store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelId: generalChannel.id
-    }))
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: generalChannel.id
+      })
+    )
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -181,21 +198,24 @@ describe('downloadFileSaga', () => {
       }
     }
 
-    const message = (await factory.create<
-    ReturnType<typeof publicChannels.actions.test_message>['payload']
-    >('Message', {
-      identity: alice,
-      message: {
-        id: id,
-        type: MessageType.File,
-        message: '',
-        createdAt: DateTime.utc().valueOf(),
-        channelId: generalChannel.id,
-        signature: '',
-        pubKey: '',
-        media: media
-      }
-    })).message
+    const message = (
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+        'Message',
+        {
+          identity: alice,
+          message: {
+            id: id,
+            type: MessageType.File,
+            message: '',
+            createdAt: DateTime.utc().valueOf(),
+            channelId: generalChannel.id,
+            signature: '',
+            pubKey: '',
+            media: media
+          }
+        }
+      )
+    ).message
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -222,9 +242,11 @@ describe('downloadFileSaga', () => {
 
     const id = Math.random().toString(36).substr(2.9)
 
-    store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelId: sailingChannel.id
-    }))
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: sailingChannel.id
+      })
+    )
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -237,21 +259,24 @@ describe('downloadFileSaga', () => {
       }
     }
 
-    const message = (await factory.create<
-    ReturnType<typeof publicChannels.actions.test_message>['payload']
-    >('Message', {
-      identity: alice,
-      message: {
-        id: id,
-        type: MessageType.File,
-        message: '',
-        createdAt: DateTime.utc().valueOf(),
-        channelId: generalChannel.id,
-        signature: '',
-        pubKey: '',
-        media: media
-      }
-    })).message
+    const message = (
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+        'Message',
+        {
+          identity: alice,
+          message: {
+            id: id,
+            type: MessageType.File,
+            message: '',
+            createdAt: DateTime.utc().valueOf(),
+            channelId: generalChannel.id,
+            signature: '',
+            pubKey: '',
+            media: media
+          }
+        }
+      )
+    ).message
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -278,9 +303,11 @@ describe('downloadFileSaga', () => {
 
     const id = Math.random().toString(36).substr(2.9)
 
-    store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelId: generalChannel.id
-    }))
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: generalChannel.id
+      })
+    )
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -299,16 +326,18 @@ describe('downloadFileSaga', () => {
       autoDownloadFilesSaga,
       socket,
       messagesActions.incomingMessages({
-        messages: [{
-          id: id,
-          type: MessageType.File,
-          message: 'message',
-          createdAt: 8,
-          channelId: generalChannel.id,
-          signature: 'signature',
-          pubKey: 'publicKey',
-          media: media
-        }]
+        messages: [
+          {
+            id: id,
+            type: MessageType.File,
+            message: 'message',
+            createdAt: 8,
+            channelId: generalChannel.id,
+            signature: 'signature',
+            pubKey: 'publicKey',
+            media: media
+          }
+        ]
       })
     )
       .withReducer(reducer)
@@ -328,9 +357,11 @@ describe('downloadFileSaga', () => {
 
     const id = Math.random().toString(36).substr(2.9)
 
-    store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelId: generalChannel.id
-    }))
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: generalChannel.id
+      })
+    )
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -349,16 +380,18 @@ describe('downloadFileSaga', () => {
       autoDownloadFilesSaga,
       socket,
       messagesActions.incomingMessages({
-        messages: [{
-          id: id,
-          type: MessageType.Image,
-          message: 'message',
-          createdAt: 8,
-          channelId: generalChannel.id,
-          signature: 'signature',
-          pubKey: 'publicKey',
-          media: media
-        }]
+        messages: [
+          {
+            id: id,
+            type: MessageType.Image,
+            message: 'message',
+            createdAt: 8,
+            channelId: generalChannel.id,
+            signature: 'signature',
+            pubKey: 'publicKey',
+            media: media
+          }
+        ]
       })
     )
       .withReducer(reducer)

@@ -8,18 +8,21 @@ import {
 } from '@quiet/identity'
 import { put, select, call } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
-import { MessageType, WriteMessagePayload } from '../../messages/messages.types'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { usersSelectors } from '../../users/users.selectors'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 
+import { MessageType, WriteMessagePayload } from '@quiet/types'
+import { Certificate } from 'pkijs'
+
 export function* sendNewUserInfoMessageSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>['payload']>
 ): Generator {
   const community = yield* select(communitiesSelectors.currentCommunity)
   const identity = yield* select(identitySelectors.currentIdentity)
+  if (!community?.name || !identity) return
 
   const isOwner = community.CA
   if (!isOwner) return
@@ -28,6 +31,8 @@ export function* sendNewUserInfoMessageSaga(
 
   const knownCertificates = yield* select(usersSelectors.certificates)
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
+
+  if (!generalChannel) return
 
   const newCertificates = incomingCertificates.filter(cert => {
     const _cert = keyFromCertificate(parseCertificate(cert))
@@ -38,7 +43,7 @@ export function* sendNewUserInfoMessageSaga(
   const uniqueCertificates = [...new Set(newCertificates)]
 
   for (const cert of uniqueCertificates) {
-    const rootCa = yield* call(loadCertificate, cert)
+    const rootCa: Certificate = yield* call(loadCertificate, cert)
     const user = yield* call(getCertFieldValue, rootCa, CertFieldsTypes.nickName)
 
     // Do not send message about yourself

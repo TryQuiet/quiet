@@ -1,12 +1,15 @@
 import { Dictionary, EntityState } from '@reduxjs/toolkit'
 import { FileMetadata } from './files'
 
+export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
+
 export interface PublicChannel {
   name: string
   description: string
   owner: string
   timestamp: number
   id: string
+  disabled?: boolean
 }
 
 export interface PublicChannelStorage extends PublicChannel {
@@ -16,7 +19,7 @@ export interface PublicChannelStorage extends PublicChannel {
 export interface PublicChannelStatus {
   id: string
   unread: boolean
-  newestMessage: ChannelMessage
+  newestMessage: ChannelMessage | null
 }
 
 export interface PublicChannelSubscription {
@@ -45,6 +48,10 @@ export interface DisplayableMessage {
   media?: FileMetadata
 }
 
+export interface MessagesGroupsType {
+  [date: string]: DisplayableMessage[]
+}
+
 export interface MessagesDailyGroups {
   [date: string]: DisplayableMessage[][]
 }
@@ -58,10 +65,10 @@ export interface CreateChannelPayload {
 }
 
 export interface DeleteChannelPayload {
-  channel: string
+  channelId: string
 }
 export interface ChannelDeletionResponsePayload {
-  channel: string
+  channelId: string
 }
 
 export interface CreatedChannelResponse {
@@ -117,6 +124,10 @@ export interface DeleteChannelFromStorePayload {
 }
 
 export interface ClearMessagesCachePayload {
+  channelId: string
+}
+
+export interface DisableChannelPayload {
   channelId: string
 }
 

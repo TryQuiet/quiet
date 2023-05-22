@@ -19,7 +19,7 @@ export interface PublicChannelStorage extends PublicChannel {
 export interface PublicChannelStatus {
   id: string
   unread: boolean
-  newestMessage: ChannelMessage
+  newestMessage: ChannelMessage | null
 }
 
 export interface PublicChannelSubscription {

@@ -1,26 +1,12 @@
 import { createSlice, Dictionary, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
-import { ChannelMessage, IncomingMessages, instanceOfChannelMessage } from '../publicChannels/publicChannels.types'
 import { StoreKeys } from '../store.keys'
 import {
   messageVerificationStatusAdapter,
   messageSendingStatusAdapter,
   publicChannelsMessagesBaseAdapter
 } from './messages.adapter.ts'
-import {
-  MessageVerificationStatus,
-  MessageSendingStatus,
-  PublicKeyMappingPayload,
-  WriteMessagePayload,
-  PublicChannelsMessagesBase,
-  AddPublicChannelsMessagesBasePayload,
-  SetDisplayedMessagesNumberPayload,
-  LazyLoadingPayload,
-  AskForMessagesPayload,
-  ChannelMessagesIdsResponse,
-  DeleteChannelEntryPayload,
-  SendDeletionMessagePayload
-} from './messages.types'
+import { AddPublicChannelsMessagesBasePayload, AskForMessagesPayload, ChannelMessage, ChannelMessagesIdsResponse, DeleteChannelEntryPayload, IncomingMessages, instanceOfChannelMessage, LazyLoadingPayload, MessageSendingStatus, MessageVerificationStatus, PublicChannelsMessagesBase, SendDeletionMessagePayload, SetDisplayedMessagesNumberPayload, WriteMessagePayload } from '@quiet/types'
 
 export class MessagesState {
   public publicKeyMapping: Dictionary<CryptoKey> = {}
@@ -70,15 +56,6 @@ export const messagesSlice = createSlice({
       const id = action.payload
       messageVerificationStatusAdapter.removeOne(state.messageVerificationStatus, id)
     },
-    removePublicChannelMessage: (state, action: PayloadAction<{id: string; address: string}>) => {
-      const { id, address } = action.payload
-
-      channelMessagesAdapter.removeOne(
-        state.publicChannelsMessagesBase.entities[address].messages,
-        id
-      )
-      messageVerificationStatusAdapter.removeOne(state.messageVerificationStatus, id)
-    },
     incomingMessages: (state, action: PayloadAction<IncomingMessages>) => {
       const { messages } = action.payload
       for (const message of messages) {
@@ -92,7 +69,7 @@ export const messagesSlice = createSlice({
           ?.messages
           .entities[message.id]
 
-        if (message.media && draft?.media.path) {
+        if (message.media && draft?.media?.path) {
           incoming = {
             ...message,
             media: {
@@ -102,8 +79,11 @@ export const messagesSlice = createSlice({
           }
         }
 
+        const messagesBase = state.publicChannelsMessagesBase.entities[message.channelId]
+        if (!messagesBase) return
+
         channelMessagesAdapter.upsertOne(
-          state.publicChannelsMessagesBase.entities[message.channelId].messages,
+          messagesBase.messages,
           incoming
         )
       }

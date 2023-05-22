@@ -9,6 +9,7 @@ import { cancelDownloadSaga } from './cancelDownload/cancelDownload.saga'
 import { broadcastHostedFileSaga } from './broadcastHostedFile/broadcastHostedFile.saga'
 import { downloadFileSaga } from './downloadFile/downloadFileSaga'
 import { networkActions } from '../network/network.slice'
+import { deleteFilesFromChannelSaga } from './deleteFilesFromChannel/deleteFilesFromChannel.saga'
 
 export function* filesMasterSaga(socket: Socket): Generator {
   yield all([
@@ -18,6 +19,7 @@ export function* filesMasterSaga(socket: Socket): Generator {
     takeEvery(filesActions.cancelDownload.type, cancelDownloadSaga, socket),
     takeEvery(filesActions.updateMessageMedia.type, updateMessageMediaSaga),
     takeEvery(filesActions.downloadFile.type, downloadFileSaga, socket),
-    takeEvery(filesActions.broadcastHostedFile.type, broadcastHostedFileSaga, socket)
+    takeEvery(filesActions.broadcastHostedFile.type, broadcastHostedFileSaga, socket),
+    takeEvery(filesActions.deleteFilesFromChannel.type, deleteFilesFromChannelSaga, socket),
   ])
 }

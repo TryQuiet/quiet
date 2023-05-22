@@ -4,17 +4,15 @@ import { getFactory, MessageType, PublicChannel, publicChannels } from '../../..
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
 import { FactoryGirl } from 'factory-girl'
-import { DownloadState, FileMetadata } from '../files.types'
 import { resetTransferSpeedSaga } from './resetTransferSpeed.saga'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
-import { connectionActions } from '../../appConnection/connection.slice'
 import { filesActions } from '../files.slice'
 import { networkActions } from '../../network/network.slice'
+import { Community, DownloadState, FileMetadata, Identity } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('downloadFileSaga', () => {
@@ -37,7 +35,9 @@ describe('downloadFileSaga', () => {
       ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
-    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',

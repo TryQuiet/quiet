@@ -1,18 +1,18 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, Community, ChannelMessage, MessageType } from '../../..'
+import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { communitiesActions } from '../../communities/communities.slice'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
-import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { markUnreadChannelsSaga } from './markUnreadChannels.saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { generateChannelId } from '@quiet/common'
+import { ChannelMessage, Community, Identity, MessageType } from '@quiet/types'
 
 describe('markUnreadChannelsSaga', () => {
   let store: Store
@@ -20,8 +20,8 @@ describe('markUnreadChannelsSaga', () => {
 
   let community: Community
   let alice: Identity
-  let bob: Identity
-  let channelAdresses: string[] = []
+
+  let channelIds: string[] = []
 
   beforeAll(async () => {
     setupCrypto()
@@ -54,12 +54,12 @@ describe('markUnreadChannelsSaga', () => {
           id: generateChannelId(name)
         }
       })
-      channelAdresses = [...channelAdresses, channel.channel.id]
+      channelIds = [...channelIds, channel.channel.id]
     }
   })
 
   test('mark unread channels', async () => {
-    const messagesides = channelAdresses
+    const messagesides = channelIds
     const messages: ChannelMessage[] = []
 
     // Automatically create messages
@@ -83,6 +83,8 @@ describe('markUnreadChannelsSaga', () => {
     }
 
     // Set the newest message
+    const channelId = channelIds.find(id => id.includes('enya'))
+    if (!channelId) throw new Error('no channel id')
     const message = (
       await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
         'Message',
@@ -93,7 +95,7 @@ describe('markUnreadChannelsSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: 99999999999999,
-            channelId: channelAdresses.find((id) => id.includes('enya')),
+            channelId,
             signature: '',
             pubKey: ''
           },
@@ -103,6 +105,13 @@ describe('markUnreadChannelsSaga', () => {
     ).message
 
     store.dispatch(publicChannelsActions.updateNewestMessage({ message }))
+
+    const channelIdMemes = channelIds.find(id => id.includes('memes'))
+
+    const channelIdEnya = channelIds.find(id => id.includes('enya'))
+
+    const channelIdTravels = channelIds.find(id => id.includes('travels'))
+    if (!channelIdMemes || !channelIdEnya || !channelIdTravels) throw new Error('no channel id')
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -115,19 +124,19 @@ describe('markUnreadChannelsSaga', () => {
       .withState(store.getState())
       .put(
         publicChannelsActions.markUnreadChannel({
-          channelId: channelAdresses.find((id) => id.includes('memes')),
+          channelId: channelIdMemes,
           message: messages[0]
         })
       )
       .not.put(
         publicChannelsActions.markUnreadChannel({
-          channelId: channelAdresses.find((id) => id.includes('enya')),
+          channelId: channelIdEnya,
           message: messages[2]
         })
       )
       .put(
         publicChannelsActions.markUnreadChannel({
-          channelId: channelAdresses.find((id) => id.includes('travels')),
+          channelId: channelIdTravels,
           message: messages[3]
         })
       )
@@ -135,7 +144,7 @@ describe('markUnreadChannelsSaga', () => {
   })
 
   test('do not mark unread channels if message is older than user', async () => {
-    const messagesides = channelAdresses
+    const messagesides = channelIds
     const messages: ChannelMessage[] = []
 
     const community = await factory.create<
@@ -166,6 +175,8 @@ describe('markUnreadChannelsSaga', () => {
       messages.push(message)
     }
 
+    const channelId = channelIds.find(id => id.includes('enya'))
+    if (!channelId) throw new Error('no channel id')
     // Set the newest message
     const message = (
       await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
@@ -177,7 +188,7 @@ describe('markUnreadChannelsSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: 99999999999999,
-            channelId: channelAdresses.find((id) => id.includes('enya')),
+            channelId,
             signature: '',
             pubKey: ''
           },
@@ -188,6 +199,12 @@ describe('markUnreadChannelsSaga', () => {
 
     messages.push(message)
 
+    const channelIdMemes = channelIds.find(id => id.includes('memes'))
+
+    const channelIdEnya = channelIds.find(id => id.includes('enya'))
+
+    const channelIdTravels = channelIds.find(id => id.includes('travels'))
+    if (!channelIdMemes || !channelIdEnya || !channelIdTravels) throw new Error('no channel id')
     const reducer = combineReducers(reducers)
     await expectSaga(
       markUnreadChannelsSaga,
@@ -199,19 +216,19 @@ describe('markUnreadChannelsSaga', () => {
       .withState(store.getState())
       .not.put(
         publicChannelsActions.markUnreadChannel({
-          channelId: channelAdresses.find((id) => id.includes('memes')),
+          channelId: channelIdMemes,
           message: messages[1]
         })
       )
       .put(
         publicChannelsActions.markUnreadChannel({
-          channelId: channelAdresses.find((id) => id.includes('enya')),
+          channelId: channelIdEnya,
           message: message
         })
       )
       .not.put(
         publicChannelsActions.markUnreadChannel({
-          channelId: channelAdresses.find((id) => id.includes('travels')),
+          channelId: channelIdTravels,
           message: messages[3]
         })
       )

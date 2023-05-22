@@ -1,5 +1,5 @@
 export interface FileContent {
-  path: string
+  path: string | null
   name: string
   ext: string
 }

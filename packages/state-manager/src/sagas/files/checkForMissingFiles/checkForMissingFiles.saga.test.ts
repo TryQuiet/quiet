@@ -4,21 +4,23 @@ import {
   communities,
   getFactory,
   identity,
-  MessageType,
-  PublicChannel,
   publicChannels
 } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { DateTime } from 'luxon'
-import { DownloadState, FileMetadata } from '../files.types'
 import { checkForMissingFilesSaga } from './checkForMissingFiles.saga'
 import { Socket } from 'socket.io-client'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { connectionActions } from '../../appConnection/connection.slice'
 import { filesActions } from '../files.slice'
 import { networkActions } from '../../network/network.slice'
+import {
+  DownloadState,
+  FileMetadata,
+  MessageType,
+  PublicChannel,
+  SocketActionTypes
+} from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('checkForMissingFilesSaga', () => {
@@ -36,6 +38,8 @@ describe('checkForMissingFilesSaga', () => {
     >('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
 
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
@@ -119,6 +123,8 @@ describe('checkForMissingFilesSaga', () => {
     >('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -201,6 +207,8 @@ describe('checkForMissingFilesSaga', () => {
     >('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -336,6 +344,8 @@ describe('checkForMissingFilesSaga', () => {
     >('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -418,6 +428,8 @@ describe('checkForMissingFilesSaga', () => {
     >('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -503,6 +515,8 @@ describe('checkForMissingFilesSaga', () => {
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
     const message = Math.random().toString(36).substr(2.9)
     const channelId = generalChannel.id
 
@@ -581,6 +595,8 @@ describe('checkForMissingFilesSaga', () => {
     >('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -663,6 +679,8 @@ describe('checkForMissingFilesSaga', () => {
     >('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+    if (!generalChannel) return
+    expect(generalChannel).not.toBeUndefined()
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -745,6 +763,8 @@ describe('checkForMissingFilesSaga', () => {
       >('Community')
 
       const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
+      if (!generalChannel) return
+      expect(generalChannel).not.toBeUndefined()
       const alice = await factory.create<
         ReturnType<typeof identity.actions.addNewIdentity>['payload']
       >('Identity', { id: community.id, nickname: 'alice' })

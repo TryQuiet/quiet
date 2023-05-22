@@ -2,15 +2,16 @@ import { createTransform } from 'redux-persist'
 import { StoreKeys } from '../store.keys'
 import { downloadStatusAdapter } from './files.adapter'
 import { FilesState } from './files.slice'
-import { DownloadState, DownloadStatus } from './files.types'
+import { isDefined } from '@quiet/common'
+import { DownloadState, DownloadStatus } from '@quiet/types'
 
 export const FilesTransform = createTransform(
-  (inboundState: FilesState, _key) => {
+  (inboundState: FilesState, _key: any) => {
     return { ...inboundState }
   },
-  (outboundState: FilesState, _key) => {
-    const downloadStatuses = Object.values(outboundState.downloadStatus.entities)
-    const updatedStatuses: DownloadStatus[] = downloadStatuses.reduce((result, status) => {
+  (outboundState: FilesState, _key: any) => {
+    const downloadStatuses = Object.values(outboundState.downloadStatus.entities).filter(isDefined)
+    const updatedStatuses: DownloadStatus[] = downloadStatuses.reduce((result: DownloadStatus[], status) => {
       const downloadState = status.downloadState
       const entry: DownloadStatus = {
         ...status,

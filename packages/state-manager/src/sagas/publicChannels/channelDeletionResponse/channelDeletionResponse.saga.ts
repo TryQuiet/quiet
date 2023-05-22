@@ -16,6 +16,7 @@ export function* channelDeletionResponseSaga(
   const { channelId } = action.payload
 
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
+  if (!generalChannel) return
 
   const isGeneral = channelId === generalChannel.id
 

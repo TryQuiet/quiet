@@ -1,19 +1,19 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory, messages, MessageType, PublicChannel, publicChannels } from '../../..'
+import { getFactory, messages, publicChannels } from '../../..'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from './../publicChannels.slice'
-import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { channelsReplicatedSaga } from './channelsReplicated.saga'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
+import { Community, Identity, MessageType, PublicChannel } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 
 describe('channelsReplicatedSaga', () => {
@@ -24,6 +24,7 @@ describe('channelsReplicatedSaga', () => {
   let alice: Identity
 
   let generalChannel: PublicChannel
+
   let sailingChannel: PublicChannel
   let photoChannel: PublicChannel
 
@@ -42,10 +43,11 @@ describe('channelsReplicatedSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
-    store.dispatch(
-      publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id })
-    )
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
+
+    store.dispatch(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
     sailingChannel = (
       await factory.build<typeof publicChannelsActions.addChannel>('PublicChannel', {
         communityId: community.id,

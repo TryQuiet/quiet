@@ -59,6 +59,7 @@ describe('ChannelList component', () => {
             "flex": 1,
           }
         }
+        testID="channel-list-component"
       >
         <View
           style={

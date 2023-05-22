@@ -2,8 +2,8 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put } from 'typed-redux-saga'
 import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
-import { instanceOfChannelMessage } from '../../publicChannels/publicChannels.types'
 import { filesActions } from '../files.slice'
+import { instanceOfChannelMessage } from '@quiet/types'
 
 export function* updateMessageMediaSaga(
   action: PayloadAction<ReturnType<typeof filesActions.updateMessageMedia>['payload']>

@@ -1,11 +1,12 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { publicChannelsActions } from '../publicChannels.slice'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { apply, put, select } from 'typed-redux-saga'
 import { Socket, applyEmitParams } from '../../../types'
 import logger from '../../../utils/logger'
-
+import { filesActions } from '../../files/files.slice'
+import { SocketActionTypes } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
+
 const log = logger('publicChannels')
 
 export function* deleteChannelSaga(
@@ -14,6 +15,9 @@ export function* deleteChannelSaga(
 ): Generator {
   const channelId = action.payload.channelId
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
+  if (generalChannel === undefined) {
+    return
+  }
 
   const isGeneral = channelId === generalChannel.id
 
@@ -25,6 +29,8 @@ export function* deleteChannelSaga(
       channelId
     })
   )
+
+  yield* put(filesActions.deleteFilesFromChannel({ channelId }))
 
   if (!isGeneral) {
     yield* put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))

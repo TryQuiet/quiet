@@ -69,7 +69,7 @@ describe('User', () => {
     jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const data = input as socketEventData<[Community]>
-        const payload = data[0]
+        const payload = { ...data[0], privateKey: 'privateKey' }
         socket.socketClient.emit(SocketActionTypes.NETWORK, {
           community: payload,
           network: {

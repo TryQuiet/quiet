@@ -1,20 +1,20 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory, MessageType, PublicChannel, WriteMessagePayload } from '../../..'
+import { getFactory } from '../../..'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
-import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
-import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { sendDeletionMessageSaga } from './sendDeletionMessage.saga'
 import { generateChannelId } from '@quiet/common'
+import { Community, Identity, MessageType, PublicChannel, WriteMessagePayload } from '@quiet/types'
+import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('sendDeletionMessage', () => {
   let store: Store
@@ -23,8 +23,8 @@ describe('sendDeletionMessage', () => {
   let community: Community
   let owner: Identity
 
-  let generalChannel: PublicChannel
   let photoChannel: PublicChannel
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -41,7 +41,9 @@ describe('sendDeletionMessage', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(

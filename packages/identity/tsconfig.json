@@ -3,8 +3,8 @@
   "compilerOptions": {
     "outDir": "./lib",
     "target": "ES2020",
+    // "module": "ES2022",
     "strict": true,
-    "strictPropertyInitialization": true,
     "typeRoots": [
       "../@types",
       "./node_modules/@types"

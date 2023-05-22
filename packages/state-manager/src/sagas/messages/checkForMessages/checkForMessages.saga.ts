@@ -13,6 +13,7 @@ export function* checkForMessagesSaga(action: PayloadAction<ReturnType<typeof me
   const community = yield* select(currentCommunity)
 
   const identity = yield* select(currentIdentity)
+  if (!community || !identity) return
 
   const missingMessages = yield* select(missingChannelMessages(ids, channelId))
 

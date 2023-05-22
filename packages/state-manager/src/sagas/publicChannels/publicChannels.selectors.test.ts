@@ -1,7 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../store.types'
 import { FactoryGirl } from 'factory-girl'
-import { getFactory, Identity, publicChannels } from '../..'
+import { getFactory, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import {
   publicChannels as getPublicChannels,
@@ -11,11 +11,9 @@ import {
   publicChannelsSelectors
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
-import { DisplayableMessage, ChannelMessage, PublicChannel } from './publicChannels.types'
-import { communitiesActions, Community } from '../communities/communities.slice'
+
 import { identityActions } from '../identity/identity.slice'
 import { usersActions } from '../users/users.slice'
-import { MessageType } from '../messages/messages.types'
 import {
   formatMessageDisplayDate,
   formatMessageDisplayDay
@@ -23,6 +21,15 @@ import {
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
 import { generateChannelId } from '@quiet/common'
+import {
+  ChannelMessage,
+  Community,
+  DisplayableMessage,
+  Identity,
+  MessageType,
+  PublicChannel
+} from '@quiet/types'
+import { communitiesActions } from '../communities/communities.slice'
 
 describe('publicChannelsSelectors', () => {
   let store: Store
@@ -56,15 +63,15 @@ describe('publicChannelsSelectors', () => {
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
-    generalChannel = publicChannelsSelectors.generalChannel(store.getState())
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
     channelIdes = [...channelIdes, generalChannel.id]
     john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, nickname: 'john' }
     )
-    store.dispatch(
-      publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id })
-    )
+    store.dispatch(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
     // Setup channels
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
 
@@ -310,13 +317,14 @@ describe('publicChannelsSelectors', () => {
       ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'elouise' })
 
+    if (!elouise.userCertificate) throw new Error('no elouise.userCertificate')
     store.dispatch(
       usersActions.test_remove_user_certificate({ certificate: elouise.userCertificate })
     )
 
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: channelId
+        channelId: channel.id
       })
     )
 
@@ -329,7 +337,7 @@ describe('publicChannelsSelectors', () => {
           type: MessageType.Basic,
           message: 'elouise_message',
           createdAt: DateTime.now().valueOf(),
-          channelId: channelId,
+          channelId: channel.id,
           signature: '',
           pubKey: ''
         },
@@ -367,14 +375,14 @@ describe('publicChannelsSelectors', () => {
         }
       }
     }
+    // @ts-expect-error
     const unreadChannels = publicChannelsSelectors.unreadChannels(newState)
     expect(unreadChannels).toEqual([])
   })
 
   it('unreadChannels selector returns only unread channels', async () => {
-    const channelId = channelIdes.find(channelId =>
-      channelId.includes('allergies')
-    )
+    const channelId = channelIdes.find(channelId => channelId.includes('allergies'))
+    if (!channelId) throw new Error('no channel id')
     store.dispatch(
       publicChannelsActions.markUnreadChannel({
         channelId

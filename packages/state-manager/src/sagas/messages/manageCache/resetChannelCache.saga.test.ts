@@ -4,12 +4,9 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { getFactory } from '../../../utils/tests/factories'
 import { prepareStore } from '../../..//utils/tests/prepareStore'
 import { combineReducers, Store } from 'redux'
-import { Community, communitiesActions } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
-import { MessageType } from '../messages.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { ChannelMessage, PublicChannel } from '../../publicChannels/publicChannels.types'
 import {
   publicChannelsSelectors,
   selectGeneralChannel
@@ -18,6 +15,7 @@ import { DateTime } from 'luxon'
 import { reducers } from '../../reducers'
 import { resetCurrentPublicChannelCacheSaga } from './resetChannelCache.saga'
 import { messagesActions } from '../messages.slice'
+import { ChannelMessage, Community, Identity, MessageType, PublicChannel } from '@quiet/types'
 
 describe('resetChannelCacheSaga', () => {
   let store: Store
@@ -26,7 +24,7 @@ describe('resetChannelCacheSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: PublicChannel
+  let generalChannel: PublicChannel 
 
   beforeAll(async () => {
     setupCrypto()
@@ -44,7 +42,9 @@ describe('resetChannelCacheSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = selectGeneralChannel(store.getState())
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
   })
 
   test('reset current public channel cache', async () => {

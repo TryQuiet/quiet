@@ -3,12 +3,16 @@ import { select, put, call } from 'typed-redux-saga'
 import { createUserCsr } from '@quiet/identity'
 import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
-import { CreateUserCsrPayload, RegisterCertificatePayload } from '../identity.types'
 import { config } from '../../users/const/certFieldTypes'
 import { communitiesSelectors } from '../../communities/communities.selectors'
+import { CreateUserCsrPayload, RegisterCertificatePayload } from '@quiet/types'
 
 export function* registerUsernameSaga(action: PayloadAction<string>): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
+  if (!identity) {
+    console.error('Could not register username, no identity')
+    return
+  }
 
   // Nickname can differ between saga calls
   const nickname = action.payload
@@ -38,9 +42,10 @@ export function* registerUsernameSaga(action: PayloadAction<string>): Generator 
   }
 
   const currentCommunity = yield* select(communitiesSelectors.currentCommunity)
+  if (!currentCommunity) return
 
   const payload: RegisterCertificatePayload = {
-    communityId: currentCommunity?.id,
+    communityId: currentCommunity.id,
     nickname: nickname,
     userCsr: userCsr
   }

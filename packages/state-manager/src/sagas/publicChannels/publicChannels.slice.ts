@@ -6,31 +6,31 @@ import {
   publicChannelsStatusAdapter,
   publicChannelsSubscriptionsAdapter
 } from './publicChannels.adapter'
-import {
-  PublicChannelStorage,
-  PublicChannelStatus,
-  PublicChannelSubscription,
-  ChannelMessage,
-  CreateChannelPayload,
-  CreatedChannelResponse,
-  ChannelsReplicatedPayload,
-  SendInitialChannelMessagePayload,
-  SetCurrentChannelPayload,
-  CacheMessagesPayload,
-  MarkUnreadChannelPayload,
-  SendNewUserInfoMessagePayload,
-  SetChannelSubscribedPayload,
-  UpdateNewestMessagePayload,
-  DeleteChannelPayload,
-  ChannelDeletionResponsePayload,
-  DeleteChannelFromStorePayload,
-  ClearMessagesCachePayload,
-  DisableChannelPayload,
-  INITIAL_CURRENT_CHANNEL_ID
-} from './publicChannels.types'
 
 import logger from '../../utils/logger'
-import { Identity } from '../identity/identity.types'
+import {
+  CacheMessagesPayload,
+  ChannelDeletionResponsePayload,
+  ChannelMessage,
+  ChannelsReplicatedPayload,
+  ClearMessagesCachePayload,
+  CreateChannelPayload,
+  CreatedChannelResponse,
+  DeleteChannelFromStorePayload,
+  DeleteChannelPayload,
+  DisableChannelPayload,
+  Identity,
+  INITIAL_CURRENT_CHANNEL_ID,
+  MarkUnreadChannelPayload,
+  PublicChannelStatus,
+  PublicChannelStorage,
+  PublicChannelSubscription,
+  SendInitialChannelMessagePayload,
+  SendNewUserInfoMessagePayload,
+  SetChannelSubscribedPayload,
+  SetCurrentChannelPayload,
+  UpdateNewestMessagePayload
+} from '@quiet/types'
 const log = logger('publicChannels')
 
 export class PublicChannelsState {
@@ -73,8 +73,9 @@ export const publicChannelsSlice = createSlice({
     },
     clearMessagesCache: (state, action: PayloadAction<ClearMessagesCachePayload>) => {
       const { channelId } = action.payload
-      console.log('clearMessagesCache', action.payload)
-      channelMessagesAdapter.setAll(state.channels.entities[channelId].messages, [])
+      const channel = state.channels.entities[channelId]
+      if (!channel) return
+      channelMessagesAdapter.setAll(channel.messages, [])
     },
     startGeneralRecreation: state => {
       state.pendingGeneralChannelRecreation = true
@@ -112,7 +113,9 @@ export const publicChannelsSlice = createSlice({
     },
     cacheMessages: (state, action: PayloadAction<CacheMessagesPayload>) => {
       const { messages, channelId } = action.payload
-      channelMessagesAdapter.setAll(state.channels.entities[channelId].messages, messages)
+      const channel = state.channels.entities[channelId]
+      if (!channel) return
+      channelMessagesAdapter.setAll(channel.messages, messages)
     },
 
     markUnreadChannel: (state, action: PayloadAction<MarkUnreadChannelPayload>) => {
@@ -146,17 +149,16 @@ export const publicChannelsSlice = createSlice({
     test_message: (
       state,
       action: PayloadAction<{
+        // [x: string]: ChannelMessage
         message: ChannelMessage
         identity: Identity
         verifyAutomatically: boolean
       }>
     ) => {
       const { message } = action.payload
-      console.log({ message })
-      channelMessagesAdapter.addOne(
-        state.channels.entities[message.channelId].messages,
-        message
-      )
+      const channel = state.channels.entities[message.channelId]
+      if (!channel) return
+      channelMessagesAdapter.addOne(channel.messages, message)
     }
   }
 })
