@@ -9,13 +9,13 @@ import { identitySelectors } from '../../identity/identity.selectors'
 export function* markUnreadChannelsSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
 ): Generator {
-  const currentchannelId = yield* select(publicChannelsSelectors.currentchannelId)
+  const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
 
   const { messages } = action.payload
 
   for (const message of messages) {
     // Do not proceed for current channel
-    if (message.channelId !== currentchannelId) {
+    if (message.channelId !== currentChannelId) {
       const payload: MarkUnreadChannelPayload = {
         channelId: message.channelId,
         message: message

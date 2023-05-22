@@ -34,7 +34,7 @@ import { Identity } from '../identity/identity.types'
 const log = logger('publicChannels')
 
 export class PublicChannelsState {
-  public currentchannelId: string = INITIAL_CURRENT_CHANNEL_ID
+  public currentChannelId: string = INITIAL_CURRENT_CHANNEL_ID
 
   public pendingGeneralChannelRecreation: boolean = false
 
@@ -108,7 +108,7 @@ export const publicChannelsSlice = createSlice({
     channelsReplicated: (state, _action: PayloadAction<ChannelsReplicatedPayload>) => state,
     setCurrentChannel: (state, action: PayloadAction<SetCurrentChannelPayload>) => {
       const { channelId } = action.payload
-      state.currentchannelId = channelId
+      state.currentChannelId = channelId
     },
     cacheMessages: (state, action: PayloadAction<CacheMessagesPayload>) => {
       const { messages, channelId } = action.payload

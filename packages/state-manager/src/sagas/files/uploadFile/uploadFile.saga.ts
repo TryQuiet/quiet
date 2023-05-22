@@ -16,7 +16,7 @@ export function* uploadFileSaga(
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
 
-  const currentChannel = yield* select(publicChannelsSelectors.currentchannelId)
+  const currentChannel = yield* select(publicChannelsSelectors.currentChannelId)
 
   const id = yield* call(generateMessageId)
 

@@ -35,7 +35,7 @@ export function* displayMessageNotificationSaga(
 ): Generator {
   const incomingMessages = action.payload.messages
 
-  const currentchannelId = yield* select(publicChannels.selectors.currentchannelId)
+  const currentChannelId = yield* select(publicChannels.selectors.currentChannelId)
   const publicChannelsSelector = yield* select(publicChannels.selectors.publicChannels)
 
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
@@ -53,7 +53,7 @@ export function* displayMessageNotificationSaga(
     const channelName = publicChannelsSelector.find((channel) => channel.id === message.channelId).name
 
     // Do not display notifications for active channel (when the app is in foreground)
-    if (focused && message.channelId === currentchannelId) return
+    if (focused && message.channelId === currentChannelId) return
 
     // Do not display notifications for own messages
     const sender = certificatesMapping[message.pubKey]?.username

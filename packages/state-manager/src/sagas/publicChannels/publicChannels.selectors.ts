@@ -87,11 +87,11 @@ export const sortedChannels = createSelector(publicChannels, (channels) => {
   return sorted
 })
 
-export const currentchannelId_OLD = createSelector(
+export const currentChannelId_OLD = createSelector(
   selectState,
   (state) => {
     if (!state) return undefined
-    return state.currentchannelId
+    return state.currentChannelId
   }
 )
 
@@ -99,7 +99,7 @@ export const generalChannel = createSelector(publicChannels, publicChannelsSelec
   return publicChannelsSelector.find(channel => channel.name === 'general')
 })
 
-export const currentchannelId = createSelector(
+export const currentChannelId = createSelector(
   selectState,
   generalChannel,
   (state, general) => {
@@ -107,14 +107,14 @@ export const currentchannelId = createSelector(
     if (!state) {
       return undefined
     }
-    if (state.currentchannelId === INITIAL_CURRENT_CHANNEL_ID) {
+    if (state.currentChannelId === INITIAL_CURRENT_CHANNEL_ID) {
       if (general) {
         return general.id
       } else {
         return 'general'// case for tests when is no channel in store
       }
     } else {
-      return state.currentchannelId
+      return state.currentChannelId
     }
   }
 )
@@ -149,7 +149,7 @@ export const dynamicSearchedChannels = (channelInput: string) =>
 
 // Is being used in tests
 export const currentChannel = createSelector(
-  currentchannelId,
+  currentChannelId,
   selectChannels,
   (id, channels) => {
     if (!id) return undefined
@@ -293,7 +293,7 @@ export const unreadChannels = createSelector(
 export const publicChannelsSelectors = {
   publicChannels,
   subscribedChannels,
-  currentchannelId,
+  currentChannelId,
   currentChannelName,
   currentChannel,
   currentChannelMessages,

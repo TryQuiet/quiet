@@ -7,7 +7,7 @@ import { messagesActions } from '../messages.slice'
 import { SetDisplayedMessagesNumberPayload } from '../messages.types'
 
 export function* resetCurrentPublicChannelCacheSaga(): Generator {
-  const channelId = yield* select(publicChannelsSelectors.currentchannelId)
+  const channelId = yield* select(publicChannelsSelectors.currentChannelId)
 
   const channelMessagesChunkSize = 50
 

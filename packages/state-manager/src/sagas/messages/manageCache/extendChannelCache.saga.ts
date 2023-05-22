@@ -9,7 +9,7 @@ import { SetDisplayedMessagesNumberPayload } from '../messages.types'
 
 export function* extendCurrentPublicChannelCacheSaga(): Generator {
   const communityId = yield* select(communitiesSelectors.currentCommunityId)
-  const channelId = yield* select(publicChannelsSelectors.currentchannelId)
+  const channelId = yield* select(publicChannelsSelectors.currentChannelId)
 
   const channelMessagesChunkSize = 50
 

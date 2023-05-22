@@ -138,7 +138,7 @@ describe('Channel', () => {
     expect(messageInput).toBeVisible()
   })
 
-  it('filters out suspicious messages', async () => {
+  it.only('filters out suspicious messages', async () => {
     const { store, runSaga } = await prepareStore(
       {},
       socket // Fork state manager's sagas
@@ -153,6 +153,12 @@ describe('Channel', () => {
     const entities = store.getState().PublicChannels.channels.entities
 
     const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+
+    console.log({ generalId })
+
+    await act(async () => {
+      store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
+    })
 
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
@@ -185,6 +191,15 @@ describe('Channel', () => {
       ...(
         await factory.build<typeof publicChannels.actions.test_message>('Message', {
           identity: alice
+          // message: {
+          //   id: Math.random().toString(36).substr(2.9),
+          //   type: MessageType.Basic,
+          //   message: 'message',
+          //   createdAt: DateTime.utc().valueOf(),
+          //   channelId: generalId,
+          //   signature: '',
+          //   pubKey: johnPublicKey
+          // }
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),

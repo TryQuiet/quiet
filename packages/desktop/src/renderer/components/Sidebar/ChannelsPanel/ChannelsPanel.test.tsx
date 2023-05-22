@@ -57,7 +57,7 @@ describe('Channels panel', () => {
         channels={channels}
         unreadChannels={[]}
         setCurrentChannel={function (_id: string): void {}}
-        currentchannelId={generalChannel.id}
+        currentChannelId={generalChannel.id}
         createChannelModal={{
           open: false,
           handleOpen: function (_args?: any): any {},

@@ -16,7 +16,7 @@ import { uploadFileSaga } from './uploadFile.saga'
 import { FactoryGirl } from 'factory-girl'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { currentchannelId } from '../../publicChannels/publicChannels.selectors'
+import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
 import { DownloadState, FileMetadata } from '../../files/files.types'
 import { filesActions } from '../files.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
@@ -70,7 +70,7 @@ describe('uploadFileSaga', () => {
   test('uploading file', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
-    const currentChannel = currentchannelId(store.getState())
+    const currentChannel = currentChannelId(store.getState())
 
     const peerId = alice.peerId.id
 

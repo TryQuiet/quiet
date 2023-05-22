@@ -1,7 +1,7 @@
 import { Dictionary, EntityState } from '@reduxjs/toolkit'
 import { FileMetadata } from '../files/files.types'
 
-export const INITIAL_CURRENT_CHANNEL_ID = 'initialCurrentchannelId'
+export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
 
 export interface PublicChannel {
   name: string

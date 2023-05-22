@@ -21,7 +21,7 @@ import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { sendMessageSaga } from './sendMessage.saga'
 import { FactoryGirl } from 'factory-girl'
-import { currentchannelId } from '../../publicChannels/publicChannels.selectors'
+import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
@@ -69,7 +69,7 @@ describe('sendMessageSaga', () => {
   test('sign and send message in current channel', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
-    const currentChannel = currentchannelId(store.getState())
+    const currentChannel = currentChannelId(store.getState())
 
     const reducer = combineReducers(reducers)
     await expectSaga(
@@ -150,7 +150,7 @@ describe('sendMessageSaga', () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     const messageId = Math.random().toString(36).substr(2.9)
-    const currentChannel = currentchannelId(store.getState())
+    const currentChannel = currentChannelId(store.getState())
 
     const media: FileMetadata = {
       cid: 'cid',

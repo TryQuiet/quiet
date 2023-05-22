@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../constants'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
-import { currentchannelId } from '../publicChannels/publicChannels.selectors'
+import { currentChannelId } from '../publicChannels/publicChannels.selectors'
 import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
@@ -38,7 +38,7 @@ export const publicChannelsMessagesBase = createSelector(messagesSlice, reducerS
 
 export const currentPublicChannelMessagesBase = createSelector(
   publicChannelsMessagesBase,
-  currentchannelId,
+  currentChannelId,
   (base, address) => {
     return base[address]
   }

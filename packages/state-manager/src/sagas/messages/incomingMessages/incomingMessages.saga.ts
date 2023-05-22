@@ -11,8 +11,8 @@ export function* incomingMessagesSaga(
 ): Generator {
   for (const incomingMessage of action.payload.messages) {
     // Proceed only for messages from current channel
-    const currentchannelId = yield* select(publicChannelsSelectors.currentchannelId)
-    if (incomingMessage.channelId !== currentchannelId) {
+    const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
+    if (incomingMessage.channelId !== currentChannelId) {
       return
     }
 

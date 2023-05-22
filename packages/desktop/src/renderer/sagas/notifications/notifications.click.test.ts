@@ -66,7 +66,7 @@ describe('clicking in notification', () => {
     store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
 
     // Verify current channel is 'general
-    expect(publicChannels.selectors.currentchannelId(store.getState())).toBe(generalId)
+    expect(publicChannels.selectors.currentChannelId(store.getState())).toBe(generalId)
 
     runSaga(function* (): Generator {
       const notification = yield* call(createNotification, notificationData)
@@ -75,7 +75,7 @@ describe('clicking in notification', () => {
     })
 
     // Confirm current channel address has changed
-    expect(publicChannels.selectors.currentchannelId(store.getState())).toBe(sailingId)
+    expect(publicChannels.selectors.currentChannelId(store.getState())).toBe(sailingId)
   })
 
   it('opens file explorer', async () => {

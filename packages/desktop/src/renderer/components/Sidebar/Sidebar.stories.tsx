@@ -25,7 +25,7 @@ const Template: ComponentStory<typeof SidebarComponent> = args => {
           position: 'relative'
         }}>
         <Grid item>
-          <SidebarComponent {...args} setCurrentChannel={setCurrentChannel} currentchannelId={currentChannel} />
+          <SidebarComponent {...args} setCurrentChannel={setCurrentChannel} currentChannelId={currentChannel} />
         </Grid>
       </Grid>
     </WindowWrapper>
