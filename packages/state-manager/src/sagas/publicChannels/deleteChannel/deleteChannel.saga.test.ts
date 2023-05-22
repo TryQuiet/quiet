@@ -1,9 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import {
-  getFactory,
-} from '../../..'
+import { getFactory } from '../../..'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
@@ -14,6 +12,7 @@ import { communitiesActions } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
 import { deleteChannelSaga } from './deleteChannel.saga'
 import { Socket } from 'socket.io-client'
+import { filesActions } from '../../files/files.slice'
 import { Community, Identity, PublicChannel, SocketActionTypes } from '@quiet/types'
 
 describe('deleteChannelSaga', () => {
@@ -75,6 +74,7 @@ describe('deleteChannelSaga', () => {
           channel: channelAddress
         }
       ])
+      .put(filesActions.deleteFilesFromChannel({ channelAddress }))
       .put(publicChannelsActions.setCurrentChannel({ channelAddress: 'general' }))
       .put(publicChannelsActions.disableChannel({ channelAddress }))
       .run()
@@ -97,6 +97,7 @@ describe('deleteChannelSaga', () => {
           channel: channelAddress
         }
       ])
+      .put(filesActions.deleteFilesFromChannel({ channelAddress }))
       .run()
   })
 })
