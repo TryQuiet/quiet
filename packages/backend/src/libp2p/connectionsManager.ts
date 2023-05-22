@@ -38,7 +38,7 @@ import { LocalDB, LocalDBKeys } from '../storage/localDB'
 import { createLibp2pAddress, createLibp2pListenAddress, getPorts, removeFilesFromDir } from '../common/utils'
 import { ProcessInChunks } from './processInChunks'
 import { multiaddr } from '@multiformats/multiaddr'
-import { AskForMessagesPayload, Certificates, ChannelMessage, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload } from '@quiet/types'
+import { AskForMessagesPayload, Certificates, ChannelMessage, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DeleteFilesFromChannelSocketPayload, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload } from '@quiet/types'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -615,20 +615,19 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(SocketActionTypes.CLOSE, async () => {
       await this.closeAllServices()
     })
-    this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload) => {
+    this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload: {channel: string}) => {
       await this.storage?.deleteChannel(payload)
     })
 
-    this.dataServer.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload) => {
+    this.dataServer.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: DeleteFilesFromChannelSocketPayload) => {
       log('DELETE_FILES_FROM_CHANNEL : payload', payload)
-      const messages: { [key: string]: ChannelMessage } = payload.messages
-
-      await this.deleteFilesFromChannel(messages)
+      await this.deleteFilesFromChannel(payload)
       await this.deleteFilesFromTemporaryDir()
     })
   }
 
-  private async deleteFilesFromChannel(messages: { [key: string]: ChannelMessage }) {
+  private async deleteFilesFromChannel(payload: DeleteFilesFromChannelSocketPayload) {
+    const { messages } = payload
     Object.keys(messages).map((key) => {
       const message = messages[key]
       if (message?.media?.path) {

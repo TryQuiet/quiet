@@ -23,7 +23,7 @@ describe('deleteFilesFromChannelSaga', () => {
   let community: Community
   let owner: Identity
 
-  let generalChannel: PublicChannel
+  let generalChannel: PublicChannel | undefined
   let photoChannel: PublicChannel
 
   let message: any
@@ -46,6 +46,7 @@ describe('deleteFilesFromChannelSaga', () => {
     )
 
     generalChannel = publicChannelsSelectors.currentChannel(store.getState())
+    expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(

@@ -5,6 +5,7 @@ import { publicChannelsActions } from './sagas/publicChannels/publicChannels.sli
 import {
   CancelDownloadPayload,
   Community,
+  DeleteFilesFromChannelSocketPayload,
   DownloadFilePayload,
   InitCommunityPayload,
   LaunchRegistrarPayload,
@@ -15,7 +16,6 @@ import {
   SocketActionTypes,
   UploadFilePayload
 } from '@quiet/types'
-import { DeleteFilesFromChannelSocketPayload } from './sagas/files/files.types'
 
 type EmitEvent<Payload> = (payload: Payload) => void
 
