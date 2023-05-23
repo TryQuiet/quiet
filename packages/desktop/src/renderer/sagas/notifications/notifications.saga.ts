@@ -50,11 +50,11 @@ export function* displayMessageNotificationSaga(
     const focused = yield* call(isWindowFocused)
 
     // Do not display notifications for active channel (when the app is in foreground)
-    if (focused && message.channelAddress === currentChannel.address) return
+    if (focused && message.channelAddress === currentChannel?.address) return
 
     // Do not display notifications for own messages
     const sender = certificatesMapping[message.pubKey]?.username
-    if (!sender || sender === currentIdentity.nickname) return
+    if (!sender || sender === currentIdentity?.nickname) return
 
     // Do not display notifications if turned off in configuration
     if (notificationsConfig === NotificationsOptions.doNotNotifyOfAnyMessages) return
@@ -66,7 +66,7 @@ export function* displayMessageNotificationSaga(
     if (!action.payload.isVerified) return
 
     let label = `New message from @${sender} in #${message.channelAddress}`
-    let body = `${message.message.substring(0, 64)}${message.message.length > 64 ? '...' : ''}`
+    let body: string | undefined = `${message.message.substring(0, 64)}${message.message.length > 64 ? '...' : ''}`
 
     // Change notification's label for the image
     if (message.type === MessageType.Image) {
@@ -114,10 +114,10 @@ export const createNotification = (notificationData: NotificationData): Notifica
   }
 
   const { sound, label, body } = notificationData
-
-  if (soundTypeToAudio[sound]) {
-    soundTypeToAudio[sound].volume = 0.2
-    soundTypeToAudio[sound].play()
+  const notificationSound = soundTypeToAudio[sound]
+  if (notificationSound) {
+    notificationSound.volume = 0.2
+    notificationSound.play()
   }
 
   return new Notification(label, {
@@ -147,7 +147,7 @@ function subscribeNotificationEvents(
 ) {
   return eventChannel<ReturnType<typeof publicChannels.actions.setCurrentChannel>>(emit => {
     notification.onclick = () => {
-      if (type === MessageType.File && media.path) {
+      if (type === MessageType.File && media?.path) {
         shell.showItemInFolder(media.path)
       } else {
         const [browserWindow] = remote.BrowserWindow.getAllWindows()

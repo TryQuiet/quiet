@@ -6,6 +6,11 @@ export interface OpenModalPayload {
   args?: {}
 }
 
+export type ModalState = {
+  open: boolean
+  args?: {}
+}
+
 export class ModalsInitialState {
   [ModalName.applicationUpdate] = { open: false };
   [ModalName.createChannel] = { open: false };
@@ -36,7 +41,7 @@ export const modalsSlice = createSlice({
   name: 'Modals',
   reducers: {
     openModal: (state, action: PayloadAction<OpenModalPayload>) => {
-      const name = action.payload.name
+      const name = action.payload.name as keyof typeof modalsReducer
       const args = action.payload.args
       state[name].open = true
       if (args) state[name].args = args

@@ -5,11 +5,16 @@ import { startConnectionSaga } from './socket/socket.saga'
 import { socketActions } from './socket/socket.slice'
 
 export default function* root(): Generator {
+  const dataPort = new URLSearchParams(window.location.search).get('dataPort')
+  if (!dataPort) {
+    console.error(`Can't start connection. No dataPort!`)
+    return
+  }
   yield all([
     takeEvery(communities.actions.handleInvitationCode.type, handleInvitationCodeSaga),
     startConnectionSaga(
       socketActions.startConnection({
-        dataPort: parseInt(new URLSearchParams(window.location.search).get('dataPort'))
+        dataPort: parseInt(dataPort)
       })
     )
   ])

@@ -1,11 +1,12 @@
-import { useModal } from '../containers/hooks'
 import { ModalName } from '../sagas/modals/modals.types'
-import { modalsActions, OpenModalPayload } from '../sagas/modals/modals.slice'
+import { modalsActions } from '../sagas/modals/modals.slice'
+import { State } from '../sagas/store.types'
+import { AnyAction } from 'redux'
 
-const isPromise = value =>
+const isPromise = (value: any) =>
   value !== null && typeof value === 'object' && typeof value.then === 'function'
 
-const _dispatchError = (store, err) => {
+const _dispatchError = (store: State, err: Error) => {
   const criticalError = {
     message: err.message,
     traceback: err.stack
@@ -16,14 +17,14 @@ const _dispatchError = (store, err) => {
   }))
 }
 
-export const errorsMiddleware = store => next => action => {
+export const errorsMiddleware = (store: State) => (next: (action: AnyAction)=> Promise<any>) => (action: AnyAction) => {
   if (!action) return
   if (action?.meta?.ignoreError) {
     return next(action)
   }
   // Handle action with Promise payload
   if (isPromise(action?.payload)) {
-    return next(action).catch(error => {
+    return next(action).catch((error: Error) => {
       _dispatchError(store, error)
       throw error
     })
@@ -35,7 +36,7 @@ export const errorsMiddleware = store => next => action => {
 
       // If next didn't throw check if the action is an async thunk and add error handling
       if (isPromise(result)) {
-        result.catch(error => {
+        result.catch((error: Error) => {
           _dispatchError(store, error)
           throw error
         })
