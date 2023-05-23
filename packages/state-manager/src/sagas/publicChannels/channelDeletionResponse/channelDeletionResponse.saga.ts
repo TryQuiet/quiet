@@ -41,5 +41,12 @@ export function* channelDeletionResponseSaga(
     } else {
       yield* put(messagesActions.sendDeletionMessage({ channelId }))
     }
+  } else {
+    if (isGeneral) {
+      yield* delay(3000)
+      const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
+      if (!generalChannel) return
+      yield* put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
+    }
   }
 }

@@ -61,7 +61,7 @@ const Channel = () => {
 
   const pendingGeneralChannelRecreation =
     pendingGeneralChannelRecreationSelector &&
-    currentChannelName === 'general' &&
+    (currentChannelName === 'general' || currentChannelName === '') &&
     currentChannelMessagesCount === 0
 
   let enableContextMenu: boolean = false

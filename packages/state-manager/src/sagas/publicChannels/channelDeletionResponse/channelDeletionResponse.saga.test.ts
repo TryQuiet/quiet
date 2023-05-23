@@ -144,6 +144,10 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.clearMessagesCache({ channelId }))
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .provide({
+          call: (effect, next) => {}
+        })
+        // here should be also put setCurrentChannel to new general channel
         .run()
     })
   })
