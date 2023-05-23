@@ -24,7 +24,7 @@ describe('resetChannelCacheSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: PublicChannel 
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -34,7 +34,7 @@ describe('resetChannelCacheSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -61,20 +61,23 @@ describe('resetChannelCacheSaga', () => {
       const iterations = 80
       ;[...Array(iterations)].map(async (_, index) => {
         const item = (
-          await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
-            identity: alice,
-            message: {
-              id: Math.random().toString(36).substr(2.9),
-              type: MessageType.Basic,
-              message: 'message',
-              createdAt:
-                DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
-              channelId: generalChannel.id,
-              signature: '',
-              pubKey: ''
-            },
-            verifyAutomatically: true
-          })
+          await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
+            'Message',
+            {
+              identity: alice,
+              message: {
+                id: Math.random().toString(36).substr(2.9),
+                type: MessageType.Basic,
+                message: 'message',
+                createdAt:
+                  DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
+                channelId: generalChannel.id,
+                signature: '',
+                pubKey: ''
+              },
+              verifyAutomatically: true
+            }
+          )
         ).message
         messages.push(item)
         if (messages.length === iterations) {

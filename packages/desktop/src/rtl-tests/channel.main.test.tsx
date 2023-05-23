@@ -139,7 +139,7 @@ describe('Channel', () => {
     expect(messageInput).toBeVisible()
   })
 
-  it.only('filters out suspicious messages', async () => {
+  it('filters out suspicious messages', async () => {
     const { store, runSaga } = await prepareStore(
       {},
       socket // Fork state manager's sagas
@@ -154,8 +154,6 @@ describe('Channel', () => {
     const entities = store.getState().PublicChannels.channels.entities
 
     const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
-
-    console.log({ generalId })
 
     await act(async () => {
       store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
@@ -178,7 +176,7 @@ describe('Channel', () => {
           message: {
             id: Math.random().toString(36).substr(2.9),
             type: MessageType.Basic,
-            message: 'message',
+            message: 'authenticMessage',
             createdAt: DateTime.utc().valueOf(),
             channelId: generalId,
             signature: '',
@@ -191,20 +189,18 @@ describe('Channel', () => {
     const spoofedMessage: ChannelMessage = {
       ...(
         await factory.build<typeof publicChannels.actions.test_message>('Message', {
-          identity: alice
-          // message: {
-          //   id: Math.random().toString(36).substr(2.9),
-          //   type: MessageType.Basic,
-          //   message: 'message',
-          //   createdAt: DateTime.utc().valueOf(),
-          //   channelId: generalId,
-          //   signature: '',
-          //   pubKey: johnPublicKey
-          // }
+          identity: alice,
+          message: {
+            id: Math.random().toString(36).substr(2.9),
+            type: MessageType.Basic,
+            message: 'spoofedMessage',
+            createdAt: DateTime.utc().valueOf(),
+            channelId: generalId,
+            signature: '',
+            pubKey: johnPublicKey
+          }
         })
-      ).payload.message,
-      id: Math.random().toString(36).substr(2.9),
-      pubKey: johnPublicKey
+      ).payload.message
     }
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
