@@ -48,7 +48,7 @@ const transformPublicChannelsMessagesBaseEntities = (
   for (const [key, _message] of Object.entries(messagesBaseEntities)) {
     const message = { ..._message } as any
     if (message.channelAddress) {
-        const messages = messagesRefactor(message.messages)
+        const messages = { ...message.messages, entities: messagesRefactor(message.messages) }
         const transformedMessage = {
             ...message,
             messages,

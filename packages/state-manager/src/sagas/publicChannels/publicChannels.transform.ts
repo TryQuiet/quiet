@@ -65,7 +65,7 @@ const transformChannelsEntities = (channelsEntities: Dictionary<PublicChannelSto
   for (const [key, _channel] of Object.entries(channelsEntities)) {
     const channel = { ..._channel } as any
     if (channel.address) {
-      const messages = messagesRefactor(channel.messages)
+      const messages = { ...channel.messages, entities: messagesRefactor(channel.messages) }
       const transformedChannel = {
         ...channel,
         messages,
