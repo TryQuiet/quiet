@@ -117,10 +117,12 @@ describe('Create community', () => {
     const communityName = 'communityname'
     const textInput = result.queryByPlaceholderText('Community name')
     expect(textInput).not.toBeNull()
+    // @ts-expect-error
     await userEvent.type(textInput, communityName)
     const submitButton = result.queryByRole('button')
     expect(submitButton).not.toBeNull()
     expect(submitButton).toBeEnabled()
+    // @ts-expect-error
     await userEvent.click(submitButton)
     await waitFor(() => expect(handleCommunityAction).toBeCalledWith(communityName))
   })
@@ -262,7 +264,7 @@ describe('Create community', () => {
 
     const switchLink = result.queryByText('join a community')
     expect(switchLink).not.toBeNull()
-
+    // @ts-expect-error
     await userEvent.click(switchLink)
 
     expect(handleRedirection).toBeCalled()

@@ -12,28 +12,28 @@ export type ModalState = {
 }
 
 export class ModalsInitialState {
-  [ModalName.applicationUpdate] = { open: false };
-  [ModalName.createChannel] = { open: false };
-  [ModalName.deleteChannel] = { open: false };
-  [ModalName.accountSettingsModal] = { open: false };
-  [ModalName.openexternallink] = { open: false };
-  [ModalName.criticalError] = { open: false };
-  [ModalName.createUsernameModal] = { open: false };
-  [ModalName.channelInfo] = { open: false };
-  [ModalName.channelSettingsModal] = { open: false };
-  [ModalName.publishChannel] = { open: false };
-  [ModalName.joinChannel] = { open: false };
-  [ModalName.newMessageSeparate] = { open: false };
-  [ModalName.quitApp] = { open: false };
-  [ModalName.joinCommunityModal] = { open: false };
-  [ModalName.createCommunityModal] = { open: false };
-  [ModalName.uploadedFileModal] = { open: false };
-  [ModalName.sentryWarningModal] = { open: false };
-  [ModalName.leaveCommunity] = { open: false };
-  [ModalName.searchChannelModal] = { open: false };
-  [ModalName.warningModal] = { open: false };
-  [ModalName.loadingPanel] = { open: true }; // Loading modal is open by default and closes on websocket connection
-  [ModalName.channelCreationModal] = { open: false }
+  [ModalName.applicationUpdate] = { open: false, args: {} };
+  [ModalName.createChannel] = { open: false, args: {} };
+  [ModalName.deleteChannel] = { open: false, args: {} };
+  [ModalName.accountSettingsModal] = { open: false, args: {} };
+  [ModalName.openexternallink] = { open: false, args: {} };
+  [ModalName.criticalError] = { open: false, args: {} };
+  [ModalName.createUsernameModal] = { open: false, args: {} };
+  [ModalName.channelInfo] = { open: false, args: {} };
+  [ModalName.channelSettingsModal] = { open: false, args: {} };
+  [ModalName.publishChannel] = { open: false, args: {} };
+  [ModalName.joinChannel] = { open: false, args: {} };
+  [ModalName.newMessageSeparate] = { open: false, args: {} };
+  [ModalName.quitApp] = { open: false, args: {} };
+  [ModalName.joinCommunityModal] = { open: false, args: {} };
+  [ModalName.createCommunityModal] = { open: false, args: {} };
+  [ModalName.uploadedFileModal] = { open: false, args: {} };
+  [ModalName.sentryWarningModal] = { open: false, args: {} };
+  [ModalName.leaveCommunity] = { open: false, args: {} };
+  [ModalName.searchChannelModal] = { open: false, args: {} };
+  [ModalName.warningModal] = { open: false, args: {} };
+  [ModalName.loadingPanel] = { open: true, args: {} }; // Loading modal is open by default and closes on websocket connection
+  [ModalName.channelCreationModal] = { open: false, args: {} };
 }
 
 export const modalsSlice = createSlice({
@@ -41,14 +41,14 @@ export const modalsSlice = createSlice({
   name: 'Modals',
   reducers: {
     openModal: (state, action: PayloadAction<OpenModalPayload>) => {
-      const name = action.payload.name as keyof typeof modalsReducer
+      const name = action.payload.name
       const args = action.payload.args
       state[name].open = true
       if (args) state[name].args = args
     },
     closeModal: (state, action: PayloadAction<ModalName>) => {
       state[action.payload].open = false
-      state[action.payload].args = undefined
+      state[action.payload].args = {}
     }
   }
 })

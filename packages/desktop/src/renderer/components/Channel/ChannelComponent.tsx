@@ -49,7 +49,7 @@ export interface ChannelComponentProps {
   }
   newestMessage: ChannelMessage
   pendingMessages: Dictionary<MessageSendingStatus>
-  downloadStatuses: Dictionary<DownloadStatus>
+  downloadStatuses?: Dictionary<DownloadStatus>
   lazyLoading: (load: boolean) => void
   onInputChange: (value: string) => void
   onInputEnter: (message: string) => void
@@ -83,7 +83,7 @@ export const ChannelComponent: React.FC<
   messages,
   newestMessage,
   pendingMessages,
-  downloadStatuses,
+  downloadStatuses = {},
   lazyLoading,
   onInputChange,
   onInputEnter,

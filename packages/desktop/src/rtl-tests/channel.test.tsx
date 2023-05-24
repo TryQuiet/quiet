@@ -11,7 +11,7 @@ import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
 import ChannelInputComponent from '../renderer/components/widgets/channels/ChannelInput/ChannelInput'
-
+import {AnyAction} from 'redux'
 import {
   identity,
   communities,
@@ -69,7 +69,6 @@ jest.mock('electron', () => {
 })
 
 jest.mock('../shared/sounds', () => ({
-  // @ts-expect-error
   ...jest.requireActual('../shared/sounds'),
   soundTypeToAudio: {
     pow: {
@@ -386,7 +385,7 @@ describe('Channel', () => {
     expect(Object.values(displayableMessages).length).toBe(1)
 
     // Verify message status is 'pending'
-    expect(messages.selectors.messagesSendingStatus(store.getState())[sentMessage.id].status).toBe(
+    expect(messages.selectors.messagesSendingStatus(store.getState())[sentMessage.id]?.status).toBe(
       SendingStatus.Pending
     )
 
@@ -539,7 +538,7 @@ describe('Channel', () => {
     })
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -578,6 +577,7 @@ describe('Channel', () => {
         setInfoClass={jest.fn()}
         openFilesDialog={jest.fn()}
         handleOpenFiles={jest.fn()}
+        handleClipboardFiles={jest.fn()}
       />
     )
 
@@ -605,6 +605,7 @@ describe('Channel', () => {
         setInfoClass={jest.fn()}
         openFilesDialog={jest.fn()}
         handleOpenFiles={jest.fn()}
+        handleClipboardFiles={jest.fn()}
       />
     )
 
@@ -616,34 +617,34 @@ describe('Channel', () => {
       messageInput,
       'mmulti-line{Shift>}{Enter}{/Shift}message{Shift>}{Enter}{/Shift}hello'
     )
-    expect(window.getSelection().anchorNode.nodeValue).toBe('hello')
-    expect(window.getSelection().anchorOffset).toBe(5)
+    expect(window?.getSelection()?.anchorNode?.nodeValue).toBe('hello')
+    expect(window?.getSelection()?.anchorOffset).toBe(5)
 
     // Test where the caret is after an Arrow Up
     await userEvent.keyboard('{ArrowLeft>3/}')
-    expect(window.getSelection().anchorOffset).toBe(2)
+    expect(window?.getSelection()?.anchorOffset).toBe(2)
     await userEvent.keyboard('{ArrowUp}')
-    expect(window.getSelection().anchorNode.nodeValue).toBe('message')
-    expect(window.getSelection().anchorOffset).toBe(2)
+    expect(window?.getSelection()?.anchorNode?.nodeValue).toBe('message')
+    expect(window?.getSelection()?.anchorOffset).toBe(2)
     await userEvent.keyboard('{ArrowUp}')
-    expect(window.getSelection().anchorNode.nodeValue).toBe('multi-line')
-    expect(window.getSelection().anchorOffset).toBe(2)
+    expect(window?.getSelection()?.anchorNode?.nodeValue).toBe('multi-line')
+    expect(window?.getSelection()?.anchorOffset).toBe(2)
     await userEvent.keyboard('{ArrowUp}')
-    expect(window.getSelection().anchorNode.nodeValue).toBe('multi-line')
-    expect(window.getSelection().anchorOffset).toBe(0)
+    expect(window?.getSelection()?.anchorNode?.nodeValue).toBe('multi-line')
+    expect(window?.getSelection()?.anchorOffset).toBe(0)
 
     // Test where the caret is after an Arrow Down
     await userEvent.keyboard('{ArrowRight>3/}')
-    expect(window.getSelection().anchorOffset).toBe(3)
+    expect(window?.getSelection()?.anchorOffset).toBe(3)
     await userEvent.keyboard('{ArrowDown}')
-    expect(window.getSelection().anchorNode.nodeValue).toBe('message')
-    expect(window.getSelection().anchorOffset).toBe(3)
+    expect(window?.getSelection()?.anchorNode?.nodeValue).toBe('message')
+    expect(window?.getSelection()?.anchorOffset).toBe(3)
     await userEvent.keyboard('{ArrowDown}')
-    expect(window.getSelection().anchorNode.nodeValue).toBe('hello')
-    expect(window.getSelection().anchorOffset).toBe(3)
+    expect(window?.getSelection()?.anchorNode?.nodeValue).toBe('hello')
+    expect(window?.getSelection()?.anchorOffset).toBe(3)
     await userEvent.keyboard('{ArrowDown}')
-    expect(window.getSelection().anchorNode.nodeValue).toBe('hello')
-    expect(window.getSelection().anchorOffset).toBe(5)
+    expect(window?.getSelection()?.anchorNode?.nodeValue).toBe('hello')
+    expect(window.getSelection()?.anchorOffset).toBe(5)
   })
 
   it("doesn't allow to type and send message if community is not initialized", async () => {
@@ -672,7 +673,7 @@ describe('Channel', () => {
     )
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -709,13 +710,14 @@ describe('Channel', () => {
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
-    let cid: string
+    let cid: string = ''
 
     const uploadingDelay = 100
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: any[]) => {
+        const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input as socketEventData<[InitCommunityPayload]>
           const payload = data[0]
@@ -765,7 +767,7 @@ describe('Channel', () => {
     }
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -784,6 +786,7 @@ describe('Channel', () => {
 
     store.dispatch(files.actions.uploadFile(fileContent))
 
+    expect(cid).not.toEqual('')
     // Confirm image's placeholder never displays
     expect(screen.queryByTestId(`${cid}-imagePlaceholder`)).toBeNull()
 
@@ -884,7 +887,8 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: any[]) => {
+        const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input as socketEventData<[InitCommunityPayload]>
           const payload = data[0]
@@ -911,7 +915,7 @@ describe('Channel', () => {
 
     store.dispatch(connection.actions.torBootstrapped('100%'))
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -965,7 +969,8 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: any[]) => {
+        const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input as socketEventData<[InitCommunityPayload]>
           const payload = data[0]
@@ -1000,7 +1005,7 @@ describe('Channel', () => {
     }
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -1092,7 +1097,8 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: any[]) => {
+        const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input as socketEventData<[InitCommunityPayload]>
           const payload = data[0]
@@ -1108,7 +1114,7 @@ describe('Channel', () => {
     )
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -1206,7 +1212,8 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: any[]) => {
+        const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input as socketEventData<[InitCommunityPayload]>
           const payload = data[0]
@@ -1222,7 +1229,7 @@ describe('Channel', () => {
     )
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -1322,7 +1329,8 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: any[]) => {
+        const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input as socketEventData<[InitCommunityPayload]>
           const payload = data[0]
@@ -1338,7 +1346,7 @@ describe('Channel', () => {
     )
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()

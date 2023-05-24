@@ -16,6 +16,7 @@ export const retrieveInvitationCode = (url: string): string => {
     console.log('Retrieved code:', data.searchParams.get(InvitationParams.CODE))
     return data.searchParams.get(InvitationParams.CODE)
   }
+  return ''
 }
 
 export const argvInvitationCode = (argv: string[]): string => {

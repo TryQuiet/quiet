@@ -23,6 +23,7 @@ import {
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
+import {AnyAction} from 'redux'
 
 jest.setTimeout(20_000)
 
@@ -63,7 +64,8 @@ describe('User', () => {
       store
     )
 
-    jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
+    jest.spyOn(socket, 'emit').mockImplementation((...input: any[]) => {
+      const action = input[0] as SocketActionTypes
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const data = input as socketEventData<[Community]>
         const payload = { ...data[0], privateKey: 'privateKey' }
@@ -129,7 +131,7 @@ describe('User', () => {
     })
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()

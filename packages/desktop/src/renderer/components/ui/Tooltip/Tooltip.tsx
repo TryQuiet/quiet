@@ -58,7 +58,7 @@ export const Tooltip: React.FC<React.ComponentProps<typeof MuiTooltip> & CustomT
         {...props}
         className={className}
         title={
-          title.length === 0 ? (
+          title?.length === 0 ? (
             ''
           ) : (
             <React.Fragment>

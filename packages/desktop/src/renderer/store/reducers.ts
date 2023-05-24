@@ -86,6 +86,6 @@ export const rootReducer = (state: any, action: AnyAction) => { // TODO: what is
   return allReducers(state, action)
 }
 
-// export type Store = StoreType<typeof reducers>
+export type StoreReducers = StoreType<typeof reducers>
 
 export default persistReducer(persistConfig, rootReducer)

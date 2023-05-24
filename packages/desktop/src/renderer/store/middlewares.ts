@@ -1,12 +1,11 @@
 import { ModalName } from '../sagas/modals/modals.types'
 import { modalsActions } from '../sagas/modals/modals.slice'
-import { State } from '../sagas/store.types'
-import { AnyAction } from 'redux'
+import { Store } from '../sagas/store.types'
 
 const isPromise = (value: any) =>
   value !== null && typeof value === 'object' && typeof value.then === 'function'
 
-const _dispatchError = (store: State, err: Error) => {
+const _dispatchError = (store: Store, err: Error) => {
   const criticalError = {
     message: err.message,
     traceback: err.stack
@@ -17,7 +16,7 @@ const _dispatchError = (store: State, err: Error) => {
   }))
 }
 
-export const errorsMiddleware = (store: State) => (next: (action: AnyAction)=> Promise<any>) => (action: AnyAction) => {
+export const errorsMiddleware = (store: any) => (next: (action: any)=> Promise<any>) => (action: any) => {
   if (!action) return
   if (action?.meta?.ignoreError) {
     return next(action)

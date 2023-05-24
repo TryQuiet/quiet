@@ -60,6 +60,7 @@ Uploading.args = {
   ...args,
   message: {
     ...args.message,
+    // @ts-expect-error
     media: {
       ...args.message.media,
       size: undefined
@@ -93,11 +94,11 @@ Queued.args = {
       transferSpeed: 0
     }
   },
-  cancel: () => { console.log('cancel download') }
+  cancelDownload: () => { console.log('cancel download') }
 }
 Ready.args = {
   ...args,
-  download: () => { console.log('download file') }
+  downloadFile: () => { console.log('download file') }
 }
 Downloading.args = {
   ...args,
@@ -111,7 +112,7 @@ Downloading.args = {
       transferSpeed: 32
     }
   },
-  cancel: () => { console.log('cancel download') }
+  cancelDownload: () => { console.log('cancel download') }
 }
 Canceling.args = {
   ...args,
@@ -141,7 +142,7 @@ Completed.args = {
       transferSpeed: 0
     }
   },
-  show: () => { console.log('show in folder') }
+  openContainingFolder: () => { console.log('show in folder') }
 }
 Malicious.args = {
   ...args,

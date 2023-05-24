@@ -14,7 +14,7 @@ export const useModal = <T extends OpenModalPayload['args']>(name: ModalName) =>
   const dispatch = useDispatch()
 
   const open = useSelector(modalsSelectors.open(name))
-  const props: T = useSelector(modalsSelectors.props(name))
+  const props = useSelector(modalsSelectors.props(name))
 
   const handleOpen = (args?: T) =>
     dispatch(

@@ -56,7 +56,6 @@ jest.mock('@electron/remote', () => {
 })
 
 jest.mock('../../../shared/sounds', () => ({
-  // @ts-expect-error
   ...jest.requireActual('../../../shared/sounds'),
   soundTypeToAudio: {
     librarianShhh: {

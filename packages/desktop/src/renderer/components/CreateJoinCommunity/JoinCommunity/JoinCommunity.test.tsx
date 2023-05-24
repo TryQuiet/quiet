@@ -118,7 +118,7 @@ describe('join community', () => {
 
     const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
-
+    // @ts-expect-error
     await userEvent.type(textInput, registrarUrl)
 
     const submitButton = result.getByText('Continue')
@@ -152,7 +152,7 @@ describe('join community', () => {
 
     const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
-
+    // @ts-expect-error
     await userEvent.type(textInput, registrarUrl.href)
 
     const submitButton = result.getByText('Continue')
@@ -182,7 +182,7 @@ describe('join community', () => {
 
     const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
-
+    // @ts-expect-error
     await userEvent.type(textInput, registrarUrl)
 
     const submitButton = result.getByText('Continue')
@@ -246,7 +246,7 @@ describe('join community', () => {
 
     const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
-
+    // @ts-expect-error
     await userEvent.type(textInput, 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad')
 
     const submitButton = result.getByTestId('continue-joinCommunity')
@@ -312,7 +312,7 @@ describe('join community', () => {
 
     const switchLink = result.queryByText('create a new community')
     expect(switchLink).not.toBeNull()
-
+    // @ts-expect-error
     await userEvent.click(switchLink)
 
     expect(handleRedirection).toBeCalled()

@@ -9,21 +9,24 @@ const Template: ComponentStory<typeof SearchModalComponent> = args => {
 
 export const Component = Template.bind({})
 
-const args = {
+const args: SearchModalComponentProps = {
   open: true,
   dynamicSearchedChannelsSelector: [
-    { name: 'fun', address: 'fun' },
-    { name: 'mobile', address: 'mobile' },
-    { name: 'new-york-plans', address: 'new-york-plans' }
+    { name: 'fun', address: 'fun', messages: {ids: [], entities: {}}, description: '', owner: '', timestamp: 123123},
+    { name: 'mobile', address: 'mobile', messages: {ids: [], entities: {}}, description: '', owner: '', timestamp: 123123},
+    { name: 'new-york-plans', address: 'new-york-plans', messages: {ids: [], entities: {}}, description: '', owner: '', timestamp: 123123}
   ],
   publicChannelsSelector: [
-    { name: 'fun', address: 'fun' },
-    { name: 'mobile', address: 'mobile' },
-    { name: 'new-york-plans', address: 'new-york-plans' },
-    { name: 'general', address: 'general' }
+    { name: 'fun', address: 'fun', messages: {ids: [], entities: {}}, description: '', owner: '', timestamp: 123123},
+    { name: 'mobile', address: 'mobile', messages: {ids: [], entities: {}}, description: '', owner: '', timestamp: 123123},
+    { name: 'new-york-plans', address: 'new-york-plans', messages: {ids: [], entities: {}}, description: '', owner: '', timestamp: 123123},
+    { name: 'general', address: 'general', messages: {ids: [], entities: {}}, description: '', owner: '', timestamp: 123123}
   ],
   unreadChannelsSelector: [],
-  channelInput: ''
+  channelInput: '',
+  handleClose: () => {},
+  setCurrentChannel: () => {},
+  setChannelInput: () => {}
 }
 
 Component.args = args

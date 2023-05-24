@@ -91,7 +91,8 @@ describe('Add new channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: any) => {
+        const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.CREATE_CHANNEL) {
           const data = input as socketEventData<[CreateChannelPayload]>
           const payload = data[0]
@@ -220,6 +221,8 @@ describe('Add new channel', () => {
     expect(input).toHaveValue(channelName)
 
     const closeChannel = screen.getByTestId('ModalActions').querySelector('button')
+    expect(closeChannel).not.toBeNull()
+    // @ts-expect-error
     await userEvent.click(closeChannel)
 
     const isGeneral = await screen.findByText('# general')
@@ -271,6 +274,8 @@ describe('Add new channel', () => {
     expect(error).toBeVisible()
 
     const closeChannel = screen.getByTestId('ModalActions').querySelector('button')
+    expect(closeChannel).not.toBeNull()
+    // @ts-expect-error
     await userEvent.click(closeChannel)
 
     const isGeneral = await screen.findByText('# general')
@@ -300,7 +305,8 @@ describe('Add new channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: any) => {
+        const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.CREATE_CHANNEL) {
           const data = input as socketEventData<[CreateChannelPayload]>
           const payload = data[0]
@@ -395,7 +401,8 @@ describe('Add new channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: any) => {
+        const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.CREATE_CHANNEL) {
           const data = input as socketEventData<[CreateChannelPayload]>
           const payload = data[0]
@@ -454,6 +461,8 @@ describe('Add new channel', () => {
     expect(createChannelModal).toBeNull()
     const list = await screen.findByTestId('channelsList')
     const textContent = list.textContent
+    expect(textContent).not.toBeNull()
+    // @ts-expect-error
     const textArray = textContent.replace(/#/g, '').split(' ')
     const filteredArray = textArray.filter(item => item.length > 0)
     expect(filteredArray).toEqual(['general', '12a', 'abc', 'zzz'])

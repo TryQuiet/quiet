@@ -8,7 +8,7 @@ export interface PerformCommunityActionDictionary {
   label: string
   placeholder: string
   hint?: string
-  button?: string
+  button: string
   field: FieldData
   redirection?: ReactElement
   id: string

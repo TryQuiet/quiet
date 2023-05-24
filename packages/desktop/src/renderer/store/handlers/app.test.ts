@@ -28,7 +28,7 @@ import remote from '@electron/remote'
 import handlers from './app'
 import selectors from '../selectors/app'
 import create from '../create'
-import { Store } from '@quiet/state-manager'
+import { Store } from '../../sagas/store.types'
 
 describe('criticalError reducer', () => {
   let store: Store | null = null
@@ -45,6 +45,7 @@ describe('criticalError reducer', () => {
     it('loadVersion', () => {
       store?.dispatch(handlers.actions.loadVersion())
       const state = store?.getState()
+      expect(state).not.toBeUndefined()
       if (!state) return
       expect(selectors.version(state)).toMatchSnapshot()
     })

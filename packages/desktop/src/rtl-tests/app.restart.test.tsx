@@ -76,7 +76,9 @@ describe('Restart app works correctly', () => {
       const general = store.getState().PublicChannels.channels.entities['general']
       store.dispatch(
         publicChannels.actions.sendInitialChannelMessage({
+          // @ts-expect-error
           channelAddress: general.address,
+          // @ts-expect-error
           channelName: general.name
         })
       )

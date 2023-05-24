@@ -19,8 +19,8 @@ describe('ChannelInput', () => {
         infoClass={''}
         setInfoClass={jest.fn()}
         openFilesDialog={jest.fn()}
-        handleOpenFiles={jest.fn()}
-      />
+        handleOpenFiles={jest.fn()} handleClipboardFiles={function (arg: ArrayBuffer, ext: string, name: string): void {}}
+        />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -111,8 +111,8 @@ describe('ChannelInput', () => {
         setInfoClass={jest.fn()}
         inputState={INPUT_STATE.NOT_CONNECTED}
         openFilesDialog={jest.fn()}
-        handleOpenFiles={jest.fn()}
-      />
+        handleOpenFiles={jest.fn()} handleClipboardFiles={function (arg: ArrayBuffer, ext: string, name: string): void {
+        } }      />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

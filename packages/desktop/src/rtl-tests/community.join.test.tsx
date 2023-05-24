@@ -29,6 +29,7 @@ import {
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { createUserCertificateTestHelper } from '@quiet/identity'
+import {AnyAction} from 'redux'
 
 jest.setTimeout(20_000)
 
@@ -69,7 +70,8 @@ describe('User', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: any) => {
+        const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.CREATE_NETWORK) {
           const data = input as socketEventData<[Community]>
           const payload = data[0]
@@ -90,6 +92,7 @@ describe('User', () => {
           const data = input as socketEventData<[RegisterUserCertificatePayload]>
           const payload = data[0]
           const user = identity.selectors.currentIdentity(store.getState())
+          expect(user).not.toBeUndefined()
           // This community serves only as a mocked object for generating valid crytpo data (certificate, rootCA)
           const communityHelper: ReturnType<typeof communities.actions.addNewCommunity>['payload'] = (
             await factory.build<typeof communities.actions.addNewCommunity>('Community', {
@@ -98,15 +101,19 @@ describe('User', () => {
           ).payload
           const certificateHelper = await createUserCertificateTestHelper(
             {
+              // @ts-expect-error
               nickname: user.nickname,
+              // @ts-expect-error
               commonName: communityHelper.registrarUrl,
+              // @ts-expect-error
               peerId: user.peerId.id,
+              // @ts-expect-error
               dmPublicKey: user.dmKeys.publicKey
             },
             communityHelper.CA
           )
           const certificate = certificateHelper.userCert.userCertObject.certificate
-          const rootCa = communityHelper.CA.rootCertString
+          const rootCa = communityHelper.CA?.rootCertString
           return socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
             communityId: payload.communityId,
             payload: {
@@ -120,12 +127,12 @@ describe('User', () => {
           const data = input as socketEventData<[InitCommunityPayload]>
           const payload = data[0]
           const community = communities.selectors.currentCommunity(store.getState())
-          expect(payload.id).toEqual(community.id)
+          expect(payload.id).toEqual(community?.id)
           socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
           socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
-            communityId: community.id,
+            communityId: community?.id,
             channels: {
               general: {
                 name: 'general',
@@ -140,10 +147,10 @@ describe('User', () => {
       })
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
-        const action = yield* take()
+        const action: AnyAction = yield* take()
         actions.push(action.type)
       }
     })
@@ -234,7 +241,8 @@ describe('User', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: any) => {
+        const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.CREATE_NETWORK) {
           const data = input as socketEventData<[Community]>
           const payload = data[0]
@@ -255,18 +263,18 @@ describe('User', () => {
           const data = input as socketEventData<[RegisterUserCertificatePayload]>
           const payload = data[0]
           const community = communities.selectors.currentCommunity(store.getState())
-          expect(payload.communityId).toEqual(community.id)
+          expect(payload.communityId).toEqual(community?.id)
           socket.socketClient.emit(SocketActionTypes.ERROR, {
             type: SocketActionTypes.REGISTRAR,
             code: ErrorCodes.FORBIDDEN,
             message: ErrorMessages.USERNAME_TAKEN,
-            community: community.id
+            community: community?.id
           })
         }
       })
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -346,7 +354,8 @@ describe('User', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: any) => {
+        const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.CREATE_NETWORK) {
           const data = input as socketEventData<[Community]>
           const payload = data[0]
@@ -366,7 +375,7 @@ describe('User', () => {
       })
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -399,7 +408,7 @@ describe('User', () => {
           type: SocketActionTypes.REGISTRAR,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.USERNAME_TAKEN,
-          community: community.id
+          community: community?.id
         })
       )
     })
