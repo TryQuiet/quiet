@@ -4,7 +4,6 @@ import { stringToArrayBuffer } from 'pvutils'
 import { ChannelMessage, PublicChannel } from '@quiet/types'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
 import Identities from 'orbit-db-identity-provider'
-// import Keystore from 'orbit-db-keystore'
 import OrbitDB from 'orbit-db'
 import PeerId from 'peer-id'
 
@@ -20,13 +19,13 @@ export const createChannelAccessController = (peerId: PeerId, dir: string) => {
     }
 
     async canAppend(entry: LogEntry<PublicChannel>, identityProvider: any) {
-      console.log('can append entry ', entry)
+      // console.log('can append entry ', entry)
 
       // const keystore = identityProvider._keystore
 
       // const stringPeerId = 'QmTBYqK1qTXW9E6os3vc9phR9JWRs1jUTutgpLEGJVtubY'
 
-      console.log('identityProvider', identityProvider)
+      // console.log('identityProvider', identityProvider)
       // identityProvider.getId(peerId.toString())
 
       // const identity = await Identities.createIdentity({

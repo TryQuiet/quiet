@@ -556,10 +556,10 @@ export class Storage extends EventEmitter {
     const gcresult = this.ipfs.repo.gc()
     for await (const res of gcresult) {
       // @ts-ignore
-      const ccc = base58.base58btc.encode(res.cid?.multihash.bytes)
+      // const ccc = base58.base58btc.encode(res.cid?.multihash.bytes)
 
-      console.log('base58btc encoded', ccc)
-      console.log('garbage collector result', res)
+      // console.log('base58btc encoded', ccc)
+      // console.log('garbage collector result', res)
     }
     // for await (const result of this.ipfs.block.rm(hashes)) {
     //   if (result.error) {
