@@ -3,9 +3,10 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
-import { communitiesActions, Community } from '../communities.slice'
+import { communitiesActions } from '../communities.slice'
 import { updateCommunitySaga } from './updateCommunity.saga'
 import { reducers } from '../../reducers'
+import { Community } from '@quiet/types'
 
 describe('updateCommunitySaga', () => {
   test('update community', async () => {

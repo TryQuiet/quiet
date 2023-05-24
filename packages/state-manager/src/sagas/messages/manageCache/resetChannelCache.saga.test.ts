@@ -4,12 +4,9 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { getFactory } from '../../../utils/tests/factories'
 import { prepareStore } from '../../..//utils/tests/prepareStore'
 import { combineReducers, Store } from 'redux'
-import { Community, communitiesActions } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
-import { MessageType } from '../messages.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { ChannelMessage, PublicChannel } from '../../publicChannels/publicChannels.types'
 import {
   publicChannelsSelectors,
   selectGeneralChannel
@@ -18,6 +15,7 @@ import { DateTime } from 'luxon'
 import { reducers } from '../../reducers'
 import { resetCurrentPublicChannelCacheSaga } from './resetChannelCache.saga'
 import { messagesActions } from '../messages.slice'
+import { ChannelMessage, Community, Identity, MessageType, PublicChannel } from '@quiet/types'
 
 describe('resetChannelCacheSaga', () => {
   let store: Store
@@ -26,7 +24,8 @@ describe('resetChannelCacheSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: PublicChannel
+  let generalChannel: PublicChannel | undefined
+  let generalChannelAddress: string
 
   beforeAll(async () => {
     setupCrypto()
@@ -45,13 +44,15 @@ describe('resetChannelCacheSaga', () => {
     )
 
     generalChannel = selectGeneralChannel(store.getState())
+    expect(generalChannel).toBeDefined()
+    generalChannelAddress = generalChannel?.address || ''
   })
 
   test('reset current public channel cache', async () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       })
     )
 
@@ -69,7 +70,7 @@ describe('resetChannelCacheSaga', () => {
               message: 'message',
               createdAt:
                 DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
-              channelAddress: generalChannel.address,
+              channelAddress: generalChannelAddress,
               signature: '',
               pubKey: ''
             },
@@ -87,7 +88,7 @@ describe('resetChannelCacheSaga', () => {
       'CacheMessages',
       {
         messages: messages,
-        channelAddress: generalChannel.address
+        channelAddress: generalChannelAddress
       }
     )
 
@@ -106,12 +107,12 @@ describe('resetChannelCacheSaga', () => {
       .put(
         publicChannelsActions.cacheMessages({
           messages: updatedCache,
-          channelAddress: generalChannel.address
+          channelAddress: generalChannelAddress
         })
       )
       .put(
         messagesActions.setDisplayedMessagesNumber({
-          channelAddress: generalChannel.address,
+          channelAddress: generalChannelAddress,
           display: 50
         })
       )

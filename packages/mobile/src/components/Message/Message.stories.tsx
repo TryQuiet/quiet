@@ -60,7 +60,7 @@ storiesOf('Message', module)
     />
   )
 })
-.add('Valid inline Latex expression', () => {
+.add('ValidInlineLatexExpression', () => {
   return (
     <Message
       data={[
@@ -76,7 +76,7 @@ storiesOf('Message', module)
     />
   )
 })
-.add('Invalid Latex expression', () => {
+.add('InvalidLatexExpression', () => {
   return (
     <Message
       data={[

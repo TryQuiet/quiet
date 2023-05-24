@@ -7,6 +7,7 @@ export interface PublicChannel {
   owner: string
   timestamp: number
   address: string
+  disabled?: boolean
 }
 
 export interface PublicChannelStorage extends PublicChannel {
@@ -16,7 +17,7 @@ export interface PublicChannelStorage extends PublicChannel {
 export interface PublicChannelStatus {
   address: string
   unread: boolean
-  newestMessage: ChannelMessage
+  newestMessage: ChannelMessage | null
 }
 
 export interface PublicChannelSubscription {
@@ -43,6 +44,10 @@ export interface DisplayableMessage {
   date: string // displayable
   nickname: string
   media?: FileMetadata
+}
+
+export interface MessagesGroupsType {
+  [date: string]: DisplayableMessage[]
 }
 
 export interface MessagesDailyGroups {
@@ -117,6 +122,10 @@ export interface DeleteChannelFromStorePayload {
 }
 
 export interface ClearMessagesCachePayload {
+  channelAddress: string
+}
+
+export interface DisableChannelPayload {
   channelAddress: string
 }
 

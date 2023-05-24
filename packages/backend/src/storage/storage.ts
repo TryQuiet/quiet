@@ -779,7 +779,7 @@ export class Storage extends EventEmitter {
     for (const cert of certificates) {
       const parsedCert = parseCertificate(cert)
       const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
-      if (certUsername?.localeCompare(username, undefined, { sensitivity: 'base' }) === 0) {
+      if (certUsername?.localeCompare(username, 'en', { sensitivity: 'base' }) === 0) {
         return cert
       }
     }

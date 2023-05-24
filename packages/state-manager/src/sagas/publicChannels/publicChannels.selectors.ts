@@ -10,13 +10,8 @@ import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
-import {
-  DisplayableMessage,
-  MessagesDailyGroups,
-  PublicChannel,
-  PublicChannelStatus
-} from './publicChannels.types'
-import { MessageType } from '../messages/messages.types'
+import { isDefined } from '@quiet/common'
+import { ChannelMessage, DisplayableMessage, MessageType, MessagesDailyGroups, MessagesGroupsType, PublicChannel, PublicChannelStatus } from '@quiet/types'
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
   state[StoreKeys.PublicChannels]
@@ -47,6 +42,10 @@ export const subscribedChannels = createSelector(
 // Serves for testing purposes only
 export const selectGeneralChannel = createSelector(selectChannels, channels => {
   const draft = channels.find(item => item.address === 'general')
+  if (!draft) {
+    console.error('No general channel')
+    return
+  }
   const channel: PublicChannel = {
     name: draft.name,
     description: draft.description,
@@ -89,7 +88,7 @@ export const sortedChannels = createSelector(publicChannels, (channels) => {
 export const currentChannelAddress = createSelector(
   selectState,
   (state) => {
-    if (!state) return undefined
+    if (!state) return ''
     return state.currentChannelAddress
   }
 )
@@ -177,7 +176,7 @@ export const displayableCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
   certificatesMapping,
   (messages, certificates) => {
-    return messages.reduce((result, message) => {
+    return messages.reduce((result: DisplayableMessage[], message: ChannelMessage) => {
       const user = certificates[message.pubKey]
       if (user) {
         result.push(displayableMessage(message, user.username))
@@ -197,7 +196,7 @@ export const currentChannelMessagesCount = createSelector(
 export const dailyGroupedCurrentChannelMessages = createSelector(
   displayableCurrentChannelMessages,
   messages => {
-    const result: { [date: string]: DisplayableMessage[] } = messages.reduce((groups, message) => {
+    const result: MessagesGroupsType = messages.reduce((groups: MessagesGroupsType, message: DisplayableMessage) => {
       const date = formatMessageDisplayDay(message.date)
 
       if (!groups[date]) {
@@ -217,12 +216,17 @@ export const currentChannelMessagesMergedBySender = createSelector(
   groups => {
     const result: MessagesDailyGroups = {}
     for (const day in groups) {
-      result[day] = groups[day].reduce((merged, message) => {
+      result[day] = groups[day].reduce((merged: DisplayableMessage[][], message: DisplayableMessage) => {
         // Get last item from collected array for comparison
-        const last = merged.length && merged[merged.length - 1][0]
+        if (!merged.length) {
+          merged.push([message])
+          return merged
+        }
+        const index = merged.length && merged.length - 1
+        const last = merged[index][0]
 
         if (last.nickname === message.nickname && message.createdAt - last.createdAt < 300 && message.type !== MessageType.Info && last.type !== MessageType.Info) {
-          merged[merged.length - 1].push(message)
+          merged[index].push(message)
         } else {
           merged.push([message])
         }
@@ -238,7 +242,7 @@ export const currentChannelMessagesMergedBySender = createSelector(
 export const channelsStatus = createSelector(
   selectState,
   state => {
-    if (!state || !state.channelsStatus) return {}
+    if (!state?.channelsStatus) return {}
     return publicChannelsStatusAdapter
       .getSelectors()
       .selectEntities(state.channelsStatus)
@@ -248,19 +252,26 @@ export const channelsStatus = createSelector(
 export const channelsStatusSorted = createSelector(
   selectState,
   state => {
-    if (!state || !state.channelsStatus) return []
+    if (!state?.channelsStatus) return []
     const statuses = publicChannelsStatusAdapter
       .getSelectors()
       .selectAll(state.channelsStatus)
 
-    return statuses.sort((a, b) => a.newestMessage?.createdAt - b.newestMessage?.createdAt).reverse()
+    return statuses.sort((a, b) => {
+      const aCreatedAt = a.newestMessage?.createdAt
+      const bCreatedAt = b.newestMessage?.createdAt
+      if (!aCreatedAt && !bCreatedAt) return 0
+      if (!aCreatedAt) return -1
+      if (!bCreatedAt) return 1
+      return aCreatedAt - bCreatedAt
+    }).reverse()
   }
 )
 
 export const unreadChannels = createSelector(
   channelsStatus,
   status => {
-    return Object.values(status).reduce((result: string[], channel: PublicChannelStatus) => {
+    return Object.values(status).filter(isDefined).reduce((result: string[], channel: PublicChannelStatus) => {
       if (channel.unread) {
         result.push(channel.address)
       }

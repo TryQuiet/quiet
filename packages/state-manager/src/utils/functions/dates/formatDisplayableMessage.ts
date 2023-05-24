@@ -1,4 +1,4 @@
-import { DisplayableMessage, ChannelMessage } from '../../../sagas/publicChannels/publicChannels.types'
+import { ChannelMessage, DisplayableMessage } from '@quiet/types'
 import { formatMessageDisplayDate } from './formatMessageDisplayDate'
 
 export const displayableMessage = (message: ChannelMessage, nickname: string): DisplayableMessage => {

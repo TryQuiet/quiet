@@ -1,19 +1,18 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory, MessageType, PublicChannel, WriteMessagePayload } from '../../..'
+import { getFactory } from '../../..'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from '../publicChannels.slice'
-import { Identity } from '../../identity/identity.types'
 import { identityActions } from '../../identity/identity.slice'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
-import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { channelDeletionResponseSaga } from './channelDeletionResponse.saga'
+import { Community, Identity, PublicChannel } from '@quiet/types'
 
 describe('channelDeletionResponseSaga', () => {
   let store: Store
@@ -22,7 +21,6 @@ describe('channelDeletionResponseSaga', () => {
   let community: Community
   let owner: Identity
 
-  let generalChannel: PublicChannel
   let photoChannel: PublicChannel
 
   beforeAll(async () => {
@@ -39,8 +37,6 @@ describe('channelDeletionResponseSaga', () => {
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
-
-    generalChannel = publicChannelsSelectors.currentChannel(store.getState())
 
     photoChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
@@ -105,7 +101,7 @@ describe('channelDeletionResponseSaga', () => {
 
   describe('handle saga logic as standard user', () => {
     beforeAll(async () => {
-      store.dispatch(communitiesActions.updateCommunityData({ ...community, CA: '' }))
+      store.dispatch(communitiesActions.updateCommunityData({ ...community, CA: null }))
     })
     test('delete standard channel', async () => {
       const channelAddress = photoChannel.address

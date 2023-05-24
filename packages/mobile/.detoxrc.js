@@ -13,16 +13,24 @@ module.exports = {
     'android.debug': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/standard/debug/app-standard-debug.apk',
-      build: 'cd android && ENVFILE=../.env.production ./gradlew assembleStandardDebug assembleStandardDebugAndroidTest -DtestBuildType=debug',
+      build: 'cd android && ENVFILE=../.env.development ./gradlew assembleStandardDebug assembleStandardDebugAndroidTest -DtestBuildType=debug',
       reversePorts: [
         8081
       ]
     },
-    // 'android.release': {
-    //   type: 'android.apk',
-    //   binaryPath: 'android/app/build/outputs/apk/release/app-release.apk',
-    //   build: 'cd android && ./gradlew assembleRelease assembleAndroidTest -DtestBuildType=release'
-    // }
+    'android.storybook': {
+      type: 'android.apk',
+      binaryPath: 'android/app/build/outputs/apk/storybook/debug/app-storybook-debug.apk',
+      build: 'cd android && ENVFILE=../.env.storybook ./gradlew assembleStorybookDebug assembleStorybookDebugAndroidTest -DtestBuildType=debug',
+      reversePorts: [
+        8082
+      ]
+    },
+    'android.release': {
+      type: 'android.apk',
+      binaryPath: 'android/app/build/outputs/apk/standard/release/app-standard-release.apk',
+      build: 'cd android && ENVFILE=../.env.production ./gradlew assembleStandardRelease assembleStandardReleaseAndroidTest -DtestBuildType=release'
+    }
   },
   devices: {
     simulator: {
@@ -40,7 +48,7 @@ module.exports = {
     emulator: {
       type: 'android.emulator',
       device: {
-        avdName: 'Pixel_3a_API_30_x86'
+        avdName: 'emulator'
       }
     }
   },
@@ -57,6 +65,10 @@ module.exports = {
       device: 'attached',
       app: 'android.debug'
     },
+    'android.att.storybook': {
+      device: 'attached',
+      app: 'android.storybook'
+    },
     'android.att.release': {
       device: 'attached',
       app: 'android.release'
@@ -64,6 +76,10 @@ module.exports = {
     'android.emu.debug': {
       device: 'emulator',
       app: 'android.debug'
+    },
+    'android.emu.storybook': {
+      device: 'emulator',
+      app: 'android.storybook'
     },
     'android.emu.release': {
       device: 'emulator',

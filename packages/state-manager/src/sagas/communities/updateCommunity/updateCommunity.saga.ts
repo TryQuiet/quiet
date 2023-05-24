@@ -9,6 +9,10 @@ export function* updateCommunitySaga(
   const rootCa = loadCertificate(action.payload.rootCa)
 
   const communityName = yield* call(getCertFieldValue, rootCa, CertFieldsTypes.commonName)
+  if (!communityName) {
+    console.error(`Could not retrieve ${CertFieldsTypes.commonName} from rootca`)
+    return
+  }
 
   const payload = {
     id: action.payload.id,

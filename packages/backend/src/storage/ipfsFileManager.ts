@@ -147,6 +147,9 @@ export class IpfsFilesManager extends EventEmitter {
     public async uploadFile(metadata: FileMetadata) {
         let width: number | undefined
         let height: number | undefined
+        if (!metadata.path) {
+            throw new Error(`File metadata (cid ${metadata.cid}) does not contain path`)
+        }
         if (imagesExtensions.includes(metadata.ext)) {
             let imageSize: { width: number | undefined; height: number | undefined } | undefined // ISizeCalculationResult
             try {

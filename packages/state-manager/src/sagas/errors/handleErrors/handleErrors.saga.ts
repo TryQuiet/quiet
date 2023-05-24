@@ -5,15 +5,17 @@ import { communitiesActions } from '../../communities/communities.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { identityActions } from '../../identity/identity.slice'
 import { errorsActions } from '../errors.slice'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { ErrorCodes, ErrorPayload } from '../errors.types'
-import { RegisterCertificatePayload } from '../../identity/identity.types'
 import logger from '../../../utils/logger'
+import { RegisterCertificatePayload, ErrorPayload, ErrorCodes, SocketActionTypes } from '@quiet/types'
 
 const log = logger('errors')
 
 export function* retryRegistration(communityId: string) {
   const identity = yield* select(identitySelectors.selectById(communityId))
+  if (!identity?.userCsr) {
+    console.error('Error retrying registration. Lacking identity data')
+    return
+  }
 
   const payload: RegisterCertificatePayload = {
     communityId: communityId,
@@ -38,6 +40,10 @@ export function* handleErrorsSaga(
       error.code === ErrorCodes.SERVER_ERROR ||
       error.code === ErrorCodes.SERVICE_UNAVAILABLE
     ) {
+      if (!error.community) {
+        console.error(`Received error ${error} without community`)
+        return
+      }
       // Leave for integration test assertions purposes
       const registrationAttempts = yield* select(
         communitiesSelectors.registrationAttempts(error.community)

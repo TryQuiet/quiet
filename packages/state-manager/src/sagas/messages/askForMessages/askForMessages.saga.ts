@@ -1,8 +1,8 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { Socket, applyEmitParams } from '../../../types'
 import { apply } from 'typed-redux-saga'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { messagesActions } from '../messages.slice'
+import { SocketActionTypes } from '@quiet/types'
 
 export function* askForMessagesSaga(
   socket: Socket,

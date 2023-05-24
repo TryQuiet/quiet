@@ -265,7 +265,7 @@ describe('Certificate', () => {
 
     await storage.saveCertificate({ certificate: userCertificate.userCertString, rootPermsData })
 
-    for (const username of ['alice', 'Alice', 'Ąlice']) {
+    for (const username of ['alice', 'Alice', 'Ąlicę', 'álicẽ']) {
       const usernameCert = storage.usernameCert(username)
       expect(usernameCert).toEqual(userCertificate.userCertString)
     }

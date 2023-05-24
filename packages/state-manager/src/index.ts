@@ -49,6 +49,11 @@ import { filesActions, filesReducer } from './sagas/files/files.slice'
 import { filesSelectors } from './sagas/files/files.selectors'
 import { networkActions, networkReducer } from './sagas/network/network.slice'
 import { networkSelectors } from './sagas/network/network.selectors'
+
+// Workaround for "The inferred type of '(...)' cannot be named without a reference to
+// 'packages/identity/node_modules/pkijs/build'. This is likely not portable. A type annotation is necessary."
+// https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
+import type {} from 'pkijs'
 export { LoadingPanelType } from './sagas/network/network.types'
 export { SocketActionTypes } from './sagas/socket/const/actionTypes'
 export { Store } from './sagas/store.types'
@@ -61,7 +66,7 @@ export { useIO } from './sagas/socket/startConnection/startConnection.saga'
 export { getFactory } from './utils/tests/factories'
 export * from './utils/tests/helpers'
 
-export { Community } from './sagas/communities/communities.slice'
+export { Community } from './sagas/communities/communities.slice' // TODO: remove after setting strict in 'desktop' and 'mobile' packages
 
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
 export { certificatesAdapter } from './sagas/users/users.adapter'
