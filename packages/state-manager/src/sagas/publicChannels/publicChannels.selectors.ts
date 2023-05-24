@@ -19,7 +19,9 @@ import {
   MessagesGroupsType,
   PublicChannel,
   PublicChannelStatus,
-  INITIAL_CURRENT_CHANNEL_ID
+  INITIAL_CURRENT_CHANNEL_ID,
+  PublicChannelStatusWithName,
+  PublicChannelStorage
 } from '@quiet/types'
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
@@ -96,7 +98,6 @@ export const generalChannel = createSelector(publicChannels, publicChannelsSelec
 })
 
 export const currentChannelId = createSelector(selectState, generalChannel, (state, general) => {
-  // KACPER - test for it - IMPORTANT !!!!
   if (!state) {
     return undefined
   }
@@ -283,6 +284,32 @@ export const unreadChannels = createSelector(channelsStatus, status => {
     }, [])
 })
 
+export const channelsStatusWithName = createSelector(
+  publicChannels,
+  channelsStatusSorted,
+  (publicChannelsSelector, channelsStatusSelector) => {
+    const channels = channelsStatusSelector.reduce(
+      (prev: PublicChannelStatusWithName[], curr: PublicChannelStatus) => {
+        const channel: PublicChannelStorage | undefined = publicChannelsSelector.find(channel =>
+          curr.id.includes(channel.name)
+        )
+        if (!channel?.name) return []
+        const name = channel.name
+        return [
+          ...prev,
+          {
+            ...curr,
+            name
+          }
+        ]
+      },
+      []
+    )
+
+    return channels
+  }
+)
+
 export const publicChannelsSelectors = {
   publicChannels,
   subscribedChannels,
@@ -302,5 +329,6 @@ export const publicChannelsSelectors = {
   dynamicSearchedChannels,
   sortedChannels,
   pendingGeneralChannelRecreation,
-  generalChannel
+  generalChannel,
+  channelsStatusWithName
 }

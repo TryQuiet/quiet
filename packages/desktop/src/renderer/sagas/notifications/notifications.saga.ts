@@ -156,7 +156,6 @@ function subscribeNotificationEvents(
         const [browserWindow] = remote.BrowserWindow.getAllWindows()
         browserWindow.show()
         // Emit store action
-        // KACPER
         emit(publicChannels.actions.setCurrentChannel({ channelId: channel }))
       }
     }

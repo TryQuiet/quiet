@@ -1,7 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory, messages, publicChannels } from '../../..'
+import { generateMessageFactoryContentWithId, getFactory, messages, publicChannels } from '../../..'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
@@ -188,15 +188,7 @@ describe('channelsReplicatedSaga', () => {
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: alice,
-      message: {
-        id: (Math.random() * 10 ** 18).toString(36),
-        type: MessageType.Basic,
-        message: (Math.random() * 10 ** 18).toString(36),
-        createdAt: DateTime.utc().valueOf(),
-        channelId: generalChannel.id,
-        signature: '',
-        pubKey: ''
-      }
+      message: generateMessageFactoryContentWithId(generalChannel.id)
     })
 
     store.dispatch(
@@ -227,15 +219,7 @@ describe('channelsReplicatedSaga', () => {
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: alice,
-      message: {
-        id: (Math.random() * 10 ** 18).toString(36),
-        type: MessageType.Basic,
-        message: (Math.random() * 10 ** 18).toString(36),
-        createdAt: DateTime.utc().valueOf(),
-        channelId: generalChannel.id,
-        signature: '',
-        pubKey: ''
-      }
+      message: generateMessageFactoryContentWithId(generalChannel.id)
     })
 
     const reducer = combineReducers(reducers)

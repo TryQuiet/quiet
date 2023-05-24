@@ -33,20 +33,10 @@ export const ChannelListScreen: FC = () => {
   )
 
   const community = useSelector(communities.selectors.currentCommunity)
-  const channelsStatusSortedSelector = useSelector(publicChannels.selectors.channelsStatusSorted)
-  const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
 
-  const channels = channelsStatusSortedSelector.reduce((prev, curr) => {
-    return [
-      ...prev,
-      {
-        ...curr,
-        name: publicChannelsSelector.find(channel => curr.id.includes(channel.name)).name
-      }
-    ]
-  }, [])
+  const channelsStatusWithName = useSelector(publicChannels.selectors.channelsStatusWithName)
 
-  const tiles = channels.map(status => {
+  const tiles = channelsStatusWithName.map(status => {
     const newestMessage = status.newestMessage
 
     const message = newestMessage?.message || '...'

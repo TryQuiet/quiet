@@ -33,7 +33,8 @@ import {
   SendMessagePayload,
   MessageVerificationStatus,
   network,
-  connection
+  connection,
+  generateMessageFactoryContentWithId
 } from '@quiet/state-manager'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -359,15 +360,7 @@ describe('Channel', () => {
       'Message',
       {
         identity: alice,
-        message: {
-          id: Math.random().toString(36).substr(2.9),
-          type: MessageType.Basic,
-          message: 'message',
-          createdAt: DateTime.utc().valueOf(),
-          channelId: generalId,
-          signature: '',
-          pubKey: ''
-        },
+        message: generateMessageFactoryContentWithId(generalId),
         verifyAutomatically: true
       }
     )

@@ -16,7 +16,24 @@ import {
   keyObjectFromString,
   verifySignature
 } from '@quiet/identity'
-import { MessageType, SendingStatus } from '@quiet/types'
+import { ChannelMessage, FileMetadata, MessageType, SendingStatus } from '@quiet/types'
+
+export const generateMessageFactoryContentWithId = (
+  channelId: string,
+  type?: MessageType,
+  media?: FileMetadata
+): ChannelMessage => {
+  return {
+    id: (Math.random() * 10 ** 18).toString(36),
+    type: type || MessageType.Basic,
+    message: (Math.random() * 10 ** 18).toString(36),
+    createdAt: DateTime.utc().valueOf(),
+    channelId: channelId,
+    signature: '',
+    pubKey: '',
+    media: media || undefined
+  }
+}
 
 export const getFactory = async (store: Store) => {
   // @ts-ignore

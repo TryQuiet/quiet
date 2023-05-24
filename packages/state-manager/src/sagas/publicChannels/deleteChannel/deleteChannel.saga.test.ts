@@ -67,13 +67,9 @@ describe('deleteChannelSaga', () => {
   test('delete standard channel', async () => {
     console.log({ generalChannel })
     const channelId = photoChannel.id
-
+    store.dispatch(publicChannelsActions.setCurrentChannel({ channelId }))
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      deleteChannelSaga,
-      socket,
-      publicChannelsActions.deleteChannel({ channelId })
-    )
+    await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
       .withReducer(reducer)
       .withState(store.getState())
       .apply(socket, socket.emit, [
@@ -91,11 +87,7 @@ describe('deleteChannelSaga', () => {
     const channelId = generalChannel.id
 
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      deleteChannelSaga,
-      socket,
-      publicChannelsActions.deleteChannel({ channelId })
-    )
+    await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
       .withReducer(reducer)
       .withState(store.getState())
       .apply(socket, socket.emit, [

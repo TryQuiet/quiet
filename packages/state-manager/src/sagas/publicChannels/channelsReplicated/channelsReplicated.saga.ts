@@ -24,7 +24,6 @@ export function* channelsReplicatedSaga(
   const databaseStoredChannelsIds = databaseStoredChannels.map(channel => channel.id)
   console.log({ locallyStoredChannels, databaseStoredChannelsIds })
   // Upserting channels to local storage
-  // KACPER!!!
   for (const channel of databaseStoredChannels) {
     if (!locallyStoredChannels.includes(channel.id)) {
       log(`ADDING #${channel.name} TO LOCAL STORAGE`)

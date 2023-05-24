@@ -24,7 +24,8 @@ import {
   SocketActionTypes,
   MessageType,
   ChannelMessage,
-  messages
+  messages,
+  generateMessageFactoryContentWithId
 } from '@quiet/state-manager'
 
 import { FactoryGirl } from 'factory-girl'
@@ -110,17 +111,7 @@ describe('Switch channels', () => {
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: alice,
-
-      message: {
-        id: (Math.random() * 10 ** 18).toString(36),
-        type: MessageType.Basic,
-        message: (Math.random() * 10 ** 18).toString(36),
-        createdAt: DateTime.utc().valueOf(),
-        channelId: generalId,
-        signature: '',
-        pubKey: ''
-      },
-
+      message: generateMessageFactoryContentWithId(generalId),
       verifyAutomatically: true
     })
 

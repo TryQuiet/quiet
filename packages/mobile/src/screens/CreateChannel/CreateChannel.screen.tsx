@@ -16,14 +16,11 @@ import { navigationSelectors } from '../../store/navigation/navigation.selectors
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { generateChannelId } from '@quiet/common'
+import { ChannelStructure } from '@quiet/types'
 
 export const CreateChannelScreen: FC = () => {
   const dispatch = useDispatch()
 
-  interface ChannelStructure {
-    channelName: string | null
-    channelId: string | null
-  }
   const [channel, setChannel] = useState<ChannelStructure>({
     channelId: null,
     channelName: null

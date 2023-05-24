@@ -22,6 +22,10 @@ export interface PublicChannelStatus {
   newestMessage: ChannelMessage | null
 }
 
+export interface PublicChannelStatusWithName extends PublicChannelStatus {
+  name: string
+}
+
 export interface PublicChannelSubscription {
   id: string
   subscribed: boolean
@@ -129,6 +133,11 @@ export interface ClearMessagesCachePayload {
 
 export interface DisableChannelPayload {
   channelId: string
+}
+
+export interface ChannelStructure {
+  channelName: string | null
+  channelId: string | null
 }
 
 export function instanceOfChannelMessage(object: any): object is ChannelMessage {

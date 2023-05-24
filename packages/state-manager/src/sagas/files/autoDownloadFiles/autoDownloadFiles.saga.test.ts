@@ -1,6 +1,6 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, publicChannels } from '../../..'
+import { generateMessageFactoryContentWithId, getFactory, publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -203,16 +203,7 @@ describe('downloadFileSaga', () => {
         'Message',
         {
           identity: alice,
-          message: {
-            id: id,
-            type: MessageType.File,
-            message: '',
-            createdAt: DateTime.utc().valueOf(),
-            channelId: generalChannel.id,
-            signature: '',
-            pubKey: '',
-            media: media
-          }
+          message: generateMessageFactoryContentWithId(generalChannel.id),
         }
       )
     ).message
@@ -264,16 +255,7 @@ describe('downloadFileSaga', () => {
         'Message',
         {
           identity: alice,
-          message: {
-            id: id,
-            type: MessageType.File,
-            message: '',
-            createdAt: DateTime.utc().valueOf(),
-            channelId: generalChannel.id,
-            signature: '',
-            pubKey: '',
-            media: media
-          }
+          message: generateMessageFactoryContentWithId(generalChannel.id),
         }
       )
     ).message

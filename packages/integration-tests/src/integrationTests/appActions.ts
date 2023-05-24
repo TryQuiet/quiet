@@ -247,7 +247,7 @@ export async function sendMessage(
 
   log(message, 'sendMessage')
   const communityId = store.getState().Communities.communities.ids[0]
-//  KACPER
+
   if (channelName) {
     store.dispatch(
       publicChannels.actions.setCurrentChannel({

@@ -15,6 +15,7 @@ export function* deleteChannelSaga(
 ): Generator {
   const channelId = action.payload.channelId
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
+  const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
   if (generalChannel === undefined) {
     return
   }
@@ -33,7 +34,9 @@ export function* deleteChannelSaga(
   yield* put(filesActions.deleteFilesFromChannel({ channelId }))
 
   if (!isGeneral) {
-    yield* put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
+    if (currentChannelId === channelId) {
+      yield* put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
+    }
     yield* put(publicChannelsActions.disableChannel({ channelId }))
   }
 }

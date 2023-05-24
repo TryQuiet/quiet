@@ -15,6 +15,9 @@ import { channelDeletionResponseSaga } from './channelDeletionResponse.saga'
 import { generateChannelId } from '@quiet/common'
 import { Community, Identity, PublicChannel } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
+import { select } from 'redux-saga-test-plan/matchers'
+
+const provideDelay = ({ fn }: any, next: () => any) => (fn.name === 'delayP' ? null : next())
 
 describe('channelDeletionResponseSaga', () => {
   let store: Store
@@ -97,9 +100,7 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.clearMessagesCache({ channelId }))
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
-        .provide({
-          call: (effect, next) => {}
-        })
+        .provide([{ call: provideDelay }])
         .put(publicChannelsActions.createGeneralChannel())
 
         .run()
@@ -144,10 +145,20 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.clearMessagesCache({ channelId }))
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
-        .provide({
-          call: (effect, next) => {}
-        })
-        // here should be also put setCurrentChannel to new general channel
+        .provide([
+          { call: provideDelay },
+          [
+            select(publicChannelsSelectors.generalChannel),
+            {
+              name: 'general',
+              description: 'general_description',
+              owner: 'general_owner',
+              timestamp: 'general_timestamp',
+              id: channelId
+            }
+          ]
+        ])
+        .put(publicChannelsActions.setCurrentChannel({ channelId: channelId }))
         .run()
     })
   })

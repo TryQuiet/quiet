@@ -10,7 +10,7 @@ import { navigationSelectors } from '../../store/navigation/navigation.selectors
 export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
-  const { channel: channelName } = route.params
+  const { channelName, channelId } = route.params
 
   const channels = useSelector(publicChannels.selectors.publicChannels)
 
@@ -25,10 +25,9 @@ export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => 
   }, [dispatch, screen, channels])
 
   const deleteChannel = useCallback(() => {
-    const deletedChannel = channels.find((channel) => channel.name === channelName)
     dispatch(
       publicChannels.actions.deleteChannel({
-        channelId: deletedChannel.id
+        channelId
       })
     )
   }, [dispatch, channels, channelName])

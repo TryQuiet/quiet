@@ -249,12 +249,6 @@ export class Storage extends EventEmitter {
     })
   }
 
-  private async migrateChannelsDb() {
-    // if owner migrateChannelsDb
-    // do it only once
-    // if new channel db has general return and do nothing
-  }
-
   private async createDbForChannels() {
     log('createDbForChannels init')
     this.channels = await this.orbitdb.keyvalue<PublicChannel>('public-channels', {
@@ -556,7 +550,7 @@ export class Storage extends EventEmitter {
     log(`Set ${channelId} to local channels`)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await db.load({ fetchEntryTimeout: 2000, })
-    log(`Created channel ${data.id}`)
+    log(`Created channel ${channelId}`)
     return db
   }
 

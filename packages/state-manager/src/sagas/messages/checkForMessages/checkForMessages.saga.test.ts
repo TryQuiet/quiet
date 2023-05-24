@@ -1,6 +1,6 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, publicChannels } from '../../..'
+import { generateMessageFactoryContentWithId, getFactory, publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { messagesActions } from './../messages.slice'
 import { communitiesActions } from '../../communities/communities.slice'
@@ -9,9 +9,8 @@ import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import { checkForMessagesSaga } from './checkForMessages.saga'
-import { DateTime } from 'luxon'
 import { selectGeneralChannel } from '../../publicChannels/publicChannels.selectors'
-import { Community, Identity, MessageType, PublicChannel } from '@quiet/types'
+import { Community, Identity, PublicChannel } from '@quiet/types'
 
 describe('checkForMessagesSaga', () => {
   let store: Store
@@ -55,15 +54,7 @@ describe('checkForMessagesSaga', () => {
         'Message',
         {
           identity: alice,
-          message: {
-            id: Math.random().toString(36).substr(2.9),
-            type: MessageType.Basic,
-            message: 'message',
-            createdAt: DateTime.utc().valueOf(),
-            channelId: generalChannel.id,
-            signature: '',
-            pubKey: ''
-          },
+          message: generateMessageFactoryContentWithId(generalChannel.id),
           verifyAutomatically: true
         }
       )
