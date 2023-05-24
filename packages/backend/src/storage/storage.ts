@@ -269,7 +269,6 @@ export class Storage extends EventEmitter {
     })
 
     this.channels.events.on('replicated', async () => {
-
       log('REPLICATED: Channels')
       this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_REPLICATED)
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
@@ -280,7 +279,7 @@ export class Storage extends EventEmitter {
       })
 
       const keyValueChannels: {
-        [key: string]: PublicChannel,
+        [key: string]: PublicChannel
       } = {}
 
       channels.forEach(channel => {

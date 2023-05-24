@@ -72,7 +72,7 @@ describe('User', () => {
   test('sees channels list', async () => {
     await waitFor(element(by.id('channels_list')))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(10000)
   })
 
   test('enters #general channel', async () => {

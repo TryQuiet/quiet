@@ -622,7 +622,7 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: DeleteFilesFromChannelSocketPayload) => {
       log('DELETE_FILES_FROM_CHANNEL : payload', payload)
       await this.deleteFilesFromChannel(payload)
-      await this.deleteFilesFromTemporaryDir()
+      // await this.deleteFilesFromTemporaryDir() //crashes on mobile, will be fixes in next versions
     })
   }
 
