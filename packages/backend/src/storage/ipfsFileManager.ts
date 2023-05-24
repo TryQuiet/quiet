@@ -107,7 +107,6 @@ export class IpfsFilesManager extends EventEmitter {
 
         try {
             const result = await this.ipfs.pin.rm(fileMetadata.cid, { recursive: true })
-
         } catch (e) {
             console.log('file removing error')
             console.log(e)
@@ -164,7 +163,7 @@ export class IpfsFilesManager extends EventEmitter {
 
         const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
         const uploadedFileStreamIterable = {
-            async*[Symbol.asyncIterator]() {
+            async* [Symbol.asyncIterator]() {
                 for await (const data of stream) {
                     yield data
                 }

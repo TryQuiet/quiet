@@ -555,7 +555,6 @@ export class Storage extends EventEmitter {
     console.log('hashes ', hashes)
     const gcresult = this.ipfs.repo.gc()
     for await (const res of gcresult) {
-
       // @ts-ignore
       const ccc = base58.base58btc.encode(res.cid?.multihash.bytes)
 
