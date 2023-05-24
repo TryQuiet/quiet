@@ -87,7 +87,7 @@ export class Storage extends EventEmitter {
     this.filesManager = new IpfsFilesManager(this.ipfs, this.quietDir)
     this.attachFileManagerEvents()
 
-    const channelsAccessController = createChannelAccessController(peerID)
+    const channelsAccessController = createChannelAccessController(peerID, this.orbitDbDir)
 
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
     AccessControllers.addAccessController({ AccessController: channelsAccessController })
@@ -269,7 +269,6 @@ export class Storage extends EventEmitter {
     })
 
     this.channels.events.on('replicated', async () => {
-
       log('REPLICATED: Channels')
       this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_REPLICATED)
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
@@ -280,7 +279,7 @@ export class Storage extends EventEmitter {
       })
 
       const keyValueChannels: {
-        [key: string]: PublicChannel,
+        [key: string]: PublicChannel
       } = {}
 
       channels.forEach(channel => {
@@ -297,7 +296,7 @@ export class Storage extends EventEmitter {
     })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.channels.load({ fetchEntryTimeout: 15000 })
+    await this.channels.load({ fetchEntryTimeout: 1000 })
     log('ALL CHANNELS COUNT:', Object.keys(this.channels.all).length)
     log('ALL CHANNELS COUNT:', Object.keys(this.channels.all))
     Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
@@ -556,19 +555,19 @@ export class Storage extends EventEmitter {
     this.publicChannelsRepos.set(channelId, { db, eventsAttached: false })
     log(`Set ${channelId} to local channels`)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await db.load({ fetchEntryTimeout: 2000 })
-    log(`Created channel ${channelId}`)
+    await db.load({ fetchEntryTimeout: 2000, })
+    log(`Created channel ${data.id}`)
     return db
   }
 
   public async deleteChannel(payload: { channelId: string }) {
-    const channelId = payload.channelId
-    log('deleteChannel:channelId', channelId)
+    console.log('deleting channel storage', payload)
+    const { channelId } = payload
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
     const channel = this.channels.get(channelId)
     if (channel) {
-      void this.channels.del(channelId)
+      await this.channels.del(channelId)
     }
     let repo = this.publicChannelsRepos.get(channelId)
     if (!repo) {
@@ -594,8 +593,8 @@ export class Storage extends EventEmitter {
     const files = allEntries.map((e) => {
       return e.payload.value.media
     }).filter(isDefined)
-    await this.deleteChannelFiles(files)
-    await this.deleteChannelMessages(hashes)
+    // await this.deleteChannelFiles(files)
+    // await this.deleteChannelMessages(hashes)
     this.publicChannelsRepos.delete(channelId)
     this.emit(StorageEvents.CHANNEL_DELETION_RESPONSE, payload)
   }
@@ -611,11 +610,20 @@ export class Storage extends EventEmitter {
   }
 
   public async deleteChannelMessages(hashes: CID[]) {
-    for await (const result of this.ipfs.block.rm(hashes)) {
-      if (result.error) {
-        console.error(`Failed to remove block ${result.cid} due to ${result.error.message}`)
-      }
+    console.log('hashes ', hashes)
+    const gcresult = this.ipfs.repo.gc()
+    for await (const res of gcresult) {
+      // @ts-ignore
+      // const ccc = base58.base58btc.encode(res.cid?.multihash.bytes)
+
+      // console.log('base58btc encoded', ccc)
+      // console.log('garbage collector result', res)
     }
+    // for await (const result of this.ipfs.block.rm(hashes)) {
+    //   if (result.error) {
+    //     console.error(`Failed to remove block ${result.cid} due to ${result.error.message}`)
+    //   }
+    // }
   }
 
   public async sendMessage(message: ChannelMessage) {
