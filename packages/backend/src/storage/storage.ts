@@ -87,7 +87,7 @@ export class Storage extends EventEmitter {
     this.filesManager = new IpfsFilesManager(this.ipfs, this.quietDir)
     this.attachFileManagerEvents()
 
-    const channelsAccessController = createChannelAccessController(peerID)
+    const channelsAccessController = createChannelAccessController(peerID, this.orbitDbDir)
 
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
     AccessControllers.addAccessController({ AccessController: channelsAccessController })
@@ -286,7 +286,7 @@ export class Storage extends EventEmitter {
     })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.channels.load({ fetchEntryTimeout: 15000 })
+    await this.channels.load({ fetchEntryTimeout: 1000 })
     log('ALL CHANNELS COUNT:', Object.keys(this.channels.all).length)
     log('ALL CHANNELS COUNT:', Object.keys(this.channels.all))
     Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
@@ -498,18 +498,18 @@ export class Storage extends EventEmitter {
     this.publicChannelsRepos.set(data.address, { db, eventsAttached: false })
     log(`Set ${data.address} to local channels`)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await db.load({ fetchEntryTimeout: 2000 })
+    await db.load({ fetchEntryTimeout: 2000, })
     log(`Created channel ${data.address}`)
     return db
   }
 
-  public async deleteChannel(payload: {channel: string}) {
+  public async deleteChannel(payload: { channel: string }) {
     console.log('deleting channel storage', payload)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
     const channel = this.channels.get(payload.channel)
     if (channel) {
-      void this.channels.del(payload.channel)
+      await this.channels.del(payload.channel)
     }
     let repo = this.publicChannelsRepos.get(payload.channel)
     if (!repo) {
@@ -535,8 +535,8 @@ export class Storage extends EventEmitter {
     const files = allEntries.map((e) => {
       return e.payload.value.media
     }).filter(isDefined)
-    await this.deleteChannelFiles(files)
-    await this.deleteChannelMessages(hashes)
+    // await this.deleteChannelFiles(files)
+    // await this.deleteChannelMessages(hashes)
     this.publicChannelsRepos.delete(payload.channel)
     this.emit(StorageEvents.CHANNEL_DELETION_RESPONSE, payload)
   }
@@ -552,11 +552,21 @@ export class Storage extends EventEmitter {
   }
 
   public async deleteChannelMessages(hashes: CID[]) {
-    for await (const result of this.ipfs.block.rm(hashes)) {
-      if (result.error) {
-        console.error(`Failed to remove block ${result.cid} due to ${result.error.message}`)
-      }
+    console.log('hashes ', hashes)
+    const gcresult = this.ipfs.repo.gc()
+    for await (const res of gcresult) {
+
+      // @ts-ignore
+      const ccc = base58.base58btc.encode(res.cid?.multihash.bytes)
+
+      console.log('base58btc encoded', ccc)
+      console.log('garbage collector result', res)
     }
+    // for await (const result of this.ipfs.block.rm(hashes)) {
+    //   if (result.error) {
+    //     console.error(`Failed to remove block ${result.cid} due to ${result.error.message}`)
+    //   }
+    // }
   }
 
   public async sendMessage(message: ChannelMessage) {

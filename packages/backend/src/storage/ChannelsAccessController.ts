@@ -3,21 +3,40 @@ import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
 import { ChannelMessage, PublicChannel } from '@quiet/types'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
-import { IdentityProvider } from 'orbit-db-identity-provider'
+import Identities from 'orbit-db-identity-provider'
+// import Keystore from 'orbit-db-keystore'
 import OrbitDB from 'orbit-db'
 import PeerId from 'peer-id'
 
+const Keystore = await import('orbit-db-keystore')
+
 const type = 'channelsaccess'
 
-export const createChannelAccessController = (peerId: PeerId) => {
+export const createChannelAccessController = (peerId: PeerId, dir: string) => {
   // @ts-ignore
   class ChannelsAccessController extends AccessController {
     static get type() {
       return type
     }
 
-    async canAppend(entry: LogEntry<PublicChannel>, identityProvider: IdentityProvider) {
-      // Channel deletion WIP
+    async canAppend(entry: LogEntry<PublicChannel>, identityProvider: any) {
+      console.log('can append entry ', entry)
+
+      // const keystore = identityProvider._keystore
+
+      // const stringPeerId = 'QmTBYqK1qTXW9E6os3vc9phR9JWRs1jUTutgpLEGJVtubY'
+
+      console.log('identityProvider', identityProvider)
+      // identityProvider.getId(peerId.toString())
+
+      // const identity = await Identities.createIdentity({
+      //   id: stringPeerId,
+      //   keystore
+      // })
+
+      // console.log('identity ', identity)
+
+      // console.log('access controller id ', identity)
 
       // console.log('peerId ', peerId.toString())
       // console.log('entry ', entry)
